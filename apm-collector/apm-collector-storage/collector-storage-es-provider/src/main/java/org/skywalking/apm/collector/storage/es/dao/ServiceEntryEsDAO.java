@@ -23,52 +23,51 @@ import java.util.Map;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.core.data.DataDefine;
 import org.skywalking.apm.collector.storage.dao.IServiceEntryDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
+import org.skywalking.apm.collector.storage.table.service.ServiceEntry;
 import org.skywalking.apm.collector.storage.table.service.ServiceEntryTable;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceEntryEsDAO extends EsDAO implements IServiceEntryDAO, IPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder> {
+public class ServiceEntryEsDAO extends EsDAO implements IServiceEntryDAO, IPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, ServiceEntry> {
 
-    @Override public Data get(String id, DataDefine dataDefine) {
+    @Override public ServiceEntry get(String id) {
         GetResponse getResponse = getClient().prepareGet(ServiceEntryTable.TABLE, id).get();
         if (getResponse.isExists()) {
-            Data data = dataDefine.build(id);
+            ServiceEntry serviceEntry = new ServiceEntry(id);
             Map<String, Object> source = getResponse.getSource();
-            data.setDataInteger(0, ((Number)source.get(ServiceEntryTable.COLUMN_APPLICATION_ID)).intValue());
-            data.setDataInteger(1, ((Number)source.get(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID)).intValue());
-            data.setDataString(1, (String)source.get(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME));
-            data.setDataLong(0, ((Number)source.get(ServiceEntryTable.COLUMN_REGISTER_TIME)).longValue());
-            data.setDataLong(1, ((Number)source.get(ServiceEntryTable.COLUMN_NEWEST_TIME)).longValue());
-            return data;
+            serviceEntry.setApplicationId(((Number)source.get(ServiceEntryTable.COLUMN_APPLICATION_ID)).intValue());
+            serviceEntry.setEntryServiceId(((Number)source.get(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID)).intValue());
+            serviceEntry.setEntryServiceName((String)source.get(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME));
+            serviceEntry.setRegisterTime(((Number)source.get(ServiceEntryTable.COLUMN_REGISTER_TIME)).longValue());
+            serviceEntry.setNewestTime(((Number)source.get(ServiceEntryTable.COLUMN_NEWEST_TIME)).longValue());
+            return serviceEntry;
         } else {
             return null;
         }
     }
 
-    @Override public IndexRequestBuilder prepareBatchInsert(Data data) {
+    @Override public IndexRequestBuilder prepareBatchInsert(ServiceEntry data) {
         Map<String, Object> source = new HashMap<>();
-        source.put(ServiceEntryTable.COLUMN_APPLICATION_ID, data.getDataInteger(0));
-        source.put(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID, data.getDataInteger(1));
-        source.put(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME, data.getDataString(1));
-        source.put(ServiceEntryTable.COLUMN_REGISTER_TIME, data.getDataLong(0));
-        source.put(ServiceEntryTable.COLUMN_NEWEST_TIME, data.getDataLong(1));
-        return getClient().prepareIndex(ServiceEntryTable.TABLE, data.getDataString(0)).setSource(source);
+        source.put(ServiceEntryTable.COLUMN_APPLICATION_ID, data.getApplicationId());
+        source.put(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID, data.getEntryServiceId());
+        source.put(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME, data.getEntryServiceName());
+        source.put(ServiceEntryTable.COLUMN_REGISTER_TIME, data.getRegisterTime());
+        source.put(ServiceEntryTable.COLUMN_NEWEST_TIME, data.getNewestTime());
+        return getClient().prepareIndex(ServiceEntryTable.TABLE, data.getId()).setSource(source);
     }
 
-    @Override public UpdateRequestBuilder prepareBatchUpdate(Data data) {
+    @Override public UpdateRequestBuilder prepareBatchUpdate(ServiceEntry data) {
         Map<String, Object> source = new HashMap<>();
-        source.put(ServiceEntryTable.COLUMN_APPLICATION_ID, data.getDataInteger(0));
-        source.put(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID, data.getDataInteger(1));
-        source.put(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME, data.getDataString(1));
-        source.put(ServiceEntryTable.COLUMN_REGISTER_TIME, data.getDataLong(0));
-        source.put(ServiceEntryTable.COLUMN_NEWEST_TIME, data.getDataLong(1));
+        source.put(ServiceEntryTable.COLUMN_APPLICATION_ID, data.getApplicationId());
+        source.put(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID, data.getEntryServiceId());
+        source.put(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME, data.getEntryServiceName());
+        source.put(ServiceEntryTable.COLUMN_REGISTER_TIME, data.getRegisterTime());
+        source.put(ServiceEntryTable.COLUMN_NEWEST_TIME, data.getNewestTime());
 
-        return getClient().prepareUpdate(ServiceEntryTable.TABLE, data.getDataString(0)).setDoc(source);
+        return getClient().prepareUpdate(ServiceEntryTable.TABLE, data.getId()).setDoc(source);
     }
 }

@@ -26,7 +26,7 @@ import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.dao.IApplicationDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
-import org.skywalking.apm.collector.storage.table.register.ApplicationDataDefine;
+import org.skywalking.apm.collector.storage.table.register.Application;
 import org.skywalking.apm.collector.storage.table.register.ApplicationTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,9 +49,9 @@ public class ApplicationH2DAO extends H2DAO implements IApplicationDAO {
 
     @Override
     public void save(Data data) {
-        String id = ApplicationDataDefine.Application.INSTANCE.getId(data);
-        int applicationId = ApplicationDataDefine.Application.INSTANCE.getApplicationId(data);
-        String applicationCode = ApplicationDataDefine.Application.INSTANCE.getApplicationCode(data);
+        String id = Application.Application.INSTANCE.getId(data);
+        int applicationId = Application.Application.INSTANCE.getApplicationId(data);
+        String applicationCode = Application.Application.INSTANCE.getApplicationCode(data);
         H2Client client = getClient();
 
         Map<String, Object> source = new HashMap<>();

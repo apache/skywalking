@@ -23,10 +23,9 @@ import java.util.Map;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.support.WriteRequest;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.dao.IServiceNameDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
-import org.skywalking.apm.collector.storage.table.register.ServiceNameDataDefine;
+import org.skywalking.apm.collector.storage.table.register.ServiceName;
 import org.skywalking.apm.collector.storage.table.register.ServiceNameTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,20 +45,15 @@ public class ServiceNameEsDAO extends EsDAO implements IServiceNameDAO {
         return getMinId(ServiceNameTable.TABLE, ServiceNameTable.COLUMN_SERVICE_ID);
     }
 
-    @Override public void save(Data data) {
-        String id = ServiceNameDataDefine.ServiceName.INSTANCE.getId(data);
-        int applicationId = ServiceNameDataDefine.ServiceName.INSTANCE.getApplicationId(data);
-        int serviceId = ServiceNameDataDefine.ServiceName.INSTANCE.getServiceId(data);
-        String serviceName = ServiceNameDataDefine.ServiceName.INSTANCE.getServiceName(data);
-
-        logger.debug("save service name register info, application id: {}, service name: {}", applicationId, serviceName);
+    @Override public void save(ServiceName serviceName) {
+        logger.debug("save service name register info, application getId: {}, service name: {}", serviceName.getId(), serviceName.getServiceName());
         ElasticSearchClient client = getClient();
         Map<String, Object> source = new HashMap<>();
-        source.put(ServiceNameTable.COLUMN_SERVICE_ID, serviceId);
-        source.put(ServiceNameTable.COLUMN_APPLICATION_ID, applicationId);
-        source.put(ServiceNameTable.COLUMN_SERVICE_NAME, serviceName);
+        source.put(ServiceNameTable.COLUMN_SERVICE_ID, serviceName.getServiceId());
+        source.put(ServiceNameTable.COLUMN_APPLICATION_ID, serviceName.getApplicationId());
+        source.put(ServiceNameTable.COLUMN_SERVICE_NAME, serviceName.getServiceName());
 
-        IndexResponse response = client.prepareIndex(ServiceNameTable.TABLE, id).setSource(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
-        logger.debug("save service name register info, application id: {}, service name: {}, status: {}", applicationId, serviceName, response.status().name());
+        IndexResponse response = client.prepareIndex(ServiceNameTable.TABLE, serviceName.getId()).setSource(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
+        logger.debug("save service name register info, application getId: {}, service name: {}, status: {}", serviceName.getId(), serviceName.getServiceName(), response.status().name());
     }
 }

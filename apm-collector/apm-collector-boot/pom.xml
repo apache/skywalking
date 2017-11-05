@@ -129,5 +129,12 @@
             <version>${project.version}</version>
         </dependency>
         <!-- queue provider -->
+        <!-- stream provider -->
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-stream-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- stream provider -->
     </dependencies>
 </project>

@@ -22,11 +22,10 @@ import java.util.HashMap;
 import java.util.Map;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.core.data.DataDefine;
 import org.skywalking.apm.collector.storage.dao.ISegmentCostDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
+import org.skywalking.apm.collector.storage.table.segment.SegmentCost;
 import org.skywalking.apm.collector.storage.table.segment.SegmentCostTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,30 +33,30 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public class SegmentCostEsDAO extends EsDAO implements ISegmentCostDAO, IPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder> {
+public class SegmentCostEsDAO extends EsDAO implements ISegmentCostDAO, IPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, SegmentCost> {
 
     private final Logger logger = LoggerFactory.getLogger(SegmentCostEsDAO.class);
 
-    @Override public Data get(String id, DataDefine dataDefine) {
+    @Override public SegmentCost get(String id) {
         return null;
     }
 
-    @Override public UpdateRequestBuilder prepareBatchUpdate(Data data) {
+    @Override public UpdateRequestBuilder prepareBatchUpdate(SegmentCost data) {
         return null;
     }
 
-    @Override public IndexRequestBuilder prepareBatchInsert(Data data) {
-        logger.debug("segment cost prepareBatchInsert, id: {}", data.getDataString(0));
+    @Override public IndexRequestBuilder prepareBatchInsert(SegmentCost data) {
+        logger.debug("segment cost prepareBatchInsert, getId: {}", data.getId());
         Map<String, Object> source = new HashMap<>();
-        source.put(SegmentCostTable.COLUMN_SEGMENT_ID, data.getDataString(1));
-        source.put(SegmentCostTable.COLUMN_APPLICATION_ID, data.getDataInteger(0));
-        source.put(SegmentCostTable.COLUMN_SERVICE_NAME, data.getDataString(2));
-        source.put(SegmentCostTable.COLUMN_COST, data.getDataLong(0));
-        source.put(SegmentCostTable.COLUMN_START_TIME, data.getDataLong(1));
-        source.put(SegmentCostTable.COLUMN_END_TIME, data.getDataLong(2));
-        source.put(SegmentCostTable.COLUMN_IS_ERROR, data.getDataBoolean(0));
-        source.put(SegmentCostTable.COLUMN_TIME_BUCKET, data.getDataLong(3));
+        source.put(SegmentCostTable.COLUMN_SEGMENT_ID, data.getSegmentId());
+        source.put(SegmentCostTable.COLUMN_APPLICATION_ID, data.getApplicationId());
+        source.put(SegmentCostTable.COLUMN_SERVICE_NAME, data.getServiceName());
+        source.put(SegmentCostTable.COLUMN_COST, data.getCost());
+        source.put(SegmentCostTable.COLUMN_START_TIME, data.getStartTime());
+        source.put(SegmentCostTable.COLUMN_END_TIME, data.getEndTime());
+        source.put(SegmentCostTable.COLUMN_IS_ERROR, data.getIsError());
+        source.put(SegmentCostTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
         logger.debug("segment cost source: {}", source.toString());
-        return getClient().prepareIndex(SegmentCostTable.TABLE, data.getDataString(0)).setSource(source);
+        return getClient().prepareIndex(SegmentCostTable.TABLE, data.getId()).setSource(source);
     }
 }

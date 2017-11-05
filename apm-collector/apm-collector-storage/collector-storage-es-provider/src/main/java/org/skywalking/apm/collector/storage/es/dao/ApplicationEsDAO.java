@@ -23,10 +23,9 @@ import java.util.Map;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.support.WriteRequest;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.dao.IApplicationDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
-import org.skywalking.apm.collector.storage.table.register.ApplicationDataDefine;
+import org.skywalking.apm.collector.storage.table.register.Application;
 import org.skywalking.apm.collector.storage.table.register.ApplicationTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,17 +45,14 @@ public class ApplicationEsDAO extends EsDAO implements IApplicationDAO {
         return getMinId(ApplicationTable.TABLE, ApplicationTable.COLUMN_APPLICATION_ID);
     }
 
-    @Override public void save(Data data) {
-        String id = ApplicationDataDefine.Application.INSTANCE.getId(data);
-        int applicationId = ApplicationDataDefine.Application.INSTANCE.getApplicationId(data);
-        String applicationCode = ApplicationDataDefine.Application.INSTANCE.getApplicationCode(data);
-        logger.debug("save application register info, application id: {}, application code: {}", applicationId, applicationCode);
+    @Override public void save(Application application) {
+        logger.debug("save application register info, application getId: {}, application code: {}", application.getId(), application.getApplicationCode());
         ElasticSearchClient client = getClient();
         Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationTable.COLUMN_APPLICATION_CODE, applicationCode);
-        source.put(ApplicationTable.COLUMN_APPLICATION_ID, applicationId);
+        source.put(ApplicationTable.COLUMN_APPLICATION_CODE, application.getApplicationCode());
+        source.put(ApplicationTable.COLUMN_APPLICATION_ID, application.getApplicationId());
 
-        IndexResponse response = client.prepareIndex(ApplicationTable.TABLE, id).setSource(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
-        logger.debug("save application register info, application id: {}, application code: {}, status: {}", applicationId, applicationCode, response.status().name());
+        IndexResponse response = client.prepareIndex(ApplicationTable.TABLE, application.getId()).setSource(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
+        logger.debug("save application register info, application getId: {}, application code: {}, status: {}", application.getApplicationId(), application.getApplicationCode(), response.status().name());
     }
 }

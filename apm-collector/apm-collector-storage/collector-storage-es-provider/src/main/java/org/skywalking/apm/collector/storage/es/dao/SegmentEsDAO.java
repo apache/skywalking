@@ -23,11 +23,10 @@ import java.util.HashMap;
 import java.util.Map;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.core.data.DataDefine;
 import org.skywalking.apm.collector.storage.dao.ISegmentDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
+import org.skywalking.apm.collector.storage.table.segment.Segment;
 import org.skywalking.apm.collector.storage.table.segment.SegmentTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,22 +34,22 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public class SegmentEsDAO extends EsDAO implements ISegmentDAO, IPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder> {
+public class SegmentEsDAO extends EsDAO implements ISegmentDAO, IPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, Segment> {
 
     private final Logger logger = LoggerFactory.getLogger(SegmentEsDAO.class);
 
-    @Override public Data get(String id, DataDefine dataDefine) {
+    @Override public Segment get(String id) {
         return null;
     }
 
-    @Override public UpdateRequestBuilder prepareBatchUpdate(Data data) {
+    @Override public UpdateRequestBuilder prepareBatchUpdate(Segment data) {
         return null;
     }
 
-    @Override public IndexRequestBuilder prepareBatchInsert(Data data) {
+    @Override public IndexRequestBuilder prepareBatchInsert(Segment data) {
         Map<String, Object> source = new HashMap<>();
-        source.put(SegmentTable.COLUMN_DATA_BINARY, new String(Base64.getEncoder().encode(data.getDataBytes(0))));
+        source.put(SegmentTable.COLUMN_DATA_BINARY, new String(Base64.getEncoder().encode(data.getDataBinary())));
         logger.debug("segment source: {}", source.toString());
-        return getClient().prepareIndex(SegmentTable.TABLE, data.getDataString(0)).setSource(source);
+        return getClient().prepareIndex(SegmentTable.TABLE, data.getId()).setSource(source);
     }
 }

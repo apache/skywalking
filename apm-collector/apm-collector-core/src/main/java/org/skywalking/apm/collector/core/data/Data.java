@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.core.data;
 /**
  * @author peng-yongsheng
  */
-public class Data extends AbstractHashMessage {
+public abstract class Data extends AbstractHashMessage {
     private String[] dataStrings;
     private Long[] dataLongs;
     private Double[] dataDoubles;
@@ -29,91 +29,91 @@ public class Data extends AbstractHashMessage {
     private Boolean[] dataBooleans;
     private byte[][] dataBytes;
 
-    public Data(String id, int stringCapacity, int longCapacity, int doubleCapacity,
-        int integerCapacity, int booleanCapacity, int byteCapacity) {
+    public Data(String id, Column[] stringColumns, Column[] longColumns, Column[] doubleColumns,
+        Column[] integerColumns, Column[] booleanColumns, Column[] byteColumns) {
         super(id);
-        this.dataStrings = new String[stringCapacity];
         this.dataStrings[0] = id;
-        this.dataLongs = new Long[longCapacity];
-        this.dataDoubles = new Double[doubleCapacity];
-        this.dataIntegers = new Integer[integerCapacity];
-        this.dataBooleans = new Boolean[booleanCapacity];
-        this.dataBytes = new byte[byteCapacity][];
+        this.dataStrings = new String[stringColumns.length];
+        this.dataLongs = new Long[longColumns.length];
+        this.dataDoubles = new Double[doubleColumns.length];
+        this.dataIntegers = new Integer[integerColumns.length];
+        this.dataBooleans = new Boolean[booleanColumns.length];
+        this.dataBytes = new byte[byteColumns.length][];
     }
 
-    public void setDataString(int position, String value) {
+    protected void setDataString(int position, String value) {
         dataStrings[position] = value;
     }
 
-    public void setDataLong(int position, Long value) {
+    protected void setDataLong(int position, Long value) {
         dataLongs[position] = value;
     }
 
-    public void setDataDouble(int position, Double value) {
+    protected void setDataDouble(int position, Double value) {
         dataDoubles[position] = value;
     }
 
-    public void setDataInteger(int position, Integer value) {
+    protected void setDataInteger(int position, Integer value) {
         dataIntegers[position] = value;
     }
 
-    public void setDataBoolean(int position, Boolean value) {
+    protected void setDataBoolean(int position, Boolean value) {
         dataBooleans[position] = value;
     }
 
-    public void setDataBytes(int position, byte[] dataBytes) {
+    protected void setDataBytes(int position, byte[] dataBytes) {
         this.dataBytes[position] = dataBytes;
     }
 
-    public String getDataString(int position) {
+    protected String getDataString(int position) {
         return dataStrings[position];
     }
 
-    public Long getDataLong(int position) {
+    protected Long getDataLong(int position) {
         return dataLongs[position];
     }
 
-    public Double getDataDouble(int position) {
+    protected Double getDataDouble(int position) {
         return dataDoubles[position];
     }
 
-    public Integer getDataInteger(int position) {
+    protected Integer getDataInteger(int position) {
         return dataIntegers[position];
     }
 
-    public Boolean getDataBoolean(int position) {
+    protected Boolean getDataBoolean(int position) {
         return dataBooleans[position];
     }
 
-    public byte[] getDataBytes(int position) {
+    protected byte[] getDataBytes(int position) {
         return dataBytes[position];
     }
 
-    public String id() {
+    public String getId() {
         return dataStrings[0];
     }
 
     @Override public String toString() {
         StringBuilder dataStr = new StringBuilder();
         dataStr.append("string: [");
-        for (int i = 0; i < dataStrings.length; i++) {
-            dataStr.append(dataStrings[i]).append(",");
+        for (String dataString : dataStrings) {
+            dataStr.append(dataString).append(",");
         }
         dataStr.append("], longs: [");
-        for (int i = 0; i < dataLongs.length; i++) {
-            dataStr.append(dataLongs[i]).append(",");
+        for (Long dataLong : dataLongs) {
+            dataStr.append(dataLong).append(",");
         }
         dataStr.append("], double: [");
-        for (int i = 0; i < dataDoubles.length; i++) {
-            dataStr.append(dataDoubles[i]).append(",");
+        for (Double dataDouble : dataDoubles) {
+            dataStr.append(dataDouble).append(",");
         }
         dataStr.append("], integer: [");
-        for (int i = 0; i < dataIntegers.length; i++) {
-            dataStr.append(dataIntegers[i]).append(",");
+        for (Integer dataInteger : dataIntegers) {
+            dataStr.append(dataInteger).append(",");
         }
         dataStr.append("], boolean: [");
-        for (int i = 0; i < dataBooleans.length; i++) {
-            dataStr.append(dataBooleans[i]).append(",");
+        for (Boolean dataBoolean : dataBooleans) {
+            dataStr.append(dataBoolean).append(",");
         }
         return dataStr.toString();
     }

@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.storage.dao;
 
-import org.skywalking.apm.collector.core.data.Data;
+import org.skywalking.apm.collector.storage.table.register.Instance;
 
 /**
  * @author peng-yongsheng
@@ -30,7 +30,7 @@ public interface IInstanceDAO {
 
     int getMinInstanceId();
 
-    void save(Data data);
+    void save(Instance instance);
 
     void updateHeartbeatTime(int instanceId, long heartbeatTime);
 }

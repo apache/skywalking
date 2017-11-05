@@ -40,7 +40,7 @@ public class ApplicationH2CacheDAO extends H2DAO implements IApplicationCacheDAO
 
     @Override
     public int getApplicationId(String applicationCode) {
-        logger.info("get the application id with application code = {}", applicationCode);
+        logger.info("get the application getId with application code = {}", applicationCode);
         H2Client client = getClient();
         String sql = SqlBuilder.buildSql(GET_APPLICATION_ID_OR_CODE_SQL, ApplicationTable.COLUMN_APPLICATION_ID, ApplicationTable.TABLE, ApplicationTable.COLUMN_APPLICATION_CODE);
 

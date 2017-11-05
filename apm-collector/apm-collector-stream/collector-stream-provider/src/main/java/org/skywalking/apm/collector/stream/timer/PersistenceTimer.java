@@ -22,10 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import org.skywalking.apm.collector.core.framework.Starter;
-import org.skywalking.apm.collector.storage.dao.DAOContainer;
-import org.skywalking.apm.collector.storage.dao.IBatchDAO;
-import org.skywalking.apm.collector.stream.worker.WorkerException;
+import org.skywalking.apm.collector.storage.base.dao.IBatchDAO;
+import org.skywalking.apm.collector.storage.service.DAOService;
+import org.skywalking.apm.collector.stream.worker.base.WorkerException;
 import org.skywalking.apm.collector.stream.worker.impl.FlushAndSwitch;
 import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
 import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorkerContainer;
@@ -35,19 +34,19 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public class PersistenceTimer implements Starter {
+public class PersistenceTimer {
 
     private final Logger logger = LoggerFactory.getLogger(PersistenceTimer.class);
 
-    public void start() {
+    public void start(DAOService daoService) {
         logger.info("persistence timer start");
         //TODO timer value config
 //        final long timeInterval = EsConfig.Es.Persistence.Timer.VALUE * 1000;
         final long timeInterval = 3;
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> extractDataAndSave(), 1, timeInterval, TimeUnit.SECONDS);
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> extractDataAndSave(daoService), 1, timeInterval, TimeUnit.SECONDS);
     }
 
-    private void extractDataAndSave() {
+    private void extractDataAndSave(DAOService daoService) {
         try {
             List<PersistenceWorker> workers = PersistenceWorkerContainer.INSTANCE.getPersistenceWorkers();
             List batchAllCollection = new ArrayList<>();
@@ -63,7 +62,7 @@ public class PersistenceTimer implements Starter {
                 }
             });
 
-            IBatchDAO dao = (IBatchDAO)DAOContainer.INSTANCE.get(IBatchDAO.class.getName());
+            IBatchDAO dao = (IBatchDAO)daoService.get(IBatchDAO.class);
             dao.batchPersistence(batchAllCollection);
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
