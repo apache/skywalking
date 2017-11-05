@@ -16,23 +16,18 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.stream.graph;
-
-import org.skywalking.apm.collector.core.data.Data;
+package org.skywalking.apm.collector.core.graph;
 
 /**
- * @author peng-yongsheng
+ * @author peng-yongsheng, wu-sheng
  */
-public class StreamGraph {
+public interface NodeHandler<Input, Output> {
+    /**
+     * The unique id in the certain graph.
+     *
+     * @return id
+     */
+    int id();
 
-    private Node startNode;
-
-    public void start(Data input) {
-        startNode.execute(input);
-    }
-
-    public Node addNode(Aggregator aggregator) {
-        startNode = new Node(aggregator);
-        return startNode;
-    }
+    void process(Input input, Next<Output> next);
 }

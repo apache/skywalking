@@ -16,13 +16,19 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.stream.graph;
-
-import org.skywalking.apm.collector.core.data.Data;
+package org.skywalking.apm.collector.core.graph;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public interface Aggregator<Input extends Data, Output extends Data> {
-    void process(Input input, Next<Output> next);
+public class Node4Handler implements NodeHandler<Integer, Long> {
+    @Override public int id() {
+        return 4;
+    }
+
+    @Override
+    public void process(Integer in, Next<Long> next) {
+        System.out.println("Node4 process: int=" + in);
+        next.execute(new Long(in.intValue()));
+    }
 }
