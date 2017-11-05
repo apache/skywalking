@@ -23,6 +23,8 @@ import org.skywalking.apm.collector.core.data.Data;
 /**
  * @author peng-yongsheng
  */
-public interface DataReceiver {
-    void receive(String roleName, Data data);
+public interface DataReceiver<Output extends Data> {
+    Output output(int graphId, int nodeId);
+
+    void receive(Output data);
 }

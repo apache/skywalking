@@ -41,51 +41,75 @@ public abstract class Data extends AbstractHashMessage {
         this.dataBytes = new byte[byteColumns.length][];
     }
 
-    protected void setDataString(int position, String value) {
+    public int getDataStringsCount() {
+        return dataStrings.length;
+    }
+
+    public int getDataLongsCount() {
+        return dataLongs.length;
+    }
+
+    public int getDataDoublesCount() {
+        return dataDoubles.length;
+    }
+
+    public int getDataIntegersCount() {
+        return dataIntegers.length;
+    }
+
+    public int getDataBooleansCount() {
+        return dataBooleans.length;
+    }
+
+    public int getDataBytesCount() {
+        return dataBytes.length;
+    }
+
+    public void setDataString(int position, String value) {
         dataStrings[position] = value;
     }
 
-    protected void setDataLong(int position, Long value) {
+    public void setDataLong(int position, Long value) {
         dataLongs[position] = value;
     }
 
-    protected void setDataDouble(int position, Double value) {
+    public void setDataDouble(int position, Double value) {
         dataDoubles[position] = value;
     }
 
-    protected void setDataInteger(int position, Integer value) {
+    public void setDataInteger(int position, Integer value) {
         dataIntegers[position] = value;
     }
 
-    protected void setDataBoolean(int position, Boolean value) {
+    public void setDataBoolean(int position, Boolean value) {
         dataBooleans[position] = value;
     }
 
-    protected void setDataBytes(int position, byte[] dataBytes) {
+    public void setDataBytes(int position, byte[] dataBytes) {
         this.dataBytes[position] = dataBytes;
     }
 
-    protected String getDataString(int position) {
+    public String getDataString(int position) {
         return dataStrings[position];
     }
 
-    protected Long getDataLong(int position) {
+    public Long getDataLong(int position) {
         return dataLongs[position];
     }
 
-    protected Double getDataDouble(int position) {
+    public Double getDataDouble(int position) {
         return dataDoubles[position];
     }
 
-    protected Integer getDataInteger(int position) {
+    public Integer getDataInteger(int position) {
         return dataIntegers[position];
     }
 
-    protected Boolean getDataBoolean(int position) {
+    public Boolean getDataBoolean(int position) {
         return dataBooleans[position];
     }
 
-    protected byte[] getDataBytes(int position) {
+    public byte[] getDataBytes(int position) {
         return dataBytes[position];
     }
 

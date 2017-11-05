@@ -9,24 +9,18 @@ service RemoteCommonService {
 }
 
 message RemoteMessage {
-    string workerRole = 1;
-    RemoteData remoteData = 2;
+    int32 graphId = 1;
+    int32 nodeId = 2;
+    RemoteData remoteData = 3;
 }
 
 message RemoteData {
-    int32 mappingId = 1;
-    int32 stringCapacity = 2;
-    int32 longCapacity = 3;
-    int32 doubleCapacity = 4;
-    int32 integerCapacity = 5;
-    int32 byteCapacity = 6;
-    int32 booleanCapacity = 7;
-    repeated string dataStrings = 8;
-    repeated int64 dataLongs = 9;
-    repeated double dataDoubles = 10;
-    repeated int32 dataIntegers = 11;
-    repeated bytes dataBytes = 12;
-    repeated bool dataBooleans = 13;
+    repeated string dataStrings = 1;
+    repeated int64 dataLongs = 2;
+    repeated double dataDoubles = 3;
+    repeated int32 dataIntegers = 4;
+    repeated bytes dataBytes = 5;
+    repeated bool dataBooleans = 6;
 }
 
 message Empty {

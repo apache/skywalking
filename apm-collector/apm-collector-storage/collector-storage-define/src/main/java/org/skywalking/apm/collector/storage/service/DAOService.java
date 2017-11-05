@@ -25,5 +25,5 @@ import org.skywalking.apm.collector.storage.base.dao.DAO;
  * @author peng-yongsheng
  */
 public interface DAOService extends Service {
-    DAO get(Class daoInterfaceClass);
+    DAO get(Class<DAO> daoInterfaceClass);
 }

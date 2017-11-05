@@ -16,18 +16,22 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.remote.grpc.data;
+package org.skywalking.apm.collector.remote.grpc.service.selector;
 
-import org.skywalking.apm.collector.core.data.Data;
-import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
-import org.skywalking.apm.collector.remote.service.SerializableAndDeserialize;
+import java.util.List;
+import org.skywalking.apm.collector.remote.service.RemoteClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class GRPCRemoteData implements SerializableAndDeserialize<RemoteData, RemoteData.Builder> {
+public class ForeverFirstSelector implements RemoteClientSelector {
 
-    protected final Data build(RemoteData remoteData) {
-        return new Data(remoteData.getDataStrings(0), remoteData.getStringCapacity(), remoteData.getLongCapacity(), remoteData.getDoubleCapacity(), remoteData.getIntegerCapacity(), remoteData.getBooleanCapacity(), remoteData.getByteCapacity());
+    private final Logger logger = LoggerFactory.getLogger(ForeverFirstSelector.class);
+
+    @Override public RemoteClient select(List<RemoteClient> clients, Object message) {
+        logger.debug("clients size: {}", clients.size());
+        return clients.get(0);
     }
 }

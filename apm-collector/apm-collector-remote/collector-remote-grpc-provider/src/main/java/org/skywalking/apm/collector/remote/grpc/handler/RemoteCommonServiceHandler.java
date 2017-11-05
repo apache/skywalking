@@ -19,11 +19,12 @@
 package org.skywalking.apm.collector.remote.grpc.handler;
 
 import io.grpc.stub.StreamObserver;
-import org.skywalking.apm.collector.remote.RemoteDataMappingContainer;
+import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.remote.grpc.proto.Empty;
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteCommonServiceGrpc;
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteMessage;
+import org.skywalking.apm.collector.remote.grpc.service.GRPCRemoteDeserializeService;
 import org.skywalking.apm.collector.remote.service.DataReceiverRegisterListener;
 import org.skywalking.apm.collector.server.grpc.GRPCHandler;
 import org.slf4j.Logger;
@@ -36,20 +37,24 @@ public class RemoteCommonServiceHandler extends RemoteCommonServiceGrpc.RemoteCo
 
     private final Logger logger = LoggerFactory.getLogger(RemoteCommonServiceHandler.class);
 
-    private final RemoteDataMappingContainer container;
     private final DataReceiverRegisterListener listener;
+    private final GRPCRemoteDeserializeService service;
 
-    public RemoteCommonServiceHandler(RemoteDataMappingContainer container, DataReceiverRegisterListener listener) {
-        this.container = container;
+    public RemoteCommonServiceHandler(DataReceiverRegisterListener listener) {
         this.listener = listener;
+        this.service = new GRPCRemoteDeserializeService();
     }
 
     @Override public StreamObserver<RemoteMessage> call(StreamObserver<Empty> responseObserver) {
         return new StreamObserver<RemoteMessage>() {
             @Override public void onNext(RemoteMessage message) {
-                String roleName = message.getWorkerRole();
+                int graphId = message.getGraphId();
+                int nodeId = message.getNodeId();
                 RemoteData remoteData = message.getRemoteData();
-                listener.getDataReceiver().receive(roleName, container.get(remoteData.getMappingId()).deserialize(remoteData));
+
+                Data output = listener.getDataReceiver().output(graphId, nodeId);
+                service.deserialize(remoteData, output);
+                listener.getDataReceiver().receive(output);
             }
 
             @Override public void onError(Throwable throwable) {
