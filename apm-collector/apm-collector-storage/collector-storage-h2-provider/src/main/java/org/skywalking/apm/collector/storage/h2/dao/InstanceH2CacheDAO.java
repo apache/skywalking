@@ -39,7 +39,7 @@ public class InstanceH2CacheDAO extends H2DAO implements IInstanceCacheDAO {
     private static final String GET_APPLICATION_ID_SQL = "select {0} from {1} where {2} = ?";
 
     @Override public int getApplicationId(int applicationInstanceId) {
-        logger.info("get the application id with application id = {}", applicationInstanceId);
+        logger.info("get the application getId with application getId = {}", applicationInstanceId);
         H2Client client = getClient();
         String sql = SqlBuilder.buildSql(GET_APPLICATION_ID_SQL, InstanceTable.COLUMN_APPLICATION_ID, InstanceTable.TABLE, InstanceTable.COLUMN_INSTANCE_ID);
         Object[] params = new Object[] {applicationInstanceId};

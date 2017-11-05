@@ -41,7 +41,7 @@ public class MemoryMetricH2DAO extends H2DAO implements IMemoryMetricDAO, IPersi
         H2SqlEntity entity = new H2SqlEntity();
         Map<String, Object> source = new HashMap<>();
         source.put(MemoryMetricTable.COLUMN_ID, data.getDataString(0));
-        source.put(MemoryMetricTable.COLUMN_APPLICATION_INSTANCE_ID, data.getDataInteger(0));
+        source.put(MemoryMetricTable.COLUMN_INSTANCE_ID, data.getDataInteger(0));
         source.put(MemoryMetricTable.COLUMN_IS_HEAP, data.getDataBoolean(0));
         source.put(MemoryMetricTable.COLUMN_INIT, data.getDataLong(0));
         source.put(MemoryMetricTable.COLUMN_MAX, data.getDataLong(1));

@@ -139,10 +139,10 @@ public abstract class PersistenceWorker extends AbstractLocalAsyncWorker {
         dataCache.writing();
         Data data = (Data)message;
 
-        if (dataCache.containsKey(data.id())) {
-            getRole().dataDefine().mergeData(dataCache.get(data.id()), data);
+        if (dataCache.containsKey(data.getId())) {
+            getRole().dataDefine().mergeData(dataCache.get(data.getId()), data);
         } else {
-            dataCache.put(data.id(), data);
+            dataCache.put(data.getId(), data);
         }
 
         dataCache.finishWriting();

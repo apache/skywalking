@@ -22,36 +22,35 @@ import java.util.HashMap;
 import java.util.Map;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.core.data.DataDefine;
 import org.skywalking.apm.collector.storage.dao.IMemoryPoolMetricDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
+import org.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetric;
 import org.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetricTable;
 
 /**
  * @author peng-yongsheng
  */
-public class MemoryPoolMetricEsDAO extends EsDAO implements IMemoryPoolMetricDAO, IPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder> {
+public class MemoryPoolMetricEsDAO extends EsDAO implements IMemoryPoolMetricDAO, IPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, MemoryPoolMetric> {
 
-    @Override public Data get(String id, DataDefine dataDefine) {
+    @Override public MemoryPoolMetric get(String id) {
         return null;
     }
 
-    @Override public IndexRequestBuilder prepareBatchInsert(Data data) {
+    @Override public IndexRequestBuilder prepareBatchInsert(MemoryPoolMetric data) {
         Map<String, Object> source = new HashMap<>();
-        source.put(MemoryPoolMetricTable.COLUMN_INSTANCE_ID, data.getDataInteger(0));
-        source.put(MemoryPoolMetricTable.COLUMN_POOL_TYPE, data.getDataInteger(1));
-        source.put(MemoryPoolMetricTable.COLUMN_INIT, data.getDataLong(0));
-        source.put(MemoryPoolMetricTable.COLUMN_MAX, data.getDataLong(1));
-        source.put(MemoryPoolMetricTable.COLUMN_USED, data.getDataLong(2));
-        source.put(MemoryPoolMetricTable.COLUMN_COMMITTED, data.getDataLong(3));
-        source.put(MemoryPoolMetricTable.COLUMN_TIME_BUCKET, data.getDataLong(4));
+        source.put(MemoryPoolMetricTable.COLUMN_INSTANCE_ID, data.getInstanceId());
+        source.put(MemoryPoolMetricTable.COLUMN_POOL_TYPE, data.getPoolType());
+        source.put(MemoryPoolMetricTable.COLUMN_INIT, data.getInit());
+        source.put(MemoryPoolMetricTable.COLUMN_MAX, data.getMax());
+        source.put(MemoryPoolMetricTable.COLUMN_USED, data.getUsed());
+        source.put(MemoryPoolMetricTable.COLUMN_COMMITTED, data.getCommitted());
+        source.put(MemoryPoolMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
-        return getClient().prepareIndex(MemoryPoolMetricTable.TABLE, data.getDataString(0)).setSource(source);
+        return getClient().prepareIndex(MemoryPoolMetricTable.TABLE, data.getId()).setSource(source);
     }
 
-    @Override public UpdateRequestBuilder prepareBatchUpdate(Data data) {
+    @Override public UpdateRequestBuilder prepareBatchUpdate(MemoryPoolMetric data) {
         return null;
     }
 }

@@ -22,36 +22,35 @@ import java.util.HashMap;
 import java.util.Map;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.core.data.DataDefine;
 import org.skywalking.apm.collector.storage.dao.IMemoryMetricDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
+import org.skywalking.apm.collector.storage.table.jvm.MemoryMetric;
 import org.skywalking.apm.collector.storage.table.jvm.MemoryMetricTable;
 
 /**
  * @author peng-yongsheng
  */
-public class MemoryMetricEsDAO extends EsDAO implements IMemoryMetricDAO, IPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder> {
+public class MemoryMetricEsDAO extends EsDAO implements IMemoryMetricDAO, IPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, MemoryMetric> {
 
-    @Override public Data get(String id, DataDefine dataDefine) {
+    @Override public MemoryMetric get(String id) {
         return null;
     }
 
-    @Override public IndexRequestBuilder prepareBatchInsert(Data data) {
+    @Override public IndexRequestBuilder prepareBatchInsert(MemoryMetric data) {
         Map<String, Object> source = new HashMap<>();
-        source.put(MemoryMetricTable.COLUMN_APPLICATION_INSTANCE_ID, data.getDataInteger(0));
-        source.put(MemoryMetricTable.COLUMN_IS_HEAP, data.getDataBoolean(0));
-        source.put(MemoryMetricTable.COLUMN_INIT, data.getDataLong(0));
-        source.put(MemoryMetricTable.COLUMN_MAX, data.getDataLong(1));
-        source.put(MemoryMetricTable.COLUMN_USED, data.getDataLong(2));
-        source.put(MemoryMetricTable.COLUMN_COMMITTED, data.getDataLong(3));
-        source.put(MemoryMetricTable.COLUMN_TIME_BUCKET, data.getDataLong(4));
+        source.put(MemoryMetricTable.COLUMN_INSTANCE_ID, data.getInstanceId());
+        source.put(MemoryMetricTable.COLUMN_IS_HEAP, data.getIsHeap());
+        source.put(MemoryMetricTable.COLUMN_INIT, data.getInit());
+        source.put(MemoryMetricTable.COLUMN_MAX, data.getMax());
+        source.put(MemoryMetricTable.COLUMN_USED, data.getUsed());
+        source.put(MemoryMetricTable.COLUMN_COMMITTED, data.getCommitted());
+        source.put(MemoryMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
-        return getClient().prepareIndex(MemoryMetricTable.TABLE, data.getDataString(0)).setSource(source);
+        return getClient().prepareIndex(MemoryMetricTable.TABLE, data.getId()).setSource(source);
     }
 
-    @Override public UpdateRequestBuilder prepareBatchUpdate(Data data) {
+    @Override public UpdateRequestBuilder prepareBatchUpdate(MemoryMetric data) {
         return null;
     }
 }

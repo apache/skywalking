@@ -19,16 +19,13 @@
 package org.skywalking.apm.collector.remote.service;
 
 import org.skywalking.apm.collector.core.data.Data;
-import org.skywalking.apm.collector.remote.RemoteDataMapping;
 
 /**
  * @author peng-yongsheng
  */
-public interface SerializableAndDeserialize<T, B> {
+public interface SerializableAndDeserialize<RemoteData, Builder> {
 
-    RemoteDataMapping mapping();
+    void deserialize(RemoteData remoteData, Data data);
 
-    Data deserialize(T remoteData);
-
-    B serialize(Data data);
+    Builder serialize(Data data);
 }

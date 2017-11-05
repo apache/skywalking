@@ -30,10 +30,9 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.dao.IInstanceDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
-import org.skywalking.apm.collector.storage.table.register.InstanceDataDefine;
+import org.skywalking.apm.collector.storage.table.register.Instance;
 import org.skywalking.apm.collector.storage.table.register.InstanceTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,27 +72,19 @@ public class InstanceEsDAO extends EsDAO implements IInstanceDAO {
         return getMinId(InstanceTable.TABLE, InstanceTable.COLUMN_INSTANCE_ID);
     }
 
-    @Override public void save(Data data) {
-        String id = InstanceDataDefine.Instance.INSTANCE.getId(data);
-        int instanceId = InstanceDataDefine.Instance.INSTANCE.getInstanceId(data);
-        int applicationId = InstanceDataDefine.Instance.INSTANCE.getApplicationId(data);
-        String agentUUID = InstanceDataDefine.Instance.INSTANCE.getAgentUUID(data);
-        long registerTime = InstanceDataDefine.Instance.INSTANCE.getRegisterTime(data);
-        long heartBeatTime = InstanceDataDefine.Instance.INSTANCE.getHeartBeatTime(data);
-        String osInfo = InstanceDataDefine.Instance.INSTANCE.getOsInfo(data);
-
-        logger.debug("save instance register info, application id: {}, agentUUID: {}", applicationId, agentUUID);
+    @Override public void save(Instance instance) {
+        logger.debug("save instance register info, application getId: {}, agentUUID: {}", instance.getApplicationId(), instance.getAgentUUID());
         ElasticSearchClient client = getClient();
         Map<String, Object> source = new HashMap<>();
-        source.put(InstanceTable.COLUMN_INSTANCE_ID, instanceId);
-        source.put(InstanceTable.COLUMN_APPLICATION_ID, applicationId);
-        source.put(InstanceTable.COLUMN_AGENT_UUID, agentUUID);
-        source.put(InstanceTable.COLUMN_REGISTER_TIME, registerTime);
-        source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, heartBeatTime);
-        source.put(InstanceTable.COLUMN_OS_INFO, osInfo);
+        source.put(InstanceTable.COLUMN_INSTANCE_ID, instance.getInstanceId());
+        source.put(InstanceTable.COLUMN_APPLICATION_ID, instance.getApplicationId());
+        source.put(InstanceTable.COLUMN_AGENT_UUID, instance.getAgentUUID());
+        source.put(InstanceTable.COLUMN_REGISTER_TIME, instance.getRegisterTime());
+        source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, instance.getHeartBeatTime());
+        source.put(InstanceTable.COLUMN_OS_INFO, instance.getOsInfo());
 
-        IndexResponse response = client.prepareIndex(InstanceTable.TABLE, id).setSource(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
-        logger.debug("save instance register info, application id: {}, agentUUID: {}, status: {}", applicationId, agentUUID, response.status().name());
+        IndexResponse response = client.prepareIndex(InstanceTable.TABLE, instance.getId()).setSource(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
+        logger.debug("save instance register info, application getId: {}, agentUUID: {}, status: {}", instance.getApplicationId(), instance.getAgentUUID(), response.status().name());
     }
 
     @Override public void updateHeartbeatTime(int instanceId, long heartbeatTime) {

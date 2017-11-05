@@ -22,34 +22,33 @@ import java.util.HashMap;
 import java.util.Map;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.core.data.DataDefine;
 import org.skywalking.apm.collector.storage.dao.IGCMetricDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
+import org.skywalking.apm.collector.storage.table.jvm.GCMetric;
 import org.skywalking.apm.collector.storage.table.jvm.GCMetricTable;
 
 /**
  * @author peng-yongsheng
  */
-public class GCMetricEsDAO extends EsDAO implements IGCMetricDAO, IPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder> {
+public class GCMetricEsDAO extends EsDAO implements IGCMetricDAO, IPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, GCMetric> {
 
-    @Override public Data get(String id, DataDefine dataDefine) {
+    @Override public GCMetric get(String id) {
         return null;
     }
 
-    @Override public IndexRequestBuilder prepareBatchInsert(Data data) {
+    @Override public IndexRequestBuilder prepareBatchInsert(GCMetric gcMetric) {
         Map<String, Object> source = new HashMap<>();
-        source.put(GCMetricTable.COLUMN_INSTANCE_ID, data.getDataInteger(0));
-        source.put(GCMetricTable.COLUMN_PHRASE, data.getDataInteger(1));
-        source.put(GCMetricTable.COLUMN_COUNT, data.getDataLong(0));
-        source.put(GCMetricTable.COLUMN_TIME, data.getDataLong(1));
-        source.put(GCMetricTable.COLUMN_TIME_BUCKET, data.getDataLong(2));
+        source.put(GCMetricTable.COLUMN_INSTANCE_ID, gcMetric.getInstanceId());
+        source.put(GCMetricTable.COLUMN_PHRASE, gcMetric.getPhrase());
+        source.put(GCMetricTable.COLUMN_COUNT, gcMetric.getCount());
+        source.put(GCMetricTable.COLUMN_TIME, gcMetric.getTime());
+        source.put(GCMetricTable.COLUMN_TIME_BUCKET, gcMetric.getTimeBucket());
 
-        return getClient().prepareIndex(GCMetricTable.TABLE, data.getDataString(0)).setSource(source);
+        return getClient().prepareIndex(GCMetricTable.TABLE, gcMetric.getId()).setSource(source);
     }
 
-    @Override public UpdateRequestBuilder prepareBatchUpdate(Data data) {
+    @Override public UpdateRequestBuilder prepareBatchUpdate(GCMetric gcMetric) {
         return null;
     }
 }

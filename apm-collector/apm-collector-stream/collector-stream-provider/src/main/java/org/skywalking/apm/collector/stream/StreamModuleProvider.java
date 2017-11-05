@@ -28,6 +28,8 @@ import org.skywalking.apm.collector.queue.service.QueueCreatorService;
 import org.skywalking.apm.collector.remote.RemoteModule;
 import org.skywalking.apm.collector.remote.service.RemoteClientService;
 import org.skywalking.apm.collector.storage.StorageModule;
+import org.skywalking.apm.collector.storage.service.DAOService;
+import org.skywalking.apm.collector.stream.timer.PersistenceTimer;
 
 /**
  * @author peng-yongsheng
@@ -46,9 +48,12 @@ public class StreamModuleProvider extends ModuleProvider {
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
+        PersistenceTimer persistenceTimer = new PersistenceTimer();
         try {
             QueueCreatorService queueCreatorService = getManager().find(QueueModule.NAME).getService(QueueCreatorService.class);
             RemoteClientService remoteClientService = getManager().find(RemoteModule.NAME).getService(RemoteClientService.class);
+            DAOService daoService = getManager().find(StorageModule.NAME).getService(DAOService.class);
+            persistenceTimer.start(daoService);
         } catch (ModuleNotFoundException e) {
             throw new ServiceNotProvidedException(e.getMessage());
         }

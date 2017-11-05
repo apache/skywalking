@@ -23,11 +23,10 @@ import java.util.Map;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.core.data.DataDefine;
 import org.skywalking.apm.collector.storage.dao.IInstPerformanceDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
+import org.skywalking.apm.collector.storage.table.instance.InstPerformance;
 import org.skywalking.apm.collector.storage.table.instance.InstPerformanceTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,46 +34,46 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public class InstPerformanceEsDAO extends EsDAO implements IInstPerformanceDAO, IPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder> {
+public class InstPerformanceEsDAO extends EsDAO implements IInstPerformanceDAO, IPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, InstPerformance> {
 
     private final Logger logger = LoggerFactory.getLogger(InstPerformanceEsDAO.class);
 
-    @Override public Data get(String id, DataDefine dataDefine) {
+    @Override public InstPerformance get(String id) {
         GetResponse getResponse = getClient().prepareGet(InstPerformanceTable.TABLE, id).get();
         if (getResponse.isExists()) {
-            logger.debug("id: {} is exist", id);
-            Data data = dataDefine.build(id);
+            logger.debug("getId: {} is exist", id);
+            InstPerformance instPerformance = new InstPerformance(id);
             Map<String, Object> source = getResponse.getSource();
-            data.setDataInteger(0, (Integer)source.get(InstPerformanceTable.COLUMN_APPLICATION_ID));
-            data.setDataInteger(1, (Integer)source.get(InstPerformanceTable.COLUMN_INSTANCE_ID));
-            data.setDataInteger(2, (Integer)source.get(InstPerformanceTable.COLUMN_CALLS));
-            data.setDataLong(0, ((Number)source.get(InstPerformanceTable.COLUMN_COST_TOTAL)).longValue());
-            data.setDataLong(1, ((Number)source.get(InstPerformanceTable.COLUMN_TIME_BUCKET)).longValue());
-            return data;
+            instPerformance.setApplicationId((Integer)source.get(InstPerformanceTable.COLUMN_APPLICATION_ID));
+            instPerformance.setInstanceId((Integer)source.get(InstPerformanceTable.COLUMN_INSTANCE_ID));
+            instPerformance.setCalls((Integer)source.get(InstPerformanceTable.COLUMN_CALLS));
+            instPerformance.setCostTotal(((Number)source.get(InstPerformanceTable.COLUMN_COST_TOTAL)).longValue());
+            instPerformance.setTimeBucket(((Number)source.get(InstPerformanceTable.COLUMN_TIME_BUCKET)).longValue());
+            return instPerformance;
         } else {
             return null;
         }
     }
 
-    @Override public IndexRequestBuilder prepareBatchInsert(Data data) {
+    @Override public IndexRequestBuilder prepareBatchInsert(InstPerformance data) {
         Map<String, Object> source = new HashMap<>();
-        source.put(InstPerformanceTable.COLUMN_APPLICATION_ID, data.getDataInteger(0));
-        source.put(InstPerformanceTable.COLUMN_INSTANCE_ID, data.getDataInteger(1));
-        source.put(InstPerformanceTable.COLUMN_CALLS, data.getDataInteger(2));
-        source.put(InstPerformanceTable.COLUMN_COST_TOTAL, data.getDataLong(0));
-        source.put(InstPerformanceTable.COLUMN_TIME_BUCKET, data.getDataLong(1));
+        source.put(InstPerformanceTable.COLUMN_APPLICATION_ID, data.getApplicationId());
+        source.put(InstPerformanceTable.COLUMN_INSTANCE_ID, data.getInstanceId());
+        source.put(InstPerformanceTable.COLUMN_CALLS, data.getCalls());
+        source.put(InstPerformanceTable.COLUMN_COST_TOTAL, data.getCostTotal());
+        source.put(InstPerformanceTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
-        return getClient().prepareIndex(InstPerformanceTable.TABLE, data.getDataString(0)).setSource(source);
+        return getClient().prepareIndex(InstPerformanceTable.TABLE, data.getId()).setSource(source);
     }
 
-    @Override public UpdateRequestBuilder prepareBatchUpdate(Data data) {
+    @Override public UpdateRequestBuilder prepareBatchUpdate(InstPerformance data) {
         Map<String, Object> source = new HashMap<>();
-        source.put(InstPerformanceTable.COLUMN_APPLICATION_ID, data.getDataInteger(0));
-        source.put(InstPerformanceTable.COLUMN_INSTANCE_ID, data.getDataInteger(1));
-        source.put(InstPerformanceTable.COLUMN_CALLS, data.getDataInteger(2));
-        source.put(InstPerformanceTable.COLUMN_COST_TOTAL, data.getDataLong(0));
-        source.put(InstPerformanceTable.COLUMN_TIME_BUCKET, data.getDataLong(1));
+        source.put(InstPerformanceTable.COLUMN_APPLICATION_ID, data.getApplicationId());
+        source.put(InstPerformanceTable.COLUMN_INSTANCE_ID, data.getInstanceId());
+        source.put(InstPerformanceTable.COLUMN_CALLS, data.getCalls());
+        source.put(InstPerformanceTable.COLUMN_COST_TOTAL, data.getCostTotal());
+        source.put(InstPerformanceTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
-        return getClient().prepareUpdate(InstPerformanceTable.TABLE, data.getDataString(0)).setDoc(source);
+        return getClient().prepareUpdate(InstPerformanceTable.TABLE, data.getId()).setDoc(source);
     }
 }

@@ -49,7 +49,7 @@ public class CpuMetricH2DAO extends H2DAO implements ICpuMetricDAO, IPersistence
         source.put(CpuMetricTable.COLUMN_USAGE_PERCENT, data.getDataDouble(0));
         source.put(CpuMetricTable.COLUMN_TIME_BUCKET, data.getDataLong(0));
 
-        logger.debug("prepare cpu metric batch insert, id: {}", data.getDataString(0));
+        logger.debug("prepare cpu metric batch insert, getId: {}", data.getDataString(0));
         String sql = SqlBuilder.buildBatchInsertSql(CpuMetricTable.TABLE, source.keySet());
         entity.setSql(sql);
         entity.setParams(source.values().toArray(new Object[0]));

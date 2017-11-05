@@ -23,53 +23,52 @@ import java.util.Map;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.core.data.DataDefine;
 import org.skywalking.apm.collector.storage.dao.INodeComponentDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
+import org.skywalking.apm.collector.storage.table.node.NodeComponent;
 import org.skywalking.apm.collector.storage.table.node.NodeComponentTable;
 
 /**
  * @author peng-yongsheng
  */
-public class NodeComponentEsDAO extends EsDAO implements INodeComponentDAO, IPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder> {
+public class NodeComponentEsDAO extends EsDAO implements INodeComponentDAO, IPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, NodeComponent> {
 
-    @Override public Data get(String id, DataDefine dataDefine) {
+    @Override public NodeComponent get(String id) {
         GetResponse getResponse = getClient().prepareGet(NodeComponentTable.TABLE, id).get();
         if (getResponse.isExists()) {
-            Data data = dataDefine.build(id);
+            NodeComponent nodeComponent = new NodeComponent(id);
             Map<String, Object> source = getResponse.getSource();
-            data.setDataInteger(0, ((Number)source.get(NodeComponentTable.COLUMN_COMPONENT_ID)).intValue());
-            data.setDataString(1, (String)source.get(NodeComponentTable.COLUMN_COMPONENT_NAME));
-            data.setDataInteger(1, ((Number)source.get(NodeComponentTable.COLUMN_PEER_ID)).intValue());
-            data.setDataString(2, (String)source.get(NodeComponentTable.COLUMN_PEER));
-            data.setDataLong(0, (Long)source.get(NodeComponentTable.COLUMN_TIME_BUCKET));
-            return data;
+            nodeComponent.setComponentId(((Number)source.get(NodeComponentTable.COLUMN_COMPONENT_ID)).intValue());
+            nodeComponent.setComponentName((String)source.get(NodeComponentTable.COLUMN_COMPONENT_NAME));
+            nodeComponent.setPeerId(((Number)source.get(NodeComponentTable.COLUMN_PEER_ID)).intValue());
+            nodeComponent.setPeer((String)source.get(NodeComponentTable.COLUMN_PEER));
+            nodeComponent.setTimeBucket((Long)source.get(NodeComponentTable.COLUMN_TIME_BUCKET));
+            return nodeComponent;
         } else {
             return null;
         }
     }
 
-    @Override public IndexRequestBuilder prepareBatchInsert(Data data) {
+    @Override public IndexRequestBuilder prepareBatchInsert(NodeComponent data) {
         Map<String, Object> source = new HashMap<>();
-        source.put(NodeComponentTable.COLUMN_COMPONENT_ID, data.getDataInteger(0));
-        source.put(NodeComponentTable.COLUMN_COMPONENT_NAME, data.getDataString(1));
-        source.put(NodeComponentTable.COLUMN_PEER_ID, data.getDataInteger(1));
-        source.put(NodeComponentTable.COLUMN_PEER, data.getDataString(2));
-        source.put(NodeComponentTable.COLUMN_TIME_BUCKET, data.getDataLong(0));
+        source.put(NodeComponentTable.COLUMN_COMPONENT_ID, data.getComponentId());
+        source.put(NodeComponentTable.COLUMN_COMPONENT_NAME, data.getComponentName());
+        source.put(NodeComponentTable.COLUMN_PEER_ID, data.getPeerId());
+        source.put(NodeComponentTable.COLUMN_PEER, data.getPeer());
+        source.put(NodeComponentTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
-        return getClient().prepareIndex(NodeComponentTable.TABLE, data.getDataString(0)).setSource(source);
+        return getClient().prepareIndex(NodeComponentTable.TABLE, data.getId()).setSource(source);
     }
 
-    @Override public UpdateRequestBuilder prepareBatchUpdate(Data data) {
+    @Override public UpdateRequestBuilder prepareBatchUpdate(NodeComponent data) {
         Map<String, Object> source = new HashMap<>();
-        source.put(NodeComponentTable.COLUMN_COMPONENT_ID, data.getDataInteger(0));
-        source.put(NodeComponentTable.COLUMN_COMPONENT_NAME, data.getDataString(1));
-        source.put(NodeComponentTable.COLUMN_PEER_ID, data.getDataInteger(1));
-        source.put(NodeComponentTable.COLUMN_PEER, data.getDataString(2));
-        source.put(NodeComponentTable.COLUMN_TIME_BUCKET, data.getDataLong(0));
+        source.put(NodeComponentTable.COLUMN_COMPONENT_ID, data.getComponentId());
+        source.put(NodeComponentTable.COLUMN_COMPONENT_NAME, data.getComponentName());
+        source.put(NodeComponentTable.COLUMN_PEER_ID, data.getPeerId());
+        source.put(NodeComponentTable.COLUMN_PEER, data.getPeer());
+        source.put(NodeComponentTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
-        return getClient().prepareUpdate(NodeComponentTable.TABLE, data.getDataString(0)).setDoc(source);
+        return getClient().prepareUpdate(NodeComponentTable.TABLE, data.getId()).setDoc(source);
     }
 }

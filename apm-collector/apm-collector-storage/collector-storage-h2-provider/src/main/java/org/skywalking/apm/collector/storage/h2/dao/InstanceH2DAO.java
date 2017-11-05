@@ -28,7 +28,7 @@ import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.dao.IInstanceDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
-import org.skywalking.apm.collector.storage.table.register.InstanceDataDefine;
+import org.skywalking.apm.collector.storage.table.register.Instance;
 import org.skywalking.apm.collector.storage.table.register.InstanceTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ public class InstanceH2DAO extends H2DAO implements IInstanceDAO {
     private static final String UPDATE_HEARTBEAT_TIME_SQL = "update {0} set {1} = ? where {2} = ?";
 
     @Override public int getInstanceId(int applicationId, String agentUUID) {
-        logger.info("get the application id with application id = {}, agentUUID = {}", applicationId, agentUUID);
+        logger.info("get the application getId with application getId = {}, agentUUID = {}", applicationId, agentUUID);
         H2Client client = getClient();
         String sql = SqlBuilder.buildSql(GET_INSTANCE_ID_SQL, InstanceTable.COLUMN_INSTANCE_ID, InstanceTable.TABLE, InstanceTable.COLUMN_APPLICATION_ID,
             InstanceTable.COLUMN_AGENT_UUID);
@@ -67,13 +67,13 @@ public class InstanceH2DAO extends H2DAO implements IInstanceDAO {
     }
 
     @Override public void save(Data data) {
-        String id = InstanceDataDefine.Instance.INSTANCE.getId(data);
-        int instanceId = InstanceDataDefine.Instance.INSTANCE.getInstanceId(data);
-        int applicationId = InstanceDataDefine.Instance.INSTANCE.getApplicationId(data);
-        String agentUUID = InstanceDataDefine.Instance.INSTANCE.getAgentUUID(data);
-        long registerTime = InstanceDataDefine.Instance.INSTANCE.getRegisterTime(data);
-        long heartBeatTime = InstanceDataDefine.Instance.INSTANCE.getHeartBeatTime(data);
-        String osInfo = InstanceDataDefine.Instance.INSTANCE.getOsInfo(data);
+        String id = Instance.Instance.INSTANCE.getId(data);
+        int instanceId = Instance.Instance.INSTANCE.getInstanceId(data);
+        int applicationId = Instance.Instance.INSTANCE.getApplicationId(data);
+        String agentUUID = Instance.Instance.INSTANCE.getAgentUUID(data);
+        long registerTime = Instance.Instance.INSTANCE.getRegisterTime(data);
+        long heartBeatTime = Instance.Instance.INSTANCE.getHeartBeatTime(data);
+        String osInfo = Instance.Instance.INSTANCE.getOsInfo(data);
 
         H2Client client = getClient();
         Map<String, Object> source = new HashMap<>();

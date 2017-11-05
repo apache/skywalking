@@ -25,7 +25,7 @@ import org.skywalking.apm.collector.core.data.CommonTable;
  */
 public class MemoryMetricTable extends CommonTable {
     public static final String TABLE = "memory_metric";
-    public static final String COLUMN_APPLICATION_INSTANCE_ID = "application_instance_id";
+    public static final String COLUMN_INSTANCE_ID = "instance_id";
     public static final String COLUMN_IS_HEAP = "is_heap";
     public static final String COLUMN_INIT = "init";
     public static final String COLUMN_MAX = "max";

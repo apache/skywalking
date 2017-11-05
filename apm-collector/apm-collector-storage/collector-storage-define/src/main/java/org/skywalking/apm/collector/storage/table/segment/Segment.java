@@ -18,28 +18,36 @@
 
 package org.skywalking.apm.collector.storage.table.segment;
 
-import org.skywalking.apm.collector.core.data.Attribute;
-import org.skywalking.apm.collector.core.data.AttributeType;
-import org.skywalking.apm.collector.core.data.DataDefine;
+import org.skywalking.apm.collector.core.data.Column;
+import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.core.data.operator.CoverOperation;
 import org.skywalking.apm.collector.core.data.operator.NonOperation;
-import org.skywalking.apm.collector.remote.RemoteDataMapping;
 
 /**
  * @author peng-yongsheng
  */
-public class SegmentDataDefine extends DataDefine {
+public class Segment extends Data {
 
-    @Override public int remoteDataMappingId() {
-        return RemoteDataMapping.Segment.ordinal();
+    private static final Column[] STRING_COLUMNS = {
+        new Column(SegmentTable.COLUMN_ID, new NonOperation()),
+    };
+
+    private static final Column[] LONG_COLUMNS = {
+    };
+    private static final Column[] DOUBLE_COLUMNS = {};
+    private static final Column[] INTEGER_COLUMNS = {
+    };
+
+    private static final Column[] BOOLEAN_COLUMNS = {};
+    private static final Column[] BYTE_COLUMNS = {
+        new Column(SegmentTable.COLUMN_DATA_BINARY, new CoverOperation()),
+    };
+
+    public Segment(String id) {
+        super(id, STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
     }
 
-    @Override protected int initialCapacity() {
-        return 2;
-    }
-
-    @Override protected void attributeDefine() {
-        addAttribute(0, new Attribute(SegmentTable.COLUMN_ID, AttributeType.STRING, new NonOperation()));
-        addAttribute(1, new Attribute(SegmentTable.COLUMN_DATA_BINARY, AttributeType.BYTE, new CoverOperation()));
+    public byte[] getDataBinary() {
+        return getDataBytes(0);
     }
 }

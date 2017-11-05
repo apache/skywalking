@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.storage.dao;
 
-import org.skywalking.apm.collector.core.data.Data;
+import org.skywalking.apm.collector.storage.table.register.Application;
 
 /**
  * @author peng-yongsheng
@@ -28,5 +28,5 @@ public interface IApplicationDAO {
 
     int getMinApplicationId();
 
-    void save(Data data);
+    void save(Application application);
 }

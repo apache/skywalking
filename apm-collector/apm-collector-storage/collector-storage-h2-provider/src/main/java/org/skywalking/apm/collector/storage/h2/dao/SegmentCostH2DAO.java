@@ -42,7 +42,7 @@ public class SegmentCostH2DAO extends H2DAO implements ISegmentCostDAO, IPersist
     }
 
     @Override public H2SqlEntity prepareBatchInsert(Data data) {
-        logger.debug("segment cost prepareBatchInsert, id: {}", data.getDataString(0));
+        logger.debug("segment cost prepareBatchInsert, getId: {}", data.getDataString(0));
         H2SqlEntity entity = new H2SqlEntity();
         Map<String, Object> source = new HashMap<>();
         source.put(SegmentCostTable.COLUMN_ID, data.getDataString(0));

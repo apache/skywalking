@@ -23,7 +23,7 @@ package org.skywalking.apm.collector.core.data;
  */
 public class CommonTable {
     public static final String TABLE_TYPE = "type";
-    public static final String COLUMN_ID = "id";
+    public static final String COLUMN_ID = "getId";
     public static final String COLUMN_AGG = "agg";
     public static final String COLUMN_TIME_BUCKET = "time_bucket";
 }
