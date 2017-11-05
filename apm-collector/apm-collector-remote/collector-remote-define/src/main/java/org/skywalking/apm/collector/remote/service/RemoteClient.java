@@ -24,5 +24,5 @@ import org.skywalking.apm.collector.core.data.Data;
  * @author peng-yongsheng
  */
 public interface RemoteClient {
-    void send(String roleName, Data data, int remoteDataMappingId);
+    void send(int graphId, int nodeId, Data data);
 }

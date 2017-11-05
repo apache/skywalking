@@ -16,24 +16,14 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.remote;
+package org.skywalking.apm.collector.remote.service;
 
-import java.util.HashMap;
-import java.util.Map;
-import org.skywalking.apm.collector.remote.service.SerializableAndDeserialize;
+import org.skywalking.apm.collector.core.data.Data;
+import org.skywalking.apm.collector.core.module.Service;
 
 /**
  * @author peng-yongsheng
  */
-public class RemoteDataMappingContainer {
-
-    private Map<Integer, SerializableAndDeserialize> mapping = new HashMap<>();
-
-    public void addMapping(SerializableAndDeserialize instance) {
-        mapping.put(instance.mapping().ordinal(), instance);
-    }
-
-    public SerializableAndDeserialize get(Integer mappingId) {
-        return mapping.get(mappingId);
-    }
+public interface RemoteSerializeService<Builder> extends Service {
+    Builder serialize(Data data);
 }

@@ -29,12 +29,4 @@
 
     <artifactId>collector-stream-define</artifactId>
     <packaging>jar</packaging>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>queue-component</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
 </project>

@@ -16,22 +16,13 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.stream.worker.base.selector;
+package org.skywalking.apm.collector.remote.service;
 
-import java.util.List;
-import org.skywalking.apm.collector.stream.worker.base.WorkerRef;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.skywalking.apm.collector.core.data.Data;
 
 /**
  * @author peng-yongsheng
  */
-public class ForeverFirstSelector implements WorkerSelector<WorkerRef> {
-
-    private final Logger logger = LoggerFactory.getLogger(ForeverFirstSelector.class);
-
-    @Override public WorkerRef select(List<WorkerRef> members, Object message) {
-        logger.debug("member size: {}", members.size());
-        return members.get(0);
-    }
+public interface RemoteDeserializeService<RemoteData> {
+    void deserialize(RemoteData remoteData, Data data);
 }

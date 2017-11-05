@@ -21,7 +21,6 @@ package org.skywalking.apm.collector.remote.grpc.service;
 import io.grpc.stub.StreamObserver;
 import org.skywalking.apm.collector.client.ClientException;
 import org.skywalking.apm.collector.client.grpc.GRPCClient;
-import org.skywalking.apm.collector.remote.RemoteDataMappingContainer;
 import org.skywalking.apm.collector.remote.grpc.proto.Empty;
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteCommonServiceGrpc;
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteMessage;
@@ -37,12 +36,6 @@ public class GRPCRemoteClientService implements RemoteClientService {
 
     private final Logger logger = LoggerFactory.getLogger(GRPCRemoteClientService.class);
 
-    private final RemoteDataMappingContainer container;
-
-    public GRPCRemoteClientService(RemoteDataMappingContainer container) {
-        this.container = container;
-    }
-
     @Override public RemoteClient create(String host, int port) {
         GRPCClient client = new GRPCClient(host, port);
         try {
@@ -52,7 +45,7 @@ public class GRPCRemoteClientService implements RemoteClientService {
         }
         RemoteCommonServiceGrpc.RemoteCommonServiceStub stub = RemoteCommonServiceGrpc.newStub(client.getChannel());
         StreamObserver<RemoteMessage> streamObserver = createStreamObserver(stub);
-        return new GRPCRemoteClient(container, streamObserver);
+        return new GRPCRemoteClient(streamObserver);
     }
 
     private StreamObserver<RemoteMessage> createStreamObserver(RemoteCommonServiceGrpc.RemoteCommonServiceStub stub) {

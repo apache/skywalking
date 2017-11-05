@@ -30,4 +30,11 @@
     <artifactId>collector-remote-kafka-provider</artifactId>
     <packaging>jar</packaging>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-remote-define</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

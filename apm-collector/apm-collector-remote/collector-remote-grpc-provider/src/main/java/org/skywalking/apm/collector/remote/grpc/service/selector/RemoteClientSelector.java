@@ -16,11 +16,14 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.remote;
+package org.skywalking.apm.collector.remote.grpc.service.selector;
+
+import java.util.List;
+import org.skywalking.apm.collector.remote.service.RemoteClient;
 
 /**
  * @author peng-yongsheng
  */
-public enum RemoteDataMapping {
-    GlobalTrace, Segment, SegmentCost, InstPerformance, NodeComponent, NodeMapping, NodeReference, Application, Instance, ServiceName, ServiceEntry, ServiceReference, CpuMetric, MemoryMetric, MemoryPoolMetric, GCMetric
+public interface RemoteClientSelector {
+    RemoteClient select(List<RemoteClient> clients, Object message);
 }

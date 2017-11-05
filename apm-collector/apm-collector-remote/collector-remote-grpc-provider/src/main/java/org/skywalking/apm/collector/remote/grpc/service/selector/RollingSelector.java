@@ -16,22 +16,22 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.remote.grpc.service;
+package org.skywalking.apm.collector.remote.grpc.service.selector;
 
-import org.skywalking.apm.collector.core.data.Data;
-import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
-import org.skywalking.apm.collector.remote.service.InstPerformanceRemoteService;
+import java.util.List;
+import org.skywalking.apm.collector.remote.service.RemoteClient;
 
 /**
  * @author peng-yongsheng
  */
-public class InstPerformanceGRPCRemoteService implements InstPerformanceRemoteService<RemoteData, RemoteData.Builder> {
+public class RollingSelector implements RemoteClientSelector {
 
-    @Override public void deserialize(RemoteData remoteData, Data data) {
+    private int index = 0;
 
-    }
-
-    @Override public RemoteData.Builder serialize(Data data) {
-        return null;
+    @Override public RemoteClient select(List<RemoteClient> clients, Object message) {
+        int size = clients.size();
+        index++;
+        int selectIndex = Math.abs(index) % size;
+        return clients.get(selectIndex);
     }
 }
