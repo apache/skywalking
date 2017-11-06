@@ -41,8 +41,8 @@ import static org.skywalking.apm.plugin.jdbc.define.Constants.ROLLBACK_METHOD_NA
 import static org.skywalking.apm.plugin.jdbc.define.Constants.SERVICE_METHOD_INTERCEPT_CLASS;
 
 /**
- * {@link Jdbc3ConnectionInstrumentation} intercept the following methods that the class which extend {@link
- * org.postgresql.jdbc3.Jdbc3Connection}. <br/>
+ * {@link Jdbc4ConnectionInstrumentation} intercept the following methods that the class which extend {@link
+ * org.postgresql.jdbc4.Jdbc4Connection}. <br/>
  *
  * 1. Enhance <code>prepareStatement</code> by <code>org.skywalking.apm.plugin.jdbc.define.JDBCPrepareStatementInterceptor</code>
  * 2. Enhance <code>prepareCall</code> by
@@ -53,9 +53,9 @@ import static org.skywalking.apm.plugin.jdbc.define.Constants.SERVICE_METHOD_INT
  *
  * @author zhangxin
  */
-public class Jdbc3ConnectionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class Jdbc4ConnectionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    public static final String ENHANCE_CLASS = "org.postgresql.jdbc3.Jdbc3Connection";
+    public static final String ENHANCE_CLASS = "org.postgresql.jdbc4.Jdbc4Connection";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
