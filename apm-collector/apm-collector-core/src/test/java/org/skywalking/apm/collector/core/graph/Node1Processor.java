@@ -21,14 +21,13 @@ package org.skywalking.apm.collector.core.graph;
 /**
  * @author wusheng
  */
-public class Node3Handler implements NodeHandler<Long, Long> {
+public class Node1Processor implements NodeProcessor<String, String> {
     @Override public int id() {
-        return 3;
+        return 1;
     }
 
-    @Override
-    public void process(Long aLong, Next<Long> next) {
-        System.out.println("Node3 process: long=" + aLong);
-        next.execute(aLong);
+    @Override public void process(String s, Next<String> next) {
+        System.out.println("Node1 process: s=" + s);
+        next.execute(s);
     }
 }
