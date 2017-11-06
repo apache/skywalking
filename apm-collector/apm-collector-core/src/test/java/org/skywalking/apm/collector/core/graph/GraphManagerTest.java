@@ -31,6 +31,7 @@ import org.junit.Test;
 public class GraphManagerTest {
     private static PrintStream OUT_REF;
     private ByteArrayOutputStream outputStream;
+    private static String lineSeparator = System.lineSeparator();
 
     @Before
     public void initAndHoldOut() {
@@ -53,8 +54,8 @@ public class GraphManagerTest {
         testGraph.start("Input String");
 
         String output = outputStream.toString();
-        String expected = "Node1 process: s=Input String\n" +
-            "Node2 process: s=Input String\n";
+        String expected = "Node1 process: s=Input String" + lineSeparator +
+            "Node2 process: s=Input String" + lineSeparator;
 
         Assert.assertEquals(expected, output);
     }
@@ -67,9 +68,9 @@ public class GraphManagerTest {
         graph.start("Input String");
 
         String output = outputStream.toString();
-        String expected = "Node1 process: s=Input String\n" +
-            "Node2 process: s=Input String\n" +
-            "Node4 process: int=123\n";
+        String expected = "Node1 process: s=Input String" + lineSeparator +
+            "Node2 process: s=Input String" + lineSeparator +
+            "Node4 process: int=123" + lineSeparator;
 
         Assert.assertEquals(expected, output);
     }
@@ -91,7 +92,7 @@ public class GraphManagerTest {
         next.execute(123);
         String output = outputStream.toString();
         String expected =
-            "Node4 process: int=123\n";
+            "Node4 process: int=123" + lineSeparator;
 
         Assert.assertEquals(expected, output);
     }

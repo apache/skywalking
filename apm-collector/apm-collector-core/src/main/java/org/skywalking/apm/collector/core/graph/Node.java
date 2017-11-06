@@ -19,39 +19,39 @@
 package org.skywalking.apm.collector.core.graph;
 
 /**
- * The <code>Node</code> in the graph with explicit Input and Output types.
+ * The <code>Node</code> in the graph with explicit INPUT and OUTPUT types.
  *
  * @author peng-yongsheng, wu-sheng
  */
-public final class Node<Input, Output> {
+public final class Node<INPUT, OUTPUT> {
     private final NodeHandler nodeHandler;
-    private final Next<Output> next;
+    private final Next<OUTPUT> next;
     private final Graph graph;
 
-    Node(Graph graph, NodeHandler<Input, Output> nodeHandler) {
+    Node(Graph graph, NodeHandler<INPUT, OUTPUT> nodeHandler) {
         this.graph = graph;
         this.nodeHandler = nodeHandler;
         this.next = new Next<>();
         this.graph.checkForNewNode(this);
     }
 
-    public final <NextOutput> Node<Output, NextOutput> addNext(NodeHandler<Output, NextOutput> nodeHandler) {
+    public final <NEXTOUTPUT> Node<OUTPUT, NEXTOUTPUT> addNext(NodeHandler<OUTPUT, NEXTOUTPUT> nodeHandler) {
         synchronized (graph) {
-            Node<Output, NextOutput> node = new Node<>(graph, nodeHandler);
+            Node<OUTPUT, NEXTOUTPUT> node = new Node<>(graph, nodeHandler);
             next.addNext(node);
             return node;
         }
     }
 
-    final void execute(Input input) {
-        nodeHandler.process(input, next);
+    final void execute(INPUT INPUT) {
+        nodeHandler.process(INPUT, next);
     }
 
     NodeHandler getHandler() {
         return nodeHandler;
     }
 
-    Next<Output> getNext() {
+    Next<OUTPUT> getNext() {
         return next;
     }
 }

@@ -27,7 +27,7 @@ import org.skywalking.apm.collector.core.framework.Executor;
  *
  * @author peng-yongsheng, wu-sheng
  */
-public class Next<Input> implements Executor<Input> {
+public class Next<INPUT> implements Executor<INPUT> {
 
     private final List<Node> nextNodes;
 
@@ -42,9 +42,9 @@ public class Next<Input> implements Executor<Input> {
     /**
      * Drive to the next nodes
      *
-     * @param input
+     * @param INPUT
      */
-    @Override public void execute(Input input) {
-        nextNodes.forEach(node -> node.execute(input));
+    @Override public void execute(INPUT INPUT) {
+        nextNodes.forEach(node -> node.execute(INPUT));
     }
 }
