@@ -20,14 +20,26 @@ package org.skywalking.apm.collector.agent.grpc;
 
 import java.util.Properties;
 import org.skywalking.apm.collector.agent.AgentModule;
+import org.skywalking.apm.collector.agent.grpc.handler.JVMMetricsServiceHandler;
+import org.skywalking.apm.collector.cluster.ClusterModule;
+import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
 import org.skywalking.apm.collector.core.module.Module;
+import org.skywalking.apm.collector.core.module.ModuleNotFoundException;
 import org.skywalking.apm.collector.core.module.ModuleProvider;
 import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.skywalking.apm.collector.grpc.manager.GRPCManagerModule;
+import org.skywalking.apm.collector.grpc.manager.service.GRPCManagerService;
+import org.skywalking.apm.collector.server.Server;
+import org.skywalking.apm.collector.storage.StorageModule;
+import org.skywalking.apm.collector.storage.service.DAOService;
 
 /**
  * @author peng-yongsheng
  */
 public class AgentModuleGRPCProvider extends ModuleProvider {
+
+    private static final String HOST = "host";
+    private static final String PORT = "port";
 
     @Override public String name() {
         return "gRPC";
@@ -42,7 +54,21 @@ public class AgentModuleGRPCProvider extends ModuleProvider {
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
+        String host = config.getProperty(HOST);
+        Integer port = (Integer)config.get(PORT);
 
+        try {
+            ModuleRegisterService moduleRegisterService = getManager().find(ClusterModule.NAME).getService(ModuleRegisterService.class);
+            moduleRegisterService.register(AgentModule.NAME, this.name(), new AgentModuleGRPCRegistration(host, port));
+
+            DAOService daoService = getManager().find(StorageModule.NAME).getService(DAOService.class);
+
+            GRPCManagerService managerService = getManager().find(GRPCManagerModule.NAME).getService(GRPCManagerService.class);
+            Server gRPCServer = managerService.getOrCreateIfAbsent(host, port);
+            addHandlers(daoService, gRPCServer);
+        } catch (ModuleNotFoundException e) {
+            throw new ServiceNotProvidedException(e.getMessage());
+        }
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
@@ -51,5 +77,9 @@ public class AgentModuleGRPCProvider extends ModuleProvider {
 
     @Override public String[] requiredModules() {
         return new String[0];
+    }
+
+    private void addHandlers(DAOService daoService, Server gRPCServer) {
+        gRPCServer.addHandler(new JVMMetricsServiceHandler());
     }
 }

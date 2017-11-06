@@ -36,5 +36,15 @@
             <artifactId>collector-agent-define</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-agent-stream</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-grpc-manager-define</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
