@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.skywalking</groupId>
         <artifactId>apm-sdk-plugin</artifactId>
-        <version>3.2.3-2017</version>
+        <version>3.2.4-2017</version>
     </parent>
 
     <artifactId>spring-plugins</artifactId>
