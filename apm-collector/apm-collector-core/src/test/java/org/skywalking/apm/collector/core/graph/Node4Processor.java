@@ -19,15 +19,16 @@
 package org.skywalking.apm.collector.core.graph;
 
 /**
- * @author peng-yongsheng, wu-sheng
+ * @author wusheng
  */
-public interface NodeHandler<INPUT, OUTPUT> {
-    /**
-     * The unique id in the certain graph.
-     *
-     * @return id
-     */
-    int id();
+public class Node4Processor implements NodeProcessor<Integer, Long> {
+    @Override public int id() {
+        return 4;
+    }
 
-    void process(INPUT INPUT, Next<OUTPUT> next);
+    @Override
+    public void process(Integer in, Next<Long> next) {
+        System.out.println("Node4 process: int=" + in);
+        next.execute(new Long(in.intValue()));
+    }
 }

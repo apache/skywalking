@@ -1,12 +1,14 @@
 ## 中文文档
-  * [项目简介](cn/sky-walking-documents-zh-contents.md)
+[![EN doc](https://img.shields.io/badge/document-English-blue.svg)](README.md)
+
+  * [项目简介](/README_ZH.md)
   * [快速入门](cn/Quick-start-chn.md)
-    * [部署单机collector](cn/3.2.3-%E5%8D%95%E6%9C%BA%E6%A8%A1%E5%BC%8F%E9%83%A8%E7%BD%B2Collector.md)
-    * [部署集群collector](cn/3.2.3-%E9%9B%86%E7%BE%A4%E6%A8%A1%E5%BC%8F%E9%83%A8%E7%BD%B2Collector.md)
-    * [部署探针Agent](cn/3.2.3-部署探针Agent.md)
-  * [部署Collector镜像](cn/3.2-部署Collector镜像.md)
-  * [中间件，框架与类库支持列表](cn/3.2.3-supported-list.md)
-    * [如何关闭特定插件](cn/3.2.2-Plugin-list-and-how-to-disable-plugin-zh.md)
+    * [部署单机collector](cn/Deploy-collector-in-standalone-mode-CN.md)
+    * [部署集群collector](cn/Deploy-collector-in-cluster-mode-CN.md)
+    * [部署探针Agent](cn/Deploy-skywalking-agent-CN.md)
+  * [部署Collector镜像](cn/Deploy-docker-image.CN.md)
+  * [中间件，框架与类库支持列表](Supported-list.md)
+    * [如何关闭特定插件](cn/How-to-disable-plugin-CN.md)
   * APM相关介绍资料
     * [APM简介（百度百科）](http://baike.baidu.com/link?url=HizLjnUrwvXqPQ4fZH_MA81MA7R_sE-kpdEIfuUHf-yNHhPiEkA97_7FshVR6raiZL6pvbChTZSIgrC1lY6lhq.md)
     * [OpenTracing中文版](https://github.com/opentracing-contrib/opentracing-specification-zh.md)

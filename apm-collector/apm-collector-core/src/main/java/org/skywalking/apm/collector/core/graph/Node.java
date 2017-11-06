@@ -24,31 +24,31 @@ package org.skywalking.apm.collector.core.graph;
  * @author peng-yongsheng, wu-sheng
  */
 public final class Node<INPUT, OUTPUT> {
-    private final NodeHandler nodeHandler;
+    private final NodeProcessor nodeProcessor;
     private final Next<OUTPUT> next;
     private final Graph graph;
 
-    Node(Graph graph, NodeHandler<INPUT, OUTPUT> nodeHandler) {
+    Node(Graph graph, NodeProcessor<INPUT, OUTPUT> nodeProcessor) {
         this.graph = graph;
-        this.nodeHandler = nodeHandler;
+        this.nodeProcessor = nodeProcessor;
         this.next = new Next<>();
         this.graph.checkForNewNode(this);
     }
 
-    public final <NEXTOUTPUT> Node<OUTPUT, NEXTOUTPUT> addNext(NodeHandler<OUTPUT, NEXTOUTPUT> nodeHandler) {
+    public final <NEXTOUTPUT> Node<OUTPUT, NEXTOUTPUT> addNext(NodeProcessor<OUTPUT, NEXTOUTPUT> nodeProcessor) {
         synchronized (graph) {
-            Node<OUTPUT, NEXTOUTPUT> node = new Node<>(graph, nodeHandler);
+            Node<OUTPUT, NEXTOUTPUT> node = new Node<>(graph, nodeProcessor);
             next.addNext(node);
             return node;
         }
     }
 
     final void execute(INPUT INPUT) {
-        nodeHandler.process(INPUT, next);
+        nodeProcessor.process(INPUT, next);
     }
 
-    NodeHandler getHandler() {
-        return nodeHandler;
+    NodeProcessor getHandler() {
+        return nodeProcessor;
     }
 
     Next<OUTPUT> getNext() {

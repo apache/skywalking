@@ -36,9 +36,9 @@ public final class Graph<INPUT> {
         startNode.execute(INPUT);
     }
 
-    public <OUTPUT> Node<INPUT, OUTPUT> addNode(NodeHandler<INPUT, OUTPUT> nodeHandler) {
+    public <OUTPUT> Node<INPUT, OUTPUT> addNode(NodeProcessor<INPUT, OUTPUT> nodeProcessor) {
         synchronized (this) {
-            startNode = new Node(this, nodeHandler);
+            startNode = new Node(this, nodeProcessor);
             return startNode;
         }
     }

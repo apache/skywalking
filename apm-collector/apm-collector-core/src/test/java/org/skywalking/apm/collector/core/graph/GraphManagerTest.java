@@ -49,8 +49,8 @@ public class GraphManagerTest {
     @Test
     public void testGraph() {
         Graph<String> testGraph = GraphManager.INSTANCE.createIfAbsent(1, String.class);
-        Node<String, String> node = testGraph.addNode(new Node1Handler());
-        Node<String, Integer> node1 = node.addNext(new Node2Handler());
+        Node<String, String> node = testGraph.addNode(new Node1Processor());
+        Node<String, Integer> node1 = node.addNext(new Node2Processor());
         testGraph.start("Input String");
 
         String output = outputStream.toString();
@@ -63,7 +63,7 @@ public class GraphManagerTest {
     @Test
     public void testGraphWithChainStyle() {
         Graph<String> graph = GraphManager.INSTANCE.createIfAbsent(2, String.class);
-        graph.addNode(new Node1Handler()).addNext(new Node2Handler()).addNext(new Node4Handler());
+        graph.addNode(new Node1Processor()).addNext(new Node2Processor()).addNext(new Node4Processor());
 
         graph.start("Input String");
 
@@ -78,14 +78,14 @@ public class GraphManagerTest {
     @Test(expected = PotentialAcyclicGraphException.class)
     public void testPotentialAcyclicGraph() {
         Graph<String> testGraph = GraphManager.INSTANCE.createIfAbsent(3, String.class);
-        Node<String, String> node = testGraph.addNode(new Node1Handler());
-        node.addNext(new Node1Handler());
+        Node<String, String> node = testGraph.addNode(new Node1Processor());
+        node.addNext(new Node1Processor());
     }
 
     @Test
     public void testContinueStream() {
         Graph<String> graph = GraphManager.INSTANCE.createIfAbsent(4, String.class);
-        graph.addNode(new Node1Handler()).addNext(new Node2Handler()).addNext(new Node4Handler());
+        graph.addNode(new Node1Processor()).addNext(new Node2Processor()).addNext(new Node4Processor());
 
         Next next = GraphManager.INSTANCE.findGraph(4).findNext(2);
 
@@ -100,7 +100,7 @@ public class GraphManagerTest {
     @Test(expected = NodeNotFoundException.class)
     public void handlerNotFound() {
         Graph<String> graph = GraphManager.INSTANCE.createIfAbsent(5, String.class);
-        graph.addNode(new Node1Handler()).addNext(new Node2Handler()).addNext(new Node4Handler());
+        graph.addNode(new Node1Processor()).addNext(new Node2Processor()).addNext(new Node4Processor());
 
         Next next = GraphManager.INSTANCE.findGraph(5).findNext(3);
     }

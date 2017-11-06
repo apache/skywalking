@@ -7,7 +7,7 @@
       * [Deploy Cluster mode collector](en/Deploy-collector-in-cluster-mode.md)
       * [Deploy javaagent](en/Deploy-skywalking-agent.md)
     * [Deploy docker image](en/Deploy-docker-image.md)
-    * [Supported middlewares, frameworks and libraries](en/Supported-list.md)
+    * [Supported middlewares, frameworks and libraries](Supported-list.md)
       * [How to disable plugins?](en/How-to-disable-plugin.md)
   * Application Toolkit
     * [Overview](en/Applicaton-toolkit.md)
