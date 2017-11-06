@@ -26,12 +26,12 @@ import org.elasticsearch.search.aggregations.metrics.max.MaxAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.min.Min;
 import org.elasticsearch.search.aggregations.metrics.min.MinAggregationBuilder;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.skywalking.apm.collector.storage.base.dao.DAO;
+import org.skywalking.apm.collector.storage.base.dao.AbstractDAO;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class EsDAO extends DAO<ElasticSearchClient> {
+public abstract class EsDAO extends AbstractDAO<ElasticSearchClient> {
 
     public final int getMaxId(String indexName, String columnName) {
         ElasticSearchClient client = getClient();

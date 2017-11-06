@@ -12,13 +12,10 @@ import org.skywalking.apm.collector.grpc.manager.GRPCManagerModule;
 import org.skywalking.apm.collector.grpc.manager.service.GRPCManagerService;
 import org.skywalking.apm.collector.remote.RemoteModule;
 import org.skywalking.apm.collector.remote.grpc.handler.RemoteCommonServiceHandler;
-import org.skywalking.apm.collector.remote.grpc.service.GRPCRemoteClientService;
-import org.skywalking.apm.collector.remote.grpc.service.GRPCRemoteListener;
-import org.skywalking.apm.collector.remote.grpc.service.GRPCRemoteSerializeService;
+import org.skywalking.apm.collector.remote.grpc.service.GRPCRemoteSenderService;
 import org.skywalking.apm.collector.remote.grpc.service.GRPCRemoteServerService;
 import org.skywalking.apm.collector.remote.service.DataReceiverRegisterListener;
-import org.skywalking.apm.collector.remote.service.RemoteClientService;
-import org.skywalking.apm.collector.remote.service.RemoteSerializeService;
+import org.skywalking.apm.collector.remote.service.RemoteSenderService;
 import org.skywalking.apm.collector.remote.service.RemoteServerService;
 import org.skywalking.apm.collector.server.Server;
 
@@ -31,6 +28,7 @@ public class RemoteModuleGRPCProvider extends ModuleProvider {
     private static final String HOST = "host";
     private static final String PORT = "port";
     private final DataReceiverRegisterListener listener = new DataReceiverRegisterListener();
+    private GRPCRemoteSenderService remoteSenderService;
 
     @Override public String name() {
         return NAME;
@@ -41,9 +39,9 @@ public class RemoteModuleGRPCProvider extends ModuleProvider {
     }
 
     @Override public void prepare(Properties config) throws ServiceNotProvidedException {
+        remoteSenderService = new GRPCRemoteSenderService();
         this.registerServiceImplementation(RemoteServerService.class, new GRPCRemoteServerService(listener));
-        this.registerServiceImplementation(RemoteClientService.class, new GRPCRemoteClientService());
-        this.registerServiceImplementation(RemoteSerializeService.class, new GRPCRemoteSerializeService());
+        this.registerServiceImplementation(RemoteSenderService.class, remoteSenderService);
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
@@ -59,7 +57,7 @@ public class RemoteModuleGRPCProvider extends ModuleProvider {
             moduleRegisterService.register(RemoteModule.NAME, this.name(), new RemoteModuleGRPCRegistration(host, port));
 
             ModuleListenerService moduleListenerService = getManager().find(ClusterModule.NAME).getService(ModuleListenerService.class);
-            moduleListenerService.addListener(new GRPCRemoteListener());
+            moduleListenerService.addListener(remoteSenderService);
         } catch (ModuleNotFoundException e) {
             throw new ServiceNotProvidedException(e.getMessage());
         }

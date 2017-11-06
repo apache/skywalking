@@ -25,13 +25,13 @@ import java.util.Map;
  * @author peng-yongsheng
  */
 public class DAOContainer {
-    private Map<String, DAO> daos = new HashMap<>();
+    private Map<String, AbstractDAO> daos = new HashMap<>();
 
-    public void put(String interfaceName, DAO dao) {
-        daos.put(interfaceName, dao);
+    public void put(String interfaceName, AbstractDAO abstractDao) {
+        daos.put(interfaceName, abstractDao);
     }
 
-    public DAO get(String interfaceName) {
+    public AbstractDAO get(String interfaceName) {
         return daos.get(interfaceName);
     }
 }

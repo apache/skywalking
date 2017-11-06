@@ -18,19 +18,8 @@
 
 package org.skywalking.apm.collector.storage.base.dao;
 
-import org.skywalking.apm.collector.client.Client;
-
 /**
  * @author peng-yongsheng
  */
-public abstract class DAO<C extends Client> {
-    private C client;
-
-    public final C getClient() {
-        return client;
-    }
-
-    public final void setClient(C client) {
-        this.client = client;
-    }
+public interface DAO {
 }

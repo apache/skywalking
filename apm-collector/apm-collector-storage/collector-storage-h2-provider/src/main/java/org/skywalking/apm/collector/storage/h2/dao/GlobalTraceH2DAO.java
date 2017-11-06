@@ -23,7 +23,7 @@ import java.util.Map;
 import org.skywalking.apm.collector.core.UnexpectedException;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
-import org.skywalking.apm.collector.storage.dao.IGlobalTraceDAO;
+import org.skywalking.apm.collector.storage.dao.IGlobalTraceStreamDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
 import org.skywalking.apm.collector.storage.table.global.GlobalTrace;
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng, clevertension
  */
-public class GlobalTraceH2DAO extends H2DAO implements IGlobalTraceDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity, GlobalTrace> {
+public class GlobalTraceH2DAO extends H2DAO implements IGlobalTraceStreamDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity, GlobalTrace> {
     private final Logger logger = LoggerFactory.getLogger(GlobalTraceH2DAO.class);
 
     @Override public GlobalTrace get(String id) {
