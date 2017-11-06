@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.skywalking</groupId>
-        <version>3.2.3-2017</version>
+        <version>3.2.4-2017</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>apm-application-toolkit</artifactId>
