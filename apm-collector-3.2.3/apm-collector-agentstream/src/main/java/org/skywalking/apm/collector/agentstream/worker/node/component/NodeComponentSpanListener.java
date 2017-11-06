@@ -60,6 +60,7 @@ public class NodeComponentSpanListener implements EntrySpanListener, ExitSpanLis
         }
 
         nodeComponent.setPeerId(spanDecorator.getPeerId());
+        nodeComponent.setPeer(Const.EMPTY_STRING);
         id = id + Const.ID_SPLIT + nodeComponent.getPeerId();
         nodeComponent.setId(id);
         nodeComponents.add(nodeComponent);
@@ -81,6 +82,7 @@ public class NodeComponentSpanListener implements EntrySpanListener, ExitSpanLis
         }
 
         nodeComponent.setPeerId(applicationId);
+        nodeComponent.setPeer(Const.EMPTY_STRING);
         id = id + Const.ID_SPLIT + String.valueOf(applicationId);
         nodeComponent.setId(id);
 

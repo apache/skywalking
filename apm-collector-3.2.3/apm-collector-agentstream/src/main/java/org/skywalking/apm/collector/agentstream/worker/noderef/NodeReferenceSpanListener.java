@@ -53,6 +53,7 @@ public class NodeReferenceSpanListener implements EntrySpanListener, ExitSpanLis
         NodeReferenceDataDefine.NodeReference nodeReference = new NodeReferenceDataDefine.NodeReference();
         nodeReference.setFrontApplicationId(applicationId);
         nodeReference.setBehindApplicationId(spanDecorator.getPeerId());
+        nodeReference.setBehindPeer(Const.EMPTY_STRING);
         nodeReference.setTimeBucket(TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime()));
 
         StringBuilder idBuilder = new StringBuilder();
@@ -79,6 +80,7 @@ public class NodeReferenceSpanListener implements EntrySpanListener, ExitSpanLis
             NodeReferenceDataDefine.NodeReference nodeReference = new NodeReferenceDataDefine.NodeReference();
             nodeReference.setFrontApplicationId(Const.USER_ID);
             nodeReference.setBehindApplicationId(applicationId);
+            nodeReference.setBehindPeer(Const.EMPTY_STRING);
             nodeReference.setTimeBucket(TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime()));
 
             String idBuilder = String.valueOf(nodeReference.getTimeBucket()) + Const.ID_SPLIT + nodeReference.getFrontApplicationId() +
@@ -96,6 +98,7 @@ public class NodeReferenceSpanListener implements EntrySpanListener, ExitSpanLis
         NodeReferenceDataDefine.NodeReference referenceSum = new NodeReferenceDataDefine.NodeReference();
         referenceSum.setFrontApplicationId(parentApplicationId);
         referenceSum.setBehindApplicationId(applicationId);
+        referenceSum.setBehindPeer(Const.EMPTY_STRING);
         references.add(referenceSum);
     }
 
