@@ -19,7 +19,6 @@
 package org.skywalking.apm.collector.stream.worker.base;
 
 import java.util.List;
-import org.skywalking.apm.collector.stream.worker.base.selector.WorkerSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,27 +30,24 @@ public class WorkerRefs<T extends WorkerRef> {
     private final Logger logger = LoggerFactory.getLogger(WorkerRefs.class);
 
     private List<T> workerRefs;
-    private WorkerSelector workerSelector;
     private Role role;
 
-    protected WorkerRefs(List<T> workerRefs, WorkerSelector workerSelector) {
+    protected WorkerRefs(List<T> workerRefs) {
         this.workerRefs = workerRefs;
-        this.workerSelector = workerSelector;
     }
 
-    protected WorkerRefs(List<T> workerRefs, WorkerSelector workerSelector, Role role) {
+    protected WorkerRefs(List<T> workerRefs, Role role) {
         this.workerRefs = workerRefs;
-        this.workerSelector = workerSelector;
         this.role = role;
     }
 
     public void tell(Object message) throws WorkerInvokeException {
-        logger.debug("WorkerSelector instance of {}", workerSelector.getClass());
+//        logger.debug("WorkerSelector instance of {}", workerSelector.getClass());
         workerRefs.forEach(workerRef -> {
             if (workerRef instanceof RemoteWorkerRef) {
                 logger.debug("message hashcode: {}, select workers: {}", message.hashCode(), workerRef.toString());
             }
         });
-        workerSelector.select(workerRefs, message).tell(message);
+//        workerSelector.select(workerRefs, message).tell(message);
     }
 }

@@ -16,16 +16,25 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.stream.worker.base;
+package org.skywalking.apm.collector.agent.grpc;
 
-import org.skywalking.apm.collector.remote.RoutingRule;
+import org.skywalking.apm.collector.cluster.ModuleRegistration;
+import org.skywalking.apm.collector.core.util.Const;
 
 /**
  * @author peng-yongsheng
  */
-public interface Role {
+public class AgentModuleGRPCRegistration extends ModuleRegistration {
 
-    String roleName();
+    private final String host;
+    private final int port;
 
-    RoutingRule routingRule();
+    public AgentModuleGRPCRegistration(String host, int port) {
+        this.host = host;
+        this.port = port;
+    }
+
+    @Override public Value buildValue() {
+        return new Value(host, port, Const.EMPTY_STRING);
+    }
 }

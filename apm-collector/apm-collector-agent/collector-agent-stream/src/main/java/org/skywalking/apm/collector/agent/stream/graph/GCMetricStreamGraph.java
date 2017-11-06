@@ -16,16 +16,20 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.stream.worker.base;
+package org.skywalking.apm.collector.agent.stream.graph;
 
-import org.skywalking.apm.collector.remote.RoutingRule;
+import org.skywalking.apm.collector.core.graph.Graph;
+import org.skywalking.apm.collector.core.graph.GraphManager;
+import org.skywalking.apm.collector.storage.table.jvm.GCMetric;
 
 /**
  * @author peng-yongsheng
  */
-public interface Role {
+public class GCMetricStreamGraph {
 
-    String roleName();
-
-    RoutingRule routingRule();
+    public Graph<GCMetric> createIfAbsent() {
+        Graph<GCMetric> graph = GraphManager.INSTANCE.createIfAbsent(1, GCMetric.class);
+        graph.addNode();
+        return graph;
+    }
 }

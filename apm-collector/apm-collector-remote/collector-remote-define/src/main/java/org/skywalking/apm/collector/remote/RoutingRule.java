@@ -16,16 +16,11 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.stream.worker.base;
-
-import org.skywalking.apm.collector.remote.RoutingRule;
+package org.skywalking.apm.collector.remote;
 
 /**
  * @author peng-yongsheng
  */
-public interface Role {
-
-    String roleName();
-
-    RoutingRule routingRule();
+public enum RoutingRule {
+    HashCode, ForeverFirst
 }
