@@ -3,9 +3,8 @@
 
   * Getting Started
     * [Quick start](en/Quick-start.md)
-      * [Deploy Standalone mode collector](en/Deploy-collector-in-standalong-mode.md)
-      * [Deploy Cluster mode collector](en/Deploy-cluster-in-cluster-mode.md)
-      * [Deploy javaagent](en/Deploy-skywalking-agent.md)
+      * [Deploy Standalone mode collector](en/Deploy-collector-in-standalone-mode.md)
+      * [Deploy Cluster mode collector](en/Deploy-collector-in-cluster-mode.md)
       * [Deploy javaagent](en/Deploy-skywalking-agent.md)
     * [Deploy docker image](en/Deploy-docker-image.md)
     * [Supported middlewares, frameworks and libraries](en/Supported-list.md)
