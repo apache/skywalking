@@ -31,10 +31,24 @@ import org.skywalking.apm.collector.jetty.manager.service.JettyManagerService;
 import org.skywalking.apm.collector.naming.NamingModule;
 import org.skywalking.apm.collector.naming.service.NamingHandlerRegisterService;
 import org.skywalking.apm.collector.server.Server;
+import org.skywalking.apm.collector.storage.StorageModule;
+import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.ui.UIModule;
+import org.skywalking.apm.collector.ui.jetty.handler.SegmentTopGetHandler;
+import org.skywalking.apm.collector.ui.jetty.handler.SpanGetHandler;
+import org.skywalking.apm.collector.ui.jetty.handler.TraceDagGetHandler;
+import org.skywalking.apm.collector.ui.jetty.handler.TraceStackGetHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.application.ApplicationsGetHandler;
+import org.skywalking.apm.collector.ui.jetty.handler.instancehealth.InstanceHealthGetHandler;
+import org.skywalking.apm.collector.ui.jetty.handler.instancemetric.InstanceMetricGetOneTimeBucketHandler;
+import org.skywalking.apm.collector.ui.jetty.handler.instancemetric.InstanceMetricGetRangeTimeBucketHandler;
+import org.skywalking.apm.collector.ui.jetty.handler.instancemetric.InstanceOsInfoGetHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.naming.UIJettyNamingHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.naming.UIJettyNamingListener;
+import org.skywalking.apm.collector.ui.jetty.handler.servicetree.EntryServiceGetHandler;
+import org.skywalking.apm.collector.ui.jetty.handler.servicetree.ServiceTreeGetByIdHandler;
+import org.skywalking.apm.collector.ui.jetty.handler.time.AllInstanceLastTimeGetHandler;
+import org.skywalking.apm.collector.ui.jetty.handler.time.OneInstanceLastTimeGetHandler;
 
 /**
  * @author peng-yongsheng
@@ -62,10 +76,6 @@ public class UIModuleJettyProvider extends ModuleProvider {
         Integer port = (Integer)config.get(PORT);
         String contextPath = config.getProperty(CONTEXT_PATH);
         try {
-            JettyManagerService managerService = getManager().find(JettyManagerModule.NAME).getService(JettyManagerService.class);
-            Server jettyServer = managerService.getOrCreateIfAbsent(host, port, contextPath);
-            jettyServer.addHandler(new ApplicationsGetHandler());
-
             ModuleRegisterService moduleRegisterService = getManager().find(ClusterModule.NAME).getService(ModuleRegisterService.class);
             moduleRegisterService.register(UIModule.NAME, this.name(), new UIModuleJettyRegistration(host, port, contextPath));
 
@@ -75,6 +85,12 @@ public class UIModuleJettyProvider extends ModuleProvider {
 
             NamingHandlerRegisterService namingHandlerRegisterService = getManager().find(NamingModule.NAME).getService(NamingHandlerRegisterService.class);
             namingHandlerRegisterService.register(new UIJettyNamingHandler(namingListener));
+
+            DAOService daoService = getManager().find(StorageModule.NAME).getService(DAOService.class);
+
+            JettyManagerService managerService = getManager().find(JettyManagerModule.NAME).getService(JettyManagerService.class);
+            Server jettyServer = managerService.getOrCreateIfAbsent(host, port, contextPath);
+            addHandlers(daoService, jettyServer);
         } catch (ModuleNotFoundException e) {
             throw new ServiceNotProvidedException(e.getMessage());
         }
@@ -86,5 +102,21 @@ public class UIModuleJettyProvider extends ModuleProvider {
 
     @Override public String[] requiredModules() {
         return new String[] {ClusterModule.NAME, JettyManagerModule.NAME, NamingModule.NAME};
+    }
+
+    private void addHandlers(DAOService daoService, Server jettyServer) {
+        jettyServer.addHandler(new ApplicationsGetHandler(daoService));
+        jettyServer.addHandler(new InstanceHealthGetHandler(daoService));
+        jettyServer.addHandler(new InstanceMetricGetOneTimeBucketHandler(daoService));
+        jettyServer.addHandler(new InstanceMetricGetRangeTimeBucketHandler(daoService));
+        jettyServer.addHandler(new InstanceOsInfoGetHandler(daoService));
+        jettyServer.addHandler(new EntryServiceGetHandler(daoService));
+        jettyServer.addHandler(new ServiceTreeGetByIdHandler(daoService));
+        jettyServer.addHandler(new AllInstanceLastTimeGetHandler(daoService));
+        jettyServer.addHandler(new OneInstanceLastTimeGetHandler(daoService));
+        jettyServer.addHandler(new SegmentTopGetHandler(daoService));
+        jettyServer.addHandler(new SpanGetHandler(daoService));
+        jettyServer.addHandler(new TraceDagGetHandler(daoService));
+        jettyServer.addHandler(new TraceStackGetHandler(daoService));
     }
 }

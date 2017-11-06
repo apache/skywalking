@@ -26,7 +26,7 @@ import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.skywalking.apm.collector.queue.QueueModule;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
 import org.skywalking.apm.collector.remote.RemoteModule;
-import org.skywalking.apm.collector.remote.service.RemoteClientService;
+import org.skywalking.apm.collector.remote.service.RemoteSenderService;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.stream.timer.PersistenceTimer;
@@ -51,7 +51,7 @@ public class StreamModuleProvider extends ModuleProvider {
         PersistenceTimer persistenceTimer = new PersistenceTimer();
         try {
             QueueCreatorService queueCreatorService = getManager().find(QueueModule.NAME).getService(QueueCreatorService.class);
-            RemoteClientService remoteClientService = getManager().find(RemoteModule.NAME).getService(RemoteClientService.class);
+            RemoteSenderService remoteSenderService = getManager().find(RemoteModule.NAME).getService(RemoteSenderService.class);
             DAOService daoService = getManager().find(StorageModule.NAME).getService(DAOService.class);
             persistenceTimer.start(daoService);
         } catch (ModuleNotFoundException e) {
