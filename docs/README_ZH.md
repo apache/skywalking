@@ -10,7 +10,6 @@
   * [中间件，框架与类库支持列表](Supported-list.md)
     * [如何关闭特定插件](cn/How-to-disable-plugin-CN.md)
   * APM相关介绍资料
-    * [APM简介（百度百科）](http://baike.baidu.com/link?url=HizLjnUrwvXqPQ4fZH_MA81MA7R_sE-kpdEIfuUHf-yNHhPiEkA97_7FshVR6raiZL6pvbChTZSIgrC1lY6lhq.md)
     * [OpenTracing中文版](https://github.com/opentracing-contrib/opentracing-specification-zh.md)
   * Application Toolkit，应用程序工具包
     * [概述](cn/Application-toolkit-CN.md)
@@ -22,7 +21,7 @@
     * [Trace](cn/Application-toolkit-trace-CN.md)
   * 测试用例
     * [插件测试](https://github.com/SkywalkingTest/agent-integration-test-report)
-    * [Java 探针性能测试](https://skywalkingtest.github.io/Agent-Benchmarks/)
+    * [Java 探针性能测试](https://skywalkingtest.github.io/Agent-Benchmarks/README_zh.html)
   * 开发指南
     * [工程编译指南](cn/How-to-build-CN.md)
     * [插件开发指南](cn/Plugin-Development-Guide-CN.md)
