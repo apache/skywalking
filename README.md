@@ -11,7 +11,7 @@ Sky Walking | [中文](README_ZH.md)
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
 
 * Provide Java agent, **no need to CHANGE any application source code**.
-  * High performance agent. Only increase extra **10%** cpu cost in 5000+ tps application, even **When collect all traces**, [check test reports](#test-reports).
+  * High performance agent. Only increase extra **10%** cpu cost in 5000+ tps application, even **when collect all traces**.
   * [Supported middlewares, frameworks and libraries](https://github.com/OpenSkywalking/sky-walking/wiki/3.2-supported-list).
 * Manual instrumentation
   * As an [OpenTracing supported tracer](http://opentracing.io/documentation/pages/supported-tracers)
