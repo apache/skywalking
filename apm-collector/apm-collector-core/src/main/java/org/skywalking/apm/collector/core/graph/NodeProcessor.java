@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.core.graph;
 /**
  * @author peng-yongsheng, wu-sheng
  */
-public interface NodeHandler<Input, Output> {
+public interface NodeProcessor<INPUT, OUTPUT> {
     /**
      * The unique id in the certain graph.
      *
@@ -29,5 +29,5 @@ public interface NodeHandler<Input, Output> {
      */
     int id();
 
-    void process(Input input, Next<Output> next);
+    void process(INPUT INPUT, Next<OUTPUT> next);
 }

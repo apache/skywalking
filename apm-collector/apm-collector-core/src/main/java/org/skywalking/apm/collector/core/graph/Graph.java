@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author peng-yongsheng, wu-sheng
  */
-public final class Graph<Input> {
+public final class Graph<INPUT> {
     private int id;
     private Node startNode;
     private ConcurrentHashMap<Integer, Node> nodeIndex = new ConcurrentHashMap<>();
@@ -32,13 +32,13 @@ public final class Graph<Input> {
         this.id = id;
     }
 
-    public void start(Input input) {
-        startNode.execute(input);
+    public void start(INPUT INPUT) {
+        startNode.execute(INPUT);
     }
 
-    public <Output> Node<Input, Output> addNode(NodeHandler<Input, Output> nodeHandler) {
+    public <OUTPUT> Node<INPUT, OUTPUT> addNode(NodeProcessor<INPUT, OUTPUT> nodeProcessor) {
         synchronized (this) {
-            startNode = new Node(this, nodeHandler);
+            startNode = new Node(this, nodeProcessor);
             return startNode;
         }
     }

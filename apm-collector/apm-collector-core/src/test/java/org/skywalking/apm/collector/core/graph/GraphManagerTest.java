@@ -31,6 +31,7 @@ import org.junit.Test;
 public class GraphManagerTest {
     private static PrintStream OUT_REF;
     private ByteArrayOutputStream outputStream;
+    private static String lineSeparator = System.lineSeparator();
 
     @Before
     public void initAndHoldOut() {
@@ -48,13 +49,13 @@ public class GraphManagerTest {
     @Test
     public void testGraph() {
         Graph<String> testGraph = GraphManager.INSTANCE.createIfAbsent(1, String.class);
-        Node<String, String> node = testGraph.addNode(new Node1Handler());
-        Node<String, Integer> node1 = node.addNext(new Node2Handler());
+        Node<String, String> node = testGraph.addNode(new Node1Processor());
+        Node<String, Integer> node1 = node.addNext(new Node2Processor());
         testGraph.start("Input String");
 
         String output = outputStream.toString();
-        String expected = "Node1 process: s=Input String\n" +
-            "Node2 process: s=Input String\n";
+        String expected = "Node1 process: s=Input String" + lineSeparator +
+            "Node2 process: s=Input String" + lineSeparator;
 
         Assert.assertEquals(expected, output);
     }
@@ -62,14 +63,14 @@ public class GraphManagerTest {
     @Test
     public void testGraphWithChainStyle() {
         Graph<String> graph = GraphManager.INSTANCE.createIfAbsent(2, String.class);
-        graph.addNode(new Node1Handler()).addNext(new Node2Handler()).addNext(new Node4Handler());
+        graph.addNode(new Node1Processor()).addNext(new Node2Processor()).addNext(new Node4Processor());
 
         graph.start("Input String");
 
         String output = outputStream.toString();
-        String expected = "Node1 process: s=Input String\n" +
-            "Node2 process: s=Input String\n" +
-            "Node4 process: int=123\n";
+        String expected = "Node1 process: s=Input String" + lineSeparator +
+            "Node2 process: s=Input String" + lineSeparator +
+            "Node4 process: int=123" + lineSeparator;
 
         Assert.assertEquals(expected, output);
     }
@@ -77,21 +78,21 @@ public class GraphManagerTest {
     @Test(expected = PotentialAcyclicGraphException.class)
     public void testPotentialAcyclicGraph() {
         Graph<String> testGraph = GraphManager.INSTANCE.createIfAbsent(3, String.class);
-        Node<String, String> node = testGraph.addNode(new Node1Handler());
-        node.addNext(new Node1Handler());
+        Node<String, String> node = testGraph.addNode(new Node1Processor());
+        node.addNext(new Node1Processor());
     }
 
     @Test
     public void testContinueStream() {
         Graph<String> graph = GraphManager.INSTANCE.createIfAbsent(4, String.class);
-        graph.addNode(new Node1Handler()).addNext(new Node2Handler()).addNext(new Node4Handler());
+        graph.addNode(new Node1Processor()).addNext(new Node2Processor()).addNext(new Node4Processor());
 
         Next next = GraphManager.INSTANCE.findGraph(4).findNext(2);
 
         next.execute(123);
         String output = outputStream.toString();
         String expected =
-            "Node4 process: int=123\n";
+            "Node4 process: int=123" + lineSeparator;
 
         Assert.assertEquals(expected, output);
     }
@@ -99,7 +100,7 @@ public class GraphManagerTest {
     @Test(expected = NodeNotFoundException.class)
     public void handlerNotFound() {
         Graph<String> graph = GraphManager.INSTANCE.createIfAbsent(5, String.class);
-        graph.addNode(new Node1Handler()).addNext(new Node2Handler()).addNext(new Node4Handler());
+        graph.addNode(new Node1Processor()).addNext(new Node2Processor()).addNext(new Node4Processor());
 
         Next next = GraphManager.INSTANCE.findGraph(5).findNext(3);
     }
