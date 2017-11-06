@@ -51,6 +51,7 @@ public class NodeMappingSpanListener implements RefsListener, FirstSpanListener 
         NodeMappingDataDefine.NodeMapping nodeMapping = new NodeMappingDataDefine.NodeMapping();
         nodeMapping.setApplicationId(applicationId);
         nodeMapping.setAddressId(referenceDecorator.getNetworkAddressId());
+        nodeMapping.setAddress(Const.EMPTY_STRING);
         String id = String.valueOf(applicationId) + Const.ID_SPLIT + String.valueOf(nodeMapping.getAddressId());
         nodeMapping.setId(id);
         nodeMappings.add(nodeMapping);
