@@ -75,7 +75,7 @@ public class GraphManagerTest {
         Assert.assertEquals(expected, output);
     }
 
-    @Test(expected = PotentialAcyclicGraphException.class)
+    @Test(expected = PotentialCyclicGraphException.class)
     public void testPotentialAcyclicGraph() {
         Graph<String> testGraph = GraphManager.INSTANCE.createIfAbsent(3, String.class);
         Node<String, String> node = testGraph.addNode(new Node1Processor());

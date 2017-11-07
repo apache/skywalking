@@ -39,7 +39,7 @@ public class ModuleManager {
      * @param applicationConfiguration
      */
     public void init(
-        ApplicationConfiguration applicationConfiguration) throws ModuleNotFoundException, ProviderNotFoundException, ServiceNotProvidedException {
+        ApplicationConfiguration applicationConfiguration) throws ModuleNotFoundException, ProviderNotFoundException, ServiceNotProvidedException, CycleDependencyException {
         String[] moduleNames = applicationConfiguration.moduleList();
         ServiceLoader<Module> moduleServiceLoader = ServiceLoader.load(Module.class);
         LinkedList<String> moduleList = new LinkedList(Arrays.asList(moduleNames));
@@ -65,13 +65,10 @@ public class ModuleManager {
             throw new ModuleNotFoundException(moduleList.toString() + " missing.");
         }
 
-        for (Module module : loadedModules.values()) {
-            module.start(this, applicationConfiguration.getModuleConfiguration(module.name()));
-        }
+        BootstrapFlow bootstrapFlow = new BootstrapFlow(loadedModules, applicationConfiguration);
 
-        for (Module module : loadedModules.values()) {
-            module.notifyAfterCompleted();
-        }
+        bootstrapFlow.start(this, applicationConfiguration);
+        bootstrapFlow.notifyAfterCompleted();
     }
 
     public boolean has(String moduleName) {

@@ -87,45 +87,15 @@ public abstract class Module {
         }
     }
 
-    void start(ModuleManager moduleManager,
-        ApplicationConfiguration.ModuleConfiguration configuration) throws ProviderNotFoundException, ModuleNotFoundException, ServiceNotProvidedException {
-        for (ModuleProvider provider : loadedProviders) {
-            String[] requiredModules = provider.requiredModules();
-            if (requiredModules != null) {
-                for (String module : requiredModules) {
-                    if (!moduleManager.has(module)) {
-                        throw new ModuleNotFoundException(module + " is required by " + name() + ", but not found.");
-                    }
-                }
-            }
-            logger.info("start the provider {} in {} module.", provider.name(), provider.module().getName());
-            provider.start(configuration.getProviderConfiguration(provider.name()));
-
-            provider.requiredCheck(services());
-        }
-    }
-
-    void notifyAfterCompleted() throws ProviderNotFoundException, ModuleNotFoundException, ServiceNotProvidedException {
-        for (ModuleProvider provider : loadedProviders) {
-            provider.notifyAfterCompleted();
-        }
-    }
-
     /**
      * @return providers of this module
      */
-    final List<ModuleProvider> providers() throws ProviderNotFoundException {
-        if (loadedProviders.size() == 0) {
-            throw new ProviderNotFoundException(this.name() + " module no provider exists.");
-        }
-
+    final List<ModuleProvider> providers() {
         return loadedProviders;
     }
 
     final ModuleProvider provider() throws ProviderNotFoundException, DuplicateProviderException {
-        if (loadedProviders.size() == 0) {
-            throw new ProviderNotFoundException(this.name() + " module no provider exists.");
-        } else if (loadedProviders.size() > 1) {
+        if (loadedProviders.size() > 1) {
             throw new DuplicateProviderException(this.name() + " module exist " + loadedProviders.size() + " providers");
         }
 

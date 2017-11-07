@@ -46,7 +46,7 @@ public final class Graph<INPUT> {
     void checkForNewNode(Node node) {
         int nodeId = node.getHandler().id();
         if (nodeIndex.containsKey(nodeId)) {
-            throw new PotentialAcyclicGraphException("handler="
+            throw new PotentialCyclicGraphException("handler="
                 + node.getHandler().getClass().getName()
                 + " already exists in graph[" + id + "】");
         }
