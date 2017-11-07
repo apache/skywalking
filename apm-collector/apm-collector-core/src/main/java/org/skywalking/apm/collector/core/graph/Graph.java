@@ -48,7 +48,7 @@ public final class Graph<INPUT> {
         if (node == null) {
             throw new NodeNotFoundException("Can't find node with handlerId="
                 + handlerId
-                + " in graph[" + id + "】");
+                + " in graph[" + id + "]");
         }
         return node.getNext();
     }
@@ -63,4 +63,11 @@ public final class Graph<INPUT> {
         nodeIndex.put(nodeId, node);
     }
 
+    public GraphBuilder toBuilder(){
+        return new GraphBuilder(this);
+    }
+
+    ConcurrentHashMap<Integer, Node> getNodeIndex() {
+        return nodeIndex;
+    }
 }

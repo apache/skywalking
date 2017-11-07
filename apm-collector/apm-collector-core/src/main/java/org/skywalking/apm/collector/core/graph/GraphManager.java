@@ -52,4 +52,8 @@ public enum GraphManager {
         }
         return graph;
     }
+
+    public void reset() {
+        allGraphs.clear();
+    }
 }

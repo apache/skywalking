@@ -104,4 +104,18 @@ public class GraphManagerTest {
 
         Next next = GraphManager.INSTANCE.findGraph(5).findNext(3);
     }
+
+    @Test
+    public void testFindNode() {
+        Graph<String> graph = GraphManager.INSTANCE.createIfAbsent(6, String.class);
+        graph.addNode(new Node1Processor()).addNext(new Node2Processor());
+
+        Node<?, Integer> foundNode = GraphManager.INSTANCE.findGraph(6).toBuilder().findNode(2, Integer.class);
+        foundNode.addNext(new Node4Processor());
+    }
+
+    @After
+    public void tearDown() {
+        GraphManager.INSTANCE.reset();
+    }
 }
