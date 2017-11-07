@@ -43,16 +43,6 @@ public final class Graph<INPUT> {
         }
     }
 
-    public Next findNext(int handlerId) {
-        Node node = nodeIndex.get(handlerId);
-        if (node == null) {
-            throw new NodeNotFoundException("Can't find node with handlerId="
-                + handlerId
-                + " in graph[" + id + "]");
-        }
-        return node.getNext();
-    }
-
     void checkForNewNode(Node node) {
         int nodeId = node.getHandler().id();
         if (nodeIndex.containsKey(nodeId)) {
@@ -63,11 +53,15 @@ public final class Graph<INPUT> {
         nodeIndex.put(nodeId, node);
     }
 
-    public GraphBuilder toBuilder(){
-        return new GraphBuilder(this);
+    public GraphNodeFinder toFinder() {
+        return new GraphNodeFinder(this);
     }
 
     ConcurrentHashMap<Integer, Node> getNodeIndex() {
         return nodeIndex;
+    }
+
+    int getId() {
+        return id;
     }
 }
