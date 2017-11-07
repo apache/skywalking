@@ -21,8 +21,8 @@ package org.skywalking.apm.collector.core.graph;
 /**
  * @author wusheng
  */
-public class PotentialAcyclicGraphException extends RuntimeException {
-    public PotentialAcyclicGraphException(String message) {
+public class PotentialCyclicGraphException extends RuntimeException {
+    public PotentialCyclicGraphException(String message) {
         super(message);
     }
 }

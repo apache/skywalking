@@ -133,4 +133,12 @@ public abstract class ModuleProvider {
 
         throw new ServiceNotProvidedException("Service " + serviceType.getName() + " should not be provided, based on module define.");
     }
+
+    Module getModule() {
+        return module;
+    }
+
+    String getModuleName() {
+        return module.name();
+    }
 }
