@@ -18,13 +18,15 @@
 
 package org.skywalking.apm.collector.storage.base.dao;
 
+import org.skywalking.apm.collector.core.data.Data;
+
 /**
  * @author peng-yongsheng
  */
-public interface IPersistenceDAO<Insert, Update, Data> {
-    Data get(String id);
+public interface IPersistenceDAO<Insert, Update, DataImpl extends Data> {
+    DataImpl get(String id);
 
-    Insert prepareBatchInsert(Data data);
+    Insert prepareBatchInsert(DataImpl data);
 
-    Update prepareBatchUpdate(Data data);
+    Update prepareBatchUpdate(DataImpl data);
 }

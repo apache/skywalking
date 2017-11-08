@@ -24,13 +24,10 @@ import java.util.Map;
 import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.queue.base.EndOfBatchCommand;
-import org.skywalking.apm.collector.storage.base.dao.DAOContainer;
 import org.skywalking.apm.collector.storage.base.dao.IBatchDAO;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
+import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorker;
-import org.skywalking.apm.collector.stream.worker.base.ClusterWorkerContext;
-import org.skywalking.apm.collector.stream.worker.base.ProviderNotFoundException;
-import org.skywalking.apm.collector.stream.worker.base.Role;
 import org.skywalking.apm.collector.stream.worker.base.WorkerException;
 import org.skywalking.apm.collector.stream.worker.impl.data.DataCache;
 import org.slf4j.Logger;
@@ -43,15 +40,12 @@ public abstract class PersistenceWorker extends AbstractLocalAsyncWorker {
 
     private final Logger logger = LoggerFactory.getLogger(PersistenceWorker.class);
 
-    private DataCache dataCache;
+    private final DAOService daoService;
+    private final DataCache dataCache;
 
-    public PersistenceWorker(Role role, ClusterWorkerContext clusterContext) {
-        super(role, clusterContext);
-        dataCache = new DataCache();
-    }
-
-    @Override public void preStart() throws ProviderNotFoundException {
-        super.preStart();
+    public PersistenceWorker(DAOService daoService) {
+        this.dataCache = new DataCache();
+        this.daoService = daoService;
     }
 
     @Override protected final void onWork(Object message) throws WorkerException {
@@ -71,7 +65,7 @@ public abstract class PersistenceWorker extends AbstractLocalAsyncWorker {
                         dataCache.switchPointer();
 
                         List<?> collection = buildBatchCollection();
-                        IBatchDAO dao = (IBatchDAO)DAOContainer.INSTANCE.get(IBatchDAO.class.getName());
+                        IBatchDAO dao = (IBatchDAO)daoService.get(IBatchDAO.class);
                         dao.batchPersistence(collection);
                     }
                 } finally {
@@ -107,9 +101,9 @@ public abstract class PersistenceWorker extends AbstractLocalAsyncWorker {
         List<Object> updateBatchCollection = new LinkedList<>();
         dataMap.forEach((id, data) -> {
             if (needMergeDBData()) {
-                Data dbData = persistenceDAO().get(id, getRole().dataDefine());
+                Data dbData = persistenceDAO().get(id);
                 if (ObjectUtils.isNotEmpty(dbData)) {
-                    getRole().dataDefine().mergeData(data, dbData);
+                    dbData.mergeData(data);
                     try {
                         updateBatchCollection.add(persistenceDAO().prepareBatchUpdate(data));
                     } catch (Throwable t) {
@@ -137,12 +131,12 @@ public abstract class PersistenceWorker extends AbstractLocalAsyncWorker {
 
     private void aggregate(Object message) {
         dataCache.writing();
-        Data data = (Data)message;
+        Data newData = (Data)message;
 
-        if (dataCache.containsKey(data.getId())) {
-            getRole().dataDefine().mergeData(dataCache.get(data.getId()), data);
+        if (dataCache.containsKey(newData.getId())) {
+            dataCache.get(newData.getId()).mergeData(newData);
         } else {
-            dataCache.put(data.getId(), data);
+            dataCache.put(newData.getId(), newData);
         }
 
         dataCache.finishWriting();

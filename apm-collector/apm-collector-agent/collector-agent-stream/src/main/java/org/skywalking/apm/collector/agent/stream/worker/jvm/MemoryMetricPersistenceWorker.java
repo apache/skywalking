@@ -16,20 +16,22 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.agent.stream.graph;
+package org.skywalking.apm.collector.agent.stream.worker.jvm;
 
-import org.skywalking.apm.collector.core.graph.Graph;
-import org.skywalking.apm.collector.core.graph.GraphManager;
-import org.skywalking.apm.collector.storage.table.jvm.GCMetric;
+import org.skywalking.apm.collector.core.graph.Next;
+import org.skywalking.apm.collector.core.graph.NodeProcessor;
+import org.skywalking.apm.collector.storage.table.jvm.MemoryMetric;
 
 /**
  * @author peng-yongsheng
  */
-public class GCMetricStreamGraph {
+public class MemoryMetricPersistenceWorker implements NodeProcessor<MemoryMetric, MemoryMetric> {
 
-    public Graph<GCMetric> createIfAbsent() {
-        Graph<GCMetric> graph = GraphManager.INSTANCE.createIfAbsent(1, GCMetric.class);
-        graph.addNode();
-        return graph;
+    @Override public int id() {
+        return 0;
+    }
+
+    @Override public void process(MemoryMetric INPUT, Next<MemoryMetric> next) {
+
     }
 }

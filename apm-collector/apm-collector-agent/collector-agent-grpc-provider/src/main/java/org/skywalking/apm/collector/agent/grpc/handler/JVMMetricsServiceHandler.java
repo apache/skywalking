@@ -20,24 +20,17 @@ package org.skywalking.apm.collector.agent.grpc.handler;
 
 import io.grpc.stub.StreamObserver;
 import java.util.List;
-import org.skywalking.apm.collector.agentjvm.worker.cpu.CpuMetricPersistenceWorker;
-import org.skywalking.apm.collector.agentjvm.worker.gc.GCMetricPersistenceWorker;
-import org.skywalking.apm.collector.agentjvm.worker.heartbeat.InstHeartBeatPersistenceWorker;
-import org.skywalking.apm.collector.agentjvm.worker.heartbeat.define.InstanceHeartBeatDataDefine;
-import org.skywalking.apm.collector.agentjvm.worker.memory.MemoryMetricPersistenceWorker;
-import org.skywalking.apm.collector.agentjvm.worker.memorypool.MemoryPoolMetricPersistenceWorker;
-import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
+import org.skywalking.apm.collector.agent.stream.graph.JvmMetricStreamGraph;
+import org.skywalking.apm.collector.core.graph.Graph;
+import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.server.grpc.GRPCHandler;
-import org.skywalking.apm.collector.storage.define.jvm.CpuMetricDataDefine;
-import org.skywalking.apm.collector.storage.define.jvm.GCMetricDataDefine;
-import org.skywalking.apm.collector.storage.define.jvm.MemoryMetricDataDefine;
-import org.skywalking.apm.collector.storage.define.jvm.MemoryPoolMetricDataDefine;
-import org.skywalking.apm.collector.stream.StreamModuleContext;
-import org.skywalking.apm.collector.stream.StreamModuleGroupDefine;
-import org.skywalking.apm.collector.stream.worker.WorkerInvokeException;
-import org.skywalking.apm.collector.stream.worker.WorkerNotFoundException;
+import org.skywalking.apm.collector.storage.table.jvm.CpuMetric;
+import org.skywalking.apm.collector.storage.table.jvm.GCMetric;
+import org.skywalking.apm.collector.storage.table.jvm.MemoryMetric;
+import org.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetric;
+import org.skywalking.apm.collector.storage.table.register.Instance;
 import org.skywalking.apm.network.proto.CPU;
 import org.skywalking.apm.network.proto.Downstream;
 import org.skywalking.apm.network.proto.GC;
@@ -55,81 +48,77 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
 
     private final Logger logger = LoggerFactory.getLogger(JVMMetricsServiceHandler.class);
 
+    private final Graph memoryMetricGraph;
+    private final Graph memoryPoolMetricGraph;
+    private final Graph gcMetricGraph;
+    private final Graph cpuMetricGraph;
+    private final Graph heartBeatGraph;
+
+    public JVMMetricsServiceHandler() {
+        memoryPoolMetricGraph = GraphManager.INSTANCE.findGraph(JvmMetricStreamGraph.MEMORY_POOL_METRIC_GRAPH_ID);
+        memoryMetricGraph = GraphManager.INSTANCE.findGraph(JvmMetricStreamGraph.MEMORY_METRIC_GRAPH_ID);
+        gcMetricGraph = GraphManager.INSTANCE.findGraph(JvmMetricStreamGraph.GC_METRIC_GRAPH_ID);
+        cpuMetricGraph = GraphManager.INSTANCE.findGraph(JvmMetricStreamGraph.CPU_METRIC_GRAPH_ID);
+        heartBeatGraph = GraphManager.INSTANCE.findGraph(JvmMetricStreamGraph.INST_HEART_BEAT_GRAPH_ID);
+    }
+
     @Override public void collect(JVMMetrics request, StreamObserver<Downstream> responseObserver) {
         int instanceId = request.getApplicationInstanceId();
         logger.debug("receive the jvm metric from application instance, id: {}", instanceId);
 
-        StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
         request.getMetricsList().forEach(metric -> {
             long time = TimeBucketUtils.INSTANCE.getSecondTimeBucket(metric.getTime());
-            senToInstanceHeartBeatPersistenceWorker(context, instanceId, metric.getTime());
-            sendToCpuMetricPersistenceWorker(context, instanceId, time, metric.getCpu());
-            sendToMemoryMetricPersistenceWorker(context, instanceId, time, metric.getMemoryList());
-            sendToMemoryPoolMetricPersistenceWorker(context, instanceId, time, metric.getMemoryPoolList());
-            sendToGCMetricPersistenceWorker(context, instanceId, time, metric.getGcList());
+            senToInstanceHeartBeatPersistenceWorker(instanceId, metric.getTime());
+            sendToCpuMetricPersistenceWorker(instanceId, time, metric.getCpu());
+            sendToMemoryMetricPersistenceWorker(instanceId, time, metric.getMemoryList());
+            sendToMemoryPoolMetricPersistenceWorker(instanceId, time, metric.getMemoryPoolList());
+            sendToGCMetricPersistenceWorker(instanceId, time, metric.getGcList());
         });
 
         responseObserver.onNext(Downstream.newBuilder().build());
         responseObserver.onCompleted();
     }
 
-    private void senToInstanceHeartBeatPersistenceWorker(StreamModuleContext context, int instanceId,
-        long heartBeatTime) {
-        InstanceHeartBeatDataDefine.InstanceHeartBeat heartBeat = new InstanceHeartBeatDataDefine.InstanceHeartBeat();
-        heartBeat.setId(String.valueOf(instanceId));
-        heartBeat.setHeartBeatTime(TimeBucketUtils.INSTANCE.getSecondTimeBucket(heartBeatTime));
-        heartBeat.setInstanceId(instanceId);
-        try {
-            logger.debug("send to instance heart beat persistence worker, id: {}", heartBeat.getId());
-            context.getClusterWorkerContext().lookup(InstHeartBeatPersistenceWorker.WorkerRole.INSTANCE).tell(heartBeat.toData());
-        } catch (WorkerInvokeException | WorkerNotFoundException e) {
-            logger.error(e.getMessage(), e);
-        }
+    private void senToInstanceHeartBeatPersistenceWorker(int instanceId, long heartBeatTime) {
+        Instance instance = new Instance(String.valueOf(instanceId));
+        instance.setHeartBeatTime(TimeBucketUtils.INSTANCE.getSecondTimeBucket(heartBeatTime));
+        instance.setInstanceId(instanceId);
+
+        logger.debug("send to instance heart beat persistence worker, id: {}", instance.getId());
+        heartBeatGraph.start(instance);
     }
 
-    private void sendToCpuMetricPersistenceWorker(StreamModuleContext context, int instanceId,
-        long timeBucket, CPU cpu) {
-        CpuMetricDataDefine.CpuMetric cpuMetric = new CpuMetricDataDefine.CpuMetric();
-        cpuMetric.setId(timeBucket + Const.ID_SPLIT + instanceId);
+    private void sendToCpuMetricPersistenceWorker(int instanceId, long timeBucket, CPU cpu) {
+        CpuMetric cpuMetric = new CpuMetric(timeBucket + Const.ID_SPLIT + instanceId);
         cpuMetric.setInstanceId(instanceId);
         cpuMetric.setUsagePercent(cpu.getUsagePercent());
         cpuMetric.setTimeBucket(timeBucket);
-        try {
-            logger.debug("send to cpu metric persistence worker, id: {}", cpuMetric.getId());
-            context.getClusterWorkerContext().lookup(CpuMetricPersistenceWorker.WorkerRole.INSTANCE).tell(cpuMetric.toData());
-        } catch (WorkerInvokeException | WorkerNotFoundException e) {
-            logger.error(e.getMessage(), e);
-        }
+
+        logger.debug("send to cpu metric graph, id: {}", cpuMetric.getId());
+        cpuMetricGraph.start(cpuMetric);
     }
 
-    private void sendToMemoryMetricPersistenceWorker(StreamModuleContext context, int instanceId,
-        long timeBucket, List<Memory> memories) {
-
+    private void sendToMemoryMetricPersistenceWorker(int instanceId, long timeBucket, List<Memory> memories) {
         memories.forEach(memory -> {
-            MemoryMetricDataDefine.MemoryMetric memoryMetric = new MemoryMetricDataDefine.MemoryMetric();
-            memoryMetric.setId(timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + String.valueOf(memory.getIsHeap()));
-            memoryMetric.setApplicationInstanceId(instanceId);
-            memoryMetric.setHeap(memory.getIsHeap());
+            MemoryMetric memoryMetric = new MemoryMetric(timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + String.valueOf(memory.getIsHeap()));
+            memoryMetric.setInstanceId(instanceId);
+            memoryMetric.setIsHeap(memory.getIsHeap());
             memoryMetric.setInit(memory.getInit());
             memoryMetric.setMax(memory.getMax());
             memoryMetric.setUsed(memory.getUsed());
             memoryMetric.setCommitted(memory.getCommitted());
             memoryMetric.setTimeBucket(timeBucket);
-            try {
-                logger.debug("send to memory metric persistence worker, id: {}", memoryMetric.getId());
-                context.getClusterWorkerContext().lookup(MemoryMetricPersistenceWorker.WorkerRole.INSTANCE).tell(memoryMetric.toData());
-            } catch (WorkerInvokeException | WorkerNotFoundException e) {
-                logger.error(e.getMessage(), e);
-            }
+
+            logger.debug("send to memory metric graph, id: {}", memoryMetric.getId());
+            memoryMetricGraph.start(memoryMetric);
         });
     }
 
-    private void sendToMemoryPoolMetricPersistenceWorker(StreamModuleContext context, int instanceId,
-        long timeBucket, List<MemoryPool> memoryPools) {
+    private void sendToMemoryPoolMetricPersistenceWorker(int instanceId, long timeBucket,
+        List<MemoryPool> memoryPools) {
 
         memoryPools.forEach(memoryPool -> {
-            MemoryPoolMetricDataDefine.MemoryPoolMetric memoryPoolMetric = new MemoryPoolMetricDataDefine.MemoryPoolMetric();
-            memoryPoolMetric.setId(timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + String.valueOf(memoryPool.getType().getNumber()));
+            MemoryPoolMetric memoryPoolMetric = new MemoryPoolMetric(timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + String.valueOf(memoryPool.getType().getNumber()));
             memoryPoolMetric.setInstanceId(instanceId);
             memoryPoolMetric.setPoolType(memoryPool.getType().getNumber());
             memoryPoolMetric.setInit(memoryPool.getInit());
@@ -137,31 +126,23 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
             memoryPoolMetric.setUsed(memoryPool.getUsed());
             memoryPoolMetric.setCommitted(memoryPool.getCommited());
             memoryPoolMetric.setTimeBucket(timeBucket);
-            try {
-                logger.debug("send to memory pool metric persistence worker, id: {}", memoryPoolMetric.getId());
-                context.getClusterWorkerContext().lookup(MemoryPoolMetricPersistenceWorker.WorkerRole.INSTANCE).tell(memoryPoolMetric.toData());
-            } catch (WorkerInvokeException | WorkerNotFoundException e) {
-                logger.error(e.getMessage(), e);
-            }
+
+            logger.debug("send to memory pool metric graph, id: {}", memoryPoolMetric.getId());
+            memoryPoolMetricGraph.start(memoryPoolMetric);
         });
     }
 
-    private void sendToGCMetricPersistenceWorker(StreamModuleContext context, int instanceId,
-        long timeBucket, List<GC> gcs) {
+    private void sendToGCMetricPersistenceWorker(int instanceId, long timeBucket, List<GC> gcs) {
         gcs.forEach(gc -> {
-            GCMetricDataDefine.GCMetric gcMetric = new GCMetricDataDefine.GCMetric();
-            gcMetric.setId(timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + String.valueOf(gc.getPhraseValue()));
+            GCMetric gcMetric = new GCMetric(timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + String.valueOf(gc.getPhraseValue()));
             gcMetric.setInstanceId(instanceId);
             gcMetric.setPhrase(gc.getPhraseValue());
             gcMetric.setCount(gc.getCount());
             gcMetric.setTime(gc.getTime());
             gcMetric.setTimeBucket(timeBucket);
-            try {
-                logger.debug("send to gc metric persistence worker, id: {}", gcMetric.getId());
-                context.getClusterWorkerContext().lookup(GCMetricPersistenceWorker.WorkerRole.INSTANCE).tell(gcMetric.toData());
-            } catch (WorkerInvokeException | WorkerNotFoundException e) {
-                logger.error(e.getMessage(), e);
-            }
+
+            logger.debug("send to gc metric graph, id: {}", gcMetric.getId());
+            gcMetricGraph.start(gcMetric);
         });
     }
 }

@@ -27,8 +27,7 @@ public class LocalAsyncWorkerRef extends WorkerRef {
 
     private QueueEventHandler queueEventHandler;
 
-    public LocalAsyncWorkerRef(Role role, QueueEventHandler queueEventHandler) {
-        super(role);
+    public LocalAsyncWorkerRef(QueueEventHandler queueEventHandler) {
         this.queueEventHandler = queueEventHandler;
     }
 

@@ -16,16 +16,22 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.stream.worker.base;
+package org.skywalking.apm.collector.agent.stream.worker.jvm;
 
-import org.skywalking.apm.collector.remote.RoutingRule;
+import org.skywalking.apm.collector.core.graph.Next;
+import org.skywalking.apm.collector.core.graph.NodeProcessor;
+import org.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetric;
 
 /**
  * @author peng-yongsheng
  */
-public interface Role {
+public class MemoryPoolMetricPersistenceWorker implements NodeProcessor<MemoryPoolMetric, MemoryPoolMetric> {
 
-    String roleName();
+    @Override public int id() {
+        return 0;
+    }
 
-    RoutingRule routingRule();
+    @Override public void process(MemoryPoolMetric INPUT, Next<MemoryPoolMetric> next) {
+
+    }
 }

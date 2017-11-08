@@ -18,9 +18,10 @@
 
 package org.skywalking.apm.collector.queue.base;
 
+import org.skywalking.apm.collector.core.framework.Executor;
+
 /**
  * @author peng-yongsheng
  */
-public interface QueueExecutor {
-    void execute(Object message);
+public interface QueueExecutor extends Executor {
 }

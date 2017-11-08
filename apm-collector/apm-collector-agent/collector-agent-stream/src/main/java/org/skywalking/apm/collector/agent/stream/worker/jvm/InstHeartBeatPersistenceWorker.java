@@ -16,24 +16,22 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.stream.worker.base;
+package org.skywalking.apm.collector.agent.stream.worker.jvm;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.skywalking.apm.collector.core.graph.Next;
+import org.skywalking.apm.collector.core.graph.NodeProcessor;
+import org.skywalking.apm.collector.storage.table.register.Instance;
 
 /**
  * @author peng-yongsheng
  */
-public class ClusterWorkerContext extends WorkerContext {
+public class InstHeartBeatPersistenceWorker implements NodeProcessor<Instance, Instance> {
 
-    private List<AbstractRemoteWorkerProvider> providers = new ArrayList<>();
-
-    public List<AbstractRemoteWorkerProvider> getProviders() {
-        return providers;
+    @Override public int id() {
+        return 0;
     }
 
-    @Override
-    public void putProvider(AbstractRemoteWorkerProvider provider) {
-        providers.add(provider);
+    @Override public void process(Instance INPUT, Next<Instance> next) {
+
     }
 }

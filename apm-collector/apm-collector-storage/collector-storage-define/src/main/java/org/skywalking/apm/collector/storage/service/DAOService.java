@@ -20,10 +20,13 @@ package org.skywalking.apm.collector.storage.service;
 
 import org.skywalking.apm.collector.core.module.Service;
 import org.skywalking.apm.collector.storage.base.dao.DAO;
+import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 
 /**
  * @author peng-yongsheng
  */
 public interface DAOService extends Service {
     DAO get(Class<? extends DAO> daoInterfaceClass);
+
+    IPersistenceDAO getPersistenceDAO(Class<? extends IPersistenceDAO> daoInterfaceClass);
 }
