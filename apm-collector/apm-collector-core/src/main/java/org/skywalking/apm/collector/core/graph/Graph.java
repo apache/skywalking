@@ -43,24 +43,25 @@ public final class Graph<INPUT> {
         }
     }
 
-    public Next findNext(int handlerId) {
-        Node node = nodeIndex.get(handlerId);
-        if (node == null) {
-            throw new NodeNotFoundException("Can't find node with handlerId="
-                + handlerId
-                + " in graph[" + id + "】");
-        }
-        return node.getNext();
-    }
-
     void checkForNewNode(Node node) {
         int nodeId = node.getHandler().id();
         if (nodeIndex.containsKey(nodeId)) {
-            throw new PotentialAcyclicGraphException("handler="
+            throw new PotentialCyclicGraphException("handler="
                 + node.getHandler().getClass().getName()
                 + " already exists in graph[" + id + "】");
         }
         nodeIndex.put(nodeId, node);
     }
 
+    public GraphNodeFinder toFinder() {
+        return new GraphNodeFinder(this);
+    }
+
+    ConcurrentHashMap<Integer, Node> getNodeIndex() {
+        return nodeIndex;
+    }
+
+    int getId() {
+        return id;
+    }
 }

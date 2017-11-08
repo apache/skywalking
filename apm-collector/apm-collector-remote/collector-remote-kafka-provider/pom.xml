@@ -23,13 +23,14 @@
     <parent>
         <artifactId>apm-collector-remote</artifactId>
         <groupId>org.skywalking</groupId>
-        <version>3.2.3-2017</version>
+        <version>3.2.4-2017</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>collector-remote-kafka-provider</artifactId>
     <packaging>jar</packaging>
 
+<<<<<<< HEAD
     <dependencies>
         <dependency>
             <groupId>org.skywalking</groupId>
@@ -38,3 +39,6 @@
         </dependency>
     </dependencies>
 </project>
+=======
+</project>
+>>>>>>> 406c4f52d8251eb81aa868ec38f17789e18e0dc0

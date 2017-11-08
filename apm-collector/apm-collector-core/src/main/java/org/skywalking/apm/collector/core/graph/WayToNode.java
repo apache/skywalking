@@ -21,8 +21,25 @@ package org.skywalking.apm.collector.core.graph;
 /**
  * @author wusheng
  */
-public class PotentialAcyclicGraphException extends RuntimeException {
-    public PotentialAcyclicGraphException(String message) {
-        super(message);
+public abstract class WayToNode<INPUT, OUTPUT> {
+    private Node destination;
+    private NodeProcessor<INPUT, OUTPUT> destinationHandler;
+
+    public WayToNode(NodeProcessor<INPUT, OUTPUT> destinationHandler) {
+        this.destinationHandler = destinationHandler;
+    }
+
+    void buildDestination(Graph graph) {
+        destination = new Node(graph, destinationHandler);
+    }
+
+    protected abstract void in(INPUT INPUT);
+
+    protected void out(INPUT INPUT) {
+        destination.execute(INPUT);
+    }
+
+    Node getDestination() {
+        return destination;
     }
 }

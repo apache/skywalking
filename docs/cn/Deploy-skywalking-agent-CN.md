@@ -1,11 +1,11 @@
-## Download skywalking agent release version
-- Go to [release page](https://github.com/OpenSkwaylking/skywalking/releases)
+## 下载skywalking探针发布版本
+- 前向[发布页面](https://github.com/OpenSkywalking/skywalking/releases)
 
-## Deploy skywalking javaagent
-1. Copy the agent package to anywhere you like. The logs, plugins and config are all included in the package.
-2. Add -javaagent:/path/to/skywalking-agent/skywalking-agent.jar to VM argument. 
+## 部署探针
+1. 拷贝skywalking-agent目录到所需位置，探针包含整个目录，请不要改变目录结构
+1. 增加JVM启动参数，`-javaagent:/path/to/skywalking-agent/skywalking-agent.jar`。参数值为skywalking-agent.jar的绝对路径。
 
-New agent package looks like this：
+新目录结构如下：
 ```
 +-- skywalking-agent
     +-- activations
@@ -23,24 +23,57 @@ New agent package looks like this：
     skywalking-agent.jar
 ```
 
-- Start your application。
+- `/config/agent.config`包含探针所需配置，中文说明如下。
 
-# Advanced features
-- All plugins are in `/plugin` folder. The plugin jar is active when it is in there. Remove the plugin jar, it disabled.
-- Besides set config through `/config/agent.config`, you can use System.Env and System.Properties(-D) to set config.
-  - Key of env and properties = `skywalking.` + key in `agent.config` file
-  - Priority: System.Env > System.Properties(-D) > `/config/agent.config`
-- The default logging output folder is `/log`.
+```properties
+# 当前的应用编码，最终会显示在webui上。
+# 建议一个应用的多个实例，使用有相同的application_code。请使用英文
+agent.application_code=Your_ApplicationName
 
-# Deploy agent in Tomcat FAQ
+# 每三秒采样的Trace数量
+# 默认为负数，代表在保证不超过内存Buffer区的前提下，采集所有的Trace
+# agent.sample_n_per_3_secs=-1
+
+# 设置需要忽略的请求地址
+# 默认配置如下
+# agent.ignore_suffix=.jpg,.jpeg,.js,.css,.png,.bmp,.gif,.ico,.mp3,.mp4,.html,.svg
+
+# 对应Collector的config/application.yml配置文件中 agent_server/jetty/port 配置内容
+# 例如：
+# 单节点配置：SERVERS="127.0.0.1:8080" 
+# 集群配置：SERVERS="10.2.45.126:8080,10.2.45.127:7600" 
+collector.servers=127.0.0.1:10800
+
+# 日志文件名称前缀
+logging.file_name=skywalking-agent.log
+
+# 日志文件最大大小
+# 如果超过此大小，则会生成新文件。
+# 默认为300M
+logging.max_file_size=314572800
+
+# 日志级别，默认为DEBUG。
+logging.level=DEBUG
+```
+
+- 启动被监控应用。
+
+# 高级特性
+- 插件会被统一放置在`plugins`目录中，新的插件，也只需要在启动阶段，放在目录中，就自动生效。删除则失效。
+- 配置除了通过`/config/agent.config`文件外，可以通过环境变量和VM参数（-D）来进行设置
+  - 参数的key = `skywalking.` + `agent.config`文件中的key
+  - 优先级：系统环境变量 > VM参数（-D） > `/config/agent.config`中的配置
+- Log默认使用文件输出，输出到`/log`目录中
+
+# Tomcat配置探针FAQ
 - Tomcat 7
-Change the first line of `tomcat/bin/catalina.sh`.
+修改`tomcat/bin/catalina.sh`，在首行加入如下信息
 ```shell
 CATALINA_OPTS="$CATALINA_OPTS -javaagent:/path/to/skywalking-agent/skywalking-agent.jar"; export CATALINA_OPTS
 ```
 
 - Tomcat 8
-Change the first line of `tomcat/bin/catalina.sh`.
+修改`tomcat/bin/catalina.sh`，在首行加入如下信息
 ```shell
-set "CATALINA_OPTS=... -javaagent:E:\apache-tomcat-8.5.20\skywalking-agent\skywalking-agent.jar -Dconfig=\skywalking\config\dir"
+set "CATALINA_OPTS=... -javaagent:E:\apache-tomcat-8.5.20\skywalking-agent\skywalking-agent.jar"
 ```

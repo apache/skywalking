@@ -75,7 +75,7 @@ public class GraphManagerTest {
         Assert.assertEquals(expected, output);
     }
 
-    @Test(expected = PotentialAcyclicGraphException.class)
+    @Test(expected = PotentialCyclicGraphException.class)
     public void testPotentialAcyclicGraph() {
         Graph<String> testGraph = GraphManager.INSTANCE.createIfAbsent(3, String.class);
         Node<String, String> node = testGraph.addNode(new Node1Processor());
@@ -87,7 +87,7 @@ public class GraphManagerTest {
         Graph<String> graph = GraphManager.INSTANCE.createIfAbsent(4, String.class);
         graph.addNode(new Node1Processor()).addNext(new Node2Processor()).addNext(new Node4Processor());
 
-        Next next = GraphManager.INSTANCE.findGraph(4).findNext(2);
+        Next next = GraphManager.INSTANCE.findGraph(4).toFinder().findNext(2);
 
         next.execute(123);
         String output = outputStream.toString();
@@ -102,6 +102,36 @@ public class GraphManagerTest {
         Graph<String> graph = GraphManager.INSTANCE.createIfAbsent(5, String.class);
         graph.addNode(new Node1Processor()).addNext(new Node2Processor()).addNext(new Node4Processor());
 
-        Next next = GraphManager.INSTANCE.findGraph(5).findNext(3);
+        Next next = GraphManager.INSTANCE.findGraph(5).toFinder().findNext(3);
+    }
+
+    @Test
+    public void testFindNode() {
+        Graph<String> graph = GraphManager.INSTANCE.createIfAbsent(6, String.class);
+        graph.addNode(new Node1Processor()).addNext(new Node2Processor());
+
+        Node<?, Integer> foundNode = GraphManager.INSTANCE.findGraph(6).toFinder().findNode(2, Integer.class);
+        foundNode.addNext(new Node4Processor());
+    }
+
+    @Test
+    public void testDeadEndWay() {
+        Graph<String> graph = GraphManager.INSTANCE.createIfAbsent(7, String.class);
+        graph.addNode(new Node1Processor()).addNext(new WayToNode<String, Integer>(new Node2Processor()) {
+            @Override protected void in(String INPUT) {
+                //don't call `out(intput)`;
+            }
+        });
+
+        graph.start("Input String");
+        String output = outputStream.toString();
+        String expected = "Node1 process: s=Input String" + lineSeparator;
+
+        Assert.assertEquals(expected, output);
+    }
+
+    @After
+    public void tearDown() {
+        GraphManager.INSTANCE.reset();
     }
 }

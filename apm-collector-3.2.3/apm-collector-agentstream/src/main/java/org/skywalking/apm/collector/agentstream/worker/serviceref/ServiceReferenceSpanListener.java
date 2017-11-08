@@ -127,12 +127,15 @@ public class ServiceReferenceSpanListener implements FirstSpanListener, EntrySpa
 
         idBuilder.append(entryServiceId).append(Const.ID_SPLIT);
         serviceReference.setEntryServiceId(entryServiceId);
+        serviceReference.setEntryServiceName(Const.EMPTY_STRING);
 
         idBuilder.append(frontServiceId).append(Const.ID_SPLIT);
         serviceReference.setFrontServiceId(frontServiceId);
+        serviceReference.setFrontServiceName(Const.EMPTY_STRING);
 
         idBuilder.append(behindServiceId);
         serviceReference.setBehindServiceId(behindServiceId);
+        serviceReference.setBehindServiceName(Const.EMPTY_STRING);
 
         serviceReference.setId(idBuilder.toString());
         serviceReference.setTimeBucket(timeBucket);

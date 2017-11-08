@@ -29,14 +29,14 @@ import org.skywalking.apm.collector.core.framework.Executor;
  */
 public class Next<INPUT> implements Executor<INPUT> {
 
-    private final List<Node> nextNodes;
+    private final List<WayToNode> ways;
 
     public Next() {
-        this.nextNodes = new LinkedList<>();
+        this.ways = new LinkedList<>();
     }
 
-    public final void addNext(Node node) {
-        nextNodes.add(node);
+    final void addWay(WayToNode way) {
+        ways.add(way);
     }
 
     /**
@@ -45,6 +45,6 @@ public class Next<INPUT> implements Executor<INPUT> {
      * @param INPUT
      */
     @Override public void execute(INPUT INPUT) {
-        nextNodes.forEach(node -> node.execute(INPUT));
+        ways.forEach(way -> way.in(INPUT));
     }
 }

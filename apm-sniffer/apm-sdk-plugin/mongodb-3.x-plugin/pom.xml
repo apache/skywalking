@@ -22,7 +22,7 @@
     <parent>
         <artifactId>apm-sdk-plugin</artifactId>
         <groupId>org.skywalking</groupId>
-        <version>3.2.3-2017</version>
+        <version>3.2.4-2017</version>
     </parent>
 
     <artifactId>apm-mongodb-3.x-plugin</artifactId>
