@@ -34,6 +34,9 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptR
 import org.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
+ * {@link MongoDBV2MethodInterceptor} intercept method of {@link com.mongodb.DBCollection#find()}
+ *or{@link com.mongodb.DBCollectionImpl#insertImpl}.... record the mongoDB host, operation name ...
+ *
  * @Auther liyuntao
  */
 
@@ -79,4 +82,5 @@ public class MongoDBV2MethodInterceptor implements InstanceMethodsAroundIntercep
 
         objInst.setSkyWalkingDynamicField(peers.subSequence(0, peers.length() - 1).toString());
     }
+
 }
