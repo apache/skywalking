@@ -36,10 +36,14 @@ public final class Node<INPUT, OUTPUT> {
     }
 
     public final <NEXTOUTPUT> Node<OUTPUT, NEXTOUTPUT> addNext(NodeProcessor<OUTPUT, NEXTOUTPUT> nodeProcessor) {
+        return this.addNext(new DirectWay(nodeProcessor));
+    }
+
+    public final <NEXTOUTPUT> Node<OUTPUT, NEXTOUTPUT> addNext(WayToNode<OUTPUT, NEXTOUTPUT> way) {
         synchronized (graph) {
-            Node<OUTPUT, NEXTOUTPUT> node = new Node<>(graph, nodeProcessor);
-            next.addNext(node);
-            return node;
+            way.buildDestination(graph);
+            next.addWay(way);
+            return way.getDestination();
         }
     }
 

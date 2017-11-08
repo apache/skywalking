@@ -18,33 +18,15 @@
 
 package org.skywalking.apm.collector.core.graph;
 
-import java.util.LinkedList;
-import java.util.List;
-import org.skywalking.apm.collector.core.framework.Executor;
-
 /**
- * The <code>Next</code> is a delegate object for the following {@link Node}.
- *
- * @author peng-yongsheng, wu-sheng
+ * @author wusheng
  */
-public class Next<INPUT> implements Executor<INPUT> {
-
-    private final List<WayToNode> ways;
-
-    public Next() {
-        this.ways = new LinkedList<>();
+public class DirectWay<INPUT, OUTPUT> extends WayToNode<INPUT, OUTPUT> {
+    public DirectWay(NodeProcessor<INPUT, OUTPUT> destinationHandler) {
+        super(destinationHandler);
     }
 
-    final void addWay(WayToNode way) {
-        ways.add(way);
-    }
-
-    /**
-     * Drive to the next nodes
-     *
-     * @param INPUT
-     */
-    @Override public void execute(INPUT INPUT) {
-        ways.forEach(way -> way.in(INPUT));
+    @Override protected void in(INPUT o) {
+        out(o);
     }
 }

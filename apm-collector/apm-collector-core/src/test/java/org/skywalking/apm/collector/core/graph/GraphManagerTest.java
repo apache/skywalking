@@ -114,6 +114,22 @@ public class GraphManagerTest {
         foundNode.addNext(new Node4Processor());
     }
 
+    @Test
+    public void testDeadEndWay() {
+        Graph<String> graph = GraphManager.INSTANCE.createIfAbsent(7, String.class);
+        graph.addNode(new Node1Processor()).addNext(new WayToNode<String, Integer>(new Node2Processor()) {
+            @Override protected void in(String INPUT) {
+                //don't call `out(intput)`;
+            }
+        });
+
+        graph.start("Input String");
+        String output = outputStream.toString();
+        String expected = "Node1 process: s=Input String" + lineSeparator;
+
+        Assert.assertEquals(expected, output);
+    }
+
     @After
     public void tearDown() {
         GraphManager.INSTANCE.reset();
