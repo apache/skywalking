@@ -18,23 +18,18 @@
 
 package org.skywalking.apm.collector.agent.stream.graph;
 
-import org.skywalking.apm.collector.agent.stream.worker.jvm.CpuMetricPersistenceWorker;
 import org.skywalking.apm.collector.agent.stream.worker.jvm.GCMetricPersistenceWorker;
 import org.skywalking.apm.collector.agent.stream.worker.jvm.InstHeartBeatPersistenceWorker;
 import org.skywalking.apm.collector.agent.stream.worker.jvm.MemoryMetricPersistenceWorker;
 import org.skywalking.apm.collector.agent.stream.worker.jvm.MemoryPoolMetricPersistenceWorker;
 import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
-import org.skywalking.apm.collector.core.graph.Next;
-import org.skywalking.apm.collector.core.graph.NodeProcessor;
 import org.skywalking.apm.collector.storage.table.jvm.CpuMetric;
 import org.skywalking.apm.collector.storage.table.jvm.GCMetric;
 import org.skywalking.apm.collector.storage.table.jvm.MemoryMetric;
 import org.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetric;
 import org.skywalking.apm.collector.storage.table.register.Instance;
 import org.skywalking.apm.collector.stream.worker.base.ProviderNotFoundException;
-import org.skywalking.apm.collector.stream.worker.base.WorkerInvokeException;
-import org.skywalking.apm.collector.stream.worker.base.WorkerRef;
 
 /**
  * @author peng-yongsheng
@@ -54,23 +49,7 @@ public class JvmMetricStreamGraph {
     }
 
     public Graph<CpuMetric> createCPUMetricGraph() throws ProviderNotFoundException {
-        CpuMetricPersistenceWorker.Factory factory = new CpuMetricPersistenceWorker.Factory(null, null);
-        final WorkerRef workerRef = factory.create(null);
-
         Graph<CpuMetric> graph = GraphManager.INSTANCE.createIfAbsent(CPU_METRIC_GRAPH_ID, CpuMetric.class);
-        graph.addNode(new NodeProcessor<CpuMetric, CpuMetric>() {
-            @Override public int id() {
-                return 0;
-            }
-
-            @Override public void process(CpuMetric INPUT, Next<CpuMetric> next) {
-                try {
-                    workerRef.tell(INPUT);
-                } catch (WorkerInvokeException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
         return graph;
     }
 

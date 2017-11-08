@@ -18,16 +18,20 @@
 
 package org.skywalking.apm.collector.stream.worker.base;
 
-import org.skywalking.apm.collector.core.framework.Executor;
+import org.skywalking.apm.collector.core.data.Data;
+import org.skywalking.apm.collector.core.graph.Next;
+import org.skywalking.apm.collector.core.graph.NodeProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class AbstractWorker implements Executor {
+public abstract class AbstractWorker<INPUT extends Data, OUTPUT extends Data> implements NodeProcessor<INPUT, OUTPUT> {
 
     private final Logger logger = LoggerFactory.getLogger(AbstractWorker.class);
+
+    private Next<OUTPUT> next;
 
     /**
      * The data process logic in this method.
@@ -35,13 +39,18 @@ public abstract class AbstractWorker implements Executor {
      * @param message Cast the message object to a expect subclass.
      * @throws WorkerException Don't handle the exception, throw it.
      */
-    protected abstract void onWork(Object message) throws WorkerException;
+    protected abstract void onWork(INPUT message) throws WorkerException;
 
-    @Override public final void execute(Object message) {
+    @Override public final void process(INPUT INPUT, Next<OUTPUT> next) {
+        this.next = next;
         try {
-            onWork(message);
+            onWork(INPUT);
         } catch (WorkerException e) {
             logger.error(e.getMessage(), e);
         }
+    }
+
+    protected final void onNext(OUTPUT message) {
+        next.execute(message);
     }
 }

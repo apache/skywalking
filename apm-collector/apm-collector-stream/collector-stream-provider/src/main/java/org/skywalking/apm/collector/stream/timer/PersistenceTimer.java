@@ -25,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 import org.skywalking.apm.collector.storage.base.dao.IBatchDAO;
 import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.stream.worker.base.WorkerException;
-import org.skywalking.apm.collector.stream.worker.impl.FlushAndSwitch;
 import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
 import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorkerContainer;
 import org.slf4j.Logger;
@@ -51,11 +50,11 @@ public class PersistenceTimer {
             List<PersistenceWorker> workers = PersistenceWorkerContainer.INSTANCE.getPersistenceWorkers();
             List batchAllCollection = new ArrayList<>();
             workers.forEach((PersistenceWorker worker) -> {
-                logger.debug("extract {} worker data and save", worker.getRole().roleName());
+                logger.debug("extract {} worker data and save", worker.getClass().getName());
                 try {
-                    worker.allocateJob(new FlushAndSwitch());
+                    worker.flushAndSwitch();
                     List<?> batchCollection = worker.buildBatchCollection();
-                    logger.debug("extract {} worker data size: {}", worker.getRole().roleName(), batchCollection.size());
+                    logger.debug("extract {} worker data size: {}", worker.getClass().getName(), batchCollection.size());
                     batchAllCollection.addAll(batchCollection);
                 } catch (WorkerException e) {
                     logger.error(e.getMessage(), e);

@@ -18,9 +18,11 @@
 
 package org.skywalking.apm.collector.queue.base;
 
+import org.skywalking.apm.collector.core.data.Data;
+
 /**
  * @author peng-yongsheng
  */
-public interface QueueEventHandler {
-    void tell(Object message);
+public interface QueueEventHandler<MESSAGE extends Data> {
+    void tell(MESSAGE message);
 }

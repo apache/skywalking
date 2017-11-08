@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.core.data;
 /**
  * @author peng-yongsheng
  */
-public abstract class Data extends AbstractHashMessage {
+public abstract class Data extends EndOfBatchQueueMessage {
     private String[] dataStrings;
     private Long[] dataLongs;
     private Double[] dataDoubles;

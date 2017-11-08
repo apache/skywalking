@@ -18,21 +18,28 @@
 
 package org.skywalking.apm.collector.stream.worker.base;
 
+import org.skywalking.apm.collector.core.data.Data;
+import org.skywalking.apm.collector.core.graph.NodeProcessor;
 import org.skywalking.apm.collector.queue.base.QueueEventHandler;
 
 /**
  * @author peng-yongsheng
  */
-public class LocalAsyncWorkerRef extends WorkerRef {
+public class LocalAsyncWorkerRef<INPUT extends Data, OUTPUT extends Data> extends WorkerRef<INPUT, OUTPUT> {
 
-    private QueueEventHandler queueEventHandler;
+    private final QueueEventHandler<INPUT> queueEventHandler;
 
-    public LocalAsyncWorkerRef(QueueEventHandler queueEventHandler) {
+    LocalAsyncWorkerRef(NodeProcessor<INPUT, OUTPUT> destinationHandler,
+        QueueEventHandler<INPUT> queueEventHandler) {
+        super(destinationHandler);
         this.queueEventHandler = queueEventHandler;
     }
 
-    @Override
-    public void tell(Object message) throws WorkerInvokeException {
-        queueEventHandler.tell(message);
+    @Override protected void in(INPUT INPUT) {
+        queueEventHandler.tell(INPUT);
+    }
+
+    @Override protected void out(INPUT INPUT) {
+        super.out(INPUT);
     }
 }

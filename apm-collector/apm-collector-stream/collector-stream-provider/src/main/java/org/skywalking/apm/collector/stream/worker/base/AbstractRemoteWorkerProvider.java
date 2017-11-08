@@ -18,7 +18,9 @@
 
 package org.skywalking.apm.collector.stream.worker.base;
 
+import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.remote.service.RemoteClientService;
+import org.skywalking.apm.collector.storage.service.DAOService;
 
 /**
  * The <code>AbstractRemoteWorkerProvider</code> implementations represent providers,
@@ -28,11 +30,13 @@ import org.skywalking.apm.collector.remote.service.RemoteClientService;
  * @author peng-yongsheng
  * @since v3.0-2017
  */
-public abstract class AbstractRemoteWorkerProvider<T extends AbstractRemoteWorker> extends AbstractWorkerProvider<T> {
+public abstract class AbstractRemoteWorkerProvider<INPUT extends Data, OUTPUT extends Data, WorkerType extends AbstractRemoteWorker<INPUT, OUTPUT>> extends AbstractWorkerProvider<INPUT, OUTPUT, WorkerType> {
 
+    private final DAOService daoService;
     private final RemoteClientService remoteClientService;
 
-    public AbstractRemoteWorkerProvider(RemoteClientService remoteClientService) {
+    public AbstractRemoteWorkerProvider(DAOService daoService, RemoteClientService remoteClientService) {
+        this.daoService = daoService;
         this.remoteClientService = remoteClientService;
     }
 
@@ -44,16 +48,14 @@ public abstract class AbstractRemoteWorkerProvider<T extends AbstractRemoteWorke
      * worker instance, when the worker provider not find then Throw this Exception.
      */
     @Override final public WorkerRef create(WorkerCreateListener workerCreateListener) {
-        T remoteWorker = workerInstance(getClusterContext());
+        WorkerType remoteWorker = workerInstance(daoService);
         workerCreateListener.addWorker(remoteWorker);
-        RemoteWorkerRef workerRef = new RemoteWorkerRef(role(), remoteWorker);
-        getClusterContext().put(workerRef);
+        RemoteWorkerRef<INPUT, OUTPUT> workerRef = new RemoteWorkerRef<>(remoteWorker);
         return workerRef;
     }
 
     public final RemoteWorkerRef create(String host, int port) {
-        RemoteWorkerRef workerRef = new RemoteWorkerRef(role(), remoteClientService.create(host, port));
-        getClusterContext().put(workerRef);
+        RemoteWorkerRef<INPUT, OUTPUT> workerRef = new RemoteWorkerRef<>(null, remoteClientService.create(host, port));
         return workerRef;
     }
 }

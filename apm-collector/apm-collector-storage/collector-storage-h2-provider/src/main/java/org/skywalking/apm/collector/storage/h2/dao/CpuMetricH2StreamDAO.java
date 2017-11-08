@@ -20,7 +20,6 @@ package org.skywalking.apm.collector.storage.h2.dao;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.dao.ICpuMetricStreamDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
@@ -33,7 +32,8 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng, clevertension
  */
-public class CpuMetricH2StreamDAO extends H2DAO implements ICpuMetricStreamDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity, CpuMetric> {
+public class CpuMetricH2StreamDAO extends H2DAO implements ICpuMetricStreamDAO<H2SqlEntity, H2SqlEntity, CpuMetric> {
+
     private final Logger logger = LoggerFactory.getLogger(CpuMetricH2StreamDAO.class);
 
     @Override public CpuMetric get(String id) {

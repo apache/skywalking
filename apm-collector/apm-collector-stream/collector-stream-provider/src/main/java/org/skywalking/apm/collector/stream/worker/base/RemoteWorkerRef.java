@@ -19,6 +19,7 @@
 package org.skywalking.apm.collector.stream.worker.base;
 
 import org.skywalking.apm.collector.core.data.Data;
+import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.remote.service.RemoteClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,33 +27,32 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public class RemoteWorkerRef extends WorkerRef {
+public class RemoteWorkerRef<INPUT extends Data, OUTPUT extends Data> extends WorkerRef<INPUT, OUTPUT> {
 
     private final Logger logger = LoggerFactory.getLogger(RemoteWorkerRef.class);
 
     private final Boolean acrossJVM;
-    private final AbstractRemoteWorker remoteWorker;
+    private final AbstractRemoteWorker<INPUT, OUTPUT> remoteWorker;
     private final RemoteClient remoteClient;
 
-    public RemoteWorkerRef(Role role, AbstractRemoteWorker remoteWorker) {
-        super(role);
+    public RemoteWorkerRef(AbstractRemoteWorker<INPUT, OUTPUT> remoteWorker) {
+        super(remoteWorker);
         this.remoteWorker = remoteWorker;
         this.acrossJVM = false;
         this.remoteClient = null;
     }
 
-    public RemoteWorkerRef(Role role, RemoteClient remoteClient) {
-        super(role);
-        this.remoteWorker = null;
+    public RemoteWorkerRef(AbstractRemoteWorker<INPUT, OUTPUT> remoteWorker, RemoteClient remoteClient) {
+        super(remoteWorker);
+        this.remoteWorker = remoteWorker;
         this.acrossJVM = true;
         this.remoteClient = remoteClient;
     }
 
-    @Override
-    public void tell(Object message) throws WorkerInvokeException {
+    @Override protected void in(INPUT message) {
         if (acrossJVM) {
             try {
-                remoteClient.send(getRole().roleName(), (Data)message, getRole().dataDefine().remoteDataMappingId());
+                GraphManager.INSTANCE.findGraph(1);
             } catch (Throwable e) {
                 logger.error(e.getMessage(), e);
             }
@@ -61,7 +61,11 @@ public class RemoteWorkerRef extends WorkerRef {
         }
     }
 
-    public Boolean isAcrossJVM() {
+    @Override protected void out(INPUT INPUT) {
+        super.out(INPUT);
+    }
+
+    private Boolean isAcrossJVM() {
         return acrossJVM;
     }
 
