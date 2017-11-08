@@ -60,27 +60,55 @@ public class MemoryMetric extends Data {
         return getDataLong(0);
     }
 
+    public void setInit(Long init) {
+        setDataLong(0, init);
+    }
+
     public Long getMax() {
         return getDataLong(1);
+    }
+
+    public void setMax(Long max) {
+        setDataLong(1, max);
     }
 
     public Long getUsed() {
         return getDataLong(2);
     }
 
+    public void setUsed(Long used) {
+        setDataLong(2, used);
+    }
+
     public Long getCommitted() {
         return getDataLong(3);
+    }
+
+    public void setCommitted(Long committed) {
+        setDataLong(3, committed);
     }
 
     public Long getTimeBucket() {
         return getDataLong(4);
     }
 
+    public void setTimeBucket(Long timeBucket) {
+        setDataLong(4, timeBucket);
+    }
+
     public Boolean getIsHeap() {
         return getDataBoolean(0);
     }
 
+    public void setIsHeap(Boolean isHeap) {
+        setDataBoolean(0, isHeap);
+    }
+
     public Integer getInstanceId() {
         return getDataInteger(0);
+    }
+
+    public void setInstanceId(Integer instanceId) {
+        setDataInteger(0, instanceId);
     }
 }

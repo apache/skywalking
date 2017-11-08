@@ -16,11 +16,22 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.stream.worker.base;
+package org.skywalking.apm.collector.agent.stream.worker.jvm;
+
+import org.skywalking.apm.collector.core.graph.Next;
+import org.skywalking.apm.collector.core.graph.NodeProcessor;
+import org.skywalking.apm.collector.storage.table.jvm.GCMetric;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class WorkerRef {
-    public abstract void tell(Object message) throws WorkerInvokeException;
+public class GCMetricPersistenceWorker implements NodeProcessor<GCMetric, GCMetric> {
+
+    @Override public int id() {
+        return 1;
+    }
+
+    @Override public void process(GCMetric INPUT, Next<GCMetric> next) {
+
+    }
 }

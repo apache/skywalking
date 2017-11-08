@@ -18,22 +18,11 @@
 
 package org.skywalking.apm.collector.stream.worker.base;
 
+import org.skywalking.apm.collector.storage.service.DAOService;
+
 /**
  * @author peng-yongsheng
  */
 public abstract class AbstractWorkerProvider<T extends AbstractWorker> implements Provider {
-
-    private ClusterWorkerContext clusterContext;
-
-    public abstract Role role();
-
-    public abstract T workerInstance(ClusterWorkerContext clusterContext);
-
-    final public void setClusterContext(ClusterWorkerContext clusterContext) {
-        this.clusterContext = clusterContext;
-    }
-
-    final protected ClusterWorkerContext getClusterContext() {
-        return clusterContext;
-    }
+    public abstract T workerInstance(DAOService daoService);
 }

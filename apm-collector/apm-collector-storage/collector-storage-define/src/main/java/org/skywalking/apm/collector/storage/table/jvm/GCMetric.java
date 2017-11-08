@@ -57,19 +57,39 @@ public class GCMetric extends Data {
         return getDataLong(0);
     }
 
+    public void setCount(Long count) {
+        setDataLong(0, count);
+    }
+
     public Long getTime() {
         return getDataLong(1);
+    }
+
+    public void setTime(Long time) {
+        setDataLong(1, time);
     }
 
     public Long getTimeBucket() {
         return getDataLong(2);
     }
 
+    public void setTimeBucket(Long timeBucket) {
+        setDataLong(2, timeBucket);
+    }
+
     public Integer getInstanceId() {
         return getDataInteger(0);
     }
 
+    public void setInstanceId(Integer instanceId) {
+        setDataInteger(0, instanceId);
+    }
+
     public Integer getPhrase() {
         return getDataInteger(1);
+    }
+
+    public void setPhrase(Integer phrase) {
+        setDataInteger(1, phrase);
     }
 }

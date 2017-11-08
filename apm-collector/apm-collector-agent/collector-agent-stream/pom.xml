@@ -33,7 +33,7 @@
     <dependencies>
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>collector-stream-define</artifactId>
+            <artifactId>collector-stream-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

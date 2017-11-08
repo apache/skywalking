@@ -21,6 +21,7 @@ package org.skywalking.apm.collector.stream.worker.base;
 import org.skywalking.apm.collector.queue.base.QueueEventHandler;
 import org.skywalking.apm.collector.queue.base.QueueExecutor;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
+import org.skywalking.apm.collector.storage.service.DAOService;
 
 /**
  * @author peng-yongsheng
@@ -29,24 +30,19 @@ public abstract class AbstractLocalAsyncWorkerProvider<T extends AbstractLocalAs
 
     public abstract int queueSize();
 
+    private final DAOService daoService;
     private final QueueCreatorService queueCreatorService;
 
-    public AbstractLocalAsyncWorkerProvider(QueueCreatorService queueCreatorService) {
+    public AbstractLocalAsyncWorkerProvider(DAOService daoService, QueueCreatorService queueCreatorService) {
+        this.daoService = daoService;
         this.queueCreatorService = queueCreatorService;
     }
 
     @Override
     final public WorkerRef create(WorkerCreateListener workerCreateListener) throws ProviderNotFoundException {
-        T localAsyncWorker = workerInstance(getClusterContext());
-        localAsyncWorker.preStart();
-
+        T localAsyncWorker = workerInstance(daoService);
         workerCreateListener.addWorker(localAsyncWorker);
-
         QueueEventHandler queueEventHandler = queueCreatorService.create(queueSize(), localAsyncWorker);
-
-        LocalAsyncWorkerRef workerRef = new LocalAsyncWorkerRef(role(), queueEventHandler);
-        getClusterContext().put(workerRef);
-        localAsyncWorker.putSelfRef(workerRef);
-        return workerRef;
+        return new LocalAsyncWorkerRef(queueEventHandler);
     }
 }

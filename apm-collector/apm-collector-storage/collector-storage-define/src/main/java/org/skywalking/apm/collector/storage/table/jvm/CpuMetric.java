@@ -56,11 +56,23 @@ public class CpuMetric extends Data {
         return getDataInteger(0);
     }
 
+    public void setInstanceId(Integer instanceId) {
+        setDataInteger(0, instanceId);
+    }
+
     public Double getUsagePercent() {
         return getDataDouble(0);
     }
 
+    public void setUsagePercent(Double usagePercent) {
+        setDataDouble(0, usagePercent);
+    }
+
     public Long getTimeBucket() {
         return getDataLong(0);
+    }
+
+    public void setTimeBucket(Long timeBucket) {
+        setDataLong(0, timeBucket);
     }
 }
