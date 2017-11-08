@@ -29,7 +29,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>mongodb-2.x-plugin</artifactId>
+    <artifactId>apm-mongodb-2.x-plugin</artifactId>
     <packaging>jar</packaging>
 
     <properties>
