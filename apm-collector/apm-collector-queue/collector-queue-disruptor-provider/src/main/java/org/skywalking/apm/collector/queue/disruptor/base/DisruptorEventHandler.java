@@ -20,7 +20,8 @@ package org.skywalking.apm.collector.queue.disruptor.base;
 
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.RingBuffer;
-import org.skywalking.apm.collector.queue.base.EndOfBatchCommand;
+import org.skywalking.apm.collector.core.CollectorException;
+import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.queue.base.MessageHolder;
 import org.skywalking.apm.collector.queue.base.QueueEventHandler;
 import org.skywalking.apm.collector.queue.base.QueueExecutor;
@@ -30,14 +31,14 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public class DisruptorEventHandler implements EventHandler<MessageHolder>, QueueEventHandler {
+public class DisruptorEventHandler<MESSAGE extends Data> implements EventHandler<MessageHolder<MESSAGE>>, QueueEventHandler<MESSAGE> {
 
     private final Logger logger = LoggerFactory.getLogger(DisruptorEventHandler.class);
 
-    private RingBuffer<MessageHolder> ringBuffer;
-    private QueueExecutor executor;
+    private RingBuffer<MessageHolder<MESSAGE>> ringBuffer;
+    private QueueExecutor<MESSAGE> executor;
 
-    DisruptorEventHandler(RingBuffer<MessageHolder> ringBuffer, QueueExecutor executor) {
+    DisruptorEventHandler(RingBuffer<MessageHolder<MESSAGE>> ringBuffer, QueueExecutor<MESSAGE> executor) {
         this.ringBuffer = ringBuffer;
         this.executor = executor;
     }
@@ -50,14 +51,12 @@ public class DisruptorEventHandler implements EventHandler<MessageHolder>, Queue
      * @param sequence of the event being processed
      * @param endOfBatch flag to indicate if this is the last event in a batch from the {@link RingBuffer}
      */
-    public void onEvent(MessageHolder event, long sequence, boolean endOfBatch) {
-        Object message = event.getMessage();
+    public void onEvent(MessageHolder<MESSAGE> event, long sequence, boolean endOfBatch) throws CollectorException {
+        MESSAGE message = event.getMessage();
         event.reset();
 
+        message.setEndOfBatch(endOfBatch);
         executor.execute(message);
-        if (endOfBatch) {
-            executor.execute(new EndOfBatchCommand());
-        }
     }
 
     /**
@@ -65,7 +64,7 @@ public class DisruptorEventHandler implements EventHandler<MessageHolder>, Queue
      *
      * @param message of the data to process.
      */
-    public void tell(Object message) {
+    public void tell(MESSAGE message) {
         long sequence = ringBuffer.next();
         try {
             ringBuffer.get(sequence).setMessage(message);

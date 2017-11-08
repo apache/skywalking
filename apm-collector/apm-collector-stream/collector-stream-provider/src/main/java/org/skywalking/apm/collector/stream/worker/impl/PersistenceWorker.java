@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.core.util.ObjectUtils;
-import org.skywalking.apm.collector.queue.base.EndOfBatchCommand;
 import org.skywalking.apm.collector.storage.base.dao.IBatchDAO;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.skywalking.apm.collector.storage.service.DAOService;
@@ -36,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public abstract class PersistenceWorker extends AbstractLocalAsyncWorker {
+public abstract class PersistenceWorker<INPUT extends Data, OUTPUT extends Data> extends AbstractLocalAsyncWorker<INPUT, OUTPUT> {
 
     private final Logger logger = LoggerFactory.getLogger(PersistenceWorker.class);
 
@@ -48,32 +47,31 @@ public abstract class PersistenceWorker extends AbstractLocalAsyncWorker {
         this.daoService = daoService;
     }
 
-    @Override protected final void onWork(Object message) throws WorkerException {
-        if (message instanceof FlushAndSwitch) {
+    public final void flushAndSwitch() {
+        try {
+            if (dataCache.trySwitchPointer()) {
+                dataCache.switchPointer();
+            }
+        } finally {
+            dataCache.trySwitchPointerFinally();
+        }
+    }
+
+    @Override protected final void onWork(INPUT message) throws WorkerException {
+        if (dataCache.currentCollectionSize() >= 5000) {
             try {
                 if (dataCache.trySwitchPointer()) {
                     dataCache.switchPointer();
+
+                    List<?> collection = buildBatchCollection();
+                    IBatchDAO dao = (IBatchDAO)daoService.get(IBatchDAO.class);
+                    dao.batchPersistence(collection);
                 }
             } finally {
                 dataCache.trySwitchPointerFinally();
             }
-        } else if (message instanceof EndOfBatchCommand) {
-        } else {
-            if (dataCache.currentCollectionSize() >= 5000) {
-                try {
-                    if (dataCache.trySwitchPointer()) {
-                        dataCache.switchPointer();
-
-                        List<?> collection = buildBatchCollection();
-                        IBatchDAO dao = (IBatchDAO)daoService.get(IBatchDAO.class);
-                        dao.batchPersistence(collection);
-                    }
-                } finally {
-                    dataCache.trySwitchPointerFinally();
-                }
-            }
-            aggregate(message);
         }
+        aggregate(message);
     }
 
     public final List<?> buildBatchCollection() throws WorkerException {

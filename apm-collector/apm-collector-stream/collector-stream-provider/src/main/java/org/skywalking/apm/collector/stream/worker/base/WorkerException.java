@@ -18,6 +18,8 @@
 
 package org.skywalking.apm.collector.stream.worker.base;
 
+import org.skywalking.apm.collector.core.CollectorException;
+
 /**
  * Defines a general exception a worker can throw when it
  * encounters difficulty.
@@ -25,7 +27,7 @@ package org.skywalking.apm.collector.stream.worker.base;
  * @author peng-yongsheng
  * @since v3.1-2017
  */
-public class WorkerException extends Exception {
+public class WorkerException extends CollectorException {
 
     public WorkerException(String message) {
         super(message);

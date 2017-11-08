@@ -18,10 +18,11 @@
 
 package org.skywalking.apm.collector.storage.dao;
 
+import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 
 /**
  * @author peng-yongsheng
  */
-public interface ICpuMetricStreamDAO<Insert, Update, Data> extends IPersistenceDAO<Insert, Update, Data> {
+public interface ICpuMetricStreamDAO<Insert, Update, DataImpl extends Data> extends IPersistenceDAO<Insert, Update, DataImpl> {
 }

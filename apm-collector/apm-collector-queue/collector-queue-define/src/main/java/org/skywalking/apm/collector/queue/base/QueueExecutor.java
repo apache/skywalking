@@ -18,10 +18,11 @@
 
 package org.skywalking.apm.collector.queue.base;
 
+import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.core.framework.Executor;
 
 /**
  * @author peng-yongsheng
  */
-public interface QueueExecutor extends Executor {
+public interface QueueExecutor<MESSAGE extends Data> extends Executor<MESSAGE> {
 }

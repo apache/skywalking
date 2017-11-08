@@ -22,15 +22,20 @@ import org.skywalking.apm.collector.queue.service.QueueCreatorService;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.ICpuMetricStreamDAO;
 import org.skywalking.apm.collector.storage.service.DAOService;
+import org.skywalking.apm.collector.storage.table.jvm.CpuMetric;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
 
 /**
  * @author peng-yongsheng
  */
-public class CpuMetricPersistenceWorker extends PersistenceWorker {
+public class CpuMetricPersistenceWorker extends PersistenceWorker<CpuMetric, CpuMetric> {
 
     private final DAOService daoService;
+
+    @Override public int id() {
+        return 0;
+    }
 
     public CpuMetricPersistenceWorker(DAOService daoService) {
         super(daoService);

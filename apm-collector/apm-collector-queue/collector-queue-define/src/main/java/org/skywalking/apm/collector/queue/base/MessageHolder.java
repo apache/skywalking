@@ -18,17 +18,19 @@
 
 package org.skywalking.apm.collector.queue.base;
 
+import org.skywalking.apm.collector.core.data.Data;
+
 /**
  * @author peng-yongsheng
  */
-public class MessageHolder {
-    private Object message;
+public class MessageHolder<MESSAGE extends Data> {
+    private MESSAGE message;
 
-    public Object getMessage() {
+    public MESSAGE getMessage() {
         return message;
     }
 
-    public void setMessage(Object message) {
+    public void setMessage(MESSAGE message) {
         this.message = message;
     }
 

@@ -18,6 +18,7 @@
 
 package org.skywalking.apm.collector.stream.worker.base;
 
+import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.queue.base.QueueExecutor;
 
 /**
@@ -27,15 +28,19 @@ import org.skywalking.apm.collector.queue.base.QueueExecutor;
  * @author peng-yongsheng
  * @since v3.0-2017
  */
-public abstract class AbstractLocalAsyncWorker extends AbstractWorker implements QueueExecutor {
+public abstract class AbstractLocalAsyncWorker<INPUT extends Data, OUTPUT extends Data> extends AbstractWorker<INPUT, OUTPUT> implements QueueExecutor<INPUT> {
 
     /**
      * Receive message
      *
      * @param message The persistence data or metric data.
-     * @throws WorkerException The Exception happen in {@link #onWork(Object)}
+     * @throws WorkerException The Exception happen in {@link #onWork(INPUT)}
      */
-    final public void allocateJob(Object message) throws WorkerException {
+    final public void allocateJob(INPUT message) throws WorkerException {
+        onWork(message);
+    }
+
+    @Override public final void execute(INPUT message) throws WorkerException {
         onWork(message);
     }
 }

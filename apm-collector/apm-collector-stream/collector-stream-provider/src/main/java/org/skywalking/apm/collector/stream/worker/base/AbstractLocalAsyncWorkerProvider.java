@@ -18,6 +18,7 @@
 
 package org.skywalking.apm.collector.stream.worker.base;
 
+import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.queue.base.QueueEventHandler;
 import org.skywalking.apm.collector.queue.base.QueueExecutor;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
@@ -26,23 +27,23 @@ import org.skywalking.apm.collector.storage.service.DAOService;
 /**
  * @author peng-yongsheng
  */
-public abstract class AbstractLocalAsyncWorkerProvider<T extends AbstractLocalAsyncWorker & QueueExecutor> extends AbstractWorkerProvider<T> {
+public abstract class AbstractLocalAsyncWorkerProvider<INPUT extends Data, OUTPUT extends Data, WorkerType extends AbstractLocalAsyncWorker<INPUT, OUTPUT> & QueueExecutor<INPUT>> extends AbstractWorkerProvider<INPUT, OUTPUT, WorkerType> {
 
     public abstract int queueSize();
 
     private final DAOService daoService;
-    private final QueueCreatorService queueCreatorService;
+    private final QueueCreatorService<INPUT> queueCreatorService;
 
-    public AbstractLocalAsyncWorkerProvider(DAOService daoService, QueueCreatorService queueCreatorService) {
+    public AbstractLocalAsyncWorkerProvider(DAOService daoService, QueueCreatorService<INPUT> queueCreatorService) {
         this.daoService = daoService;
         this.queueCreatorService = queueCreatorService;
     }
 
     @Override
     final public WorkerRef create(WorkerCreateListener workerCreateListener) throws ProviderNotFoundException {
-        T localAsyncWorker = workerInstance(daoService);
+        WorkerType localAsyncWorker = workerInstance(daoService);
         workerCreateListener.addWorker(localAsyncWorker);
-        QueueEventHandler queueEventHandler = queueCreatorService.create(queueSize(), localAsyncWorker);
-        return new LocalAsyncWorkerRef(queueEventHandler);
+        QueueEventHandler<INPUT> queueEventHandler = queueCreatorService.create(queueSize(), localAsyncWorker);
+        return new LocalAsyncWorkerRef<>(localAsyncWorker, queueEventHandler);
     }
 }

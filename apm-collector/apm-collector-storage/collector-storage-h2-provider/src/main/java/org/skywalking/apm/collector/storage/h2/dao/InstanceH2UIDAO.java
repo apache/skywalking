@@ -39,7 +39,9 @@ import org.slf4j.LoggerFactory;
  * @author peng-yongsheng, clevertension
  */
 public class InstanceH2UIDAO extends H2DAO implements IInstanceUIDAO {
+
     private final Logger logger = LoggerFactory.getLogger(InstanceH2UIDAO.class);
+    
     private static final String GET_LAST_HEARTBEAT_TIME_SQL = "select {0} from {1} where {2} > ? limit 1";
     private static final String GET_INST_LAST_HEARTBEAT_TIME_SQL = "select {0} from {1} where {2} > ? and {3} = ? limit 1";
     private static final String GET_INSTANCE_SQL = "select * from {0} where {1} = ?";

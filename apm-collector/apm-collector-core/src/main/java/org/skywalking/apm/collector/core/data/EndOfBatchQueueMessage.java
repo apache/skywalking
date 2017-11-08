@@ -16,20 +16,25 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.stream.worker.base;
+package org.skywalking.apm.collector.core.data;
 
 /**
  * @author peng-yongsheng
  */
-public interface Context extends LookUp {
+public abstract class EndOfBatchQueueMessage extends AbstractHashMessage {
 
-    void putProvider(AbstractRemoteWorkerProvider provider);
+    private boolean endOfBatch;
 
-    WorkerRefs lookup(Role role) throws WorkerNotFoundException;
+    public EndOfBatchQueueMessage(String key) {
+        super(key);
+        endOfBatch = false;
+    }
 
-    RemoteWorkerRef lookupInSide(String roleName) throws WorkerNotFoundException;
+    public final boolean isEndOfBatch() {
+        return endOfBatch;
+    }
 
-    void put(WorkerRef workerRef);
-
-    void remove(WorkerRef workerRef);
+    public final void setEndOfBatch(boolean endOfBatch) {
+        this.endOfBatch = endOfBatch;
+    }
 }

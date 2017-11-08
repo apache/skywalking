@@ -18,9 +18,11 @@
 
 package org.skywalking.apm.collector.core.framework;
 
+import org.skywalking.apm.collector.core.CollectorException;
+
 /**
  * @author peng-yongsheng
  */
-public interface Executor<Input> {
-    void execute(Input input);
+public interface Executor<INPUT> {
+    void execute(INPUT input) throws CollectorException;
 }
