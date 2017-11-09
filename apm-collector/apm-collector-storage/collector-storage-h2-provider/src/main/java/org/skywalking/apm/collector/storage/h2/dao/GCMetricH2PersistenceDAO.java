@@ -20,9 +20,8 @@ package org.skywalking.apm.collector.storage.h2.dao;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
-import org.skywalking.apm.collector.storage.dao.IGCMetricStreamDAO;
+import org.skywalking.apm.collector.storage.dao.IGCMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
 import org.skywalking.apm.collector.storage.table.jvm.GCMetric;
@@ -31,7 +30,7 @@ import org.skywalking.apm.collector.storage.table.jvm.GCMetricTable;
 /**
  * @author peng-yongsheng, clevertension
  */
-public class GCMetricH2StreamDAO extends H2DAO implements IGCMetricStreamDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity, GCMetric> {
+public class GCMetricH2PersistenceDAO extends H2DAO implements IGCMetricPersistenceDAO<H2SqlEntity, H2SqlEntity, GCMetric> {
 
     @Override public GCMetric get(String id) {
         return null;

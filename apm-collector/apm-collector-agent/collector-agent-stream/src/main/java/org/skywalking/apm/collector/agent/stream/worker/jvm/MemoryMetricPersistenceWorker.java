@@ -18,20 +18,52 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.jvm;
 
-import org.skywalking.apm.collector.core.graph.Next;
-import org.skywalking.apm.collector.core.graph.NodeProcessor;
+import org.skywalking.apm.collector.queue.service.QueueCreatorService;
+import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
+import org.skywalking.apm.collector.storage.dao.IMemoryMetricPersistenceDAO;
+import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.jvm.MemoryMetric;
+import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
+import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
 
 /**
  * @author peng-yongsheng
  */
-public class MemoryMetricPersistenceWorker implements NodeProcessor<MemoryMetric, MemoryMetric> {
+public class MemoryMetricPersistenceWorker extends PersistenceWorker<MemoryMetric, MemoryMetric> {
+
+    private final DAOService daoService;
 
     @Override public int id() {
         return 0;
     }
 
-    @Override public void process(MemoryMetric INPUT, Next<MemoryMetric> next) {
+    public MemoryMetricPersistenceWorker(DAOService daoService) {
+        super(daoService);
+        this.daoService = daoService;
+    }
 
+    @Override protected boolean needMergeDBData() {
+        return false;
+    }
+
+    @Override protected IPersistenceDAO persistenceDAO() {
+        return daoService.getPersistenceDAO(IMemoryMetricPersistenceDAO.class);
+    }
+
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<MemoryMetric, MemoryMetric, MemoryMetricPersistenceWorker> {
+
+        public Factory(DAOService daoService, QueueCreatorService<MemoryMetric> queueCreatorService) {
+            super(daoService, queueCreatorService);
+        }
+
+        @Override
+        public MemoryMetricPersistenceWorker workerInstance(DAOService daoService) {
+            return new MemoryMetricPersistenceWorker(daoService);
+        }
+
+        @Override
+        public int queueSize() {
+            return 1024;
+        }
     }
 }

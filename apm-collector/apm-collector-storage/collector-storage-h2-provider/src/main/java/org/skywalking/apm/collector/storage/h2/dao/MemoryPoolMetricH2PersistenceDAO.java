@@ -21,41 +21,40 @@ package org.skywalking.apm.collector.storage.h2.dao;
 import java.util.HashMap;
 import java.util.Map;
 import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
-import org.skywalking.apm.collector.storage.dao.ICpuMetricStreamDAO;
+import org.skywalking.apm.collector.storage.dao.IMemoryPoolMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
-import org.skywalking.apm.collector.storage.table.jvm.CpuMetric;
-import org.skywalking.apm.collector.storage.table.jvm.CpuMetricTable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetric;
+import org.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetricTable;
 
 /**
  * @author peng-yongsheng, clevertension
  */
-public class CpuMetricH2StreamDAO extends H2DAO implements ICpuMetricStreamDAO<H2SqlEntity, H2SqlEntity, CpuMetric> {
+public class MemoryPoolMetricH2PersistenceDAO extends H2DAO implements IMemoryPoolMetricPersistenceDAO<H2SqlEntity, H2SqlEntity, MemoryPoolMetric> {
 
-    private final Logger logger = LoggerFactory.getLogger(CpuMetricH2StreamDAO.class);
-
-    @Override public CpuMetric get(String id) {
+    @Override public MemoryPoolMetric get(String id) {
         return null;
     }
 
-    @Override public H2SqlEntity prepareBatchInsert(CpuMetric data) {
+    @Override public H2SqlEntity prepareBatchInsert(MemoryPoolMetric data) {
         H2SqlEntity entity = new H2SqlEntity();
         Map<String, Object> source = new HashMap<>();
-        source.put(CpuMetricTable.COLUMN_ID, data.getId());
-        source.put(CpuMetricTable.COLUMN_INSTANCE_ID, data.getInstanceId());
-        source.put(CpuMetricTable.COLUMN_USAGE_PERCENT, data.getUsagePercent());
-        source.put(CpuMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
+        source.put(MemoryPoolMetricTable.COLUMN_ID, data.getId());
+        source.put(MemoryPoolMetricTable.COLUMN_INSTANCE_ID, data.getInstanceId());
+        source.put(MemoryPoolMetricTable.COLUMN_POOL_TYPE, data.getPoolType());
+        source.put(MemoryPoolMetricTable.COLUMN_INIT, data.getInit());
+        source.put(MemoryPoolMetricTable.COLUMN_MAX, data.getMax());
+        source.put(MemoryPoolMetricTable.COLUMN_USED, data.getUsed());
+        source.put(MemoryPoolMetricTable.COLUMN_COMMITTED, data.getCommitted());
+        source.put(MemoryPoolMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
-        logger.debug("prepare cpu metric batch insert, getId: {}", data.getId());
-        String sql = SqlBuilder.buildBatchInsertSql(CpuMetricTable.TABLE, source.keySet());
+        String sql = SqlBuilder.buildBatchInsertSql(MemoryPoolMetricTable.TABLE, source.keySet());
         entity.setSql(sql);
         entity.setParams(source.values().toArray(new Object[0]));
         return entity;
     }
 
-    @Override public H2SqlEntity prepareBatchUpdate(CpuMetric data) {
+    @Override public H2SqlEntity prepareBatchUpdate(MemoryPoolMetric data) {
         return null;
     }
 }

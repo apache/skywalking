@@ -16,31 +16,28 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.storage.h2.dao;
+package org.skywalking.apm.collector.storage.es.dao;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
-import org.skywalking.apm.collector.storage.dao.IMemoryPoolMetricDAO;
-import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
-import org.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
+import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.action.update.UpdateRequestBuilder;
+import org.skywalking.apm.collector.storage.dao.IMemoryPoolMetricPersistenceDAO;
+import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetric;
 import org.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetricTable;
 
 /**
- * @author peng-yongsheng, clevertension
+ * @author peng-yongsheng
  */
-public class MemoryPoolMetricH2DAO extends H2DAO implements IMemoryPoolMetricDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity, MemoryPoolMetric> {
+public class MemoryPoolMetricEsPersistenceDAO extends EsDAO implements IMemoryPoolMetricPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, MemoryPoolMetric> {
 
     @Override public MemoryPoolMetric get(String id) {
         return null;
     }
 
-    @Override public H2SqlEntity prepareBatchInsert(MemoryPoolMetric data) {
-        H2SqlEntity entity = new H2SqlEntity();
+    @Override public IndexRequestBuilder prepareBatchInsert(MemoryPoolMetric data) {
         Map<String, Object> source = new HashMap<>();
-        source.put(MemoryPoolMetricTable.COLUMN_ID, data.getId());
         source.put(MemoryPoolMetricTable.COLUMN_INSTANCE_ID, data.getInstanceId());
         source.put(MemoryPoolMetricTable.COLUMN_POOL_TYPE, data.getPoolType());
         source.put(MemoryPoolMetricTable.COLUMN_INIT, data.getInit());
@@ -49,13 +46,10 @@ public class MemoryPoolMetricH2DAO extends H2DAO implements IMemoryPoolMetricDAO
         source.put(MemoryPoolMetricTable.COLUMN_COMMITTED, data.getCommitted());
         source.put(MemoryPoolMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
-        String sql = SqlBuilder.buildBatchInsertSql(MemoryPoolMetricTable.TABLE, source.keySet());
-        entity.setSql(sql);
-        entity.setParams(source.values().toArray(new Object[0]));
-        return entity;
+        return getClient().prepareIndex(MemoryPoolMetricTable.TABLE, data.getId()).setSource(source);
     }
 
-    @Override public H2SqlEntity prepareBatchUpdate(MemoryPoolMetric data) {
+    @Override public UpdateRequestBuilder prepareBatchUpdate(MemoryPoolMetric data) {
         return null;
     }
 }

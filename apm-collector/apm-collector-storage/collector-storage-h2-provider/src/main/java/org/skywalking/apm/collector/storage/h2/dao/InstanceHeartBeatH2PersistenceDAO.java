@@ -27,9 +27,8 @@ import java.util.Map;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.UnexpectedException;
-import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
-import org.skywalking.apm.collector.storage.dao.IInstanceHeartBeatDAO;
+import org.skywalking.apm.collector.storage.dao.IInstanceHeartBeatPersistenceDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
 import org.skywalking.apm.collector.storage.table.register.Instance;
@@ -40,9 +39,9 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng, clevertension
  */
-public class InstanceHeartBeatH2DAO extends H2DAO implements IInstanceHeartBeatDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity, Instance> {
+public class InstanceHeartBeatH2PersistenceDAO extends H2DAO implements IInstanceHeartBeatPersistenceDAO<H2SqlEntity, H2SqlEntity, Instance> {
 
-    private final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatH2DAO.class);
+    private final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatH2PersistenceDAO.class);
 
     private static final String GET_INSTANCE_HEARTBEAT_SQL = "select * from {0} where {1} = ?";
 

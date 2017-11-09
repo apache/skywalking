@@ -16,29 +16,30 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.storage.es.dao;
+package org.skywalking.apm.collector.storage.h2.dao;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.update.UpdateRequestBuilder;
-import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.storage.dao.IMemoryMetricDAO;
-import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
+import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
+import org.skywalking.apm.collector.storage.dao.IMemoryMetricPersistenceDAO;
+import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
+import org.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
 import org.skywalking.apm.collector.storage.table.jvm.MemoryMetric;
 import org.skywalking.apm.collector.storage.table.jvm.MemoryMetricTable;
 
 /**
- * @author peng-yongsheng
+ * @author peng-yongsheng, clevertension
  */
-public class MemoryMetricEsDAO extends EsDAO implements IMemoryMetricDAO, IPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, MemoryMetric> {
+public class MemoryMetricH2PersistenceDAO extends H2DAO implements IMemoryMetricPersistenceDAO<H2SqlEntity, H2SqlEntity, MemoryMetric> {
 
     @Override public MemoryMetric get(String id) {
         return null;
     }
 
-    @Override public IndexRequestBuilder prepareBatchInsert(MemoryMetric data) {
+    @Override public H2SqlEntity prepareBatchInsert(MemoryMetric data) {
+        H2SqlEntity entity = new H2SqlEntity();
         Map<String, Object> source = new HashMap<>();
+        source.put(MemoryMetricTable.COLUMN_ID, data.getId());
         source.put(MemoryMetricTable.COLUMN_INSTANCE_ID, data.getInstanceId());
         source.put(MemoryMetricTable.COLUMN_IS_HEAP, data.getIsHeap());
         source.put(MemoryMetricTable.COLUMN_INIT, data.getInit());
@@ -47,10 +48,13 @@ public class MemoryMetricEsDAO extends EsDAO implements IMemoryMetricDAO, IPersi
         source.put(MemoryMetricTable.COLUMN_COMMITTED, data.getCommitted());
         source.put(MemoryMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
-        return getClient().prepareIndex(MemoryMetricTable.TABLE, data.getId()).setSource(source);
+        String sql = SqlBuilder.buildBatchInsertSql(MemoryMetricTable.TABLE, source.keySet());
+        entity.setSql(sql);
+        entity.setParams(source.values().toArray(new Object[0]));
+        return entity;
     }
 
-    @Override public UpdateRequestBuilder prepareBatchUpdate(MemoryMetric data) {
+    @Override public H2SqlEntity prepareBatchUpdate(MemoryMetric data) {
         return null;
     }
 }

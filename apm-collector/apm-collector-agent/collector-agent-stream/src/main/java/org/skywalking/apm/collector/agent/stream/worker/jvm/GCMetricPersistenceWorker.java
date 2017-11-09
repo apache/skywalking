@@ -18,20 +18,52 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.jvm;
 
-import org.skywalking.apm.collector.core.graph.Next;
-import org.skywalking.apm.collector.core.graph.NodeProcessor;
+import org.skywalking.apm.collector.queue.service.QueueCreatorService;
+import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
+import org.skywalking.apm.collector.storage.dao.IGCMetricPersistenceDAO;
+import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.jvm.GCMetric;
+import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
+import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
 
 /**
  * @author peng-yongsheng
  */
-public class GCMetricPersistenceWorker implements NodeProcessor<GCMetric, GCMetric> {
+public class GCMetricPersistenceWorker extends PersistenceWorker<GCMetric, GCMetric> {
+
+    private final DAOService daoService;
 
     @Override public int id() {
-        return 1;
+        return 0;
     }
 
-    @Override public void process(GCMetric INPUT, Next<GCMetric> next) {
+    public GCMetricPersistenceWorker(DAOService daoService) {
+        super(daoService);
+        this.daoService = daoService;
+    }
 
+    @Override protected boolean needMergeDBData() {
+        return false;
+    }
+
+    @Override protected IPersistenceDAO persistenceDAO() {
+        return daoService.getPersistenceDAO(IGCMetricPersistenceDAO.class);
+    }
+
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<GCMetric, GCMetric, GCMetricPersistenceWorker> {
+
+        public Factory(DAOService daoService, QueueCreatorService<GCMetric> queueCreatorService) {
+            super(daoService, queueCreatorService);
+        }
+
+        @Override
+        public GCMetricPersistenceWorker workerInstance(DAOService daoService) {
+            return new GCMetricPersistenceWorker(daoService);
+        }
+
+        @Override
+        public int queueSize() {
+            return 1024;
+        }
     }
 }

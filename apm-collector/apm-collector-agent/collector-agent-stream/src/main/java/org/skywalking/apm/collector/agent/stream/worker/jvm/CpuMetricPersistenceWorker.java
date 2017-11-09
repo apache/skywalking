@@ -20,7 +20,7 @@ package org.skywalking.apm.collector.agent.stream.worker.jvm;
 
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.storage.dao.ICpuMetricStreamDAO;
+import org.skywalking.apm.collector.storage.dao.ICpuMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.jvm.CpuMetric;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
@@ -47,7 +47,7 @@ public class CpuMetricPersistenceWorker extends PersistenceWorker<CpuMetric, Cpu
     }
 
     @Override protected IPersistenceDAO persistenceDAO() {
-        return daoService.getPersistenceDAO(ICpuMetricStreamDAO.class);
+        return daoService.getPersistenceDAO(ICpuMetricPersistenceDAO.class);
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<CpuMetric, CpuMetric, CpuMetricPersistenceWorker> {

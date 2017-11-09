@@ -48,18 +48,18 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
 
     private final Logger logger = LoggerFactory.getLogger(JVMMetricsServiceHandler.class);
 
-    private final Graph memoryMetricGraph;
-    private final Graph memoryPoolMetricGraph;
-    private final Graph gcMetricGraph;
-    private final Graph cpuMetricGraph;
-    private final Graph heartBeatGraph;
+    private final Graph<MemoryMetric> memoryMetricGraph;
+    private final Graph<MemoryPoolMetric> memoryPoolMetricGraph;
+    private final Graph<GCMetric> gcMetricGraph;
+    private final Graph<CpuMetric> cpuMetricGraph;
+    private final Graph<Instance> heartBeatGraph;
 
     public JVMMetricsServiceHandler() {
-        memoryPoolMetricGraph = GraphManager.INSTANCE.findGraph(JvmMetricStreamGraph.MEMORY_POOL_METRIC_GRAPH_ID);
-        memoryMetricGraph = GraphManager.INSTANCE.findGraph(JvmMetricStreamGraph.MEMORY_METRIC_GRAPH_ID);
-        gcMetricGraph = GraphManager.INSTANCE.findGraph(JvmMetricStreamGraph.GC_METRIC_GRAPH_ID);
-        cpuMetricGraph = GraphManager.INSTANCE.findGraph(JvmMetricStreamGraph.CPU_METRIC_GRAPH_ID);
-        heartBeatGraph = GraphManager.INSTANCE.findGraph(JvmMetricStreamGraph.INST_HEART_BEAT_GRAPH_ID);
+        memoryMetricGraph = GraphManager.INSTANCE.createIfAbsent(JvmMetricStreamGraph.MEMORY_METRIC_GRAPH_ID, MemoryMetric.class);
+        memoryPoolMetricGraph = GraphManager.INSTANCE.createIfAbsent(JvmMetricStreamGraph.MEMORY_POOL_METRIC_GRAPH_ID, MemoryPoolMetric.class);
+        gcMetricGraph = GraphManager.INSTANCE.createIfAbsent(JvmMetricStreamGraph.GC_METRIC_GRAPH_ID, GCMetric.class);
+        cpuMetricGraph = GraphManager.INSTANCE.createIfAbsent(JvmMetricStreamGraph.CPU_METRIC_GRAPH_ID, CpuMetric.class);
+        heartBeatGraph = GraphManager.INSTANCE.createIfAbsent(JvmMetricStreamGraph.INST_HEART_BEAT_GRAPH_ID, Instance.class);
     }
 
     @Override public void collect(JVMMetrics request, StreamObserver<Downstream> responseObserver) {

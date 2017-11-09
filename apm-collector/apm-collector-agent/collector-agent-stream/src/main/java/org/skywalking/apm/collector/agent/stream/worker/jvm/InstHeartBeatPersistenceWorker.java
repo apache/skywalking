@@ -18,20 +18,52 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.jvm;
 
-import org.skywalking.apm.collector.core.graph.Next;
-import org.skywalking.apm.collector.core.graph.NodeProcessor;
+import org.skywalking.apm.collector.queue.service.QueueCreatorService;
+import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
+import org.skywalking.apm.collector.storage.dao.IInstanceHeartBeatPersistenceDAO;
+import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.register.Instance;
+import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
+import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
 
 /**
  * @author peng-yongsheng
  */
-public class InstHeartBeatPersistenceWorker implements NodeProcessor<Instance, Instance> {
+public class InstHeartBeatPersistenceWorker extends PersistenceWorker<Instance, Instance> {
+
+    private final DAOService daoService;
 
     @Override public int id() {
         return 0;
     }
 
-    @Override public void process(Instance INPUT, Next<Instance> next) {
+    public InstHeartBeatPersistenceWorker(DAOService daoService) {
+        super(daoService);
+        this.daoService = daoService;
+    }
 
+    @Override protected boolean needMergeDBData() {
+        return true;
+    }
+
+    @Override protected IPersistenceDAO persistenceDAO() {
+        return daoService.getPersistenceDAO(IInstanceHeartBeatPersistenceDAO.class);
+    }
+
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<Instance, Instance, InstHeartBeatPersistenceWorker> {
+
+        public Factory(DAOService daoService, QueueCreatorService<Instance> queueCreatorService) {
+            super(daoService, queueCreatorService);
+        }
+
+        @Override
+        public InstHeartBeatPersistenceWorker workerInstance(DAOService daoService) {
+            return new InstHeartBeatPersistenceWorker(daoService);
+        }
+
+        @Override
+        public int queueSize() {
+            return 1024;
+        }
     }
 }

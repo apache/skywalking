@@ -24,8 +24,7 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.skywalking.apm.collector.core.UnexpectedException;
-import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.storage.dao.IInstanceHeartBeatDAO;
+import org.skywalking.apm.collector.storage.dao.IInstanceHeartBeatPersistenceDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.table.register.Instance;
 import org.skywalking.apm.collector.storage.table.register.InstanceTable;
@@ -35,9 +34,9 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public class InstanceHeartBeatEsDAO extends EsDAO implements IInstanceHeartBeatDAO, IPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, Instance> {
+public class InstanceHeartBeatEsPersistenceDAO extends EsDAO implements IInstanceHeartBeatPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, Instance> {
 
-    private final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatEsDAO.class);
+    private final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatEsPersistenceDAO.class);
 
     @Override public Instance get(String id) {
         GetResponse getResponse = getClient().prepareGet(InstanceTable.TABLE, id).get();
