@@ -24,7 +24,6 @@ import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoin
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.skywalking.apm.plugin.mongodb.v2.MongoDBV2MethodInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
@@ -32,10 +31,9 @@ import static org.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMat
 import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link MongoDBCollectionInstrumentation} presents that skywalking intercepts {@link com.mongodb.DBCollectionImpl#find()},
- * {@link com.mongodb.DBCollectionImpl#insertImpl} by using {@link MongoDBV2MethodInterceptor}.
- *
- * @Auther liyuntao
+ * {@link MongoDBCollectionInstrumentation} presents that skywalking intercepts {@link
+ * com.mongodb.DBCollectionImpl#find()}, {@link com.mongodb.DBCollectionImpl#insertImpl} by using {@link
+ * MongoDBV2MethodInterceptor}.
  */
 public class MongoDBV2Instrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -63,22 +61,7 @@ public class MongoDBV2Instrumentation extends ClassInstanceMethodsEnhancePluginD
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("find").and(takesArgumentWithType(8, "com.mongodb.DBEncoder"));
-                }
 
-                @Override
-                public String getMethodsInterceptor() {
-                    return MONGDB_METHOD_INTERCET_CLASS;
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            },
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
@@ -98,7 +81,7 @@ public class MongoDBV2Instrumentation extends ClassInstanceMethodsEnhancePluginD
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return takesArgumentWithType(1, "boolean");
+                    return named("remove").and(takesArgumentWithType(1, "boolean"));
                 }
 
                 @Override

@@ -24,9 +24,8 @@ import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoin
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.skywalking.apm.plugin.mongodb.v2.MongoDBV2MethodInterceptor;
 
-
+import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
@@ -34,8 +33,6 @@ import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 /**
  * {@link MongoDBCollectionInstrumentation} presents that skywalking intercepts {@link com.mongodb.DBCollection#find()},
  * {@link com.mongodb.DBCollection#mapReduce} by using {@link MongoDBV2MethodInterceptor}.
- *
- * @Auther liyuntao
  */
 public class MongoDBCollectionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -45,7 +42,19 @@ public class MongoDBCollectionInstrumentation extends ClassInstanceMethodsEnhanc
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return null;
+        return new ConstructorInterceptPoint[] {
+            new ConstructorInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return any();
+                }
+
+                @Override
+                public String getConstructorInterceptor() {
+                    return MONGDB_METHOD_INTERCET_CLASS;
+                }
+            }
+        };
     }
 
     @Override
@@ -130,7 +139,39 @@ public class MongoDBCollectionInstrumentation extends ClassInstanceMethodsEnhanc
                 public boolean isOverrideArgs() {
                     return false;
                 }
-            }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("insert").and(takesArgumentWithType(2, "com.mongodb.DBEncoder"));
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return MONGDB_METHOD_INTERCET_CLASS;
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("update").and(takesArgumentWithType(5, "com.mongodb.DBEncoder"));
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return MONGDB_METHOD_INTERCET_CLASS;
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
         };
     }
 

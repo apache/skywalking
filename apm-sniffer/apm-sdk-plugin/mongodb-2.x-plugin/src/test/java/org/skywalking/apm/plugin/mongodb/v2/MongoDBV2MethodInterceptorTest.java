@@ -117,7 +117,6 @@ public class MongoDBV2MethodInterceptorTest {
         try {
             return Mongo.class.getMethod("getWriteConcern");
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
             return null;
         }
     }
