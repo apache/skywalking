@@ -130,6 +130,20 @@ public class GraphManagerTest {
         Assert.assertEquals(expected, output);
     }
 
+    @Test
+    public void testEntryWay() {
+        Graph<String> graph = GraphManager.INSTANCE.createIfAbsent(8, String.class);
+        graph.addNode(new WayToNode<String, String>(new Node1Processor()) {
+            @Override protected void in(String INPUT) {
+                //don't call `out(intput)`;
+            }
+        }).addNext(new Node2Processor());
+
+        graph.start("Input String");
+
+        Assert.assertEquals("", outputStream.toString());
+    }
+
     @After
     public void tearDown() {
         GraphManager.INSTANCE.reset();
