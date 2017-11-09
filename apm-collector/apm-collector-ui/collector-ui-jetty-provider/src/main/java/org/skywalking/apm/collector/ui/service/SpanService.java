@@ -21,8 +21,6 @@ package org.skywalking.apm.collector.ui.service;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.util.List;
-import org.skywalking.apm.collector.cache.ApplicationCache;
-import org.skywalking.apm.collector.cache.ServiceNameCache;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.dao.ISegmentUIDAO;
@@ -39,9 +37,11 @@ import org.skywalking.apm.network.trace.component.ComponentsDefine;
 public class SpanService {
 
     private final DAOService daoService;
+    private final CacheServiceManager cacheServiceManager;
 
-    public SpanService(DAOService daoService) {
+    public SpanService(DAOService daoService, CacheServiceManager cacheServiceManager) {
         this.daoService = daoService;
+        this.cacheServiceManager = cacheServiceManager;
     }
 
     public JsonObject load(String segmentId, int spanId) {
@@ -54,7 +54,7 @@ public class SpanService {
             if (spanId == spanObject.getSpanId()) {
                 String operationName = spanObject.getOperationName();
                 if (spanObject.getOperationNameId() != 0) {
-                    String serviceName = ServiceNameCache.get(spanObject.getOperationNameId());
+                    String serviceName = cacheServiceManager.getServiceNameCacheService().get(spanObject.getOperationNameId());
                     if (StringUtils.isNotEmpty(serviceName)) {
                         operationName = serviceName.split(Const.ID_SPLIT)[1];
                     }
@@ -102,7 +102,7 @@ public class SpanService {
                 if (spanObject.getPeerId() == 0) {
                     peerJson.addProperty("value", spanObject.getPeer());
                 } else {
-                    peerJson.addProperty("value", ApplicationCache.get(spanObject.getPeerId()));
+                    peerJson.addProperty("value", cacheServiceManager.getServiceNameCacheService().get(spanObject.getPeerId()));
                 }
                 tagsArray.add(peerJson);
 

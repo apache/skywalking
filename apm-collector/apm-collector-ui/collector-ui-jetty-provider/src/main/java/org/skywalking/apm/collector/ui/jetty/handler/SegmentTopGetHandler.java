@@ -25,6 +25,7 @@ import org.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.skywalking.apm.collector.server.jetty.JettyHandler;
 import org.skywalking.apm.collector.storage.dao.ISegmentCostUIDAO;
 import org.skywalking.apm.collector.storage.service.DAOService;
+import org.skywalking.apm.collector.ui.service.CacheServiceManager;
 import org.skywalking.apm.collector.ui.service.SegmentTopService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,8 +43,8 @@ public class SegmentTopGetHandler extends JettyHandler {
 
     private final SegmentTopService service;
 
-    public SegmentTopGetHandler(DAOService daoService) {
-        this.service = new SegmentTopService(daoService);
+    public SegmentTopGetHandler(DAOService daoService, CacheServiceManager cacheServiceManager) {
+        this.service = new SegmentTopService(daoService, cacheServiceManager);
     }
 
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {

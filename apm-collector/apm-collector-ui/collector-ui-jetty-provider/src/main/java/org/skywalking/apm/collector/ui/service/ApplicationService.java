@@ -20,7 +20,6 @@ package org.skywalking.apm.collector.ui.service;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.skywalking.apm.collector.cache.ApplicationCache;
 import org.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
 import org.skywalking.apm.collector.storage.service.DAOService;
 
@@ -30,9 +29,11 @@ import org.skywalking.apm.collector.storage.service.DAOService;
 public class ApplicationService {
 
     private final DAOService daoService;
+    private final CacheServiceManager cacheServiceManager;
 
-    public ApplicationService(DAOService daoService) {
+    public ApplicationService(DAOService daoService, CacheServiceManager cacheServiceManager) {
         this.daoService = daoService;
+        this.cacheServiceManager = cacheServiceManager;
     }
 
     public JsonArray getApplications(long startTime, long endTime) {
@@ -42,7 +43,7 @@ public class ApplicationService {
         applications.forEach(jsonElement -> {
             JsonObject application = jsonElement.getAsJsonObject();
             int applicationId = application.get("applicationId").getAsInt();
-            String applicationCode = ApplicationCache.get(applicationId);
+            String applicationCode = cacheServiceManager.getApplicationCacheService().get(applicationId);
             application.addProperty("applicationCode", applicationCode);
         });
         return applications;

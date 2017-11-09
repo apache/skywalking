@@ -19,6 +19,11 @@
 package org.skywalking.apm.collector.ui.jetty;
 
 import java.util.Properties;
+import org.skywalking.apm.collector.cache.CacheModule;
+import org.skywalking.apm.collector.cache.service.ApplicationCacheService;
+import org.skywalking.apm.collector.cache.service.InstanceCacheService;
+import org.skywalking.apm.collector.cache.service.ServiceIdCacheService;
+import org.skywalking.apm.collector.cache.service.ServiceNameCacheService;
 import org.skywalking.apm.collector.cluster.ClusterModule;
 import org.skywalking.apm.collector.cluster.service.ModuleListenerService;
 import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
@@ -49,6 +54,7 @@ import org.skywalking.apm.collector.ui.jetty.handler.servicetree.EntryServiceGet
 import org.skywalking.apm.collector.ui.jetty.handler.servicetree.ServiceTreeGetByIdHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.time.AllInstanceLastTimeGetHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.time.OneInstanceLastTimeGetHandler;
+import org.skywalking.apm.collector.ui.service.CacheServiceManager;
 
 /**
  * @author peng-yongsheng
@@ -86,11 +92,13 @@ public class UIModuleJettyProvider extends ModuleProvider {
             NamingHandlerRegisterService namingHandlerRegisterService = getManager().find(NamingModule.NAME).getService(NamingHandlerRegisterService.class);
             namingHandlerRegisterService.register(new UIJettyNamingHandler(namingListener));
 
+            CacheServiceManager cacheServiceManager = initCacheServiceManager();
+
             DAOService daoService = getManager().find(StorageModule.NAME).getService(DAOService.class);
 
             JettyManagerService managerService = getManager().find(JettyManagerModule.NAME).getService(JettyManagerService.class);
             Server jettyServer = managerService.getOrCreateIfAbsent(host, port, contextPath);
-            addHandlers(daoService, jettyServer);
+            addHandlers(daoService, jettyServer, cacheServiceManager);
         } catch (ModuleNotFoundException e) {
             throw new ServiceNotProvidedException(e.getMessage());
         }
@@ -101,22 +109,36 @@ public class UIModuleJettyProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {ClusterModule.NAME, JettyManagerModule.NAME, NamingModule.NAME};
+        return new String[] {ClusterModule.NAME, JettyManagerModule.NAME, NamingModule.NAME, CacheModule.NAME};
     }
 
-    private void addHandlers(DAOService daoService, Server jettyServer) {
-        jettyServer.addHandler(new ApplicationsGetHandler(daoService));
-        jettyServer.addHandler(new InstanceHealthGetHandler(daoService));
-        jettyServer.addHandler(new InstanceMetricGetOneTimeBucketHandler(daoService));
-        jettyServer.addHandler(new InstanceMetricGetRangeTimeBucketHandler(daoService));
-        jettyServer.addHandler(new InstanceOsInfoGetHandler(daoService));
-        jettyServer.addHandler(new EntryServiceGetHandler(daoService));
-        jettyServer.addHandler(new ServiceTreeGetByIdHandler(daoService));
-        jettyServer.addHandler(new AllInstanceLastTimeGetHandler(daoService));
-        jettyServer.addHandler(new OneInstanceLastTimeGetHandler(daoService));
-        jettyServer.addHandler(new SegmentTopGetHandler(daoService));
-        jettyServer.addHandler(new SpanGetHandler(daoService));
-        jettyServer.addHandler(new TraceDagGetHandler(daoService));
-        jettyServer.addHandler(new TraceStackGetHandler(daoService));
+    private void addHandlers(DAOService daoService, Server jettyServer, CacheServiceManager cacheServiceManager) {
+        jettyServer.addHandler(new ApplicationsGetHandler(daoService, cacheServiceManager));
+        jettyServer.addHandler(new InstanceHealthGetHandler(daoService, cacheServiceManager));
+        jettyServer.addHandler(new InstanceMetricGetOneTimeBucketHandler(daoService, cacheServiceManager));
+        jettyServer.addHandler(new InstanceMetricGetRangeTimeBucketHandler(daoService, cacheServiceManager));
+        jettyServer.addHandler(new InstanceOsInfoGetHandler(daoService, cacheServiceManager));
+        jettyServer.addHandler(new EntryServiceGetHandler(daoService, cacheServiceManager));
+        jettyServer.addHandler(new ServiceTreeGetByIdHandler(daoService, cacheServiceManager));
+        jettyServer.addHandler(new AllInstanceLastTimeGetHandler(daoService, cacheServiceManager));
+        jettyServer.addHandler(new OneInstanceLastTimeGetHandler(daoService, cacheServiceManager));
+        jettyServer.addHandler(new SegmentTopGetHandler(daoService, cacheServiceManager));
+        jettyServer.addHandler(new SpanGetHandler(daoService, cacheServiceManager));
+        jettyServer.addHandler(new TraceDagGetHandler(daoService, cacheServiceManager));
+        jettyServer.addHandler(new TraceStackGetHandler(daoService, cacheServiceManager));
+    }
+
+    private CacheServiceManager initCacheServiceManager() throws ModuleNotFoundException, ServiceNotProvidedException {
+        ApplicationCacheService applicationCacheService = getManager().find(CacheModule.NAME).getService(ApplicationCacheService.class);
+        InstanceCacheService instanceCacheService = getManager().find(CacheModule.NAME).getService(InstanceCacheService.class);
+        ServiceIdCacheService serviceIdCacheService = getManager().find(CacheModule.NAME).getService(ServiceIdCacheService.class);
+        ServiceNameCacheService serviceNameCacheService = getManager().find(CacheModule.NAME).getService(ServiceNameCacheService.class);
+
+        CacheServiceManager serviceManager = new CacheServiceManager();
+        serviceManager.setApplicationCacheService(applicationCacheService);
+        serviceManager.setInstanceCacheService(instanceCacheService);
+        serviceManager.setServiceIdCacheService(serviceIdCacheService);
+        serviceManager.setServiceNameCacheService(serviceNameCacheService);
+        return serviceManager;
     }
 }

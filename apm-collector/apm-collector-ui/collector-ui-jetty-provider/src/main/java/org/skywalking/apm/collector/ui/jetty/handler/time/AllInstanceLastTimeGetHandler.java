@@ -26,6 +26,7 @@ import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.skywalking.apm.collector.server.jetty.JettyHandler;
 import org.skywalking.apm.collector.storage.service.DAOService;
+import org.skywalking.apm.collector.ui.service.CacheServiceManager;
 import org.skywalking.apm.collector.ui.service.TimeSynchronousService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,8 +44,8 @@ public class AllInstanceLastTimeGetHandler extends JettyHandler {
 
     private final TimeSynchronousService service;
 
-    public AllInstanceLastTimeGetHandler(DAOService daoService) {
-        this.service = new TimeSynchronousService(daoService);
+    public AllInstanceLastTimeGetHandler(DAOService daoService, CacheServiceManager cacheServiceManager) {
+        this.service = new TimeSynchronousService(daoService, cacheServiceManager);
     }
 
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {

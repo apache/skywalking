@@ -23,7 +23,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.util.Iterator;
 import java.util.Map;
-import org.skywalking.apm.collector.cache.ApplicationCache;
 import org.skywalking.apm.collector.core.util.ColumnNameUtils;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.ObjectUtils;
@@ -39,9 +38,11 @@ import org.skywalking.apm.collector.storage.table.serviceref.ServiceReferenceTab
 public class ServiceTreeService {
 
     private final DAOService daoService;
+    private final CacheServiceManager cacheServiceManager;
 
-    public ServiceTreeService(DAOService daoService) {
+    public ServiceTreeService(DAOService daoService, CacheServiceManager cacheServiceManager) {
         this.daoService = daoService;
+        this.cacheServiceManager = cacheServiceManager;
     }
 
     public JsonObject loadEntryService(int applicationId, String entryServiceName, long startTime, long endTime,
@@ -53,7 +54,7 @@ public class ServiceTreeService {
         for (JsonElement element : entryServices) {
             JsonObject entryService = element.getAsJsonObject();
             int respApplication = entryService.get(ColumnNameUtils.INSTANCE.rename(ServiceEntryTable.COLUMN_APPLICATION_ID)).getAsInt();
-            String applicationCode = ApplicationCache.get(respApplication);
+            String applicationCode = cacheServiceManager.getApplicationCacheService().get(respApplication);
             entryService.addProperty("applicationCode", applicationCode);
         }
 

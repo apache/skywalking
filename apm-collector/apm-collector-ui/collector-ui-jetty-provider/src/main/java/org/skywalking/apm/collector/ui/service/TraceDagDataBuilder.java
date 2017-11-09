@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.skywalking.apm.collector.core.util.Const;
-import org.skywalking.apm.collector.storage.define.noderef.NodeReferenceTable;
+import org.skywalking.apm.collector.storage.table.noderef.NodeReferenceTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 public class TraceDagDataBuilder {
     private final Logger logger = LoggerFactory.getLogger(TraceDagDataBuilder.class);
 
-    private Integer nodeId = new Integer(-1);
+    private Integer nodeId = -1;
     private Map<String, String> mappingMap = new HashMap<>();
     private Map<String, String> nodeCompMap = new HashMap<>();
     private Map<String, Integer> nodeIdMap = new HashMap<>();

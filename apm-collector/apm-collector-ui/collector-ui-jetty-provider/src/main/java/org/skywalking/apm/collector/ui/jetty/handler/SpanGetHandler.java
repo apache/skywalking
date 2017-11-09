@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.skywalking.apm.collector.server.jetty.JettyHandler;
 import org.skywalking.apm.collector.storage.service.DAOService;
+import org.skywalking.apm.collector.ui.service.CacheServiceManager;
 import org.skywalking.apm.collector.ui.service.SpanService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +41,8 @@ public class SpanGetHandler extends JettyHandler {
 
     private final SpanService service;
 
-    public SpanGetHandler(DAOService daoService) {
-        this.service = new SpanService(daoService);
+    public SpanGetHandler(DAOService daoService, CacheServiceManager cacheServiceManager) {
+        this.service = new SpanService(daoService, cacheServiceManager);
     }
 
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {

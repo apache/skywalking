@@ -24,6 +24,7 @@ import org.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.skywalking.apm.collector.server.jetty.JettyHandler;
 import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.ui.service.ApplicationService;
+import org.skywalking.apm.collector.ui.service.CacheServiceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,8 +41,8 @@ public class ApplicationsGetHandler extends JettyHandler {
 
     private final ApplicationService applicationService;
 
-    public ApplicationsGetHandler(DAOService daoService) {
-        this.applicationService = new ApplicationService(daoService);
+    public ApplicationsGetHandler(DAOService daoService, CacheServiceManager cacheServiceManager) {
+        this.applicationService = new ApplicationService(daoService, cacheServiceManager);
     }
 
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {

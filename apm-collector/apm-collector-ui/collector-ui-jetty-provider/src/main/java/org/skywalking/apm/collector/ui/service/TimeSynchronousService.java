@@ -31,9 +31,11 @@ public class TimeSynchronousService {
     private final Logger logger = LoggerFactory.getLogger(TimeSynchronousService.class);
 
     private final DAOService daoService;
+    private final CacheServiceManager cacheServiceManager;
 
-    public TimeSynchronousService(DAOService daoService) {
+    public TimeSynchronousService(DAOService daoService, CacheServiceManager cacheServiceManager) {
         this.daoService = daoService;
+        this.cacheServiceManager = cacheServiceManager;
     }
 
     public Long allInstanceLastTime() {

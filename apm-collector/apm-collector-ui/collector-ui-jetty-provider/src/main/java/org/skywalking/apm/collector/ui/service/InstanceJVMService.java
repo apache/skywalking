@@ -45,9 +45,11 @@ public class InstanceJVMService {
     private final Gson gson = new Gson();
 
     private final DAOService daoService;
+    private final CacheServiceManager cacheServiceManager;
 
-    public InstanceJVMService(DAOService daoService) {
+    public InstanceJVMService(DAOService daoService, CacheServiceManager cacheServiceManager) {
         this.daoService = daoService;
+        this.cacheServiceManager = cacheServiceManager;
     }
 
     public JsonObject getInstanceOsInfo(int instanceId) {

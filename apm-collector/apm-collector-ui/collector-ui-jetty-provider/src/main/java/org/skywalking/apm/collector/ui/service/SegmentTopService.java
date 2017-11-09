@@ -36,9 +36,11 @@ public class SegmentTopService {
     private final Logger logger = LoggerFactory.getLogger(SegmentTopService.class);
 
     private final DAOService daoService;
+    private final CacheServiceManager cacheServiceManager;
 
-    public SegmentTopService(DAOService daoService) {
+    public SegmentTopService(DAOService daoService, CacheServiceManager cacheServiceManager) {
         this.daoService = daoService;
+        this.cacheServiceManager = cacheServiceManager;
     }
 
     public JsonObject loadTop(long startTime, long endTime, long minCost, long maxCost, String operationName,

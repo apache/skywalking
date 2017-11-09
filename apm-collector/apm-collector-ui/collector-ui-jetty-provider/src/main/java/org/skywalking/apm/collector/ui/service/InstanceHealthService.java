@@ -21,7 +21,6 @@ package org.skywalking.apm.collector.ui.service;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.util.List;
-import org.skywalking.apm.collector.cache.ApplicationCache;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.dao.IGCMetricUIDAO;
 import org.skywalking.apm.collector.storage.dao.IInstPerformanceUIDAO;
@@ -39,9 +38,11 @@ public class InstanceHealthService {
     private final Logger logger = LoggerFactory.getLogger(InstanceHealthService.class);
 
     private final DAOService daoService;
+    private final CacheServiceManager cacheServiceManager;
 
-    public InstanceHealthService(DAOService daoService) {
+    public InstanceHealthService(DAOService daoService, CacheServiceManager cacheServiceManager) {
         this.daoService = daoService;
+        this.cacheServiceManager = cacheServiceManager;
     }
 
     public JsonObject getInstances(long timeBucket, int applicationId) {
@@ -56,7 +57,7 @@ public class InstanceHealthService {
         response.add("instances", instances);
 
         instanceList.forEach(instance -> {
-            response.addProperty("applicationCode", ApplicationCache.get(applicationId));
+            response.addProperty("applicationCode", cacheServiceManager.getApplicationCacheService().get(applicationId));
             response.addProperty("applicationId", applicationId);
 
             IInstPerformanceUIDAO instPerformanceDAO = (IInstPerformanceUIDAO)daoService.get(IInstPerformanceUIDAO.class);
