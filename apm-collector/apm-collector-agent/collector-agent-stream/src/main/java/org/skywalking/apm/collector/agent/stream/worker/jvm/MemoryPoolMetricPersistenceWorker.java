@@ -18,20 +18,52 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.jvm;
 
-import org.skywalking.apm.collector.core.graph.Next;
-import org.skywalking.apm.collector.core.graph.NodeProcessor;
+import org.skywalking.apm.collector.queue.service.QueueCreatorService;
+import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
+import org.skywalking.apm.collector.storage.dao.IMemoryPoolMetricPersistenceDAO;
+import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetric;
+import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
+import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
 
 /**
  * @author peng-yongsheng
  */
-public class MemoryPoolMetricPersistenceWorker implements NodeProcessor<MemoryPoolMetric, MemoryPoolMetric> {
+public class MemoryPoolMetricPersistenceWorker extends PersistenceWorker<MemoryPoolMetric, MemoryPoolMetric> {
+
+    private final DAOService daoService;
 
     @Override public int id() {
         return 0;
     }
 
-    @Override public void process(MemoryPoolMetric INPUT, Next<MemoryPoolMetric> next) {
+    public MemoryPoolMetricPersistenceWorker(DAOService daoService) {
+        super(daoService);
+        this.daoService = daoService;
+    }
 
+    @Override protected boolean needMergeDBData() {
+        return false;
+    }
+
+    @Override protected IPersistenceDAO persistenceDAO() {
+        return daoService.getPersistenceDAO(IMemoryPoolMetricPersistenceDAO.class);
+    }
+
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<MemoryPoolMetric, MemoryPoolMetric, MemoryPoolMetricPersistenceWorker> {
+
+        public Factory(DAOService daoService, QueueCreatorService<MemoryPoolMetric> queueCreatorService) {
+            super(daoService, queueCreatorService);
+        }
+
+        @Override
+        public MemoryPoolMetricPersistenceWorker workerInstance(DAOService daoService) {
+            return new MemoryPoolMetricPersistenceWorker(daoService);
+        }
+
+        @Override
+        public int queueSize() {
+            return 1024;
+        }
     }
 }

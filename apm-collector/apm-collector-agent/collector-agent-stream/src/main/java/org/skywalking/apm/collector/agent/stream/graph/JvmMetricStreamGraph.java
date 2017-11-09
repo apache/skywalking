@@ -18,10 +18,6 @@
 
 package org.skywalking.apm.collector.agent.stream.graph;
 
-import org.skywalking.apm.collector.agent.stream.worker.jvm.GCMetricPersistenceWorker;
-import org.skywalking.apm.collector.agent.stream.worker.jvm.InstHeartBeatPersistenceWorker;
-import org.skywalking.apm.collector.agent.stream.worker.jvm.MemoryMetricPersistenceWorker;
-import org.skywalking.apm.collector.agent.stream.worker.jvm.MemoryPoolMetricPersistenceWorker;
 import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.storage.table.jvm.CpuMetric;
@@ -42,32 +38,28 @@ public class JvmMetricStreamGraph {
     public static final int CPU_METRIC_GRAPH_ID = 103;
     public static final int INST_HEART_BEAT_GRAPH_ID = 104;
 
-    public Graph<GCMetric> createGCMetricGraph() {
+    public Graph<GCMetric> createGcMetricGraph() {
         Graph<GCMetric> graph = GraphManager.INSTANCE.createIfAbsent(GC_METRIC_GRAPH_ID, GCMetric.class);
-        graph.addNode(new GCMetricPersistenceWorker());
         return graph;
     }
 
-    public Graph<CpuMetric> createCPUMetricGraph() throws ProviderNotFoundException {
+    public Graph<CpuMetric> createCpuMetricGraph() throws ProviderNotFoundException {
         Graph<CpuMetric> graph = GraphManager.INSTANCE.createIfAbsent(CPU_METRIC_GRAPH_ID, CpuMetric.class);
         return graph;
     }
 
     public Graph<MemoryMetric> createMemoryMetricGraph() {
         Graph<MemoryMetric> graph = GraphManager.INSTANCE.createIfAbsent(MEMORY_METRIC_GRAPH_ID, MemoryMetric.class);
-        graph.addNode(new MemoryMetricPersistenceWorker());
         return graph;
     }
 
     public Graph<MemoryPoolMetric> createMemoryPoolMetricGraph() {
         Graph<MemoryPoolMetric> graph = GraphManager.INSTANCE.createIfAbsent(MEMORY_POOL_METRIC_GRAPH_ID, MemoryPoolMetric.class);
-        graph.addNode(new MemoryPoolMetricPersistenceWorker());
         return graph;
     }
 
     public Graph<Instance> createHeartBeatGraph() {
         Graph<Instance> graph = GraphManager.INSTANCE.createIfAbsent(INST_HEART_BEAT_GRAPH_ID, Instance.class);
-        graph.addNode(new InstHeartBeatPersistenceWorker());
         return graph;
     }
 }
