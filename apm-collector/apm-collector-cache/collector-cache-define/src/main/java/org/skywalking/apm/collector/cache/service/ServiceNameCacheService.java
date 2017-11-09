@@ -16,15 +16,15 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.storage.dao;
+package org.skywalking.apm.collector.cache.service;
 
-import org.skywalking.apm.collector.storage.base.dao.DAO;
+import org.skywalking.apm.collector.core.module.Service;
 
 /**
  * @author peng-yongsheng
  */
-public interface IServiceNameCacheDAO extends DAO {
-    String getServiceName(int serviceId);
+public interface ServiceNameCacheService extends Service {
+    String get(int serviceId);
 
-    int getServiceId(int applicationId, String serviceName);
+    String getSplitServiceName(String serviceName);
 }

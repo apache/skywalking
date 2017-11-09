@@ -50,9 +50,9 @@ public class CpuMetricPersistenceWorker extends PersistenceWorker<CpuMetric, Cpu
         return daoService.getPersistenceDAO(ICpuMetricStreamDAO.class);
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<CpuMetricPersistenceWorker> {
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<CpuMetric, CpuMetric, CpuMetricPersistenceWorker> {
 
-        public Factory(DAOService daoService, QueueCreatorService queueCreatorService) {
+        public Factory(DAOService daoService, QueueCreatorService<CpuMetric> queueCreatorService) {
             super(daoService, queueCreatorService);
         }
 

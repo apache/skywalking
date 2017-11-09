@@ -16,17 +16,26 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.storage.base.dao;
+package org.skywalking.apm.collector.cache;
 
-import org.skywalking.apm.collector.core.data.Data;
+import org.skywalking.apm.collector.cache.service.ApplicationCacheService;
+import org.skywalking.apm.collector.cache.service.InstanceCacheService;
+import org.skywalking.apm.collector.cache.service.ServiceIdCacheService;
+import org.skywalking.apm.collector.cache.service.ServiceNameCacheService;
+import org.skywalking.apm.collector.core.module.Module;
 
 /**
  * @author peng-yongsheng
  */
-public interface IPersistenceDAO<Insert, Update, DataImpl extends Data> extends DAO {
-    DataImpl get(String id);
+public class CacheModule extends Module {
 
-    Insert prepareBatchInsert(DataImpl data);
+    public static final String NAME = "cache";
 
-    Update prepareBatchUpdate(DataImpl data);
+    @Override public String name() {
+        return NAME;
+    }
+
+    @Override public Class[] services() {
+        return new Class[] {ApplicationCacheService.class, InstanceCacheService.class, ServiceIdCacheService.class, ServiceNameCacheService.class};
+    }
 }

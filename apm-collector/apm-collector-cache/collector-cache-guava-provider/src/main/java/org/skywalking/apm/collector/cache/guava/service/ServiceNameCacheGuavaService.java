@@ -16,29 +16,35 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.cache;
+package org.skywalking.apm.collector.cache.guava.service;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import org.skywalking.apm.collector.cache.service.ServiceNameCacheService;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.StringUtils;
-import org.skywalking.apm.collector.storage.base.dao.DAOContainer;
 import org.skywalking.apm.collector.storage.dao.IServiceNameCacheDAO;
+import org.skywalking.apm.collector.storage.service.DAOService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceNameCache {
+public class ServiceNameCacheGuavaService implements ServiceNameCacheService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServiceNameCache.class);
+    private final Logger logger = LoggerFactory.getLogger(ServiceNameCacheGuavaService.class);
 
-    //TODO size configuration
-    private static Cache<Integer, String> CACHE = CacheBuilder.newBuilder().maximumSize(10000).build();
+    private final Cache<Integer, String> CACHE = CacheBuilder.newBuilder().maximumSize(10000).build();
 
-    public static String get(int serviceId) {
-        IServiceNameCacheDAO dao = (IServiceNameCacheDAO)DAOContainer.INSTANCE.get(IServiceNameCacheDAO.class.getName());
+    private final DAOService daoService;
+
+    public ServiceNameCacheGuavaService(DAOService daoService) {
+        this.daoService = daoService;
+    }
+
+    public String get(int serviceId) {
+        IServiceNameCacheDAO dao = (IServiceNameCacheDAO)daoService.get(IServiceNameCacheDAO.class);
 
         String serviceName = Const.EMPTY_STRING;
         try {
@@ -57,7 +63,7 @@ public class ServiceNameCache {
         return serviceName;
     }
 
-    public static String getSplitServiceName(String serviceName) {
+    public String getSplitServiceName(String serviceName) {
         if (StringUtils.isNotEmpty(serviceName)) {
             String[] serviceNames = serviceName.split(Const.ID_SPLIT);
             if (serviceNames.length == 2) {

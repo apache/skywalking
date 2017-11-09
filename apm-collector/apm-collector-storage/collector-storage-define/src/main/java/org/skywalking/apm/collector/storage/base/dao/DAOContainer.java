@@ -25,13 +25,27 @@ import java.util.Map;
  * @author peng-yongsheng
  */
 public class DAOContainer {
-    private Map<String, AbstractDAO> daos = new HashMap<>();
+    private Map<String, DAO> daoImplMap;
+    private Map<String, IPersistenceDAO> persistenceDaoImpl;
 
-    public void put(String interfaceName, AbstractDAO abstractDao) {
-        daos.put(interfaceName, abstractDao);
+    public DAOContainer() {
+        daoImplMap = new HashMap<>();
+        persistenceDaoImpl = new HashMap<>();
     }
 
-    public AbstractDAO get(String interfaceName) {
-        return daos.get(interfaceName);
+    public void put(String interfaceName, DAO daoImpl) {
+        if (daoImpl instanceof IPersistenceDAO) {
+            persistenceDaoImpl.put(interfaceName, (IPersistenceDAO)daoImpl);
+        } else {
+            daoImplMap.put(interfaceName, daoImpl);
+        }
+    }
+
+    public DAO get(String interfaceName) {
+        return daoImplMap.get(interfaceName);
+    }
+
+    public IPersistenceDAO getPersistenceDAO(String interfaceName) {
+        return persistenceDaoImpl.get(interfaceName);
     }
 }
