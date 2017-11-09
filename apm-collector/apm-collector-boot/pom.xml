@@ -136,5 +136,12 @@
             <version>${project.version}</version>
         </dependency>
         <!-- stream provider -->
+        <!-- cache provider -->
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-cache-guava-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- cache provider -->
     </dependencies>
 </project>

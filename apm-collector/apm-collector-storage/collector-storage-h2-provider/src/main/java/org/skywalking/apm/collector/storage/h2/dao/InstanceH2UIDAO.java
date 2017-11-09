@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 public class InstanceH2UIDAO extends H2DAO implements IInstanceUIDAO {
 
     private final Logger logger = LoggerFactory.getLogger(InstanceH2UIDAO.class);
-    
+
     private static final String GET_LAST_HEARTBEAT_TIME_SQL = "select {0} from {1} where {2} > ? limit 1";
     private static final String GET_INST_LAST_HEARTBEAT_TIME_SQL = "select {0} from {1} where {2} > ? and {3} = ? limit 1";
     private static final String GET_INSTANCE_SQL = "select * from {0} where {1} = ?";
@@ -96,7 +96,6 @@ public class InstanceH2UIDAO extends H2DAO implements IInstanceUIDAO {
                 logger.debug("applicationId: {}", applicationId);
                 JsonObject application = new JsonObject();
                 application.addProperty("applicationId", applicationId);
-                application.addProperty("applicationCode", ApplicationCache.get(applicationId));
                 application.addProperty("instanceCount", rs.getInt("cnt"));
                 applications.add(application);
             }

@@ -16,28 +16,34 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.cache;
+package org.skywalking.apm.collector.cache.guava.service;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import org.skywalking.apm.collector.cache.service.ServiceIdCacheService;
 import org.skywalking.apm.collector.core.util.Const;
-import org.skywalking.apm.collector.storage.base.dao.DAOContainer;
 import org.skywalking.apm.collector.storage.dao.IServiceNameCacheDAO;
+import org.skywalking.apm.collector.storage.service.DAOService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceIdCache {
+public class ServiceIdCacheGuavaService implements ServiceIdCacheService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServiceIdCache.class);
+    private final Logger logger = LoggerFactory.getLogger(ServiceIdCacheGuavaService.class);
 
-    //TODO size configuration
-    private static Cache<String, Integer> SERVICE_CACHE = CacheBuilder.newBuilder().maximumSize(1000).build();
+    private final Cache<String, Integer> SERVICE_CACHE = CacheBuilder.newBuilder().maximumSize(1000).build();
 
-    public static int get(int applicationId, String serviceName) {
-        IServiceNameCacheDAO dao = (IServiceNameCacheDAO)DAOContainer.INSTANCE.get(IServiceNameCacheDAO.class.getName());
+    private final DAOService daoService;
+
+    public ServiceIdCacheGuavaService(DAOService daoService) {
+        this.daoService = daoService;
+    }
+
+    public int get(int applicationId, String serviceName) {
+        IServiceNameCacheDAO dao = (IServiceNameCacheDAO)daoService.get(IServiceNameCacheDAO.class);
 
         int serviceId = 0;
         try {

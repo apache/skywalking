@@ -10,7 +10,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>apm-collector-cache</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
+    <modules>
+        <module>collector-cache-define</module>
+        <module>collector-cache-guava-provider</module>
+    </modules>
 
     <dependencies>
         <dependency>

@@ -16,28 +16,35 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.cache;
+package org.skywalking.apm.collector.cache.guava.service;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import org.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.StringUtils;
-import org.skywalking.apm.collector.storage.base.dao.DAOContainer;
 import org.skywalking.apm.collector.storage.dao.IApplicationCacheDAO;
+import org.skywalking.apm.collector.storage.service.DAOService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationCache {
+public class ApplicationCacheGuavaService implements ApplicationCacheService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ApplicationCache.class);
+    private final Logger logger = LoggerFactory.getLogger(ApplicationCacheGuavaService.class);
 
-    private static Cache<String, Integer> CODE_CACHE = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(1000).build();
+    private final Cache<String, Integer> CODE_CACHE = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(1000).build();
 
-    public static int get(String applicationCode) {
-        IApplicationCacheDAO dao = (IApplicationCacheDAO)DAOContainer.INSTANCE.get(IApplicationCacheDAO.class.getName());
+    private final DAOService daoService;
+
+    public ApplicationCacheGuavaService(DAOService daoService) {
+        this.daoService = daoService;
+    }
+
+    public int get(String applicationCode) {
+        IApplicationCacheDAO dao = (IApplicationCacheDAO)daoService.get(IApplicationCacheDAO.class);
 
         int applicationId = 0;
         try {
@@ -55,10 +62,10 @@ public class ApplicationCache {
         return applicationId;
     }
 
-    private static Cache<Integer, String> ID_CACHE = CacheBuilder.newBuilder().maximumSize(1000).build();
+    private final Cache<Integer, String> ID_CACHE = CacheBuilder.newBuilder().maximumSize(1000).build();
 
-    public static String get(int applicationId) {
-        IApplicationCacheDAO dao = (IApplicationCacheDAO)DAOContainer.INSTANCE.get(IApplicationCacheDAO.class.getName());
+    public String get(int applicationId) {
+        IApplicationCacheDAO dao = (IApplicationCacheDAO)daoService.get(IApplicationCacheDAO.class);
 
         String applicationCode = Const.EMPTY_STRING;
         try {

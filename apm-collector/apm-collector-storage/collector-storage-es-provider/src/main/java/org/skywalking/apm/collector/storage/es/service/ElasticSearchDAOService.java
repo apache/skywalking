@@ -18,8 +18,9 @@
 
 package org.skywalking.apm.collector.storage.es.service;
 
-import org.skywalking.apm.collector.storage.base.dao.AbstractDAO;
+import org.skywalking.apm.collector.storage.base.dao.DAO;
 import org.skywalking.apm.collector.storage.base.dao.DAOContainer;
+import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.skywalking.apm.collector.storage.service.DAOService;
 
 /**
@@ -33,7 +34,11 @@ public class ElasticSearchDAOService implements DAOService {
         this.daoContainer = daoContainer;
     }
 
-    @Override public AbstractDAO get(Class<AbstractDAO> daoInterfaceClass) {
+    @Override public DAO get(Class<? extends DAO> daoInterfaceClass) {
         return daoContainer.get(daoInterfaceClass.getName());
+    }
+
+    @Override public IPersistenceDAO getPersistenceDAO(Class<? extends IPersistenceDAO> daoInterfaceClass) {
+        return daoContainer.getPersistenceDAO(daoInterfaceClass.getName());
     }
 }
