@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class Graph<INPUT> {
     private int id;
-    private Node startNode;
+    private WayToNode entryWay;
     private ConcurrentHashMap<Integer, Node> nodeIndex = new ConcurrentHashMap<>();
 
     Graph(int id) {
@@ -33,13 +33,18 @@ public final class Graph<INPUT> {
     }
 
     public void start(INPUT INPUT) {
-        startNode.execute(INPUT);
+        entryWay.in(INPUT);
     }
 
     public <OUTPUT> Node<INPUT, OUTPUT> addNode(NodeProcessor<INPUT, OUTPUT> nodeProcessor) {
+        return addNode(new DirectWay(nodeProcessor));
+    }
+
+    public <OUTPUT> Node<INPUT, OUTPUT> addNode(WayToNode<INPUT, OUTPUT> entryWay) {
         synchronized (this) {
-            startNode = new Node(this, nodeProcessor);
-            return startNode;
+            this.entryWay = entryWay;
+            this.entryWay.buildDestination(this);
+            return entryWay.getDestination();
         }
     }
 
