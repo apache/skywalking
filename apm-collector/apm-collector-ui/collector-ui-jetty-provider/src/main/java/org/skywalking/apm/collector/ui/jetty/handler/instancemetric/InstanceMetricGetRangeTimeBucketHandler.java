@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.skywalking.apm.collector.server.jetty.JettyHandler;
 import org.skywalking.apm.collector.storage.service.DAOService;
+import org.skywalking.apm.collector.ui.service.CacheServiceManager;
 import org.skywalking.apm.collector.ui.service.InstanceJVMService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,8 +43,8 @@ public class InstanceMetricGetRangeTimeBucketHandler extends JettyHandler {
 
     private final InstanceJVMService service;
 
-    public InstanceMetricGetRangeTimeBucketHandler(DAOService daoService) {
-        this.service = new InstanceJVMService(daoService);
+    public InstanceMetricGetRangeTimeBucketHandler(DAOService daoService, CacheServiceManager cacheServiceManager) {
+        this.service = new InstanceJVMService(daoService, cacheServiceManager);
     }
 
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {

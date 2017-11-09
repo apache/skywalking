@@ -22,8 +22,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
-import org.skywalking.apm.collector.cache.ApplicationCache;
-import org.skywalking.apm.collector.cache.ServiceNameCache;
 import org.skywalking.apm.collector.core.util.CollectionUtils;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.ObjectUtils;
@@ -42,9 +40,11 @@ import org.skywalking.apm.network.proto.UniqueId;
 public class TraceStackService {
 
     private final DAOService daoService;
+    private final CacheServiceManager cacheServiceManager;
 
-    public TraceStackService(DAOService daoService) {
+    public TraceStackService(DAOService daoService, CacheServiceManager cacheServiceManager) {
         this.daoService = daoService;
+        this.cacheServiceManager = cacheServiceManager;
     }
 
     public JsonArray load(String globalTraceId) {
@@ -123,14 +123,14 @@ public class TraceStackService {
 
                 String operationName = spanObject.getOperationName();
                 if (spanObject.getOperationNameId() != 0) {
-                    String serviceName = ServiceNameCache.get(spanObject.getOperationNameId());
+                    String serviceName = cacheServiceManager.getServiceNameCacheService().get(spanObject.getOperationNameId());
                     if (StringUtils.isNotEmpty(serviceName)) {
                         operationName = serviceName.split(Const.ID_SPLIT)[1];
                     } else {
                         operationName = Const.EMPTY_STRING;
                     }
                 }
-                String applicationCode = ApplicationCache.get(segment.getApplicationId());
+                String applicationCode = cacheServiceManager.getApplicationCacheService().get(segment.getApplicationId());
 
                 long cost = spanObject.getEndTime() - spanObject.getStartTime();
                 if (cost == 0) {

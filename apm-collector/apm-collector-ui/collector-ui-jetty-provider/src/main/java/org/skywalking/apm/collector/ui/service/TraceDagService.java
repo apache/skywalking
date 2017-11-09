@@ -35,9 +35,11 @@ public class TraceDagService {
     private final Logger logger = LoggerFactory.getLogger(TraceDagService.class);
 
     private final DAOService daoService;
+    private final CacheServiceManager cacheServiceManager;
 
-    public TraceDagService(DAOService daoService) {
+    public TraceDagService(DAOService daoService, CacheServiceManager cacheServiceManager) {
         this.daoService = daoService;
+        this.cacheServiceManager = cacheServiceManager;
     }
 
     public JsonObject load(long startTime, long endTime) {
