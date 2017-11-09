@@ -30,7 +30,6 @@
     <artifactId>collector-agent-stream</artifactId>
     <packaging>jar</packaging>
 
-<<<<<<< HEAD
     <dependencies>
         <dependency>
             <groupId>org.skywalking</groupId>
@@ -39,7 +38,3 @@
         </dependency>
     </dependencies>
 </project>
-=======
-
-</project>
->>>>>>> 406c4f52d8251eb81aa868ec38f17789e18e0dc0
