@@ -35,7 +35,7 @@ public class ServiceNameCacheGuavaService implements ServiceNameCacheService {
 
     private final Logger logger = LoggerFactory.getLogger(ServiceNameCacheGuavaService.class);
 
-    private final Cache<Integer, String> CACHE = CacheBuilder.newBuilder().maximumSize(10000).build();
+    private final Cache<Integer, String> serviceNameCache = CacheBuilder.newBuilder().maximumSize(10000).build();
 
     private final DAOService daoService;
 
@@ -48,7 +48,7 @@ public class ServiceNameCacheGuavaService implements ServiceNameCacheService {
 
         String serviceName = Const.EMPTY_STRING;
         try {
-            serviceName = CACHE.get(serviceId, () -> dao.getServiceName(serviceId));
+            serviceName = serviceNameCache.get(serviceId, () -> dao.getServiceName(serviceId));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
@@ -56,7 +56,7 @@ public class ServiceNameCacheGuavaService implements ServiceNameCacheService {
         if (StringUtils.isEmpty(serviceName)) {
             serviceName = dao.getServiceName(serviceId);
             if (StringUtils.isNotEmpty(serviceName)) {
-                CACHE.put(serviceId, serviceName);
+                serviceNameCache.put(serviceId, serviceName);
             }
         }
 

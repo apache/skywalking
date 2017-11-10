@@ -41,10 +41,10 @@ public abstract class AbstractWorker<INPUT extends Data, OUTPUT extends Data> im
      */
     protected abstract void onWork(INPUT message) throws WorkerException;
 
-    @Override public final void process(INPUT INPUT, Next<OUTPUT> next) {
+    @Override public final void process(INPUT input, Next<OUTPUT> next) {
         this.next = next;
         try {
-            onWork(INPUT);
+            onWork(input);
         } catch (WorkerException e) {
             logger.error(e.getMessage(), e);
         }

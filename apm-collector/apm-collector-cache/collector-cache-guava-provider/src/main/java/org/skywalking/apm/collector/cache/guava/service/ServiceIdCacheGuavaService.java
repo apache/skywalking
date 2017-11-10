@@ -34,7 +34,7 @@ public class ServiceIdCacheGuavaService implements ServiceIdCacheService {
 
     private final Logger logger = LoggerFactory.getLogger(ServiceIdCacheGuavaService.class);
 
-    private final Cache<String, Integer> SERVICE_CACHE = CacheBuilder.newBuilder().maximumSize(1000).build();
+    private final Cache<String, Integer> serviceIdCache = CacheBuilder.newBuilder().maximumSize(1000).build();
 
     private final DAOService daoService;
 
@@ -47,7 +47,7 @@ public class ServiceIdCacheGuavaService implements ServiceIdCacheService {
 
         int serviceId = 0;
         try {
-            serviceId = SERVICE_CACHE.get(applicationId + Const.ID_SPLIT + serviceName, () -> dao.getServiceId(applicationId, serviceName));
+            serviceId = serviceIdCache.get(applicationId + Const.ID_SPLIT + serviceName, () -> dao.getServiceId(applicationId, serviceName));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
@@ -55,7 +55,7 @@ public class ServiceIdCacheGuavaService implements ServiceIdCacheService {
         if (serviceId == 0) {
             serviceId = dao.getServiceId(applicationId, serviceName);
             if (serviceId != 0) {
-                SERVICE_CACHE.put(applicationId + Const.ID_SPLIT + serviceName, serviceId);
+                serviceIdCache.put(applicationId + Const.ID_SPLIT + serviceName, serviceId);
             }
         }
         return serviceId;

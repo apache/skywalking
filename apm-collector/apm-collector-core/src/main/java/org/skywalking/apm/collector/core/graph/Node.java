@@ -47,8 +47,8 @@ public final class Node<INPUT, OUTPUT> {
         }
     }
 
-    final void execute(INPUT INPUT) {
-        nodeProcessor.process(INPUT, next);
+    final void execute(INPUT input) {
+        nodeProcessor.process(input, next);
     }
 
     NodeProcessor getHandler() {

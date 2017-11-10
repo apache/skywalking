@@ -24,6 +24,6 @@ import org.skywalking.apm.collector.storage.service.DAOService;
 /**
  * @author peng-yongsheng
  */
-public abstract class AbstractWorkerProvider<INPUT extends Data, OUTPUT extends Data, WorkerType extends AbstractWorker<INPUT, OUTPUT>> implements Provider {
-    public abstract WorkerType workerInstance(DAOService daoService);
+public abstract class AbstractWorkerProvider<INPUT extends Data, OUTPUT extends Data, WORKER_TYPE extends AbstractWorker<INPUT, OUTPUT>> implements Provider {
+    public abstract WORKER_TYPE workerInstance(DAOService daoService);
 }

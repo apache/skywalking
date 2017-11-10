@@ -32,8 +32,8 @@ public final class Graph<INPUT> {
         this.id = id;
     }
 
-    public void start(INPUT INPUT) {
-        entryWay.in(INPUT);
+    public void start(INPUT input) {
+        entryWay.in(input);
     }
 
     public <OUTPUT> Node<INPUT, OUTPUT> addNode(NodeProcessor<INPUT, OUTPUT> nodeProcessor) {
@@ -53,7 +53,7 @@ public final class Graph<INPUT> {
         if (nodeIndex.containsKey(nodeId)) {
             throw new PotentialCyclicGraphException("handler="
                 + node.getHandler().getClass().getName()
-                + " already exists in graph[" + id + "】");
+                + " already exists in graph[" + id + "]");
         }
         nodeIndex.put(nodeId, node);
     }
