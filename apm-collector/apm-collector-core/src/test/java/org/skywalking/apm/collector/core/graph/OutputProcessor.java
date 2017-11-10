@@ -18,16 +18,13 @@
 
 package org.skywalking.apm.collector.core.graph;
 
-/**
- * @author peng-yongsheng, wu-sheng
- */
-public interface NodeProcessor<input, output> {
-    /**
-     * The unique id in the certain graph.
-     *
-     * @return id
-     */
-    int id();
+import java.io.PrintStream;
 
-    void process(input input, Next<output> next);
+/**
+ * @author wu-sheng
+ */
+public class OutputProcessor {
+    protected PrintStream outstream() {
+        return System.out;
+    }
 }

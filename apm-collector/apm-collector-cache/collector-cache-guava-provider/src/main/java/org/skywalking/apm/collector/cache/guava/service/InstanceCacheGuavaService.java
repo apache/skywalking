@@ -33,7 +33,7 @@ public class InstanceCacheGuavaService implements InstanceCacheService {
 
     private final Logger logger = LoggerFactory.getLogger(InstanceCacheGuavaService.class);
 
-    private final Cache<Integer, Integer> INSTANCE_CACHE = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(5000).build();
+    private final Cache<Integer, Integer> integerCache = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(5000).build();
 
     private final DAOService daoService;
 
@@ -46,7 +46,7 @@ public class InstanceCacheGuavaService implements InstanceCacheService {
 
         int applicationId = 0;
         try {
-            applicationId = INSTANCE_CACHE.get(applicationInstanceId, () -> dao.getApplicationId(applicationInstanceId));
+            applicationId = integerCache.get(applicationInstanceId, () -> dao.getApplicationId(applicationInstanceId));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
@@ -54,7 +54,7 @@ public class InstanceCacheGuavaService implements InstanceCacheService {
         if (applicationId == 0) {
             applicationId = dao.getApplicationId(applicationInstanceId);
             if (applicationId != 0) {
-                INSTANCE_CACHE.put(applicationInstanceId, applicationId);
+                integerCache.put(applicationInstanceId, applicationId);
             }
         }
         return applicationId;

@@ -31,7 +31,7 @@ import org.junit.Test;
 public class GraphManagerTest {
     private static PrintStream OUT_REF;
     private ByteArrayOutputStream outputStream;
-    private static String lineSeparator = System.lineSeparator();
+    private static String LINE_SEPARATE = System.lineSeparator();
 
     @Before
     public void initAndHoldOut() {
@@ -54,8 +54,8 @@ public class GraphManagerTest {
         testGraph.start("Input String");
 
         String output = outputStream.toString();
-        String expected = "Node1 process: s=Input String" + lineSeparator +
-            "Node2 process: s=Input String" + lineSeparator;
+        String expected = "Node1 process: s=Input String" + LINE_SEPARATE +
+            "Node2 process: s=Input String" + LINE_SEPARATE;
 
         Assert.assertEquals(expected, output);
     }
@@ -68,9 +68,9 @@ public class GraphManagerTest {
         graph.start("Input String");
 
         String output = outputStream.toString();
-        String expected = "Node1 process: s=Input String" + lineSeparator +
-            "Node2 process: s=Input String" + lineSeparator +
-            "Node4 process: int=123" + lineSeparator;
+        String expected = "Node1 process: s=Input String" + LINE_SEPARATE +
+            "Node2 process: s=Input String" + LINE_SEPARATE +
+            "Node4 process: int=123" + LINE_SEPARATE;
 
         Assert.assertEquals(expected, output);
     }
@@ -92,7 +92,7 @@ public class GraphManagerTest {
         next.execute(123);
         String output = outputStream.toString();
         String expected =
-            "Node4 process: int=123" + lineSeparator;
+            "Node4 process: int=123" + LINE_SEPARATE;
 
         Assert.assertEquals(expected, output);
     }
@@ -118,14 +118,14 @@ public class GraphManagerTest {
     public void testDeadEndWay() {
         Graph<String> graph = GraphManager.INSTANCE.createIfAbsent(7, String.class);
         graph.addNode(new Node1Processor()).addNext(new WayToNode<String, Integer>(new Node2Processor()) {
-            @Override protected void in(String INPUT) {
+            @Override protected void in(String input) {
                 //don't call `out(intput)`;
             }
         });
 
         graph.start("Input String");
         String output = outputStream.toString();
-        String expected = "Node1 process: s=Input String" + lineSeparator;
+        String expected = "Node1 process: s=Input String" + LINE_SEPARATE;
 
         Assert.assertEquals(expected, output);
     }
@@ -134,7 +134,7 @@ public class GraphManagerTest {
     public void testEntryWay() {
         Graph<String> graph = GraphManager.INSTANCE.createIfAbsent(8, String.class);
         graph.addNode(new WayToNode<String, String>(new Node1Processor()) {
-            @Override protected void in(String INPUT) {
+            @Override protected void in(String input) {
                 //don't call `out(intput)`;
             }
         }).addNext(new Node2Processor());

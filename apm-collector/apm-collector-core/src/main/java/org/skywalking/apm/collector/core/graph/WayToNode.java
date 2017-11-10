@@ -33,10 +33,10 @@ public abstract class WayToNode<INPUT, OUTPUT> {
         destination = new Node(graph, destinationHandler);
     }
 
-    protected abstract void in(INPUT INPUT);
+    protected abstract void in(INPUT input);
 
-    protected void out(INPUT INPUT) {
-        destination.execute(INPUT);
+    protected void out(INPUT input) {
+        destination.execute(input);
     }
 
     Node getDestination() {

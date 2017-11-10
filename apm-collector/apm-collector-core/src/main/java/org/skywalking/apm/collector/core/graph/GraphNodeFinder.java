@@ -35,10 +35,10 @@ public class GraphNodeFinder {
      *
      * @param handlerId of specific node in graph.
      * @param outputClass of the found node
-     * @param <NODE_OUTPUT> type of given output class
+     * @param <NODEOUTPUT> type of given output class
      * @return Node instance.
      */
-    public <NODE_OUTPUT> Node<?, NODE_OUTPUT> findNode(int handlerId, Class<NODE_OUTPUT> outputClass) {
+    public <NODEOUTPUT> Node<?, NODEOUTPUT> findNode(int handlerId, Class<NODEOUTPUT> outputClass) {
         ConcurrentHashMap<Integer, Node> graphNodeIndex = graph.getNodeIndex();
         Node node = graphNodeIndex.get(handlerId);
         if (node == null) {

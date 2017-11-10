@@ -42,9 +42,9 @@ public class Next<INPUT> implements Executor<INPUT> {
     /**
      * Drive to the next nodes
      *
-     * @param INPUT
+     * @param input
      */
-    @Override public void execute(INPUT INPUT) {
-        ways.forEach(way -> way.in(INPUT));
+    @Override public void execute(INPUT input) {
+        ways.forEach(way -> way.in(input));
     }
 }
