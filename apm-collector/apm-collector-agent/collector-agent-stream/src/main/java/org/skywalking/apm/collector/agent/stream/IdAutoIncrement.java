@@ -16,18 +16,27 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.storage.dao;
-
-import org.skywalking.apm.collector.storage.base.dao.DAO;
-import org.skywalking.apm.collector.storage.table.register.Application;
+package org.skywalking.apm.collector.agent.stream;
 
 /**
  * @author peng-yongsheng
  */
-public interface IApplicationStreamDAO extends DAO {
-    int getMaxApplicationId();
+public enum IdAutoIncrement {
+    INSTANCE;
 
-    int getMinApplicationId();
-
-    void save(Application application);
+    public int increment(int min, int max) {
+        int instanceId;
+        if (min == max) {
+            instanceId = -1;
+        } else if (min + max == 0) {
+            instanceId = max + 1;
+        } else if (min + max > 0) {
+            instanceId = min - 1;
+        } else if (max < 0) {
+            instanceId = 1;
+        } else {
+            instanceId = max + 1;
+        }
+        return instanceId;
+    }
 }

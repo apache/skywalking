@@ -21,6 +21,7 @@ package org.skywalking.apm.collector.stream.worker.impl;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import org.skywalking.apm.collector.cache.CacheServiceManager;
 import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.storage.base.dao.IBatchDAO;
@@ -39,12 +40,11 @@ public abstract class PersistenceWorker<INPUT extends Data, OUTPUT extends Data>
 
     private final Logger logger = LoggerFactory.getLogger(PersistenceWorker.class);
 
-    private final DAOService daoService;
     private final DataCache dataCache;
 
-    public PersistenceWorker(DAOService daoService) {
+    public PersistenceWorker(DAOService daoService, CacheServiceManager cacheServiceManager) {
+        super(daoService, cacheServiceManager);
         this.dataCache = new DataCache();
-        this.daoService = daoService;
     }
 
     public final void flushAndSwitch() {
@@ -64,7 +64,7 @@ public abstract class PersistenceWorker<INPUT extends Data, OUTPUT extends Data>
                     dataCache.switchPointer();
 
                     List<?> collection = buildBatchCollection();
-                    IBatchDAO dao = (IBatchDAO)daoService.get(IBatchDAO.class);
+                    IBatchDAO dao = (IBatchDAO)getDaoService().get(IBatchDAO.class);
                     dao.batchPersistence(collection);
                 }
             } finally {

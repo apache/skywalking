@@ -19,6 +19,7 @@
 package org.skywalking.apm.collector.stream;
 
 import java.util.Properties;
+import org.skywalking.apm.collector.cache.CacheModule;
 import org.skywalking.apm.collector.core.module.Module;
 import org.skywalking.apm.collector.core.module.ModuleNotFoundException;
 import org.skywalking.apm.collector.core.module.ModuleProvider;
@@ -64,6 +65,6 @@ public class StreamModuleProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {RemoteModule.NAME, QueueModule.NAME, StorageModule.NAME};
+        return new String[] {RemoteModule.NAME, QueueModule.NAME, StorageModule.NAME, CacheModule.NAME};
     }
 }

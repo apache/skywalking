@@ -54,7 +54,7 @@ import org.skywalking.apm.collector.ui.jetty.handler.servicetree.EntryServiceGet
 import org.skywalking.apm.collector.ui.jetty.handler.servicetree.ServiceTreeGetByIdHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.time.AllInstanceLastTimeGetHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.time.OneInstanceLastTimeGetHandler;
-import org.skywalking.apm.collector.ui.service.CacheServiceManager;
+import org.skywalking.apm.collector.cache.CacheServiceManager;
 
 /**
  * @author peng-yongsheng

@@ -18,6 +18,7 @@
 
 package org.skywalking.apm.collector.stream.worker.base;
 
+import org.skywalking.apm.collector.cache.CacheServiceManager;
 import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.queue.base.QueueEventHandler;
 import org.skywalking.apm.collector.queue.base.QueueExecutor;
@@ -31,17 +32,17 @@ public abstract class AbstractLocalAsyncWorkerProvider<INPUT extends Data, OUTPU
 
     public abstract int queueSize();
 
-    private final DAOService daoService;
     private final QueueCreatorService<INPUT> queueCreatorService;
 
-    public AbstractLocalAsyncWorkerProvider(DAOService daoService, QueueCreatorService<INPUT> queueCreatorService) {
-        this.daoService = daoService;
+    public AbstractLocalAsyncWorkerProvider(DAOService daoService, CacheServiceManager cacheServiceManager,
+        QueueCreatorService<INPUT> queueCreatorService) {
+        super(daoService, cacheServiceManager);
         this.queueCreatorService = queueCreatorService;
     }
 
     @Override
     final public WorkerRef create(WorkerCreateListener workerCreateListener) throws ProviderNotFoundException {
-        WorkerType localAsyncWorker = workerInstance(daoService);
+        WorkerType localAsyncWorker = workerInstance(getDaoService(), getCacheServiceManager());
         workerCreateListener.addWorker(localAsyncWorker);
         QueueEventHandler<INPUT> queueEventHandler = queueCreatorService.create(queueSize(), localAsyncWorker);
         return new LocalAsyncWorkerRef<>(localAsyncWorker, queueEventHandler);
