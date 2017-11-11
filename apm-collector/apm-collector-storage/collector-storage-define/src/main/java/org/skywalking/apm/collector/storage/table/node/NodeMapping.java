@@ -48,4 +48,36 @@ public class NodeMapping extends Data {
     public NodeMapping(String id) {
         super(id, STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
     }
+
+    public String getAddress() {
+        return getDataString(1);
+    }
+
+    public void setAddress(String address) {
+        setDataString(1, address);
+    }
+
+    public int getApplicationId() {
+        return getDataInteger(0);
+    }
+
+    public void setApplicationId(int applicationId) {
+        setDataInteger(0, applicationId);
+    }
+
+    public int getAddressId() {
+        return getDataInteger(1);
+    }
+
+    public void setAddressId(int addressId) {
+        setDataInteger(1, addressId);
+    }
+
+    public long getTimeBucket() {
+        return getDataLong(0);
+    }
+
+    public void setTimeBucket(long timeBucket) {
+        setDataLong(0, timeBucket);
+    }
 }
