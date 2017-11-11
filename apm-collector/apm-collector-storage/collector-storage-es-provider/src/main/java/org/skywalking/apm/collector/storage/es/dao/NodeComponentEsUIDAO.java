@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NodeComponentEsUIDAO extends EsDAO implements INodeComponentUIDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(NodeComponentEsDAO.class);
+    private final Logger logger = LoggerFactory.getLogger(NodeComponentEsPersistenceDAO.class);
 
     @Override public JsonArray load(long startTime, long endTime) {
         logger.debug("node component load, start time: {}, end time: {}", startTime, endTime);
