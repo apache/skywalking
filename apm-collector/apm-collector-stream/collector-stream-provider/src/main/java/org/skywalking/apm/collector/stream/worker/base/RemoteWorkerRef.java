@@ -61,8 +61,8 @@ public class RemoteWorkerRef<INPUT extends Data, OUTPUT extends Data> extends Wo
         }
     }
 
-    @Override protected void out(INPUT INPUT) {
-        super.out(INPUT);
+    @Override protected void out(INPUT input) {
+        super.out(input);
     }
 
     private Boolean isAcrossJVM() {

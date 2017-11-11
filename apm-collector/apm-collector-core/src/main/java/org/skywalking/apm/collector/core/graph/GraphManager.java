@@ -35,7 +35,7 @@ public enum GraphManager {
      * @param graphId represents a graph, which is used for finding it.
      * @return
      */
-    public synchronized <Input> Graph<Input> createIfAbsent(int graphId, Class<Input> input) {
+    public synchronized <INPUT> Graph<INPUT> createIfAbsent(int graphId, Class<INPUT> input) {
         if (!allGraphs.containsKey(graphId)) {
             Graph graph = new Graph(graphId);
             allGraphs.put(graphId, graph);
