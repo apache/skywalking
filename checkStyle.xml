@@ -81,11 +81,11 @@
         <module name="MemberName"/>
         <!--Validates identifiers for class type parameters-->
         <module name="ClassTypeParameterName">
-            <property name="format" value="^[A-Z0-9]*$"/>
+            <property name="format" value="(^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$)"/>
         </module>
         <!--Validates identifiers for method type parameters-->
         <module name="MethodTypeParameterName">
-            <property name="format" value="^[A-Z0-9]*$"/>
+            <property name="format" value="(^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$)"/>
         </module>
         <module name="PackageName"/>
         <module name="ParameterName"/>

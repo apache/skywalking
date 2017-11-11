@@ -21,14 +21,14 @@ package org.skywalking.apm.collector.core.graph;
 /**
  * @author wusheng
  */
-public class Node3Processor implements NodeProcessor<Long, Long> {
+public class Node3Processor extends OutputProcessor  implements NodeProcessor<Long, Long> {
     @Override public int id() {
         return 3;
     }
 
     @Override
     public void process(Long aLong, Next<Long> next) {
-        System.out.println("Node3 process: long=" + aLong);
+        outstream().println("Node3 process: long=" + aLong);
         next.execute(aLong);
     }
 }

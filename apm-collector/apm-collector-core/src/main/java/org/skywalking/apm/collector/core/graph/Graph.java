@@ -25,21 +25,26 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class Graph<INPUT> {
     private int id;
-    private Node startNode;
+    private WayToNode entryWay;
     private ConcurrentHashMap<Integer, Node> nodeIndex = new ConcurrentHashMap<>();
 
     Graph(int id) {
         this.id = id;
     }
 
-    public void start(INPUT INPUT) {
-        startNode.execute(INPUT);
+    public void start(INPUT input) {
+        entryWay.in(input);
     }
 
     public <OUTPUT> Node<INPUT, OUTPUT> addNode(NodeProcessor<INPUT, OUTPUT> nodeProcessor) {
+        return addNode(new DirectWay(nodeProcessor));
+    }
+
+    public <OUTPUT> Node<INPUT, OUTPUT> addNode(WayToNode<INPUT, OUTPUT> entryWay) {
         synchronized (this) {
-            startNode = new Node(this, nodeProcessor);
-            return startNode;
+            this.entryWay = entryWay;
+            this.entryWay.buildDestination(this);
+            return entryWay.getDestination();
         }
     }
 
@@ -48,7 +53,7 @@ public final class Graph<INPUT> {
         if (nodeIndex.containsKey(nodeId)) {
             throw new PotentialCyclicGraphException("handler="
                 + node.getHandler().getClass().getName()
-                + " already exists in graph[" + id + "】");
+                + " already exists in graph[" + id + "]");
         }
         nodeIndex.put(nodeId, node);
     }

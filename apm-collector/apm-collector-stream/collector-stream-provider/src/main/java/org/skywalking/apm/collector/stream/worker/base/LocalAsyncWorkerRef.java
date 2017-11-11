@@ -35,11 +35,11 @@ public class LocalAsyncWorkerRef<INPUT extends Data, OUTPUT extends Data> extend
         this.queueEventHandler = queueEventHandler;
     }
 
-    @Override protected void in(INPUT INPUT) {
-        queueEventHandler.tell(INPUT);
+    @Override protected void in(INPUT input) {
+        queueEventHandler.tell(input);
     }
 
-    @Override protected void out(INPUT INPUT) {
-        super.out(INPUT);
+    @Override protected void out(INPUT input) {
+        super.out(input);
     }
 }

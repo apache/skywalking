@@ -31,7 +31,7 @@ import org.skywalking.apm.collector.storage.service.DAOService;
  * @author peng-yongsheng
  * @since v3.0-2017
  */
-public abstract class AbstractRemoteWorkerProvider<INPUT extends Data, OUTPUT extends Data, WorkerType extends AbstractRemoteWorker<INPUT, OUTPUT>> extends AbstractWorkerProvider<INPUT, OUTPUT, WorkerType> {
+public abstract class AbstractRemoteWorkerProvider<INPUT extends Data, OUTPUT extends Data, WORKER_TYPE extends AbstractRemoteWorker<INPUT, OUTPUT>> extends AbstractWorkerProvider<INPUT, OUTPUT, WORKER_TYPE> {
 
     private final RemoteClientService remoteClientService;
 
@@ -49,7 +49,11 @@ public abstract class AbstractRemoteWorkerProvider<INPUT extends Data, OUTPUT ex
      * worker instance, when the worker provider not find then Throw this Exception.
      */
     @Override final public WorkerRef create(WorkerCreateListener workerCreateListener) {
+<<<<<<< HEAD
         WorkerType remoteWorker = workerInstance(getDaoService(), getCacheServiceManager());
+=======
+        WORKER_TYPE remoteWorker = workerInstance(daoService);
+>>>>>>> 0c17906c3c1c41752e1ec38b37d9e0dec22503ca
         workerCreateListener.addWorker(remoteWorker);
         RemoteWorkerRef<INPUT, OUTPUT> workerRef = new RemoteWorkerRef<>(remoteWorker);
         return workerRef;

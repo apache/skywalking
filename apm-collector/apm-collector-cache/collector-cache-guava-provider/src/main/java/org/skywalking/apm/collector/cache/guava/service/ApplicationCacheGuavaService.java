@@ -35,7 +35,7 @@ public class ApplicationCacheGuavaService implements ApplicationCacheService {
 
     private final Logger logger = LoggerFactory.getLogger(ApplicationCacheGuavaService.class);
 
-    private final Cache<String, Integer> CODE_CACHE = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(1000).build();
+    private final Cache<String, Integer> codeCache = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(1000).build();
 
     private final DAOService daoService;
 
@@ -48,7 +48,7 @@ public class ApplicationCacheGuavaService implements ApplicationCacheService {
 
         int applicationId = 0;
         try {
-            applicationId = CODE_CACHE.get(applicationCode, () -> dao.getApplicationId(applicationCode));
+            applicationId = codeCache.get(applicationCode, () -> dao.getApplicationId(applicationCode));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
@@ -56,20 +56,20 @@ public class ApplicationCacheGuavaService implements ApplicationCacheService {
         if (applicationId == 0) {
             applicationId = dao.getApplicationId(applicationCode);
             if (applicationId != 0) {
-                CODE_CACHE.put(applicationCode, applicationId);
+                codeCache.put(applicationCode, applicationId);
             }
         }
         return applicationId;
     }
 
-    private final Cache<Integer, String> ID_CACHE = CacheBuilder.newBuilder().maximumSize(1000).build();
+    private final Cache<Integer, String> idCache = CacheBuilder.newBuilder().maximumSize(1000).build();
 
     public String get(int applicationId) {
         IApplicationCacheDAO dao = (IApplicationCacheDAO)daoService.get(IApplicationCacheDAO.class);
 
         String applicationCode = Const.EMPTY_STRING;
         try {
-            applicationCode = ID_CACHE.get(applicationId, () -> dao.getApplicationCode(applicationId));
+            applicationCode = idCache.get(applicationId, () -> dao.getApplicationCode(applicationId));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
@@ -77,7 +77,7 @@ public class ApplicationCacheGuavaService implements ApplicationCacheService {
         if (StringUtils.isEmpty(applicationCode)) {
             applicationCode = dao.getApplicationCode(applicationId);
             if (StringUtils.isNotEmpty(applicationCode)) {
-                CODE_CACHE.put(applicationCode, applicationId);
+                codeCache.put(applicationCode, applicationId);
             }
         }
         return applicationCode;
