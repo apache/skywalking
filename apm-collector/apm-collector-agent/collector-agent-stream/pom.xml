@@ -36,5 +36,10 @@
             <artifactId>collector-stream-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-cache-define</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

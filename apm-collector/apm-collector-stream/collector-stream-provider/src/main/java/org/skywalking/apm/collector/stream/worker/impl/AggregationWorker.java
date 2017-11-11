@@ -18,7 +18,9 @@
 
 package org.skywalking.apm.collector.stream.worker.impl;
 
+import org.skywalking.apm.collector.cache.CacheServiceManager;
 import org.skywalking.apm.collector.core.data.Data;
+import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorker;
 import org.skywalking.apm.collector.stream.worker.base.WorkerException;
 import org.skywalking.apm.collector.stream.worker.impl.data.DataCache;
@@ -35,8 +37,9 @@ public abstract class AggregationWorker<INPUT extends Data, OUTPUT extends Data>
     private DataCache dataCache;
     private int messageNum;
 
-    public AggregationWorker() {
-        dataCache = new DataCache();
+    public AggregationWorker(DAOService daoService, CacheServiceManager cacheServiceManager) {
+        super(daoService, cacheServiceManager);
+        this.dataCache = new DataCache();
     }
 
     @Override protected final void onWork(INPUT message) throws WorkerException {

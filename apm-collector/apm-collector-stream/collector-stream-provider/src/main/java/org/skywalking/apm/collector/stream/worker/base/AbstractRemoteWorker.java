@@ -18,7 +18,9 @@
 
 package org.skywalking.apm.collector.stream.worker.base;
 
+import org.skywalking.apm.collector.cache.CacheServiceManager;
 import org.skywalking.apm.collector.core.data.Data;
+import org.skywalking.apm.collector.storage.service.DAOService;
 
 /**
  * The <code>AbstractRemoteWorker</code> implementations represent workers,
@@ -30,6 +32,10 @@ import org.skywalking.apm.collector.core.data.Data;
  * @since v3.0-2017
  */
 public abstract class AbstractRemoteWorker<INPUT extends Data, OUTPUT extends Data> extends AbstractWorker<INPUT, OUTPUT> {
+
+    public AbstractRemoteWorker(DAOService daoService, CacheServiceManager cacheServiceManager) {
+        super(daoService, cacheServiceManager);
+    }
 
     /**
      * This method use for message producer to call for send message.

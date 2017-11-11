@@ -18,6 +18,7 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.jvm;
 
+import org.skywalking.apm.collector.cache.CacheServiceManager;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IInstanceHeartBeatPersistenceDAO;
@@ -31,15 +32,12 @@ import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
  */
 public class InstHeartBeatPersistenceWorker extends PersistenceWorker<Instance, Instance> {
 
-    private final DAOService daoService;
-
     @Override public int id() {
         return 0;
     }
 
-    public InstHeartBeatPersistenceWorker(DAOService daoService) {
-        super(daoService);
-        this.daoService = daoService;
+    public InstHeartBeatPersistenceWorker(DAOService daoService, CacheServiceManager cacheServiceManager) {
+        super(daoService, cacheServiceManager);
     }
 
     @Override protected boolean needMergeDBData() {
@@ -47,18 +45,19 @@ public class InstHeartBeatPersistenceWorker extends PersistenceWorker<Instance, 
     }
 
     @Override protected IPersistenceDAO persistenceDAO() {
-        return daoService.getPersistenceDAO(IInstanceHeartBeatPersistenceDAO.class);
+        return getDaoService().getPersistenceDAO(IInstanceHeartBeatPersistenceDAO.class);
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<Instance, Instance, InstHeartBeatPersistenceWorker> {
 
-        public Factory(DAOService daoService, QueueCreatorService<Instance> queueCreatorService) {
-            super(daoService, queueCreatorService);
+        public Factory(DAOService daoService, CacheServiceManager cacheServiceManager,
+            QueueCreatorService<Instance> queueCreatorService) {
+            super(daoService, cacheServiceManager, queueCreatorService);
         }
 
-        @Override
-        public InstHeartBeatPersistenceWorker workerInstance(DAOService daoService) {
-            return new InstHeartBeatPersistenceWorker(daoService);
+        @Override public InstHeartBeatPersistenceWorker workerInstance(DAOService daoService,
+            CacheServiceManager cacheServiceManager) {
+            return new InstHeartBeatPersistenceWorker(getDaoService(), getCacheServiceManager());
         }
 
         @Override

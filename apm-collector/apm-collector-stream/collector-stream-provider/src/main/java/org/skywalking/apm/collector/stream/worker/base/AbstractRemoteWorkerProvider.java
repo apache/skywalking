@@ -18,6 +18,7 @@
 
 package org.skywalking.apm.collector.stream.worker.base;
 
+import org.skywalking.apm.collector.cache.CacheServiceManager;
 import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.remote.service.RemoteClientService;
 import org.skywalking.apm.collector.storage.service.DAOService;
@@ -32,11 +33,11 @@ import org.skywalking.apm.collector.storage.service.DAOService;
  */
 public abstract class AbstractRemoteWorkerProvider<INPUT extends Data, OUTPUT extends Data, WorkerType extends AbstractRemoteWorker<INPUT, OUTPUT>> extends AbstractWorkerProvider<INPUT, OUTPUT, WorkerType> {
 
-    private final DAOService daoService;
     private final RemoteClientService remoteClientService;
 
-    public AbstractRemoteWorkerProvider(DAOService daoService, RemoteClientService remoteClientService) {
-        this.daoService = daoService;
+    public AbstractRemoteWorkerProvider(DAOService daoService, CacheServiceManager cacheServiceManager,
+        RemoteClientService remoteClientService) {
+        super(daoService, cacheServiceManager);
         this.remoteClientService = remoteClientService;
     }
 
@@ -48,7 +49,7 @@ public abstract class AbstractRemoteWorkerProvider<INPUT extends Data, OUTPUT ex
      * worker instance, when the worker provider not find then Throw this Exception.
      */
     @Override final public WorkerRef create(WorkerCreateListener workerCreateListener) {
-        WorkerType remoteWorker = workerInstance(daoService);
+        WorkerType remoteWorker = workerInstance(getDaoService(), getCacheServiceManager());
         workerCreateListener.addWorker(remoteWorker);
         RemoteWorkerRef<INPUT, OUTPUT> workerRef = new RemoteWorkerRef<>(remoteWorker);
         return workerRef;

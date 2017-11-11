@@ -50,7 +50,15 @@ public class Application extends Data {
         return getDataString(1);
     }
 
+    public void setApplicationCode(String applicationCode) {
+        setDataString(1, applicationCode);
+    }
+
     public int getApplicationId() {
         return getDataInteger(0);
+    }
+
+    public void setApplicationId(int applicationId) {
+        setDataInteger(0, applicationId);
     }
 }

@@ -21,6 +21,7 @@ package org.skywalking.apm.collector.ui.service;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import java.util.Set;
+import org.skywalking.apm.collector.cache.CacheServiceManager;
 import org.skywalking.apm.collector.core.UnexpectedException;
 import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.storage.dao.ICpuMetricUIDAO;

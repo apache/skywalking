@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.skywalking.apm.collector.server.jetty.JettyHandler;
 import org.skywalking.apm.collector.storage.service.DAOService;
-import org.skywalking.apm.collector.ui.service.CacheServiceManager;
+import org.skywalking.apm.collector.cache.CacheServiceManager;
 import org.skywalking.apm.collector.ui.service.TraceStackService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

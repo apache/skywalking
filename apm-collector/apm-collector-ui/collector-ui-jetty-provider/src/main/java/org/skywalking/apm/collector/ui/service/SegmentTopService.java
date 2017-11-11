@@ -21,6 +21,7 @@ package org.skywalking.apm.collector.ui.service;
 import com.google.gson.JsonObject;
 import java.util.LinkedList;
 import java.util.List;
+import org.skywalking.apm.collector.cache.CacheServiceManager;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.dao.IGlobalTraceUIDAO;
 import org.skywalking.apm.collector.storage.dao.ISegmentCostUIDAO;
