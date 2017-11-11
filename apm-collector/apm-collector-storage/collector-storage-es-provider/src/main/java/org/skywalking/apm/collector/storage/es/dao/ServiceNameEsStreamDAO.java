@@ -16,52 +16,44 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.storage.h2.dao;
+package org.skywalking.apm.collector.storage.es.dao;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.skywalking.apm.collector.client.h2.H2Client;
-import org.skywalking.apm.collector.client.h2.H2ClientException;
-import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
-import org.skywalking.apm.collector.storage.dao.IServiceNameDAO;
-import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
+import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.support.WriteRequest;
+import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.skywalking.apm.collector.storage.dao.IServiceNameStreamDAO;
+import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.table.register.ServiceName;
 import org.skywalking.apm.collector.storage.table.register.ServiceNameTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author peng-yongsheng, clevertension
+ * @author peng-yongsheng
  */
-public class ServiceNameH2DAO extends H2DAO implements IServiceNameDAO {
-    private final Logger logger = LoggerFactory.getLogger(ServiceNameH2DAO.class);
+public class ServiceNameEsStreamDAO extends EsDAO implements IServiceNameStreamDAO {
 
-    @Override
-    public int getMaxServiceId() {
+    private final Logger logger = LoggerFactory.getLogger(ServiceNameEsStreamDAO.class);
+
+    @Override public int getMaxServiceId() {
         return getMaxId(ServiceNameTable.TABLE, ServiceNameTable.COLUMN_SERVICE_ID);
     }
 
-    @Override
-    public int getMinServiceId() {
+    @Override public int getMinServiceId() {
         return getMinId(ServiceNameTable.TABLE, ServiceNameTable.COLUMN_SERVICE_ID);
     }
 
-    @Override
-    public void save(ServiceName serviceName) {
+    @Override public void save(ServiceName serviceName) {
         logger.debug("save service name register info, application getId: {}, service name: {}", serviceName.getId(), serviceName.getServiceName());
-        H2Client client = getClient();
+        ElasticSearchClient client = getClient();
         Map<String, Object> source = new HashMap<>();
-        source.put(ServiceNameTable.COLUMN_ID, serviceName.getId());
         source.put(ServiceNameTable.COLUMN_SERVICE_ID, serviceName.getServiceId());
         source.put(ServiceNameTable.COLUMN_APPLICATION_ID, serviceName.getApplicationId());
         source.put(ServiceNameTable.COLUMN_SERVICE_NAME, serviceName.getServiceName());
 
-        String sql = SqlBuilder.buildBatchInsertSql(ServiceNameTable.TABLE, source.keySet());
-        Object[] params = source.values().toArray(new Object[0]);
-        try {
-            client.execute(sql, params);
-        } catch (H2ClientException e) {
-            logger.error(e.getMessage(), e);
-        }
+        IndexResponse response = client.prepareIndex(ServiceNameTable.TABLE, serviceName.getId()).setSource(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
+        logger.debug("save service name register info, application getId: {}, service name: {}, status: {}", serviceName.getId(), serviceName.getServiceName(), response.status().name());
     }
 }

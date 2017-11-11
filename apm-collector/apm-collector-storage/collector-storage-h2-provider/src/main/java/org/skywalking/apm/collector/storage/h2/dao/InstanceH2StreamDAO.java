@@ -18,8 +18,6 @@
 
 package org.skywalking.apm.collector.storage.h2.dao;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import org.skywalking.apm.collector.client.h2.H2Client;
@@ -38,24 +36,7 @@ import org.slf4j.LoggerFactory;
 public class InstanceH2StreamDAO extends H2DAO implements IInstanceStreamDAO {
     private final Logger logger = LoggerFactory.getLogger(InstanceH2StreamDAO.class);
 
-    private static final String GET_INSTANCE_ID_SQL = "select {0} from {1} where {2} = ? and {3} = ?";
     private static final String UPDATE_HEARTBEAT_TIME_SQL = "update {0} set {1} = ? where {2} = ?";
-
-    @Override public int getInstanceId(int applicationId, String agentUUID) {
-        logger.info("get the application getId with application getId = {}, agentUUID = {}", applicationId, agentUUID);
-        H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_INSTANCE_ID_SQL, InstanceTable.COLUMN_INSTANCE_ID, InstanceTable.TABLE, InstanceTable.COLUMN_APPLICATION_ID,
-            InstanceTable.COLUMN_AGENT_UUID);
-        Object[] params = new Object[] {applicationId, agentUUID};
-        try (ResultSet rs = client.executeQuery(sql, params)) {
-            if (rs.next()) {
-                return rs.getInt(InstanceTable.COLUMN_INSTANCE_ID);
-            }
-        } catch (SQLException | H2ClientException e) {
-            logger.error(e.getMessage(), e);
-        }
-        return 0;
-    }
 
     @Override public int getMaxInstanceId() {
         return getMaxId(InstanceTable.TABLE, InstanceTable.COLUMN_INSTANCE_ID);

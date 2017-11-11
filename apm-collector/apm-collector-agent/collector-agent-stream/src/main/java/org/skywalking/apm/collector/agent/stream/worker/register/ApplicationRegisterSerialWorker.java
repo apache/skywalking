@@ -52,6 +52,7 @@ public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker<Ap
 
         if (applicationId == 0) {
             IApplicationStreamDAO dao = (IApplicationStreamDAO)getDaoService().get(IApplicationStreamDAO.class);
+            Application newApplication;
             int min = dao.getMinApplicationId();
             if (min == 0) {
                 Application userApplication = new Application(String.valueOf(Const.USER_ID));
@@ -59,16 +60,18 @@ public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker<Ap
                 userApplication.setApplicationId(Const.USER_ID);
                 dao.save(userApplication);
 
-                application = new Application("-1");
-                application.setApplicationId(-1);
+                newApplication = new Application("-1");
+                newApplication.setApplicationId(-1);
+                newApplication.setApplicationCode(application.getApplicationCode());
             } else {
                 int max = dao.getMaxApplicationId();
                 applicationId = IdAutoIncrement.INSTANCE.increment(min, max);
 
-                application = new Application(String.valueOf(applicationId));
-                application.setApplicationId(applicationId);
+                newApplication = new Application(String.valueOf(applicationId));
+                newApplication.setApplicationId(applicationId);
+                newApplication.setApplicationCode(application.getApplicationCode());
             }
-            dao.save(application);
+            dao.save(newApplication);
         }
     }
 

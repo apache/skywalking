@@ -19,6 +19,13 @@
 package org.skywalking.apm.collector.storage.es.dao;
 
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.storage.dao.IInstanceCacheDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.table.register.InstanceTable;
@@ -32,12 +39,32 @@ public class InstanceEsCacheDAO extends EsDAO implements IInstanceCacheDAO {
 
     private final Logger logger = LoggerFactory.getLogger(InstanceEsCacheDAO.class);
 
-    @Override public int getApplicationId(int applicationInstanceId) {
-        GetResponse response = getClient().prepareGet(InstanceTable.TABLE, String.valueOf(applicationInstanceId)).get();
+    @Override public int getApplicationId(int instanceId) {
+        GetResponse response = getClient().prepareGet(InstanceTable.TABLE, String.valueOf(instanceId)).get();
         if (response.isExists()) {
             return (int)response.getSource().get(InstanceTable.COLUMN_APPLICATION_ID);
         } else {
             return 0;
         }
+    }
+
+    @Override public int getInstanceId(int applicationId, String agentUUID) {
+        ElasticSearchClient client = getClient();
+
+        SearchRequestBuilder searchRequestBuilder = client.prepareSearch(InstanceTable.TABLE);
+        searchRequestBuilder.setTypes("type");
+        searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH);
+        BoolQueryBuilder builder = QueryBuilders.boolQuery();
+        builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationId));
+        builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_AGENT_UUID, agentUUID));
+        searchRequestBuilder.setQuery(builder);
+        searchRequestBuilder.setSize(1);
+
+        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
+        if (searchResponse.getHits().totalHits > 0) {
+            SearchHit searchHit = searchResponse.getHits().iterator().next();
+            return (int)searchHit.getSource().get(InstanceTable.COLUMN_INSTANCE_ID);
+        }
+        return 0;
     }
 }

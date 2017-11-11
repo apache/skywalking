@@ -51,11 +51,23 @@ public class ServiceName extends Data {
         return getDataString(1);
     }
 
+    public void setServiceName(String serviceName) {
+        setDataString(1, serviceName);
+    }
+
     public int getApplicationId() {
         return getDataInteger(0);
     }
 
+    public void setApplicationId(int applicationId) {
+        setDataInteger(0, applicationId);
+    }
+
     public int getServiceId() {
         return getDataInteger(1);
+    }
+
+    public void setServiceId(int serviceId) {
+        setDataInteger(1, serviceId);
     }
 }

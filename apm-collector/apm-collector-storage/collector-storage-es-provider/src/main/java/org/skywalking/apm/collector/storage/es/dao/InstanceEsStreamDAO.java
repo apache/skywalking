@@ -21,14 +21,8 @@ package org.skywalking.apm.collector.storage.es.dao;
 import java.util.HashMap;
 import java.util.Map;
 import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.storage.dao.IInstanceStreamDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
@@ -43,26 +37,6 @@ import org.slf4j.LoggerFactory;
 public class InstanceEsStreamDAO extends EsDAO implements IInstanceStreamDAO {
 
     private final Logger logger = LoggerFactory.getLogger(InstanceEsStreamDAO.class);
-
-    @Override public int getInstanceId(int applicationId, String agentUUID) {
-        ElasticSearchClient client = getClient();
-
-        SearchRequestBuilder searchRequestBuilder = client.prepareSearch(InstanceTable.TABLE);
-        searchRequestBuilder.setTypes("type");
-        searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH);
-        BoolQueryBuilder builder = QueryBuilders.boolQuery();
-        builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationId));
-        builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_AGENT_UUID, agentUUID));
-        searchRequestBuilder.setQuery(builder);
-        searchRequestBuilder.setSize(1);
-
-        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
-        if (searchResponse.getHits().totalHits > 0) {
-            SearchHit searchHit = searchResponse.getHits().iterator().next();
-            return (int)searchHit.getSource().get(InstanceTable.COLUMN_INSTANCE_ID);
-        }
-        return 0;
-    }
 
     @Override public int getMaxInstanceId() {
         return getMaxId(InstanceTable.TABLE, InstanceTable.COLUMN_INSTANCE_ID);
