@@ -18,14 +18,13 @@
 
 package org.skywalking.apm.collector.storage.dao;
 
+import org.skywalking.apm.collector.storage.base.dao.DAO;
 import org.skywalking.apm.collector.storage.table.register.Instance;
 
 /**
  * @author peng-yongsheng
  */
-public interface IInstanceStreamDAO {
-    int getInstanceId(int applicationId, String agentUUID);
-
+public interface IInstanceStreamDAO extends DAO {
     int getMaxInstanceId();
 
     int getMinInstanceId();

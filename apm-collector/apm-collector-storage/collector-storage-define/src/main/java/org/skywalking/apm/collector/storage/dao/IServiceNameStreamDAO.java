@@ -18,12 +18,13 @@
 
 package org.skywalking.apm.collector.storage.dao;
 
+import org.skywalking.apm.collector.storage.base.dao.DAO;
 import org.skywalking.apm.collector.storage.table.register.ServiceName;
 
 /**
  * @author peng-yongsheng
  */
-public interface IServiceNameDAO {
+public interface IServiceNameStreamDAO extends DAO {
     int getMaxServiceId();
 
     int getMinServiceId();

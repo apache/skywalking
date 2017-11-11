@@ -41,11 +41,11 @@ public abstract class AbstractWorker<INPUT extends Data, OUTPUT extends Data> im
         this.cacheServiceManager = cacheServiceManager;
     }
 
-    public DAOService getDaoService() {
+    public final DAOService getDaoService() {
         return daoService;
     }
 
-    public CacheServiceManager getCacheServiceManager() {
+    public final CacheServiceManager getCacheServiceManager() {
         return cacheServiceManager;
     }
 

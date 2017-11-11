@@ -24,5 +24,7 @@ import org.skywalking.apm.collector.storage.base.dao.DAO;
  * @author peng-yongsheng
  */
 public interface IInstanceCacheDAO extends DAO {
-    int getApplicationId(int applicationInstanceId);
+    int getApplicationId(int instanceId);
+
+    int getInstanceId(int applicationId, String agentUUID);
 }
