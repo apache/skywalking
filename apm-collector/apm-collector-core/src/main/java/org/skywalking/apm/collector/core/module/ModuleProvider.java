@@ -95,9 +95,6 @@ public abstract class ModuleProvider {
     protected final void registerServiceImplementation(Class<? extends Service> serviceType,
         Service service) throws ServiceNotProvidedException {
         if (serviceType.isInstance(service)) {
-            if (manager.isServiceInstrument()) {
-//                service = ServiceInstrumentation.INSTANCE.buildServiceUnderMonitor(module.name(), name(), service);
-            }
             this.services.put(serviceType, service);
         } else {
             throw new ServiceNotProvidedException(serviceType + " is not implemented by " + service);
