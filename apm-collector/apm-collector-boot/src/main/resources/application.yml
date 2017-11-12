@@ -1,28 +1,28 @@
+cluster:
+  zookeeper:
+    hostPort: localhost:2181
+    sessionTimeout: 100000
 naming:
   jetty:
     host: localhost
     port: 10800
     context_path: /
-#agent_stream:
-#  grpc:
-#    host: localhost
-#    port: 11800
-#  jetty:
-#    host: localhost
-#    port: 12800
-#    context_path: /
-#  config:
-#    buffer_offset_max_file_size: 10M
-#    buffer_segment_max_file_size: 500M
+agent:
+  gRPC:
+    host: localhost
+    port: 11800
+  jetty:
+    host: localhost
+    port: 12800
+    context_path: /
+  config:
+    buffer_offset_max_file_size: 10M
+    buffer_segment_max_file_size: 500M
 ui:
   jetty:
     host: localhost
     port: 12800
     context_path: /
-#collector_inside:
-#  grpc:
-#    host: localhost
-#    port: 11800
 storage:
   elasticsearch:
     cluster_name: CollectorDBCluster
@@ -30,7 +30,3 @@ storage:
     cluster_nodes: localhost:9300
     index_shards_number: 2
     index_replicas_number: 0
-#storage:
-#  h2:
-#    url: jdbc:h2:tcp://localhost/~/test
-#    user_name: sa

@@ -20,17 +20,36 @@ package org.skywalking.apm.collector.agent.jetty;
 
 import java.util.Properties;
 import org.skywalking.apm.collector.agent.AgentModule;
+import org.skywalking.apm.collector.agent.jetty.handler.TraceSegmentServletHandler;
+import org.skywalking.apm.collector.agent.jetty.handler.naming.AgentJettyNamingHandler;
+import org.skywalking.apm.collector.agent.jetty.handler.naming.AgentJettyNamingListener;
+import org.skywalking.apm.collector.cluster.ClusterModule;
+import org.skywalking.apm.collector.cluster.service.ModuleListenerService;
+import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
 import org.skywalking.apm.collector.core.module.Module;
+import org.skywalking.apm.collector.core.module.ModuleNotFoundException;
 import org.skywalking.apm.collector.core.module.ModuleProvider;
 import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.skywalking.apm.collector.jetty.manager.JettyManagerModule;
+import org.skywalking.apm.collector.jetty.manager.service.JettyManagerService;
+import org.skywalking.apm.collector.naming.NamingModule;
+import org.skywalking.apm.collector.naming.service.NamingHandlerRegisterService;
+import org.skywalking.apm.collector.server.Server;
+import org.skywalking.apm.collector.storage.StorageModule;
+import org.skywalking.apm.collector.storage.service.DAOService;
 
 /**
  * @author peng-yongsheng
  */
 public class AgentModuleJettyProvider extends ModuleProvider {
 
+    public static final String NAME = "jetty";
+    private static final String HOST = "host";
+    private static final String PORT = "port";
+    private static final String CONTEXT_PATH = "context_path";
+
     @Override public String name() {
-        return "jetty";
+        return NAME;
     }
 
     @Override public Class<? extends Module> module() {
@@ -42,7 +61,29 @@ public class AgentModuleJettyProvider extends ModuleProvider {
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
+        String host = config.getProperty(HOST);
+        Integer port = (Integer)config.get(PORT);
+        String contextPath = config.getProperty(CONTEXT_PATH);
 
+        try {
+            ModuleRegisterService moduleRegisterService = getManager().find(ClusterModule.NAME).getService(ModuleRegisterService.class);
+            moduleRegisterService.register(AgentModule.NAME, this.name(), new AgentModuleJettyRegistration(host, port, contextPath));
+
+            AgentJettyNamingListener namingListener = new AgentJettyNamingListener();
+            ModuleListenerService moduleListenerService = getManager().find(ClusterModule.NAME).getService(ModuleListenerService.class);
+            moduleListenerService.addListener(namingListener);
+
+            NamingHandlerRegisterService namingHandlerRegisterService = getManager().find(NamingModule.NAME).getService(NamingHandlerRegisterService.class);
+            namingHandlerRegisterService.register(new AgentJettyNamingHandler(namingListener));
+
+            DAOService daoService = getManager().find(StorageModule.NAME).getService(DAOService.class);
+
+            JettyManagerService managerService = getManager().find(JettyManagerModule.NAME).getService(JettyManagerService.class);
+            Server jettyServer = managerService.createIfAbsent(host, port, contextPath);
+            addHandlers(daoService, jettyServer);
+        } catch (ModuleNotFoundException e) {
+            throw new ServiceNotProvidedException(e.getMessage());
+        }
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
@@ -50,6 +91,10 @@ public class AgentModuleJettyProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[0];
+        return new String[] {ClusterModule.NAME, NamingModule.NAME, StorageModule.NAME, JettyManagerModule.NAME};
+    }
+
+    private void addHandlers(DAOService daoService, Server jettyServer) {
+        jettyServer.addHandler(new TraceSegmentServletHandler());
     }
 }

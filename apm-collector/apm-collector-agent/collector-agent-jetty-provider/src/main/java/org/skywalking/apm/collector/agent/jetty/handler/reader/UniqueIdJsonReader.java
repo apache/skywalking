@@ -16,14 +16,25 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.grpc.manager.service;
+package org.skywalking.apm.collector.agent.jetty.handler.reader;
 
-import org.skywalking.apm.collector.core.module.Service;
-import org.skywalking.apm.collector.server.Server;
+import com.google.gson.stream.JsonReader;
+import java.io.IOException;
+import org.skywalking.apm.network.proto.UniqueId;
 
 /**
  * @author peng-yongsheng
  */
-public interface GRPCManagerService extends Service {
-    Server createIfAbsent(String host, int port);
+public class UniqueIdJsonReader implements StreamJsonReader<UniqueId.Builder> {
+
+    @Override public UniqueId.Builder read(JsonReader reader) throws IOException {
+        UniqueId.Builder builder = UniqueId.newBuilder();
+
+        reader.beginArray();
+        while (reader.hasNext()) {
+            builder.addIdParts(reader.nextLong());
+        }
+        reader.endArray();
+        return builder;
+    }
 }

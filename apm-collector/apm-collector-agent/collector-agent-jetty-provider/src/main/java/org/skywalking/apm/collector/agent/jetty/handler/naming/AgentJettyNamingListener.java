@@ -16,14 +16,28 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.grpc.manager.service;
+package org.skywalking.apm.collector.agent.jetty.handler.naming;
 
-import org.skywalking.apm.collector.core.module.Service;
-import org.skywalking.apm.collector.server.Server;
+import org.skywalking.apm.collector.agent.AgentModule;
+import org.skywalking.apm.collector.agent.jetty.AgentModuleJettyProvider;
+import org.skywalking.apm.collector.cluster.ClusterModuleListener;
 
 /**
  * @author peng-yongsheng
  */
-public interface GRPCManagerService extends Service {
-    Server createIfAbsent(String host, int port);
+public class AgentJettyNamingListener extends ClusterModuleListener {
+
+    public static final String PATH = "/" + AgentModule.NAME + "/" + AgentModuleJettyProvider.NAME;
+
+    @Override public String path() {
+        return PATH;
+    }
+
+    @Override public void serverJoinNotify(String serverAddress) {
+
+    }
+
+    @Override public void serverQuitNotify(String serverAddress) {
+
+    }
 }

@@ -21,7 +21,10 @@ package org.skywalking.apm.collector.agent.grpc;
 import java.util.Properties;
 import org.skywalking.apm.collector.agent.AgentModule;
 import org.skywalking.apm.collector.agent.grpc.handler.JVMMetricsServiceHandler;
+import org.skywalking.apm.collector.agent.grpc.handler.naming.AgentGRPCNamingHandler;
+import org.skywalking.apm.collector.agent.grpc.handler.naming.AgentGRPCNamingListener;
 import org.skywalking.apm.collector.cluster.ClusterModule;
+import org.skywalking.apm.collector.cluster.service.ModuleListenerService;
 import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
 import org.skywalking.apm.collector.core.module.Module;
 import org.skywalking.apm.collector.core.module.ModuleNotFoundException;
@@ -29,6 +32,8 @@ import org.skywalking.apm.collector.core.module.ModuleProvider;
 import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.skywalking.apm.collector.grpc.manager.GRPCManagerModule;
 import org.skywalking.apm.collector.grpc.manager.service.GRPCManagerService;
+import org.skywalking.apm.collector.naming.NamingModule;
+import org.skywalking.apm.collector.naming.service.NamingHandlerRegisterService;
 import org.skywalking.apm.collector.server.Server;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.service.DAOService;
@@ -38,11 +43,12 @@ import org.skywalking.apm.collector.storage.service.DAOService;
  */
 public class AgentModuleGRPCProvider extends ModuleProvider {
 
+    public static final String NAME = "gRPC";
     private static final String HOST = "host";
     private static final String PORT = "port";
 
     @Override public String name() {
-        return "gRPC";
+        return NAME;
     }
 
     @Override public Class<? extends Module> module() {
@@ -61,10 +67,17 @@ public class AgentModuleGRPCProvider extends ModuleProvider {
             ModuleRegisterService moduleRegisterService = getManager().find(ClusterModule.NAME).getService(ModuleRegisterService.class);
             moduleRegisterService.register(AgentModule.NAME, this.name(), new AgentModuleGRPCRegistration(host, port));
 
+            AgentGRPCNamingListener namingListener = new AgentGRPCNamingListener();
+            ModuleListenerService moduleListenerService = getManager().find(ClusterModule.NAME).getService(ModuleListenerService.class);
+            moduleListenerService.addListener(namingListener);
+
+            NamingHandlerRegisterService namingHandlerRegisterService = getManager().find(NamingModule.NAME).getService(NamingHandlerRegisterService.class);
+            namingHandlerRegisterService.register(new AgentGRPCNamingHandler(namingListener));
+
             DAOService daoService = getManager().find(StorageModule.NAME).getService(DAOService.class);
 
             GRPCManagerService managerService = getManager().find(GRPCManagerModule.NAME).getService(GRPCManagerService.class);
-            Server gRPCServer = managerService.getOrCreateIfAbsent(host, port);
+            Server gRPCServer = managerService.createIfAbsent(host, port);
             addHandlers(daoService, gRPCServer);
         } catch (ModuleNotFoundException e) {
             throw new ServiceNotProvidedException(e.getMessage());
@@ -76,7 +89,7 @@ public class AgentModuleGRPCProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[0];
+        return new String[] {ClusterModule.NAME, NamingModule.NAME, StorageModule.NAME, GRPCManagerModule.NAME};
     }
 
     private void addHandlers(DAOService daoService, Server gRPCServer) {

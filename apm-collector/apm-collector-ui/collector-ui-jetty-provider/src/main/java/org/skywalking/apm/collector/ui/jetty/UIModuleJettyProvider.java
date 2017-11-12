@@ -20,6 +20,7 @@ package org.skywalking.apm.collector.ui.jetty;
 
 import java.util.Properties;
 import org.skywalking.apm.collector.cache.CacheModule;
+import org.skywalking.apm.collector.cache.CacheServiceManager;
 import org.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.skywalking.apm.collector.cache.service.ServiceIdCacheService;
@@ -54,7 +55,6 @@ import org.skywalking.apm.collector.ui.jetty.handler.servicetree.EntryServiceGet
 import org.skywalking.apm.collector.ui.jetty.handler.servicetree.ServiceTreeGetByIdHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.time.AllInstanceLastTimeGetHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.time.OneInstanceLastTimeGetHandler;
-import org.skywalking.apm.collector.cache.CacheServiceManager;
 
 /**
  * @author peng-yongsheng
@@ -97,7 +97,7 @@ public class UIModuleJettyProvider extends ModuleProvider {
             DAOService daoService = getManager().find(StorageModule.NAME).getService(DAOService.class);
 
             JettyManagerService managerService = getManager().find(JettyManagerModule.NAME).getService(JettyManagerService.class);
-            Server jettyServer = managerService.getOrCreateIfAbsent(host, port, contextPath);
+            Server jettyServer = managerService.createIfAbsent(host, port, contextPath);
             addHandlers(daoService, jettyServer, cacheServiceManager);
         } catch (ModuleNotFoundException e) {
             throw new ServiceNotProvidedException(e.getMessage());
@@ -109,7 +109,7 @@ public class UIModuleJettyProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {ClusterModule.NAME, JettyManagerModule.NAME, NamingModule.NAME, CacheModule.NAME};
+        return new String[] {ClusterModule.NAME, JettyManagerModule.NAME, NamingModule.NAME, CacheModule.NAME, StorageModule.NAME};
     }
 
     private void addHandlers(DAOService daoService, Server jettyServer, CacheServiceManager cacheServiceManager) {

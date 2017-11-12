@@ -50,7 +50,7 @@ public class RemoteModuleGRPCProvider extends ModuleProvider {
 
         try {
             GRPCManagerService managerService = getManager().find(GRPCManagerModule.NAME).getService(GRPCManagerService.class);
-            Server gRPCServer = managerService.getOrCreateIfAbsent(host, port);
+            Server gRPCServer = managerService.createIfAbsent(host, port);
             gRPCServer.addHandler(new RemoteCommonServiceHandler(listener));
 
             ModuleRegisterService moduleRegisterService = getManager().find(ClusterModule.NAME).getService(ModuleRegisterService.class);

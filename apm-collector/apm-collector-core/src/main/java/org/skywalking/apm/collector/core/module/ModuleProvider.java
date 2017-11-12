@@ -96,7 +96,7 @@ public abstract class ModuleProvider {
         Service service) throws ServiceNotProvidedException {
         if (serviceType.isInstance(service)) {
             if (manager.isServiceInstrument()) {
-                service = ServiceInstrumentation.INSTANCE.buildServiceUnderMonitor(module.name(), name(), service);
+//                service = ServiceInstrumentation.INSTANCE.buildServiceUnderMonitor(module.name(), name(), service);
             }
             this.services.put(serviceType, service);
         } else {

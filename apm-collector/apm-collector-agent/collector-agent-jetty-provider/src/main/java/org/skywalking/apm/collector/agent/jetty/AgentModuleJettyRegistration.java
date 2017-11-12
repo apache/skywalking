@@ -16,14 +16,26 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.grpc.manager.service;
+package org.skywalking.apm.collector.agent.jetty;
 
-import org.skywalking.apm.collector.core.module.Service;
-import org.skywalking.apm.collector.server.Server;
+import org.skywalking.apm.collector.cluster.ModuleRegistration;
 
 /**
  * @author peng-yongsheng
  */
-public interface GRPCManagerService extends Service {
-    Server createIfAbsent(String host, int port);
+public class AgentModuleJettyRegistration extends ModuleRegistration {
+
+    private final String host;
+    private final int port;
+    private final String contextPath;
+
+    public AgentModuleJettyRegistration(String host, int port, String contextPath) {
+        this.host = host;
+        this.port = port;
+        this.contextPath = contextPath;
+    }
+
+    @Override public Value buildValue() {
+        return new Value(host, port, contextPath);
+    }
 }
