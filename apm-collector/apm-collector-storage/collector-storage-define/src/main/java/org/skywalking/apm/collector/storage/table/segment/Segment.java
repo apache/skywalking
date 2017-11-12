@@ -50,4 +50,8 @@ public class Segment extends Data {
     public byte[] getDataBinary() {
         return getDataBytes(0);
     }
+
+    public void setDataBinary(byte[] dataBinary) {
+        setDataBytes(0, dataBinary);
+    }
 }

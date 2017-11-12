@@ -18,7 +18,6 @@
 
 package org.skywalking.apm.collector.queue.service;
 
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.core.module.Service;
 import org.skywalking.apm.collector.queue.base.QueueEventHandler;
 import org.skywalking.apm.collector.queue.base.QueueExecutor;
@@ -26,6 +25,6 @@ import org.skywalking.apm.collector.queue.base.QueueExecutor;
 /**
  * @author peng-yongsheng
  */
-public interface QueueCreatorService<MESSAGE extends Data> extends Service {
+public interface QueueCreatorService<MESSAGE> extends Service {
     QueueEventHandler<MESSAGE> create(int queueSize, QueueExecutor<MESSAGE> executor);
 }

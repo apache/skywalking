@@ -19,7 +19,6 @@
 package org.skywalking.apm.collector.stream.worker.base;
 
 import org.skywalking.apm.collector.cache.CacheServiceManager;
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.core.graph.Next;
 import org.skywalking.apm.collector.core.graph.NodeProcessor;
 import org.skywalking.apm.collector.storage.service.DAOService;
@@ -29,7 +28,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public abstract class AbstractWorker<INPUT extends Data, OUTPUT extends Data> implements NodeProcessor<INPUT, OUTPUT> {
+public abstract class AbstractWorker<INPUT, OUTPUT> implements NodeProcessor<INPUT, OUTPUT> {
 
     private final Logger logger = LoggerFactory.getLogger(AbstractWorker.class);
 

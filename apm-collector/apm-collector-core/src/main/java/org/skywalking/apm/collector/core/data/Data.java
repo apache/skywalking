@@ -129,6 +129,11 @@ public abstract class Data extends EndOfBatchQueueMessage {
         return dataStrings[0];
     }
 
+    public void setId(String id) {
+        setKey(id);
+        this.dataStrings[0] = id;
+    }
+
     public void mergeData(Data newData) {
         for (int i = 0; i < stringColumns.length; i++) {
             String stringData = stringColumns[i].getOperation().operate(newData.getDataString(i), this.dataStrings[i]);
