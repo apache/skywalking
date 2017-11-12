@@ -34,10 +34,10 @@ public class ModuleBProvider extends ModuleProvider {
 
     @Override public void prepare(Properties config) throws ServiceNotProvidedException {
         this.registerServiceImplementation(BaseModuleB.ServiceBBusiness1.class, new ModuleBBusiness1Impl());
+        this.registerServiceImplementation(BaseModuleB.ServiceBBusiness2.class, new ModuleBBusiness2Impl());
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
-        this.registerServiceImplementation(BaseModuleB.ServiceBBusiness2.class, new ModuleBBusiness2Impl());
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
