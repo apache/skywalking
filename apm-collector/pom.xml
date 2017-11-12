@@ -45,6 +45,7 @@
         <module>apm-collector-remote</module>
         <module>apm-collector-stream</module>
         <module>apm-collector-queue</module>
+        <module>apm-collector-instrument</module>
     </modules>
 
     <properties>
