@@ -48,7 +48,6 @@ public class ModuleManagerTest {
         configuration.addModule("BaseB").addProviderConfiguration("P-B", null);
 
         ModuleManager manager = new ModuleManager();
-        manager.setServiceInstrument(true);
         manager.init(configuration);
 
         BaseModuleA.ServiceABusiness1 serviceABusiness1 = manager.find("BaseA").getService(BaseModuleA.ServiceABusiness1.class);
