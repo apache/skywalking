@@ -27,6 +27,7 @@ import org.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.skywalking.apm.agent.core.context.trace.EntrySpan;
 import org.skywalking.apm.agent.core.context.trace.ExitSpan;
 import org.skywalking.apm.agent.core.context.trace.LocalSpan;
+import org.skywalking.apm.agent.core.context.trace.NoopExitSpan;
 import org.skywalking.apm.agent.core.context.trace.NoopSpan;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
@@ -95,17 +96,28 @@ public class TracingContext implements AbstractTracerContext {
         if (!span.isExit()) {
             throw new IllegalStateException("Inject can be done only in Exit Span");
         }
-        ExitSpan exitSpan = (ExitSpan)span;
+
+        String peer;
+        int peerId;
+        if (span instanceof NoopExitSpan) {
+            NoopExitSpan exitSpan = (NoopExitSpan)span;
+            peerId = exitSpan.getPeerId();
+            peer = exitSpan.getPeer();
+        } else {
+            ExitSpan exitSpan = (ExitSpan)span;
+            peerId = exitSpan.getPeerId();
+            peer = exitSpan.getPeer();
+        }
 
         carrier.setTraceSegmentId(this.segment.getTraceSegmentId());
         carrier.setSpanId(span.getSpanId());
 
         carrier.setParentApplicationInstanceId(segment.getApplicationInstanceId());
 
-        if (DictionaryUtil.isNull(exitSpan.getPeerId())) {
-            carrier.setPeerHost(exitSpan.getPeer());
+        if (DictionaryUtil.isNull(peerId)) {
+            carrier.setPeerHost(peer);
         } else {
-            carrier.setPeerId(exitSpan.getPeerId());
+            carrier.setPeerId(peerId);
         }
         List<TraceSegmentRef> refs = this.segment.getRefs();
         int operationId;
@@ -304,21 +316,21 @@ public class TracingContext implements AbstractTracerContext {
      */
     @Override
     public AbstractSpan createExitSpan(final String operationName, final String remotePeer) {
-        if (isLimitMechanismWorking()) {
-            NoopSpan span = new NoopSpan();
-            return push(span);
-        }
         AbstractSpan exitSpan;
         AbstractSpan parentSpan = peek();
         if (parentSpan != null && parentSpan.isExit()) {
             exitSpan = parentSpan;
         } else {
             final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
-            exitSpan = (AbstractTracingSpan)DictionaryManager.findApplicationCodeSection()
+            exitSpan = (AbstractSpan)DictionaryManager.findApplicationCodeSection()
                 .find(remotePeer).doInCondition(
                     new PossibleFound.FoundAndObtain() {
                         @Override
                         public Object doProcess(final int peerId) {
+                            if (isLimitMechanismWorking()) {
+                                return new NoopExitSpan(peerId);
+                            }
+
                             return DictionaryManager.findOperationNameCodeSection()
                                 .findOnly(segment.getApplicationId(), operationName)
                                 .doInCondition(
@@ -338,6 +350,10 @@ public class TracingContext implements AbstractTracerContext {
                     new PossibleFound.NotFoundAndObtain() {
                         @Override
                         public Object doProcess() {
+                            if (isLimitMechanismWorking()) {
+                                return new NoopExitSpan(remotePeer);
+                            }
+
                             return DictionaryManager.findOperationNameCodeSection()
                                 .findOnly(segment.getApplicationId(), operationName)
                                 .doInCondition(
@@ -489,6 +505,6 @@ public class TracingContext implements AbstractTracerContext {
     }
 
     private boolean isLimitMechanismWorking() {
-        return spanIdGenerator > Config.Agent.SPAN_LIMIT_PER_SEGMENT;
+        return spanIdGenerator >= Config.Agent.SPAN_LIMIT_PER_SEGMENT;
     }
 }

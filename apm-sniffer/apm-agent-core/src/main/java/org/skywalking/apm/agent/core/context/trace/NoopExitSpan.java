@@ -19,31 +19,19 @@
 package org.skywalking.apm.agent.core.context.trace;
 
 import java.util.Map;
-import org.skywalking.apm.agent.core.context.IgnoredTracerContext;
 import org.skywalking.apm.network.trace.component.Component;
 
-/**
- * The <code>NoopSpan</code> represents a span implementation without any actual operation.
- * This span implementation is for {@link IgnoredTracerContext},
- * for keeping the memory and gc cost as low as possible.
- *
- * @author wusheng
- */
-public class NoopSpan implements AbstractNoopSpan {
-    public NoopSpan() {
+public class NoopExitSpan implements AbstractNoopSpan {
+
+    private String peer;
+    private int peerId;
+
+    public NoopExitSpan(int peerId) {
+        this.peerId = peerId;
     }
 
-    @Override
-    public AbstractSpan log(Throwable t) {
-        return this;
-    }
-
-    @Override public AbstractSpan errorOccurred() {
-        return this;
-    }
-
-    public void finish() {
-
+    public NoopExitSpan(String peer) {
+        this.peer = peer;
     }
 
     @Override public AbstractSpan setComponent(Component component) {
@@ -58,9 +46,16 @@ public class NoopSpan implements AbstractNoopSpan {
         return this;
     }
 
-    @Override
-    public AbstractSpan tag(String key, String value) {
+    @Override public AbstractSpan tag(String key, String value) {
         return this;
+    }
+
+    @Override public AbstractSpan log(Throwable t) {
+        return this;
+    }
+
+    @Override public AbstractSpan errorOccurred() {
+        return null;
     }
 
     @Override public boolean isEntry() {
@@ -68,7 +63,7 @@ public class NoopSpan implements AbstractNoopSpan {
     }
 
     @Override public boolean isExit() {
-        return false;
+        return true;
     }
 
     @Override public AbstractSpan log(long timestamp, Map<String, ?> event) {
@@ -97,5 +92,13 @@ public class NoopSpan implements AbstractNoopSpan {
 
     @Override public AbstractSpan setOperationId(int operationId) {
         return this;
+    }
+
+    public int getPeerId() {
+        return peerId;
+    }
+
+    public String getPeer() {
+        return peer;
     }
 }
