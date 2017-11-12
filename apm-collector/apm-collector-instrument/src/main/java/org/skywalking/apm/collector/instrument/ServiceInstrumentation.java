@@ -22,7 +22,6 @@ import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.matcher.ElementMatcher;
-import net.bytebuddy.matcher.ElementMatchers;
 import org.skywalking.apm.collector.core.module.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
