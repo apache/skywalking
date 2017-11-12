@@ -18,22 +18,39 @@
 
 package org.skywalking.apm.collector.naming.jetty.service;
 
-import java.util.List;
+import org.skywalking.apm.collector.core.module.ModuleManager;
+import org.skywalking.apm.collector.core.module.ModuleNotFoundException;
+import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.skywalking.apm.collector.jetty.manager.JettyManagerModule;
+import org.skywalking.apm.collector.jetty.manager.service.JettyManagerService;
 import org.skywalking.apm.collector.naming.service.NamingHandlerRegisterService;
 import org.skywalking.apm.collector.server.ServerHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class NamingJettyHandlerRegisterService implements NamingHandlerRegisterService {
 
-    private final List<ServerHandler> handlers;
+    private final Logger logger = LoggerFactory.getLogger(NamingJettyHandlerRegisterService.class);
 
-    public NamingJettyHandlerRegisterService(List<ServerHandler> handlers) {
-        this.handlers = handlers;
+    private final ModuleManager moduleManager;
+    private final String host;
+    private final int port;
+
+    public NamingJettyHandlerRegisterService(String host, int port, ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
+        this.host = host;
+        this.port = port;
     }
 
     @Override public void register(ServerHandler namingHandler) {
-        handlers.add(namingHandler);
+        try {
+            JettyManagerService managerService = moduleManager.find(JettyManagerModule.NAME).getService(JettyManagerService.class);
+            managerService.addHandler(this.host, this.port, namingHandler);
+        } catch (ModuleNotFoundException | ServiceNotProvidedException e) {
+            logger.error(e.getMessage(), e);
+        }
     }
 }

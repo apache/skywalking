@@ -16,14 +16,24 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.grpc.manager.service;
+package org.skywalking.apm.collector.cluster.standalone.service;
 
-import org.skywalking.apm.collector.core.module.Service;
-import org.skywalking.apm.collector.server.Server;
+import org.skywalking.apm.collector.cluster.ClusterModuleListener;
+import org.skywalking.apm.collector.cluster.service.ModuleListenerService;
+import org.skywalking.apm.collector.cluster.standalone.ClusterStandaloneDataMonitor;
 
 /**
  * @author peng-yongsheng
  */
-public interface GRPCManagerService extends Service {
-    Server createIfAbsent(String host, int port);
+public class StandaloneModuleListenerService implements ModuleListenerService {
+
+    private final ClusterStandaloneDataMonitor dataMonitor;
+
+    public StandaloneModuleListenerService(ClusterStandaloneDataMonitor dataMonitor) {
+        this.dataMonitor = dataMonitor;
+    }
+
+    @Override public void addListener(ClusterModuleListener listener) {
+        dataMonitor.addListener(listener);
+    }
 }

@@ -19,8 +19,10 @@
 package org.skywalking.apm.collector.jetty.manager.service;
 
 import java.util.Map;
+import org.skywalking.apm.collector.core.UnexpectedException;
 import org.skywalking.apm.collector.server.Server;
 import org.skywalking.apm.collector.server.ServerException;
+import org.skywalking.apm.collector.server.ServerHandler;
 import org.skywalking.apm.collector.server.jetty.JettyServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +40,7 @@ public class JettyManagerServiceImpl implements JettyManagerService {
         this.servers = servers;
     }
 
-    @Override public Server getOrCreateIfAbsent(String host, int port, String contextPath) {
+    @Override public Server createIfAbsent(String host, int port, String contextPath) {
         String id = host + String.valueOf(port);
         if (servers.containsKey(id)) {
             return servers.get(id);
@@ -51,6 +53,15 @@ public class JettyManagerServiceImpl implements JettyManagerService {
             }
             servers.put(id, server);
             return server;
+        }
+    }
+
+    @Override public void addHandler(String host, int port, ServerHandler serverHandler) {
+        String id = host + String.valueOf(port);
+        if (servers.containsKey(id)) {
+            servers.get(id).addHandler(serverHandler);
+        } else {
+            throw new UnexpectedException("Please create server before add server handler.");
         }
     }
 }
