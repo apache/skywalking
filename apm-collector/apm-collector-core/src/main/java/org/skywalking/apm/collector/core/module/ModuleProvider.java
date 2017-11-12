@@ -21,7 +21,6 @@ package org.skywalking.apm.collector.core.module;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import org.skywalking.apm.collector.core.module.instrument.ServiceInstrumentation;
 
 /**
  * The <code>ModuleProvider</code> is an implementation of a {@link Module}.
