@@ -19,14 +19,12 @@
 package org.skywalking.apm.collector.stream.worker.base;
 
 import org.skywalking.apm.collector.cache.CacheServiceManager;
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.service.DAOService;
 
 /**
  * @author peng-yongsheng
  */
-<<<<<<< HEAD
-public abstract class AbstractWorkerProvider<INPUT extends Data, OUTPUT extends Data, WorkerType extends AbstractWorker<INPUT, OUTPUT>> implements Provider {
+public abstract class AbstractWorkerProvider<INPUT, OUTPUT, WORKER_TYPE extends AbstractWorker<INPUT, OUTPUT>> implements Provider {
 
     private final DAOService daoService;
     private final CacheServiceManager cacheServiceManager;
@@ -44,9 +42,5 @@ public abstract class AbstractWorkerProvider<INPUT extends Data, OUTPUT extends 
         return cacheServiceManager;
     }
 
-    public abstract WorkerType workerInstance(DAOService daoService, CacheServiceManager cacheServiceManager);
-=======
-public abstract class AbstractWorkerProvider<INPUT extends Data, OUTPUT extends Data, WORKER_TYPE extends AbstractWorker<INPUT, OUTPUT>> implements Provider {
-    public abstract WORKER_TYPE workerInstance(DAOService daoService);
->>>>>>> 0c17906c3c1c41752e1ec38b37d9e0dec22503ca
+    public abstract WORKER_TYPE workerInstance(DAOService daoService, CacheServiceManager cacheServiceManager);
 }

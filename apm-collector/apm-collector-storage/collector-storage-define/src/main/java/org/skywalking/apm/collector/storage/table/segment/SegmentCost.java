@@ -58,31 +58,63 @@ public class SegmentCost extends Data {
         return getDataString(1);
     }
 
+    public void setSegmentId(String segmentId) {
+        setDataString(1, segmentId);
+    }
+
     public String getServiceName() {
         return getDataString(2);
+    }
+
+    public void setServiceName(String serviceName) {
+        setDataString(2, serviceName);
     }
 
     public Long getCost() {
         return getDataLong(0);
     }
 
+    public void setCost(Long cost) {
+        setDataLong(0, cost);
+    }
+
     public Long getStartTime() {
         return getDataLong(1);
+    }
+
+    public void setStartTime(Long startTime) {
+        setDataLong(1, startTime);
     }
 
     public Long getEndTime() {
         return getDataLong(2);
     }
 
+    public void setEndTime(Long endTime) {
+        setDataLong(2, endTime);
+    }
+
     public Long getTimeBucket() {
         return getDataLong(3);
+    }
+
+    public void setTimeBucket(Long timeBucket) {
+        setDataLong(3, timeBucket);
     }
 
     public Integer getApplicationId() {
         return getDataInteger(0);
     }
 
+    public void setApplicationId(Integer applicationId) {
+        setDataInteger(0, applicationId);
+    }
+
     public Boolean getIsError() {
         return getDataBoolean(0);
+    }
+
+    public void setIsError(Boolean isError) {
+        setDataBoolean(0, isError);
     }
 }

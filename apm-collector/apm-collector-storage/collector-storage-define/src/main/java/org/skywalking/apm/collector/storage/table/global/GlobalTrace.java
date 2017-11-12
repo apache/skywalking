@@ -52,11 +52,23 @@ public class GlobalTrace extends Data {
         return getDataString(1);
     }
 
+    public void setSegmentId(String segmentId) {
+        setDataString(1, segmentId);
+    }
+
     public String getGlobalTraceId() {
         return getDataString(2);
     }
 
+    public void setGlobalTraceId(String globalTraceId) {
+        setDataString(2, globalTraceId);
+    }
+
     public Long getTimeBucket() {
         return getDataLong(0);
+    }
+
+    public void setTimeBucket(long timeBucket) {
+        setDataLong(0, timeBucket);
     }
 }

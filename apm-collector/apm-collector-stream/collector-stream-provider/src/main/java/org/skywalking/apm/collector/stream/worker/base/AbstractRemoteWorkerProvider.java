@@ -49,11 +49,7 @@ public abstract class AbstractRemoteWorkerProvider<INPUT extends Data, OUTPUT ex
      * worker instance, when the worker provider not find then Throw this Exception.
      */
     @Override final public WorkerRef create(WorkerCreateListener workerCreateListener) {
-<<<<<<< HEAD
-        WorkerType remoteWorker = workerInstance(getDaoService(), getCacheServiceManager());
-=======
-        WORKER_TYPE remoteWorker = workerInstance(daoService);
->>>>>>> 0c17906c3c1c41752e1ec38b37d9e0dec22503ca
+        WORKER_TYPE remoteWorker = workerInstance(getDaoService(), getCacheServiceManager());
         workerCreateListener.addWorker(remoteWorker);
         RemoteWorkerRef<INPUT, OUTPUT> workerRef = new RemoteWorkerRef<>(remoteWorker);
         return workerRef;

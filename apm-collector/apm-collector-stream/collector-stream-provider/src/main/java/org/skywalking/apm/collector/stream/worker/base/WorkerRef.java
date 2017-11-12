@@ -18,14 +18,13 @@
 
 package org.skywalking.apm.collector.stream.worker.base;
 
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.core.graph.NodeProcessor;
 import org.skywalking.apm.collector.core.graph.WayToNode;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class WorkerRef<INPUT extends Data, OUTPUT extends Data> extends WayToNode<INPUT, OUTPUT> {
+public abstract class WorkerRef<INPUT, OUTPUT> extends WayToNode<INPUT, OUTPUT> {
     WorkerRef(NodeProcessor<INPUT, OUTPUT> destinationHandler) {
         super(destinationHandler);
     }
