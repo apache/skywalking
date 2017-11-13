@@ -25,5 +25,9 @@ import org.skywalking.apm.collector.core.module.Service;
  * @author peng-yongsheng
  */
 public interface RemoteSenderService extends Service {
-    void send(int graph, int nodeId, Data data);
+    Mode send(int graphId, int nodeId, Data data, Selector selector);
+
+    enum Mode {
+        Remote, Local
+    }
 }

@@ -21,10 +21,6 @@ package org.skywalking.apm.collector.ui.jetty;
 import java.util.Properties;
 import org.skywalking.apm.collector.cache.CacheModule;
 import org.skywalking.apm.collector.cache.CacheServiceManager;
-import org.skywalking.apm.collector.cache.service.ApplicationCacheService;
-import org.skywalking.apm.collector.cache.service.InstanceCacheService;
-import org.skywalking.apm.collector.cache.service.ServiceIdCacheService;
-import org.skywalking.apm.collector.cache.service.ServiceNameCacheService;
 import org.skywalking.apm.collector.cluster.ClusterModule;
 import org.skywalking.apm.collector.cluster.service.ModuleListenerService;
 import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
@@ -92,7 +88,8 @@ public class UIModuleJettyProvider extends ModuleProvider {
             NamingHandlerRegisterService namingHandlerRegisterService = getManager().find(NamingModule.NAME).getService(NamingHandlerRegisterService.class);
             namingHandlerRegisterService.register(new UIJettyNamingHandler(namingListener));
 
-            CacheServiceManager cacheServiceManager = initCacheServiceManager();
+            CacheServiceManager cacheServiceManager = new CacheServiceManager();
+            cacheServiceManager.init(getManager());
 
             DAOService daoService = getManager().find(StorageModule.NAME).getService(DAOService.class);
 
@@ -126,19 +123,5 @@ public class UIModuleJettyProvider extends ModuleProvider {
         jettyServer.addHandler(new SpanGetHandler(daoService, cacheServiceManager));
         jettyServer.addHandler(new TraceDagGetHandler(daoService, cacheServiceManager));
         jettyServer.addHandler(new TraceStackGetHandler(daoService, cacheServiceManager));
-    }
-
-    private CacheServiceManager initCacheServiceManager() throws ModuleNotFoundException, ServiceNotProvidedException {
-        ApplicationCacheService applicationCacheService = getManager().find(CacheModule.NAME).getService(ApplicationCacheService.class);
-        InstanceCacheService instanceCacheService = getManager().find(CacheModule.NAME).getService(InstanceCacheService.class);
-        ServiceIdCacheService serviceIdCacheService = getManager().find(CacheModule.NAME).getService(ServiceIdCacheService.class);
-        ServiceNameCacheService serviceNameCacheService = getManager().find(CacheModule.NAME).getService(ServiceNameCacheService.class);
-
-        CacheServiceManager serviceManager = new CacheServiceManager();
-        serviceManager.setApplicationCacheService(applicationCacheService);
-        serviceManager.setInstanceCacheService(instanceCacheService);
-        serviceManager.setServiceIdCacheService(serviceIdCacheService);
-        serviceManager.setServiceNameCacheService(serviceNameCacheService);
-        return serviceManager;
     }
 }

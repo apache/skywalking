@@ -20,7 +20,7 @@ package org.skywalking.apm.collector.stream.worker.base;
 
 import org.skywalking.apm.collector.cache.CacheServiceManager;
 import org.skywalking.apm.collector.core.data.Data;
-import org.skywalking.apm.collector.remote.service.RemoteClientService;
+import org.skywalking.apm.collector.remote.service.RemoteSenderService;
 import org.skywalking.apm.collector.storage.service.DAOService;
 
 /**
@@ -33,12 +33,14 @@ import org.skywalking.apm.collector.storage.service.DAOService;
  */
 public abstract class AbstractRemoteWorkerProvider<INPUT extends Data, OUTPUT extends Data, WORKER_TYPE extends AbstractRemoteWorker<INPUT, OUTPUT>> extends AbstractWorkerProvider<INPUT, OUTPUT, WORKER_TYPE> {
 
-    private final RemoteClientService remoteClientService;
+    private final RemoteSenderService remoteSenderService;
+    private final int graphId;
 
     public AbstractRemoteWorkerProvider(DAOService daoService, CacheServiceManager cacheServiceManager,
-        RemoteClientService remoteClientService) {
+        RemoteSenderService remoteSenderService, int graphId) {
         super(daoService, cacheServiceManager);
-        this.remoteClientService = remoteClientService;
+        this.remoteSenderService = remoteSenderService;
+        this.graphId = graphId;
     }
 
     /**
@@ -48,15 +50,9 @@ public abstract class AbstractRemoteWorkerProvider<INPUT extends Data, OUTPUT ex
      * @throws ProviderNotFoundException This worker instance attempted to find a provider which use to create another
      * worker instance, when the worker provider not find then Throw this Exception.
      */
-    @Override final public WorkerRef create(WorkerCreateListener workerCreateListener) {
+    @Override final public RemoteWorkerRef create(WorkerCreateListener workerCreateListener) {
         WORKER_TYPE remoteWorker = workerInstance(getDaoService(), getCacheServiceManager());
         workerCreateListener.addWorker(remoteWorker);
-        RemoteWorkerRef<INPUT, OUTPUT> workerRef = new RemoteWorkerRef<>(remoteWorker);
-        return workerRef;
-    }
-
-    public final RemoteWorkerRef create(String host, int port) {
-        RemoteWorkerRef<INPUT, OUTPUT> workerRef = new RemoteWorkerRef<>(null, remoteClientService.create(host, port));
-        return workerRef;
+        return new RemoteWorkerRef<>(remoteWorker, remoteSenderService, graphId);
     }
 }

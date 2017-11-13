@@ -45,7 +45,7 @@ public class GRPCRemoteClientService implements RemoteClientService {
         }
         RemoteCommonServiceGrpc.RemoteCommonServiceStub stub = RemoteCommonServiceGrpc.newStub(client.getChannel());
         StreamObserver<RemoteMessage> streamObserver = createStreamObserver(stub);
-        return new GRPCRemoteClient(streamObserver);
+        return new GRPCRemoteClient(host, port, streamObserver);
     }
 
     private StreamObserver<RemoteMessage> createStreamObserver(RemoteCommonServiceGrpc.RemoteCommonServiceStub stub) {

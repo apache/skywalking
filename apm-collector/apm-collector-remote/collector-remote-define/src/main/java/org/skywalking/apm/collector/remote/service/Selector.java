@@ -16,20 +16,11 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.remote.grpc.service.selector;
-
-import java.util.List;
-import org.skywalking.apm.collector.core.data.Data;
-import org.skywalking.apm.collector.remote.service.RemoteClient;
+package org.skywalking.apm.collector.remote.service;
 
 /**
  * @author peng-yongsheng
  */
-public class HashCodeSelector implements RemoteClientSelector {
-
-    @Override public RemoteClient select(List<RemoteClient> clients, Data message) {
-        int size = clients.size();
-        int selectIndex = Math.abs(message.getHashCode()) % size;
-        return clients.get(selectIndex);
-    }
+public enum Selector {
+    HashCode, Rolling, ForeverFirst
 }

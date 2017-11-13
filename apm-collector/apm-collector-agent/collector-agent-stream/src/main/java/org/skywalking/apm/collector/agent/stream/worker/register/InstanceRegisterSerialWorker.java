@@ -41,7 +41,7 @@ public class InstanceRegisterSerialWorker extends AbstractLocalAsyncWorker<Insta
     }
 
     @Override public int id() {
-        return 0;
+        return InstanceRegisterSerialWorker.class.hashCode();
     }
 
     @Override protected void onWork(Instance instance) throws WorkerException {

@@ -20,6 +20,7 @@ package org.skywalking.apm.collector.stream.worker.base;
 
 import org.skywalking.apm.collector.cache.CacheServiceManager;
 import org.skywalking.apm.collector.core.data.Data;
+import org.skywalking.apm.collector.remote.service.Selector;
 import org.skywalking.apm.collector.storage.service.DAOService;
 
 /**
@@ -37,13 +38,15 @@ public abstract class AbstractRemoteWorker<INPUT extends Data, OUTPUT extends Da
         super(daoService, cacheServiceManager);
     }
 
+    public abstract Selector selector();
+
     /**
      * This method use for message producer to call for send message.
      *
      * @param message The persistence data or metric data.
-     * @throws Exception The Exception happen in {@link #onWork(INPUT)}
+     * @throws Exception The Exception happen in {@link #onWork(Object)} )}
      */
-    final public void allocateJob(INPUT message) {
+    public final void allocateJob(INPUT message) {
         try {
             onWork(message);
         } catch (WorkerException e) {

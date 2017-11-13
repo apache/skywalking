@@ -20,13 +20,21 @@ package org.skywalking.apm.collector.queue.disruptor.service;
 
 import org.skywalking.apm.collector.queue.base.QueueEventHandler;
 import org.skywalking.apm.collector.queue.base.QueueExecutor;
+import org.skywalking.apm.collector.queue.disruptor.base.DisruptorQueueCreator;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
 
 /**
  * @author peng-yongsheng
  */
 public class DisruptorQueueCreatorService implements QueueCreatorService {
+
+    private final DisruptorQueueCreator creator;
+
+    public DisruptorQueueCreatorService() {
+        this.creator = new DisruptorQueueCreator();
+    }
+
     @Override public QueueEventHandler create(int queueSize, QueueExecutor executor) {
-        return null;
+        return creator.create(queueSize, executor);
     }
 }

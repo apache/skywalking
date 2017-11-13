@@ -19,7 +19,8 @@
 package org.skywalking.apm.collector.agent.stream.worker.register;
 
 import org.skywalking.apm.collector.cache.CacheServiceManager;
-import org.skywalking.apm.collector.remote.service.RemoteClientService;
+import org.skywalking.apm.collector.remote.service.RemoteSenderService;
+import org.skywalking.apm.collector.remote.service.Selector;
 import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.register.Instance;
 import org.skywalking.apm.collector.stream.worker.base.AbstractRemoteWorker;
@@ -36,7 +37,7 @@ public class InstanceRegisterRemoteWorker extends AbstractRemoteWorker<Instance,
     private final Logger logger = LoggerFactory.getLogger(InstanceRegisterRemoteWorker.class);
 
     @Override public int id() {
-        return 0;
+        return InstanceRegisterRemoteWorker.class.hashCode();
     }
 
     public InstanceRegisterRemoteWorker(DAOService daoService, CacheServiceManager cacheServiceManager) {
@@ -48,11 +49,15 @@ public class InstanceRegisterRemoteWorker extends AbstractRemoteWorker<Instance,
         onNext(instance);
     }
 
+    @Override public Selector selector() {
+        return Selector.ForeverFirst;
+    }
+
     public static class Factory extends AbstractRemoteWorkerProvider<Instance, Instance, InstanceRegisterRemoteWorker> {
 
         public Factory(DAOService daoService, CacheServiceManager cacheServiceManager,
-            RemoteClientService remoteClientService) {
-            super(daoService, cacheServiceManager, remoteClientService);
+            RemoteSenderService remoteSenderService, int graphId) {
+            super(daoService, cacheServiceManager, remoteSenderService, graphId);
         }
 
         @Override

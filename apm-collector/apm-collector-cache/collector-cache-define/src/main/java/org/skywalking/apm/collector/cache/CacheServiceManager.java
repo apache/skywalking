@@ -22,6 +22,9 @@ import org.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.skywalking.apm.collector.cache.service.ServiceIdCacheService;
 import org.skywalking.apm.collector.cache.service.ServiceNameCacheService;
+import org.skywalking.apm.collector.core.module.ModuleManager;
+import org.skywalking.apm.collector.core.module.ModuleNotFoundException;
+import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 
 /**
  * @author peng-yongsheng
@@ -37,33 +40,22 @@ public class CacheServiceManager {
         return applicationCacheService;
     }
 
-    public void setApplicationCacheService(
-        ApplicationCacheService applicationCacheService) {
-        this.applicationCacheService = applicationCacheService;
-    }
-
     public InstanceCacheService getInstanceCacheService() {
         return instanceCacheService;
-    }
-
-    public void setInstanceCacheService(InstanceCacheService instanceCacheService) {
-        this.instanceCacheService = instanceCacheService;
     }
 
     public ServiceIdCacheService getServiceIdCacheService() {
         return serviceIdCacheService;
     }
 
-    public void setServiceIdCacheService(ServiceIdCacheService serviceIdCacheService) {
-        this.serviceIdCacheService = serviceIdCacheService;
-    }
-
     public ServiceNameCacheService getServiceNameCacheService() {
         return serviceNameCacheService;
     }
 
-    public void setServiceNameCacheService(
-        ServiceNameCacheService serviceNameCacheService) {
-        this.serviceNameCacheService = serviceNameCacheService;
+    public void init(ModuleManager moduleManager) throws ModuleNotFoundException, ServiceNotProvidedException {
+        this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
+        this.instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
+        this.serviceIdCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceIdCacheService.class);
+        this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
     }
 }

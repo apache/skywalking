@@ -18,14 +18,20 @@
 
 package org.skywalking.apm.collector.remote.grpc.service;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.skywalking.apm.collector.cluster.ClusterModuleListener;
+import org.skywalking.apm.collector.core.UnexpectedException;
 import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.remote.RemoteModule;
 import org.skywalking.apm.collector.remote.grpc.RemoteModuleGRPCProvider;
+import org.skywalking.apm.collector.remote.grpc.service.selector.ForeverFirstSelector;
+import org.skywalking.apm.collector.remote.grpc.service.selector.HashCodeSelector;
+import org.skywalking.apm.collector.remote.grpc.service.selector.RollingSelector;
 import org.skywalking.apm.collector.remote.service.RemoteClient;
 import org.skywalking.apm.collector.remote.service.RemoteSenderService;
+import org.skywalking.apm.collector.remote.service.Selector;
 
 /**
  * @author peng-yongsheng
@@ -34,33 +40,75 @@ public class GRPCRemoteSenderService extends ClusterModuleListener implements Re
 
     public static final String PATH = "/" + RemoteModule.NAME + "/" + RemoteModuleGRPCProvider.NAME;
     private final GRPCRemoteClientService service;
-    private final Map<String, RemoteClient> clientMap;
+    private List<RemoteClient> remoteClients;
+    private final String selfAddress;
+    private final HashCodeSelector hashCodeSelector;
+    private final ForeverFirstSelector foreverFirstSelector;
+    private final RollingSelector rollingSelector;
 
-    @Override public void send(int graph, int nodeId, Data data) {
-
+    @Override public Mode send(int graphId, int nodeId, Data data, Selector selector) {
+        RemoteClient remoteClient;
+        switch (selector) {
+            case HashCode:
+                remoteClient = hashCodeSelector.select(remoteClients, data);
+                return sendToRemoteWhenNotSelf(remoteClient, graphId, nodeId, data);
+            case Rolling:
+                remoteClient = rollingSelector.select(remoteClients, data);
+                return sendToRemoteWhenNotSelf(remoteClient, graphId, nodeId, data);
+            case ForeverFirst:
+                remoteClient = foreverFirstSelector.select(remoteClients, data);
+                return sendToRemoteWhenNotSelf(remoteClient, graphId, nodeId, data);
+        }
+        throw new UnexpectedException("Selector not match, Just support hash, rolling, forever first selector.");
     }
 
-    public GRPCRemoteSenderService() {
+    private Mode sendToRemoteWhenNotSelf(RemoteClient remoteClient, int graphId, int nodeId, Data data) {
+        if (remoteClient.equals(selfAddress)) {
+            return Mode.Local;
+        } else {
+            remoteClient.send(graphId, nodeId, data);
+            return Mode.Remote;
+        }
+    }
+
+    public GRPCRemoteSenderService(String host, int port) {
         this.service = new GRPCRemoteClientService();
-        this.clientMap = new ConcurrentHashMap<>();
+        this.remoteClients = new ArrayList<>();
+        this.selfAddress = host + ":" + String.valueOf(port);
+        this.hashCodeSelector = new HashCodeSelector();
+        this.foreverFirstSelector = new ForeverFirstSelector();
+        this.rollingSelector = new RollingSelector();
     }
 
     @Override public String path() {
         return PATH;
     }
 
-    @Override public void serverJoinNotify(String serverAddress) {
-        if (!clientMap.containsKey(serverAddress)) {
-            String host = serverAddress.split(":")[0];
-            int port = Integer.parseInt(serverAddress.split(":")[1]);
-            RemoteClient remoteClient = service.create(host, port);
-            clientMap.put(serverAddress, remoteClient);
-        }
+    @Override public synchronized void serverJoinNotify(String serverAddress) {
+        List<RemoteClient> newRemoteClients = new ArrayList<>();
+        newRemoteClients.addAll(remoteClients);
+
+        String host = serverAddress.split(":")[0];
+        int port = Integer.parseInt(serverAddress.split(":")[1]);
+        RemoteClient remoteClient = service.create(host, port);
+        newRemoteClients.add(remoteClient);
+
+        Collections.sort(newRemoteClients);
+
+        this.remoteClients = newRemoteClients;
     }
 
-    @Override public void serverQuitNotify(String serverAddress) {
-        if (clientMap.containsKey(serverAddress)) {
-            clientMap.remove(serverAddress);
+    @Override public synchronized void serverQuitNotify(String serverAddress) {
+        List<RemoteClient> newRemoteClients = new ArrayList<>();
+        newRemoteClients.addAll(remoteClients);
+
+        for (int i = newRemoteClients.size() - 1; i >= 0; i--) {
+            RemoteClient remoteClient = newRemoteClients.get(i);
+            if (remoteClient.equals(serverAddress)) {
+                newRemoteClients.remove(i);
+            }
         }
+
+        this.remoteClients = newRemoteClients;
     }
 }
