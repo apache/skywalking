@@ -19,11 +19,12 @@
 package org.skywalking.apm.collector.remote.grpc.service.selector;
 
 import java.util.List;
+import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.remote.service.RemoteClient;
 
 /**
  * @author peng-yongsheng
  */
 public interface RemoteClientSelector {
-    RemoteClient select(List<RemoteClient> clients, Object message);
+    RemoteClient select(List<RemoteClient> clients, Data message);
 }

@@ -4,6 +4,12 @@ cluster:
     user_name: sa
 cache:
   guava:
+queue:
+  disruptor:
+remote:
+  gRPC:
+    host: localhost
+    port: 11800
 naming:
   jetty:
     host: localhost

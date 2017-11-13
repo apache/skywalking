@@ -20,12 +20,20 @@ package org.skywalking.apm.collector.agent.grpc;
 
 import java.util.Properties;
 import org.skywalking.apm.collector.agent.AgentModule;
+import org.skywalking.apm.collector.agent.grpc.handler.ApplicationRegisterServiceHandler;
+import org.skywalking.apm.collector.agent.grpc.handler.InstanceDiscoveryServiceHandler;
 import org.skywalking.apm.collector.agent.grpc.handler.JVMMetricsServiceHandler;
+import org.skywalking.apm.collector.agent.grpc.handler.ServiceNameDiscoveryServiceHandler;
+import org.skywalking.apm.collector.agent.grpc.handler.TraceSegmentServiceHandler;
 import org.skywalking.apm.collector.agent.grpc.handler.naming.AgentGRPCNamingHandler;
 import org.skywalking.apm.collector.agent.grpc.handler.naming.AgentGRPCNamingListener;
+import org.skywalking.apm.collector.agent.stream.AgentStreamSingleton;
+import org.skywalking.apm.collector.cache.CacheModule;
+import org.skywalking.apm.collector.cache.CacheServiceManager;
 import org.skywalking.apm.collector.cluster.ClusterModule;
 import org.skywalking.apm.collector.cluster.service.ModuleListenerService;
 import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
+import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.module.Module;
 import org.skywalking.apm.collector.core.module.ModuleNotFoundException;
 import org.skywalking.apm.collector.core.module.ModuleProvider;
@@ -34,9 +42,12 @@ import org.skywalking.apm.collector.grpc.manager.GRPCManagerModule;
 import org.skywalking.apm.collector.grpc.manager.service.GRPCManagerService;
 import org.skywalking.apm.collector.naming.NamingModule;
 import org.skywalking.apm.collector.naming.service.NamingHandlerRegisterService;
+import org.skywalking.apm.collector.remote.RemoteModule;
 import org.skywalking.apm.collector.server.Server;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.service.DAOService;
+import org.skywalking.apm.collector.storage.table.register.Application;
+import org.skywalking.apm.collector.stream.worker.base.WorkerCreateListener;
 
 /**
  * @author peng-yongsheng
@@ -74,11 +85,17 @@ public class AgentModuleGRPCProvider extends ModuleProvider {
             NamingHandlerRegisterService namingHandlerRegisterService = getManager().find(NamingModule.NAME).getService(NamingHandlerRegisterService.class);
             namingHandlerRegisterService.register(new AgentGRPCNamingHandler(namingListener));
 
+            CacheServiceManager cacheServiceManager = new CacheServiceManager();
+            cacheServiceManager.init(getManager());
+
             DAOService daoService = getManager().find(StorageModule.NAME).getService(DAOService.class);
 
             GRPCManagerService managerService = getManager().find(GRPCManagerModule.NAME).getService(GRPCManagerService.class);
             Server gRPCServer = managerService.createIfAbsent(host, port);
-            addHandlers(daoService, gRPCServer);
+
+            AgentStreamSingleton agentStreamSingleton = AgentStreamSingleton.getInstance(getManager(), cacheServiceManager, new WorkerCreateListener());
+
+            addHandlers(daoService, gRPCServer, cacheServiceManager, agentStreamSingleton);
         } catch (ModuleNotFoundException e) {
             throw new ServiceNotProvidedException(e.getMessage());
         }
@@ -89,10 +106,16 @@ public class AgentModuleGRPCProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {ClusterModule.NAME, NamingModule.NAME, StorageModule.NAME, GRPCManagerModule.NAME};
+        return new String[] {ClusterModule.NAME, NamingModule.NAME, StorageModule.NAME, GRPCManagerModule.NAME, CacheModule.NAME, RemoteModule.NAME};
     }
 
-    private void addHandlers(DAOService daoService, Server gRPCServer) {
+    private void addHandlers(DAOService daoService, Server gRPCServer, CacheServiceManager cacheServiceManager,
+        AgentStreamSingleton agentStreamSingleton) {
+        Graph<Application> applicationRegisterGraph = agentStreamSingleton.getApplicationRegisterGraph();
+        gRPCServer.addHandler(new ApplicationRegisterServiceHandler(cacheServiceManager, applicationRegisterGraph));
+        gRPCServer.addHandler(new InstanceDiscoveryServiceHandler(daoService, cacheServiceManager));
+        gRPCServer.addHandler(new ServiceNameDiscoveryServiceHandler(cacheServiceManager));
         gRPCServer.addHandler(new JVMMetricsServiceHandler());
+        gRPCServer.addHandler(new TraceSegmentServiceHandler());
     }
 }

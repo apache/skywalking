@@ -37,7 +37,8 @@ public class AgentGRPCNamingHandler extends JettyHandler {
     }
 
     @Override public String pathSpec() {
-        return "/agent/gRPC";
+//        return "/agent/gRPC";
+        return "/agentstream/grpc";
     }
 
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {

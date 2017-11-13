@@ -19,8 +19,7 @@
 package org.skywalking.apm.collector.stream.worker.base;
 
 import org.skywalking.apm.collector.core.data.Data;
-import org.skywalking.apm.collector.core.graph.GraphManager;
-import org.skywalking.apm.collector.remote.service.RemoteClient;
+import org.skywalking.apm.collector.remote.service.RemoteSenderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,45 +30,30 @@ public class RemoteWorkerRef<INPUT extends Data, OUTPUT extends Data> extends Wo
 
     private final Logger logger = LoggerFactory.getLogger(RemoteWorkerRef.class);
 
-    private final Boolean acrossJVM;
     private final AbstractRemoteWorker<INPUT, OUTPUT> remoteWorker;
-    private final RemoteClient remoteClient;
+    private final RemoteSenderService remoteSenderService;
+    private final int graphId;
 
-    public RemoteWorkerRef(AbstractRemoteWorker<INPUT, OUTPUT> remoteWorker) {
+    public RemoteWorkerRef(AbstractRemoteWorker<INPUT, OUTPUT> remoteWorker, RemoteSenderService remoteSenderService,
+        int graphId) {
         super(remoteWorker);
         this.remoteWorker = remoteWorker;
-        this.acrossJVM = false;
-        this.remoteClient = null;
-    }
-
-    public RemoteWorkerRef(AbstractRemoteWorker<INPUT, OUTPUT> remoteWorker, RemoteClient remoteClient) {
-        super(remoteWorker);
-        this.remoteWorker = remoteWorker;
-        this.acrossJVM = true;
-        this.remoteClient = remoteClient;
+        this.remoteSenderService = remoteSenderService;
+        this.graphId = graphId;
     }
 
     @Override protected void in(INPUT message) {
-        if (acrossJVM) {
-            try {
-                GraphManager.INSTANCE.findGraph(1);
-            } catch (Throwable e) {
-                logger.error(e.getMessage(), e);
+        try {
+            RemoteSenderService.Mode mode = remoteSenderService.send(this.graphId, this.remoteWorker.id(), message, this.remoteWorker.selector());
+            if (mode.equals(RemoteSenderService.Mode.Local)) {
+                out(message);
             }
-        } else {
-            remoteWorker.allocateJob(message);
+        } catch (Throwable e) {
+            logger.error(e.getMessage(), e);
         }
     }
 
     @Override protected void out(INPUT input) {
         super.out(input);
-    }
-
-    private Boolean isAcrossJVM() {
-        return acrossJVM;
-    }
-
-    @Override public String toString() {
-        return "acrossJVM: " + isAcrossJVM();
     }
 }

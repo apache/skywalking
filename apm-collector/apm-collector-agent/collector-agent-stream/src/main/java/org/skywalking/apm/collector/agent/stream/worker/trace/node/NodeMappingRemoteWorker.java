@@ -19,7 +19,8 @@
 package org.skywalking.apm.collector.agent.stream.worker.trace.node;
 
 import org.skywalking.apm.collector.cache.CacheServiceManager;
-import org.skywalking.apm.collector.remote.service.RemoteClientService;
+import org.skywalking.apm.collector.remote.service.RemoteSenderService;
+import org.skywalking.apm.collector.remote.service.Selector;
 import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.node.NodeMapping;
 import org.skywalking.apm.collector.stream.worker.base.AbstractRemoteWorker;
@@ -36,17 +37,21 @@ public class NodeMappingRemoteWorker extends AbstractRemoteWorker<NodeMapping, N
     }
 
     @Override public int id() {
-        return 0;
+        return NodeMappingRemoteWorker.class.hashCode();
     }
 
     @Override protected void onWork(NodeMapping nodeMapping) throws WorkerException {
         onNext(nodeMapping);
     }
 
+    @Override public Selector selector() {
+        return Selector.HashCode;
+    }
+
     public static class Factory extends AbstractRemoteWorkerProvider<NodeMapping, NodeMapping, NodeMappingRemoteWorker> {
         public Factory(DAOService daoService, CacheServiceManager cacheServiceManager,
-            RemoteClientService remoteClientService) {
-            super(daoService, cacheServiceManager, remoteClientService);
+            RemoteSenderService remoteSenderService, int graphId) {
+            super(daoService, cacheServiceManager, remoteSenderService, graphId);
         }
 
         @Override

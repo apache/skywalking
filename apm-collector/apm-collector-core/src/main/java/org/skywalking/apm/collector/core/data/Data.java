@@ -38,8 +38,8 @@ public abstract class Data extends EndOfBatchQueueMessage {
     public Data(String id, Column[] stringColumns, Column[] longColumns, Column[] doubleColumns,
         Column[] integerColumns, Column[] booleanColumns, Column[] byteColumns) {
         super(id);
-        this.dataStrings[0] = id;
         this.dataStrings = new String[stringColumns.length];
+        this.dataStrings[0] = id;
         this.dataLongs = new Long[longColumns.length];
         this.dataDoubles = new Double[doubleColumns.length];
         this.dataIntegers = new Integer[integerColumns.length];

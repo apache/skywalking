@@ -30,10 +30,16 @@ public class GRPCRemoteClient implements RemoteClient {
 
     private final GRPCRemoteSerializeService service;
     private final StreamObserver<RemoteMessage> streamObserver;
+    private final String address;
 
-    public GRPCRemoteClient(StreamObserver<RemoteMessage> streamObserver) {
+    public GRPCRemoteClient(String host, int port, StreamObserver<RemoteMessage> streamObserver) {
+        this.address = host + ":" + String.valueOf(port);
         this.streamObserver = streamObserver;
         this.service = new GRPCRemoteSerializeService();
+    }
+
+    @Override public final String getAddress() {
+        return this.address;
     }
 
     @Override public void send(int graphId, int nodeId, Data data) {
@@ -43,5 +49,13 @@ public class GRPCRemoteClient implements RemoteClient {
         builder.setRemoteData(service.serialize(data));
 
         streamObserver.onNext(builder.build());
+    }
+
+    @Override public boolean equals(String address) {
+        return this.address.equals(address);
+    }
+
+    @Override public int compareTo(RemoteClient o) {
+        return this.address.compareTo(o.getAddress());
     }
 }

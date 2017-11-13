@@ -23,6 +23,7 @@ import org.skywalking.apm.collector.agent.AgentModule;
 import org.skywalking.apm.collector.agent.jetty.handler.TraceSegmentServletHandler;
 import org.skywalking.apm.collector.agent.jetty.handler.naming.AgentJettyNamingHandler;
 import org.skywalking.apm.collector.agent.jetty.handler.naming.AgentJettyNamingListener;
+import org.skywalking.apm.collector.cache.CacheModule;
 import org.skywalking.apm.collector.cluster.ClusterModule;
 import org.skywalking.apm.collector.cluster.service.ModuleListenerService;
 import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
@@ -91,7 +92,7 @@ public class AgentModuleJettyProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {ClusterModule.NAME, NamingModule.NAME, StorageModule.NAME, JettyManagerModule.NAME};
+        return new String[] {ClusterModule.NAME, NamingModule.NAME, StorageModule.NAME, JettyManagerModule.NAME, CacheModule.NAME};
     }
 
     private void addHandlers(DAOService daoService, Server jettyServer) {

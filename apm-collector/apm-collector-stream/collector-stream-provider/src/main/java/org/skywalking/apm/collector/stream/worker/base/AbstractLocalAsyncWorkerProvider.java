@@ -40,7 +40,7 @@ public abstract class AbstractLocalAsyncWorkerProvider<INPUT, OUTPUT, WORKER_TYP
     }
 
     @Override
-    public final WorkerRef create(WorkerCreateListener workerCreateListener) throws ProviderNotFoundException {
+    public final WorkerRef create(WorkerCreateListener workerCreateListener) {
         WORKER_TYPE localAsyncWorker = workerInstance(getDaoService(), getCacheServiceManager());
         workerCreateListener.addWorker(localAsyncWorker);
         QueueEventHandler<INPUT> queueEventHandler = queueCreatorService.create(queueSize(), localAsyncWorker);

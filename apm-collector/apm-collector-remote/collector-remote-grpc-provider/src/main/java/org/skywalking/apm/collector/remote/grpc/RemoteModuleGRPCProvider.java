@@ -39,7 +39,10 @@ public class RemoteModuleGRPCProvider extends ModuleProvider {
     }
 
     @Override public void prepare(Properties config) throws ServiceNotProvidedException {
-        remoteSenderService = new GRPCRemoteSenderService();
+        String host = config.getProperty(HOST);
+        Integer port = (Integer)config.get(PORT);
+
+        remoteSenderService = new GRPCRemoteSenderService(host, port);
         this.registerServiceImplementation(RemoteServerService.class, new GRPCRemoteServerService(listener));
         this.registerServiceImplementation(RemoteSenderService.class, remoteSenderService);
     }
