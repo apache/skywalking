@@ -31,13 +31,12 @@ import static org.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMat
 import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link MongoDBCollectionInstrumentation} presents that skywalking intercepts {@link
- * com.mongodb.DBCollectionImpl#find()}, {@link com.mongodb.DBCollectionImpl#insertImpl} by using {@link
- * MongoDBV2MethodInterceptor}.
+ * {@link MongoDBV2Instrumentation} presents that skywalking intercepts {@link com.mongodb.DB#command},
+ * {@link com.mongodb.DBCollection#mapReduce} by using {@link MongoDBV2MethodInterceptor}.
  */
 public class MongoDBV2Instrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "com.mongodb.DBCollectionImpl";
+    private static final String ENHANCE_CLASS = "com.mongodb.DB";
 
     private static final String MONGDB_METHOD_INTERCET_CLASS = "org.skywalking.apm.plugin.mongodb.v2.MongoDBV2MethodInterceptor";
 
@@ -65,7 +64,7 @@ public class MongoDBV2Instrumentation extends ClassInstanceMethodsEnhancePluginD
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("insertImpl");
+                    return named("command").and(takesArgumentWithType(3, "com.mongodb.DBEncoder"));
                 }
 
                 @Override
@@ -78,86 +77,6 @@ public class MongoDBV2Instrumentation extends ClassInstanceMethodsEnhancePluginD
                     return false;
                 }
             },
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("remove").and(takesArgumentWithType(1, "boolean"));
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return MONGDB_METHOD_INTERCET_CLASS;
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            },
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("updateImpl");
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return MONGDB_METHOD_INTERCET_CLASS;
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            },
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("findAndModifyImpl");
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return MONGDB_METHOD_INTERCET_CLASS;
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            },
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("drop");
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return MONGDB_METHOD_INTERCET_CLASS;
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            },
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("createIndex");
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return MONGDB_METHOD_INTERCET_CLASS;
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            }
         };
     }
 

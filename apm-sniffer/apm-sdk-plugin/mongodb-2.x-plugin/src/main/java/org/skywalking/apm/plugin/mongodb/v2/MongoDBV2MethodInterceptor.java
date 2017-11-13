@@ -18,8 +18,12 @@
 
 package org.skywalking.apm.plugin.mongodb.v2;
 
+import com.mongodb.CommandResult;
+import com.mongodb.Mongo;
 import com.mongodb.ServerAddress;
 import com.mongodb.DB;
+import com.mongodb.WriteResult;
+import com.mongodb.AggregationOutput;
 import java.lang.reflect.Method;
 import java.util.List;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
@@ -35,9 +39,7 @@ import org.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
  * {@link MongoDBV2MethodInterceptor} intercept method of {@link com.mongodb.DBCollection#find()}
- *or{@link com.mongodb.DBCollectionImpl#insertImpl}.... record the mongoDB host, operation name ...
- *
- * @Auther liyuntao
+ * or{@link com.mongodb.DBCollectionImpl#insertImpl}.... record the mongoDB host, operation name ...
  */
 
 public class MongoDBV2MethodInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
@@ -59,6 +61,23 @@ public class MongoDBV2MethodInterceptor implements InstanceMethodsAroundIntercep
 
     @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
+        AbstractSpan activeSpan = ContextManager.activeSpan();
+        if (ret instanceof WriteResult) {
+            WriteResult wresult = (WriteResult)ret;
+            if (!wresult.getCachedLastError().ok()) {
+                Tags.STATUS_CODE.set(activeSpan, "failed");
+            }
+        } else if (ret instanceof CommandResult) {
+            CommandResult cresult = (CommandResult)ret;
+            if (!cresult.ok()) {
+                Tags.STATUS_CODE.set(activeSpan, "failed");
+            }
+        } else if (ret instanceof AggregationOutput) {
+            AggregationOutput aresult = (AggregationOutput)ret;
+            if (!aresult.getCommandResult().ok()) {
+                Tags.STATUS_CODE.set(activeSpan, "failed");
+            }
+        }
         ContextManager.stopSpan();
         return ret;
     }
@@ -72,8 +91,14 @@ public class MongoDBV2MethodInterceptor implements InstanceMethodsAroundIntercep
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        DB db = (DB)allArguments[0];
-        List<ServerAddress> servers = db.getMongo().getAllAddress();
+        List<ServerAddress> servers = null;
+        if (allArguments[0] instanceof DB) {
+            DB db = (DB)allArguments[0];
+            servers = db.getMongo().getAllAddress();
+        } else if (allArguments[0] instanceof Mongo) {
+            Mongo mongo = (Mongo)allArguments[0];
+            servers = mongo.getAllAddress();
+        }
 
         StringBuilder peers = new StringBuilder();
         for (ServerAddress address : servers) {
