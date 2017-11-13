@@ -22,11 +22,15 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.cache.CacheModule;
+import org.skywalking.apm.collector.cache.service.ApplicationCacheService;
+import org.skywalking.apm.collector.cache.service.ServiceNameCacheService;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.CollectionUtils;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.core.util.StringUtils;
+import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.IGlobalTraceUIDAO;
 import org.skywalking.apm.collector.storage.dao.ISegmentUIDAO;
 import org.skywalking.apm.collector.storage.service.DAOService;
@@ -41,11 +45,13 @@ import org.skywalking.apm.network.proto.UniqueId;
 public class TraceStackService {
 
     private final DAOService daoService;
-    private final CacheServiceManager cacheServiceManager;
+    private final ApplicationCacheService applicationCacheService;
+    private final ServiceNameCacheService serviceNameCacheService;
 
-    public TraceStackService(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        this.daoService = daoService;
-        this.cacheServiceManager = cacheServiceManager;
+    public TraceStackService(ModuleManager moduleManager) {
+        this.daoService = moduleManager.find(StorageModule.NAME).getService(DAOService.class);
+        this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
+        this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
     }
 
     public JsonArray load(String globalTraceId) {
@@ -124,14 +130,14 @@ public class TraceStackService {
 
                 String operationName = spanObject.getOperationName();
                 if (spanObject.getOperationNameId() != 0) {
-                    String serviceName = cacheServiceManager.getServiceNameCacheService().get(spanObject.getOperationNameId());
+                    String serviceName = serviceNameCacheService.get(spanObject.getOperationNameId());
                     if (StringUtils.isNotEmpty(serviceName)) {
                         operationName = serviceName.split(Const.ID_SPLIT)[1];
                     } else {
                         operationName = Const.EMPTY_STRING;
                     }
                 }
-                String applicationCode = cacheServiceManager.getApplicationCacheService().get(segment.getApplicationId());
+                String applicationCode = applicationCacheService.get(segment.getApplicationId());
 
                 long cost = spanObject.getEndTime() - spanObject.getStartTime();
                 if (cost == 0) {

@@ -18,8 +18,9 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.trace.global;
 
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
+import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IGlobalTracePersistenceDAO;
 import org.skywalking.apm.collector.storage.service.DAOService;
@@ -32,8 +33,11 @@ import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
  */
 public class GlobalTracePersistenceWorker extends PersistenceWorker<GlobalTrace, GlobalTrace> {
 
-    public GlobalTracePersistenceWorker(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        super(daoService, cacheServiceManager);
+    private final DAOService daoService;
+
+    public GlobalTracePersistenceWorker(ModuleManager moduleManager) {
+        super(moduleManager);
+        this.daoService = getModuleManager().find(StorageModule.NAME).getService(DAOService.class);
     }
 
     @Override public int id() {
@@ -45,20 +49,17 @@ public class GlobalTracePersistenceWorker extends PersistenceWorker<GlobalTrace,
     }
 
     @Override protected IPersistenceDAO persistenceDAO() {
-        return (IGlobalTracePersistenceDAO)getDaoService().get(IGlobalTracePersistenceDAO.class);
+        return (IGlobalTracePersistenceDAO)daoService.get(IGlobalTracePersistenceDAO.class);
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<GlobalTrace, GlobalTrace, GlobalTracePersistenceWorker> {
 
-        public Factory(DAOService daoService, CacheServiceManager cacheServiceManager,
-            QueueCreatorService<GlobalTrace> queueCreatorService) {
-            super(daoService, cacheServiceManager, queueCreatorService);
+        public Factory(ModuleManager moduleManager, QueueCreatorService<GlobalTrace> queueCreatorService) {
+            super(moduleManager, queueCreatorService);
         }
 
-        @Override
-        public GlobalTracePersistenceWorker workerInstance(DAOService daoService,
-            CacheServiceManager cacheServiceManager) {
-            return new GlobalTracePersistenceWorker(getDaoService(), getCacheServiceManager());
+        @Override public GlobalTracePersistenceWorker workerInstance(ModuleManager moduleManager) {
+            return new GlobalTracePersistenceWorker(moduleManager);
         }
 
         @Override

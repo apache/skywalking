@@ -20,10 +20,9 @@ package org.skywalking.apm.collector.ui.jetty.handler;
 
 import com.google.gson.JsonElement;
 import javax.servlet.http.HttpServletRequest;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.skywalking.apm.collector.server.jetty.JettyHandler;
-import org.skywalking.apm.collector.storage.service.DAOService;
-import org.skywalking.apm.collector.cache.CacheServiceManager;
 import org.skywalking.apm.collector.ui.service.TraceStackService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,8 +40,8 @@ public class TraceStackGetHandler extends JettyHandler {
 
     private final TraceStackService service;
 
-    public TraceStackGetHandler(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        this.service = new TraceStackService(daoService, cacheServiceManager);
+    public TraceStackGetHandler(ModuleManager moduleManager) {
+        this.service = new TraceStackService(moduleManager);
     }
 
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {

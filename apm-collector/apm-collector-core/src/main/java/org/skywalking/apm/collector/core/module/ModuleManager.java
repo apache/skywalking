@@ -27,7 +27,7 @@ import java.util.ServiceLoader;
 /**
  * The <code>ModuleManager</code> takes charge of all {@link Module}s in collector.
  *
- * @author wu-sheng
+ * @author wu-sheng, peng-yongsheng
  */
 public class ModuleManager {
     private Map<String, Module> loadedModules = new HashMap<>();
@@ -74,10 +74,10 @@ public class ModuleManager {
         return loadedModules.get(moduleName) != null;
     }
 
-    public Module find(String moduleName) throws ModuleNotFoundException {
+    public Module find(String moduleName) throws ModuleNotFoundRuntimeException {
         Module module = loadedModules.get(moduleName);
         if (module != null)
             return module;
-        throw new ModuleNotFoundException(moduleName + " missing.");
+        throw new ModuleNotFoundRuntimeException(moduleName + " missing.");
     }
 }

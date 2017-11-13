@@ -102,11 +102,11 @@ public abstract class Module {
         return loadedProviders.getFirst();
     }
 
-    public final <T extends Service> T getService(Class<T> serviceType) throws ServiceNotProvidedException {
+    public final <T extends Service> T getService(Class<T> serviceType) throws ServiceNotProvidedRuntimeException {
         try {
             return provider().getService(serviceType);
-        } catch (ProviderNotFoundException | DuplicateProviderException e) {
-            throw new ServiceNotProvidedException(e.getMessage());
+        } catch (ProviderNotFoundException | DuplicateProviderException | ServiceNotProvidedException e) {
+            throw new ServiceNotProvidedRuntimeException(e.getMessage());
         }
     }
 }

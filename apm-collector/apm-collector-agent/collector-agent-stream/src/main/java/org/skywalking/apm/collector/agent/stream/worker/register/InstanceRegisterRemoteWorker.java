@@ -18,10 +18,9 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.register;
 
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.remote.service.RemoteSenderService;
 import org.skywalking.apm.collector.remote.service.Selector;
-import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.register.Instance;
 import org.skywalking.apm.collector.stream.worker.base.AbstractRemoteWorker;
 import org.skywalking.apm.collector.stream.worker.base.AbstractRemoteWorkerProvider;
@@ -40,8 +39,8 @@ public class InstanceRegisterRemoteWorker extends AbstractRemoteWorker<Instance,
         return InstanceRegisterRemoteWorker.class.hashCode();
     }
 
-    public InstanceRegisterRemoteWorker(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        super(daoService, cacheServiceManager);
+    public InstanceRegisterRemoteWorker(ModuleManager moduleManager) {
+        super(moduleManager);
     }
 
     @Override protected void onWork(Instance instance) throws WorkerException {
@@ -55,15 +54,12 @@ public class InstanceRegisterRemoteWorker extends AbstractRemoteWorker<Instance,
 
     public static class Factory extends AbstractRemoteWorkerProvider<Instance, Instance, InstanceRegisterRemoteWorker> {
 
-        public Factory(DAOService daoService, CacheServiceManager cacheServiceManager,
-            RemoteSenderService remoteSenderService, int graphId) {
-            super(daoService, cacheServiceManager, remoteSenderService, graphId);
+        public Factory(ModuleManager moduleManager, RemoteSenderService remoteSenderService, int graphId) {
+            super(moduleManager, remoteSenderService, graphId);
         }
 
-        @Override
-        public InstanceRegisterRemoteWorker workerInstance(DAOService daoService,
-            CacheServiceManager cacheServiceManager) {
-            return new InstanceRegisterRemoteWorker(getDaoService(), getCacheServiceManager());
+        @Override public InstanceRegisterRemoteWorker workerInstance(ModuleManager moduleManager) {
+            return new InstanceRegisterRemoteWorker(moduleManager);
         }
     }
 }

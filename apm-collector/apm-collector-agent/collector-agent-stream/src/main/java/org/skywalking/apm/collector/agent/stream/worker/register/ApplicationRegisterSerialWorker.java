@@ -19,9 +19,12 @@
 package org.skywalking.apm.collector.agent.stream.worker.register;
 
 import org.skywalking.apm.collector.agent.stream.IdAutoIncrement;
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.cache.CacheModule;
+import org.skywalking.apm.collector.cache.service.ApplicationCacheService;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
+import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.IApplicationStreamDAO;
 import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.register.Application;
@@ -38,8 +41,13 @@ public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker<Ap
 
     private final Logger logger = LoggerFactory.getLogger(ApplicationRegisterSerialWorker.class);
 
-    public ApplicationRegisterSerialWorker(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        super(daoService, cacheServiceManager);
+    private final DAOService daoService;
+    private final ApplicationCacheService applicationCacheService;
+
+    public ApplicationRegisterSerialWorker(ModuleManager moduleManager) {
+        super(moduleManager);
+        this.daoService = getModuleManager().find(StorageModule.NAME).getService(DAOService.class);
+        this.applicationCacheService = getModuleManager().find(CacheModule.NAME).getService(ApplicationCacheService.class);
     }
 
     @Override public int id() {
@@ -48,10 +56,10 @@ public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker<Ap
 
     @Override protected void onWork(Application application) throws WorkerException {
         logger.debug("register application, application code: {}", application.getApplicationCode());
-        int applicationId = getCacheServiceManager().getApplicationCacheService().get(application.getApplicationCode());
+        int applicationId = applicationCacheService.get(application.getApplicationCode());
 
         if (applicationId == 0) {
-            IApplicationStreamDAO dao = (IApplicationStreamDAO)getDaoService().get(IApplicationStreamDAO.class);
+            IApplicationStreamDAO dao = (IApplicationStreamDAO)daoService.get(IApplicationStreamDAO.class);
             Application newApplication;
             int min = dao.getMinApplicationId();
             if (min == 0) {
@@ -77,14 +85,12 @@ public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker<Ap
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<Application, Application, ApplicationRegisterSerialWorker> {
 
-        public Factory(DAOService daoService, CacheServiceManager cacheServiceManager,
-            QueueCreatorService<Application> queueCreatorService) {
-            super(daoService, cacheServiceManager, queueCreatorService);
+        public Factory(ModuleManager moduleManager, QueueCreatorService<Application> queueCreatorService) {
+            super(moduleManager, queueCreatorService);
         }
 
-        @Override public ApplicationRegisterSerialWorker workerInstance(DAOService daoService,
-            CacheServiceManager cacheServiceManager) {
-            return new ApplicationRegisterSerialWorker(daoService, cacheServiceManager);
+        @Override public ApplicationRegisterSerialWorker workerInstance(ModuleManager moduleManager) {
+            return new ApplicationRegisterSerialWorker(moduleManager);
         }
 
         @Override public int queueSize() {

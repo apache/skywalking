@@ -18,8 +18,11 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.register;
 
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.cache.CacheModule;
+import org.skywalking.apm.collector.cache.service.InstanceCacheService;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
+import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.IInstanceStreamDAO;
 import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.register.Instance;
@@ -36,8 +39,13 @@ public class InstanceRegisterSerialWorker extends AbstractLocalAsyncWorker<Insta
 
     private final Logger logger = LoggerFactory.getLogger(InstanceRegisterSerialWorker.class);
 
-    public InstanceRegisterSerialWorker(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        super(daoService, cacheServiceManager);
+    private final InstanceCacheService instanceCacheService;
+    private final DAOService daoService;
+
+    public InstanceRegisterSerialWorker(ModuleManager moduleManager) {
+        super(moduleManager);
+        this.instanceCacheService = getModuleManager().find(CacheModule.NAME).getService(InstanceCacheService.class);
+        this.daoService = getModuleManager().find(StorageModule.NAME).getService(DAOService.class);
     }
 
     @Override public int id() {
@@ -46,9 +54,9 @@ public class InstanceRegisterSerialWorker extends AbstractLocalAsyncWorker<Insta
 
     @Override protected void onWork(Instance instance) throws WorkerException {
         logger.debug("register instance, application id: {}, agentUUID: {}", instance.getApplicationId(), instance.getAgentUUID());
-        int instanceId = getCacheServiceManager().getInstanceCacheService().getInstanceId(instance.getApplicationId(), instance.getAgentUUID());
+        int instanceId = instanceCacheService.getInstanceId(instance.getApplicationId(), instance.getAgentUUID());
         if (instanceId == 0) {
-            IInstanceStreamDAO dao = (IInstanceStreamDAO)getDaoService().get(IInstanceStreamDAO.class);
+            IInstanceStreamDAO dao = (IInstanceStreamDAO)daoService.get(IInstanceStreamDAO.class);
             Instance newInstance;
 
             int min = dao.getMinInstanceId();
@@ -76,15 +84,12 @@ public class InstanceRegisterSerialWorker extends AbstractLocalAsyncWorker<Insta
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<Instance, Instance, InstanceRegisterSerialWorker> {
 
-        public Factory(DAOService daoService, CacheServiceManager cacheServiceManager,
-            QueueCreatorService<Instance> queueCreatorService) {
-            super(daoService, cacheServiceManager, queueCreatorService);
+        public Factory(ModuleManager moduleManager, QueueCreatorService<Instance> queueCreatorService) {
+            super(moduleManager, queueCreatorService);
         }
 
-        @Override
-        public InstanceRegisterSerialWorker workerInstance(DAOService daoService,
-            CacheServiceManager cacheServiceManager) {
-            return new InstanceRegisterSerialWorker(getDaoService(), getCacheServiceManager());
+        @Override public InstanceRegisterSerialWorker workerInstance(ModuleManager moduleManager) {
+            return new InstanceRegisterSerialWorker(moduleManager);
         }
 
         @Override public int queueSize() {

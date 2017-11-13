@@ -18,9 +18,8 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.trace.node;
 
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
-import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.node.NodeMapping;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.impl.AggregationWorker;
@@ -30,25 +29,22 @@ import org.skywalking.apm.collector.stream.worker.impl.AggregationWorker;
  */
 public class NodeMappingAggregationWorker extends AggregationWorker<NodeMapping, NodeMapping> {
 
-    public NodeMappingAggregationWorker(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        super(daoService, cacheServiceManager);
+    public NodeMappingAggregationWorker(ModuleManager moduleManager) {
+        super(moduleManager);
     }
 
     @Override public int id() {
-        return 0;
+        return NodeMappingAggregationWorker.class.hashCode();
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<NodeMapping, NodeMapping, NodeMappingAggregationWorker> {
 
-        public Factory(DAOService daoService, CacheServiceManager cacheServiceManager,
-            QueueCreatorService<NodeMapping> queueCreatorService) {
-            super(daoService, cacheServiceManager, queueCreatorService);
+        public Factory(ModuleManager moduleManager, QueueCreatorService<NodeMapping> queueCreatorService) {
+            super(moduleManager, queueCreatorService);
         }
 
-        @Override
-        public NodeMappingAggregationWorker workerInstance(DAOService daoService,
-            CacheServiceManager cacheServiceManager) {
-            return new NodeMappingAggregationWorker(getDaoService(), getCacheServiceManager());
+        @Override public NodeMappingAggregationWorker workerInstance(ModuleManager moduleManager) {
+            return new NodeMappingAggregationWorker(moduleManager);
         }
 
         @Override

@@ -19,8 +19,6 @@
 package org.skywalking.apm.collector.naming.jetty.service;
 
 import org.skywalking.apm.collector.core.module.ModuleManager;
-import org.skywalking.apm.collector.core.module.ModuleNotFoundException;
-import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.skywalking.apm.collector.jetty.manager.JettyManagerModule;
 import org.skywalking.apm.collector.jetty.manager.service.JettyManagerService;
 import org.skywalking.apm.collector.naming.service.NamingHandlerRegisterService;
@@ -46,11 +44,7 @@ public class NamingJettyHandlerRegisterService implements NamingHandlerRegisterS
     }
 
     @Override public void register(ServerHandler namingHandler) {
-        try {
-            JettyManagerService managerService = moduleManager.find(JettyManagerModule.NAME).getService(JettyManagerService.class);
-            managerService.addHandler(this.host, this.port, namingHandler);
-        } catch (ModuleNotFoundException | ServiceNotProvidedException e) {
-            logger.error(e.getMessage(), e);
-        }
+        JettyManagerService managerService = moduleManager.find(JettyManagerModule.NAME).getService(JettyManagerService.class);
+        managerService.addHandler(this.host, this.port, namingHandler);
     }
 }

@@ -18,10 +18,9 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.trace.service;
 
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.remote.service.RemoteSenderService;
 import org.skywalking.apm.collector.remote.service.Selector;
-import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.service.ServiceEntry;
 import org.skywalking.apm.collector.stream.worker.base.AbstractRemoteWorker;
 import org.skywalking.apm.collector.stream.worker.base.AbstractRemoteWorkerProvider;
@@ -32,8 +31,8 @@ import org.skywalking.apm.collector.stream.worker.base.WorkerException;
  */
 public class ServiceEntryRemoteWorker extends AbstractRemoteWorker<ServiceEntry, ServiceEntry> {
 
-    public ServiceEntryRemoteWorker(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        super(daoService, cacheServiceManager);
+    public ServiceEntryRemoteWorker(ModuleManager moduleManager) {
+        super(moduleManager);
     }
 
     @Override public int id() {
@@ -49,14 +48,13 @@ public class ServiceEntryRemoteWorker extends AbstractRemoteWorker<ServiceEntry,
     }
 
     public static class Factory extends AbstractRemoteWorkerProvider<ServiceEntry, ServiceEntry, ServiceEntryRemoteWorker> {
-        public Factory(DAOService daoService, CacheServiceManager cacheServiceManager,
-            RemoteSenderService remoteSenderService, int graphId) {
-            super(daoService, cacheServiceManager, remoteSenderService, graphId);
+
+        public Factory(ModuleManager moduleManager, RemoteSenderService remoteSenderService, int graphId) {
+            super(moduleManager, remoteSenderService, graphId);
         }
 
-        @Override
-        public ServiceEntryRemoteWorker workerInstance(DAOService daoService, CacheServiceManager cacheServiceManager) {
-            return new ServiceEntryRemoteWorker(getDaoService(), getCacheServiceManager());
+        @Override public ServiceEntryRemoteWorker workerInstance(ModuleManager moduleManager) {
+            return new ServiceEntryRemoteWorker(moduleManager);
         }
     }
 }

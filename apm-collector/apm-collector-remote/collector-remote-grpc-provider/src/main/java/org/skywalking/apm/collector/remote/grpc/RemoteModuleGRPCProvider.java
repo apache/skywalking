@@ -5,7 +5,6 @@ import org.skywalking.apm.collector.cluster.ClusterModule;
 import org.skywalking.apm.collector.cluster.service.ModuleListenerService;
 import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
 import org.skywalking.apm.collector.core.module.Module;
-import org.skywalking.apm.collector.core.module.ModuleNotFoundException;
 import org.skywalking.apm.collector.core.module.ModuleProvider;
 import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.skywalking.apm.collector.grpc.manager.GRPCManagerModule;
@@ -51,19 +50,15 @@ public class RemoteModuleGRPCProvider extends ModuleProvider {
         String host = config.getProperty(HOST);
         Integer port = (Integer)config.get(PORT);
 
-        try {
-            GRPCManagerService managerService = getManager().find(GRPCManagerModule.NAME).getService(GRPCManagerService.class);
-            Server gRPCServer = managerService.createIfAbsent(host, port);
-            gRPCServer.addHandler(new RemoteCommonServiceHandler(listener));
+        GRPCManagerService managerService = getManager().find(GRPCManagerModule.NAME).getService(GRPCManagerService.class);
+        Server gRPCServer = managerService.createIfAbsent(host, port);
+        gRPCServer.addHandler(new RemoteCommonServiceHandler(listener));
 
-            ModuleRegisterService moduleRegisterService = getManager().find(ClusterModule.NAME).getService(ModuleRegisterService.class);
-            moduleRegisterService.register(RemoteModule.NAME, this.name(), new RemoteModuleGRPCRegistration(host, port));
+        ModuleRegisterService moduleRegisterService = getManager().find(ClusterModule.NAME).getService(ModuleRegisterService.class);
+        moduleRegisterService.register(RemoteModule.NAME, this.name(), new RemoteModuleGRPCRegistration(host, port));
 
-            ModuleListenerService moduleListenerService = getManager().find(ClusterModule.NAME).getService(ModuleListenerService.class);
-            moduleListenerService.addListener(remoteSenderService);
-        } catch (ModuleNotFoundException e) {
-            throw new ServiceNotProvidedException(e.getMessage());
-        }
+        ModuleListenerService moduleListenerService = getManager().find(ClusterModule.NAME).getService(ModuleListenerService.class);
+        moduleListenerService.addListener(remoteSenderService);
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {

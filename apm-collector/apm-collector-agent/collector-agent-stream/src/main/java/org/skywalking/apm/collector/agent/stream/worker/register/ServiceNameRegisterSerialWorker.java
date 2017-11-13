@@ -19,9 +19,12 @@
 package org.skywalking.apm.collector.agent.stream.worker.register;
 
 import org.skywalking.apm.collector.agent.stream.IdAutoIncrement;
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.cache.CacheModule;
+import org.skywalking.apm.collector.cache.service.ServiceIdCacheService;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
+import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.IServiceNameStreamDAO;
 import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.register.ServiceName;
@@ -38,8 +41,13 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker<Se
 
     private final Logger logger = LoggerFactory.getLogger(ServiceNameRegisterSerialWorker.class);
 
-    public ServiceNameRegisterSerialWorker(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        super(daoService, cacheServiceManager);
+    private final DAOService daoService;
+    private final ServiceIdCacheService serviceIdCacheService;
+
+    public ServiceNameRegisterSerialWorker(ModuleManager moduleManager) {
+        super(moduleManager);
+        this.daoService = getModuleManager().find(StorageModule.NAME).getService(DAOService.class);
+        this.serviceIdCacheService = getModuleManager().find(CacheModule.NAME).getService(ServiceIdCacheService.class);
     }
 
     @Override public int id() {
@@ -48,9 +56,9 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker<Se
 
     @Override protected void onWork(ServiceName serviceName) throws WorkerException {
         logger.debug("register service name: {}, application id: {}", serviceName.getServiceName(), serviceName.getApplicationId());
-        int serviceId = getCacheServiceManager().getServiceIdCacheService().get(serviceName.getApplicationId(), serviceName.getServiceName());
+        int serviceId = serviceIdCacheService.get(serviceName.getApplicationId(), serviceName.getServiceName());
         if (serviceId == 0) {
-            IServiceNameStreamDAO dao = (IServiceNameStreamDAO)getDaoService().get(IServiceNameStreamDAO.class);
+            IServiceNameStreamDAO dao = (IServiceNameStreamDAO)daoService.get(IServiceNameStreamDAO.class);
             ServiceName newServiceName;
 
             int min = dao.getMinServiceId();
@@ -79,14 +87,13 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker<Se
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<ServiceName, ServiceName, ServiceNameRegisterSerialWorker> {
-        public Factory(DAOService daoService, CacheServiceManager cacheServiceManager,
-            QueueCreatorService<ServiceName> queueCreatorService) {
-            super(daoService, cacheServiceManager, queueCreatorService);
+
+        public Factory(ModuleManager moduleManager, QueueCreatorService<ServiceName> queueCreatorService) {
+            super(moduleManager, queueCreatorService);
         }
 
-        @Override public ServiceNameRegisterSerialWorker workerInstance(DAOService daoService,
-            CacheServiceManager cacheServiceManager) {
-            return new ServiceNameRegisterSerialWorker(getDaoService(), getCacheServiceManager());
+        @Override public ServiceNameRegisterSerialWorker workerInstance(ModuleManager moduleManager) {
+            return new ServiceNameRegisterSerialWorker(moduleManager);
         }
 
         @Override public int queueSize() {

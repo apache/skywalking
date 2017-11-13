@@ -21,8 +21,11 @@ package org.skywalking.apm.collector.ui.service;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.util.List;
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.cache.CacheModule;
+import org.skywalking.apm.collector.cache.service.ApplicationCacheService;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
+import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.IGCMetricUIDAO;
 import org.skywalking.apm.collector.storage.dao.IInstPerformanceUIDAO;
 import org.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
@@ -39,11 +42,11 @@ public class InstanceHealthService {
     private final Logger logger = LoggerFactory.getLogger(InstanceHealthService.class);
 
     private final DAOService daoService;
-    private final CacheServiceManager cacheServiceManager;
+    private final ApplicationCacheService applicationCacheService;
 
-    public InstanceHealthService(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        this.daoService = daoService;
-        this.cacheServiceManager = cacheServiceManager;
+    public InstanceHealthService(ModuleManager moduleManager) {
+        this.daoService = moduleManager.find(StorageModule.NAME).getService(DAOService.class);
+        this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
     }
 
     public JsonObject getInstances(long timeBucket, int applicationId) {
@@ -58,7 +61,7 @@ public class InstanceHealthService {
         response.add("instances", instances);
 
         instanceList.forEach(instance -> {
-            response.addProperty("applicationCode", cacheServiceManager.getApplicationCacheService().get(applicationId));
+            response.addProperty("applicationCode", applicationCacheService.get(applicationId));
             response.addProperty("applicationId", applicationId);
 
             IInstPerformanceUIDAO instPerformanceDAO = (IInstPerformanceUIDAO)daoService.get(IInstPerformanceUIDAO.class);

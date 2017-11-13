@@ -20,7 +20,8 @@ package org.skywalking.apm.collector.ui.service;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.core.module.ModuleManager;
+import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.INodeComponentUIDAO;
 import org.skywalking.apm.collector.storage.dao.INodeMappingUIDAO;
 import org.skywalking.apm.collector.storage.dao.INodeReferenceUIDAO;
@@ -36,11 +37,9 @@ public class TraceDagService {
     private final Logger logger = LoggerFactory.getLogger(TraceDagService.class);
 
     private final DAOService daoService;
-    private final CacheServiceManager cacheServiceManager;
 
-    public TraceDagService(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        this.daoService = daoService;
-        this.cacheServiceManager = cacheServiceManager;
+    public TraceDagService(ModuleManager moduleManager) {
+        this.daoService = moduleManager.find(StorageModule.NAME).getService(DAOService.class);
     }
 
     public JsonObject load(long startTime, long endTime) {

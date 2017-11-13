@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.agent.grpc.handler;
 import io.grpc.stub.StreamObserver;
 import java.util.List;
 import org.skywalking.apm.collector.agent.stream.worker.register.ServiceNameService;
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.server.grpc.GRPCHandler;
 import org.skywalking.apm.network.proto.ServiceNameCollection;
 import org.skywalking.apm.network.proto.ServiceNameDiscoveryServiceGrpc;
@@ -40,8 +40,8 @@ public class ServiceNameDiscoveryServiceHandler extends ServiceNameDiscoveryServ
 
     private final ServiceNameService serviceNameService;
 
-    public ServiceNameDiscoveryServiceHandler(CacheServiceManager cacheServiceManager) {
-        this.serviceNameService = new ServiceNameService(cacheServiceManager);
+    public ServiceNameDiscoveryServiceHandler(ModuleManager moduleManager) {
+        this.serviceNameService = new ServiceNameService(moduleManager);
     }
 
     @Override public void discovery(ServiceNameCollection request,

@@ -18,10 +18,9 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.trace.node;
 
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.remote.service.RemoteSenderService;
 import org.skywalking.apm.collector.remote.service.Selector;
-import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.node.NodeMapping;
 import org.skywalking.apm.collector.stream.worker.base.AbstractRemoteWorker;
 import org.skywalking.apm.collector.stream.worker.base.AbstractRemoteWorkerProvider;
@@ -32,8 +31,8 @@ import org.skywalking.apm.collector.stream.worker.base.WorkerException;
  */
 public class NodeMappingRemoteWorker extends AbstractRemoteWorker<NodeMapping, NodeMapping> {
 
-    public NodeMappingRemoteWorker(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        super(daoService, cacheServiceManager);
+    public NodeMappingRemoteWorker(ModuleManager moduleManager) {
+        super(moduleManager);
     }
 
     @Override public int id() {
@@ -49,14 +48,12 @@ public class NodeMappingRemoteWorker extends AbstractRemoteWorker<NodeMapping, N
     }
 
     public static class Factory extends AbstractRemoteWorkerProvider<NodeMapping, NodeMapping, NodeMappingRemoteWorker> {
-        public Factory(DAOService daoService, CacheServiceManager cacheServiceManager,
-            RemoteSenderService remoteSenderService, int graphId) {
-            super(daoService, cacheServiceManager, remoteSenderService, graphId);
+        public Factory(ModuleManager moduleManager, RemoteSenderService remoteSenderService, int graphId) {
+            super(moduleManager, remoteSenderService, graphId);
         }
 
-        @Override
-        public NodeMappingRemoteWorker workerInstance(DAOService daoService, CacheServiceManager cacheServiceManager) {
-            return new NodeMappingRemoteWorker(getDaoService(), getCacheServiceManager());
+        @Override public NodeMappingRemoteWorker workerInstance(ModuleManager moduleManager) {
+            return new NodeMappingRemoteWorker(moduleManager);
         }
     }
 }

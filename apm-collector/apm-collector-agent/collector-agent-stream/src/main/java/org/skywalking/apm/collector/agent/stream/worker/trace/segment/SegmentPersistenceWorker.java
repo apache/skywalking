@@ -18,8 +18,9 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.trace.segment;
 
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
+import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.ISegmentPersistenceDAO;
 import org.skywalking.apm.collector.storage.service.DAOService;
@@ -32,8 +33,8 @@ import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
  */
 public class SegmentPersistenceWorker extends PersistenceWorker<Segment, Segment> {
 
-    public SegmentPersistenceWorker(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        super(daoService, cacheServiceManager);
+    public SegmentPersistenceWorker(ModuleManager moduleManager) {
+        super(moduleManager);
     }
 
     @Override public int id() {
@@ -45,18 +46,17 @@ public class SegmentPersistenceWorker extends PersistenceWorker<Segment, Segment
     }
 
     @Override protected IPersistenceDAO persistenceDAO() {
-        return (IPersistenceDAO)getDaoService().get(ISegmentPersistenceDAO.class);
+        DAOService daoService = getModuleManager().find(StorageModule.NAME).getService(DAOService.class);
+        return (IPersistenceDAO)daoService.get(ISegmentPersistenceDAO.class);
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<Segment, Segment, SegmentPersistenceWorker> {
-        public Factory(DAOService daoService, CacheServiceManager cacheServiceManager,
-            QueueCreatorService<Segment> queueCreatorService) {
-            super(daoService, cacheServiceManager, queueCreatorService);
+        public Factory(ModuleManager moduleManager, QueueCreatorService<Segment> queueCreatorService) {
+            super(moduleManager, queueCreatorService);
         }
 
-        @Override
-        public SegmentPersistenceWorker workerInstance(DAOService daoService, CacheServiceManager cacheServiceManager) {
-            return new SegmentPersistenceWorker(getDaoService(), getCacheServiceManager());
+        @Override public SegmentPersistenceWorker workerInstance(ModuleManager moduleManager) {
+            return new SegmentPersistenceWorker(moduleManager);
         }
 
         @Override

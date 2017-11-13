@@ -23,10 +23,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.util.Iterator;
 import java.util.Map;
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.cache.CacheModule;
+import org.skywalking.apm.collector.cache.service.ApplicationCacheService;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.ColumnNameUtils;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.ObjectUtils;
+import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.IServiceEntryUIDAO;
 import org.skywalking.apm.collector.storage.dao.IServiceReferenceUIDAO;
 import org.skywalking.apm.collector.storage.service.DAOService;
@@ -39,11 +42,11 @@ import org.skywalking.apm.collector.storage.table.serviceref.ServiceReferenceTab
 public class ServiceTreeService {
 
     private final DAOService daoService;
-    private final CacheServiceManager cacheServiceManager;
+    private final ApplicationCacheService applicationCacheService;
 
-    public ServiceTreeService(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        this.daoService = daoService;
-        this.cacheServiceManager = cacheServiceManager;
+    public ServiceTreeService(ModuleManager moduleManager) {
+        this.daoService = moduleManager.find(StorageModule.NAME).getService(DAOService.class);
+        this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
     }
 
     public JsonObject loadEntryService(int applicationId, String entryServiceName, long startTime, long endTime,
@@ -55,7 +58,7 @@ public class ServiceTreeService {
         for (JsonElement element : entryServices) {
             JsonObject entryService = element.getAsJsonObject();
             int respApplication = entryService.get(ColumnNameUtils.INSTANCE.rename(ServiceEntryTable.COLUMN_APPLICATION_ID)).getAsInt();
-            String applicationCode = cacheServiceManager.getApplicationCacheService().get(respApplication);
+            String applicationCode = applicationCacheService.get(respApplication);
             entryService.addProperty("applicationCode", applicationCode);
         }
 

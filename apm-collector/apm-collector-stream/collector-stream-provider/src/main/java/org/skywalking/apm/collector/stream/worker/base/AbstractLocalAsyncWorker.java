@@ -18,9 +18,8 @@
 
 package org.skywalking.apm.collector.stream.worker.base;
 
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.queue.base.QueueExecutor;
-import org.skywalking.apm.collector.storage.service.DAOService;
 
 /**
  * The <code>AbstractLocalAsyncWorker</code> implementations represent workers,
@@ -31,8 +30,8 @@ import org.skywalking.apm.collector.storage.service.DAOService;
  */
 public abstract class AbstractLocalAsyncWorker<INPUT, OUTPUT> extends AbstractWorker<INPUT, OUTPUT> implements QueueExecutor<INPUT> {
 
-    public AbstractLocalAsyncWorker(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        super(daoService, cacheServiceManager);
+    public AbstractLocalAsyncWorker(ModuleManager moduleManager) {
+        super(moduleManager);
     }
 
     /**

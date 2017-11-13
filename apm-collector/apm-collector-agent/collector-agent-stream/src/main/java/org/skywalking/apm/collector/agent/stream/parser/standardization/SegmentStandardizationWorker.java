@@ -19,9 +19,8 @@
 package org.skywalking.apm.collector.agent.stream.parser.standardization;
 
 import org.skywalking.apm.collector.agent.stream.buffer.SegmentBufferManager;
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
-import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorker;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.base.WorkerException;
@@ -36,8 +35,8 @@ public class SegmentStandardizationWorker extends AbstractLocalAsyncWorker<Upstr
 
     private final Logger logger = LoggerFactory.getLogger(SegmentStandardizationWorker.class);
 
-    public SegmentStandardizationWorker(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        super(daoService, cacheServiceManager);
+    public SegmentStandardizationWorker(ModuleManager moduleManager) {
+        super(moduleManager);
         SegmentBufferManager.INSTANCE.initialize();
     }
 
@@ -54,15 +53,12 @@ public class SegmentStandardizationWorker extends AbstractLocalAsyncWorker<Upstr
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<UpstreamSegment, UpstreamSegment, SegmentStandardizationWorker> {
-        public Factory(DAOService daoService, CacheServiceManager cacheServiceManager,
-            QueueCreatorService<UpstreamSegment> queueCreatorService) {
-            super(daoService, cacheServiceManager, queueCreatorService);
+        public Factory(ModuleManager moduleManager, QueueCreatorService<UpstreamSegment> queueCreatorService) {
+            super(moduleManager, queueCreatorService);
         }
 
-        @Override
-        public SegmentStandardizationWorker workerInstance(DAOService daoService,
-            CacheServiceManager cacheServiceManager) {
-            return new SegmentStandardizationWorker(getDaoService(), getCacheServiceManager());
+        @Override public SegmentStandardizationWorker workerInstance(ModuleManager moduleManager) {
+            return new SegmentStandardizationWorker(moduleManager);
         }
 
         @Override public int queueSize() {

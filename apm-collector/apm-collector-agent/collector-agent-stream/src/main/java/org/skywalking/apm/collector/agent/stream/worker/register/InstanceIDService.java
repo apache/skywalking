@@ -18,7 +18,14 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.register;
 
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.agent.stream.graph.RegisterStreamGraph;
+import org.skywalking.apm.collector.cache.CacheModule;
+import org.skywalking.apm.collector.cache.service.InstanceCacheService;
+import org.skywalking.apm.collector.core.graph.GraphManager;
+import org.skywalking.apm.collector.core.module.ModuleManager;
+import org.skywalking.apm.collector.core.module.ModuleNotFoundException;
+import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.IInstanceStreamDAO;
 import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.register.Instance;
@@ -32,17 +39,18 @@ public class InstanceIDService {
 
     private final Logger logger = LoggerFactory.getLogger(InstanceIDService.class);
 
-    private final DAOService daoService;
-    private final CacheServiceManager cacheServiceManager;
+    private final ModuleManager moduleManager;
 
-    public InstanceIDService(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        this.daoService = daoService;
-        this.cacheServiceManager = cacheServiceManager;
+    public InstanceIDService(ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
     }
 
-    public int getOrCreate(int applicationId, String agentUUID, long registerTime, String osInfo) {
+    @SuppressWarnings("unchecked")
+    public int getOrCreate(int applicationId, String agentUUID, long registerTime,
+        String osInfo) throws ModuleNotFoundException, ServiceNotProvidedException {
         logger.debug("get or create instance id, application id: {}, agentUUID: {}, registerTime: {}, osInfo: {}", applicationId, agentUUID, registerTime, osInfo);
-        int instanceId = cacheServiceManager.getInstanceCacheService().getInstanceId(applicationId, agentUUID);
+        InstanceCacheService service = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
+        int instanceId = service.getInstanceId(applicationId, agentUUID);
 
         if (instanceId == 0) {
             Instance instance = new Instance("0");
@@ -52,12 +60,16 @@ public class InstanceIDService {
             instance.setHeartBeatTime(registerTime);
             instance.setInstanceId(0);
             instance.setOsInfo(osInfo);
+
+            GraphManager.INSTANCE.findGraph(RegisterStreamGraph.INSTANCE_REGISTER_GRAPH_ID).start(instance);
         }
         return instanceId;
     }
 
-    public void recover(int instanceId, int applicationId, long registerTime, String osInfo) {
+    public void recover(int instanceId, int applicationId, long registerTime,
+        String osInfo) throws ModuleNotFoundException, ServiceNotProvidedException {
         logger.debug("instance recover, instance id: {}, application id: {}, register time: {}", instanceId, applicationId, registerTime);
+        DAOService daoService = moduleManager.find(StorageModule.NAME).getService(DAOService.class);
         IInstanceStreamDAO dao = (IInstanceStreamDAO)daoService.get(IInstanceStreamDAO.class);
 
         Instance instance = new Instance(String.valueOf(instanceId));

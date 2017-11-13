@@ -18,10 +18,9 @@
 
 package org.skywalking.apm.collector.stream.worker.base;
 
-import org.skywalking.apm.collector.cache.CacheServiceManager;
 import org.skywalking.apm.collector.core.data.Data;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.remote.service.RemoteSenderService;
-import org.skywalking.apm.collector.storage.service.DAOService;
 
 /**
  * The <code>AbstractRemoteWorkerProvider</code> implementations represent providers,
@@ -36,9 +35,9 @@ public abstract class AbstractRemoteWorkerProvider<INPUT extends Data, OUTPUT ex
     private final RemoteSenderService remoteSenderService;
     private final int graphId;
 
-    public AbstractRemoteWorkerProvider(DAOService daoService, CacheServiceManager cacheServiceManager,
-        RemoteSenderService remoteSenderService, int graphId) {
-        super(daoService, cacheServiceManager);
+    public AbstractRemoteWorkerProvider(ModuleManager moduleManager, RemoteSenderService remoteSenderService,
+        int graphId) {
+        super(moduleManager);
         this.remoteSenderService = remoteSenderService;
         this.graphId = graphId;
     }
@@ -51,7 +50,7 @@ public abstract class AbstractRemoteWorkerProvider<INPUT extends Data, OUTPUT ex
      * worker instance, when the worker provider not find then Throw this Exception.
      */
     @Override final public RemoteWorkerRef create(WorkerCreateListener workerCreateListener) {
-        WORKER_TYPE remoteWorker = workerInstance(getDaoService(), getCacheServiceManager());
+        WORKER_TYPE remoteWorker = workerInstance(getModuleManager());
         workerCreateListener.addWorker(remoteWorker);
         return new RemoteWorkerRef<>(remoteWorker, remoteSenderService, graphId);
     }

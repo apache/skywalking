@@ -18,8 +18,9 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.jvm;
 
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
+import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IMemoryPoolMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.service.DAOService;
@@ -36,8 +37,11 @@ public class MemoryPoolMetricPersistenceWorker extends PersistenceWorker<MemoryP
         return 0;
     }
 
-    public MemoryPoolMetricPersistenceWorker(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        super(daoService, cacheServiceManager);
+    private final DAOService daoService;
+
+    public MemoryPoolMetricPersistenceWorker(ModuleManager moduleManager) {
+        super(moduleManager);
+        this.daoService = getModuleManager().find(StorageModule.NAME).getService(DAOService.class);
     }
 
     @Override protected boolean needMergeDBData() {
@@ -45,19 +49,17 @@ public class MemoryPoolMetricPersistenceWorker extends PersistenceWorker<MemoryP
     }
 
     @Override protected IPersistenceDAO persistenceDAO() {
-        return getDaoService().getPersistenceDAO(IMemoryPoolMetricPersistenceDAO.class);
+        return daoService.getPersistenceDAO(IMemoryPoolMetricPersistenceDAO.class);
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<MemoryPoolMetric, MemoryPoolMetric, MemoryPoolMetricPersistenceWorker> {
 
-        public Factory(DAOService daoService, CacheServiceManager cacheServiceManager,
-            QueueCreatorService<MemoryPoolMetric> queueCreatorService) {
-            super(daoService, cacheServiceManager, queueCreatorService);
+        public Factory(ModuleManager moduleManager, QueueCreatorService<MemoryPoolMetric> queueCreatorService) {
+            super(moduleManager, queueCreatorService);
         }
 
-        @Override public MemoryPoolMetricPersistenceWorker workerInstance(DAOService daoService,
-            CacheServiceManager cacheServiceManager) {
-            return new MemoryPoolMetricPersistenceWorker(getDaoService(), getCacheServiceManager());
+        @Override public MemoryPoolMetricPersistenceWorker workerInstance(ModuleManager moduleManager) {
+            return new MemoryPoolMetricPersistenceWorker(moduleManager);
         }
 
         @Override
