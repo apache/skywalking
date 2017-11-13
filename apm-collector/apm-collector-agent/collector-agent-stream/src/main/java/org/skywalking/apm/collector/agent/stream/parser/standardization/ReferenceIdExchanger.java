@@ -19,7 +19,10 @@
 package org.skywalking.apm.collector.agent.stream.parser.standardization;
 
 import org.skywalking.apm.collector.agent.stream.worker.register.ServiceNameService;
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.cache.CacheModule;
+import org.skywalking.apm.collector.cache.service.ApplicationCacheService;
+import org.skywalking.apm.collector.cache.service.InstanceCacheService;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.slf4j.Logger;
@@ -34,23 +37,26 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
 
     private static ReferenceIdExchanger EXCHANGER;
     private ServiceNameService serviceNameService;
-    private final CacheServiceManager cacheServiceManager;
+    private final InstanceCacheService instanceCacheService;
+    private final ApplicationCacheService applicationCacheService;
 
-    public static ReferenceIdExchanger getInstance(CacheServiceManager cacheServiceManager) {
+    public static ReferenceIdExchanger getInstance(ModuleManager moduleManager) {
         if (EXCHANGER == null) {
-            EXCHANGER = new ReferenceIdExchanger(cacheServiceManager);
+            EXCHANGER = new ReferenceIdExchanger(moduleManager);
         }
         return EXCHANGER;
     }
 
-    public ReferenceIdExchanger(CacheServiceManager cacheServiceManager) {
-        this.cacheServiceManager = cacheServiceManager;
-        serviceNameService = new ServiceNameService(cacheServiceManager);
+    private ReferenceIdExchanger(ModuleManager moduleManager) {
+        serviceNameService = new ServiceNameService(moduleManager);
+        instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
+        applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
     }
 
     @Override public boolean exchange(ReferenceDecorator standardBuilder, int applicationId) {
         if (standardBuilder.getEntryServiceId() == 0 && StringUtils.isNotEmpty(standardBuilder.getEntryServiceName())) {
-            int entryServiceId = serviceNameService.getOrCreate(cacheServiceManager.getInstanceCacheService().get(standardBuilder.getEntryApplicationInstanceId()), standardBuilder.getEntryServiceName());
+            int entryServiceId = serviceNameService.getOrCreate(instanceCacheService.get(standardBuilder.getEntryApplicationInstanceId()), standardBuilder.getEntryServiceName());
+
             if (entryServiceId == 0) {
                 return false;
             } else {
@@ -61,7 +67,8 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
         }
 
         if (standardBuilder.getParentServiceId() == 0 && StringUtils.isNotEmpty(standardBuilder.getParentServiceName())) {
-            int parentServiceId = serviceNameService.getOrCreate(cacheServiceManager.getInstanceCacheService().get(standardBuilder.getParentApplicationInstanceId()), standardBuilder.getParentServiceName());
+            int parentServiceId = serviceNameService.getOrCreate(instanceCacheService.get(standardBuilder.getParentApplicationInstanceId()), standardBuilder.getParentServiceName());
+
             if (parentServiceId == 0) {
                 return false;
             } else {
@@ -72,7 +79,7 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
         }
 
         if (standardBuilder.getNetworkAddressId() == 0 && StringUtils.isNotEmpty(standardBuilder.getNetworkAddress())) {
-            int networkAddressId = cacheServiceManager.getApplicationCacheService().get(standardBuilder.getNetworkAddress());
+            int networkAddressId = applicationCacheService.get(standardBuilder.getNetworkAddress());
             if (networkAddressId == 0) {
                 return false;
             } else {

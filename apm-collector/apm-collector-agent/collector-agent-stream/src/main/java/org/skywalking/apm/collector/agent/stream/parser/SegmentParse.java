@@ -34,7 +34,7 @@ import org.skywalking.apm.collector.agent.stream.worker.trace.noderef.NodeRefere
 import org.skywalking.apm.collector.agent.stream.worker.trace.segment.SegmentCostSpanListener;
 import org.skywalking.apm.collector.agent.stream.worker.trace.service.ServiceEntrySpanListener;
 import org.skywalking.apm.collector.agent.stream.worker.trace.serviceref.ServiceReferenceSpanListener;
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.storage.table.segment.Segment;
 import org.skywalking.apm.network.proto.SpanType;
 import org.skywalking.apm.network.proto.TraceSegmentObject;
@@ -51,18 +51,18 @@ public class SegmentParse {
     private final Logger logger = LoggerFactory.getLogger(SegmentParse.class);
 
     private final List<SpanListener> spanListeners;
-    private final CacheServiceManager cacheServiceManager;
+    private final ModuleManager moduleManager;
     private String segmentId;
 
-    public SegmentParse(CacheServiceManager cacheServiceManager) {
-        this.cacheServiceManager = cacheServiceManager;
+    public SegmentParse(ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
         this.spanListeners = new ArrayList<>();
         this.spanListeners.add(new NodeComponentSpanListener());
         this.spanListeners.add(new NodeMappingSpanListener());
-        this.spanListeners.add(new NodeReferenceSpanListener(cacheServiceManager));
-        this.spanListeners.add(new SegmentCostSpanListener(cacheServiceManager));
+        this.spanListeners.add(new NodeReferenceSpanListener(moduleManager));
+        this.spanListeners.add(new SegmentCostSpanListener(moduleManager));
         this.spanListeners.add(new GlobalTraceSpanListener());
-        this.spanListeners.add(new ServiceEntrySpanListener(cacheServiceManager));
+        this.spanListeners.add(new ServiceEntrySpanListener(moduleManager));
         this.spanListeners.add(new ServiceReferenceSpanListener());
         this.spanListeners.add(new InstPerformanceSpanListener());
     }
@@ -73,6 +73,7 @@ public class SegmentParse {
             TraceSegmentObject segmentObject = TraceSegmentObject.parseFrom(segment.getSegment());
 
             SegmentDecorator segmentDecorator = new SegmentDecorator(segmentObject);
+
             if (!preBuild(traceIds, segmentDecorator)) {
                 logger.debug("This segment id exchange not success, write to buffer file, id: {}", segmentId);
 
@@ -114,7 +115,7 @@ public class SegmentParse {
 
         for (int i = 0; i < segmentDecorator.getRefsCount(); i++) {
             ReferenceDecorator referenceDecorator = segmentDecorator.getRefs(i);
-            if (!ReferenceIdExchanger.getInstance(cacheServiceManager).exchange(referenceDecorator, applicationId)) {
+            if (!ReferenceIdExchanger.getInstance(moduleManager).exchange(referenceDecorator, applicationId)) {
                 return false;
             }
 
@@ -124,7 +125,7 @@ public class SegmentParse {
         for (int i = 0; i < segmentDecorator.getSpansCount(); i++) {
             SpanDecorator spanDecorator = segmentDecorator.getSpans(i);
 
-            if (!SpanIdExchanger.getInstance(cacheServiceManager).exchange(spanDecorator, applicationId)) {
+            if (!SpanIdExchanger.getInstance(moduleManager).exchange(spanDecorator, applicationId)) {
                 return false;
             }
 

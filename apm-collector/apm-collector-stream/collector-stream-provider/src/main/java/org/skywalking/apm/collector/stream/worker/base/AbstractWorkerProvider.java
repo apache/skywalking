@@ -18,29 +18,22 @@
 
 package org.skywalking.apm.collector.stream.worker.base;
 
-import org.skywalking.apm.collector.cache.CacheServiceManager;
-import org.skywalking.apm.collector.storage.service.DAOService;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 
 /**
  * @author peng-yongsheng
  */
 public abstract class AbstractWorkerProvider<INPUT, OUTPUT, WORKER_TYPE extends AbstractWorker<INPUT, OUTPUT>> implements Provider {
 
-    private final DAOService daoService;
-    private final CacheServiceManager cacheServiceManager;
+    private final ModuleManager moduleManager;
 
-    public AbstractWorkerProvider(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        this.daoService = daoService;
-        this.cacheServiceManager = cacheServiceManager;
+    public AbstractWorkerProvider(ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
     }
 
-    public final DAOService getDaoService() {
-        return daoService;
+    public final ModuleManager getModuleManager() {
+        return moduleManager;
     }
 
-    public final CacheServiceManager getCacheServiceManager() {
-        return cacheServiceManager;
-    }
-
-    public abstract WORKER_TYPE workerInstance(DAOService daoService, CacheServiceManager cacheServiceManager);
+    public abstract WORKER_TYPE workerInstance(ModuleManager moduleManager);
 }

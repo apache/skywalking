@@ -18,8 +18,9 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.jvm;
 
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
+import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IGCMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.service.DAOService;
@@ -32,12 +33,15 @@ import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
  */
 public class GCMetricPersistenceWorker extends PersistenceWorker<GCMetric, GCMetric> {
 
-    @Override public int id() {
-        return 0;
+    private final DAOService daoService;
+
+    public GCMetricPersistenceWorker(ModuleManager moduleManager) {
+        super(moduleManager);
+        this.daoService = getModuleManager().find(StorageModule.NAME).getService(DAOService.class);
     }
 
-    public GCMetricPersistenceWorker(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        super(daoService, cacheServiceManager);
+    @Override public int id() {
+        return 0;
     }
 
     @Override protected boolean needMergeDBData() {
@@ -45,20 +49,17 @@ public class GCMetricPersistenceWorker extends PersistenceWorker<GCMetric, GCMet
     }
 
     @Override protected IPersistenceDAO persistenceDAO() {
-        return getDaoService().getPersistenceDAO(IGCMetricPersistenceDAO.class);
+        return daoService.getPersistenceDAO(IGCMetricPersistenceDAO.class);
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<GCMetric, GCMetric, GCMetricPersistenceWorker> {
 
-        public Factory(DAOService daoService, CacheServiceManager cacheServiceManager,
-            QueueCreatorService<GCMetric> queueCreatorService) {
-            super(daoService, cacheServiceManager, queueCreatorService);
+        public Factory(ModuleManager moduleManager, QueueCreatorService<GCMetric> queueCreatorService) {
+            super(moduleManager, queueCreatorService);
         }
 
-        @Override
-        public GCMetricPersistenceWorker workerInstance(DAOService daoService,
-            CacheServiceManager cacheServiceManager) {
-            return new GCMetricPersistenceWorker(getDaoService(), getCacheServiceManager());
+        @Override public GCMetricPersistenceWorker workerInstance(ModuleManager moduleManager) {
+            return new GCMetricPersistenceWorker(moduleManager);
         }
 
         @Override

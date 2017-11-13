@@ -21,8 +21,9 @@ package org.skywalking.apm.collector.ui.service;
 import com.google.gson.JsonObject;
 import java.util.LinkedList;
 import java.util.List;
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.StringUtils;
+import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.IGlobalTraceUIDAO;
 import org.skywalking.apm.collector.storage.dao.ISegmentCostUIDAO;
 import org.skywalking.apm.collector.storage.service.DAOService;
@@ -37,11 +38,9 @@ public class SegmentTopService {
     private final Logger logger = LoggerFactory.getLogger(SegmentTopService.class);
 
     private final DAOService daoService;
-    private final CacheServiceManager cacheServiceManager;
 
-    public SegmentTopService(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        this.daoService = daoService;
-        this.cacheServiceManager = cacheServiceManager;
+    public SegmentTopService(ModuleManager moduleManager) {
+        this.daoService = moduleManager.find(StorageModule.NAME).getService(DAOService.class);
     }
 
     public JsonObject loadTop(long startTime, long endTime, long minCost, long maxCost, String operationName,

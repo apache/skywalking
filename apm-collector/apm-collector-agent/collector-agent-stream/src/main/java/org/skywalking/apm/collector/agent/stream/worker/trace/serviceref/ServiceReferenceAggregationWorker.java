@@ -18,9 +18,8 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.trace.serviceref;
 
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
-import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.serviceref.ServiceReference;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.impl.AggregationWorker;
@@ -30,23 +29,22 @@ import org.skywalking.apm.collector.stream.worker.impl.AggregationWorker;
  */
 public class ServiceReferenceAggregationWorker extends AggregationWorker<ServiceReference, ServiceReference> {
 
-    public ServiceReferenceAggregationWorker(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        super(daoService, cacheServiceManager);
+    public ServiceReferenceAggregationWorker(ModuleManager moduleManager) {
+        super(moduleManager);
     }
 
     @Override public int id() {
-        return 0;
+        return ServiceReferenceAggregationWorker.class.hashCode();
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<ServiceReference, ServiceReference, ServiceReferenceAggregationWorker> {
-        public Factory(DAOService daoService, CacheServiceManager cacheServiceManager,
-            QueueCreatorService<ServiceReference> queueCreatorService) {
-            super(daoService, cacheServiceManager, queueCreatorService);
+
+        public Factory(ModuleManager moduleManager, QueueCreatorService<ServiceReference> queueCreatorService) {
+            super(moduleManager, queueCreatorService);
         }
 
-        @Override public ServiceReferenceAggregationWorker workerInstance(DAOService daoService,
-            CacheServiceManager cacheServiceManager) {
-            return new ServiceReferenceAggregationWorker(getDaoService(), getCacheServiceManager());
+        @Override public ServiceReferenceAggregationWorker workerInstance(ModuleManager moduleManager) {
+            return new ServiceReferenceAggregationWorker(moduleManager);
         }
 
         @Override

@@ -19,13 +19,8 @@
 package org.skywalking.apm.collector.agent.stream;
 
 import org.skywalking.apm.collector.agent.stream.graph.RegisterStreamGraph;
-import org.skywalking.apm.collector.cache.CacheServiceManager;
-import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.module.ModuleManager;
-import org.skywalking.apm.collector.core.module.ModuleNotFoundException;
-import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.skywalking.apm.collector.core.util.ObjectUtils;
-import org.skywalking.apm.collector.storage.table.register.Application;
 import org.skywalking.apm.collector.stream.worker.base.WorkerCreateListener;
 
 /**
@@ -36,15 +31,10 @@ public class AgentStreamSingleton {
     private static AgentStreamSingleton INSTANCE;
 
     private final ModuleManager moduleManager;
-    private final CacheServiceManager cacheServiceManager;
     private final WorkerCreateListener workerCreateListener;
 
-    private Graph<Application> applicationRegisterGraph;
-
-    public AgentStreamSingleton(ModuleManager moduleManager, CacheServiceManager cacheServiceManager,
-        WorkerCreateListener workerCreateListener) throws ServiceNotProvidedException, ModuleNotFoundException {
+    public AgentStreamSingleton(ModuleManager moduleManager, WorkerCreateListener workerCreateListener) {
         this.moduleManager = moduleManager;
-        this.cacheServiceManager = cacheServiceManager;
         this.workerCreateListener = workerCreateListener;
         createJVMGraph();
         createRegisterGraph();
@@ -52,10 +42,9 @@ public class AgentStreamSingleton {
     }
 
     public static synchronized AgentStreamSingleton getInstance(ModuleManager moduleManager,
-        CacheServiceManager cacheServiceManager,
-        WorkerCreateListener workerCreateListener) throws ServiceNotProvidedException, ModuleNotFoundException {
+        WorkerCreateListener workerCreateListener) {
         if (ObjectUtils.isEmpty(INSTANCE)) {
-            INSTANCE = new AgentStreamSingleton(moduleManager, cacheServiceManager, workerCreateListener);
+            INSTANCE = new AgentStreamSingleton(moduleManager, workerCreateListener);
         }
         return INSTANCE;
     }
@@ -64,13 +53,11 @@ public class AgentStreamSingleton {
 
     }
 
-    private void createRegisterGraph() throws ServiceNotProvidedException, ModuleNotFoundException {
-        RegisterStreamGraph registerStreamGraph = new RegisterStreamGraph(moduleManager, cacheServiceManager, workerCreateListener);
-        applicationRegisterGraph = registerStreamGraph.createApplicationRegisterGraph();
-    }
-
-    public Graph<Application> getApplicationRegisterGraph() {
-        return applicationRegisterGraph;
+    private void createRegisterGraph() {
+        RegisterStreamGraph registerStreamGraph = new RegisterStreamGraph(moduleManager, workerCreateListener);
+        registerStreamGraph.createApplicationRegisterGraph();
+        registerStreamGraph.createInstanceRegisterGraph();
+        registerStreamGraph.createServiceNameRegisterGraph();
     }
 
     private void createTraceGraph() {

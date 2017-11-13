@@ -18,8 +18,9 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.trace.segment;
 
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
+import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.ISegmentCostPersistenceDAO;
 import org.skywalking.apm.collector.storage.service.DAOService;
@@ -32,12 +33,15 @@ import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
  */
 public class SegmentCostPersistenceWorker extends PersistenceWorker<SegmentCost, SegmentCost> {
 
-    public SegmentCostPersistenceWorker(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        super(daoService, cacheServiceManager);
+    private final DAOService daoService;
+
+    public SegmentCostPersistenceWorker(ModuleManager moduleManager) {
+        super(moduleManager);
+        this.daoService = getModuleManager().find(StorageModule.NAME).getService(DAOService.class);
     }
 
     @Override public int id() {
-        return 0;
+        return SegmentCostPersistenceWorker.class.hashCode();
     }
 
     @Override protected boolean needMergeDBData() {
@@ -45,19 +49,17 @@ public class SegmentCostPersistenceWorker extends PersistenceWorker<SegmentCost,
     }
 
     @Override protected IPersistenceDAO persistenceDAO() {
-        return (IPersistenceDAO)getDaoService().get(ISegmentCostPersistenceDAO.class);
+        return (IPersistenceDAO)daoService.get(ISegmentCostPersistenceDAO.class);
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<SegmentCost, SegmentCost, SegmentCostPersistenceWorker> {
-        public Factory(DAOService daoService, CacheServiceManager cacheServiceManager,
-            QueueCreatorService<SegmentCost> queueCreatorService) {
-            super(daoService, cacheServiceManager, queueCreatorService);
+
+        public Factory(ModuleManager moduleManager, QueueCreatorService<SegmentCost> queueCreatorService) {
+            super(moduleManager, queueCreatorService);
         }
 
-        @Override
-        public SegmentCostPersistenceWorker workerInstance(DAOService daoService,
-            CacheServiceManager cacheServiceManager) {
-            return new SegmentCostPersistenceWorker(getDaoService(), getCacheServiceManager());
+        @Override public SegmentCostPersistenceWorker workerInstance(ModuleManager moduleManager) {
+            return new SegmentCostPersistenceWorker(moduleManager);
         }
 
         @Override

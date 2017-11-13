@@ -21,9 +21,10 @@ package org.skywalking.apm.collector.ui.service;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import java.util.Set;
-import org.skywalking.apm.collector.cache.CacheServiceManager;
 import org.skywalking.apm.collector.core.UnexpectedException;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.ObjectUtils;
+import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.ICpuMetricUIDAO;
 import org.skywalking.apm.collector.storage.dao.IGCMetricUIDAO;
 import org.skywalking.apm.collector.storage.dao.IInstPerformanceUIDAO;
@@ -46,11 +47,9 @@ public class InstanceJVMService {
     private final Gson gson = new Gson();
 
     private final DAOService daoService;
-    private final CacheServiceManager cacheServiceManager;
 
-    public InstanceJVMService(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        this.daoService = daoService;
-        this.cacheServiceManager = cacheServiceManager;
+    public InstanceJVMService(ModuleManager moduleManager) {
+        this.daoService = moduleManager.find(StorageModule.NAME).getService(DAOService.class);
     }
 
     public JsonObject getInstanceOsInfo(int instanceId) {

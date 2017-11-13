@@ -21,8 +21,9 @@ package org.skywalking.apm.collector.agent.grpc.handler;
 import com.google.protobuf.ProtocolStringList;
 import io.grpc.stub.StreamObserver;
 import org.skywalking.apm.collector.agent.stream.worker.register.ApplicationIDService;
-import org.skywalking.apm.collector.cache.CacheServiceManager;
-import org.skywalking.apm.collector.core.graph.Graph;
+import org.skywalking.apm.collector.core.module.ModuleManager;
+import org.skywalking.apm.collector.core.module.ModuleNotFoundException;
+import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.skywalking.apm.collector.server.grpc.GRPCHandler;
 import org.skywalking.apm.network.proto.Application;
 import org.skywalking.apm.network.proto.ApplicationMapping;
@@ -40,9 +41,8 @@ public class ApplicationRegisterServiceHandler extends ApplicationRegisterServic
 
     private final ApplicationIDService applicationIDService;
 
-    public ApplicationRegisterServiceHandler(CacheServiceManager cacheServiceManager,
-        Graph<org.skywalking.apm.collector.storage.table.register.Application> applicationRegisterGraph) {
-        applicationIDService = new ApplicationIDService(cacheServiceManager, applicationRegisterGraph);
+    public ApplicationRegisterServiceHandler(ModuleManager moduleManager) {
+        applicationIDService = new ApplicationIDService(moduleManager);
     }
 
     @Override public void register(Application request, StreamObserver<ApplicationMapping> responseObserver) {
@@ -52,7 +52,12 @@ public class ApplicationRegisterServiceHandler extends ApplicationRegisterServic
         ApplicationMapping.Builder builder = ApplicationMapping.newBuilder();
         for (int i = 0; i < applicationCodes.size(); i++) {
             String applicationCode = applicationCodes.get(i);
-            int applicationId = applicationIDService.getOrCreate(applicationCode);
+            int applicationId = 0;
+            try {
+                applicationId = applicationIDService.getOrCreate(applicationCode);
+            } catch (ModuleNotFoundException | ServiceNotProvidedException e) {
+                logger.error(e.getMessage(), e);
+            }
 
             if (applicationId != 0) {
                 KeyWithIntegerValue value = KeyWithIntegerValue.newBuilder().setKey(applicationCode).setValue(applicationId).build();

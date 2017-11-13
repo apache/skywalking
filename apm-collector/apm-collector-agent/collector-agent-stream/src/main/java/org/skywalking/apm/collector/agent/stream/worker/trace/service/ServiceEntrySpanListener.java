@@ -23,7 +23,9 @@ import org.skywalking.apm.collector.agent.stream.parser.FirstSpanListener;
 import org.skywalking.apm.collector.agent.stream.parser.RefsListener;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.ReferenceDecorator;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SpanDecorator;
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.cache.CacheModule;
+import org.skywalking.apm.collector.cache.service.ServiceNameCacheService;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.table.service.ServiceEntry;
@@ -43,10 +45,10 @@ public class ServiceEntrySpanListener implements RefsListener, FirstSpanListener
     private int entryServiceId;
     private String entryServiceName;
     private boolean hasEntry = false;
-    private final CacheServiceManager cacheServiceManager;
+    private final ServiceNameCacheService serviceNameCacheService;
 
-    public ServiceEntrySpanListener(CacheServiceManager cacheServiceManager) {
-        this.cacheServiceManager = cacheServiceManager;
+    public ServiceEntrySpanListener(ModuleManager moduleManager) {
+        this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
     }
 
     @Override
@@ -54,7 +56,7 @@ public class ServiceEntrySpanListener implements RefsListener, FirstSpanListener
         String segmentId) {
         this.applicationId = applicationId;
         this.entryServiceId = spanDecorator.getOperationNameId();
-        this.entryServiceName = cacheServiceManager.getServiceNameCacheService().getSplitServiceName(cacheServiceManager.getServiceNameCacheService().get(entryServiceId));
+        this.entryServiceName = serviceNameCacheService.getSplitServiceName(serviceNameCacheService.get(entryServiceId));
         this.hasEntry = true;
     }
 

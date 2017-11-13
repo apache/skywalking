@@ -21,7 +21,6 @@ package org.skywalking.apm.collector.stream;
 import java.util.Properties;
 import org.skywalking.apm.collector.cache.CacheModule;
 import org.skywalking.apm.collector.core.module.Module;
-import org.skywalking.apm.collector.core.module.ModuleNotFoundException;
 import org.skywalking.apm.collector.core.module.ModuleProvider;
 import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.skywalking.apm.collector.queue.QueueModule;
@@ -50,14 +49,10 @@ public class StreamModuleProvider extends ModuleProvider {
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
         PersistenceTimer persistenceTimer = new PersistenceTimer();
-        try {
-            QueueCreatorService queueCreatorService = getManager().find(QueueModule.NAME).getService(QueueCreatorService.class);
-            RemoteSenderService remoteSenderService = getManager().find(RemoteModule.NAME).getService(RemoteSenderService.class);
-            DAOService daoService = getManager().find(StorageModule.NAME).getService(DAOService.class);
-            persistenceTimer.start(daoService);
-        } catch (ModuleNotFoundException e) {
-            throw new ServiceNotProvidedException(e.getMessage());
-        }
+        QueueCreatorService queueCreatorService = getManager().find(QueueModule.NAME).getService(QueueCreatorService.class);
+        RemoteSenderService remoteSenderService = getManager().find(RemoteModule.NAME).getService(RemoteSenderService.class);
+        DAOService daoService = getManager().find(StorageModule.NAME).getService(DAOService.class);
+        persistenceTimer.start(daoService);
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {

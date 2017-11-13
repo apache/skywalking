@@ -18,7 +18,11 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.register;
 
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.agent.stream.graph.RegisterStreamGraph;
+import org.skywalking.apm.collector.cache.CacheModule;
+import org.skywalking.apm.collector.cache.service.ServiceIdCacheService;
+import org.skywalking.apm.collector.core.graph.GraphManager;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.storage.table.register.ServiceName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,20 +34,24 @@ public class ServiceNameService {
 
     private final Logger logger = LoggerFactory.getLogger(ServiceNameService.class);
 
-    private final CacheServiceManager cacheServiceManager;
+    private final ModuleManager moduleManager;
 
-    public ServiceNameService(CacheServiceManager cacheServiceManager) {
-        this.cacheServiceManager = cacheServiceManager;
+    public ServiceNameService(ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
     }
 
+    @SuppressWarnings("unchecked")
     public int getOrCreate(int applicationId, String serviceName) {
-        int serviceId = cacheServiceManager.getServiceIdCacheService().get(applicationId, serviceName);
+        ServiceIdCacheService idCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceIdCacheService.class);
+        int serviceId = idCacheService.get(applicationId, serviceName);
 
         if (serviceId == 0) {
             ServiceName service = new ServiceName("0");
             service.setApplicationId(applicationId);
             service.setServiceName(serviceName);
             service.setServiceId(0);
+
+            GraphManager.INSTANCE.findGraph(RegisterStreamGraph.SERVICE_NAME_REGISTER_GRAPH_ID).start(service);
         }
         return serviceId;
     }

@@ -18,9 +18,8 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.trace.node;
 
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
-import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.node.NodeComponent;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.impl.AggregationWorker;
@@ -30,23 +29,22 @@ import org.skywalking.apm.collector.stream.worker.impl.AggregationWorker;
  */
 public class NodeComponentAggregationWorker extends AggregationWorker<NodeComponent, NodeComponent> {
 
-    public NodeComponentAggregationWorker(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        super(daoService, cacheServiceManager);
+    public NodeComponentAggregationWorker(ModuleManager moduleManager) {
+        super(moduleManager);
     }
 
     @Override public int id() {
-        return 0;
+        return NodeComponentAggregationWorker.class.hashCode();
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<NodeComponent, NodeComponent, NodeComponentAggregationWorker> {
-        public Factory(DAOService daoService, CacheServiceManager cacheServiceManager,
-            QueueCreatorService<NodeComponent> queueCreatorService) {
-            super(daoService, cacheServiceManager, queueCreatorService);
+
+        public Factory(ModuleManager moduleManager, QueueCreatorService<NodeComponent> queueCreatorService) {
+            super(moduleManager, queueCreatorService);
         }
 
-        @Override public NodeComponentAggregationWorker workerInstance(DAOService daoService,
-            CacheServiceManager cacheServiceManager) {
-            return new NodeComponentAggregationWorker(getDaoService(), getCacheServiceManager());
+        @Override public NodeComponentAggregationWorker workerInstance(ModuleManager moduleManager) {
+            return new NodeComponentAggregationWorker(moduleManager);
         }
 
         @Override

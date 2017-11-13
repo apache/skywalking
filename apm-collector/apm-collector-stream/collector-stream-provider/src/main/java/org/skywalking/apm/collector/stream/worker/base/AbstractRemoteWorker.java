@@ -18,10 +18,9 @@
 
 package org.skywalking.apm.collector.stream.worker.base;
 
-import org.skywalking.apm.collector.cache.CacheServiceManager;
 import org.skywalking.apm.collector.core.data.Data;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.remote.service.Selector;
-import org.skywalking.apm.collector.storage.service.DAOService;
 
 /**
  * The <code>AbstractRemoteWorker</code> implementations represent workers,
@@ -34,8 +33,8 @@ import org.skywalking.apm.collector.storage.service.DAOService;
  */
 public abstract class AbstractRemoteWorker<INPUT extends Data, OUTPUT extends Data> extends AbstractWorker<INPUT, OUTPUT> {
 
-    public AbstractRemoteWorker(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        super(daoService, cacheServiceManager);
+    public AbstractRemoteWorker(ModuleManager moduleManager) {
+        super(moduleManager);
     }
 
     public abstract Selector selector();

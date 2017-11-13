@@ -21,7 +21,6 @@ package org.skywalking.apm.collector.naming.jetty;
 import java.util.Properties;
 import org.skywalking.apm.collector.cluster.ClusterModule;
 import org.skywalking.apm.collector.core.module.Module;
-import org.skywalking.apm.collector.core.module.ModuleNotFoundException;
 import org.skywalking.apm.collector.core.module.ModuleProvider;
 import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.skywalking.apm.collector.jetty.manager.JettyManagerModule;
@@ -58,12 +57,8 @@ public class NamingModuleJettyProvider extends ModuleProvider {
         Integer port = (Integer)config.get(PORT);
         String contextPath = config.getProperty(CONTEXT_PATH);
 
-        try {
-            JettyManagerService managerService = getManager().find(JettyManagerModule.NAME).getService(JettyManagerService.class);
-            managerService.createIfAbsent(host, port, contextPath);
-        } catch (ModuleNotFoundException e) {
-            throw new ServiceNotProvidedException(e.getMessage());
-        }
+        JettyManagerService managerService = getManager().find(JettyManagerModule.NAME).getService(JettyManagerService.class);
+        managerService.createIfAbsent(host, port, contextPath);
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {

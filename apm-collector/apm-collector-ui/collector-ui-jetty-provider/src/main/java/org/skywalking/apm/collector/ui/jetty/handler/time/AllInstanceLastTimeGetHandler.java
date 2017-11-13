@@ -22,11 +22,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.util.Calendar;
 import javax.servlet.http.HttpServletRequest;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.skywalking.apm.collector.server.jetty.JettyHandler;
-import org.skywalking.apm.collector.storage.service.DAOService;
-import org.skywalking.apm.collector.cache.CacheServiceManager;
 import org.skywalking.apm.collector.ui.service.TimeSynchronousService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,8 +43,8 @@ public class AllInstanceLastTimeGetHandler extends JettyHandler {
 
     private final TimeSynchronousService service;
 
-    public AllInstanceLastTimeGetHandler(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        this.service = new TimeSynchronousService(daoService, cacheServiceManager);
+    public AllInstanceLastTimeGetHandler(ModuleManager moduleManager) {
+        this.service = new TimeSynchronousService(moduleManager);
     }
 
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {

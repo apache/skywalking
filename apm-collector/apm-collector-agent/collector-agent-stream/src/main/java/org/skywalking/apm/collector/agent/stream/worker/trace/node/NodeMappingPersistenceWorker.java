@@ -18,8 +18,9 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.trace.node;
 
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
+import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.INodeMappingPersistenceDAO;
 import org.skywalking.apm.collector.storage.service.DAOService;
@@ -32,12 +33,15 @@ import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
  */
 public class NodeMappingPersistenceWorker extends PersistenceWorker<NodeMapping, NodeMapping> {
 
-    public NodeMappingPersistenceWorker(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        super(daoService, cacheServiceManager);
+    private final DAOService daoService;
+
+    public NodeMappingPersistenceWorker(ModuleManager moduleManager) {
+        super(moduleManager);
+        this.daoService = getModuleManager().find(StorageModule.NAME).getService(DAOService.class);
     }
 
     @Override public int id() {
-        return 0;
+        return NodeMappingPersistenceWorker.class.hashCode();
     }
 
     @Override protected boolean needMergeDBData() {
@@ -45,19 +49,17 @@ public class NodeMappingPersistenceWorker extends PersistenceWorker<NodeMapping,
     }
 
     @Override protected IPersistenceDAO persistenceDAO() {
-        return (IPersistenceDAO)getDaoService().get(INodeMappingPersistenceDAO.class);
+        return (IPersistenceDAO)daoService.get(INodeMappingPersistenceDAO.class);
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<NodeMapping, NodeMapping, NodeMappingPersistenceWorker> {
-        public Factory(DAOService daoService, CacheServiceManager cacheServiceManager,
-            QueueCreatorService<NodeMapping> queueCreatorService) {
-            super(daoService, cacheServiceManager, queueCreatorService);
+
+        public Factory(ModuleManager moduleManager, QueueCreatorService<NodeMapping> queueCreatorService) {
+            super(moduleManager, queueCreatorService);
         }
 
-        @Override
-        public NodeMappingPersistenceWorker workerInstance(DAOService daoService,
-            CacheServiceManager cacheServiceManager) {
-            return new NodeMappingPersistenceWorker(getDaoService(), getCacheServiceManager());
+        @Override public NodeMappingPersistenceWorker workerInstance(ModuleManager moduleManager) {
+            return new NodeMappingPersistenceWorker(moduleManager);
         }
 
         @Override

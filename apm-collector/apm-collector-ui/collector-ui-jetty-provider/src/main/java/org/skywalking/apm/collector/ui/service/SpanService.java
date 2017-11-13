@@ -21,9 +21,13 @@ package org.skywalking.apm.collector.ui.service;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.util.List;
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.cache.CacheModule;
+import org.skywalking.apm.collector.cache.service.ApplicationCacheService;
+import org.skywalking.apm.collector.cache.service.ServiceNameCacheService;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.StringUtils;
+import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.ISegmentUIDAO;
 import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.network.proto.KeyWithStringValue;
@@ -38,11 +42,13 @@ import org.skywalking.apm.network.trace.component.ComponentsDefine;
 public class SpanService {
 
     private final DAOService daoService;
-    private final CacheServiceManager cacheServiceManager;
+    private final ServiceNameCacheService serviceNameCacheService;
+    private final ApplicationCacheService applicationCacheService;
 
-    public SpanService(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        this.daoService = daoService;
-        this.cacheServiceManager = cacheServiceManager;
+    public SpanService(ModuleManager moduleManager) {
+        this.daoService = moduleManager.find(StorageModule.NAME).getService(DAOService.class);
+        this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
+        this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
     }
 
     public JsonObject load(String segmentId, int spanId) {
@@ -55,7 +61,7 @@ public class SpanService {
             if (spanId == spanObject.getSpanId()) {
                 String operationName = spanObject.getOperationName();
                 if (spanObject.getOperationNameId() != 0) {
-                    String serviceName = cacheServiceManager.getServiceNameCacheService().get(spanObject.getOperationNameId());
+                    String serviceName = serviceNameCacheService.get(spanObject.getOperationNameId());
                     if (StringUtils.isNotEmpty(serviceName)) {
                         operationName = serviceName.split(Const.ID_SPLIT)[1];
                     }
@@ -103,7 +109,7 @@ public class SpanService {
                 if (spanObject.getPeerId() == 0) {
                     peerJson.addProperty("value", spanObject.getPeer());
                 } else {
-                    peerJson.addProperty("value", cacheServiceManager.getServiceNameCacheService().get(spanObject.getPeerId()));
+                    peerJson.addProperty("value", applicationCacheService.get(spanObject.getPeerId()));
                 }
                 tagsArray.add(peerJson);
 

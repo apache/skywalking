@@ -29,7 +29,6 @@ import org.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.skywalking.apm.collector.cache.service.ServiceIdCacheService;
 import org.skywalking.apm.collector.cache.service.ServiceNameCacheService;
 import org.skywalking.apm.collector.core.module.Module;
-import org.skywalking.apm.collector.core.module.ModuleNotFoundException;
 import org.skywalking.apm.collector.core.module.ModuleProvider;
 import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.skywalking.apm.collector.storage.StorageModule;
@@ -52,16 +51,12 @@ public class CacheModuleGuavaProvider extends ModuleProvider {
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
-        try {
-            DAOService daoService = getManager().find(StorageModule.NAME).getService(DAOService.class);
+        DAOService daoService = getManager().find(StorageModule.NAME).getService(DAOService.class);
 
-            this.registerServiceImplementation(ApplicationCacheService.class, new ApplicationCacheGuavaService(daoService));
-            this.registerServiceImplementation(InstanceCacheService.class, new InstanceCacheGuavaService(daoService));
-            this.registerServiceImplementation(ServiceIdCacheService.class, new ServiceIdCacheGuavaService(daoService));
-            this.registerServiceImplementation(ServiceNameCacheService.class, new ServiceNameCacheGuavaService(daoService));
-        } catch (ModuleNotFoundException e) {
-            throw new ServiceNotProvidedException(e.getMessage());
-        }
+        this.registerServiceImplementation(ApplicationCacheService.class, new ApplicationCacheGuavaService(daoService));
+        this.registerServiceImplementation(InstanceCacheService.class, new InstanceCacheGuavaService(daoService));
+        this.registerServiceImplementation(ServiceIdCacheService.class, new ServiceIdCacheGuavaService(daoService));
+        this.registerServiceImplementation(ServiceNameCacheService.class, new ServiceNameCacheGuavaService(daoService));
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {

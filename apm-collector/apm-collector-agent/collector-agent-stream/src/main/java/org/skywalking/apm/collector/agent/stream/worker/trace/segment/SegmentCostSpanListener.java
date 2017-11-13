@@ -25,7 +25,9 @@ import org.skywalking.apm.collector.agent.stream.parser.ExitSpanListener;
 import org.skywalking.apm.collector.agent.stream.parser.FirstSpanListener;
 import org.skywalking.apm.collector.agent.stream.parser.LocalSpanListener;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SpanDecorator;
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.cache.CacheModule;
+import org.skywalking.apm.collector.cache.service.ServiceNameCacheService;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.table.segment.SegmentCost;
@@ -40,13 +42,13 @@ public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListe
     private final Logger logger = LoggerFactory.getLogger(SegmentCostSpanListener.class);
 
     private final List<SegmentCost> segmentCosts;
-    private final CacheServiceManager cacheServiceManager;
+    private final ServiceNameCacheService serviceNameCacheService;
     private boolean isError = false;
     private long timeBucket;
 
-    public SegmentCostSpanListener(CacheServiceManager cacheServiceManager) {
-        this.cacheServiceManager = cacheServiceManager;
+    public SegmentCostSpanListener(ModuleManager moduleManager) {
         this.segmentCosts = new ArrayList<>();
+        this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
     }
 
     @Override
@@ -64,7 +66,7 @@ public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListe
         if (spanDecorator.getOperationNameId() == 0) {
             segmentCost.setServiceName(spanDecorator.getOperationName());
         } else {
-            segmentCost.setServiceName(cacheServiceManager.getServiceNameCacheService().getSplitServiceName(cacheServiceManager.getServiceNameCacheService().get(spanDecorator.getOperationNameId())));
+            segmentCost.setServiceName(serviceNameCacheService.getSplitServiceName(serviceNameCacheService.get(spanDecorator.getOperationNameId())));
         }
 
         segmentCosts.add(segmentCost);

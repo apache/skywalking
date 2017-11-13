@@ -18,8 +18,9 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.trace.noderef;
 
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
+import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.INodeReferencePersistenceDAO;
 import org.skywalking.apm.collector.storage.service.DAOService;
@@ -32,8 +33,11 @@ import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
  */
 public class NodeReferencePersistenceWorker extends PersistenceWorker<NodeReference, NodeReference> {
 
-    public NodeReferencePersistenceWorker(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        super(daoService, cacheServiceManager);
+    private final DAOService daoService;
+
+    public NodeReferencePersistenceWorker(ModuleManager moduleManager) {
+        super(moduleManager);
+        this.daoService = getModuleManager().find(StorageModule.NAME).getService(DAOService.class);
     }
 
     @Override public int id() {
@@ -45,18 +49,17 @@ public class NodeReferencePersistenceWorker extends PersistenceWorker<NodeRefere
     }
 
     @Override protected IPersistenceDAO persistenceDAO() {
-        return (IPersistenceDAO)getDaoService().get(INodeReferencePersistenceDAO.class);
+        return (IPersistenceDAO)daoService.get(INodeReferencePersistenceDAO.class);
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<NodeReference, NodeReference, NodeReferencePersistenceWorker> {
-        public Factory(DAOService daoService, CacheServiceManager cacheServiceManager,
-            QueueCreatorService<NodeReference> queueCreatorService) {
-            super(daoService, cacheServiceManager, queueCreatorService);
+
+        public Factory(ModuleManager moduleManager, QueueCreatorService<NodeReference> queueCreatorService) {
+            super(moduleManager, queueCreatorService);
         }
 
-        @Override public NodeReferencePersistenceWorker workerInstance(DAOService daoService,
-            CacheServiceManager cacheServiceManager) {
-            return new NodeReferencePersistenceWorker(getDaoService(), getCacheServiceManager());
+        @Override public NodeReferencePersistenceWorker workerInstance(ModuleManager moduleManager) {
+            return new NodeReferencePersistenceWorker(moduleManager);
         }
 
         @Override

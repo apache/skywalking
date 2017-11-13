@@ -18,10 +18,9 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.trace.serviceref;
 
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.remote.service.RemoteSenderService;
 import org.skywalking.apm.collector.remote.service.Selector;
-import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.serviceref.ServiceReference;
 import org.skywalking.apm.collector.stream.worker.base.AbstractRemoteWorker;
 import org.skywalking.apm.collector.stream.worker.base.AbstractRemoteWorkerProvider;
@@ -32,8 +31,8 @@ import org.skywalking.apm.collector.stream.worker.base.WorkerException;
  */
 public class ServiceReferenceRemoteWorker extends AbstractRemoteWorker<ServiceReference, ServiceReference> {
 
-    public ServiceReferenceRemoteWorker(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        super(daoService, cacheServiceManager);
+    public ServiceReferenceRemoteWorker(ModuleManager moduleManager) {
+        super(moduleManager);
     }
 
     @Override public int id() {
@@ -49,15 +48,13 @@ public class ServiceReferenceRemoteWorker extends AbstractRemoteWorker<ServiceRe
     }
 
     public static class Factory extends AbstractRemoteWorkerProvider<ServiceReference, ServiceReference, ServiceReferenceRemoteWorker> {
-        public Factory(DAOService daoService, CacheServiceManager cacheServiceManager,
-            RemoteSenderService remoteSenderService, int graphId) {
-            super(daoService, cacheServiceManager, remoteSenderService, graphId);
+
+        public Factory(ModuleManager moduleManager, RemoteSenderService remoteSenderService, int graphId) {
+            super(moduleManager, remoteSenderService, graphId);
         }
 
-        @Override
-        public ServiceReferenceRemoteWorker workerInstance(DAOService daoService,
-            CacheServiceManager cacheServiceManager) {
-            return new ServiceReferenceRemoteWorker(getDaoService(), getCacheServiceManager());
+        @Override public ServiceReferenceRemoteWorker workerInstance(ModuleManager moduleManager) {
+            return new ServiceReferenceRemoteWorker(moduleManager);
         }
     }
 }

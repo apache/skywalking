@@ -18,9 +18,8 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.trace.service;
 
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
-import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.service.ServiceEntry;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.impl.AggregationWorker;
@@ -30,23 +29,22 @@ import org.skywalking.apm.collector.stream.worker.impl.AggregationWorker;
  */
 public class ServiceEntryAggregationWorker extends AggregationWorker<ServiceEntry, ServiceEntry> {
 
-    public ServiceEntryAggregationWorker(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        super(daoService, cacheServiceManager);
+    public ServiceEntryAggregationWorker(ModuleManager moduleManager) {
+        super(moduleManager);
     }
 
     @Override public int id() {
-        return 0;
+        return ServiceEntryAggregationWorker.class.hashCode();
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<ServiceEntry, ServiceEntry, ServiceEntryAggregationWorker> {
-        public Factory(DAOService daoService, CacheServiceManager cacheServiceManager,
-            QueueCreatorService<ServiceEntry> queueCreatorService) {
-            super(daoService, cacheServiceManager, queueCreatorService);
+
+        public Factory(ModuleManager moduleManager, QueueCreatorService<ServiceEntry> queueCreatorService) {
+            super(moduleManager, queueCreatorService);
         }
 
-        @Override public ServiceEntryAggregationWorker workerInstance(DAOService daoService,
-            CacheServiceManager cacheServiceManager) {
-            return new ServiceEntryAggregationWorker(getDaoService(), getCacheServiceManager());
+        @Override public ServiceEntryAggregationWorker workerInstance(ModuleManager moduleManager) {
+            return new ServiceEntryAggregationWorker(moduleManager);
         }
 
         @Override

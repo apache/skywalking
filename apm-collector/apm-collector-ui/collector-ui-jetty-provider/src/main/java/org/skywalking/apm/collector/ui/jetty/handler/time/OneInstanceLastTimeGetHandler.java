@@ -21,10 +21,9 @@ package org.skywalking.apm.collector.ui.jetty.handler.time;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import javax.servlet.http.HttpServletRequest;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.skywalking.apm.collector.server.jetty.JettyHandler;
-import org.skywalking.apm.collector.storage.service.DAOService;
-import org.skywalking.apm.collector.cache.CacheServiceManager;
 import org.skywalking.apm.collector.ui.service.TimeSynchronousService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,8 +41,8 @@ public class OneInstanceLastTimeGetHandler extends JettyHandler {
 
     private final TimeSynchronousService service;
 
-    public OneInstanceLastTimeGetHandler(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        this.service = new TimeSynchronousService(daoService, cacheServiceManager);
+    public OneInstanceLastTimeGetHandler(ModuleManager moduleManager) {
+        this.service = new TimeSynchronousService(moduleManager);
     }
 
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {

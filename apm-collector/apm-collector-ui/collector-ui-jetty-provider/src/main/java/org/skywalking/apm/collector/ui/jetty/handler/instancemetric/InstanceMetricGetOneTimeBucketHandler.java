@@ -22,10 +22,9 @@ import com.google.gson.JsonElement;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.skywalking.apm.collector.server.jetty.JettyHandler;
-import org.skywalking.apm.collector.storage.service.DAOService;
-import org.skywalking.apm.collector.cache.CacheServiceManager;
 import org.skywalking.apm.collector.ui.service.InstanceJVMService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,8 +42,8 @@ public class InstanceMetricGetOneTimeBucketHandler extends JettyHandler {
 
     private final InstanceJVMService service;
 
-    public InstanceMetricGetOneTimeBucketHandler(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        this.service = new InstanceJVMService(daoService, cacheServiceManager);
+    public InstanceMetricGetOneTimeBucketHandler(ModuleManager moduleManager) {
+        this.service = new InstanceJVMService(moduleManager);
     }
 
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {

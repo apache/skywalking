@@ -25,7 +25,9 @@ import org.skywalking.apm.collector.agent.stream.parser.ExitSpanListener;
 import org.skywalking.apm.collector.agent.stream.parser.RefsListener;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.ReferenceDecorator;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SpanDecorator;
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.cache.CacheModule;
+import org.skywalking.apm.collector.cache.service.InstanceCacheService;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.CollectionUtils;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
@@ -40,14 +42,14 @@ public class NodeReferenceSpanListener implements EntrySpanListener, ExitSpanLis
 
     private final Logger logger = LoggerFactory.getLogger(NodeReferenceSpanListener.class);
 
-    private final CacheServiceManager cacheServiceManager;
+    private final InstanceCacheService instanceCacheService;
     private final List<NodeReference> nodeReferences;
     private final List<NodeReference> references;
 
-    public NodeReferenceSpanListener(CacheServiceManager cacheServiceManager) {
-        this.cacheServiceManager = cacheServiceManager;
+    public NodeReferenceSpanListener(ModuleManager moduleManager) {
         this.nodeReferences = new LinkedList<>();
         this.references = new LinkedList<>();
+        this.instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
     }
 
     @Override
@@ -93,7 +95,7 @@ public class NodeReferenceSpanListener implements EntrySpanListener, ExitSpanLis
 
     @Override public void parseRef(ReferenceDecorator referenceDecorator, int applicationId, int instanceId,
         String segmentId) {
-        int parentApplicationId = cacheServiceManager.getInstanceCacheService().get(referenceDecorator.getParentApplicationInstanceId());
+        int parentApplicationId = instanceCacheService.get(referenceDecorator.getParentApplicationInstanceId());
 
         NodeReference referenceSum = new NodeReference(Const.EMPTY_STRING);
         referenceSum.setFrontApplicationId(parentApplicationId);

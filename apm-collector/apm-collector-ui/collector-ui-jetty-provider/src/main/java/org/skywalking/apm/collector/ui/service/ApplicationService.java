@@ -20,7 +20,10 @@ package org.skywalking.apm.collector.ui.service;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.skywalking.apm.collector.cache.CacheServiceManager;
+import org.skywalking.apm.collector.cache.CacheModule;
+import org.skywalking.apm.collector.cache.service.ApplicationCacheService;
+import org.skywalking.apm.collector.core.module.ModuleManager;
+import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
 import org.skywalking.apm.collector.storage.service.DAOService;
 
@@ -30,11 +33,11 @@ import org.skywalking.apm.collector.storage.service.DAOService;
 public class ApplicationService {
 
     private final DAOService daoService;
-    private final CacheServiceManager cacheServiceManager;
+    private final ApplicationCacheService applicationCacheService;
 
-    public ApplicationService(DAOService daoService, CacheServiceManager cacheServiceManager) {
-        this.daoService = daoService;
-        this.cacheServiceManager = cacheServiceManager;
+    public ApplicationService(ModuleManager moduleManager) {
+        this.daoService = moduleManager.find(StorageModule.NAME).getService(DAOService.class);
+        this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
     }
 
     public JsonArray getApplications(long startTime, long endTime) {
@@ -44,7 +47,7 @@ public class ApplicationService {
         applications.forEach(jsonElement -> {
             JsonObject application = jsonElement.getAsJsonObject();
             int applicationId = application.get("applicationId").getAsInt();
-            String applicationCode = cacheServiceManager.getApplicationCacheService().get(applicationId);
+            String applicationCode = applicationCacheService.get(applicationId);
             application.addProperty("applicationCode", applicationCode);
         });
         return applications;

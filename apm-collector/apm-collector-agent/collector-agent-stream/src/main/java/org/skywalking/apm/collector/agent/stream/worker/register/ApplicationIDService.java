@@ -18,8 +18,13 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.register;
 
-import org.skywalking.apm.collector.cache.CacheServiceManager;
-import org.skywalking.apm.collector.core.graph.Graph;
+import org.skywalking.apm.collector.agent.stream.graph.RegisterStreamGraph;
+import org.skywalking.apm.collector.cache.CacheModule;
+import org.skywalking.apm.collector.cache.service.ApplicationCacheService;
+import org.skywalking.apm.collector.core.graph.GraphManager;
+import org.skywalking.apm.collector.core.module.ModuleManager;
+import org.skywalking.apm.collector.core.module.ModuleNotFoundException;
+import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.skywalking.apm.collector.storage.table.register.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,23 +36,23 @@ public class ApplicationIDService {
 
     private final Logger logger = LoggerFactory.getLogger(ApplicationIDService.class);
 
-    private final CacheServiceManager cacheServiceManager;
-    private final Graph<Application> applicationRegisterGraph;
+    private final ModuleManager moduleManager;
 
-    public ApplicationIDService(CacheServiceManager cacheServiceManager, Graph<Application> applicationRegisterGraph) {
-        this.cacheServiceManager = cacheServiceManager;
-        this.applicationRegisterGraph = applicationRegisterGraph;
+    public ApplicationIDService(ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
     }
 
-    public int getOrCreate(String applicationCode) {
-        int applicationId = cacheServiceManager.getApplicationCacheService().get(applicationCode);
+    @SuppressWarnings("unchecked")
+    public int getOrCreate(String applicationCode) throws ModuleNotFoundException, ServiceNotProvidedException {
+        ApplicationCacheService service = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
+        int applicationId = service.get(applicationCode);
 
         if (applicationId == 0) {
             Application application = new Application(applicationCode);
             application.setApplicationCode(applicationCode);
             application.setApplicationId(0);
 
-            applicationRegisterGraph.start(application);
+            GraphManager.INSTANCE.findGraph(RegisterStreamGraph.APPLICATION_REGISTER_GRAPH_ID).start(application);
         }
         return applicationId;
     }
