@@ -79,38 +79,6 @@ public class MongoDBCollectionInstrumentation extends ClassInstanceMethodsEnhanc
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("mapReduce").and(takesArgumentWithType(0, "com.mongodb.MapReduceCommand"));
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return MONGDB_METHOD_INTERCET_CLASS;
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            },
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("aggregate").and(takesArgumentWithType(1, "com.mongodb.ReadPreference"));
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return MONGDB_METHOD_INTERCET_CLASS;
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            },
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("aggregate").and(takesArgumentWithType(2, "com.mongodb.ReadPreference"));
                 }
 
@@ -127,7 +95,7 @@ public class MongoDBCollectionInstrumentation extends ClassInstanceMethodsEnhanc
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("createIndex").and(takesArgumentWithType(2, "boolean"));
+                    return named("insert");
                 }
 
                 @Override
@@ -143,7 +111,7 @@ public class MongoDBCollectionInstrumentation extends ClassInstanceMethodsEnhanc
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("insert").and(takesArgumentWithType(2, "com.mongodb.DBEncoder"));
+                    return named("update");
                 }
 
                 @Override
@@ -159,7 +127,39 @@ public class MongoDBCollectionInstrumentation extends ClassInstanceMethodsEnhanc
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("update").and(takesArgumentWithType(5, "com.mongodb.DBEncoder"));
+                    return named("remove").and(takesArgumentWithType(2, "com.mongodb.DBEncoder"));
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return MONGDB_METHOD_INTERCET_CLASS;
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("findAndModify");
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return MONGDB_METHOD_INTERCET_CLASS;
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("createIndex").and(takesArgumentWithType(2, "com.mongodb.DBEncoder"));
                 }
 
                 @Override
