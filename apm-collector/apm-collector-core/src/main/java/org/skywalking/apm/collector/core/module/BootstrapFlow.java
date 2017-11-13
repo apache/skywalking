@@ -58,9 +58,9 @@ public class BootstrapFlow {
                 }
             }
             logger.info("start the provider {} in {} module.", provider.name(), provider.getModuleName());
-            provider.start(configuration.getModuleConfiguration(provider.getModuleName()).getProviderConfiguration(provider.name()));
-
             provider.requiredCheck(provider.getModule().services());
+
+            provider.start(configuration.getModuleConfiguration(provider.getModuleName()).getProviderConfiguration(provider.name()));
         }
     }
 

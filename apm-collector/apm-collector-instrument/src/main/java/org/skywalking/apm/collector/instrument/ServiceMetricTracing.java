@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.core.module.instrument;
+package org.skywalking.apm.collector.instrument;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
