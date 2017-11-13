@@ -31,7 +31,6 @@ import java.util.ServiceLoader;
  */
 public class ModuleManager {
     private Map<String, Module> loadedModules = new HashMap<>();
-    private boolean isServiceInstrument = true;
 
     /**
      * Init the given modules
@@ -80,13 +79,5 @@ public class ModuleManager {
         if (module != null)
             return module;
         throw new ModuleNotFoundException(moduleName + " missing.");
-    }
-
-    public boolean isServiceInstrument() {
-        return isServiceInstrument;
-    }
-
-    public void setServiceInstrument(boolean serviceInstrument) {
-        isServiceInstrument = serviceInstrument;
     }
 }
