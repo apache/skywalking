@@ -62,21 +62,18 @@ public class MongoDBV2MethodInterceptor implements InstanceMethodsAroundIntercep
     @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
         AbstractSpan activeSpan = ContextManager.activeSpan();
+        CommandResult cresult = null;
         if (ret instanceof WriteResult) {
             WriteResult wresult = (WriteResult)ret;
-            if (!wresult.getCachedLastError().ok()) {
-                Tags.STATUS_CODE.set(activeSpan, "failed");
-            }
+            cresult = wresult.getCachedLastError();
         } else if (ret instanceof CommandResult) {
-            CommandResult cresult = (CommandResult)ret;
-            if (!cresult.ok()) {
-                Tags.STATUS_CODE.set(activeSpan, "failed");
-            }
+            cresult = (CommandResult)ret;
         } else if (ret instanceof AggregationOutput) {
             AggregationOutput aresult = (AggregationOutput)ret;
-            if (!aresult.getCommandResult().ok()) {
-                Tags.STATUS_CODE.set(activeSpan, "failed");
-            }
+            cresult = aresult.getCommandResult();
+        }
+        if (null != cresult && !cresult.ok()) {
+            activeSpan.tag("CommandError", cresult.getErrorMessage());
         }
         ContextManager.stopSpan();
         return ret;
