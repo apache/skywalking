@@ -19,6 +19,7 @@
 package org.skywalking.apm.plugin.mongodb.v2;
 
 import com.mongodb.CommandResult;
+import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.ServerAddress;
 import com.mongodb.DB;
@@ -52,7 +53,17 @@ public class MongoDBV2MethodInterceptor implements InstanceMethodsAroundIntercep
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
 
         String remotePeer = (String)objInst.getSkyWalkingDynamicField();
-        AbstractSpan span = ContextManager.createExitSpan(MONGO_DB_OP_PREFIX + method.getName(), new ContextCarrier(), remotePeer);
+        String carrier = null;
+        if (method.getName().equals("command")) {
+            DBObject obj = (DBObject)allArguments[0];
+            for (String key : obj.keySet()) {
+                carrier = key;
+                break;
+            }
+        } else {
+            carrier = method.getName();
+        }
+        AbstractSpan span = ContextManager.createExitSpan(MONGO_DB_OP_PREFIX + carrier, new ContextCarrier(), remotePeer);
         span.setComponent(ComponentsDefine.MONGODB);
         Tags.DB_TYPE.set(span, DB_TYPE);
         SpanLayer.asDB(span);
