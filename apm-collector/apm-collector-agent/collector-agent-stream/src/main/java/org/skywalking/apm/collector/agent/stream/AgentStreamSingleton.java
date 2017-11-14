@@ -18,9 +18,11 @@
 
 package org.skywalking.apm.collector.agent.stream;
 
+import org.skywalking.apm.collector.agent.stream.graph.JvmMetricStreamGraph;
 import org.skywalking.apm.collector.agent.stream.graph.RegisterStreamGraph;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.ObjectUtils;
+import org.skywalking.apm.collector.stream.timer.PersistenceTimer;
 import org.skywalking.apm.collector.stream.worker.base.WorkerCreateListener;
 
 /**
@@ -33,24 +35,35 @@ public class AgentStreamSingleton {
     private final ModuleManager moduleManager;
     private final WorkerCreateListener workerCreateListener;
 
-    public AgentStreamSingleton(ModuleManager moduleManager, WorkerCreateListener workerCreateListener) {
+    private AgentStreamSingleton(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
-        this.workerCreateListener = workerCreateListener;
-        createJVMGraph();
-        createRegisterGraph();
-        createTraceGraph();
+        this.workerCreateListener = new WorkerCreateListener();
+        this.create();
     }
 
-    public static synchronized AgentStreamSingleton getInstance(ModuleManager moduleManager,
-        WorkerCreateListener workerCreateListener) {
+    public static synchronized AgentStreamSingleton createInstanceIfAbsent(ModuleManager moduleManager) {
         if (ObjectUtils.isEmpty(INSTANCE)) {
-            INSTANCE = new AgentStreamSingleton(moduleManager, workerCreateListener);
+            INSTANCE = new AgentStreamSingleton(moduleManager);
         }
         return INSTANCE;
     }
 
-    private void createJVMGraph() {
+    private void create() {
+        createJVMGraph();
+        createRegisterGraph();
+        createTraceGraph();
 
+        PersistenceTimer timer = new PersistenceTimer();
+        timer.start(moduleManager, workerCreateListener.getPersistenceWorkers());
+    }
+
+    private void createJVMGraph() {
+        JvmMetricStreamGraph jvmMetricStreamGraph = new JvmMetricStreamGraph(moduleManager, workerCreateListener);
+        jvmMetricStreamGraph.createCpuMetricGraph();
+        jvmMetricStreamGraph.createGcMetricGraph();
+        jvmMetricStreamGraph.createMemoryMetricGraph();
+        jvmMetricStreamGraph.createMemoryPoolMetricGraph();
+        jvmMetricStreamGraph.createHeartBeatGraph();
     }
 
     private void createRegisterGraph() {

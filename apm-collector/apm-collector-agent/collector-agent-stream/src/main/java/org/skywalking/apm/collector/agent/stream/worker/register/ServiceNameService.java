@@ -21,6 +21,7 @@ package org.skywalking.apm.collector.agent.stream.worker.register;
 import org.skywalking.apm.collector.agent.stream.graph.RegisterStreamGraph;
 import org.skywalking.apm.collector.cache.CacheModule;
 import org.skywalking.apm.collector.cache.service.ServiceIdCacheService;
+import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.storage.table.register.ServiceName;
@@ -35,12 +36,13 @@ public class ServiceNameService {
     private final Logger logger = LoggerFactory.getLogger(ServiceNameService.class);
 
     private final ModuleManager moduleManager;
+    private final Graph<ServiceName> serviceNameRegisterGraph;
 
     public ServiceNameService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
+        this.serviceNameRegisterGraph = GraphManager.INSTANCE.createIfAbsent(RegisterStreamGraph.APPLICATION_REGISTER_GRAPH_ID, ServiceName.class);
     }
 
-    @SuppressWarnings("unchecked")
     public int getOrCreate(int applicationId, String serviceName) {
         ServiceIdCacheService idCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceIdCacheService.class);
         int serviceId = idCacheService.get(applicationId, serviceName);
@@ -51,7 +53,7 @@ public class ServiceNameService {
             service.setServiceName(serviceName);
             service.setServiceId(0);
 
-            GraphManager.INSTANCE.findGraph(RegisterStreamGraph.SERVICE_NAME_REGISTER_GRAPH_ID).start(service);
+            serviceNameRegisterGraph.start(service);
         }
         return serviceId;
     }

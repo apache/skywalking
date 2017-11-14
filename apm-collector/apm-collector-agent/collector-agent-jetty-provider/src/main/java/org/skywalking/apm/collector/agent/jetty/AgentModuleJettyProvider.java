@@ -36,7 +36,7 @@ import org.skywalking.apm.collector.naming.NamingModule;
 import org.skywalking.apm.collector.naming.service.NamingHandlerRegisterService;
 import org.skywalking.apm.collector.server.Server;
 import org.skywalking.apm.collector.storage.StorageModule;
-import org.skywalking.apm.collector.storage.service.DAOService;
+import org.skywalking.apm.collector.stream.StreamModule;
 
 /**
  * @author peng-yongsheng
@@ -75,11 +75,9 @@ public class AgentModuleJettyProvider extends ModuleProvider {
         NamingHandlerRegisterService namingHandlerRegisterService = getManager().find(NamingModule.NAME).getService(NamingHandlerRegisterService.class);
         namingHandlerRegisterService.register(new AgentJettyNamingHandler(namingListener));
 
-        DAOService daoService = getManager().find(StorageModule.NAME).getService(DAOService.class);
-
         JettyManagerService managerService = getManager().find(JettyManagerModule.NAME).getService(JettyManagerService.class);
         Server jettyServer = managerService.createIfAbsent(host, port, contextPath);
-        addHandlers(daoService, jettyServer);
+        addHandlers(jettyServer);
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
@@ -87,10 +85,10 @@ public class AgentModuleJettyProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {ClusterModule.NAME, NamingModule.NAME, StorageModule.NAME, JettyManagerModule.NAME, CacheModule.NAME};
+        return new String[] {ClusterModule.NAME, NamingModule.NAME, StorageModule.NAME, JettyManagerModule.NAME, CacheModule.NAME, StreamModule.NAME};
     }
 
-    private void addHandlers(DAOService daoService, Server jettyServer) {
+    private void addHandlers(Server jettyServer) {
         jettyServer.addHandler(new TraceSegmentServletHandler());
     }
 }

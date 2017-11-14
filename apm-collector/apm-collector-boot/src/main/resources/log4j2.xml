@@ -17,7 +17,7 @@
   ~ Project repository: https://github.com/OpenSkywalking/skywalking
   -->
 
-<Configuration status="info">
+<Configuration status="debug">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout charset="UTF-8" pattern="%d - %c -%-4r [%t] %-5p %x - %m%n"/>
@@ -26,9 +26,9 @@
     <Loggers>
         <logger name="org.eclipse.jetty" level="INFO"/>
         <logger name="org.apache.zookeeper" level="INFO"/>
-        <logger name="org.skywalking.apm.collector.agentstream.worker.storage.PersistenceTimer" level="INFO"/>
-        <logger name="io.grpc.netty.NettyServerHandler" level="INFO"/>
-        <Root level="info">
+        <logger name="org.skywalking.apm.collector.agentstream.worker.storage.PersistenceTimer" level="debug"/>
+        <logger name="io.grpc.netty" level="INFO"/>
+        <Root level="debug">
             <AppenderRef ref="Console"/>
         </Root>
     </Loggers>
