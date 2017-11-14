@@ -20,7 +20,6 @@ package org.skywalking.apm.collector.agent.grpc.handler;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import org.junit.Test;
 import org.skywalking.apm.network.proto.Application;
 import org.skywalking.apm.network.proto.ApplicationMapping;
 import org.skywalking.apm.network.proto.ApplicationRegisterServiceGrpc;
@@ -36,7 +35,6 @@ public class ApplicationRegisterServiceHandlerTestCase {
 
     private ApplicationRegisterServiceGrpc.ApplicationRegisterServiceBlockingStub stub;
 
-    @Test
     public void testRegister() {
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
         stub = ApplicationRegisterServiceGrpc.newBlockingStub(channel);
