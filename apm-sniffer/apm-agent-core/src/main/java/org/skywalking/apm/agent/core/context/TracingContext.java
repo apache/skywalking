@@ -31,6 +31,7 @@ import org.skywalking.apm.agent.core.context.trace.NoopExitSpan;
 import org.skywalking.apm.agent.core.context.trace.NoopSpan;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
+import org.skywalking.apm.agent.core.context.trace.WithPeerInfo;
 import org.skywalking.apm.agent.core.dictionary.DictionaryManager;
 import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.skywalking.apm.agent.core.dictionary.PossibleFound;
@@ -97,17 +98,9 @@ public class TracingContext implements AbstractTracerContext {
             throw new IllegalStateException("Inject can be done only in Exit Span");
         }
 
-        String peer;
-        int peerId;
-        if (span instanceof NoopExitSpan) {
-            NoopExitSpan exitSpan = (NoopExitSpan)span;
-            peerId = exitSpan.getPeerId();
-            peer = exitSpan.getPeer();
-        } else {
-            ExitSpan exitSpan = (ExitSpan)span;
-            peerId = exitSpan.getPeerId();
-            peer = exitSpan.getPeer();
-        }
+        WithPeerInfo spanWithPeer = (WithPeerInfo)span;
+        String peer = spanWithPeer.getPeer();
+        int peerId = spanWithPeer.getPeerId();
 
         carrier.setTraceSegmentId(this.segment.getTraceSegmentId());
         carrier.setSpanId(span.getSpanId());

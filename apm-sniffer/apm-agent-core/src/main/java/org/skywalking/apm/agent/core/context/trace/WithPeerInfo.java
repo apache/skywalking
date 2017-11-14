@@ -19,9 +19,10 @@
 package org.skywalking.apm.agent.core.context.trace;
 
 /**
- * The <code>AbstractNoopSpan</code> represents a span implementation without any actual operation.
- *
- * @author zhangxin
+ * @author wusheng
  */
-public interface AbstractNoopSpan extends AbstractSpan {
+public interface WithPeerInfo {
+    int getPeerId();
+
+    String getPeer();
 }
