@@ -29,6 +29,8 @@ import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.skywalking.apm.collector.storage.StorageException;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.base.dao.DAOContainer;
+import org.skywalking.apm.collector.storage.base.dao.IBatchDAO;
+import org.skywalking.apm.collector.storage.h2.base.dao.BatchH2DAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAODefineLoader;
 import org.skywalking.apm.collector.storage.h2.base.define.H2StorageInstaller;
@@ -70,6 +72,7 @@ public class StorageModuleH2Provider extends ModuleProvider {
         client = new H2Client(url, userName, password);
 
         this.registerServiceImplementation(DAOService.class, new H2DAOService(daoContainer));
+        this.registerServiceImplementation(IBatchDAO.class, new BatchH2DAO());
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {

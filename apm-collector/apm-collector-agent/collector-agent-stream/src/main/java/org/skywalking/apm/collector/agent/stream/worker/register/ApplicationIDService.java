@@ -21,6 +21,7 @@ package org.skywalking.apm.collector.agent.stream.worker.register;
 import org.skywalking.apm.collector.agent.stream.graph.RegisterStreamGraph;
 import org.skywalking.apm.collector.cache.CacheModule;
 import org.skywalking.apm.collector.cache.service.ApplicationCacheService;
+import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.module.ModuleNotFoundException;
@@ -37,12 +38,13 @@ public class ApplicationIDService {
     private final Logger logger = LoggerFactory.getLogger(ApplicationIDService.class);
 
     private final ModuleManager moduleManager;
+    private final Graph<Application> applicationRegisterGraph;
 
     public ApplicationIDService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
+        this.applicationRegisterGraph = GraphManager.INSTANCE.createIfAbsent(RegisterStreamGraph.APPLICATION_REGISTER_GRAPH_ID, Application.class);
     }
 
-    @SuppressWarnings("unchecked")
     public int getOrCreate(String applicationCode) throws ModuleNotFoundException, ServiceNotProvidedException {
         ApplicationCacheService service = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
         int applicationId = service.get(applicationCode);
@@ -52,7 +54,7 @@ public class ApplicationIDService {
             application.setApplicationCode(applicationCode);
             application.setApplicationId(0);
 
-            GraphManager.INSTANCE.findGraph(RegisterStreamGraph.APPLICATION_REGISTER_GRAPH_ID).start(application);
+            applicationRegisterGraph.start(application);
         }
         return applicationId;
     }

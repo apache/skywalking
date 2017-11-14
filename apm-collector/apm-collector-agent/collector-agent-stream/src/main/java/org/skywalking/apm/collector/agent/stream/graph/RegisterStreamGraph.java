@@ -31,8 +31,6 @@ import org.skywalking.apm.collector.queue.QueueModule;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
 import org.skywalking.apm.collector.remote.RemoteModule;
 import org.skywalking.apm.collector.remote.service.RemoteSenderService;
-import org.skywalking.apm.collector.storage.StorageModule;
-import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.register.Application;
 import org.skywalking.apm.collector.storage.table.register.Instance;
 import org.skywalking.apm.collector.storage.table.register.ServiceName;
@@ -57,7 +55,6 @@ public class RegisterStreamGraph {
 
     @SuppressWarnings("unchecked")
     public Graph<Application> createApplicationRegisterGraph() {
-        DAOService daoService = moduleManager.find(StorageModule.NAME).getService(DAOService.class);
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
         QueueCreatorService<Application> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
@@ -70,7 +67,6 @@ public class RegisterStreamGraph {
 
     @SuppressWarnings("unchecked")
     public Graph<Instance> createInstanceRegisterGraph() {
-        DAOService daoService = moduleManager.find(StorageModule.NAME).getService(DAOService.class);
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
         QueueCreatorService<Instance> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
@@ -83,7 +79,6 @@ public class RegisterStreamGraph {
 
     @SuppressWarnings("unchecked")
     public Graph<ServiceName> createServiceNameRegisterGraph() {
-        DAOService daoService = moduleManager.find(StorageModule.NAME).getService(DAOService.class);
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
         QueueCreatorService<ServiceName> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);

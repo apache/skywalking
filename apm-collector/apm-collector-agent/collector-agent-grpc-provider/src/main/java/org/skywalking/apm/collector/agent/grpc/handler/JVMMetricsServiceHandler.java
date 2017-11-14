@@ -68,7 +68,7 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
 
         request.getMetricsList().forEach(metric -> {
             long time = TimeBucketUtils.INSTANCE.getSecondTimeBucket(metric.getTime());
-            senToInstanceHeartBeatPersistenceWorker(instanceId, metric.getTime());
+            sendToInstanceHeartBeatPersistenceWorker(instanceId, metric.getTime());
             sendToCpuMetricPersistenceWorker(instanceId, time, metric.getCpu());
             sendToMemoryMetricPersistenceWorker(instanceId, time, metric.getMemoryList());
             sendToMemoryPoolMetricPersistenceWorker(instanceId, time, metric.getMemoryPoolList());
@@ -79,7 +79,7 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
         responseObserver.onCompleted();
     }
 
-    private void senToInstanceHeartBeatPersistenceWorker(int instanceId, long heartBeatTime) {
+    private void sendToInstanceHeartBeatPersistenceWorker(int instanceId, long heartBeatTime) {
         Instance instance = new Instance(String.valueOf(instanceId));
         instance.setHeartBeatTime(TimeBucketUtils.INSTANCE.getSecondTimeBucket(heartBeatTime));
         instance.setInstanceId(instanceId);

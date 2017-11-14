@@ -42,7 +42,7 @@ import org.skywalking.apm.collector.naming.service.NamingHandlerRegisterService;
 import org.skywalking.apm.collector.remote.RemoteModule;
 import org.skywalking.apm.collector.server.Server;
 import org.skywalking.apm.collector.storage.StorageModule;
-import org.skywalking.apm.collector.stream.worker.base.WorkerCreateListener;
+import org.skywalking.apm.collector.stream.StreamModule;
 
 /**
  * @author peng-yongsheng
@@ -82,7 +82,7 @@ public class AgentModuleGRPCProvider extends ModuleProvider {
         GRPCManagerService managerService = getManager().find(GRPCManagerModule.NAME).getService(GRPCManagerService.class);
         Server gRPCServer = managerService.createIfAbsent(host, port);
 
-        AgentStreamSingleton.getInstance(getManager(), new WorkerCreateListener());
+        AgentStreamSingleton.createInstanceIfAbsent(getManager());
         addHandlers(gRPCServer);
     }
 
@@ -91,7 +91,7 @@ public class AgentModuleGRPCProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {ClusterModule.NAME, NamingModule.NAME, StorageModule.NAME, GRPCManagerModule.NAME, CacheModule.NAME, RemoteModule.NAME};
+        return new String[] {ClusterModule.NAME, NamingModule.NAME, StorageModule.NAME, GRPCManagerModule.NAME, CacheModule.NAME, RemoteModule.NAME, StreamModule.NAME};
     }
 
     private void addHandlers(Server gRPCServer) {
