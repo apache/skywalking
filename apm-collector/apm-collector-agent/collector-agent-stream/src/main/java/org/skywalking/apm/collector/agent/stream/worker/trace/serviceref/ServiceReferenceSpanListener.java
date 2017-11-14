@@ -20,11 +20,14 @@ package org.skywalking.apm.collector.agent.stream.worker.trace.serviceref;
 
 import java.util.LinkedList;
 import java.util.List;
+import org.skywalking.apm.collector.agent.stream.graph.TraceStreamGraph;
 import org.skywalking.apm.collector.agent.stream.parser.EntrySpanListener;
 import org.skywalking.apm.collector.agent.stream.parser.FirstSpanListener;
 import org.skywalking.apm.collector.agent.stream.parser.RefsListener;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.ReferenceDecorator;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SpanDecorator;
+import org.skywalking.apm.collector.core.graph.Graph;
+import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.table.serviceref.ServiceReference;
@@ -128,5 +131,8 @@ public class ServiceReferenceSpanListener implements FirstSpanListener, EntrySpa
         serviceReference.setId(idBuilder.toString());
         serviceReference.setTimeBucket(timeBucket);
         logger.debug("send to service reference aggregation worker, id: {}", serviceReference.getId());
+
+        Graph<ServiceReference> graph = GraphManager.INSTANCE.createIfAbsent(TraceStreamGraph.SERVICE_REFERENCE_GRAPH_ID, ServiceReference.class);
+        graph.start(serviceReference);
     }
 }

@@ -20,6 +20,7 @@ package org.skywalking.apm.collector.agent.stream;
 
 import org.skywalking.apm.collector.agent.stream.graph.JvmMetricStreamGraph;
 import org.skywalking.apm.collector.agent.stream.graph.RegisterStreamGraph;
+import org.skywalking.apm.collector.agent.stream.graph.TraceStreamGraph;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.stream.timer.PersistenceTimer;
@@ -74,6 +75,16 @@ public class AgentStreamSingleton {
     }
 
     private void createTraceGraph() {
-
+        TraceStreamGraph traceStreamGraph = new TraceStreamGraph(moduleManager, workerCreateListener);
+        traceStreamGraph.createSegmentStandardizationGraph();
+        traceStreamGraph.createGlobalTraceGraph();
+        traceStreamGraph.createInstPerformanceGraph();
+        traceStreamGraph.createNodeComponentGraph();
+        traceStreamGraph.createNodeMappingGraph();
+        traceStreamGraph.createNodeReferenceGraph();
+        traceStreamGraph.createServiceEntryGraph();
+        traceStreamGraph.createServiceReferenceGraph();
+        traceStreamGraph.createSegmentGraph();
+        traceStreamGraph.createSegmentCostGraph();
     }
 }

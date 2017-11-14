@@ -18,6 +18,7 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.trace.service;
 
+import org.skywalking.apm.collector.agent.stream.graph.TraceStreamGraph;
 import org.skywalking.apm.collector.agent.stream.parser.EntrySpanListener;
 import org.skywalking.apm.collector.agent.stream.parser.FirstSpanListener;
 import org.skywalking.apm.collector.agent.stream.parser.RefsListener;
@@ -25,6 +26,8 @@ import org.skywalking.apm.collector.agent.stream.parser.standardization.Referenc
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SpanDecorator;
 import org.skywalking.apm.collector.cache.CacheModule;
 import org.skywalking.apm.collector.cache.service.ServiceNameCacheService;
+import org.skywalking.apm.collector.core.graph.Graph;
+import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
@@ -82,6 +85,8 @@ public class ServiceEntrySpanListener implements RefsListener, FirstSpanListener
             serviceEntry.setNewestTime(timeBucket);
 
             logger.debug("send to service entry aggregation worker, id: {}", serviceEntry.getId());
+            Graph<ServiceEntry> graph = GraphManager.INSTANCE.createIfAbsent(TraceStreamGraph.SERVICE_ENTRY_GRAPH_ID, ServiceEntry.class);
+            graph.start(serviceEntry);
         }
     }
 }

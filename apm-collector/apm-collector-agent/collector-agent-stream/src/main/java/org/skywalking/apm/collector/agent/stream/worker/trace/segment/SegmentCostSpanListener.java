@@ -20,6 +20,7 @@ package org.skywalking.apm.collector.agent.stream.worker.trace.segment;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.skywalking.apm.collector.agent.stream.graph.TraceStreamGraph;
 import org.skywalking.apm.collector.agent.stream.parser.EntrySpanListener;
 import org.skywalking.apm.collector.agent.stream.parser.ExitSpanListener;
 import org.skywalking.apm.collector.agent.stream.parser.FirstSpanListener;
@@ -27,6 +28,8 @@ import org.skywalking.apm.collector.agent.stream.parser.LocalSpanListener;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SpanDecorator;
 import org.skywalking.apm.collector.cache.CacheModule;
 import org.skywalking.apm.collector.cache.service.ServiceNameCacheService;
+import org.skywalking.apm.collector.core.graph.Graph;
+import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
@@ -91,10 +94,12 @@ public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListe
     }
 
     @Override public void build() {
+        Graph<SegmentCost> graph = GraphManager.INSTANCE.createIfAbsent(TraceStreamGraph.SEGMENT_COST_GRAPH_ID, SegmentCost.class);
         logger.debug("segment cost listener build");
         for (SegmentCost segmentCost : segmentCosts) {
             segmentCost.setIsError(isError);
             segmentCost.setTimeBucket(timeBucket);
+            graph.start(segmentCost);
         }
     }
 }
