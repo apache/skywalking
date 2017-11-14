@@ -29,7 +29,7 @@ import org.skywalking.apm.network.trace.component.Component;
  *
  * @author wusheng
  */
-public class NoopSpan implements AbstractNoopSpan {
+public class NoopSpan implements AbstractSpan {
     public NoopSpan() {
     }
 
