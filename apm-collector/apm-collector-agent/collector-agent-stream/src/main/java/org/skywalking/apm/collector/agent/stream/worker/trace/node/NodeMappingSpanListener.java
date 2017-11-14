@@ -20,10 +20,13 @@ package org.skywalking.apm.collector.agent.stream.worker.trace.node;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.skywalking.apm.collector.agent.stream.graph.TraceStreamGraph;
 import org.skywalking.apm.collector.agent.stream.parser.FirstSpanListener;
 import org.skywalking.apm.collector.agent.stream.parser.RefsListener;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.ReferenceDecorator;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SpanDecorator;
+import org.skywalking.apm.collector.core.graph.Graph;
+import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.table.node.NodeMapping;
@@ -59,10 +62,13 @@ public class NodeMappingSpanListener implements RefsListener, FirstSpanListener 
 
     @Override public void build() {
         logger.debug("node mapping listener build");
+        Graph<NodeMapping> graph = GraphManager.INSTANCE.createIfAbsent(TraceStreamGraph.NODE_MAPPING_GRAPH_ID, NodeMapping.class);
+
         for (NodeMapping nodeMapping : nodeMappings) {
             nodeMapping.setId(timeBucket + Const.ID_SPLIT + nodeMapping.getId());
             nodeMapping.setTimeBucket(timeBucket);
             logger.debug("send to node mapping aggregation worker, id: {}", nodeMapping.getId());
+            graph.start(nodeMapping);
         }
     }
 }

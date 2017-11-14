@@ -20,9 +20,12 @@ package org.skywalking.apm.collector.agent.stream.worker.trace.global;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.skywalking.apm.collector.agent.stream.graph.TraceStreamGraph;
 import org.skywalking.apm.collector.agent.stream.parser.FirstSpanListener;
 import org.skywalking.apm.collector.agent.stream.parser.GlobalTraceIdsListener;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SpanDecorator;
+import org.skywalking.apm.collector.core.graph.Graph;
+import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.table.global.GlobalTrace;
@@ -63,11 +66,13 @@ public class GlobalTraceSpanListener implements FirstSpanListener, GlobalTraceId
     @Override public void build() {
         logger.debug("global trace listener build");
 
+        Graph<GlobalTrace> graph = GraphManager.INSTANCE.createIfAbsent(TraceStreamGraph.GLOBAL_TRACE_GRAPH_ID, GlobalTrace.class);
         for (String globalTraceId : globalTraceIds) {
             GlobalTrace globalTrace = new GlobalTrace(segmentId + Const.ID_SPLIT + globalTraceId);
             globalTrace.setGlobalTraceId(globalTraceId);
             globalTrace.setSegmentId(segmentId);
             globalTrace.setTimeBucket(timeBucket);
+            graph.start(globalTrace);
         }
     }
 }
