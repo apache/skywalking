@@ -11,7 +11,7 @@ Sky Walking | [中文](README_ZH.md)
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
 
 * Provide Java agent, **no need to CHANGE any application source code**.
-  * High performance agent. Only increase extra **10%** cpu cost in 5000+ tps application, even **When collect all traces**, [check test reports](#test-reports).
+  * High performance agent. Only increase extra **10%** cpu cost in 5000+ tps application, even **when collect all traces**.
   * [Supported middlewares, frameworks and libraries](https://github.com/OpenSkywalking/sky-walking/wiki/3.2-supported-list).
 * Manual instrumentation
   * As an [OpenTracing supported tracer](http://opentracing.io/documentation/pages/supported-tracers)
@@ -25,7 +25,7 @@ Sky Walking | [中文](README_ZH.md)
 <img src="https://skywalkingtest.github.io/page-resources/3.x-architecture.jpg"/>
 
 # Document
-* [WIKI](https://github.com/OpenSkywalking/skywalking/wiki)
+[![EN doc](https://img.shields.io/badge/document-English-blue.svg)](docs/README.md) [![cn doc](https://img.shields.io/badge/document-中文-blue.svg)](docs/README_ZH.md)
 
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wu.sheng@foxmail.com.
 
@@ -64,7 +64,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 [Open Skywalking Organization Teams and Contributors](https://github.com/OpenSkywalking/Organization/blob/master/README.md)
 
 # Partners
-<img src="https://skywalkingtest.github.io/page-resources/3.2.3/partners.png" width="600"/>
+<img src="https://skywalkingtest.github.io/page-resources/3.2.4/partners.png" width="800"/>
 
 # License
 [Apache 2.0 License.](/LICENSE)

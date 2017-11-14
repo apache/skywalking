@@ -23,7 +23,7 @@
     <parent>
         <artifactId>apm-collector</artifactId>
         <groupId>org.skywalking</groupId>
-        <version>3.2.3-2017</version>
+        <version>3.2.4-2017</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -113,9 +113,35 @@
         <!-- remote provider -->
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>collector-remote-grpc-define</artifactId>
+            <artifactId>collector-remote-grpc-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- remote provider -->
+        <!-- queue provider -->
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-queue-datacarrier-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-queue-disruptor-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- queue provider -->
+        <!-- stream provider -->
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-stream-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- stream provider -->
+        <!-- cache provider -->
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-cache-guava-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- cache provider -->
     </dependencies>
 </project>

@@ -27,11 +27,10 @@ import java.util.ServiceLoader;
 /**
  * The <code>ModuleManager</code> takes charge of all {@link Module}s in collector.
  *
- * @author wu-sheng
+ * @author wu-sheng, peng-yongsheng
  */
 public class ModuleManager {
     private Map<String, Module> loadedModules = new HashMap<>();
-    private boolean isServiceInstrument = true;
 
     /**
      * Init the given modules
@@ -39,7 +38,7 @@ public class ModuleManager {
      * @param applicationConfiguration
      */
     public void init(
-        ApplicationConfiguration applicationConfiguration) throws ModuleNotFoundException, ProviderNotFoundException, ServiceNotProvidedException {
+        ApplicationConfiguration applicationConfiguration) throws ModuleNotFoundException, ProviderNotFoundException, ServiceNotProvidedException, CycleDependencyException {
         String[] moduleNames = applicationConfiguration.moduleList();
         ServiceLoader<Module> moduleServiceLoader = ServiceLoader.load(Module.class);
         LinkedList<String> moduleList = new LinkedList(Arrays.asList(moduleNames));
@@ -65,31 +64,20 @@ public class ModuleManager {
             throw new ModuleNotFoundException(moduleList.toString() + " missing.");
         }
 
-        for (Module module : loadedModules.values()) {
-            module.start(this, applicationConfiguration.getModuleConfiguration(module.name()));
-        }
+        BootstrapFlow bootstrapFlow = new BootstrapFlow(loadedModules, applicationConfiguration);
 
-        for (Module module : loadedModules.values()) {
-            module.notifyAfterCompleted();
-        }
+        bootstrapFlow.start(this, applicationConfiguration);
+        bootstrapFlow.notifyAfterCompleted();
     }
 
     public boolean has(String moduleName) {
         return loadedModules.get(moduleName) != null;
     }
 
-    public Module find(String moduleName) throws ModuleNotFoundException {
+    public Module find(String moduleName) throws ModuleNotFoundRuntimeException {
         Module module = loadedModules.get(moduleName);
         if (module != null)
             return module;
-        throw new ModuleNotFoundException(moduleName + " missing.");
-    }
-
-    public boolean isServiceInstrument() {
-        return isServiceInstrument;
-    }
-
-    public void setServiceInstrument(boolean serviceInstrument) {
-        isServiceInstrument = serviceInstrument;
+        throw new ModuleNotFoundRuntimeException(moduleName + " missing.");
     }
 }

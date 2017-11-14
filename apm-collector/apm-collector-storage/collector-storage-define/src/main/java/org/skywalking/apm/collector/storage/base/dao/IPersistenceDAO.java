@@ -19,15 +19,14 @@
 package org.skywalking.apm.collector.storage.base.dao;
 
 import org.skywalking.apm.collector.core.data.Data;
-import org.skywalking.apm.collector.storage.base.define.DataDefine;
 
 /**
  * @author peng-yongsheng
  */
-public interface IPersistenceDAO<I, U> {
-    Data get(String id, DataDefine dataDefine);
+public interface IPersistenceDAO<Insert, Update, DataImpl extends Data> extends DAO {
+    DataImpl get(String id);
 
-    I prepareBatchInsert(Data data);
+    Insert prepareBatchInsert(DataImpl data);
 
-    U prepareBatchUpdate(Data data);
+    Update prepareBatchUpdate(DataImpl data);
 }

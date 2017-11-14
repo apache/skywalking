@@ -41,8 +41,8 @@ import static org.skywalking.apm.plugin.jdbc.define.Constants.ROLLBACK_METHOD_NA
 import static org.skywalking.apm.plugin.jdbc.define.Constants.SERVICE_METHOD_INTERCEPT_CLASS;
 
 /**
- * {@link ConnectionInstrumentation} intercept the following methods that the class which extend {@link
- * org.postgresql.jdbc.PgConnection}. <br/>
+ * {@link Jdbc3ConnectionInstrumentation} intercept the following methods that the class which extend {@link
+ * org.postgresql.jdbc3.Jdbc3Connection}. <br/>
  *
  * 1. Enhance <code>prepareStatement</code> by <code>org.skywalking.apm.plugin.jdbc.define.JDBCPrepareStatementInterceptor</code>
  * 2. Enhance <code>prepareCall</code> by

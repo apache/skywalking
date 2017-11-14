@@ -19,17 +19,32 @@
 package org.skywalking.apm.collector.cluster.standalone;
 
 import java.util.Properties;
+import org.skywalking.apm.collector.client.h2.H2Client;
+import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.cluster.ClusterModule;
+import org.skywalking.apm.collector.cluster.service.ModuleListenerService;
 import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
+import org.skywalking.apm.collector.cluster.standalone.service.StandaloneModuleListenerService;
 import org.skywalking.apm.collector.cluster.standalone.service.StandaloneModuleRegisterService;
 import org.skywalking.apm.collector.core.module.Module;
 import org.skywalking.apm.collector.core.module.ModuleProvider;
 import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.skywalking.apm.collector.core.util.Const;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class ClusterModuleStandaloneProvider extends ModuleProvider {
+
+    private final Logger logger = LoggerFactory.getLogger(ClusterModuleStandaloneProvider.class);
+
+    private static final String URL = "url";
+    private static final String USER_NAME = "user_name";
+
+    private H2Client h2Client;
+    private ClusterStandaloneDataMonitor dataMonitor;
 
     @Override public String name() {
         return "standalone";
@@ -40,11 +55,23 @@ public class ClusterModuleStandaloneProvider extends ModuleProvider {
     }
 
     @Override public void prepare(Properties config) throws ServiceNotProvidedException {
-        this.registerServiceImplementation(ModuleRegisterService.class, new StandaloneModuleRegisterService());
+        this.dataMonitor = new ClusterStandaloneDataMonitor();
+
+        final String url = config.getProperty(URL);
+        final String userName = config.getProperty(USER_NAME);
+        h2Client = new H2Client(url, userName, Const.EMPTY_STRING);
+        this.dataMonitor.setClient(h2Client);
+
+        this.registerServiceImplementation(ModuleListenerService.class, new StandaloneModuleListenerService(dataMonitor));
+        this.registerServiceImplementation(ModuleRegisterService.class, new StandaloneModuleRegisterService(dataMonitor));
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
-
+        try {
+            h2Client.initialize();
+        } catch (H2ClientException e) {
+            logger.error(e.getMessage(), e);
+        }
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {

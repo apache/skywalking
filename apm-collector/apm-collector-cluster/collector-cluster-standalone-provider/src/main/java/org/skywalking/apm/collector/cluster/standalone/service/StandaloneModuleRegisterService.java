@@ -20,13 +20,21 @@ package org.skywalking.apm.collector.cluster.standalone.service;
 
 import org.skywalking.apm.collector.cluster.ModuleRegistration;
 import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
+import org.skywalking.apm.collector.cluster.standalone.ClusterStandaloneDataMonitor;
 
 /**
  * @author peng-yongsheng
  */
 public class StandaloneModuleRegisterService implements ModuleRegisterService {
 
-    @Override public void register(String moduleName, String providerName, ModuleRegistration registration) {
+    private final ClusterStandaloneDataMonitor dataMonitor;
 
+    public StandaloneModuleRegisterService(ClusterStandaloneDataMonitor dataMonitor) {
+        this.dataMonitor = dataMonitor;
+    }
+
+    @Override public void register(String moduleName, String providerName, ModuleRegistration registration) {
+        String path = "/" + moduleName + "/" + providerName;
+        dataMonitor.register(path, registration);
     }
 }

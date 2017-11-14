@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.storage.es.base.define;
 
-import org.skywalking.apm.collector.storage.base.define.ColumnDefine;
+import org.skywalking.apm.collector.core.data.ColumnDefine;
 
 /**
  * @author peng-yongsheng
