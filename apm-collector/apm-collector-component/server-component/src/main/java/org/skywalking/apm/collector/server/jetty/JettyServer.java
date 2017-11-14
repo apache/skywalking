@@ -73,6 +73,7 @@ public class JettyServer implements Server {
     }
 
     @Override public void start() throws ServerException {
+        logger.info("start server, host: {}, port: {}", host, port);
         try {
             for (ServletMapping servletMapping : servletContextHandler.getServletHandler().getServletMappings()) {
                 logger.info("jetty servlet mappings: {} register by {}", servletMapping.getPathSpecs(), servletMapping.getServletName());

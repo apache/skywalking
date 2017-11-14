@@ -19,11 +19,14 @@
 package org.skywalking.apm.collector.remote.service;
 
 import org.skywalking.apm.collector.core.data.Data;
-import org.skywalking.apm.collector.remote.RemoteDataMapping;
 
 /**
  * @author peng-yongsheng
  */
-public interface RemoteClient {
-    void send(String roleName, Data data, RemoteDataMapping mapping);
+public interface RemoteClient extends Comparable<RemoteClient> {
+    String getAddress();
+
+    void send(int graphId, int nodeId, Data data);
+
+    boolean equals(String address);
 }

@@ -23,7 +23,7 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.skywalking</groupId>
-        <version>3.2.3-2017</version>
+        <version>3.2.4-2017</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -43,6 +43,9 @@
         <module>apm-collector-grpc-manager</module>
         <module>apm-collector-jetty-manager</module>
         <module>apm-collector-remote</module>
+        <module>apm-collector-stream</module>
+        <module>apm-collector-queue</module>
+        <module>apm-collector-instrument</module>
     </modules>
 
     <properties>

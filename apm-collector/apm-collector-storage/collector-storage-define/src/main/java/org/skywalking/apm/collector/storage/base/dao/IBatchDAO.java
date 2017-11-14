@@ -23,6 +23,6 @@ import java.util.List;
 /**
  * @author peng-yongsheng
  */
-public interface IBatchDAO {
+public interface IBatchDAO extends DAO {
     void batchPersistence(List<?> batchCollection);
 }

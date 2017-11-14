@@ -25,5 +25,5 @@ import org.skywalking.apm.collector.server.Server;
  * @author peng-yongsheng
  */
 public interface GRPCManagerService extends Service {
-    Server getOrCreateIfAbsent(String host, int port);
+    Server createIfAbsent(String host, int port);
 }

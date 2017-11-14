@@ -38,7 +38,7 @@ public class GRPCManagerServiceImpl implements GRPCManagerService {
         this.servers = servers;
     }
 
-    @Override public Server getOrCreateIfAbsent(String host, int port) {
+    @Override public Server createIfAbsent(String host, int port) {
         String id = host + String.valueOf(port);
         if (servers.containsKey(id)) {
             return servers.get(id);

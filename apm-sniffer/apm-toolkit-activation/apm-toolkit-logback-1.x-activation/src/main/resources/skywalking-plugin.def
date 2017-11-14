@@ -1,1 +1,2 @@
 toolkit-logback=org.skywalking.apm.toolkit.activation.log.logback.v1.x.LogbackPatternConverterActivation
+toolkit-logback=org.skywalking.apm.toolkit.activation.log.logback.v1.x.mdc.MDCConverterActivation

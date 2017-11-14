@@ -22,9 +22,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
+import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.dao.IInstanceCacheDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
-import org.skywalking.apm.collector.storage.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.table.register.InstanceTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,15 +37,32 @@ public class InstanceH2CacheDAO extends H2DAO implements IInstanceCacheDAO {
     private final Logger logger = LoggerFactory.getLogger(InstanceH2CacheDAO.class);
 
     private static final String GET_APPLICATION_ID_SQL = "select {0} from {1} where {2} = ?";
+    private static final String GET_INSTANCE_ID_SQL = "select {0} from {1} where {2} = ? and {3} = ?";
 
-    @Override public int getApplicationId(int applicationInstanceId) {
-        logger.info("get the application id with application id = {}", applicationInstanceId);
+    @Override public int getApplicationId(int instanceId) {
+        logger.info("get the application getId with application getId = {}", instanceId);
         H2Client client = getClient();
         String sql = SqlBuilder.buildSql(GET_APPLICATION_ID_SQL, InstanceTable.COLUMN_APPLICATION_ID, InstanceTable.TABLE, InstanceTable.COLUMN_INSTANCE_ID);
-        Object[] params = new Object[] {applicationInstanceId};
+        Object[] params = new Object[] {instanceId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
                 return rs.getInt(InstanceTable.COLUMN_APPLICATION_ID);
+            }
+        } catch (SQLException | H2ClientException e) {
+            logger.error(e.getMessage(), e);
+        }
+        return 0;
+    }
+
+    @Override public int getInstanceId(int applicationId, String agentUUID) {
+        logger.info("get the application getId with application getId = {}, agentUUID = {}", applicationId, agentUUID);
+        H2Client client = getClient();
+        String sql = SqlBuilder.buildSql(GET_INSTANCE_ID_SQL, InstanceTable.COLUMN_INSTANCE_ID, InstanceTable.TABLE, InstanceTable.COLUMN_APPLICATION_ID,
+            InstanceTable.COLUMN_AGENT_UUID);
+        Object[] params = new Object[] {applicationId, agentUUID};
+        try (ResultSet rs = client.executeQuery(sql, params)) {
+            if (rs.next()) {
+                return rs.getInt(InstanceTable.COLUMN_INSTANCE_ID);
             }
         } catch (SQLException | H2ClientException e) {
             logger.error(e.getMessage(), e);

@@ -24,16 +24,28 @@ import java.util.Map;
 /**
  * @author peng-yongsheng
  */
-public enum DAOContainer {
-    INSTANCE;
+public class DAOContainer {
+    private Map<String, DAO> daoImplMap;
+    private Map<String, IPersistenceDAO> persistenceDaoImpl;
 
-    private Map<String, DAO> daos = new HashMap<>();
+    public DAOContainer() {
+        daoImplMap = new HashMap<>();
+        persistenceDaoImpl = new HashMap<>();
+    }
 
-    public void put(String interfaceName, DAO dao) {
-        daos.put(interfaceName, dao);
+    public void put(String interfaceName, DAO daoImpl) {
+        if (daoImpl instanceof IPersistenceDAO) {
+            persistenceDaoImpl.put(interfaceName, (IPersistenceDAO)daoImpl);
+        } else {
+            daoImplMap.put(interfaceName, daoImpl);
+        }
     }
 
     public DAO get(String interfaceName) {
-        return daos.get(interfaceName);
+        return daoImplMap.get(interfaceName);
+    }
+
+    public IPersistenceDAO getPersistenceDAO(String interfaceName) {
+        return persistenceDaoImpl.get(interfaceName);
     }
 }

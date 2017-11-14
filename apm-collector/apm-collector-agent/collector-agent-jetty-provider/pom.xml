@@ -23,7 +23,7 @@
     <parent>
         <artifactId>apm-collector-agent</artifactId>
         <groupId>org.skywalking</groupId>
-        <version>3.2.3-2017</version>
+        <version>3.2.4-2017</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -34,6 +34,16 @@
         <dependency>
             <groupId>org.skywalking</groupId>
             <artifactId>collector-agent-define</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-agent-stream</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-jetty-manager-define</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

@@ -22,14 +22,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
-import org.skywalking.apm.collector.storage.base.dao.DAO;
+import org.skywalking.apm.collector.storage.base.dao.AbstractDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class H2DAO extends DAO<H2Client> {
+public abstract class H2DAO extends AbstractDAO<H2Client> {
     private final Logger logger = LoggerFactory.getLogger(H2DAO.class);
 
     protected final int getMaxId(String tableName, String columnName) {

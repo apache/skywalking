@@ -36,4 +36,8 @@ public abstract class AbstractHashMessage {
     public int getHashCode() {
         return hashCode;
     }
+
+    public void setKey(String key) {
+        this.hashCode = key.hashCode();
+    }
 }

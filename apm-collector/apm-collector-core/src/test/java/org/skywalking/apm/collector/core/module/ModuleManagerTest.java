@@ -20,7 +20,6 @@ package org.skywalking.apm.collector.core.module;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.skywalking.apm.collector.core.module.instrument.TracedService;
 
 /**
  * @author wu-sheng
@@ -38,39 +37,5 @@ public class ModuleManagerTest {
 
         BaseModuleA.ServiceABusiness1 serviceABusiness1 = manager.find("BaseA").provider().getService(BaseModuleA.ServiceABusiness1.class);
         Assert.assertTrue(serviceABusiness1 != null);
-    }
-
-    @Test
-    public void testInstrument() throws ServiceNotProvidedException, ModuleNotFoundException, ProviderNotFoundException, DuplicateProviderException {
-        ApplicationConfiguration configuration = new ApplicationConfiguration();
-        configuration.addModule("Test").addProviderConfiguration("TestModule-Provider", null);
-        configuration.addModule("BaseA").addProviderConfiguration("P-A", null);
-        configuration.addModule("BaseB").addProviderConfiguration("P-B", null);
-
-        ModuleManager manager = new ModuleManager();
-        manager.setServiceInstrument(true);
-        manager.init(configuration);
-
-        BaseModuleA.ServiceABusiness1 serviceABusiness1 = manager.find("BaseA").getService(BaseModuleA.ServiceABusiness1.class);
-
-        Assert.assertTrue(serviceABusiness1 instanceof TracedService);
-
-//        for (int i = 0; i < 10000; i++)
-//            serviceABusiness1.print();
-//
-//        try {
-//            Thread.sleep(60 * 1000L);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//
-//        for (int i = 0; i < 10000; i++)
-//            serviceABusiness1.print();
-//
-//        try {
-//            Thread.sleep(120 * 1000L);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
     }
 }

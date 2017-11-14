@@ -5,7 +5,7 @@
     <parent>
         <artifactId>apm-collector</artifactId>
         <groupId>org.skywalking</groupId>
-        <version>3.2.3-2017</version>
+        <version>3.2.4-2017</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -13,7 +13,8 @@
     <packaging>pom</packaging>
     <modules>
         <module>collector-remote-define</module>
-        <module>collector-remote-grpc-define</module>
+        <module>collector-remote-kafka-provider</module>
+        <module>collector-remote-grpc-provider</module>
     </modules>
 
     <dependencies>

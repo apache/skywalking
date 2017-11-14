@@ -19,10 +19,11 @@
 package org.skywalking.apm.collector.ui.jetty.handler.application;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import javax.servlet.http.HttpServletRequest;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.skywalking.apm.collector.server.jetty.JettyHandler;
+import org.skywalking.apm.collector.ui.service.ApplicationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,11 @@ public class ApplicationsGetHandler extends JettyHandler {
         return "/applications";
     }
 
-//    private ApplicationService service = new ApplicationService();
+    private final ApplicationService applicationService;
+
+    public ApplicationsGetHandler(ModuleManager moduleManager) {
+        this.applicationService = new ApplicationService(moduleManager);
+    }
 
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {
         if (!req.getParameterMap().containsKey("startTime") || !req.getParameterMap().containsKey("endTime")) {
@@ -62,11 +67,7 @@ public class ApplicationsGetHandler extends JettyHandler {
             throw new ArgumentsParseException("end time must be long");
         }
 
-//        return service.getApplications(startTime, endTime);
-
-        JsonObject result = new JsonObject();
-        result.addProperty("result", "Yes");
-        return result;
+        return applicationService.getApplications(startTime, endTime);
     }
 
     @Override protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException {
