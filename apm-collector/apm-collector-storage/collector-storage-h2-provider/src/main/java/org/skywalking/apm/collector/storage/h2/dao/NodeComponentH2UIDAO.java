@@ -19,6 +19,7 @@
 package org.skywalking.apm.collector.storage.h2.dao;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.skywalking.apm.collector.client.h2.H2Client;
@@ -27,7 +28,6 @@ import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.dao.INodeComponentUIDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.skywalking.apm.collector.storage.table.node.NodeComponentTable;
-import org.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 public class NodeComponentH2UIDAO extends H2DAO implements INodeComponentUIDAO {
 
     private final Logger logger = LoggerFactory.getLogger(NodeComponentH2UIDAO.class);
-    private static final String AGGREGATE_COMPONENT_SQL = "select {0}, {1}, {2} from {3} where {4} >= ? and {4} <= ? group by {0}, {1}, {2} limit 100";
+    private static final String AGGREGATE_COMPONENT_SQL = "select {0}, {1} from {2} where {3} >= ? and {3} <= ? group by {0}, {1} limit 100";
 
     public NodeComponentH2UIDAO(H2Client client) {
         super(client);
@@ -53,19 +53,17 @@ public class NodeComponentH2UIDAO extends H2DAO implements INodeComponentUIDAO {
         H2Client client = getClient();
 
         JsonArray nodeComponentArray = new JsonArray();
-        String sql = SqlBuilder.buildSql(AGGREGATE_COMPONENT_SQL, NodeComponentTable.COLUMN_COMPONENT_ID,
+        String sql = SqlBuilder.buildSql(AGGREGATE_COMPONENT_SQL, NodeComponentTable.COLUMN_COMPONENT_ID, NodeComponentTable.COLUMN_PEER_ID,
             NodeComponentTable.TABLE, NodeComponentTable.COLUMN_TIME_BUCKET);
         Object[] params = new Object[] {startTime, endTime};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             while (rs.next()) {
                 int peerId = rs.getInt(NodeComponentTable.COLUMN_PEER_ID);
                 int componentId = rs.getInt(NodeComponentTable.COLUMN_COMPONENT_ID);
-                String componentName = ComponentsDefine.getInstance().getComponentName(componentId);
-                if (peerId != 0) {
-                    //TODO ApplicationCache
-//                    String peer = ApplicationCache.get(peerId);
-//                    nodeComponentArray.add(buildNodeComponent(peer, componentName));
-                }
+                JsonObject nodeComponentObj = new JsonObject();
+                nodeComponentObj.addProperty(NodeComponentTable.COLUMN_COMPONENT_ID, componentId);
+                nodeComponentObj.addProperty(NodeComponentTable.COLUMN_PEER_ID, peerId);
+                nodeComponentArray.add(nodeComponentObj);
             }
         } catch (SQLException | H2ClientException e) {
             logger.error(e.getMessage(), e);
