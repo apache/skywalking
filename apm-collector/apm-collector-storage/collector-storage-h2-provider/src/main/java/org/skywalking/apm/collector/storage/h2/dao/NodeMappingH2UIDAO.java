@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 public class NodeMappingH2UIDAO extends H2DAO implements INodeMappingUIDAO {
 
     private final Logger logger = LoggerFactory.getLogger(NodeMappingH2UIDAO.class);
-    private static final String NODE_MAPPING_SQL = "select {0}, {1}, {2} from {3} where {4} >= ? and {4} <= ? group by {0}, {1}, {2} limit 100";
+    private static final String NODE_MAPPING_SQL = "select {0}, {1} from {2} where {3} >= ? and {3} <= ? group by {0}, {1} limit 100";
 
     public NodeMappingH2UIDAO(H2Client client) {
         super(client);
@@ -53,13 +53,10 @@ public class NodeMappingH2UIDAO extends H2DAO implements INodeMappingUIDAO {
         try (ResultSet rs = client.executeQuery(sql, params)) {
             while (rs.next()) {
                 int applicationId = rs.getInt(NodeMappingTable.COLUMN_APPLICATION_ID);
-                //TODO ApplicationCache
-//                String applicationCode = ApplicationCache.get(applicationId);
                 int addressId = rs.getInt(NodeMappingTable.COLUMN_ADDRESS_ID);
-//                    String address = ApplicationCache.get(addressId);
                 JsonObject nodeMappingObj = new JsonObject();
-//                    nodeMappingObj.addProperty("applicationCode", applicationCode);
-//                    nodeMappingObj.addProperty("address", address);
+                nodeMappingObj.addProperty(NodeMappingTable.COLUMN_APPLICATION_ID, applicationId);
+                nodeMappingObj.addProperty(NodeMappingTable.COLUMN_ADDRESS_ID, addressId);
                 nodeMappingArray.add(nodeMappingObj);
             }
         } catch (SQLException | H2ClientException e) {
