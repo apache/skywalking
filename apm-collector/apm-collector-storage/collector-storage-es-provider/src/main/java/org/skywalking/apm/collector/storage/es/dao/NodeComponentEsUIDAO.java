@@ -27,7 +27,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.dao.INodeComponentUIDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.table.node.NodeComponentTable;
@@ -50,7 +49,6 @@ public class NodeComponentEsUIDAO extends EsDAO implements INodeComponentUIDAO {
         logger.debug("node component load, start time: {}, end time: {}", startTime, endTime);
         JsonArray nodeComponentArray = new JsonArray();
         nodeComponentArray.addAll(aggregationByComponentId(startTime, endTime));
-        nodeComponentArray.addAll(aggregationByComponentName(startTime, endTime));
         return nodeComponentArray;
     }
 
@@ -62,7 +60,6 @@ public class NodeComponentEsUIDAO extends EsDAO implements INodeComponentUIDAO {
         searchRequestBuilder.setSize(0);
 
         searchRequestBuilder.addAggregation(AggregationBuilders.terms(NodeComponentTable.COLUMN_COMPONENT_ID).field(NodeComponentTable.COLUMN_COMPONENT_ID).size(100)
-            .subAggregation(AggregationBuilders.terms(NodeComponentTable.COLUMN_PEER).field(NodeComponentTable.COLUMN_PEER).size(100))
             .subAggregation(AggregationBuilders.terms(NodeComponentTable.COLUMN_PEER_ID).field(NodeComponentTable.COLUMN_PEER_ID).size(100)));
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
@@ -74,31 +71,6 @@ public class NodeComponentEsUIDAO extends EsDAO implements INodeComponentUIDAO {
             String componentName = ComponentsDefine.getInstance().getComponentName(componentId);
             if (componentId != 0) {
                 buildComponentArray(componentIdBucket, componentName, nodeComponentArray);
-            }
-        }
-
-        return nodeComponentArray;
-    }
-
-    private JsonArray aggregationByComponentName(long startTime, long endTime) {
-        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(NodeComponentTable.TABLE);
-        searchRequestBuilder.setTypes(NodeComponentTable.TABLE_TYPE);
-        searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-        searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(NodeComponentTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
-        searchRequestBuilder.setSize(0);
-
-        searchRequestBuilder.addAggregation(AggregationBuilders.terms(NodeComponentTable.COLUMN_COMPONENT_NAME).field(NodeComponentTable.COLUMN_COMPONENT_NAME).size(100)
-            .subAggregation(AggregationBuilders.terms(NodeComponentTable.COLUMN_PEER).field(NodeComponentTable.COLUMN_PEER).size(100))
-            .subAggregation(AggregationBuilders.terms(NodeComponentTable.COLUMN_PEER_ID).field(NodeComponentTable.COLUMN_PEER_ID).size(100)));
-
-        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
-
-        Terms componentNameTerms = searchResponse.getAggregations().get(NodeComponentTable.COLUMN_COMPONENT_NAME);
-        JsonArray nodeComponentArray = new JsonArray();
-        for (Terms.Bucket componentNameBucket : componentNameTerms.getBuckets()) {
-            String componentName = componentNameBucket.getKeyAsString();
-            if (StringUtils.isNotEmpty(componentName)) {
-                buildComponentArray(componentNameBucket, componentName, nodeComponentArray);
             }
         }
 
@@ -117,18 +89,6 @@ public class NodeComponentEsUIDAO extends EsDAO implements INodeComponentUIDAO {
                 JsonObject nodeComponentObj = new JsonObject();
                 nodeComponentObj.addProperty("componentName", componentName);
 //                nodeComponentObj.addProperty("peer", peer);
-                nodeComponentArray.add(nodeComponentObj);
-            }
-        }
-
-        Terms peerTerms = componentBucket.getAggregations().get(NodeComponentTable.COLUMN_PEER);
-        for (Terms.Bucket peerBucket : peerTerms.getBuckets()) {
-            String peer = peerBucket.getKeyAsString();
-
-            if (StringUtils.isNotEmpty(peer)) {
-                JsonObject nodeComponentObj = new JsonObject();
-                nodeComponentObj.addProperty("componentName", componentName);
-                nodeComponentObj.addProperty("peer", peer);
                 nodeComponentArray.add(nodeComponentObj);
             }
         }

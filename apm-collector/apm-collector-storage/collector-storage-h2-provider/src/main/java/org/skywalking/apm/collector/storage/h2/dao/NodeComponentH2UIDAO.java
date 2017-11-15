@@ -19,12 +19,10 @@
 package org.skywalking.apm.collector.storage.h2.dao;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
-import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.dao.INodeComponentUIDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
@@ -56,7 +54,6 @@ public class NodeComponentH2UIDAO extends H2DAO implements INodeComponentUIDAO {
 
         JsonArray nodeComponentArray = new JsonArray();
         String sql = SqlBuilder.buildSql(AGGREGATE_COMPONENT_SQL, NodeComponentTable.COLUMN_COMPONENT_ID,
-            NodeComponentTable.COLUMN_PEER, NodeComponentTable.COLUMN_PEER_ID,
             NodeComponentTable.TABLE, NodeComponentTable.COLUMN_TIME_BUCKET);
         Object[] params = new Object[] {startTime, endTime};
         try (ResultSet rs = client.executeQuery(sql, params)) {
@@ -69,21 +66,10 @@ public class NodeComponentH2UIDAO extends H2DAO implements INodeComponentUIDAO {
 //                    String peer = ApplicationCache.get(peerId);
 //                    nodeComponentArray.add(buildNodeComponent(peer, componentName));
                 }
-                String peer = rs.getString(NodeComponentTable.COLUMN_PEER);
-                if (StringUtils.isNotEmpty(peer)) {
-                    nodeComponentArray.add(buildNodeComponent(peer, componentName));
-                }
             }
         } catch (SQLException | H2ClientException e) {
             logger.error(e.getMessage(), e);
         }
         return nodeComponentArray;
-    }
-
-    private JsonObject buildNodeComponent(String peer, String componentName) {
-        JsonObject nodeComponentObj = new JsonObject();
-        nodeComponentObj.addProperty("componentName", componentName);
-        nodeComponentObj.addProperty("peer", peer);
-        return nodeComponentObj;
     }
 }

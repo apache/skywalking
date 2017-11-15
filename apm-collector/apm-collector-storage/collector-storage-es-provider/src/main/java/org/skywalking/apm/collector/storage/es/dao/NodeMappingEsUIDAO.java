@@ -27,7 +27,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.dao.INodeMappingUIDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.table.node.NodeMappingTable;
@@ -54,8 +53,7 @@ public class NodeMappingEsUIDAO extends EsDAO implements INodeMappingUIDAO {
 
         searchRequestBuilder.addAggregation(
             AggregationBuilders.terms(NodeMappingTable.COLUMN_APPLICATION_ID).field(NodeMappingTable.COLUMN_APPLICATION_ID).size(100)
-                .subAggregation(AggregationBuilders.terms(NodeMappingTable.COLUMN_ADDRESS_ID).field(NodeMappingTable.COLUMN_ADDRESS_ID).size(100))
-                .subAggregation(AggregationBuilders.terms(NodeMappingTable.COLUMN_ADDRESS).field(NodeMappingTable.COLUMN_ADDRESS).size(100)));
+                .subAggregation(AggregationBuilders.terms(NodeMappingTable.COLUMN_ADDRESS_ID).field(NodeMappingTable.COLUMN_ADDRESS_ID).size(100)));
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
         Terms applicationIdTerms = searchResponse.getAggregations().get(NodeMappingTable.COLUMN_APPLICATION_ID);
@@ -75,18 +73,6 @@ public class NodeMappingEsUIDAO extends EsDAO implements INodeMappingUIDAO {
                     JsonObject nodeMappingObj = new JsonObject();
 //                    nodeMappingObj.addProperty("applicationCode", applicationCode);
 //                    nodeMappingObj.addProperty("address", address);
-                    nodeMappingArray.add(nodeMappingObj);
-                }
-            }
-
-            Terms addressTerms = applicationIdBucket.getAggregations().get(NodeMappingTable.COLUMN_ADDRESS);
-            for (Terms.Bucket addressBucket : addressTerms.getBuckets()) {
-                String address = addressBucket.getKeyAsString();
-
-                if (StringUtils.isNotEmpty(address)) {
-                    JsonObject nodeMappingObj = new JsonObject();
-//                    nodeMappingObj.addProperty("applicationCode", applicationCode);
-                    nodeMappingObj.addProperty("address", address);
                     nodeMappingArray.add(nodeMappingObj);
                 }
             }

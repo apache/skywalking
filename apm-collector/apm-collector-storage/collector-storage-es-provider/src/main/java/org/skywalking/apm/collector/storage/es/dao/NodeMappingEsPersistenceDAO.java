@@ -45,7 +45,6 @@ public class NodeMappingEsPersistenceDAO extends EsDAO implements INodeMappingPe
             Map<String, Object> source = getResponse.getSource();
             nodeMapping.setApplicationId(((Number)source.get(NodeMappingTable.COLUMN_APPLICATION_ID)).intValue());
             nodeMapping.setAddressId(((Number)source.get(NodeMappingTable.COLUMN_ADDRESS_ID)).intValue());
-            nodeMapping.setAddress((String)source.get(NodeMappingTable.COLUMN_ADDRESS));
             nodeMapping.setTimeBucket(((Number)source.get(NodeMappingTable.COLUMN_TIME_BUCKET)).longValue());
             return nodeMapping;
         } else {
@@ -57,7 +56,6 @@ public class NodeMappingEsPersistenceDAO extends EsDAO implements INodeMappingPe
         Map<String, Object> source = new HashMap<>();
         source.put(NodeMappingTable.COLUMN_APPLICATION_ID, data.getApplicationId());
         source.put(NodeMappingTable.COLUMN_ADDRESS_ID, data.getAddressId());
-        source.put(NodeMappingTable.COLUMN_ADDRESS, data.getAddress());
         source.put(NodeMappingTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
         return getClient().prepareIndex(NodeMappingTable.TABLE, data.getId()).setSource(source);
@@ -67,7 +65,6 @@ public class NodeMappingEsPersistenceDAO extends EsDAO implements INodeMappingPe
         Map<String, Object> source = new HashMap<>();
         source.put(NodeMappingTable.COLUMN_APPLICATION_ID, data.getApplicationId());
         source.put(NodeMappingTable.COLUMN_ADDRESS_ID, data.getAddressId());
-        source.put(NodeMappingTable.COLUMN_ADDRESS, data.getAddress());
         source.put(NodeMappingTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
         return getClient().prepareUpdate(NodeMappingTable.TABLE, data.getId()).setDoc(source);
     }

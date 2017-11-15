@@ -39,6 +39,7 @@ import org.skywalking.apm.collector.agent.stream.worker.trace.serviceref.Service
 import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.module.ModuleManager;
+import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.table.segment.Segment;
 import org.skywalking.apm.network.proto.SpanType;
 import org.skywalking.apm.network.proto.TraceSegmentObject;
@@ -57,6 +58,7 @@ public class SegmentParse {
     private final List<SpanListener> spanListeners;
     private final ModuleManager moduleManager;
     private String segmentId;
+    private long timeBucket = 0;
 
     public SegmentParse(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
@@ -135,6 +137,7 @@ public class SegmentParse {
 
             if (spanDecorator.getSpanId() == 0) {
                 notifyFirstListener(spanDecorator, applicationId, applicationInstanceId, segmentId);
+                timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
             }
 
             if (SpanType.Exit.equals(spanDecorator.getSpanType())) {
@@ -154,6 +157,7 @@ public class SegmentParse {
     private void buildSegment(String id, byte[] dataBinary) {
         Segment segment = new Segment(id);
         segment.setDataBinary(dataBinary);
+        segment.setTimeBucket(timeBucket);
         Graph<Segment> graph = GraphManager.INSTANCE.createIfAbsent(TraceStreamGraph.SEGMENT_GRAPH_ID, Segment.class);
         graph.start(segment);
     }

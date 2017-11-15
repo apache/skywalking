@@ -47,18 +47,10 @@ public class NodeComponentSpanListener implements EntrySpanListener, ExitSpanLis
     public void parseExit(SpanDecorator spanDecorator, int applicationId, int instanceId, String segmentId) {
         NodeComponent nodeComponent = new NodeComponent(Const.EMPTY_STRING);
         nodeComponent.setComponentId(spanDecorator.getComponentId());
-
-        String id;
-        if (spanDecorator.getComponentId() == 0) {
-            nodeComponent.setComponentName(spanDecorator.getComponent());
-            id = nodeComponent.getComponentName();
-        } else {
-            nodeComponent.setComponentName(Const.EMPTY_STRING);
-            id = String.valueOf(nodeComponent.getComponentId());
-        }
-
         nodeComponent.setPeerId(spanDecorator.getPeerId());
-        id = id + Const.ID_SPLIT + nodeComponent.getPeerId();
+
+        String id = String.valueOf(nodeComponent.getComponentId()) + Const.ID_SPLIT + nodeComponent.getPeerId();
+
         nodeComponent.setId(id);
         nodeComponents.add(nodeComponent);
     }
@@ -68,18 +60,9 @@ public class NodeComponentSpanListener implements EntrySpanListener, ExitSpanLis
         String segmentId) {
         NodeComponent nodeComponent = new NodeComponent(Const.EMPTY_STRING);
         nodeComponent.setComponentId(spanDecorator.getComponentId());
-
-        String id;
-        if (spanDecorator.getComponentId() == 0) {
-            nodeComponent.setComponentName(spanDecorator.getComponent());
-            id = nodeComponent.getComponentName();
-        } else {
-            id = String.valueOf(nodeComponent.getComponentId());
-            nodeComponent.setComponentName(Const.EMPTY_STRING);
-        }
-
         nodeComponent.setPeerId(applicationId);
-        id = id + Const.ID_SPLIT + String.valueOf(applicationId);
+
+        String id = String.valueOf(nodeComponent.getComponentId()) + Const.ID_SPLIT + String.valueOf(applicationId);
         nodeComponent.setId(id);
 
         nodeComponents.add(nodeComponent);

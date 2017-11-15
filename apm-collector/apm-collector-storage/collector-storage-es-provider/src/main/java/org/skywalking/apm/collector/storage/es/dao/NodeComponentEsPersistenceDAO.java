@@ -44,9 +44,7 @@ public class NodeComponentEsPersistenceDAO extends EsDAO implements INodeCompone
             NodeComponent nodeComponent = new NodeComponent(id);
             Map<String, Object> source = getResponse.getSource();
             nodeComponent.setComponentId(((Number)source.get(NodeComponentTable.COLUMN_COMPONENT_ID)).intValue());
-            nodeComponent.setComponentName((String)source.get(NodeComponentTable.COLUMN_COMPONENT_NAME));
             nodeComponent.setPeerId(((Number)source.get(NodeComponentTable.COLUMN_PEER_ID)).intValue());
-            nodeComponent.setPeer((String)source.get(NodeComponentTable.COLUMN_PEER));
             nodeComponent.setTimeBucket((Long)source.get(NodeComponentTable.COLUMN_TIME_BUCKET));
             return nodeComponent;
         } else {
@@ -57,9 +55,7 @@ public class NodeComponentEsPersistenceDAO extends EsDAO implements INodeCompone
     @Override public IndexRequestBuilder prepareBatchInsert(NodeComponent data) {
         Map<String, Object> source = new HashMap<>();
         source.put(NodeComponentTable.COLUMN_COMPONENT_ID, data.getComponentId());
-        source.put(NodeComponentTable.COLUMN_COMPONENT_NAME, data.getComponentName());
         source.put(NodeComponentTable.COLUMN_PEER_ID, data.getPeerId());
-        source.put(NodeComponentTable.COLUMN_PEER, data.getPeer());
         source.put(NodeComponentTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
         return getClient().prepareIndex(NodeComponentTable.TABLE, data.getId()).setSource(source);
@@ -68,9 +64,7 @@ public class NodeComponentEsPersistenceDAO extends EsDAO implements INodeCompone
     @Override public UpdateRequestBuilder prepareBatchUpdate(NodeComponent data) {
         Map<String, Object> source = new HashMap<>();
         source.put(NodeComponentTable.COLUMN_COMPONENT_ID, data.getComponentId());
-        source.put(NodeComponentTable.COLUMN_COMPONENT_NAME, data.getComponentName());
         source.put(NodeComponentTable.COLUMN_PEER_ID, data.getPeerId());
-        source.put(NodeComponentTable.COLUMN_PEER, data.getPeer());
         source.put(NodeComponentTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
         return getClient().prepareUpdate(NodeComponentTable.TABLE, data.getId()).setDoc(source);

@@ -30,8 +30,6 @@ public class NodeComponent extends Data {
 
     private static final Column[] STRING_COLUMNS = {
         new Column(NodeComponentTable.COLUMN_ID, new NonOperation()),
-        new Column(NodeComponentTable.COLUMN_COMPONENT_NAME, new CoverOperation()),
-        new Column(NodeComponentTable.COLUMN_PEER, new CoverOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
@@ -48,22 +46,6 @@ public class NodeComponent extends Data {
 
     public NodeComponent(String id) {
         super(id, STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
-    }
-
-    public String getComponentName() {
-        return getDataString(1);
-    }
-
-    public void setComponentName(String componentName) {
-        setDataString(1, componentName);
-    }
-
-    public String getPeer() {
-        return getDataString(1);
-    }
-
-    public void setPeer(String peer) {
-        setDataString(2, peer);
     }
 
     public Long getTimeBucket() {

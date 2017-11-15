@@ -55,9 +55,7 @@ public class NodeComponentH2PersistenceDAO extends H2DAO implements INodeCompone
             if (rs.next()) {
                 NodeComponent nodeComponent = new NodeComponent(id);
                 nodeComponent.setComponentId(rs.getInt(NodeComponentTable.COLUMN_COMPONENT_ID));
-                nodeComponent.setComponentName(rs.getString(NodeComponentTable.COLUMN_COMPONENT_NAME));
                 nodeComponent.setPeerId(rs.getInt(NodeComponentTable.COLUMN_PEER_ID));
-                nodeComponent.setPeer(rs.getString(NodeComponentTable.COLUMN_PEER));
                 nodeComponent.setTimeBucket(rs.getLong(NodeComponentTable.COLUMN_TIME_BUCKET));
                 return nodeComponent;
             }
@@ -73,9 +71,7 @@ public class NodeComponentH2PersistenceDAO extends H2DAO implements INodeCompone
         H2SqlEntity entity = new H2SqlEntity();
         source.put(NodeComponentTable.COLUMN_ID, data.getId());
         source.put(NodeComponentTable.COLUMN_COMPONENT_ID, data.getComponentId());
-        source.put(NodeComponentTable.COLUMN_COMPONENT_NAME, data.getComponentName());
         source.put(NodeComponentTable.COLUMN_PEER_ID, data.getPeerId());
-        source.put(NodeComponentTable.COLUMN_PEER, data.getPeer());
         source.put(NodeComponentTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
         String sql = SqlBuilder.buildBatchInsertSql(NodeComponentTable.TABLE, source.keySet());
@@ -89,9 +85,7 @@ public class NodeComponentH2PersistenceDAO extends H2DAO implements INodeCompone
         Map<String, Object> source = new HashMap<>();
         H2SqlEntity entity = new H2SqlEntity();
         source.put(NodeComponentTable.COLUMN_COMPONENT_ID, data.getComponentId());
-        source.put(NodeComponentTable.COLUMN_COMPONENT_NAME, data.getComponentName());
         source.put(NodeComponentTable.COLUMN_PEER_ID, data.getPeerId());
-        source.put(NodeComponentTable.COLUMN_PEER, data.getPeer());
         source.put(NodeComponentTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
         String sql = SqlBuilder.buildBatchUpdateSql(NodeComponentTable.TABLE, source.keySet(), NodeComponentTable.COLUMN_ID);
         entity.setSql(sql);

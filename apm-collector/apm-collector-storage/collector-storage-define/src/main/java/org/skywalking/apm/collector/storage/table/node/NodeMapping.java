@@ -30,7 +30,6 @@ public class NodeMapping extends Data {
 
     private static final Column[] STRING_COLUMNS = {
         new Column(NodeMappingTable.COLUMN_ID, new NonOperation()),
-        new Column(NodeMappingTable.COLUMN_ADDRESS, new CoverOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
@@ -47,14 +46,6 @@ public class NodeMapping extends Data {
 
     public NodeMapping(String id) {
         super(id, STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
-    }
-
-    public String getAddress() {
-        return getDataString(1);
-    }
-
-    public void setAddress(String address) {
-        setDataString(1, address);
     }
 
     public int getApplicationId() {
