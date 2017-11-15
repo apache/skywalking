@@ -108,13 +108,6 @@ public class SegmentCostEsUIDAO extends EsDAO implements ISegmentCostUIDAO {
                 topSegmentJson.addProperty(SegmentCostTable.COLUMN_END_TIME, (Number)searchHit.getSource().get(SegmentCostTable.COLUMN_END_TIME));
             }
 
-            //TODO IGlobalTraceUIDAO
-//            IGlobalTraceUIDAO globalTraceDAO = (IGlobalTraceDAO)DAOContainer.INSTANCE.get(IGlobalTraceDAO.class.getName());
-//            List<String> globalTraces = globalTraceDAO.getGlobalTraceId(segmentId);
-//            if (CollectionUtils.isNotEmpty(globalTraces)) {
-//                topSegmentJson.addProperty(GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID, globalTraces.get(0));
-//            }
-
             topSegmentJson.addProperty(SegmentCostTable.COLUMN_APPLICATION_ID, (Number)searchHit.getSource().get(SegmentCostTable.COLUMN_APPLICATION_ID));
             topSegmentJson.addProperty(SegmentCostTable.COLUMN_SERVICE_NAME, (String)searchHit.getSource().get(SegmentCostTable.COLUMN_SERVICE_NAME));
             topSegmentJson.addProperty(SegmentCostTable.COLUMN_COST, (Number)searchHit.getSource().get(SegmentCostTable.COLUMN_COST));
