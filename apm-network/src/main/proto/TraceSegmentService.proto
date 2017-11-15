@@ -26,6 +26,7 @@ message TraceSegmentObject {
     repeated SpanObject spans = 3;
     int32 applicationId = 4;
     int32 applicationInstanceId = 5;
+    bool isSizeLimited = 6;
 }
 
 message TraceSegmentReference {

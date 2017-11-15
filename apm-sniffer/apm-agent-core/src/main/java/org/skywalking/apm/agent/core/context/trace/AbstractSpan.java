@@ -22,8 +22,7 @@ import java.util.Map;
 import org.skywalking.apm.network.trace.component.Component;
 
 /**
- * The <code>AbstractSpan</code> represents the span's skeleton,
- * which contains all open methods.
+ * The <code>AbstractSpan</code> represents the span's skeleton, which contains all open methods.
  *
  * @author wusheng
  */
@@ -37,8 +36,8 @@ public interface AbstractSpan {
     AbstractSpan setComponent(Component component);
 
     /**
-     * Only use this method in explicit instrumentation, like opentracing-skywalking-bridge.
-     * It it higher recommend don't use this for performance consideration.
+     * Only use this method in explicit instrumentation, like opentracing-skywalking-bridge. It it higher recommend
+     * don't use this for performance consideration.
      *
      * @param componentName
      * @return the span for chaining.
@@ -89,4 +88,24 @@ public interface AbstractSpan {
      * @return this Span instance, for chaining
      */
     AbstractSpan setOperationName(String operationName);
+
+    /**
+     * Start a span.
+     *
+     * @return this Span instance, for chaining
+     */
+    AbstractSpan start();
+
+    /**
+     * Get the id of span
+     *
+     * @return id value.
+     */
+    int getSpanId();
+
+    int getOperationId();
+
+    String getOperationName();
+
+    AbstractSpan setOperationId(int operationId);
 }
