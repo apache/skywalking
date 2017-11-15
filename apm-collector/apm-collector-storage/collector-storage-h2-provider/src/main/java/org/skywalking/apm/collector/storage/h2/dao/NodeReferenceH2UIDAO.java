@@ -24,7 +24,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
-import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.dao.INodeReferenceUIDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
@@ -52,7 +51,7 @@ public class NodeReferenceH2UIDAO extends H2DAO implements INodeReferenceUIDAO {
             NodeReferenceTable.COLUMN_S3_LTE, NodeReferenceTable.COLUMN_S5_LTE,
             NodeReferenceTable.COLUMN_S5_GT, NodeReferenceTable.COLUMN_SUMMARY,
             NodeReferenceTable.COLUMN_ERROR, NodeReferenceTable.TABLE, NodeReferenceTable.COLUMN_TIME_BUCKET,
-            NodeReferenceTable.COLUMN_FRONT_APPLICATION_ID, NodeReferenceTable.COLUMN_BEHIND_APPLICATION_ID, NodeReferenceTable.COLUMN_BEHIND_PEER);
+            NodeReferenceTable.COLUMN_FRONT_APPLICATION_ID, NodeReferenceTable.COLUMN_BEHIND_APPLICATION_ID);
 
         Object[] params = new Object[] {startTime, endTime};
         try (ResultSet rs = client.executeQuery(sql, params)) {
@@ -67,19 +66,6 @@ public class NodeReferenceH2UIDAO extends H2DAO implements INodeReferenceUIDAO {
                     JsonObject nodeRefResSumObj = new JsonObject();
 //                    nodeRefResSumObj.addProperty("front", applicationCode);
 //                    nodeRefResSumObj.addProperty("behind", behindApplicationCode);
-                    nodeRefResSumObj.addProperty(NodeReferenceTable.COLUMN_S1_LTE, rs.getDouble(NodeReferenceTable.COLUMN_S1_LTE));
-                    nodeRefResSumObj.addProperty(NodeReferenceTable.COLUMN_S3_LTE, rs.getDouble(NodeReferenceTable.COLUMN_S3_LTE));
-                    nodeRefResSumObj.addProperty(NodeReferenceTable.COLUMN_S5_LTE, rs.getDouble(NodeReferenceTable.COLUMN_S5_LTE));
-                    nodeRefResSumObj.addProperty(NodeReferenceTable.COLUMN_S5_GT, rs.getDouble(NodeReferenceTable.COLUMN_S5_GT));
-                    nodeRefResSumObj.addProperty(NodeReferenceTable.COLUMN_ERROR, rs.getDouble(NodeReferenceTable.COLUMN_ERROR));
-                    nodeRefResSumObj.addProperty(NodeReferenceTable.COLUMN_SUMMARY, rs.getDouble(NodeReferenceTable.COLUMN_SUMMARY));
-                    nodeRefResSumArray.add(nodeRefResSumObj);
-                }
-                String behindPeer = rs.getString(NodeReferenceTable.COLUMN_BEHIND_PEER);
-                if (StringUtils.isNotEmpty(behindPeer)) {
-                    JsonObject nodeRefResSumObj = new JsonObject();
-//                    nodeRefResSumObj.addProperty("front", applicationCode);
-                    nodeRefResSumObj.addProperty("behind", behindPeer);
                     nodeRefResSumObj.addProperty(NodeReferenceTable.COLUMN_S1_LTE, rs.getDouble(NodeReferenceTable.COLUMN_S1_LTE));
                     nodeRefResSumObj.addProperty(NodeReferenceTable.COLUMN_S3_LTE, rs.getDouble(NodeReferenceTable.COLUMN_S3_LTE));
                     nodeRefResSumObj.addProperty(NodeReferenceTable.COLUMN_S5_LTE, rs.getDouble(NodeReferenceTable.COLUMN_S5_LTE));

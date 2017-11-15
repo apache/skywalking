@@ -61,20 +61,13 @@ public class NodeMappingEsUIDAO extends EsDAO implements INodeMappingUIDAO {
         JsonArray nodeMappingArray = new JsonArray();
         for (Terms.Bucket applicationIdBucket : applicationIdTerms.getBuckets()) {
             int applicationId = applicationIdBucket.getKeyAsNumber().intValue();
-            //TODO ApplicationCache
-//            String applicationCode = ApplicationCache.get(applicationId);
             Terms addressIdTerms = applicationIdBucket.getAggregations().get(NodeMappingTable.COLUMN_ADDRESS_ID);
             for (Terms.Bucket addressIdBucket : addressIdTerms.getBuckets()) {
                 int addressId = addressIdBucket.getKeyAsNumber().intValue();
-                //TODO ApplicationCache
-//                String address = ApplicationCache.get(addressId);
-
-                if (addressId != 0) {
-                    JsonObject nodeMappingObj = new JsonObject();
-//                    nodeMappingObj.addProperty("applicationCode", applicationCode);
-//                    nodeMappingObj.addProperty("address", address);
-                    nodeMappingArray.add(nodeMappingObj);
-                }
+                JsonObject nodeMappingObj = new JsonObject();
+                nodeMappingObj.addProperty(NodeMappingTable.COLUMN_APPLICATION_ID, applicationId);
+                nodeMappingObj.addProperty(NodeMappingTable.COLUMN_ADDRESS_ID, addressId);
+                nodeMappingArray.add(nodeMappingObj);
             }
         }
         logger.debug("node mapping data: {}", nodeMappingArray.toString());

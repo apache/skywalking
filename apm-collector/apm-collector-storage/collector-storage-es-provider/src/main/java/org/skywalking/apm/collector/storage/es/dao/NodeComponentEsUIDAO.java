@@ -30,7 +30,6 @@ import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.storage.dao.INodeComponentUIDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.table.node.NodeComponentTable;
-import org.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,29 +67,21 @@ public class NodeComponentEsUIDAO extends EsDAO implements INodeComponentUIDAO {
         JsonArray nodeComponentArray = new JsonArray();
         for (Terms.Bucket componentIdBucket : componentIdTerms.getBuckets()) {
             int componentId = componentIdBucket.getKeyAsNumber().intValue();
-            String componentName = ComponentsDefine.getInstance().getComponentName(componentId);
-            if (componentId != 0) {
-                buildComponentArray(componentIdBucket, componentName, nodeComponentArray);
-            }
+            buildComponentArray(componentIdBucket, componentId, nodeComponentArray);
         }
 
         return nodeComponentArray;
     }
 
-    private void buildComponentArray(Terms.Bucket componentBucket, String componentName, JsonArray nodeComponentArray) {
+    private void buildComponentArray(Terms.Bucket componentBucket, int componentId, JsonArray nodeComponentArray) {
         Terms peerIdTerms = componentBucket.getAggregations().get(NodeComponentTable.COLUMN_PEER_ID);
         for (Terms.Bucket peerIdBucket : peerIdTerms.getBuckets()) {
             int peerId = peerIdBucket.getKeyAsNumber().intValue();
 
-            if (peerId != 0) {
-                //TODO ApplicationCache
-//                String peer = ApplicationCache.get(peerId);
-
-                JsonObject nodeComponentObj = new JsonObject();
-                nodeComponentObj.addProperty("componentName", componentName);
-//                nodeComponentObj.addProperty("peer", peer);
-                nodeComponentArray.add(nodeComponentObj);
-            }
+            JsonObject nodeComponentObj = new JsonObject();
+            nodeComponentObj.addProperty(NodeComponentTable.COLUMN_COMPONENT_ID, componentId);
+            nodeComponentObj.addProperty(NodeComponentTable.COLUMN_PEER_ID, peerId);
+            nodeComponentArray.add(nodeComponentObj);
         }
     }
 }

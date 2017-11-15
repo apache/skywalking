@@ -45,7 +45,6 @@ public class NodeReferenceEsPersistenceDAO extends EsDAO implements INodeReferen
             Map<String, Object> source = getResponse.getSource();
             nodeReference.setFrontApplicationId(((Number)source.get(NodeReferenceTable.COLUMN_FRONT_APPLICATION_ID)).intValue());
             nodeReference.setBehindApplicationId(((Number)source.get(NodeReferenceTable.COLUMN_BEHIND_APPLICATION_ID)).intValue());
-            nodeReference.setBehindPeer((String)source.get(NodeReferenceTable.COLUMN_BEHIND_PEER));
             nodeReference.setS1Lte(((Number)source.get(NodeReferenceTable.COLUMN_S1_LTE)).intValue());
             nodeReference.setS3Lte(((Number)source.get(NodeReferenceTable.COLUMN_S3_LTE)).intValue());
             nodeReference.setS5Lte(((Number)source.get(NodeReferenceTable.COLUMN_S5_LTE)).intValue());
@@ -63,7 +62,6 @@ public class NodeReferenceEsPersistenceDAO extends EsDAO implements INodeReferen
         Map<String, Object> source = new HashMap<>();
         source.put(NodeReferenceTable.COLUMN_FRONT_APPLICATION_ID, data.getFrontApplicationId());
         source.put(NodeReferenceTable.COLUMN_BEHIND_APPLICATION_ID, data.getBehindApplicationId());
-        source.put(NodeReferenceTable.COLUMN_BEHIND_PEER, data.getBehindPeer());
         source.put(NodeReferenceTable.COLUMN_S1_LTE, data.getS1Lte());
         source.put(NodeReferenceTable.COLUMN_S3_LTE, data.getS3Lte());
         source.put(NodeReferenceTable.COLUMN_S5_LTE, data.getS5Lte());
@@ -79,7 +77,6 @@ public class NodeReferenceEsPersistenceDAO extends EsDAO implements INodeReferen
         Map<String, Object> source = new HashMap<>();
         source.put(NodeReferenceTable.COLUMN_FRONT_APPLICATION_ID, data.getFrontApplicationId());
         source.put(NodeReferenceTable.COLUMN_BEHIND_APPLICATION_ID, data.getBehindApplicationId());
-        source.put(NodeReferenceTable.COLUMN_BEHIND_PEER, data.getBehindPeer());
         source.put(NodeReferenceTable.COLUMN_S1_LTE, data.getS1Lte());
         source.put(NodeReferenceTable.COLUMN_S3_LTE, data.getS3Lte());
         source.put(NodeReferenceTable.COLUMN_S5_LTE, data.getS5Lte());

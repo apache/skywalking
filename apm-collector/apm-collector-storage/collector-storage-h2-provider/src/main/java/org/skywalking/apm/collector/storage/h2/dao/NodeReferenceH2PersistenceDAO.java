@@ -56,7 +56,6 @@ public class NodeReferenceH2PersistenceDAO extends H2DAO implements INodeReferen
                 NodeReference nodeReference = new NodeReference(id);
                 nodeReference.setFrontApplicationId(rs.getInt(NodeReferenceTable.COLUMN_FRONT_APPLICATION_ID));
                 nodeReference.setBehindApplicationId(rs.getInt(NodeReferenceTable.COLUMN_BEHIND_APPLICATION_ID));
-                nodeReference.setBehindPeer(rs.getString(NodeReferenceTable.COLUMN_BEHIND_PEER));
                 nodeReference.setS1Lte(rs.getInt(NodeReferenceTable.COLUMN_S1_LTE));
                 nodeReference.setS3Lte(rs.getInt(NodeReferenceTable.COLUMN_S3_LTE));
                 nodeReference.setS5Lte(rs.getInt(NodeReferenceTable.COLUMN_S5_LTE));
@@ -78,7 +77,6 @@ public class NodeReferenceH2PersistenceDAO extends H2DAO implements INodeReferen
         source.put(NodeReferenceTable.COLUMN_ID, data.getId());
         source.put(NodeReferenceTable.COLUMN_FRONT_APPLICATION_ID, data.getFrontApplicationId());
         source.put(NodeReferenceTable.COLUMN_BEHIND_APPLICATION_ID, data.getBehindApplicationId());
-        source.put(NodeReferenceTable.COLUMN_BEHIND_PEER, data.getBehindPeer());
         source.put(NodeReferenceTable.COLUMN_S1_LTE, data.getS1Lte());
         source.put(NodeReferenceTable.COLUMN_S3_LTE, data.getS3Lte());
         source.put(NodeReferenceTable.COLUMN_S5_LTE, data.getS5Lte());
@@ -98,7 +96,6 @@ public class NodeReferenceH2PersistenceDAO extends H2DAO implements INodeReferen
         H2SqlEntity entity = new H2SqlEntity();
         source.put(NodeReferenceTable.COLUMN_FRONT_APPLICATION_ID, data.getFrontApplicationId());
         source.put(NodeReferenceTable.COLUMN_BEHIND_APPLICATION_ID, data.getBehindApplicationId());
-        source.put(NodeReferenceTable.COLUMN_BEHIND_PEER, data.getBehindPeer());
         source.put(NodeReferenceTable.COLUMN_S1_LTE, data.getS1Lte());
         source.put(NodeReferenceTable.COLUMN_S3_LTE, data.getS3Lte());
         source.put(NodeReferenceTable.COLUMN_S5_LTE, data.getS5Lte());
