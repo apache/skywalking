@@ -29,6 +29,8 @@ import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.skywalking.apm.collector.storage.StorageException;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.base.dao.DAOContainer;
+import org.skywalking.apm.collector.storage.base.dao.IBatchDAO;
+import org.skywalking.apm.collector.storage.es.base.dao.BatchEsDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAODefineLoader;
 import org.skywalking.apm.collector.storage.es.base.define.ElasticSearchStorageInstaller;
@@ -72,6 +74,10 @@ public class StorageModuleEsProvider extends ModuleProvider {
         elasticSearchClient = new ElasticSearchClient(clusterName, clusterTransportSniffer, clusterNodes);
 
         this.registerServiceImplementation(DAOService.class, new ElasticSearchDAOService(daoContainer));
+
+        BatchEsDAO batchEsDAO = new BatchEsDAO();
+        batchEsDAO.setClient(elasticSearchClient);
+        this.registerServiceImplementation(IBatchDAO.class, batchEsDAO);
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {

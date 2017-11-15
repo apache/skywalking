@@ -20,10 +20,13 @@ package org.skywalking.apm.collector.agent.stream.worker.trace.node;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.skywalking.apm.collector.agent.stream.graph.TraceStreamGraph;
 import org.skywalking.apm.collector.agent.stream.parser.EntrySpanListener;
 import org.skywalking.apm.collector.agent.stream.parser.ExitSpanListener;
 import org.skywalking.apm.collector.agent.stream.parser.FirstSpanListener;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SpanDecorator;
+import org.skywalking.apm.collector.core.graph.Graph;
+import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.table.node.NodeComponent;
@@ -89,9 +92,12 @@ public class NodeComponentSpanListener implements EntrySpanListener, ExitSpanLis
     }
 
     @Override public void build() {
+        Graph<NodeComponent> graph = GraphManager.INSTANCE.createIfAbsent(TraceStreamGraph.NODE_COMPONENT_GRAPH_ID, NodeComponent.class);
+
         nodeComponents.forEach(nodeComponent -> {
             nodeComponent.setId(timeBucket + Const.ID_SPLIT + nodeComponent.getId());
             nodeComponent.setTimeBucket(timeBucket);
+            graph.start(nodeComponent);
         });
     }
 }

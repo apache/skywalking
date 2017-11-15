@@ -18,12 +18,28 @@
 
 package org.skywalking.apm.collector.stream.worker.base;
 
+import java.util.ArrayList;
+import java.util.List;
+import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
+
 /**
  * @author peng-yongsheng
  */
 public class WorkerCreateListener {
 
-    public void addWorker(AbstractWorker worker) {
+    private final List<PersistenceWorker> persistenceWorkers;
 
+    public WorkerCreateListener() {
+        this.persistenceWorkers = new ArrayList<>();
+    }
+
+    public void addWorker(AbstractWorker worker) {
+        if (worker instanceof PersistenceWorker) {
+            persistenceWorkers.add((PersistenceWorker)worker);
+        }
+    }
+
+    public List<PersistenceWorker> getPersistenceWorkers() {
+        return persistenceWorkers;
     }
 }

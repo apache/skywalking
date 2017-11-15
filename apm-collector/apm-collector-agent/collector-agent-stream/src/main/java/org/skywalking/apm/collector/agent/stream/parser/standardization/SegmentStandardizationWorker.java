@@ -41,7 +41,7 @@ public class SegmentStandardizationWorker extends AbstractLocalAsyncWorker<Upstr
     }
 
     @Override public int id() {
-        return 0;
+        return SegmentStandardizationWorker.class.hashCode();
     }
 
     @Override protected void onWork(UpstreamSegment upstreamSegment) throws WorkerException {

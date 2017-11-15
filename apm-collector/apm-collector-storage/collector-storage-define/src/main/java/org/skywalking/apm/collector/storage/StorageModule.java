@@ -20,6 +20,7 @@ package org.skywalking.apm.collector.storage;
 
 import org.skywalking.apm.collector.core.module.Module;
 import org.skywalking.apm.collector.storage.service.DAOService;
+import org.skywalking.apm.collector.storage.base.dao.IBatchDAO;
 
 /**
  * @author peng-yongsheng
@@ -33,6 +34,6 @@ public class StorageModule extends Module {
     }
 
     @Override public Class[] services() {
-        return new Class[] {DAOService.class};
+        return new Class[] {DAOService.class, IBatchDAO.class};
     }
 }

@@ -18,9 +18,12 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.trace.instance;
 
+import org.skywalking.apm.collector.agent.stream.graph.TraceStreamGraph;
 import org.skywalking.apm.collector.agent.stream.parser.EntrySpanListener;
 import org.skywalking.apm.collector.agent.stream.parser.FirstSpanListener;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SpanDecorator;
+import org.skywalking.apm.collector.core.graph.Graph;
+import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.table.instance.InstPerformance;
@@ -60,5 +63,8 @@ public class InstPerformanceSpanListener implements EntrySpanListener, FirstSpan
         instPerformance.setCalls(1);
         instPerformance.setCostTotal(cost);
         instPerformance.setTimeBucket(timeBucket);
+
+        Graph<InstPerformance> graph = GraphManager.INSTANCE.createIfAbsent(TraceStreamGraph.INST_PERFORMANCE_GRAPH_ID, InstPerformance.class);
+        graph.start(instPerformance);
     }
 }
