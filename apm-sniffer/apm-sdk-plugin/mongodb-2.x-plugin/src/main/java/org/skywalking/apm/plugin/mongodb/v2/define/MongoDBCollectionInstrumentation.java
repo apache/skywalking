@@ -38,7 +38,7 @@ public class MongoDBCollectionInstrumentation extends ClassInstanceMethodsEnhanc
 
     private static final String ENHANCE_CLASS = "com.mongodb.DBCollection";
 
-    private static final String MONGDB_METHOD_INTERCET_CLASS = "org.skywalking.apm.plugin.mongodb.v2.MongoDBV2MethodInterceptor";
+    private static final String MONGDB_METHOD_INTERCET_CLASS = "org.skywalking.apm.plugin.mongodb.v2.MongoDBCollectionMethodInterceptor";
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
