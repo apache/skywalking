@@ -20,6 +20,7 @@ package org.skywalking.apm.collector.agent.stream.worker.trace.noderef;
 
 import java.util.LinkedList;
 import java.util.List;
+import org.skywalking.apm.collector.agent.stream.graph.TraceStreamGraph;
 import org.skywalking.apm.collector.agent.stream.parser.EntrySpanListener;
 import org.skywalking.apm.collector.agent.stream.parser.ExitSpanListener;
 import org.skywalking.apm.collector.agent.stream.parser.RefsListener;
@@ -27,6 +28,8 @@ import org.skywalking.apm.collector.agent.stream.parser.standardization.Referenc
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SpanDecorator;
 import org.skywalking.apm.collector.cache.CacheModule;
 import org.skywalking.apm.collector.cache.service.InstanceCacheService;
+import org.skywalking.apm.collector.core.graph.Graph;
+import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.CollectionUtils;
 import org.skywalking.apm.collector.core.util.Const;
@@ -105,7 +108,9 @@ public class NodeReferenceSpanListener implements EntrySpanListener, ExitSpanLis
 
     @Override public void build() {
         logger.debug("node reference summary listener build");
+        Graph<NodeReference> graph = GraphManager.INSTANCE.createIfAbsent(TraceStreamGraph.NODE_REFERENCE_GRAPH_ID, NodeReference.class);
         for (NodeReference nodeReference : nodeReferences) {
+            graph.start(nodeReference);
         }
     }
 

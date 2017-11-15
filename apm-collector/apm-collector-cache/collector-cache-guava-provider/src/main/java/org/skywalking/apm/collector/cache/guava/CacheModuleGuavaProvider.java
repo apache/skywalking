@@ -32,7 +32,6 @@ import org.skywalking.apm.collector.core.module.Module;
 import org.skywalking.apm.collector.core.module.ModuleProvider;
 import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.skywalking.apm.collector.storage.StorageModule;
-import org.skywalking.apm.collector.storage.service.DAOService;
 
 /**
  * @author peng-yongsheng
@@ -48,15 +47,13 @@ public class CacheModuleGuavaProvider extends ModuleProvider {
     }
 
     @Override public void prepare(Properties config) throws ServiceNotProvidedException {
+        this.registerServiceImplementation(ApplicationCacheService.class, new ApplicationCacheGuavaService(getManager()));
+        this.registerServiceImplementation(InstanceCacheService.class, new InstanceCacheGuavaService(getManager()));
+        this.registerServiceImplementation(ServiceIdCacheService.class, new ServiceIdCacheGuavaService(getManager()));
+        this.registerServiceImplementation(ServiceNameCacheService.class, new ServiceNameCacheGuavaService(getManager()));
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
-        DAOService daoService = getManager().find(StorageModule.NAME).getService(DAOService.class);
-
-        this.registerServiceImplementation(ApplicationCacheService.class, new ApplicationCacheGuavaService(daoService));
-        this.registerServiceImplementation(InstanceCacheService.class, new InstanceCacheGuavaService(daoService));
-        this.registerServiceImplementation(ServiceIdCacheService.class, new ServiceIdCacheGuavaService(daoService));
-        this.registerServiceImplementation(ServiceNameCacheService.class, new ServiceNameCacheGuavaService(daoService));
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {

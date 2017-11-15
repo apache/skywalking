@@ -22,11 +22,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.skywalking.apm.collector.core.module.ModuleManager;
+import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.base.dao.IBatchDAO;
-import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.stream.worker.base.WorkerException;
 import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
-import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorkerContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,19 +37,19 @@ public class PersistenceTimer {
 
     private final Logger logger = LoggerFactory.getLogger(PersistenceTimer.class);
 
-    public void start(DAOService daoService) {
+    public void start(ModuleManager moduleManager, List<PersistenceWorker> persistenceWorkers) {
         logger.info("persistence timer start");
         //TODO timer value config
 //        final long timeInterval = EsConfig.Es.Persistence.Timer.VALUE * 1000;
         final long timeInterval = 3;
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> extractDataAndSave(daoService), 1, timeInterval, TimeUnit.SECONDS);
+        IBatchDAO batchDAO = moduleManager.find(StorageModule.NAME).getService(IBatchDAO.class);
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> extractDataAndSave(batchDAO, persistenceWorkers), 1, timeInterval, TimeUnit.SECONDS);
     }
 
-    private void extractDataAndSave(DAOService daoService) {
+    private void extractDataAndSave(IBatchDAO batchDAO, List<PersistenceWorker> persistenceWorkers) {
         try {
-            List<PersistenceWorker> workers = PersistenceWorkerContainer.INSTANCE.getPersistenceWorkers();
             List batchAllCollection = new ArrayList<>();
-            workers.forEach((PersistenceWorker worker) -> {
+            persistenceWorkers.forEach((PersistenceWorker worker) -> {
                 logger.debug("extract {} worker data and save", worker.getClass().getName());
                 try {
                     worker.flushAndSwitch();
@@ -61,8 +61,7 @@ public class PersistenceTimer {
                 }
             });
 
-            IBatchDAO dao = (IBatchDAO)daoService.get(IBatchDAO.class);
-            dao.batchPersistence(batchAllCollection);
+            batchDAO.batchPersistence(batchAllCollection);
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         } finally {

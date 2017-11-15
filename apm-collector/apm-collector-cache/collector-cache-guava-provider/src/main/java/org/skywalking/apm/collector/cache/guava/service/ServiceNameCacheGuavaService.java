@@ -21,8 +21,10 @@ package org.skywalking.apm.collector.cache.guava.service;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.skywalking.apm.collector.cache.service.ServiceNameCacheService;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.StringUtils;
+import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.IServiceNameCacheDAO;
 import org.skywalking.apm.collector.storage.service.DAOService;
 import org.slf4j.Logger;
@@ -39,8 +41,8 @@ public class ServiceNameCacheGuavaService implements ServiceNameCacheService {
 
     private final DAOService daoService;
 
-    public ServiceNameCacheGuavaService(DAOService daoService) {
-        this.daoService = daoService;
+    public ServiceNameCacheGuavaService(ModuleManager moduleManager) {
+        this.daoService = moduleManager.find(StorageModule.NAME).getService(DAOService.class);
     }
 
     public String get(int serviceId) {

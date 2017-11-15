@@ -35,7 +35,6 @@ public class ApplicationRegisterServiceHandlerTestCase {
 
     private ApplicationRegisterServiceGrpc.ApplicationRegisterServiceBlockingStub stub;
 
-    //@Test
     public void testRegister() {
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
         stub = ApplicationRegisterServiceGrpc.newBlockingStub(channel);

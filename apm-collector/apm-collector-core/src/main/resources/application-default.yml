@@ -24,6 +24,8 @@ jetty_manager:
   jetty:
 gRPC_manager:
   gRPC:
+stream:
+  worker:
 storage:
   h2:
     url: jdbc:h2:~/memorydb

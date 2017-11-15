@@ -21,6 +21,7 @@ package org.skywalking.apm.collector.agent.stream.parser;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.ArrayList;
 import java.util.List;
+import org.skywalking.apm.collector.agent.stream.graph.TraceStreamGraph;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.ReferenceDecorator;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.ReferenceIdExchanger;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SegmentDecorator;
@@ -34,6 +35,8 @@ import org.skywalking.apm.collector.agent.stream.worker.trace.noderef.NodeRefere
 import org.skywalking.apm.collector.agent.stream.worker.trace.segment.SegmentCostSpanListener;
 import org.skywalking.apm.collector.agent.stream.worker.trace.service.ServiceEntrySpanListener;
 import org.skywalking.apm.collector.agent.stream.worker.trace.serviceref.ServiceReferenceSpanListener;
+import org.skywalking.apm.collector.core.graph.Graph;
+import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.storage.table.segment.Segment;
 import org.skywalking.apm.network.proto.SpanType;
@@ -150,11 +153,14 @@ public class SegmentParse {
     private void buildSegment(String id, byte[] dataBinary) {
         Segment segment = new Segment(id);
         segment.setDataBinary(dataBinary);
+        Graph<Segment> graph = GraphManager.INSTANCE.createIfAbsent(TraceStreamGraph.SEGMENT_GRAPH_ID, Segment.class);
+        graph.start(segment);
     }
 
     private void writeToBufferFile(String id, UpstreamSegment upstreamSegment) {
         logger.debug("send to segment buffer write worker, id: {}", id);
-//        context.getClusterWorkerContext().lookup(SegmentStandardizationWorker.WorkerRole.INSTANCE).tell(upstreamSegment);
+        Graph<UpstreamSegment> graph = GraphManager.INSTANCE.createIfAbsent(TraceStreamGraph.SEGMENT_STANDARDIZATION_GRAPH_ID, UpstreamSegment.class);
+        graph.start(upstreamSegment);
     }
 
     private void notifyListenerToBuild() {
