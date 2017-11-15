@@ -136,14 +136,6 @@ public class SegmentCostH2UIDAO extends H2DAO implements ISegmentCostUIDAO {
                 topSegmentJson.addProperty(SegmentCostTable.COLUMN_SEGMENT_ID, segmentId);
                 topSegmentJson.addProperty(SegmentCostTable.COLUMN_START_TIME, rs.getLong(SegmentCostTable.COLUMN_START_TIME));
                 topSegmentJson.addProperty(SegmentCostTable.COLUMN_END_TIME, rs.getLong(SegmentCostTable.COLUMN_END_TIME));
-
-                //TODO IGlobalTraceDAO
-//                IGlobalTraceDAO globalTraceDAO = (IGlobalTraceDAO)DAOContainer.INSTANCE.get(IGlobalTraceDAO.class.getName());
-//                List<String> globalTraces = globalTraceDAO.getGlobalTraceId(segmentId);
-//                if (CollectionUtils.isNotEmpty(globalTraces)) {
-//                    topSegmentJson.addProperty(GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID, globalTraces.get(0));
-//                }
-
                 topSegmentJson.addProperty(SegmentCostTable.COLUMN_APPLICATION_ID, rs.getInt(SegmentCostTable.COLUMN_APPLICATION_ID));
                 topSegmentJson.addProperty(SegmentCostTable.COLUMN_SERVICE_NAME, rs.getString(SegmentCostTable.COLUMN_SERVICE_NAME));
                 topSegmentJson.addProperty(SegmentCostTable.COLUMN_COST, rs.getLong(SegmentCostTable.COLUMN_COST));

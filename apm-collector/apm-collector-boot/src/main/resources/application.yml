@@ -1,7 +1,7 @@
-cluster:
-  zookeeper:
-    hostPort: localhost:2181
-    sessionTimeout: 100000
+#cluster:
+#  zookeeper:
+#    hostPort: localhost:2181
+#    sessionTimeout: 100000
 naming:
   jetty:
     host: localhost
@@ -23,10 +23,10 @@ ui:
     host: localhost
     port: 12800
     context_path: /
-storage:
-  elasticsearch:
-    cluster_name: CollectorDBCluster
-    cluster_transport_sniffer: true
-    cluster_nodes: localhost:9300
-    index_shards_number: 2
-    index_replicas_number: 0
+#storage:
+#  elasticsearch:
+#    cluster_name: CollectorDBCluster
+#    cluster_transport_sniffer: true
+#    cluster_nodes: localhost:9300
+#    index_shards_number: 2
+#    index_replicas_number: 0
