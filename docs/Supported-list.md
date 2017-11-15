@@ -12,7 +12,7 @@
   * [Feign](https://github.com/OpenFeign/feign) 9.x
   * [Netflix Spring Cloud Feign](https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-starter-feign) 1.1.x, 1.2.x, 1.3.x
   * [Okhttp](https://github.com/square/okhttp) 3.x
-  * [Apache httpclientcomponent](http://hc.apache.org/) 4.2, 4.3
+  * [Apache httpcomponent HttpClient](http://hc.apache.org/) 4.2, 4.3
   * [Spring RestTemplete](https://github.com/spring-projects/spring-framework) 4.x
   * [Jetty Client](http://www.eclipse.org/jetty/) 9
 * JDBC
