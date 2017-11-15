@@ -18,20 +18,21 @@
 
 package org.skywalking.apm.collector.agent.stream.parser.standardization;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.skywalking.apm.collector.agent.stream.buffer.SegmentBufferManager;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorker;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.base.WorkerException;
-import org.skywalking.apm.network.proto.UpstreamSegment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
-public class SegmentStandardizationWorker extends AbstractLocalAsyncWorker<UpstreamSegment, UpstreamSegment> {
+public class SegmentStandardizationWorker extends AbstractLocalAsyncWorker<SegmentStandardization, SegmentStandardization> {
 
     private final Logger logger = LoggerFactory.getLogger(SegmentStandardizationWorker.class);
 
@@ -44,25 +45,32 @@ public class SegmentStandardizationWorker extends AbstractLocalAsyncWorker<Upstr
         return SegmentStandardizationWorker.class.hashCode();
     }
 
-    @Override protected void onWork(UpstreamSegment upstreamSegment) throws WorkerException {
-        SegmentBufferManager.INSTANCE.writeBuffer(upstreamSegment);
+    @Override protected void onWork(SegmentStandardization segmentStandardization) throws WorkerException {
+        SegmentBufferManager.INSTANCE.writeBuffer(segmentStandardization.getUpstreamSegment());
     }
 
     public final void flushAndSwitch() {
         SegmentBufferManager.INSTANCE.flush();
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<UpstreamSegment, UpstreamSegment, SegmentStandardizationWorker> {
-        public Factory(ModuleManager moduleManager, QueueCreatorService<UpstreamSegment> queueCreatorService) {
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<SegmentStandardization, SegmentStandardization, SegmentStandardizationWorker> {
+
+        public Factory(ModuleManager moduleManager, QueueCreatorService<SegmentStandardization> queueCreatorService) {
             super(moduleManager, queueCreatorService);
         }
 
         @Override public SegmentStandardizationWorker workerInstance(ModuleManager moduleManager) {
-            return new SegmentStandardizationWorker(moduleManager);
+            SegmentStandardizationWorker standardizationWorker = new SegmentStandardizationWorker(moduleManager);
+            startTimer(standardizationWorker);
+            return standardizationWorker;
         }
 
         @Override public int queueSize() {
             return 1024;
+        }
+
+        private void startTimer(SegmentStandardizationWorker standardizationWorker) {
+            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(standardizationWorker::flushAndSwitch, 10, 3, TimeUnit.SECONDS);
         }
     }
 }

@@ -25,6 +25,7 @@ import org.skywalking.apm.collector.agent.stream.graph.TraceStreamGraph;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.ReferenceDecorator;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.ReferenceIdExchanger;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SegmentDecorator;
+import org.skywalking.apm.collector.agent.stream.parser.standardization.SegmentStandardization;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SpanDecorator;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SpanIdExchanger;
 import org.skywalking.apm.collector.agent.stream.worker.trace.global.GlobalTraceSpanListener;
@@ -159,8 +160,10 @@ public class SegmentParse {
 
     private void writeToBufferFile(String id, UpstreamSegment upstreamSegment) {
         logger.debug("send to segment buffer write worker, id: {}", id);
-        Graph<UpstreamSegment> graph = GraphManager.INSTANCE.createIfAbsent(TraceStreamGraph.SEGMENT_STANDARDIZATION_GRAPH_ID, UpstreamSegment.class);
-        graph.start(upstreamSegment);
+        SegmentStandardization standardization = new SegmentStandardization(id);
+        standardization.setUpstreamSegment(upstreamSegment);
+        Graph<SegmentStandardization> graph = GraphManager.INSTANCE.createIfAbsent(TraceStreamGraph.SEGMENT_STANDARDIZATION_GRAPH_ID, SegmentStandardization.class);
+        graph.start(standardization);
     }
 
     private void notifyListenerToBuild() {

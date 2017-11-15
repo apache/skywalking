@@ -54,7 +54,7 @@ public class RegisterStreamGraph {
     }
 
     @SuppressWarnings("unchecked")
-    public Graph<Application> createApplicationRegisterGraph() {
+    public void createApplicationRegisterGraph() {
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
         QueueCreatorService<Application> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
@@ -62,11 +62,10 @@ public class RegisterStreamGraph {
         Graph<Application> graph = GraphManager.INSTANCE.createIfAbsent(APPLICATION_REGISTER_GRAPH_ID, Application.class);
         graph.addNode(new ApplicationRegisterRemoteWorker.Factory(moduleManager, remoteSenderService, APPLICATION_REGISTER_GRAPH_ID).create(workerCreateListener))
             .addNext(new ApplicationRegisterSerialWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
-        return graph;
     }
 
     @SuppressWarnings("unchecked")
-    public Graph<Instance> createInstanceRegisterGraph() {
+    public void createInstanceRegisterGraph() {
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
         QueueCreatorService<Instance> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
@@ -74,11 +73,10 @@ public class RegisterStreamGraph {
         Graph<Instance> graph = GraphManager.INSTANCE.createIfAbsent(INSTANCE_REGISTER_GRAPH_ID, Instance.class);
         graph.addNode(new InstanceRegisterRemoteWorker.Factory(moduleManager, remoteSenderService, INSTANCE_REGISTER_GRAPH_ID).create(workerCreateListener))
             .addNext(new InstanceRegisterSerialWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
-        return graph;
     }
 
     @SuppressWarnings("unchecked")
-    public Graph<ServiceName> createServiceNameRegisterGraph() {
+    public void createServiceNameRegisterGraph() {
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
         QueueCreatorService<ServiceName> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
@@ -86,6 +84,5 @@ public class RegisterStreamGraph {
         Graph<ServiceName> graph = GraphManager.INSTANCE.createIfAbsent(SERVICE_NAME_REGISTER_GRAPH_ID, ServiceName.class);
         graph.addNode(new ServiceNameRegisterRemoteWorker.Factory(moduleManager, remoteSenderService, SERVICE_NAME_REGISTER_GRAPH_ID).create(workerCreateListener))
             .addNext(new ServiceNameRegisterSerialWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
-        return graph;
     }
 }

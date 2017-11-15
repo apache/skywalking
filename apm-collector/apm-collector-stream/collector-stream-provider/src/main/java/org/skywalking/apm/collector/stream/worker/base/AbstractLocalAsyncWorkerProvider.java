@@ -20,13 +20,12 @@ package org.skywalking.apm.collector.stream.worker.base;
 
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.queue.base.QueueEventHandler;
-import org.skywalking.apm.collector.queue.base.QueueExecutor;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class AbstractLocalAsyncWorkerProvider<INPUT, OUTPUT, WORKER_TYPE extends AbstractLocalAsyncWorker<INPUT, OUTPUT> & QueueExecutor<INPUT>> extends AbstractWorkerProvider<INPUT, OUTPUT, WORKER_TYPE> {
+public abstract class AbstractLocalAsyncWorkerProvider<INPUT, OUTPUT, WORKER_TYPE extends AbstractLocalAsyncWorker<INPUT, OUTPUT>> extends AbstractWorkerProvider<INPUT, OUTPUT, WORKER_TYPE> {
 
     public abstract int queueSize();
 
@@ -42,7 +41,10 @@ public abstract class AbstractLocalAsyncWorkerProvider<INPUT, OUTPUT, WORKER_TYP
     public final WorkerRef create(WorkerCreateListener workerCreateListener) {
         WORKER_TYPE localAsyncWorker = workerInstance(getModuleManager());
         workerCreateListener.addWorker(localAsyncWorker);
-        QueueEventHandler<INPUT> queueEventHandler = queueCreatorService.create(queueSize(), localAsyncWorker);
-        return new LocalAsyncWorkerRef<>(localAsyncWorker, queueEventHandler);
+
+        LocalAsyncWorkerRef<INPUT, OUTPUT> localAsyncWorkerRef = new LocalAsyncWorkerRef<>(localAsyncWorker);
+        QueueEventHandler<INPUT> queueEventHandler = queueCreatorService.create(queueSize(), localAsyncWorkerRef);
+        localAsyncWorkerRef.setQueueEventHandler(queueEventHandler);
+        return localAsyncWorkerRef;
     }
 }

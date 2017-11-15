@@ -18,19 +18,28 @@
 
 package org.skywalking.apm.collector.stream.worker.base;
 
+import org.skywalking.apm.collector.core.CollectorException;
 import org.skywalking.apm.collector.core.graph.NodeProcessor;
 import org.skywalking.apm.collector.queue.base.QueueEventHandler;
+import org.skywalking.apm.collector.queue.base.QueueExecutor;
 
 /**
  * @author peng-yongsheng
  */
-public class LocalAsyncWorkerRef<INPUT, OUTPUT> extends WorkerRef<INPUT, OUTPUT> {
+public class LocalAsyncWorkerRef<INPUT, OUTPUT> extends WorkerRef<INPUT, OUTPUT> implements QueueExecutor<INPUT> {
 
-    private final QueueEventHandler<INPUT> queueEventHandler;
+    private QueueEventHandler<INPUT> queueEventHandler;
 
-    LocalAsyncWorkerRef(NodeProcessor<INPUT, OUTPUT> destinationHandler, QueueEventHandler<INPUT> queueEventHandler) {
+    LocalAsyncWorkerRef(NodeProcessor<INPUT, OUTPUT> destinationHandler) {
         super(destinationHandler);
+    }
+
+    public void setQueueEventHandler(QueueEventHandler<INPUT> queueEventHandler) {
         this.queueEventHandler = queueEventHandler;
+    }
+
+    @Override public void execute(INPUT input) throws CollectorException {
+        out(input);
     }
 
     @Override protected void in(INPUT input) {

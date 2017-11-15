@@ -44,6 +44,7 @@ import org.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
 import org.skywalking.apm.collector.storage.dao.IMemoryMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IMemoryMetricUIDAO;
 import org.skywalking.apm.collector.storage.dao.IMemoryPoolMetricPersistenceDAO;
+import org.skywalking.apm.collector.storage.dao.IMemoryPoolMetricUIDAO;
 import org.skywalking.apm.collector.storage.dao.INodeComponentPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.INodeComponentUIDAO;
 import org.skywalking.apm.collector.storage.dao.INodeMappingPersistenceDAO;
@@ -59,6 +60,7 @@ import org.skywalking.apm.collector.storage.dao.IServiceEntryUIDAO;
 import org.skywalking.apm.collector.storage.dao.IServiceNameCacheDAO;
 import org.skywalking.apm.collector.storage.dao.IServiceNameRegisterDAO;
 import org.skywalking.apm.collector.storage.dao.IServiceReferencePersistenceDAO;
+import org.skywalking.apm.collector.storage.dao.IServiceReferenceUIDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.BatchH2DAO;
 import org.skywalking.apm.collector.storage.h2.base.define.H2StorageInstaller;
 import org.skywalking.apm.collector.storage.h2.dao.ApplicationH2CacheDAO;
@@ -78,6 +80,7 @@ import org.skywalking.apm.collector.storage.h2.dao.InstanceHeartBeatH2Persistenc
 import org.skywalking.apm.collector.storage.h2.dao.MemoryMetricH2PersistenceDAO;
 import org.skywalking.apm.collector.storage.h2.dao.MemoryMetricH2UIDAO;
 import org.skywalking.apm.collector.storage.h2.dao.MemoryPoolMetricH2PersistenceDAO;
+import org.skywalking.apm.collector.storage.h2.dao.MemoryPoolMetricH2UIDAO;
 import org.skywalking.apm.collector.storage.h2.dao.NodeComponentH2PersistenceDAO;
 import org.skywalking.apm.collector.storage.h2.dao.NodeComponentH2UIDAO;
 import org.skywalking.apm.collector.storage.h2.dao.NodeMappingH2PersistenceDAO;
@@ -93,6 +96,7 @@ import org.skywalking.apm.collector.storage.h2.dao.ServiceEntryH2UIDAO;
 import org.skywalking.apm.collector.storage.h2.dao.ServiceNameH2CacheDAO;
 import org.skywalking.apm.collector.storage.h2.dao.ServiceNameH2RegisterDAO;
 import org.skywalking.apm.collector.storage.h2.dao.ServiceReferenceH2PersistenceDAO;
+import org.skywalking.apm.collector.storage.h2.dao.ServiceReferenceH2UIDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -186,7 +190,7 @@ public class StorageModuleH2Provider extends ModuleProvider {
         this.registerServiceImplementation(ICpuMetricUIDAO.class, new CpuMetricH2UIDAO(h2Client));
         this.registerServiceImplementation(IGCMetricUIDAO.class, new GCMetricH2UIDAO(h2Client));
         this.registerServiceImplementation(IMemoryMetricUIDAO.class, new MemoryMetricH2UIDAO(h2Client));
-//        this.registerServiceImplementation(IMemoryPoolMetricUIDAO.class, new MemoryPoolMetricH2UIDAO(h2Client));
+        this.registerServiceImplementation(IMemoryPoolMetricUIDAO.class, new MemoryPoolMetricH2UIDAO(h2Client));
 
         this.registerServiceImplementation(IGlobalTraceUIDAO.class, new GlobalTraceH2UIDAO(h2Client));
         this.registerServiceImplementation(IInstPerformanceUIDAO.class, new InstPerformanceH2UIDAO(h2Client));
@@ -196,6 +200,6 @@ public class StorageModuleH2Provider extends ModuleProvider {
         this.registerServiceImplementation(ISegmentCostUIDAO.class, new SegmentCostH2UIDAO(h2Client));
         this.registerServiceImplementation(ISegmentUIDAO.class, new SegmentH2UIDAO(h2Client));
         this.registerServiceImplementation(IServiceEntryUIDAO.class, new ServiceEntryH2UIDAO(h2Client));
-//        this.registerServiceImplementation(IServiceReferenceUIDAO.class, new ServiceReferenceH2UIDAO(elasticSearchClient));
+        this.registerServiceImplementation(IServiceReferenceUIDAO.class, new ServiceReferenceH2UIDAO(h2Client));
     }
 }

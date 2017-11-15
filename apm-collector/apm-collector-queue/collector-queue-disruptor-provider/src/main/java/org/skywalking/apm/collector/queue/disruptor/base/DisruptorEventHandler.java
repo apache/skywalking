@@ -22,6 +22,7 @@ import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.RingBuffer;
 import org.skywalking.apm.collector.core.CollectorException;
 import org.skywalking.apm.collector.core.data.Data;
+import org.skywalking.apm.collector.core.data.EndOfBatchQueueMessage;
 import org.skywalking.apm.collector.queue.base.MessageHolder;
 import org.skywalking.apm.collector.queue.base.QueueEventHandler;
 import org.skywalking.apm.collector.queue.base.QueueExecutor;
@@ -31,7 +32,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public class DisruptorEventHandler<MESSAGE extends Data> implements EventHandler<MessageHolder<MESSAGE>>, QueueEventHandler<MESSAGE> {
+public class DisruptorEventHandler<MESSAGE extends EndOfBatchQueueMessage> implements EventHandler<MessageHolder<MESSAGE>>, QueueEventHandler<MESSAGE> {
 
     private final Logger logger = LoggerFactory.getLogger(DisruptorEventHandler.class);
 

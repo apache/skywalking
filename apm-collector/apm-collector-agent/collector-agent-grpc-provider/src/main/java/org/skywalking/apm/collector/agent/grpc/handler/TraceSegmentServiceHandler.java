@@ -19,6 +19,8 @@
 package org.skywalking.apm.collector.agent.grpc.handler;
 
 import io.grpc.stub.StreamObserver;
+import org.skywalking.apm.collector.agent.stream.parser.SegmentParse;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.server.grpc.GRPCHandler;
 import org.skywalking.apm.network.proto.Downstream;
 import org.skywalking.apm.network.proto.TraceSegmentServiceGrpc;
@@ -33,12 +35,18 @@ public class TraceSegmentServiceHandler extends TraceSegmentServiceGrpc.TraceSeg
 
     private final Logger logger = LoggerFactory.getLogger(TraceSegmentServiceHandler.class);
 
+    private final ModuleManager moduleManager;
+
+    public TraceSegmentServiceHandler(ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
+    }
+
     @Override public StreamObserver<UpstreamSegment> collect(StreamObserver<Downstream> responseObserver) {
         return new StreamObserver<UpstreamSegment>() {
             @Override public void onNext(UpstreamSegment segment) {
                 logger.debug("receive segment");
-//                SegmentParse segmentParse = new SegmentParse();
-//                segmentParse.parse(segment, SegmentParse.Source.Agent);
+                SegmentParse segmentParse = new SegmentParse(moduleManager);
+                segmentParse.parse(segment, SegmentParse.Source.Agent);
             }
 
             @Override public void onError(Throwable throwable) {

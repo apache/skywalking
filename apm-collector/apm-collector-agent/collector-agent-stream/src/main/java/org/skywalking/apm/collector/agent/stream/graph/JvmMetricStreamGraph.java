@@ -55,47 +55,42 @@ public class JvmMetricStreamGraph {
     }
 
     @SuppressWarnings("unchecked")
-    public Graph<GCMetric> createGcMetricGraph() {
+    public void createGcMetricGraph() {
         QueueCreatorService<GCMetric> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
 
         Graph<GCMetric> graph = GraphManager.INSTANCE.createIfAbsent(GC_METRIC_GRAPH_ID, GCMetric.class);
         graph.addNode(new GCMetricPersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
-        return graph;
     }
 
     @SuppressWarnings("unchecked")
-    public Graph<CpuMetric> createCpuMetricGraph() {
+    public void createCpuMetricGraph() {
         QueueCreatorService<CpuMetric> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
 
         Graph<CpuMetric> graph = GraphManager.INSTANCE.createIfAbsent(CPU_METRIC_GRAPH_ID, CpuMetric.class);
         graph.addNode(new CpuMetricPersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
-        return graph;
     }
 
     @SuppressWarnings("unchecked")
-    public Graph<MemoryMetric> createMemoryMetricGraph() {
+    public void createMemoryMetricGraph() {
         QueueCreatorService<MemoryMetric> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
 
         Graph<MemoryMetric> graph = GraphManager.INSTANCE.createIfAbsent(MEMORY_METRIC_GRAPH_ID, MemoryMetric.class);
         graph.addNode(new MemoryMetricPersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
-        return graph;
     }
 
     @SuppressWarnings("unchecked")
-    public Graph<MemoryPoolMetric> createMemoryPoolMetricGraph() {
+    public void createMemoryPoolMetricGraph() {
         QueueCreatorService<MemoryPoolMetric> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
 
         Graph<MemoryPoolMetric> graph = GraphManager.INSTANCE.createIfAbsent(MEMORY_POOL_METRIC_GRAPH_ID, MemoryPoolMetric.class);
         graph.addNode(new MemoryPoolMetricPersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
-        return graph;
     }
 
     @SuppressWarnings("unchecked")
-    public Graph<Instance> createHeartBeatGraph() {
+    public void createHeartBeatGraph() {
         QueueCreatorService<Instance> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
 
         Graph<Instance> graph = GraphManager.INSTANCE.createIfAbsent(INST_HEART_BEAT_GRAPH_ID, Instance.class);
         graph.addNode(new InstHeartBeatPersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
-        return graph;
     }
 }

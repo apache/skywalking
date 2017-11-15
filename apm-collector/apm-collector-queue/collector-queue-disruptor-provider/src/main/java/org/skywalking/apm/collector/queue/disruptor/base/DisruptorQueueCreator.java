@@ -38,7 +38,7 @@ public class DisruptorQueueCreator implements QueueCreator {
         }
 
         // Construct the Disruptor
-        Disruptor<MessageHolder> disruptor = new Disruptor(MessageHolderFactory.INSTANCE, queueSize, DaemonThreadFactory.INSTANCE);
+        Disruptor<MessageHolder> disruptor = new Disruptor<>(MessageHolderFactory.INSTANCE, queueSize, DaemonThreadFactory.INSTANCE);
 
         RingBuffer<MessageHolder> ringBuffer = disruptor.getRingBuffer();
         DisruptorEventHandler eventHandler = new DisruptorEventHandler(ringBuffer, executor);

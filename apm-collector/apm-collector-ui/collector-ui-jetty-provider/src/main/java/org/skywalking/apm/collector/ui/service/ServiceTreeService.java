@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.Map;
 import org.skywalking.apm.collector.cache.CacheModule;
 import org.skywalking.apm.collector.cache.service.ApplicationCacheService;
+import org.skywalking.apm.collector.cache.service.ServiceNameCacheService;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.ColumnNameUtils;
 import org.skywalking.apm.collector.core.util.Const;
@@ -43,11 +44,13 @@ public class ServiceTreeService {
     private final IServiceEntryUIDAO serviceEntryDAO;
     private final IServiceReferenceUIDAO serviceReferenceDAO;
     private final ApplicationCacheService applicationCacheService;
+    private final ServiceNameCacheService serviceNameCacheService;
 
     public ServiceTreeService(ModuleManager moduleManager) {
         this.serviceEntryDAO = moduleManager.find(StorageModule.NAME).getService(IServiceEntryUIDAO.class);
         this.serviceReferenceDAO = moduleManager.find(StorageModule.NAME).getService(IServiceReferenceUIDAO.class);
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
+        this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
     }
 
     public JsonObject loadEntryService(int applicationId, String entryServiceName, long startTime, long endTime,
@@ -66,6 +69,14 @@ public class ServiceTreeService {
 
     public JsonArray loadServiceTree(int entryServiceId, long startTime, long endTime) {
         Map<String, JsonObject> serviceReferenceMap = serviceReferenceDAO.load(entryServiceId, startTime, endTime);
+        serviceReferenceMap.values().forEach(serviceReference -> {
+            int frontServiceId = serviceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID)).getAsInt();
+            int behindServiceId = serviceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID)).getAsInt();
+            String frontServiceName = serviceNameCacheService.getSplitServiceName(serviceNameCacheService.get(frontServiceId));
+            String behindServiceName = serviceNameCacheService.getSplitServiceName(serviceNameCacheService.get(behindServiceId));
+            serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_FRONT_SERVICE_NAME), frontServiceName);
+            serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_NAME), behindServiceName);
+        });
         return buildTreeData(serviceReferenceMap);
     }
 
