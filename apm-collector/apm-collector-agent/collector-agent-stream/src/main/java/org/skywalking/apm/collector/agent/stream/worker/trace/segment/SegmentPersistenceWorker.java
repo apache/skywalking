@@ -23,7 +23,6 @@ import org.skywalking.apm.collector.queue.service.QueueCreatorService;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.ISegmentPersistenceDAO;
-import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.segment.Segment;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
@@ -46,8 +45,7 @@ public class SegmentPersistenceWorker extends PersistenceWorker<Segment, Segment
     }
 
     @Override protected IPersistenceDAO persistenceDAO() {
-        DAOService daoService = getModuleManager().find(StorageModule.NAME).getService(DAOService.class);
-        return (IPersistenceDAO)daoService.get(ISegmentPersistenceDAO.class);
+        return getModuleManager().find(StorageModule.NAME).getService(ISegmentPersistenceDAO.class);
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<Segment, Segment, SegmentPersistenceWorker> {

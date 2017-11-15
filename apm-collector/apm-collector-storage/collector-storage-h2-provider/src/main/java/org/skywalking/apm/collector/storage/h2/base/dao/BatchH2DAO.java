@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.storage.base.dao.IBatchDAO;
 import org.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
@@ -34,7 +35,12 @@ import org.slf4j.LoggerFactory;
  * @author peng-yongsheng
  */
 public class BatchH2DAO extends H2DAO implements IBatchDAO {
+
     private final Logger logger = LoggerFactory.getLogger(BatchH2DAO.class);
+
+    public BatchH2DAO(H2Client client) {
+        super(client);
+    }
 
     @Override
     public void batchPersistence(List<?> batchCollection) {

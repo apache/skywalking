@@ -26,6 +26,7 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.dao.INodeComponentUIDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
@@ -40,6 +41,10 @@ import org.slf4j.LoggerFactory;
 public class NodeComponentEsUIDAO extends EsDAO implements INodeComponentUIDAO {
 
     private final Logger logger = LoggerFactory.getLogger(NodeComponentEsPersistenceDAO.class);
+
+    public NodeComponentEsUIDAO(ElasticSearchClient client) {
+        super(client);
+    }
 
     @Override public JsonArray load(long startTime, long endTime) {
         logger.debug("node component load, start time: {}, end time: {}", startTime, endTime);

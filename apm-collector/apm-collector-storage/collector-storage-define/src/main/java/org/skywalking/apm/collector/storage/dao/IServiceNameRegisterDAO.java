@@ -16,17 +16,18 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.storage.service;
+package org.skywalking.apm.collector.storage.dao;
 
-import org.skywalking.apm.collector.core.module.Service;
 import org.skywalking.apm.collector.storage.base.dao.DAO;
-import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
+import org.skywalking.apm.collector.storage.table.register.ServiceName;
 
 /**
  * @author peng-yongsheng
  */
-public interface DAOService extends Service {
-    DAO get(Class<? extends DAO> daoInterfaceClass);
+public interface IServiceNameRegisterDAO extends DAO {
+    int getMaxServiceId();
 
-    IPersistenceDAO getPersistenceDAO(Class<? extends IPersistenceDAO> daoInterfaceClass);
+    int getMinServiceId();
+
+    void save(ServiceName serviceName);
 }

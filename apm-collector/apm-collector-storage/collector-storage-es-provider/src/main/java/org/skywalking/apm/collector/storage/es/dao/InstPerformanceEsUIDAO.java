@@ -31,6 +31,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 import org.elasticsearch.search.sort.SortOrder;
+import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.dao.IInstPerformanceUIDAO;
@@ -41,6 +42,10 @@ import org.skywalking.apm.collector.storage.table.instance.InstPerformanceTable;
  * @author peng-yongsheng
  */
 public class InstPerformanceEsUIDAO extends EsDAO implements IInstPerformanceUIDAO {
+
+    public InstPerformanceEsUIDAO(ElasticSearchClient client) {
+        super(client);
+    }
 
     @Override public InstPerformance get(long[] timeBuckets, int instanceId) {
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(InstPerformanceTable.TABLE);

@@ -39,6 +39,10 @@ public class InstanceEsCacheDAO extends EsDAO implements IInstanceCacheDAO {
 
     private final Logger logger = LoggerFactory.getLogger(InstanceEsCacheDAO.class);
 
+    public InstanceEsCacheDAO(ElasticSearchClient client) {
+        super(client);
+    }
+
     @Override public int getApplicationId(int instanceId) {
         GetResponse response = getClient().prepareGet(InstanceTable.TABLE, String.valueOf(instanceId)).get();
         if (response.isExists()) {

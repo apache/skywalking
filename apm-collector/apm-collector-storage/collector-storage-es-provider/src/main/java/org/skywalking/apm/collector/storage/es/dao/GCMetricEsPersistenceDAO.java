@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
+import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.storage.dao.IGCMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.table.jvm.GCMetric;
@@ -31,6 +32,10 @@ import org.skywalking.apm.collector.storage.table.jvm.GCMetricTable;
  * @author peng-yongsheng
  */
 public class GCMetricEsPersistenceDAO extends EsDAO implements IGCMetricPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, GCMetric> {
+
+    public GCMetricEsPersistenceDAO(ElasticSearchClient client) {
+        super(client);
+    }
 
     @Override public GCMetric get(String id) {
         return null;

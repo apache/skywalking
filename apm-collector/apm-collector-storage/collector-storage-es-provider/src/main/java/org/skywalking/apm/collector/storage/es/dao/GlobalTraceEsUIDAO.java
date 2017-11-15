@@ -25,6 +25,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.storage.dao.IGlobalTraceUIDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.table.global.GlobalTraceTable;
@@ -37,6 +38,10 @@ import org.slf4j.LoggerFactory;
 public class GlobalTraceEsUIDAO extends EsDAO implements IGlobalTraceUIDAO {
 
     private final Logger logger = LoggerFactory.getLogger(GlobalTraceEsUIDAO.class);
+
+    public GlobalTraceEsUIDAO(ElasticSearchClient client) {
+        super(client);
+    }
 
     @Override public List<String> getGlobalTraceId(String segmentId) {
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(GlobalTraceTable.TABLE);

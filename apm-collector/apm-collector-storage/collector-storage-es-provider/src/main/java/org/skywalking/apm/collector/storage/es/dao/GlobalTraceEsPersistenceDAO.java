@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
+import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.core.UnexpectedException;
 import org.skywalking.apm.collector.storage.dao.IGlobalTracePersistenceDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
@@ -36,6 +37,10 @@ import org.slf4j.LoggerFactory;
 public class GlobalTraceEsPersistenceDAO extends EsDAO implements IGlobalTracePersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, GlobalTrace> {
 
     private final Logger logger = LoggerFactory.getLogger(GlobalTraceEsPersistenceDAO.class);
+
+    public GlobalTraceEsPersistenceDAO(ElasticSearchClient client) {
+        super(client);
+    }
 
     @Override public GlobalTrace get(String id) {
         throw new UnexpectedException("There is no need to merge stream data with database data.");

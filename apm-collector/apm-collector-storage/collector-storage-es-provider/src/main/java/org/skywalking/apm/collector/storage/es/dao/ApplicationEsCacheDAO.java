@@ -40,6 +40,10 @@ public class ApplicationEsCacheDAO extends EsDAO implements IApplicationCacheDAO
 
     private final Logger logger = LoggerFactory.getLogger(ApplicationEsCacheDAO.class);
 
+    public ApplicationEsCacheDAO(ElasticSearchClient client) {
+        super(client);
+    }
+
     @Override public int getApplicationId(String applicationCode) {
         ElasticSearchClient client = getClient();
 

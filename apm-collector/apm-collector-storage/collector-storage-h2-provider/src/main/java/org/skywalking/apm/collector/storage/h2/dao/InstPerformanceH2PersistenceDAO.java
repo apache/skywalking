@@ -43,6 +43,10 @@ public class InstPerformanceH2PersistenceDAO extends H2DAO implements IInstPerfo
     private final Logger logger = LoggerFactory.getLogger(InstPerformanceH2PersistenceDAO.class);
     private static final String GET_SQL = "select * from {0} where {1} = ?";
 
+    public InstPerformanceH2PersistenceDAO(H2Client client) {
+        super(client);
+    }
+
     @Override public InstPerformance get(String id) {
         H2Client client = getClient();
         String sql = SqlBuilder.buildSql(GET_SQL, InstPerformanceTable.TABLE, InstPerformanceTable.COLUMN_ID);

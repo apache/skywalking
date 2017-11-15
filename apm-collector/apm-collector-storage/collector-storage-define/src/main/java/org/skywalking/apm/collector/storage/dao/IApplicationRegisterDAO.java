@@ -16,29 +16,18 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.storage.h2.service;
+package org.skywalking.apm.collector.storage.dao;
 
 import org.skywalking.apm.collector.storage.base.dao.DAO;
-import org.skywalking.apm.collector.storage.base.dao.DAOContainer;
-import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.storage.service.DAOService;
+import org.skywalking.apm.collector.storage.table.register.Application;
 
 /**
  * @author peng-yongsheng
  */
-public class H2DAOService implements DAOService {
+public interface IApplicationRegisterDAO extends DAO {
+    int getMaxApplicationId();
 
-    private final DAOContainer daoContainer;
+    int getMinApplicationId();
 
-    public H2DAOService(DAOContainer daoContainer) {
-        this.daoContainer = daoContainer;
-    }
-
-    @Override public DAO get(Class<? extends DAO> daoInterfaceClass) {
-        return daoContainer.get(daoInterfaceClass.getName());
-    }
-
-    @Override public IPersistenceDAO getPersistenceDAO(Class<? extends IPersistenceDAO> daoInterfaceClass) {
-        return daoContainer.getPersistenceDAO(daoInterfaceClass.getName());
-    }
+    void save(Application application);
 }

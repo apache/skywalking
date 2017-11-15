@@ -43,6 +43,10 @@ public class InstanceHeartBeatH2PersistenceDAO extends H2DAO implements IInstanc
 
     private final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatH2PersistenceDAO.class);
 
+    public InstanceHeartBeatH2PersistenceDAO(H2Client client) {
+        super(client);
+    }
+
     private static final String GET_INSTANCE_HEARTBEAT_SQL = "select * from {0} where {1} = ?";
 
     @Override public Instance get(String id) {

@@ -24,13 +24,13 @@ import org.skywalking.apm.collector.client.Client;
  * @author peng-yongsheng
  */
 public abstract class AbstractDAO<C extends Client> implements DAO {
-    private C client;
+    private final C client;
+
+    public AbstractDAO(C client) {
+        this.client = client;
+    }
 
     public final C getClient() {
         return client;
-    }
-
-    public final void setClient(C client) {
-        this.client = client;
     }
 }

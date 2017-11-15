@@ -23,6 +23,7 @@ import java.util.Map;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
+import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.core.UnexpectedException;
 import org.skywalking.apm.collector.storage.dao.IInstanceHeartBeatPersistenceDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
@@ -37,6 +38,10 @@ import org.slf4j.LoggerFactory;
 public class InstanceHeartBeatEsPersistenceDAO extends EsDAO implements IInstanceHeartBeatPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, Instance> {
 
     private final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatEsPersistenceDAO.class);
+
+    public InstanceHeartBeatEsPersistenceDAO(ElasticSearchClient client) {
+        super(client);
+    }
 
     @Override public Instance get(String id) {
         GetResponse getResponse = getClient().prepareGet(InstanceTable.TABLE, id).get();

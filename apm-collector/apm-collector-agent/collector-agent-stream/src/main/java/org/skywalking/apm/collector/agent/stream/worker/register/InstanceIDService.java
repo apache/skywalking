@@ -27,8 +27,7 @@ import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.module.ModuleNotFoundException;
 import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.skywalking.apm.collector.storage.StorageModule;
-import org.skywalking.apm.collector.storage.dao.IInstanceStreamDAO;
-import org.skywalking.apm.collector.storage.service.DAOService;
+import org.skywalking.apm.collector.storage.dao.IInstanceRegisterDAO;
 import org.skywalking.apm.collector.storage.table.register.Instance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,10 +41,12 @@ public class InstanceIDService {
 
     private final ModuleManager moduleManager;
     private final Graph<Instance> instanceRegisterGraph;
+    private final IInstanceRegisterDAO instanceRegisterDAO;
 
     public InstanceIDService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
         this.instanceRegisterGraph = GraphManager.INSTANCE.createIfAbsent(RegisterStreamGraph.INSTANCE_REGISTER_GRAPH_ID, Instance.class);
+        this.instanceRegisterDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceRegisterDAO.class);
     }
 
     public int getOrCreate(int applicationId, String agentUUID, long registerTime,
@@ -71,8 +72,6 @@ public class InstanceIDService {
     public void recover(int instanceId, int applicationId, long registerTime,
         String osInfo) throws ModuleNotFoundException, ServiceNotProvidedException {
         logger.debug("instance recover, instance id: {}, application id: {}, register time: {}", instanceId, applicationId, registerTime);
-        DAOService daoService = moduleManager.find(StorageModule.NAME).getService(DAOService.class);
-        IInstanceStreamDAO dao = (IInstanceStreamDAO)daoService.get(IInstanceStreamDAO.class);
 
         Instance instance = new Instance(String.valueOf(instanceId));
         instance.setApplicationId(applicationId);
@@ -81,6 +80,6 @@ public class InstanceIDService {
         instance.setHeartBeatTime(registerTime);
         instance.setInstanceId(instanceId);
         instance.setOsInfo(osInfo);
-        dao.save(instance);
+        instanceRegisterDAO.save(instance);
     }
 }

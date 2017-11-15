@@ -41,6 +41,10 @@ public class GlobalTraceH2UIDAO extends H2DAO implements IGlobalTraceUIDAO {
     private static final String GET_GLOBAL_TRACE_ID_SQL = "select {0} from {1} where {2} = ? limit 10";
     private static final String GET_SEGMENT_IDS_SQL = "select {0} from {1} where {2} = ? limit 10";
 
+    public GlobalTraceH2UIDAO(H2Client client) {
+        super(client);
+    }
+
     @Override public List<String> getGlobalTraceId(String segmentId) {
         List<String> globalTraceIds = new ArrayList<>();
         H2Client client = getClient();

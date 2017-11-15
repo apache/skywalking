@@ -23,6 +23,7 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetRequestBuilder;
 import org.elasticsearch.action.get.MultiGetResponse;
+import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.dao.ICpuMetricUIDAO;
@@ -33,6 +34,10 @@ import org.skywalking.apm.collector.storage.table.jvm.CpuMetricTable;
  * @author peng-yongsheng
  */
 public class CpuMetricEsUIDAO extends EsDAO implements ICpuMetricUIDAO {
+
+    public CpuMetricEsUIDAO(ElasticSearchClient client) {
+        super(client);
+    }
 
     @Override public int getMetric(int instanceId, long timeBucket) {
         String id = timeBucket + Const.ID_SPLIT + instanceId;

@@ -43,6 +43,10 @@ public class InstPerformanceH2UIDAO extends H2DAO implements IInstPerformanceUID
     private static final String GET_INST_PERF_SQL = "select * from {0} where {1} = ? and {2} in (";
     private static final String GET_TPS_METRIC_SQL = "select * from {0} where {1} = ?";
 
+    public InstPerformanceH2UIDAO(H2Client client) {
+        super(client);
+    }
+
     @Override public InstPerformance get(long[] timeBuckets, int instanceId) {
         H2Client client = getClient();
         logger.info("the inst performance inst id = {}", instanceId);

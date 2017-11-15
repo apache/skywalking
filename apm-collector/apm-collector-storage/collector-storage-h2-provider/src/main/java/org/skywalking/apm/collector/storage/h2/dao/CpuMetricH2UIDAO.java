@@ -41,6 +41,10 @@ public class CpuMetricH2UIDAO extends H2DAO implements ICpuMetricUIDAO {
     private final Logger logger = LoggerFactory.getLogger(CpuMetricH2UIDAO.class);
     private static final String GET_CPU_METRIC_SQL = "select * from {0} where {1} = ?";
 
+    public CpuMetricH2UIDAO(H2Client client) {
+        super(client);
+    }
+
     @Override public int getMetric(int instanceId, long timeBucket) {
         String id = timeBucket + Const.ID_SPLIT + instanceId;
         H2Client client = getClient();

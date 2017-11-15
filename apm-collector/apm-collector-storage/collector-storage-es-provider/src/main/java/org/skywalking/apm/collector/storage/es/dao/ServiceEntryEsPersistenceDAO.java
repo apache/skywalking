@@ -23,6 +23,7 @@ import java.util.Map;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
+import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.storage.dao.IServiceEntryPersistenceDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.table.service.ServiceEntry;
@@ -32,6 +33,10 @@ import org.skywalking.apm.collector.storage.table.service.ServiceEntryTable;
  * @author peng-yongsheng
  */
 public class ServiceEntryEsPersistenceDAO extends EsDAO implements IServiceEntryPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, ServiceEntry> {
+
+    public ServiceEntryEsPersistenceDAO(ElasticSearchClient client) {
+        super(client);
+    }
 
     @Override public ServiceEntry get(String id) {
         GetResponse getResponse = getClient().prepareGet(ServiceEntryTable.TABLE, id).get();

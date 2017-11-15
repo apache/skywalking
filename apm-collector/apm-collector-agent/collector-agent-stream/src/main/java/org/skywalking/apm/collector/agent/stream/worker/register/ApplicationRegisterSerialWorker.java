@@ -25,8 +25,7 @@ import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
 import org.skywalking.apm.collector.storage.StorageModule;
-import org.skywalking.apm.collector.storage.dao.IApplicationStreamDAO;
-import org.skywalking.apm.collector.storage.service.DAOService;
+import org.skywalking.apm.collector.storage.dao.IApplicationRegisterDAO;
 import org.skywalking.apm.collector.storage.table.register.Application;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorker;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
@@ -41,12 +40,12 @@ public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker<Ap
 
     private final Logger logger = LoggerFactory.getLogger(ApplicationRegisterSerialWorker.class);
 
-    private final DAOService daoService;
+    private final IApplicationRegisterDAO applicationRegisterDAO;
     private final ApplicationCacheService applicationCacheService;
 
     public ApplicationRegisterSerialWorker(ModuleManager moduleManager) {
         super(moduleManager);
-        this.daoService = getModuleManager().find(StorageModule.NAME).getService(DAOService.class);
+        this.applicationRegisterDAO = getModuleManager().find(StorageModule.NAME).getService(IApplicationRegisterDAO.class);
         this.applicationCacheService = getModuleManager().find(CacheModule.NAME).getService(ApplicationCacheService.class);
     }
 
@@ -59,27 +58,26 @@ public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker<Ap
         int applicationId = applicationCacheService.get(application.getApplicationCode());
 
         if (applicationId == 0) {
-            IApplicationStreamDAO dao = (IApplicationStreamDAO)daoService.get(IApplicationStreamDAO.class);
             Application newApplication;
-            int min = dao.getMinApplicationId();
+            int min = applicationRegisterDAO.getMinApplicationId();
             if (min == 0) {
                 Application userApplication = new Application(String.valueOf(Const.USER_ID));
                 userApplication.setApplicationCode(Const.USER_CODE);
                 userApplication.setApplicationId(Const.USER_ID);
-                dao.save(userApplication);
+                applicationRegisterDAO.save(userApplication);
 
                 newApplication = new Application("-1");
                 newApplication.setApplicationId(-1);
                 newApplication.setApplicationCode(application.getApplicationCode());
             } else {
-                int max = dao.getMaxApplicationId();
+                int max = applicationRegisterDAO.getMaxApplicationId();
                 applicationId = IdAutoIncrement.INSTANCE.increment(min, max);
 
                 newApplication = new Application(String.valueOf(applicationId));
                 newApplication.setApplicationId(applicationId);
                 newApplication.setApplicationCode(application.getApplicationCode());
             }
-            dao.save(newApplication);
+            applicationRegisterDAO.save(newApplication);
         }
     }
 

@@ -20,6 +20,7 @@ package org.skywalking.apm.collector.storage.h2.dao;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.core.UnexpectedException;
 import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.dao.IGlobalTracePersistenceDAO;
@@ -34,7 +35,12 @@ import org.slf4j.LoggerFactory;
  * @author peng-yongsheng, clevertension
  */
 public class GlobalTraceH2PersistenceDAO extends H2DAO implements IGlobalTracePersistenceDAO<H2SqlEntity, H2SqlEntity, GlobalTrace> {
+
     private final Logger logger = LoggerFactory.getLogger(GlobalTraceH2PersistenceDAO.class);
+
+    public GlobalTraceH2PersistenceDAO(H2Client client) {
+        super(client);
+    }
 
     @Override public GlobalTrace get(String id) {
         throw new UnexpectedException("There is no need to merge stream data with database data.");

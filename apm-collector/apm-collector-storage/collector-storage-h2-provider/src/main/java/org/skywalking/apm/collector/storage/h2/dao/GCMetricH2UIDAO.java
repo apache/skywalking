@@ -45,6 +45,10 @@ public class GCMetricH2UIDAO extends H2DAO implements IGCMetricUIDAO {
     private static final String GET_GC_COUNT_SQL = "select {1}, sum({0}) as cnt, {1} from {2} where {3} = ? and {4} in (";
     private static final String GET_GC_METRIC_SQL = "select * from {0} where {1} = ?";
 
+    public GCMetricH2UIDAO(H2Client client) {
+        super(client);
+    }
+
     @Override public GCCount getGCCount(long[] timeBuckets, int instanceId) {
         GCCount gcCount = new GCCount();
         H2Client client = getClient();

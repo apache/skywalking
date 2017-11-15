@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
+import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.storage.dao.ISegmentPersistenceDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.table.segment.Segment;
@@ -36,6 +37,10 @@ import org.slf4j.LoggerFactory;
 public class SegmentEsPersistenceDAO extends EsDAO implements ISegmentPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, Segment> {
 
     private final Logger logger = LoggerFactory.getLogger(SegmentEsPersistenceDAO.class);
+
+    public SegmentEsPersistenceDAO(ElasticSearchClient client) {
+        super(client);
+    }
 
     @Override public Segment get(String id) {
         return null;

@@ -42,6 +42,10 @@ public class NodeComponentH2PersistenceDAO extends H2DAO implements INodeCompone
     private final Logger logger = LoggerFactory.getLogger(NodeComponentH2PersistenceDAO.class);
     private static final String GET_SQL = "select * from {0} where {1} = ?";
 
+    public NodeComponentH2PersistenceDAO(H2Client client) {
+        super(client);
+    }
+
     @Override
     public NodeComponent get(String id) {
         H2Client client = getClient();

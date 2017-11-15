@@ -33,6 +33,10 @@ import org.skywalking.apm.collector.storage.base.dao.AbstractDAO;
  */
 public abstract class EsDAO extends AbstractDAO<ElasticSearchClient> {
 
+    public EsDAO(ElasticSearchClient client) {
+        super(client);
+    }
+
     public final int getMaxId(String indexName, String columnName) {
         ElasticSearchClient client = getClient();
         SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName);

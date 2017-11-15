@@ -43,6 +43,10 @@ public class ServiceEntryH2PersistenceDAO extends H2DAO implements IServiceEntry
     private final Logger logger = LoggerFactory.getLogger(ServiceEntryH2PersistenceDAO.class);
     private static final String GET_SERVICE_ENTRY_SQL = "select * from {0} where {1} = ?";
 
+    public ServiceEntryH2PersistenceDAO(H2Client client) {
+        super(client);
+    }
+
     @Override public ServiceEntry get(String id) {
         H2Client client = getClient();
         String sql = SqlBuilder.buildSql(GET_SERVICE_ENTRY_SQL, ServiceEntryTable.TABLE, ServiceEntryTable.COLUMN_ID);

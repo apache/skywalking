@@ -28,6 +28,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
+import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.dao.INodeReferenceUIDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
@@ -41,6 +42,10 @@ import org.slf4j.LoggerFactory;
 public class NodeReferenceEsUIDAO extends EsDAO implements INodeReferenceUIDAO {
 
     private final Logger logger = LoggerFactory.getLogger(NodeReferenceEsUIDAO.class);
+
+    public NodeReferenceEsUIDAO(ElasticSearchClient client) {
+        super(client);
+    }
 
     @Override public JsonArray load(long startTime, long endTime) {
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(NodeReferenceTable.TABLE);

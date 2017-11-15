@@ -23,7 +23,6 @@ import org.skywalking.apm.collector.queue.service.QueueCreatorService;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.ICpuMetricPersistenceDAO;
-import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.jvm.CpuMetric;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
@@ -46,7 +45,7 @@ public class CpuMetricPersistenceWorker extends PersistenceWorker<CpuMetric, Cpu
     }
 
     @Override protected IPersistenceDAO persistenceDAO() {
-        return getModuleManager().find(StorageModule.NAME).getService(DAOService.class).getPersistenceDAO(ICpuMetricPersistenceDAO.class);
+        return getModuleManager().find(StorageModule.NAME).getService(ICpuMetricPersistenceDAO.class);
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<CpuMetric, CpuMetric, CpuMetricPersistenceWorker> {

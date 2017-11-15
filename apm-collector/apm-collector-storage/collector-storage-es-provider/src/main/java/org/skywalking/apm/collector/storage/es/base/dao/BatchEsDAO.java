@@ -23,6 +23,7 @@ import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
+import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.core.util.CollectionUtils;
 import org.skywalking.apm.collector.storage.base.dao.IBatchDAO;
 import org.slf4j.Logger;
@@ -34,6 +35,10 @@ import org.slf4j.LoggerFactory;
 public class BatchEsDAO extends EsDAO implements IBatchDAO {
 
     private final Logger logger = LoggerFactory.getLogger(BatchEsDAO.class);
+
+    public BatchEsDAO(ElasticSearchClient client) {
+        super(client);
+    }
 
     @Override public void batchPersistence(List<?> batchCollection) {
         BulkRequestBuilder bulkRequest = getClient().prepareBulk();

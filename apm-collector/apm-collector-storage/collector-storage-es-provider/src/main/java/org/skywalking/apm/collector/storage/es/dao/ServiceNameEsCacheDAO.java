@@ -26,6 +26,7 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.storage.dao.IServiceNameCacheDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
@@ -35,6 +36,10 @@ import org.skywalking.apm.collector.storage.table.register.ServiceNameTable;
  * @author peng-yongsheng
  */
 public class ServiceNameEsCacheDAO extends EsDAO implements IServiceNameCacheDAO {
+
+    public ServiceNameEsCacheDAO(ElasticSearchClient client) {
+        super(client);
+    }
 
     @Override public String getServiceName(int serviceId) {
         GetRequestBuilder getRequestBuilder = getClient().prepareGet(ServiceNameTable.TABLE, String.valueOf(serviceId));

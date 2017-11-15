@@ -32,7 +32,6 @@ import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.IServiceEntryUIDAO;
 import org.skywalking.apm.collector.storage.dao.IServiceReferenceUIDAO;
-import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.service.ServiceEntryTable;
 import org.skywalking.apm.collector.storage.table.serviceref.ServiceReferenceTable;
 
@@ -41,18 +40,18 @@ import org.skywalking.apm.collector.storage.table.serviceref.ServiceReferenceTab
  */
 public class ServiceTreeService {
 
-    private final DAOService daoService;
+    private final IServiceEntryUIDAO serviceEntryDAO;
+    private final IServiceReferenceUIDAO serviceReferenceDAO;
     private final ApplicationCacheService applicationCacheService;
 
     public ServiceTreeService(ModuleManager moduleManager) {
-        this.daoService = moduleManager.find(StorageModule.NAME).getService(DAOService.class);
+        this.serviceEntryDAO = moduleManager.find(StorageModule.NAME).getService(IServiceEntryUIDAO.class);
+        this.serviceReferenceDAO = moduleManager.find(StorageModule.NAME).getService(IServiceReferenceUIDAO.class);
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
     }
 
     public JsonObject loadEntryService(int applicationId, String entryServiceName, long startTime, long endTime,
         int from, int size) {
-        IServiceEntryUIDAO serviceEntryDAO = (IServiceEntryUIDAO)daoService.get(IServiceEntryUIDAO.class);
-
         JsonObject response = serviceEntryDAO.load(applicationId, entryServiceName, startTime, endTime, from, size);
         JsonArray entryServices = response.get("array").getAsJsonArray();
         for (JsonElement element : entryServices) {
@@ -66,7 +65,6 @@ public class ServiceTreeService {
     }
 
     public JsonArray loadServiceTree(int entryServiceId, long startTime, long endTime) {
-        IServiceReferenceUIDAO serviceReferenceDAO = (IServiceReferenceUIDAO)daoService.get(IServiceReferenceUIDAO.class);
         Map<String, JsonObject> serviceReferenceMap = serviceReferenceDAO.load(entryServiceId, startTime, endTime);
         return buildTreeData(serviceReferenceMap);
     }

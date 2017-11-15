@@ -30,6 +30,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
+import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.core.util.CollectionUtils;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.dao.ISegmentCostUIDAO;
@@ -40,6 +41,10 @@ import org.skywalking.apm.collector.storage.table.segment.SegmentCostTable;
  * @author peng-yongsheng
  */
 public class SegmentCostEsUIDAO extends EsDAO implements ISegmentCostUIDAO {
+
+    public SegmentCostEsUIDAO(ElasticSearchClient client) {
+        super(client);
+    }
 
     @Override public JsonObject loadTop(long startTime, long endTime, long minCost, long maxCost, String operationName,
         Error error, int applicationId, List<String> segmentIds, int limit, int from, Sort sort) {

@@ -31,7 +31,6 @@ import org.skywalking.apm.collector.storage.dao.IInstPerformanceUIDAO;
 import org.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
 import org.skywalking.apm.collector.storage.dao.IMemoryMetricUIDAO;
 import org.skywalking.apm.collector.storage.dao.IMemoryPoolMetricUIDAO;
-import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.register.Instance;
 import org.skywalking.apm.network.proto.PoolType;
 import org.slf4j.Logger;
@@ -46,14 +45,23 @@ public class InstanceJVMService {
 
     private final Gson gson = new Gson();
 
-    private final DAOService daoService;
+    private final IInstanceUIDAO instanceDAO;
+    private final ICpuMetricUIDAO cpuMetricDAO;
+    private final IGCMetricUIDAO gcMetricDAO;
+    private final IMemoryMetricUIDAO memoryMetricDAO;
+    private final IMemoryPoolMetricUIDAO memoryPoolMetricDAO;
+    private final IInstPerformanceUIDAO instPerformanceDAO;
 
     public InstanceJVMService(ModuleManager moduleManager) {
-        this.daoService = moduleManager.find(StorageModule.NAME).getService(DAOService.class);
+        this.instanceDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceUIDAO.class);
+        this.cpuMetricDAO = moduleManager.find(StorageModule.NAME).getService(ICpuMetricUIDAO.class);
+        this.gcMetricDAO = moduleManager.find(StorageModule.NAME).getService(IGCMetricUIDAO.class);
+        this.memoryMetricDAO = moduleManager.find(StorageModule.NAME).getService(IMemoryMetricUIDAO.class);
+        this.memoryPoolMetricDAO = moduleManager.find(StorageModule.NAME).getService(IMemoryPoolMetricUIDAO.class);
+        this.instPerformanceDAO = moduleManager.find(StorageModule.NAME).getService(IInstPerformanceUIDAO.class);
     }
 
     public JsonObject getInstanceOsInfo(int instanceId) {
-        IInstanceUIDAO instanceDAO = (IInstanceUIDAO)daoService.get(IInstanceUIDAO.class);
         Instance instance = instanceDAO.getInstance(instanceId);
         if (ObjectUtils.isEmpty(instance)) {
             throw new UnexpectedException("instance id: " + instanceId + " not exist.");
@@ -66,37 +74,26 @@ public class InstanceJVMService {
         JsonObject metrics = new JsonObject();
         for (String metricType : metricTypes) {
             if (metricType.toLowerCase().equals(MetricType.cpu.name())) {
-                ICpuMetricUIDAO cpuMetricDAO = (ICpuMetricUIDAO)daoService.get(ICpuMetricUIDAO.class);
                 metrics.addProperty(MetricType.cpu.name(), cpuMetricDAO.getMetric(instanceId, timeBucket));
             } else if (metricType.toLowerCase().equals(MetricType.gc.name())) {
-                IGCMetricUIDAO gcMetricDAO = (IGCMetricUIDAO)daoService.get(IGCMetricUIDAO.class);
                 metrics.add(MetricType.gc.name(), gcMetricDAO.getMetric(instanceId, timeBucket));
             } else if (metricType.toLowerCase().equals(MetricType.tps.name())) {
-                IInstPerformanceUIDAO instPerformanceDAO = (IInstPerformanceUIDAO)daoService.get(IInstPerformanceUIDAO.class);
                 metrics.addProperty(MetricType.tps.name(), instPerformanceDAO.getTpsMetric(instanceId, timeBucket));
             } else if (metricType.toLowerCase().equals(MetricType.resptime.name())) {
-                IInstPerformanceUIDAO instPerformanceDAO = (IInstPerformanceUIDAO)daoService.get(IInstPerformanceUIDAO.class);
                 metrics.addProperty(MetricType.resptime.name(), instPerformanceDAO.getRespTimeMetric(instanceId, timeBucket));
             } else if (metricType.toLowerCase().equals(MetricType.heapmemory.name())) {
-                IMemoryMetricUIDAO memoryMetricDAO = (IMemoryMetricUIDAO)daoService.get(IMemoryMetricUIDAO.class);
                 metrics.add(MetricType.heapmemory.name(), memoryMetricDAO.getMetric(instanceId, timeBucket, true));
             } else if (metricType.toLowerCase().equals(MetricType.nonheapmemory.name())) {
-                IMemoryMetricUIDAO memoryMetricDAO = (IMemoryMetricUIDAO)daoService.get(IMemoryMetricUIDAO.class);
                 metrics.add(MetricType.nonheapmemory.name(), memoryMetricDAO.getMetric(instanceId, timeBucket, false));
             } else if (metricType.toLowerCase().equals(MetricType.permgen.name())) {
-                IMemoryPoolMetricUIDAO memoryPoolMetricDAO = (IMemoryPoolMetricUIDAO)daoService.get(IMemoryPoolMetricUIDAO.class);
                 metrics.add(MetricType.permgen.name(), memoryPoolMetricDAO.getMetric(instanceId, timeBucket, PoolType.PERMGEN_USAGE_VALUE));
             } else if (metricType.toLowerCase().equals(MetricType.metaspace.name())) {
-                IMemoryPoolMetricUIDAO memoryPoolMetricDAO = (IMemoryPoolMetricUIDAO)daoService.get(IMemoryPoolMetricUIDAO.class);
                 metrics.add(MetricType.metaspace.name(), memoryPoolMetricDAO.getMetric(instanceId, timeBucket, PoolType.METASPACE_USAGE_VALUE));
             } else if (metricType.toLowerCase().equals(MetricType.newgen.name())) {
-                IMemoryPoolMetricUIDAO memoryPoolMetricDAO = (IMemoryPoolMetricUIDAO)daoService.get(IMemoryPoolMetricUIDAO.class);
                 metrics.add(MetricType.newgen.name(), memoryPoolMetricDAO.getMetric(instanceId, timeBucket, PoolType.NEWGEN_USAGE_VALUE));
             } else if (metricType.toLowerCase().equals(MetricType.oldgen.name())) {
-                IMemoryPoolMetricUIDAO memoryPoolMetricDAO = (IMemoryPoolMetricUIDAO)daoService.get(IMemoryPoolMetricUIDAO.class);
                 metrics.add(MetricType.oldgen.name(), memoryPoolMetricDAO.getMetric(instanceId, timeBucket, PoolType.OLDGEN_USAGE_VALUE));
             } else if (metricType.toLowerCase().equals(MetricType.survivor.name())) {
-                IMemoryPoolMetricUIDAO memoryPoolMetricDAO = (IMemoryPoolMetricUIDAO)daoService.get(IMemoryPoolMetricUIDAO.class);
                 metrics.add(MetricType.survivor.name(), memoryPoolMetricDAO.getMetric(instanceId, timeBucket, PoolType.SURVIVOR_USAGE_VALUE));
             } else {
                 throw new UnexpectedException("unexpected metric type");
@@ -110,37 +107,26 @@ public class InstanceJVMService {
         JsonObject metrics = new JsonObject();
         for (String metricType : metricTypes) {
             if (metricType.toLowerCase().equals(MetricType.cpu.name())) {
-                ICpuMetricUIDAO cpuMetricDAO = (ICpuMetricUIDAO)daoService.get(ICpuMetricUIDAO.class);
                 metrics.add(MetricType.cpu.name(), cpuMetricDAO.getMetric(instanceId, startTimeBucket, endTimeBucket));
             } else if (metricType.toLowerCase().equals(MetricType.gc.name())) {
-                IGCMetricUIDAO gcMetricDAO = (IGCMetricUIDAO)daoService.get(IGCMetricUIDAO.class);
                 metrics.add(MetricType.gc.name(), gcMetricDAO.getMetric(instanceId, startTimeBucket, endTimeBucket));
             } else if (metricType.toLowerCase().equals(MetricType.tps.name())) {
-                IInstPerformanceUIDAO instPerformanceDAO = (IInstPerformanceUIDAO)daoService.get(IInstPerformanceUIDAO.class);
                 metrics.add(MetricType.tps.name(), instPerformanceDAO.getTpsMetric(instanceId, startTimeBucket, endTimeBucket));
             } else if (metricType.toLowerCase().equals(MetricType.resptime.name())) {
-                IInstPerformanceUIDAO instPerformanceDAO = (IInstPerformanceUIDAO)daoService.get(IInstPerformanceUIDAO.class);
                 metrics.add(MetricType.resptime.name(), instPerformanceDAO.getRespTimeMetric(instanceId, startTimeBucket, endTimeBucket));
             } else if (metricType.toLowerCase().equals(MetricType.heapmemory.name())) {
-                IMemoryMetricUIDAO memoryMetricDAO = (IMemoryMetricUIDAO)daoService.get(IMemoryMetricUIDAO.class);
                 metrics.add(MetricType.heapmemory.name(), memoryMetricDAO.getMetric(instanceId, startTimeBucket, endTimeBucket, true));
             } else if (metricType.toLowerCase().equals(MetricType.nonheapmemory.name())) {
-                IMemoryMetricUIDAO memoryMetricDAO = (IMemoryMetricUIDAO)daoService.get(IMemoryMetricUIDAO.class);
                 metrics.add(MetricType.nonheapmemory.name(), memoryMetricDAO.getMetric(instanceId, startTimeBucket, endTimeBucket, false));
             } else if (metricType.toLowerCase().equals(MetricType.permgen.name())) {
-                IMemoryPoolMetricUIDAO memoryPoolMetricDAO = (IMemoryPoolMetricUIDAO)daoService.get(IMemoryPoolMetricUIDAO.class);
                 metrics.add(MetricType.permgen.name(), memoryPoolMetricDAO.getMetric(instanceId, startTimeBucket, endTimeBucket, PoolType.PERMGEN_USAGE_VALUE));
             } else if (metricType.toLowerCase().equals(MetricType.metaspace.name())) {
-                IMemoryPoolMetricUIDAO memoryPoolMetricDAO = (IMemoryPoolMetricUIDAO)daoService.get(IMemoryPoolMetricUIDAO.class);
                 metrics.add(MetricType.metaspace.name(), memoryPoolMetricDAO.getMetric(instanceId, startTimeBucket, endTimeBucket, PoolType.METASPACE_USAGE_VALUE));
             } else if (metricType.toLowerCase().equals(MetricType.newgen.name())) {
-                IMemoryPoolMetricUIDAO memoryPoolMetricDAO = (IMemoryPoolMetricUIDAO)daoService.get(IMemoryPoolMetricUIDAO.class);
                 metrics.add(MetricType.newgen.name(), memoryPoolMetricDAO.getMetric(instanceId, startTimeBucket, endTimeBucket, PoolType.NEWGEN_USAGE_VALUE));
             } else if (metricType.toLowerCase().equals(MetricType.oldgen.name())) {
-                IMemoryPoolMetricUIDAO memoryPoolMetricDAO = (IMemoryPoolMetricUIDAO)daoService.get(IMemoryPoolMetricUIDAO.class);
                 metrics.add(MetricType.oldgen.name(), memoryPoolMetricDAO.getMetric(instanceId, startTimeBucket, endTimeBucket, PoolType.OLDGEN_USAGE_VALUE));
             } else if (metricType.toLowerCase().equals(MetricType.survivor.name())) {
-                IMemoryPoolMetricUIDAO memoryPoolMetricDAO = (IMemoryPoolMetricUIDAO)daoService.get(IMemoryPoolMetricUIDAO.class);
                 metrics.add(MetricType.survivor.name(), memoryPoolMetricDAO.getMetric(instanceId, startTimeBucket, endTimeBucket, PoolType.SURVIVOR_USAGE_VALUE));
             } else {
                 throw new UnexpectedException("unexpected metric type");

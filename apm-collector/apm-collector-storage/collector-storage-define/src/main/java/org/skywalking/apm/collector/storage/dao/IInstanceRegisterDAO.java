@@ -19,15 +19,17 @@
 package org.skywalking.apm.collector.storage.dao;
 
 import org.skywalking.apm.collector.storage.base.dao.DAO;
-import org.skywalking.apm.collector.storage.table.register.Application;
+import org.skywalking.apm.collector.storage.table.register.Instance;
 
 /**
  * @author peng-yongsheng
  */
-public interface IApplicationStreamDAO extends DAO {
-    int getMaxApplicationId();
+public interface IInstanceRegisterDAO extends DAO {
+    int getMaxInstanceId();
 
-    int getMinApplicationId();
+    int getMinInstanceId();
 
-    void save(Application application);
+    void save(Instance instance);
+
+    void updateHeartbeatTime(int instanceId, long heartbeatTime);
 }

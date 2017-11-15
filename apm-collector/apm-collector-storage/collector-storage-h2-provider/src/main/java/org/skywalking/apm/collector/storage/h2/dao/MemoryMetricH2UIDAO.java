@@ -43,6 +43,10 @@ public class MemoryMetricH2UIDAO extends H2DAO implements IMemoryMetricUIDAO {
     private final Logger logger = LoggerFactory.getLogger(MemoryMetricH2UIDAO.class);
     private static final String GET_MEMORY_METRIC_SQL = "select * from {0} where {1} =?";
 
+    public MemoryMetricH2UIDAO(H2Client client) {
+        super(client);
+    }
+
     @Override public JsonObject getMetric(int instanceId, long timeBucket, boolean isHeap) {
         H2Client client = getClient();
         String id = timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + isHeap;

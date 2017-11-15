@@ -22,6 +22,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Base64;
 import java.util.Map;
 import org.elasticsearch.action.get.GetResponse;
+import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.dao.ISegmentUIDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
@@ -36,6 +37,10 @@ import org.slf4j.LoggerFactory;
 public class SegmentEsUIDAO extends EsDAO implements ISegmentUIDAO {
 
     private final Logger logger = LoggerFactory.getLogger(SegmentEsUIDAO.class);
+
+    public SegmentEsUIDAO(ElasticSearchClient client) {
+        super(client);
+    }
 
     @Override public TraceSegmentObject load(String segmentId) {
         GetResponse response = getClient().prepareGet(SegmentTable.TABLE, segmentId).get();

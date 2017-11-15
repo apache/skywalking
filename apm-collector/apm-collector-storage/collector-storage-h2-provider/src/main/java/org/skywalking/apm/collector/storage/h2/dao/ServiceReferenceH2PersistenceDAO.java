@@ -43,6 +43,10 @@ public class ServiceReferenceH2PersistenceDAO extends H2DAO implements IServiceR
     private final Logger logger = LoggerFactory.getLogger(ServiceReferenceH2PersistenceDAO.class);
     private static final String GET_SQL = "select * from {0} where {1} = ?";
 
+    public ServiceReferenceH2PersistenceDAO(H2Client client) {
+        super(client);
+    }
+
     @Override
     public ServiceReference get(String id) {
         H2Client client = getClient();

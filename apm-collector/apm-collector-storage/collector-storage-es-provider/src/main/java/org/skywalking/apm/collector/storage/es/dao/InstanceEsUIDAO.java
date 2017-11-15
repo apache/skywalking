@@ -37,6 +37,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.valuecount.ValueCount;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortMode;
+import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
@@ -51,6 +52,10 @@ import org.slf4j.LoggerFactory;
 public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
 
     private final Logger logger = LoggerFactory.getLogger(InstanceEsUIDAO.class);
+
+    public InstanceEsUIDAO(ElasticSearchClient client) {
+        super(client);
+    }
 
     @Override public Long lastHeartBeatTime() {
         long fiveMinuteBefore = System.currentTimeMillis() - 5 * 60 * 1000;

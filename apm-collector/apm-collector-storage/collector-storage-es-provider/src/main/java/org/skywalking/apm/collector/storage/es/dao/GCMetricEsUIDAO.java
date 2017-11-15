@@ -32,6 +32,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
+import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.dao.IGCMetricUIDAO;
@@ -47,6 +48,10 @@ import org.slf4j.LoggerFactory;
 public class GCMetricEsUIDAO extends EsDAO implements IGCMetricUIDAO {
 
     private final Logger logger = LoggerFactory.getLogger(GCMetricEsUIDAO.class);
+
+    public GCMetricEsUIDAO(ElasticSearchClient client) {
+        super(client);
+    }
 
     @Override public GCCount getGCCount(long[] timeBuckets, int instanceId) {
         logger.debug("get gc count, timeBuckets: {}, instanceId: {}", timeBuckets, instanceId);

@@ -25,8 +25,7 @@ import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
 import org.skywalking.apm.collector.storage.StorageModule;
-import org.skywalking.apm.collector.storage.dao.IServiceNameStreamDAO;
-import org.skywalking.apm.collector.storage.service.DAOService;
+import org.skywalking.apm.collector.storage.dao.IServiceNameRegisterDAO;
 import org.skywalking.apm.collector.storage.table.register.ServiceName;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorker;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
@@ -41,12 +40,12 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker<Se
 
     private final Logger logger = LoggerFactory.getLogger(ServiceNameRegisterSerialWorker.class);
 
-    private final DAOService daoService;
+    private final IServiceNameRegisterDAO serviceNameRegisterDAO;
     private final ServiceIdCacheService serviceIdCacheService;
 
     public ServiceNameRegisterSerialWorker(ModuleManager moduleManager) {
         super(moduleManager);
-        this.daoService = getModuleManager().find(StorageModule.NAME).getService(DAOService.class);
+        this.serviceNameRegisterDAO = getModuleManager().find(StorageModule.NAME).getService(IServiceNameRegisterDAO.class);
         this.serviceIdCacheService = getModuleManager().find(CacheModule.NAME).getService(ServiceIdCacheService.class);
     }
 
@@ -58,23 +57,22 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker<Se
         logger.debug("register service name: {}, application id: {}", serviceName.getServiceName(), serviceName.getApplicationId());
         int serviceId = serviceIdCacheService.get(serviceName.getApplicationId(), serviceName.getServiceName());
         if (serviceId == 0) {
-            IServiceNameStreamDAO dao = (IServiceNameStreamDAO)daoService.get(IServiceNameStreamDAO.class);
             ServiceName newServiceName;
 
-            int min = dao.getMinServiceId();
+            int min = serviceNameRegisterDAO.getMinServiceId();
             if (min == 0) {
                 ServiceName noneServiceName = new ServiceName("1");
                 noneServiceName.setApplicationId(0);
                 noneServiceName.setServiceId(Const.NONE_SERVICE_ID);
                 noneServiceName.setServiceName(Const.NONE_SERVICE_NAME);
-                dao.save(noneServiceName);
+                serviceNameRegisterDAO.save(noneServiceName);
 
                 newServiceName = new ServiceName("-1");
                 newServiceName.setApplicationId(serviceName.getApplicationId());
                 newServiceName.setServiceId(-1);
                 newServiceName.setServiceName(serviceName.getServiceName());
             } else {
-                int max = dao.getMaxServiceId();
+                int max = serviceNameRegisterDAO.getMaxServiceId();
                 serviceId = IdAutoIncrement.INSTANCE.increment(min, max);
 
                 newServiceName = new ServiceName(String.valueOf(serviceId));
@@ -82,7 +80,7 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker<Se
                 newServiceName.setServiceId(serviceId);
                 newServiceName.setServiceName(serviceName.getServiceName());
             }
-            dao.save(newServiceName);
+            serviceNameRegisterDAO.save(newServiceName);
         }
     }
 
