@@ -29,7 +29,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.skywalking.apm.collector.core.util.StringUtils;
+import org.skywalking.apm.collector.core.util.ColumnNameUtils;
 import org.skywalking.apm.collector.storage.dao.INodeReferenceUIDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.table.noderef.NodeReferenceTable;
@@ -62,13 +62,6 @@ public class NodeReferenceEsUIDAO extends EsDAO implements INodeReferenceUIDAO {
             .subAggregation(AggregationBuilders.sum(NodeReferenceTable.COLUMN_S5_GT).field(NodeReferenceTable.COLUMN_S5_GT))
             .subAggregation(AggregationBuilders.sum(NodeReferenceTable.COLUMN_SUMMARY).field(NodeReferenceTable.COLUMN_SUMMARY))
             .subAggregation(AggregationBuilders.sum(NodeReferenceTable.COLUMN_ERROR).field(NodeReferenceTable.COLUMN_ERROR)));
-        aggregationBuilder.subAggregation(AggregationBuilders.terms(NodeReferenceTable.COLUMN_BEHIND_PEER).field(NodeReferenceTable.COLUMN_BEHIND_PEER).size(100)
-            .subAggregation(AggregationBuilders.sum(NodeReferenceTable.COLUMN_S1_LTE).field(NodeReferenceTable.COLUMN_S1_LTE))
-            .subAggregation(AggregationBuilders.sum(NodeReferenceTable.COLUMN_S3_LTE).field(NodeReferenceTable.COLUMN_S3_LTE))
-            .subAggregation(AggregationBuilders.sum(NodeReferenceTable.COLUMN_S5_LTE).field(NodeReferenceTable.COLUMN_S5_LTE))
-            .subAggregation(AggregationBuilders.sum(NodeReferenceTable.COLUMN_S5_GT).field(NodeReferenceTable.COLUMN_S5_GT))
-            .subAggregation(AggregationBuilders.sum(NodeReferenceTable.COLUMN_SUMMARY).field(NodeReferenceTable.COLUMN_SUMMARY))
-            .subAggregation(AggregationBuilders.sum(NodeReferenceTable.COLUMN_ERROR).field(NodeReferenceTable.COLUMN_ERROR)));
 
         searchRequestBuilder.addAggregation(aggregationBuilder);
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
@@ -76,61 +69,30 @@ public class NodeReferenceEsUIDAO extends EsDAO implements INodeReferenceUIDAO {
         JsonArray nodeRefResSumArray = new JsonArray();
         Terms frontApplicationIdTerms = searchResponse.getAggregations().get(NodeReferenceTable.COLUMN_FRONT_APPLICATION_ID);
         for (Terms.Bucket frontApplicationIdBucket : frontApplicationIdTerms.getBuckets()) {
-            int applicationId = frontApplicationIdBucket.getKeyAsNumber().intValue();
-            //TODO ApplicationCache
-//            String applicationCode = ApplicationCache.get(applicationId);
+            int frontApplicationId = frontApplicationIdBucket.getKeyAsNumber().intValue();
             Terms behindApplicationIdTerms = frontApplicationIdBucket.getAggregations().get(NodeReferenceTable.COLUMN_BEHIND_APPLICATION_ID);
             for (Terms.Bucket behindApplicationIdBucket : behindApplicationIdTerms.getBuckets()) {
                 int behindApplicationId = behindApplicationIdBucket.getKeyAsNumber().intValue();
 
                 if (behindApplicationId != 0) {
-//                    String behindApplicationCode = ApplicationCache.get(behindApplicationId);
-
                     Sum s1LTE = behindApplicationIdBucket.getAggregations().get(NodeReferenceTable.COLUMN_S1_LTE);
                     Sum s3LTE = behindApplicationIdBucket.getAggregations().get(NodeReferenceTable.COLUMN_S3_LTE);
                     Sum s5LTE = behindApplicationIdBucket.getAggregations().get(NodeReferenceTable.COLUMN_S5_LTE);
                     Sum s5GT = behindApplicationIdBucket.getAggregations().get(NodeReferenceTable.COLUMN_S5_GT);
                     Sum summary = behindApplicationIdBucket.getAggregations().get(NodeReferenceTable.COLUMN_SUMMARY);
                     Sum error = behindApplicationIdBucket.getAggregations().get(NodeReferenceTable.COLUMN_ERROR);
-                    logger.debug("applicationId: {}, behindApplicationId: {}, s1LTE: {}, s3LTE: {}, s5LTE: {}, s5GT: {}, error: {}, summary: {}", applicationId,
+                    logger.debug("frontApplicationId: {}, behindApplicationId: {}, s1LTE: {}, s3LTE: {}, s5LTE: {}, s5GT: {}, error: {}, summary: {}", frontApplicationId,
                         behindApplicationId, s1LTE.getValue(), s3LTE.getValue(), s5LTE.getValue(), s5GT.getValue(), error.getValue(), summary.getValue());
 
                     JsonObject nodeRefResSumObj = new JsonObject();
-//                    nodeRefResSumObj.addProperty("front", applicationCode);
-//                    nodeRefResSumObj.addProperty("behind", behindApplicationCode);
-                    nodeRefResSumObj.addProperty(NodeReferenceTable.COLUMN_S1_LTE, s1LTE.getValue());
-                    nodeRefResSumObj.addProperty(NodeReferenceTable.COLUMN_S3_LTE, s3LTE.getValue());
-                    nodeRefResSumObj.addProperty(NodeReferenceTable.COLUMN_S5_LTE, s5LTE.getValue());
-                    nodeRefResSumObj.addProperty(NodeReferenceTable.COLUMN_S5_GT, s5GT.getValue());
-                    nodeRefResSumObj.addProperty(NodeReferenceTable.COLUMN_ERROR, error.getValue());
-                    nodeRefResSumObj.addProperty(NodeReferenceTable.COLUMN_SUMMARY, summary.getValue());
-                    nodeRefResSumArray.add(nodeRefResSumObj);
-                }
-            }
-
-            Terms behindPeerTerms = frontApplicationIdBucket.getAggregations().get(NodeReferenceTable.COLUMN_BEHIND_PEER);
-            for (Terms.Bucket behindPeerBucket : behindPeerTerms.getBuckets()) {
-                String behindPeer = behindPeerBucket.getKeyAsString();
-
-                if (StringUtils.isNotEmpty(behindPeer)) {
-                    Sum s1LTE = behindPeerBucket.getAggregations().get(NodeReferenceTable.COLUMN_S1_LTE);
-                    Sum s3LTE = behindPeerBucket.getAggregations().get(NodeReferenceTable.COLUMN_S3_LTE);
-                    Sum s5LTE = behindPeerBucket.getAggregations().get(NodeReferenceTable.COLUMN_S5_LTE);
-                    Sum s5GT = behindPeerBucket.getAggregations().get(NodeReferenceTable.COLUMN_S5_GT);
-                    Sum summary = behindPeerBucket.getAggregations().get(NodeReferenceTable.COLUMN_SUMMARY);
-                    Sum error = behindPeerBucket.getAggregations().get(NodeReferenceTable.COLUMN_ERROR);
-                    logger.debug("applicationId: {}, behindPeer: {}, s1LTE: {}, s3LTE: {}, s5LTE: {}, s5GT: {}, error: {}, summary: {}", applicationId,
-                        behindPeer, s1LTE.getValue(), s3LTE.getValue(), s5LTE.getValue(), s5GT.getValue(), error.getValue(), summary.getValue());
-
-                    JsonObject nodeRefResSumObj = new JsonObject();
-//                    nodeRefResSumObj.addProperty("front", applicationCode);
-                    nodeRefResSumObj.addProperty("behind", behindPeer);
-                    nodeRefResSumObj.addProperty(NodeReferenceTable.COLUMN_S1_LTE, s1LTE.getValue());
-                    nodeRefResSumObj.addProperty(NodeReferenceTable.COLUMN_S3_LTE, s3LTE.getValue());
-                    nodeRefResSumObj.addProperty(NodeReferenceTable.COLUMN_S5_LTE, s5LTE.getValue());
-                    nodeRefResSumObj.addProperty(NodeReferenceTable.COLUMN_S5_GT, s5GT.getValue());
-                    nodeRefResSumObj.addProperty(NodeReferenceTable.COLUMN_ERROR, error.getValue());
-                    nodeRefResSumObj.addProperty(NodeReferenceTable.COLUMN_SUMMARY, summary.getValue());
+                    nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(NodeReferenceTable.COLUMN_FRONT_APPLICATION_ID), frontApplicationId);
+                    nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(NodeReferenceTable.COLUMN_BEHIND_APPLICATION_ID), behindApplicationId);
+                    nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(NodeReferenceTable.COLUMN_S1_LTE), s1LTE.getValue());
+                    nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(NodeReferenceTable.COLUMN_S3_LTE), s3LTE.getValue());
+                    nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(NodeReferenceTable.COLUMN_S5_LTE), s5LTE.getValue());
+                    nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(NodeReferenceTable.COLUMN_S5_GT), s5GT.getValue());
+                    nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(NodeReferenceTable.COLUMN_ERROR), error.getValue());
+                    nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(NodeReferenceTable.COLUMN_SUMMARY), summary.getValue());
                     nodeRefResSumArray.add(nodeRefResSumObj);
                 }
             }

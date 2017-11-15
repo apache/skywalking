@@ -23,8 +23,15 @@ import com.google.gson.JsonObject;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.skywalking.apm.collector.cache.CacheModule;
+import org.skywalking.apm.collector.cache.service.ApplicationCacheService;
+import org.skywalking.apm.collector.core.module.ModuleManager;
+import org.skywalking.apm.collector.core.util.ColumnNameUtils;
 import org.skywalking.apm.collector.core.util.Const;
+import org.skywalking.apm.collector.storage.table.node.NodeComponentTable;
+import org.skywalking.apm.collector.storage.table.node.NodeMappingTable;
 import org.skywalking.apm.collector.storage.table.noderef.NodeReferenceTable;
+import org.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,12 +47,17 @@ public class TraceDagDataBuilder {
     private Map<String, Integer> nodeIdMap = new HashMap<>();
     private JsonArray pointArray = new JsonArray();
     private JsonArray lineArray = new JsonArray();
+    private final ApplicationCacheService applicationCacheService;
+
+    public TraceDagDataBuilder(ModuleManager moduleManager) {
+        this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
+    }
 
     public JsonObject build(JsonArray nodeCompArray, JsonArray nodesMappingArray, JsonArray resSumArray) {
         changeNodeComp2Map(nodeCompArray);
         changeMapping2Map(nodesMappingArray);
 
-        Map<String, JsonObject> mergedResSumMap = merge(resSumArray);
+        Map<String, JsonObject> mergedResSumMap = getApplicationCode(resSumArray);
 
         mergedResSumMap.values().forEach(nodeRefJsonObj -> {
             String front = nodeRefJsonObj.get("front").getAsString();
@@ -94,8 +106,10 @@ public class TraceDagDataBuilder {
     private void changeMapping2Map(JsonArray nodesMappingArray) {
         for (int i = 0; i < nodesMappingArray.size(); i++) {
             JsonObject nodesMappingJsonObj = nodesMappingArray.get(i).getAsJsonObject();
-            String applicationCode = nodesMappingJsonObj.get("applicationCode").getAsString();
-            String address = nodesMappingJsonObj.get("address").getAsString();
+            int applicationId = nodesMappingJsonObj.get(NodeMappingTable.COLUMN_APPLICATION_ID).getAsInt();
+            String applicationCode = applicationCacheService.get(applicationId);
+            int addressId = nodesMappingJsonObj.get(NodeMappingTable.COLUMN_ADDRESS_ID).getAsInt();
+            String address = applicationCacheService.get(addressId);
             mappingMap.put(address, applicationCode);
         }
     }
@@ -104,8 +118,10 @@ public class TraceDagDataBuilder {
         for (int i = 0; i < nodeCompArray.size(); i++) {
             JsonObject nodesJsonObj = nodeCompArray.get(i).getAsJsonObject();
             logger.debug(nodesJsonObj.toString());
-            String componentName = nodesJsonObj.get("componentName").getAsString();
-            String peer = nodesJsonObj.get("peer").getAsString();
+            int componentId = nodesJsonObj.get(NodeComponentTable.COLUMN_COMPONENT_ID).getAsInt();
+            String componentName = ComponentsDefine.getInstance().getComponentName(componentId);
+            int peerId = nodesJsonObj.get(NodeComponentTable.COLUMN_PEER_ID).getAsInt();
+            String peer = applicationCacheService.get(peerId);
             nodeCompMap.put(peer, componentName);
         }
     }
@@ -114,25 +130,21 @@ public class TraceDagDataBuilder {
         return mappingMap.containsKey(peers);
     }
 
-    private Map<String, JsonObject> merge(JsonArray nodeReference) {
+    private Map<String, JsonObject> getApplicationCode(JsonArray nodeReference) {
         Map<String, JsonObject> mergedRef = new LinkedHashMap<>();
         for (int i = 0; i < nodeReference.size(); i++) {
             JsonObject nodeRefJsonObj = nodeReference.get(i).getAsJsonObject();
-            String front = nodeRefJsonObj.get("front").getAsString();
-            String behind = nodeRefJsonObj.get("behind").getAsString();
+
+            int frontApplicationId = nodeRefJsonObj.get(ColumnNameUtils.INSTANCE.rename(NodeReferenceTable.COLUMN_FRONT_APPLICATION_ID)).getAsInt();
+            int behindApplicationId = nodeRefJsonObj.get(ColumnNameUtils.INSTANCE.rename(NodeReferenceTable.COLUMN_BEHIND_APPLICATION_ID)).getAsInt();
+
+            String front = applicationCacheService.get(frontApplicationId);
+            String behind = applicationCacheService.get(behindApplicationId);
 
             String id = front + Const.ID_SPLIT + behind;
-            if (mergedRef.containsKey(id)) {
-                JsonObject oldValue = mergedRef.get(id);
-                oldValue.addProperty(NodeReferenceTable.COLUMN_S1_LTE, oldValue.get(NodeReferenceTable.COLUMN_S1_LTE).getAsLong() + nodeRefJsonObj.get(NodeReferenceTable.COLUMN_S1_LTE).getAsLong());
-                oldValue.addProperty(NodeReferenceTable.COLUMN_S3_LTE, oldValue.get(NodeReferenceTable.COLUMN_S3_LTE).getAsLong() + nodeRefJsonObj.get(NodeReferenceTable.COLUMN_S3_LTE).getAsLong());
-                oldValue.addProperty(NodeReferenceTable.COLUMN_S5_LTE, oldValue.get(NodeReferenceTable.COLUMN_S5_LTE).getAsLong() + nodeRefJsonObj.get(NodeReferenceTable.COLUMN_S5_LTE).getAsLong());
-                oldValue.addProperty(NodeReferenceTable.COLUMN_S5_GT, oldValue.get(NodeReferenceTable.COLUMN_S5_GT).getAsLong() + nodeRefJsonObj.get(NodeReferenceTable.COLUMN_S5_GT).getAsLong());
-                oldValue.addProperty(NodeReferenceTable.COLUMN_ERROR, oldValue.get(NodeReferenceTable.COLUMN_ERROR).getAsLong() + nodeRefJsonObj.get(NodeReferenceTable.COLUMN_ERROR).getAsLong());
-                oldValue.addProperty(NodeReferenceTable.COLUMN_SUMMARY, oldValue.get(NodeReferenceTable.COLUMN_SUMMARY).getAsLong() + nodeRefJsonObj.get(NodeReferenceTable.COLUMN_SUMMARY).getAsLong());
-            } else {
-                mergedRef.put(id, nodeReference.get(i).getAsJsonObject());
-            }
+            nodeRefJsonObj.addProperty("front", front);
+            nodeRefJsonObj.addProperty("behind", behind);
+            mergedRef.put(id, nodeRefJsonObj);
         }
 
         return mergedRef;

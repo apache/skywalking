@@ -35,7 +35,6 @@ public class NodeReferenceH2TableDefine extends H2TableDefine {
         addColumn(new H2ColumnDefine(NodeReferenceTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
         addColumn(new H2ColumnDefine(NodeReferenceTable.COLUMN_FRONT_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
         addColumn(new H2ColumnDefine(NodeReferenceTable.COLUMN_BEHIND_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(NodeReferenceTable.COLUMN_BEHIND_PEER, H2ColumnDefine.Type.Varchar.name()));
         addColumn(new H2ColumnDefine(NodeReferenceTable.COLUMN_S1_LTE, H2ColumnDefine.Type.Int.name()));
         addColumn(new H2ColumnDefine(NodeReferenceTable.COLUMN_S3_LTE, H2ColumnDefine.Type.Int.name()));
         addColumn(new H2ColumnDefine(NodeReferenceTable.COLUMN_S5_LTE, H2ColumnDefine.Type.Int.name()));

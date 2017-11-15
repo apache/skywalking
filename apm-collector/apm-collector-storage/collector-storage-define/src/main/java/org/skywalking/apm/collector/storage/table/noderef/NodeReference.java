@@ -30,7 +30,6 @@ public class NodeReference extends Data {
 
     private static final Column[] STRING_COLUMNS = {
         new Column(NodeReferenceTable.COLUMN_ID, new NonOperation()),
-        new Column(NodeReferenceTable.COLUMN_BEHIND_PEER, new NonOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
@@ -59,14 +58,6 @@ public class NodeReference extends Data {
         setS5Gt(0);
         setError(0);
         setSummary(0);
-    }
-
-    public String getBehindPeer() {
-        return getDataString(1);
-    }
-
-    public void setBehindPeer(String behindPeer) {
-        setDataString(1, behindPeer);
     }
 
     public Long getTimeBucket() {

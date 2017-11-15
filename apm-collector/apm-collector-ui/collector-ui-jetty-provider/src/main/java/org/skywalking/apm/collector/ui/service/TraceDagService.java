@@ -38,8 +38,10 @@ public class TraceDagService {
     private final INodeComponentUIDAO nodeComponentDAO;
     private final INodeMappingUIDAO nodeMappingDAO;
     private final INodeReferenceUIDAO nodeRefSumDAO;
+    private final ModuleManager moduleManager;
 
     public TraceDagService(ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
         this.nodeComponentDAO = moduleManager.find(StorageModule.NAME).getService(INodeComponentUIDAO.class);
         this.nodeMappingDAO = moduleManager.find(StorageModule.NAME).getService(INodeMappingUIDAO.class);
         this.nodeRefSumDAO = moduleManager.find(StorageModule.NAME).getService(INodeReferenceUIDAO.class);
@@ -53,7 +55,7 @@ public class TraceDagService {
 
         JsonArray nodeRefSumArray = nodeRefSumDAO.load(startTime, endTime);
 
-        TraceDagDataBuilder builder = new TraceDagDataBuilder();
+        TraceDagDataBuilder builder = new TraceDagDataBuilder(moduleManager);
         JsonObject traceDag = builder.build(nodeComponentArray, nodeMappingArray, nodeRefSumArray);
 
         return traceDag;
