@@ -53,6 +53,12 @@ public class NodeReference extends Data {
 
     public NodeReference(String id) {
         super(id, STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
+        setS1Lte(0);
+        setS3Lte(0);
+        setS5Lte(0);
+        setS5Gt(0);
+        setError(0);
+        setSummary(0);
     }
 
     public String getBehindPeer() {

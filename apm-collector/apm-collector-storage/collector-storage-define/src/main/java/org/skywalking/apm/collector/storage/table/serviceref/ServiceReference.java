@@ -58,6 +58,13 @@ public class ServiceReference extends Data {
 
     public ServiceReference(String id) {
         super(id, STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
+        setS1Lte(0L);
+        setS3Lte(0L);
+        setS5Lte(0L);
+        setS5Gt(0L);
+        setError(0L);
+        setSummary(0L);
+        setCostSummary(0L);
     }
 
     public String getEntryServiceName() {

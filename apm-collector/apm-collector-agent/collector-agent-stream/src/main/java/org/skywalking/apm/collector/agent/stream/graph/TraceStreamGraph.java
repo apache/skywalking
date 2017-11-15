@@ -18,6 +18,7 @@
 
 package org.skywalking.apm.collector.agent.stream.graph;
 
+import org.skywalking.apm.collector.agent.stream.parser.standardization.SegmentStandardization;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SegmentStandardizationWorker;
 import org.skywalking.apm.collector.agent.stream.worker.trace.global.GlobalTracePersistenceWorker;
 import org.skywalking.apm.collector.agent.stream.worker.trace.instance.InstPerformancePersistenceWorker;
@@ -55,7 +56,6 @@ import org.skywalking.apm.collector.storage.table.segment.SegmentCost;
 import org.skywalking.apm.collector.storage.table.service.ServiceEntry;
 import org.skywalking.apm.collector.storage.table.serviceref.ServiceReference;
 import org.skywalking.apm.collector.stream.worker.base.WorkerCreateListener;
-import org.skywalking.apm.network.proto.UpstreamSegment;
 
 /**
  * @author peng-yongsheng
@@ -82,34 +82,31 @@ public class TraceStreamGraph {
     }
 
     @SuppressWarnings("unchecked")
-    public Graph<UpstreamSegment> createSegmentStandardizationGraph() {
-        QueueCreatorService<UpstreamSegment> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
+    public void createSegmentStandardizationGraph() {
+        QueueCreatorService<SegmentStandardization> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
 
-        Graph<UpstreamSegment> graph = GraphManager.INSTANCE.createIfAbsent(SEGMENT_STANDARDIZATION_GRAPH_ID, UpstreamSegment.class);
+        Graph<SegmentStandardization> graph = GraphManager.INSTANCE.createIfAbsent(SEGMENT_STANDARDIZATION_GRAPH_ID, SegmentStandardization.class);
         graph.addNode(new SegmentStandardizationWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
-        return graph;
     }
 
     @SuppressWarnings("unchecked")
-    public Graph<GlobalTrace> createGlobalTraceGraph() {
+    public void createGlobalTraceGraph() {
         QueueCreatorService<GlobalTrace> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
 
         Graph<GlobalTrace> graph = GraphManager.INSTANCE.createIfAbsent(GLOBAL_TRACE_GRAPH_ID, GlobalTrace.class);
         graph.addNode(new GlobalTracePersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
-        return graph;
     }
 
     @SuppressWarnings("unchecked")
-    public Graph<InstPerformance> createInstPerformanceGraph() {
+    public void createInstPerformanceGraph() {
         QueueCreatorService<InstPerformance> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
 
         Graph<InstPerformance> graph = GraphManager.INSTANCE.createIfAbsent(INST_PERFORMANCE_GRAPH_ID, InstPerformance.class);
         graph.addNode(new InstPerformancePersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
-        return graph;
     }
 
     @SuppressWarnings("unchecked")
-    public Graph<NodeComponent> createNodeComponentGraph() {
+    public void createNodeComponentGraph() {
         QueueCreatorService<NodeComponent> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
@@ -117,11 +114,10 @@ public class TraceStreamGraph {
         graph.addNode(new NodeComponentAggregationWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener))
             .addNext(new NodeComponentRemoteWorker.Factory(moduleManager, remoteSenderService, NODE_COMPONENT_GRAPH_ID).create(workerCreateListener))
             .addNext(new NodeComponentPersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
-        return graph;
     }
 
     @SuppressWarnings("unchecked")
-    public Graph<NodeMapping> createNodeMappingGraph() {
+    public void createNodeMappingGraph() {
         QueueCreatorService<NodeMapping> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
@@ -129,11 +125,10 @@ public class TraceStreamGraph {
         graph.addNode(new NodeMappingAggregationWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener))
             .addNext(new NodeMappingRemoteWorker.Factory(moduleManager, remoteSenderService, NODE_MAPPING_GRAPH_ID).create(workerCreateListener))
             .addNext(new NodeMappingPersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
-        return graph;
     }
 
     @SuppressWarnings("unchecked")
-    public Graph<NodeReference> createNodeReferenceGraph() {
+    public void createNodeReferenceGraph() {
         QueueCreatorService<NodeReference> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
@@ -141,11 +136,10 @@ public class TraceStreamGraph {
         graph.addNode(new NodeReferenceAggregationWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener))
             .addNext(new NodeReferenceRemoteWorker.Factory(moduleManager, remoteSenderService, NODE_REFERENCE_GRAPH_ID).create(workerCreateListener))
             .addNext(new NodeReferencePersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
-        return graph;
     }
 
     @SuppressWarnings("unchecked")
-    public Graph<ServiceEntry> createServiceEntryGraph() {
+    public void createServiceEntryGraph() {
         QueueCreatorService<ServiceEntry> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
@@ -153,11 +147,10 @@ public class TraceStreamGraph {
         graph.addNode(new ServiceEntryAggregationWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener))
             .addNext(new ServiceEntryRemoteWorker.Factory(moduleManager, remoteSenderService, SERVICE_ENTRY_GRAPH_ID).create(workerCreateListener))
             .addNext(new ServiceEntryPersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
-        return graph;
     }
 
     @SuppressWarnings("unchecked")
-    public Graph<ServiceReference> createServiceReferenceGraph() {
+    public void createServiceReferenceGraph() {
         QueueCreatorService<ServiceReference> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
@@ -165,24 +158,21 @@ public class TraceStreamGraph {
         graph.addNode(new ServiceReferenceAggregationWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener))
             .addNext(new ServiceReferenceRemoteWorker.Factory(moduleManager, remoteSenderService, SERVICE_REFERENCE_GRAPH_ID).create(workerCreateListener))
             .addNext(new ServiceReferencePersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
-        return graph;
     }
 
     @SuppressWarnings("unchecked")
-    public Graph<Segment> createSegmentGraph() {
+    public void createSegmentGraph() {
         QueueCreatorService<Segment> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
 
         Graph<Segment> graph = GraphManager.INSTANCE.createIfAbsent(SEGMENT_GRAPH_ID, Segment.class);
         graph.addNode(new SegmentPersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
-        return graph;
     }
 
     @SuppressWarnings("unchecked")
-    public Graph<SegmentCost> createSegmentCostGraph() {
+    public void createSegmentCostGraph() {
         QueueCreatorService<SegmentCost> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
 
         Graph<SegmentCost> graph = GraphManager.INSTANCE.createIfAbsent(SEGMENT_COST_GRAPH_ID, SegmentCost.class);
         graph.addNode(new SegmentCostPersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
-        return graph;
     }
 }

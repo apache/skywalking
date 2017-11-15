@@ -16,15 +16,27 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.stream.worker.base;
+package org.skywalking.apm.collector.agent.stream.parser.standardization;
 
-import org.skywalking.apm.collector.core.define.DefinitionFile;
+import org.skywalking.apm.collector.core.data.EndOfBatchQueueMessage;
+import org.skywalking.apm.network.proto.UpstreamSegment;
 
 /**
  * @author peng-yongsheng
  */
-public class LocalWorkerProviderDefinitionFile extends DefinitionFile {
-    @Override protected String fileName() {
-        return "local_worker_provider.define";
+public class SegmentStandardization extends EndOfBatchQueueMessage {
+
+    public SegmentStandardization(String key) {
+        super(key);
+    }
+
+    private UpstreamSegment upstreamSegment;
+
+    public UpstreamSegment getUpstreamSegment() {
+        return upstreamSegment;
+    }
+
+    public void setUpstreamSegment(UpstreamSegment upstreamSegment) {
+        this.upstreamSegment = upstreamSegment;
     }
 }

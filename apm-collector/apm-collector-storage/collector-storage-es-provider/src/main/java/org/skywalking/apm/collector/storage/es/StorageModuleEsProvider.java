@@ -44,6 +44,7 @@ import org.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
 import org.skywalking.apm.collector.storage.dao.IMemoryMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IMemoryMetricUIDAO;
 import org.skywalking.apm.collector.storage.dao.IMemoryPoolMetricPersistenceDAO;
+import org.skywalking.apm.collector.storage.dao.IMemoryPoolMetricUIDAO;
 import org.skywalking.apm.collector.storage.dao.INodeComponentPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.INodeComponentUIDAO;
 import org.skywalking.apm.collector.storage.dao.INodeMappingPersistenceDAO;
@@ -59,6 +60,7 @@ import org.skywalking.apm.collector.storage.dao.IServiceEntryUIDAO;
 import org.skywalking.apm.collector.storage.dao.IServiceNameCacheDAO;
 import org.skywalking.apm.collector.storage.dao.IServiceNameRegisterDAO;
 import org.skywalking.apm.collector.storage.dao.IServiceReferencePersistenceDAO;
+import org.skywalking.apm.collector.storage.dao.IServiceReferenceUIDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.BatchEsDAO;
 import org.skywalking.apm.collector.storage.es.base.define.ElasticSearchStorageInstaller;
 import org.skywalking.apm.collector.storage.es.dao.ApplicationEsCacheDAO;
@@ -78,6 +80,7 @@ import org.skywalking.apm.collector.storage.es.dao.InstanceHeartBeatEsPersistenc
 import org.skywalking.apm.collector.storage.es.dao.MemoryMetricEsPersistenceDAO;
 import org.skywalking.apm.collector.storage.es.dao.MemoryMetricEsUIDAO;
 import org.skywalking.apm.collector.storage.es.dao.MemoryPoolMetricEsPersistenceDAO;
+import org.skywalking.apm.collector.storage.es.dao.MemoryPoolMetricEsUIDAO;
 import org.skywalking.apm.collector.storage.es.dao.NodeComponentEsPersistenceDAO;
 import org.skywalking.apm.collector.storage.es.dao.NodeComponentEsUIDAO;
 import org.skywalking.apm.collector.storage.es.dao.NodeMappingEsPersistenceDAO;
@@ -93,6 +96,7 @@ import org.skywalking.apm.collector.storage.es.dao.ServiceEntryEsUIDAO;
 import org.skywalking.apm.collector.storage.es.dao.ServiceNameEsCacheDAO;
 import org.skywalking.apm.collector.storage.es.dao.ServiceNameEsRegisterDAO;
 import org.skywalking.apm.collector.storage.es.dao.ServiceReferenceEsPersistenceDAO;
+import org.skywalking.apm.collector.storage.es.dao.ServiceReferenceEsUIDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -190,7 +194,7 @@ public class StorageModuleEsProvider extends ModuleProvider {
         this.registerServiceImplementation(ICpuMetricUIDAO.class, new CpuMetricEsUIDAO(elasticSearchClient));
         this.registerServiceImplementation(IGCMetricUIDAO.class, new GCMetricEsUIDAO(elasticSearchClient));
         this.registerServiceImplementation(IMemoryMetricUIDAO.class, new MemoryMetricEsUIDAO(elasticSearchClient));
-//        this.registerServiceImplementation(IMemoryPoolMetricUIDAO.class, new MemoryPoolMetricEsUIDAO(elasticSearchClient));
+        this.registerServiceImplementation(IMemoryPoolMetricUIDAO.class, new MemoryPoolMetricEsUIDAO(elasticSearchClient));
 
         this.registerServiceImplementation(IGlobalTraceUIDAO.class, new GlobalTraceEsUIDAO(elasticSearchClient));
         this.registerServiceImplementation(IInstPerformanceUIDAO.class, new InstPerformanceEsUIDAO(elasticSearchClient));
@@ -200,6 +204,6 @@ public class StorageModuleEsProvider extends ModuleProvider {
         this.registerServiceImplementation(ISegmentCostUIDAO.class, new SegmentCostEsUIDAO(elasticSearchClient));
         this.registerServiceImplementation(ISegmentUIDAO.class, new SegmentEsUIDAO(elasticSearchClient));
         this.registerServiceImplementation(IServiceEntryUIDAO.class, new ServiceEntryEsUIDAO(elasticSearchClient));
-//        this.registerServiceImplementation(IServiceReferenceUIDAO.class, new ServiceReferenceEsUIDAO(elasticSearchClient));
+        this.registerServiceImplementation(IServiceReferenceUIDAO.class, new ServiceReferenceEsUIDAO(elasticSearchClient));
     }
 }

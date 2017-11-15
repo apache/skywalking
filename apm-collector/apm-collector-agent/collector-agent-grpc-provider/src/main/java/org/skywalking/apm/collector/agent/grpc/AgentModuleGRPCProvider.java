@@ -99,6 +99,6 @@ public class AgentModuleGRPCProvider extends ModuleProvider {
         gRPCServer.addHandler(new InstanceDiscoveryServiceHandler(getManager()));
         gRPCServer.addHandler(new ServiceNameDiscoveryServiceHandler(getManager()));
         gRPCServer.addHandler(new JVMMetricsServiceHandler());
-        gRPCServer.addHandler(new TraceSegmentServiceHandler());
+        gRPCServer.addHandler(new TraceSegmentServiceHandler(getManager()));
     }
 }

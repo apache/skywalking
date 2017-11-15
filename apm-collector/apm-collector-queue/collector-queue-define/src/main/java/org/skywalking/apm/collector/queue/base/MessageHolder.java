@@ -18,12 +18,12 @@
 
 package org.skywalking.apm.collector.queue.base;
 
-import org.skywalking.apm.collector.core.data.Data;
+import org.skywalking.apm.collector.core.data.EndOfBatchQueueMessage;
 
 /**
  * @author peng-yongsheng
  */
-public class MessageHolder<MESSAGE extends Data> {
+public class MessageHolder<MESSAGE extends EndOfBatchQueueMessage> {
     private MESSAGE message;
 
     public MESSAGE getMessage() {

@@ -40,7 +40,7 @@ public class ServiceNameService {
 
     public ServiceNameService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
-        this.serviceNameRegisterGraph = GraphManager.INSTANCE.createIfAbsent(RegisterStreamGraph.APPLICATION_REGISTER_GRAPH_ID, ServiceName.class);
+        this.serviceNameRegisterGraph = GraphManager.INSTANCE.createIfAbsent(RegisterStreamGraph.SERVICE_NAME_REGISTER_GRAPH_ID, ServiceName.class);
     }
 
     public int getOrCreate(int applicationId, String serviceName) {
