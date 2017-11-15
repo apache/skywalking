@@ -18,14 +18,19 @@
 
 package org.skywalking.apm.collector.ui.service;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.util.LinkedList;
 import java.util.List;
 import org.skywalking.apm.collector.core.module.ModuleManager;
+import org.skywalking.apm.collector.core.util.CollectionUtils;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.IGlobalTraceUIDAO;
 import org.skywalking.apm.collector.storage.dao.ISegmentCostUIDAO;
+import org.skywalking.apm.collector.storage.table.global.GlobalTraceTable;
+import org.skywalking.apm.collector.storage.table.segment.SegmentCostTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +58,17 @@ public class SegmentTopService {
         if (StringUtils.isNotEmpty(globalTraceId)) {
             segmentIds = globalTraceDAO.getSegmentIds(globalTraceId);
         }
-        return segmentCostDAO.loadTop(startTime, endTime, minCost, maxCost, operationName, error, applicationId, segmentIds, limit, from, sort);
+
+        JsonObject loadTopJsonObj = segmentCostDAO.loadTop(startTime, endTime, minCost, maxCost, operationName, error, applicationId, segmentIds, limit, from, sort);
+        JsonArray loadTopJsonArray = loadTopJsonObj.get("data").getAsJsonArray();
+        for (JsonElement loadTopElement : loadTopJsonArray) {
+            JsonObject jsonObject = loadTopElement.getAsJsonObject();
+            String segmentId = jsonObject.get(SegmentCostTable.COLUMN_SEGMENT_ID).getAsString();
+            List<String> globalTraces = globalTraceDAO.getGlobalTraceId(segmentId);
+            if (CollectionUtils.isNotEmpty(globalTraces)) {
+                jsonObject.addProperty(GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID, globalTraces.get(0));
+            }
+        }
+        return loadTopJsonObj;
     }
 }
