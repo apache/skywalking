@@ -16,27 +16,31 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.storage.h2.dao;
+package org.skywalking.apm.collector.storage.es.dao;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.skywalking.apm.collector.client.h2.H2Client;
-import org.skywalking.apm.collector.client.h2.H2ClientException;
-import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
-import org.skywalking.apm.collector.storage.dao.IInstanceStreamDAO;
-import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
+import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.support.WriteRequest;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.skywalking.apm.collector.storage.dao.IInstanceRegisterDAO;
+import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.table.register.Instance;
 import org.skywalking.apm.collector.storage.table.register.InstanceTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author peng-yongsheng, clevertension
+ * @author peng-yongsheng
  */
-public class InstanceH2StreamDAO extends H2DAO implements IInstanceStreamDAO {
-    private final Logger logger = LoggerFactory.getLogger(InstanceH2StreamDAO.class);
+public class InstanceEsRegisterDAO extends EsDAO implements IInstanceRegisterDAO {
 
-    private static final String UPDATE_HEARTBEAT_TIME_SQL = "update {0} set {1} = ? where {2} = ?";
+    private final Logger logger = LoggerFactory.getLogger(InstanceEsRegisterDAO.class);
+
+    public InstanceEsRegisterDAO(ElasticSearchClient client) {
+        super(client);
+    }
 
     @Override public int getMaxInstanceId() {
         return getMaxId(InstanceTable.TABLE, InstanceTable.COLUMN_INSTANCE_ID);
@@ -47,33 +51,32 @@ public class InstanceH2StreamDAO extends H2DAO implements IInstanceStreamDAO {
     }
 
     @Override public void save(Instance instance) {
-        H2Client client = getClient();
+        logger.debug("save instance register info, application getId: {}, agentUUID: {}", instance.getApplicationId(), instance.getAgentUUID());
+        ElasticSearchClient client = getClient();
         Map<String, Object> source = new HashMap<>();
-        source.put(InstanceTable.COLUMN_ID, instance.getId());
         source.put(InstanceTable.COLUMN_INSTANCE_ID, instance.getInstanceId());
         source.put(InstanceTable.COLUMN_APPLICATION_ID, instance.getApplicationId());
         source.put(InstanceTable.COLUMN_AGENT_UUID, instance.getAgentUUID());
         source.put(InstanceTable.COLUMN_REGISTER_TIME, instance.getRegisterTime());
         source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, instance.getHeartBeatTime());
         source.put(InstanceTable.COLUMN_OS_INFO, instance.getOsInfo());
-        String sql = SqlBuilder.buildBatchInsertSql(InstanceTable.TABLE, source.keySet());
-        Object[] params = source.values().toArray(new Object[0]);
-        try {
-            client.execute(sql, params);
-        } catch (H2ClientException e) {
-            logger.error(e.getMessage(), e);
-        }
+
+        IndexResponse response = client.prepareIndex(InstanceTable.TABLE, instance.getId()).setSource(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
+        logger.debug("save instance register info, application getId: {}, agentUUID: {}, status: {}", instance.getApplicationId(), instance.getAgentUUID(), response.status().name());
     }
 
     @Override public void updateHeartbeatTime(int instanceId, long heartbeatTime) {
-        H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(UPDATE_HEARTBEAT_TIME_SQL, InstanceTable.TABLE, InstanceTable.COLUMN_HEARTBEAT_TIME,
-            InstanceTable.COLUMN_ID);
-        Object[] params = new Object[] {heartbeatTime, instanceId};
-        try {
-            client.execute(sql, params);
-        } catch (H2ClientException e) {
-            logger.error(e.getMessage(), e);
-        }
+        ElasticSearchClient client = getClient();
+        UpdateRequest updateRequest = new UpdateRequest();
+        updateRequest.index(InstanceTable.TABLE);
+        updateRequest.type("type");
+        updateRequest.id(String.valueOf(instanceId));
+        updateRequest.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
+
+        Map<String, Object> source = new HashMap<>();
+        source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, heartbeatTime);
+
+        updateRequest.doc(source);
+        client.update(updateRequest);
     }
 }

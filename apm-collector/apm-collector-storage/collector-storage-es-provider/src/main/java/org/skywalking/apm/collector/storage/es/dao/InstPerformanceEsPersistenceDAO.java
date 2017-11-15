@@ -23,6 +23,7 @@ import java.util.Map;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
+import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.storage.dao.IInstPerformancePersistenceDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.table.instance.InstPerformance;
@@ -36,6 +37,10 @@ import org.slf4j.LoggerFactory;
 public class InstPerformanceEsPersistenceDAO extends EsDAO implements IInstPerformancePersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, InstPerformance> {
 
     private final Logger logger = LoggerFactory.getLogger(InstPerformanceEsPersistenceDAO.class);
+
+    public InstPerformanceEsPersistenceDAO(ElasticSearchClient client) {
+        super(client);
+    }
 
     @Override public InstPerformance get(String id) {
         GetResponse getResponse = getClient().prepareGet(InstPerformanceTable.TABLE, id).get();

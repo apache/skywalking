@@ -23,39 +23,45 @@ import java.util.Map;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
-import org.skywalking.apm.collector.storage.dao.IApplicationStreamDAO;
+import org.skywalking.apm.collector.storage.dao.IServiceNameRegisterDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
-import org.skywalking.apm.collector.storage.table.register.Application;
-import org.skywalking.apm.collector.storage.table.register.ApplicationTable;
+import org.skywalking.apm.collector.storage.table.register.ServiceName;
+import org.skywalking.apm.collector.storage.table.register.ServiceNameTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng, clevertension
  */
-public class ApplicationH2StreamDAO extends H2DAO implements IApplicationStreamDAO {
-    private final Logger logger = LoggerFactory.getLogger(ApplicationH2StreamDAO.class);
+public class ServiceNameH2RegisterDAO extends H2DAO implements IServiceNameRegisterDAO {
 
-    @Override
-    public int getMaxApplicationId() {
-        return getMaxId(ApplicationTable.TABLE, ApplicationTable.COLUMN_APPLICATION_ID);
+    private final Logger logger = LoggerFactory.getLogger(ServiceNameH2RegisterDAO.class);
+
+    public ServiceNameH2RegisterDAO(H2Client client) {
+        super(client);
     }
 
     @Override
-    public int getMinApplicationId() {
-        return getMinId(ApplicationTable.TABLE, ApplicationTable.COLUMN_APPLICATION_ID);
+    public int getMaxServiceId() {
+        return getMaxId(ServiceNameTable.TABLE, ServiceNameTable.COLUMN_SERVICE_ID);
     }
 
     @Override
-    public void save(Application application) {
+    public int getMinServiceId() {
+        return getMinId(ServiceNameTable.TABLE, ServiceNameTable.COLUMN_SERVICE_ID);
+    }
+
+    @Override
+    public void save(ServiceName serviceName) {
+        logger.debug("save service name register info, application getId: {}, service name: {}", serviceName.getId(), serviceName.getServiceName());
         H2Client client = getClient();
-
         Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationTable.COLUMN_ID, application.getId());
-        source.put(ApplicationTable.COLUMN_APPLICATION_CODE, application.getApplicationCode());
-        source.put(ApplicationTable.COLUMN_APPLICATION_ID, application.getApplicationId());
+        source.put(ServiceNameTable.COLUMN_ID, serviceName.getId());
+        source.put(ServiceNameTable.COLUMN_SERVICE_ID, serviceName.getServiceId());
+        source.put(ServiceNameTable.COLUMN_APPLICATION_ID, serviceName.getApplicationId());
+        source.put(ServiceNameTable.COLUMN_SERVICE_NAME, serviceName.getServiceName());
 
-        String sql = SqlBuilder.buildBatchInsertSql(ApplicationTable.TABLE, source.keySet());
+        String sql = SqlBuilder.buildBatchInsertSql(ServiceNameTable.TABLE, source.keySet());
         Object[] params = source.values().toArray(new Object[0]);
         try {
             client.execute(sql, params);

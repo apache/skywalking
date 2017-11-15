@@ -43,6 +43,10 @@ public class NodeMappingH2PersistenceDAO extends H2DAO implements INodeMappingPe
     private final Logger logger = LoggerFactory.getLogger(NodeMappingH2PersistenceDAO.class);
     private static final String GET_SQL = "select * from {0} where {1} = ?";
 
+    public NodeMappingH2PersistenceDAO(H2Client client) {
+        super(client);
+    }
+
     @Override public NodeMapping get(String id) {
         H2Client client = getClient();
         String sql = SqlBuilder.buildSql(GET_SQL, NodeMappingTable.TABLE, NodeMappingTable.COLUMN_ID);

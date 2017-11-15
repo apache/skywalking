@@ -44,6 +44,10 @@ public class SegmentCostH2UIDAO extends H2DAO implements ISegmentCostUIDAO {
     private final Logger logger = LoggerFactory.getLogger(SegmentCostH2UIDAO.class);
     private static final String GET_SEGMENT_COST_SQL = "select * from {0} where {1} >= ? and {1} <= ?";
 
+    public SegmentCostH2UIDAO(H2Client client) {
+        super(client);
+    }
+
     @Override public JsonObject loadTop(long startTime, long endTime, long minCost, long maxCost, String operationName,
         Error error, int applicationId, List<String> segmentIds, int limit, int from, Sort sort) {
         H2Client client = getClient();

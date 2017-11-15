@@ -25,23 +25,21 @@ import org.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
-import org.skywalking.apm.collector.storage.service.DAOService;
 
 /**
  * @author peng-yongsheng
  */
 public class ApplicationService {
 
-    private final DAOService daoService;
+    private final IInstanceUIDAO instanceDAO;
     private final ApplicationCacheService applicationCacheService;
 
     public ApplicationService(ModuleManager moduleManager) {
-        this.daoService = moduleManager.find(StorageModule.NAME).getService(DAOService.class);
+        this.instanceDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceUIDAO.class);
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
     }
 
     public JsonArray getApplications(long startTime, long endTime) {
-        IInstanceUIDAO instanceDAO = (IInstanceUIDAO)daoService.get(IInstanceUIDAO.class);
         JsonArray applications = instanceDAO.getApplications(startTime, endTime);
 
         applications.forEach(jsonElement -> {

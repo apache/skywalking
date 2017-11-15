@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
+import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.storage.dao.IMemoryPoolMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetric;
@@ -31,6 +32,10 @@ import org.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetricTable;
  * @author peng-yongsheng
  */
 public class MemoryPoolMetricEsPersistenceDAO extends EsDAO implements IMemoryPoolMetricPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, MemoryPoolMetric> {
+
+    public MemoryPoolMetricEsPersistenceDAO(ElasticSearchClient client) {
+        super(client);
+    }
 
     @Override public MemoryPoolMetric get(String id) {
         return null;

@@ -26,7 +26,6 @@ import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.IGlobalTraceUIDAO;
 import org.skywalking.apm.collector.storage.dao.ISegmentCostUIDAO;
-import org.skywalking.apm.collector.storage.service.DAOService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,10 +36,12 @@ public class SegmentTopService {
 
     private final Logger logger = LoggerFactory.getLogger(SegmentTopService.class);
 
-    private final DAOService daoService;
+    private final IGlobalTraceUIDAO globalTraceDAO;
+    private final ISegmentCostUIDAO segmentCostDAO;
 
     public SegmentTopService(ModuleManager moduleManager) {
-        this.daoService = moduleManager.find(StorageModule.NAME).getService(DAOService.class);
+        this.globalTraceDAO = moduleManager.find(StorageModule.NAME).getService(IGlobalTraceUIDAO.class);
+        this.segmentCostDAO = moduleManager.find(StorageModule.NAME).getService(ISegmentCostUIDAO.class);
     }
 
     public JsonObject loadTop(long startTime, long endTime, long minCost, long maxCost, String operationName,
@@ -50,10 +51,8 @@ public class SegmentTopService {
 
         List<String> segmentIds = new LinkedList<>();
         if (StringUtils.isNotEmpty(globalTraceId)) {
-            IGlobalTraceUIDAO globalTraceDAO = (IGlobalTraceUIDAO)daoService.get(IGlobalTraceUIDAO.class);
             segmentIds = globalTraceDAO.getSegmentIds(globalTraceId);
         }
-        ISegmentCostUIDAO segmentCostDAO = (ISegmentCostUIDAO)daoService.get(ISegmentCostUIDAO.class);
         return segmentCostDAO.loadTop(startTime, endTime, minCost, maxCost, operationName, error, applicationId, segmentIds, limit, from, sort);
     }
 }

@@ -25,7 +25,6 @@ import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.IInstanceCacheDAO;
-import org.skywalking.apm.collector.storage.service.DAOService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,24 +39,23 @@ public class InstanceCacheGuavaService implements InstanceCacheService {
 
     private final Cache<String, Integer> stringCache = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(5000).build();
 
-    private final DAOService daoService;
+    private final IInstanceCacheDAO instanceCacheDAO;
 
     public InstanceCacheGuavaService(ModuleManager moduleManager) {
-        this.daoService = moduleManager.find(StorageModule.NAME).getService(DAOService.class);
+        this.instanceCacheDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceCacheDAO.class);
     }
 
     public int get(int applicationInstanceId) {
-        IInstanceCacheDAO dao = (IInstanceCacheDAO)daoService.get(IInstanceCacheDAO.class);
 
         int applicationId = 0;
         try {
-            applicationId = integerCache.get(applicationInstanceId, () -> dao.getApplicationId(applicationInstanceId));
+            applicationId = integerCache.get(applicationInstanceId, () -> instanceCacheDAO.getApplicationId(applicationInstanceId));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
 
         if (applicationId == 0) {
-            applicationId = dao.getApplicationId(applicationInstanceId);
+            applicationId = instanceCacheDAO.getApplicationId(applicationInstanceId);
             if (applicationId != 0) {
                 integerCache.put(applicationInstanceId, applicationId);
             }
@@ -66,18 +64,17 @@ public class InstanceCacheGuavaService implements InstanceCacheService {
     }
 
     @Override public int getInstanceId(int applicationId, String agentUUID) {
-        IInstanceCacheDAO dao = (IInstanceCacheDAO)daoService.get(IInstanceCacheDAO.class);
         String key = applicationId + Const.ID_SPLIT + agentUUID;
 
         int instanceId = 0;
         try {
-            instanceId = stringCache.get(key, () -> dao.getInstanceId(applicationId, agentUUID));
+            instanceId = stringCache.get(key, () -> instanceCacheDAO.getInstanceId(applicationId, agentUUID));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
 
         if (instanceId == 0) {
-            instanceId = dao.getInstanceId(applicationId, agentUUID);
+            instanceId = instanceCacheDAO.getInstanceId(applicationId, agentUUID);
             if (applicationId != 0) {
                 stringCache.put(key, instanceId);
             }

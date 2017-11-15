@@ -27,7 +27,6 @@ import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.base.dao.IBatchDAO;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorker;
 import org.skywalking.apm.collector.stream.worker.base.WorkerException;
 import org.skywalking.apm.collector.stream.worker.impl.data.DataCache;
@@ -42,12 +41,12 @@ public abstract class PersistenceWorker<INPUT extends Data, OUTPUT extends Data>
     private final Logger logger = LoggerFactory.getLogger(PersistenceWorker.class);
 
     private final DataCache dataCache;
-    private final DAOService daoService;
+    private final IBatchDAO batchDAO;
 
     public PersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
         this.dataCache = new DataCache();
-        this.daoService = moduleManager.find(StorageModule.NAME).getService(DAOService.class);
+        this.batchDAO = moduleManager.find(StorageModule.NAME).getService(IBatchDAO.class);
     }
 
     public final void flushAndSwitch() {
@@ -67,8 +66,7 @@ public abstract class PersistenceWorker<INPUT extends Data, OUTPUT extends Data>
                     dataCache.switchPointer();
 
                     List<?> collection = buildBatchCollection();
-                    IBatchDAO dao = (IBatchDAO)daoService.get(IBatchDAO.class);
-                    dao.batchPersistence(collection);
+                    batchDAO.batchPersistence(collection);
                 }
             } finally {
                 dataCache.trySwitchPointerFinally();

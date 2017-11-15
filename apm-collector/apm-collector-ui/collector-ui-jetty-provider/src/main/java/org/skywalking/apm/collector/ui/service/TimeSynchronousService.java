@@ -21,7 +21,6 @@ package org.skywalking.apm.collector.ui.service;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
-import org.skywalking.apm.collector.storage.service.DAOService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,19 +31,17 @@ public class TimeSynchronousService {
 
     private final Logger logger = LoggerFactory.getLogger(TimeSynchronousService.class);
 
-    private final DAOService daoService;
+    private final IInstanceUIDAO instanceDAO;
 
     public TimeSynchronousService(ModuleManager moduleManager) {
-        this.daoService = moduleManager.find(StorageModule.NAME).getService(DAOService.class);
+        this.instanceDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceUIDAO.class);
     }
 
     public Long allInstanceLastTime() {
-        IInstanceUIDAO instanceDAO = (IInstanceUIDAO)daoService.get(IInstanceUIDAO.class);
         return instanceDAO.lastHeartBeatTime();
     }
 
     public Long instanceLastTime(int applicationInstanceId) {
-        IInstanceUIDAO instanceDAO = (IInstanceUIDAO)daoService.get(IInstanceUIDAO.class);
         return instanceDAO.instanceLastHeartBeatTime(applicationInstanceId);
     }
 }

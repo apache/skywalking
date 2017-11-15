@@ -23,8 +23,7 @@ import org.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
 import org.skywalking.apm.collector.storage.StorageModule;
-import org.skywalking.apm.collector.storage.dao.IInstanceStreamDAO;
-import org.skywalking.apm.collector.storage.service.DAOService;
+import org.skywalking.apm.collector.storage.dao.IInstanceRegisterDAO;
 import org.skywalking.apm.collector.storage.table.register.Instance;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorker;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
@@ -40,12 +39,12 @@ public class InstanceRegisterSerialWorker extends AbstractLocalAsyncWorker<Insta
     private final Logger logger = LoggerFactory.getLogger(InstanceRegisterSerialWorker.class);
 
     private final InstanceCacheService instanceCacheService;
-    private final DAOService daoService;
+    private final IInstanceRegisterDAO instanceRegisterDAO;
 
     public InstanceRegisterSerialWorker(ModuleManager moduleManager) {
         super(moduleManager);
         this.instanceCacheService = getModuleManager().find(CacheModule.NAME).getService(InstanceCacheService.class);
-        this.daoService = getModuleManager().find(StorageModule.NAME).getService(DAOService.class);
+        this.instanceRegisterDAO = getModuleManager().find(StorageModule.NAME).getService(IInstanceRegisterDAO.class);
     }
 
     @Override public int id() {
@@ -56,11 +55,10 @@ public class InstanceRegisterSerialWorker extends AbstractLocalAsyncWorker<Insta
         logger.debug("register instance, application id: {}, agentUUID: {}", instance.getApplicationId(), instance.getAgentUUID());
         int instanceId = instanceCacheService.getInstanceId(instance.getApplicationId(), instance.getAgentUUID());
         if (instanceId == 0) {
-            IInstanceStreamDAO dao = (IInstanceStreamDAO)daoService.get(IInstanceStreamDAO.class);
             Instance newInstance;
 
-            int min = dao.getMinInstanceId();
-            int max = dao.getMaxInstanceId();
+            int min = instanceRegisterDAO.getMinInstanceId();
+            int max = instanceRegisterDAO.getMaxInstanceId();
             if (min == 0 && max == 0) {
                 newInstance = new Instance("1");
                 newInstance.setInstanceId(1);
@@ -78,7 +76,7 @@ public class InstanceRegisterSerialWorker extends AbstractLocalAsyncWorker<Insta
                 newInstance.setOsInfo(instance.getOsInfo());
                 newInstance.setRegisterTime(instance.getRegisterTime());
             }
-            dao.save(newInstance);
+            instanceRegisterDAO.save(newInstance);
         }
     }
 

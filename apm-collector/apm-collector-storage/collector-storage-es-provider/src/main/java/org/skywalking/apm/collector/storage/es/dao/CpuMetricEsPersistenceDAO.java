@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
+import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.storage.dao.ICpuMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.table.jvm.CpuMetric;
@@ -35,6 +36,10 @@ import org.slf4j.LoggerFactory;
 public class CpuMetricEsPersistenceDAO extends EsDAO implements ICpuMetricPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, CpuMetric> {
 
     private final Logger logger = LoggerFactory.getLogger(CpuMetricEsPersistenceDAO.class);
+
+    public CpuMetricEsPersistenceDAO(ElasticSearchClient client) {
+        super(client);
+    }
 
     @Override public CpuMetric get(String id) {
         return null;

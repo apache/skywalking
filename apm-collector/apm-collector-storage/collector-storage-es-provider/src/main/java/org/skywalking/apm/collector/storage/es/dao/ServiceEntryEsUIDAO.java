@@ -29,6 +29,7 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
+import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.core.util.ColumnNameUtils;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.dao.IServiceEntryUIDAO;
@@ -39,6 +40,10 @@ import org.skywalking.apm.collector.storage.table.service.ServiceEntryTable;
  * @author peng-yongsheng
  */
 public class ServiceEntryEsUIDAO extends EsDAO implements IServiceEntryUIDAO {
+
+    public ServiceEntryEsUIDAO(ElasticSearchClient client) {
+        super(client);
+    }
 
     @Override
     public JsonObject load(int applicationId, String entryServiceName, long startTime, long endTime, int from,

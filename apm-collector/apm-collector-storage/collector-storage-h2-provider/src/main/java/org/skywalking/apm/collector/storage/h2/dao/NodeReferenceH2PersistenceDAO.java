@@ -43,6 +43,10 @@ public class NodeReferenceH2PersistenceDAO extends H2DAO implements INodeReferen
     private final Logger logger = LoggerFactory.getLogger(NodeReferenceH2PersistenceDAO.class);
     private static final String GET_SQL = "select * from {0} where {1} = ?";
 
+    public NodeReferenceH2PersistenceDAO(H2Client client) {
+        super(client);
+    }
+
     @Override public NodeReference get(String id) {
         H2Client client = getClient();
         String sql = SqlBuilder.buildSql(GET_SQL, NodeReferenceTable.TABLE, NodeReferenceTable.COLUMN_ID);

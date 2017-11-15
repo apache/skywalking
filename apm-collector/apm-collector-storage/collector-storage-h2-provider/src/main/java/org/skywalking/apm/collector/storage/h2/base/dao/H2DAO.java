@@ -30,7 +30,12 @@ import org.slf4j.LoggerFactory;
  * @author peng-yongsheng
  */
 public abstract class H2DAO extends AbstractDAO<H2Client> {
+
     private final Logger logger = LoggerFactory.getLogger(H2DAO.class);
+
+    public H2DAO(H2Client client) {
+        super(client);
+    }
 
     protected final int getMaxId(String tableName, String columnName) {
         String sql = "select max(" + columnName + ") from " + tableName;

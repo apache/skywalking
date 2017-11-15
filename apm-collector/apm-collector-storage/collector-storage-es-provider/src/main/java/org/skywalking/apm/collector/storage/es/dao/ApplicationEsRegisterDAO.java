@@ -23,7 +23,7 @@ import java.util.Map;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.support.WriteRequest;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.skywalking.apm.collector.storage.dao.IApplicationStreamDAO;
+import org.skywalking.apm.collector.storage.dao.IApplicationRegisterDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.table.register.Application;
 import org.skywalking.apm.collector.storage.table.register.ApplicationTable;
@@ -33,9 +33,13 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public class ApplicationEsStreamDAO extends EsDAO implements IApplicationStreamDAO {
+public class ApplicationEsRegisterDAO extends EsDAO implements IApplicationRegisterDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(ApplicationEsStreamDAO.class);
+    private final Logger logger = LoggerFactory.getLogger(ApplicationEsRegisterDAO.class);
+
+    public ApplicationEsRegisterDAO(ElasticSearchClient client) {
+        super(client);
+    }
 
     @Override public int getMaxApplicationId() {
         return getMaxId(ApplicationTable.TABLE, ApplicationTable.COLUMN_APPLICATION_ID);

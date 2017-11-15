@@ -29,7 +29,6 @@ import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.ISegmentUIDAO;
-import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.network.proto.KeyWithStringValue;
 import org.skywalking.apm.network.proto.LogMessage;
 import org.skywalking.apm.network.proto.SpanObject;
@@ -41,18 +40,17 @@ import org.skywalking.apm.network.trace.component.ComponentsDefine;
  */
 public class SpanService {
 
-    private final DAOService daoService;
+    private final ISegmentUIDAO segmentDAO;
     private final ServiceNameCacheService serviceNameCacheService;
     private final ApplicationCacheService applicationCacheService;
 
     public SpanService(ModuleManager moduleManager) {
-        this.daoService = moduleManager.find(StorageModule.NAME).getService(DAOService.class);
+        this.segmentDAO = moduleManager.find(StorageModule.NAME).getService(ISegmentUIDAO.class);
         this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
     }
 
     public JsonObject load(String segmentId, int spanId) {
-        ISegmentUIDAO segmentDAO = (ISegmentUIDAO)daoService.get(ISegmentUIDAO.class);
         TraceSegmentObject segmentObject = segmentDAO.load(segmentId);
 
         JsonObject spanJson = new JsonObject();

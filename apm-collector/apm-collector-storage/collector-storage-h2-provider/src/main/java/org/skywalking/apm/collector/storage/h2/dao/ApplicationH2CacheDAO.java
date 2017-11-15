@@ -23,9 +23,9 @@ import java.sql.SQLException;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.util.Const;
+import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.dao.IApplicationCacheDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
-import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.table.register.ApplicationTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +37,10 @@ public class ApplicationH2CacheDAO extends H2DAO implements IApplicationCacheDAO
 
     private final Logger logger = LoggerFactory.getLogger(ApplicationH2CacheDAO.class);
     private static final String GET_APPLICATION_ID_OR_CODE_SQL = "select {0} from {1} where {2} = ?";
+
+    public ApplicationH2CacheDAO(H2Client client) {
+        super(client);
+    }
 
     @Override
     public int getApplicationId(String applicationCode) {

@@ -23,7 +23,6 @@ import org.skywalking.apm.collector.queue.service.QueueCreatorService;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IServiceEntryPersistenceDAO;
-import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.service.ServiceEntry;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
@@ -33,11 +32,8 @@ import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
  */
 public class ServiceEntryPersistenceWorker extends PersistenceWorker<ServiceEntry, ServiceEntry> {
 
-    private final DAOService daoService;
-
     public ServiceEntryPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
-        this.daoService = getModuleManager().find(StorageModule.NAME).getService(DAOService.class);
     }
 
     @Override public int id() {
@@ -49,7 +45,7 @@ public class ServiceEntryPersistenceWorker extends PersistenceWorker<ServiceEntr
     }
 
     @Override protected IPersistenceDAO persistenceDAO() {
-        return (IPersistenceDAO)daoService.get(IServiceEntryPersistenceDAO.class);
+        return getModuleManager().find(StorageModule.NAME).getService(IServiceEntryPersistenceDAO.class);
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<ServiceEntry, ServiceEntry, ServiceEntryPersistenceWorker> {

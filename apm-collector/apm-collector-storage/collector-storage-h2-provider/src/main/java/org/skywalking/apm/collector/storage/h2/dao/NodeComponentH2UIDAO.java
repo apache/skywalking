@@ -41,6 +41,10 @@ public class NodeComponentH2UIDAO extends H2DAO implements INodeComponentUIDAO {
     private final Logger logger = LoggerFactory.getLogger(NodeComponentH2UIDAO.class);
     private static final String AGGREGATE_COMPONENT_SQL = "select {0}, {1}, {2} from {3} where {4} >= ? and {4} <= ? group by {0}, {1}, {2} limit 100";
 
+    public NodeComponentH2UIDAO(H2Client client) {
+        super(client);
+    }
+
     @Override public JsonArray load(long startTime, long endTime) {
         JsonArray nodeComponentArray = new JsonArray();
         nodeComponentArray.addAll(aggregationComponent(startTime, endTime));

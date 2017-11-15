@@ -26,7 +26,6 @@ import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.IApplicationCacheDAO;
-import org.skywalking.apm.collector.storage.service.DAOService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,24 +38,22 @@ public class ApplicationCacheGuavaService implements ApplicationCacheService {
 
     private final Cache<String, Integer> codeCache = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(1000).build();
 
-    private final DAOService daoService;
+    private final IApplicationCacheDAO applicationCacheDAO;
 
     public ApplicationCacheGuavaService(ModuleManager moduleManager) {
-        this.daoService = moduleManager.find(StorageModule.NAME).getService(DAOService.class);
+        this.applicationCacheDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationCacheDAO.class);
     }
 
     public int get(String applicationCode) {
-        IApplicationCacheDAO dao = (IApplicationCacheDAO)daoService.get(IApplicationCacheDAO.class);
-
         int applicationId = 0;
         try {
-            applicationId = codeCache.get(applicationCode, () -> dao.getApplicationId(applicationCode));
+            applicationId = codeCache.get(applicationCode, () -> applicationCacheDAO.getApplicationId(applicationCode));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
 
         if (applicationId == 0) {
-            applicationId = dao.getApplicationId(applicationCode);
+            applicationId = applicationCacheDAO.getApplicationId(applicationCode);
             if (applicationId != 0) {
                 codeCache.put(applicationCode, applicationId);
             }
@@ -67,17 +64,15 @@ public class ApplicationCacheGuavaService implements ApplicationCacheService {
     private final Cache<Integer, String> idCache = CacheBuilder.newBuilder().maximumSize(1000).build();
 
     public String get(int applicationId) {
-        IApplicationCacheDAO dao = (IApplicationCacheDAO)daoService.get(IApplicationCacheDAO.class);
-
         String applicationCode = Const.EMPTY_STRING;
         try {
-            applicationCode = idCache.get(applicationId, () -> dao.getApplicationCode(applicationId));
+            applicationCode = idCache.get(applicationId, () -> applicationCacheDAO.getApplicationCode(applicationId));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
 
         if (StringUtils.isEmpty(applicationCode)) {
-            applicationCode = dao.getApplicationCode(applicationId);
+            applicationCode = applicationCacheDAO.getApplicationCode(applicationId);
             if (StringUtils.isNotEmpty(applicationCode)) {
                 codeCache.put(applicationCode, applicationId);
             }

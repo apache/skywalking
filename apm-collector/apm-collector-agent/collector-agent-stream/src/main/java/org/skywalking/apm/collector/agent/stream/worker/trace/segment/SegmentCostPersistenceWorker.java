@@ -23,7 +23,6 @@ import org.skywalking.apm.collector.queue.service.QueueCreatorService;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.ISegmentCostPersistenceDAO;
-import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.segment.SegmentCost;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
@@ -33,11 +32,8 @@ import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
  */
 public class SegmentCostPersistenceWorker extends PersistenceWorker<SegmentCost, SegmentCost> {
 
-    private final DAOService daoService;
-
     public SegmentCostPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
-        this.daoService = getModuleManager().find(StorageModule.NAME).getService(DAOService.class);
     }
 
     @Override public int id() {
@@ -49,7 +45,7 @@ public class SegmentCostPersistenceWorker extends PersistenceWorker<SegmentCost,
     }
 
     @Override protected IPersistenceDAO persistenceDAO() {
-        return (IPersistenceDAO)daoService.get(ISegmentCostPersistenceDAO.class);
+        return getModuleManager().find(StorageModule.NAME).getService(ISegmentCostPersistenceDAO.class);
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<SegmentCost, SegmentCost, SegmentCostPersistenceWorker> {

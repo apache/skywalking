@@ -23,7 +23,6 @@ import org.skywalking.apm.collector.queue.service.QueueCreatorService;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IMemoryPoolMetricPersistenceDAO;
-import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetric;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
@@ -37,11 +36,8 @@ public class MemoryPoolMetricPersistenceWorker extends PersistenceWorker<MemoryP
         return 0;
     }
 
-    private final DAOService daoService;
-
     public MemoryPoolMetricPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
-        this.daoService = getModuleManager().find(StorageModule.NAME).getService(DAOService.class);
     }
 
     @Override protected boolean needMergeDBData() {
@@ -49,7 +45,7 @@ public class MemoryPoolMetricPersistenceWorker extends PersistenceWorker<MemoryP
     }
 
     @Override protected IPersistenceDAO persistenceDAO() {
-        return daoService.getPersistenceDAO(IMemoryPoolMetricPersistenceDAO.class);
+        return getModuleManager().find(StorageModule.NAME).getService(IMemoryPoolMetricPersistenceDAO.class);
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<MemoryPoolMetric, MemoryPoolMetric, MemoryPoolMetricPersistenceWorker> {

@@ -41,6 +41,10 @@ public class NodeReferenceH2UIDAO extends H2DAO implements INodeReferenceUIDAO {
     private static final String NODE_REFERENCE_SQL = "select {8}, {9}, {10}, sum({0}) as {0}, sum({1}) as {1}, sum({2}) as {2}, " +
         "sum({3}) as {3}, sum({4}) as {4}, sum({5}) as {5} from {6} where {7} >= ? and {7} <= ? group by {8}, {9}, {10} limit 100";
 
+    public NodeReferenceH2UIDAO(H2Client client) {
+        super(client);
+    }
+
     @Override public JsonArray load(long startTime, long endTime) {
         H2Client client = getClient();
         JsonArray nodeRefResSumArray = new JsonArray();

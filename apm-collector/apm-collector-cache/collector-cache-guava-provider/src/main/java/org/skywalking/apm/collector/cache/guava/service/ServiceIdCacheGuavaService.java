@@ -25,7 +25,6 @@ import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.IServiceNameCacheDAO;
-import org.skywalking.apm.collector.storage.service.DAOService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,24 +37,22 @@ public class ServiceIdCacheGuavaService implements ServiceIdCacheService {
 
     private final Cache<String, Integer> serviceIdCache = CacheBuilder.newBuilder().maximumSize(1000).build();
 
-    private final DAOService daoService;
+    private final IServiceNameCacheDAO serviceNameCacheDAO;
 
     public ServiceIdCacheGuavaService(ModuleManager moduleManager) {
-        this.daoService = moduleManager.find(StorageModule.NAME).getService(DAOService.class);
+        this.serviceNameCacheDAO = moduleManager.find(StorageModule.NAME).getService(IServiceNameCacheDAO.class);
     }
 
     public int get(int applicationId, String serviceName) {
-        IServiceNameCacheDAO dao = (IServiceNameCacheDAO)daoService.get(IServiceNameCacheDAO.class);
-
         int serviceId = 0;
         try {
-            serviceId = serviceIdCache.get(applicationId + Const.ID_SPLIT + serviceName, () -> dao.getServiceId(applicationId, serviceName));
+            serviceId = serviceIdCache.get(applicationId + Const.ID_SPLIT + serviceName, () -> serviceNameCacheDAO.getServiceId(applicationId, serviceName));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
 
         if (serviceId == 0) {
-            serviceId = dao.getServiceId(applicationId, serviceName);
+            serviceId = serviceNameCacheDAO.getServiceId(applicationId, serviceName);
             if (serviceId != 0) {
                 serviceIdCache.put(applicationId + Const.ID_SPLIT + serviceName, serviceId);
             }

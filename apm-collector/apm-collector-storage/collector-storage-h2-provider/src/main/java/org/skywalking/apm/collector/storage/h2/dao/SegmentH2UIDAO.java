@@ -38,6 +38,10 @@ public class SegmentH2UIDAO extends H2DAO implements ISegmentUIDAO {
     private final Logger logger = LoggerFactory.getLogger(SegmentH2UIDAO.class);
     private static final String GET_SEGMENT_SQL = "select {0} from {1} where {2} = ?";
 
+    public SegmentH2UIDAO(H2Client client) {
+        super(client);
+    }
+
     @Override public TraceSegmentObject load(String segmentId) {
         H2Client client = getClient();
         String sql = SqlBuilder.buildSql(GET_SEGMENT_SQL, SegmentTable.COLUMN_DATA_BINARY,

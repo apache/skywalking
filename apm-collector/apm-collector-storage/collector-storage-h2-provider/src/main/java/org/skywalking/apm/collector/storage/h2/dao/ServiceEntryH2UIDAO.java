@@ -43,6 +43,10 @@ public class ServiceEntryH2UIDAO extends H2DAO implements IServiceEntryUIDAO {
     private final Logger logger = LoggerFactory.getLogger(ServiceEntryH2UIDAO.class);
     private static final String GET_SERVICE_ENTRY_SQL = "select * from {0} where {1} >= ? and {2} <= ?";
 
+    public ServiceEntryH2UIDAO(H2Client client) {
+        super(client);
+    }
+
     @Override public JsonObject load(int applicationId, String entryServiceName, long startTime, long endTime, int from,
         int size) {
         H2Client client = getClient();

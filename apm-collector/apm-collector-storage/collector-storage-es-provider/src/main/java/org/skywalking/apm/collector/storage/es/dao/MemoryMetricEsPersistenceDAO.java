@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
+import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.storage.dao.IMemoryMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.table.jvm.MemoryMetric;
@@ -31,6 +32,10 @@ import org.skywalking.apm.collector.storage.table.jvm.MemoryMetricTable;
  * @author peng-yongsheng
  */
 public class MemoryMetricEsPersistenceDAO extends EsDAO implements IMemoryMetricPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, MemoryMetric> {
+
+    public MemoryMetricEsPersistenceDAO(ElasticSearchClient client) {
+        super(client);
+    }
 
     @Override public MemoryMetric get(String id) {
         return null;

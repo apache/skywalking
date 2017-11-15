@@ -33,7 +33,6 @@ import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.IGlobalTraceUIDAO;
 import org.skywalking.apm.collector.storage.dao.ISegmentUIDAO;
-import org.skywalking.apm.collector.storage.service.DAOService;
 import org.skywalking.apm.network.proto.SpanObject;
 import org.skywalking.apm.network.proto.TraceSegmentObject;
 import org.skywalking.apm.network.proto.TraceSegmentReference;
@@ -44,20 +43,19 @@ import org.skywalking.apm.network.proto.UniqueId;
  */
 public class TraceStackService {
 
-    private final DAOService daoService;
+    private final IGlobalTraceUIDAO globalTraceDAO;
+    private final ISegmentUIDAO segmentDAO;
     private final ApplicationCacheService applicationCacheService;
     private final ServiceNameCacheService serviceNameCacheService;
 
     public TraceStackService(ModuleManager moduleManager) {
-        this.daoService = moduleManager.find(StorageModule.NAME).getService(DAOService.class);
+        this.globalTraceDAO = moduleManager.find(StorageModule.NAME).getService(IGlobalTraceUIDAO.class);
+        this.segmentDAO = moduleManager.find(StorageModule.NAME).getService(ISegmentUIDAO.class);
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
         this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
     }
 
     public JsonArray load(String globalTraceId) {
-        IGlobalTraceUIDAO globalTraceDAO = (IGlobalTraceUIDAO)daoService.get(IGlobalTraceUIDAO.class);
-        ISegmentUIDAO segmentDAO = (ISegmentUIDAO)daoService.get(ISegmentUIDAO.class);
-
         List<Span> spans = new ArrayList<>();
         List<String> segmentIds = globalTraceDAO.getSegmentIds(globalTraceId);
         if (CollectionUtils.isNotEmpty(segmentIds)) {

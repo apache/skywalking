@@ -24,6 +24,7 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetRequestBuilder;
 import org.elasticsearch.action.get.MultiGetResponse;
+import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.dao.IMemoryMetricUIDAO;
@@ -34,6 +35,10 @@ import org.skywalking.apm.collector.storage.table.jvm.MemoryMetricTable;
  * @author peng-yongsheng
  */
 public class MemoryMetricEsUIDAO extends EsDAO implements IMemoryMetricUIDAO {
+
+    public MemoryMetricEsUIDAO(ElasticSearchClient client) {
+        super(client);
+    }
 
     @Override public JsonObject getMetric(int instanceId, long timeBucket, boolean isHeap) {
         String id = timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + isHeap;
