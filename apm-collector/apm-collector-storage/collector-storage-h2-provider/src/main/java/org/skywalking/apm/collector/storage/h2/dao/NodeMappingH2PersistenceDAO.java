@@ -56,7 +56,6 @@ public class NodeMappingH2PersistenceDAO extends H2DAO implements INodeMappingPe
                 NodeMapping nodeMapping = new NodeMapping(id);
                 nodeMapping.setApplicationId(rs.getInt(NodeMappingTable.COLUMN_APPLICATION_ID));
                 nodeMapping.setAddressId(rs.getInt(NodeMappingTable.COLUMN_ADDRESS_ID));
-                nodeMapping.setAddress(rs.getString(NodeMappingTable.COLUMN_ADDRESS));
                 nodeMapping.setTimeBucket(rs.getLong(NodeMappingTable.COLUMN_TIME_BUCKET));
                 return nodeMapping;
             }
@@ -72,7 +71,6 @@ public class NodeMappingH2PersistenceDAO extends H2DAO implements INodeMappingPe
         source.put(NodeMappingTable.COLUMN_ID, nodeMapping.getId());
         source.put(NodeMappingTable.COLUMN_APPLICATION_ID, nodeMapping.getApplicationId());
         source.put(NodeMappingTable.COLUMN_ADDRESS_ID, nodeMapping.getAddressId());
-        source.put(NodeMappingTable.COLUMN_ADDRESS, nodeMapping.getAddress());
         source.put(NodeMappingTable.COLUMN_TIME_BUCKET, nodeMapping.getTimeBucket());
         String sql = SqlBuilder.buildBatchInsertSql(NodeMappingTable.TABLE, source.keySet());
         entity.setSql(sql);
@@ -86,7 +84,6 @@ public class NodeMappingH2PersistenceDAO extends H2DAO implements INodeMappingPe
         H2SqlEntity entity = new H2SqlEntity();
         source.put(NodeMappingTable.COLUMN_APPLICATION_ID, nodeMapping.getApplicationId());
         source.put(NodeMappingTable.COLUMN_ADDRESS_ID, nodeMapping.getAddressId());
-        source.put(NodeMappingTable.COLUMN_ADDRESS, nodeMapping.getAddress());
         source.put(NodeMappingTable.COLUMN_TIME_BUCKET, nodeMapping.getTimeBucket());
         String sql = SqlBuilder.buildBatchUpdateSql(NodeMappingTable.TABLE, source.keySet(), NodeMappingTable.COLUMN_ID);
         entity.setSql(sql);

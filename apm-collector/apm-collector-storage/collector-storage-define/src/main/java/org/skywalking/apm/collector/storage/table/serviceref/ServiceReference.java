@@ -31,9 +31,6 @@ public class ServiceReference extends Data {
 
     private static final Column[] STRING_COLUMNS = {
         new Column(ServiceReferenceTable.COLUMN_ID, new NonOperation()),
-        new Column(ServiceReferenceTable.COLUMN_ENTRY_SERVICE_NAME, new NonOperation()),
-        new Column(ServiceReferenceTable.COLUMN_FRONT_SERVICE_NAME, new NonOperation()),
-        new Column(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_NAME, new NonOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
@@ -65,30 +62,6 @@ public class ServiceReference extends Data {
         setError(0L);
         setSummary(0L);
         setCostSummary(0L);
-    }
-
-    public String getEntryServiceName() {
-        return getDataString(1);
-    }
-
-    public void setEntryServiceName(String entryServiceName) {
-        setDataString(1, entryServiceName);
-    }
-
-    public String getFrontServiceName() {
-        return getDataString(2);
-    }
-
-    public void setFrontServiceName(String frontServiceName) {
-        setDataString(2, frontServiceName);
-    }
-
-    public String getBehindServiceName() {
-        return getDataString(3);
-    }
-
-    public void setBehindServiceName(String behindServiceName) {
-        setDataString(3, behindServiceName);
     }
 
     public Integer getEntryServiceId() {

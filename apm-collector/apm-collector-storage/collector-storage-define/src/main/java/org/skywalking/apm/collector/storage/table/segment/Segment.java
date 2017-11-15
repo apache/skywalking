@@ -33,6 +33,7 @@ public class Segment extends Data {
     };
 
     private static final Column[] LONG_COLUMNS = {
+        new Column(SegmentTable.COLUMN_TIME_BUCKET, new NonOperation()),
     };
     private static final Column[] DOUBLE_COLUMNS = {};
     private static final Column[] INTEGER_COLUMNS = {
@@ -53,5 +54,13 @@ public class Segment extends Data {
 
     public void setDataBinary(byte[] dataBinary) {
         setDataBytes(0, dataBinary);
+    }
+
+    public long getTimeBucket() {
+        return getDataLong(0);
+    }
+
+    public void setTimeBucket(long timeBucket) {
+        setDataLong(0, timeBucket);
     }
 }

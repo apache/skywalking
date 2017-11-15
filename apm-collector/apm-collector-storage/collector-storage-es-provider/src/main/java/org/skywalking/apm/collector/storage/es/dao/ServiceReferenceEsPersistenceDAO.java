@@ -48,11 +48,8 @@ public class ServiceReferenceEsPersistenceDAO extends EsDAO implements IServiceR
             ServiceReference serviceReference = new ServiceReference(id);
             Map<String, Object> source = getResponse.getSource();
             serviceReference.setEntryServiceId(((Number)source.get(ServiceReferenceTable.COLUMN_ENTRY_SERVICE_ID)).intValue());
-            serviceReference.setEntryServiceName((String)source.get(ServiceReferenceTable.COLUMN_ENTRY_SERVICE_NAME));
             serviceReference.setFrontServiceId(((Number)source.get(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID)).intValue());
-            serviceReference.setFrontServiceName((String)source.get(ServiceReferenceTable.COLUMN_FRONT_SERVICE_NAME));
             serviceReference.setBehindServiceId(((Number)source.get(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID)).intValue());
-            serviceReference.setBehindServiceName((String)source.get(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_NAME));
             serviceReference.setS1Lte(((Number)source.get(ServiceReferenceTable.COLUMN_S1_LTE)).longValue());
             serviceReference.setS3Lte(((Number)source.get(ServiceReferenceTable.COLUMN_S3_LTE)).longValue());
             serviceReference.setS5Lte(((Number)source.get(ServiceReferenceTable.COLUMN_S5_LTE)).longValue());
@@ -70,11 +67,8 @@ public class ServiceReferenceEsPersistenceDAO extends EsDAO implements IServiceR
     @Override public IndexRequestBuilder prepareBatchInsert(ServiceReference data) {
         Map<String, Object> source = new HashMap<>();
         source.put(ServiceReferenceTable.COLUMN_ENTRY_SERVICE_ID, data.getEntryServiceId());
-        source.put(ServiceReferenceTable.COLUMN_ENTRY_SERVICE_NAME, data.getEntryServiceName());
         source.put(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID, data.getFrontServiceId());
-        source.put(ServiceReferenceTable.COLUMN_FRONT_SERVICE_NAME, data.getFrontServiceName());
         source.put(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID, data.getBehindServiceId());
-        source.put(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_NAME, data.getBehindServiceName());
         source.put(ServiceReferenceTable.COLUMN_S1_LTE, data.getS1Lte());
         source.put(ServiceReferenceTable.COLUMN_S3_LTE, data.getS3Lte());
         source.put(ServiceReferenceTable.COLUMN_S5_LTE, data.getS5Lte());
@@ -90,11 +84,8 @@ public class ServiceReferenceEsPersistenceDAO extends EsDAO implements IServiceR
     @Override public UpdateRequestBuilder prepareBatchUpdate(ServiceReference data) {
         Map<String, Object> source = new HashMap<>();
         source.put(ServiceReferenceTable.COLUMN_ENTRY_SERVICE_ID, data.getEntryServiceId());
-        source.put(ServiceReferenceTable.COLUMN_ENTRY_SERVICE_NAME, data.getEntryServiceName());
         source.put(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID, data.getFrontServiceId());
-        source.put(ServiceReferenceTable.COLUMN_FRONT_SERVICE_NAME, data.getFrontServiceName());
         source.put(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID, data.getBehindServiceId());
-        source.put(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_NAME, data.getBehindServiceName());
         source.put(ServiceReferenceTable.COLUMN_S1_LTE, data.getS1Lte());
         source.put(ServiceReferenceTable.COLUMN_S3_LTE, data.getS3Lte());
         source.put(ServiceReferenceTable.COLUMN_S5_LTE, data.getS5Lte());

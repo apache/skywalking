@@ -56,11 +56,8 @@ public class ServiceReferenceH2PersistenceDAO extends H2DAO implements IServiceR
             if (rs.next()) {
                 ServiceReference serviceReference = new ServiceReference(id);
                 serviceReference.setEntryServiceId(rs.getInt(ServiceReferenceTable.COLUMN_ENTRY_SERVICE_ID));
-                serviceReference.setEntryServiceName(rs.getString(ServiceReferenceTable.COLUMN_ENTRY_SERVICE_NAME));
                 serviceReference.setFrontServiceId(rs.getInt(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID));
-                serviceReference.setFrontServiceName(rs.getString(ServiceReferenceTable.COLUMN_FRONT_SERVICE_NAME));
                 serviceReference.setBehindServiceId(rs.getInt(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID));
-                serviceReference.setBehindServiceName(rs.getString(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_NAME));
                 serviceReference.setS1Lte(rs.getLong(ServiceReferenceTable.COLUMN_S1_LTE));
                 serviceReference.setS3Lte(rs.getLong(ServiceReferenceTable.COLUMN_S3_LTE));
                 serviceReference.setS5Lte(rs.getLong(ServiceReferenceTable.COLUMN_S5_LTE));
@@ -83,11 +80,8 @@ public class ServiceReferenceH2PersistenceDAO extends H2DAO implements IServiceR
         Map<String, Object> source = new HashMap<>();
         source.put(ServiceReferenceTable.COLUMN_ID, data.getId());
         source.put(ServiceReferenceTable.COLUMN_ENTRY_SERVICE_ID, data.getEntryServiceId());
-        source.put(ServiceReferenceTable.COLUMN_ENTRY_SERVICE_NAME, data.getEntryServiceName());
         source.put(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID, data.getFrontServiceId());
-        source.put(ServiceReferenceTable.COLUMN_FRONT_SERVICE_NAME, data.getFrontServiceName());
         source.put(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID, data.getBehindServiceId());
-        source.put(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_NAME, data.getBehindServiceName());
         source.put(ServiceReferenceTable.COLUMN_S1_LTE, data.getS1Lte());
         source.put(ServiceReferenceTable.COLUMN_S3_LTE, data.getS3Lte());
         source.put(ServiceReferenceTable.COLUMN_S5_LTE, data.getS5Lte());
@@ -108,11 +102,8 @@ public class ServiceReferenceH2PersistenceDAO extends H2DAO implements IServiceR
         H2SqlEntity entity = new H2SqlEntity();
         Map<String, Object> source = new HashMap<>();
         source.put(ServiceReferenceTable.COLUMN_ENTRY_SERVICE_ID, data.getEntryServiceId());
-        source.put(ServiceReferenceTable.COLUMN_ENTRY_SERVICE_NAME, data.getEntryServiceName());
         source.put(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID, data.getFrontServiceId());
-        source.put(ServiceReferenceTable.COLUMN_FRONT_SERVICE_NAME, data.getFrontServiceName());
         source.put(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID, data.getBehindServiceId());
-        source.put(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_NAME, data.getBehindServiceName());
         source.put(ServiceReferenceTable.COLUMN_S1_LTE, data.getS1Lte());
         source.put(ServiceReferenceTable.COLUMN_S3_LTE, data.getS3Lte());
         source.put(ServiceReferenceTable.COLUMN_S5_LTE, data.getS5Lte());

@@ -74,8 +74,8 @@ public class ServiceTreeService {
             int behindServiceId = serviceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID)).getAsInt();
             String frontServiceName = serviceNameCacheService.getSplitServiceName(serviceNameCacheService.get(frontServiceId));
             String behindServiceName = serviceNameCacheService.getSplitServiceName(serviceNameCacheService.get(behindServiceId));
-            serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_FRONT_SERVICE_NAME), frontServiceName);
-            serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_NAME), behindServiceName);
+            serviceReference.addProperty("frontServiceName", frontServiceName);
+            serviceReference.addProperty("behindServiceName", behindServiceName);
         });
         return buildTreeData(serviceReferenceMap);
     }

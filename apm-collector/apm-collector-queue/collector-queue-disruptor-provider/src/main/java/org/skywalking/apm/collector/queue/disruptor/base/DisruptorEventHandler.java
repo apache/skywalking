@@ -21,7 +21,6 @@ package org.skywalking.apm.collector.queue.disruptor.base;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.RingBuffer;
 import org.skywalking.apm.collector.core.CollectorException;
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.core.data.EndOfBatchQueueMessage;
 import org.skywalking.apm.collector.queue.base.MessageHolder;
 import org.skywalking.apm.collector.queue.base.QueueEventHandler;
