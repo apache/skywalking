@@ -18,6 +18,7 @@
 
 package org.skywalking.apm.collector.queue.disruptor.base;
 
+import com.lmax.disruptor.ExceptionHandler;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import org.skywalking.apm.collector.queue.base.DaemonThreadFactory;
@@ -25,11 +26,15 @@ import org.skywalking.apm.collector.queue.base.MessageHolder;
 import org.skywalking.apm.collector.queue.base.QueueCreator;
 import org.skywalking.apm.collector.queue.base.QueueEventHandler;
 import org.skywalking.apm.collector.queue.base.QueueExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class DisruptorQueueCreator implements QueueCreator {
+
+    private final Logger logger = LoggerFactory.getLogger(DisruptorQueueCreator.class);
 
     @Override public QueueEventHandler create(int queueSize, QueueExecutor executor) {
         // Specify the size of the ring buffer, must be power of 2.
@@ -39,6 +44,19 @@ public class DisruptorQueueCreator implements QueueCreator {
 
         // Construct the Disruptor
         Disruptor<MessageHolder> disruptor = new Disruptor<>(MessageHolderFactory.INSTANCE, queueSize, DaemonThreadFactory.INSTANCE);
+        disruptor.setDefaultExceptionHandler(new ExceptionHandler<MessageHolder>() {
+            @Override public void handleEventException(Throwable ex, long sequence, MessageHolder event) {
+                logger.error("Handle disruptor error event! message: {}.", event.getMessage(), ex);
+            }
+
+            @Override public void handleOnStartException(Throwable ex) {
+                logger.error("create disruptor queue failed!", ex);
+            }
+
+            @Override public void handleOnShutdownException(Throwable ex) {
+                logger.error("shutdown disruptor queue failed!", ex);
+            }
+        });
 
         RingBuffer<MessageHolder> ringBuffer = disruptor.getRingBuffer();
         DisruptorEventHandler eventHandler = new DisruptorEventHandler(ringBuffer, executor);
