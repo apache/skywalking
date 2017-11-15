@@ -18,8 +18,8 @@
 
 package org.skywalking.apm.plugin.mongodb.v2;
 
-import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 import java.lang.reflect.Method;
 import java.util.List;
 import org.hamcrest.MatcherAssert;
@@ -51,7 +51,7 @@ import static org.skywalking.apm.agent.test.tools.SpanAssert.assertException;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
-public class MongoDBV2MethodInterceptorTest {
+public class MongoDBCollectionMethodInterceptorTest {
 
     @SegmentStoragePoint
     private SegmentStorage segmentStorage;
@@ -59,7 +59,7 @@ public class MongoDBV2MethodInterceptorTest {
     @Rule
     public AgentServiceRule serviceRule = new AgentServiceRule();
 
-    private MongoDBV2MethodInterceptor interceptor;
+    private MongoDBCollectionMethodInterceptor interceptor;
 
     @Mock
     private EnhancedInstance enhancedInstance;
@@ -71,19 +71,17 @@ public class MongoDBV2MethodInterceptorTest {
     @Before
     public void setUp() throws Exception {
 
-        interceptor = new MongoDBV2MethodInterceptor();
+        interceptor = new MongoDBCollectionMethodInterceptor();
 
         Config.Plugin.MongoDB.TRACE_PARAM = true;
 
         when(enhancedInstance.getSkyWalkingDynamicField()).thenReturn("127.0.0.1:27017");
 
-        arguments[0] = BasicDBObjectBuilder.start().add("getCount", "name").get();
-
     }
 
     @Test
     public void testIntercept() throws Throwable {
-        interceptor.beforeMethod(enhancedInstance, getExecuteMethod(), arguments, null, null);
+        interceptor.beforeMethod(enhancedInstance, getExecuteMethod(), null, null, null);
         interceptor.afterMethod(enhancedInstance, getExecuteMethod(), null, null, null);
 
         MatcherAssert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
@@ -108,7 +106,7 @@ public class MongoDBV2MethodInterceptorTest {
     }
 
     private void assertMongoSpan(AbstractTracingSpan span) {
-        assertThat(span.getOperationName(), is("MongoDB/command"));
+        assertThat(span.getOperationName(), is("MongoDB/insert"));
         assertThat(SpanHelper.getComponentId(span), is(9));
         List<KeyValuePair> tags = SpanHelper.getTags(span);
         assertThat(tags.get(0).getValue(), is("MongoDB"));
@@ -118,7 +116,7 @@ public class MongoDBV2MethodInterceptorTest {
 
     private Method getExecuteMethod() {
         try {
-            return DBCollection.class.getMethod("getCount");
+            return DBCollection.class.getMethod("insert", DBObject[].class);
         } catch (NoSuchMethodException e) {
             return null;
         }

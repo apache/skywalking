@@ -18,11 +18,11 @@
 
 package org.skywalking.apm.plugin.mongodb.v2;
 
+import com.mongodb.AggregationOutput;
 import com.mongodb.CommandResult;
-import com.mongodb.DBEncoder;
-import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.DB;
 import com.mongodb.ServerAddress;
+import com.mongodb.WriteResult;
 import java.lang.reflect.Method;
 import java.util.List;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
@@ -37,11 +37,11 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptR
 import org.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * {@link MongoDBV2MethodInterceptor} intercept method of {@link com.mongodb.DB#command(DBObject, DBEncoder)} ()}
- *  record the mongoDB host, operation name ...
+ * {@link MongoDBCollectionMethodInterceptor} intercept method of {@link com.mongodb.DBCollection#find()}
+ * or{@link com.mongodb.DBCollectionImpl#insert}.... record the mongoDB host, operation name ...
  */
 
-public class MongoDBV2MethodInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
+public class MongoDBCollectionMethodInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 
     private static final String DB_TYPE = "MongoDB";
 
@@ -51,14 +51,8 @@ public class MongoDBV2MethodInterceptor implements InstanceMethodsAroundIntercep
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
 
         String remotePeer = (String)objInst.getSkyWalkingDynamicField();
-        String carrier = "command";
-        if (method.getName().equals("command")) {
-            DBObject obj = (DBObject)allArguments[0];
-            for (String key : obj.keySet()) {
-                carrier = key;
-                break;
-            }
-        }
+        String carrier = null;
+        carrier = method.getName();
         AbstractSpan span = ContextManager.createExitSpan(MONGO_DB_OP_PREFIX + carrier, new ContextCarrier(), remotePeer);
         span.setComponent(ComponentsDefine.MONGODB);
         Tags.DB_TYPE.set(span, DB_TYPE);
@@ -70,7 +64,13 @@ public class MongoDBV2MethodInterceptor implements InstanceMethodsAroundIntercep
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
         AbstractSpan activeSpan = ContextManager.activeSpan();
         CommandResult cresult = null;
-        cresult = (CommandResult)ret;
+        if (ret instanceof WriteResult) {
+            WriteResult wresult = (WriteResult)ret;
+            cresult = wresult.getCachedLastError();
+        } else if (ret instanceof AggregationOutput) {
+            AggregationOutput aresult = (AggregationOutput)ret;
+            cresult = aresult.getCommandResult();
+        }
         if (null != cresult && !cresult.ok()) {
             activeSpan.tag("CommandError", cresult.getErrorMessage());
         }
@@ -88,8 +88,8 @@ public class MongoDBV2MethodInterceptor implements InstanceMethodsAroundIntercep
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         List<ServerAddress> servers = null;
-        Mongo mongo = (Mongo)allArguments[0];
-        servers = mongo.getAllAddress();
+        DB db = (DB)allArguments[0];
+        servers = db.getMongo().getAllAddress();
         StringBuilder peers = new StringBuilder();
         for (ServerAddress address : servers) {
             peers.append(address.getHost() + ":" + address.getPort() + ";");
