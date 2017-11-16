@@ -13,10 +13,10 @@ Sky Walking | [English](README.md)
 
 * Java自动探针，**不需要修改应用程序源代码**
   * 高性能探针，针对单实例5000tps的应用，在**全量采集的情况下**，只增加**10%**的CPU开销。
-  * [中间件，框架与类库支持列表](https://github.com/wu-sheng/sky-walking/wiki/3.2-supported-list).
+  * [中间件，框架与类库支持列表](docs/Supported-list.md).
 * 手动探针
   * [使用OpenTracing手动探针API](http://opentracing.io/documentation/pages/supported-tracers)
-  * 使用 [**@Trace**](https://github.com/wu-sheng/OpenSkywalking/wiki/sky-walking-application-toolkit-trace-chn) 标注追踪业务方法
+  * 使用 [**@Trace**](docs/cn/Application-toolkit-trace-CN.md) 标注追踪业务方法
   * 将 traceId 集成到 log4j, log4j2 或 logback这些日志组件中
 * 纯Java后端Collector实现，提供RESTful和gRPC接口。兼容接受其他语言探针发送数据 
   * [如何将探针的Metric和Trace数据上传到Collector？]()
@@ -24,7 +24,7 @@ Sky Walking | [English](README.md)
 * 中文QQ群：392443393
 
 # Architecture
-* 3.2+版本架构图
+* 3.2.5+版本架构图
 <img src="https://skywalkingtest.github.io/page-resources/3.2.5%2b_architecture.jpg"/>
 
 # Document
@@ -60,7 +60,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 
 # Contact Us
 * 直接提交Issue
-* [Gitter](https://gitter.im/sky-walking/Lobby)
+* [Gitter](https://gitter.im/openskywalking/Lobby)
 * [Google Mailing List](https://groups.google.com/forum/#!forum/skywalking-distributed-tracing-and-apm)
 * QQ群: 392443393
 

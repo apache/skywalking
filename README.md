@@ -12,7 +12,7 @@ Sky Walking | [中文](README_ZH.md)
 
 * Provide Java agent, **no need to CHANGE any application source code**.
   * High performance agent. Only increase extra **10%** cpu cost in 5000+ tps application, even **when collect all traces**.
-  * [Supported middlewares, frameworks and libraries](https://github.com/OpenSkywalking/sky-walking/wiki/3.2-supported-list).
+  * [Supported middlewares, frameworks and libraries](docs/Supported-list.md).
 * Manual instrumentation
   * As an [OpenTracing supported tracer](http://opentracing.io/documentation/pages/supported-tracers)
   * Use **@Trace** annotation for any methods you want to trace.
