@@ -46,6 +46,7 @@
         <module>apm-collector-stream</module>
         <module>apm-collector-queue</module>
         <module>apm-collector-instrument</module>
+        <module>apm-collector-baseline</module>
     </modules>
 
     <properties>
