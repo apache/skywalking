@@ -40,18 +40,18 @@ public abstract class MemoryPoolModule implements MemoryPoolMetricAccessor {
         List<MemoryPool> poolList = new LinkedList<MemoryPool>();
         for (MemoryPoolMXBean bean : beans) {
             String name = bean.getName();
-            PoolType type = null;
-            if (name.equals(getCodeCacheName())) {
+            PoolType type;
+            if (contains(getCodeCacheNames(), name)) {
                 type = PoolType.CODE_CACHE_USAGE;
-            } else if (name.equals(getEdenName())) {
+            } else if (contains(getEdenNames(), name)) {
                 type = PoolType.NEWGEN_USAGE;
-            } else if (name.equals(getOldName())) {
+            } else if (contains(getOldNames(), name)) {
                 type = PoolType.OLDGEN_USAGE;
-            } else if (name.equals(getSurvivorName())) {
+            } else if (contains(getSurvivorNames(), name)) {
                 type = PoolType.SURVIVOR_USAGE;
-            } else if (name.equals(getMetaspaceName())) {
+            } else if (contains(getMetaspaceNames(), name)) {
                 type = PoolType.METASPACE_USAGE;
-            } else if (name.equals(getPermName())) {
+            } else if (contains(getPermNames(), name)) {
                 type = PoolType.PERMGEN_USAGE;
             } else {
                 continue;
@@ -68,15 +68,24 @@ public abstract class MemoryPoolModule implements MemoryPoolMetricAccessor {
         return poolList;
     }
 
-    protected abstract String getPermName();
+    private boolean contains(String[] possibleNames, String name) {
+        for (String possibleName : possibleNames) {
+            if (name.equals(possibleName)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-    protected abstract String getCodeCacheName();
+    protected abstract String[] getPermNames();
 
-    protected abstract String getEdenName();
+    protected abstract String[] getCodeCacheNames();
 
-    protected abstract String getOldName();
+    protected abstract String[] getEdenNames();
 
-    protected abstract String getSurvivorName();
+    protected abstract String[] getOldNames();
 
-    protected abstract String getMetaspaceName();
+    protected abstract String[] getSurvivorNames();
+
+    protected abstract String[] getMetaspaceNames();
 }

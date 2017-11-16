@@ -29,27 +29,27 @@ public class G1CollectorModule extends MemoryPoolModule {
         super(beans);
     }
 
-    @Override protected String getPermName() {
-        return "G1 Perm Gen";
+    @Override protected String[] getPermNames() {
+        return new String[] {"G1 Perm Gen", "Compressed Class Space"};
     }
 
-    @Override protected String getCodeCacheName() {
-        return "Code Cache";
+    @Override protected String[] getCodeCacheNames() {
+        return new String[] {"Code Cache"};
     }
 
-    @Override protected String getEdenName() {
-        return "G1 Eden Space";
+    @Override protected String[] getEdenNames() {
+        return new String[] {"G1 Eden Space"};
     }
 
-    @Override protected String getOldName() {
-        return "G1 Old Gen";
+    @Override protected String[] getOldNames() {
+        return new String[] {"G1 Old Gen"};
     }
 
-    @Override protected String getSurvivorName() {
-        return "G1 Survivor Space";
+    @Override protected String[] getSurvivorNames() {
+        return new String[] {"G1 Survivor Space"};
     }
 
-    @Override protected String getMetaspaceName() {
-        return "Metaspace";
+    @Override protected String[] getMetaspaceNames() {
+        return new String[] {"Metaspace"};
     }
 }
