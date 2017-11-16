@@ -28,16 +28,16 @@ import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
-import static org.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link MongoDBCollectionInstrumentation} presents that skywalking intercepts {@link com.mongodb.DBCollection#find()},
- * {@link com.mongodb.DBCollection#mapReduce} by using {@link MongoDBCollectionMethodInterceptor}.
+ * {@link MongoDBCollectionImplInstrumentation} presents that skywalking intercepts {@link
+ * com.mongodb.DBCollection#find()}, {@link com.mongodb.DBCollection#mapReduce} by using {@link
+ * MongoDBCollectionMethodInterceptor}.
  */
-public class MongoDBCollectionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class MongoDBCollectionImplInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "com.mongodb.DBCollection";
+    private static final String ENHANCE_CLASS = "com.mongodb.DBCollectionImpl";
 
     private static final String MONGDB_METHOD_INTERCET_CLASS = "org.skywalking.apm.plugin.mongodb.v2.MongoDBCollectionMethodInterceptor";
 
@@ -65,88 +65,50 @@ public class MongoDBCollectionInstrumentation extends ClassInstanceMethodsEnhanc
             new InterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("aggregate").and(takesArgumentWithType(1, "com.mongodb.ReadPreference"));
-                }
-            },
-
-            new InterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("findAndModify").and(takesArguments(9));
-                }
-            },
-            /**
-             *Involved db_command operation
-            */
-            new InterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("getCount").and(takesArgumentWithType(6, "java.util.concurrent.TimeUnit"));
-                }
-            },
-            new InterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("drop");
+                    return named("find").and(takesArguments(9));
                 }
 
             },
             new InterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("dropIndexes");
+                    return named("insert").and(takesArguments(4));
                 }
 
             },
             new InterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("rename").and(takesArgumentWithType(1, "boolean"));
+                    return named("insertImpl");
                 }
 
             },
             new InterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("group").and(takesArgumentWithType(1, "boolean"));
+                    return named("update");
+                }
+            },
+            new InterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("updateImpl");
                 }
 
             },
             new InterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("group").and(takesArgumentWithType(1, "com.mongodb.DBObject"));
+                    return named("remove").and(takesArguments(4));
                 }
+
             },
             new InterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("distinct").and(takesArgumentWithType(2, "com.mongodb.ReadPreference"));
+                    return named("createIndex");
                 }
-            },
-            new InterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("mapReduce").and(takesArgumentWithType(0, "com.mongodb.MapReduceCommand"));
-                }
-            },
-            new InterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("mapReduce").and(takesArgumentWithType(0, "com.mongodb.DBObject"));
-                }
-            },
-            new InterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("aggregate").and(takesArgumentWithType(1, "com.mongodb.ReadPreference"));
-                }
-            },
-            new InterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("explainAggregate");
-                }
+
             },
 
         };
