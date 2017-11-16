@@ -1,0 +1,16 @@
+org.skywalking.apm.collector.storage.es.define.ApplicationEsTableDefine
+org.skywalking.apm.collector.storage.es.define.InstanceEsTableDefine
+org.skywalking.apm.collector.storage.es.define.ServiceNameEsTableDefine
+org.skywalking.apm.collector.storage.es.define.CpuMetricEsTableDefine
+org.skywalking.apm.collector.storage.es.define.GCMetricEsTableDefine
+org.skywalking.apm.collector.storage.es.define.MemoryMetricEsTableDefine
+org.skywalking.apm.collector.storage.es.define.MemoryPoolMetricEsTableDefine
+org.skywalking.apm.collector.storage.es.define.GlobalTraceEsTableDefine
+org.skywalking.apm.collector.storage.es.define.InstPerformanceEsTableDefine
+org.skywalking.apm.collector.storage.es.define.NodeComponentEsTableDefine
+org.skywalking.apm.collector.storage.es.define.NodeMappingEsTableDefine
+org.skywalking.apm.collector.storage.es.define.NodeReferenceEsTableDefine
+org.skywalking.apm.collector.storage.es.define.SegmentCostEsTableDefine
+org.skywalking.apm.collector.storage.es.define.SegmentEsTableDefine
+org.skywalking.apm.collector.storage.es.define.ServiceEntryEsTableDefine
+org.skywalking.apm.collector.storage.es.define.ServiceReferenceEsTableDefine

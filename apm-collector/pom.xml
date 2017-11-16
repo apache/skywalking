@@ -17,33 +17,36 @@
   ~ Project repository: https://github.com/OpenSkywalking/skywalking
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <modules>
-        <module>apm-collector-cluster</module>
-        <module>apm-collector-core</module>
-        <module>apm-collector-queue</module>
-        <module>apm-collector-storage</module>
-        <module>apm-collector-client</module>
-        <module>apm-collector-server</module>
-        <module>apm-collector-agentstream</module>
-        <module>apm-collector-ui</module>
-        <module>apm-collector-boot</module>
-        <module>apm-collector-stream</module>
-        <module>apm-collector-agentserver</module>
-        <module>apm-collector-agentregister</module>
-        <module>apm-collector-agentjvm</module>
-        <module>apm-collector-remote</module>
-        <module>apm-collector-cache</module>
-    </modules>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.skywalking</groupId>
         <version>3.2.4-2017</version>
     </parent>
+    <modelVersion>4.0.0</modelVersion>
+
     <artifactId>apm-collector</artifactId>
+
     <packaging>pom</packaging>
+    <modules>
+        <module>apm-collector-boot</module>
+        <module>apm-collector-ui</module>
+        <module>apm-collector-agent</module>
+        <module>apm-collector-core</module>
+        <module>apm-collector-component</module>
+        <module>apm-collector-cluster</module>
+        <module>apm-collector-cache</module>
+        <module>apm-collector-storage</module>
+        <module>apm-collector-naming</module>
+        <module>apm-collector-grpc-manager</module>
+        <module>apm-collector-jetty-manager</module>
+        <module>apm-collector-remote</module>
+        <module>apm-collector-stream</module>
+        <module>apm-collector-queue</module>
+        <module>apm-collector-instrument</module>
+    </modules>
 
     <properties>
     </properties>

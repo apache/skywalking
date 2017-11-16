@@ -1,3 +1,0 @@
-org.skywalking.apm.collector.cache.dao.ApplicationH2CacheDAO
-org.skywalking.apm.collector.cache.dao.InstanceH2CacheDAO
-org.skywalking.apm.collector.cache.dao.ServiceNameH2CacheDAO
