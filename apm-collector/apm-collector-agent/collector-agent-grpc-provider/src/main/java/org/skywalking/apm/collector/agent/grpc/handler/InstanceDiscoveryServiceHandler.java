@@ -23,8 +23,6 @@ import com.google.gson.JsonObject;
 import io.grpc.stub.StreamObserver;
 import org.skywalking.apm.collector.agent.stream.worker.register.InstanceIDService;
 import org.skywalking.apm.collector.core.module.ModuleManager;
-import org.skywalking.apm.collector.core.module.ModuleNotFoundException;
-import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.server.grpc.GRPCHandler;
 import org.skywalking.apm.network.proto.ApplicationInstance;
@@ -52,12 +50,7 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
     @Override
     public void register(ApplicationInstance request, StreamObserver<ApplicationInstanceMapping> responseObserver) {
         long timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(request.getRegisterTime());
-        int instanceId = 0;
-        try {
-            instanceId = instanceIDService.getOrCreate(request.getApplicationId(), request.getAgentUUID(), timeBucket, buildOsInfo(request.getOsinfo()));
-        } catch (ModuleNotFoundException | ServiceNotProvidedException e) {
-            logger.error(e.getMessage(), e);
-        }
+        int instanceId = instanceIDService.getOrCreate(request.getApplicationId(), request.getAgentUUID(), timeBucket, buildOsInfo(request.getOsinfo()));
         ApplicationInstanceMapping.Builder builder = ApplicationInstanceMapping.newBuilder();
         builder.setApplicationId(request.getApplicationId());
         builder.setApplicationInstanceId(instanceId);
@@ -68,11 +61,7 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
     @Override
     public void registerRecover(ApplicationInstanceRecover request, StreamObserver<Downstream> responseObserver) {
         long timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(request.getRegisterTime());
-        try {
-            instanceIDService.recover(request.getApplicationInstanceId(), request.getApplicationId(), timeBucket, buildOsInfo(request.getOsinfo()));
-        } catch (ModuleNotFoundException | ServiceNotProvidedException e) {
-            logger.error(e.getMessage(), e);
-        }
+        instanceIDService.recover(request.getApplicationInstanceId(), request.getApplicationId(), timeBucket, buildOsInfo(request.getOsinfo()));
         responseObserver.onNext(Downstream.newBuilder().build());
         responseObserver.onCompleted();
     }
