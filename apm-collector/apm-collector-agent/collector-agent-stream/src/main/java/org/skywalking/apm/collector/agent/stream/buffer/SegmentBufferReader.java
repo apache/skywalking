@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.skywalking.apm.collector.agent.stream.parser.SegmentParse;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.CollectionUtils;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.StringUtils;
@@ -42,8 +43,10 @@ public enum SegmentBufferReader {
 
     private final Logger logger = LoggerFactory.getLogger(SegmentBufferReader.class);
     private InputStream inputStream;
+    private ModuleManager moduleManager;
 
-    public void initialize() {
+    public void initialize(ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::preRead, 3, 3, TimeUnit.SECONDS);
     }
 
@@ -117,7 +120,7 @@ public enum SegmentBufferReader {
 
             while (readFile.length() > readFileOffset && readFileOffset < endPoint) {
                 UpstreamSegment upstreamSegment = UpstreamSegment.parser().parseDelimitedFrom(inputStream);
-                SegmentParse parse = new SegmentParse(null);
+                SegmentParse parse = new SegmentParse(moduleManager);
                 if (!parse.parse(upstreamSegment, SegmentParse.Source.Buffer)) {
                     return false;
                 }

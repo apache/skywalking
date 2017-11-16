@@ -22,8 +22,6 @@ import com.google.protobuf.ProtocolStringList;
 import io.grpc.stub.StreamObserver;
 import org.skywalking.apm.collector.agent.stream.worker.register.ApplicationIDService;
 import org.skywalking.apm.collector.core.module.ModuleManager;
-import org.skywalking.apm.collector.core.module.ModuleNotFoundException;
-import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.skywalking.apm.collector.server.grpc.GRPCHandler;
 import org.skywalking.apm.network.proto.Application;
 import org.skywalking.apm.network.proto.ApplicationMapping;
@@ -52,12 +50,7 @@ public class ApplicationRegisterServiceHandler extends ApplicationRegisterServic
         ApplicationMapping.Builder builder = ApplicationMapping.newBuilder();
         for (int i = 0; i < applicationCodes.size(); i++) {
             String applicationCode = applicationCodes.get(i);
-            int applicationId = 0;
-            try {
-                applicationId = applicationIDService.getOrCreate(applicationCode);
-            } catch (ModuleNotFoundException | ServiceNotProvidedException e) {
-                logger.error(e.getMessage(), e);
-            }
+            int applicationId = applicationIDService.getOrCreate(applicationCode);
 
             if (applicationId != 0) {
                 KeyWithIntegerValue value = KeyWithIntegerValue.newBuilder().setKey(applicationCode).setValue(applicationId).build();

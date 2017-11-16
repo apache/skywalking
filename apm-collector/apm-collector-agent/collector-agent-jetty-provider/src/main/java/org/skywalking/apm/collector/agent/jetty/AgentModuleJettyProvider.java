@@ -20,6 +20,9 @@ package org.skywalking.apm.collector.agent.jetty;
 
 import java.util.Properties;
 import org.skywalking.apm.collector.agent.AgentModule;
+import org.skywalking.apm.collector.agent.jetty.handler.ApplicationRegisterServletHandler;
+import org.skywalking.apm.collector.agent.jetty.handler.InstanceDiscoveryServletHandler;
+import org.skywalking.apm.collector.agent.jetty.handler.ServiceNameDiscoveryServiceHandler;
 import org.skywalking.apm.collector.agent.jetty.handler.TraceSegmentServletHandler;
 import org.skywalking.apm.collector.agent.jetty.handler.naming.AgentJettyNamingHandler;
 import org.skywalking.apm.collector.agent.jetty.handler.naming.AgentJettyNamingListener;
@@ -89,6 +92,9 @@ public class AgentModuleJettyProvider extends ModuleProvider {
     }
 
     private void addHandlers(Server jettyServer) {
-        jettyServer.addHandler(new TraceSegmentServletHandler());
+        jettyServer.addHandler(new TraceSegmentServletHandler(getManager()));
+        jettyServer.addHandler(new ApplicationRegisterServletHandler(getManager()));
+        jettyServer.addHandler(new InstanceDiscoveryServletHandler(getManager()));
+        jettyServer.addHandler(new ServiceNameDiscoveryServiceHandler(getManager()));
     }
 }

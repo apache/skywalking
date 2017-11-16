@@ -24,8 +24,6 @@ import org.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.module.ModuleManager;
-import org.skywalking.apm.collector.core.module.ModuleNotFoundException;
-import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.IInstanceRegisterDAO;
 import org.skywalking.apm.collector.storage.table.register.Instance;
@@ -49,8 +47,7 @@ public class InstanceIDService {
         this.instanceRegisterDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceRegisterDAO.class);
     }
 
-    public int getOrCreate(int applicationId, String agentUUID, long registerTime,
-        String osInfo) throws ModuleNotFoundException, ServiceNotProvidedException {
+    public int getOrCreate(int applicationId, String agentUUID, long registerTime, String osInfo) {
         logger.debug("get or create instance id, application id: {}, agentUUID: {}, registerTime: {}, osInfo: {}", applicationId, agentUUID, registerTime, osInfo);
         InstanceCacheService service = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
         int instanceId = service.getInstanceId(applicationId, agentUUID);
@@ -69,8 +66,7 @@ public class InstanceIDService {
         return instanceId;
     }
 
-    public void recover(int instanceId, int applicationId, long registerTime,
-        String osInfo) throws ModuleNotFoundException, ServiceNotProvidedException {
+    public void recover(int instanceId, int applicationId, long registerTime, String osInfo) {
         logger.debug("instance recover, instance id: {}, application id: {}, register time: {}", instanceId, applicationId, registerTime);
 
         Instance instance = new Instance(String.valueOf(instanceId));

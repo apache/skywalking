@@ -18,9 +18,9 @@
 
 package org.skywalking.apm.collector.agent.stream.parser.standardization;
 
+import org.skywalking.apm.collector.agent.stream.worker.register.ApplicationIDService;
 import org.skywalking.apm.collector.agent.stream.worker.register.ServiceNameService;
 import org.skywalking.apm.collector.cache.CacheModule;
-import org.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.Const;
@@ -36,9 +36,9 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
     private final Logger logger = LoggerFactory.getLogger(ReferenceIdExchanger.class);
 
     private static ReferenceIdExchanger EXCHANGER;
-    private ServiceNameService serviceNameService;
+    private final ServiceNameService serviceNameService;
+    private final ApplicationIDService applicationIDService;
     private final InstanceCacheService instanceCacheService;
-    private final ApplicationCacheService applicationCacheService;
 
     public static ReferenceIdExchanger getInstance(ModuleManager moduleManager) {
         if (EXCHANGER == null) {
@@ -48,9 +48,9 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
     }
 
     private ReferenceIdExchanger(ModuleManager moduleManager) {
+        applicationIDService = new ApplicationIDService(moduleManager);
         serviceNameService = new ServiceNameService(moduleManager);
         instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
-        applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
     }
 
     @Override public boolean exchange(ReferenceDecorator standardBuilder, int applicationId) {
@@ -58,6 +58,10 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
             int entryServiceId = serviceNameService.getOrCreate(instanceCacheService.get(standardBuilder.getEntryApplicationInstanceId()), standardBuilder.getEntryServiceName());
 
             if (entryServiceId == 0) {
+                if (logger.isDebugEnabled()) {
+                    int entryApplicationId = instanceCacheService.get(standardBuilder.getEntryApplicationInstanceId());
+                    logger.debug("entry service name: {} from application id: {} exchange failed", standardBuilder.getEntryServiceName(), entryApplicationId);
+                }
                 return false;
             } else {
                 standardBuilder.toBuilder();
@@ -70,6 +74,10 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
             int parentServiceId = serviceNameService.getOrCreate(instanceCacheService.get(standardBuilder.getParentApplicationInstanceId()), standardBuilder.getParentServiceName());
 
             if (parentServiceId == 0) {
+                if (logger.isDebugEnabled()) {
+                    int parentApplicationId = instanceCacheService.get(standardBuilder.getParentApplicationInstanceId());
+                    logger.debug("parent service name: {} from application id: {} exchange failed", standardBuilder.getParentServiceName(), parentApplicationId);
+                }
                 return false;
             } else {
                 standardBuilder.toBuilder();
@@ -79,8 +87,11 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
         }
 
         if (standardBuilder.getNetworkAddressId() == 0 && StringUtils.isNotEmpty(standardBuilder.getNetworkAddress())) {
-            int networkAddressId = applicationCacheService.get(standardBuilder.getNetworkAddress());
+            int networkAddressId = applicationIDService.getOrCreate(standardBuilder.getNetworkAddress());
             if (networkAddressId == 0) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("network address: {} from application id: {} exchange failed", standardBuilder.getNetworkAddress(), applicationId);
+                }
                 return false;
             } else {
                 standardBuilder.toBuilder();

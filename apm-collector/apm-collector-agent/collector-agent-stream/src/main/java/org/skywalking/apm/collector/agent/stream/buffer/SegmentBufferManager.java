@@ -21,6 +21,7 @@ package org.skywalking.apm.collector.agent.stream.buffer;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
@@ -39,7 +40,7 @@ public enum SegmentBufferManager {
     public static final String DATA_FILE_PREFIX = "data";
     private FileOutputStream outputStream;
 
-    public synchronized void initialize() {
+    public synchronized void initialize(ModuleManager moduleManager) {
         logger.info("segment buffer initialize");
         try {
             OffsetManager.INSTANCE.initialize();
@@ -58,7 +59,7 @@ public enum SegmentBufferManager {
                     newDataFile();
                 }
             }
-            SegmentBufferReader.INSTANCE.initialize();
+            SegmentBufferReader.INSTANCE.initialize(moduleManager);
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }

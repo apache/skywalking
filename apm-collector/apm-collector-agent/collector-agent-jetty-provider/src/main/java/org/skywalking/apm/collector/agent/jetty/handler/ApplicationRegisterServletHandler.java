@@ -18,14 +18,13 @@
 
 package org.skywalking.apm.collector.agent.jetty.handler;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.stream.JsonReader;
-import java.io.BufferedReader;
+import com.google.gson.JsonObject;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
-import org.skywalking.apm.collector.agent.jetty.handler.reader.TraceSegment;
-import org.skywalking.apm.collector.agent.jetty.handler.reader.TraceSegmentJsonReader;
-import org.skywalking.apm.collector.agent.stream.parser.SegmentParse;
+import org.skywalking.apm.collector.agent.stream.worker.register.ApplicationIDService;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.skywalking.apm.collector.server.jetty.JettyHandler;
@@ -35,18 +34,21 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public class TraceSegmentServletHandler extends JettyHandler {
+public class ApplicationRegisterServletHandler extends JettyHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(TraceSegmentServletHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(ApplicationRegisterServletHandler.class);
 
-    private final ModuleManager moduleManager;
+    private final ApplicationIDService applicationIDService;
+    private Gson gson = new Gson();
+    private static final String APPLICATION_CODE = "c";
+    private static final String APPLICATION_ID = "i";
 
-    public TraceSegmentServletHandler(ModuleManager moduleManager) {
-        this.moduleManager = moduleManager;
+    public ApplicationRegisterServletHandler(ModuleManager moduleManager) {
+        this.applicationIDService = new ApplicationIDService(moduleManager);
     }
 
     @Override public String pathSpec() {
-        return "/segments";
+        return "/application/register";
     }
 
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {
@@ -54,27 +56,20 @@ public class TraceSegmentServletHandler extends JettyHandler {
     }
 
     @Override protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException {
-        logger.debug("receive stream segment");
+        JsonArray responseArray = new JsonArray();
         try {
-            BufferedReader bufferedReader = req.getReader();
-            read(bufferedReader);
+            JsonArray applicationCodes = gson.fromJson(req.getReader(), JsonArray.class);
+            for (int i = 0; i < applicationCodes.size(); i++) {
+                String applicationCode = applicationCodes.get(i).getAsString();
+                int applicationId = applicationIDService.getOrCreate(applicationCode);
+                JsonObject mapping = new JsonObject();
+                mapping.addProperty(APPLICATION_CODE, applicationCode);
+                mapping.addProperty(APPLICATION_ID, applicationId);
+                responseArray.add(mapping);
+            }
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
-        return null;
-    }
-
-    private TraceSegmentJsonReader jsonReader = new TraceSegmentJsonReader();
-
-    private void read(BufferedReader bufferedReader) throws IOException {
-        JsonReader reader = new JsonReader(bufferedReader);
-
-        reader.beginArray();
-        while (reader.hasNext()) {
-            SegmentParse segmentParse = new SegmentParse(moduleManager);
-            TraceSegment traceSegment = jsonReader.read(reader);
-            segmentParse.parse(traceSegment.getUpstreamSegment(), SegmentParse.Source.Agent);
-        }
-        reader.endArray();
+        return responseArray;
     }
 }
