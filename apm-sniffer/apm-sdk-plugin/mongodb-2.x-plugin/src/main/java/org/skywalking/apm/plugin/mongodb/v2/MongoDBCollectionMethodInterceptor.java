@@ -37,11 +37,9 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptR
 import org.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * {@link MongoDBCollectionMethodInterceptor}create the exit span when the client call the interceptor methods.
- * <p>
  * {@link MongoDBCollectionMethodInterceptor} intercept  constructor of {@link com.mongodb.DBCollection}or {@link com.mongodb.DBCollectionImpl} for
- * record the ServerAddress.
- *
+ * record the ServerAddress,and create the exit span.
+ *@Auther liyuntao
  */
 
 public class MongoDBCollectionMethodInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
