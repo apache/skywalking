@@ -20,11 +20,8 @@ package org.skywalking.apm.plugin.mongodb.v2;
 
 import com.mongodb.AggregationOutput;
 import com.mongodb.CommandResult;
-import com.mongodb.DB;
-import com.mongodb.ServerAddress;
 import com.mongodb.WriteResult;
 import java.lang.reflect.Method;
-import java.util.List;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.context.tag.Tags;
@@ -51,9 +48,9 @@ public class MongoDBCollectionMethodInterceptor implements InstanceMethodsAround
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
 
         String remotePeer = (String)objInst.getSkyWalkingDynamicField();
-        String carrier = null;
-        carrier = method.getName();
-        AbstractSpan span = ContextManager.createExitSpan(MONGO_DB_OP_PREFIX + carrier, new ContextCarrier(), remotePeer);
+        String opertaion = null;
+        opertaion = method.getName();
+        AbstractSpan span = ContextManager.createExitSpan(MONGO_DB_OP_PREFIX + opertaion, new ContextCarrier(), remotePeer);
         span.setComponent(ComponentsDefine.MONGODB);
         Tags.DB_TYPE.set(span, DB_TYPE);
         SpanLayer.asDB(span);
@@ -87,15 +84,8 @@ public class MongoDBCollectionMethodInterceptor implements InstanceMethodsAround
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        List<ServerAddress> servers = null;
-        DB db = (DB)allArguments[0];
-        servers = db.getMongo().getAllAddress();
-        StringBuilder peers = new StringBuilder();
-        for (ServerAddress address : servers) {
-            peers.append(address.getHost() + ":" + address.getPort() + ";");
-        }
-
-        objInst.setSkyWalkingDynamicField(peers.subSequence(0, peers.length() - 1).toString());
+        ((EnhancedInstance)allArguments[0]).getSkyWalkingDynamicField();
+        objInst.setSkyWalkingDynamicField(((EnhancedInstance)allArguments[0]).getSkyWalkingDynamicField().toString());
     }
 
 }
