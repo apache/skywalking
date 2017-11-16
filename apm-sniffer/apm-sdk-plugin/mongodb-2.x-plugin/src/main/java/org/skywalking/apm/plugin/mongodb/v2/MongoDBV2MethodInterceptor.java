@@ -51,15 +51,15 @@ public class MongoDBV2MethodInterceptor implements InstanceMethodsAroundIntercep
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
 
         String remotePeer = (String)objInst.getSkyWalkingDynamicField();
-        String carrier = "command";
+        String opertaion = "command";
         if (method.getName().equals("command")) {
             DBObject obj = (DBObject)allArguments[0];
             for (String key : obj.keySet()) {
-                carrier = key;
+                opertaion = key;
                 break;
             }
         }
-        AbstractSpan span = ContextManager.createExitSpan(MONGO_DB_OP_PREFIX + carrier, new ContextCarrier(), remotePeer);
+        AbstractSpan span = ContextManager.createExitSpan(MONGO_DB_OP_PREFIX + opertaion, new ContextCarrier(), remotePeer);
         span.setComponent(ComponentsDefine.MONGODB);
         Tags.DB_TYPE.set(span, DB_TYPE);
         SpanLayer.asDB(span);
