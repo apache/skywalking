@@ -38,7 +38,7 @@ public class SegmentStandardizationWorker extends AbstractLocalAsyncWorker<Segme
 
     public SegmentStandardizationWorker(ModuleManager moduleManager) {
         super(moduleManager);
-        SegmentBufferManager.INSTANCE.initialize();
+        SegmentBufferManager.INSTANCE.initialize(moduleManager);
     }
 
     @Override public int id() {

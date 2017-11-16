@@ -18,9 +18,8 @@
 
 package org.skywalking.apm.collector.agent.stream.parser.standardization;
 
+import org.skywalking.apm.collector.agent.stream.worker.register.ApplicationIDService;
 import org.skywalking.apm.collector.agent.stream.worker.register.ServiceNameService;
-import org.skywalking.apm.collector.cache.CacheModule;
-import org.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.StringUtils;
@@ -35,8 +34,8 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
     private final Logger logger = LoggerFactory.getLogger(SpanIdExchanger.class);
 
     private static SpanIdExchanger EXCHANGER;
+    private final ApplicationIDService applicationIDService;
     private final ServiceNameService serviceNameService;
-    private final ApplicationCacheService applicationCacheService;
 
     public static SpanIdExchanger getInstance(ModuleManager moduleManager) {
         if (EXCHANGER == null) {
@@ -45,15 +44,16 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
         return EXCHANGER;
     }
 
-    public SpanIdExchanger(ModuleManager moduleManager) {
-        this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
+    private SpanIdExchanger(ModuleManager moduleManager) {
+        this.applicationIDService = new ApplicationIDService(moduleManager);
         this.serviceNameService = new ServiceNameService(moduleManager);
     }
 
     @Override public boolean exchange(SpanDecorator standardBuilder, int applicationId) {
         if (standardBuilder.getPeerId() == 0 && StringUtils.isNotEmpty(standardBuilder.getPeer())) {
-            int peerId = applicationCacheService.get(standardBuilder.getPeer());
+            int peerId = applicationIDService.getOrCreate(standardBuilder.getPeer());
             if (peerId == 0) {
+                logger.debug("peer: {} in application: {} exchange failed", standardBuilder.getPeer(), applicationId);
                 return false;
             } else {
                 standardBuilder.toBuilder();
@@ -66,6 +66,7 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
             int operationNameId = serviceNameService.getOrCreate(applicationId, standardBuilder.getOperationName());
 
             if (operationNameId == 0) {
+                logger.debug("service name: {} from application id: {} exchange failed", standardBuilder.getOperationName(), applicationId);
                 return false;
             } else {
                 standardBuilder.toBuilder();

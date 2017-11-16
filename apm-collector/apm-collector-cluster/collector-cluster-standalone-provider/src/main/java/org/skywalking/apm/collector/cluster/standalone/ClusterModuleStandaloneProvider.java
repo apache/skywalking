@@ -26,6 +26,8 @@ import org.skywalking.apm.collector.cluster.service.ModuleListenerService;
 import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
 import org.skywalking.apm.collector.cluster.standalone.service.StandaloneModuleListenerService;
 import org.skywalking.apm.collector.cluster.standalone.service.StandaloneModuleRegisterService;
+import org.skywalking.apm.collector.core.CollectorException;
+import org.skywalking.apm.collector.core.UnexpectedException;
 import org.skywalking.apm.collector.core.module.Module;
 import org.skywalking.apm.collector.core.module.ModuleProvider;
 import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
@@ -75,7 +77,11 @@ public class ClusterModuleStandaloneProvider extends ModuleProvider {
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
-
+        try {
+            dataMonitor.start();
+        } catch (CollectorException e) {
+            throw new UnexpectedException(e.getMessage());
+        }
     }
 
     @Override public String[] requiredModules() {
