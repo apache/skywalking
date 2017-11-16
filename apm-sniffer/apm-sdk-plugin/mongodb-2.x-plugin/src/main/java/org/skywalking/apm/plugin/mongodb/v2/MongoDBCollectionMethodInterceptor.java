@@ -84,7 +84,6 @@ public class MongoDBCollectionMethodInterceptor implements InstanceMethodsAround
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        ((EnhancedInstance)allArguments[0]).getSkyWalkingDynamicField();
         objInst.setSkyWalkingDynamicField(((EnhancedInstance)allArguments[0]).getSkyWalkingDynamicField().toString());
     }
 
