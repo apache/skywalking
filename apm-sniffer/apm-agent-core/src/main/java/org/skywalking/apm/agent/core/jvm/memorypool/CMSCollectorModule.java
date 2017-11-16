@@ -29,27 +29,27 @@ public class CMSCollectorModule extends MemoryPoolModule {
         super(beans);
     }
 
-    @Override protected String getPermName() {
-        return "CMS Perm Gen";
+    @Override protected String[] getPermNames() {
+        return new String[] {"CMS Perm Gen", "Compressed Class Space"};
     }
 
-    @Override protected String getCodeCacheName() {
-        return "Code Cache";
+    @Override protected String[] getCodeCacheNames() {
+        return new String[] {"Code Cache"};
     }
 
-    @Override protected String getEdenName() {
-        return "Par Eden Space";
+    @Override protected String[] getEdenNames() {
+        return new String[] {"Par Eden Space"};
     }
 
-    @Override protected String getOldName() {
-        return "CMS Old Gen";
+    @Override protected String[] getOldNames() {
+        return new String[] {"CMS Old Gen"};
     }
 
-    @Override protected String getSurvivorName() {
-        return "Par Survivor Space";
+    @Override protected String[] getSurvivorNames() {
+        return new String[] {"Par Survivor Space"};
     }
 
-    @Override protected String getMetaspaceName() {
-        return "Metaspace";
+    @Override protected String[] getMetaspaceNames() {
+        return new String[] {"Metaspace"};
     }
 }
