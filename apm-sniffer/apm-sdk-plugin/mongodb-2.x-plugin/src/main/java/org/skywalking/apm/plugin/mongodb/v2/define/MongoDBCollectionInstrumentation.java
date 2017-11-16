@@ -31,9 +31,20 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+
 /**
- * {@link MongoDBCollectionInstrumentation} presents that skywalking intercepts {@link com.mongodb.DBCollection#getCount()},
- * {@link com.mongodb.DBCollection#mapReduce} by using {@link MongoDBCollectionMethodInterceptor}.
+ * {@link MongoDBCollectionInstrumentation} define that the MongoDB Java Driver 2.13.x-2.14.x plugin intercepts the following methods in the
+ * {@link com.mongodb.DBCollection}class:
+ * 1. aggregate <br/>
+ * 2. findAndModify <br/>
+ * 3. getCount <br/>
+ * 4. drop <br/>
+ * 5. dropIndexes <br/>
+ * 6. rename <br/>
+ * 7. group <br/>
+ * 8. distinct <br/>
+ * 9. mapReduce <br/>
+ *
  */
 public class MongoDBCollectionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -134,12 +145,6 @@ public class MongoDBCollectionInstrumentation extends ClassInstanceMethodsEnhanc
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("mapReduce").and(takesArgumentWithType(0, "com.mongodb.DBObject"));
-                }
-            },
-            new InterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("aggregate").and(takesArgumentWithType(1, "com.mongodb.ReadPreference"));
                 }
             },
             new InterceptPoint() {
