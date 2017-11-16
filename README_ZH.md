@@ -25,10 +25,10 @@ Sky Walking | [English](README.md)
 
 # Architecture
 * 3.2+版本架构图
-<img src="https://skywalkingtest.github.io/page-resources/3.x-architecture.jpg"/>
+<img src="https://skywalkingtest.github.io/page-resources/3.2.5%2b_architecture.jpg"/>
 
 # Document
-* [WIKI](https://github.com/OpenSkywalking/skywalking/wiki)
+[![EN doc](https://img.shields.io/badge/document-English-blue.svg)](docs/README.md) [![cn doc](https://img.shields.io/badge/document-中文-blue.svg)](docs/README_ZH.md)
 
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wu.sheng@foxmail.com.
 
