@@ -37,8 +37,7 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptR
 import org.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * {@link MongoDBCollectionMethodInterceptor} intercept method of {@link com.mongodb.DBCollection#find()}
- * or{@link com.mongodb.DBCollectionImpl#insert}.... record the mongoDB host, operation name ...
+ * {@link MongoDBCollectionMethodInterceptor} intercept {@link com.mongodb.DBCollectionImpl}{@link com.mongodb.DBCollection}class
  */
 
 public class MongoDBCollectionMethodInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
