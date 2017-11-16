@@ -31,16 +31,11 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link MongoDBCollectionImplInstrumentation} define that the MongoDB Java Driver 2.13.x-2.14.x plugin intercepts the following methods in the
- * {@link com.mongodb.DBCollectionImpl}class:
- * 1. find <br/>
- * 2. insert <br/>
- * 3. insertImpl <br/>
- * 4. update <br/>
- * 5. updateImpl <br/>
- * 6. remove <br/>
- * 7. createIndex <br/>
- *@Auther liyuntao
+ * {@link MongoDBCollectionImplInstrumentation} define that the MongoDB Java Driver 2.13.x-2.14.x plugin intercepts the
+ * following methods in the {@link com.mongodb.DBCollectionImpl}class: 1. find <br/> 2. insert <br/> 3. insertImpl <br/>
+ * 4. update <br/> 5. updateImpl <br/> 6. remove <br/> 7. createIndex <br/>
+ *
+ * @author liyuntao
  */
 public class MongoDBCollectionImplInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
