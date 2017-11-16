@@ -78,4 +78,24 @@ public class NoopSpan implements AbstractSpan {
     @Override public AbstractSpan setOperationName(String operationName) {
         return this;
     }
+
+    @Override public AbstractSpan start() {
+        return this;
+    }
+
+    @Override public int getSpanId() {
+        return 0;
+    }
+
+    @Override public int getOperationId() {
+        return 0;
+    }
+
+    @Override public String getOperationName() {
+        return "";
+    }
+
+    @Override public AbstractSpan setOperationId(int operationId) {
+        return this;
+    }
 }
