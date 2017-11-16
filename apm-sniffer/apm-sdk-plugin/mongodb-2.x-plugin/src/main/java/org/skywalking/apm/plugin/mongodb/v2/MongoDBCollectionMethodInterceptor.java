@@ -37,7 +37,8 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptR
 import org.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * {@link MongoDBCollectionMethodInterceptor} intercept {@link com.mongodb.DBCollectionImpl}{@link com.mongodb.DBCollection}class
+ * {@link MongoDBCollectionMethodInterceptor} intercept {@link com.mongodb.DBCollectionImpl}{@link com.mongodb.DBCollection}class,
+ * create the exit span when the client call the interceptor methods.
  */
 
 public class MongoDBCollectionMethodInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {

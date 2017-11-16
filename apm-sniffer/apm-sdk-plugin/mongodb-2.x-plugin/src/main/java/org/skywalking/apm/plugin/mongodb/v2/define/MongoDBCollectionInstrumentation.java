@@ -86,9 +86,6 @@ public class MongoDBCollectionInstrumentation extends ClassInstanceMethodsEnhanc
                     return named("findAndModify").and(takesArguments(9));
                 }
             },
-            /**
-             *Involved db_command operation
-            */
             new InterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
