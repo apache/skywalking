@@ -29,8 +29,8 @@ import org.skywalking.apm.network.proto.SpanType;
 import org.skywalking.apm.network.trace.component.Component;
 
 /**
- * The <code>AbstractTracingSpan</code> represents a group of {@link AbstractSpan} implementations,
- * which belongs a real distributed trace.
+ * The <code>AbstractTracingSpan</code> represents a group of {@link AbstractSpan} implementations, which belongs a real
+ * distributed trace.
  *
  * @author wusheng
  */
@@ -59,9 +59,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     protected String componentName;
 
     /**
-     * Log is a concept from OpenTracing spec.
-     * <p>
-     * {@see https://github.com/opentracing/specification/blob/master/specification.md#log-structured-data}
+     * Log is a concept from OpenTracing spec. <p> {@see https://github.com/opentracing/specification/blob/master/specification.md#log-structured-data}
      */
     protected List<LogDataEntity> logs;
 
@@ -94,8 +92,8 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     }
 
     /**
-     * Finish the active Span.
-     * When it is finished, it will be archived by the given {@link TraceSegment}, which owners it.
+     * Finish the active Span. When it is finished, it will be archived by the given {@link TraceSegment}, which owners
+     * it.
      *
      * @param owner of the Span.
      */
@@ -105,6 +103,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         return true;
     }
 
+    @Override
     public AbstractTracingSpan start() {
         this.startTime = System.currentTimeMillis();
         return this;
@@ -150,8 +149,8 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     }
 
     /**
-     * In the scope of this span tracing context, error occurred,
-     * in auto-instrumentation mechanism, almost means throw an exception.
+     * In the scope of this span tracing context, error occurred, in auto-instrumentation mechanism, almost means throw
+     * an exception.
      *
      * @return span instance, for chaining.
      */
@@ -162,8 +161,8 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     }
 
     /**
-     * Set the operation name, just because these is not compress dictionary value for this name.
-     * Use the entire string temporarily, the agent will compress this name in async mode.
+     * Set the operation name, just because these is not compress dictionary value for this name. Use the entire string
+     * temporarily, the agent will compress this name in async mode.
      *
      * @param operationName
      * @return span instance, for chaining.
@@ -181,20 +180,24 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
      * @param operationId
      * @return span instance, for chaining.
      */
+    @Override
     public AbstractTracingSpan setOperationId(int operationId) {
         this.operationId = operationId;
         this.operationName = null;
         return this;
     }
 
+    @Override
     public int getSpanId() {
         return spanId;
     }
 
+    @Override
     public int getOperationId() {
         return operationId;
     }
 
+    @Override
     public String getOperationName() {
         return operationName;
     }
@@ -206,8 +209,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     }
 
     /**
-     * Set the component of this span, with internal supported.
-     * Highly recommend to use this way.
+     * Set the component of this span, with internal supported. Highly recommend to use this way.
      *
      * @param component
      * @return span instance, for chaining.
@@ -219,8 +221,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     }
 
     /**
-     * Set the component name.
-     * By using this, cost more memory and network.
+     * Set the component name. By using this, cost more memory and network.
      *
      * @param componentName
      * @return span instance, for chaining.

@@ -83,7 +83,7 @@ public class ConsumerTest {
     }
 
     @Test
-    public void testConsumerOnError() {
+    public void testConsumerOnError() throws InterruptedException {
         final DataCarrier<SampleData> carrier = new DataCarrier<SampleData>(2, 100);
 
         for (int i = 0; i < 200; i++) {
@@ -93,6 +93,8 @@ public class ConsumerTest {
 
         consumer.onError = true;
         carrier.consume(consumer, 5);
+
+        Thread.sleep(3 * 1000L);
 
         Assert.assertTrue(IS_OCCUR_ERROR);
     }
