@@ -24,8 +24,6 @@ import org.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.module.ModuleManager;
-import org.skywalking.apm.collector.core.module.ModuleNotFoundException;
-import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.skywalking.apm.collector.storage.table.register.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +43,7 @@ public class ApplicationIDService {
         this.applicationRegisterGraph = GraphManager.INSTANCE.createIfAbsent(RegisterStreamGraph.APPLICATION_REGISTER_GRAPH_ID, Application.class);
     }
 
-    public int getOrCreate(String applicationCode) throws ModuleNotFoundException, ServiceNotProvidedException {
+    public int getOrCreate(String applicationCode) {
         ApplicationCacheService service = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
         int applicationId = service.get(applicationCode);
 
