@@ -1,2 +1,1 @@
-mongodb-2.x=org.skywalking.apm.plugin.mongodb.v2.define.MongoDBV2Instrumentation
 mongodb-2.x=org.skywalking.apm.plugin.mongodb.v2.define.MongoDBCollectionInstrumentation
