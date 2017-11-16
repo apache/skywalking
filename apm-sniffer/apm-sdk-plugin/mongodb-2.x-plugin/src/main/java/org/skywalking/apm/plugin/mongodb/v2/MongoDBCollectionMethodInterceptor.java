@@ -94,6 +94,7 @@ public class MongoDBCollectionMethodInterceptor implements InstanceMethodsAround
         for (ServerAddress address : servers) {
             peers.append(address.getHost() + ":" + address.getPort() + ";");
         }
+
         objInst.setSkyWalkingDynamicField(peers.subSequence(0, peers.length() - 1).toString());
     }
 

@@ -32,7 +32,7 @@ import static org.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMat
 import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link MongoDBCollectionInstrumentation} presents that skywalking intercepts {@link com.mongodb.DBCollection#find()},
+ * {@link MongoDBCollectionInstrumentation} presents that skywalking intercepts {@link com.mongodb.DBCollection#getCount()},
  * {@link com.mongodb.DBCollection#mapReduce} by using {@link MongoDBCollectionMethodInterceptor}.
  */
 public class MongoDBCollectionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {

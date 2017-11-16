@@ -32,7 +32,7 @@ import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * {@link MongoDBCollectionImplInstrumentation} presents that skywalking intercepts {@link
- * com.mongodb.DBCollection#find()}, {@link com.mongodb.DBCollection#mapReduce} by using {@link
+ * com.mongodb.DBCollection#find()}, {@link com.mongodb.DBCollection#createIndex} by using {@link
  * MongoDBCollectionMethodInterceptor}.
  */
 public class MongoDBCollectionImplInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
