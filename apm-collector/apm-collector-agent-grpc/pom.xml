@@ -27,33 +27,17 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-collector-stream</artifactId>
-    <packaging>jar</packaging>
+    <artifactId>apm-collector-agent-grpc</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>collector-agent-grpc-define</module>
+        <module>collector-agent-grpc-provider</module>
+    </modules>
 
     <dependencies>
         <dependency>
             <groupId>org.skywalking</groupId>
             <artifactId>apm-collector-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>collector-queue-define</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>collector-storage-define</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>collector-remote-define</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>collector-cache-define</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

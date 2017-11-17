@@ -33,7 +33,6 @@
     <modules>
         <module>apm-collector-boot</module>
         <module>apm-collector-ui</module>
-        <module>apm-collector-agent</module>
         <module>apm-collector-core</module>
         <module>apm-collector-component</module>
         <module>apm-collector-cluster</module>
@@ -47,6 +46,9 @@
         <module>apm-collector-queue</module>
         <module>apm-collector-instrument</module>
         <module>apm-collector-baseline</module>
+        <module>apm-collector-agent-grpc</module>
+        <module>apm-collector-agent-jetty</module>
+        <module>apm-collector-agent-stream</module>
     </modules>
 
     <properties>
