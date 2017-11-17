@@ -17,33 +17,26 @@
   ~ Project repository: https://github.com/OpenSkywalking/skywalking
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
     <parent>
+        <artifactId>spring-plugins</artifactId>
         <groupId>org.skywalking</groupId>
-        <artifactId>apm-sdk-plugin</artifactId>
         <version>3.2.5-2017</version>
     </parent>
+    <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>spring-plugins</artifactId>
-    <modules>
-        <module>concurrent-util-4.x-plugin</module>
-        <module>resttemplate-4.x-plugin</module>
-        <module>mvc-annotation-4.x-plugin</module>
-        <module>spring-cloud</module>
-        <module>mvc-annotation-3.x-plugin</module>
-        <module>core-patch</module>
-    </modules>
-    <packaging>pom</packaging>
+    <artifactId>apm-spring-core-patch</artifactId>
+    <name>core-patch</name>
 
-    <name>apm-sdk-plugin</name>
-    <url>http://maven.apache.org</url>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sdk.plugin.related.dir>/..</sdk.plugin.related.dir>
-    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <version>3.2.9.RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
 </project>
