@@ -6,17 +6,17 @@ Sky Walking | [English](README.md)
 **SkyWalking 3**: 针对分布式系统的APM系统，也被称为分布式追踪系统
 
 [![Build Status](https://travis-ci.org/OpenSkywalking/skywalking.svg?branch=master)](https://travis-ci.org/OpenSkywalking/skywalking)
-[![Coverage Status](https://coveralls.io/repos/github/OpenSkywalking/skywalking/badge.svg?branch=master&forceUpdate=2)](https://coveralls.io/github/OpenSkywalking/skywalking?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/OpenSkywalking/skywalking/badge.svg?branch=master&forceUpdate=3)](https://coveralls.io/github/OpenSkywalking/skywalking?branch=master)
 [![Join the chat at https://gitter.im/openskywalking/Lobby](https://badges.gitter.im/openskywalking/Lobby.svg)](https://gitter.im/openskywalking/Lobby)
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
 
 
 * Java自动探针，**不需要修改应用程序源代码**
   * 高性能探针，针对单实例5000tps的应用，在**全量采集的情况下**，只增加**10%**的CPU开销。
-  * [中间件，框架与类库支持列表](https://github.com/wu-sheng/sky-walking/wiki/3.2-supported-list).
+  * [中间件，框架与类库支持列表](docs/Supported-list.md).
 * 手动探针
   * [使用OpenTracing手动探针API](http://opentracing.io/documentation/pages/supported-tracers)
-  * 使用 [**@Trace**](https://github.com/wu-sheng/OpenSkywalking/wiki/sky-walking-application-toolkit-trace-chn) 标注追踪业务方法
+  * 使用 [**@Trace**](docs/cn/Application-toolkit-trace-CN.md) 标注追踪业务方法
   * 将 traceId 集成到 log4j, log4j2 或 logback这些日志组件中
 * 纯Java后端Collector实现，提供RESTful和gRPC接口。兼容接受其他语言探针发送数据 
   * [如何将探针的Metric和Trace数据上传到Collector？]()
@@ -24,11 +24,11 @@ Sky Walking | [English](README.md)
 * 中文QQ群：392443393
 
 # Architecture
-* 3.2+版本架构图
-<img src="https://skywalkingtest.github.io/page-resources/3.x-architecture.jpg"/>
+* 3.2.5+版本架构图
+<img src="https://skywalkingtest.github.io/page-resources/3.2.5%2b_architecture.jpg"/>
 
 # Document
-* [WIKI](https://github.com/OpenSkywalking/skywalking/wiki)
+[![EN doc](https://img.shields.io/badge/document-English-blue.svg)](docs/README.md) [![cn doc](https://img.shields.io/badge/document-中文-blue.svg)](docs/README_ZH.md)
 
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wu.sheng@foxmail.com.
 
@@ -60,7 +60,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 
 # Contact Us
 * 直接提交Issue
-* [Gitter](https://gitter.im/sky-walking/Lobby)
+* [Gitter](https://gitter.im/openskywalking/Lobby)
 * [Google Mailing List](https://groups.google.com/forum/#!forum/skywalking-distributed-tracing-and-apm)
 * QQ群: 392443393
 

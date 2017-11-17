@@ -18,8 +18,13 @@
 
 package org.skywalking.apm.collector.boot;
 
-import org.skywalking.apm.collector.core.CollectorException;
-import org.skywalking.apm.collector.core.config.SystemConfigParser;
+import org.skywalking.apm.collector.boot.config.ApplicationConfigLoader;
+import org.skywalking.apm.collector.boot.config.ConfigFileNotFoundException;
+import org.skywalking.apm.collector.core.module.ApplicationConfiguration;
+import org.skywalking.apm.collector.core.module.ModuleManager;
+import org.skywalking.apm.collector.core.module.ModuleNotFoundException;
+import org.skywalking.apm.collector.core.module.ProviderNotFoundException;
+import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,13 +33,27 @@ import org.slf4j.LoggerFactory;
  */
 public class CollectorBootStartUp {
 
-    private static final Logger logger = LoggerFactory.getLogger(CollectorBootStartUp.class);
+    public static void main(String[] args) {
+        final Logger logger = LoggerFactory.getLogger(CollectorBootStartUp.class);
 
-    public static void main(String[] args) throws CollectorException {
-        logger.info("collector starting...");
-        SystemConfigParser.INSTANCE.parse();
-        CollectorStarter starter = new CollectorStarter();
-        starter.start();
-        logger.info("collector start successful.");
+        ApplicationConfigLoader configLoader = new ApplicationConfigLoader();
+        ModuleManager manager = new ModuleManager();
+        try {
+            ApplicationConfiguration applicationConfiguration = configLoader.load();
+            manager.init(applicationConfiguration);
+        } catch (ConfigFileNotFoundException e) {
+            logger.error(e.getMessage(), e);
+        } catch (ModuleNotFoundException e) {
+            logger.error(e.getMessage(), e);
+        } catch (ProviderNotFoundException e) {
+            logger.error(e.getMessage(), e);
+        } catch (ServiceNotProvidedException e) {
+            logger.error(e.getMessage(), e);
+        }
+
+        try {
+            Thread.sleep(60000);
+        } catch (InterruptedException e) {
+        }
     }
 }

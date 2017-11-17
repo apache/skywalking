@@ -1,8 +1,0 @@
-org.skywalking.apm.collector.agentregister.worker.application.ApplicationEsTableDefine
-org.skywalking.apm.collector.agentregister.worker.application.ApplicationH2TableDefine
-
-org.skywalking.apm.collector.agentregister.worker.instance.InstanceEsTableDefine
-org.skywalking.apm.collector.agentregister.worker.instance.InstanceH2TableDefine
-
-org.skywalking.apm.collector.agentregister.worker.servicename.ServiceNameEsTableDefine
-org.skywalking.apm.collector.agentregister.worker.servicename.ServiceNameH2TableDefine

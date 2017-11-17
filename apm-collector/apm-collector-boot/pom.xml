@@ -23,130 +23,125 @@
     <parent>
         <artifactId>apm-collector</artifactId>
         <groupId>org.skywalking</groupId>
-        <version>3.2.4-2017</version>
+        <version>3.2.5-2017</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>apm-collector-boot</artifactId>
     <packaging>jar</packaging>
 
-    <properties>
-        <main.class>org.skywalking.apm.collector.boot.CollectorBootStartUp</main.class>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <docker.image.name>skywalking/skywalking-collector</docker.image.name>
-        <docker.image.version>${version}</docker.image.version>
-    </properties>
-
     <dependencies>
         <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.18</version>
+        </dependency>
+        <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-collector-cluster</artifactId>
+            <artifactId>apm-collector-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- cluster provider -->
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-cluster-redis-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-collector-queue</artifactId>
+            <artifactId>collector-cluster-standalone-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-collector-storage</artifactId>
+            <artifactId>collector-cluster-zookeeper-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- cluster provider -->
+        <!-- grpc manager provider -->
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-grpc-manager-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- grpc manager provider -->
+        <!-- jetty manager provider -->
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-jetty-manager-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- jetty manager provider -->
+        <!-- naming jetty provider -->
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-naming-jetty-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- naming jetty provider -->
+        <!-- agent provider -->
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-agent-grpc-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-collector-ui</artifactId>
+            <artifactId>collector-agent-jetty-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- agent provider -->
+        <!-- ui provider -->
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-ui-jetty-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- ui provider -->
+        <!-- storage provider -->
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-storage-es-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-collector-agentserver</artifactId>
+            <artifactId>collector-storage-h2-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- storage provider -->
+        <!-- remote provider -->
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-remote-grpc-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- remote provider -->
+        <!-- queue provider -->
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-queue-datacarrier-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-collector-agentstream</artifactId>
+            <artifactId>collector-queue-disruptor-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- queue provider -->
+        <!-- stream provider -->
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-collector-agentregister</artifactId>
+            <artifactId>collector-stream-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- stream provider -->
+        <!-- cache provider -->
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-collector-agentjvm</artifactId>
+            <artifactId>collector-cache-guava-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- cache provider -->
     </dependencies>
-
-    <build>
-        <finalName>skywalking-collector</finalName>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.3.2</version>
-                <configuration>
-                    <excludes>
-                        <exclude>*.xml</exclude>
-                        <exclude>*.config</exclude>
-                        <exclude>*.yml</exclude>
-                    </excludes>
-                    <archive>
-                        <manifest>
-                            <mainClass>${main.class}</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>src/main/assembly/assembly.xml</descriptor>
-                            </descriptors>
-                            <outputDirectory>${project.basedir}/../../packages</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.spotify</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <version>${docker.plugin.version}</version>
-                <configuration>
-                    <skipDocker>false</skipDocker>
-                    <imageName>${docker.image.name}</imageName>
-                    <imageTags>
-                        <imageTag>${docker.image.version}</imageTag>
-                    </imageTags>
-                    <dockerDirectory>${project.basedir}/docker</dockerDirectory>
-                    <resources>
-                        <resource>
-                            <targetPath>/</targetPath>
-                            <directory>${project.basedir}/../../packages</directory>
-                            <include>${build.finalName}.tar.gz</include>
-                        </resource>
-                    </resources>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.4.3</version>
-                <configuration>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>

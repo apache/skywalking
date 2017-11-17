@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.core.util;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
-import org.skywalking.apm.collector.core.framework.UnexpectedException;
+import org.skywalking.apm.collector.core.UnexpectedException;
 
 /**
  * @author peng-yongsheng

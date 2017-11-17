@@ -1,8 +1,0 @@
-cluster:
-  zookeeper:
-    host: localhost-zk
-    port: 1000
-  redis:
-    host: localhost-rd
-    port: 2000
-
