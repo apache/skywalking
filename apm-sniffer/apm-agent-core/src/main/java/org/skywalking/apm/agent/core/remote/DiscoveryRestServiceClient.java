@@ -141,21 +141,12 @@ public class DiscoveryRestServiceClient implements Runnable {
      */
     private void findBackupServer() {
         selectedServer++;
-        if (selectedServer == serverList.length) {
+        if (selectedServer >= serverList.length) {
             selectedServer = 0;
         }
-    }
 
-    /**
-     * Try to sleep, and ignore the {@link InterruptedException}
-     *
-     * @param millis the length of time to sleep in milliseconds
-     */
-    private void try2Sleep(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-
+        if (serverList.length == 0) {
+            selectedServer = -1;
         }
     }
 }
