@@ -41,6 +41,11 @@
             <artifactId>collector-grpc-manager-define</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-datacarrier</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

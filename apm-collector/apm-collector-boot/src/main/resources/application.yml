@@ -5,17 +5,24 @@
 naming:
   jetty:
     host: localhost
-    port: 10800
+    port: 12800
     context_path: /
-agent:
+remote:
+  gRPC:
+    host: localhost
+    port: 10800
+agent_gRPC:
   gRPC:
     host: localhost
     port: 11800
+agent_jetty:
   jetty:
     host: localhost
     port: 12800
     context_path: /
-  config:
+agent_stream:
+  default:
+    buffer_file_path: ../buffer/
     buffer_offset_max_file_size: 10M
     buffer_segment_max_file_size: 500M
 ui:
@@ -23,10 +30,10 @@ ui:
     host: localhost
     port: 12800
     context_path: /
-storage:
-  elasticsearch:
-    cluster_name: CollectorDBCluster
-    cluster_transport_sniffer: true
-    cluster_nodes: localhost:9300
-    index_shards_number: 2
-    index_replicas_number: 0
+#storage:
+#  elasticsearch:
+#    cluster_name: CollectorDBCluster
+#    cluster_transport_sniffer: true
+#    cluster_nodes: localhost:9300
+#    index_shards_number: 2
+#    index_replicas_number: 0
