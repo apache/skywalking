@@ -24,5 +24,5 @@ import org.skywalking.apm.collector.core.module.Service;
  * @author peng-yongsheng
  */
 public interface RemoteClientService extends Service {
-    RemoteClient create(String host, int port);
+    RemoteClient create(String host, int port, int channelSize, int bufferSize);
 }
