@@ -84,7 +84,7 @@ public class ServiceEntrySpanListener implements RefsListener, FirstSpanListener
             serviceEntry.setRegisterTime(timeBucket);
             serviceEntry.setNewestTime(timeBucket);
 
-            logger.debug("send to service entry aggregation worker, id: {}", serviceEntry.getId());
+            logger.debug("push to service entry aggregation worker, id: {}", serviceEntry.getId());
             Graph<ServiceEntry> graph = GraphManager.INSTANCE.createIfAbsent(TraceStreamGraph.SERVICE_ENTRY_GRAPH_ID, ServiceEntry.class);
             graph.start(serviceEntry);
         }

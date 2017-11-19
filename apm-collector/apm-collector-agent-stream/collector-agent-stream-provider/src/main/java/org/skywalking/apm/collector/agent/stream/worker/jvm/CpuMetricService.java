@@ -23,6 +23,7 @@ import org.skywalking.apm.collector.agent.stream.service.jvm.ICpuMetricService;
 import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.util.Const;
+import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.storage.table.jvm.CpuMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,10 +35,13 @@ public class CpuMetricService implements ICpuMetricService {
 
     private final Logger logger = LoggerFactory.getLogger(CpuMetricService.class);
 
-    private final Graph<CpuMetric> cpuMetricGraph;
+    private Graph<CpuMetric> cpuMetricGraph;
 
-    public CpuMetricService() {
-        cpuMetricGraph = GraphManager.INSTANCE.createIfAbsent(JvmMetricStreamGraph.CPU_METRIC_GRAPH_ID, CpuMetric.class);
+    private Graph<CpuMetric> getCpuMetricGraph() {
+        if (ObjectUtils.isEmpty(cpuMetricGraph)) {
+            cpuMetricGraph = GraphManager.INSTANCE.createIfAbsent(JvmMetricStreamGraph.CPU_METRIC_GRAPH_ID, CpuMetric.class);
+        }
+        return cpuMetricGraph;
     }
 
     @Override public void send(int instanceId, long timeBucket, double usagePercent) {
@@ -46,7 +50,7 @@ public class CpuMetricService implements ICpuMetricService {
         cpuMetric.setUsagePercent(usagePercent);
         cpuMetric.setTimeBucket(timeBucket);
 
-        logger.debug("send to cpu metric graph, id: {}", cpuMetric.getId());
-        cpuMetricGraph.start(cpuMetric);
+        logger.debug("push to cpu metric graph, id: {}", cpuMetric.getId());
+        getCpuMetricGraph().start(cpuMetric);
     }
 }

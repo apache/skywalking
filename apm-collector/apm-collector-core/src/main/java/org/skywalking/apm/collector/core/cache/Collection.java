@@ -16,17 +16,28 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.remote.service;
-
-import org.skywalking.apm.collector.core.data.Data;
+package org.skywalking.apm.collector.core.cache;
 
 /**
  * @author peng-yongsheng
  */
-public interface RemoteClient extends Comparable<RemoteClient> {
-    String getAddress();
+public interface Collection<Data> {
 
-    void push(int graphId, int nodeId, Data data);
+    void reading();
 
-    boolean equals(String address);
+    boolean isReading();
+
+    void writing();
+
+    boolean isWriting();
+
+    void clear();
+
+    int size();
+
+    void finishReading();
+
+    void finishWriting();
+
+    Data collection();
 }

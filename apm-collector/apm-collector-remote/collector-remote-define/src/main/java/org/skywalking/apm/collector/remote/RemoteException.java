@@ -16,15 +16,20 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.remote.service;
+package org.skywalking.apm.collector.remote;
 
-import org.skywalking.apm.collector.core.data.Data;
+import org.skywalking.apm.collector.core.CollectorException;
 
 /**
  * @author peng-yongsheng
  */
-public interface DataReceiver<Output extends Data> {
-    Output output(int graphId, int nodeId);
+public abstract class RemoteException extends CollectorException {
 
-    void receive(Output data);
+    public RemoteException(String message) {
+        super(message);
+    }
+
+    public RemoteException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

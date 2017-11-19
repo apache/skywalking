@@ -18,14 +18,19 @@
 
 package org.skywalking.apm.collector.stream.worker.impl.data;
 
+import org.skywalking.apm.collector.core.cache.Window;
 import org.skywalking.apm.collector.core.data.Data;
 
 /**
  * @author peng-yongsheng
  */
-public class DataCache extends Window {
+public class DataCache extends Window<DataCollection> {
 
     private DataCollection lockedDataCollection;
+
+    @Override public DataCollection collectionInstance() {
+        return new DataCollection();
+    }
 
     public boolean containsKey(String id) {
         return lockedDataCollection.containsKey(id);

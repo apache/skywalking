@@ -39,7 +39,7 @@ public class InstanceRegisterRemoteWorker extends AbstractRemoteWorker<Instance,
         return InstanceRegisterRemoteWorker.class.hashCode();
     }
 
-    public InstanceRegisterRemoteWorker(ModuleManager moduleManager) {
+    InstanceRegisterRemoteWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 

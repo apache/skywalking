@@ -15,6 +15,20 @@ naming:
     host: localhost
     port: 10800
     context_path: /
+agent_gRPC:
+  gRPC:
+    host: localhost
+    port: 11800
+agent_jetty:
+  jetty:
+    host: localhost
+    port: 12800
+    context_path: /
+agent_stream:
+  default:
+    buffer_file_path: ../buffer/
+    buffer_offset_max_file_size: 10M
+    buffer_segment_max_file_size: 500M
 ui:
   jetty:
     host: localhost

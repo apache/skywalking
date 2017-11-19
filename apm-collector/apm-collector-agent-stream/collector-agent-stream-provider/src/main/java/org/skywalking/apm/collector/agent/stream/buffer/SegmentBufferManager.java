@@ -44,14 +44,14 @@ public enum SegmentBufferManager {
         logger.info("segment buffer initialize");
         try {
             OffsetManager.INSTANCE.initialize();
-            if (new File(SegmentBufferConfig.BUFFER_PATH).mkdirs()) {
+            if (new File(BufferFileConfig.BUFFER_PATH).mkdirs()) {
                 newDataFile();
             } else {
                 String writeFileName = OffsetManager.INSTANCE.getWriteFileName();
                 if (StringUtils.isNotEmpty(writeFileName)) {
-                    File dataFile = new File(SegmentBufferConfig.BUFFER_PATH + writeFileName);
+                    File dataFile = new File(BufferFileConfig.BUFFER_PATH + writeFileName);
                     if (dataFile.exists()) {
-                        outputStream = new FileOutputStream(new File(SegmentBufferConfig.BUFFER_PATH + writeFileName), true);
+                        outputStream = new FileOutputStream(new File(BufferFileConfig.BUFFER_PATH + writeFileName), true);
                     } else {
                         newDataFile();
                     }
@@ -83,7 +83,7 @@ public enum SegmentBufferManager {
         logger.debug("create new segment buffer file");
         String timeBucket = String.valueOf(TimeBucketUtils.INSTANCE.getSecondTimeBucket(System.currentTimeMillis()));
         String writeFileName = DATA_FILE_PREFIX + "_" + timeBucket + "." + Const.FILE_SUFFIX;
-        File dataFile = new File(SegmentBufferConfig.BUFFER_PATH + writeFileName);
+        File dataFile = new File(BufferFileConfig.BUFFER_PATH + writeFileName);
         dataFile.createNewFile();
         OffsetManager.INSTANCE.setWriteOffset(writeFileName, 0);
         try {
@@ -98,6 +98,5 @@ public enum SegmentBufferManager {
     }
 
     public synchronized void flush() {
-
     }
 }

@@ -130,7 +130,7 @@ public class ServiceReferenceSpanListener implements FirstSpanListener, EntrySpa
 
         serviceReference.setId(idBuilder.toString());
         serviceReference.setTimeBucket(timeBucket);
-        logger.debug("send to service reference aggregation worker, id: {}", serviceReference.getId());
+        logger.debug("push to service reference aggregation worker, id: {}", serviceReference.getId());
 
         Graph<ServiceReference> graph = GraphManager.INSTANCE.createIfAbsent(TraceStreamGraph.SERVICE_REFERENCE_GRAPH_ID, ServiceReference.class);
         graph.start(serviceReference);

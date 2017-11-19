@@ -49,7 +49,7 @@ public enum OffsetManager {
     public synchronized void initialize() throws IOException {
         if (!initialized) {
             this.offset = new Offset();
-            File dataPath = new File(SegmentBufferConfig.BUFFER_PATH);
+            File dataPath = new File(BufferFileConfig.BUFFER_PATH);
             if (dataPath.mkdirs()) {
                 createOffsetFile();
             } else {
@@ -77,7 +77,7 @@ public enum OffsetManager {
     private void createOffsetFile() throws IOException {
         String timeBucket = String.valueOf(TimeBucketUtils.INSTANCE.getSecondTimeBucket(System.currentTimeMillis()));
         String offsetFileName = OFFSET_FILE_PREFIX + "_" + timeBucket + "." + Const.FILE_SUFFIX;
-        offsetFile = new File(SegmentBufferConfig.BUFFER_PATH + offsetFileName);
+        offsetFile = new File(BufferFileConfig.BUFFER_PATH + offsetFileName);
         this.offset.getWriteOffset().setWriteFileName(Const.EMPTY_STRING);
         this.offset.getWriteOffset().setWriteFileOffset(0);
         this.offset.getReadOffset().setReadFileName(Const.EMPTY_STRING);
@@ -99,7 +99,7 @@ public enum OffsetManager {
     private void nextFile() {
         String timeBucket = String.valueOf(TimeBucketUtils.INSTANCE.getSecondTimeBucket(System.currentTimeMillis()));
         String offsetFileName = OFFSET_FILE_PREFIX + "_" + timeBucket + "." + Const.FILE_SUFFIX;
-        File newOffsetFile = new File(SegmentBufferConfig.BUFFER_PATH + offsetFileName);
+        File newOffsetFile = new File(BufferFileConfig.BUFFER_PATH + offsetFileName);
         offsetFile.delete();
         offsetFile = newOffsetFile;
         this.flush();

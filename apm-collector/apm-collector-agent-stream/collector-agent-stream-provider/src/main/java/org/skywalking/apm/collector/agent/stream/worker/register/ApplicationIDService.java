@@ -25,6 +25,7 @@ import org.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.module.ModuleManager;
+import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.storage.table.register.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,23 +38,36 @@ public class ApplicationIDService implements IApplicationIDService {
     private final Logger logger = LoggerFactory.getLogger(ApplicationIDService.class);
 
     private final ModuleManager moduleManager;
-    private final Graph<Application> applicationRegisterGraph;
+    private ApplicationCacheService applicationCacheService;
+    private Graph<Application> applicationRegisterGraph;
 
     public ApplicationIDService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
-        this.applicationRegisterGraph = GraphManager.INSTANCE.createIfAbsent(RegisterStreamGraph.APPLICATION_REGISTER_GRAPH_ID, Application.class);
+    }
+
+    private Graph<Application> getApplicationRegisterGraph() {
+        if (ObjectUtils.isEmpty(applicationRegisterGraph)) {
+            this.applicationRegisterGraph = GraphManager.INSTANCE.createIfAbsent(RegisterStreamGraph.APPLICATION_REGISTER_GRAPH_ID, Application.class);
+        }
+        return this.applicationRegisterGraph;
+    }
+
+    private ApplicationCacheService getApplicationCacheService() {
+        if (ObjectUtils.isEmpty(applicationCacheService)) {
+            this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
+        }
+        return applicationCacheService;
     }
 
     public int getOrCreate(String applicationCode) {
-        ApplicationCacheService service = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
-        int applicationId = service.get(applicationCode);
+        int applicationId = getApplicationCacheService().get(applicationCode);
 
         if (applicationId == 0) {
             Application application = new Application(applicationCode);
             application.setApplicationCode(applicationCode);
             application.setApplicationId(0);
 
-            applicationRegisterGraph.start(application);
+            getApplicationRegisterGraph().start(application);
         }
         return applicationId;
     }

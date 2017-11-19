@@ -25,6 +25,7 @@ import org.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.module.ModuleManager;
+import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.IInstanceRegisterDAO;
 import org.skywalking.apm.collector.storage.table.register.Instance;
@@ -39,17 +40,38 @@ public class InstanceIDService implements IInstanceIDService {
     private final Logger logger = LoggerFactory.getLogger(InstanceIDService.class);
 
     private final ModuleManager moduleManager;
-    private final Graph<Instance> instanceRegisterGraph;
+    private InstanceCacheService instanceCacheService;
+    private Graph<Instance> instanceRegisterGraph;
+    private IInstanceRegisterDAO instanceRegisterDAO;
 
     public InstanceIDService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
-        this.instanceRegisterGraph = GraphManager.INSTANCE.createIfAbsent(RegisterStreamGraph.INSTANCE_REGISTER_GRAPH_ID, Instance.class);
+    }
+
+    private InstanceCacheService getInstanceCacheService() {
+        if (ObjectUtils.isEmpty(instanceCacheService)) {
+            instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
+        }
+        return instanceCacheService;
+    }
+
+    private Graph<Instance> getInstanceRegisterGraph() {
+        if (ObjectUtils.isEmpty(instanceRegisterGraph)) {
+            this.instanceRegisterGraph = GraphManager.INSTANCE.createIfAbsent(RegisterStreamGraph.INSTANCE_REGISTER_GRAPH_ID, Instance.class);
+        }
+        return instanceRegisterGraph;
+    }
+
+    private IInstanceRegisterDAO getInstanceRegisterDAO() {
+        if (ObjectUtils.isEmpty(instanceRegisterDAO)) {
+            instanceRegisterDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceRegisterDAO.class);
+        }
+        return instanceRegisterDAO;
     }
 
     public int getOrCreate(int applicationId, String agentUUID, long registerTime, String osInfo) {
         logger.debug("get or create instance id, application id: {}, agentUUID: {}, registerTime: {}, osInfo: {}", applicationId, agentUUID, registerTime, osInfo);
-        InstanceCacheService service = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
-        int instanceId = service.getInstanceId(applicationId, agentUUID);
+        int instanceId = getInstanceCacheService().getInstanceId(applicationId, agentUUID);
 
         if (instanceId == 0) {
             Instance instance = new Instance("0");
@@ -60,15 +82,13 @@ public class InstanceIDService implements IInstanceIDService {
             instance.setInstanceId(0);
             instance.setOsInfo(osInfo);
 
-            instanceRegisterGraph.start(instance);
+            getInstanceRegisterGraph().start(instance);
         }
         return instanceId;
     }
 
     public void recover(int instanceId, int applicationId, long registerTime, String osInfo) {
         logger.debug("instance recover, instance id: {}, application id: {}, register time: {}", instanceId, applicationId, registerTime);
-        final IInstanceRegisterDAO instanceRegisterDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceRegisterDAO.class);
-
         Instance instance = new Instance(String.valueOf(instanceId));
         instance.setApplicationId(applicationId);
         instance.setAgentUUID("");
@@ -77,6 +97,6 @@ public class InstanceIDService implements IInstanceIDService {
         instance.setInstanceId(instanceId);
         instance.setOsInfo(osInfo);
 
-        instanceRegisterDAO.save(instance);
+        getInstanceRegisterDAO().save(instance);
     }
 }

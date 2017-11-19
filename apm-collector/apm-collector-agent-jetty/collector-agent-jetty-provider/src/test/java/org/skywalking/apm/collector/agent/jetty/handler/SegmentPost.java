@@ -40,8 +40,11 @@ public class SegmentPost {
         serviceNameRegisterPost.send("json/servicename-register-provider.json");
 
         JsonElement provider = JsonFileReader.INSTANCE.read("json/dubbox-provider.json");
-        HttpClientTools.INSTANCE.post("http://localhost:12800/segments", provider.toString());
         JsonElement consumer = JsonFileReader.INSTANCE.read("json/dubbox-consumer.json");
-        HttpClientTools.INSTANCE.post("http://localhost:12800/segments", consumer.toString());
+
+        for (int i = 0; i < 1000; i++) {
+            HttpClientTools.INSTANCE.post("http://localhost:12800/segments", provider.toString());
+            HttpClientTools.INSTANCE.post("http://localhost:12800/segments", consumer.toString());
+        }
     }
 }

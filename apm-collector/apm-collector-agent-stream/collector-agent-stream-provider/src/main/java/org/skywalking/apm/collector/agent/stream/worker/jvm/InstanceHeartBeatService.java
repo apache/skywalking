@@ -22,6 +22,7 @@ import org.skywalking.apm.collector.agent.stream.graph.JvmMetricStreamGraph;
 import org.skywalking.apm.collector.agent.stream.service.jvm.IInstanceHeartBeatService;
 import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
+import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.table.register.Instance;
 import org.slf4j.Logger;
@@ -34,10 +35,13 @@ public class InstanceHeartBeatService implements IInstanceHeartBeatService {
 
     private final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatService.class);
 
-    private final Graph<Instance> heartBeatGraph;
+    private Graph<Instance> heartBeatGraph;
 
-    public InstanceHeartBeatService() {
-        this.heartBeatGraph = GraphManager.INSTANCE.createIfAbsent(JvmMetricStreamGraph.INST_HEART_BEAT_GRAPH_ID, Instance.class);
+    private Graph<Instance> getHeartBeatGraph() {
+        if (ObjectUtils.isEmpty(heartBeatGraph)) {
+            this.heartBeatGraph = GraphManager.INSTANCE.createIfAbsent(JvmMetricStreamGraph.INST_HEART_BEAT_GRAPH_ID, Instance.class);
+        }
+        return heartBeatGraph;
     }
 
     @Override public void send(int instanceId, long heartBeatTime) {
@@ -45,7 +49,7 @@ public class InstanceHeartBeatService implements IInstanceHeartBeatService {
         instance.setHeartBeatTime(TimeBucketUtils.INSTANCE.getSecondTimeBucket(heartBeatTime));
         instance.setInstanceId(instanceId);
 
-        logger.debug("send to instance heart beat persistence worker, id: {}", instance.getId());
-        heartBeatGraph.start(instance);
+        logger.debug("push to instance heart beat persistence worker, id: {}", instance.getId());
+        getHeartBeatGraph().start(instance);
     }
 }

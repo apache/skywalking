@@ -20,12 +20,13 @@ package org.skywalking.apm.collector.stream.worker.impl.data;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.skywalking.apm.collector.core.cache.Collection;
 import org.skywalking.apm.collector.core.data.Data;
 
 /**
  * @author peng-yongsheng
  */
-public class DataCollection {
+public class DataCollection implements Collection<Map<String, Data>> {
     private Map<String, Data> data;
     private volatile boolean writing;
     private volatile boolean reading;
@@ -40,23 +41,23 @@ public class DataCollection {
         writing = false;
     }
 
-    public void writing() {
+    @Override public void writing() {
         writing = true;
     }
 
-    public boolean isWriting() {
+    @Override public boolean isWriting() {
         return writing;
     }
 
-    public void finishReading() {
+    @Override public void finishReading() {
         reading = false;
     }
 
-    public void reading() {
+    @Override public void reading() {
         reading = true;
     }
 
-    public boolean isReading() {
+    @Override public boolean isReading() {
         return reading;
     }
 
@@ -72,15 +73,15 @@ public class DataCollection {
         return data.get(key);
     }
 
-    public int size() {
+    @Override public int size() {
         return data.size();
     }
 
-    public void clear() {
+    @Override public void clear() {
         data.clear();
     }
 
-    public Map<String, Data> asMap() {
+    public Map<String, Data> collection() {
         return data;
     }
 }

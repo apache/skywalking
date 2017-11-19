@@ -45,9 +45,8 @@ public abstract class AbstractRemoteWorkerProvider<INPUT extends Data, OUTPUT ex
     /**
      * Create the worker instance into akka system, the akka system will control the cluster worker life cycle.
      *
-     * @return The created worker reference. See {@link RemoteWorkerRef}
-     * @throws ProviderNotFoundException This worker instance attempted to find a provider which use to create another
-     * worker instance, when the worker provider not find then Throw this Exception.
+     * @return The created worker reference. See {@link RemoteWorkerRef} worker instance, when the worker provider not
+     * find then Throw this Exception.
      */
     @Override final public RemoteWorkerRef create(WorkerCreateListener workerCreateListener) {
         WORKER_TYPE remoteWorker = workerInstance(getModuleManager());

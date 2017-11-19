@@ -16,21 +16,15 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.core.config;
+package org.skywalking.apm.collector.remote.service;
 
-import org.skywalking.apm.collector.core.util.StringUtils;
+import org.skywalking.apm.collector.remote.RemoteException;
 
 /**
  * @author peng-yongsheng
  */
-public enum SystemConfigParser {
-    INSTANCE;
-
-    private static final String DATA_PATH = "data.path";
-
-    public void parse() {
-        if (!StringUtils.isEmpty(System.getProperty(DATA_PATH))) {
-            SystemConfig.DATA_PATH = System.getProperty(DATA_PATH);
-        }
+public class RemoteDataInstanceCreatorNotFoundException extends RemoteException {
+    public RemoteDataInstanceCreatorNotFoundException(String message) {
+        super(message);
     }
 }

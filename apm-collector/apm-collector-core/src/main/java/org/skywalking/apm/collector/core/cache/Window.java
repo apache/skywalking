@@ -16,27 +16,29 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.stream.worker.impl.data;
+package org.skywalking.apm.collector.core.cache;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class Window {
+public abstract class Window<WindowCollection extends Collection> {
 
     private AtomicInteger windowSwitch = new AtomicInteger(0);
 
-    private DataCollection pointer;
+    private WindowCollection pointer;
 
-    private DataCollection windowDataA;
-    private DataCollection windowDataB;
+    private WindowCollection windowDataA;
+    private WindowCollection windowDataB;
 
-    public Window() {
-        windowDataA = new DataCollection();
-        windowDataB = new DataCollection();
-        pointer = windowDataA;
+    protected Window() {
+        this.windowDataA = collectionInstance();
+        this.windowDataB = collectionInstance();
+        this.pointer = windowDataA;
     }
+
+    public abstract WindowCollection collectionInstance();
 
     public boolean trySwitchPointer() {
         return windowSwitch.incrementAndGet() == 1 && !getLast().isReading();
@@ -55,7 +57,7 @@ public abstract class Window {
         getLast().reading();
     }
 
-    protected DataCollection getCurrentAndWriting() {
+    protected WindowCollection getCurrentAndWriting() {
         if (pointer == windowDataA) {
             windowDataA.writing();
             return windowDataA;
@@ -65,11 +67,11 @@ public abstract class Window {
         }
     }
 
-    protected DataCollection getCurrent() {
+    protected WindowCollection getCurrent() {
         return pointer;
     }
 
-    public DataCollection getLast() {
+    public WindowCollection getLast() {
         if (pointer == windowDataA) {
             return windowDataB;
         } else {

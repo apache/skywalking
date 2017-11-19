@@ -23,6 +23,7 @@ import org.skywalking.apm.collector.agent.stream.service.jvm.IGCMetricService;
 import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.util.Const;
+import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.storage.table.jvm.GCMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,10 +35,13 @@ public class GCMetricService implements IGCMetricService {
 
     private final Logger logger = LoggerFactory.getLogger(GCMetricService.class);
 
-    private final Graph<GCMetric> gcMetricGraph;
+    private Graph<GCMetric> gcMetricGraph;
 
-    public GCMetricService() {
-        gcMetricGraph = GraphManager.INSTANCE.createIfAbsent(JvmMetricStreamGraph.GC_METRIC_GRAPH_ID, GCMetric.class);
+    private Graph<GCMetric> getGcMetricGraph() {
+        if (ObjectUtils.isEmpty(gcMetricGraph)) {
+            gcMetricGraph = GraphManager.INSTANCE.createIfAbsent(JvmMetricStreamGraph.GC_METRIC_GRAPH_ID, GCMetric.class);
+        }
+        return gcMetricGraph;
     }
 
     @Override public void send(int instanceId, long timeBucket, int phraseValue, long count, long time) {
@@ -48,7 +52,7 @@ public class GCMetricService implements IGCMetricService {
         gcMetric.setTime(time);
         gcMetric.setTimeBucket(timeBucket);
 
-        logger.debug("send to gc metric graph, id: {}", gcMetric.getId());
-        gcMetricGraph.start(gcMetric);
+        logger.debug("push to gc metric graph, id: {}", gcMetric.getId());
+        getGcMetricGraph().start(gcMetric);
     }
 }
