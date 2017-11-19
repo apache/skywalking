@@ -18,18 +18,13 @@
 
 package org.skywalking.apm.collector.remote.service;
 
+import org.skywalking.apm.collector.remote.RemoteException;
+
 /**
  * @author peng-yongsheng
  */
-public class DataReceiverRegisterListener {
-
-    private DataReceiver dataReceiver;
-
-    public DataReceiver getDataReceiver() {
-        return dataReceiver;
-    }
-
-    public void setDataReceiver(DataReceiver dataReceiver) {
-        this.dataReceiver = dataReceiver;
+public class RemoteDataMappingIdNotFoundException extends RemoteException {
+    public RemoteDataMappingIdNotFoundException(String message) {
+        super(message);
     }
 }

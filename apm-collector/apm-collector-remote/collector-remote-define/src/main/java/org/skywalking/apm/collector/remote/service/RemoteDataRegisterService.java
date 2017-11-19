@@ -16,13 +16,18 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.agent.stream.buffer;
+package org.skywalking.apm.collector.remote.service;
 
-import org.skywalking.apm.collector.core.config.SystemConfig;
+import org.skywalking.apm.collector.core.data.Data;
+import org.skywalking.apm.collector.core.module.Service;
 
 /**
  * @author peng-yongsheng
  */
-public class SegmentBufferConfig {
-    public static String BUFFER_PATH = SystemConfig.DATA_PATH + "/buffer/";
+public interface RemoteDataRegisterService extends Service {
+    void register(Class<? extends Data> dataClass, RemoteDataInstanceCreator instanceCreator);
+
+    interface RemoteDataInstanceCreator<RemoteData extends Data> {
+        RemoteData createInstance(String id);
+    }
 }

@@ -25,6 +25,7 @@ import org.skywalking.apm.collector.cache.service.ServiceIdCacheService;
 import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.module.ModuleManager;
+import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.storage.table.register.ServiceName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,16 +38,29 @@ public class ServiceNameService implements IServiceNameService {
     private final Logger logger = LoggerFactory.getLogger(ServiceNameService.class);
 
     private final ModuleManager moduleManager;
-    private final Graph<ServiceName> serviceNameRegisterGraph;
+    private ServiceIdCacheService serviceIdCacheService;
+    private Graph<ServiceName> serviceNameRegisterGraph;
 
     public ServiceNameService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
-        this.serviceNameRegisterGraph = GraphManager.INSTANCE.createIfAbsent(RegisterStreamGraph.SERVICE_NAME_REGISTER_GRAPH_ID, ServiceName.class);
+    }
+
+    private ServiceIdCacheService getServiceIdCacheService() {
+        if (ObjectUtils.isEmpty(serviceIdCacheService)) {
+            serviceIdCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceIdCacheService.class);
+        }
+        return serviceIdCacheService;
+    }
+
+    private Graph<ServiceName> getServiceNameRegisterGraph() {
+        if (ObjectUtils.isEmpty(serviceNameRegisterGraph)) {
+            this.serviceNameRegisterGraph = GraphManager.INSTANCE.createIfAbsent(RegisterStreamGraph.SERVICE_NAME_REGISTER_GRAPH_ID, ServiceName.class);
+        }
+        return serviceNameRegisterGraph;
     }
 
     public int getOrCreate(int applicationId, String serviceName) {
-        ServiceIdCacheService idCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceIdCacheService.class);
-        int serviceId = idCacheService.get(applicationId, serviceName);
+        int serviceId = getServiceIdCacheService().get(applicationId, serviceName);
 
         if (serviceId == 0) {
             ServiceName service = new ServiceName("0");
@@ -54,7 +68,7 @@ public class ServiceNameService implements IServiceNameService {
             service.setServiceName(serviceName);
             service.setServiceId(0);
 
-            serviceNameRegisterGraph.start(service);
+            getServiceNameRegisterGraph().start(service);
         }
         return serviceId;
     }

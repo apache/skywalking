@@ -86,8 +86,8 @@ public abstract class PersistenceWorker<INPUT extends Data, OUTPUT extends Data>
                 }
             }
 
-            if (dataCache.getLast().asMap() != null) {
-                batchCollection = prepareBatch(dataCache.getLast().asMap());
+            if (dataCache.getLast().collection() != null) {
+                batchCollection = prepareBatch(dataCache.getLast().collection());
             }
         } finally {
             dataCache.finishReadingLast();
@@ -104,7 +104,7 @@ public abstract class PersistenceWorker<INPUT extends Data, OUTPUT extends Data>
                 if (ObjectUtils.isNotEmpty(dbData)) {
                     dbData.mergeData(data);
                     try {
-                        updateBatchCollection.add(persistenceDAO().prepareBatchUpdate(data));
+                        updateBatchCollection.add(persistenceDAO().prepareBatchUpdate(dbData));
                     } catch (Throwable t) {
                         logger.error(t.getMessage(), t);
                     }

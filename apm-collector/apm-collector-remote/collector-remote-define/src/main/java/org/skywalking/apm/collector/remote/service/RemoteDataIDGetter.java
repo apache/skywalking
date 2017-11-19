@@ -18,11 +18,11 @@
 
 package org.skywalking.apm.collector.remote.service;
 
-import org.skywalking.apm.collector.core.module.Service;
+import org.skywalking.apm.collector.core.data.Data;
 
 /**
  * @author peng-yongsheng
  */
-public interface RemoteServerService extends Service {
-    void registerReceiver(DataReceiver receiver);
+public interface RemoteDataIDGetter {
+    Integer getRemoteDataId(Class<? extends Data> dataClass) throws RemoteDataMappingIdNotFoundException;
 }

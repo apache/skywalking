@@ -16,11 +16,12 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.core.config;
+package org.skywalking.apm.collector.remote.service;
 
 /**
  * @author peng-yongsheng
  */
-public class SystemConfig {
-    public static String DATA_PATH = "../data";
+public interface RemoteDataInstanceCreatorGetter {
+    RemoteDataRegisterService.RemoteDataInstanceCreator getInstanceCreator(
+        Integer remoteDataId) throws RemoteDataInstanceCreatorNotFoundException;
 }

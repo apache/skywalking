@@ -38,17 +38,4 @@ public abstract class AbstractRemoteWorker<INPUT extends Data, OUTPUT extends Da
     }
 
     public abstract Selector selector();
-
-    /**
-     * This method use for message producer to call for send message.
-     *
-     * @param message The persistence data or metric data.
-     * @throws Exception The Exception happen in {@link #onWork(Object)} )}
-     */
-    public final void allocateJob(INPUT message) {
-        try {
-            onWork(message);
-        } catch (WorkerException e) {
-        }
-    }
 }

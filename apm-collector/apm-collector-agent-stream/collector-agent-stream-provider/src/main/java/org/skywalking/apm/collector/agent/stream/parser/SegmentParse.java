@@ -163,7 +163,7 @@ public class SegmentParse {
     }
 
     private void writeToBufferFile(String id, UpstreamSegment upstreamSegment) {
-        logger.debug("send to segment buffer write worker, id: {}", id);
+        logger.debug("push to segment buffer write worker, id: {}", id);
         SegmentStandardization standardization = new SegmentStandardization(id);
         standardization.setUpstreamSegment(upstreamSegment);
         Graph<SegmentStandardization> graph = GraphManager.INSTANCE.createIfAbsent(TraceStreamGraph.SEGMENT_STANDARDIZATION_GRAPH_ID, SegmentStandardization.class);

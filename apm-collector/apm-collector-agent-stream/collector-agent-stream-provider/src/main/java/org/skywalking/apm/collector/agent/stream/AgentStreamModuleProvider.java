@@ -29,6 +29,7 @@ import org.skywalking.apm.collector.agent.stream.service.register.IApplicationID
 import org.skywalking.apm.collector.agent.stream.service.register.IInstanceIDService;
 import org.skywalking.apm.collector.agent.stream.service.register.IServiceNameService;
 import org.skywalking.apm.collector.agent.stream.service.trace.ITraceSegmentService;
+import org.skywalking.apm.collector.agent.stream.worker.AgentStreamRemoteDataRegister;
 import org.skywalking.apm.collector.agent.stream.worker.jvm.CpuMetricService;
 import org.skywalking.apm.collector.agent.stream.worker.jvm.GCMetricService;
 import org.skywalking.apm.collector.agent.stream.worker.jvm.InstanceHeartBeatService;
@@ -42,6 +43,8 @@ import org.skywalking.apm.collector.cache.CacheModule;
 import org.skywalking.apm.collector.core.module.Module;
 import org.skywalking.apm.collector.core.module.ModuleProvider;
 import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.skywalking.apm.collector.remote.RemoteModule;
+import org.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 import org.skywalking.apm.collector.storage.StorageModule;
 
 /**
@@ -75,6 +78,10 @@ public class AgentStreamModuleProvider extends ModuleProvider {
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
+        RemoteDataRegisterService remoteDataRegisterService = getManager().find(RemoteModule.NAME).getService(RemoteDataRegisterService.class);
+        AgentStreamRemoteDataRegister agentStreamRemoteDataRegister = new AgentStreamRemoteDataRegister(remoteDataRegisterService);
+        agentStreamRemoteDataRegister.register();
+
         AgentStreamBootStartup bootStartup = new AgentStreamBootStartup(getManager());
         bootStartup.start();
     }

@@ -67,7 +67,7 @@ public class NodeMappingSpanListener implements RefsListener, FirstSpanListener 
         for (NodeMapping nodeMapping : nodeMappings) {
             nodeMapping.setId(timeBucket + Const.ID_SPLIT + nodeMapping.getId());
             nodeMapping.setTimeBucket(timeBucket);
-            logger.debug("send to node mapping aggregation worker, id: {}", nodeMapping.getId());
+            logger.debug("push to node mapping aggregation worker, id: {}", nodeMapping.getId());
             graph.start(nodeMapping);
         }
     }

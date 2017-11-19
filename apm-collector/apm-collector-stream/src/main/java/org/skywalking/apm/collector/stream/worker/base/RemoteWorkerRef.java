@@ -34,7 +34,7 @@ public class RemoteWorkerRef<INPUT extends Data, OUTPUT extends Data> extends Wo
     private final RemoteSenderService remoteSenderService;
     private final int graphId;
 
-    public RemoteWorkerRef(AbstractRemoteWorker<INPUT, OUTPUT> remoteWorker, RemoteSenderService remoteSenderService,
+    RemoteWorkerRef(AbstractRemoteWorker<INPUT, OUTPUT> remoteWorker, RemoteSenderService remoteSenderService,
         int graphId) {
         super(remoteWorker);
         this.remoteWorker = remoteWorker;

@@ -23,6 +23,7 @@ import org.skywalking.apm.collector.agent.stream.service.jvm.IMemoryMetricServic
 import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.util.Const;
+import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.storage.table.jvm.MemoryMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,10 +35,13 @@ public class MemoryMetricService implements IMemoryMetricService {
 
     private final Logger logger = LoggerFactory.getLogger(MemoryMetricService.class);
 
-    private final Graph<MemoryMetric> memoryMetricGraph;
+    private Graph<MemoryMetric> memoryMetricGraph;
 
-    public MemoryMetricService() {
-        this.memoryMetricGraph = GraphManager.INSTANCE.createIfAbsent(JvmMetricStreamGraph.MEMORY_METRIC_GRAPH_ID, MemoryMetric.class);
+    private Graph<MemoryMetric> getMemoryMetricGraph() {
+        if (ObjectUtils.isEmpty(memoryMetricGraph)) {
+            this.memoryMetricGraph = GraphManager.INSTANCE.createIfAbsent(JvmMetricStreamGraph.MEMORY_METRIC_GRAPH_ID, MemoryMetric.class);
+        }
+        return memoryMetricGraph;
     }
 
     @Override
@@ -51,7 +55,7 @@ public class MemoryMetricService implements IMemoryMetricService {
         memoryMetric.setCommitted(commited);
         memoryMetric.setTimeBucket(timeBucket);
 
-        logger.debug("send to memory metric graph, id: {}", memoryMetric.getId());
-        memoryMetricGraph.start(memoryMetric);
+        logger.debug("push to memory metric graph, id: {}", memoryMetric.getId());
+        getMemoryMetricGraph().start(memoryMetric);
     }
 }

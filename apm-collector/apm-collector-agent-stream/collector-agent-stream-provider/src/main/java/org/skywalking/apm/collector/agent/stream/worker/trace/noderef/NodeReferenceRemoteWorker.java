@@ -31,7 +31,7 @@ import org.skywalking.apm.collector.stream.worker.base.WorkerException;
  */
 public class NodeReferenceRemoteWorker extends AbstractRemoteWorker<NodeReference, NodeReference> {
 
-    public NodeReferenceRemoteWorker(ModuleManager moduleManager) {
+    NodeReferenceRemoteWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 

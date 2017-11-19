@@ -53,7 +53,7 @@ public enum SegmentBufferReader {
     private void preRead() {
         String readFileName = OffsetManager.INSTANCE.getReadFileName();
         if (StringUtils.isNotEmpty(readFileName)) {
-            File readFile = new File(SegmentBufferConfig.BUFFER_PATH + readFileName);
+            File readFile = new File(BufferFileConfig.BUFFER_PATH + readFileName);
             if (readFile.exists()) {
                 deleteTheDataFilesBeforeReadFile(readFileName);
                 long readFileOffset = OffsetManager.INSTANCE.getReadFileOffset();
@@ -69,7 +69,7 @@ public enum SegmentBufferReader {
     }
 
     private void deleteTheDataFilesBeforeReadFile(String readFileName) {
-        File[] dataFiles = new File(SegmentBufferConfig.BUFFER_PATH).listFiles(new PrefixFileNameFilter());
+        File[] dataFiles = new File(BufferFileConfig.BUFFER_PATH).listFiles(new PrefixFileNameFilter());
 
         long readFileCreateTime = getFileCreateTime(readFileName);
         for (File dataFile : dataFiles) {
@@ -90,7 +90,7 @@ public enum SegmentBufferReader {
 
     private void readEarliestCreateDataFile() {
         String readFileName = OffsetManager.INSTANCE.getReadFileName();
-        File[] dataFiles = new File(SegmentBufferConfig.BUFFER_PATH).listFiles(new PrefixFileNameFilter());
+        File[] dataFiles = new File(BufferFileConfig.BUFFER_PATH).listFiles(new PrefixFileNameFilter());
 
         if (CollectionUtils.isNotEmpty(dataFiles)) {
             if (dataFiles[0].getName().equals(readFileName)) {

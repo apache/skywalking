@@ -63,7 +63,7 @@ public abstract class AggregationWorker<INPUT extends Data, OUTPUT extends Data>
                 throw new WorkerException(e.getMessage(), e);
             }
         }
-        dataCache.getLast().asMap().forEach((String id, Data data) -> {
+        dataCache.getLast().collection().forEach((String id, Data data) -> {
             logger.debug(data.toString());
             onNext((OUTPUT)data);
         });
@@ -73,7 +73,7 @@ public abstract class AggregationWorker<INPUT extends Data, OUTPUT extends Data>
     private void aggregate(INPUT message) {
         dataCache.writing();
         if (dataCache.containsKey(message.getId())) {
-            message.mergeData(dataCache.get(message.getId()));
+            dataCache.get(message.getId()).mergeData(message);
         } else {
             dataCache.put(message.getId(), message);
         }
