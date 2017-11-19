@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.springframework.http.client;
+package org.skywalking.apm.plugin.spring.resttemplate.async;
 
 import java.lang.reflect.Method;
 import org.skywalking.apm.agent.core.context.CarrierItem;
@@ -24,6 +24,7 @@ import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.springframework.http.client.AsyncClientHttpRequest;
 
 public class RestRequestInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -36,7 +37,7 @@ public class RestRequestInterceptor implements InstanceMethodsAroundInterceptor 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        AbstractAsyncClientHttpRequest clientHttpRequest = (AbstractAsyncClientHttpRequest)ret;
+        AsyncClientHttpRequest clientHttpRequest = (AsyncClientHttpRequest)ret;
         if (ret != null) {
             Object[] cacheValues = (Object[])objInst.getSkyWalkingDynamicField();
             ContextCarrier contextCarrier = (ContextCarrier)cacheValues[1];
