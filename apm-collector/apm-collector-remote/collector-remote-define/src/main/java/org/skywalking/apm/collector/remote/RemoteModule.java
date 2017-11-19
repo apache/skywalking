@@ -19,8 +19,8 @@
 package org.skywalking.apm.collector.remote;
 
 import org.skywalking.apm.collector.core.module.Module;
+import org.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 import org.skywalking.apm.collector.remote.service.RemoteSenderService;
-import org.skywalking.apm.collector.remote.service.RemoteServerService;
 
 /**
  * @author peng-yongsheng
@@ -34,6 +34,6 @@ public class RemoteModule extends Module {
     }
 
     @Override public Class[] services() {
-        return new Class[] {RemoteServerService.class, RemoteSenderService.class};
+        return new Class[] {RemoteSenderService.class, RemoteDataRegisterService.class};
     }
 }

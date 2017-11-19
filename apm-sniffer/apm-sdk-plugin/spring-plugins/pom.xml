@@ -34,6 +34,7 @@
         <module>mvc-annotation-4.x-plugin</module>
         <module>spring-cloud</module>
         <module>mvc-annotation-3.x-plugin</module>
+        <module>core-patch</module>
     </modules>
     <packaging>pom</packaging>
 
