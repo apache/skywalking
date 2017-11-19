@@ -23,6 +23,7 @@ import com.google.common.cache.CacheBuilder;
 import org.skywalking.apm.collector.cache.service.ServiceNameCacheService;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.Const;
+import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.IServiceNameCacheDAO;
@@ -38,22 +39,30 @@ public class ServiceNameCacheGuavaService implements ServiceNameCacheService {
 
     private final Cache<Integer, String> serviceNameCache = CacheBuilder.newBuilder().maximumSize(10000).build();
 
-    private final IServiceNameCacheDAO serviceNameCacheDAO;
+    private final ModuleManager moduleManager;
+    private IServiceNameCacheDAO serviceNameCacheDAO;
 
     public ServiceNameCacheGuavaService(ModuleManager moduleManager) {
-        this.serviceNameCacheDAO = moduleManager.find(StorageModule.NAME).getService(IServiceNameCacheDAO.class);
+        this.moduleManager = moduleManager;
+    }
+
+    private IServiceNameCacheDAO getServiceNameCacheDAO() {
+        if (ObjectUtils.isEmpty(serviceNameCacheDAO)) {
+            this.serviceNameCacheDAO = moduleManager.find(StorageModule.NAME).getService(IServiceNameCacheDAO.class);
+        }
+        return this.serviceNameCacheDAO;
     }
 
     public String get(int serviceId) {
         String serviceName = Const.EMPTY_STRING;
         try {
-            serviceName = serviceNameCache.get(serviceId, () -> serviceNameCacheDAO.getServiceName(serviceId));
+            serviceName = serviceNameCache.get(serviceId, () -> getServiceNameCacheDAO().getServiceName(serviceId));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
 
         if (StringUtils.isEmpty(serviceName)) {
-            serviceName = serviceNameCacheDAO.getServiceName(serviceId);
+            serviceName = getServiceNameCacheDAO().getServiceName(serviceId);
             if (StringUtils.isNotEmpty(serviceName)) {
                 serviceNameCache.put(serviceId, serviceName);
             }
