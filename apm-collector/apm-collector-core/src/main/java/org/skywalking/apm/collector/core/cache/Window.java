@@ -23,14 +23,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author peng-yongsheng
  */
-public abstract class Window<WindowCollection extends Collection> {
+public abstract class Window<WINDOW_COLLECTION extends Collection> {
 
     private AtomicInteger windowSwitch = new AtomicInteger(0);
 
-    private WindowCollection pointer;
+    private WINDOW_COLLECTION pointer;
 
-    private WindowCollection windowDataA;
-    private WindowCollection windowDataB;
+    private WINDOW_COLLECTION windowDataA;
+    private WINDOW_COLLECTION windowDataB;
 
     protected Window() {
         this.windowDataA = collectionInstance();
@@ -38,7 +38,7 @@ public abstract class Window<WindowCollection extends Collection> {
         this.pointer = windowDataA;
     }
 
-    public abstract WindowCollection collectionInstance();
+    public abstract WINDOW_COLLECTION collectionInstance();
 
     public boolean trySwitchPointer() {
         return windowSwitch.incrementAndGet() == 1 && !getLast().isReading();
@@ -57,7 +57,7 @@ public abstract class Window<WindowCollection extends Collection> {
         getLast().reading();
     }
 
-    protected WindowCollection getCurrentAndWriting() {
+    protected WINDOW_COLLECTION getCurrentAndWriting() {
         if (pointer == windowDataA) {
             windowDataA.writing();
             return windowDataA;
@@ -67,11 +67,11 @@ public abstract class Window<WindowCollection extends Collection> {
         }
     }
 
-    protected WindowCollection getCurrent() {
+    protected WINDOW_COLLECTION getCurrent() {
         return pointer;
     }
 
-    public WindowCollection getLast() {
+    public WINDOW_COLLECTION getLast() {
         if (pointer == windowDataA) {
             return windowDataB;
         } else {
