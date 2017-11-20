@@ -67,7 +67,7 @@ public class JobExecutorInterceptorTest {
         assertNotNull(spans);
         assertThat(spans.size(), is(1));
         assertThat(spans.get(0).transform().getOperationName(), is("fooJob-test"));
-        assertThat(spans.get(0).transform().getComponentId(), is(23));
+        assertThat(spans.get(0).transform().getComponentId(), is(24));
         assertThat(spans.get(0).transform().getTags(0).getKey(), is("sharding_context"));
         assertThat(spans.get(0).transform().getTags(0).getValue(), is("ShardingContext(jobName=fooJob, taskId=fooJob1, shardingTotalCount=2, jobParameter=, shardingItem=1, shardingParameter=test)"));
     }
