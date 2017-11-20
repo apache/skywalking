@@ -115,6 +115,6 @@ public class ConnectionInstrumentation extends ClassInstanceMethodsEnhancePlugin
     }
 
     @Override protected ClassMatch enhanceClass() {
-        return byMultiClassMatch(ENHANCE_CLASS, "com.mysql.cj.jdbc.ConnectionImpl");
+        return byMultiClassMatch(ENHANCE_CLASS, "com.mysql.cj.jdbc.ConnectionImpl", "com.mysql.jdbc.Connection");
     }
 }
