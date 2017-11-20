@@ -165,9 +165,12 @@
                                 <if>
                                     <equals arg1="${project.packaging}" arg2="jar"/>
                                     <then>
-                                        <mkdir dir="${project.build.directory}${sdk.plugin.related.dir}/../../../../packages/skywalking-agent/plugins"/>
-                                        <copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar"
-                                              tofile="${project.build.directory}${sdk.plugin.related.dir}/../../../../packages/skywalking-agent/plugins/${project.artifactId}-${project.version}.jar" overwrite="true"/>
+                                        <mkdir
+                                            dir="${project.build.directory}${sdk.plugin.related.dir}/../../../../packages/skywalking-agent/plugins"/>
+                                        <copy
+                                            file="${project.build.directory}/${project.artifactId}-${project.version}.jar"
+                                            tofile="${project.build.directory}${sdk.plugin.related.dir}/../../../../packages/skywalking-agent/plugins/${project.artifactId}-${project.version}.jar"
+                                            overwrite="true"/>
                                     </then>
                                 </if>
 
