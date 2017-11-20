@@ -79,18 +79,27 @@
             <version>${project.version}</version>
         </dependency>
         <!-- naming jetty provider -->
-        <!-- agent provider -->
+        <!-- agent gRPC provider -->
         <dependency>
             <groupId>org.skywalking</groupId>
             <artifactId>collector-agent-grpc-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- agent gRPC provider -->
+        <!-- agent jetty provider -->
         <dependency>
             <groupId>org.skywalking</groupId>
             <artifactId>collector-agent-jetty-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- agent provider -->
+        <!-- agent jetty provider -->
+        <!-- agent stream provider -->
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-agent-stream-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- agent stream provider -->
         <!-- ui provider -->
         <dependency>
             <groupId>org.skywalking</groupId>
@@ -129,13 +138,6 @@
             <version>${project.version}</version>
         </dependency>
         <!-- queue provider -->
-        <!-- stream provider -->
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>collector-stream-provider</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <!-- stream provider -->
         <!-- cache provider -->
         <dependency>
             <groupId>org.skywalking</groupId>
