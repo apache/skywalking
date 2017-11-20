@@ -33,8 +33,17 @@ import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * {@link MongoDBCollectionInstrumentation} define that the MongoDB Java Driver 2.13.x-2.14.x plugin intercepts the
- * following methods in the {@link com.mongodb.DBCollection}class: 1. aggregate <br/> 2. findAndModify <br/> 3. getCount
- * <br/> 4. drop <br/> 5. dropIndexes <br/> 6. rename <br/> 7. group <br/> 8. distinct <br/> 9. mapReduce <br/>
+ * following methods in the {@link com.mongodb.DBCollection}class:
+ * 1. aggregate <br/>
+ * 2. findAndModify <br/>
+ * 3. getCount
+ * <br/>
+ * 4. drop <br/>
+ * 5. dropIndexes <br/>
+ * 6. rename <br/>
+ * 7. group <br/>
+ * 8. distinct <br/>
+ * 9. mapReduce <br/>
  *
  * @author liyuntao
  */
