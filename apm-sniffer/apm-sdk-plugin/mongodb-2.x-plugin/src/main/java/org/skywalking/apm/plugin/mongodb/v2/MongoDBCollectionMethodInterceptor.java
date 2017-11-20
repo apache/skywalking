@@ -73,7 +73,6 @@ public class MongoDBCollectionMethodInterceptor implements InstanceMethodsAround
             cresult = aresult.getCommandResult();
         }
         if (null != cresult && !cresult.ok()) {
-            activeSpan.tag("CommandError", cresult.getErrorMessage());
             activeSpan.log(cresult.getException());
         }
         ContextManager.stopSpan();
