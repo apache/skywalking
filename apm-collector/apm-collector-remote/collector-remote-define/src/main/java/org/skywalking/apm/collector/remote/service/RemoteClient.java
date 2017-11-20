@@ -26,7 +26,7 @@ import org.skywalking.apm.collector.core.data.Data;
 public interface RemoteClient extends Comparable<RemoteClient> {
     String getAddress();
 
-    void send(int graphId, int nodeId, Data data);
+    void push(int graphId, int nodeId, Data data);
 
     boolean equals(String address);
 }

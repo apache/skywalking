@@ -28,11 +28,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>apm-collector-stream</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>collector-stream-define</module>
-        <module>collector-stream-provider</module>
-    </modules>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
