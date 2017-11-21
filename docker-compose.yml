@@ -36,10 +36,11 @@ services:
       - ZK_ADDRESSES=zookeeper-server:2181
       - ES_ADDRESSES=es-server:9300
       - BIND_HOST=0.0.0.0
-      - UI_BIND_HOST=skywalking-collector
-      - CLUSTER_BIND_HOST=0.0.0.0
+      - AGENT_JETTY_BIND_HOST=skywalking-collector
+      - NAMING_BIND_HOST=skywalking-collector
+      - UI_JETTY_BIND_HOST=skywalking-collector
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:10800/agentstream/grpc"]
+      test: ["CMD", "curl", "-f", "http://skywalking-collector:10800/agent/gRPC"]
       interval: 10s
       timeout: 10s
       retries: 5
