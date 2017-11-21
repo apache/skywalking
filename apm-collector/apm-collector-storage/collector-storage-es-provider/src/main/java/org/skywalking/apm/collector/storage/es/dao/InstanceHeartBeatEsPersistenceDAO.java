@@ -67,4 +67,7 @@ public class InstanceHeartBeatEsPersistenceDAO extends EsDAO implements IInstanc
         source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, data.getHeartBeatTime());
         return getClient().prepareUpdate(InstanceTable.TABLE, data.getId()).setDoc(source);
     }
+
+    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+    }
 }
