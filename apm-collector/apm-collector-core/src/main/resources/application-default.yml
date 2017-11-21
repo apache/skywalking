@@ -6,15 +6,15 @@ cache:
   guava:
 queue:
   disruptor:
-remote:
-  gRPC:
-    host: localhost
-    port: 11800
 naming:
   jetty:
     host: localhost
     port: 10800
     context_path: /
+remote:
+  gRPC:
+    host: localhost
+    port: 11800
 agent_gRPC:
   gRPC:
     host: localhost
