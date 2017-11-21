@@ -53,6 +53,7 @@ public class SegmentEsPersistenceDAO extends EsDAO implements ISegmentPersistenc
     @Override public IndexRequestBuilder prepareBatchInsert(Segment data) {
         Map<String, Object> source = new HashMap<>();
         source.put(SegmentTable.COLUMN_DATA_BINARY, new String(Base64.getEncoder().encode(data.getDataBinary())));
+        source.put(SegmentTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
         logger.debug("segment source: {}", source.toString());
         return getClient().prepareIndex(SegmentTable.TABLE, data.getId()).setSource(source);
     }
