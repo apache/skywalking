@@ -92,4 +92,7 @@ public class NodeMappingH2PersistenceDAO extends H2DAO implements INodeMappingPe
         entity.setParams(values.toArray(new Object[0]));
         return entity;
     }
+
+    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+    }
 }

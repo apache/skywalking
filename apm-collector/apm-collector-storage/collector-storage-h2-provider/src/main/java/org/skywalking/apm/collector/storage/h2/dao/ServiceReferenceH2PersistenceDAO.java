@@ -120,4 +120,7 @@ public class ServiceReferenceH2PersistenceDAO extends H2DAO implements IServiceR
         entity.setParams(values.toArray(new Object[0]));
         return entity;
     }
+
+    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+    }
 }
