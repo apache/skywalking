@@ -49,6 +49,7 @@
         <module>apm-collector-agent-grpc</module>
         <module>apm-collector-agent-jetty</module>
         <module>apm-collector-agent-stream</module>
+        <module>apm-collector-alerting</module>
     </modules>
 
     <properties>
