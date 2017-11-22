@@ -24,8 +24,8 @@ Sky Walking | [English](README.md)
 * 中文QQ群：392443393
 
 # Architecture
-* 3.3.0+版本架构图
-<img src="https://skywalkingtest.github.io/page-resources/3.3.0%2b_architecture.jpg"/>
+* 3.2.5+版本架构图
+<img src="https://skywalkingtest.github.io/page-resources/3.2.5%2b_architecture.jpg"/>
 
 # Document
 [![EN doc](https://img.shields.io/badge/document-English-blue.svg)](docs/README.md) [![cn doc](https://img.shields.io/badge/document-中文-blue.svg)](docs/README_ZH.md)
