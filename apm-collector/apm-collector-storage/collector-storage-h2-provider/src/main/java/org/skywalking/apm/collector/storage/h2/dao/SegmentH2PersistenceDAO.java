@@ -62,4 +62,7 @@ public class SegmentH2PersistenceDAO extends H2DAO implements ISegmentPersistenc
     @Override public H2SqlEntity prepareBatchUpdate(Segment data) {
         return null;
     }
+
+    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+    }
 }

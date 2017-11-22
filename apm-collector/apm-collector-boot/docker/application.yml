@@ -37,3 +37,4 @@ storage:
     cluster_nodes: {ES_ADDRESSES}
     index_shards_number: 2
     index_replicas_number: 0
+    ttl: 7

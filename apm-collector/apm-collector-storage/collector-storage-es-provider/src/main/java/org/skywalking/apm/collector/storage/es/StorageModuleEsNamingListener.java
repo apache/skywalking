@@ -16,19 +16,27 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.storage.base.dao;
+package org.skywalking.apm.collector.storage.es;
 
-import org.skywalking.apm.collector.core.data.Data;
+import org.skywalking.apm.collector.cluster.ClusterModuleListener;
+import org.skywalking.apm.collector.storage.StorageModule;
 
 /**
  * @author peng-yongsheng
  */
-public interface IPersistenceDAO<Insert, Update, DataImpl extends Data> extends DAO {
-    DataImpl get(String id);
+public class StorageModuleEsNamingListener extends ClusterModuleListener {
 
-    Insert prepareBatchInsert(DataImpl data);
+    public static final String PATH = "/" + StorageModule.NAME + "/" + StorageModuleEsProvider.NAME;
 
-    Update prepareBatchUpdate(DataImpl data);
+    @Override public String path() {
+        return PATH;
+    }
 
-    void deleteHistory(Long startTimestamp, Long endTimestamp);
+    @Override public void serverJoinNotify(String serverAddress) {
+
+    }
+
+    @Override public void serverQuitNotify(String serverAddress) {
+
+    }
 }
