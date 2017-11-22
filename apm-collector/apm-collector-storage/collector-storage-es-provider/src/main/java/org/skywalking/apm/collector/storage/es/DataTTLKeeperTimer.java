@@ -22,7 +22,6 @@ import java.util.Calendar;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.skywalking.apm.collector.core.module.ModuleManager;
-import org.skywalking.apm.collector.core.util.CollectionUtils;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.ICpuMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IGCMetricPersistenceDAO;
@@ -40,14 +39,14 @@ import org.skywalking.apm.collector.storage.dao.IServiceReferencePersistenceDAO;
 /**
  * @author peng-yongsheng
  */
-public class HistoryDataDeleteTimer {
+public class DataTTLKeeperTimer {
 
     private final ModuleManager moduleManager;
     private final StorageModuleEsNamingListener namingListener;
     private final String selfAddress;
     private final int daysBefore;
 
-    public HistoryDataDeleteTimer(ModuleManager moduleManager,
+    public DataTTLKeeperTimer(ModuleManager moduleManager,
         StorageModuleEsNamingListener namingListener, String selfAddress, int daysBefore) {
         this.moduleManager = moduleManager;
         this.namingListener = namingListener;
@@ -57,15 +56,6 @@ public class HistoryDataDeleteTimer {
 
     public void start() {
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::delete, 1, 8, TimeUnit.HOURS);
-    }
-
-    private void tryDelete() {
-        if (CollectionUtils.isNotEmpty(namingListener.getAddresses())) {
-            String firstAddress = namingListener.getAddresses().iterator().next();
-            if (firstAddress.equals(selfAddress)) {
-                delete();
-            }
-        }
     }
 
     private void delete() {
@@ -82,11 +72,11 @@ public class HistoryDataDeleteTimer {
         calendar.set(Calendar.SECOND, 59);
         long endTimestamp = calendar.getTimeInMillis();
 
-        deleteJVMMetricData(startTimestamp, endTimestamp);
-        deleteTraceMetricData(startTimestamp, endTimestamp);
+        deleteJVMRelatedData(startTimestamp, endTimestamp);
+        deleteTraceRelatedData(startTimestamp, endTimestamp);
     }
 
-    private void deleteJVMMetricData(long startTimestamp, long endTimestamp) {
+    private void deleteJVMRelatedData(long startTimestamp, long endTimestamp) {
         ICpuMetricPersistenceDAO cpuMetricPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(ICpuMetricPersistenceDAO.class);
         cpuMetricPersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
 
@@ -100,7 +90,7 @@ public class HistoryDataDeleteTimer {
         memoryPoolMetricPersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
     }
 
-    private void deleteTraceMetricData(long startTimestamp, long endTimestamp) {
+    private void deleteTraceRelatedData(long startTimestamp, long endTimestamp) {
         IGlobalTracePersistenceDAO globalTracePersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IGlobalTracePersistenceDAO.class);
         globalTracePersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
 
