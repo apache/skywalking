@@ -36,5 +36,10 @@
             <artifactId>collector-storage-define</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-cluster-define</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

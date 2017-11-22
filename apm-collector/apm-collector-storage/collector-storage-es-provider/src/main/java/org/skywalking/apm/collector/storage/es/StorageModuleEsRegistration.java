@@ -16,19 +16,25 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.storage.base.dao;
+package org.skywalking.apm.collector.storage.es;
 
-import org.skywalking.apm.collector.core.data.Data;
+import org.skywalking.apm.collector.cluster.ModuleRegistration;
+import org.skywalking.apm.collector.core.util.Const;
 
 /**
  * @author peng-yongsheng
  */
-public interface IPersistenceDAO<Insert, Update, DataImpl extends Data> extends DAO {
-    DataImpl get(String id);
+public class StorageModuleEsRegistration extends ModuleRegistration {
 
-    Insert prepareBatchInsert(DataImpl data);
+    private final String virtualHost;
+    private final int virtualPort;
 
-    Update prepareBatchUpdate(DataImpl data);
+    StorageModuleEsRegistration(String virtualHost, int virtualPort) {
+        this.virtualHost = virtualHost;
+        this.virtualPort = virtualPort;
+    }
 
-    void deleteHistory(Long startTimestamp, Long endTimestamp);
+    @Override public Value buildValue() {
+        return new Value(this.virtualHost, virtualPort, Const.EMPTY_STRING);
+    }
 }
