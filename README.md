@@ -21,8 +21,8 @@ Sky Walking | [中文](README_ZH.md)
 * The UI released on [skywalking-ui](https://github.com/OpenSkywalking/sky-walking-ui)
 
 # Architecture
-* Architecture graph for 3.3.0+
-<img src="https://skywalkingtest.github.io/page-resources/3.3.0%2b_architecture.jpg"/>
+* Architecture graph for 3.2.5+
+<img src="https://skywalkingtest.github.io/page-resources/3.2.5%2b_architecture.jpg"/>
 
 # Document
 [![EN doc](https://img.shields.io/badge/document-English-blue.svg)](docs/README.md) [![cn doc](https://img.shields.io/badge/document-中文-blue.svg)](docs/README_ZH.md)
