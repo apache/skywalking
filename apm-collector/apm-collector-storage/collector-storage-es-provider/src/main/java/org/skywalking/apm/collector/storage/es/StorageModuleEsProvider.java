@@ -117,10 +117,10 @@ public class StorageModuleEsProvider extends ModuleProvider {
     private static final String CLUSTER_NODES = "cluster_nodes";
     private static final String INDEX_SHARDS_NUMBER = "index_shards_number";
     private static final String INDEX_REPLICAS_NUMBER = "index_replicas_number";
-    private static final String HISTORY_DELETE_BEFORE_DAYS = "history_delete_before_days";
+    private static final String TIME_TO_LIVE_OF_DATA = "ttl";
 
     private ElasticSearchClient elasticSearchClient;
-    private HistoryDataDeleteTimer deleteTimer;
+    private DataTTLKeeperTimer deleteTimer;
 
     @Override public String name() {
         return NAME;
@@ -163,8 +163,8 @@ public class StorageModuleEsProvider extends ModuleProvider {
         ModuleListenerService moduleListenerService = getManager().find(ClusterModule.NAME).getService(ModuleListenerService.class);
         moduleListenerService.addListener(namingListener);
 
-        Integer beforeDay = (Integer)config.getOrDefault(HISTORY_DELETE_BEFORE_DAYS, 3);
-        deleteTimer = new HistoryDataDeleteTimer(getManager(), namingListener, uuId + 0, beforeDay);
+        Integer beforeDay = (Integer)config.getOrDefault(TIME_TO_LIVE_OF_DATA, 3);
+        deleteTimer = new DataTTLKeeperTimer(getManager(), namingListener, uuId + 0, beforeDay);
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
