@@ -22,8 +22,11 @@ import java.util.HashMap;
 import java.util.Map;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.core.UnexpectedException;
+import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.dao.IGlobalTracePersistenceDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.table.global.GlobalTrace;
@@ -57,5 +60,17 @@ public class GlobalTraceEsPersistenceDAO extends EsDAO implements IGlobalTracePe
         source.put(GlobalTraceTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
         logger.debug("global trace source: {}", source.toString());
         return getClient().prepareIndex(GlobalTraceTable.TABLE, data.getId()).setSource(source);
+    }
+
+    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+        long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
+        long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
+        BulkByScrollResponse response = getClient().prepareDelete()
+            .filter(QueryBuilders.rangeQuery(GlobalTraceTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket))
+            .source(GlobalTraceTable.TABLE)
+            .get();
+
+        long deleted = response.getDeleted();
+        logger.info("Delete {} rows history from {} index.", deleted, GlobalTraceTable.TABLE);
     }
 }

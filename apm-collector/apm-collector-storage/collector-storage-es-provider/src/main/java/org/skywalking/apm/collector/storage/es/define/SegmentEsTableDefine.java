@@ -37,5 +37,6 @@ public class SegmentEsTableDefine extends ElasticSearchTableDefine {
 
     @Override public void initialize() {
         addColumn(new ElasticSearchColumnDefine(SegmentTable.COLUMN_DATA_BINARY, ElasticSearchColumnDefine.Type.Binary.name()));
+        addColumn(new ElasticSearchColumnDefine(SegmentTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
     }
 }

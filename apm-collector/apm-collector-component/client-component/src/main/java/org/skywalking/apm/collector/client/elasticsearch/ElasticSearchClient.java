@@ -37,6 +37,8 @@ import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.index.reindex.DeleteByQueryAction;
+import org.elasticsearch.index.reindex.DeleteByQueryRequestBuilder;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.skywalking.apm.collector.client.Client;
 import org.skywalking.apm.collector.client.ClientException;
@@ -144,6 +146,10 @@ public class ElasticSearchClient implements Client {
 
     public GetRequestBuilder prepareGet(String indexName, String id) {
         return client.prepareGet(indexName, "type", id);
+    }
+
+    public DeleteByQueryRequestBuilder prepareDelete() {
+        return DeleteByQueryAction.INSTANCE.newRequestBuilder(client);
     }
 
     public MultiGetRequestBuilder prepareMultiGet() {

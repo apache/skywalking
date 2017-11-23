@@ -30,6 +30,7 @@ import org.skywalking.apm.collector.remote.grpc.service.selector.ForeverFirstSel
 import org.skywalking.apm.collector.remote.grpc.service.selector.HashCodeSelector;
 import org.skywalking.apm.collector.remote.grpc.service.selector.RollingSelector;
 import org.skywalking.apm.collector.remote.service.RemoteClient;
+import org.skywalking.apm.collector.remote.service.RemoteDataIDGetter;
 import org.skywalking.apm.collector.remote.service.RemoteSenderService;
 import org.skywalking.apm.collector.remote.service.Selector;
 
@@ -38,13 +39,15 @@ import org.skywalking.apm.collector.remote.service.Selector;
  */
 public class GRPCRemoteSenderService extends ClusterModuleListener implements RemoteSenderService {
 
-    public static final String PATH = "/" + RemoteModule.NAME + "/" + RemoteModuleGRPCProvider.NAME;
+    private static final String PATH = "/" + RemoteModule.NAME + "/" + RemoteModuleGRPCProvider.NAME;
     private final GRPCRemoteClientService service;
     private List<RemoteClient> remoteClients;
     private final String selfAddress;
     private final HashCodeSelector hashCodeSelector;
     private final ForeverFirstSelector foreverFirstSelector;
     private final RollingSelector rollingSelector;
+    private final int channelSize;
+    private final int bufferSize;
 
     @Override public Mode send(int graphId, int nodeId, Data data, Selector selector) {
         RemoteClient remoteClient;
@@ -66,18 +69,21 @@ public class GRPCRemoteSenderService extends ClusterModuleListener implements Re
         if (remoteClient.equals(selfAddress)) {
             return Mode.Local;
         } else {
-            remoteClient.send(graphId, nodeId, data);
+            remoteClient.push(graphId, nodeId, data);
             return Mode.Remote;
         }
     }
 
-    public GRPCRemoteSenderService(String host, int port) {
-        this.service = new GRPCRemoteClientService();
+    public GRPCRemoteSenderService(String host, int port, int channelSize, int bufferSize,
+        RemoteDataIDGetter remoteDataIDGetter) {
+        this.service = new GRPCRemoteClientService(remoteDataIDGetter);
         this.remoteClients = new ArrayList<>();
         this.selfAddress = host + ":" + String.valueOf(port);
         this.hashCodeSelector = new HashCodeSelector();
         this.foreverFirstSelector = new ForeverFirstSelector();
         this.rollingSelector = new RollingSelector();
+        this.channelSize = channelSize;
+        this.bufferSize = bufferSize;
     }
 
     @Override public String path() {
@@ -90,7 +96,7 @@ public class GRPCRemoteSenderService extends ClusterModuleListener implements Re
 
         String host = serverAddress.split(":")[0];
         int port = Integer.parseInt(serverAddress.split(":")[1]);
-        RemoteClient remoteClient = service.create(host, port);
+        RemoteClient remoteClient = service.create(host, port, channelSize, bufferSize);
         newRemoteClients.add(remoteClient);
 
         Collections.sort(newRemoteClients);

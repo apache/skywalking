@@ -183,6 +183,7 @@ public abstract class Data extends EndOfBatchQueueMessage {
         for (Boolean dataBoolean : dataBooleans) {
             dataStr.append(dataBoolean).append(",");
         }
+        dataStr.append("]");
         return dataStr.toString();
     }
 }

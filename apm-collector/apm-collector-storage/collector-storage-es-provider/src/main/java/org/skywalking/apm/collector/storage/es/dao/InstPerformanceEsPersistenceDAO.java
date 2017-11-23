@@ -23,7 +23,10 @@ import java.util.Map;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.dao.IInstPerformancePersistenceDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.table.instance.InstPerformance;
@@ -79,5 +82,17 @@ public class InstPerformanceEsPersistenceDAO extends EsDAO implements IInstPerfo
         source.put(InstPerformanceTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
         return getClient().prepareUpdate(InstPerformanceTable.TABLE, data.getId()).setDoc(source);
+    }
+
+    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+        long startTimeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(startTimestamp);
+        long endTimeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(endTimestamp);
+        BulkByScrollResponse response = getClient().prepareDelete()
+            .filter(QueryBuilders.rangeQuery(InstPerformanceTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket))
+            .source(InstPerformanceTable.TABLE)
+            .get();
+
+        long deleted = response.getDeleted();
+        logger.info("Delete {} rows history from {} index.", deleted, InstPerformanceTable.TABLE);
     }
 }

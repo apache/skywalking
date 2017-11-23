@@ -19,8 +19,12 @@
 package org.skywalking.apm.collector.storage.es;
 
 import java.util.Properties;
+import java.util.UUID;
 import org.skywalking.apm.collector.client.ClientException;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.skywalking.apm.collector.cluster.ClusterModule;
+import org.skywalking.apm.collector.cluster.service.ModuleListenerService;
+import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
 import org.skywalking.apm.collector.core.module.Module;
 import org.skywalking.apm.collector.core.module.ModuleProvider;
 import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
@@ -107,16 +111,19 @@ public class StorageModuleEsProvider extends ModuleProvider {
 
     private final Logger logger = LoggerFactory.getLogger(StorageModuleEsProvider.class);
 
+    public static final String NAME = "elasticsearch";
     private static final String CLUSTER_NAME = "cluster_name";
     private static final String CLUSTER_TRANSPORT_SNIFFER = "cluster_transport_sniffer";
     private static final String CLUSTER_NODES = "cluster_nodes";
     private static final String INDEX_SHARDS_NUMBER = "index_shards_number";
     private static final String INDEX_REPLICAS_NUMBER = "index_replicas_number";
+    private static final String TIME_TO_LIVE_OF_DATA = "ttl";
 
     private ElasticSearchClient elasticSearchClient;
+    private DataTTLKeeperTimer deleteTimer;
 
     @Override public String name() {
-        return "elasticsearch";
+        return NAME;
     }
 
     @Override public Class<? extends Module> module() {
@@ -147,14 +154,25 @@ public class StorageModuleEsProvider extends ModuleProvider {
         } catch (ClientException | StorageException e) {
             logger.error(e.getMessage(), e);
         }
+
+        String uuId = UUID.randomUUID().toString();
+        ModuleRegisterService moduleRegisterService = getManager().find(ClusterModule.NAME).getService(ModuleRegisterService.class);
+        moduleRegisterService.register(StorageModule.NAME, this.name(), new StorageModuleEsRegistration(uuId, 0));
+
+        StorageModuleEsNamingListener namingListener = new StorageModuleEsNamingListener();
+        ModuleListenerService moduleListenerService = getManager().find(ClusterModule.NAME).getService(ModuleListenerService.class);
+        moduleListenerService.addListener(namingListener);
+
+        Integer beforeDay = (Integer)config.getOrDefault(TIME_TO_LIVE_OF_DATA, 3);
+        deleteTimer = new DataTTLKeeperTimer(getManager(), namingListener, uuId + 0, beforeDay);
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
-
+        deleteTimer.start();
     }
 
     @Override public String[] requiredModules() {
-        return new String[0];
+        return new String[] {ClusterModule.NAME};
     }
 
     private void registerCacheDAO() throws ServiceNotProvidedException {
