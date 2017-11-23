@@ -18,24 +18,34 @@
 
 package org.skywalking.apm.collector.baseline.computing;
 
-import org.skywalking.apm.collector.baseline.computing.service.ComputingService;
-import org.skywalking.apm.collector.core.module.Module;
-
 /**
- * The <code>ComputingModule</code> defines the required service interfaces.
- *
- * @author wu-sheng, zhang-chen
+ * @author zhang-chen
  */
-public class ComputingModule extends Module {
-    public static final String NAME = "baseline-computing";
+public class Metric {
 
-    @Override
-    public String name() {
-        return NAME;
+    /**
+     * times of a method has been called
+     */
+    int call;
+
+    /**
+     * average response time
+     */
+    int avg;
+
+    public int getCall() {
+        return call;
     }
 
-    @Override
-    public Class[] services() {
-        return new Class[] {ComputingService.class};
+    public void setCall(int call) {
+        this.call = call;
+    }
+
+    public int getAvg() {
+        return avg;
+    }
+
+    public void setAvg(int avg) {
+        this.avg = avg;
     }
 }
