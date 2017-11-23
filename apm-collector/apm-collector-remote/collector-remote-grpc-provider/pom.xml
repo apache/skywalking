@@ -23,7 +23,7 @@
     <parent>
         <artifactId>apm-collector-remote</artifactId>
         <groupId>org.skywalking</groupId>
-        <version>3.2.5-2017</version>
+        <version>3.3.0-2017</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -39,6 +39,11 @@
         <dependency>
             <groupId>org.skywalking</groupId>
             <artifactId>collector-grpc-manager-define</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-datacarrier</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

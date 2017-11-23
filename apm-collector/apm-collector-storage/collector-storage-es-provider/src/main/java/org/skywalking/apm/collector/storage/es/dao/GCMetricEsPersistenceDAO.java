@@ -22,16 +22,23 @@ import java.util.HashMap;
 import java.util.Map;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.dao.IGCMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.table.jvm.GCMetric;
 import org.skywalking.apm.collector.storage.table.jvm.GCMetricTable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class GCMetricEsPersistenceDAO extends EsDAO implements IGCMetricPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, GCMetric> {
+
+    private final Logger logger = LoggerFactory.getLogger(GCMetricEsPersistenceDAO.class);
 
     public GCMetricEsPersistenceDAO(ElasticSearchClient client) {
         super(client);
@@ -54,5 +61,17 @@ public class GCMetricEsPersistenceDAO extends EsDAO implements IGCMetricPersiste
 
     @Override public UpdateRequestBuilder prepareBatchUpdate(GCMetric gcMetric) {
         return null;
+    }
+
+    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+        long startTimeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(startTimestamp);
+        long endTimeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(endTimestamp);
+        BulkByScrollResponse response = getClient().prepareDelete()
+            .filter(QueryBuilders.rangeQuery(GCMetricTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket))
+            .source(GCMetricTable.TABLE)
+            .get();
+
+        long deleted = response.getDeleted();
+        logger.info("Delete {} rows history from {} index.", deleted, GCMetricTable.TABLE);
     }
 }

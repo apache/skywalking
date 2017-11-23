@@ -18,7 +18,6 @@
 
 package org.skywalking.apm.collector.remote.grpc.service;
 
-import com.google.protobuf.ByteString;
 import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
 import org.skywalking.apm.collector.remote.service.RemoteSerializeService;
@@ -31,22 +30,22 @@ public class GRPCRemoteSerializeService implements RemoteSerializeService<Remote
     @Override public RemoteData.Builder serialize(Data data) {
         RemoteData.Builder builder = RemoteData.newBuilder();
         for (int i = 0; i < data.getDataStringsCount(); i++) {
-            builder.setDataStrings(i, data.getDataString(i));
+            builder.addDataStrings(data.getDataString(i));
         }
         for (int i = 0; i < data.getDataIntegersCount(); i++) {
-            builder.setDataIntegers(i, data.getDataInteger(i));
+            builder.addDataIntegers(data.getDataInteger(i));
         }
         for (int i = 0; i < data.getDataLongsCount(); i++) {
-            builder.setDataLongs(i, data.getDataLong(i));
+            builder.addDataLongs(data.getDataLong(i));
         }
         for (int i = 0; i < data.getDataBooleansCount(); i++) {
-            builder.setDataBooleans(i, data.getDataBoolean(i));
+            builder.addDataBooleans(data.getDataBoolean(i));
         }
         for (int i = 0; i < data.getDataDoublesCount(); i++) {
-            builder.setDataDoubles(i, data.getDataDouble(i));
+            builder.addDataDoubles(data.getDataDouble(i));
         }
         for (int i = 0; i < data.getDataBytesCount(); i++) {
-            builder.setDataBytes(i, ByteString.copyFrom(data.getDataBytes(i)));
+//            builder.addDataBytes(ByteString.copyFrom(data.getDataBytes(i)));
         }
         return builder;
     }

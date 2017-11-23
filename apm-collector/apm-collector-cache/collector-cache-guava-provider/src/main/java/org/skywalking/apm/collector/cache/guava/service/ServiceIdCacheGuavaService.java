@@ -23,6 +23,7 @@ import com.google.common.cache.CacheBuilder;
 import org.skywalking.apm.collector.cache.service.ServiceIdCacheService;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.Const;
+import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.IServiceNameCacheDAO;
 import org.slf4j.Logger;
@@ -37,22 +38,30 @@ public class ServiceIdCacheGuavaService implements ServiceIdCacheService {
 
     private final Cache<String, Integer> serviceIdCache = CacheBuilder.newBuilder().maximumSize(1000).build();
 
-    private final IServiceNameCacheDAO serviceNameCacheDAO;
+    private final ModuleManager moduleManager;
+    private IServiceNameCacheDAO serviceNameCacheDAO;
 
     public ServiceIdCacheGuavaService(ModuleManager moduleManager) {
-        this.serviceNameCacheDAO = moduleManager.find(StorageModule.NAME).getService(IServiceNameCacheDAO.class);
+        this.moduleManager = moduleManager;
+    }
+
+    private IServiceNameCacheDAO getServiceNameCacheDAO() {
+        if (ObjectUtils.isEmpty(serviceNameCacheDAO)) {
+            this.serviceNameCacheDAO = moduleManager.find(StorageModule.NAME).getService(IServiceNameCacheDAO.class);
+        }
+        return this.serviceNameCacheDAO;
     }
 
     public int get(int applicationId, String serviceName) {
         int serviceId = 0;
         try {
-            serviceId = serviceIdCache.get(applicationId + Const.ID_SPLIT + serviceName, () -> serviceNameCacheDAO.getServiceId(applicationId, serviceName));
+            serviceId = serviceIdCache.get(applicationId + Const.ID_SPLIT + serviceName, () -> getServiceNameCacheDAO().getServiceId(applicationId, serviceName));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
 
         if (serviceId == 0) {
-            serviceId = serviceNameCacheDAO.getServiceId(applicationId, serviceName);
+            serviceId = getServiceNameCacheDAO().getServiceId(applicationId, serviceName);
             if (serviceId != 0) {
                 serviceIdCache.put(applicationId + Const.ID_SPLIT + serviceName, serviceId);
             }

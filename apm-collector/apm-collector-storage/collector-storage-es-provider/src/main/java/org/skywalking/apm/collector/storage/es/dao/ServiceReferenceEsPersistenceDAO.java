@@ -23,7 +23,10 @@ import java.util.Map;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.dao.IServiceReferencePersistenceDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.table.serviceref.ServiceReference;
@@ -96,5 +99,17 @@ public class ServiceReferenceEsPersistenceDAO extends EsDAO implements IServiceR
         source.put(ServiceReferenceTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
         return getClient().prepareUpdate(ServiceReferenceTable.TABLE, data.getId()).setDoc(source);
+    }
+
+    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+        long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
+        long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
+        BulkByScrollResponse response = getClient().prepareDelete()
+            .filter(QueryBuilders.rangeQuery(ServiceReferenceTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket))
+            .source(ServiceReferenceTable.TABLE)
+            .get();
+
+        long deleted = response.getDeleted();
+        logger.info("Delete {} rows history from {} index.", deleted, ServiceReferenceTable.TABLE);
     }
 }

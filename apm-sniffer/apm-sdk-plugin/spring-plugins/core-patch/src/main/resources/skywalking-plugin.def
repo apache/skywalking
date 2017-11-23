@@ -1,0 +1,1 @@
+spring-core-patch=org.skywalking.apm.plugin.spring.patch.define.AopProxyFactoryInstrumentation
