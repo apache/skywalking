@@ -23,8 +23,14 @@ package org.skywalking.apm.collector.baseline.computing;
  */
 public class Metric {
 
+    /**
+     * times of a method has been called
+     */
     int call;
 
+    /**
+     * average response time
+     */
     int avg;
 
     public int getCall() {
