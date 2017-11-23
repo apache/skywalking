@@ -36,6 +36,6 @@ public class ComputingModule extends Module {
 
     @Override
     public Class[] services() {
-        return new Class[]{ComputingService.class};
+        return new Class[] {ComputingService.class};
     }
 }

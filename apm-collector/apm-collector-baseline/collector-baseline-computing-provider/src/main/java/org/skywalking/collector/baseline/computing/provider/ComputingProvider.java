@@ -20,14 +20,16 @@ package org.skywalking.collector.baseline.computing.provider;
 
 import java.util.Properties;
 import org.skywalking.apm.collector.baseline.computing.ComputingModule;
+import org.skywalking.apm.collector.baseline.computing.service.ComputingService;
 import org.skywalking.apm.collector.core.module.Module;
 import org.skywalking.apm.collector.core.module.ModuleProvider;
 import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.skywalking.collector.baseline.computing.provider.service.ComputingServiceImpl;
 
 /**
  * The <code>ComputingProvider</code> is the default implementation of {@link ComputingModule}
  *
- * @author wu-sheng
+ * @author wu-sheng, zhang-chen
  */
 public class ComputingProvider extends ModuleProvider {
     public static final String NAME = "default";
@@ -41,7 +43,7 @@ public class ComputingProvider extends ModuleProvider {
     }
 
     @Override public void prepare(Properties config) throws ServiceNotProvidedException {
-
+        this.registerServiceImplementation(ComputingService.class, new ComputingServiceImpl());
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {

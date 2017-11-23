@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  * Project repository: https://github.com/OpenSkywalking/skywalking
- *
  */
 
 package org.skywalking.apm.collector.baseline.computing.service;

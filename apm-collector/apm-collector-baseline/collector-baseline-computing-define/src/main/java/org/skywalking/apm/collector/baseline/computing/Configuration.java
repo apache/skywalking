@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  * Project repository: https://github.com/OpenSkywalking/skywalking
- *
  */
 
 package org.skywalking.apm.collector.baseline.computing;
@@ -25,17 +24,16 @@ package org.skywalking.apm.collector.baseline.computing;
 public class Configuration {
 
     /**
-     * how many highest and lowest value will be discarded, when computing average.
-     * example: we have eight days original performance data, if we set discard as four,
-     * two highest value and two lowest value will be discarded in order to ensure the baseline won't disturb by some extreme data.
-     * "discard" must be even number
+     * how many highest and lowest value will be discarded, when computing average. example: we have eight days original
+     * performance data, if we set discard as four, two highest value and two lowest value will be discarded in order to
+     * ensure the baseline won't disturb by some extreme data. "discard" must be even number
      */
     int discard;
 
     /**
-     * how many nearby values will be used to computing gaussian distribution in one day performance data
-     * if we set extent as five, two(extent / 2) values on the left and two values on the right will impact currently computing value
-     * "extent" must be odd number
+     * how many nearby values will be used to computing gaussian distribution in one day performance data if we set
+     * extent as five, two(extent / 2) values on the left and two values on the right will impact currently computing
+     * value "extent" must be odd number
      */
     int extent;
 
