@@ -6,8 +6,7 @@ services:
 language: java
 install:
   - jdk_switcher use oraclejdk8
-  - mvn clean install --quiet
+  - mvn clean install --quiet jacoco:report coveralls:report
 
 after_success:
-  - mvn clean test --quiet jacoco:report coveralls:report
   - bash ./travis/push_image.sh
