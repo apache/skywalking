@@ -29,7 +29,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.storage.dao.INodeComponentUIDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
-import org.skywalking.apm.collector.storage.table.node.NodeComponentTable;
+import org.skywalking.apm.collector.storage.table.node.ApplicationComponentTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NodeComponentEsUIDAO extends EsDAO implements INodeComponentUIDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(NodeComponentEsPersistenceDAO.class);
+    private final Logger logger = LoggerFactory.getLogger(ApplicationComponentEsPersistenceDAO.class);
 
     public NodeComponentEsUIDAO(ElasticSearchClient client) {
         super(client);
@@ -52,18 +52,18 @@ public class NodeComponentEsUIDAO extends EsDAO implements INodeComponentUIDAO {
     }
 
     private JsonArray aggregationByComponentId(long startTime, long endTime) {
-        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(NodeComponentTable.TABLE);
-        searchRequestBuilder.setTypes(NodeComponentTable.TABLE_TYPE);
+        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(ApplicationComponentTable.TABLE);
+        searchRequestBuilder.setTypes(ApplicationComponentTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-        searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(NodeComponentTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
+        searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(ApplicationComponentTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
         searchRequestBuilder.setSize(0);
 
-        searchRequestBuilder.addAggregation(AggregationBuilders.terms(NodeComponentTable.COLUMN_COMPONENT_ID).field(NodeComponentTable.COLUMN_COMPONENT_ID).size(100)
-            .subAggregation(AggregationBuilders.terms(NodeComponentTable.COLUMN_PEER_ID).field(NodeComponentTable.COLUMN_PEER_ID).size(100)));
+        searchRequestBuilder.addAggregation(AggregationBuilders.terms(ApplicationComponentTable.COLUMN_COMPONENT_ID).field(ApplicationComponentTable.COLUMN_COMPONENT_ID).size(100)
+            .subAggregation(AggregationBuilders.terms(ApplicationComponentTable.COLUMN_PEER_ID).field(ApplicationComponentTable.COLUMN_PEER_ID).size(100)));
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
-        Terms componentIdTerms = searchResponse.getAggregations().get(NodeComponentTable.COLUMN_COMPONENT_ID);
+        Terms componentIdTerms = searchResponse.getAggregations().get(ApplicationComponentTable.COLUMN_COMPONENT_ID);
         JsonArray nodeComponentArray = new JsonArray();
         for (Terms.Bucket componentIdBucket : componentIdTerms.getBuckets()) {
             int componentId = componentIdBucket.getKeyAsNumber().intValue();
@@ -74,13 +74,13 @@ public class NodeComponentEsUIDAO extends EsDAO implements INodeComponentUIDAO {
     }
 
     private void buildComponentArray(Terms.Bucket componentBucket, int componentId, JsonArray nodeComponentArray) {
-        Terms peerIdTerms = componentBucket.getAggregations().get(NodeComponentTable.COLUMN_PEER_ID);
+        Terms peerIdTerms = componentBucket.getAggregations().get(ApplicationComponentTable.COLUMN_PEER_ID);
         for (Terms.Bucket peerIdBucket : peerIdTerms.getBuckets()) {
             int peerId = peerIdBucket.getKeyAsNumber().intValue();
 
             JsonObject nodeComponentObj = new JsonObject();
-            nodeComponentObj.addProperty(NodeComponentTable.COLUMN_COMPONENT_ID, componentId);
-            nodeComponentObj.addProperty(NodeComponentTable.COLUMN_PEER_ID, peerId);
+            nodeComponentObj.addProperty(ApplicationComponentTable.COLUMN_COMPONENT_ID, componentId);
+            nodeComponentObj.addProperty(ApplicationComponentTable.COLUMN_PEER_ID, peerId);
             nodeComponentArray.add(nodeComponentObj);
         }
     }

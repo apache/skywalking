@@ -20,7 +20,7 @@ package org.skywalking.apm.collector.storage.es.define;
 
 import org.skywalking.apm.collector.storage.es.base.define.ElasticSearchColumnDefine;
 import org.skywalking.apm.collector.storage.es.base.define.ElasticSearchTableDefine;
-import org.skywalking.apm.collector.storage.table.node.NodeComponentTable;
+import org.skywalking.apm.collector.storage.table.node.ApplicationComponentTable;
 
 /**
  * @author peng-yongsheng
@@ -28,7 +28,7 @@ import org.skywalking.apm.collector.storage.table.node.NodeComponentTable;
 public class NodeComponentEsTableDefine extends ElasticSearchTableDefine {
 
     public NodeComponentEsTableDefine() {
-        super(NodeComponentTable.TABLE);
+        super(ApplicationComponentTable.TABLE);
     }
 
     @Override public int refreshInterval() {
@@ -36,8 +36,8 @@ public class NodeComponentEsTableDefine extends ElasticSearchTableDefine {
     }
 
     @Override public void initialize() {
-        addColumn(new ElasticSearchColumnDefine(NodeComponentTable.COLUMN_COMPONENT_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(NodeComponentTable.COLUMN_PEER_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(NodeComponentTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationComponentTable.COLUMN_COMPONENT_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationComponentTable.COLUMN_PEER_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationComponentTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
     }
 }

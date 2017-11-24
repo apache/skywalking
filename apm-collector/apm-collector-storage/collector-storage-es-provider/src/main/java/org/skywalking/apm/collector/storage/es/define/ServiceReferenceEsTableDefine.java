@@ -20,7 +20,7 @@ package org.skywalking.apm.collector.storage.es.define;
 
 import org.skywalking.apm.collector.storage.es.base.define.ElasticSearchColumnDefine;
 import org.skywalking.apm.collector.storage.es.base.define.ElasticSearchTableDefine;
-import org.skywalking.apm.collector.storage.table.serviceref.ServiceReferenceTable;
+import org.skywalking.apm.collector.storage.table.serviceref.ServiceReferenceMetricTable;
 
 /**
  * @author peng-yongsheng
@@ -28,7 +28,7 @@ import org.skywalking.apm.collector.storage.table.serviceref.ServiceReferenceTab
 public class ServiceReferenceEsTableDefine extends ElasticSearchTableDefine {
 
     public ServiceReferenceEsTableDefine() {
-        super(ServiceReferenceTable.TABLE);
+        super(ServiceReferenceMetricTable.TABLE);
     }
 
     @Override public int refreshInterval() {
@@ -36,17 +36,17 @@ public class ServiceReferenceEsTableDefine extends ElasticSearchTableDefine {
     }
 
     @Override public void initialize() {
-        addColumn(new ElasticSearchColumnDefine(ServiceReferenceTable.COLUMN_AGG, ElasticSearchColumnDefine.Type.Keyword.name()));
-        addColumn(new ElasticSearchColumnDefine(ServiceReferenceTable.COLUMN_ENTRY_SERVICE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(ServiceReferenceTable.COLUMN_S1_LTE, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(ServiceReferenceTable.COLUMN_S3_LTE, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(ServiceReferenceTable.COLUMN_S5_LTE, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(ServiceReferenceTable.COLUMN_S5_GT, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(ServiceReferenceTable.COLUMN_SUMMARY, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(ServiceReferenceTable.COLUMN_ERROR, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(ServiceReferenceTable.COLUMN_COST_SUMMARY, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(ServiceReferenceTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceReferenceMetricTable.COLUMN_AGG, ElasticSearchColumnDefine.Type.Keyword.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceReferenceMetricTable.COLUMN_S1_LTE, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceReferenceMetricTable.COLUMN_S3_LTE, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceReferenceMetricTable.COLUMN_S5_LTE, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceReferenceMetricTable.COLUMN_S5_GT, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceReferenceMetricTable.COLUMN_SUMMARY, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceReferenceMetricTable.COLUMN_ERROR, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceReferenceMetricTable.COLUMN_COST_SUMMARY, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
     }
 }

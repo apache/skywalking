@@ -20,25 +20,25 @@ package org.skywalking.apm.collector.agent.stream.graph;
 
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SegmentStandardization;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SegmentStandardizationWorker;
+import org.skywalking.apm.collector.agent.stream.worker.trace.application.ApplicationReferenceMetricAggregationWorker;
+import org.skywalking.apm.collector.agent.stream.worker.trace.application.ApplicationReferenceMetricPersistenceWorker;
+import org.skywalking.apm.collector.agent.stream.worker.trace.application.ApplicationReferenceMetricRemoteWorker;
 import org.skywalking.apm.collector.agent.stream.worker.trace.global.GlobalTracePersistenceWorker;
-import org.skywalking.apm.collector.agent.stream.worker.trace.instance.InstPerformancePersistenceWorker;
-import org.skywalking.apm.collector.agent.stream.worker.trace.node.NodeComponentAggregationWorker;
-import org.skywalking.apm.collector.agent.stream.worker.trace.node.NodeComponentPersistenceWorker;
-import org.skywalking.apm.collector.agent.stream.worker.trace.node.NodeComponentRemoteWorker;
-import org.skywalking.apm.collector.agent.stream.worker.trace.node.NodeMappingAggregationWorker;
-import org.skywalking.apm.collector.agent.stream.worker.trace.node.NodeMappingPersistenceWorker;
-import org.skywalking.apm.collector.agent.stream.worker.trace.node.NodeMappingRemoteWorker;
-import org.skywalking.apm.collector.agent.stream.worker.trace.noderef.NodeReferenceAggregationWorker;
-import org.skywalking.apm.collector.agent.stream.worker.trace.noderef.NodeReferencePersistenceWorker;
-import org.skywalking.apm.collector.agent.stream.worker.trace.noderef.NodeReferenceRemoteWorker;
+import org.skywalking.apm.collector.agent.stream.worker.trace.instance.InstanceMetricPersistenceWorker;
+import org.skywalking.apm.collector.agent.stream.worker.trace.application.ApplicationComponentAggregationWorker;
+import org.skywalking.apm.collector.agent.stream.worker.trace.application.ApplicationComponentPersistenceWorker;
+import org.skywalking.apm.collector.agent.stream.worker.trace.application.ApplicationComponentRemoteWorker;
+import org.skywalking.apm.collector.agent.stream.worker.trace.application.ApplicationMappingAggregationWorker;
+import org.skywalking.apm.collector.agent.stream.worker.trace.application.ApplicationMappingPersistenceWorker;
+import org.skywalking.apm.collector.agent.stream.worker.trace.application.ApplicationMappingRemoteWorker;
 import org.skywalking.apm.collector.agent.stream.worker.trace.segment.SegmentCostPersistenceWorker;
 import org.skywalking.apm.collector.agent.stream.worker.trace.segment.SegmentPersistenceWorker;
 import org.skywalking.apm.collector.agent.stream.worker.trace.service.ServiceEntryAggregationWorker;
 import org.skywalking.apm.collector.agent.stream.worker.trace.service.ServiceEntryPersistenceWorker;
 import org.skywalking.apm.collector.agent.stream.worker.trace.service.ServiceEntryRemoteWorker;
-import org.skywalking.apm.collector.agent.stream.worker.trace.serviceref.ServiceReferenceAggregationWorker;
-import org.skywalking.apm.collector.agent.stream.worker.trace.serviceref.ServiceReferencePersistenceWorker;
-import org.skywalking.apm.collector.agent.stream.worker.trace.serviceref.ServiceReferenceRemoteWorker;
+import org.skywalking.apm.collector.agent.stream.worker.trace.service.ServiceReferenceMetricAggregationWorker;
+import org.skywalking.apm.collector.agent.stream.worker.trace.service.ServiceReferenceMetricPersistenceWorker;
+import org.skywalking.apm.collector.agent.stream.worker.trace.service.ServiceReferenceMetricRemoteWorker;
 import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.module.ModuleManager;
@@ -47,14 +47,14 @@ import org.skywalking.apm.collector.queue.service.QueueCreatorService;
 import org.skywalking.apm.collector.remote.RemoteModule;
 import org.skywalking.apm.collector.remote.service.RemoteSenderService;
 import org.skywalking.apm.collector.storage.table.global.GlobalTrace;
-import org.skywalking.apm.collector.storage.table.instance.InstPerformance;
-import org.skywalking.apm.collector.storage.table.node.NodeComponent;
-import org.skywalking.apm.collector.storage.table.node.NodeMapping;
-import org.skywalking.apm.collector.storage.table.noderef.NodeReference;
+import org.skywalking.apm.collector.storage.table.instance.InstanceMetric;
+import org.skywalking.apm.collector.storage.table.node.ApplicationComponent;
+import org.skywalking.apm.collector.storage.table.node.ApplicationMapping;
+import org.skywalking.apm.collector.storage.table.noderef.ApplicationReferenceMetric;
 import org.skywalking.apm.collector.storage.table.segment.Segment;
 import org.skywalking.apm.collector.storage.table.segment.SegmentCost;
 import org.skywalking.apm.collector.storage.table.service.ServiceEntry;
-import org.skywalking.apm.collector.storage.table.serviceref.ServiceReference;
+import org.skywalking.apm.collector.storage.table.serviceref.ServiceReferenceMetric;
 import org.skywalking.apm.collector.stream.worker.base.WorkerCreateListener;
 
 /**
@@ -63,10 +63,10 @@ import org.skywalking.apm.collector.stream.worker.base.WorkerCreateListener;
 public class TraceStreamGraph {
 
     public static final int GLOBAL_TRACE_GRAPH_ID = 300;
-    public static final int INST_PERFORMANCE_GRAPH_ID = 301;
+    public static final int INSTANCE_METRIC_GRAPH_ID = 301;
     public static final int NODE_COMPONENT_GRAPH_ID = 302;
     public static final int NODE_MAPPING_GRAPH_ID = 303;
-    public static final int NODE_REFERENCE_GRAPH_ID = 304;
+    public static final int APPLICATION_REFERENCE_METRIC_GRAPH_ID = 304;
     public static final int SERVICE_ENTRY_GRAPH_ID = 305;
     public static final int SERVICE_REFERENCE_GRAPH_ID = 306;
     public static final int SEGMENT_GRAPH_ID = 307;
@@ -98,44 +98,44 @@ public class TraceStreamGraph {
     }
 
     @SuppressWarnings("unchecked")
-    public void createInstPerformanceGraph() {
-        QueueCreatorService<InstPerformance> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
+    public void createInstanceMetricGraph() {
+        QueueCreatorService<InstanceMetric> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
 
-        Graph<InstPerformance> graph = GraphManager.INSTANCE.createIfAbsent(INST_PERFORMANCE_GRAPH_ID, InstPerformance.class);
-        graph.addNode(new InstPerformancePersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
+        Graph<InstanceMetric> graph = GraphManager.INSTANCE.createIfAbsent(INSTANCE_METRIC_GRAPH_ID, InstanceMetric.class);
+        graph.addNode(new InstanceMetricPersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
     }
 
     @SuppressWarnings("unchecked")
     public void createNodeComponentGraph() {
-        QueueCreatorService<NodeComponent> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
+        QueueCreatorService<ApplicationComponent> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
-        Graph<NodeComponent> graph = GraphManager.INSTANCE.createIfAbsent(NODE_COMPONENT_GRAPH_ID, NodeComponent.class);
-        graph.addNode(new NodeComponentAggregationWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener))
-            .addNext(new NodeComponentRemoteWorker.Factory(moduleManager, remoteSenderService, NODE_COMPONENT_GRAPH_ID).create(workerCreateListener))
-            .addNext(new NodeComponentPersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
+        Graph<ApplicationComponent> graph = GraphManager.INSTANCE.createIfAbsent(NODE_COMPONENT_GRAPH_ID, ApplicationComponent.class);
+        graph.addNode(new ApplicationComponentAggregationWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener))
+            .addNext(new ApplicationComponentRemoteWorker.Factory(moduleManager, remoteSenderService, NODE_COMPONENT_GRAPH_ID).create(workerCreateListener))
+            .addNext(new ApplicationComponentPersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
     }
 
     @SuppressWarnings("unchecked")
     public void createNodeMappingGraph() {
-        QueueCreatorService<NodeMapping> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
+        QueueCreatorService<ApplicationMapping> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
-        Graph<NodeMapping> graph = GraphManager.INSTANCE.createIfAbsent(NODE_MAPPING_GRAPH_ID, NodeMapping.class);
-        graph.addNode(new NodeMappingAggregationWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener))
-            .addNext(new NodeMappingRemoteWorker.Factory(moduleManager, remoteSenderService, NODE_MAPPING_GRAPH_ID).create(workerCreateListener))
-            .addNext(new NodeMappingPersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
+        Graph<ApplicationMapping> graph = GraphManager.INSTANCE.createIfAbsent(NODE_MAPPING_GRAPH_ID, ApplicationMapping.class);
+        graph.addNode(new ApplicationMappingAggregationWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener))
+            .addNext(new ApplicationMappingRemoteWorker.Factory(moduleManager, remoteSenderService, NODE_MAPPING_GRAPH_ID).create(workerCreateListener))
+            .addNext(new ApplicationMappingPersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
     }
 
     @SuppressWarnings("unchecked")
-    public void createNodeReferenceGraph() {
-        QueueCreatorService<NodeReference> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
+    public void createApplicationReferenceMetricGraph() {
+        QueueCreatorService<ApplicationReferenceMetric> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
-        Graph<NodeReference> graph = GraphManager.INSTANCE.createIfAbsent(NODE_REFERENCE_GRAPH_ID, NodeReference.class);
-        graph.addNode(new NodeReferenceAggregationWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener))
-            .addNext(new NodeReferenceRemoteWorker.Factory(moduleManager, remoteSenderService, NODE_REFERENCE_GRAPH_ID).create(workerCreateListener))
-            .addNext(new NodeReferencePersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
+        Graph<ApplicationReferenceMetric> graph = GraphManager.INSTANCE.createIfAbsent(APPLICATION_REFERENCE_METRIC_GRAPH_ID, ApplicationReferenceMetric.class);
+        graph.addNode(new ApplicationReferenceMetricAggregationWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener))
+            .addNext(new ApplicationReferenceMetricRemoteWorker.Factory(moduleManager, remoteSenderService, APPLICATION_REFERENCE_METRIC_GRAPH_ID).create(workerCreateListener))
+            .addNext(new ApplicationReferenceMetricPersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
     }
 
     @SuppressWarnings("unchecked")
@@ -151,13 +151,13 @@ public class TraceStreamGraph {
 
     @SuppressWarnings("unchecked")
     public void createServiceReferenceGraph() {
-        QueueCreatorService<ServiceReference> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
+        QueueCreatorService<ServiceReferenceMetric> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
-        Graph<ServiceReference> graph = GraphManager.INSTANCE.createIfAbsent(SERVICE_REFERENCE_GRAPH_ID, ServiceReference.class);
-        graph.addNode(new ServiceReferenceAggregationWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener))
-            .addNext(new ServiceReferenceRemoteWorker.Factory(moduleManager, remoteSenderService, SERVICE_REFERENCE_GRAPH_ID).create(workerCreateListener))
-            .addNext(new ServiceReferencePersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
+        Graph<ServiceReferenceMetric> graph = GraphManager.INSTANCE.createIfAbsent(SERVICE_REFERENCE_GRAPH_ID, ServiceReferenceMetric.class);
+        graph.addNode(new ServiceReferenceMetricAggregationWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener))
+            .addNext(new ServiceReferenceMetricRemoteWorker.Factory(moduleManager, remoteSenderService, SERVICE_REFERENCE_GRAPH_ID).create(workerCreateListener))
+            .addNext(new ServiceReferenceMetricPersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
     }
 
     @SuppressWarnings("unchecked")

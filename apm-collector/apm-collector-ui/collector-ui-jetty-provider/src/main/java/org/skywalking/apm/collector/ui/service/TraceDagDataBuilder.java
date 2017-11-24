@@ -28,8 +28,8 @@ import org.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.ColumnNameUtils;
 import org.skywalking.apm.collector.core.util.Const;
-import org.skywalking.apm.collector.storage.table.node.NodeComponentTable;
-import org.skywalking.apm.collector.storage.table.node.NodeMappingTable;
+import org.skywalking.apm.collector.storage.table.node.ApplicationComponentTable;
+import org.skywalking.apm.collector.storage.table.node.ApplicationMappingTable;
 import org.skywalking.apm.collector.storage.table.noderef.NodeReferenceTable;
 import org.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.slf4j.Logger;
@@ -106,9 +106,9 @@ public class TraceDagDataBuilder {
     private void changeMapping2Map(JsonArray nodesMappingArray) {
         for (int i = 0; i < nodesMappingArray.size(); i++) {
             JsonObject nodesMappingJsonObj = nodesMappingArray.get(i).getAsJsonObject();
-            int applicationId = nodesMappingJsonObj.get(NodeMappingTable.COLUMN_APPLICATION_ID).getAsInt();
+            int applicationId = nodesMappingJsonObj.get(ApplicationMappingTable.COLUMN_APPLICATION_ID).getAsInt();
             String applicationCode = applicationCacheService.get(applicationId);
-            int addressId = nodesMappingJsonObj.get(NodeMappingTable.COLUMN_ADDRESS_ID).getAsInt();
+            int addressId = nodesMappingJsonObj.get(ApplicationMappingTable.COLUMN_ADDRESS_ID).getAsInt();
             String address = applicationCacheService.get(addressId);
             mappingMap.put(address, applicationCode);
         }
@@ -118,9 +118,9 @@ public class TraceDagDataBuilder {
         for (int i = 0; i < nodeCompArray.size(); i++) {
             JsonObject nodesJsonObj = nodeCompArray.get(i).getAsJsonObject();
             logger.debug(nodesJsonObj.toString());
-            int componentId = nodesJsonObj.get(NodeComponentTable.COLUMN_COMPONENT_ID).getAsInt();
+            int componentId = nodesJsonObj.get(ApplicationComponentTable.COLUMN_COMPONENT_ID).getAsInt();
             String componentName = ComponentsDefine.getInstance().getComponentName(componentId);
-            int peerId = nodesJsonObj.get(NodeComponentTable.COLUMN_PEER_ID).getAsInt();
+            int peerId = nodesJsonObj.get(ApplicationComponentTable.COLUMN_PEER_ID).getAsInt();
             String peer = applicationCacheService.get(peerId);
             nodeCompMap.put(peer, componentName);
         }

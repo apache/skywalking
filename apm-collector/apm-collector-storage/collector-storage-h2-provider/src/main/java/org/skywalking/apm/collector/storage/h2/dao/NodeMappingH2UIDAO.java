@@ -27,7 +27,7 @@ import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.dao.INodeMappingUIDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
-import org.skywalking.apm.collector.storage.table.node.NodeMappingTable;
+import org.skywalking.apm.collector.storage.table.node.ApplicationMappingTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,17 +46,17 @@ public class NodeMappingH2UIDAO extends H2DAO implements INodeMappingUIDAO {
     @Override public JsonArray load(long startTime, long endTime) {
         H2Client client = getClient();
         JsonArray nodeMappingArray = new JsonArray();
-        String sql = SqlBuilder.buildSql(NODE_MAPPING_SQL, NodeMappingTable.COLUMN_APPLICATION_ID,
-            NodeMappingTable.COLUMN_ADDRESS_ID, NodeMappingTable.TABLE, NodeMappingTable.COLUMN_TIME_BUCKET);
+        String sql = SqlBuilder.buildSql(NODE_MAPPING_SQL, ApplicationMappingTable.COLUMN_APPLICATION_ID,
+            ApplicationMappingTable.COLUMN_ADDRESS_ID, ApplicationMappingTable.TABLE, ApplicationMappingTable.COLUMN_TIME_BUCKET);
 
         Object[] params = new Object[] {startTime, endTime};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             while (rs.next()) {
-                int applicationId = rs.getInt(NodeMappingTable.COLUMN_APPLICATION_ID);
-                int addressId = rs.getInt(NodeMappingTable.COLUMN_ADDRESS_ID);
+                int applicationId = rs.getInt(ApplicationMappingTable.COLUMN_APPLICATION_ID);
+                int addressId = rs.getInt(ApplicationMappingTable.COLUMN_ADDRESS_ID);
                 JsonObject nodeMappingObj = new JsonObject();
-                nodeMappingObj.addProperty(NodeMappingTable.COLUMN_APPLICATION_ID, applicationId);
-                nodeMappingObj.addProperty(NodeMappingTable.COLUMN_ADDRESS_ID, addressId);
+                nodeMappingObj.addProperty(ApplicationMappingTable.COLUMN_APPLICATION_ID, applicationId);
+                nodeMappingObj.addProperty(ApplicationMappingTable.COLUMN_ADDRESS_ID, addressId);
                 nodeMappingArray.add(nodeMappingObj);
             }
         } catch (SQLException | H2ClientException e) {

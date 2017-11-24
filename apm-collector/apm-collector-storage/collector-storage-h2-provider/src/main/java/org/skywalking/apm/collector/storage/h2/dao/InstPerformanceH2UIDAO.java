@@ -30,7 +30,7 @@ import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.dao.IInstPerformanceUIDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
-import org.skywalking.apm.collector.storage.table.instance.InstPerformanceTable;
+import org.skywalking.apm.collector.storage.table.instance.InstanceMetricTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +50,7 @@ public class InstPerformanceH2UIDAO extends H2DAO implements IInstPerformanceUID
     @Override public InstPerformance get(long[] timeBuckets, int instanceId) {
         H2Client client = getClient();
         logger.info("the inst performance inst id = {}", instanceId);
-        String sql = SqlBuilder.buildSql(GET_INST_PERF_SQL, InstPerformanceTable.TABLE, InstPerformanceTable.COLUMN_INSTANCE_ID, InstPerformanceTable.COLUMN_TIME_BUCKET);
+        String sql = SqlBuilder.buildSql(GET_INST_PERF_SQL, InstanceMetricTable.TABLE, InstanceMetricTable.COLUMN_INSTANCE_ID, InstanceMetricTable.COLUMN_TIME_BUCKET);
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < timeBuckets.length; i++) {
             builder.append("?,");
@@ -65,8 +65,8 @@ public class InstPerformanceH2UIDAO extends H2DAO implements IInstPerformanceUID
         params[0] = instanceId;
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
-                int callTimes = rs.getInt(InstPerformanceTable.COLUMN_CALLS);
-                int costTotal = rs.getInt(InstPerformanceTable.COLUMN_COST_TOTAL);
+                int callTimes = rs.getInt(InstanceMetricTable.COLUMN_CALLS);
+                int costTotal = rs.getInt(InstanceMetricTable.COLUMN_COST_TOTAL);
                 return new InstPerformance(instanceId, callTimes, costTotal);
             }
         } catch (SQLException | H2ClientException e) {
@@ -78,11 +78,11 @@ public class InstPerformanceH2UIDAO extends H2DAO implements IInstPerformanceUID
     @Override public int getTpsMetric(int instanceId, long timeBucket) {
         logger.info("getTpMetric instanceId = {}, startTimeBucket = {}", instanceId, timeBucket);
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_TPS_METRIC_SQL, InstPerformanceTable.TABLE, InstPerformanceTable.COLUMN_ID);
+        String sql = SqlBuilder.buildSql(GET_TPS_METRIC_SQL, InstanceMetricTable.TABLE, InstanceMetricTable.COLUMN_ID);
         Object[] params = new Object[] {instanceId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
-                return rs.getInt(InstPerformanceTable.COLUMN_CALLS);
+                return rs.getInt(InstanceMetricTable.COLUMN_CALLS);
             }
         } catch (SQLException | H2ClientException e) {
             logger.error(e.getMessage(), e);
@@ -93,7 +93,7 @@ public class InstPerformanceH2UIDAO extends H2DAO implements IInstPerformanceUID
     @Override public JsonArray getTpsMetric(int instanceId, long startTimeBucket, long endTimeBucket) {
         logger.info("getTpsMetric instanceId = {}, startTimeBucket = {}, endTimeBucket = {}", instanceId, startTimeBucket, endTimeBucket);
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_TPS_METRIC_SQL, InstPerformanceTable.TABLE, InstPerformanceTable.COLUMN_ID);
+        String sql = SqlBuilder.buildSql(GET_TPS_METRIC_SQL, InstanceMetricTable.TABLE, InstanceMetricTable.COLUMN_ID);
 
         long timeBucket = startTimeBucket;
         List<String> idList = new ArrayList<>();
@@ -108,7 +108,7 @@ public class InstPerformanceH2UIDAO extends H2DAO implements IInstPerformanceUID
         idList.forEach(id -> {
             try (ResultSet rs = client.executeQuery(sql, new Object[] {id})) {
                 if (rs.next()) {
-                    int calls = rs.getInt(InstPerformanceTable.COLUMN_CALLS);
+                    int calls = rs.getInt(InstanceMetricTable.COLUMN_CALLS);
                     metrics.add(calls);
                 } else {
                     metrics.add(0);
@@ -122,12 +122,12 @@ public class InstPerformanceH2UIDAO extends H2DAO implements IInstPerformanceUID
 
     @Override public int getRespTimeMetric(int instanceId, long timeBucket) {
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_TPS_METRIC_SQL, InstPerformanceTable.TABLE, InstPerformanceTable.COLUMN_ID);
+        String sql = SqlBuilder.buildSql(GET_TPS_METRIC_SQL, InstanceMetricTable.TABLE, InstanceMetricTable.COLUMN_ID);
         Object[] params = new Object[] {instanceId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
-                int callTimes = rs.getInt(InstPerformanceTable.COLUMN_CALLS);
-                int costTotal = rs.getInt(InstPerformanceTable.COLUMN_COST_TOTAL);
+                int callTimes = rs.getInt(InstanceMetricTable.COLUMN_CALLS);
+                int costTotal = rs.getInt(InstanceMetricTable.COLUMN_COST_TOTAL);
                 return costTotal / callTimes;
             }
         } catch (SQLException | H2ClientException e) {
@@ -138,7 +138,7 @@ public class InstPerformanceH2UIDAO extends H2DAO implements IInstPerformanceUID
 
     @Override public JsonArray getRespTimeMetric(int instanceId, long startTimeBucket, long endTimeBucket) {
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_TPS_METRIC_SQL, InstPerformanceTable.TABLE, InstPerformanceTable.COLUMN_ID);
+        String sql = SqlBuilder.buildSql(GET_TPS_METRIC_SQL, InstanceMetricTable.TABLE, InstanceMetricTable.COLUMN_ID);
 
         long timeBucket = startTimeBucket;
         List<String> idList = new ArrayList<>();
@@ -153,8 +153,8 @@ public class InstPerformanceH2UIDAO extends H2DAO implements IInstPerformanceUID
         idList.forEach(id -> {
             try (ResultSet rs = client.executeQuery(sql, new Object[] {id})) {
                 if (rs.next()) {
-                    int callTimes = rs.getInt(InstPerformanceTable.COLUMN_CALLS);
-                    int costTotal = rs.getInt(InstPerformanceTable.COLUMN_COST_TOTAL);
+                    int callTimes = rs.getInt(InstanceMetricTable.COLUMN_CALLS);
+                    int costTotal = rs.getInt(InstanceMetricTable.COLUMN_COST_TOTAL);
                     metrics.add(costTotal / callTimes);
                 } else {
                     metrics.add(0);

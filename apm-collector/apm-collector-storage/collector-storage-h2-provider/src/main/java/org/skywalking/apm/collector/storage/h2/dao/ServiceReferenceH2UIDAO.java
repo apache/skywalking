@@ -30,7 +30,7 @@ import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.dao.IServiceReferenceUIDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
-import org.skywalking.apm.collector.storage.table.serviceref.ServiceReferenceTable;
+import org.skywalking.apm.collector.storage.table.serviceref.ServiceReferenceMetricTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,12 +51,12 @@ public class ServiceReferenceH2UIDAO extends H2DAO implements IServiceReferenceU
     @Override
     public Map<String, JsonObject> load(int entryServiceId, long startTime, long endTime) {
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_SRV_REF_LOAD1, ServiceReferenceTable.TABLE,
-            ServiceReferenceTable.COLUMN_TIME_BUCKET, ServiceReferenceTable.COLUMN_ENTRY_SERVICE_ID,
-            ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID, ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID,
-            ServiceReferenceTable.COLUMN_S1_LTE, ServiceReferenceTable.COLUMN_S3_LTE, ServiceReferenceTable.COLUMN_S5_LTE,
-            ServiceReferenceTable.COLUMN_S5_GT, ServiceReferenceTable.COLUMN_ERROR, ServiceReferenceTable.COLUMN_SUMMARY,
-            ServiceReferenceTable.COLUMN_COST_SUMMARY);
+        String sql = SqlBuilder.buildSql(GET_SRV_REF_LOAD1, ServiceReferenceMetricTable.TABLE,
+            ServiceReferenceMetricTable.COLUMN_TIME_BUCKET, ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID,
+            ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID,
+            ServiceReferenceMetricTable.COLUMN_S1_LTE, ServiceReferenceMetricTable.COLUMN_S3_LTE, ServiceReferenceMetricTable.COLUMN_S5_LTE,
+            ServiceReferenceMetricTable.COLUMN_S5_GT, ServiceReferenceMetricTable.COLUMN_ERROR, ServiceReferenceMetricTable.COLUMN_SUMMARY,
+            ServiceReferenceMetricTable.COLUMN_COST_SUMMARY);
         Object[] params = new Object[] {startTime, endTime, entryServiceId};
 
         return load(client, params, sql);
@@ -67,7 +67,7 @@ public class ServiceReferenceH2UIDAO extends H2DAO implements IServiceReferenceU
 
         try (ResultSet rs = client.executeQuery(sql, params)) {
             while (rs.next()) {
-                int frontServiceId = rs.getInt(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID);
+                int frontServiceId = rs.getInt(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID);
                 parseSubAggregate(serviceReferenceMap, rs, frontServiceId);
             }
         } catch (SQLException | H2ClientException e) {
@@ -79,28 +79,28 @@ public class ServiceReferenceH2UIDAO extends H2DAO implements IServiceReferenceU
     private void parseSubAggregate(Map<String, JsonObject> serviceReferenceMap, ResultSet rs,
         int frontServiceId) {
         try {
-            int behindServiceId = rs.getInt(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID);
+            int behindServiceId = rs.getInt(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID);
             if (behindServiceId != 0) {
-                long s1LteSum = rs.getLong(ServiceReferenceTable.COLUMN_S1_LTE);
-                long s3LteSum = rs.getLong(ServiceReferenceTable.COLUMN_S3_LTE);
-                long s5LteSum = rs.getLong(ServiceReferenceTable.COLUMN_S5_LTE);
-                long s5GtSum = rs.getLong(ServiceReferenceTable.COLUMN_S5_GT);
-                long error = rs.getLong(ServiceReferenceTable.COLUMN_ERROR);
-                long summary = rs.getLong(ServiceReferenceTable.COLUMN_SUMMARY);
-                long costSum = rs.getLong(ServiceReferenceTable.COLUMN_COST_SUMMARY);
+                long s1LteSum = rs.getLong(ServiceReferenceMetricTable.COLUMN_S1_LTE);
+                long s3LteSum = rs.getLong(ServiceReferenceMetricTable.COLUMN_S3_LTE);
+                long s5LteSum = rs.getLong(ServiceReferenceMetricTable.COLUMN_S5_LTE);
+                long s5GtSum = rs.getLong(ServiceReferenceMetricTable.COLUMN_S5_GT);
+                long error = rs.getLong(ServiceReferenceMetricTable.COLUMN_ERROR);
+                long summary = rs.getLong(ServiceReferenceMetricTable.COLUMN_SUMMARY);
+                long costSum = rs.getLong(ServiceReferenceMetricTable.COLUMN_COST_SUMMARY);
 
                 JsonObject serviceReference = new JsonObject();
-                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID), frontServiceId);
-                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID), behindServiceId);
-                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_S1_LTE), s1LteSum);
-                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_S3_LTE), s3LteSum);
-                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_S5_LTE), s5LteSum);
-                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_S5_GT), s5GtSum);
-                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_ERROR), error);
-                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_SUMMARY), summary);
-                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_COST_SUMMARY), costSum);
+                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID), frontServiceId);
+                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID), behindServiceId);
+                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_S1_LTE), s1LteSum);
+                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_S3_LTE), s3LteSum);
+                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_S5_LTE), s5LteSum);
+                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_S5_GT), s5GtSum);
+                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_ERROR), error);
+                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_SUMMARY), summary);
+                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_COST_SUMMARY), costSum);
 
-                String id = serviceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID)) + Const.ID_SPLIT + serviceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID));
+                String id = serviceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID)) + Const.ID_SPLIT + serviceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID));
                 serviceReferenceMap.put(id, serviceReference);
             }
         } catch (SQLException e) {

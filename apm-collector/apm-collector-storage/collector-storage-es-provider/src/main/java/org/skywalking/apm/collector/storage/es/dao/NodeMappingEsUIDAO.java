@@ -29,7 +29,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.storage.dao.INodeMappingUIDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
-import org.skywalking.apm.collector.storage.table.node.NodeMappingTable;
+import org.skywalking.apm.collector.storage.table.node.ApplicationMappingTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,28 +45,28 @@ public class NodeMappingEsUIDAO extends EsDAO implements INodeMappingUIDAO {
     }
 
     @Override public JsonArray load(long startTime, long endTime) {
-        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(NodeMappingTable.TABLE);
-        searchRequestBuilder.setTypes(NodeMappingTable.TABLE_TYPE);
+        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(ApplicationMappingTable.TABLE);
+        searchRequestBuilder.setTypes(ApplicationMappingTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-        searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(NodeMappingTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
+        searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(ApplicationMappingTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
         searchRequestBuilder.setSize(0);
 
         searchRequestBuilder.addAggregation(
-            AggregationBuilders.terms(NodeMappingTable.COLUMN_APPLICATION_ID).field(NodeMappingTable.COLUMN_APPLICATION_ID).size(100)
-                .subAggregation(AggregationBuilders.terms(NodeMappingTable.COLUMN_ADDRESS_ID).field(NodeMappingTable.COLUMN_ADDRESS_ID).size(100)));
+            AggregationBuilders.terms(ApplicationMappingTable.COLUMN_APPLICATION_ID).field(ApplicationMappingTable.COLUMN_APPLICATION_ID).size(100)
+                .subAggregation(AggregationBuilders.terms(ApplicationMappingTable.COLUMN_ADDRESS_ID).field(ApplicationMappingTable.COLUMN_ADDRESS_ID).size(100)));
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
-        Terms applicationIdTerms = searchResponse.getAggregations().get(NodeMappingTable.COLUMN_APPLICATION_ID);
+        Terms applicationIdTerms = searchResponse.getAggregations().get(ApplicationMappingTable.COLUMN_APPLICATION_ID);
 
         JsonArray nodeMappingArray = new JsonArray();
         for (Terms.Bucket applicationIdBucket : applicationIdTerms.getBuckets()) {
             int applicationId = applicationIdBucket.getKeyAsNumber().intValue();
-            Terms addressIdTerms = applicationIdBucket.getAggregations().get(NodeMappingTable.COLUMN_ADDRESS_ID);
+            Terms addressIdTerms = applicationIdBucket.getAggregations().get(ApplicationMappingTable.COLUMN_ADDRESS_ID);
             for (Terms.Bucket addressIdBucket : addressIdTerms.getBuckets()) {
                 int addressId = addressIdBucket.getKeyAsNumber().intValue();
                 JsonObject nodeMappingObj = new JsonObject();
-                nodeMappingObj.addProperty(NodeMappingTable.COLUMN_APPLICATION_ID, applicationId);
-                nodeMappingObj.addProperty(NodeMappingTable.COLUMN_ADDRESS_ID, addressId);
+                nodeMappingObj.addProperty(ApplicationMappingTable.COLUMN_APPLICATION_ID, applicationId);
+                nodeMappingObj.addProperty(ApplicationMappingTable.COLUMN_ADDRESS_ID, addressId);
                 nodeMappingArray.add(nodeMappingObj);
             }
         }
