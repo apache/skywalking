@@ -56,4 +56,11 @@ public class Metric {
     public void setAvg(int avg) {
         this.avg = avg;
     }
+
+    @Override public String toString() {
+        return "Metric{" +
+            "call=" + call +
+            ", avg=" + avg +
+            '}';
+    }
 }

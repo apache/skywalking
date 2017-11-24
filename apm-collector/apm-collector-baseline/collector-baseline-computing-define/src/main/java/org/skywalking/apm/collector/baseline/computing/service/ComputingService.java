@@ -18,17 +18,15 @@
 
 package org.skywalking.apm.collector.baseline.computing.service;
 
-import org.skywalking.apm.collector.baseline.computing.Configuration;
+import java.util.List;
 import org.skywalking.apm.collector.baseline.computing.Metric;
 import org.skywalking.apm.collector.core.module.Service;
-
-import java.util.List;
 
 /**
  * @author zhang-chen
  */
 public interface ComputingService extends Service {
 
-    List<Metric> compute(List<Metric>[] metrics, Configuration conf);
+    List<Metric> compute(List<Metric>[] metrics);
 
 }
