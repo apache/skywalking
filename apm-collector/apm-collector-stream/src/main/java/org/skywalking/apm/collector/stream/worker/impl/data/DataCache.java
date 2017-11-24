@@ -24,12 +24,12 @@ import org.skywalking.apm.collector.core.data.Data;
 /**
  * @author peng-yongsheng
  */
-public class DataCache extends Window<DataCollection> {
+public class DataCache<DataImpl extends Data> extends Window<DataCollection<DataImpl>> {
 
-    private DataCollection lockedDataCollection;
+    private DataCollection<DataImpl> lockedDataCollection;
 
-    @Override public DataCollection collectionInstance() {
-        return new DataCollection();
+    @Override public DataCollection<DataImpl> collectionInstance() {
+        return new DataCollection<>();
     }
 
     public boolean containsKey(String id) {
@@ -40,7 +40,7 @@ public class DataCache extends Window<DataCollection> {
         return lockedDataCollection.get(id);
     }
 
-    public void put(String id, Data data) {
+    public void put(String id, DataImpl data) {
         lockedDataCollection.put(id, data);
     }
 

@@ -20,7 +20,7 @@ package org.skywalking.apm.collector.storage.es.define;
 
 import org.skywalking.apm.collector.storage.es.base.define.ElasticSearchColumnDefine;
 import org.skywalking.apm.collector.storage.es.base.define.ElasticSearchTableDefine;
-import org.skywalking.apm.collector.storage.table.node.NodeMappingTable;
+import org.skywalking.apm.collector.storage.table.node.ApplicationMappingTable;
 
 /**
  * @author peng-yongsheng
@@ -28,7 +28,7 @@ import org.skywalking.apm.collector.storage.table.node.NodeMappingTable;
 public class NodeMappingEsTableDefine extends ElasticSearchTableDefine {
 
     public NodeMappingEsTableDefine() {
-        super(NodeMappingTable.TABLE);
+        super(ApplicationMappingTable.TABLE);
     }
 
     @Override public int refreshInterval() {
@@ -36,8 +36,8 @@ public class NodeMappingEsTableDefine extends ElasticSearchTableDefine {
     }
 
     @Override public void initialize() {
-        addColumn(new ElasticSearchColumnDefine(NodeMappingTable.COLUMN_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(NodeMappingTable.COLUMN_ADDRESS_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(NodeMappingTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationMappingTable.COLUMN_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationMappingTable.COLUMN_ADDRESS_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationMappingTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
     }
 }

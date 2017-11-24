@@ -29,13 +29,13 @@ import org.skywalking.apm.collector.agent.stream.parser.standardization.SegmentS
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SpanDecorator;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SpanIdExchanger;
 import org.skywalking.apm.collector.agent.stream.worker.trace.global.GlobalTraceSpanListener;
-import org.skywalking.apm.collector.agent.stream.worker.trace.instance.InstPerformanceSpanListener;
-import org.skywalking.apm.collector.agent.stream.worker.trace.node.NodeComponentSpanListener;
-import org.skywalking.apm.collector.agent.stream.worker.trace.node.NodeMappingSpanListener;
-import org.skywalking.apm.collector.agent.stream.worker.trace.noderef.NodeReferenceSpanListener;
+import org.skywalking.apm.collector.agent.stream.worker.trace.instance.InstanceMetricSpanListener;
+import org.skywalking.apm.collector.agent.stream.worker.trace.application.ApplicationComponentSpanListener;
+import org.skywalking.apm.collector.agent.stream.worker.trace.application.ApplicationMappingSpanListener;
+import org.skywalking.apm.collector.agent.stream.worker.trace.application.ApplicationReferenceMetricSpanListener;
 import org.skywalking.apm.collector.agent.stream.worker.trace.segment.SegmentCostSpanListener;
 import org.skywalking.apm.collector.agent.stream.worker.trace.service.ServiceEntrySpanListener;
-import org.skywalking.apm.collector.agent.stream.worker.trace.serviceref.ServiceReferenceSpanListener;
+import org.skywalking.apm.collector.agent.stream.worker.trace.service.ServiceReferenceMetricSpanListener;
 import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.module.ModuleManager;
@@ -63,14 +63,14 @@ public class SegmentParse {
     public SegmentParse(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
         this.spanListeners = new ArrayList<>();
-        this.spanListeners.add(new NodeComponentSpanListener());
-        this.spanListeners.add(new NodeMappingSpanListener());
-        this.spanListeners.add(new NodeReferenceSpanListener(moduleManager));
+        this.spanListeners.add(new ApplicationComponentSpanListener());
+        this.spanListeners.add(new ApplicationMappingSpanListener());
+        this.spanListeners.add(new ApplicationReferenceMetricSpanListener(moduleManager));
         this.spanListeners.add(new SegmentCostSpanListener(moduleManager));
         this.spanListeners.add(new GlobalTraceSpanListener());
         this.spanListeners.add(new ServiceEntrySpanListener(moduleManager));
-        this.spanListeners.add(new ServiceReferenceSpanListener());
-        this.spanListeners.add(new InstPerformanceSpanListener());
+        this.spanListeners.add(new ServiceReferenceMetricSpanListener());
+        this.spanListeners.add(new InstanceMetricSpanListener());
     }
 
     public boolean parse(UpstreamSegment segment, Source source) {

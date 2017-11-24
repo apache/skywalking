@@ -20,7 +20,7 @@ package org.skywalking.apm.collector.storage.h2.define;
 
 import org.skywalking.apm.collector.storage.h2.base.define.H2ColumnDefine;
 import org.skywalking.apm.collector.storage.h2.base.define.H2TableDefine;
-import org.skywalking.apm.collector.storage.table.node.NodeMappingTable;
+import org.skywalking.apm.collector.storage.table.node.ApplicationMappingTable;
 
 /**
  * @author peng-yongsheng
@@ -28,13 +28,13 @@ import org.skywalking.apm.collector.storage.table.node.NodeMappingTable;
 public class NodeMappingH2TableDefine extends H2TableDefine {
 
     public NodeMappingH2TableDefine() {
-        super(NodeMappingTable.TABLE);
+        super(ApplicationMappingTable.TABLE);
     }
 
     @Override public void initialize() {
-        addColumn(new H2ColumnDefine(NodeMappingTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(NodeMappingTable.COLUMN_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(NodeMappingTable.COLUMN_ADDRESS_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(NodeMappingTable.COLUMN_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationMappingTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(ApplicationMappingTable.COLUMN_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ApplicationMappingTable.COLUMN_ADDRESS_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ApplicationMappingTable.COLUMN_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
     }
 }

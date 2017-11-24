@@ -19,14 +19,14 @@
 package org.skywalking.apm.collector.agent.stream.worker;
 
 import org.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
-import org.skywalking.apm.collector.storage.table.node.NodeComponent;
-import org.skywalking.apm.collector.storage.table.node.NodeMapping;
-import org.skywalking.apm.collector.storage.table.noderef.NodeReference;
+import org.skywalking.apm.collector.storage.table.node.ApplicationComponent;
+import org.skywalking.apm.collector.storage.table.node.ApplicationMapping;
+import org.skywalking.apm.collector.storage.table.noderef.ApplicationReferenceMetric;
 import org.skywalking.apm.collector.storage.table.register.Application;
 import org.skywalking.apm.collector.storage.table.register.Instance;
 import org.skywalking.apm.collector.storage.table.register.ServiceName;
 import org.skywalking.apm.collector.storage.table.service.ServiceEntry;
-import org.skywalking.apm.collector.storage.table.serviceref.ServiceReference;
+import org.skywalking.apm.collector.storage.table.serviceref.ServiceReferenceMetric;
 
 /**
  * @author peng-yongsheng
@@ -44,10 +44,10 @@ public class AgentStreamRemoteDataRegister {
         remoteDataRegisterService.register(Instance.class, Instance::new);
         remoteDataRegisterService.register(ServiceName.class, ServiceName::new);
 
-        remoteDataRegisterService.register(NodeComponent.class, NodeComponent::new);
-        remoteDataRegisterService.register(NodeMapping.class, NodeMapping::new);
-        remoteDataRegisterService.register(NodeReference.class, NodeReference::new);
+        remoteDataRegisterService.register(ApplicationComponent.class, ApplicationComponent::new);
+        remoteDataRegisterService.register(ApplicationMapping.class, ApplicationMapping::new);
+        remoteDataRegisterService.register(ApplicationReferenceMetric.class, ApplicationReferenceMetric::new);
         remoteDataRegisterService.register(ServiceEntry.class, ServiceEntry::new);
-        remoteDataRegisterService.register(ServiceReference.class, ServiceReference::new);
+        remoteDataRegisterService.register(ServiceReferenceMetric.class, ServiceReferenceMetric::new);
     }
 }

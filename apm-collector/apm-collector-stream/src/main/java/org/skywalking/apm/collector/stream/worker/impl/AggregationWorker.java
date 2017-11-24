@@ -33,23 +33,29 @@ public abstract class AggregationWorker<INPUT extends Data, OUTPUT extends Data>
 
     private final Logger logger = LoggerFactory.getLogger(AggregationWorker.class);
 
-    private DataCache dataCache;
+    private DataCache<OUTPUT> dataCache;
     private int messageNum;
 
     public AggregationWorker(ModuleManager moduleManager) {
         super(moduleManager);
-        this.dataCache = new DataCache();
+        this.dataCache = new DataCache<>();
+    }
+
+    @SuppressWarnings("unchecked")
+    protected OUTPUT transform(INPUT message) {
+        return (OUTPUT)message;
     }
 
     @Override protected final void onWork(INPUT message) throws WorkerException {
+        OUTPUT output = transform(message);
         messageNum++;
-        aggregate(message);
+        aggregate(output);
 
         if (messageNum >= 100) {
             sendToNext();
             messageNum = 0;
         }
-        if (message.isEndOfBatch()) {
+        if (output.isEndOfBatch()) {
             sendToNext();
         }
     }
@@ -63,14 +69,14 @@ public abstract class AggregationWorker<INPUT extends Data, OUTPUT extends Data>
                 throw new WorkerException(e.getMessage(), e);
             }
         }
-        dataCache.getLast().collection().forEach((String id, Data data) -> {
+        dataCache.getLast().collection().forEach((String id, OUTPUT data) -> {
             logger.debug(data.toString());
-            onNext((OUTPUT)data);
+            onNext(data);
         });
         dataCache.finishReadingLast();
     }
 
-    private void aggregate(INPUT message) {
+    private void aggregate(OUTPUT message) {
         dataCache.writing();
         if (dataCache.containsKey(message.getId())) {
             dataCache.get(message.getId()).mergeData(message);

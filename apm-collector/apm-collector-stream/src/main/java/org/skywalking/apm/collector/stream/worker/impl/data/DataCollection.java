@@ -26,12 +26,12 @@ import org.skywalking.apm.collector.core.data.Data;
 /**
  * @author peng-yongsheng
  */
-public class DataCollection implements Collection<Map<String, Data>> {
-    private Map<String, Data> data;
+public class DataCollection<DataImpl extends Data> implements Collection<Map<String, DataImpl>> {
+    private Map<String, DataImpl> data;
     private volatile boolean writing;
     private volatile boolean reading;
 
-    public DataCollection() {
+    DataCollection() {
         this.data = new ConcurrentHashMap<>();
         this.writing = false;
         this.reading = false;
@@ -61,15 +61,15 @@ public class DataCollection implements Collection<Map<String, Data>> {
         return reading;
     }
 
-    public boolean containsKey(String key) {
+    boolean containsKey(String key) {
         return data.containsKey(key);
     }
 
-    public void put(String key, Data value) {
+    void put(String key, DataImpl value) {
         data.put(key, value);
     }
 
-    public Data get(String key) {
+    public DataImpl get(String key) {
         return data.get(key);
     }
 
@@ -81,7 +81,7 @@ public class DataCollection implements Collection<Map<String, Data>> {
         data.clear();
     }
 
-    public Map<String, Data> collection() {
+    public Map<String, DataImpl> collection() {
         return data;
     }
 }

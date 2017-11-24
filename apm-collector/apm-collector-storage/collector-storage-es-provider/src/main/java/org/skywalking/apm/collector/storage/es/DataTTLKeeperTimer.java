@@ -26,15 +26,15 @@ import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.ICpuMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IGCMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IGlobalTracePersistenceDAO;
-import org.skywalking.apm.collector.storage.dao.IInstPerformancePersistenceDAO;
+import org.skywalking.apm.collector.storage.dao.IInstanceMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IMemoryMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IMemoryPoolMetricPersistenceDAO;
-import org.skywalking.apm.collector.storage.dao.INodeComponentPersistenceDAO;
-import org.skywalking.apm.collector.storage.dao.INodeMappingPersistenceDAO;
-import org.skywalking.apm.collector.storage.dao.INodeReferencePersistenceDAO;
+import org.skywalking.apm.collector.storage.dao.IApplicationComponentPersistenceDAO;
+import org.skywalking.apm.collector.storage.dao.IApplicationMappingPersistenceDAO;
+import org.skywalking.apm.collector.storage.dao.IApplicationReferenceMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.ISegmentCostPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.ISegmentPersistenceDAO;
-import org.skywalking.apm.collector.storage.dao.IServiceReferencePersistenceDAO;
+import org.skywalking.apm.collector.storage.dao.IServiceReferenceMetricPersistenceDAO;
 
 /**
  * @author peng-yongsheng
@@ -94,16 +94,16 @@ public class DataTTLKeeperTimer {
         IGlobalTracePersistenceDAO globalTracePersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IGlobalTracePersistenceDAO.class);
         globalTracePersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
 
-        IInstPerformancePersistenceDAO instPerformancePersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IInstPerformancePersistenceDAO.class);
+        IInstanceMetricPersistenceDAO instPerformancePersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceMetricPersistenceDAO.class);
         instPerformancePersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
 
-        INodeComponentPersistenceDAO nodeComponentPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(INodeComponentPersistenceDAO.class);
+        IApplicationComponentPersistenceDAO nodeComponentPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationComponentPersistenceDAO.class);
         nodeComponentPersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
 
-        INodeMappingPersistenceDAO nodeMappingPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(INodeMappingPersistenceDAO.class);
+        IApplicationMappingPersistenceDAO nodeMappingPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationMappingPersistenceDAO.class);
         nodeMappingPersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
 
-        INodeReferencePersistenceDAO nodeReferencePersistenceDAO = moduleManager.find(StorageModule.NAME).getService(INodeReferencePersistenceDAO.class);
+        IApplicationReferenceMetricPersistenceDAO nodeReferencePersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationReferenceMetricPersistenceDAO.class);
         nodeReferencePersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
 
         ISegmentCostPersistenceDAO segmentCostPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(ISegmentCostPersistenceDAO.class);
@@ -112,7 +112,7 @@ public class DataTTLKeeperTimer {
         ISegmentPersistenceDAO segmentPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(ISegmentPersistenceDAO.class);
         segmentPersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
 
-        IServiceReferencePersistenceDAO serviceReferencePersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IServiceReferencePersistenceDAO.class);
+        IServiceReferenceMetricPersistenceDAO serviceReferencePersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IServiceReferenceMetricPersistenceDAO.class);
         serviceReferencePersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
     }
 }

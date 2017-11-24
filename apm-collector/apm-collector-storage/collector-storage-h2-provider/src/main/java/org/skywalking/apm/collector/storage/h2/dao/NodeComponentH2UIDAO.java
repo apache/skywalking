@@ -27,7 +27,7 @@ import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.dao.INodeComponentUIDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
-import org.skywalking.apm.collector.storage.table.node.NodeComponentTable;
+import org.skywalking.apm.collector.storage.table.node.ApplicationComponentTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,16 +53,16 @@ public class NodeComponentH2UIDAO extends H2DAO implements INodeComponentUIDAO {
         H2Client client = getClient();
 
         JsonArray nodeComponentArray = new JsonArray();
-        String sql = SqlBuilder.buildSql(AGGREGATE_COMPONENT_SQL, NodeComponentTable.COLUMN_COMPONENT_ID, NodeComponentTable.COLUMN_PEER_ID,
-            NodeComponentTable.TABLE, NodeComponentTable.COLUMN_TIME_BUCKET);
+        String sql = SqlBuilder.buildSql(AGGREGATE_COMPONENT_SQL, ApplicationComponentTable.COLUMN_COMPONENT_ID, ApplicationComponentTable.COLUMN_PEER_ID,
+            ApplicationComponentTable.TABLE, ApplicationComponentTable.COLUMN_TIME_BUCKET);
         Object[] params = new Object[] {startTime, endTime};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             while (rs.next()) {
-                int peerId = rs.getInt(NodeComponentTable.COLUMN_PEER_ID);
-                int componentId = rs.getInt(NodeComponentTable.COLUMN_COMPONENT_ID);
+                int peerId = rs.getInt(ApplicationComponentTable.COLUMN_PEER_ID);
+                int componentId = rs.getInt(ApplicationComponentTable.COLUMN_COMPONENT_ID);
                 JsonObject nodeComponentObj = new JsonObject();
-                nodeComponentObj.addProperty(NodeComponentTable.COLUMN_COMPONENT_ID, componentId);
-                nodeComponentObj.addProperty(NodeComponentTable.COLUMN_PEER_ID, peerId);
+                nodeComponentObj.addProperty(ApplicationComponentTable.COLUMN_COMPONENT_ID, componentId);
+                nodeComponentObj.addProperty(ApplicationComponentTable.COLUMN_PEER_ID, peerId);
                 nodeComponentArray.add(nodeComponentObj);
             }
         } catch (SQLException | H2ClientException e) {
