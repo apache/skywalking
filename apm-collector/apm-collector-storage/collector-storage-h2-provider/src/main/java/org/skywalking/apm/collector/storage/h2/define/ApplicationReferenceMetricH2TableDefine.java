@@ -25,9 +25,9 @@ import org.skywalking.apm.collector.storage.table.application.ApplicationReferen
 /**
  * @author peng-yongsheng
  */
-public class NodeReferenceH2TableDefine extends H2TableDefine {
+public class ApplicationReferenceMetricH2TableDefine extends H2TableDefine {
 
-    public NodeReferenceH2TableDefine() {
+    public ApplicationReferenceMetricH2TableDefine() {
         super(ApplicationReferenceMetricTable.TABLE);
     }
 
@@ -35,12 +35,13 @@ public class NodeReferenceH2TableDefine extends H2TableDefine {
         addColumn(new H2ColumnDefine(ApplicationReferenceMetricTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
         addColumn(new H2ColumnDefine(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
         addColumn(new H2ColumnDefine(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(ApplicationReferenceMetricTable.COLUMN_S1_LTE, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(ApplicationReferenceMetricTable.COLUMN_S3_LTE, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(ApplicationReferenceMetricTable.COLUMN_S5_LTE, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(ApplicationReferenceMetricTable.COLUMN_S5_GT, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(ApplicationReferenceMetricTable.COLUMN_SUMMARY, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(ApplicationReferenceMetricTable.COLUMN_ERROR, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ApplicationReferenceMetricTable.COLUMN_CALLS, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationReferenceMetricTable.COLUMN_ERROR_CALLS, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationReferenceMetricTable.COLUMN_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationReferenceMetricTable.COLUMN_ERROR_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationReferenceMetricTable.COLUMN_SATISFIED_COUNT, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationReferenceMetricTable.COLUMN_TOLERATING_COUNT, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationReferenceMetricTable.COLUMN_FRUSTRATED_COUNT, H2ColumnDefine.Type.Bigint.name()));
         addColumn(new H2ColumnDefine(ApplicationReferenceMetricTable.COLUMN_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
     }
 }

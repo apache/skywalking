@@ -44,16 +44,22 @@ public class ApplicationMetricAggregationWorker extends AggregationWorker<Applic
         Long timeBucket = applicationReferenceMetric.getTimeBucket();
         ApplicationMetric applicationMetric = new ApplicationMetric(String.valueOf(timeBucket) + Const.ID_SPLIT + String.valueOf(applicationId));
         applicationMetric.setApplicationId(applicationId);
+        applicationMetric.setCalls(applicationReferenceMetric.getCalls());
+        applicationMetric.setErrorCalls(applicationReferenceMetric.getErrorCalls());
+        applicationMetric.setDurationSum(applicationReferenceMetric.getDurationSum());
+        applicationMetric.setErrorDurationSum(applicationReferenceMetric.getErrorDurationSum());
+        applicationMetric.setSatisfiedCount(applicationReferenceMetric.getSatisfiedCount());
+        applicationMetric.setToleratingCount(applicationReferenceMetric.getToleratingCount());
+        applicationMetric.setFrustratedCount(applicationReferenceMetric.getFrustratedCount());
         applicationMetric.setTimeBucket(timeBucket);
-        applicationMetric.setCalls(applicationReferenceMetric.getSummary());
-        applicationMetric.setErrorCalls(applicationReferenceMetric.getError());
 
         return applicationMetric;
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<ApplicationReferenceMetric, ApplicationMetric, ApplicationMetricAggregationWorker> {
 
-        public Factory(ModuleManager moduleManager, QueueCreatorService<ApplicationReferenceMetric> queueCreatorService) {
+        public Factory(ModuleManager moduleManager,
+            QueueCreatorService<ApplicationReferenceMetric> queueCreatorService) {
             super(moduleManager, queueCreatorService);
         }
 

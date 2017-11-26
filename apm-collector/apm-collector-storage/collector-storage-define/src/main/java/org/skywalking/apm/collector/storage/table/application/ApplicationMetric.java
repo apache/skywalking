@@ -37,7 +37,10 @@ public class ApplicationMetric extends Data {
         new Column(ApplicationMetricTable.COLUMN_CALLS, new AddOperation()),
         new Column(ApplicationMetricTable.COLUMN_ERROR_CALLS, new AddOperation()),
         new Column(ApplicationMetricTable.COLUMN_DURATION_SUM, new AddOperation()),
-        new Column(ApplicationMetricTable.COLUMN_DURATION_AVG, new CoverOperation()),
+        new Column(ApplicationMetricTable.COLUMN_ERROR_DURATION_SUM, new AddOperation()),
+        new Column(ApplicationMetricTable.COLUMN_SATISFIED_COUNT, new AddOperation()),
+        new Column(ApplicationMetricTable.COLUMN_TOLERATING_COUNT, new AddOperation()),
+        new Column(ApplicationMetricTable.COLUMN_FRUSTRATED_COUNT, new AddOperation()),
         new Column(ApplicationMetricTable.COLUMN_TIME_BUCKET, new CoverOperation()),
     };
     private static final Column[] DOUBLE_COLUMNS = {};
@@ -84,19 +87,43 @@ public class ApplicationMetric extends Data {
         setDataLong(2, durationSum);
     }
 
-    public long getDurationAvg() {
+    public long getErrorDurationSum() {
         return getDataLong(3);
     }
 
-    public void setDurationAvg(long durationAvg) {
-        setDataLong(3, durationAvg);
+    public void setErrorDurationSum(long errorDurationSum) {
+        setDataLong(3, errorDurationSum);
     }
 
-    public long getTimeBucket() {
+    public long getSatisfiedCount() {
         return getDataLong(4);
     }
 
+    public void setSatisfiedCount(long satisfiedCount) {
+        setDataLong(4, satisfiedCount);
+    }
+
+    public long getToleratingCount() {
+        return getDataLong(5);
+    }
+
+    public void setToleratingCount(long toleratingCount) {
+        setDataLong(5, toleratingCount);
+    }
+
+    public long getFrustratedCount() {
+        return getDataLong(6);
+    }
+
+    public void setFrustratedCount(long frustratedCount) {
+        setDataLong(6, frustratedCount);
+    }
+
+    public long getTimeBucket() {
+        return getDataLong(7);
+    }
+
     public void setTimeBucket(long timeBucket) {
-        setDataLong(4, timeBucket);
+        setDataLong(7, timeBucket);
     }
 }

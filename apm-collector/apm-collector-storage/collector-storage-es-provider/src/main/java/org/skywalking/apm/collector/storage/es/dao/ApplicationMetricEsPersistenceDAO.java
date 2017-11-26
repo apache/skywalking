@@ -54,7 +54,10 @@ public class ApplicationMetricEsPersistenceDAO extends EsDAO implements IApplica
             applicationMetric.setCalls(((Number)source.get(ApplicationMetricTable.COLUMN_CALLS)).longValue());
             applicationMetric.setErrorCalls(((Number)source.get(ApplicationMetricTable.COLUMN_ERROR_CALLS)).longValue());
             applicationMetric.setDurationSum(((Number)source.get(ApplicationMetricTable.COLUMN_DURATION_SUM)).longValue());
-            applicationMetric.setDurationAvg(((Number)source.get(ApplicationMetricTable.COLUMN_DURATION_AVG)).longValue());
+            applicationMetric.setErrorDurationSum(((Number)source.get(ApplicationMetricTable.COLUMN_ERROR_DURATION_SUM)).longValue());
+            applicationMetric.setSatisfiedCount(((Number)source.get(ApplicationMetricTable.COLUMN_SATISFIED_COUNT)).longValue());
+            applicationMetric.setToleratingCount(((Number)source.get(ApplicationMetricTable.COLUMN_TOLERATING_COUNT)).longValue());
+            applicationMetric.setFrustratedCount(((Number)source.get(ApplicationMetricTable.COLUMN_FRUSTRATED_COUNT)).longValue());
             applicationMetric.setTimeBucket(((Number)source.get(ApplicationMetricTable.COLUMN_TIME_BUCKET)).longValue());
             return applicationMetric;
         } else {
@@ -68,7 +71,10 @@ public class ApplicationMetricEsPersistenceDAO extends EsDAO implements IApplica
         source.put(ApplicationMetricTable.COLUMN_CALLS, data.getCalls());
         source.put(ApplicationMetricTable.COLUMN_ERROR_CALLS, data.getErrorCalls());
         source.put(ApplicationMetricTable.COLUMN_DURATION_SUM, data.getDurationSum());
-        source.put(ApplicationMetricTable.COLUMN_DURATION_AVG, data.getDurationAvg());
+        source.put(ApplicationMetricTable.COLUMN_ERROR_DURATION_SUM, data.getErrorDurationSum());
+        source.put(ApplicationMetricTable.COLUMN_SATISFIED_COUNT, data.getSatisfiedCount());
+        source.put(ApplicationMetricTable.COLUMN_TOLERATING_COUNT, data.getToleratingCount());
+        source.put(ApplicationMetricTable.COLUMN_FRUSTRATED_COUNT, data.getFrustratedCount());
         source.put(ApplicationMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
         return getClient().prepareIndex(ApplicationMetricTable.TABLE, data.getId()).setSource(source);
@@ -80,8 +86,10 @@ public class ApplicationMetricEsPersistenceDAO extends EsDAO implements IApplica
         source.put(ApplicationMetricTable.COLUMN_CALLS, data.getCalls());
         source.put(ApplicationMetricTable.COLUMN_ERROR_CALLS, data.getErrorCalls());
         source.put(ApplicationMetricTable.COLUMN_DURATION_SUM, data.getDurationSum());
-        source.put(ApplicationMetricTable.COLUMN_DURATION_AVG, data.getDurationAvg());
-        source.put(ApplicationMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
+        source.put(ApplicationMetricTable.COLUMN_ERROR_DURATION_SUM, data.getErrorDurationSum());
+        source.put(ApplicationMetricTable.COLUMN_SATISFIED_COUNT, data.getSatisfiedCount());
+        source.put(ApplicationMetricTable.COLUMN_TOLERATING_COUNT, data.getToleratingCount());
+        source.put(ApplicationMetricTable.COLUMN_FRUSTRATED_COUNT, data.getFrustratedCount());
 
         return getClient().prepareUpdate(ApplicationMetricTable.TABLE, data.getId()).setDoc(source);
     }

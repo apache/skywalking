@@ -16,20 +16,24 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.configuration.service;
+package org.skywalking.apm.collector.core.util;
 
 /**
  * @author peng-yongsheng
  */
-public class ApdexThresholdService implements IApdexThresholdService {
+public class ApdexThresholdUtils {
 
-    /**
-     * Apdex T applies to web transactions only
-     *
-     * @param applicationId
-     * @return This value is in milli-seconds.
-     */
-    @Override public Integer getApplicationApdexThreshold(int applicationId) {
-        return 1000;
+    public static Apdex compute(int threshold, long duration) {
+        if (duration <= threshold) {
+            return Apdex.Satisfied;
+        } else if (duration <= threshold * 4) {
+            return Apdex.Tolerating;
+        } else {
+            return Apdex.Frustrated;
+        }
+    }
+
+    public enum Apdex {
+        Satisfied, Tolerating, Frustrated
     }
 }

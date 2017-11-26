@@ -48,31 +48,31 @@ public class ApplicationReferenceMetricH2UIDAO extends H2DAO implements IApplica
     @Override public JsonArray load(long startTime, long endTime) {
         H2Client client = getClient();
         JsonArray nodeRefResSumArray = new JsonArray();
-        String sql = SqlBuilder.buildSql(NODE_REFERENCE_SQL, ApplicationReferenceMetricTable.COLUMN_S1_LTE,
-            ApplicationReferenceMetricTable.COLUMN_S3_LTE, ApplicationReferenceMetricTable.COLUMN_S5_LTE,
-            ApplicationReferenceMetricTable.COLUMN_S5_GT, ApplicationReferenceMetricTable.COLUMN_SUMMARY,
-            ApplicationReferenceMetricTable.COLUMN_ERROR, ApplicationReferenceMetricTable.TABLE, ApplicationReferenceMetricTable.COLUMN_TIME_BUCKET,
-            ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID, ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID);
-
-        Object[] params = new Object[] {startTime, endTime};
-        try (ResultSet rs = client.executeQuery(sql, params)) {
-            while (rs.next()) {
-                int frontApplicationId = rs.getInt(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID);
-                int behindApplicationId = rs.getInt(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID);
-                JsonObject nodeRefResSumObj = new JsonObject();
-                nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID), frontApplicationId);
-                nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID), behindApplicationId);
-                nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_S1_LTE), rs.getDouble(ApplicationReferenceMetricTable.COLUMN_S1_LTE));
-                nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_S3_LTE), rs.getDouble(ApplicationReferenceMetricTable.COLUMN_S3_LTE));
-                nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_S5_LTE), rs.getDouble(ApplicationReferenceMetricTable.COLUMN_S5_LTE));
-                nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_S5_GT), rs.getDouble(ApplicationReferenceMetricTable.COLUMN_S5_GT));
-                nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_ERROR), rs.getDouble(ApplicationReferenceMetricTable.COLUMN_ERROR));
-                nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_SUMMARY), rs.getDouble(ApplicationReferenceMetricTable.COLUMN_SUMMARY));
-                nodeRefResSumArray.add(nodeRefResSumObj);
-            }
-        } catch (SQLException | H2ClientException e) {
-            logger.error(e.getMessage(), e);
-        }
+//        String sql = SqlBuilder.buildSql(NODE_REFERENCE_SQL, ApplicationReferenceMetricTable.COLUMN_S1_LTE,
+//            ApplicationReferenceMetricTable.COLUMN_S3_LTE, ApplicationReferenceMetricTable.COLUMN_S5_LTE,
+//            ApplicationReferenceMetricTable.COLUMN_S5_GT, ApplicationReferenceMetricTable.COLUMN_SUMMARY,
+//            ApplicationReferenceMetricTable.COLUMN_ERROR, ApplicationReferenceMetricTable.TABLE, ApplicationReferenceMetricTable.COLUMN_TIME_BUCKET,
+//            ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID, ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID);
+//
+//        Object[] params = new Object[] {startTime, endTime};
+//        try (ResultSet rs = client.executeQuery(sql, params)) {
+//            while (rs.next()) {
+//                int frontApplicationId = rs.getInt(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID);
+//                int behindApplicationId = rs.getInt(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID);
+//                JsonObject nodeRefResSumObj = new JsonObject();
+//                nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID), frontApplicationId);
+//                nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID), behindApplicationId);
+//                nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_S1_LTE), rs.getDouble(ApplicationReferenceMetricTable.COLUMN_S1_LTE));
+//                nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_S3_LTE), rs.getDouble(ApplicationReferenceMetricTable.COLUMN_S3_LTE));
+//                nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_S5_LTE), rs.getDouble(ApplicationReferenceMetricTable.COLUMN_S5_LTE));
+//                nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_S5_GT), rs.getDouble(ApplicationReferenceMetricTable.COLUMN_S5_GT));
+//                nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_ERROR), rs.getDouble(ApplicationReferenceMetricTable.COLUMN_ERROR));
+//                nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_SUMMARY), rs.getDouble(ApplicationReferenceMetricTable.COLUMN_SUMMARY));
+//                nodeRefResSumArray.add(nodeRefResSumObj);
+//            }
+//        } catch (SQLException | H2ClientException e) {
+//            logger.error(e.getMessage(), e);
+//        }
         return nodeRefResSumArray;
     }
 }

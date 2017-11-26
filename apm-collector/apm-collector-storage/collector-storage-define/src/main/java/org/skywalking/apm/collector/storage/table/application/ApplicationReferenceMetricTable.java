@@ -27,10 +27,11 @@ public class ApplicationReferenceMetricTable extends CommonTable {
     public static final String TABLE = "application_reference";
     public static final String COLUMN_FRONT_APPLICATION_ID = "front_application_id";
     public static final String COLUMN_BEHIND_APPLICATION_ID = "behind_application_id";
-    public static final String COLUMN_S1_LTE = "s1_lte";
-    public static final String COLUMN_S3_LTE = "s3_lte";
-    public static final String COLUMN_S5_LTE = "s5_lte";
-    public static final String COLUMN_S5_GT = "s5_gt";
-    public static final String COLUMN_SUMMARY = "summary";
-    public static final String COLUMN_ERROR = "error";
+    public static final String COLUMN_CALLS = "calls";
+    public static final String COLUMN_ERROR_CALLS = "error_calls";
+    public static final String COLUMN_DURATION_SUM = "duration_sum";
+    public static final String COLUMN_ERROR_DURATION_SUM = "error_duration_sum";
+    public static final String COLUMN_SATISFIED_COUNT = "satisfied_count";
+    public static final String COLUMN_TOLERATING_COUNT = "tolerating_count";
+    public static final String COLUMN_FRUSTRATED_COUNT = "frustrated_count";
 }

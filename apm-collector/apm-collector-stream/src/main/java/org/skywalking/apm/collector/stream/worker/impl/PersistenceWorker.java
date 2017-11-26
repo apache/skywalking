@@ -40,12 +40,12 @@ public abstract class PersistenceWorker<INPUT extends Data, OUTPUT extends Data>
 
     private final Logger logger = LoggerFactory.getLogger(PersistenceWorker.class);
 
-    private final DataCache dataCache;
+    private final DataCache<OUTPUT> dataCache;
     private final IBatchDAO batchDAO;
 
     public PersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
-        this.dataCache = new DataCache();
+        this.dataCache = new DataCache<>();
         this.batchDAO = moduleManager.find(StorageModule.NAME).getService(IBatchDAO.class);
     }
 
@@ -95,7 +95,7 @@ public abstract class PersistenceWorker<INPUT extends Data, OUTPUT extends Data>
         return batchCollection;
     }
 
-    protected final List<Object> prepareBatch(Map<String, Data> dataMap) {
+    protected final List<Object> prepareBatch(Map<String, OUTPUT> dataMap) {
         List<Object> insertBatchCollection = new LinkedList<>();
         List<Object> updateBatchCollection = new LinkedList<>();
         dataMap.forEach((id, data) -> {
@@ -130,7 +130,7 @@ public abstract class PersistenceWorker<INPUT extends Data, OUTPUT extends Data>
 
     private void aggregate(Object message) {
         dataCache.writing();
-        Data newData = (Data)message;
+        OUTPUT newData = (OUTPUT)message;
 
         if (dataCache.containsKey(newData.getId())) {
             dataCache.get(newData.getId()).mergeData(newData);
