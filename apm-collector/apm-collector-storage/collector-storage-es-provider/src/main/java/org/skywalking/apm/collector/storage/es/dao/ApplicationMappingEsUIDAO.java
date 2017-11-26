@@ -27,20 +27,20 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.skywalking.apm.collector.storage.dao.INodeMappingUIDAO;
+import org.skywalking.apm.collector.storage.dao.IApplicationMappingUIDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
-import org.skywalking.apm.collector.storage.table.node.ApplicationMappingTable;
+import org.skywalking.apm.collector.storage.table.application.ApplicationMappingTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
-public class NodeMappingEsUIDAO extends EsDAO implements INodeMappingUIDAO {
+public class ApplicationMappingEsUIDAO extends EsDAO implements IApplicationMappingUIDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(NodeMappingEsUIDAO.class);
+    private final Logger logger = LoggerFactory.getLogger(ApplicationMappingEsUIDAO.class);
 
-    public NodeMappingEsUIDAO(ElasticSearchClient client) {
+    public ApplicationMappingEsUIDAO(ElasticSearchClient client) {
         super(client);
     }
 

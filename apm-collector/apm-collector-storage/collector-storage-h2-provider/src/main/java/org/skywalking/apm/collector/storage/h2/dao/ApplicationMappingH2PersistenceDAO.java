@@ -30,8 +30,8 @@ import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.dao.IApplicationMappingPersistenceDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
-import org.skywalking.apm.collector.storage.table.node.ApplicationMapping;
-import org.skywalking.apm.collector.storage.table.node.ApplicationMappingTable;
+import org.skywalking.apm.collector.storage.table.application.ApplicationMapping;
+import org.skywalking.apm.collector.storage.table.application.ApplicationMappingTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

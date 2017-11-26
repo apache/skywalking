@@ -20,7 +20,7 @@ package org.skywalking.apm.collector.agent.stream.worker.trace.application;
 
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
-import org.skywalking.apm.collector.storage.table.node.ApplicationMapping;
+import org.skywalking.apm.collector.storage.table.application.ApplicationMapping;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.impl.AggregationWorker;
 

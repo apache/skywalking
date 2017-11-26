@@ -20,7 +20,7 @@ package org.skywalking.apm.collector.storage.es.define;
 
 import org.skywalking.apm.collector.storage.es.base.define.ElasticSearchColumnDefine;
 import org.skywalking.apm.collector.storage.es.base.define.ElasticSearchTableDefine;
-import org.skywalking.apm.collector.storage.table.node.ApplicationMappingTable;
+import org.skywalking.apm.collector.storage.table.application.ApplicationMappingTable;
 
 /**
  * @author peng-yongsheng

@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.storage.table.node;
+package org.skywalking.apm.collector.storage.table.application;
 
 import org.skywalking.apm.collector.core.data.Column;
 import org.skywalking.apm.collector.core.data.Data;
@@ -26,49 +26,49 @@ import org.skywalking.apm.collector.core.data.operator.NonOperation;
 /**
  * @author peng-yongsheng
  */
-public class ApplicationMapping extends Data {
+public class ApplicationComponent extends Data {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(ApplicationMappingTable.COLUMN_ID, new NonOperation()),
+        new Column(ApplicationComponentTable.COLUMN_ID, new NonOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(ApplicationMappingTable.COLUMN_TIME_BUCKET, new CoverOperation()),
+        new Column(ApplicationComponentTable.COLUMN_TIME_BUCKET, new CoverOperation()),
     };
     private static final Column[] DOUBLE_COLUMNS = {};
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(ApplicationMappingTable.COLUMN_APPLICATION_ID, new CoverOperation()),
-        new Column(ApplicationMappingTable.COLUMN_ADDRESS_ID, new CoverOperation()),
+        new Column(ApplicationComponentTable.COLUMN_COMPONENT_ID, new CoverOperation()),
+        new Column(ApplicationComponentTable.COLUMN_PEER_ID, new CoverOperation()),
     };
 
     private static final Column[] BOOLEAN_COLUMNS = {};
     private static final Column[] BYTE_COLUMNS = {};
 
-    public ApplicationMapping(String id) {
+    public ApplicationComponent(String id) {
         super(id, STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
     }
 
-    public int getApplicationId() {
-        return getDataInteger(0);
-    }
-
-    public void setApplicationId(int applicationId) {
-        setDataInteger(0, applicationId);
-    }
-
-    public int getAddressId() {
-        return getDataInteger(1);
-    }
-
-    public void setAddressId(int addressId) {
-        setDataInteger(1, addressId);
-    }
-
-    public long getTimeBucket() {
+    public Long getTimeBucket() {
         return getDataLong(0);
     }
 
-    public void setTimeBucket(long timeBucket) {
+    public void setTimeBucket(Long timeBucket) {
         setDataLong(0, timeBucket);
+    }
+
+    public Integer getComponentId() {
+        return getDataInteger(0);
+    }
+
+    public void setComponentId(Integer componentId) {
+        setDataInteger(0, componentId);
+    }
+
+    public Integer getPeerId() {
+        return getDataInteger(1);
+    }
+
+    public void setPeerId(Integer peerId) {
+        setDataInteger(1, peerId);
     }
 }

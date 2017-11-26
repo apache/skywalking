@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.storage.table.noderef;
+package org.skywalking.apm.collector.storage.table.application;
 
 import org.skywalking.apm.collector.core.data.Column;
 import org.skywalking.apm.collector.core.data.Data;
@@ -29,22 +29,22 @@ import org.skywalking.apm.collector.core.data.operator.NonOperation;
 public class ApplicationReferenceMetric extends Data {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(NodeReferenceTable.COLUMN_ID, new NonOperation()),
+        new Column(ApplicationReferenceMetricTable.COLUMN_ID, new NonOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(NodeReferenceTable.COLUMN_TIME_BUCKET, new NonOperation()),
+        new Column(ApplicationReferenceMetricTable.COLUMN_TIME_BUCKET, new NonOperation()),
     };
     private static final Column[] DOUBLE_COLUMNS = {};
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(NodeReferenceTable.COLUMN_FRONT_APPLICATION_ID, new NonOperation()),
-        new Column(NodeReferenceTable.COLUMN_BEHIND_APPLICATION_ID, new NonOperation()),
-        new Column(NodeReferenceTable.COLUMN_S1_LTE, new AddOperation()),
-        new Column(NodeReferenceTable.COLUMN_S3_LTE, new AddOperation()),
-        new Column(NodeReferenceTable.COLUMN_S5_LTE, new AddOperation()),
-        new Column(NodeReferenceTable.COLUMN_S5_GT, new AddOperation()),
-        new Column(NodeReferenceTable.COLUMN_SUMMARY, new AddOperation()),
-        new Column(NodeReferenceTable.COLUMN_ERROR, new AddOperation()),
+        new Column(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID, new NonOperation()),
+        new Column(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID, new NonOperation()),
+        new Column(ApplicationReferenceMetricTable.COLUMN_S1_LTE, new AddOperation()),
+        new Column(ApplicationReferenceMetricTable.COLUMN_S3_LTE, new AddOperation()),
+        new Column(ApplicationReferenceMetricTable.COLUMN_S5_LTE, new AddOperation()),
+        new Column(ApplicationReferenceMetricTable.COLUMN_S5_GT, new AddOperation()),
+        new Column(ApplicationReferenceMetricTable.COLUMN_SUMMARY, new AddOperation()),
+        new Column(ApplicationReferenceMetricTable.COLUMN_ERROR, new AddOperation()),
     };
 
     private static final Column[] BOOLEAN_COLUMNS = {};

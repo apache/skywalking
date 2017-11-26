@@ -25,21 +25,21 @@ import java.sql.SQLException;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
-import org.skywalking.apm.collector.storage.dao.INodeComponentUIDAO;
+import org.skywalking.apm.collector.storage.dao.IApplicationComponentUIDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
-import org.skywalking.apm.collector.storage.table.node.ApplicationComponentTable;
+import org.skywalking.apm.collector.storage.table.application.ApplicationComponentTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng, clevertension
  */
-public class NodeComponentH2UIDAO extends H2DAO implements INodeComponentUIDAO {
+public class ApplicationComponentH2UIDAO extends H2DAO implements IApplicationComponentUIDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(NodeComponentH2UIDAO.class);
+    private final Logger logger = LoggerFactory.getLogger(ApplicationComponentH2UIDAO.class);
     private static final String AGGREGATE_COMPONENT_SQL = "select {0}, {1} from {2} where {3} >= ? and {3} <= ? group by {0}, {1} limit 100";
 
-    public NodeComponentH2UIDAO(H2Client client) {
+    public ApplicationComponentH2UIDAO(H2Client client) {
         super(client);
     }
 

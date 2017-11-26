@@ -19,9 +19,9 @@
 package org.skywalking.apm.collector.agent.stream.worker;
 
 import org.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
-import org.skywalking.apm.collector.storage.table.node.ApplicationComponent;
-import org.skywalking.apm.collector.storage.table.node.ApplicationMapping;
-import org.skywalking.apm.collector.storage.table.noderef.ApplicationReferenceMetric;
+import org.skywalking.apm.collector.storage.table.application.ApplicationComponent;
+import org.skywalking.apm.collector.storage.table.application.ApplicationMapping;
+import org.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetric;
 import org.skywalking.apm.collector.storage.table.register.Application;
 import org.skywalking.apm.collector.storage.table.register.Instance;
 import org.skywalking.apm.collector.storage.table.register.ServiceName;

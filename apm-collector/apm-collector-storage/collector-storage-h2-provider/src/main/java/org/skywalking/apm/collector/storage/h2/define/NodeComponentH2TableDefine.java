@@ -20,7 +20,7 @@ package org.skywalking.apm.collector.storage.h2.define;
 
 import org.skywalking.apm.collector.storage.h2.base.define.H2ColumnDefine;
 import org.skywalking.apm.collector.storage.h2.base.define.H2TableDefine;
-import org.skywalking.apm.collector.storage.table.node.ApplicationComponentTable;
+import org.skywalking.apm.collector.storage.table.application.ApplicationComponentTable;
 
 /**
  * @author peng-yongsheng

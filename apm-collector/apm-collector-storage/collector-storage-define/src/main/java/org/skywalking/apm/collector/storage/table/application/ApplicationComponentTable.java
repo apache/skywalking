@@ -16,14 +16,15 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.storage.dao;
+package org.skywalking.apm.collector.storage.table.application;
 
-import com.google.gson.JsonArray;
-import org.skywalking.apm.collector.storage.base.dao.DAO;
+import org.skywalking.apm.collector.core.data.CommonTable;
 
 /**
  * @author peng-yongsheng
  */
-public interface INodeMappingUIDAO extends DAO {
-    JsonArray load(long startTime, long endTime);
+public class ApplicationComponentTable extends CommonTable {
+    public static final String TABLE = "application_component";
+    public static final String COLUMN_COMPONENT_ID = "component_id";
+    public static final String COLUMN_PEER_ID = "peer_id";
 }

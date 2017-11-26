@@ -28,9 +28,9 @@ import org.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.ColumnNameUtils;
 import org.skywalking.apm.collector.core.util.Const;
-import org.skywalking.apm.collector.storage.table.node.ApplicationComponentTable;
-import org.skywalking.apm.collector.storage.table.node.ApplicationMappingTable;
-import org.skywalking.apm.collector.storage.table.noderef.NodeReferenceTable;
+import org.skywalking.apm.collector.storage.table.application.ApplicationComponentTable;
+import org.skywalking.apm.collector.storage.table.application.ApplicationMappingTable;
+import org.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetricTable;
 import org.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +70,7 @@ public class TraceDagDataBuilder {
             JsonObject lineJsonObj = new JsonObject();
             lineJsonObj.addProperty("from", findOrCreateNode(front));
             lineJsonObj.addProperty("to", findOrCreateNode(behind));
-            lineJsonObj.addProperty("resSum", nodeRefJsonObj.get(NodeReferenceTable.COLUMN_SUMMARY).getAsInt());
+            lineJsonObj.addProperty("resSum", nodeRefJsonObj.get(ApplicationReferenceMetricTable.COLUMN_SUMMARY).getAsInt());
 
             lineArray.add(lineJsonObj);
             logger.debug("line: {}", lineJsonObj);
@@ -135,8 +135,8 @@ public class TraceDagDataBuilder {
         for (int i = 0; i < nodeReference.size(); i++) {
             JsonObject nodeRefJsonObj = nodeReference.get(i).getAsJsonObject();
 
-            int frontApplicationId = nodeRefJsonObj.get(ColumnNameUtils.INSTANCE.rename(NodeReferenceTable.COLUMN_FRONT_APPLICATION_ID)).getAsInt();
-            int behindApplicationId = nodeRefJsonObj.get(ColumnNameUtils.INSTANCE.rename(NodeReferenceTable.COLUMN_BEHIND_APPLICATION_ID)).getAsInt();
+            int frontApplicationId = nodeRefJsonObj.get(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID)).getAsInt();
+            int behindApplicationId = nodeRefJsonObj.get(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID)).getAsInt();
 
             String front = applicationCacheService.get(frontApplicationId);
             String behind = applicationCacheService.get(behindApplicationId);

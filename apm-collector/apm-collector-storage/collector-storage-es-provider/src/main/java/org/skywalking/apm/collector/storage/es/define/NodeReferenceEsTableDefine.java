@@ -20,7 +20,7 @@ package org.skywalking.apm.collector.storage.es.define;
 
 import org.skywalking.apm.collector.storage.es.base.define.ElasticSearchColumnDefine;
 import org.skywalking.apm.collector.storage.es.base.define.ElasticSearchTableDefine;
-import org.skywalking.apm.collector.storage.table.noderef.NodeReferenceTable;
+import org.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetricTable;
 
 /**
  * @author peng-yongsheng
@@ -28,7 +28,7 @@ import org.skywalking.apm.collector.storage.table.noderef.NodeReferenceTable;
 public class NodeReferenceEsTableDefine extends ElasticSearchTableDefine {
 
     public NodeReferenceEsTableDefine() {
-        super(NodeReferenceTable.TABLE);
+        super(ApplicationReferenceMetricTable.TABLE);
     }
 
     @Override public int refreshInterval() {
@@ -36,14 +36,14 @@ public class NodeReferenceEsTableDefine extends ElasticSearchTableDefine {
     }
 
     @Override public void initialize() {
-        addColumn(new ElasticSearchColumnDefine(NodeReferenceTable.COLUMN_FRONT_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(NodeReferenceTable.COLUMN_BEHIND_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(NodeReferenceTable.COLUMN_S1_LTE, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(NodeReferenceTable.COLUMN_S3_LTE, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(NodeReferenceTable.COLUMN_S5_LTE, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(NodeReferenceTable.COLUMN_S5_GT, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(NodeReferenceTable.COLUMN_SUMMARY, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(NodeReferenceTable.COLUMN_ERROR, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(NodeReferenceTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationReferenceMetricTable.COLUMN_S1_LTE, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationReferenceMetricTable.COLUMN_S3_LTE, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationReferenceMetricTable.COLUMN_S5_LTE, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationReferenceMetricTable.COLUMN_S5_GT, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationReferenceMetricTable.COLUMN_SUMMARY, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationReferenceMetricTable.COLUMN_ERROR, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationReferenceMetricTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
     }
 }
