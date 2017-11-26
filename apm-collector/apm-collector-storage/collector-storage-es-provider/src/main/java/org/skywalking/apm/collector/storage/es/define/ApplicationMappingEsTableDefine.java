@@ -25,9 +25,9 @@ import org.skywalking.apm.collector.storage.table.application.ApplicationMapping
 /**
  * @author peng-yongsheng
  */
-public class NodeMappingEsTableDefine extends ElasticSearchTableDefine {
+public class ApplicationMappingEsTableDefine extends ElasticSearchTableDefine {
 
-    public NodeMappingEsTableDefine() {
+    public ApplicationMappingEsTableDefine() {
         super(ApplicationMappingTable.TABLE);
     }
 

@@ -25,9 +25,9 @@ import org.skywalking.apm.collector.storage.table.application.ApplicationMapping
 /**
  * @author peng-yongsheng
  */
-public class NodeMappingH2TableDefine extends H2TableDefine {
+public class ApplicationMappingH2TableDefine extends H2TableDefine {
 
-    public NodeMappingH2TableDefine() {
+    public ApplicationMappingH2TableDefine() {
         super(ApplicationMappingTable.TABLE);
     }
 

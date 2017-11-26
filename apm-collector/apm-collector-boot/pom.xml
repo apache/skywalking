@@ -150,6 +150,20 @@
             <version>${project.version}</version>
         </dependency>
         <!-- cache provider -->
+        <!-- configuration provider -->
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-configuration-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- configuration provider -->
+        <!-- alerting provider -->
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-alerting-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- alerting provider -->
     </dependencies>
 
     <build>

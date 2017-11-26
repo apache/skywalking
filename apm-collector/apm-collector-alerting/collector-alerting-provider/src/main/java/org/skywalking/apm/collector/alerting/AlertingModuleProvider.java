@@ -34,7 +34,7 @@ public class AlertingModuleProvider extends ModuleProvider {
     }
 
     @Override public Class<? extends Module> module() {
-        return null;
+        return AlertingModule.class;
     }
 
     @Override public void prepare(Properties config) throws ServiceNotProvidedException {
