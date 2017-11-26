@@ -58,19 +58,19 @@ public class ApplicationMappingEsUIDAO extends EsDAO implements IApplicationMapp
 
         Terms applicationIdTerms = searchResponse.getAggregations().get(ApplicationMappingTable.COLUMN_APPLICATION_ID);
 
-        JsonArray nodeMappingArray = new JsonArray();
+        JsonArray applicationMappingArray = new JsonArray();
         for (Terms.Bucket applicationIdBucket : applicationIdTerms.getBuckets()) {
             int applicationId = applicationIdBucket.getKeyAsNumber().intValue();
             Terms addressIdTerms = applicationIdBucket.getAggregations().get(ApplicationMappingTable.COLUMN_ADDRESS_ID);
             for (Terms.Bucket addressIdBucket : addressIdTerms.getBuckets()) {
                 int addressId = addressIdBucket.getKeyAsNumber().intValue();
-                JsonObject nodeMappingObj = new JsonObject();
-                nodeMappingObj.addProperty(ApplicationMappingTable.COLUMN_APPLICATION_ID, applicationId);
-                nodeMappingObj.addProperty(ApplicationMappingTable.COLUMN_ADDRESS_ID, addressId);
-                nodeMappingArray.add(nodeMappingObj);
+                JsonObject applicationMappingObj = new JsonObject();
+                applicationMappingObj.addProperty(ApplicationMappingTable.COLUMN_APPLICATION_ID, applicationId);
+                applicationMappingObj.addProperty(ApplicationMappingTable.COLUMN_ADDRESS_ID, addressId);
+                applicationMappingArray.add(applicationMappingObj);
             }
         }
-        logger.debug("node mapping data: {}", nodeMappingArray.toString());
-        return nodeMappingArray;
+        logger.debug("application mapping data: {}", applicationMappingArray.toString());
+        return applicationMappingArray;
     }
 }

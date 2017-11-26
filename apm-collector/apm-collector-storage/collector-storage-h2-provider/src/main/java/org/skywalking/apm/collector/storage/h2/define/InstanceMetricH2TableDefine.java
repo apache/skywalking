@@ -25,9 +25,9 @@ import org.skywalking.apm.collector.storage.table.instance.InstanceMetricTable;
 /**
  * @author peng-yongsheng
  */
-public class InstPerformanceH2TableDefine extends H2TableDefine {
+public class InstanceMetricH2TableDefine extends H2TableDefine {
 
-    public InstPerformanceH2TableDefine() {
+    public InstanceMetricH2TableDefine() {
         super(InstanceMetricTable.TABLE);
     }
 
@@ -35,8 +35,10 @@ public class InstPerformanceH2TableDefine extends H2TableDefine {
         addColumn(new H2ColumnDefine(InstanceMetricTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
         addColumn(new H2ColumnDefine(InstanceMetricTable.COLUMN_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
         addColumn(new H2ColumnDefine(InstanceMetricTable.COLUMN_INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(InstanceMetricTable.COLUMN_CALLS, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(InstanceMetricTable.COLUMN_COST_TOTAL, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(InstanceMetricTable.COLUMN_CALLS, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(InstanceMetricTable.COLUMN_ERROR_CALLS, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(InstanceMetricTable.COLUMN_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(InstanceMetricTable.COLUMN_ERROR_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
         addColumn(new H2ColumnDefine(InstanceMetricTable.COLUMN_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
     }
 }

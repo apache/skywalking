@@ -62,7 +62,7 @@ public class ApplicationMappingSpanListener implements RefsListener, FirstSpanLi
 
     @Override public void build() {
         logger.debug("node mapping listener build");
-        Graph<ApplicationMapping> graph = GraphManager.INSTANCE.createIfAbsent(TraceStreamGraph.NODE_MAPPING_GRAPH_ID, ApplicationMapping.class);
+        Graph<ApplicationMapping> graph = GraphManager.INSTANCE.createIfAbsent(TraceStreamGraph.APPLICATION_MAPPING_GRAPH_ID, ApplicationMapping.class);
 
         for (ApplicationMapping applicationMapping : applicationMappings) {
             applicationMapping.setId(timeBucket + Const.ID_SPLIT + applicationMapping.getId());

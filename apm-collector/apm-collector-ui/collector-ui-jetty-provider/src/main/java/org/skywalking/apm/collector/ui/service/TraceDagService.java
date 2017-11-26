@@ -35,28 +35,28 @@ public class TraceDagService {
 
     private final Logger logger = LoggerFactory.getLogger(TraceDagService.class);
 
-    private final IApplicationComponentUIDAO nodeComponentDAO;
-    private final IApplicationMappingUIDAO nodeMappingDAO;
-    private final IApplicationReferenceMetricUIDAO nodeRefSumDAO;
+    private final IApplicationComponentUIDAO applicationComponentUIDAO;
+    private final IApplicationMappingUIDAO applicationMappingUIDAO;
+    private final IApplicationReferenceMetricUIDAO applicationReferenceMetricUIDAO;
     private final ModuleManager moduleManager;
 
     public TraceDagService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
-        this.nodeComponentDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationComponentUIDAO.class);
-        this.nodeMappingDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationMappingUIDAO.class);
-        this.nodeRefSumDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationReferenceMetricUIDAO.class);
+        this.applicationComponentUIDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationComponentUIDAO.class);
+        this.applicationMappingUIDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationMappingUIDAO.class);
+        this.applicationReferenceMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationReferenceMetricUIDAO.class);
     }
 
     public JsonObject load(long startTime, long endTime) {
         logger.debug("startTime: {}, endTime: {}", startTime, endTime);
-        JsonArray nodeComponentArray = nodeComponentDAO.load(startTime, endTime);
+        JsonArray applicationComponentArray = applicationComponentUIDAO.load(startTime, endTime);
 
-        JsonArray nodeMappingArray = nodeMappingDAO.load(startTime, endTime);
+        JsonArray applicationMappingArray = applicationMappingUIDAO.load(startTime, endTime);
 
-        JsonArray nodeRefSumArray = nodeRefSumDAO.load(startTime, endTime);
+        JsonArray applicationReferenceMetricArray = applicationReferenceMetricUIDAO.load(startTime, endTime);
 
         TraceDagDataBuilder builder = new TraceDagDataBuilder(moduleManager);
-        JsonObject traceDag = builder.build(nodeComponentArray, nodeMappingArray, nodeRefSumArray);
+        JsonObject traceDag = builder.build(applicationComponentArray, applicationMappingArray, applicationReferenceMetricArray);
 
         return traceDag;
     }

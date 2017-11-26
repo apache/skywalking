@@ -24,38 +24,38 @@ import org.skywalking.apm.collector.storage.base.dao.DAO;
 /**
  * @author peng-yongsheng
  */
-public interface IInstPerformanceUIDAO extends DAO {
-    InstPerformance get(long[] timeBuckets, int instanceId);
+public interface IInstanceMetricUIDAO extends DAO {
+    InstanceMetric get(long[] timeBuckets, int instanceId);
 
-    int getTpsMetric(int instanceId, long timeBucket);
+    long getTpsMetric(int instanceId, long timeBucket);
 
     JsonArray getTpsMetric(int instanceId, long startTimeBucket, long endTimeBucket);
 
-    int getRespTimeMetric(int instanceId, long timeBucket);
+    long getRespTimeMetric(int instanceId, long timeBucket);
 
     JsonArray getRespTimeMetric(int instanceId, long startTimeBucket, long endTimeBucket);
 
-    class InstPerformance {
+    class InstanceMetric {
         private final int instanceId;
-        private final int calls;
-        private final long costTotal;
+        private final long calls;
+        private final long durationSum;
 
-        public InstPerformance(int instanceId, int calls, long costTotal) {
+        public InstanceMetric(int instanceId, long calls, long durationSum) {
             this.instanceId = instanceId;
             this.calls = calls;
-            this.costTotal = costTotal;
+            this.durationSum = durationSum;
         }
 
         public int getInstanceId() {
             return instanceId;
         }
 
-        public int getCalls() {
+        public long getCalls() {
             return calls;
         }
 
-        public long getCostTotal() {
-            return costTotal;
+        public long getDurationSum() {
+            return durationSum;
         }
     }
 }

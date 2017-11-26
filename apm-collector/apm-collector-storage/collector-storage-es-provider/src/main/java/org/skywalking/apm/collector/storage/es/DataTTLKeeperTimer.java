@@ -23,15 +23,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.storage.StorageModule;
+import org.skywalking.apm.collector.storage.dao.IApplicationComponentPersistenceDAO;
+import org.skywalking.apm.collector.storage.dao.IApplicationMappingPersistenceDAO;
+import org.skywalking.apm.collector.storage.dao.IApplicationReferenceMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.ICpuMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IGCMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IGlobalTracePersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IInstanceMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IMemoryMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IMemoryPoolMetricPersistenceDAO;
-import org.skywalking.apm.collector.storage.dao.IApplicationComponentPersistenceDAO;
-import org.skywalking.apm.collector.storage.dao.IApplicationMappingPersistenceDAO;
-import org.skywalking.apm.collector.storage.dao.IApplicationReferenceMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.ISegmentCostPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.ISegmentPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IServiceReferenceMetricPersistenceDAO;
@@ -94,17 +94,17 @@ public class DataTTLKeeperTimer {
         IGlobalTracePersistenceDAO globalTracePersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IGlobalTracePersistenceDAO.class);
         globalTracePersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
 
-        IInstanceMetricPersistenceDAO instPerformancePersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceMetricPersistenceDAO.class);
-        instPerformancePersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
+        IInstanceMetricPersistenceDAO instanceMetricPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceMetricPersistenceDAO.class);
+        instanceMetricPersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
 
-        IApplicationComponentPersistenceDAO nodeComponentPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationComponentPersistenceDAO.class);
-        nodeComponentPersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
+        IApplicationComponentPersistenceDAO applicationComponentPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationComponentPersistenceDAO.class);
+        applicationComponentPersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
 
-        IApplicationMappingPersistenceDAO nodeMappingPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationMappingPersistenceDAO.class);
-        nodeMappingPersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
+        IApplicationMappingPersistenceDAO applicationMappingPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationMappingPersistenceDAO.class);
+        applicationMappingPersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
 
-        IApplicationReferenceMetricPersistenceDAO nodeReferencePersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationReferenceMetricPersistenceDAO.class);
-        nodeReferencePersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
+        IApplicationReferenceMetricPersistenceDAO applicationReferenceMetricPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationReferenceMetricPersistenceDAO.class);
+        applicationReferenceMetricPersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
 
         ISegmentCostPersistenceDAO segmentCostPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(ISegmentCostPersistenceDAO.class);
         segmentCostPersistenceDAO.deleteHistory(startTimestamp, endTimestamp);

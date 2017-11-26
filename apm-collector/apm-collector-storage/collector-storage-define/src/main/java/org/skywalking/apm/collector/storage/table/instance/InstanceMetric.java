@@ -34,7 +34,10 @@ public class InstanceMetric extends Data {
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(InstanceMetricTable.COLUMN_COST_TOTAL, new AddOperation()),
+        new Column(InstanceMetricTable.COLUMN_CALLS, new AddOperation()),
+        new Column(InstanceMetricTable.COLUMN_ERROR_CALLS, new AddOperation()),
+        new Column(InstanceMetricTable.COLUMN_DURATION_SUM, new AddOperation()),
+        new Column(InstanceMetricTable.COLUMN_ERROR_DURATION_SUM, new AddOperation()),
         new Column(InstanceMetricTable.COLUMN_TIME_BUCKET, new CoverOperation()),
     };
 
@@ -43,7 +46,6 @@ public class InstanceMetric extends Data {
     private static final Column[] INTEGER_COLUMNS = {
         new Column(InstanceMetricTable.COLUMN_APPLICATION_ID, new CoverOperation()),
         new Column(InstanceMetricTable.COLUMN_INSTANCE_ID, new CoverOperation()),
-        new Column(InstanceMetricTable.COLUMN_CALLS, new AddOperation()),
     };
 
     private static final Column[] BOOLEAN_COLUMNS = {};
@@ -51,22 +53,6 @@ public class InstanceMetric extends Data {
 
     public InstanceMetric(String id) {
         super(id, STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
-    }
-
-    public Long getCostTotal() {
-        return getDataLong(0);
-    }
-
-    public void setCostTotal(Long costTotal) {
-        setDataLong(0, costTotal);
-    }
-
-    public Long getTimeBucket() {
-        return getDataLong(1);
-    }
-
-    public void setTimeBucket(Long timeBucket) {
-        setDataLong(1, timeBucket);
     }
 
     public Integer getApplicationId() {
@@ -85,11 +71,43 @@ public class InstanceMetric extends Data {
         setDataInteger(1, instanceId);
     }
 
-    public Integer getCalls() {
-        return getDataInteger(2);
+    public long getCalls() {
+        return getDataLong(0);
     }
 
-    public void setCalls(Integer calls) {
-        setDataInteger(2, calls);
+    public void setCalls(long calls) {
+        setDataLong(0, calls);
+    }
+
+    public long getErrorCalls() {
+        return getDataLong(1);
+    }
+
+    public void setErrorCalls(long errorCalls) {
+        setDataLong(1, errorCalls);
+    }
+
+    public long getDurationSum() {
+        return getDataLong(2);
+    }
+
+    public void setDurationSum(long durationSum) {
+        setDataLong(2, durationSum);
+    }
+
+    public long getErrorDurationSum() {
+        return getDataLong(3);
+    }
+
+    public void setErrorDurationSum(long errorDurationSum) {
+        setDataLong(3, errorDurationSum);
+    }
+
+    public Long getTimeBucket() {
+        return getDataLong(4);
+    }
+
+    public void setTimeBucket(Long timeBucket) {
+        setDataLong(4, timeBucket);
     }
 }

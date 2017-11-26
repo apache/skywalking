@@ -41,7 +41,7 @@ import org.skywalking.apm.collector.storage.dao.IGCMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IGCMetricUIDAO;
 import org.skywalking.apm.collector.storage.dao.IGlobalTracePersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IGlobalTraceUIDAO;
-import org.skywalking.apm.collector.storage.dao.IInstPerformanceUIDAO;
+import org.skywalking.apm.collector.storage.dao.IInstanceMetricUIDAO;
 import org.skywalking.apm.collector.storage.dao.IInstanceCacheDAO;
 import org.skywalking.apm.collector.storage.dao.IInstanceHeartBeatPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IInstanceMetricPersistenceDAO;
@@ -78,7 +78,7 @@ import org.skywalking.apm.collector.storage.h2.dao.GCMetricH2PersistenceDAO;
 import org.skywalking.apm.collector.storage.h2.dao.GCMetricH2UIDAO;
 import org.skywalking.apm.collector.storage.h2.dao.GlobalTraceH2PersistenceDAO;
 import org.skywalking.apm.collector.storage.h2.dao.GlobalTraceH2UIDAO;
-import org.skywalking.apm.collector.storage.h2.dao.InstPerformanceH2UIDAO;
+import org.skywalking.apm.collector.storage.h2.dao.InstanceMetricH2UIDAO;
 import org.skywalking.apm.collector.storage.h2.dao.InstanceH2CacheDAO;
 import org.skywalking.apm.collector.storage.h2.dao.InstanceH2RegisterDAO;
 import org.skywalking.apm.collector.storage.h2.dao.InstanceH2UIDAO;
@@ -195,7 +195,7 @@ public class StorageModuleH2Provider extends ModuleProvider {
         this.registerServiceImplementation(IMemoryPoolMetricUIDAO.class, new MemoryPoolMetricH2UIDAO(h2Client));
 
         this.registerServiceImplementation(IGlobalTraceUIDAO.class, new GlobalTraceH2UIDAO(h2Client));
-        this.registerServiceImplementation(IInstPerformanceUIDAO.class, new InstPerformanceH2UIDAO(h2Client));
+        this.registerServiceImplementation(IInstanceMetricUIDAO.class, new InstanceMetricH2UIDAO(h2Client));
         this.registerServiceImplementation(IApplicationComponentUIDAO.class, new ApplicationComponentH2UIDAO(h2Client));
         this.registerServiceImplementation(IApplicationMappingUIDAO.class, new ApplicationMappingH2UIDAO(h2Client));
         this.registerServiceImplementation(IApplicationReferenceMetricUIDAO.class, new ApplicationReferenceMetricH2UIDAO(h2Client));

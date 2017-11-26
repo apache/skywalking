@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 public class ApplicationMappingH2UIDAO extends H2DAO implements IApplicationMappingUIDAO {
 
     private final Logger logger = LoggerFactory.getLogger(ApplicationMappingH2UIDAO.class);
-    private static final String NODE_MAPPING_SQL = "select {0}, {1} from {2} where {3} >= ? and {3} <= ? group by {0}, {1} limit 100";
+    private static final String APPLICATION_MAPPING_SQL = "select {0}, {1} from {2} where {3} >= ? and {3} <= ? group by {0}, {1} limit 100";
 
     public ApplicationMappingH2UIDAO(H2Client client) {
         super(client);
@@ -45,8 +45,8 @@ public class ApplicationMappingH2UIDAO extends H2DAO implements IApplicationMapp
 
     @Override public JsonArray load(long startTime, long endTime) {
         H2Client client = getClient();
-        JsonArray nodeMappingArray = new JsonArray();
-        String sql = SqlBuilder.buildSql(NODE_MAPPING_SQL, ApplicationMappingTable.COLUMN_APPLICATION_ID,
+        JsonArray applicationMappingArray = new JsonArray();
+        String sql = SqlBuilder.buildSql(APPLICATION_MAPPING_SQL, ApplicationMappingTable.COLUMN_APPLICATION_ID,
             ApplicationMappingTable.COLUMN_ADDRESS_ID, ApplicationMappingTable.TABLE, ApplicationMappingTable.COLUMN_TIME_BUCKET);
 
         Object[] params = new Object[] {startTime, endTime};
@@ -54,15 +54,15 @@ public class ApplicationMappingH2UIDAO extends H2DAO implements IApplicationMapp
             while (rs.next()) {
                 int applicationId = rs.getInt(ApplicationMappingTable.COLUMN_APPLICATION_ID);
                 int addressId = rs.getInt(ApplicationMappingTable.COLUMN_ADDRESS_ID);
-                JsonObject nodeMappingObj = new JsonObject();
-                nodeMappingObj.addProperty(ApplicationMappingTable.COLUMN_APPLICATION_ID, applicationId);
-                nodeMappingObj.addProperty(ApplicationMappingTable.COLUMN_ADDRESS_ID, addressId);
-                nodeMappingArray.add(nodeMappingObj);
+                JsonObject applicationMappingObj = new JsonObject();
+                applicationMappingObj.addProperty(ApplicationMappingTable.COLUMN_APPLICATION_ID, applicationId);
+                applicationMappingObj.addProperty(ApplicationMappingTable.COLUMN_ADDRESS_ID, addressId);
+                applicationMappingArray.add(applicationMappingObj);
             }
         } catch (SQLException | H2ClientException e) {
             logger.error(e.getMessage(), e);
         }
-        logger.debug("node mapping data: {}", nodeMappingArray.toString());
-        return nodeMappingArray;
+        logger.debug("node mapping data: {}", applicationMappingArray.toString());
+        return applicationMappingArray;
     }
 }

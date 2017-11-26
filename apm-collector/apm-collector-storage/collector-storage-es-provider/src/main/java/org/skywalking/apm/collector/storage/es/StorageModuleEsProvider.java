@@ -46,7 +46,7 @@ import org.skywalking.apm.collector.storage.dao.IGCMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IGCMetricUIDAO;
 import org.skywalking.apm.collector.storage.dao.IGlobalTracePersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IGlobalTraceUIDAO;
-import org.skywalking.apm.collector.storage.dao.IInstPerformanceUIDAO;
+import org.skywalking.apm.collector.storage.dao.IInstanceMetricUIDAO;
 import org.skywalking.apm.collector.storage.dao.IInstanceCacheDAO;
 import org.skywalking.apm.collector.storage.dao.IInstanceHeartBeatPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IInstanceMetricPersistenceDAO;
@@ -83,7 +83,7 @@ import org.skywalking.apm.collector.storage.es.dao.GCMetricEsPersistenceDAO;
 import org.skywalking.apm.collector.storage.es.dao.GCMetricEsUIDAO;
 import org.skywalking.apm.collector.storage.es.dao.GlobalTraceEsPersistenceDAO;
 import org.skywalking.apm.collector.storage.es.dao.GlobalTraceEsUIDAO;
-import org.skywalking.apm.collector.storage.es.dao.InstPerformanceEsUIDAO;
+import org.skywalking.apm.collector.storage.es.dao.InstanceMetricEsUIDAO;
 import org.skywalking.apm.collector.storage.es.dao.InstanceEsCacheDAO;
 import org.skywalking.apm.collector.storage.es.dao.InstanceEsRegisterDAO;
 import org.skywalking.apm.collector.storage.es.dao.InstanceEsUIDAO;
@@ -218,7 +218,7 @@ public class StorageModuleEsProvider extends ModuleProvider {
         this.registerServiceImplementation(IMemoryPoolMetricUIDAO.class, new MemoryPoolMetricEsUIDAO(elasticSearchClient));
 
         this.registerServiceImplementation(IGlobalTraceUIDAO.class, new GlobalTraceEsUIDAO(elasticSearchClient));
-        this.registerServiceImplementation(IInstPerformanceUIDAO.class, new InstPerformanceEsUIDAO(elasticSearchClient));
+        this.registerServiceImplementation(IInstanceMetricUIDAO.class, new InstanceMetricEsUIDAO(elasticSearchClient));
         this.registerServiceImplementation(IApplicationComponentUIDAO.class, new ApplicationComponentEsUIDAO(elasticSearchClient));
         this.registerServiceImplementation(IApplicationMappingUIDAO.class, new ApplicationMappingEsUIDAO(elasticSearchClient));
         this.registerServiceImplementation(IApplicationReferenceMetricUIDAO.class, new ApplicationReferenceMetricEsUIDAO(elasticSearchClient));

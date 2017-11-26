@@ -69,8 +69,8 @@ public class AgentStreamBootStartup {
         traceStreamGraph.createSegmentStandardizationGraph();
         traceStreamGraph.createGlobalTraceGraph();
         traceStreamGraph.createInstanceMetricGraph();
-        traceStreamGraph.createNodeComponentGraph();
-        traceStreamGraph.createNodeMappingGraph();
+        traceStreamGraph.createApplicationComponentGraph();
+        traceStreamGraph.createApplicationMappingGraph();
         traceStreamGraph.createApplicationReferenceMetricGraph();
         traceStreamGraph.createServiceEntryGraph();
         traceStreamGraph.createServiceReferenceGraph();

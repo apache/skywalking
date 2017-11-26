@@ -54,7 +54,9 @@ public class InstanceMetricEsPersistenceDAO extends EsDAO implements IInstanceMe
             instanceMetric.setApplicationId((Integer)source.get(InstanceMetricTable.COLUMN_APPLICATION_ID));
             instanceMetric.setInstanceId((Integer)source.get(InstanceMetricTable.COLUMN_INSTANCE_ID));
             instanceMetric.setCalls((Integer)source.get(InstanceMetricTable.COLUMN_CALLS));
-            instanceMetric.setCostTotal(((Number)source.get(InstanceMetricTable.COLUMN_COST_TOTAL)).longValue());
+            instanceMetric.setErrorCalls(((Number)source.get(InstanceMetricTable.COLUMN_ERROR_CALLS)).longValue());
+            instanceMetric.setDurationSum(((Number)source.get(InstanceMetricTable.COLUMN_DURATION_SUM)).longValue());
+            instanceMetric.setErrorDurationSum(((Number)source.get(InstanceMetricTable.COLUMN_ERROR_DURATION_SUM)).longValue());
             instanceMetric.setTimeBucket(((Number)source.get(InstanceMetricTable.COLUMN_TIME_BUCKET)).longValue());
             return instanceMetric;
         } else {
@@ -67,7 +69,9 @@ public class InstanceMetricEsPersistenceDAO extends EsDAO implements IInstanceMe
         source.put(InstanceMetricTable.COLUMN_APPLICATION_ID, data.getApplicationId());
         source.put(InstanceMetricTable.COLUMN_INSTANCE_ID, data.getInstanceId());
         source.put(InstanceMetricTable.COLUMN_CALLS, data.getCalls());
-        source.put(InstanceMetricTable.COLUMN_COST_TOTAL, data.getCostTotal());
+        source.put(InstanceMetricTable.COLUMN_ERROR_CALLS, data.getErrorCalls());
+        source.put(InstanceMetricTable.COLUMN_DURATION_SUM, data.getDurationSum());
+        source.put(InstanceMetricTable.COLUMN_ERROR_DURATION_SUM, data.getErrorDurationSum());
         source.put(InstanceMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
         return getClient().prepareIndex(InstanceMetricTable.TABLE, data.getId()).setSource(source);
@@ -78,7 +82,9 @@ public class InstanceMetricEsPersistenceDAO extends EsDAO implements IInstanceMe
         source.put(InstanceMetricTable.COLUMN_APPLICATION_ID, data.getApplicationId());
         source.put(InstanceMetricTable.COLUMN_INSTANCE_ID, data.getInstanceId());
         source.put(InstanceMetricTable.COLUMN_CALLS, data.getCalls());
-        source.put(InstanceMetricTable.COLUMN_COST_TOTAL, data.getCostTotal());
+        source.put(InstanceMetricTable.COLUMN_ERROR_CALLS, data.getErrorCalls());
+        source.put(InstanceMetricTable.COLUMN_DURATION_SUM, data.getDurationSum());
+        source.put(InstanceMetricTable.COLUMN_ERROR_DURATION_SUM, data.getErrorDurationSum());
         source.put(InstanceMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
         return getClient().prepareUpdate(InstanceMetricTable.TABLE, data.getId()).setDoc(source);

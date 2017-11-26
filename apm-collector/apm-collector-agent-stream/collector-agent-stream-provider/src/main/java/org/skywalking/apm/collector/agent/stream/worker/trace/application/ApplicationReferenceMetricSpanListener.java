@@ -71,20 +71,20 @@ public class ApplicationReferenceMetricSpanListener implements EntrySpanListener
             Const.ID_SPLIT + spanDecorator.getPeerId();
 
         applicationReferenceMetric.setId(idBuilder);
-        applicationReferenceMetrics.add(buildNodeRefSum(applicationReferenceMetric, spanDecorator.getStartTime(), spanDecorator.getEndTime(), spanDecorator.getIsError()));
+        applicationReferenceMetrics.add(buildApplicationRefSum(applicationReferenceMetric, spanDecorator.getStartTime(), spanDecorator.getEndTime(), spanDecorator.getIsError()));
     }
 
     @Override
     public void parseEntry(SpanDecorator spanDecorator, int applicationId, int instanceId,
         String segmentId) {
         if (CollectionUtils.isNotEmpty(references)) {
-            references.forEach(nodeReference -> {
-                nodeReference.setTimeBucket(TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime()));
-                String idBuilder = String.valueOf(nodeReference.getTimeBucket()) + Const.ID_SPLIT + nodeReference.getFrontApplicationId() +
-                    Const.ID_SPLIT + nodeReference.getBehindApplicationId();
+            references.forEach(applicationReference -> {
+                applicationReference.setTimeBucket(TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime()));
+                String idBuilder = String.valueOf(applicationReference.getTimeBucket()) + Const.ID_SPLIT + applicationReference.getFrontApplicationId() +
+                    Const.ID_SPLIT + applicationReference.getBehindApplicationId();
 
-                nodeReference.setId(idBuilder);
-                applicationReferenceMetrics.add(buildNodeRefSum(nodeReference, spanDecorator.getStartTime(), spanDecorator.getEndTime(), spanDecorator.getIsError()));
+                applicationReference.setId(idBuilder);
+                applicationReferenceMetrics.add(buildApplicationRefSum(applicationReference, spanDecorator.getStartTime(), spanDecorator.getEndTime(), spanDecorator.getIsError()));
             });
         } else {
             ApplicationReferenceMetric applicationReferenceMetric = new ApplicationReferenceMetric(Const.EMPTY_STRING);
@@ -96,7 +96,7 @@ public class ApplicationReferenceMetricSpanListener implements EntrySpanListener
                 Const.ID_SPLIT + applicationReferenceMetric.getBehindApplicationId();
 
             applicationReferenceMetric.setId(idBuilder);
-            applicationReferenceMetrics.add(buildNodeRefSum(applicationReferenceMetric, spanDecorator.getStartTime(), spanDecorator.getEndTime(), spanDecorator.getIsError()));
+            applicationReferenceMetrics.add(buildApplicationRefSum(applicationReferenceMetric, spanDecorator.getStartTime(), spanDecorator.getEndTime(), spanDecorator.getIsError()));
         }
     }
 
@@ -118,7 +118,7 @@ public class ApplicationReferenceMetricSpanListener implements EntrySpanListener
         }
     }
 
-    private ApplicationReferenceMetric buildNodeRefSum(ApplicationReferenceMetric reference,
+    private ApplicationReferenceMetric buildApplicationRefSum(ApplicationReferenceMetric reference,
         long startTime, long endTime, boolean isError) {
         long duration = endTime - startTime;
 

@@ -6,7 +6,7 @@ org.skywalking.apm.collector.storage.h2.define.GCMetricH2TableDefine
 org.skywalking.apm.collector.storage.h2.define.MemoryMetricH2TableDefine
 org.skywalking.apm.collector.storage.h2.define.MemoryPoolMetricH2TableDefine
 org.skywalking.apm.collector.storage.h2.define.GlobalTraceH2TableDefine
-org.skywalking.apm.collector.storage.h2.define.InstPerformanceH2TableDefine
+org.skywalking.apm.collector.storage.h2.define.InstanceMetricH2TableDefine
 org.skywalking.apm.collector.storage.h2.define.ApplicationComponentH2TableDefine
 org.skywalking.apm.collector.storage.h2.define.ApplicationMappingH2TableDefine
 org.skywalking.apm.collector.storage.h2.define.ApplicationReferenceMetricH2TableDefine

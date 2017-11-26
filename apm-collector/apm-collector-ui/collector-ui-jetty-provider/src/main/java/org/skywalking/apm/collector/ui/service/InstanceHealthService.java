@@ -27,7 +27,7 @@ import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.IGCMetricUIDAO;
-import org.skywalking.apm.collector.storage.dao.IInstPerformanceUIDAO;
+import org.skywalking.apm.collector.storage.dao.IInstanceMetricUIDAO;
 import org.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
 import org.skywalking.apm.collector.storage.table.register.Instance;
 import org.slf4j.Logger;
@@ -42,13 +42,13 @@ public class InstanceHealthService {
 
     private final IGCMetricUIDAO gcMetricDAO;
     private final IInstanceUIDAO instanceDAO;
-    private final IInstPerformanceUIDAO instPerformanceDAO;
+    private final IInstanceMetricUIDAO instanceMetricUIDAO;
     private final ApplicationCacheService applicationCacheService;
 
     public InstanceHealthService(ModuleManager moduleManager) {
         this.gcMetricDAO = moduleManager.find(StorageModule.NAME).getService(IGCMetricUIDAO.class);
         this.instanceDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceUIDAO.class);
-        this.instPerformanceDAO = moduleManager.find(StorageModule.NAME).getService(IInstPerformanceUIDAO.class);
+        this.instanceMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceMetricUIDAO.class);
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
     }
 
@@ -66,7 +66,7 @@ public class InstanceHealthService {
             response.addProperty("applicationCode", applicationCacheService.get(applicationId));
             response.addProperty("applicationId", applicationId);
 
-            IInstPerformanceUIDAO.InstPerformance performance = instPerformanceDAO.get(timeBuckets, instance.getInstanceId());
+            IInstanceMetricUIDAO.InstanceMetric performance = instanceMetricUIDAO.get(timeBuckets, instance.getInstanceId());
 
             JsonObject instanceJson = new JsonObject();
             instanceJson.addProperty("id", instance.getInstanceId());
@@ -78,7 +78,7 @@ public class InstanceHealthService {
 
             int avg = 0;
             if (performance != null && performance.getCalls() != 0) {
-                avg = (int)(performance.getCostTotal() / performance.getCalls());
+                avg = (int)(performance.getDurationSum() / performance.getCalls());
             }
             instanceJson.addProperty("avg", avg);
 
