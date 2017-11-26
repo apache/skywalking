@@ -16,15 +16,21 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.storage.table.node;
+package org.skywalking.apm.collector.storage.table.application;
 
 import org.skywalking.apm.collector.core.data.CommonTable;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationMappingTable extends CommonTable {
-    public static final String TABLE = "application_mapping";
-    public static final String COLUMN_APPLICATION_ID = "application_id";
-    public static final String COLUMN_ADDRESS_ID = "address_id";
+public class ApplicationReferenceMetricTable extends CommonTable {
+    public static final String TABLE = "application_reference";
+    public static final String COLUMN_FRONT_APPLICATION_ID = "front_application_id";
+    public static final String COLUMN_BEHIND_APPLICATION_ID = "behind_application_id";
+    public static final String COLUMN_S1_LTE = "s1_lte";
+    public static final String COLUMN_S3_LTE = "s3_lte";
+    public static final String COLUMN_S5_LTE = "s5_lte";
+    public static final String COLUMN_S5_GT = "s5_gt";
+    public static final String COLUMN_SUMMARY = "summary";
+    public static final String COLUMN_ERROR = "error";
 }

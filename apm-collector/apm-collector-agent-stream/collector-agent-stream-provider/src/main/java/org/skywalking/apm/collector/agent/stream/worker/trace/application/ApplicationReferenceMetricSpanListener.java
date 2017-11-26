@@ -34,7 +34,7 @@ import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.CollectionUtils;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
-import org.skywalking.apm.collector.storage.table.noderef.ApplicationReferenceMetric;
+import org.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

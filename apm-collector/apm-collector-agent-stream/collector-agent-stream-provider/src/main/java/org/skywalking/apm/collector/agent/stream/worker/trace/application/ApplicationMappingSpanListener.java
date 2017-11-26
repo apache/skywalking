@@ -29,7 +29,7 @@ import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
-import org.skywalking.apm.collector.storage.table.node.ApplicationMapping;
+import org.skywalking.apm.collector.storage.table.application.ApplicationMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -25,21 +25,21 @@ import java.sql.SQLException;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
-import org.skywalking.apm.collector.storage.dao.INodeMappingUIDAO;
+import org.skywalking.apm.collector.storage.dao.IApplicationMappingUIDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
-import org.skywalking.apm.collector.storage.table.node.ApplicationMappingTable;
+import org.skywalking.apm.collector.storage.table.application.ApplicationMappingTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng, clevertension
  */
-public class NodeMappingH2UIDAO extends H2DAO implements INodeMappingUIDAO {
+public class ApplicationMappingH2UIDAO extends H2DAO implements IApplicationMappingUIDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(NodeMappingH2UIDAO.class);
+    private final Logger logger = LoggerFactory.getLogger(ApplicationMappingH2UIDAO.class);
     private static final String NODE_MAPPING_SQL = "select {0}, {1} from {2} where {3} >= ? and {3} <= ? group by {0}, {1} limit 100";
 
-    public NodeMappingH2UIDAO(H2Client client) {
+    public ApplicationMappingH2UIDAO(H2Client client) {
         super(client);
     }
 

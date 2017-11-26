@@ -23,7 +23,7 @@ import org.skywalking.apm.collector.queue.service.QueueCreatorService;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IApplicationComponentPersistenceDAO;
-import org.skywalking.apm.collector.storage.table.node.ApplicationComponent;
+import org.skywalking.apm.collector.storage.table.application.ApplicationComponent;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
 

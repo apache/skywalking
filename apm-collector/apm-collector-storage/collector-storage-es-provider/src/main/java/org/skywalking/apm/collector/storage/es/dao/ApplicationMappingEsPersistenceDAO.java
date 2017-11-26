@@ -29,8 +29,8 @@ import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.dao.IApplicationMappingPersistenceDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
-import org.skywalking.apm.collector.storage.table.node.ApplicationMapping;
-import org.skywalking.apm.collector.storage.table.node.ApplicationMappingTable;
+import org.skywalking.apm.collector.storage.table.application.ApplicationMapping;
+import org.skywalking.apm.collector.storage.table.application.ApplicationMappingTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

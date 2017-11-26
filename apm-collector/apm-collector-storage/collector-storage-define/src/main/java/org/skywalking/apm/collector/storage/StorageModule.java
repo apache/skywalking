@@ -41,11 +41,11 @@ import org.skywalking.apm.collector.storage.dao.IMemoryMetricUIDAO;
 import org.skywalking.apm.collector.storage.dao.IMemoryPoolMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IMemoryPoolMetricUIDAO;
 import org.skywalking.apm.collector.storage.dao.IApplicationComponentPersistenceDAO;
-import org.skywalking.apm.collector.storage.dao.INodeComponentUIDAO;
+import org.skywalking.apm.collector.storage.dao.IApplicationComponentUIDAO;
 import org.skywalking.apm.collector.storage.dao.IApplicationMappingPersistenceDAO;
-import org.skywalking.apm.collector.storage.dao.INodeMappingUIDAO;
+import org.skywalking.apm.collector.storage.dao.IApplicationMappingUIDAO;
 import org.skywalking.apm.collector.storage.dao.IApplicationReferenceMetricPersistenceDAO;
-import org.skywalking.apm.collector.storage.dao.INodeReferenceUIDAO;
+import org.skywalking.apm.collector.storage.dao.IApplicationReferenceMetricUIDAO;
 import org.skywalking.apm.collector.storage.dao.ISegmentCostPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.ISegmentCostUIDAO;
 import org.skywalking.apm.collector.storage.dao.ISegmentPersistenceDAO;
@@ -121,9 +121,9 @@ public class StorageModule extends Module {
 
         classes.add(IGlobalTraceUIDAO.class);
         classes.add(IInstPerformanceUIDAO.class);
-        classes.add(INodeComponentUIDAO.class);
-        classes.add(INodeMappingUIDAO.class);
-        classes.add(INodeReferenceUIDAO.class);
+        classes.add(IApplicationComponentUIDAO.class);
+        classes.add(IApplicationMappingUIDAO.class);
+        classes.add(IApplicationReferenceMetricUIDAO.class);
         classes.add(ISegmentCostUIDAO.class);
         classes.add(ISegmentUIDAO.class);
         classes.add(IServiceEntryUIDAO.class);

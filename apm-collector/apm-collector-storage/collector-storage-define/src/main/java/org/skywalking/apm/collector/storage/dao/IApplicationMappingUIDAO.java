@@ -24,6 +24,6 @@ import org.skywalking.apm.collector.storage.base.dao.DAO;
 /**
  * @author peng-yongsheng
  */
-public interface INodeReferenceUIDAO extends DAO {
+public interface IApplicationMappingUIDAO extends DAO {
     JsonArray load(long startTime, long endTime);
 }

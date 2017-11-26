@@ -22,9 +22,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.storage.StorageModule;
-import org.skywalking.apm.collector.storage.dao.INodeComponentUIDAO;
-import org.skywalking.apm.collector.storage.dao.INodeMappingUIDAO;
-import org.skywalking.apm.collector.storage.dao.INodeReferenceUIDAO;
+import org.skywalking.apm.collector.storage.dao.IApplicationComponentUIDAO;
+import org.skywalking.apm.collector.storage.dao.IApplicationMappingUIDAO;
+import org.skywalking.apm.collector.storage.dao.IApplicationReferenceMetricUIDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,16 +35,16 @@ public class TraceDagService {
 
     private final Logger logger = LoggerFactory.getLogger(TraceDagService.class);
 
-    private final INodeComponentUIDAO nodeComponentDAO;
-    private final INodeMappingUIDAO nodeMappingDAO;
-    private final INodeReferenceUIDAO nodeRefSumDAO;
+    private final IApplicationComponentUIDAO nodeComponentDAO;
+    private final IApplicationMappingUIDAO nodeMappingDAO;
+    private final IApplicationReferenceMetricUIDAO nodeRefSumDAO;
     private final ModuleManager moduleManager;
 
     public TraceDagService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
-        this.nodeComponentDAO = moduleManager.find(StorageModule.NAME).getService(INodeComponentUIDAO.class);
-        this.nodeMappingDAO = moduleManager.find(StorageModule.NAME).getService(INodeMappingUIDAO.class);
-        this.nodeRefSumDAO = moduleManager.find(StorageModule.NAME).getService(INodeReferenceUIDAO.class);
+        this.nodeComponentDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationComponentUIDAO.class);
+        this.nodeMappingDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationMappingUIDAO.class);
+        this.nodeRefSumDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationReferenceMetricUIDAO.class);
     }
 
     public JsonObject load(long startTime, long endTime) {
