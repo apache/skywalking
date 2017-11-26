@@ -28,9 +28,12 @@ import org.skywalking.apm.collector.agent.stream.parser.standardization.Referenc
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SpanDecorator;
 import org.skywalking.apm.collector.cache.CacheModule;
 import org.skywalking.apm.collector.cache.service.InstanceCacheService;
+import org.skywalking.apm.collector.configuration.ConfigurationModule;
+import org.skywalking.apm.collector.configuration.service.IApdexThresholdService;
 import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.module.ModuleManager;
+import org.skywalking.apm.collector.core.util.ApdexThresholdUtils;
 import org.skywalking.apm.collector.core.util.CollectionUtils;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
@@ -45,6 +48,7 @@ public class ApplicationReferenceMetricSpanListener implements EntrySpanListener
 
     private final Logger logger = LoggerFactory.getLogger(ApplicationReferenceMetricSpanListener.class);
 
+    private final IApdexThresholdService apdexThresholdService;
     private final InstanceCacheService instanceCacheService;
     private final List<ApplicationReferenceMetric> applicationReferenceMetrics;
     private final List<ApplicationReferenceMetric> references;
@@ -53,6 +57,7 @@ public class ApplicationReferenceMetricSpanListener implements EntrySpanListener
         this.applicationReferenceMetrics = new LinkedList<>();
         this.references = new LinkedList<>();
         this.instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
+        this.apdexThresholdService = moduleManager.find(ConfigurationModule.NAME).getService(IApdexThresholdService.class);
     }
 
     @Override
@@ -115,19 +120,23 @@ public class ApplicationReferenceMetricSpanListener implements EntrySpanListener
 
     private ApplicationReferenceMetric buildNodeRefSum(ApplicationReferenceMetric reference,
         long startTime, long endTime, boolean isError) {
-        long cost = endTime - startTime;
-        if (cost <= 1000 && !isError) {
-            reference.setS1Lte(1);
-        } else if (1000 < cost && cost <= 3000 && !isError) {
-            reference.setS3Lte(1);
-        } else if (3000 < cost && cost <= 5000 && !isError) {
-            reference.setS5Lte(1);
-        } else if (5000 < cost && !isError) {
-            reference.setS5Gt(1);
-        } else {
-            reference.setError(1);
+        long duration = endTime - startTime;
+
+        reference.setCalls(1L);
+        reference.setDurationSum(duration);
+        if (isError) {
+            reference.setErrorCalls(1L);
+            reference.setErrorDurationSum(duration);
         }
-        reference.setSummary(1);
+
+        ApdexThresholdUtils.Apdex apdex = ApdexThresholdUtils.compute(apdexThresholdService.getApplicationApdexThreshold(reference.getBehindApplicationId()), duration);
+        if (ApdexThresholdUtils.Apdex.Satisfied.equals(apdex)) {
+            reference.setSatisfiedCount(1L);
+        } else if (ApdexThresholdUtils.Apdex.Tolerating.equals(apdex)) {
+            reference.setToleratingCount(1L);
+        } else {
+            reference.setFrustratedCount(1L);
+        }
         return reference;
     }
 }

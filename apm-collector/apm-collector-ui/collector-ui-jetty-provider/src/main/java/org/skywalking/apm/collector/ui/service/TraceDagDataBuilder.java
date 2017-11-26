@@ -70,7 +70,7 @@ public class TraceDagDataBuilder {
             JsonObject lineJsonObj = new JsonObject();
             lineJsonObj.addProperty("from", findOrCreateNode(front));
             lineJsonObj.addProperty("to", findOrCreateNode(behind));
-            lineJsonObj.addProperty("resSum", nodeRefJsonObj.get(ApplicationReferenceMetricTable.COLUMN_SUMMARY).getAsInt());
+            lineJsonObj.addProperty("resSum", nodeRefJsonObj.get(ApplicationReferenceMetricTable.COLUMN_CALLS).getAsInt());
 
             lineArray.add(lineJsonObj);
             logger.debug("line: {}", lineJsonObj);

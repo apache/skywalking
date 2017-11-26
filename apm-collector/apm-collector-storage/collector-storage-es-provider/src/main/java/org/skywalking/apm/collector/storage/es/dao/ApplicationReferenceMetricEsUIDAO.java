@@ -19,17 +19,13 @@
 package org.skywalking.apm.collector.storage.es.dao;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.skywalking.apm.collector.core.util.ColumnNameUtils;
 import org.skywalking.apm.collector.storage.dao.IApplicationReferenceMetricUIDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetricTable;
@@ -55,48 +51,48 @@ public class ApplicationReferenceMetricEsUIDAO extends EsDAO implements IApplica
         searchRequestBuilder.setSize(0);
 
         TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID).field(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID).size(100);
-        aggregationBuilder.subAggregation(AggregationBuilders.terms(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID).field(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID).size(100)
-            .subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.COLUMN_S1_LTE).field(ApplicationReferenceMetricTable.COLUMN_S1_LTE))
-            .subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.COLUMN_S3_LTE).field(ApplicationReferenceMetricTable.COLUMN_S3_LTE))
-            .subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.COLUMN_S5_LTE).field(ApplicationReferenceMetricTable.COLUMN_S5_LTE))
-            .subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.COLUMN_S5_GT).field(ApplicationReferenceMetricTable.COLUMN_S5_GT))
-            .subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.COLUMN_SUMMARY).field(ApplicationReferenceMetricTable.COLUMN_SUMMARY))
-            .subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.COLUMN_ERROR).field(ApplicationReferenceMetricTable.COLUMN_ERROR)));
+//        aggregationBuilder.subAggregation(AggregationBuilders.terms(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID).field(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID).size(100)
+//            .subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.COLUMN_S1_LTE).field(ApplicationReferenceMetricTable.COLUMN_S1_LTE))
+//            .subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.COLUMN_S3_LTE).field(ApplicationReferenceMetricTable.COLUMN_S3_LTE))
+//            .subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.COLUMN_S5_LTE).field(ApplicationReferenceMetricTable.COLUMN_S5_LTE))
+//            .subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.COLUMN_S5_GT).field(ApplicationReferenceMetricTable.COLUMN_S5_GT))
+//            .subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.COLUMN_SUMMARY).field(ApplicationReferenceMetricTable.COLUMN_SUMMARY))
+//            .subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.COLUMN_ERROR).field(ApplicationReferenceMetricTable.COLUMN_ERROR)));
 
         searchRequestBuilder.addAggregation(aggregationBuilder);
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
         JsonArray nodeRefResSumArray = new JsonArray();
-        Terms frontApplicationIdTerms = searchResponse.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID);
-        for (Terms.Bucket frontApplicationIdBucket : frontApplicationIdTerms.getBuckets()) {
-            int frontApplicationId = frontApplicationIdBucket.getKeyAsNumber().intValue();
-            Terms behindApplicationIdTerms = frontApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID);
-            for (Terms.Bucket behindApplicationIdBucket : behindApplicationIdTerms.getBuckets()) {
-                int behindApplicationId = behindApplicationIdBucket.getKeyAsNumber().intValue();
-
-                if (behindApplicationId != 0) {
-                    Sum s1LTE = behindApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_S1_LTE);
-                    Sum s3LTE = behindApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_S3_LTE);
-                    Sum s5LTE = behindApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_S5_LTE);
-                    Sum s5GT = behindApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_S5_GT);
-                    Sum summary = behindApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_SUMMARY);
-                    Sum error = behindApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_ERROR);
-                    logger.debug("frontApplicationId: {}, behindApplicationId: {}, s1LTE: {}, s3LTE: {}, s5LTE: {}, s5GT: {}, error: {}, summary: {}", frontApplicationId,
-                        behindApplicationId, s1LTE.getValue(), s3LTE.getValue(), s5LTE.getValue(), s5GT.getValue(), error.getValue(), summary.getValue());
-
-                    JsonObject nodeRefResSumObj = new JsonObject();
-                    nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID), frontApplicationId);
-                    nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID), behindApplicationId);
-                    nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_S1_LTE), s1LTE.getValue());
-                    nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_S3_LTE), s3LTE.getValue());
-                    nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_S5_LTE), s5LTE.getValue());
-                    nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_S5_GT), s5GT.getValue());
-                    nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_ERROR), error.getValue());
-                    nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_SUMMARY), summary.getValue());
-                    nodeRefResSumArray.add(nodeRefResSumObj);
-                }
-            }
-        }
+//        Terms frontApplicationIdTerms = searchResponse.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID);
+//        for (Terms.Bucket frontApplicationIdBucket : frontApplicationIdTerms.getBuckets()) {
+//            int frontApplicationId = frontApplicationIdBucket.getKeyAsNumber().intValue();
+//            Terms behindApplicationIdTerms = frontApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID);
+//            for (Terms.Bucket behindApplicationIdBucket : behindApplicationIdTerms.getBuckets()) {
+//                int behindApplicationId = behindApplicationIdBucket.getKeyAsNumber().intValue();
+//
+//                if (behindApplicationId != 0) {
+//                    Sum s1LTE = behindApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_S1_LTE);
+//                    Sum s3LTE = behindApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_S3_LTE);
+//                    Sum s5LTE = behindApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_S5_LTE);
+//                    Sum s5GT = behindApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_S5_GT);
+//                    Sum summary = behindApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_SUMMARY);
+//                    Sum error = behindApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_ERROR);
+//                    logger.debug("frontApplicationId: {}, behindApplicationId: {}, s1LTE: {}, s3LTE: {}, s5LTE: {}, s5GT: {}, error: {}, summary: {}", frontApplicationId,
+//                        behindApplicationId, s1LTE.getValue(), s3LTE.getValue(), s5LTE.getValue(), s5GT.getValue(), error.getValue(), summary.getValue());
+//
+//                    JsonObject nodeRefResSumObj = new JsonObject();
+//                    nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID), frontApplicationId);
+//                    nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID), behindApplicationId);
+//                    nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_S1_LTE), s1LTE.getValue());
+//                    nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_S3_LTE), s3LTE.getValue());
+//                    nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_S5_LTE), s5LTE.getValue());
+//                    nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_S5_GT), s5GT.getValue());
+//                    nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_ERROR), error.getValue());
+//                    nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_SUMMARY), summary.getValue());
+//                    nodeRefResSumArray.add(nodeRefResSumObj);
+//                }
+//            }
+//        }
 
         return nodeRefResSumArray;
     }

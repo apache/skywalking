@@ -48,6 +48,11 @@
         </dependency>
         <dependency>
             <groupId>org.skywalking</groupId>
+            <artifactId>collector-configuration-define</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
             <artifactId>apm-collector-stream</artifactId>
             <version>${project.version}</version>
         </dependency>

@@ -33,18 +33,19 @@ public class ApplicationReferenceMetric extends Data {
     };
 
     private static final Column[] LONG_COLUMNS = {
+        new Column(ApplicationReferenceMetricTable.COLUMN_CALLS, new AddOperation()),
+        new Column(ApplicationReferenceMetricTable.COLUMN_ERROR_CALLS, new AddOperation()),
+        new Column(ApplicationReferenceMetricTable.COLUMN_DURATION_SUM, new AddOperation()),
+        new Column(ApplicationReferenceMetricTable.COLUMN_ERROR_DURATION_SUM, new AddOperation()),
+        new Column(ApplicationReferenceMetricTable.COLUMN_SATISFIED_COUNT, new AddOperation()),
+        new Column(ApplicationReferenceMetricTable.COLUMN_TOLERATING_COUNT, new AddOperation()),
+        new Column(ApplicationReferenceMetricTable.COLUMN_FRUSTRATED_COUNT, new AddOperation()),
         new Column(ApplicationReferenceMetricTable.COLUMN_TIME_BUCKET, new NonOperation()),
     };
     private static final Column[] DOUBLE_COLUMNS = {};
     private static final Column[] INTEGER_COLUMNS = {
         new Column(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID, new NonOperation()),
         new Column(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID, new NonOperation()),
-        new Column(ApplicationReferenceMetricTable.COLUMN_S1_LTE, new AddOperation()),
-        new Column(ApplicationReferenceMetricTable.COLUMN_S3_LTE, new AddOperation()),
-        new Column(ApplicationReferenceMetricTable.COLUMN_S5_LTE, new AddOperation()),
-        new Column(ApplicationReferenceMetricTable.COLUMN_S5_GT, new AddOperation()),
-        new Column(ApplicationReferenceMetricTable.COLUMN_SUMMARY, new AddOperation()),
-        new Column(ApplicationReferenceMetricTable.COLUMN_ERROR, new AddOperation()),
     };
 
     private static final Column[] BOOLEAN_COLUMNS = {};
@@ -52,20 +53,6 @@ public class ApplicationReferenceMetric extends Data {
 
     public ApplicationReferenceMetric(String id) {
         super(id, STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
-        setS1Lte(0);
-        setS3Lte(0);
-        setS5Lte(0);
-        setS5Gt(0);
-        setError(0);
-        setSummary(0);
-    }
-
-    public Long getTimeBucket() {
-        return getDataLong(0);
-    }
-
-    public void setTimeBucket(Long timeBucket) {
-        setDataLong(0, timeBucket);
     }
 
     public Integer getFrontApplicationId() {
@@ -84,51 +71,67 @@ public class ApplicationReferenceMetric extends Data {
         setDataInteger(1, behindApplicationId);
     }
 
-    public Integer getS1Lte() {
-        return getDataInteger(2);
+    public Long getCalls() {
+        return getDataLong(0);
     }
 
-    public void setS1Lte(Integer s1Lte) {
-        setDataInteger(2, s1Lte);
+    public void setCalls(Long calls) {
+        setDataLong(0, calls);
     }
 
-    public Integer getS3Lte() {
-        return getDataInteger(3);
+    public Long getErrorCalls() {
+        return getDataLong(1);
     }
 
-    public void setS3Lte(Integer s3Lte) {
-        setDataInteger(3, s3Lte);
+    public void setErrorCalls(Long errorCalls) {
+        setDataLong(1, errorCalls);
     }
 
-    public Integer getS5Lte() {
-        return getDataInteger(4);
+    public Long getDurationSum() {
+        return getDataLong(2);
     }
 
-    public void setS5Lte(Integer s5Lte) {
-        setDataInteger(4, s5Lte);
+    public void setDurationSum(Long durationSum) {
+        setDataLong(2, durationSum);
     }
 
-    public Integer getS5Gt() {
-        return getDataInteger(5);
+    public Long getErrorDurationSum() {
+        return getDataLong(3);
     }
 
-    public void setS5Gt(Integer s5Gt) {
-        setDataInteger(5, s5Gt);
+    public void setErrorDurationSum(Long errorDurationSum) {
+        setDataLong(3, errorDurationSum);
     }
 
-    public Integer getSummary() {
-        return getDataInteger(6);
+    public long getSatisfiedCount() {
+        return getDataLong(4);
     }
 
-    public void setSummary(Integer summary) {
-        setDataInteger(6, summary);
+    public void setSatisfiedCount(long satisfiedCount) {
+        setDataLong(4, satisfiedCount);
     }
 
-    public Integer getError() {
-        return getDataInteger(7);
+    public long getToleratingCount() {
+        return getDataLong(5);
     }
 
-    public void setError(Integer error) {
-        setDataInteger(7, error);
+    public void setToleratingCount(long toleratingCount) {
+        setDataLong(5, toleratingCount);
+    }
+
+    public long getFrustratedCount() {
+        return getDataLong(6);
+    }
+
+    public void setFrustratedCount(long frustratedCount) {
+        setDataLong(6, frustratedCount);
+    }
+
+    public Long getTimeBucket() {
+        return getDataLong(7);
+    }
+
+    public void setTimeBucket(Long timeBucket) {
+        setDataLong(7, timeBucket);
     }
 }

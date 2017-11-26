@@ -25,9 +25,9 @@ import org.skywalking.apm.collector.storage.table.application.ApplicationReferen
 /**
  * @author peng-yongsheng
  */
-public class NodeReferenceEsTableDefine extends ElasticSearchTableDefine {
+public class ApplicationReferenceMetricEsTableDefine extends ElasticSearchTableDefine {
 
-    public NodeReferenceEsTableDefine() {
+    public ApplicationReferenceMetricEsTableDefine() {
         super(ApplicationReferenceMetricTable.TABLE);
     }
 
@@ -38,12 +38,13 @@ public class NodeReferenceEsTableDefine extends ElasticSearchTableDefine {
     @Override public void initialize() {
         addColumn(new ElasticSearchColumnDefine(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
         addColumn(new ElasticSearchColumnDefine(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(ApplicationReferenceMetricTable.COLUMN_S1_LTE, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(ApplicationReferenceMetricTable.COLUMN_S3_LTE, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(ApplicationReferenceMetricTable.COLUMN_S5_LTE, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(ApplicationReferenceMetricTable.COLUMN_S5_GT, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(ApplicationReferenceMetricTable.COLUMN_SUMMARY, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(ApplicationReferenceMetricTable.COLUMN_ERROR, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationReferenceMetricTable.COLUMN_CALLS, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationReferenceMetricTable.COLUMN_ERROR_CALLS, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationReferenceMetricTable.COLUMN_DURATION_SUM, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationReferenceMetricTable.COLUMN_ERROR_DURATION_SUM, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationReferenceMetricTable.COLUMN_SATISFIED_COUNT, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationReferenceMetricTable.COLUMN_TOLERATING_COUNT, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationReferenceMetricTable.COLUMN_FRUSTRATED_COUNT, ElasticSearchColumnDefine.Type.Long.name()));
         addColumn(new ElasticSearchColumnDefine(ApplicationReferenceMetricTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
     }
 }

@@ -40,6 +40,7 @@ import org.skywalking.apm.collector.agent.stream.worker.register.InstanceIDServi
 import org.skywalking.apm.collector.agent.stream.worker.register.ServiceNameService;
 import org.skywalking.apm.collector.agent.stream.worker.trace.TraceSegmentService;
 import org.skywalking.apm.collector.cache.CacheModule;
+import org.skywalking.apm.collector.configuration.ConfigurationModule;
 import org.skywalking.apm.collector.core.module.Module;
 import org.skywalking.apm.collector.core.module.ModuleProvider;
 import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
@@ -91,6 +92,6 @@ public class AgentStreamModuleProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {StorageModule.NAME, CacheModule.NAME};
+        return new String[] {StorageModule.NAME, CacheModule.NAME, ConfigurationModule.NAME};
     }
 }
