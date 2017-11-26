@@ -34,7 +34,7 @@ import org.skywalking.apm.collector.core.util.ColumnNameUtils;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.storage.dao.IServiceReferenceUIDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
-import org.skywalking.apm.collector.storage.table.serviceref.ServiceReferenceMetricTable;
+import org.skywalking.apm.collector.storage.table.service.ServiceReferenceMetricTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,13 +69,10 @@ public class ServiceReferenceEsUIDAO extends EsDAO implements IServiceReferenceU
     private Map<String, JsonObject> load(SearchRequestBuilder searchRequestBuilder) {
         searchRequestBuilder.addAggregation(AggregationBuilders.terms(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID).field(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID).size(100)
             .subAggregation(AggregationBuilders.terms(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID).field(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID).size(100)
-                .subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_S1_LTE).field(ServiceReferenceMetricTable.COLUMN_S1_LTE))
-                .subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_S3_LTE).field(ServiceReferenceMetricTable.COLUMN_S3_LTE))
-                .subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_S5_LTE).field(ServiceReferenceMetricTable.COLUMN_S5_LTE))
-                .subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_S5_GT).field(ServiceReferenceMetricTable.COLUMN_S5_GT))
-                .subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_ERROR).field(ServiceReferenceMetricTable.COLUMN_ERROR))
-                .subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_SUMMARY).field(ServiceReferenceMetricTable.COLUMN_SUMMARY))
-                .subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_COST_SUMMARY).field(ServiceReferenceMetricTable.COLUMN_COST_SUMMARY))));
+                .subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_CALLS).field(ServiceReferenceMetricTable.COLUMN_CALLS))
+                .subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_ERROR_CALLS).field(ServiceReferenceMetricTable.COLUMN_ERROR_CALLS))
+                .subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_DURATION_SUM).field(ServiceReferenceMetricTable.COLUMN_DURATION_SUM))
+                .subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_ERROR_DURATION_SUM).field(ServiceReferenceMetricTable.COLUMN_ERROR_DURATION_SUM))));
 
         Map<String, JsonObject> serviceReferenceMap = new LinkedHashMap<>();
 
@@ -98,24 +95,18 @@ public class ServiceReferenceEsUIDAO extends EsDAO implements IServiceReferenceU
         for (Terms.Bucket behindServiceIdBucket : behindServiceIdTerms.getBuckets()) {
             int behindServiceId = behindServiceIdBucket.getKeyAsNumber().intValue();
             if (behindServiceId != 0) {
-                Sum s1LteSum = behindServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_S1_LTE);
-                Sum s3LteSum = behindServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_S3_LTE);
-                Sum s5LteSum = behindServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_S5_LTE);
-                Sum s5GtSum = behindServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_S5_GT);
-                Sum error = behindServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_ERROR);
-                Sum summary = behindServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_SUMMARY);
-                Sum costSum = behindServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_COST_SUMMARY);
+                Sum calls = behindServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_CALLS);
+                Sum errorCalls = behindServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_ERROR_CALLS);
+                Sum durationSum = behindServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_DURATION_SUM);
+                Sum errorDurationSum = behindServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_ERROR_DURATION_SUM);
 
                 JsonObject serviceReference = new JsonObject();
                 serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID), frontServiceId);
                 serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID), behindServiceId);
-                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_S1_LTE), (long)s1LteSum.getValue());
-                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_S3_LTE), (long)s3LteSum.getValue());
-                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_S5_LTE), (long)s5LteSum.getValue());
-                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_S5_GT), (long)s5GtSum.getValue());
-                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_ERROR), (long)error.getValue());
-                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_SUMMARY), (long)summary.getValue());
-                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_COST_SUMMARY), (long)costSum.getValue());
+                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_CALLS), (long)calls.getValue());
+                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_ERROR_CALLS), (long)errorCalls.getValue());
+                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_DURATION_SUM), (long)durationSum.getValue());
+                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_ERROR_DURATION_SUM), (long)errorDurationSum.getValue());
 
                 String id = serviceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID)) + Const.ID_SPLIT + serviceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID));
                 serviceReferenceMap.put(id, serviceReference);

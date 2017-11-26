@@ -13,4 +13,4 @@ org.skywalking.apm.collector.storage.es.define.ApplicationReferenceMetricEsTable
 org.skywalking.apm.collector.storage.es.define.SegmentCostEsTableDefine
 org.skywalking.apm.collector.storage.es.define.SegmentEsTableDefine
 org.skywalking.apm.collector.storage.es.define.ServiceEntryEsTableDefine
-org.skywalking.apm.collector.storage.es.define.ServiceReferenceEsTableDefine
+org.skywalking.apm.collector.storage.es.define.ServiceReferenceMetricEsTableDefine

@@ -34,7 +34,7 @@ import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.IServiceEntryUIDAO;
 import org.skywalking.apm.collector.storage.dao.IServiceReferenceUIDAO;
 import org.skywalking.apm.collector.storage.table.service.ServiceEntryTable;
-import org.skywalking.apm.collector.storage.table.serviceref.ServiceReferenceMetricTable;
+import org.skywalking.apm.collector.storage.table.service.ServiceReferenceMetricTable;
 
 /**
  * @author peng-yongsheng
@@ -125,13 +125,10 @@ public class ServiceTreeService {
 
         if (serviceReferenceMap.containsKey(id)) {
             JsonObject reference = serviceReferenceMap.get(id);
-            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_S1_LTE));
-            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_S3_LTE));
-            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_S5_LTE));
-            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_S5_GT));
-            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_ERROR));
-            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_SUMMARY));
-            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_COST_SUMMARY));
+            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_CALLS));
+            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_ERROR_CALLS));
+            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_DURATION_SUM));
+            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_ERROR_DURATION_SUM));
         } else {
             serviceReferenceMap.put(id, serviceReference);
         }

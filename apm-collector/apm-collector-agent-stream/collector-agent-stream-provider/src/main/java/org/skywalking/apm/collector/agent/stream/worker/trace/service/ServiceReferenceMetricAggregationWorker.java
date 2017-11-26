@@ -20,7 +20,7 @@ package org.skywalking.apm.collector.agent.stream.worker.trace.service;
 
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
-import org.skywalking.apm.collector.storage.table.serviceref.ServiceReferenceMetric;
+import org.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.impl.AggregationWorker;
 

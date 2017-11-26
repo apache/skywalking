@@ -54,7 +54,7 @@ import org.skywalking.apm.collector.storage.table.instance.InstanceMetric;
 import org.skywalking.apm.collector.storage.table.segment.Segment;
 import org.skywalking.apm.collector.storage.table.segment.SegmentCost;
 import org.skywalking.apm.collector.storage.table.service.ServiceEntry;
-import org.skywalking.apm.collector.storage.table.serviceref.ServiceReferenceMetric;
+import org.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
 import org.skywalking.apm.collector.stream.worker.base.WorkerCreateListener;
 
 /**

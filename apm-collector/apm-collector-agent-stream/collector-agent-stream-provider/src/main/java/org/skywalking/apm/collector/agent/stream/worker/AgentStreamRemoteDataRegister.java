@@ -26,7 +26,7 @@ import org.skywalking.apm.collector.storage.table.register.Application;
 import org.skywalking.apm.collector.storage.table.register.Instance;
 import org.skywalking.apm.collector.storage.table.register.ServiceName;
 import org.skywalking.apm.collector.storage.table.service.ServiceEntry;
-import org.skywalking.apm.collector.storage.table.serviceref.ServiceReferenceMetric;
+import org.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
 
 /**
  * @author peng-yongsheng

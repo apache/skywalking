@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.storage.table.serviceref;
+package org.skywalking.apm.collector.storage.table.service;
 
 import org.skywalking.apm.collector.core.data.Column;
 import org.skywalking.apm.collector.core.data.Data;
@@ -34,16 +34,15 @@ public class ServiceReferenceMetric extends Data {
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(ServiceReferenceMetricTable.COLUMN_S1_LTE, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_S3_LTE, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_S5_LTE, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_S5_GT, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_SUMMARY, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_ERROR, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_COST_SUMMARY, new AddOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_CALLS, new AddOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_ERROR_CALLS, new AddOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_DURATION_SUM, new AddOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_ERROR_DURATION_SUM, new AddOperation()),
         new Column(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET, new CoverOperation()),
     };
+
     private static final Column[] DOUBLE_COLUMNS = {};
+
     private static final Column[] INTEGER_COLUMNS = {
         new Column(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID, new NonOperation()),
         new Column(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, new NonOperation()),
@@ -51,17 +50,11 @@ public class ServiceReferenceMetric extends Data {
     };
 
     private static final Column[] BOOLEAN_COLUMNS = {};
+
     private static final Column[] BYTE_COLUMNS = {};
 
     public ServiceReferenceMetric(String id) {
         super(id, STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
-        setS1Lte(0L);
-        setS3Lte(0L);
-        setS5Lte(0L);
-        setS5Gt(0L);
-        setError(0L);
-        setSummary(0L);
-        setCostSummary(0L);
     }
 
     public Integer getEntryServiceId() {
@@ -88,67 +81,43 @@ public class ServiceReferenceMetric extends Data {
         setDataInteger(2, behindServiceId);
     }
 
-    public Long getS1Lte() {
+    public long getCalls() {
         return getDataLong(0);
     }
 
-    public void setS1Lte(Long s1Lte) {
-        setDataLong(0, s1Lte);
+    public void setCalls(long calls) {
+        setDataLong(0, calls);
     }
 
-    public Long getS3Lte() {
+    public long getErrorCalls() {
         return getDataLong(1);
     }
 
-    public void setS3Lte(Long s3Lte) {
-        setDataLong(1, s3Lte);
+    public void setErrorCalls(long errorCalls) {
+        setDataLong(1, errorCalls);
     }
 
-    public Long getS5Lte() {
+    public long getDurationSum() {
         return getDataLong(2);
     }
 
-    public void setS5Lte(Long s5Lte) {
-        setDataLong(2, s5Lte);
+    public void setDurationSum(long durationSum) {
+        setDataLong(2, durationSum);
     }
 
-    public Long getS5Gt() {
+    public long getErrorDurationSum() {
         return getDataLong(3);
     }
 
-    public void setS5Gt(Long s5Gt) {
-        setDataLong(3, s5Gt);
-    }
-
-    public Long getSummary() {
-        return getDataLong(4);
-    }
-
-    public void setSummary(Long summary) {
-        setDataLong(4, summary);
-    }
-
-    public Long getError() {
-        return getDataLong(5);
-    }
-
-    public void setError(Long error) {
-        setDataLong(5, error);
-    }
-
-    public Long getCostSummary() {
-        return getDataLong(6);
-    }
-
-    public void setCostSummary(Long costSummary) {
-        setDataLong(6, costSummary);
+    public void setErrorDurationSum(long errorDurationSum) {
+        setDataLong(3, errorDurationSum);
     }
 
     public Long getTimeBucket() {
-        return getDataLong(7);
+        return getDataLong(4);
     }
 
     public void setTimeBucket(Long timeBucket) {
-        setDataLong(7, timeBucket);
+        setDataLong(4, timeBucket);
     }
 }
