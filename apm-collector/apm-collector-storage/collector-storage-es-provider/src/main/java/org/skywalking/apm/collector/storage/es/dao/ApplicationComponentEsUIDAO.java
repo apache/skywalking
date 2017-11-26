@@ -45,10 +45,10 @@ public class ApplicationComponentEsUIDAO extends EsDAO implements IApplicationCo
     }
 
     @Override public JsonArray load(long startTime, long endTime) {
-        logger.debug("node component load, start time: {}, end time: {}", startTime, endTime);
-        JsonArray nodeComponentArray = new JsonArray();
-        nodeComponentArray.addAll(aggregationByComponentId(startTime, endTime));
-        return nodeComponentArray;
+        logger.debug("application component load, start time: {}, end time: {}", startTime, endTime);
+        JsonArray applicationComponentArray = new JsonArray();
+        applicationComponentArray.addAll(aggregationByComponentId(startTime, endTime));
+        return applicationComponentArray;
     }
 
     private JsonArray aggregationByComponentId(long startTime, long endTime) {
@@ -64,24 +64,25 @@ public class ApplicationComponentEsUIDAO extends EsDAO implements IApplicationCo
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
         Terms componentIdTerms = searchResponse.getAggregations().get(ApplicationComponentTable.COLUMN_COMPONENT_ID);
-        JsonArray nodeComponentArray = new JsonArray();
+        JsonArray applicationComponentArray = new JsonArray();
         for (Terms.Bucket componentIdBucket : componentIdTerms.getBuckets()) {
             int componentId = componentIdBucket.getKeyAsNumber().intValue();
-            buildComponentArray(componentIdBucket, componentId, nodeComponentArray);
+            buildComponentArray(componentIdBucket, componentId, applicationComponentArray);
         }
 
-        return nodeComponentArray;
+        return applicationComponentArray;
     }
 
-    private void buildComponentArray(Terms.Bucket componentBucket, int componentId, JsonArray nodeComponentArray) {
+    private void buildComponentArray(Terms.Bucket componentBucket, int componentId,
+        JsonArray applicationComponentArray) {
         Terms peerIdTerms = componentBucket.getAggregations().get(ApplicationComponentTable.COLUMN_PEER_ID);
         for (Terms.Bucket peerIdBucket : peerIdTerms.getBuckets()) {
             int peerId = peerIdBucket.getKeyAsNumber().intValue();
 
-            JsonObject nodeComponentObj = new JsonObject();
-            nodeComponentObj.addProperty(ApplicationComponentTable.COLUMN_COMPONENT_ID, componentId);
-            nodeComponentObj.addProperty(ApplicationComponentTable.COLUMN_PEER_ID, peerId);
-            nodeComponentArray.add(nodeComponentObj);
+            JsonObject applicationComponentObj = new JsonObject();
+            applicationComponentObj.addProperty(ApplicationComponentTable.COLUMN_COMPONENT_ID, componentId);
+            applicationComponentObj.addProperty(ApplicationComponentTable.COLUMN_PEER_ID, peerId);
+            applicationComponentArray.add(applicationComponentObj);
         }
     }
 }

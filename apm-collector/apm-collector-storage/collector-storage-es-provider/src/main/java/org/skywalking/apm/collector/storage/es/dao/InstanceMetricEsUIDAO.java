@@ -34,20 +34,20 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
-import org.skywalking.apm.collector.storage.dao.IInstPerformanceUIDAO;
+import org.skywalking.apm.collector.storage.dao.IInstanceMetricUIDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.table.instance.InstanceMetricTable;
 
 /**
  * @author peng-yongsheng
  */
-public class InstPerformanceEsUIDAO extends EsDAO implements IInstPerformanceUIDAO {
+public class InstanceMetricEsUIDAO extends EsDAO implements IInstanceMetricUIDAO {
 
-    public InstPerformanceEsUIDAO(ElasticSearchClient client) {
+    public InstanceMetricEsUIDAO(ElasticSearchClient client) {
         super(client);
     }
 
-    @Override public InstPerformance get(long[] timeBuckets, int instanceId) {
+    @Override public InstanceMetric get(long[] timeBuckets, int instanceId) {
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(InstanceMetricTable.TABLE);
         searchRequestBuilder.setTypes(InstanceMetricTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
@@ -61,20 +61,20 @@ public class InstPerformanceEsUIDAO extends EsDAO implements IInstPerformanceUID
         searchRequestBuilder.addSort(InstanceMetricTable.COLUMN_INSTANCE_ID, SortOrder.ASC);
 
         searchRequestBuilder.addAggregation(AggregationBuilders.sum(InstanceMetricTable.COLUMN_CALLS).field(InstanceMetricTable.COLUMN_CALLS));
-        searchRequestBuilder.addAggregation(AggregationBuilders.sum(InstanceMetricTable.COLUMN_COST_TOTAL).field(InstanceMetricTable.COLUMN_COST_TOTAL));
+        searchRequestBuilder.addAggregation(AggregationBuilders.sum(InstanceMetricTable.COLUMN_DURATION_SUM).field(InstanceMetricTable.COLUMN_DURATION_SUM));
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
         Sum sumCalls = searchResponse.getAggregations().get(InstanceMetricTable.COLUMN_CALLS);
         Sum sumCostTotal = searchResponse.getAggregations().get(InstanceMetricTable.COLUMN_CALLS);
-        return new InstPerformance(instanceId, (int)sumCalls.getValue(), (long)sumCostTotal.getValue());
+        return new InstanceMetric(instanceId, (long)sumCalls.getValue(), (long)sumCostTotal.getValue());
     }
 
-    @Override public int getTpsMetric(int instanceId, long timeBucket) {
+    @Override public long getTpsMetric(int instanceId, long timeBucket) {
         String id = timeBucket + Const.ID_SPLIT + instanceId;
         GetResponse getResponse = getClient().prepareGet(InstanceMetricTable.TABLE, id).get();
 
         if (getResponse.isExists()) {
-            return ((Number)getResponse.getSource().get(InstanceMetricTable.COLUMN_CALLS)).intValue();
+            return ((Number)getResponse.getSource().get(InstanceMetricTable.COLUMN_CALLS)).longValue();
         }
         return 0;
     }
@@ -94,7 +94,7 @@ public class InstPerformanceEsUIDAO extends EsDAO implements IInstPerformanceUID
         MultiGetResponse multiGetResponse = prepareMultiGet.get();
         for (MultiGetItemResponse response : multiGetResponse.getResponses()) {
             if (response.getResponse().isExists()) {
-                metrics.add(((Number)response.getResponse().getSource().get(InstanceMetricTable.COLUMN_CALLS)).intValue());
+                metrics.add(((Number)response.getResponse().getSource().get(InstanceMetricTable.COLUMN_CALLS)).longValue());
             } else {
                 metrics.add(0);
             }
@@ -102,13 +102,13 @@ public class InstPerformanceEsUIDAO extends EsDAO implements IInstPerformanceUID
         return metrics;
     }
 
-    @Override public int getRespTimeMetric(int instanceId, long timeBucket) {
+    @Override public long getRespTimeMetric(int instanceId, long timeBucket) {
         String id = timeBucket + Const.ID_SPLIT + instanceId;
         GetResponse getResponse = getClient().prepareGet(InstanceMetricTable.TABLE, id).get();
 
         if (getResponse.isExists()) {
-            int callTimes = ((Number)getResponse.getSource().get(InstanceMetricTable.COLUMN_CALLS)).intValue();
-            int costTotal = ((Number)getResponse.getSource().get(InstanceMetricTable.COLUMN_COST_TOTAL)).intValue();
+            long callTimes = ((Number)getResponse.getSource().get(InstanceMetricTable.COLUMN_CALLS)).longValue();
+            long costTotal = ((Number)getResponse.getSource().get(InstanceMetricTable.COLUMN_DURATION_SUM)).longValue();
             return costTotal / callTimes;
         }
         return 0;
@@ -131,8 +131,8 @@ public class InstPerformanceEsUIDAO extends EsDAO implements IInstPerformanceUID
         MultiGetResponse multiGetResponse = prepareMultiGet.get();
         for (MultiGetItemResponse response : multiGetResponse.getResponses()) {
             if (response.getResponse().isExists()) {
-                int callTimes = ((Number)response.getResponse().getSource().get(InstanceMetricTable.COLUMN_CALLS)).intValue();
-                int costTotal = ((Number)response.getResponse().getSource().get(InstanceMetricTable.COLUMN_COST_TOTAL)).intValue();
+                long callTimes = ((Number)response.getResponse().getSource().get(InstanceMetricTable.COLUMN_CALLS)).longValue();
+                long costTotal = ((Number)response.getResponse().getSource().get(InstanceMetricTable.COLUMN_DURATION_SUM)).longValue();
                 metrics.add(costTotal / callTimes);
             } else {
                 metrics.add(0);

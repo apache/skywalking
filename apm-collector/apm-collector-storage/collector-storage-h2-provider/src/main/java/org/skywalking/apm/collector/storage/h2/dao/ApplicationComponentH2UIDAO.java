@@ -44,15 +44,15 @@ public class ApplicationComponentH2UIDAO extends H2DAO implements IApplicationCo
     }
 
     @Override public JsonArray load(long startTime, long endTime) {
-        JsonArray nodeComponentArray = new JsonArray();
-        nodeComponentArray.addAll(aggregationComponent(startTime, endTime));
-        return nodeComponentArray;
+        JsonArray applicationComponentArray = new JsonArray();
+        applicationComponentArray.addAll(aggregationComponent(startTime, endTime));
+        return applicationComponentArray;
     }
 
     private JsonArray aggregationComponent(long startTime, long endTime) {
         H2Client client = getClient();
 
-        JsonArray nodeComponentArray = new JsonArray();
+        JsonArray applicationComponentArray = new JsonArray();
         String sql = SqlBuilder.buildSql(AGGREGATE_COMPONENT_SQL, ApplicationComponentTable.COLUMN_COMPONENT_ID, ApplicationComponentTable.COLUMN_PEER_ID,
             ApplicationComponentTable.TABLE, ApplicationComponentTable.COLUMN_TIME_BUCKET);
         Object[] params = new Object[] {startTime, endTime};
@@ -60,14 +60,14 @@ public class ApplicationComponentH2UIDAO extends H2DAO implements IApplicationCo
             while (rs.next()) {
                 int peerId = rs.getInt(ApplicationComponentTable.COLUMN_PEER_ID);
                 int componentId = rs.getInt(ApplicationComponentTable.COLUMN_COMPONENT_ID);
-                JsonObject nodeComponentObj = new JsonObject();
-                nodeComponentObj.addProperty(ApplicationComponentTable.COLUMN_COMPONENT_ID, componentId);
-                nodeComponentObj.addProperty(ApplicationComponentTable.COLUMN_PEER_ID, peerId);
-                nodeComponentArray.add(nodeComponentObj);
+                JsonObject applicationComponentObj = new JsonObject();
+                applicationComponentObj.addProperty(ApplicationComponentTable.COLUMN_COMPONENT_ID, componentId);
+                applicationComponentObj.addProperty(ApplicationComponentTable.COLUMN_PEER_ID, peerId);
+                applicationComponentArray.add(applicationComponentObj);
             }
         } catch (SQLException | H2ClientException e) {
             logger.error(e.getMessage(), e);
         }
-        return nodeComponentArray;
+        return applicationComponentArray;
     }
 }

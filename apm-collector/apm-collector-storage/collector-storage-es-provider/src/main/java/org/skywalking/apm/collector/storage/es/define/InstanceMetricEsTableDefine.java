@@ -25,9 +25,9 @@ import org.skywalking.apm.collector.storage.table.instance.InstanceMetricTable;
 /**
  * @author peng-yongsheng
  */
-public class InstPerformanceEsTableDefine extends ElasticSearchTableDefine {
+public class InstanceMetricEsTableDefine extends ElasticSearchTableDefine {
 
-    public InstPerformanceEsTableDefine() {
+    public InstanceMetricEsTableDefine() {
         super(InstanceMetricTable.TABLE);
     }
 
@@ -38,8 +38,10 @@ public class InstPerformanceEsTableDefine extends ElasticSearchTableDefine {
     @Override public void initialize() {
         addColumn(new ElasticSearchColumnDefine(InstanceMetricTable.COLUMN_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
         addColumn(new ElasticSearchColumnDefine(InstanceMetricTable.COLUMN_INSTANCE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(InstanceMetricTable.COLUMN_CALLS, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(InstanceMetricTable.COLUMN_COST_TOTAL, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceMetricTable.COLUMN_CALLS, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceMetricTable.COLUMN_ERROR_CALLS, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceMetricTable.COLUMN_DURATION_SUM, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceMetricTable.COLUMN_ERROR_DURATION_SUM, ElasticSearchColumnDefine.Type.Long.name()));
         addColumn(new ElasticSearchColumnDefine(InstanceMetricTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
     }
 }

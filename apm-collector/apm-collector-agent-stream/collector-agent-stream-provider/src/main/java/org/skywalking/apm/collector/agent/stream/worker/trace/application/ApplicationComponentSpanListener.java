@@ -75,12 +75,12 @@ public class ApplicationComponentSpanListener implements EntrySpanListener, Exit
     }
 
     @Override public void build() {
-        Graph<ApplicationComponent> graph = GraphManager.INSTANCE.createIfAbsent(TraceStreamGraph.NODE_COMPONENT_GRAPH_ID, ApplicationComponent.class);
+        Graph<ApplicationComponent> graph = GraphManager.INSTANCE.createIfAbsent(TraceStreamGraph.APPLICATION_COMPONENT_GRAPH_ID, ApplicationComponent.class);
 
-        applicationComponents.forEach(nodeComponent -> {
-            nodeComponent.setId(timeBucket + Const.ID_SPLIT + nodeComponent.getId());
-            nodeComponent.setTimeBucket(timeBucket);
-            graph.start(nodeComponent);
+        applicationComponents.forEach(applicationComponent -> {
+            applicationComponent.setId(timeBucket + Const.ID_SPLIT + applicationComponent.getId());
+            applicationComponent.setTimeBucket(timeBucket);
+            graph.start(applicationComponent);
         });
     }
 }

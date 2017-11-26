@@ -27,7 +27,7 @@ import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.ICpuMetricUIDAO;
 import org.skywalking.apm.collector.storage.dao.IGCMetricUIDAO;
-import org.skywalking.apm.collector.storage.dao.IInstPerformanceUIDAO;
+import org.skywalking.apm.collector.storage.dao.IInstanceMetricUIDAO;
 import org.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
 import org.skywalking.apm.collector.storage.dao.IMemoryMetricUIDAO;
 import org.skywalking.apm.collector.storage.dao.IMemoryPoolMetricUIDAO;
@@ -50,7 +50,7 @@ public class InstanceJVMService {
     private final IGCMetricUIDAO gcMetricDAO;
     private final IMemoryMetricUIDAO memoryMetricDAO;
     private final IMemoryPoolMetricUIDAO memoryPoolMetricDAO;
-    private final IInstPerformanceUIDAO instPerformanceDAO;
+    private final IInstanceMetricUIDAO instanceMetricUIDAO;
 
     public InstanceJVMService(ModuleManager moduleManager) {
         this.instanceDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceUIDAO.class);
@@ -58,7 +58,7 @@ public class InstanceJVMService {
         this.gcMetricDAO = moduleManager.find(StorageModule.NAME).getService(IGCMetricUIDAO.class);
         this.memoryMetricDAO = moduleManager.find(StorageModule.NAME).getService(IMemoryMetricUIDAO.class);
         this.memoryPoolMetricDAO = moduleManager.find(StorageModule.NAME).getService(IMemoryPoolMetricUIDAO.class);
-        this.instPerformanceDAO = moduleManager.find(StorageModule.NAME).getService(IInstPerformanceUIDAO.class);
+        this.instanceMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceMetricUIDAO.class);
     }
 
     public JsonObject getInstanceOsInfo(int instanceId) {
@@ -78,9 +78,9 @@ public class InstanceJVMService {
             } else if (metricType.toLowerCase().equals(MetricType.gc.name())) {
                 metrics.add(MetricType.gc.name(), gcMetricDAO.getMetric(instanceId, timeBucket));
             } else if (metricType.toLowerCase().equals(MetricType.tps.name())) {
-                metrics.addProperty(MetricType.tps.name(), instPerformanceDAO.getTpsMetric(instanceId, timeBucket));
+                metrics.addProperty(MetricType.tps.name(), instanceMetricUIDAO.getTpsMetric(instanceId, timeBucket));
             } else if (metricType.toLowerCase().equals(MetricType.resptime.name())) {
-                metrics.addProperty(MetricType.resptime.name(), instPerformanceDAO.getRespTimeMetric(instanceId, timeBucket));
+                metrics.addProperty(MetricType.resptime.name(), instanceMetricUIDAO.getRespTimeMetric(instanceId, timeBucket));
             } else if (metricType.toLowerCase().equals(MetricType.heapmemory.name())) {
                 metrics.add(MetricType.heapmemory.name(), memoryMetricDAO.getMetric(instanceId, timeBucket, true));
             } else if (metricType.toLowerCase().equals(MetricType.nonheapmemory.name())) {
@@ -111,9 +111,9 @@ public class InstanceJVMService {
             } else if (metricType.toLowerCase().equals(MetricType.gc.name())) {
                 metrics.add(MetricType.gc.name(), gcMetricDAO.getMetric(instanceId, startTimeBucket, endTimeBucket));
             } else if (metricType.toLowerCase().equals(MetricType.tps.name())) {
-                metrics.add(MetricType.tps.name(), instPerformanceDAO.getTpsMetric(instanceId, startTimeBucket, endTimeBucket));
+                metrics.add(MetricType.tps.name(), instanceMetricUIDAO.getTpsMetric(instanceId, startTimeBucket, endTimeBucket));
             } else if (metricType.toLowerCase().equals(MetricType.resptime.name())) {
-                metrics.add(MetricType.resptime.name(), instPerformanceDAO.getRespTimeMetric(instanceId, startTimeBucket, endTimeBucket));
+                metrics.add(MetricType.resptime.name(), instanceMetricUIDAO.getRespTimeMetric(instanceId, startTimeBucket, endTimeBucket));
             } else if (metricType.toLowerCase().equals(MetricType.heapmemory.name())) {
                 metrics.add(MetricType.heapmemory.name(), memoryMetricDAO.getMetric(instanceId, startTimeBucket, endTimeBucket, true));
             } else if (metricType.toLowerCase().equals(MetricType.nonheapmemory.name())) {

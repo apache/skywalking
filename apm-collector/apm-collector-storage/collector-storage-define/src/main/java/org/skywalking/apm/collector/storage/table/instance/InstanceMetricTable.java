@@ -28,5 +28,7 @@ public class InstanceMetricTable extends CommonTable {
     public static final String COLUMN_APPLICATION_ID = "application_id";
     public static final String COLUMN_INSTANCE_ID = "instance_id";
     public static final String COLUMN_CALLS = "calls";
-    public static final String COLUMN_COST_TOTAL = "cost_total";
+    public static final String COLUMN_ERROR_CALLS = "error_calls";
+    public static final String COLUMN_DURATION_SUM = "duration_sum";
+    public static final String COLUMN_ERROR_DURATION_SUM = "error_duration_sum";
 }

@@ -56,8 +56,10 @@ public class InstanceMetricH2PersistenceDAO extends H2DAO implements IInstanceMe
                 InstanceMetric instanceMetric = new InstanceMetric(id);
                 instanceMetric.setApplicationId(rs.getInt(InstanceMetricTable.COLUMN_APPLICATION_ID));
                 instanceMetric.setInstanceId(rs.getInt(InstanceMetricTable.COLUMN_INSTANCE_ID));
-                instanceMetric.setCalls(rs.getInt(InstanceMetricTable.COLUMN_CALLS));
-                instanceMetric.setCostTotal(rs.getLong(InstanceMetricTable.COLUMN_COST_TOTAL));
+                instanceMetric.setCalls(rs.getLong(InstanceMetricTable.COLUMN_CALLS));
+                instanceMetric.setErrorCalls(rs.getLong(InstanceMetricTable.COLUMN_ERROR_CALLS));
+                instanceMetric.setDurationSum(rs.getLong(InstanceMetricTable.COLUMN_DURATION_SUM));
+                instanceMetric.setErrorDurationSum(rs.getLong(InstanceMetricTable.COLUMN_ERROR_DURATION_SUM));
                 instanceMetric.setTimeBucket(rs.getLong(InstanceMetricTable.COLUMN_TIME_BUCKET));
                 return instanceMetric;
             }
@@ -74,7 +76,9 @@ public class InstanceMetricH2PersistenceDAO extends H2DAO implements IInstanceMe
         source.put(InstanceMetricTable.COLUMN_APPLICATION_ID, data.getApplicationId());
         source.put(InstanceMetricTable.COLUMN_INSTANCE_ID, data.getInstanceId());
         source.put(InstanceMetricTable.COLUMN_CALLS, data.getCalls());
-        source.put(InstanceMetricTable.COLUMN_COST_TOTAL, data.getCostTotal());
+        source.put(InstanceMetricTable.COLUMN_ERROR_CALLS, data.getErrorCalls());
+        source.put(InstanceMetricTable.COLUMN_DURATION_SUM, data.getDurationSum());
+        source.put(InstanceMetricTable.COLUMN_ERROR_DURATION_SUM, data.getErrorDurationSum());
         source.put(InstanceMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
         String sql = SqlBuilder.buildBatchInsertSql(InstanceMetricTable.TABLE, source.keySet());
         entity.setSql(sql);
@@ -88,7 +92,9 @@ public class InstanceMetricH2PersistenceDAO extends H2DAO implements IInstanceMe
         source.put(InstanceMetricTable.COLUMN_APPLICATION_ID, data.getApplicationId());
         source.put(InstanceMetricTable.COLUMN_INSTANCE_ID, data.getInstanceId());
         source.put(InstanceMetricTable.COLUMN_CALLS, data.getCalls());
-        source.put(InstanceMetricTable.COLUMN_COST_TOTAL, data.getCostTotal());
+        source.put(InstanceMetricTable.COLUMN_ERROR_CALLS, data.getErrorCalls());
+        source.put(InstanceMetricTable.COLUMN_DURATION_SUM, data.getDurationSum());
+        source.put(InstanceMetricTable.COLUMN_ERROR_DURATION_SUM, data.getErrorDurationSum());
         source.put(InstanceMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
         String sql = SqlBuilder.buildBatchUpdateSql(InstanceMetricTable.TABLE, source.keySet(), InstanceMetricTable.COLUMN_ID);
         entity.setSql(sql);

@@ -19,16 +19,9 @@
 package org.skywalking.apm.collector.storage.h2.dao;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import org.skywalking.apm.collector.client.h2.H2Client;
-import org.skywalking.apm.collector.client.h2.H2ClientException;
-import org.skywalking.apm.collector.core.util.ColumnNameUtils;
-import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.dao.IApplicationReferenceMetricUIDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
-import org.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetricTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +31,7 @@ import org.slf4j.LoggerFactory;
 public class ApplicationReferenceMetricH2UIDAO extends H2DAO implements IApplicationReferenceMetricUIDAO {
 
     private final Logger logger = LoggerFactory.getLogger(ApplicationReferenceMetricH2UIDAO.class);
-    private static final String NODE_REFERENCE_SQL = "select {8}, {9}, sum({0}) as {0}, sum({1}) as {1}, sum({2}) as {2}, " +
+    private static final String APPLICATION_REFERENCE_SQL = "select {8}, {9}, sum({0}) as {0}, sum({1}) as {1}, sum({2}) as {2}, " +
         "sum({3}) as {3}, sum({4}) as {4}, sum({5}) as {5} from {6} where {7} >= ? and {7} <= ? group by {8}, {9} limit 100";
 
     public ApplicationReferenceMetricH2UIDAO(H2Client client) {
@@ -47,8 +40,8 @@ public class ApplicationReferenceMetricH2UIDAO extends H2DAO implements IApplica
 
     @Override public JsonArray load(long startTime, long endTime) {
         H2Client client = getClient();
-        JsonArray nodeRefResSumArray = new JsonArray();
-//        String sql = SqlBuilder.buildSql(NODE_REFERENCE_SQL, ApplicationReferenceMetricTable.COLUMN_S1_LTE,
+        JsonArray applicationReferenceMetricArray = new JsonArray();
+//        String sql = SqlBuilder.buildSql(APPLICATION_REFERENCE_SQL, ApplicationReferenceMetricTable.COLUMN_S1_LTE,
 //            ApplicationReferenceMetricTable.COLUMN_S3_LTE, ApplicationReferenceMetricTable.COLUMN_S5_LTE,
 //            ApplicationReferenceMetricTable.COLUMN_S5_GT, ApplicationReferenceMetricTable.COLUMN_SUMMARY,
 //            ApplicationReferenceMetricTable.COLUMN_ERROR, ApplicationReferenceMetricTable.TABLE, ApplicationReferenceMetricTable.COLUMN_TIME_BUCKET,
@@ -73,6 +66,6 @@ public class ApplicationReferenceMetricH2UIDAO extends H2DAO implements IApplica
 //        } catch (SQLException | H2ClientException e) {
 //            logger.error(e.getMessage(), e);
 //        }
-        return nodeRefResSumArray;
+        return applicationReferenceMetricArray;
     }
 }

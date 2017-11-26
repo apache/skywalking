@@ -39,7 +39,8 @@ public class InstanceMetricSpanListener implements EntrySpanListener, FirstSpanL
 
     private int applicationId;
     private int instanceId;
-    private long cost;
+    private boolean isError;
+    private long duration;
     private long timeBucket;
 
     @Override
@@ -52,7 +53,8 @@ public class InstanceMetricSpanListener implements EntrySpanListener, FirstSpanL
         String segmentId) {
         this.applicationId = applicationId;
         this.instanceId = instanceId;
-        this.cost = spanDecorator.getEndTime() - spanDecorator.getStartTime();
+        this.isError = spanDecorator.getIsError();
+        this.duration = spanDecorator.getEndTime() - spanDecorator.getStartTime();
         timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(spanDecorator.getStartTime());
     }
 
@@ -61,7 +63,12 @@ public class InstanceMetricSpanListener implements EntrySpanListener, FirstSpanL
         instanceMetric.setApplicationId(applicationId);
         instanceMetric.setInstanceId(instanceId);
         instanceMetric.setCalls(1);
-        instanceMetric.setCostTotal(cost);
+        instanceMetric.setDurationSum(duration);
+
+        if (isError) {
+            instanceMetric.setErrorCalls(1);
+            instanceMetric.setErrorDurationSum(duration);
+        }
         instanceMetric.setTimeBucket(timeBucket);
 
         Graph<InstanceMetric> graph = GraphManager.INSTANCE.createIfAbsent(TraceStreamGraph.INSTANCE_METRIC_GRAPH_ID, InstanceMetric.class);

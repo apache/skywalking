@@ -62,7 +62,7 @@ public class ApplicationReferenceMetricEsUIDAO extends EsDAO implements IApplica
         searchRequestBuilder.addAggregation(aggregationBuilder);
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
-        JsonArray nodeRefResSumArray = new JsonArray();
+        JsonArray applicationReferenceMetricArray = new JsonArray();
 //        Terms frontApplicationIdTerms = searchResponse.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID);
 //        for (Terms.Bucket frontApplicationIdBucket : frontApplicationIdTerms.getBuckets()) {
 //            int frontApplicationId = frontApplicationIdBucket.getKeyAsNumber().intValue();
@@ -94,6 +94,6 @@ public class ApplicationReferenceMetricEsUIDAO extends EsDAO implements IApplica
 //            }
 //        }
 
-        return nodeRefResSumArray;
+        return applicationReferenceMetricArray;
     }
 }
