@@ -29,8 +29,8 @@ import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.dao.IServiceReferenceMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
-import org.skywalking.apm.collector.storage.table.serviceref.ServiceReferenceMetric;
-import org.skywalking.apm.collector.storage.table.serviceref.ServiceReferenceMetricTable;
+import org.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
+import org.skywalking.apm.collector.storage.table.service.ServiceReferenceMetricTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,13 +53,10 @@ public class ServiceReferenceEsMetricPersistenceDAO extends EsDAO implements ISe
             serviceReferenceMetric.setEntryServiceId(((Number)source.get(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID)).intValue());
             serviceReferenceMetric.setFrontServiceId(((Number)source.get(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID)).intValue());
             serviceReferenceMetric.setBehindServiceId(((Number)source.get(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID)).intValue());
-            serviceReferenceMetric.setS1Lte(((Number)source.get(ServiceReferenceMetricTable.COLUMN_S1_LTE)).longValue());
-            serviceReferenceMetric.setS3Lte(((Number)source.get(ServiceReferenceMetricTable.COLUMN_S3_LTE)).longValue());
-            serviceReferenceMetric.setS5Lte(((Number)source.get(ServiceReferenceMetricTable.COLUMN_S5_LTE)).longValue());
-            serviceReferenceMetric.setS5Gt(((Number)source.get(ServiceReferenceMetricTable.COLUMN_S5_GT)).longValue());
-            serviceReferenceMetric.setSummary(((Number)source.get(ServiceReferenceMetricTable.COLUMN_SUMMARY)).longValue());
-            serviceReferenceMetric.setError(((Number)source.get(ServiceReferenceMetricTable.COLUMN_ERROR)).longValue());
-            serviceReferenceMetric.setCostSummary(((Number)source.get(ServiceReferenceMetricTable.COLUMN_COST_SUMMARY)).longValue());
+            serviceReferenceMetric.setCalls(((Number)source.get(ServiceReferenceMetricTable.COLUMN_CALLS)).longValue());
+            serviceReferenceMetric.setErrorCalls(((Number)source.get(ServiceReferenceMetricTable.COLUMN_ERROR_CALLS)).longValue());
+            serviceReferenceMetric.setDurationSum(((Number)source.get(ServiceReferenceMetricTable.COLUMN_DURATION_SUM)).longValue());
+            serviceReferenceMetric.setErrorDurationSum(((Number)source.get(ServiceReferenceMetricTable.COLUMN_ERROR_DURATION_SUM)).longValue());
             serviceReferenceMetric.setTimeBucket(((Number)source.get(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET)).longValue());
             return serviceReferenceMetric;
         } else {
@@ -72,13 +69,10 @@ public class ServiceReferenceEsMetricPersistenceDAO extends EsDAO implements ISe
         source.put(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID, data.getEntryServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, data.getFrontServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, data.getBehindServiceId());
-        source.put(ServiceReferenceMetricTable.COLUMN_S1_LTE, data.getS1Lte());
-        source.put(ServiceReferenceMetricTable.COLUMN_S3_LTE, data.getS3Lte());
-        source.put(ServiceReferenceMetricTable.COLUMN_S5_LTE, data.getS5Lte());
-        source.put(ServiceReferenceMetricTable.COLUMN_S5_GT, data.getS5Gt());
-        source.put(ServiceReferenceMetricTable.COLUMN_SUMMARY, data.getSummary());
-        source.put(ServiceReferenceMetricTable.COLUMN_ERROR, data.getError());
-        source.put(ServiceReferenceMetricTable.COLUMN_COST_SUMMARY, data.getCostSummary());
+        source.put(ServiceReferenceMetricTable.COLUMN_CALLS, data.getCalls());
+        source.put(ServiceReferenceMetricTable.COLUMN_ERROR_CALLS, data.getErrorCalls());
+        source.put(ServiceReferenceMetricTable.COLUMN_DURATION_SUM, data.getDurationSum());
+        source.put(ServiceReferenceMetricTable.COLUMN_ERROR_DURATION_SUM, data.getErrorDurationSum());
         source.put(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
         return getClient().prepareIndex(ServiceReferenceMetricTable.TABLE, data.getId()).setSource(source);
@@ -89,13 +83,10 @@ public class ServiceReferenceEsMetricPersistenceDAO extends EsDAO implements ISe
         source.put(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID, data.getEntryServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, data.getFrontServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, data.getBehindServiceId());
-        source.put(ServiceReferenceMetricTable.COLUMN_S1_LTE, data.getS1Lte());
-        source.put(ServiceReferenceMetricTable.COLUMN_S3_LTE, data.getS3Lte());
-        source.put(ServiceReferenceMetricTable.COLUMN_S5_LTE, data.getS5Lte());
-        source.put(ServiceReferenceMetricTable.COLUMN_S5_GT, data.getS5Gt());
-        source.put(ServiceReferenceMetricTable.COLUMN_SUMMARY, data.getSummary());
-        source.put(ServiceReferenceMetricTable.COLUMN_ERROR, data.getError());
-        source.put(ServiceReferenceMetricTable.COLUMN_COST_SUMMARY, data.getCostSummary());
+        source.put(ServiceReferenceMetricTable.COLUMN_CALLS, data.getCalls());
+        source.put(ServiceReferenceMetricTable.COLUMN_ERROR_CALLS, data.getErrorCalls());
+        source.put(ServiceReferenceMetricTable.COLUMN_DURATION_SUM, data.getDurationSum());
+        source.put(ServiceReferenceMetricTable.COLUMN_ERROR_DURATION_SUM, data.getErrorDurationSum());
         source.put(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
         return getClient().prepareUpdate(ServiceReferenceMetricTable.TABLE, data.getId()).setDoc(source);

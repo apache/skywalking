@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.storage.table.serviceref;
+package org.skywalking.apm.collector.storage.table.service;
 
 import org.skywalking.apm.collector.core.data.CommonTable;
 
@@ -28,11 +28,8 @@ public class ServiceReferenceMetricTable extends CommonTable {
     public static final String COLUMN_ENTRY_SERVICE_ID = "entry_service_id";
     public static final String COLUMN_FRONT_SERVICE_ID = "front_service_id";
     public static final String COLUMN_BEHIND_SERVICE_ID = "behind_service_id";
-    public static final String COLUMN_S1_LTE = "s1_lte";
-    public static final String COLUMN_S3_LTE = "s3_lte";
-    public static final String COLUMN_S5_LTE = "s5_lte";
-    public static final String COLUMN_S5_GT = "s5_gt";
-    public static final String COLUMN_SUMMARY = "summary";
-    public static final String COLUMN_COST_SUMMARY = "cost_summary";
-    public static final String COLUMN_ERROR = "error";
+    public static final String COLUMN_CALLS = "calls";
+    public static final String COLUMN_ERROR_CALLS = "error_calls";
+    public static final String COLUMN_DURATION_SUM = "duration_sum";
+    public static final String COLUMN_ERROR_DURATION_SUM = "error_duration_sum";
 }

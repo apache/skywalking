@@ -30,8 +30,8 @@ import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.dao.IServiceReferenceMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
-import org.skywalking.apm.collector.storage.table.serviceref.ServiceReferenceMetric;
-import org.skywalking.apm.collector.storage.table.serviceref.ServiceReferenceMetricTable;
+import org.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
+import org.skywalking.apm.collector.storage.table.service.ServiceReferenceMetricTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,13 +58,10 @@ public class ServiceReferenceH2MetricPersistenceDAO extends H2DAO implements ISe
                 serviceReferenceMetric.setEntryServiceId(rs.getInt(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID));
                 serviceReferenceMetric.setFrontServiceId(rs.getInt(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID));
                 serviceReferenceMetric.setBehindServiceId(rs.getInt(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID));
-                serviceReferenceMetric.setS1Lte(rs.getLong(ServiceReferenceMetricTable.COLUMN_S1_LTE));
-                serviceReferenceMetric.setS3Lte(rs.getLong(ServiceReferenceMetricTable.COLUMN_S3_LTE));
-                serviceReferenceMetric.setS5Lte(rs.getLong(ServiceReferenceMetricTable.COLUMN_S5_LTE));
-                serviceReferenceMetric.setS5Gt(rs.getLong(ServiceReferenceMetricTable.COLUMN_S5_GT));
-                serviceReferenceMetric.setSummary(rs.getLong(ServiceReferenceMetricTable.COLUMN_SUMMARY));
-                serviceReferenceMetric.setError(rs.getLong(ServiceReferenceMetricTable.COLUMN_ERROR));
-                serviceReferenceMetric.setCostSummary(rs.getLong(ServiceReferenceMetricTable.COLUMN_COST_SUMMARY));
+                serviceReferenceMetric.setCalls(rs.getLong(ServiceReferenceMetricTable.COLUMN_CALLS));
+                serviceReferenceMetric.setErrorCalls(rs.getLong(ServiceReferenceMetricTable.COLUMN_ERROR_CALLS));
+                serviceReferenceMetric.setDurationSum(rs.getLong(ServiceReferenceMetricTable.COLUMN_DURATION_SUM));
+                serviceReferenceMetric.setErrorDurationSum(rs.getLong(ServiceReferenceMetricTable.COLUMN_ERROR_DURATION_SUM));
                 serviceReferenceMetric.setTimeBucket(rs.getLong(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET));
                 return serviceReferenceMetric;
             }
@@ -82,13 +79,10 @@ public class ServiceReferenceH2MetricPersistenceDAO extends H2DAO implements ISe
         source.put(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID, data.getEntryServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, data.getFrontServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, data.getBehindServiceId());
-        source.put(ServiceReferenceMetricTable.COLUMN_S1_LTE, data.getS1Lte());
-        source.put(ServiceReferenceMetricTable.COLUMN_S3_LTE, data.getS3Lte());
-        source.put(ServiceReferenceMetricTable.COLUMN_S5_LTE, data.getS5Lte());
-        source.put(ServiceReferenceMetricTable.COLUMN_S5_GT, data.getS5Gt());
-        source.put(ServiceReferenceMetricTable.COLUMN_SUMMARY, data.getSummary());
-        source.put(ServiceReferenceMetricTable.COLUMN_ERROR, data.getError());
-        source.put(ServiceReferenceMetricTable.COLUMN_COST_SUMMARY, data.getCostSummary());
+        source.put(ServiceReferenceMetricTable.COLUMN_CALLS, data.getCalls());
+        source.put(ServiceReferenceMetricTable.COLUMN_ERROR_CALLS, data.getErrorCalls());
+        source.put(ServiceReferenceMetricTable.COLUMN_DURATION_SUM, data.getDurationSum());
+        source.put(ServiceReferenceMetricTable.COLUMN_ERROR_DURATION_SUM, data.getErrorDurationSum());
         source.put(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
         String sql = SqlBuilder.buildBatchInsertSql(ServiceReferenceMetricTable.TABLE, source.keySet());
@@ -104,13 +98,10 @@ public class ServiceReferenceH2MetricPersistenceDAO extends H2DAO implements ISe
         source.put(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID, data.getEntryServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, data.getFrontServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, data.getBehindServiceId());
-        source.put(ServiceReferenceMetricTable.COLUMN_S1_LTE, data.getS1Lte());
-        source.put(ServiceReferenceMetricTable.COLUMN_S3_LTE, data.getS3Lte());
-        source.put(ServiceReferenceMetricTable.COLUMN_S5_LTE, data.getS5Lte());
-        source.put(ServiceReferenceMetricTable.COLUMN_S5_GT, data.getS5Gt());
-        source.put(ServiceReferenceMetricTable.COLUMN_SUMMARY, data.getSummary());
-        source.put(ServiceReferenceMetricTable.COLUMN_ERROR, data.getError());
-        source.put(ServiceReferenceMetricTable.COLUMN_COST_SUMMARY, data.getCostSummary());
+        source.put(ServiceReferenceMetricTable.COLUMN_CALLS, data.getCalls());
+        source.put(ServiceReferenceMetricTable.COLUMN_ERROR_CALLS, data.getErrorCalls());
+        source.put(ServiceReferenceMetricTable.COLUMN_DURATION_SUM, data.getDurationSum());
+        source.put(ServiceReferenceMetricTable.COLUMN_ERROR_DURATION_SUM, data.getErrorDurationSum());
         source.put(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
         String sql = SqlBuilder.buildBatchUpdateSql(ServiceReferenceMetricTable.TABLE, source.keySet(), ServiceReferenceMetricTable.COLUMN_ID);

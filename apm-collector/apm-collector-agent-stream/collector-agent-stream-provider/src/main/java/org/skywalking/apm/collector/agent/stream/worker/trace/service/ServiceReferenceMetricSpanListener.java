@@ -30,7 +30,7 @@ import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
-import org.skywalking.apm.collector.storage.table.serviceref.ServiceReferenceMetric;
+import org.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,20 +72,15 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
 
     private void calculateCost(ServiceReferenceMetric serviceReferenceMetric, long startTime,
         long endTime, boolean isError) {
-        long cost = endTime - startTime;
-        if (cost <= 1000 && !isError) {
-            serviceReferenceMetric.setS1Lte(1L);
-        } else if (1000 < cost && cost <= 3000 && !isError) {
-            serviceReferenceMetric.setS3Lte(1L);
-        } else if (3000 < cost && cost <= 5000 && !isError) {
-            serviceReferenceMetric.setS5Lte(1L);
-        } else if (5000 < cost && !isError) {
-            serviceReferenceMetric.setS5Gt(1L);
-        } else {
-            serviceReferenceMetric.setError(1L);
+        long duration = endTime - startTime;
+
+        serviceReferenceMetric.setCalls(1L);
+        serviceReferenceMetric.setDurationSum(duration);
+
+        if (isError) {
+            serviceReferenceMetric.setErrorCalls(1L);
+            serviceReferenceMetric.setErrorDurationSum(duration);
         }
-        serviceReferenceMetric.setSummary(1L);
-        serviceReferenceMetric.setCostSummary(cost);
     }
 
     @Override public void build() {
@@ -114,7 +109,8 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
         }
     }
 
-    private void sendToAggregationWorker(ServiceReferenceMetric serviceReferenceMetric, int entryServiceId, int frontServiceId,
+    private void sendToAggregationWorker(ServiceReferenceMetric serviceReferenceMetric, int entryServiceId,
+        int frontServiceId,
         int behindServiceId) {
         StringBuilder idBuilder = new StringBuilder();
         idBuilder.append(timeBucket).append(Const.ID_SPLIT);

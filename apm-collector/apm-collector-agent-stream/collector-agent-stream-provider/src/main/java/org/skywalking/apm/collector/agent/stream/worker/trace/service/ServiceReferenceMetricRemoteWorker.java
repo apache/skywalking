@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.agent.stream.worker.trace.service;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.remote.service.RemoteSenderService;
 import org.skywalking.apm.collector.remote.service.Selector;
-import org.skywalking.apm.collector.storage.table.serviceref.ServiceReferenceMetric;
+import org.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
 import org.skywalking.apm.collector.stream.worker.base.AbstractRemoteWorker;
 import org.skywalking.apm.collector.stream.worker.base.AbstractRemoteWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.base.WorkerException;

@@ -20,14 +20,14 @@ package org.skywalking.apm.collector.storage.h2.define;
 
 import org.skywalking.apm.collector.storage.h2.base.define.H2ColumnDefine;
 import org.skywalking.apm.collector.storage.h2.base.define.H2TableDefine;
-import org.skywalking.apm.collector.storage.table.serviceref.ServiceReferenceMetricTable;
+import org.skywalking.apm.collector.storage.table.service.ServiceReferenceMetricTable;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceReferenceH2TableDefine extends H2TableDefine {
+public class ServiceReferenceMetricH2TableDefine extends H2TableDefine {
 
-    public ServiceReferenceH2TableDefine() {
+    public ServiceReferenceMetricH2TableDefine() {
         super(ServiceReferenceMetricTable.TABLE);
     }
 
@@ -36,13 +36,10 @@ public class ServiceReferenceH2TableDefine extends H2TableDefine {
         addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID, H2ColumnDefine.Type.Int.name()));
         addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, H2ColumnDefine.Type.Int.name()));
         addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_S1_LTE, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_S3_LTE, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_S5_LTE, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_S5_GT, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_SUMMARY, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_ERROR, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_COST_SUMMARY, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_CALLS, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_ERROR_CALLS, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_ERROR_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
         addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
     }
 }
