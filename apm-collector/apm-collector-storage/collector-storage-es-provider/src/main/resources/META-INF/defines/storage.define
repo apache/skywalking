@@ -7,9 +7,9 @@ org.skywalking.apm.collector.storage.es.define.MemoryMetricEsTableDefine
 org.skywalking.apm.collector.storage.es.define.MemoryPoolMetricEsTableDefine
 org.skywalking.apm.collector.storage.es.define.GlobalTraceEsTableDefine
 org.skywalking.apm.collector.storage.es.define.InstPerformanceEsTableDefine
-org.skywalking.apm.collector.storage.es.define.NodeComponentEsTableDefine
-org.skywalking.apm.collector.storage.es.define.NodeMappingEsTableDefine
-org.skywalking.apm.collector.storage.es.define.NodeReferenceEsTableDefine
+org.skywalking.apm.collector.storage.es.define.ApplicationComponentEsTableDefine
+org.skywalking.apm.collector.storage.es.define.ApplicationMappingEsTableDefine
+org.skywalking.apm.collector.storage.es.define.ApplicationReferenceMetricEsTableDefine
 org.skywalking.apm.collector.storage.es.define.SegmentCostEsTableDefine
 org.skywalking.apm.collector.storage.es.define.SegmentEsTableDefine
 org.skywalking.apm.collector.storage.es.define.ServiceEntryEsTableDefine

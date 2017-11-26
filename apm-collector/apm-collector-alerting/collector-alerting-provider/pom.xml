@@ -33,6 +33,11 @@
     <dependencies>
         <dependency>
             <groupId>org.skywalking</groupId>
+            <artifactId>collector-alerting-define</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
             <artifactId>collector-agent-stream-define</artifactId>
             <version>${project.version}</version>
         </dependency>
