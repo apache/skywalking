@@ -29,6 +29,8 @@ agent_stream:
     buffer_file_path: ../buffer/
     buffer_offset_max_file_size: 10M
     buffer_segment_max_file_size: 500M
+configuration:
+  default:
 ui:
   jetty:
     host: localhost
