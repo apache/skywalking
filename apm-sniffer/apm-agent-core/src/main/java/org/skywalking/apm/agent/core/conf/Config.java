@@ -54,8 +54,8 @@ public class Config {
         public static int SPAN_LIMIT_PER_SEGMENT = 300;
 
         /**
-         * If true, skywalking agent will save all instrumented classes files. And you can send them to skywalking team,
-         * in order to resolve compatible problem.
+         * If true, skywalking agent will save all instrumented classes files in `/debugging` folder.
+         * Skywalking team may ask for these files in order to resolve compatible problem.
          */
         public static boolean IS_OPEN_DEBUGGING_CLASS = false;
     }
