@@ -16,17 +16,16 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.baseline.computing.service;
+package org.skywalking.apm.collector.baseline.computing;
 
-import org.skywalking.apm.collector.baseline.computing.Baseline;
-import org.skywalking.apm.collector.baseline.computing.DataOfSingleDay;
-import org.skywalking.apm.collector.core.module.Service;
+import java.util.concurrent.TimeUnit;
 
 /**
- * @author zhang-chen
+ * @author Zhang, Chen
  */
-public interface ComputingService extends Service {
+public class HourOfSingleDay extends DataOfSingleDay {
 
-    <T extends DataOfSingleDay> Baseline compute(T[] metrics);
-
+    public HourOfSingleDay() {
+        super(1, TimeUnit.HOURS);
+    }
 }

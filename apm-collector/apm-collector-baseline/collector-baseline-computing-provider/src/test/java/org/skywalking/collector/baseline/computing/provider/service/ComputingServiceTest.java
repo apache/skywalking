@@ -18,11 +18,12 @@
 
 package org.skywalking.collector.baseline.computing.provider.service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import org.junit.Test;
-import org.skywalking.apm.collector.baseline.computing.Metric;
+import org.skywalking.apm.collector.baseline.computing.Baseline;
+import org.skywalking.apm.collector.baseline.computing.DataOfSingleDay;
 import org.skywalking.apm.collector.baseline.computing.service.ComputingService;
 
 /**
@@ -32,20 +33,37 @@ public class ComputingServiceTest {
 
     @Test
     public void computing() {
-        int size = 100;
         ComputingService service = new ComputingServiceImpl();
-        List<Metric>[] metrics = new List[8];
-        for (int j = 0; j < metrics.length; j++) {
-            metrics[j] = new ArrayList();
-        }
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < metrics.length; j++) {
-                metrics[j].add(new Metric(i % 2 == 0 ? i : size - i, i + j));
+        int weeks = 8;
+        int duration = 3600;
+        int length = 86400 / duration;
+        DataOfSingleDay[] metrics = newData(weeks, duration);
+        for (int j = 0; j < weeks; j++) {
+            int startTime = getStartFromToday(-1 - j);
+            for (int i = 0; i < length; i++) {
+                metrics[j].addData(i + j, startTime + i * metrics[j].getDuration());
             }
         }
-        List<Metric> list = service.compute(metrics);
+        Baseline list = service.compute(metrics);
         Assert.assertNotNull(list);
-        Assert.assertEquals(size, list.size());
+        Assert.assertEquals(length, list.length());
     }
 
+    private DataOfSingleDay[] newData(int weeks, int duration) {
+        DataOfSingleDay[] metrics = new DataOfSingleDay[weeks];
+        for (int j = 0; j < metrics.length; j++) {
+            metrics[j] = new TestData(duration, TimeUnit.SECONDS);
+        }
+        return metrics;
+    }
+
+    private int getStartFromToday(int days) {
+        Calendar c = Calendar.getInstance();
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.MILLISECOND, 0);
+        c.set(Calendar.DATE, days);
+        return (int)(c.getTimeInMillis() / 1000);
+    }
 }

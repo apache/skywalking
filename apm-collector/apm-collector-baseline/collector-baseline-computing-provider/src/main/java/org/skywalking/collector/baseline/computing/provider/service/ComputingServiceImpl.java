@@ -18,10 +18,9 @@
 
 package org.skywalking.collector.baseline.computing.provider.service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import org.skywalking.apm.collector.baseline.computing.Metric;
+import org.skywalking.apm.collector.baseline.computing.Baseline;
+import org.skywalking.apm.collector.baseline.computing.DataOfSingleDay;
 import org.skywalking.apm.collector.baseline.computing.service.ComputingService;
 
 /**
@@ -73,23 +72,41 @@ public class ComputingServiceImpl implements ComputingService {
         this.slope = slope;
     }
 
-    @Override
-    public List<Metric> compute(List<Metric>[] metrics) {
-        checkArgs(metrics);
-        List<Metric>[] gaussian = new List[metrics.length];
-        for (int i = 0; i < metrics.length; i++) {
-            gaussian[i] = gaussian(metrics[i]);
-        }
-        return avg(gaussian);
+    @Override public <T extends DataOfSingleDay> Baseline compute(T[] metrics) {
+        int[] baseline = computeBaseline(metrics);
+        return new Baseline(baseline);
     }
 
-    private List<Metric> gaussian(List<Metric> metrics) {
-        List<Metric> gaussianMetrics = new ArrayList<>(metrics.size());
+    private int[] computeBaseline(DataOfSingleDay[] metrics) {
+        checkArgs(metrics);
+        int[][] gaussian = new int[metrics.length][];
+        for (int i = 0; i < metrics.length; i++) {
+            gaussian[i] = gaussian(metrics[i].getData(), extent, slope);
+        }
+        return computeBaseline(gaussian);
+    }
+
+    private int[] computeBaseline(int[][] gaussian) {
+        int row = gaussian.length;
+        int column = gaussian[0].length;
+        int[] baseline = new int[column];
+        for (int j = 0; j < column; j++) {
+            int[] avgData = new int[row];
+            for (int i = 0; i < row; i++) {
+                avgData[i] = gaussian[i][j];
+            }
+            baseline[j] = avg(avgData, discard);
+        }
+        return baseline;
+    }
+
+    private int[] gaussian(int[] dailyMetrics, int extent, int slope) {
+        int size = dailyMetrics.length;
+        int[] gaussian = new int[size];
         int mid = extent / 2 + 1;
-        int size = metrics.size();
         double[] weight = assignWeight(extent, slope);
         for (int i = 0; i < size; i++) {
-            double call = 0, avg = 0;
+            double data = 0;
             //computing center point value with nearby point by gaussian
             for (int j = 1; j <= extent; j++) {
                 //relative index on every extent loop
@@ -99,13 +116,11 @@ public class ComputingServiceImpl implements ComputingService {
                 if (index >= size) {
                     index = size - (index - size) - 1;
                 }
-                Metric originalMetric = metrics.get(index);
-                call += originalMetric.getCall() * weight[extentIndex];
-                avg += originalMetric.getAvg() * weight[extentIndex];
+                data += dailyMetrics[index] * weight[extentIndex];
             }
-            gaussianMetrics.add(new Metric((int)Math.round(call), (int)Math.round(avg)));
+            gaussian[i] = (int)Math.round(data);
         }
-        return gaussianMetrics;
+        return gaussian;
     }
 
     /**
@@ -136,101 +151,42 @@ public class ComputingServiceImpl implements ComputingService {
         return distributionSequence;
     }
 
-    private List<Metric> avg(List<Metric>[] base) {
-        List<Metric> line = new ArrayList<Metric>(base[0].size());
-        int size = base[0].size();
-        int length = base.length;
-        for (int i = 0; i < size; i++) {
-            //create a new Averager for each column
-            Averager gen = new Averager(length);
-            for (int j = 0; j < length; j++) {
-                Metric metric = base[j].get(i);
-                gen.add(j, metric.getCall(), metric.getAvg());
+    private int avg(int[] temp, int discard) {
+        Arrays.sort(temp);
+        int length = temp.length;
+        int startIndex = discard, endIndex = length - discard;
+        int value = 0;
+        int adjust = 0;
+        for (int i = startIndex; i < endIndex; i++) {
+            int v = temp[i];
+            if (v == 0) {
+                adjust++;
+            } else {
+                value += temp[i];
             }
-            gen.sort();
-            Metric baseline = new Metric();
-            baseline.setCall(gen.getCall());
-            baseline.setAvg(gen.getAvg());
-            line.add(baseline);
         }
-        return line;
+        int divisor = endIndex - startIndex - adjust;
+        if (divisor == 0) {
+            return 0;
+        } else {
+            return value / divisor;
+        }
     }
 
-    private void checkArgs(List<Metric>[] metrics) {
+    private <T extends DataOfSingleDay> void checkArgs(T[] metrics) {
         if (metrics.length <= discard * 2) {
             throw new IllegalArgumentException("There is not enough data to computing baseline, input metrics array length must be greater than how many highest and lowest are discarded. " + metrics.length + " <= " + discard * 2);
         }
-        int length = metrics[0].size();
+        int length = 0;
         for (int i = 0; i < metrics.length; i++) {
-            if (length != metrics[i].size()) {
-                throw new IllegalArgumentException("The length of the List in Array is different");
-            }
-        }
-    }
-
-    /**
-     * computing average
-     */
-    class Averager {
-
-        int[] call;
-
-        int[] avg;
-
-        int length;
-
-        int discard;
-
-        public Averager(int length) {
-            this(length, Math.min((length + 1) / 2 - 1, 3));
-        }
-
-        public Averager(int length, int discard) {
-            this.length = length;
-            this.discard = discard;
-            call = new int[length];
-            avg = new int[length];
-        }
-
-        public void add(int index, int total, int avg) {
-            if (index >= 0 && index < length) {
-                this.call[index] = total;
-                this.avg[index] = avg;
-            }
-        }
-
-        public void sort() {
-            Arrays.sort(call);
-            Arrays.sort(avg);
-        }
-
-        public int getCall() {
-            return compute(call);
-        }
-
-        public int getAvg() {
-            return compute(avg);
-        }
-
-        private int compute(int[] temp) {
-            int startIndex = discard, endIndex = length - discard;
-            int value = 0;
-            int adjust = 0;
-            for (int i = startIndex; i < endIndex; i++) {
-                int v = temp[i];
-                if (v == 0) {
-                    adjust++;
-                } else {
-                    value += temp[i];
+            if (i == 0) {
+                length = metrics[i].length();
+            } else {
+                if (length != metrics[i].length()) {
+                    throw new IllegalArgumentException("The length of the List in Array is different");
                 }
             }
-            int divisor = endIndex - startIndex - adjust;
-            if (divisor == 0) {
-                return 0;
-            } else {
-                return value / divisor;
-            }
         }
-
     }
+
 }

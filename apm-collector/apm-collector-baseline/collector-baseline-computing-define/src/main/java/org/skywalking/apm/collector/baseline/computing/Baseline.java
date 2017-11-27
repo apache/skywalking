@@ -16,17 +16,14 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.baseline.computing.service;
-
-import org.skywalking.apm.collector.baseline.computing.Baseline;
-import org.skywalking.apm.collector.baseline.computing.DataOfSingleDay;
-import org.skywalking.apm.collector.core.module.Service;
+package org.skywalking.apm.collector.baseline.computing;
 
 /**
- * @author zhang-chen
+ * @author Zhang, Chen
  */
-public interface ComputingService extends Service {
+public class Baseline extends DailyData {
 
-    <T extends DataOfSingleDay> Baseline compute(T[] metrics);
-
+    public Baseline(int[] data) {
+        super(data);
+    }
 }

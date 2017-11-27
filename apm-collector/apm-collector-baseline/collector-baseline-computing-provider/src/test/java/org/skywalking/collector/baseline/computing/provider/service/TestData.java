@@ -16,17 +16,18 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.baseline.computing.service;
+package org.skywalking.collector.baseline.computing.provider.service;
 
-import org.skywalking.apm.collector.baseline.computing.Baseline;
+import java.util.concurrent.TimeUnit;
 import org.skywalking.apm.collector.baseline.computing.DataOfSingleDay;
-import org.skywalking.apm.collector.core.module.Service;
 
 /**
- * @author zhang-chen
+ * @author Zhang, Chen
  */
-public interface ComputingService extends Service {
+public class TestData extends DataOfSingleDay {
 
-    <T extends DataOfSingleDay> Baseline compute(T[] metrics);
+    public TestData(int duration, TimeUnit timeUnit) {
+        super(duration, timeUnit);
+    }
 
 }

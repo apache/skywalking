@@ -18,49 +18,14 @@
 
 package org.skywalking.apm.collector.baseline.computing;
 
+import java.util.concurrent.TimeUnit;
+
 /**
- * @author zhang-chen
+ * @author Zhang, Chen
  */
-public class Metric {
+public class MinuteOfSingleDay extends DataOfSingleDay {
 
-    /**
-     * times of a method has been called
-     */
-    int call;
-
-    /**
-     * average response time
-     */
-    int avg;
-
-    public Metric() {
-    }
-
-    public Metric(int call, int avg) {
-        this.call = call;
-        this.avg = avg;
-    }
-
-    public int getCall() {
-        return call;
-    }
-
-    public void setCall(int call) {
-        this.call = call;
-    }
-
-    public int getAvg() {
-        return avg;
-    }
-
-    public void setAvg(int avg) {
-        this.avg = avg;
-    }
-
-    @Override public String toString() {
-        return "Metric{" +
-            "call=" + call +
-            ", avg=" + avg +
-            '}';
+    public MinuteOfSingleDay() {
+        super(1, TimeUnit.MINUTES);
     }
 }
