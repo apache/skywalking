@@ -37,10 +37,10 @@ import org.skywalking.apm.collector.storage.dao.IGCMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IGCMetricUIDAO;
 import org.skywalking.apm.collector.storage.dao.IGlobalTracePersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IGlobalTraceUIDAO;
-import org.skywalking.apm.collector.storage.dao.IInstanceMetricUIDAO;
 import org.skywalking.apm.collector.storage.dao.IInstanceCacheDAO;
 import org.skywalking.apm.collector.storage.dao.IInstanceHeartBeatPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IInstanceMetricPersistenceDAO;
+import org.skywalking.apm.collector.storage.dao.IInstanceMetricUIDAO;
 import org.skywalking.apm.collector.storage.dao.IInstanceRegisterDAO;
 import org.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
 import org.skywalking.apm.collector.storage.dao.IMemoryMetricPersistenceDAO;
@@ -53,6 +53,7 @@ import org.skywalking.apm.collector.storage.dao.ISegmentPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.ISegmentUIDAO;
 import org.skywalking.apm.collector.storage.dao.IServiceEntryPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IServiceEntryUIDAO;
+import org.skywalking.apm.collector.storage.dao.IServiceMetricPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IServiceNameCacheDAO;
 import org.skywalking.apm.collector.storage.dao.IServiceNameRegisterDAO;
 import org.skywalking.apm.collector.storage.dao.IServiceReferenceMetricPersistenceDAO;
@@ -108,6 +109,7 @@ public class StorageModule extends Module {
         classes.add(ISegmentCostPersistenceDAO.class);
         classes.add(ISegmentPersistenceDAO.class);
         classes.add(IServiceEntryPersistenceDAO.class);
+        classes.add(IServiceMetricPersistenceDAO.class);
         classes.add(IServiceReferenceMetricPersistenceDAO.class);
 
         classes.add(IInstanceHeartBeatPersistenceDAO.class);

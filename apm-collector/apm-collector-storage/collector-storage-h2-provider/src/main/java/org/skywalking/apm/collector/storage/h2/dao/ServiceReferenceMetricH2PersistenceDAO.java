@@ -38,12 +38,12 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng, clevertension
  */
-public class ServiceReferenceH2MetricPersistenceDAO extends H2DAO implements IServiceReferenceMetricPersistenceDAO<H2SqlEntity, H2SqlEntity, ServiceReferenceMetric> {
+public class ServiceReferenceMetricH2PersistenceDAO extends H2DAO implements IServiceReferenceMetricPersistenceDAO<H2SqlEntity, H2SqlEntity, ServiceReferenceMetric> {
 
-    private final Logger logger = LoggerFactory.getLogger(ServiceReferenceH2MetricPersistenceDAO.class);
+    private final Logger logger = LoggerFactory.getLogger(ServiceReferenceMetricH2PersistenceDAO.class);
     private static final String GET_SQL = "select * from {0} where {1} = ?";
 
-    public ServiceReferenceH2MetricPersistenceDAO(H2Client client) {
+    public ServiceReferenceMetricH2PersistenceDAO(H2Client client) {
         super(client);
     }
 

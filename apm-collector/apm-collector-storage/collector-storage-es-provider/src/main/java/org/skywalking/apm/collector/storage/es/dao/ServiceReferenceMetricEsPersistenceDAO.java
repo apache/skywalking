@@ -37,11 +37,11 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public class ServiceReferenceEsMetricPersistenceDAO extends EsDAO implements IServiceReferenceMetricPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, ServiceReferenceMetric> {
+public class ServiceReferenceMetricEsPersistenceDAO extends EsDAO implements IServiceReferenceMetricPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, ServiceReferenceMetric> {
 
-    private final Logger logger = LoggerFactory.getLogger(ServiceReferenceEsMetricPersistenceDAO.class);
+    private final Logger logger = LoggerFactory.getLogger(ServiceReferenceMetricEsPersistenceDAO.class);
 
-    public ServiceReferenceEsMetricPersistenceDAO(ElasticSearchClient client) {
+    public ServiceReferenceMetricEsPersistenceDAO(ElasticSearchClient client) {
         super(client);
     }
 
