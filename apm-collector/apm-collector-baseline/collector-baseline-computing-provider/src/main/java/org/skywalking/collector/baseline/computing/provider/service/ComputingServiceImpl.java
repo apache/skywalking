@@ -81,7 +81,7 @@ public class ComputingServiceImpl implements ComputingService {
         checkArgs(metrics);
         int[][] gaussian = new int[metrics.length][];
         for (int i = 0; i < metrics.length; i++) {
-            gaussian[i] = gaussian(metrics[i].getData(), extent, slope);
+            gaussian[i] = gaussian(metrics[i].getData(), extent * 2 + 1, slope);
         }
         return computeBaseline(gaussian);
     }
@@ -100,15 +100,15 @@ public class ComputingServiceImpl implements ComputingService {
         return baseline;
     }
 
-    private int[] gaussian(int[] dailyMetrics, int extent, int slope) {
+    private int[] gaussian(int[] dailyMetrics, int cover, int slope) {
         int size = dailyMetrics.length;
         int[] gaussian = new int[size];
-        int mid = extent / 2 + 1;
-        double[] weight = assignWeight(extent, slope);
+        int mid = cover / 2 + 1;
+        double[] weight = assignWeight(cover, slope);
         for (int i = 0; i < size; i++) {
             double data = 0;
             //computing center point value with nearby point by gaussian
-            for (int j = 1; j <= extent; j++) {
+            for (int j = 1; j <= cover; j++) {
                 //relative index on every extent loop
                 int extentIndex = j - 1;
                 //absolute index on original metrics list
@@ -126,26 +126,26 @@ public class ComputingServiceImpl implements ComputingService {
     /**
      * assign weight number for every extent value
      *
-     * @param extent
+     * @param cover
      * @param slope
      * @return
      */
-    private double[] assignWeight(final int extent, final int slope) {
-        double avg = 1.0 / extent;//average weight
-        double[] distributionSequence = new double[extent];
+    private double[] assignWeight(final int cover, final int slope) {
+        double avg = 1.0 / cover;//average weight
+        double[] distributionSequence = new double[cover];
         Arrays.fill(distributionSequence, avg);
-        int mid = extent / 2; //index of center point
+        int mid = cover / 2; //index of center point
         double mid2 = mid / 2.0;
         for (int i = 0; i <= mid; i++) {
             double delta = avg * (i - mid2) * slope * 0.01;
             distributionSequence[i] += delta;
-            if ((extent - i - 1) == mid) {
-                for (int j = 0; j < extent; j++) {
-                    distributionSequence[j] += delta / extent;
+            if ((cover - i - 1) == mid) {
+                for (int j = 0; j < cover; j++) {
+                    distributionSequence[j] += delta / cover;
                 }
             } else {
                 //update mirror value point
-                distributionSequence[extent - i - 1] += delta;
+                distributionSequence[cover - i - 1] += delta;
             }
         }
         return distributionSequence;

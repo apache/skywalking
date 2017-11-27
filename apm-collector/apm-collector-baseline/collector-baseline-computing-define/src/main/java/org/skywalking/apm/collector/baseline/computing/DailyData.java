@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author zhang-chen
  */
-public class DailyData {
+class DailyData {
 
     private static final int TOTAL_SECONDS_IN_DAY = 86400;
 

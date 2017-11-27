@@ -16,13 +16,12 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.collector.baseline.computing.provider.service;
+package org.skywalking.apm.collector.baseline.computing;
 
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import org.junit.Test;
-import org.skywalking.apm.collector.baseline.computing.DailyData;
 
 /**
  * @author Zhang, Chen
@@ -33,11 +32,11 @@ public class DailyDataTest {
     public void constructor() {
         int duration = 10;
         int length = 86400 / duration;
-        TestDailyData data1 = new TestDailyData(duration, TimeUnit.SECONDS);
+        DailyData data1 = new DailyData(duration, TimeUnit.SECONDS);
         Assert.assertEquals(duration, data1.getDuration());
         Assert.assertEquals(length, data1.length());
 
-        TestDailyData data2 = new TestDailyData(new int[length]);
+        DailyData data2 = new DailyData(new int[length]);
         Assert.assertEquals(duration, data2.getDuration());
         Assert.assertEquals(length, data2.length());
     }
@@ -46,7 +45,7 @@ public class DailyDataTest {
     public void addData() {
         int duration = 15;
         int length = 86400 / duration;
-        TestDailyData data1 = new TestDailyData(duration, TimeUnit.SECONDS);
+        DailyData data1 = new DailyData(duration, TimeUnit.SECONDS);
         Calendar c = Calendar.getInstance();
         c.set(Calendar.HOUR_OF_DAY, 0);
         c.set(Calendar.MINUTE, 0);
@@ -60,17 +59,6 @@ public class DailyDataTest {
             Assert.assertEquals(i, data1.getData()[i]);
         }
 
-    }
-
-    class TestDailyData extends DailyData {
-
-        public TestDailyData(int duration, TimeUnit timeUnit) {
-            super(duration, timeUnit);
-        }
-
-        public TestDailyData(int[] data) {
-            super(data);
-        }
     }
 
 }
