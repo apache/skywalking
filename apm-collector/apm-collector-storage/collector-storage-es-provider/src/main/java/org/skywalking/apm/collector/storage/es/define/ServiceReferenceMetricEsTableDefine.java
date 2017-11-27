@@ -36,7 +36,6 @@ public class ServiceReferenceMetricEsTableDefine extends ElasticSearchTableDefin
     }
 
     @Override public void initialize() {
-        addColumn(new ElasticSearchColumnDefine(ServiceReferenceMetricTable.COLUMN_AGG, ElasticSearchColumnDefine.Type.Keyword.name()));
         addColumn(new ElasticSearchColumnDefine(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
         addColumn(new ElasticSearchColumnDefine(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
         addColumn(new ElasticSearchColumnDefine(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
