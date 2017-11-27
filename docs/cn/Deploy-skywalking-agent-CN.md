@@ -38,6 +38,10 @@ agent.application_code=Your_ApplicationName
 # 默认配置如下
 # agent.ignore_suffix=.jpg,.jpeg,.js,.css,.png,.bmp,.gif,.ico,.mp3,.mp4,.html,.svg
 
+# 探针调试开关，如果设置为true，探针会将所有操作字节码的类输出到/debugging目录下
+# skywalking团队可能在调试，需要此文件
+# agent.is_open_debugging_class = true
+
 # 对应Collector的config/application.yml配置文件中 agent_server/jetty/port 配置内容
 # 例如：
 # 单节点配置：SERVERS="127.0.0.1:8080" 
