@@ -19,7 +19,6 @@
 package org.skywalking.apm.agent;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
@@ -59,30 +58,10 @@ public enum InstrumentDebuggingClass {
                     }
                 }
 
-                File newClassFileFolder = new File(debuggingClassesRootPath, typeDescription.getPackage().getActualName().replaceAll("\\.", "/"));
-                if (!newClassFileFolder.exists()) {
-                    newClassFileFolder.mkdirs();
-                }
-                File newClassFile = new File(newClassFileFolder, typeDescription.getSimpleName() + ".class");
-                FileOutputStream fos = null;
                 try {
-                    if (newClassFile.exists()) {
-                        newClassFile.delete();
-                    }
-                    newClassFile.createNewFile();
-                    fos = new FileOutputStream(newClassFile);
-                    fos.write(dynamicType.getBytes());
-                    fos.flush();
+                    dynamicType.saveIn(debuggingClassesRootPath);
                 } catch (IOException e) {
                     logger.error(e, "Can't save class {} to file." + typeDescription.getActualName());
-                } finally {
-                    if (fos != null) {
-                        try {
-                            fos.close();
-                        } catch (IOException e) {
-
-                        }
-                    }
                 }
             } catch (Throwable t) {
                 logger.error(t, "Save debugging classes fail.");
