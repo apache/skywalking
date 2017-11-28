@@ -58,4 +58,27 @@ collector_inside:
 
 ## 使用Elastic Search代替H2存储
 由于H2数据库性能的局限性，我们在单机模式下，也支持使用ElasticSearch 5.3作为存储。你需要安装对应的ElasticSearch 5.3，并取消
-- 在单机模式下除了支持内置的H2数据库运行，也支持其他的存储（当前已支持的ElasticSearch 5.3以及将会支持的ShardJdbc），安装storage注释，修改配置信息即可。
+- 在单机模式下除了支持内置的H2数据库运行，也支持其他的存储（当前已支持的ElasticSearch 5.3），安装storage注释，修改配置信息即可。取消Storage相关配置节的注释。
+```yaml
+#storage:
+#  elasticsearch:
+#    cluster_name: CollectorDBCluster
+#    cluster_transport_sniffer: true
+#    cluster_nodes: localhost:9300
+#    index_shards_number: 2
+#    index_replicas_number: 0
+```
+
+### 部署Elasticsearch
+- 修改`elasticsearch.yml`文件
+  - 设置 `cluster.name: CollectorDBCluster`。此名称需要和collector配置文件一致。
+  - 设置 `node.name: anyname`, 可以设置为任意名字，如Elasticsearch为集群模式，则每个节点名称需要不同。
+  - 增加如下配置
+
+```
+# ES监听的ip地址
+network.host: 0.0.0.0
+thread_pool.bulk.queue_size: 1000
+```
+
+- 启动Elasticsearch
