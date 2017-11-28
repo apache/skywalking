@@ -47,6 +47,6 @@ Recommand browsers: Safari & Chrome
 
 3. 配置应用程序
 * 在`config/application.properties`文件中，设置webui的监听端口
-* 在`config/collector_config.properties`文件中，设置collector集群或单实例地址，对应的`collector.config`中的配置项是`http.port`。
+* 在`config/collector_config.properties`文件中，设置collector集群或单实例地址，地址对应的是 `skywalking-collector` 项目中配置文件 `config/application.yml` 中配置项 `naming.jetty.host` 和 `naming.jetty.port`
 
 4. 浏览器打开 `http://127.0.0.1:8080/`
