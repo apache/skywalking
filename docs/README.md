@@ -1,5 +1,4 @@
 ## Documents
-[![version](https://img.shields.io/badge/document--version-3.2.5--2017-green.svg)]() 
 [![cn doc](https://img.shields.io/badge/document-中文-blue.svg)](README_ZH.md)
 
   * Getting Started
