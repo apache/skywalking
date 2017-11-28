@@ -23,49 +23,58 @@ thread_pool.bulk.queue_size: 1000
 
 ### 部署collector
 1. 解压安装包`tar -xvf skywalking-collector.tar.gz`，windows用户可以选择zip包
-1. 运行`bin/startup.sh`启动。windows用户为.bat文件。
+2. 设置Collector集群模式
+
+集群模式主要依赖Zookeeper的注册和应用发现能力。所以，你只需要调整 `config/application.yml`中的host和port配置，使用实际IP和端口，代替默认配置。
+其次，将storage的注释取消，并修改为Elasticsearch集群的节点地址信息。
+
 
 - `config/application.yml`
 ```
 cluster:
-# Zookeeper地址配置
+# 配置zookeeper集群信息
   zookeeper:
     hostPort: localhost:2181
     sessionTimeout: 100000
-# agent_server, agent_stream, ui, collector_inside中配置的IP都是Collector所使用的IP地址
-agent_server:
+naming:
+# 配置探针使用的host和port
   jetty:
     host: localhost
-    # The port used
     port: 10800
     context_path: /
-agent_stream:
-  grpc:
+remote:
+  gRPC:
     host: localhost
     port: 11800
+agent_gRPC:
+  gRPC:
+    host: localhost
+    port: 11800
+agent_jetty:
   jetty:
     host: localhost
     port: 12800
     context_path: /
+agent_stream:
+  default:
+    buffer_file_path: ../buffer/
+    buffer_offset_max_file_size: 10M
+    buffer_segment_max_file_size: 500M
 ui:
   jetty:
     host: localhost
     port: 12800
     context_path: /
-collector_inside:
-  grpc:
-    host: localhost
-    port: 11800
+# 配置 Elasticsearch 集群连接信息
 storage:
   elasticsearch:
     cluster_name: CollectorDBCluster
     cluster_transport_sniffer: true
-    # Elastic Search地址信息
     cluster_nodes: localhost:9300
     index_shards_number: 2
     index_replicas_number: 0
+    ttl: 7
 ```
 
-## Collector集群模式启动
-集群模式主要依赖Zookeeper的注册和应用发现能力。所以，你只需要调整 `config/application.yml`中，agent_server, agent_stream, ui, collector_inside这些配置项的ip信息，使用真实的IP地址或者hostname，Collector就会使用集群模式运行。
-其次，将elasticsearch的注释取消，并修改集群的节点地址信息。
+
+3. 运行`bin/startup.sh`启动。windows用户为.bat文件。
