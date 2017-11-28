@@ -22,8 +22,8 @@
         <Property name="log-path">${sys:collector.logDir}</Property>
     </Properties>
     <Appenders>
-        <RollingFile name="RollingFile" fileName="${log-path}/skywalking-web-server.log"
-                     filePattern="${log-path}/skywalking-web-server-%d{yyyy-MM-dd}-%i.log" >
+        <RollingFile name="RollingFile" fileName="${log-path}/skywalking-collector-server.log"
+                     filePattern="${log-path}/skywalking-collector-server-%d{yyyy-MM-dd}-%i.log" >
             <PatternLayout>
                 <pattern>%d - %c -%-4r [%t] %-5p %x - %m%n</pattern>
             </PatternLayout>
