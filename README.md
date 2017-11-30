@@ -30,7 +30,7 @@ Sky Walking | [中文](README_ZH.md)
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wu.sheng@foxmail.com.
 
 # Screenshots
-- Topological graph of application clusters based on dubbox and [motan](https://github.com/weibocom/motan).
+- Discovery topological graph of application clusters automatically.
 <img src="https://skywalkingtest.github.io/page-resources/3.2.1/topological_graph_test_project.png"/>
 
 - Trace query.
