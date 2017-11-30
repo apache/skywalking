@@ -25,17 +25,15 @@ import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
-import org.skywalking.apm.agent.core.sampling.SamplingService;
 import org.skywalking.apm.agent.core.logging.api.ILog;
 import org.skywalking.apm.agent.core.logging.api.LogManager;
+import org.skywalking.apm.agent.core.sampling.SamplingService;
 import org.skywalking.apm.util.StringUtil;
 
 /**
  * {@link ContextManager} controls the whole context of {@link TraceSegment}. Any {@link TraceSegment} relates to
  * single-thread, so this context use {@link ThreadLocal} to maintain the context, and make sure, since a {@link
- * TraceSegment} starts, all ChildOf spans are in the same context.
- * <p>
- * What is 'ChildOf'? {@see
+ * TraceSegment} starts, all ChildOf spans are in the same context. <p> What is 'ChildOf'? {@see
  * https://github.com/opentracing/specification/blob/master/specification.md#references-between-spans}
  *
  * <p> Also, {@link ContextManager} delegates to all {@link AbstractTracerContext}'s major methods.
@@ -100,15 +98,18 @@ public class ContextManager implements TracingContextListener, BootService, Igno
 
     public static AbstractSpan createEntrySpan(String operationName, ContextCarrier carrier) {
         SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
+        AbstractSpan span;
         AbstractTracerContext context;
         if (carrier != null && carrier.isValid()) {
             samplingService.forceSampled();
             context = getOrCreate(operationName, true);
+            span = context.createEntrySpan(operationName);
             context.extract(carrier);
         } else {
             context = getOrCreate(operationName, false);
+            span = context.createEntrySpan(operationName);
         }
-        return context.createEntrySpan(operationName);
+        return span;
     }
 
     public static AbstractSpan createLocalSpan(String operationName) {
