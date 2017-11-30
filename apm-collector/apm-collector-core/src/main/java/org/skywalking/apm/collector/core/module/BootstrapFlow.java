@@ -103,10 +103,12 @@ public class BootstrapFlow {
                     if (isAllRequiredModuleStarted) {
                         startupSequence.add(provider);
                         allProviders.remove(i);
+                        i--;
                     }
                 } else {
                     startupSequence.add(provider);
                     allProviders.remove(i);
+                    i--;
                 }
             }
 
