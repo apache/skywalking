@@ -63,6 +63,7 @@
                 <executions>
                     <execution>
                         <id>attach-sources</id>
+                        <phase>none</phase>
                         <goals>
                             <goal>jar</goal>
                         </goals>
