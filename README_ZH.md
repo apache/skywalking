@@ -33,7 +33,7 @@ Sky Walking | [English](README.md)
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wu.sheng@foxmail.com.
 
 # Screenshots
-- 追踪基于 dubbox 和 [motan](https://github.com/weibocom/motan)的分布式系统，生成的拓扑截图
+- 分布式系统拓扑图自动发现
 <img src="https://skywalkingtest.github.io/page-resources/3.2.1/topological_graph_test_project.png?forceUpdate=0"/>
 
 - 调用链查询
