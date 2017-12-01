@@ -255,14 +255,14 @@ public class ContextManagerTest {
         UpstreamSegment upstreamSegment = actualSegment.transform();
         assertThat(upstreamSegment.getGlobalTraceIdsCount(), is(1));
         TraceSegmentObject traceSegmentObject = TraceSegmentObject.parseFrom(upstreamSegment.getSegment());
-        TraceSegmentReference reference = traceSegmentObject.getRefs(0);
+        TraceSegmentReference reference = traceSegmentObject.getSpans(1).getRefs(0);
 
         assertThat(reference.getEntryServiceName(), is("/portal/"));
         assertThat(reference.getNetworkAddress(), is("127.0.0.1:8080"));
         assertThat(reference.getParentSpanId(), is(3));
 
         assertThat(traceSegmentObject.getApplicationId(), is(1));
-        assertThat(traceSegmentObject.getRefsCount(), is(1));
+        assertThat(traceSegmentObject.getSpans(1).getRefsCount(), is(1));
 
         assertThat(traceSegmentObject.getSpansCount(), is(2));
 
