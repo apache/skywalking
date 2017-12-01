@@ -31,7 +31,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <grpc.version>1.7.0</grpc.version>
+        <grpc.version>1.8.0</grpc.version>
         <compiler.version>1.6</compiler.version>
     </properties>
 
