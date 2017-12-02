@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.plugin.jdbc.mysql;
+package org.skywalking.apm.plugin.jdbc.postgresql;
 
 import java.lang.reflect.Method;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -26,8 +26,8 @@ import org.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 /**
- * {@link CreateStatementInterceptor} intercepts the {@link com.mysql.jdbc.ConnectionImpl#prepareStatement()} method in
- * the {@link com.mysql.jdbc.ConnectionImpl} class.
+ * {@link CreatePreparedStatementInterceptor} intercepts the {@link org.postgresql.jdbc.PgConnection#prepareStatement} method in
+ * {@link org.postgresql.jdbc.PgConnection}, {@link org.postgresql.jdbc.PgConnection} or {@link org.postgresql.jdbc3.Jdbc3Connection} class.
  *
  * @author zhangxin
  */
