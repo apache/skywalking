@@ -65,8 +65,8 @@ public class InstanceMetricH2UIDAO extends H2DAO implements IInstanceMetricUIDAO
         params[0] = instanceId;
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
-                long callTimes = rs.getInt(InstanceMetricTable.COLUMN_CALLS);
-                long costTotal = rs.getInt(InstanceMetricTable.COLUMN_DURATION_SUM);
+                long callTimes = rs.getInt(InstanceMetricTable.COLUMN_TRANSACTION_CALLS);
+                long costTotal = rs.getInt(InstanceMetricTable.COLUMN_TRANSACTION_DURATION_SUM);
                 return new InstanceMetric(instanceId, callTimes, costTotal);
             }
         } catch (SQLException | H2ClientException e) {
@@ -82,7 +82,7 @@ public class InstanceMetricH2UIDAO extends H2DAO implements IInstanceMetricUIDAO
         Object[] params = new Object[] {instanceId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
-                return rs.getLong(InstanceMetricTable.COLUMN_CALLS);
+                return rs.getLong(InstanceMetricTable.COLUMN_TRANSACTION_CALLS);
             }
         } catch (SQLException | H2ClientException e) {
             logger.error(e.getMessage(), e);
@@ -108,7 +108,7 @@ public class InstanceMetricH2UIDAO extends H2DAO implements IInstanceMetricUIDAO
         idList.forEach(id -> {
             try (ResultSet rs = client.executeQuery(sql, new Object[] {id})) {
                 if (rs.next()) {
-                    long calls = rs.getLong(InstanceMetricTable.COLUMN_CALLS);
+                    long calls = rs.getLong(InstanceMetricTable.COLUMN_TRANSACTION_CALLS);
                     metrics.add(calls);
                 } else {
                     metrics.add(0);
@@ -126,8 +126,8 @@ public class InstanceMetricH2UIDAO extends H2DAO implements IInstanceMetricUIDAO
         Object[] params = new Object[] {instanceId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
-                long callTimes = rs.getLong(InstanceMetricTable.COLUMN_CALLS);
-                long costTotal = rs.getLong(InstanceMetricTable.COLUMN_DURATION_SUM);
+                long callTimes = rs.getLong(InstanceMetricTable.COLUMN_TRANSACTION_CALLS);
+                long costTotal = rs.getLong(InstanceMetricTable.COLUMN_TRANSACTION_DURATION_SUM);
                 return costTotal / callTimes;
             }
         } catch (SQLException | H2ClientException e) {
@@ -153,8 +153,8 @@ public class InstanceMetricH2UIDAO extends H2DAO implements IInstanceMetricUIDAO
         idList.forEach(id -> {
             try (ResultSet rs = client.executeQuery(sql, new Object[] {id})) {
                 if (rs.next()) {
-                    long callTimes = rs.getLong(InstanceMetricTable.COLUMN_CALLS);
-                    long costTotal = rs.getLong(InstanceMetricTable.COLUMN_DURATION_SUM);
+                    long callTimes = rs.getLong(InstanceMetricTable.COLUMN_TRANSACTION_CALLS);
+                    long costTotal = rs.getLong(InstanceMetricTable.COLUMN_TRANSACTION_DURATION_SUM);
                     metrics.add(costTotal / callTimes);
                 } else {
                     metrics.add(0);

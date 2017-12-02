@@ -56,10 +56,22 @@ public class InstanceMetricH2PersistenceDAO extends H2DAO implements IInstanceMe
                 InstanceMetric instanceMetric = new InstanceMetric(id);
                 instanceMetric.setApplicationId(rs.getInt(InstanceMetricTable.COLUMN_APPLICATION_ID));
                 instanceMetric.setInstanceId(rs.getInt(InstanceMetricTable.COLUMN_INSTANCE_ID));
-                instanceMetric.setCalls(rs.getLong(InstanceMetricTable.COLUMN_CALLS));
-                instanceMetric.setErrorCalls(rs.getLong(InstanceMetricTable.COLUMN_ERROR_CALLS));
-                instanceMetric.setDurationSum(rs.getLong(InstanceMetricTable.COLUMN_DURATION_SUM));
-                instanceMetric.setErrorDurationSum(rs.getLong(InstanceMetricTable.COLUMN_ERROR_DURATION_SUM));
+
+                instanceMetric.setTransactionCalls(rs.getLong(InstanceMetricTable.COLUMN_TRANSACTION_CALLS));
+                instanceMetric.setTransactionErrorCalls(rs.getLong(InstanceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS));
+                instanceMetric.setTransactionDurationSum(rs.getLong(InstanceMetricTable.COLUMN_TRANSACTION_DURATION_SUM));
+                instanceMetric.setTransactionErrorDurationSum(rs.getLong(InstanceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM));
+
+                instanceMetric.setBusinessTransactionCalls(rs.getLong(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS));
+                instanceMetric.setBusinessTransactionErrorCalls(rs.getLong(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS));
+                instanceMetric.setBusinessTransactionDurationSum(rs.getLong(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM));
+                instanceMetric.setBusinessTransactionErrorDurationSum(rs.getLong(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM));
+
+                instanceMetric.setMqTransactionCalls(rs.getLong(InstanceMetricTable.COLUMN_MQ_TRANSACTION_CALLS));
+                instanceMetric.setMqTransactionErrorCalls(rs.getLong(InstanceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS));
+                instanceMetric.setMqTransactionDurationSum(rs.getLong(InstanceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM));
+                instanceMetric.setMqTransactionErrorDurationSum(rs.getLong(InstanceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM));
+
                 instanceMetric.setTimeBucket(rs.getLong(InstanceMetricTable.COLUMN_TIME_BUCKET));
                 return instanceMetric;
             }
@@ -75,10 +87,22 @@ public class InstanceMetricH2PersistenceDAO extends H2DAO implements IInstanceMe
         source.put(InstanceMetricTable.COLUMN_ID, data.getId());
         source.put(InstanceMetricTable.COLUMN_APPLICATION_ID, data.getApplicationId());
         source.put(InstanceMetricTable.COLUMN_INSTANCE_ID, data.getInstanceId());
-        source.put(InstanceMetricTable.COLUMN_CALLS, data.getCalls());
-        source.put(InstanceMetricTable.COLUMN_ERROR_CALLS, data.getErrorCalls());
-        source.put(InstanceMetricTable.COLUMN_DURATION_SUM, data.getDurationSum());
-        source.put(InstanceMetricTable.COLUMN_ERROR_DURATION_SUM, data.getErrorDurationSum());
+
+        source.put(InstanceMetricTable.COLUMN_TRANSACTION_CALLS, data.getTransactionCalls());
+        source.put(InstanceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, data.getTransactionErrorCalls());
+        source.put(InstanceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, data.getTransactionDurationSum());
+        source.put(InstanceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, data.getTransactionErrorDurationSum());
+
+        source.put(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, data.getBusinessTransactionCalls());
+        source.put(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, data.getBusinessTransactionErrorCalls());
+        source.put(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, data.getBusinessTransactionDurationSum());
+        source.put(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, data.getBusinessTransactionErrorDurationSum());
+
+        source.put(InstanceMetricTable.COLUMN_MQ_TRANSACTION_CALLS, data.getMqTransactionCalls());
+        source.put(InstanceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, data.getMqTransactionErrorCalls());
+        source.put(InstanceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, data.getMqTransactionDurationSum());
+        source.put(InstanceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, data.getMqTransactionErrorDurationSum());
+
         source.put(InstanceMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
         String sql = SqlBuilder.buildBatchInsertSql(InstanceMetricTable.TABLE, source.keySet());
         entity.setSql(sql);
@@ -91,10 +115,22 @@ public class InstanceMetricH2PersistenceDAO extends H2DAO implements IInstanceMe
         H2SqlEntity entity = new H2SqlEntity();
         source.put(InstanceMetricTable.COLUMN_APPLICATION_ID, data.getApplicationId());
         source.put(InstanceMetricTable.COLUMN_INSTANCE_ID, data.getInstanceId());
-        source.put(InstanceMetricTable.COLUMN_CALLS, data.getCalls());
-        source.put(InstanceMetricTable.COLUMN_ERROR_CALLS, data.getErrorCalls());
-        source.put(InstanceMetricTable.COLUMN_DURATION_SUM, data.getDurationSum());
-        source.put(InstanceMetricTable.COLUMN_ERROR_DURATION_SUM, data.getErrorDurationSum());
+
+        source.put(InstanceMetricTable.COLUMN_TRANSACTION_CALLS, data.getTransactionCalls());
+        source.put(InstanceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, data.getTransactionErrorCalls());
+        source.put(InstanceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, data.getTransactionDurationSum());
+        source.put(InstanceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, data.getTransactionErrorDurationSum());
+
+        source.put(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, data.getBusinessTransactionCalls());
+        source.put(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, data.getBusinessTransactionErrorCalls());
+        source.put(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, data.getBusinessTransactionDurationSum());
+        source.put(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, data.getBusinessTransactionErrorDurationSum());
+
+        source.put(InstanceMetricTable.COLUMN_MQ_TRANSACTION_CALLS, data.getMqTransactionCalls());
+        source.put(InstanceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, data.getMqTransactionErrorCalls());
+        source.put(InstanceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, data.getMqTransactionDurationSum());
+        source.put(InstanceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, data.getMqTransactionErrorDurationSum());
+
         source.put(InstanceMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
         String sql = SqlBuilder.buildBatchUpdateSql(InstanceMetricTable.TABLE, source.keySet(), InstanceMetricTable.COLUMN_ID);
         entity.setSql(sql);

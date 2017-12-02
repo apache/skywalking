@@ -62,12 +62,12 @@ public class InstanceMetricSpanListener implements EntrySpanListener, FirstSpanL
         InstanceMetric instanceMetric = new InstanceMetric(timeBucket + Const.ID_SPLIT + instanceId);
         instanceMetric.setApplicationId(applicationId);
         instanceMetric.setInstanceId(instanceId);
-        instanceMetric.setCalls(1);
-        instanceMetric.setDurationSum(duration);
+        instanceMetric.setTransactionCalls(1L);
+        instanceMetric.setTransactionDurationSum(duration);
 
         if (isError) {
-            instanceMetric.setErrorCalls(1);
-            instanceMetric.setErrorDurationSum(duration);
+            instanceMetric.setTransactionErrorCalls(1L);
+            instanceMetric.setTransactionErrorDurationSum(duration);
         }
         instanceMetric.setTimeBucket(timeBucket);
 

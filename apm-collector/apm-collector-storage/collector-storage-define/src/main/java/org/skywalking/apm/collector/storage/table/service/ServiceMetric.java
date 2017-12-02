@@ -33,20 +33,20 @@ public class ServiceMetric extends Data {
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET, new NonOperation()),
+        new Column(ServiceMetricTable.COLUMN_TIME_BUCKET, new NonOperation()),
 
-        new Column(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_CALLS, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, new AddOperation()),
+        new Column(ServiceMetricTable.COLUMN_TRANSACTION_CALLS, new AddOperation()),
+        new Column(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, new AddOperation()),
+        new Column(ServiceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, new AddOperation()),
+        new Column(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, new AddOperation()),
+        new Column(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, new AddOperation()),
+        new Column(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, new AddOperation()),
+        new Column(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, new AddOperation()),
+        new Column(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, new AddOperation()),
+        new Column(ServiceMetricTable.COLUMN_MQ_TRANSACTION_CALLS, new AddOperation()),
+        new Column(ServiceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, new AddOperation()),
+        new Column(ServiceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, new AddOperation()),
+        new Column(ServiceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, new AddOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {};

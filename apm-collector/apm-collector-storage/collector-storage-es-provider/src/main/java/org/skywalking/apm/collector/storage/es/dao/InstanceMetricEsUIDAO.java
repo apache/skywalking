@@ -60,12 +60,12 @@ public class InstanceMetricEsUIDAO extends EsDAO implements IInstanceMetricUIDAO
         searchRequestBuilder.setSize(0);
         searchRequestBuilder.addSort(InstanceMetricTable.COLUMN_INSTANCE_ID, SortOrder.ASC);
 
-        searchRequestBuilder.addAggregation(AggregationBuilders.sum(InstanceMetricTable.COLUMN_CALLS).field(InstanceMetricTable.COLUMN_CALLS));
-        searchRequestBuilder.addAggregation(AggregationBuilders.sum(InstanceMetricTable.COLUMN_DURATION_SUM).field(InstanceMetricTable.COLUMN_DURATION_SUM));
+        searchRequestBuilder.addAggregation(AggregationBuilders.sum(InstanceMetricTable.COLUMN_TRANSACTION_CALLS).field(InstanceMetricTable.COLUMN_TRANSACTION_CALLS));
+        searchRequestBuilder.addAggregation(AggregationBuilders.sum(InstanceMetricTable.COLUMN_TRANSACTION_DURATION_SUM).field(InstanceMetricTable.COLUMN_TRANSACTION_DURATION_SUM));
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
-        Sum sumCalls = searchResponse.getAggregations().get(InstanceMetricTable.COLUMN_CALLS);
-        Sum sumCostTotal = searchResponse.getAggregations().get(InstanceMetricTable.COLUMN_CALLS);
+        Sum sumCalls = searchResponse.getAggregations().get(InstanceMetricTable.COLUMN_TRANSACTION_CALLS);
+        Sum sumCostTotal = searchResponse.getAggregations().get(InstanceMetricTable.COLUMN_TRANSACTION_DURATION_SUM);
         return new InstanceMetric(instanceId, (long)sumCalls.getValue(), (long)sumCostTotal.getValue());
     }
 
@@ -74,7 +74,7 @@ public class InstanceMetricEsUIDAO extends EsDAO implements IInstanceMetricUIDAO
         GetResponse getResponse = getClient().prepareGet(InstanceMetricTable.TABLE, id).get();
 
         if (getResponse.isExists()) {
-            return ((Number)getResponse.getSource().get(InstanceMetricTable.COLUMN_CALLS)).longValue();
+            return ((Number)getResponse.getSource().get(InstanceMetricTable.COLUMN_TRANSACTION_CALLS)).longValue();
         }
         return 0;
     }
@@ -94,7 +94,7 @@ public class InstanceMetricEsUIDAO extends EsDAO implements IInstanceMetricUIDAO
         MultiGetResponse multiGetResponse = prepareMultiGet.get();
         for (MultiGetItemResponse response : multiGetResponse.getResponses()) {
             if (response.getResponse().isExists()) {
-                metrics.add(((Number)response.getResponse().getSource().get(InstanceMetricTable.COLUMN_CALLS)).longValue());
+                metrics.add(((Number)response.getResponse().getSource().get(InstanceMetricTable.COLUMN_TRANSACTION_CALLS)).longValue());
             } else {
                 metrics.add(0);
             }
@@ -107,8 +107,8 @@ public class InstanceMetricEsUIDAO extends EsDAO implements IInstanceMetricUIDAO
         GetResponse getResponse = getClient().prepareGet(InstanceMetricTable.TABLE, id).get();
 
         if (getResponse.isExists()) {
-            long callTimes = ((Number)getResponse.getSource().get(InstanceMetricTable.COLUMN_CALLS)).longValue();
-            long costTotal = ((Number)getResponse.getSource().get(InstanceMetricTable.COLUMN_DURATION_SUM)).longValue();
+            long callTimes = ((Number)getResponse.getSource().get(InstanceMetricTable.COLUMN_TRANSACTION_CALLS)).longValue();
+            long costTotal = ((Number)getResponse.getSource().get(InstanceMetricTable.COLUMN_TRANSACTION_DURATION_SUM)).longValue();
             return costTotal / callTimes;
         }
         return 0;
@@ -131,8 +131,8 @@ public class InstanceMetricEsUIDAO extends EsDAO implements IInstanceMetricUIDAO
         MultiGetResponse multiGetResponse = prepareMultiGet.get();
         for (MultiGetItemResponse response : multiGetResponse.getResponses()) {
             if (response.getResponse().isExists()) {
-                long callTimes = ((Number)response.getResponse().getSource().get(InstanceMetricTable.COLUMN_CALLS)).longValue();
-                long costTotal = ((Number)response.getResponse().getSource().get(InstanceMetricTable.COLUMN_DURATION_SUM)).longValue();
+                long callTimes = ((Number)response.getResponse().getSource().get(InstanceMetricTable.COLUMN_TRANSACTION_CALLS)).longValue();
+                long costTotal = ((Number)response.getResponse().getSource().get(InstanceMetricTable.COLUMN_TRANSACTION_DURATION_SUM)).longValue();
                 metrics.add(costTotal / callTimes);
             } else {
                 metrics.add(0);
