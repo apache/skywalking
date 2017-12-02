@@ -18,19 +18,15 @@
 
 package org.skywalking.apm.collector.storage.table.application;
 
-import org.skywalking.apm.collector.core.data.CommonTable;
+import org.skywalking.apm.collector.storage.table.CommonMetricTable;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationReferenceMetricTable extends CommonTable {
+public class ApplicationReferenceMetricTable extends CommonMetricTable {
     public static final String TABLE = "application_reference";
     public static final String COLUMN_FRONT_APPLICATION_ID = "front_application_id";
     public static final String COLUMN_BEHIND_APPLICATION_ID = "behind_application_id";
-    public static final String COLUMN_CALLS = "calls";
-    public static final String COLUMN_ERROR_CALLS = "error_calls";
-    public static final String COLUMN_DURATION_SUM = "duration_sum";
-    public static final String COLUMN_ERROR_DURATION_SUM = "error_duration_sum";
     public static final String COLUMN_SATISFIED_COUNT = "satisfied_count";
     public static final String COLUMN_TOLERATING_COUNT = "tolerating_count";
     public static final String COLUMN_FRUSTRATED_COUNT = "frustrated_count";
