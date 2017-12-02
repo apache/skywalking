@@ -53,11 +53,24 @@ public class InstanceMetricEsPersistenceDAO extends EsDAO implements IInstanceMe
             Map<String, Object> source = getResponse.getSource();
             instanceMetric.setApplicationId((Integer)source.get(InstanceMetricTable.COLUMN_APPLICATION_ID));
             instanceMetric.setInstanceId((Integer)source.get(InstanceMetricTable.COLUMN_INSTANCE_ID));
-            instanceMetric.setCalls((Integer)source.get(InstanceMetricTable.COLUMN_CALLS));
-            instanceMetric.setErrorCalls(((Number)source.get(InstanceMetricTable.COLUMN_ERROR_CALLS)).longValue());
-            instanceMetric.setDurationSum(((Number)source.get(InstanceMetricTable.COLUMN_DURATION_SUM)).longValue());
-            instanceMetric.setErrorDurationSum(((Number)source.get(InstanceMetricTable.COLUMN_ERROR_DURATION_SUM)).longValue());
+
+            instanceMetric.setTransactionCalls(((Number)source.get(InstanceMetricTable.COLUMN_TRANSACTION_CALLS)).longValue());
+            instanceMetric.setTransactionErrorCalls(((Number)source.get(InstanceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS)).longValue());
+            instanceMetric.setTransactionDurationSum(((Number)source.get(InstanceMetricTable.COLUMN_TRANSACTION_DURATION_SUM)).longValue());
+            instanceMetric.setTransactionErrorDurationSum(((Number)source.get(InstanceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM)).longValue());
+
+            instanceMetric.setBusinessTransactionCalls(((Number)source.get(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS)).longValue());
+            instanceMetric.setBusinessTransactionErrorCalls(((Number)source.get(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS)).longValue());
+            instanceMetric.setBusinessTransactionDurationSum(((Number)source.get(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM)).longValue());
+            instanceMetric.setBusinessTransactionErrorDurationSum(((Number)source.get(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM)).longValue());
+
+            instanceMetric.setMqTransactionCalls(((Number)source.get(InstanceMetricTable.COLUMN_MQ_TRANSACTION_CALLS)).longValue());
+            instanceMetric.setMqTransactionErrorCalls(((Number)source.get(InstanceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS)).longValue());
+            instanceMetric.setMqTransactionDurationSum(((Number)source.get(InstanceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM)).longValue());
+            instanceMetric.setMqTransactionErrorDurationSum(((Number)source.get(InstanceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM)).longValue());
+
             instanceMetric.setTimeBucket(((Number)source.get(InstanceMetricTable.COLUMN_TIME_BUCKET)).longValue());
+
             return instanceMetric;
         } else {
             return null;
@@ -68,10 +81,22 @@ public class InstanceMetricEsPersistenceDAO extends EsDAO implements IInstanceMe
         Map<String, Object> source = new HashMap<>();
         source.put(InstanceMetricTable.COLUMN_APPLICATION_ID, data.getApplicationId());
         source.put(InstanceMetricTable.COLUMN_INSTANCE_ID, data.getInstanceId());
-        source.put(InstanceMetricTable.COLUMN_CALLS, data.getCalls());
-        source.put(InstanceMetricTable.COLUMN_ERROR_CALLS, data.getErrorCalls());
-        source.put(InstanceMetricTable.COLUMN_DURATION_SUM, data.getDurationSum());
-        source.put(InstanceMetricTable.COLUMN_ERROR_DURATION_SUM, data.getErrorDurationSum());
+
+        source.put(InstanceMetricTable.COLUMN_TRANSACTION_CALLS, data.getTransactionCalls());
+        source.put(InstanceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, data.getTransactionErrorCalls());
+        source.put(InstanceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, data.getTransactionDurationSum());
+        source.put(InstanceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, data.getTransactionErrorDurationSum());
+
+        source.put(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, data.getBusinessTransactionCalls());
+        source.put(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, data.getBusinessTransactionErrorCalls());
+        source.put(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, data.getBusinessTransactionDurationSum());
+        source.put(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, data.getBusinessTransactionErrorDurationSum());
+
+        source.put(InstanceMetricTable.COLUMN_MQ_TRANSACTION_CALLS, data.getMqTransactionCalls());
+        source.put(InstanceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, data.getMqTransactionErrorCalls());
+        source.put(InstanceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, data.getMqTransactionDurationSum());
+        source.put(InstanceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, data.getMqTransactionErrorDurationSum());
+
         source.put(InstanceMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
         return getClient().prepareIndex(InstanceMetricTable.TABLE, data.getId()).setSource(source);
@@ -81,10 +106,22 @@ public class InstanceMetricEsPersistenceDAO extends EsDAO implements IInstanceMe
         Map<String, Object> source = new HashMap<>();
         source.put(InstanceMetricTable.COLUMN_APPLICATION_ID, data.getApplicationId());
         source.put(InstanceMetricTable.COLUMN_INSTANCE_ID, data.getInstanceId());
-        source.put(InstanceMetricTable.COLUMN_CALLS, data.getCalls());
-        source.put(InstanceMetricTable.COLUMN_ERROR_CALLS, data.getErrorCalls());
-        source.put(InstanceMetricTable.COLUMN_DURATION_SUM, data.getDurationSum());
-        source.put(InstanceMetricTable.COLUMN_ERROR_DURATION_SUM, data.getErrorDurationSum());
+
+        source.put(InstanceMetricTable.COLUMN_TRANSACTION_CALLS, data.getTransactionCalls());
+        source.put(InstanceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, data.getTransactionErrorCalls());
+        source.put(InstanceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, data.getTransactionDurationSum());
+        source.put(InstanceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, data.getTransactionErrorDurationSum());
+
+        source.put(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, data.getBusinessTransactionCalls());
+        source.put(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, data.getBusinessTransactionErrorCalls());
+        source.put(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, data.getBusinessTransactionDurationSum());
+        source.put(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, data.getBusinessTransactionErrorDurationSum());
+
+        source.put(InstanceMetricTable.COLUMN_MQ_TRANSACTION_CALLS, data.getMqTransactionCalls());
+        source.put(InstanceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, data.getMqTransactionErrorCalls());
+        source.put(InstanceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, data.getMqTransactionDurationSum());
+        source.put(InstanceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, data.getMqTransactionErrorDurationSum());
+
         source.put(InstanceMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
         return getClient().prepareUpdate(InstanceMetricTable.TABLE, data.getId()).setDoc(source);
