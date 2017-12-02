@@ -122,11 +122,11 @@ public class ApplicationReferenceMetricSpanListener implements EntrySpanListener
         long startTime, long endTime, boolean isError) {
         long duration = endTime - startTime;
 
-        reference.setCalls(1L);
-        reference.setDurationSum(duration);
+        reference.setTransactionCalls(1L);
+        reference.setTransactionDurationSum(duration);
         if (isError) {
-            reference.setErrorCalls(1L);
-            reference.setErrorDurationSum(duration);
+            reference.setTransactionErrorCalls(1L);
+            reference.setTransactionErrorDurationSum(duration);
         }
 
         ApdexThresholdUtils.Apdex apdex = ApdexThresholdUtils.compute(apdexThresholdService.getApplicationApdexThreshold(reference.getBehindApplicationId()), duration);

@@ -44,10 +44,10 @@ public class ApplicationMetricAggregationWorker extends AggregationWorker<Applic
         Long timeBucket = applicationReferenceMetric.getTimeBucket();
         ApplicationMetric applicationMetric = new ApplicationMetric(String.valueOf(timeBucket) + Const.ID_SPLIT + String.valueOf(applicationId));
         applicationMetric.setApplicationId(applicationId);
-        applicationMetric.setCalls(applicationReferenceMetric.getCalls());
-        applicationMetric.setErrorCalls(applicationReferenceMetric.getErrorCalls());
-        applicationMetric.setDurationSum(applicationReferenceMetric.getDurationSum());
-        applicationMetric.setErrorDurationSum(applicationReferenceMetric.getErrorDurationSum());
+//        applicationMetric.setCalls(applicationReferenceMetric.getCalls());
+//        applicationMetric.setErrorCalls(applicationReferenceMetric.getErrorCalls());
+//        applicationMetric.setDurationSum(applicationReferenceMetric.getDurationSum());
+//        applicationMetric.setErrorDurationSum(applicationReferenceMetric.getErrorDurationSum());
         applicationMetric.setSatisfiedCount(applicationReferenceMetric.getSatisfiedCount());
         applicationMetric.setToleratingCount(applicationReferenceMetric.getToleratingCount());
         applicationMetric.setFrustratedCount(applicationReferenceMetric.getFrustratedCount());
