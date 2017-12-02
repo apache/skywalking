@@ -54,8 +54,8 @@ public class ServiceReferenceH2UIDAO extends H2DAO implements IServiceReferenceU
         String sql = SqlBuilder.buildSql(GET_SRV_REF_LOAD1, ServiceReferenceMetricTable.TABLE,
             ServiceReferenceMetricTable.COLUMN_TIME_BUCKET, ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID,
             ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID,
-            ServiceReferenceMetricTable.COLUMN_CALLS, ServiceReferenceMetricTable.COLUMN_ERROR_CALLS, ServiceReferenceMetricTable.COLUMN_DURATION_SUM,
-            ServiceReferenceMetricTable.COLUMN_ERROR_DURATION_SUM);
+            ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS, ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM,
+            ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM);
         Object[] params = new Object[] {startTime, endTime, entryServiceId};
 
         return load(client, params, sql);
@@ -80,18 +80,18 @@ public class ServiceReferenceH2UIDAO extends H2DAO implements IServiceReferenceU
         try {
             int behindServiceId = rs.getInt(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID);
             if (behindServiceId != 0) {
-                long calls = rs.getLong(ServiceReferenceMetricTable.COLUMN_CALLS);
-                long errorCalls = rs.getLong(ServiceReferenceMetricTable.COLUMN_ERROR_CALLS);
-                long durationSum = rs.getLong(ServiceReferenceMetricTable.COLUMN_DURATION_SUM);
-                long errorDurationSum = rs.getLong(ServiceReferenceMetricTable.COLUMN_ERROR_DURATION_SUM);
+                long calls = rs.getLong(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS);
+                long errorCalls = rs.getLong(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS);
+                long durationSum = rs.getLong(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM);
+                long errorDurationSum = rs.getLong(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM);
 
                 JsonObject serviceReference = new JsonObject();
                 serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID), frontServiceId);
                 serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID), behindServiceId);
-                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_CALLS), calls);
-                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_ERROR_CALLS), errorCalls);
-                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_DURATION_SUM), durationSum);
-                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_ERROR_DURATION_SUM), errorDurationSum);
+                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS), calls);
+                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS), errorCalls);
+                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM), durationSum);
+                serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM), errorDurationSum);
 
                 String id = serviceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID)) + Const.ID_SPLIT + serviceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID));
                 serviceReferenceMap.put(id, serviceReference);

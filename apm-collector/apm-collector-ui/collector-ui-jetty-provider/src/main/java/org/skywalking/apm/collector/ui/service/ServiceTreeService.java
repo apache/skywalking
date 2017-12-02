@@ -125,10 +125,10 @@ public class ServiceTreeService {
 
         if (serviceReferenceMap.containsKey(id)) {
             JsonObject reference = serviceReferenceMap.get(id);
-            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_CALLS));
-            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_ERROR_CALLS));
-            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_DURATION_SUM));
-            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_ERROR_DURATION_SUM));
+            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS));
+            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS));
+            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM));
+            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM));
         } else {
             serviceReferenceMap.put(id, serviceReference);
         }

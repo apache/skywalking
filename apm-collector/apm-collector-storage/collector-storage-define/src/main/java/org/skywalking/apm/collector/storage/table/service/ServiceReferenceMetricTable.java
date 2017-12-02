@@ -28,8 +28,16 @@ public class ServiceReferenceMetricTable extends CommonTable {
     public static final String COLUMN_ENTRY_SERVICE_ID = "entry_service_id";
     public static final String COLUMN_FRONT_SERVICE_ID = "front_service_id";
     public static final String COLUMN_BEHIND_SERVICE_ID = "behind_service_id";
-    public static final String COLUMN_CALLS = "calls";
-    public static final String COLUMN_ERROR_CALLS = "error_calls";
-    public static final String COLUMN_DURATION_SUM = "duration_sum";
-    public static final String COLUMN_ERROR_DURATION_SUM = "error_duration_sum";
+    public static final String COLUMN_TRANSACTION_CALLS = "transaction_calls";
+    public static final String COLUMN_TRANSACTION_ERROR_CALLS = "transaction_error_calls";
+    public static final String COLUMN_TRANSACTION_DURATION_SUM = "transaction_duration_sum";
+    public static final String COLUMN_TRANSACTION_ERROR_DURATION_SUM = "transaction_error_duration_sum";
+    public static final String COLUMN_BUSINESS_TRANSACTION_CALLS = "business_transaction_calls";
+    public static final String COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS = "business_transaction_error_calls";
+    public static final String COLUMN_BUSINESS_TRANSACTION_DURATION_SUM = "business_transaction_duration_sum";
+    public static final String COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM = "business_transaction_error_duration_sum";
+    public static final String COLUMN_MQ_TRANSACTION_CALLS = "mq_transaction_calls";
+    public static final String COLUMN_MQ_TRANSACTION_ERROR_CALLS = "mq_transaction_error_calls";
+    public static final String COLUMN_MQ_TRANSACTION_DURATION_SUM = "mq_transaction_duration_sum";
+    public static final String COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM = "mq_transaction_error_duration_sum";
 }
