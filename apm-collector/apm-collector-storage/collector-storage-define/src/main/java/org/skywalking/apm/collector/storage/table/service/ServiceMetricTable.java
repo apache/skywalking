@@ -18,16 +18,12 @@
 
 package org.skywalking.apm.collector.storage.table.service;
 
-import org.skywalking.apm.collector.core.data.CommonTable;
+import org.skywalking.apm.collector.storage.table.CommonMetricTable;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceMetricTable extends CommonTable {
+public class ServiceMetricTable extends CommonMetricTable {
     public static final String TABLE = "service_metric";
     public static final String COLUMN_SERVICE_ID = "service_id";
-    public static final String COLUMN_CALLS = "calls";
-    public static final String COLUMN_ERROR_CALLS = "error_calls";
-    public static final String COLUMN_DURATION_SUM = "duration_sum";
-    public static final String COLUMN_ERROR_DURATION_SUM = "error_duration_sum";
 }

@@ -44,10 +44,10 @@ public class ServiceMetricAggregationWorker extends AggregationWorker<ServiceRef
         Long timeBucket = serviceReferenceMetric.getTimeBucket();
         ServiceMetric serviceMetric = new ServiceMetric(String.valueOf(timeBucket) + Const.ID_SPLIT + String.valueOf(serviceId));
         serviceMetric.setServiceId(serviceId);
-        serviceMetric.setCalls(serviceReferenceMetric.getCalls());
-        serviceMetric.setErrorCalls(serviceReferenceMetric.getErrorCalls());
-        serviceMetric.setDurationSum(serviceReferenceMetric.getDurationSum());
-        serviceMetric.setErrorDurationSum(serviceReferenceMetric.getErrorDurationSum());
+//        serviceMetric.setCalls(serviceReferenceMetric.getCalls());
+//        serviceMetric.setErrorCalls(serviceReferenceMetric.getErrorCalls());
+//        serviceMetric.setDurationSum(serviceReferenceMetric.getDurationSum());
+//        serviceMetric.setErrorDurationSum(serviceReferenceMetric.getErrorDurationSum());
         serviceMetric.setTimeBucket(timeBucket);
 
         return serviceMetric;

@@ -56,10 +56,22 @@ public class ServiceMetricH2PersistenceDAO extends H2DAO implements IServiceMetr
             if (rs.next()) {
                 ServiceMetric serviceMetric = new ServiceMetric(id);
                 serviceMetric.setServiceId(rs.getInt(ServiceMetricTable.COLUMN_SERVICE_ID));
-                serviceMetric.setCalls(rs.getLong(ServiceMetricTable.COLUMN_CALLS));
-                serviceMetric.setErrorCalls(rs.getLong(ServiceMetricTable.COLUMN_ERROR_CALLS));
-                serviceMetric.setDurationSum(rs.getLong(ServiceMetricTable.COLUMN_DURATION_SUM));
-                serviceMetric.setErrorDurationSum(rs.getLong(ServiceMetricTable.COLUMN_ERROR_DURATION_SUM));
+
+                serviceMetric.setTransactionCalls(rs.getLong(ServiceMetricTable.COLUMN_TRANSACTION_CALLS));
+                serviceMetric.setTransactionErrorCalls(rs.getLong(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS));
+                serviceMetric.setTransactionDurationSum(rs.getLong(ServiceMetricTable.COLUMN_TRANSACTION_DURATION_SUM));
+                serviceMetric.setTransactionErrorDurationSum(rs.getLong(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM));
+
+                serviceMetric.setBusinessTransactionCalls(rs.getLong(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS));
+                serviceMetric.setBusinessTransactionErrorCalls(rs.getLong(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS));
+                serviceMetric.setBusinessTransactionDurationSum(rs.getLong(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM));
+                serviceMetric.setBusinessTransactionErrorDurationSum(rs.getLong(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM));
+
+                serviceMetric.setMqTransactionCalls(rs.getLong(ServiceMetricTable.COLUMN_MQ_TRANSACTION_CALLS));
+                serviceMetric.setMqTransactionErrorCalls(rs.getLong(ServiceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS));
+                serviceMetric.setMqTransactionDurationSum(rs.getLong(ServiceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM));
+                serviceMetric.setMqTransactionErrorDurationSum(rs.getLong(ServiceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM));
+
                 serviceMetric.setTimeBucket(rs.getLong(ServiceMetricTable.COLUMN_TIME_BUCKET));
                 return serviceMetric;
             }
@@ -75,10 +87,22 @@ public class ServiceMetricH2PersistenceDAO extends H2DAO implements IServiceMetr
         Map<String, Object> source = new HashMap<>();
         source.put(ServiceMetricTable.COLUMN_ID, data.getId());
         source.put(ServiceMetricTable.COLUMN_SERVICE_ID, data.getServiceId());
-        source.put(ServiceMetricTable.COLUMN_CALLS, data.getCalls());
-        source.put(ServiceMetricTable.COLUMN_ERROR_CALLS, data.getErrorCalls());
-        source.put(ServiceMetricTable.COLUMN_DURATION_SUM, data.getDurationSum());
-        source.put(ServiceMetricTable.COLUMN_ERROR_DURATION_SUM, data.getErrorDurationSum());
+
+        source.put(ServiceMetricTable.COLUMN_TRANSACTION_CALLS, data.getTransactionCalls());
+        source.put(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, data.getTransactionErrorCalls());
+        source.put(ServiceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, data.getTransactionDurationSum());
+        source.put(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, data.getTransactionErrorDurationSum());
+
+        source.put(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, data.getBusinessTransactionCalls());
+        source.put(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, data.getBusinessTransactionErrorCalls());
+        source.put(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, data.getBusinessTransactionDurationSum());
+        source.put(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, data.getBusinessTransactionErrorDurationSum());
+
+        source.put(ServiceMetricTable.COLUMN_MQ_TRANSACTION_CALLS, data.getMqTransactionCalls());
+        source.put(ServiceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, data.getMqTransactionErrorCalls());
+        source.put(ServiceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, data.getMqTransactionDurationSum());
+        source.put(ServiceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, data.getMqTransactionErrorDurationSum());
+
         source.put(ServiceMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
         String sql = SqlBuilder.buildBatchInsertSql(ServiceMetricTable.TABLE, source.keySet());
@@ -92,10 +116,22 @@ public class ServiceMetricH2PersistenceDAO extends H2DAO implements IServiceMetr
         H2SqlEntity entity = new H2SqlEntity();
         Map<String, Object> source = new HashMap<>();
         source.put(ServiceMetricTable.COLUMN_SERVICE_ID, data.getServiceId());
-        source.put(ServiceMetricTable.COLUMN_CALLS, data.getCalls());
-        source.put(ServiceMetricTable.COLUMN_ERROR_CALLS, data.getErrorCalls());
-        source.put(ServiceMetricTable.COLUMN_DURATION_SUM, data.getDurationSum());
-        source.put(ServiceMetricTable.COLUMN_ERROR_DURATION_SUM, data.getErrorDurationSum());
+
+        source.put(ServiceMetricTable.COLUMN_TRANSACTION_CALLS, data.getTransactionCalls());
+        source.put(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, data.getTransactionErrorCalls());
+        source.put(ServiceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, data.getTransactionDurationSum());
+        source.put(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, data.getTransactionErrorDurationSum());
+
+        source.put(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, data.getBusinessTransactionCalls());
+        source.put(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, data.getBusinessTransactionErrorCalls());
+        source.put(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, data.getBusinessTransactionDurationSum());
+        source.put(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, data.getBusinessTransactionErrorDurationSum());
+
+        source.put(ServiceMetricTable.COLUMN_MQ_TRANSACTION_CALLS, data.getMqTransactionCalls());
+        source.put(ServiceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, data.getMqTransactionErrorCalls());
+        source.put(ServiceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, data.getMqTransactionDurationSum());
+        source.put(ServiceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, data.getMqTransactionErrorDurationSum());
+
         source.put(ServiceMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
         String sql = SqlBuilder.buildBatchUpdateSql(ServiceMetricTable.TABLE, source.keySet(), ServiceMetricTable.COLUMN_ID);

@@ -34,10 +34,22 @@ public class ServiceMetricH2TableDefine extends H2TableDefine {
     @Override public void initialize() {
         addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
         addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_SERVICE_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_CALLS, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_ERROR_CALLS, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_ERROR_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+
+        addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_TRANSACTION_CALLS, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+
+        addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+
+        addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_MQ_TRANSACTION_CALLS, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+
         addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
     }
 }
