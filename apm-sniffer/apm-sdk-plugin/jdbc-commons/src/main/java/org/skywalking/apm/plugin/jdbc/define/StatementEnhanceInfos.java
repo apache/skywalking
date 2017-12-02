@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.plugin.jdbc.mysql.define;
+package org.skywalking.apm.plugin.jdbc.define;
 
 import org.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 

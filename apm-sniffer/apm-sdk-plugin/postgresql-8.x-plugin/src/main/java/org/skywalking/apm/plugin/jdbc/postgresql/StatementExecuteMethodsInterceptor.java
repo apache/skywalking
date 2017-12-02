@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.plugin.jdbc.mysql;
+package org.skywalking.apm.plugin.jdbc.postgresql;
 
 import java.lang.reflect.Method;
 import org.skywalking.apm.agent.core.context.ContextManager;
@@ -41,23 +41,13 @@ public class StatementExecuteMethodsInterceptor implements InstanceMethodsAround
         MethodInterceptResult result) throws Throwable {
         StatementEnhanceInfos cacheObject = (StatementEnhanceInfos)objInst.getSkyWalkingDynamicField();
         ConnectionInfo connectInfo = cacheObject.getConnectionInfo();
-        /**
-         * To protected the code occur NullPointException. because mysql execute system sql when constructor method in
-         * {@link com.mysql.jdbc.ConnectionImpl} class executed. but the interceptor set the connection Info after
-         * the constructor method executed.
-         *
-         * @see org.skywalking.apm.plugin.jdbc.JDBCDriverInterceptor#afterMethod(EnhancedInstance, Method, Object[], Class[], Object)
-         */
-        if (connectInfo != null) {
+        AbstractSpan span = ContextManager.createExitSpan(buildOperationName(connectInfo, method.getName(), cacheObject.getStatementName()), connectInfo.getDatabasePeer());
+        Tags.DB_TYPE.set(span, "sql");
+        Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
+        Tags.DB_STATEMENT.set(span, cacheObject.getSql());
+        span.setComponent(connectInfo.getComponent());
 
-            AbstractSpan span = ContextManager.createExitSpan(buildOperationName(connectInfo, method.getName(), cacheObject.getStatementName()), connectInfo.getDatabasePeer());
-            Tags.DB_TYPE.set(span, "sql");
-            Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
-            Tags.DB_STATEMENT.set(span, cacheObject.getSql());
-            span.setComponent(connectInfo.getComponent());
-
-            SpanLayer.asDB(span);
-        }
+        SpanLayer.asDB(span);
     }
 
     @Override
