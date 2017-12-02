@@ -18,26 +18,14 @@
 
 package org.skywalking.apm.collector.storage.table.service;
 
-import org.skywalking.apm.collector.core.data.CommonTable;
+import org.skywalking.apm.collector.storage.table.CommonMetricTable;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceReferenceMetricTable extends CommonTable {
+public class ServiceReferenceMetricTable extends CommonMetricTable {
     public static final String TABLE = "service_reference_metric";
     public static final String COLUMN_ENTRY_SERVICE_ID = "entry_service_id";
     public static final String COLUMN_FRONT_SERVICE_ID = "front_service_id";
     public static final String COLUMN_BEHIND_SERVICE_ID = "behind_service_id";
-    public static final String COLUMN_TRANSACTION_CALLS = "transaction_calls";
-    public static final String COLUMN_TRANSACTION_ERROR_CALLS = "transaction_error_calls";
-    public static final String COLUMN_TRANSACTION_DURATION_SUM = "transaction_duration_sum";
-    public static final String COLUMN_TRANSACTION_ERROR_DURATION_SUM = "transaction_error_duration_sum";
-    public static final String COLUMN_BUSINESS_TRANSACTION_CALLS = "business_transaction_calls";
-    public static final String COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS = "business_transaction_error_calls";
-    public static final String COLUMN_BUSINESS_TRANSACTION_DURATION_SUM = "business_transaction_duration_sum";
-    public static final String COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM = "business_transaction_error_duration_sum";
-    public static final String COLUMN_MQ_TRANSACTION_CALLS = "mq_transaction_calls";
-    public static final String COLUMN_MQ_TRANSACTION_ERROR_CALLS = "mq_transaction_error_calls";
-    public static final String COLUMN_MQ_TRANSACTION_DURATION_SUM = "mq_transaction_duration_sum";
-    public static final String COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM = "mq_transaction_error_duration_sum";
 }

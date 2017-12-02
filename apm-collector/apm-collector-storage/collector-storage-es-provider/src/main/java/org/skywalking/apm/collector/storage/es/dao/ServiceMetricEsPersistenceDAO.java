@@ -51,10 +51,22 @@ public class ServiceMetricEsPersistenceDAO extends EsDAO implements IServiceMetr
             ServiceMetric serviceMetric = new ServiceMetric(id);
             Map<String, Object> source = getResponse.getSource();
             serviceMetric.setServiceId(((Number)source.get(ServiceMetricTable.COLUMN_SERVICE_ID)).intValue());
-            serviceMetric.setCalls(((Number)source.get(ServiceMetricTable.COLUMN_CALLS)).longValue());
-            serviceMetric.setErrorCalls(((Number)source.get(ServiceMetricTable.COLUMN_ERROR_CALLS)).longValue());
-            serviceMetric.setDurationSum(((Number)source.get(ServiceMetricTable.COLUMN_DURATION_SUM)).longValue());
-            serviceMetric.setErrorDurationSum(((Number)source.get(ServiceMetricTable.COLUMN_ERROR_DURATION_SUM)).longValue());
+
+            serviceMetric.setTransactionCalls(((Number)source.get(ServiceMetricTable.COLUMN_TRANSACTION_CALLS)).longValue());
+            serviceMetric.setTransactionErrorCalls(((Number)source.get(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS)).longValue());
+            serviceMetric.setTransactionDurationSum(((Number)source.get(ServiceMetricTable.COLUMN_TRANSACTION_DURATION_SUM)).longValue());
+            serviceMetric.setTransactionErrorDurationSum(((Number)source.get(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM)).longValue());
+
+            serviceMetric.setBusinessTransactionCalls(((Number)source.get(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS)).longValue());
+            serviceMetric.setBusinessTransactionErrorCalls(((Number)source.get(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS)).longValue());
+            serviceMetric.setBusinessTransactionDurationSum(((Number)source.get(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM)).longValue());
+            serviceMetric.setBusinessTransactionErrorDurationSum(((Number)source.get(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM)).longValue());
+
+            serviceMetric.setMqTransactionCalls(((Number)source.get(ServiceMetricTable.COLUMN_MQ_TRANSACTION_CALLS)).longValue());
+            serviceMetric.setMqTransactionErrorCalls(((Number)source.get(ServiceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS)).longValue());
+            serviceMetric.setMqTransactionDurationSum(((Number)source.get(ServiceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM)).longValue());
+            serviceMetric.setMqTransactionErrorDurationSum(((Number)source.get(ServiceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM)).longValue());
+
             serviceMetric.setTimeBucket(((Number)source.get(ServiceMetricTable.COLUMN_TIME_BUCKET)).longValue());
             return serviceMetric;
         } else {
@@ -65,10 +77,22 @@ public class ServiceMetricEsPersistenceDAO extends EsDAO implements IServiceMetr
     @Override public IndexRequestBuilder prepareBatchInsert(ServiceMetric data) {
         Map<String, Object> source = new HashMap<>();
         source.put(ServiceMetricTable.COLUMN_SERVICE_ID, data.getServiceId());
-        source.put(ServiceMetricTable.COLUMN_CALLS, data.getCalls());
-        source.put(ServiceMetricTable.COLUMN_ERROR_CALLS, data.getErrorCalls());
-        source.put(ServiceMetricTable.COLUMN_DURATION_SUM, data.getDurationSum());
-        source.put(ServiceMetricTable.COLUMN_ERROR_DURATION_SUM, data.getErrorDurationSum());
+
+        source.put(ServiceMetricTable.COLUMN_TRANSACTION_CALLS, data.getTransactionCalls());
+        source.put(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, data.getTransactionErrorCalls());
+        source.put(ServiceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, data.getTransactionDurationSum());
+        source.put(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, data.getTransactionErrorDurationSum());
+
+        source.put(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, data.getBusinessTransactionCalls());
+        source.put(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, data.getBusinessTransactionErrorCalls());
+        source.put(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, data.getBusinessTransactionDurationSum());
+        source.put(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, data.getBusinessTransactionErrorDurationSum());
+
+        source.put(ServiceMetricTable.COLUMN_MQ_TRANSACTION_CALLS, data.getMqTransactionCalls());
+        source.put(ServiceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, data.getMqTransactionErrorCalls());
+        source.put(ServiceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, data.getMqTransactionDurationSum());
+        source.put(ServiceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, data.getMqTransactionErrorDurationSum());
+
         source.put(ServiceMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
         return getClient().prepareIndex(ServiceMetricTable.TABLE, data.getId()).setSource(source);
@@ -77,10 +101,22 @@ public class ServiceMetricEsPersistenceDAO extends EsDAO implements IServiceMetr
     @Override public UpdateRequestBuilder prepareBatchUpdate(ServiceMetric data) {
         Map<String, Object> source = new HashMap<>();
         source.put(ServiceMetricTable.COLUMN_SERVICE_ID, data.getServiceId());
-        source.put(ServiceMetricTable.COLUMN_CALLS, data.getCalls());
-        source.put(ServiceMetricTable.COLUMN_ERROR_CALLS, data.getErrorCalls());
-        source.put(ServiceMetricTable.COLUMN_DURATION_SUM, data.getDurationSum());
-        source.put(ServiceMetricTable.COLUMN_ERROR_DURATION_SUM, data.getErrorDurationSum());
+
+        source.put(ServiceMetricTable.COLUMN_TRANSACTION_CALLS, data.getTransactionCalls());
+        source.put(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, data.getTransactionErrorCalls());
+        source.put(ServiceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, data.getTransactionDurationSum());
+        source.put(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, data.getTransactionErrorDurationSum());
+
+        source.put(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, data.getBusinessTransactionCalls());
+        source.put(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, data.getBusinessTransactionErrorCalls());
+        source.put(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, data.getBusinessTransactionDurationSum());
+        source.put(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, data.getBusinessTransactionErrorDurationSum());
+
+        source.put(ServiceMetricTable.COLUMN_MQ_TRANSACTION_CALLS, data.getMqTransactionCalls());
+        source.put(ServiceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, data.getMqTransactionErrorCalls());
+        source.put(ServiceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, data.getMqTransactionDurationSum());
+        source.put(ServiceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, data.getMqTransactionErrorDurationSum());
+
         source.put(ServiceMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
         return getClient().prepareUpdate(ServiceMetricTable.TABLE, data.getId()).setDoc(source);

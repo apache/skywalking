@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.core.data;
 /**
  * @author peng-yongsheng
  */
-public class CommonTable {
+public abstract class CommonTable {
     public static final String TABLE_TYPE = "type";
     public static final String COLUMN_ID = "id";
     public static final String COLUMN_AGG = "agg";

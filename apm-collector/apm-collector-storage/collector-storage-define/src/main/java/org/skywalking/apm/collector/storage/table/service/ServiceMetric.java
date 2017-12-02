@@ -21,7 +21,6 @@ package org.skywalking.apm.collector.storage.table.service;
 import org.skywalking.apm.collector.core.data.Column;
 import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.core.data.operator.AddOperation;
-import org.skywalking.apm.collector.core.data.operator.CoverOperation;
 import org.skywalking.apm.collector.core.data.operator.NonOperation;
 
 /**
@@ -34,11 +33,20 @@ public class ServiceMetric extends Data {
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(ServiceMetricTable.COLUMN_CALLS, new AddOperation()),
-        new Column(ServiceMetricTable.COLUMN_ERROR_CALLS, new AddOperation()),
-        new Column(ServiceMetricTable.COLUMN_DURATION_SUM, new AddOperation()),
-        new Column(ServiceMetricTable.COLUMN_ERROR_DURATION_SUM, new AddOperation()),
-        new Column(ServiceMetricTable.COLUMN_TIME_BUCKET, new CoverOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET, new NonOperation()),
+
+        new Column(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS, new AddOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, new AddOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, new AddOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, new AddOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, new AddOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, new AddOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, new AddOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, new AddOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_CALLS, new AddOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, new AddOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, new AddOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, new AddOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {};
@@ -63,43 +71,107 @@ public class ServiceMetric extends Data {
         setDataInteger(0, serviceId);
     }
 
-    public long getCalls() {
+    public Long getTimeBucket() {
         return getDataLong(0);
     }
 
-    public void setCalls(long calls) {
-        setDataLong(0, calls);
+    public void setTimeBucket(Long timeBucket) {
+        setDataLong(0, timeBucket);
     }
 
-    public long getErrorCalls() {
+    public Long getTransactionCalls() {
         return getDataLong(1);
     }
 
-    public void setErrorCalls(long errorCalls) {
-        setDataLong(1, errorCalls);
+    public void setTransactionCalls(Long transactionCalls) {
+        setDataLong(1, transactionCalls);
     }
 
-    public long getDurationSum() {
+    public Long getTransactionErrorCalls() {
         return getDataLong(2);
     }
 
-    public void setDurationSum(long durationSum) {
-        setDataLong(2, durationSum);
+    public void setTransactionErrorCalls(Long transactionErrorCalls) {
+        setDataLong(2, transactionErrorCalls);
     }
 
-    public long getErrorDurationSum() {
+    public Long getTransactionDurationSum() {
         return getDataLong(3);
     }
 
-    public void setErrorDurationSum(long errorDurationSum) {
-        setDataLong(3, errorDurationSum);
+    public void setTransactionDurationSum(Long transactionDurationSum) {
+        setDataLong(3, transactionDurationSum);
     }
 
-    public Long getTimeBucket() {
+    public Long getTransactionErrorDurationSum() {
         return getDataLong(4);
     }
 
-    public void setTimeBucket(Long timeBucket) {
-        setDataLong(4, timeBucket);
+    public void setTransactionErrorDurationSum(Long transactionErrorDurationSum) {
+        setDataLong(4, transactionErrorDurationSum);
+    }
+
+    public Long getBusinessTransactionCalls() {
+        return getDataLong(5);
+    }
+
+    public void setBusinessTransactionCalls(Long businessTransactionCalls) {
+        setDataLong(5, businessTransactionCalls);
+    }
+
+    public Long getBusinessTransactionErrorCalls() {
+        return getDataLong(6);
+    }
+
+    public void setBusinessTransactionErrorCalls(Long businessTransactionErrorCalls) {
+        setDataLong(6, businessTransactionErrorCalls);
+    }
+
+    public Long getBusinessTransactionDurationSum() {
+        return getDataLong(7);
+    }
+
+    public void setBusinessTransactionDurationSum(Long businessTransactionDurationSum) {
+        setDataLong(7, businessTransactionDurationSum);
+    }
+
+    public Long getBusinessTransactionErrorDurationSum() {
+        return getDataLong(8);
+    }
+
+    public void setBusinessTransactionErrorDurationSum(Long businessTransactionErrorDurationSum) {
+        setDataLong(8, businessTransactionErrorDurationSum);
+    }
+
+    public Long getMqTransactionCalls() {
+        return getDataLong(9);
+    }
+
+    public void setMqTransactionCalls(Long mqTransactionCalls) {
+        setDataLong(9, mqTransactionCalls);
+    }
+
+    public Long getMqTransactionErrorCalls() {
+        return getDataLong(10);
+    }
+
+    public void setMqTransactionErrorCalls(Long mqTransactionErrorCalls) {
+        setDataLong(10, mqTransactionErrorCalls);
+    }
+
+    public Long getMqTransactionDurationSum() {
+        return getDataLong(11);
+    }
+
+    public void setMqTransactionDurationSum(Long mqTransactionDurationSum) {
+        setDataLong(11, mqTransactionDurationSum);
+    }
+
+    public Long getMqTransactionErrorDurationSum() {
+        return getDataLong(12);
+    }
+
+    public void setMqTransactionErrorDurationSum(Long mqTransactionErrorDurationSum) {
+        setDataLong(12, mqTransactionErrorDurationSum);
     }
 }

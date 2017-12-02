@@ -74,12 +74,12 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
         long endTime, boolean isError) {
         long duration = endTime - startTime;
 
-        serviceReferenceMetric.setCalls(1L);
-        serviceReferenceMetric.setDurationSum(duration);
+        serviceReferenceMetric.setTransactionCalls(1L);
+        serviceReferenceMetric.setTransactionDurationSum(duration);
 
         if (isError) {
-            serviceReferenceMetric.setErrorCalls(1L);
-            serviceReferenceMetric.setErrorDurationSum(duration);
+            serviceReferenceMetric.setTransactionErrorCalls(1L);
+            serviceReferenceMetric.setTransactionErrorDurationSum(duration);
         }
     }
 
