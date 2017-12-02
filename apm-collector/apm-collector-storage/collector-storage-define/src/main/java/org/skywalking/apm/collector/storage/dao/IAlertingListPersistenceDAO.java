@@ -16,13 +16,13 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.core.data;
+package org.skywalking.apm.collector.storage.dao;
+
+import org.skywalking.apm.collector.core.data.Data;
+import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class CommonTable {
-    public static final String TABLE_TYPE = "type";
-    public static final String COLUMN_ID = "id";
-    public static final String COLUMN_TIME_BUCKET = "time_bucket";
+public interface IAlertingListPersistenceDAO<Insert, Update, DataImpl extends Data> extends IPersistenceDAO<Insert, Update, DataImpl> {
 }

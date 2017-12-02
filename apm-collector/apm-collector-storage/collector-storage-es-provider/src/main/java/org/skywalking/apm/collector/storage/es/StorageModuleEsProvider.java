@@ -31,6 +31,7 @@ import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.skywalking.apm.collector.storage.StorageException;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.base.dao.IBatchDAO;
+import org.skywalking.apm.collector.storage.dao.IAlertingListPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IApplicationCacheDAO;
 import org.skywalking.apm.collector.storage.dao.IApplicationComponentPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IApplicationComponentUIDAO;
@@ -69,6 +70,7 @@ import org.skywalking.apm.collector.storage.dao.IServiceReferenceMetricPersisten
 import org.skywalking.apm.collector.storage.dao.IServiceReferenceUIDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.BatchEsDAO;
 import org.skywalking.apm.collector.storage.es.base.define.ElasticSearchStorageInstaller;
+import org.skywalking.apm.collector.storage.es.dao.AlertingListEsPersistenceDAO;
 import org.skywalking.apm.collector.storage.es.dao.ApplicationComponentEsPersistenceDAO;
 import org.skywalking.apm.collector.storage.es.dao.ApplicationComponentEsUIDAO;
 import org.skywalking.apm.collector.storage.es.dao.ApplicationEsCacheDAO;
@@ -145,6 +147,7 @@ public class StorageModuleEsProvider extends ModuleProvider {
         registerRegisterDAO();
         registerPersistenceDAO();
         registerUiDAO();
+        registerAlertingDAO();
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
@@ -229,5 +232,9 @@ public class StorageModuleEsProvider extends ModuleProvider {
         this.registerServiceImplementation(ISegmentUIDAO.class, new SegmentEsUIDAO(elasticSearchClient));
         this.registerServiceImplementation(IServiceEntryUIDAO.class, new ServiceEntryEsUIDAO(elasticSearchClient));
         this.registerServiceImplementation(IServiceReferenceUIDAO.class, new ServiceReferenceEsUIDAO(elasticSearchClient));
+    }
+
+    private void registerAlertingDAO() throws ServiceNotProvidedException {
+        this.registerServiceImplementation(IAlertingListPersistenceDAO.class, new AlertingListEsPersistenceDAO(elasticSearchClient));
     }
 }
