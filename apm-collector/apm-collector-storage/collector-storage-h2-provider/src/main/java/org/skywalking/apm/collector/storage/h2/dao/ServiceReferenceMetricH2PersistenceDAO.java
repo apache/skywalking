@@ -58,10 +58,22 @@ public class ServiceReferenceMetricH2PersistenceDAO extends H2DAO implements ISe
                 serviceReferenceMetric.setEntryServiceId(rs.getInt(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID));
                 serviceReferenceMetric.setFrontServiceId(rs.getInt(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID));
                 serviceReferenceMetric.setBehindServiceId(rs.getInt(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID));
-                serviceReferenceMetric.setCalls(rs.getLong(ServiceReferenceMetricTable.COLUMN_CALLS));
-                serviceReferenceMetric.setErrorCalls(rs.getLong(ServiceReferenceMetricTable.COLUMN_ERROR_CALLS));
-                serviceReferenceMetric.setDurationSum(rs.getLong(ServiceReferenceMetricTable.COLUMN_DURATION_SUM));
-                serviceReferenceMetric.setErrorDurationSum(rs.getLong(ServiceReferenceMetricTable.COLUMN_ERROR_DURATION_SUM));
+
+                serviceReferenceMetric.setTransactionCalls(rs.getLong(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS));
+                serviceReferenceMetric.setTransactionErrorCalls(rs.getLong(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS));
+                serviceReferenceMetric.setTransactionDurationSum(rs.getLong(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM));
+                serviceReferenceMetric.setTransactionErrorDurationSum(rs.getLong(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM));
+
+                serviceReferenceMetric.setBusinessTransactionCalls(rs.getLong(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS));
+                serviceReferenceMetric.setBusinessTransactionErrorCalls(rs.getLong(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS));
+                serviceReferenceMetric.setBusinessTransactionDurationSum(rs.getLong(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM));
+                serviceReferenceMetric.setBusinessTransactionErrorDurationSum(rs.getLong(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM));
+
+                serviceReferenceMetric.setMqTransactionCalls(rs.getLong(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_CALLS));
+                serviceReferenceMetric.setMqTransactionErrorCalls(rs.getLong(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS));
+                serviceReferenceMetric.setMqTransactionDurationSum(rs.getLong(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM));
+                serviceReferenceMetric.setMqTransactionErrorDurationSum(rs.getLong(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM));
+
                 serviceReferenceMetric.setTimeBucket(rs.getLong(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET));
                 return serviceReferenceMetric;
             }
@@ -79,10 +91,22 @@ public class ServiceReferenceMetricH2PersistenceDAO extends H2DAO implements ISe
         source.put(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID, data.getEntryServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, data.getFrontServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, data.getBehindServiceId());
-        source.put(ServiceReferenceMetricTable.COLUMN_CALLS, data.getCalls());
-        source.put(ServiceReferenceMetricTable.COLUMN_ERROR_CALLS, data.getErrorCalls());
-        source.put(ServiceReferenceMetricTable.COLUMN_DURATION_SUM, data.getDurationSum());
-        source.put(ServiceReferenceMetricTable.COLUMN_ERROR_DURATION_SUM, data.getErrorDurationSum());
+
+        source.put(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS, data.getTransactionCalls());
+        source.put(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, data.getTransactionErrorCalls());
+        source.put(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, data.getTransactionDurationSum());
+        source.put(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, data.getTransactionErrorDurationSum());
+
+        source.put(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, data.getBusinessTransactionCalls());
+        source.put(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, data.getBusinessTransactionErrorCalls());
+        source.put(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, data.getBusinessTransactionDurationSum());
+        source.put(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, data.getBusinessTransactionErrorDurationSum());
+
+        source.put(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_CALLS, data.getMqTransactionCalls());
+        source.put(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, data.getMqTransactionErrorCalls());
+        source.put(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, data.getMqTransactionDurationSum());
+        source.put(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, data.getMqTransactionErrorDurationSum());
+
         source.put(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
         String sql = SqlBuilder.buildBatchInsertSql(ServiceReferenceMetricTable.TABLE, source.keySet());
@@ -98,10 +122,21 @@ public class ServiceReferenceMetricH2PersistenceDAO extends H2DAO implements ISe
         source.put(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID, data.getEntryServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, data.getFrontServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, data.getBehindServiceId());
-        source.put(ServiceReferenceMetricTable.COLUMN_CALLS, data.getCalls());
-        source.put(ServiceReferenceMetricTable.COLUMN_ERROR_CALLS, data.getErrorCalls());
-        source.put(ServiceReferenceMetricTable.COLUMN_DURATION_SUM, data.getDurationSum());
-        source.put(ServiceReferenceMetricTable.COLUMN_ERROR_DURATION_SUM, data.getErrorDurationSum());
+
+        source.put(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS, data.getTransactionCalls());
+        source.put(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, data.getTransactionErrorCalls());
+        source.put(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, data.getTransactionDurationSum());
+        source.put(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, data.getTransactionErrorDurationSum());
+
+        source.put(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, data.getBusinessTransactionCalls());
+        source.put(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, data.getBusinessTransactionErrorCalls());
+        source.put(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, data.getBusinessTransactionDurationSum());
+        source.put(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, data.getBusinessTransactionErrorDurationSum());
+
+        source.put(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_CALLS, data.getMqTransactionCalls());
+        source.put(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, data.getMqTransactionErrorCalls());
+        source.put(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, data.getMqTransactionDurationSum());
+        source.put(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, data.getMqTransactionErrorDurationSum());
         source.put(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
         String sql = SqlBuilder.buildBatchUpdateSql(ServiceReferenceMetricTable.TABLE, source.keySet(), ServiceReferenceMetricTable.COLUMN_ID);

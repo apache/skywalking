@@ -36,10 +36,22 @@ public class ServiceReferenceMetricH2TableDefine extends H2TableDefine {
         addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID, H2ColumnDefine.Type.Int.name()));
         addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, H2ColumnDefine.Type.Int.name()));
         addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_CALLS, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_ERROR_CALLS, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_ERROR_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+
+        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+
+        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+
+        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_CALLS, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+
         addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
     }
 }
