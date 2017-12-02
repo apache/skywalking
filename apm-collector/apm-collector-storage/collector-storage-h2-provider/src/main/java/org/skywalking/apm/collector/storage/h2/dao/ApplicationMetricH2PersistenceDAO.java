@@ -55,10 +55,22 @@ public class ApplicationMetricH2PersistenceDAO extends H2DAO implements IApplica
             if (rs.next()) {
                 ApplicationMetric applicationMetric = new ApplicationMetric(id);
                 applicationMetric.setApplicationId(rs.getInt(ApplicationMetricTable.COLUMN_APPLICATION_ID));
-                applicationMetric.setCalls(rs.getLong(ApplicationMetricTable.COLUMN_CALLS));
-                applicationMetric.setErrorCalls(rs.getLong(ApplicationMetricTable.COLUMN_ERROR_CALLS));
-                applicationMetric.setDurationSum(rs.getLong(ApplicationMetricTable.COLUMN_DURATION_SUM));
-                applicationMetric.setErrorDurationSum(rs.getLong(ApplicationMetricTable.COLUMN_ERROR_DURATION_SUM));
+
+                applicationMetric.setTransactionCalls(rs.getLong(ApplicationMetricTable.COLUMN_TRANSACTION_CALLS));
+                applicationMetric.setTransactionErrorCalls(rs.getLong(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_CALLS));
+                applicationMetric.setTransactionDurationSum(rs.getLong(ApplicationMetricTable.COLUMN_TRANSACTION_DURATION_SUM));
+                applicationMetric.setTransactionErrorDurationSum(rs.getLong(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM));
+
+                applicationMetric.setBusinessTransactionCalls(rs.getLong(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS));
+                applicationMetric.setBusinessTransactionErrorCalls(rs.getLong(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS));
+                applicationMetric.setBusinessTransactionDurationSum(rs.getLong(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM));
+                applicationMetric.setBusinessTransactionErrorDurationSum(rs.getLong(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM));
+
+                applicationMetric.setMqTransactionCalls(rs.getLong(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_CALLS));
+                applicationMetric.setMqTransactionErrorCalls(rs.getLong(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS));
+                applicationMetric.setMqTransactionDurationSum(rs.getLong(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM));
+                applicationMetric.setMqTransactionErrorDurationSum(rs.getLong(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM));
+
                 applicationMetric.setSatisfiedCount(rs.getLong(ApplicationMetricTable.COLUMN_SATISFIED_COUNT));
                 applicationMetric.setToleratingCount(rs.getLong(ApplicationMetricTable.COLUMN_TOLERATING_COUNT));
                 applicationMetric.setFrustratedCount(rs.getLong(ApplicationMetricTable.COLUMN_FRUSTRATED_COUNT));
@@ -76,10 +88,22 @@ public class ApplicationMetricH2PersistenceDAO extends H2DAO implements IApplica
         H2SqlEntity entity = new H2SqlEntity();
         source.put(ApplicationMetricTable.COLUMN_ID, data.getId());
         source.put(ApplicationMetricTable.COLUMN_APPLICATION_ID, data.getApplicationId());
-        source.put(ApplicationMetricTable.COLUMN_CALLS, data.getCalls());
-        source.put(ApplicationMetricTable.COLUMN_ERROR_CALLS, data.getErrorCalls());
-        source.put(ApplicationMetricTable.COLUMN_DURATION_SUM, data.getDurationSum());
-        source.put(ApplicationMetricTable.COLUMN_ERROR_DURATION_SUM, data.getErrorDurationSum());
+
+        source.put(ApplicationMetricTable.COLUMN_TRANSACTION_CALLS, data.getTransactionCalls());
+        source.put(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, data.getTransactionErrorCalls());
+        source.put(ApplicationMetricTable.COLUMN_TRANSACTION_DURATION_SUM, data.getTransactionDurationSum());
+        source.put(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, data.getTransactionErrorDurationSum());
+
+        source.put(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, data.getBusinessTransactionCalls());
+        source.put(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, data.getBusinessTransactionErrorCalls());
+        source.put(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, data.getBusinessTransactionDurationSum());
+        source.put(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, data.getBusinessTransactionErrorDurationSum());
+
+        source.put(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_CALLS, data.getMqTransactionCalls());
+        source.put(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, data.getMqTransactionErrorCalls());
+        source.put(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, data.getMqTransactionDurationSum());
+        source.put(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, data.getMqTransactionErrorDurationSum());
+
         source.put(ApplicationMetricTable.COLUMN_SATISFIED_COUNT, data.getSatisfiedCount());
         source.put(ApplicationMetricTable.COLUMN_TOLERATING_COUNT, data.getToleratingCount());
         source.put(ApplicationMetricTable.COLUMN_FRUSTRATED_COUNT, data.getFrustratedCount());
@@ -95,10 +119,22 @@ public class ApplicationMetricH2PersistenceDAO extends H2DAO implements IApplica
         Map<String, Object> source = new HashMap<>();
         H2SqlEntity entity = new H2SqlEntity();
         source.put(ApplicationMetricTable.COLUMN_APPLICATION_ID, data.getApplicationId());
-        source.put(ApplicationMetricTable.COLUMN_CALLS, data.getCalls());
-        source.put(ApplicationMetricTable.COLUMN_ERROR_CALLS, data.getErrorCalls());
-        source.put(ApplicationMetricTable.COLUMN_DURATION_SUM, data.getDurationSum());
-        source.put(ApplicationMetricTable.COLUMN_ERROR_DURATION_SUM, data.getErrorDurationSum());
+
+        source.put(ApplicationMetricTable.COLUMN_TRANSACTION_CALLS, data.getTransactionCalls());
+        source.put(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, data.getTransactionErrorCalls());
+        source.put(ApplicationMetricTable.COLUMN_TRANSACTION_DURATION_SUM, data.getTransactionDurationSum());
+        source.put(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, data.getTransactionErrorDurationSum());
+
+        source.put(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, data.getBusinessTransactionCalls());
+        source.put(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, data.getBusinessTransactionErrorCalls());
+        source.put(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, data.getBusinessTransactionDurationSum());
+        source.put(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, data.getBusinessTransactionErrorDurationSum());
+
+        source.put(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_CALLS, data.getMqTransactionCalls());
+        source.put(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, data.getMqTransactionErrorCalls());
+        source.put(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, data.getMqTransactionDurationSum());
+        source.put(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, data.getMqTransactionErrorDurationSum());
+
         source.put(ApplicationMetricTable.COLUMN_SATISFIED_COUNT, data.getSatisfiedCount());
         source.put(ApplicationMetricTable.COLUMN_TOLERATING_COUNT, data.getToleratingCount());
         source.put(ApplicationMetricTable.COLUMN_FRUSTRATED_COUNT, data.getFrustratedCount());
