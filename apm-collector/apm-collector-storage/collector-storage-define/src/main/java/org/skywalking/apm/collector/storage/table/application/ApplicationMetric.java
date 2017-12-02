@@ -34,21 +34,33 @@ public class ApplicationMetric extends Data {
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(ApplicationMetricTable.COLUMN_CALLS, new AddOperation()),
-        new Column(ApplicationMetricTable.COLUMN_ERROR_CALLS, new AddOperation()),
-        new Column(ApplicationMetricTable.COLUMN_DURATION_SUM, new AddOperation()),
-        new Column(ApplicationMetricTable.COLUMN_ERROR_DURATION_SUM, new AddOperation()),
+        new Column(ApplicationMetricTable.COLUMN_TIME_BUCKET, new NonOperation()),
+
+        new Column(ApplicationMetricTable.COLUMN_TRANSACTION_CALLS, new AddOperation()),
+        new Column(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, new AddOperation()),
+        new Column(ApplicationMetricTable.COLUMN_TRANSACTION_DURATION_SUM, new AddOperation()),
+        new Column(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, new AddOperation()),
+        new Column(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, new AddOperation()),
+        new Column(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, new AddOperation()),
+        new Column(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, new AddOperation()),
+        new Column(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, new AddOperation()),
+        new Column(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_CALLS, new AddOperation()),
+        new Column(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, new AddOperation()),
+        new Column(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, new AddOperation()),
+        new Column(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, new AddOperation()),
+
         new Column(ApplicationMetricTable.COLUMN_SATISFIED_COUNT, new AddOperation()),
         new Column(ApplicationMetricTable.COLUMN_TOLERATING_COUNT, new AddOperation()),
         new Column(ApplicationMetricTable.COLUMN_FRUSTRATED_COUNT, new AddOperation()),
-        new Column(ApplicationMetricTable.COLUMN_TIME_BUCKET, new CoverOperation()),
     };
     private static final Column[] DOUBLE_COLUMNS = {};
+
     private static final Column[] INTEGER_COLUMNS = {
         new Column(ApplicationMetricTable.COLUMN_APPLICATION_ID, new CoverOperation()),
     };
 
     private static final Column[] BOOLEAN_COLUMNS = {};
+
     private static final Column[] BYTE_COLUMNS = {};
 
     public ApplicationMetric(String id) {
@@ -63,67 +75,131 @@ public class ApplicationMetric extends Data {
         setDataInteger(0, applicationId);
     }
 
-    public long getCalls() {
+    public Long getTimeBucket() {
         return getDataLong(0);
     }
 
-    public void setCalls(long calls) {
-        setDataLong(0, calls);
+    public void setTimeBucket(Long timeBucket) {
+        setDataLong(0, timeBucket);
     }
 
-    public long getErrorCalls() {
+    public Long getTransactionCalls() {
         return getDataLong(1);
     }
 
-    public void setErrorCalls(long errorCalls) {
-        setDataLong(1, errorCalls);
+    public void setTransactionCalls(Long transactionCalls) {
+        setDataLong(1, transactionCalls);
     }
 
-    public long getDurationSum() {
+    public Long getTransactionErrorCalls() {
         return getDataLong(2);
     }
 
-    public void setDurationSum(long durationSum) {
-        setDataLong(2, durationSum);
+    public void setTransactionErrorCalls(Long transactionErrorCalls) {
+        setDataLong(2, transactionErrorCalls);
     }
 
-    public long getErrorDurationSum() {
+    public Long getTransactionDurationSum() {
         return getDataLong(3);
     }
 
-    public void setErrorDurationSum(long errorDurationSum) {
-        setDataLong(3, errorDurationSum);
+    public void setTransactionDurationSum(Long transactionDurationSum) {
+        setDataLong(3, transactionDurationSum);
     }
 
-    public long getSatisfiedCount() {
+    public Long getTransactionErrorDurationSum() {
         return getDataLong(4);
     }
 
-    public void setSatisfiedCount(long satisfiedCount) {
-        setDataLong(4, satisfiedCount);
+    public void setTransactionErrorDurationSum(Long transactionErrorDurationSum) {
+        setDataLong(4, transactionErrorDurationSum);
     }
 
-    public long getToleratingCount() {
+    public Long getBusinessTransactionCalls() {
         return getDataLong(5);
     }
 
-    public void setToleratingCount(long toleratingCount) {
-        setDataLong(5, toleratingCount);
+    public void setBusinessTransactionCalls(Long businessTransactionCalls) {
+        setDataLong(5, businessTransactionCalls);
     }
 
-    public long getFrustratedCount() {
+    public Long getBusinessTransactionErrorCalls() {
         return getDataLong(6);
     }
 
-    public void setFrustratedCount(long frustratedCount) {
-        setDataLong(6, frustratedCount);
+    public void setBusinessTransactionErrorCalls(Long businessTransactionErrorCalls) {
+        setDataLong(6, businessTransactionErrorCalls);
     }
 
-    public long getTimeBucket() {
+    public Long getBusinessTransactionDurationSum() {
         return getDataLong(7);
     }
 
-    public void setTimeBucket(long timeBucket) {
-        setDataLong(7, timeBucket);
+    public void setBusinessTransactionDurationSum(Long businessTransactionDurationSum) {
+        setDataLong(7, businessTransactionDurationSum);
+    }
+
+    public Long getBusinessTransactionErrorDurationSum() {
+        return getDataLong(8);
+    }
+
+    public void setBusinessTransactionErrorDurationSum(Long businessTransactionErrorDurationSum) {
+        setDataLong(8, businessTransactionErrorDurationSum);
+    }
+
+    public Long getMqTransactionCalls() {
+        return getDataLong(9);
+    }
+
+    public void setMqTransactionCalls(Long mqTransactionCalls) {
+        setDataLong(9, mqTransactionCalls);
+    }
+
+    public Long getMqTransactionErrorCalls() {
+        return getDataLong(10);
+    }
+
+    public void setMqTransactionErrorCalls(Long mqTransactionErrorCalls) {
+        setDataLong(10, mqTransactionErrorCalls);
+    }
+
+    public Long getMqTransactionDurationSum() {
+        return getDataLong(11);
+    }
+
+    public void setMqTransactionDurationSum(Long mqTransactionDurationSum) {
+        setDataLong(11, mqTransactionDurationSum);
+    }
+
+    public Long getMqTransactionErrorDurationSum() {
+        return getDataLong(12);
+    }
+
+    public void setMqTransactionErrorDurationSum(Long mqTransactionErrorDurationSum) {
+        setDataLong(12, mqTransactionErrorDurationSum);
+    }
+
+    public long getSatisfiedCount() {
+        return getDataLong(13);
+    }
+
+    public void setSatisfiedCount(long satisfiedCount) {
+        setDataLong(13, satisfiedCount);
+    }
+
+    public long getToleratingCount() {
+        return getDataLong(14);
+    }
+
+    public void setToleratingCount(long toleratingCount) {
+        setDataLong(14, toleratingCount);
+    }
+
+    public long getFrustratedCount() {
+        return getDataLong(15);
+    }
+
+    public void setFrustratedCount(long frustratedCount) {
+        setDataLong(15, frustratedCount);
     }
 }
