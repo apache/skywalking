@@ -16,13 +16,20 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.core.data;
+package org.skywalking.apm.collector.storage.table.alerting;
+
+import org.skywalking.apm.collector.core.data.CommonTable;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class CommonTable {
-    public static final String TABLE_TYPE = "type";
-    public static final String COLUMN_ID = "id";
-    public static final String COLUMN_TIME_BUCKET = "time_bucket";
+public class AlertingListTable extends CommonTable {
+    public static final String TABLE = "alerting_list";
+    public static final String COLUMN_LAYER = "layer";
+    public static final String COLUMN_LAYER_ID = "layer_id";
+    public static final String COLUMN_FIRST_TIME_BUCKET = "first_time_bucket";
+    public static final String COLUMN_LAST_TIME_BUCKET = "last_time_bucket";
+    public static final String COLUMN_EXPECTED = "expected";
+    public static final String COLUMN_ACTUAL = "actual";
+    public static final String COLUMN_VALID = "valid";
 }

@@ -26,6 +26,7 @@ import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.skywalking.apm.collector.storage.StorageException;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.base.dao.IBatchDAO;
+import org.skywalking.apm.collector.storage.dao.IAlertingListPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IApplicationCacheDAO;
 import org.skywalking.apm.collector.storage.dao.IApplicationComponentPersistenceDAO;
 import org.skywalking.apm.collector.storage.dao.IApplicationComponentUIDAO;
@@ -64,6 +65,7 @@ import org.skywalking.apm.collector.storage.dao.IServiceReferenceMetricPersisten
 import org.skywalking.apm.collector.storage.dao.IServiceReferenceUIDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.BatchH2DAO;
 import org.skywalking.apm.collector.storage.h2.base.define.H2StorageInstaller;
+import org.skywalking.apm.collector.storage.h2.dao.AlertingListH2PersistenceDAO;
 import org.skywalking.apm.collector.storage.h2.dao.ApplicationComponentH2PersistenceDAO;
 import org.skywalking.apm.collector.storage.h2.dao.ApplicationComponentH2UIDAO;
 import org.skywalking.apm.collector.storage.h2.dao.ApplicationH2CacheDAO;
@@ -135,6 +137,7 @@ public class StorageModuleH2Provider extends ModuleProvider {
         registerRegisterDAO();
         registerPersistenceDAO();
         registerUiDAO();
+        registerAlertingDAO();
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
@@ -206,5 +209,9 @@ public class StorageModuleH2Provider extends ModuleProvider {
         this.registerServiceImplementation(ISegmentUIDAO.class, new SegmentH2UIDAO(h2Client));
         this.registerServiceImplementation(IServiceEntryUIDAO.class, new ServiceEntryH2UIDAO(h2Client));
         this.registerServiceImplementation(IServiceReferenceUIDAO.class, new ServiceReferenceH2UIDAO(h2Client));
+    }
+
+    private void registerAlertingDAO() throws ServiceNotProvidedException {
+        this.registerServiceImplementation(IAlertingListPersistenceDAO.class, new AlertingListH2PersistenceDAO(h2Client));
     }
 }
