@@ -35,8 +35,6 @@ import org.skywalking.apm.collector.storage.dao.IGlobalTraceUIDAO;
 import org.skywalking.apm.collector.storage.dao.ISegmentUIDAO;
 import org.skywalking.apm.network.proto.SpanObject;
 import org.skywalking.apm.network.proto.TraceSegmentObject;
-import org.skywalking.apm.network.proto.TraceSegmentReference;
-import org.skywalking.apm.network.proto.UniqueId;
 
 /**
  * @author peng-yongsheng
@@ -142,28 +140,28 @@ public class TraceStackService {
                     cost = 1;
                 }
 
-                if (parentSpanId == -1 && segment.getRefsCount() > 0) {
-                    for (TraceSegmentReference reference : segment.getRefsList()) {
-                        parentSpanId = reference.getParentSpanId();
-                        UniqueId uniqueId = reference.getParentTraceSegmentId();
-
-                        StringBuilder segmentIdBuilder = new StringBuilder();
-                        for (int i = 0; i < uniqueId.getIdPartsList().size(); i++) {
-                            if (i == 0) {
-                                segmentIdBuilder.append(String.valueOf(uniqueId.getIdPartsList().get(i)));
-                            } else {
-                                segmentIdBuilder.append(".").append(String.valueOf(uniqueId.getIdPartsList().get(i)));
-                            }
-                        }
-
-                        String parentSegmentId = segmentIdBuilder.toString();
-                        segmentParentSpanId = parentSegmentId + Const.SEGMENT_SPAN_SPLIT + String.valueOf(parentSpanId);
-
-                        spans.add(new Span(spanId, parentSpanId, segmentSpanId, segmentParentSpanId, startTime, operationName, applicationCode, cost));
-                    }
-                } else {
-                    spans.add(new Span(spanId, parentSpanId, segmentSpanId, segmentParentSpanId, startTime, operationName, applicationCode, cost));
-                }
+//                if (parentSpanId == -1 && segment.getRefsCount() > 0) {
+//                    for (TraceSegmentReference reference : segment.getRefsList()) {
+//                        parentSpanId = reference.getParentSpanId();
+//                        UniqueId uniqueId = reference.getParentTraceSegmentId();
+//
+//                        StringBuilder segmentIdBuilder = new StringBuilder();
+//                        for (int i = 0; i < uniqueId.getIdPartsList().size(); i++) {
+//                            if (i == 0) {
+//                                segmentIdBuilder.append(String.valueOf(uniqueId.getIdPartsList().get(i)));
+//                            } else {
+//                                segmentIdBuilder.append(".").append(String.valueOf(uniqueId.getIdPartsList().get(i)));
+//                            }
+//                        }
+//
+//                        String parentSegmentId = segmentIdBuilder.toString();
+//                        segmentParentSpanId = parentSegmentId + Const.SEGMENT_SPAN_SPLIT + String.valueOf(parentSpanId);
+//
+//                        spans.add(new Span(spanId, parentSpanId, segmentSpanId, segmentParentSpanId, startTime, operationName, applicationCode, cost));
+//                    }
+//                } else {
+//                    spans.add(new Span(spanId, parentSpanId, segmentSpanId, segmentParentSpanId, startTime, operationName, applicationCode, cost));
+//                }
             }
         }
         return spans;

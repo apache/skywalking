@@ -32,13 +32,11 @@ public class SegmentJsonReader implements StreamJsonReader<TraceSegmentObject.Bu
     private final Logger logger = LoggerFactory.getLogger(SegmentJsonReader.class);
 
     private UniqueIdJsonReader uniqueIdJsonReader = new UniqueIdJsonReader();
-    private ReferenceJsonReader referenceJsonReader = new ReferenceJsonReader();
     private SpanJsonReader spanJsonReader = new SpanJsonReader();
 
     private static final String TRACE_SEGMENT_ID = "ts";
     private static final String APPLICATION_ID = "ai";
     private static final String APPLICATION_INSTANCE_ID = "ii";
-    private static final String TRACE_SEGMENT_REFERENCE = "rs";
     private static final String SPANS = "ss";
 
     @Override public TraceSegmentObject.Builder read(JsonReader reader) throws IOException {
@@ -60,13 +58,6 @@ public class SegmentJsonReader implements StreamJsonReader<TraceSegmentObject.Bu
                     break;
                 case APPLICATION_INSTANCE_ID:
                     builder.setApplicationInstanceId(reader.nextInt());
-                    break;
-                case TRACE_SEGMENT_REFERENCE:
-                    reader.beginArray();
-                    while (reader.hasNext()) {
-                        builder.addRefs(referenceJsonReader.read(reader));
-                    }
-                    reader.endArray();
                     break;
                 case SPANS:
                     reader.beginArray();

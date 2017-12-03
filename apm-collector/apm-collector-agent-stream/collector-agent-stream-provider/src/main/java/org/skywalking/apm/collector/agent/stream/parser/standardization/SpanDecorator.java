@@ -190,6 +190,18 @@ public class SpanDecorator implements StandardBuilder {
         }
     }
 
+    public int getRefsCount() {
+        return spanObject.getRefsCount();
+    }
+
+    public ReferenceDecorator getRefs(int index) {
+        if (isOrigin) {
+            return new ReferenceDecorator(spanObject.getRefs(index), this);
+        } else {
+            return new ReferenceDecorator(spanBuilder.getRefsBuilder(index), this);
+        }
+    }
+
     @Override public void toBuilder() {
         if (this.isOrigin) {
             this.isOrigin = false;

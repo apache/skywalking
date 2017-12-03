@@ -28,11 +28,11 @@ import org.skywalking.apm.collector.agent.stream.parser.standardization.SegmentD
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SegmentStandardization;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SpanDecorator;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SpanIdExchanger;
-import org.skywalking.apm.collector.agent.stream.worker.trace.global.GlobalTraceSpanListener;
-import org.skywalking.apm.collector.agent.stream.worker.trace.instance.InstanceMetricSpanListener;
 import org.skywalking.apm.collector.agent.stream.worker.trace.application.ApplicationComponentSpanListener;
 import org.skywalking.apm.collector.agent.stream.worker.trace.application.ApplicationMappingSpanListener;
 import org.skywalking.apm.collector.agent.stream.worker.trace.application.ApplicationReferenceMetricSpanListener;
+import org.skywalking.apm.collector.agent.stream.worker.trace.global.GlobalTraceSpanListener;
+import org.skywalking.apm.collector.agent.stream.worker.trace.instance.InstanceMetricSpanListener;
 import org.skywalking.apm.collector.agent.stream.worker.trace.segment.SegmentCostSpanListener;
 import org.skywalking.apm.collector.agent.stream.worker.trace.service.ServiceEntrySpanListener;
 import org.skywalking.apm.collector.agent.stream.worker.trace.service.ServiceReferenceMetricSpanListener;
@@ -119,20 +119,20 @@ public class SegmentParse {
         int applicationId = segmentDecorator.getApplicationId();
         int applicationInstanceId = segmentDecorator.getApplicationInstanceId();
 
-        for (int i = 0; i < segmentDecorator.getRefsCount(); i++) {
-            ReferenceDecorator referenceDecorator = segmentDecorator.getRefs(i);
-            if (!ReferenceIdExchanger.getInstance(moduleManager).exchange(referenceDecorator, applicationId)) {
-                return false;
-            }
-
-            notifyRefsListener(referenceDecorator, applicationId, applicationInstanceId, segmentId);
-        }
-
         for (int i = 0; i < segmentDecorator.getSpansCount(); i++) {
             SpanDecorator spanDecorator = segmentDecorator.getSpans(i);
 
             if (!SpanIdExchanger.getInstance(moduleManager).exchange(spanDecorator, applicationId)) {
                 return false;
+            } else {
+                for (int j = 0; j < spanDecorator.getRefsCount(); j++) {
+                    ReferenceDecorator referenceDecorator = spanDecorator.getRefs(j);
+                    if (!ReferenceIdExchanger.getInstance(moduleManager).exchange(referenceDecorator, applicationId)) {
+                        return false;
+                    }
+
+                    notifyRefsListener(referenceDecorator, applicationId, applicationInstanceId, segmentId);
+                }
             }
 
             if (spanDecorator.getSpanId() == 0) {
