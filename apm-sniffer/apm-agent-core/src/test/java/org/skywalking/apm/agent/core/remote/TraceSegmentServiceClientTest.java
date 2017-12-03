@@ -127,7 +127,7 @@ public class TraceSegmentServiceClientTest {
         UpstreamSegment upstreamSegment = upstreamSegments.get(0);
         assertThat(upstreamSegment.getGlobalTraceIdsCount(), is(1));
         TraceSegmentObject traceSegmentObject = TraceSegmentObject.parseFrom(upstreamSegment.getSegment());
-        assertThat(traceSegmentObject.getRefsCount(), is(0));
+        assertThat(traceSegmentObject.getSpans(0).getRefsCount(), is(0));
         assertThat(traceSegmentObject.getSpansCount(), is(1));
 
         SpanObject spanObject = traceSegmentObject.getSpans(0);

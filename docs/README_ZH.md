@@ -1,5 +1,4 @@
 ## 中文文档
-[![version](https://img.shields.io/badge/document--version-3.2.5--2017-green.svg)]() 
 [![EN doc](https://img.shields.io/badge/document-English-blue.svg)](README.md)
 
   * [项目简介](/README_ZH.md)

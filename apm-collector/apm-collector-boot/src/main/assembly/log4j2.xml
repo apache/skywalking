@@ -17,13 +17,13 @@
   ~ Project repository: https://github.com/OpenSkywalking/skywalking
   -->
 
-<Configuration status="error">
+<Configuration status="info">
     <Properties>
         <Property name="log-path">${sys:collector.logDir}</Property>
     </Properties>
     <Appenders>
-        <RollingFile name="RollingFile" fileName="${log-path}/skywalking-web-server.log"
-                     filePattern="${log-path}/skywalking-web-server-%d{yyyy-MM-dd}-%i.log" >
+        <RollingFile name="RollingFile" fileName="${log-path}/skywalking-collector-server.log"
+                     filePattern="${log-path}/skywalking-collector-server-%d{yyyy-MM-dd}-%i.log" >
             <PatternLayout>
                 <pattern>%d - %c -%-4r [%t] %-5p %x - %m%n</pattern>
             </PatternLayout>
@@ -34,9 +34,11 @@
         </RollingFile>
     </Appenders>
     <Loggers>
-        <logger name="org.skywalking.apm.ui" level="debug">
-            <AppenderRef ref="RollingFile"/>
-        </logger>
+        <logger name="org.eclipse.jetty" level="INFO"/>
+        <logger name="org.apache.zookeeper" level="INFO"/>
+        <logger name="org.skywalking.apm.collector.agent.grpc.handler.JVMMetricsServiceHandler" level="INFO"/>
+        <logger name="org.skywalking.apm.collector.stream.timer.PersistenceTimer" level="INFO"/>
+        <logger name="io.grpc.netty" level="INFO"/>
         <Root level="info">
             <AppenderRef ref="RollingFile"/>
         </Root>

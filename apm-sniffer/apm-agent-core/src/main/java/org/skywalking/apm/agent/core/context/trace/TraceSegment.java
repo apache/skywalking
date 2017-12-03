@@ -46,6 +46,8 @@ public class TraceSegment {
      * The refs of parent trace segments, except the primary one. For most RPC call, {@link #refs} contains only one
      * element, but if this segment is a start span of batch process, the segment faces multi parents, at this moment,
      * we use this {@link #refs} to link them.
+     *
+     * This field will not be serialized. Keeping this field is only for quick accessing.
      */
     private List<TraceSegmentRef> refs;
 
@@ -165,12 +167,8 @@ public class TraceSegment {
          * Trace Segment
          */
         traceSegmentBuilder.setTraceSegmentId(this.traceSegmentId.transform());
-        // TraceSegmentReference
-        if (this.refs != null) {
-            for (TraceSegmentRef ref : this.refs) {
-                traceSegmentBuilder.addRefs(ref.transform());
-            }
-        }
+        // Don't serialize TraceSegmentReference
+
         // SpanObject
         for (AbstractTracingSpan span : this.spans) {
             traceSegmentBuilder.addSpans(span.transform());
