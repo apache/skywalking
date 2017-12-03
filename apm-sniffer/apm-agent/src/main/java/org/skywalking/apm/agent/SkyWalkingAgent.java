@@ -18,6 +18,8 @@
 
 package org.skywalking.apm.agent;
 
+import java.lang.instrument.Instrumentation;
+import java.util.List;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
@@ -26,10 +28,11 @@ import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
 import org.skywalking.apm.agent.core.logging.api.ILog;
 import org.skywalking.apm.agent.core.logging.api.LogManager;
-import org.skywalking.apm.agent.core.plugin.*;
-
-import java.lang.instrument.Instrumentation;
-import java.util.List;
+import org.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.EnhanceContext;
+import org.skywalking.apm.agent.core.plugin.PluginBootstrap;
+import org.skywalking.apm.agent.core.plugin.PluginException;
+import org.skywalking.apm.agent.core.plugin.PluginFinder;
 
 /**
  * The main entrance of sky-waking agent,
@@ -103,6 +106,8 @@ public class SkyWalkingAgent {
                 if (logger.isDebugEnable()) {
                     logger.debug("On Transformation class {}.", typeDescription.getName());
                 }
+
+                InstrumentDebuggingClass.INSTANCE.log(typeDescription, dynamicType);
             }
 
             @Override
@@ -113,7 +118,7 @@ public class SkyWalkingAgent {
 
             @Override public void onError(String typeName, ClassLoader classLoader, JavaModule module, boolean loaded,
                 Throwable throwable) {
-                logger.error("Failed to enhance class " + typeName, throwable);
+                logger.error("Enhance class " + typeName + " error.", throwable);
             }
 
             @Override

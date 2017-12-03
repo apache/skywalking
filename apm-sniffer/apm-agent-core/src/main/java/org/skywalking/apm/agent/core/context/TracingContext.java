@@ -153,8 +153,13 @@ public class TracingContext implements AbstractTracerContext {
      */
     @Override
     public void extract(ContextCarrier carrier) {
-        this.segment.ref(new TraceSegmentRef(carrier));
+        TraceSegmentRef ref = new TraceSegmentRef(carrier);
+        this.segment.ref(ref);
         this.segment.relatedGlobalTraces(carrier.getDistributedTraceId());
+        AbstractSpan span = this.activeSpan();
+        if (span instanceof EntrySpan) {
+            ((EntrySpan)span).ref(ref);
+        }
     }
 
     /**
