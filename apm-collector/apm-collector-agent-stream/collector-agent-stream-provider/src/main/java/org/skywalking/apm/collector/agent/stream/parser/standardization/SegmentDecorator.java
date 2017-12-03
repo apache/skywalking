@@ -57,18 +57,6 @@ public class SegmentDecorator implements StandardBuilder {
         }
     }
 
-    public int getRefsCount() {
-        return segmentObject.getRefsCount();
-    }
-
-    public ReferenceDecorator getRefs(int index) {
-        if (isOrigin) {
-            return new ReferenceDecorator(segmentObject.getRefs(index), this);
-        } else {
-            return new ReferenceDecorator(segmentBuilder.getRefsBuilder(index), this);
-        }
-    }
-
     public byte[] toByteArray() {
         if (isOrigin) {
             return segmentObject.toByteArray();

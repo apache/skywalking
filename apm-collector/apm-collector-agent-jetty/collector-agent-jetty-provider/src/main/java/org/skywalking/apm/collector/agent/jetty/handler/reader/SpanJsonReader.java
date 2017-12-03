@@ -29,6 +29,7 @@ public class SpanJsonReader implements StreamJsonReader<SpanObject> {
 
     private KeyWithStringValueJsonReader keyWithStringValueJsonReader = new KeyWithStringValueJsonReader();
     private LogJsonReader logJsonReader = new LogJsonReader();
+    private ReferenceJsonReader referenceJsonReader = new ReferenceJsonReader();
 
     private static final String SPAN_ID = "si";
     private static final String SPAN_TYPE_VALUE = "tv";
@@ -43,6 +44,7 @@ public class SpanJsonReader implements StreamJsonReader<SpanObject> {
     private static final String PEER_ID = "pi";
     private static final String PEER = "pn";
     private static final String IS_ERROR = "ie";
+    private static final String TRACE_SEGMENT_REFERENCE = "rs";
     private static final String TAGS = "to";
     private static final String LOGS = "lo";
 
@@ -90,6 +92,13 @@ public class SpanJsonReader implements StreamJsonReader<SpanObject> {
                     break;
                 case IS_ERROR:
                     builder.setIsError(reader.nextBoolean());
+                    break;
+                case TRACE_SEGMENT_REFERENCE:
+                    reader.beginArray();
+                    while (reader.hasNext()) {
+                        builder.addRefs(referenceJsonReader.read(reader));
+                    }
+                    reader.endArray();
                     break;
                 case TAGS:
                     reader.beginArray();
