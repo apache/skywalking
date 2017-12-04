@@ -1,7 +1,7 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 PRG="$0"
 PRGDIR=`dirname "$PRG"`
-EXECUTABLE=collector-service.sh
+EXECUTABLE=collectorService.sh
 
 exec "$PRGDIR"/"$EXECUTABLE" start

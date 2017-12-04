@@ -5,12 +5,16 @@
     <parent>
         <artifactId>apm-collector</artifactId>
         <groupId>org.skywalking</groupId>
-        <version>3.2.3-2017</version>
+        <version>3.3.0-2017</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>apm-collector-cache</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
+    <modules>
+        <module>collector-cache-define</module>
+        <module>collector-cache-guava-provider</module>
+    </modules>
 
     <dependencies>
         <dependency>
@@ -20,7 +24,7 @@
         </dependency>
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-collector-storage</artifactId>
+            <artifactId>collector-storage-define</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

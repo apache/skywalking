@@ -30,27 +30,27 @@ public class ParallelCollectorModule extends MemoryPoolModule {
         super(beans);
     }
 
-    @Override protected String getPermName() {
-        return "PS Perm Gen";
+    @Override protected String[] getPermNames() {
+        return new String[] {"PS Perm Gen", "Compressed Class Space"};
     }
 
-    @Override protected String getCodeCacheName() {
-        return "Code Cache";
+    @Override protected String[] getCodeCacheNames() {
+        return new String[] {"Code Cache"};
     }
 
-    @Override protected String getEdenName() {
-        return "PS Eden Space";
+    @Override protected String[] getEdenNames() {
+        return new String[] {"PS Eden Space"};
     }
 
-    @Override protected String getOldName() {
-        return "PS Old Gen";
+    @Override protected String[] getOldNames() {
+        return new String[] {"PS Old Gen"};
     }
 
-    @Override protected String getSurvivorName() {
-        return "PS Survivor Space";
+    @Override protected String[] getSurvivorNames() {
+        return new String[] {"PS Survivor Space"};
     }
 
-    @Override protected String getMetaspaceName() {
-        return "Metaspace";
+    @Override protected String[] getMetaspaceNames() {
+        return new String[] {"Metaspace"};
     }
 }

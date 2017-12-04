@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.skywalking.apm.collector.remote.grpc.proto";
+
+service RemoteCommonService {
+    rpc call (stream RemoteMessage) returns (Empty) {
+    }
+}
+
+message RemoteMessage {
+    int32 graphId = 1;
+    int32 nodeId = 2;
+    int32 remoteDataId = 3;
+    RemoteData remoteData = 4;
+}
+
+message RemoteData {
+    repeated string dataStrings = 1;
+    repeated int64 dataLongs = 2;
+    repeated double dataDoubles = 3;
+    repeated int32 dataIntegers = 4;
+    //    repeated bytes dataBytes = 5;
+    repeated bool dataBooleans = 5;
+}
+
+message Empty {
+}

@@ -6,13 +6,13 @@ Sky Walking | [中文](README_ZH.md)
 **SkyWalking 3**: APM for Distributed Systems, also known Distributed Tracing System. 
 
 [![Build Status](https://travis-ci.org/OpenSkywalking/skywalking.svg?branch=master)](https://travis-ci.org/OpenSkywalking/skywalking)
-[![Coverage Status](https://coveralls.io/repos/github/OpenSkywalking/skywalking/badge.svg?branch=master&forceUpdate=2)](https://coveralls.io/github/OpenSkywalking/skywalking?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/OpenSkywalking/skywalking/badge.svg?branch=master&forceUpdate=3)](https://coveralls.io/github/OpenSkywalking/skywalking?branch=master)
 [![Join the chat at https://gitter.im/sky-walking/Lobby](https://badges.gitter.im/openskywalking/Lobby.svg)](https://gitter.im/openskywalking/Lobby)
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
 
 * Provide Java agent, **no need to CHANGE any application source code**.
-  * High performance agent. Only increase extra **10%** cpu cost in 5000+ tps application, even **When collect all traces**, [check test reports](#test-reports).
-  * [Supported middlewares, frameworks and libraries](https://github.com/OpenSkywalking/sky-walking/wiki/3.2-supported-list).
+  * High performance agent. Only increase extra **10%** cpu cost in 5000+ tps application, even **when collect all traces**.
+  * [Supported middlewares, frameworks and libraries](docs/Supported-list.md).
 * Manual instrumentation
   * As an [OpenTracing supported tracer](http://opentracing.io/documentation/pages/supported-tracers)
   * Use **@Trace** annotation for any methods you want to trace.
@@ -21,16 +21,16 @@ Sky Walking | [中文](README_ZH.md)
 * The UI released on [skywalking-ui](https://github.com/OpenSkywalking/sky-walking-ui)
 
 # Architecture
-* Architecture graph for 3.2+
-<img src="https://skywalkingtest.github.io/page-resources/3.x-architecture.jpg"/>
+* Architecture graph for 3.2.5+
+<img src="https://skywalkingtest.github.io/page-resources/3.2.5%2b_architecture.jpg"/>
 
 # Document
-* [WIKI](https://github.com/OpenSkywalking/skywalking/wiki)
+[![EN doc](https://img.shields.io/badge/document-English-blue.svg)](docs/README.md) [![cn doc](https://img.shields.io/badge/document-中文-blue.svg)](docs/README_ZH.md)
 
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wu.sheng@foxmail.com.
 
 # Screenshots
-- Topological graph of application clusters based on dubbox and [motan](https://github.com/weibocom/motan).
+- Discovery topological graph of application clusters automatically.
 <img src="https://skywalkingtest.github.io/page-resources/3.2.1/topological_graph_test_project.png"/>
 
 - Trace query.

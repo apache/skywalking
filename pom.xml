@@ -23,40 +23,31 @@
 
     <groupId>org.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>3.2.3-2017</version>
-
-    <licenses>
-        <license>
-            <name>GNU GENERAL PUBLIC LICENSE V3</name>
-            <url>https://github.com/wu-sheng/sky-walking/blob/master/LICENSE</url>
-        </license>
-    </licenses>
+    <version>3.3.0-2017</version>
 
     <developers>
         <developer>
             <name>Wu Sheng</name>
             <email>wu.sheng@foxmail.com</email>
-            <url>https://wu-sheng.github.io/me/</url>
+            <url>https://github.com/wu-sheng</url>
+            <roles>
+                <role>Founder</role>
+                <role>PMC member</role>
+            </roles>
+        </developer>
+        <developer>
+            <name>Peng Yongsheng</name>
+            <url>https://github.com/peng-yongsheng</url>
+            <roles>
+                <role>PMC member</role>
+            </roles>
         </developer>
         <developer>
             <name>Zhang Xin</name>
             <url>https://github.com/ascrutae</url>
-        </developer>
-        <developer>
-            <name>Tan Zhen</name>
-            <url>https://github.com/mircoteam</url>
-        </developer>
-        <developer>
-            <name>Xu Yan</name>
-            <url>https://github.com/TastySummer</url>
-        </developer>
-        <developer>
-            <name>Peng Yongsheng</name>
-            <email>8082209@qq.com</email>
-            <url>https://github.com/peng-yongsheng</url>
-        </developer>
-        <developer>
-            <name>Dai Wen</name>
+            <roles>
+                <role>PMC member</role>
+            </roles>
         </developer>
     </developers>
 
@@ -64,8 +55,8 @@
         <module>apm-commons</module>
         <module>apm-sniffer</module>
         <module>apm-application-toolkit</module>
-        <module>apm-collector</module>
         <module>apm-network</module>
+        <module>apm-collector</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -261,6 +252,7 @@
                 <executions>
                     <execution>
                         <id>attach-sources</id>
+                        <phase>none</phase>
                         <goals>
                             <goal>jar</goal>
                         </goals>
