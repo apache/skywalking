@@ -17,17 +17,19 @@
   ~ Project repository: https://github.com/OpenSkywalking/skywalking
   -->
 
-<Configuration status="debug">
+<Configuration status="info">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout charset="UTF-8" pattern="[%d{yyyy-MM-dd HH:mm:ss:SSS}] [%p] - %l - %m%n"/>
+            <PatternLayout charset="UTF-8" pattern="%d - %c -%-4r [%t] %-5p %x - %m%n"/>
         </Console>
     </Appenders>
     <Loggers>
         <logger name="org.eclipse.jetty" level="INFO"/>
         <logger name="org.apache.zookeeper" level="INFO"/>
-        <logger name="org.skywalking.apm.collector.agentstream.worker.storage.PersistenceTimer" level="INFO"/>
-        <Root level="INFO">
+        <logger name="org.skywalking.apm.collector.agent.grpc.handler.JVMMetricsServiceHandler" level="INFO"/>
+        <logger name="org.skywalking.apm.collector.stream.timer.PersistenceTimer" level="INFO"/>
+        <logger name="io.grpc.netty" level="INFO"/>
+        <Root level="info">
             <AppenderRef ref="Console"/>
         </Root>
     </Loggers>

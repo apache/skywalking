@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>3.2.3-2017</version>
+        <version>3.3.0-2017</version>
     </parent>
 
     <artifactId>apm-agent-core</artifactId>
@@ -35,7 +35,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jetty.version>9.4.2.v20170220</jetty.version>
-        <grpc.version>1.4.0</grpc.version>
+        <grpc.version>1.7.0</grpc.version>
         <bytebuddy.version>1.7.6</bytebuddy.version>
 
         <shade.package>org.skywalking.apm.dependencies</shade.package>
@@ -105,7 +105,7 @@
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-testing</artifactId>
-            <version>1.4.0</version>
+            <version>${grpc.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>mockito-core</artifactId>

@@ -23,7 +23,7 @@
     <parent>
         <artifactId>apm-collector</artifactId>
         <groupId>org.skywalking</groupId>
-        <version>3.2.3-2017</version>
+        <version>3.3.0-2017</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -38,27 +38,22 @@
         </dependency>
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-collector-cluster</artifactId>
+            <artifactId>collector-queue-define</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-collector-queue</artifactId>
+            <artifactId>collector-storage-define</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-collector-server</artifactId>
+            <artifactId>collector-remote-define</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-collector-remote</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-collector-storage</artifactId>
+            <artifactId>collector-cache-define</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

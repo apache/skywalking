@@ -71,7 +71,10 @@ public class ComponentsDefine {
 
     public static final OfficialComponent GRPC = new OfficialComponent(23, "GRPC");
 
-    public static final OfficialComponent ROCKET_MQ = new OfficialComponent(24, "RocketMQ");
+    public static final OfficialComponent ELASTIC_JOB = new OfficialComponent(24, "ElasticJob");
+  
+    public static final OfficialComponent ROCKET_MQ = new OfficialComponent(25, "RocketMQ");
+
 
     private static ComponentsDefine instance = new ComponentsDefine();
 
@@ -106,6 +109,7 @@ public class ComponentsDefine {
         addComponent(SHARDING_JDBC);
         addComponent(POSTGRESQL);
         addComponent(GRPC);
+        addComponent(ELASTIC_JOB);
         addComponent(ROCKET_MQ);
     }
 

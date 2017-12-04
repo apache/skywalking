@@ -12,26 +12,29 @@ eval sed -i -e 's/\{ES_ADDRESSES\}/${ES_ADDRESSES}/' /usr/local/skywalking-colle
 echo "replace {BIND_HOST} to ${BIND_HOST}"
 eval sed -i -e 's/\{BIND_HOST\}/${BIND_HOST}/' /usr/local/skywalking-collector/config/application.yml
 
-echo "replace {GRPC_BIND_PORT} to ${GRPC_BIND_PORT}"
-eval sed -i -e 's/\{GRPC_BIND_PORT\}/${GRPC_BIND_PORT}/' /usr/local/skywalking-collector/config/application.yml
+echo "replace {NAMING_BIND_HOST} to ${NAMING_BIND_HOST}"
+eval sed -i -e 's/\{NAMING_BIND_HOST\}/${NAMING_BIND_HOST}/' /usr/local/skywalking-collector/config/application.yml
 
-echo "replace {AGENT_SERVER_BIND_PORT} to ${AGENT_SERVER_BIND_PORT}"
-eval sed -i -e 's/\{AGENT_SERVER_BIND_PORT\}/${AGENT_SERVER_BIND_PORT}/' /usr/local/skywalking-collector/config/application.yml
+echo "replace {NAMING_BIND_PORT} to ${NAMING_BIND_PORT}"
+eval sed -i -e 's/\{NAMING_BIND_PORT\}/${NAMING_BIND_PORT}/' /usr/local/skywalking-collector/config/application.yml
 
-echo "replace {AGENT_STREAM_JETTY_BIND_PORT} to ${AGENT_STREAM_JETTY_BIND_PORT}"
-eval sed -i -e 's/\{AGENT_STREAM_JETTY_BIND_PORT\}/${AGENT_STREAM_JETTY_BIND_PORT}/' /usr/local/skywalking-collector/config/application.yml
+echo "replace {REMOTE_BIND_PORT} to ${REMOTE_BIND_PORT}"
+eval sed -i -e 's/\{REMOTE_BIND_PORT\}/${REMOTE_BIND_PORT}/' /usr/local/skywalking-collector/config/application.yml
 
-echo "replace {UI_BIND_HOST} to ${UI_BIND_HOST}"
-eval sed -i -e 's/\{UI_BIND_HOST\}/${UI_BIND_HOST}/' /usr/local/skywalking-collector/config/application.yml
+echo "replace {AGENT_GRPC_BIND_PORT} to ${AGENT_GRPC_BIND_PORT}"
+eval sed -i -e 's/\{AGENT_GRPC_BIND_PORT\}/${AGENT_GRPC_BIND_PORT}/' /usr/local/skywalking-collector/config/application.yml
 
-echo "replace {UI_BIND_PORT} to ${UI_BIND_PORT}"
-eval sed -i -e 's/\{UI_BIND_PORT\}/${UI_BIND_PORT}/' /usr/local/skywalking-collector/config/application.yml
+echo "replace {AGENT_JETTY_BIND_HOST} to ${AGENT_JETTY_BIND_HOST}"
+eval sed -i -e 's/\{AGENT_JETTY_BIND_HOST\}/${AGENT_JETTY_BIND_HOST}/' /usr/local/skywalking-collector/config/application.yml
 
-echo "replace {CLUSTER_BIND_HOST} to ${CLUSTER_BIND_HOST}"
-eval sed -i -e 's/\{CLUSTER_BIND_HOST\}/${CLUSTER_BIND_HOST}/' /usr/local/skywalking-collector/config/application.yml
+echo "replace {AGENT_JETTY_BIND_PORT} to ${AGENT_JETTY_BIND_PORT}"
+eval sed -i -e 's/\{AGENT_JETTY_BIND_PORT\}/${AGENT_JETTY_BIND_PORT}/' /usr/local/skywalking-collector/config/application.yml
 
-echo "replace {CLUSTER_BIND_PORT} to ${CLUSTER_BIND_PORT}"
-eval sed -i -e 's/\{CLUSTER_BIND_PORT\}/${CLUSTER_BIND_PORT}/' /usr/local/skywalking-collector/config/application.yml
+echo "replace {UI_JETTY_BIND_PORT} to ${UI_JETTY_BIND_PORT}"
+eval sed -i -e 's/\{UI_JETTY_BIND_PORT\}/${UI_JETTY_BIND_PORT}/' /usr/local/skywalking-collector/config/application.yml
+
+echo "replace {UI_JETTY_BIND_HOST} to ${UI_JETTY_BIND_HOST}"
+eval sed -i -e 's/\{UI_JETTY_BIND_HOST\}/${UI_JETTY_BIND_HOST}/' /usr/local/skywalking-collector/config/application.yml
 
 
 exec "$@"

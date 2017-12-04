@@ -1,21 +1,32 @@
-#cluster:
-#  zookeeper:
-#    hostPort: localhost:2181
-#    sessionTimeout: 100000
-agent_server:
+cluster:
+  standalone:
+    url: jdbc:h2:~/memorydb
+    user_name: sa
+cache:
+  guava:
+queue:
+  disruptor:
+naming:
   jetty:
     host: localhost
     port: 10800
     context_path: /
-agent_stream:
-  grpc:
+remote:
+  gRPC:
     host: localhost
     port: 11800
+agent_gRPC:
+  gRPC:
+    host: localhost
+    port: 11800
+agent_jetty:
   jetty:
     host: localhost
     port: 12800
     context_path: /
-  config:
+agent_stream:
+  default:
+    buffer_file_path: ../buffer/
     buffer_offset_max_file_size: 10M
     buffer_segment_max_file_size: 500M
 ui:
@@ -23,14 +34,11 @@ ui:
     host: localhost
     port: 12800
     context_path: /
-collector_inside:
-  grpc:
-    host: localhost
-    port: 11800
-#storage:
-#  elasticsearch:
-#    cluster_name: CollectorDBCluster
-#    cluster_transport_sniffer: true
-#    cluster_nodes: localhost:9300
-#    index_shards_number: 2
-#    index_replicas_number: 0
+jetty_manager:
+  jetty:
+gRPC_manager:
+  gRPC:
+storage:
+  h2:
+    url: jdbc:h2:~/memorydb
+    user_name: sa

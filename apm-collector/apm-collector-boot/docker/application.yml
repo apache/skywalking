@@ -2,28 +2,34 @@ cluster:
   zookeeper:
     hostPort: {ZK_ADDRESSES}
     sessionTimeout: 100000
-agent_server:
+naming:
   jetty:
+    host: {NAMING_BIND_HOST}
+    port: {NAMING_BIND_PORT}
+    context_path: /
+remote:
+  gRPC:
     host: {BIND_HOST}
-    port: {AGENT_SERVER_BIND_PORT}
+    port: {REMOTE_BIND_PORT}
+agent_gRPC:
+  gRPC:
+    host: {BIND_HOST}
+    port: {AGENT_GRPC_BIND_PORT}
+agent_jetty:
+  jetty:
+    host: {AGENT_JETTY_BIND_HOST}
+    port: {AGENT_JETTY_BIND_PORT}
     context_path: /
 agent_stream:
-  grpc:
-    host: {BIND_HOST}
-    port: {GRPC_BIND_PORT}
-  jetty:
-    host: {UI_BIND_HOST}
-    port: {UI_BIND_PORT}
-    context_path: /
+  default:
+    buffer_file_path: ../buffer/
+    buffer_offset_max_file_size: 10M
+    buffer_segment_max_file_size: 500M
 ui:
   jetty:
-    host: {UI_BIND_HOST}
-    port: {UI_BIND_PORT}
+    host: {UI_JETTY_BIND_HOST}
+    port: {UI_JETTY_BIND_PORT}
     context_path: /
-collector_inside:
-  grpc:
-    host: {CLUSTER_BIND_HOST}
-    port: {CLUSTER_BIND_PORT}
 storage:
   elasticsearch:
     cluster_name: {ES_CLUSTER_NAME}
@@ -31,3 +37,4 @@ storage:
     cluster_nodes: {ES_ADDRESSES}
     index_shards_number: 2
     index_replicas_number: 0
+    ttl: 7

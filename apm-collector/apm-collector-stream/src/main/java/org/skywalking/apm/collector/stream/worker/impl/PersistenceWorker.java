@@ -21,17 +21,14 @@ package org.skywalking.apm.collector.stream.worker.impl;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.skywalking.apm.collector.core.queue.EndOfBatchCommand;
-import org.skywalking.apm.collector.core.stream.Data;
+import org.skywalking.apm.collector.core.data.Data;
+import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.ObjectUtils;
-import org.skywalking.apm.collector.storage.dao.DAOContainer;
-import org.skywalking.apm.collector.storage.dao.IBatchDAO;
-import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorker;
-import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;
-import org.skywalking.apm.collector.stream.worker.ProviderNotFoundException;
-import org.skywalking.apm.collector.stream.worker.Role;
-import org.skywalking.apm.collector.stream.worker.WorkerException;
-import org.skywalking.apm.collector.stream.worker.impl.dao.IPersistenceDAO;
+import org.skywalking.apm.collector.storage.StorageModule;
+import org.skywalking.apm.collector.storage.base.dao.IBatchDAO;
+import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
+import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorker;
+import org.skywalking.apm.collector.stream.worker.base.WorkerException;
 import org.skywalking.apm.collector.stream.worker.impl.data.DataCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,47 +36,43 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public abstract class PersistenceWorker extends AbstractLocalAsyncWorker {
+public abstract class PersistenceWorker<INPUT extends Data, OUTPUT extends Data> extends AbstractLocalAsyncWorker<INPUT, OUTPUT> {
 
     private final Logger logger = LoggerFactory.getLogger(PersistenceWorker.class);
 
-    private DataCache dataCache;
+    private final DataCache dataCache;
+    private final IBatchDAO batchDAO;
 
-    public PersistenceWorker(Role role, ClusterWorkerContext clusterContext) {
-        super(role, clusterContext);
-        dataCache = new DataCache();
+    public PersistenceWorker(ModuleManager moduleManager) {
+        super(moduleManager);
+        this.dataCache = new DataCache();
+        this.batchDAO = moduleManager.find(StorageModule.NAME).getService(IBatchDAO.class);
     }
 
-    @Override public void preStart() throws ProviderNotFoundException {
-        super.preStart();
+    public final void flushAndSwitch() {
+        try {
+            if (dataCache.trySwitchPointer()) {
+                dataCache.switchPointer();
+            }
+        } finally {
+            dataCache.trySwitchPointerFinally();
+        }
     }
 
-    @Override protected final void onWork(Object message) throws WorkerException {
-        if (message instanceof FlushAndSwitch) {
+    @Override protected final void onWork(INPUT message) throws WorkerException {
+        if (dataCache.currentCollectionSize() >= 5000) {
             try {
                 if (dataCache.trySwitchPointer()) {
                     dataCache.switchPointer();
+
+                    List<?> collection = buildBatchCollection();
+                    batchDAO.batchPersistence(collection);
                 }
             } finally {
                 dataCache.trySwitchPointerFinally();
             }
-        } else if (message instanceof EndOfBatchCommand) {
-        } else {
-            if (dataCache.currentCollectionSize() >= 5000) {
-                try {
-                    if (dataCache.trySwitchPointer()) {
-                        dataCache.switchPointer();
-
-                        List<?> collection = buildBatchCollection();
-                        IBatchDAO dao = (IBatchDAO)DAOContainer.INSTANCE.get(IBatchDAO.class.getName());
-                        dao.batchPersistence(collection);
-                    }
-                } finally {
-                    dataCache.trySwitchPointerFinally();
-                }
-            }
-            aggregate(message);
         }
+        aggregate(message);
     }
 
     public final List<?> buildBatchCollection() throws WorkerException {
@@ -93,8 +86,8 @@ public abstract class PersistenceWorker extends AbstractLocalAsyncWorker {
                 }
             }
 
-            if (dataCache.getLast().asMap() != null) {
-                batchCollection = prepareBatch(dataCache.getLast().asMap());
+            if (dataCache.getLast().collection() != null) {
+                batchCollection = prepareBatch(dataCache.getLast().collection());
             }
         } finally {
             dataCache.finishReadingLast();
@@ -107,11 +100,11 @@ public abstract class PersistenceWorker extends AbstractLocalAsyncWorker {
         List<Object> updateBatchCollection = new LinkedList<>();
         dataMap.forEach((id, data) -> {
             if (needMergeDBData()) {
-                Data dbData = persistenceDAO().get(id, getRole().dataDefine());
+                Data dbData = persistenceDAO().get(id);
                 if (ObjectUtils.isNotEmpty(dbData)) {
-                    getRole().dataDefine().mergeData(data, dbData);
+                    dbData.mergeData(data);
                     try {
-                        updateBatchCollection.add(persistenceDAO().prepareBatchUpdate(data));
+                        updateBatchCollection.add(persistenceDAO().prepareBatchUpdate(dbData));
                     } catch (Throwable t) {
                         logger.error(t.getMessage(), t);
                     }
@@ -137,12 +130,12 @@ public abstract class PersistenceWorker extends AbstractLocalAsyncWorker {
 
     private void aggregate(Object message) {
         dataCache.writing();
-        Data data = (Data)message;
+        Data newData = (Data)message;
 
-        if (dataCache.containsKey(data.id())) {
-            getRole().dataDefine().mergeData(dataCache.get(data.id()), data);
+        if (dataCache.containsKey(newData.getId())) {
+            dataCache.get(newData.getId()).mergeData(newData);
         } else {
-            dataCache.put(data.id(), data);
+            dataCache.put(newData.getId(), newData);
         }
 
         dataCache.finishWriting();

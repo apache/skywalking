@@ -20,6 +20,7 @@ package org.skywalking.apm.collector.core.util;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author peng-yongsheng
@@ -34,8 +35,16 @@ public class CollectionUtils {
         return list == null || list.size() == 0;
     }
 
+    public static boolean isEmpty(Set set) {
+        return set == null || set.size() == 0;
+    }
+
     public static boolean isNotEmpty(List list) {
         return !isEmpty(list);
+    }
+
+    public static boolean isNotEmpty(Set set) {
+        return !isEmpty(set);
     }
 
     public static boolean isNotEmpty(Map map) {
