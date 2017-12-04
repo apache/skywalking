@@ -44,6 +44,8 @@ public class MQClientAPIImplInstrumentation extends ClassInstanceMethodsEnhanceP
     private static final String ENHANCE_CLASS = "org.apache.rocketmq.client.impl.MQClientAPIImpl";
     private static final String SEND_MESSAGE_METHOD_NAME = "sendMessage";
     private static final String ASYNC_METHOD_INTERCEPTOR = "org.skywalking.apm.plugin.rocketMQ.v4.MessageSendInterceptor";
+    public static final String UPDATE_NAME_SERVER_INTERCEPT_CLASS = "org.skywalking.apm.plugin.rocketMQ.v4.UpdateNameServerInterceptor";
+    public static final String UPDATE_NAME_SERVER_METHOD_NAME = "updateNameServerAddressList";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -58,6 +60,19 @@ public class MQClientAPIImplInstrumentation extends ClassInstanceMethodsEnhanceP
 
                 @Override public String getMethodsInterceptor() {
                     return ASYNC_METHOD_INTERCEPTOR;
+                }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(UPDATE_NAME_SERVER_METHOD_NAME);
+                }
+
+                @Override public String getMethodsInterceptor() {
+                    return UPDATE_NAME_SERVER_INTERCEPT_CLASS;
                 }
 
                 @Override public boolean isOverrideArgs() {

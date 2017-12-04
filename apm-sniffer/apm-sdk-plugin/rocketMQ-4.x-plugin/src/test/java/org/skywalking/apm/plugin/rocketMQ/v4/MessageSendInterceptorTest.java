@@ -74,9 +74,20 @@ public class MessageSendInterceptorTest {
     @Mock
     private EnhancedInstance callBack;
 
+    private EnhancedInstance enhancedInstance;
+
     @Before
     public void setUp() {
         messageSendInterceptor = new MessageSendInterceptor();
+        enhancedInstance = new EnhancedInstance() {
+            @Override public Object getSkyWalkingDynamicField() {
+                return "127.0.0.1:6543";
+            }
+
+            @Override public void setSkyWalkingDynamicField(Object value) {
+
+            }
+        };
 
         arguments = new Object[] {"127.0.0.1", "test", message, messageRequestHeader, null, CommunicationMode.ASYNC, callBack};
         argumentsWithoutCallback = new Object[] {"127.0.0.1", "test", message, messageRequestHeader, null, CommunicationMode.ASYNC, null};
@@ -86,8 +97,8 @@ public class MessageSendInterceptorTest {
 
     @Test
     public void testSendMessage() throws Throwable {
-        messageSendInterceptor.beforeMethod(null, null, arguments, null, null);
-        messageSendInterceptor.afterMethod(null, null, arguments, null, null);
+        messageSendInterceptor.beforeMethod(enhancedInstance, null, arguments, null, null);
+        messageSendInterceptor.afterMethod(enhancedInstance, null, arguments, null, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -106,8 +117,8 @@ public class MessageSendInterceptorTest {
 
     @Test
     public void testSendMessageWithoutCallBack() throws Throwable {
-        messageSendInterceptor.beforeMethod(null, null, argumentsWithoutCallback, null, null);
-        messageSendInterceptor.afterMethod(null, null, argumentsWithoutCallback, null, null);
+        messageSendInterceptor.beforeMethod(enhancedInstance, null, argumentsWithoutCallback, null, null);
+        messageSendInterceptor.afterMethod(enhancedInstance, null, argumentsWithoutCallback, null, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);

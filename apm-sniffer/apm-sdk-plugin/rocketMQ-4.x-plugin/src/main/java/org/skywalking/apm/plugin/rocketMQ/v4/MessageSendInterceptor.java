@@ -56,7 +56,8 @@ public class MessageSendInterceptor implements InstanceMethodsAroundInterceptor 
         MethodInterceptResult result) throws Throwable {
         Message message = (Message)allArguments[2];
         ContextCarrier contextCarrier = new ContextCarrier();
-        AbstractSpan span = ContextManager.createExitSpan(buildOperationName(message.getTopic()), contextCarrier, (String)allArguments[0]);
+        String namingServiceAddress = String.valueOf(objInst.getSkyWalkingDynamicField());
+        AbstractSpan span = ContextManager.createExitSpan(buildOperationName(message.getTopic()), contextCarrier, namingServiceAddress);
         span.setComponent(ComponentsDefine.ROCKET_MQ);
         span.setLayer(SpanLayer.MQ);
         span.tag("brokerName", (String)allArguments[1]);
