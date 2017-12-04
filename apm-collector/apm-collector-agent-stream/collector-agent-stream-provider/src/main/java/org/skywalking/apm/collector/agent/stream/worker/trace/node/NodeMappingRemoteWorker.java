@@ -36,7 +36,7 @@ public class NodeMappingRemoteWorker extends AbstractRemoteWorker<NodeMapping, N
     }
 
     @Override public int id() {
-        return NodeMappingRemoteWorker.class.hashCode();
+        return 10007;
     }
 
     @Override protected void onWork(NodeMapping nodeMapping) throws WorkerException {
