@@ -26,6 +26,8 @@
   * [Dubbox](https://github.com/dangdangdotcom/dubbox) 2.8.4
   * [Motan](https://github.com/weibocom/motan) 0.2
   * [gRPC](https://github.com/grpc/grpc-java) 1.6+
+* MQ
+  * [RocketMQ](https://github.com/apache/rocketmq) 4.x
 * NoSQL
   * Redis
     * [Jedis](https://github.com/xetorthio/jedis) 2.8
