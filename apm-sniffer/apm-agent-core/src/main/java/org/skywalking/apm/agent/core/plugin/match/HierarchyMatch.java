@@ -72,7 +72,9 @@ public class HierarchyMatch implements IndirectMatch {
             matchHierarchyClass(implInterface, parentTypes);
         }
 
-        matchHierarchyClass(typeDescription.getSuperClass(), parentTypes);
+        if (typeDescription.getSuperClass() != null) {
+            matchHierarchyClass(typeDescription.getSuperClass(), parentTypes);
+        }
 
         if (parentTypes.size() == 0) {
             return true;
