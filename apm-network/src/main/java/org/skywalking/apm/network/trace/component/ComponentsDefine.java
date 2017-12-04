@@ -71,6 +71,11 @@ public class ComponentsDefine {
 
     public static final OfficialComponent GRPC = new OfficialComponent(23, "GRPC");
 
+    public static final OfficialComponent ELASTIC_JOB = new OfficialComponent(24, "ElasticJob");
+  
+    public static final OfficialComponent ROCKET_MQ = new OfficialComponent(25, "RocketMQ");
+
+
     private static ComponentsDefine instance = new ComponentsDefine();
 
     private String[] components;
@@ -80,7 +85,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[24];
+        components = new String[26];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -104,6 +109,8 @@ public class ComponentsDefine {
         addComponent(SHARDING_JDBC);
         addComponent(POSTGRESQL);
         addComponent(GRPC);
+        addComponent(ELASTIC_JOB);
+        addComponent(ROCKET_MQ);
     }
 
     private void addComponent(OfficialComponent component) {

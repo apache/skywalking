@@ -37,7 +37,7 @@ public class InstHeartBeatPersistenceWorker extends PersistenceWorker<Instance, 
     }
 
     @Override public int id() {
-        return InstHeartBeatPersistenceWorker.class.hashCode();
+        return 113;
     }
 
     @Override protected boolean needMergeDBData() {

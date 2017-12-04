@@ -37,7 +37,7 @@ public class ServiceReferencePersistenceWorker extends PersistenceWorker<Service
     }
 
     @Override public int id() {
-        return 0;
+        return 109;
     }
 
     @Override protected boolean needMergeDBData() {

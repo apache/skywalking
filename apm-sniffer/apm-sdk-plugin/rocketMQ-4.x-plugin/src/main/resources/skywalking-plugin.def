@@ -1,0 +1,4 @@
+rocketMQ-4.x=org.skywalking.apm.plugin.rocketMQ.v4.define.ConsumeMessageConcurrentlyInstrumentation
+rocketMQ-4.x=org.skywalking.apm.plugin.rocketMQ.v4.define.ConsumeMessageOrderlyInstrumentation
+rocketMQ-4.x=org.skywalking.apm.plugin.rocketMQ.v4.define.MQClientAPIImplInstrumentation
+rocketMQ-4.x=org.skywalking.apm.plugin.rocketMQ.v4.define.SendCallbackInstrumentation

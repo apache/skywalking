@@ -42,7 +42,7 @@ public class SegmentStandardizationWorker extends AbstractLocalAsyncWorker<Segme
     }
 
     @Override public int id() {
-        return SegmentStandardizationWorker.class.hashCode();
+        return 108;
     }
 
     @Override protected void onWork(SegmentStandardization segmentStandardization) throws WorkerException {

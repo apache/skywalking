@@ -37,7 +37,7 @@ public class MemoryMetricPersistenceWorker extends PersistenceWorker<MemoryMetri
     }
 
     @Override public int id() {
-        return 0;
+        return 119;
     }
 
     @Override protected boolean needMergeDBData() {

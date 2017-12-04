@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>3.3.0-2017</version>
+        <version>3.2.6-2017</version>
     </parent>
 
     <artifactId>apm-sdk-plugin</artifactId>
@@ -52,6 +52,8 @@
         <module>h2-1.x-plugin</module>
         <module>postgresql-8.x-plugin</module>
         <module>oracle-10.x-plugin</module>
+        <module>rocketMQ-4.x-plugin</module>
+        <module>elastic-job-2.x-plugin</module>
         <module>mongodb-2.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
@@ -143,6 +145,7 @@
                 <executions>
                     <execution>
                         <id>attach-sources</id>
+                        <phase>none</phase>
                         <goals>
                             <goal>jar</goal>
                         </goals>

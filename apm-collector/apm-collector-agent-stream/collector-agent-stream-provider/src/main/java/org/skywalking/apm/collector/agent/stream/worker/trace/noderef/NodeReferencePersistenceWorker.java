@@ -37,7 +37,7 @@ public class NodeReferencePersistenceWorker extends PersistenceWorker<NodeRefere
     }
 
     @Override public int id() {
-        return 0;
+        return 116;
     }
 
     @Override protected boolean needMergeDBData() {

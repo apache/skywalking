@@ -26,7 +26,7 @@ import org.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.skywalking.apm.plugin.jdbc.mysql.define.StatementEnhanceInfos;
+import org.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 /**
