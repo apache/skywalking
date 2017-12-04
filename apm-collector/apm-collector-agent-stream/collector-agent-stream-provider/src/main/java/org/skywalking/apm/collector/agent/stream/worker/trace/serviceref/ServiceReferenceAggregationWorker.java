@@ -34,7 +34,7 @@ public class ServiceReferenceAggregationWorker extends AggregationWorker<Service
     }
 
     @Override public int id() {
-        return ServiceReferenceAggregationWorker.class.hashCode();
+        return 107;
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<ServiceReference, ServiceReference, ServiceReferenceAggregationWorker> {

@@ -36,7 +36,7 @@ public class NodeReferenceRemoteWorker extends AbstractRemoteWorker<NodeReferenc
     }
 
     @Override public int id() {
-        return NodeReferenceRemoteWorker.class.hashCode();
+        return 10002;
     }
 
     @Override protected void onWork(NodeReference nodeReference) throws WorkerException {

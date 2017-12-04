@@ -37,7 +37,7 @@ public class NodeMappingPersistenceWorker extends PersistenceWorker<NodeMapping,
     }
 
     @Override public int id() {
-        return NodeMappingPersistenceWorker.class.hashCode();
+        return 114;
     }
 
     @Override protected boolean needMergeDBData() {
