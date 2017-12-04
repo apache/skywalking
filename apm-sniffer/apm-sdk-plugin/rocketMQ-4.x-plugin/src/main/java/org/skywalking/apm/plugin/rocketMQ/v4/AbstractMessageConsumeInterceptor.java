@@ -16,10 +16,11 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.apache.rocketmq.common.message;
+package org.skywalking.apm.plugin.rocketMQ.v4;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import org.apache.rocketmq.common.message.MessageExt;
 import org.skywalking.apm.agent.core.context.CarrierItem;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;

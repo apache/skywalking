@@ -31,7 +31,7 @@ import static org.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierar
 /**
  * {@link ConsumeMessageConcurrentlyInstrumentation} intercepts the {@link org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently#consumeMessage(java.util.List,
  * org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext)} method by using {@link
- * org.apache.rocketmq.common.message.MessageConcurrentlyConsumeInterceptor}.
+ * org.skywalking.apm.plugin.rocketMQ.v4.MessageConcurrentlyConsumeInterceptor}.
  *
  * @author zhang xin
  */
