@@ -19,7 +19,7 @@
   * Mysql Driver 5.x, 6.x
   * Oracle Driver
   * H2 Driver
-  * [Sharding-JDBC 1.5.x](https://github.com/shardingjdbc/sharding-jdbc)
+  * [Sharding-JDBC](https://github.com/shardingjdbc/sharding-jdbc) 1.5.x
   * PostgreSQL Driver 8.x, 9.x, 42.x
 * RPC Frameworks
   * [Dubbo](https://github.com/alibaba/dubbo) 2.5.3
@@ -39,6 +39,8 @@
   * [Netflix Eureka](https://github.com/Netflix/eureka) 
 * Spring Ecosystem
   * Spring Core Async SuccessCallback/FailureCallback/ListenableFutureCallback 4.x
+* Scheduler
+  * [Elastic Job](https://github.com/elasticjob/elastic-job) 2.x
 * OpenTracing community supported
   * Motan
   * Hprose-java

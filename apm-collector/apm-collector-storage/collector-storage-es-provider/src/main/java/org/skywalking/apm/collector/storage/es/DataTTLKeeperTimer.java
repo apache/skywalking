@@ -19,8 +19,6 @@
 package org.skywalking.apm.collector.storage.es;
 
 import java.util.Calendar;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.ICpuMetricPersistenceDAO;
