@@ -37,7 +37,7 @@ public class NodeComponentPersistenceWorker extends PersistenceWorker<NodeCompon
     }
 
     @Override public int id() {
-        return NodeComponentPersistenceWorker.class.hashCode();
+        return 111;
     }
 
     @Override protected boolean needMergeDBData() {

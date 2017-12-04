@@ -34,7 +34,7 @@ public class NodeMappingAggregationWorker extends AggregationWorker<NodeMapping,
     }
 
     @Override public int id() {
-        return NodeMappingAggregationWorker.class.hashCode();
+        return 105;
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<NodeMapping, NodeMapping, NodeMappingAggregationWorker> {

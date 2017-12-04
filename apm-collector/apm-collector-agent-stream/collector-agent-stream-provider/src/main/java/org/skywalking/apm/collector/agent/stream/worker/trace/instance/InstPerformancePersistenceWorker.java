@@ -37,7 +37,7 @@ public class InstPerformancePersistenceWorker extends PersistenceWorker<InstPerf
     }
 
     @Override public int id() {
-        return InstPerformancePersistenceWorker.class.hashCode();
+        return 118;
     }
 
     @Override protected boolean needMergeDBData() {
