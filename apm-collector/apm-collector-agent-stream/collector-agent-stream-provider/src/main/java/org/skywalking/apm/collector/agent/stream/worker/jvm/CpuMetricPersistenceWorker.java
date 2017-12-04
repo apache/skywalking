@@ -37,7 +37,7 @@ public class CpuMetricPersistenceWorker extends PersistenceWorker<CpuMetric, Cpu
     }
 
     @Override public int id() {
-        return 0;
+        return 115;
     }
 
     @Override protected boolean needMergeDBData() {

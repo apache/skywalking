@@ -37,7 +37,7 @@ public class GCMetricPersistenceWorker extends PersistenceWorker<GCMetric, GCMet
     }
 
     @Override public int id() {
-        return 0;
+        return 112;
     }
 
     @Override protected boolean needMergeDBData() {
