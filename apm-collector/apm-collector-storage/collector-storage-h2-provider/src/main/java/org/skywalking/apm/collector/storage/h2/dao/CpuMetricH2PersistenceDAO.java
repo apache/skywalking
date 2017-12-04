@@ -63,4 +63,7 @@ public class CpuMetricH2PersistenceDAO extends H2DAO implements ICpuMetricPersis
     @Override public H2SqlEntity prepareBatchUpdate(CpuMetric data) {
         return null;
     }
+
+    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+    }
 }

@@ -62,4 +62,7 @@ public class MemoryMetricH2PersistenceDAO extends H2DAO implements IMemoryMetric
     @Override public H2SqlEntity prepareBatchUpdate(MemoryMetric data) {
         return null;
     }
+
+    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+    }
 }

@@ -64,4 +64,7 @@ public class GlobalTraceH2PersistenceDAO extends H2DAO implements IGlobalTracePe
         entity.setParams(source.values().toArray(new Object[0]));
         return entity;
     }
+
+    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+    }
 }

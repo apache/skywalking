@@ -5,7 +5,7 @@
     <parent>
         <artifactId>apm-collector-component</artifactId>
         <groupId>org.skywalking</groupId>
-        <version>3.2.5-2017</version>
+        <version>3.3.0-2017</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -21,6 +21,12 @@
             <groupId>org.skywalking</groupId>
             <artifactId>apm-network</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>guava</artifactId>
+                    <groupId>com.google.guava</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>

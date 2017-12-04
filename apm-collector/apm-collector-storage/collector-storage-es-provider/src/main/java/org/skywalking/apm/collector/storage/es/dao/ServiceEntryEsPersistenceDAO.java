@@ -74,4 +74,7 @@ public class ServiceEntryEsPersistenceDAO extends EsDAO implements IServiceEntry
 
         return getClient().prepareUpdate(ServiceEntryTable.TABLE, data.getId()).setDoc(source);
     }
+
+    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+    }
 }

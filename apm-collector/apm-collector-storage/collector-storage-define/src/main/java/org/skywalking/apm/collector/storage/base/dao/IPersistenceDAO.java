@@ -29,4 +29,6 @@ public interface IPersistenceDAO<Insert, Update, DataImpl extends Data> extends 
     Insert prepareBatchInsert(DataImpl data);
 
     Update prepareBatchUpdate(DataImpl data);
+
+    void deleteHistory(Long startTimestamp, Long endTimestamp);
 }

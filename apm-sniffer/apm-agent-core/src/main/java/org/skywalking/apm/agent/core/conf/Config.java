@@ -52,6 +52,12 @@ public class Config {
          * memory cost estimated.
          */
         public static int SPAN_LIMIT_PER_SEGMENT = 300;
+
+        /**
+         * If true, skywalking agent will save all instrumented classes files in `/debugging` folder.
+         * Skywalking team may ask for these files in order to resolve compatible problem.
+         */
+        public static boolean IS_OPEN_DEBUGGING_CLASS = false;
     }
 
     public static class Collector {
@@ -76,7 +82,7 @@ public class Config {
         /**
          * Collector service discovery REST service name
          */
-        public static String DISCOVERY_SERVICE_NAME = "/agentstream/grpc";
+        public static String DISCOVERY_SERVICE_NAME = "/agent/gRPC";
     }
 
     public static class Jvm {

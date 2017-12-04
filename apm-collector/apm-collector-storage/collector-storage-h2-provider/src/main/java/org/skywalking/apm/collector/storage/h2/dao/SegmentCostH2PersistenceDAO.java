@@ -69,4 +69,7 @@ public class SegmentCostH2PersistenceDAO extends H2DAO implements ISegmentCostPe
     @Override public H2SqlEntity prepareBatchUpdate(SegmentCost data) {
         return null;
     }
+
+    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+    }
 }

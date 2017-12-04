@@ -23,7 +23,7 @@
 
     <groupId>org.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>3.2.5-2017</version>
+    <version>3.3.0-2017</version>
 
     <developers>
         <developer>
@@ -252,6 +252,7 @@
                 <executions>
                     <execution>
                         <id>attach-sources</id>
+                        <phase>none</phase>
                         <goals>
                             <goal>jar</goal>
                         </goals>

@@ -37,7 +37,7 @@ import org.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.skywalking.apm.agent.test.tools.SpanAssert;
 import org.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.skywalking.apm.plugin.jdbc.mysql.define.StatementEnhanceInfos;
+import org.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 import static org.hamcrest.CoreMatchers.is;

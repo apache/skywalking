@@ -23,16 +23,23 @@ import java.util.Map;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.dao.INodeComponentPersistenceDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.table.node.NodeComponent;
 import org.skywalking.apm.collector.storage.table.node.NodeComponentTable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class NodeComponentEsPersistenceDAO extends EsDAO implements INodeComponentPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, NodeComponent> {
+
+    private final Logger logger = LoggerFactory.getLogger(NodeComponentEsPersistenceDAO.class);
 
     public NodeComponentEsPersistenceDAO(ElasticSearchClient client) {
         super(client);
@@ -68,5 +75,17 @@ public class NodeComponentEsPersistenceDAO extends EsDAO implements INodeCompone
         source.put(NodeComponentTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
         return getClient().prepareUpdate(NodeComponentTable.TABLE, data.getId()).setDoc(source);
+    }
+
+    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+        long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
+        long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
+        BulkByScrollResponse response = getClient().prepareDelete()
+            .filter(QueryBuilders.rangeQuery(NodeComponentTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket))
+            .source(NodeComponentTable.TABLE)
+            .get();
+
+        long deleted = response.getDeleted();
+        logger.info("Delete {} rows history from {} index.", deleted, NodeComponentTable.TABLE);
     }
 }

@@ -81,4 +81,7 @@ public class InstanceHeartBeatH2PersistenceDAO extends H2DAO implements IInstanc
         entity.setParams(params.toArray(new Object[0]));
         return entity;
     }
+
+    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+    }
 }
