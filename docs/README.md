@@ -24,4 +24,3 @@
     * [Skywalking 3 Cross Process Propagation Headers Protocol, v1.0](en/Skywalking-3-Cross-Process-Propagation-Headers-Protocol.md)
   * FAQ
 
-    

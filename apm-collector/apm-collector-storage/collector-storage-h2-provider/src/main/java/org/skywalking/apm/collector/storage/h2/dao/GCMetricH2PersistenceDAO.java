@@ -60,4 +60,7 @@ public class GCMetricH2PersistenceDAO extends H2DAO implements IGCMetricPersiste
     @Override public H2SqlEntity prepareBatchUpdate(GCMetric data) {
         return null;
     }
+
+    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+    }
 }

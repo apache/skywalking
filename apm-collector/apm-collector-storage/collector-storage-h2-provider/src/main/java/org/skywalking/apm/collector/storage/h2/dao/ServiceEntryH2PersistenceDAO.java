@@ -97,4 +97,7 @@ public class ServiceEntryH2PersistenceDAO extends H2DAO implements IServiceEntry
         entity.setParams(values.toArray(new Object[0]));
         return entity;
     }
+
+    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+    }
 }

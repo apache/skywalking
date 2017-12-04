@@ -23,6 +23,7 @@ import com.google.common.cache.CacheBuilder;
 import org.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.Const;
+import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.dao.IApplicationCacheDAO;
@@ -38,22 +39,30 @@ public class ApplicationCacheGuavaService implements ApplicationCacheService {
 
     private final Cache<String, Integer> codeCache = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(1000).build();
 
-    private final IApplicationCacheDAO applicationCacheDAO;
+    private final ModuleManager moduleManager;
+    private IApplicationCacheDAO applicationCacheDAO;
 
     public ApplicationCacheGuavaService(ModuleManager moduleManager) {
-        this.applicationCacheDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationCacheDAO.class);
+        this.moduleManager = moduleManager;
+    }
+
+    private IApplicationCacheDAO getApplicationCacheDAO() {
+        if (ObjectUtils.isEmpty(applicationCacheDAO)) {
+            this.applicationCacheDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationCacheDAO.class);
+        }
+        return this.applicationCacheDAO;
     }
 
     public int get(String applicationCode) {
         int applicationId = 0;
         try {
-            applicationId = codeCache.get(applicationCode, () -> applicationCacheDAO.getApplicationId(applicationCode));
+            applicationId = codeCache.get(applicationCode, () -> getApplicationCacheDAO().getApplicationId(applicationCode));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
 
         if (applicationId == 0) {
-            applicationId = applicationCacheDAO.getApplicationId(applicationCode);
+            applicationId = getApplicationCacheDAO().getApplicationId(applicationCode);
             if (applicationId != 0) {
                 codeCache.put(applicationCode, applicationId);
             }
@@ -66,13 +75,13 @@ public class ApplicationCacheGuavaService implements ApplicationCacheService {
     public String get(int applicationId) {
         String applicationCode = Const.EMPTY_STRING;
         try {
-            applicationCode = idCache.get(applicationId, () -> applicationCacheDAO.getApplicationCode(applicationId));
+            applicationCode = idCache.get(applicationId, () -> getApplicationCacheDAO().getApplicationCode(applicationId));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
 
         if (StringUtils.isEmpty(applicationCode)) {
-            applicationCode = applicationCacheDAO.getApplicationCode(applicationId);
+            applicationCode = getApplicationCacheDAO().getApplicationCode(applicationId);
             if (StringUtils.isNotEmpty(applicationCode)) {
                 codeCache.put(applicationCode, applicationId);
             }

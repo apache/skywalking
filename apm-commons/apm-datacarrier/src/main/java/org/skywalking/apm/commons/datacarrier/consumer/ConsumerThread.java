@@ -91,12 +91,14 @@ public class ConsumerThread<T> extends Thread {
                 consumeList.add(element);
             }
             hasData = true;
-
         }
-        try {
-            consumer.consume(consumeList);
-        } catch (Throwable t) {
-            consumer.onError(consumeList, t);
+
+        if (consumeList.size() > 0) {
+            try {
+                consumer.consume(consumeList);
+            } catch (Throwable t) {
+                consumer.onError(consumeList, t);
+            }
         }
         return hasData;
     }
