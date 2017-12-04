@@ -85,7 +85,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[25];
+        components = new String[26];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
