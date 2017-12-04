@@ -34,7 +34,7 @@ public class NodeComponentAggregationWorker extends AggregationWorker<NodeCompon
     }
 
     @Override public int id() {
-        return NodeComponentAggregationWorker.class.hashCode();
+        return 104;
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<NodeComponent, NodeComponent, NodeComponentAggregationWorker> {

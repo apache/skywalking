@@ -37,7 +37,7 @@ public class SegmentCostPersistenceWorker extends PersistenceWorker<SegmentCost,
     }
 
     @Override public int id() {
-        return SegmentCostPersistenceWorker.class.hashCode();
+        return 110;
     }
 
     @Override protected boolean needMergeDBData() {

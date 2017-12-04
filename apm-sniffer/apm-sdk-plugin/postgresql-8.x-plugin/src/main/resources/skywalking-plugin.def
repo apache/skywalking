@@ -2,3 +2,4 @@ postgresql-8.x=org.skywalking.apm.plugin.jdbc.postgresql.define.DriverInstrument
 postgresql-8.x=org.skywalking.apm.plugin.jdbc.postgresql.define.Jdbc3ConnectionInstrumentation
 postgresql-8.x=org.skywalking.apm.plugin.jdbc.postgresql.define.Jdbc4ConnectionInstrumentation
 postgresql-8.x=org.skywalking.apm.plugin.jdbc.postgresql.define.ConnectionInstrumentation
+postgresql-8.x=org.skywalking.apm.plugin.jdbc.postgresql.define.AbstractJdbc2StatementInstrumentation

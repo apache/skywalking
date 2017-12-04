@@ -32,13 +32,13 @@ import static org.skywalking.apm.plugin.jdbc.define.Constants.CLOSE_METHOD_NAME;
 import static org.skywalking.apm.plugin.jdbc.define.Constants.COMMIT_METHOD_NAME;
 import static org.skywalking.apm.plugin.jdbc.define.Constants.CREATE_STATEMENT_INTERCEPT_CLASS;
 import static org.skywalking.apm.plugin.jdbc.define.Constants.CREATE_STATEMENT_METHOD_NAME;
-import static org.skywalking.apm.plugin.jdbc.define.Constants.PREPARE_CALL_INTERCEPT_CLASS;
 import static org.skywalking.apm.plugin.jdbc.define.Constants.PREPARE_CALL_METHOD_NAME;
-import static org.skywalking.apm.plugin.jdbc.define.Constants.PREPARE_STATEMENT_INTERCEPT_CLASS;
 import static org.skywalking.apm.plugin.jdbc.define.Constants.PREPARE_STATEMENT_METHOD_NAME;
 import static org.skywalking.apm.plugin.jdbc.define.Constants.RELEASE_SAVE_POINT_METHOD_NAME;
 import static org.skywalking.apm.plugin.jdbc.define.Constants.ROLLBACK_METHOD_NAME;
 import static org.skywalking.apm.plugin.jdbc.define.Constants.SERVICE_METHOD_INTERCEPT_CLASS;
+import static org.skywalking.apm.plugin.jdbc.postgresql.define.Constants.CREATE_CALLABLE_STATEMENT_INTERCEPTOR_CLASS;
+import static org.skywalking.apm.plugin.jdbc.postgresql.define.Constants.CREATE_PREPARED_STATEMENT_INTERCEPTOR_CLASS;
 
 /**
  * {@link Jdbc4ConnectionInstrumentation} intercept the following methods that the class which extend {@link
@@ -69,7 +69,7 @@ public class Jdbc4ConnectionInstrumentation extends ClassInstanceMethodsEnhanceP
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return PREPARE_STATEMENT_INTERCEPT_CLASS;
+                    return CREATE_PREPARED_STATEMENT_INTERCEPTOR_CLASS;
                 }
 
                 @Override public boolean isOverrideArgs() {
@@ -82,7 +82,7 @@ public class Jdbc4ConnectionInstrumentation extends ClassInstanceMethodsEnhanceP
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return PREPARE_CALL_INTERCEPT_CLASS;
+                    return CREATE_CALLABLE_STATEMENT_INTERCEPTOR_CLASS;
                 }
 
                 @Override public boolean isOverrideArgs() {

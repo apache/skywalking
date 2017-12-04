@@ -50,7 +50,7 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker<Se
     }
 
     @Override public int id() {
-        return ServiceNameRegisterSerialWorker.class.hashCode();
+        return 100;
     }
 
     @Override protected void onWork(ServiceName serviceName) throws WorkerException {
