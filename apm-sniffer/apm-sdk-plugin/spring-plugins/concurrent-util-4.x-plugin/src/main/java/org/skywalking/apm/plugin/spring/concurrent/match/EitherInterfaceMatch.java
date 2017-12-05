@@ -56,7 +56,10 @@ public abstract class EitherInterfaceMatch implements IndirectMatch {
             matchHierarchyClazz(generic, matchResult);
         }
 
-        matchHierarchyClazz(typeDescription.getSuperClass(), matchResult);
+        if (typeDescription.getSuperClass() != null) {
+            matchHierarchyClazz(typeDescription.getSuperClass(), matchResult);
+        }
+
         return matchResult.result();
     }
 
