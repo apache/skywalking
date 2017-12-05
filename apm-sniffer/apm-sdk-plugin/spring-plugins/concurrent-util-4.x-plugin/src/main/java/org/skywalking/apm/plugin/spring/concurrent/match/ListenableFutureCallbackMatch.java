@@ -44,7 +44,7 @@ public class ListenableFutureCallbackMatch implements IndirectMatch {
     @Override
     public ElementMatcher.Junction buildJunction() {
         return not(nameStartsWith("org.springframework")).
-            and(hasSuperType(named(LISTENABLE_FUTURE_CALLBACK_CLASS_NAME)));
+                and(hasSuperType(named(LISTENABLE_FUTURE_CALLBACK_CLASS_NAME)));
     }
 
     @Override
@@ -53,8 +53,12 @@ public class ListenableFutureCallbackMatch implements IndirectMatch {
         for (TypeDescription.Generic generic : typeDescription.getInterfaces()) {
             isMatch = isMatch || matchExactClass(generic);
         }
-
-        return isMatch || matchExactClass(typeDescription.getSuperClass());
+        
+        if (typeDescription.getSuperClass() != null) {
+            return isMatch || matchExactClass(typeDescription.getSuperClass());
+        } else {
+            return isMatch;
+        }
     }
 
     private boolean matchExactClass(TypeDescription.Generic clazz) {
