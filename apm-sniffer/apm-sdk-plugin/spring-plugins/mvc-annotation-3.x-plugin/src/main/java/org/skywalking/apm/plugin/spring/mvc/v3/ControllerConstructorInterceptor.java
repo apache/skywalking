@@ -20,6 +20,8 @@ package org.skywalking.apm.plugin.spring.mvc.v3;
 
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
+import org.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
+import org.skywalking.apm.plugin.spring.mvc.commons.PathMappingCache;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
