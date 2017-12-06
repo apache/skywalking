@@ -55,20 +55,20 @@ public class H2URLParser extends AbstractURLParser {
     }
 
     @Override
-    protected int[] fetchDatabaseHostsIndexRange() {
+    protected URLLocation fetchDatabaseHostsIndexRange() {
         int hostLabelStartIndex = url.indexOf("//");
         int hostLabelEndIndex = url.indexOf("/", hostLabelStartIndex + 2);
-        return new int[] {hostLabelStartIndex + 2, hostLabelEndIndex};
+        return new URLLocation(hostLabelStartIndex + 2, hostLabelEndIndex);
     }
 
     @Override
-    protected int[] fetchDatabaseNameIndexRange() {
+    protected URLLocation fetchDatabaseNameIndexRange() {
         int databaseStartTag = url.lastIndexOf("/");
         int databaseEndTag = url.indexOf(";");
         if (databaseEndTag == -1) {
             databaseEndTag = url.length();
         }
-        return new int[] {databaseStartTag + 1, databaseEndTag};
+        return new URLLocation(databaseStartTag + 1, databaseEndTag);
     }
 
     @Override
