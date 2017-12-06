@@ -25,7 +25,7 @@
     <parent>
         <artifactId>apm-sdk-plugin</artifactId>
         <groupId>org.skywalking</groupId>
-        <version>3.2.6-2017</version>
+        <version>5.0-2018-preview</version>
     </parent>
 
     <artifactId>apm-resin-4.x-plugin</artifactId>

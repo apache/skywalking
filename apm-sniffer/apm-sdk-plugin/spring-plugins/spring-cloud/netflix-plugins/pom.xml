@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.skywalking</groupId>
         <artifactId>spring-cloud</artifactId>
-        <version>3.2.6-2017</version>
+        <version>5.0-2018-preview</version>
     </parent>
 
     <artifactId>netflix-plugins</artifactId>
