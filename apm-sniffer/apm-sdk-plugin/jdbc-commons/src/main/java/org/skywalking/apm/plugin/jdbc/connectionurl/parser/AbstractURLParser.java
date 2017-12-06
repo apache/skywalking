@@ -31,14 +31,14 @@ public abstract class AbstractURLParser implements ConnectionURLParser {
      *
      * @return index range that database hosts.
      */
-    protected abstract int[] fetchDatabaseHostsIndexRange();
+    protected abstract URLLocation fetchDatabaseHostsIndexRange();
 
     /**
      * Fetch the index range that database name from connection url.
      *
      * @return index range that database name.
      */
-    protected abstract int[] fetchDatabaseNameIndexRange();
+    protected abstract URLLocation fetchDatabaseNameIndexRange();
 
     /**
      * Fetch database host(s) from connection url.
@@ -46,8 +46,8 @@ public abstract class AbstractURLParser implements ConnectionURLParser {
      * @return database host(s).
      */
     protected String fetchDatabaseHostsFromURL() {
-        int[] indexRange = fetchDatabaseHostsIndexRange();
-        return url.substring(indexRange[0], indexRange[1]);
+        URLLocation hostsLocation = fetchDatabaseHostsIndexRange();
+        return url.substring(hostsLocation.startIndex(), hostsLocation.endIndex());
     }
 
     /**
@@ -56,8 +56,8 @@ public abstract class AbstractURLParser implements ConnectionURLParser {
      * @return database name.
      */
     protected String fetchDatabaseNameFromURL() {
-        int[] indexRange = fetchDatabaseNameIndexRange();
-        return url.substring(indexRange[0], indexRange[1]);
+        URLLocation hostsLocation = fetchDatabaseNameIndexRange();
+        return url.substring(hostsLocation.startIndex(), hostsLocation.endIndex());
     }
 
     /**
