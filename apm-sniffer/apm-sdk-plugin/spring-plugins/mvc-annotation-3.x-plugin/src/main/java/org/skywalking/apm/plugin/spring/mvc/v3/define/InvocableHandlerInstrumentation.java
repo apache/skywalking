@@ -26,6 +26,7 @@ import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
+import static org.skywalking.apm.plugin.spring.mvc.commons.Constants.INVOKE_FOR_REQUEST_INTERCEPTOR;
 
 /**
  * {@link InvocableHandlerInstrumentation} intercept the <code>invokeForRequest</code> method in the
@@ -36,7 +37,6 @@ import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 public class InvocableHandlerInstrumentation extends AbstractSpring3Instrumentation {
 
     public static final String ENHANCE_METHOD = "invokeForRequest";
-    public static final String INTERCEPTOR_CLASS = "org.skywalking.apm.plugin.spring.mvc.v3.InvokeForRequestInterceptor";
     public static final String ENHANCE_CLASS = "org.springframework.web.method.support.InvocableHandlerMethod";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -53,7 +53,7 @@ public class InvocableHandlerInstrumentation extends AbstractSpring3Instrumentat
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return INTERCEPTOR_CLASS;
+                    return INVOKE_FOR_REQUEST_INTERCEPTOR;
                 }
 
                 @Override

@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.plugin.spring.mvc.v3.define;
+package org.skywalking.apm.plugin.spring.mvc.v4.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -24,39 +24,24 @@ import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoin
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
-import static net.bytebuddy.matcher.ElementMatchers.any;
-import static net.bytebuddy.matcher.ElementMatchers.isAnnotatedWith;
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static org.skywalking.apm.agent.core.plugin.match.ClassAnnotationMatch.byClassAnnotationMatch;
-import static org.skywalking.apm.plugin.spring.mvc.commons.Constants.REQUEST_MAPPING_METHOD_INTERCEPTOR;
+import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
+import static org.skywalking.apm.plugin.spring.mvc.commons.Constants.INVOKE_FOR_REQUEST_INTERCEPTOR;
 
 /**
- * {@link ControllerInstrumentation} intercept the constructor and the methods annotated with {@link
- * org.springframework.web.bind.annotation.RequestMapping} in the class annotated with {@link
- * org.springframework.stereotype.Controller}.
+ * {@link InvocableHandlerInstrumentation} intercept the <code>invokeForRequest</code> method in the
+ * <code>org.springframework.web.method.support.InvocableHandlerMethod</code> class.
  *
  * @author zhangxin
  */
-public class ControllerInstrumentation extends AbstractSpring3Instrumentation {
-    public static final String CONTROLLER_ENHANCE_ANNOTATION = "org.springframework.stereotype.Controller";
-    public static final String CONSTRUCTOR_INTERCEPTOR = "org.skywalking.apm.plugin.spring.mvc.v3.ControllerConstructorInterceptor";
-    public static final String REQUEST_MAPPING_ENHANCE_ANNOTATION = "org.springframework.web.bind.annotation.RequestMapping";
+public class InvocableHandlerInstrumentation extends AbstractSpring4Instrumentation {
+
+    public static final String ENHANCE_METHOD = "invokeForRequest";
+    public static final String ENHANCE_CLASS = "org.springframework.web.method.support.InvocableHandlerMethod";
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[] {
-            new ConstructorInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return any();
-                }
-
-                @Override
-                public String getConstructorInterceptor() {
-                    return CONSTRUCTOR_INTERCEPTOR;
-                }
-            }
-        };
+        return new ConstructorInterceptPoint[0];
     }
 
     @Override
@@ -65,12 +50,12 @@ public class ControllerInstrumentation extends AbstractSpring3Instrumentation {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return isAnnotatedWith(named(REQUEST_MAPPING_ENHANCE_ANNOTATION));
+                    return named(ENHANCE_METHOD);
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return REQUEST_MAPPING_METHOD_INTERCEPTOR;
+                    return INVOKE_FOR_REQUEST_INTERCEPTOR;
                 }
 
                 @Override
@@ -83,7 +68,6 @@ public class ControllerInstrumentation extends AbstractSpring3Instrumentation {
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byClassAnnotationMatch(new String[] {CONTROLLER_ENHANCE_ANNOTATION});
+        return byName(ENHANCE_CLASS);
     }
-
 }

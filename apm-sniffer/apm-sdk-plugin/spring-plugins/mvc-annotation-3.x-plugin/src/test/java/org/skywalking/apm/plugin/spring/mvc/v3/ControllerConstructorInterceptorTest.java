@@ -24,6 +24,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
+import org.skywalking.apm.plugin.spring.mvc.commons.PathMappingCache;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import static org.hamcrest.MatcherAssert.assertThat;
