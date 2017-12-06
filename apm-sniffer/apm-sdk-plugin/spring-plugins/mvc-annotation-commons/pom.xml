@@ -25,35 +25,29 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-springmvc-annotation-3.x-plugin</artifactId>
+    <artifactId>apm-springmvc-annotation-commons</artifactId>
     <packaging>jar</packaging>
 
-    <name>mvc-annotation-3.x-plugin</name>
+    <name>mvc-annotation-commons</name>
     <url>http://maven.apache.org</url>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>3.2.18.RELEASE</version>
+            <version>4.3.10.RELEASE</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>3.2.18.RELEASE</version>
+            <version>4.3.8.RELEASE</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>3.0.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-springmvc-annotation-commons</artifactId>
-            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

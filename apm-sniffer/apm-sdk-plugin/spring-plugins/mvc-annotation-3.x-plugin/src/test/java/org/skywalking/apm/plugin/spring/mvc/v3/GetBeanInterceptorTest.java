@@ -25,6 +25,8 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
+import org.skywalking.apm.plugin.spring.mvc.commons.interceptor.GetBeanInterceptor;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import static org.mockito.Mockito.times;

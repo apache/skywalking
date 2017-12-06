@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.plugin.spring.mvc.v3;
+package org.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
 import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletRequest;
@@ -31,17 +31,16 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
- * {@link ControllerMethodInterceptor} create entry span when the client call the method annotation with {@link
- * RequestMapping} in the class  annotation with {@link org.springframework.stereotype.Controller}.
- *
- * @author zhangxin
+ * the abstract method inteceptor
  */
-public class ControllerMethodInterceptor implements InstanceMethodsAroundInterceptor {
+public abstract class AbstractMethodInteceptor implements InstanceMethodsAroundInterceptor {
+    public abstract String getRequestURL(Method method);
+
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
@@ -53,8 +52,7 @@ public class ControllerMethodInterceptor implements InstanceMethodsAroundInterce
             requestURL = pathMappingCache.findPathMapping(method);
         }
 
-        HttpServletRequest request =
-            ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+        HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
 
         ContextCarrier contextCarrier = new ContextCarrier();
         CarrierItem next = contextCarrier.items();
@@ -74,6 +72,7 @@ public class ControllerMethodInterceptor implements InstanceMethodsAroundInterce
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
         HttpServletResponse response = ((EnhanceRequireObjectCache)objInst.getSkyWalkingDynamicField()).getHttpServletResponse();
+
         AbstractSpan span = ContextManager.activeSpan();
         if (response.getStatus() >= 400) {
             span.errorOccurred();
@@ -87,14 +86,5 @@ public class ControllerMethodInterceptor implements InstanceMethodsAroundInterce
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
-    }
-
-    public String getRequestURL(Method method) {
-        String requestURL = "";
-        RequestMapping methodRequestMapping = method.getAnnotation(RequestMapping.class);
-        if (methodRequestMapping.value().length > 0) {
-            requestURL = methodRequestMapping.value()[0];
-        }
-        return requestURL;
     }
 }

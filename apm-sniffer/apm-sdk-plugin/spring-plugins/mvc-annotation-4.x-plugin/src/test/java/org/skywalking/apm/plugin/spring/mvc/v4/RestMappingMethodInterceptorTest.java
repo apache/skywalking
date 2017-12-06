@@ -44,12 +44,16 @@ import org.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
+import org.skywalking.apm.plugin.spring.mvc.commons.PathMappingCache;
+import org.skywalking.apm.plugin.spring.mvc.commons.interceptor.RestMappingMethodInterceptor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -80,6 +84,9 @@ public class RestMappingMethodInterceptorTest {
     @Mock
     private MethodInterceptResult methodInterceptResult;
 
+    @Mock
+    private NativeWebRequest nativeWebRequest;
+
     private Object[] arguments;
     private Class[] argumentType;
 
@@ -97,6 +104,7 @@ public class RestMappingMethodInterceptorTest {
         when(request.getServerName()).thenReturn("localhost");
         when(request.getServerPort()).thenReturn(8080);
         when(response.getStatus()).thenReturn(200);
+        when(nativeWebRequest.getNativeResponse()).thenReturn(response);
 
         arguments = new Object[] {request, response};
         argumentType = new Class[] {request.getClass(), response.getClass()};
@@ -263,16 +271,17 @@ public class RestMappingMethodInterceptorTest {
 
     @RequestMapping(value = "/test")
     private class MockEnhancedInstance1 implements EnhancedInstance {
-        private Object value;
+        private EnhanceRequireObjectCache value = new EnhanceRequireObjectCache();
 
         @Override
         public Object getSkyWalkingDynamicField() {
+            value.setPathMappingCache(new PathMappingCache("/test"));
+            value.setNativeWebRequest(nativeWebRequest);
             return value;
         }
 
         @Override
         public void setSkyWalkingDynamicField(Object value) {
-            this.value = value;
         }
     }
 

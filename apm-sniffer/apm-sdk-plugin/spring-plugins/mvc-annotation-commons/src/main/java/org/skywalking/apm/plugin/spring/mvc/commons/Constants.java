@@ -16,30 +16,19 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.plugin.spring.mvc.v3;
-
-import java.lang.reflect.Method;
-import java.util.concurrent.ConcurrentHashMap;
+package org.skywalking.apm.plugin.spring.mvc.commons;
 
 /**
- * {@link PathMappingCache} cache all request urls of {@link org.springframework.stereotype.Controller} .
+ * Interceptor class name constant variables
  *
  * @author zhangxin
  */
-public class PathMappingCache {
-    private String classPath = "";
+public class Constants {
+    public static final String GET_BEAN_INTERCEPTOR = "org.skywalking.apm.plugin.spring.mvc.commons.interceptor.GetBeanInterceptor";
 
-    private ConcurrentHashMap<Method, String> methodPathMapping = new ConcurrentHashMap<Method, String>();
+    public static final String INVOKE_FOR_REQUEST_INTERCEPTOR = "org.skywalking.apm.plugin.spring.mvc.commons.interceptor.InvokeForRequestInterceptor";
 
-    public PathMappingCache(String classPath) {
-        this.classPath = classPath;
-    }
+    public static final String REQUEST_MAPPING_METHOD_INTERCEPTOR = "org.skywalking.apm.plugin.spring.mvc.commons.interceptor.RequestMappingMethodInterceptor";
 
-    public String findPathMapping(Method method) {
-        return methodPathMapping.get(method);
-    }
-
-    public void addPathMapping(Method method, String methodPath) {
-        methodPathMapping.put(method, classPath + methodPath);
-    }
+    public static final String REST_MAPPING_METHOD_INTERCEPTOR = "org.skywalking.apm.plugin.spring.mvc.commons.interceptor.RestMappingMethodInterceptor";
 }

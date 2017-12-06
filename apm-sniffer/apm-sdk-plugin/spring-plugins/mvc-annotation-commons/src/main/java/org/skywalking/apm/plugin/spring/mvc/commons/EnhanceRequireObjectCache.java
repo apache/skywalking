@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.plugin.spring.mvc.v3;
+package org.skywalking.apm.plugin.spring.mvc.commons;
 
 import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletResponse;
