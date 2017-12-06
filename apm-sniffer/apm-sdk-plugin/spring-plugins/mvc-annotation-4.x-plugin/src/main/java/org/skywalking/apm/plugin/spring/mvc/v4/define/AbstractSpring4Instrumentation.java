@@ -16,30 +16,15 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.plugin.spring.mvc.v4;
+package org.skywalking.apm.plugin.spring.mvc.v4.define;
 
-import java.lang.reflect.Method;
-import java.util.concurrent.ConcurrentHashMap;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 
-/**
- * The <code>PathMappingCache</code> represents a field
- *
- * @author wusheng
- */
-public class PathMappingCache {
-    private String classPath = "";
+public abstract class AbstractSpring4Instrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+    public static final String WITHNESS_CLASSES = "org.springframework.web.servlet.tags.ArgumentTag";
 
-    private ConcurrentHashMap<Method, String> methodPathMapping = new ConcurrentHashMap<Method, String>();
-
-    public PathMappingCache(String classPath) {
-        this.classPath = classPath;
-    }
-
-    public String findPathMapping(Method method) {
-        return methodPathMapping.get(method);
-    }
-
-    public void addPathMapping(Method method, String methodPath) {
-        methodPathMapping.put(method, classPath + methodPath);
+    @Override
+    protected final String[] witnessClasses() {
+        return new String[] {WITHNESS_CLASSES};
     }
 }

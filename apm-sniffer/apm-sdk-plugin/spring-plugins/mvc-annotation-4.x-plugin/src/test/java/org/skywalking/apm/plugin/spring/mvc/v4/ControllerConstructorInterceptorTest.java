@@ -27,6 +27,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.skywalking.apm.agent.test.tools.TracingSegmentRunner;
+import org.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @RunWith(PowerMockRunner.class)
@@ -45,7 +46,7 @@ public class ControllerConstructorInterceptorTest {
     @Test
     public void testOnConstruct_Accuracy1() throws Throwable {
         controllerConstructorInterceptor.onConstruct(inst1, null);
-        PathMappingCache cache = (PathMappingCache)inst1.getSkyWalkingDynamicField();
+        EnhanceRequireObjectCache cache = (EnhanceRequireObjectCache)inst1.getSkyWalkingDynamicField();
         Assert.assertNotNull(cache);
 
         Object obj = new Object();
@@ -58,7 +59,7 @@ public class ControllerConstructorInterceptorTest {
     @Test
     public void testOnConstruct_Accuracy2() throws Throwable {
         controllerConstructorInterceptor.onConstruct(inst2, null);
-        PathMappingCache cache = (PathMappingCache)inst2.getSkyWalkingDynamicField();
+        EnhanceRequireObjectCache cache = (EnhanceRequireObjectCache)inst2.getSkyWalkingDynamicField();
         Assert.assertNotNull(cache);
 
         Object obj = new Object();
@@ -71,7 +72,7 @@ public class ControllerConstructorInterceptorTest {
     @Test
     public void testOnConstruct_Accuracy3() throws Throwable {
         controllerConstructorInterceptor.onConstruct(inst3, null);
-        PathMappingCache cache = (PathMappingCache)inst3.getSkyWalkingDynamicField();
+        EnhanceRequireObjectCache cache = (EnhanceRequireObjectCache)inst3.getSkyWalkingDynamicField();
         Assert.assertNotNull(cache);
 
         Object obj = new Object();

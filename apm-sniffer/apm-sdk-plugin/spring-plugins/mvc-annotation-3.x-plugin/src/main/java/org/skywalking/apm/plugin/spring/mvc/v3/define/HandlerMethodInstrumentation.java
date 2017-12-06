@@ -26,6 +26,7 @@ import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
+import static org.skywalking.apm.plugin.spring.mvc.commons.Constants.GET_BEAN_INTERCEPTOR;
 
 /**
  * {@link HandlerMethodInstrumentation} intercept the <code>getBean</code> method in the
@@ -36,7 +37,6 @@ import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 public class HandlerMethodInstrumentation extends AbstractSpring3Instrumentation {
 
     public static final String ENHANCE_METHOD = "getBean";
-    public static final String INTERCEPTOR_CLASS = "org.skywalking.apm.plugin.spring.mvc.v3.GetBeanInterceptor";
     public static final String ENHANCE_CLASS = "org.springframework.web.method.HandlerMethod";
 
     @Override
@@ -55,7 +55,7 @@ public class HandlerMethodInstrumentation extends AbstractSpring3Instrumentation
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return INTERCEPTOR_CLASS;
+                    return GET_BEAN_INTERCEPTOR;
                 }
 
                 @Override

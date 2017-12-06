@@ -44,7 +44,11 @@ import org.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
+import org.skywalking.apm.plugin.spring.mvc.commons.PathMappingCache;
+import org.skywalking.apm.plugin.spring.mvc.commons.interceptor.RequestMappingMethodInterceptor;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -84,6 +88,9 @@ public class RequestMappingMethodInterceptorTest {
 
     private ControllerConstructorInterceptor controllerConstructorInterceptor;
 
+    @Mock
+    private NativeWebRequest nativeWebRequest;
+
     @Before
     public void setUp() throws Exception {
         interceptor = new RequestMappingMethodInterceptor();
@@ -97,6 +104,7 @@ public class RequestMappingMethodInterceptorTest {
         when(request.getRequestURI()).thenReturn("/test/testRequestURL");
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080/test/testRequestURL"));
         when(response.getStatus()).thenReturn(200);
+        when(nativeWebRequest.getNativeResponse()).thenReturn(response);
 
         arguments = new Object[] {request, response};
         argumentType = new Class[] {request.getClass(), response.getClass()};
@@ -157,16 +165,18 @@ public class RequestMappingMethodInterceptorTest {
 
     @RequestMapping(value = "/test")
     private class MockEnhancedInstance1 implements EnhancedInstance {
-        private Object value;
+        private EnhanceRequireObjectCache value = new EnhanceRequireObjectCache();
 
         @Override
         public Object getSkyWalkingDynamicField() {
+            value.setPathMappingCache(new PathMappingCache("/test"));
+            value.setNativeWebRequest(nativeWebRequest);
             return value;
         }
 
         @Override
         public void setSkyWalkingDynamicField(Object value) {
-            this.value = value;
+
         }
     }
 

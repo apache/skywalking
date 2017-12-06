@@ -20,6 +20,8 @@ package org.skywalking.apm.plugin.spring.mvc.v4;
 
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
+import org.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
+import org.skywalking.apm.plugin.spring.mvc.commons.PathMappingCache;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
@@ -48,7 +50,8 @@ public class ControllerConstructorInterceptor implements InstanceConstructorInte
                 basePath = basePathRequestMapping.path()[0];
             }
         }
-        PathMappingCache pathMappingCache = new PathMappingCache(basePath);
-        objInst.setSkyWalkingDynamicField(pathMappingCache);
+        EnhanceRequireObjectCache enhanceRequireObjectCache = new EnhanceRequireObjectCache();
+        enhanceRequireObjectCache.setPathMappingCache(new PathMappingCache(basePath));
+        objInst.setSkyWalkingDynamicField(enhanceRequireObjectCache);
     }
 }

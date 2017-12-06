@@ -22,13 +22,14 @@ import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.isAnnotatedWith;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.skywalking.apm.agent.core.plugin.match.ClassAnnotationMatch.byClassAnnotationMatch;
+import static org.skywalking.apm.plugin.spring.mvc.commons.Constants.REQUEST_MAPPING_METHOD_INTERCEPTOR;
+import static org.skywalking.apm.plugin.spring.mvc.commons.Constants.REST_MAPPING_METHOD_INTERCEPTOR;
 
 /**
  * {@link ControllerInstrumentation} enhance all constructor and method annotated with
@@ -45,7 +46,7 @@ import static org.skywalking.apm.agent.core.plugin.match.ClassAnnotationMatch.by
  *
  * @author zhangxin
  */
-public abstract class AbstractControllerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public abstract class AbstractControllerInstrumentation extends AbstractSpring4Instrumentation {
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
@@ -74,7 +75,7 @@ public abstract class AbstractControllerInstrumentation extends ClassInstanceMet
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "org.skywalking.apm.plugin.spring.mvc.v4.RequestMappingMethodInterceptor";
+                    return REQUEST_MAPPING_METHOD_INTERCEPTOR;
                 }
 
                 @Override
@@ -94,7 +95,7 @@ public abstract class AbstractControllerInstrumentation extends ClassInstanceMet
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "org.skywalking.apm.plugin.spring.mvc.v4.RestMappingMethodInterceptor";
+                    return REST_MAPPING_METHOD_INTERCEPTOR;
                 }
 
                 @Override
@@ -112,12 +113,4 @@ public abstract class AbstractControllerInstrumentation extends ClassInstanceMet
 
     protected abstract String[] getEnhanceAnnotations();
 
-    @Override protected String[] witnessClasses() {
-        /**
-         * @see {@link org.springframework.web.servlet.tags.ArgumentTag}
-         */
-        return new String[]{
-            "org.springframework.web.servlet.tags.ArgumentTag"
-        };
-    }
 }
