@@ -5,7 +5,7 @@
     <parent>
         <artifactId>apm-collector-component</artifactId>
         <groupId>org.skywalking</groupId>
-        <version>3.2.6-2017</version>
+        <version>5.0-2018-preview</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
