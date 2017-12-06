@@ -49,8 +49,6 @@ import static org.skywalking.apm.plugin.jdbc.define.Constants.SERVICE_METHOD_INT
  */
 public abstract class ConnectionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    public static final String ENHANCE_CLASS = "com.mysql.jdbc.ConnectionImpl";
-
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }

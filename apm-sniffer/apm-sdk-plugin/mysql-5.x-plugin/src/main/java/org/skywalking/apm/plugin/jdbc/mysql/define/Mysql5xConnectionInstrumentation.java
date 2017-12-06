@@ -29,7 +29,11 @@ import static org.skywalking.apm.plugin.jdbc.mysql.define.MultiClassNameMatch.by
  * @author zhangxin
  */
 public class Mysql5xConnectionInstrumentation extends ConnectionInstrumentation {
+    public static final String ENHANCE_CLASS = "com.mysql.jdbc.ConnectionImpl";
+
+    public static final String CJ_JDBC_ENHANCE_CLASS = "com.mysql.cj.jdbc.ConnectionImpl";
+
     @Override protected ClassMatch enhanceClass() {
-        return byMultiClassMatch(ENHANCE_CLASS, "com.mysql.cj.jdbc.ConnectionImpl");
+        return byMultiClassMatch(ENHANCE_CLASS, CJ_JDBC_ENHANCE_CLASS);
     }
 }
