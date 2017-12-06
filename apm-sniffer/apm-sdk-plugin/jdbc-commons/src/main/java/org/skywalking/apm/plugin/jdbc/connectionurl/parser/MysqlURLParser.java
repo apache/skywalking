@@ -41,26 +41,26 @@ public class MysqlURLParser extends AbstractURLParser {
     }
 
     @Override
-    protected int[] fetchDatabaseHostsIndexRange() {
+    protected URLLocation fetchDatabaseHostsIndexRange() {
         int hostLabelStartIndex = url.indexOf("//");
         int hostLabelEndIndex = url.indexOf("/", hostLabelStartIndex + 2);
-        return new int[] {hostLabelStartIndex + 2, hostLabelEndIndex};
+        return new URLLocation(hostLabelStartIndex + 2, hostLabelEndIndex);
     }
 
     @Override
-    protected int[] fetchDatabaseNameIndexRange() {
+    protected URLLocation fetchDatabaseNameIndexRange() {
         int databaseStartTag = url.lastIndexOf("/");
         int databaseEndTag = url.indexOf("?", databaseStartTag);
         if (databaseEndTag == -1) {
             databaseEndTag = url.length();
         }
-        return new int[] {databaseStartTag + 1, databaseEndTag};
+        return new URLLocation(databaseStartTag + 1, databaseEndTag);
     }
 
     @Override
     public ConnectionInfo parse() {
-        int[] hostRangeIndex = fetchDatabaseHostsIndexRange();
-        String hosts = url.substring(hostRangeIndex[0], hostRangeIndex[1]);
+        URLLocation location = fetchDatabaseHostsIndexRange();
+        String hosts = url.substring(location.startIndex(), location.endIndex());
         String[] hostSegment = hosts.split(",");
         if (hostSegment.length > 1) {
             StringBuilder sb = new StringBuilder();

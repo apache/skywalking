@@ -74,6 +74,30 @@ public class URLParserTest {
     }
 
     @Test
+    public void testParseOracleServiceName() {
+        ConnectionInfo connectionInfo = new URLParser().parser("jdbc:oracle:thin:@//localhost:1521/orcl");
+        assertThat(connectionInfo.getDBType(), is("Oracle"));
+        assertThat(connectionInfo.getDatabaseName(), is("orcl"));
+        assertThat(connectionInfo.getDatabasePeer(), is("localhost:1521"));
+    }
+
+    @Test
+    public void testParseOracleTNSName() {
+        ConnectionInfo connectionInfo = new URLParser().parser("jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST= localhost )(PORT= 1521))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=orcl)))");
+        assertThat(connectionInfo.getDBType(), is("Oracle"));
+        assertThat(connectionInfo.getDatabaseName(), is("orcl"));
+        assertThat(connectionInfo.getDatabasePeer(), is("localhost:1521"));
+    }
+
+    @Test
+    public void testParseOracleTNSNameWithMultiAddress() {
+        ConnectionInfo connectionInfo = new URLParser().parser("jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL= TCP)(HOST=hostA)(PORT= 1523 ))(ADDRESS=(PROTOCOL=TCP)(HOST=hostB)(PORT= 1521 )))(SOURCE_ROUTE=yes)(CONNECT_DATA=(SERVICE_NAME=orcl)))");
+        assertThat(connectionInfo.getDBType(), is("Oracle"));
+        assertThat(connectionInfo.getDatabaseName(), is("orcl"));
+        assertThat(connectionInfo.getDatabasePeer(), is("hostA:1523,hostB:1521"));
+    }
+
+    @Test
     public void testParseOracleJDBCURLWithUserNameAndPassword() {
         ConnectionInfo connectionInfo = new URLParser().parser("jdbc:oracle:thin:scott/tiger@myhost:1521:orcl");
         assertThat(connectionInfo.getDBType(), is("Oracle"));
