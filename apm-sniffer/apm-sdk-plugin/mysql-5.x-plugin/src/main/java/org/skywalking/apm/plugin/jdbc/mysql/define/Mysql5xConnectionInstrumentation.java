@@ -23,7 +23,7 @@ import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static org.skywalking.apm.plugin.jdbc.mysql.define.MultiClassNameMatch.byMultiClassMatch;
 
 /**
- * {@link Mysql50ConnectionInstrumentation} interceptor the {@link com.mysql.cj.jdbc.ConnectionImpl} class above the
+ * {@link Mysql5xConnectionInstrumentation } interceptor the {@link com.mysql.cj.jdbc.ConnectionImpl} class above the
  * version 5.1+ of mysql jdbc driver jar.
  *
  * @author zhangxin
