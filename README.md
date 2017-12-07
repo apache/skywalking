@@ -1,7 +1,7 @@
 Sky Walking Web UI
 ===============
 
-<img src="src/main/resources/public/img/logo.png" alt="Sky Walking logo" height="90px" align="right" />
+<img src="https://skywalkingtest.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
 
 The web UI for [sky-walking APM](https://github.com/OpenSkywalking/skywalking). 
 
