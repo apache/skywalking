@@ -106,15 +106,6 @@ public class GraphManagerTest {
     }
 
     @Test
-    public void testFindNode() {
-        Graph<String> graph = GraphManager.INSTANCE.createIfAbsent(6, String.class);
-        graph.addNode(new Node1Processor()).addNext(new Node2Processor());
-
-        Node<?, Integer> foundNode = GraphManager.INSTANCE.findGraph(6).toFinder().findNode(2, Integer.class);
-        foundNode.addNext(new Node4Processor());
-    }
-
-    @Test
     public void testDeadEndWay() {
         Graph<String> graph = GraphManager.INSTANCE.createIfAbsent(7, String.class);
         graph.addNode(new Node1Processor()).addNext(new WayToNode<String, Integer>(new Node2Processor()) {
