@@ -36,16 +36,16 @@ public class ServerSelector {
         do {
             int size = serverList.size();
             int selectIndex = Math.abs(index) % size;
-            index ++;
+            index++;
             try {
                 server = serverList.get(selectIndex);
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             if (null == server) {
                 tryCnt++;
                 try {
                     Thread.sleep(10);
-                } catch (InterruptedException e) {
+                } catch (InterruptedException ignored) {
                 }
             } else {
                 return server;

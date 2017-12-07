@@ -18,28 +18,17 @@
 
 package org.skywalking.apm.ui.config;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * @author peng-yongsheng
  */
-@ConfigurationProperties(prefix = "collector")
-@PropertySource("classpath:collector_config.properties")
-@Component
+@Configuration
+@Getter
 public class UIConfig {
-
-    private List<String> servers = new ArrayList<>();
-
-    public List<String> getServers() {
-        return servers;
-    }
-
-    public void setServers(List<String> servers) {
-        this.servers = servers;
-    }
+    
+    @Value("${collector.servers}")
+    private String[] servers;
 }

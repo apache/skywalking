@@ -1,15 +1,7 @@
-sudo: required
-
-services:
-  - docker
-
 language: java
 
 jdk:
   - oraclejdk8
 
-script:
-  - mvn clean install
-
-after_success:
-  - bash ./travis/push_image.sh
+before_script:
+  - echo "MAVEN_OPTS='-Xmx1024m -XX:MaxPermSize=256m'" > ~/.mavenrc

@@ -20,14 +20,15 @@ package org.skywalking.apm.ui.tools;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import org.skywalking.apm.ui.config.UIConfig;
+import org.skywalking.apm.ui.creator.UrlCreator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.skywalking.apm.ui.config.UIConfig;
-import org.skywalking.apm.ui.creator.UrlCreator;
-import org.springframework.context.ApplicationContext;
 
 /**
  * @author peng-yongsheng
@@ -35,7 +36,7 @@ import org.springframework.context.ApplicationContext;
 public enum CollectorUIServerGetterTimer {
     INSTANCE;
 
-    private Logger logger = LogManager.getFormatterLogger(CollectorUIServerGetterTimer.class);
+    private Logger logger = LoggerFactory.getLogger(CollectorUIServerGetterTimer.class);
 
     private Gson gson = new Gson();
 
@@ -49,14 +50,14 @@ public enum CollectorUIServerGetterTimer {
         Thread persistenceThread = new Thread(() -> {
             while (true) {
                 try {
-                    List<String> servers=getServer(uiConfig);
+                    List<String> servers = getServer(uiConfig);
                     urlCreator.updateServerList(servers);
                 } catch (Throwable e) {
                     logger.error(e.getMessage(), e);
                 } finally {
                     try {
                         Thread.sleep(timeInterval);
-                    } catch (InterruptedException e) {
+                    } catch (InterruptedException ignored) {
                     }
                 }
             }

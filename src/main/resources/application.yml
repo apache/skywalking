@@ -16,12 +16,7 @@
 # Project repository: https://github.com/OpenSkywalking/skywalking-ui
 #
 
-# Each row represents a potential collector http service address.
-# Ref, "http.hostname" and "http.port" in "collector.config" of sky-walking-collector.
-# In cluster model, for example:
-# collector.servers[0]=ip:port
-# collector.servers[1]=ip:port
-#
-# You can configure a host either as a host name or IP address
-
-collector.servers[0]=127.0.0.1:10800
+server:
+  port: 8080
+collector:
+  servers: 127.0.0.1:10800
