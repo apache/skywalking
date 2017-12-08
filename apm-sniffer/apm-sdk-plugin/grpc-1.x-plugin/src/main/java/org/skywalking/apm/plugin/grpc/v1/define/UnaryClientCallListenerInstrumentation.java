@@ -25,40 +25,35 @@ import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIntercept
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
-import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.any;
 import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * {@link UnaryClientCallListenerInstrumentation} indicates that skywalking enhance the <code>onClose</code> method in
- * <code>io.grpc.stub.ClientCalls$UnaryStreamToFuture</code> class by <code>org.skywalking.apm.plugin.grpc.v1.UnaryClientOnCloseInterceptor</code>
+ * <code>io.grpc.stub.ClientCalls$UnaryStreamToFuture</code> class by <code>org.skywalking.apm.plugin.grpc.v1.UnaryStreamToFutureConstructorInterceptor</code>
  *
  * @author zhangxin
  */
 public class UnaryClientCallListenerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "io.grpc.stub.ClientCalls$UnaryStreamToFuture";
-    private static final String ENHANCE_METHOD = "onClose";
-    public static final String INTERCEPT_CLASS = "org.skywalking.apm.plugin.grpc.v1.UnaryClientOnCloseInterceptor";
+    public static final String INTERCEPT_CLASS = "org.skywalking.apm.plugin.grpc.v1.UnaryStreamToFutureConstructorInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[0];
-    }
-
-    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[] {
-            new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD);
+        return new ConstructorInterceptPoint[] {
+            new ConstructorInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return any();
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override public String getConstructorInterceptor() {
                     return INTERCEPT_CLASS;
-                }
-
-                @Override public boolean isOverrideArgs() {
-                    return false;
                 }
             }
         };
+    }
+
+    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[0];
     }
 
     @Override protected ClassMatch enhanceClass() {
