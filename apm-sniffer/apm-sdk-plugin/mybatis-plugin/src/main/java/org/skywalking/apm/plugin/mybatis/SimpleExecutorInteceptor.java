@@ -86,41 +86,4 @@ public class SimpleExecutorInteceptor implements InstanceMethodsAroundIntercepto
         span.errorOccurred();
         span.log(throwable);
     }
-
-//    /**
-//     * Format operation name. e.g. org.skywalking.apm.plugin.test.Test.test(String)
-//     *
-//     * @return operation name.
-//     */
-//    private String generateOperationName(URL requestURL, Invocation invocation) {
-//        StringBuilder operationName = new StringBuilder();
-//        operationName.append(requestURL.getPath());
-//        operationName.append("." + invocation.getMethodName() + "(");
-//        for (Class<?> classes : invocation.getParameterTypes()) {
-//            operationName.append(classes.getSimpleName() + ",");
-//        }
-//
-//        if (invocation.getParameterTypes().length > 0) {
-//            operationName.delete(operationName.length() - 1, operationName.length());
-//        }
-//
-//        operationName.append(")");
-//
-//        return operationName.toString();
-//    }
-//
-//    /**
-//     * Format request url.
-//     * e.g. dubbo://127.0.0.1:20880/org.skywalking.apm.plugin.test.Test.test(String).
-//     *
-//     * @return request url.
-//     */
-//    private String generateRequestURL(URL url, Invocation invocation) {
-//        StringBuilder requestURL = new StringBuilder();
-//        requestURL.append(url.getProtocol() + "://");
-//        requestURL.append(url.getHost());
-//        requestURL.append(":" + url.getPort() + "/");
-//        requestURL.append(generateOperationName(url, invocation));
-//        return requestURL.toString();
-//    }
 }
