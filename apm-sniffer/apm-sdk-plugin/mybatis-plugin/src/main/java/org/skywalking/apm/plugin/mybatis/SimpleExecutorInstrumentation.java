@@ -28,9 +28,6 @@ import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/*
- * @author zjp
- */
 public class SimpleExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "org.apache.ibatis.executor.SimpleExecutor";
@@ -49,7 +46,7 @@ public class SimpleExecutorInstrumentation extends ClassInstanceMethodsEnhancePl
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[]{
-                new InstanceMethodsInterceptPoint() {
+            new InstanceMethodsInterceptPoint() {
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
                         return named("doQuery");
@@ -65,7 +62,7 @@ public class SimpleExecutorInstrumentation extends ClassInstanceMethodsEnhancePl
                         return false;
                     }
                 },
-                new InstanceMethodsInterceptPoint() {
+            new InstanceMethodsInterceptPoint() {
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
                         return named("doUpdate");
