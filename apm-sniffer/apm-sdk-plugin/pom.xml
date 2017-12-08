@@ -17,7 +17,7 @@
   ~ Project repository: https://github.com/OpenSkywalking/skywalking
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -55,6 +55,7 @@
         <module>rocketMQ-4.x-plugin</module>
         <module>elastic-job-2.x-plugin</module>
         <module>mongodb-2.x-plugin</module>
+        <module>mybatis-plugin</module>
     </modules>
     <packaging>pom</packaging>
 

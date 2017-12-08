@@ -18,7 +18,6 @@
 
 package org.skywalking.apm.plugin.jedis.v2;
 
-import java.lang.reflect.Method;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.context.tag.Tags;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -27,6 +26,8 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.skywalking.apm.network.trace.component.ComponentsDefine;
+
+import java.lang.reflect.Method;
 
 public class JedisMethodInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -40,6 +41,10 @@ public class JedisMethodInterceptor implements InstanceMethodsAroundInterceptor 
 
         if (allArguments.length > 0 && allArguments[0] instanceof String) {
             Tags.DB_STATEMENT.set(span, method.getName() + " " + allArguments[0]);
+        }
+
+        if (allArguments.length > 0 && allArguments[0] instanceof byte[]) {
+            Tags.DB_STATEMENT.set(span, method.getName() + " " + new String((byte[]) allArguments[0]));
         }
     }
 
