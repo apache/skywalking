@@ -23,7 +23,7 @@
     <parent>
         <artifactId>apm-collector-agent-stream</artifactId>
         <groupId>org.skywalking</groupId>
-        <version>3.3.0-2017</version>
+        <version>5.0-2018-preview</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

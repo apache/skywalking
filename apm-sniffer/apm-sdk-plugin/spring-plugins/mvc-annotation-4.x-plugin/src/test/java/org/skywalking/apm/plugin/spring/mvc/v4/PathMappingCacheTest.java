@@ -26,6 +26,7 @@ import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.skywalking.apm.agent.test.tools.TracingSegmentRunner;
+import org.skywalking.apm.plugin.spring.mvc.commons.PathMappingCache;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)

@@ -40,7 +40,7 @@ public class ServiceNameRegisterRemoteWorker extends AbstractRemoteWorker<Servic
     }
 
     @Override public int id() {
-        return ServiceNameRegisterRemoteWorker.class.hashCode();
+        return 10000;
     }
 
     @Override protected void onWork(ServiceName serviceName) throws WorkerException {

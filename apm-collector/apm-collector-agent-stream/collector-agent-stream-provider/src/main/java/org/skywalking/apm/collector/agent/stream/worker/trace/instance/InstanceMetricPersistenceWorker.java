@@ -37,7 +37,7 @@ public class InstanceMetricPersistenceWorker extends PersistenceWorker<InstanceM
     }
 
     @Override public int id() {
-        return InstanceMetricPersistenceWorker.class.hashCode();
+        return 118;
     }
 
     @Override protected boolean needMergeDBData() {

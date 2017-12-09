@@ -19,7 +19,7 @@ Sky Walking | [English](README.md)
   * 使用 [**@Trace**](docs/cn/Application-toolkit-trace-CN.md) 标注追踪业务方法
   * 将 traceId 集成到 log4j, log4j2 或 logback这些日志组件中
 * 纯Java后端Collector实现，提供RESTful和gRPC接口。兼容接受其他语言探针发送数据 
-  * [如何将探针的Metric和Trace数据上传到Collector？]()
+  * [如何将探针的Metric和Trace数据上传到Collector？](/docs/cn/How-to-communicate-with-the-collector-CN.md)
 * UI工程请查看 [skywalking-ui](https://github.com/OpenSkywalking/skywalking-ui)
 * 中文QQ群：392443393
 
@@ -33,7 +33,7 @@ Sky Walking | [English](README.md)
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wu.sheng@foxmail.com.
 
 # Screenshots
-- 追踪基于 dubbox 和 [motan](https://github.com/weibocom/motan)的分布式系统，生成的拓扑截图
+- 分布式系统拓扑图自动发现
 <img src="https://skywalkingtest.github.io/page-resources/3.2.1/topological_graph_test_project.png?forceUpdate=0"/>
 
 - 调用链查询

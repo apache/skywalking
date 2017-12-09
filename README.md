@@ -1,6 +1,9 @@
 Sky Walking | [中文](README_ZH.md)
 ==========
 
+# Announcement:
+## SkyWalking has been accepted as an incubator project by Apache Foundation. All pull requests can't be accepted until Apache/SkyWalking repository established.
+
 <img src="https://skywalkingtest.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
 
 **SkyWalking 3**: APM for Distributed Systems, also known Distributed Tracing System. 
@@ -30,7 +33,7 @@ Sky Walking | [中文](README_ZH.md)
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wu.sheng@foxmail.com.
 
 # Screenshots
-- Topological graph of application clusters based on dubbox and [motan](https://github.com/weibocom/motan).
+- Discovery topological graph of application clusters automatically.
 <img src="https://skywalkingtest.github.io/page-resources/3.2.1/topological_graph_test_project.png"/>
 
 - Trace query.

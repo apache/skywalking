@@ -37,7 +37,7 @@ public class GlobalTracePersistenceWorker extends PersistenceWorker<GlobalTrace,
     }
 
     @Override public int id() {
-        return 0;
+        return 120;
     }
 
     @Override protected boolean needMergeDBData() {

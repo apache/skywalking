@@ -37,7 +37,7 @@ public class ServiceMetricPersistenceWorker extends PersistenceWorker<ServiceMet
     }
 
     @Override public int id() {
-        return ServiceMetricPersistenceWorker.class.hashCode();
+        return 116;
     }
 
     @Override protected IPersistenceDAO persistenceDAO() {

@@ -37,7 +37,7 @@ public class ApplicationMetricPersistenceWorker extends PersistenceWorker<Applic
     }
 
     @Override public int id() {
-        return ApplicationMetricPersistenceWorker.class.hashCode();
+        return 111;
     }
 
     @Override protected IPersistenceDAO persistenceDAO() {

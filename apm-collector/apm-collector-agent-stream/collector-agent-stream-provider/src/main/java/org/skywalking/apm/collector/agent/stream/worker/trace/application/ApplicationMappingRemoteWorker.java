@@ -36,7 +36,7 @@ public class ApplicationMappingRemoteWorker extends AbstractRemoteWorker<Applica
     }
 
     @Override public int id() {
-        return ApplicationMappingRemoteWorker.class.hashCode();
+        return 10007;
     }
 
     @Override protected void onWork(ApplicationMapping applicationMapping) throws WorkerException {

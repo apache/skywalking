@@ -37,7 +37,7 @@ public class AlertingListPersistenceWorker extends PersistenceWorker<AlertingLis
     }
 
     @Override public int id() {
-        return 0;
+        return 114;
     }
 
     @Override protected boolean needMergeDBData() {

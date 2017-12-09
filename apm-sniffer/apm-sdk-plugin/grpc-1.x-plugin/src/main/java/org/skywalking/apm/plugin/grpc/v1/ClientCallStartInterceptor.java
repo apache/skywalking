@@ -19,39 +19,23 @@
 package org.skywalking.apm.plugin.grpc.v1;
 
 import io.grpc.Metadata;
-import io.grpc.MethodDescriptor;
 import java.lang.reflect.Method;
 import org.skywalking.apm.agent.core.context.CarrierItem;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
-import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.skywalking.apm.plugin.grpc.v1.vo.GRPCDynamicFields;
 
-/**
- * {@link ClientCallOnNextInterceptor} create a exist span when the grpc start call. it will stop span when the method
- * type is non-unary.
- *
- * @author zhangxin
- */
-public class ClientCallStartInterceptor
-    implements InstanceMethodsAroundInterceptor {
-
+public class ClientCallStartInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        GRPCDynamicFields cachedObjects = (GRPCDynamicFields)objInst.getSkyWalkingDynamicField();
         final Metadata headers = (Metadata)allArguments[1];
-        final AbstractSpan span = ContextManager.createExitSpan(cachedObjects.getRequestMethodName(), cachedObjects.getAuthority());
-        span.setComponent(ComponentsDefine.GRPC);
-        SpanLayer.asRPCFramework(span);
+
         final ContextCarrier contextCarrier = new ContextCarrier();
         ContextManager.inject(contextCarrier);
-
         CarrierItem contextItem = contextCarrier.items();
         while (contextItem.hasNext()) {
             contextItem = contextItem.next();
@@ -59,6 +43,7 @@ public class ClientCallStartInterceptor
             headers.put(headerKey, contextItem.getHeadValue());
         }
 
+        GRPCDynamicFields cachedObjects = (GRPCDynamicFields)objInst.getSkyWalkingDynamicField();
         GRPCDynamicFields listenerCachedObject = new GRPCDynamicFields();
         listenerCachedObject.setSnapshot(ContextManager.capture());
         listenerCachedObject.setDescriptor(cachedObjects.getDescriptor());
@@ -68,15 +53,11 @@ public class ClientCallStartInterceptor
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-
-        if (((GRPCDynamicFields)objInst.getSkyWalkingDynamicField()).getMethodType() != MethodDescriptor.MethodType.UNARY) {
-            ContextManager.stopSpan();
-        }
         return ret;
     }
 
     @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+
     }
 }

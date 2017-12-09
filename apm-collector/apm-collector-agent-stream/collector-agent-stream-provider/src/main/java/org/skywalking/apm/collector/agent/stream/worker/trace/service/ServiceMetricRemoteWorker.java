@@ -36,7 +36,7 @@ public class ServiceMetricRemoteWorker extends AbstractRemoteWorker<ServiceMetri
     }
 
     @Override public int id() {
-        return ServiceMetricRemoteWorker.class.hashCode();
+        return 10004;
     }
 
     @Override protected void onWork(ServiceMetric serviceMetric) throws WorkerException {
