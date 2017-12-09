@@ -18,10 +18,7 @@
 
 package org.skywalking.apm.plugin.grpc.v1;
 
-import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
-import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,7 +31,6 @@ import org.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.skywalking.apm.agent.test.helper.SegmentHelper;
-import org.skywalking.apm.agent.test.helper.SpanHelper;
 import org.skywalking.apm.agent.test.tools.AgentServiceRule;
 import org.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.skywalking.apm.agent.test.tools.SegmentStoragePoint;
@@ -49,7 +45,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
-public class ClientCallStartInterceptorTest {
+public class ClientCallsMethodInterceptorTest {
 
     @SegmentStoragePoint
     private SegmentStorage segmentStorage;
@@ -57,8 +53,7 @@ public class ClientCallStartInterceptorTest {
     @Rule
     public AgentServiceRule agentServiceRule = new AgentServiceRule();
 
-    private ClientCallStartInterceptor clientCallStartInterceptor;
-    private UnaryClientOnCloseInterceptor unaryClientOnCloseInterceptor;
+    private ClientCallsMethodInterceptor clientCallStartInterceptor;
 
     @Mock
     private EnhancedInstance clientCallImpl;
@@ -71,8 +66,6 @@ public class ClientCallStartInterceptorTest {
 
     @Mock
     private GRPCDynamicFields streamCachedObjects;
-
-    private Status exceptionStatus = Status.NOT_FOUND.withCause(new RuntimeException());
 
     private Object[] arguments;
     private Class[] argumentTypes;
@@ -87,20 +80,18 @@ public class ClientCallStartInterceptorTest {
         when(streamCachedObjects.getAuthority()).thenReturn("localhost:500051");
         when(streamCachedObjects.getMethodType()).thenReturn(MethodDescriptor.MethodType.SERVER_STREAMING);
 
-        arguments = new Object[] {clientCallListener, new Metadata()};
-        argumentTypes = new Class[] {clientCallListener.getClass(), Metadata.class};
+        arguments = new Object[] {clientCallImpl, clientCallListener};
+        argumentTypes = new Class[] {clientCallImpl.getClass(), clientCallListener.getClass()};
 
-        clientCallStartInterceptor = new ClientCallStartInterceptor();
-        unaryClientOnCloseInterceptor = new UnaryClientOnCloseInterceptor();
+        clientCallStartInterceptor = new ClientCallsMethodInterceptor();
     }
 
     @Test
     public void testNormalUnaryCallStart() throws Throwable {
         when(clientCallImpl.getSkyWalkingDynamicField()).thenReturn(unaryCachedObjects);
 
-        clientCallStartInterceptor.beforeMethod(clientCallImpl, null, arguments, argumentTypes, null);
-        clientCallStartInterceptor.afterMethod(clientCallImpl, null, arguments, argumentTypes, null);
-        unaryClientOnCloseInterceptor.afterMethod(null, null, new Object[] {Status.OK, new Metadata()}, null, null);
+        clientCallStartInterceptor.beforeMethod(null, null, arguments, argumentTypes, null);
+        clientCallStartInterceptor.afterMethod(null, null, arguments, argumentTypes, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -112,29 +103,11 @@ public class ClientCallStartInterceptorTest {
     }
 
     @Test
-    public void testUnaryCallStartWithException() throws Throwable {
-        when(clientCallImpl.getSkyWalkingDynamicField()).thenReturn(unaryCachedObjects);
-
-        clientCallStartInterceptor.beforeMethod(clientCallImpl, null, arguments, argumentTypes, null);
-        clientCallStartInterceptor.afterMethod(clientCallImpl, null, arguments, argumentTypes, null);
-        unaryClientOnCloseInterceptor.afterMethod(null, null, new Object[] {exceptionStatus, new Metadata()}, null, null);
-
-        assertThat(segmentStorage.getTraceSegments().size(), is(1));
-        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
-        assertThat(SegmentHelper.getSpans(traceSegment).size(), is(1));
-        AbstractTracingSpan abstractTracingSpan = SegmentHelper.getSpans(traceSegment).get(0);
-        SpanAssert.assertComponent(abstractTracingSpan, ComponentsDefine.GRPC);
-        SpanAssert.assertLayer(abstractTracingSpan, SpanLayer.RPC_FRAMEWORK);
-        SpanAssert.assertOccurException(abstractTracingSpan, true);
-        SpanAssert.assertException(SpanHelper.getLogs(abstractTracingSpan).get(0), StatusRuntimeException.class, "NOT_FOUND");
-    }
-
-    @Test
     public void testNormalStreamCallStart() throws Throwable {
         when(clientCallImpl.getSkyWalkingDynamicField()).thenReturn(streamCachedObjects);
 
-        clientCallStartInterceptor.beforeMethod(clientCallImpl, null, arguments, argumentTypes, null);
-        clientCallStartInterceptor.afterMethod(clientCallImpl, null, arguments, argumentTypes, null);
+        clientCallStartInterceptor.beforeMethod(null, null, arguments, argumentTypes, null);
+        clientCallStartInterceptor.afterMethod(null, null, arguments, argumentTypes, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
