@@ -72,20 +72,18 @@ public class ComponentsDefine {
     public static final OfficialComponent GRPC = new OfficialComponent(23, "GRPC");
 
     public static final OfficialComponent ELASTIC_JOB = new OfficialComponent(24, "ElasticJob");
-  
+
     public static final OfficialComponent ROCKET_MQ = new OfficialComponent(25, "RocketMQ");
+
+    public static final OfficialComponent MYBATIS = new OfficialComponent(26, "MyBatis");
 
 
     private static ComponentsDefine instance = new ComponentsDefine();
 
     private String[] components;
 
-    public static ComponentsDefine getInstance() {
-        return instance;
-    }
-
     public ComponentsDefine() {
-        components = new String[26];
+        components = new String[27];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -111,6 +109,11 @@ public class ComponentsDefine {
         addComponent(GRPC);
         addComponent(ELASTIC_JOB);
         addComponent(ROCKET_MQ);
+        addComponent(MYBATIS);
+    }
+
+    public static ComponentsDefine getInstance() {
+        return instance;
     }
 
     private void addComponent(OfficialComponent component) {
