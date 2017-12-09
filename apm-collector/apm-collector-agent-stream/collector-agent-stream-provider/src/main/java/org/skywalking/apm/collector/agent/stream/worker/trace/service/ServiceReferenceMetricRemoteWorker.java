@@ -18,6 +18,7 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.trace.service;
 
+import org.skywalking.apm.collector.agent.stream.service.graph.ServiceGraphNodeIdDefine;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.remote.service.RemoteSenderService;
 import org.skywalking.apm.collector.remote.service.Selector;
@@ -36,7 +37,7 @@ public class ServiceReferenceMetricRemoteWorker extends AbstractRemoteWorker<Ser
     }
 
     @Override public int id() {
-        return ServiceReferenceMetricRemoteWorker.class.hashCode();
+        return ServiceGraphNodeIdDefine.SERVICE_REFERENCE_METRIC_REMOTE_NODE_ID;
     }
 
     @Override protected void onWork(ServiceReferenceMetric serviceReferenceMetric) throws WorkerException {

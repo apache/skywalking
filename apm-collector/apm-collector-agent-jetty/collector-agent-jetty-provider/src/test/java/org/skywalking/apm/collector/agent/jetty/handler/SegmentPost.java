@@ -42,7 +42,7 @@ public class SegmentPost {
         JsonElement provider = JsonFileReader.INSTANCE.read("json/dubbox-provider.json");
         JsonElement consumer = JsonFileReader.INSTANCE.read("json/dubbox-consumer.json");
 
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 1; i++) {
             HttpClientTools.INSTANCE.post("http://localhost:12800/segments", provider.toString());
             HttpClientTools.INSTANCE.post("http://localhost:12800/segments", consumer.toString());
         }

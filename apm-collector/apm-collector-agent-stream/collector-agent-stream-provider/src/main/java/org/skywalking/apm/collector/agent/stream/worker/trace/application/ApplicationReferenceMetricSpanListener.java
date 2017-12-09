@@ -20,18 +20,13 @@ package org.skywalking.apm.collector.agent.stream.worker.trace.application;
 
 import java.util.LinkedList;
 import java.util.List;
-import org.skywalking.apm.collector.agent.stream.graph.TraceStreamGraph;
 import org.skywalking.apm.collector.agent.stream.parser.EntrySpanListener;
 import org.skywalking.apm.collector.agent.stream.parser.ExitSpanListener;
-import org.skywalking.apm.collector.agent.stream.parser.RefsListener;
-import org.skywalking.apm.collector.agent.stream.parser.standardization.ReferenceDecorator;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SpanDecorator;
 import org.skywalking.apm.collector.cache.CacheModule;
 import org.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.skywalking.apm.collector.configuration.ConfigurationModule;
 import org.skywalking.apm.collector.configuration.service.IApdexThresholdService;
-import org.skywalking.apm.collector.core.graph.Graph;
-import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.core.util.ApdexThresholdUtils;
 import org.skywalking.apm.collector.core.util.CollectionUtils;
@@ -44,7 +39,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public class ApplicationReferenceMetricSpanListener implements EntrySpanListener, ExitSpanListener, RefsListener {
+public class ApplicationReferenceMetricSpanListener implements EntrySpanListener, ExitSpanListener {
 
     private final Logger logger = LoggerFactory.getLogger(ApplicationReferenceMetricSpanListener.class);
 
@@ -100,22 +95,22 @@ public class ApplicationReferenceMetricSpanListener implements EntrySpanListener
         }
     }
 
-    @Override public void parseRef(ReferenceDecorator referenceDecorator, int applicationId, int instanceId,
-        String segmentId) {
-        int parentApplicationId = instanceCacheService.get(referenceDecorator.getParentApplicationInstanceId());
-
-        ApplicationReferenceMetric referenceSum = new ApplicationReferenceMetric(Const.EMPTY_STRING);
-        referenceSum.setFrontApplicationId(parentApplicationId);
-        referenceSum.setBehindApplicationId(applicationId);
-        references.add(referenceSum);
-    }
+//    @Override public void parseRef(ReferenceDecorator referenceDecorator, int applicationId, int instanceId,
+//        String segmentId) {
+//        int parentApplicationId = instanceCacheService.get(referenceDecorator.getParentApplicationInstanceId());
+//
+//        ApplicationReferenceMetric referenceSum = new ApplicationReferenceMetric(Const.EMPTY_STRING);
+//        referenceSum.setFrontApplicationId(parentApplicationId);
+//        referenceSum.setBehindApplicationId(applicationId);
+//        references.add(referenceSum);
+//    }
 
     @Override public void build() {
         logger.debug("node reference summary listener build");
-        Graph<ApplicationReferenceMetric> graph = GraphManager.INSTANCE.createIfAbsent(TraceStreamGraph.APPLICATION_REFERENCE_METRIC_GRAPH_ID, ApplicationReferenceMetric.class);
-        for (ApplicationReferenceMetric applicationReferenceMetric : applicationReferenceMetrics) {
-            graph.start(applicationReferenceMetric);
-        }
+//        Graph<ApplicationReferenceMetric> graph = GraphManager.INSTANCE.createIfAbsent(TraceStreamGraph.APPLICATION_REFERENCE_METRIC_GRAPH_ID, ApplicationReferenceMetric.class);
+//        for (ApplicationReferenceMetric applicationReferenceMetric : applicationReferenceMetrics) {
+//            graph.start(applicationReferenceMetric);
+//        }
     }
 
     private ApplicationReferenceMetric buildApplicationRefSum(ApplicationReferenceMetric reference,

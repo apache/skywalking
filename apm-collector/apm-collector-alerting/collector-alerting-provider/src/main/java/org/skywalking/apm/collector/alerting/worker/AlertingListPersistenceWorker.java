@@ -16,29 +16,28 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.agent.stream.worker.trace.application;
+package org.skywalking.apm.collector.alerting.worker;
 
-import org.skywalking.apm.collector.agent.stream.service.graph.ApplicationGraphNodeIdDefine;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.storage.dao.IApplicationReferenceMetricPersistenceDAO;
-import org.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetric;
+import org.skywalking.apm.collector.storage.dao.IAlertingListPersistenceDAO;
+import org.skywalking.apm.collector.storage.table.alerting.AlertingList;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationReferenceMetricPersistenceWorker extends PersistenceWorker<ApplicationReferenceMetric, ApplicationReferenceMetric> {
+public class AlertingListPersistenceWorker extends PersistenceWorker<AlertingList, AlertingList> {
 
-    public ApplicationReferenceMetricPersistenceWorker(ModuleManager moduleManager) {
+    public AlertingListPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     @Override public int id() {
-        return ApplicationGraphNodeIdDefine.APPLICATION_REFERENCE_METRIC_PERSISTENCE_NODE_ID;
+        return 0;
     }
 
     @Override protected boolean needMergeDBData() {
@@ -46,18 +45,17 @@ public class ApplicationReferenceMetricPersistenceWorker extends PersistenceWork
     }
 
     @Override protected IPersistenceDAO persistenceDAO() {
-        return getModuleManager().find(StorageModule.NAME).getService(IApplicationReferenceMetricPersistenceDAO.class);
+        return getModuleManager().find(StorageModule.NAME).getService(IAlertingListPersistenceDAO.class);
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<ApplicationReferenceMetric, ApplicationReferenceMetric, ApplicationReferenceMetricPersistenceWorker> {
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<AlertingList, AlertingList, AlertingListPersistenceWorker> {
 
-        public Factory(ModuleManager moduleManager,
-            QueueCreatorService<ApplicationReferenceMetric> queueCreatorService) {
+        public Factory(ModuleManager moduleManager, QueueCreatorService<AlertingList> queueCreatorService) {
             super(moduleManager, queueCreatorService);
         }
 
-        @Override public ApplicationReferenceMetricPersistenceWorker workerInstance(ModuleManager moduleManager) {
-            return new ApplicationReferenceMetricPersistenceWorker(moduleManager);
+        @Override public AlertingListPersistenceWorker workerInstance(ModuleManager moduleManager) {
+            return new AlertingListPersistenceWorker(moduleManager);
         }
 
         @Override

@@ -106,15 +106,33 @@ public abstract class Data extends EndOfBatchQueueMessage {
     }
 
     public Long getDataLong(int position) {
-        return dataLongs[position];
+        if (position + 1 > dataLongs.length) {
+            throw new IndexOutOfBoundsException();
+        } else if (dataLongs[position] == null) {
+            return 0L;
+        } else {
+            return dataLongs[position];
+        }
     }
 
     public Double getDataDouble(int position) {
-        return dataDoubles[position];
+        if (position + 1 > dataDoubles.length) {
+            throw new IndexOutOfBoundsException();
+        } else if (dataDoubles[position] == null) {
+            return 0D;
+        } else {
+            return dataDoubles[position];
+        }
     }
 
     public Integer getDataInteger(int position) {
-        return dataIntegers[position];
+        if (position + 1 > dataIntegers.length) {
+            throw new IndexOutOfBoundsException();
+        } else if (dataIntegers[position] == null) {
+            return 0;
+        } else {
+            return dataIntegers[position];
+        }
     }
 
     public Boolean getDataBoolean(int position) {
@@ -136,27 +154,27 @@ public abstract class Data extends EndOfBatchQueueMessage {
 
     public void mergeData(Data newData) {
         for (int i = 0; i < stringColumns.length; i++) {
-            String stringData = stringColumns[i].getOperation().operate(newData.getDataString(i), this.dataStrings[i]);
+            String stringData = stringColumns[i].getOperation().operate(newData.getDataString(i), this.getDataString(i));
             this.dataStrings[i] = stringData;
         }
         for (int i = 0; i < longColumns.length; i++) {
-            Long longData = longColumns[i].getOperation().operate(newData.getDataLong(i), this.dataLongs[i]);
+            Long longData = longColumns[i].getOperation().operate(newData.getDataLong(i), this.getDataLong(i));
             this.dataLongs[i] = longData;
         }
         for (int i = 0; i < doubleColumns.length; i++) {
-            Double doubleData = doubleColumns[i].getOperation().operate(newData.getDataDouble(i), this.dataDoubles[i]);
+            Double doubleData = doubleColumns[i].getOperation().operate(newData.getDataDouble(i), this.getDataDouble(i));
             this.dataDoubles[i] = doubleData;
         }
         for (int i = 0; i < integerColumns.length; i++) {
-            Integer integerData = integerColumns[i].getOperation().operate(newData.getDataInteger(i), this.dataIntegers[i]);
+            Integer integerData = integerColumns[i].getOperation().operate(newData.getDataInteger(i), this.getDataInteger(i));
             this.dataIntegers[i] = integerData;
         }
         for (int i = 0; i < booleanColumns.length; i++) {
-            Boolean booleanData = booleanColumns[i].getOperation().operate(newData.getDataBoolean(i), this.dataBooleans[i]);
+            Boolean booleanData = booleanColumns[i].getOperation().operate(newData.getDataBoolean(i), this.getDataBoolean(i));
             this.dataBooleans[i] = booleanData;
         }
         for (int i = 0; i < byteColumns.length; i++) {
-            byte[] byteData = byteColumns[i].getOperation().operate(newData.getDataBytes(i), this.dataBytes[i]);
+            byte[] byteData = byteColumns[i].getOperation().operate(newData.getDataBytes(i), this.getDataBytes(i));
             this.dataBytes[i] = byteData;
         }
     }

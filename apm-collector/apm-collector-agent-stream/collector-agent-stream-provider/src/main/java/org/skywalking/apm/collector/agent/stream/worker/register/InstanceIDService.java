@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.register;
 
-import org.skywalking.apm.collector.agent.stream.graph.RegisterStreamGraph;
+import org.skywalking.apm.collector.agent.stream.service.graph.RegisterStreamGraphDefine;
 import org.skywalking.apm.collector.agent.stream.service.register.IInstanceIDService;
 import org.skywalking.apm.collector.cache.CacheModule;
 import org.skywalking.apm.collector.cache.service.InstanceCacheService;
@@ -57,7 +57,7 @@ public class InstanceIDService implements IInstanceIDService {
 
     private Graph<Instance> getInstanceRegisterGraph() {
         if (ObjectUtils.isEmpty(instanceRegisterGraph)) {
-            this.instanceRegisterGraph = GraphManager.INSTANCE.createIfAbsent(RegisterStreamGraph.INSTANCE_REGISTER_GRAPH_ID, Instance.class);
+            this.instanceRegisterGraph = GraphManager.INSTANCE.createIfAbsent(RegisterStreamGraphDefine.INSTANCE_REGISTER_GRAPH_ID, Instance.class);
         }
         return instanceRegisterGraph;
     }

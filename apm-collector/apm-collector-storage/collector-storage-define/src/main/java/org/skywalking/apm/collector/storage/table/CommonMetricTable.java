@@ -36,4 +36,5 @@ public abstract class CommonMetricTable extends CommonTable {
     public static final String COLUMN_MQ_TRANSACTION_ERROR_CALLS = "mq_transaction_error_calls";
     public static final String COLUMN_MQ_TRANSACTION_DURATION_SUM = "mq_transaction_duration_sum";
     public static final String COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM = "mq_transaction_error_duration_sum";
+    public static final String COLUMN_SOURCE_VALUE = "source_value";
 }

@@ -23,6 +23,7 @@ import org.skywalking.apm.collector.agent.stream.AgentStreamModule;
 import org.skywalking.apm.collector.core.module.Module;
 import org.skywalking.apm.collector.core.module.ModuleProvider;
 import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.skywalking.apm.collector.storage.StorageModule;
 
 /**
  * @author peng-yongsheng
@@ -50,6 +51,6 @@ public class AlertingModuleProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {AgentStreamModule.NAME};
+        return new String[] {AgentStreamModule.NAME, StorageModule.NAME};
     }
 }

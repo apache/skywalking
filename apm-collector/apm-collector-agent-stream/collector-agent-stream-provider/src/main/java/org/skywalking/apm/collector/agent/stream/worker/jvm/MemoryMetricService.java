@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.jvm;
 
-import org.skywalking.apm.collector.agent.stream.graph.JvmMetricStreamGraph;
+import org.skywalking.apm.collector.agent.stream.service.graph.JvmMetricStreamGraphDefine;
 import org.skywalking.apm.collector.agent.stream.service.jvm.IMemoryMetricService;
 import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
@@ -39,7 +39,7 @@ public class MemoryMetricService implements IMemoryMetricService {
 
     private Graph<MemoryMetric> getMemoryMetricGraph() {
         if (ObjectUtils.isEmpty(memoryMetricGraph)) {
-            this.memoryMetricGraph = GraphManager.INSTANCE.createIfAbsent(JvmMetricStreamGraph.MEMORY_METRIC_GRAPH_ID, MemoryMetric.class);
+            this.memoryMetricGraph = GraphManager.INSTANCE.createIfAbsent(JvmMetricStreamGraphDefine.MEMORY_METRIC_GRAPH_ID, MemoryMetric.class);
         }
         return memoryMetricGraph;
     }

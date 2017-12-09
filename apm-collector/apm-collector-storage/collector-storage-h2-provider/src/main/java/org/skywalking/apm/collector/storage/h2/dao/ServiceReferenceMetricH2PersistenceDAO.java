@@ -58,6 +58,7 @@ public class ServiceReferenceMetricH2PersistenceDAO extends H2DAO implements ISe
                 serviceReferenceMetric.setEntryServiceId(rs.getInt(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID));
                 serviceReferenceMetric.setFrontServiceId(rs.getInt(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID));
                 serviceReferenceMetric.setBehindServiceId(rs.getInt(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID));
+                serviceReferenceMetric.setSourceValue(rs.getInt(ServiceReferenceMetricTable.COLUMN_SOURCE_VALUE));
 
                 serviceReferenceMetric.setTransactionCalls(rs.getLong(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS));
                 serviceReferenceMetric.setTransactionErrorCalls(rs.getLong(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS));
@@ -91,6 +92,7 @@ public class ServiceReferenceMetricH2PersistenceDAO extends H2DAO implements ISe
         source.put(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID, data.getEntryServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, data.getFrontServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, data.getBehindServiceId());
+        source.put(ServiceReferenceMetricTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
 
         source.put(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS, data.getTransactionCalls());
         source.put(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, data.getTransactionErrorCalls());
@@ -122,6 +124,7 @@ public class ServiceReferenceMetricH2PersistenceDAO extends H2DAO implements ISe
         source.put(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID, data.getEntryServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, data.getFrontServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, data.getBehindServiceId());
+        source.put(ServiceReferenceMetricTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
 
         source.put(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS, data.getTransactionCalls());
         source.put(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, data.getTransactionErrorCalls());

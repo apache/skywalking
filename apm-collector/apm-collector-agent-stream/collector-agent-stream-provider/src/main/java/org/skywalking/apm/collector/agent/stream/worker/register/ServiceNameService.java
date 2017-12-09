@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.register;
 
-import org.skywalking.apm.collector.agent.stream.graph.RegisterStreamGraph;
+import org.skywalking.apm.collector.agent.stream.service.graph.RegisterStreamGraphDefine;
 import org.skywalking.apm.collector.agent.stream.service.register.IServiceNameService;
 import org.skywalking.apm.collector.cache.CacheModule;
 import org.skywalking.apm.collector.cache.service.ServiceIdCacheService;
@@ -54,7 +54,7 @@ public class ServiceNameService implements IServiceNameService {
 
     private Graph<ServiceName> getServiceNameRegisterGraph() {
         if (ObjectUtils.isEmpty(serviceNameRegisterGraph)) {
-            this.serviceNameRegisterGraph = GraphManager.INSTANCE.createIfAbsent(RegisterStreamGraph.SERVICE_NAME_REGISTER_GRAPH_ID, ServiceName.class);
+            this.serviceNameRegisterGraph = GraphManager.INSTANCE.createIfAbsent(RegisterStreamGraphDefine.SERVICE_NAME_REGISTER_GRAPH_ID, ServiceName.class);
         }
         return serviceNameRegisterGraph;
     }

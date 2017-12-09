@@ -21,8 +21,6 @@ package org.skywalking.apm.collector.agent.stream.worker.trace.service;
 import org.skywalking.apm.collector.agent.stream.graph.TraceStreamGraph;
 import org.skywalking.apm.collector.agent.stream.parser.EntrySpanListener;
 import org.skywalking.apm.collector.agent.stream.parser.FirstSpanListener;
-import org.skywalking.apm.collector.agent.stream.parser.RefsListener;
-import org.skywalking.apm.collector.agent.stream.parser.standardization.ReferenceDecorator;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SpanDecorator;
 import org.skywalking.apm.collector.cache.CacheModule;
 import org.skywalking.apm.collector.cache.service.ServiceNameCacheService;
@@ -38,7 +36,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public class ServiceEntrySpanListener implements RefsListener, FirstSpanListener, EntrySpanListener {
+public class ServiceEntrySpanListener implements FirstSpanListener, EntrySpanListener {
 
     private final Logger logger = LoggerFactory.getLogger(ServiceEntrySpanListener.class);
 
@@ -61,11 +59,9 @@ public class ServiceEntrySpanListener implements RefsListener, FirstSpanListener
         this.entryServiceId = spanDecorator.getOperationNameId();
         this.entryServiceName = serviceNameCacheService.getSplitServiceName(serviceNameCacheService.get(entryServiceId));
         this.hasEntry = true;
-    }
-
-    @Override public void parseRef(ReferenceDecorator referenceDecorator, int applicationId, int instanceId,
-        String segmentId) {
-        hasReference = true;
+        if (spanDecorator.getRefsCount() > 0) {
+            this.hasReference = true;
+        }
     }
 
     @Override

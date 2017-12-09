@@ -36,6 +36,7 @@ public class ServiceReferenceMetricH2TableDefine extends H2TableDefine {
         addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID, H2ColumnDefine.Type.Int.name()));
         addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, H2ColumnDefine.Type.Int.name()));
         addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_SOURCE_VALUE, H2ColumnDefine.Type.Int.name()));
 
         addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS, H2ColumnDefine.Type.Bigint.name()));
         addColumn(new H2ColumnDefine(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, H2ColumnDefine.Type.Bigint.name()));

@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.jvm;
 
-import org.skywalking.apm.collector.agent.stream.graph.JvmMetricStreamGraph;
+import org.skywalking.apm.collector.agent.stream.service.graph.JvmMetricStreamGraphDefine;
 import org.skywalking.apm.collector.agent.stream.service.jvm.ICpuMetricService;
 import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
@@ -39,7 +39,7 @@ public class CpuMetricService implements ICpuMetricService {
 
     private Graph<CpuMetric> getCpuMetricGraph() {
         if (ObjectUtils.isEmpty(cpuMetricGraph)) {
-            cpuMetricGraph = GraphManager.INSTANCE.createIfAbsent(JvmMetricStreamGraph.CPU_METRIC_GRAPH_ID, CpuMetric.class);
+            cpuMetricGraph = GraphManager.INSTANCE.createIfAbsent(JvmMetricStreamGraphDefine.CPU_METRIC_GRAPH_ID, CpuMetric.class);
         }
         return cpuMetricGraph;
     }

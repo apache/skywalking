@@ -45,7 +45,6 @@ public class AgentStreamBootStartup {
 
         PersistenceTimer timer = new PersistenceTimer();
         timer.start(moduleManager, workerCreateListener.getPersistenceWorkers());
-
     }
 
     private void createJVMGraph() {
@@ -71,10 +70,11 @@ public class AgentStreamBootStartup {
         traceStreamGraph.createInstanceMetricGraph();
         traceStreamGraph.createApplicationComponentGraph();
         traceStreamGraph.createApplicationMappingGraph();
-        traceStreamGraph.createApplicationReferenceMetricGraph();
+//        traceStreamGraph.createApplicationReferenceMetricGraph();
         traceStreamGraph.createServiceEntryGraph();
-        traceStreamGraph.createServiceReferenceGraph();
         traceStreamGraph.createSegmentGraph();
         traceStreamGraph.createSegmentCostGraph();
+
+        traceStreamGraph.createServiceReferenceGraph();
     }
 }
