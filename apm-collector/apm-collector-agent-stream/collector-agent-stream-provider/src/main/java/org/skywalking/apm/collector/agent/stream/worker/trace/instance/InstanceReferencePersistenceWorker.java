@@ -16,47 +16,47 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.agent.stream.worker.trace.service;
+package org.skywalking.apm.collector.agent.stream.worker.trace.instance;
 
-import org.skywalking.apm.collector.agent.stream.service.graph.ServiceGraphNodeIdDefine;
+import org.skywalking.apm.collector.agent.stream.service.graph.InstanceGraphNodeIdDefine;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
 import org.skywalking.apm.collector.storage.StorageModule;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.storage.dao.IServiceReferenceMetricPersistenceDAO;
-import org.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
+import org.skywalking.apm.collector.storage.dao.IInstanceReferenceMetricPersistenceDAO;
+import org.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetric;
 import org.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceReferenceMetricPersistenceWorker extends PersistenceWorker<ServiceReferenceMetric, ServiceReferenceMetric> {
+public class InstanceReferencePersistenceWorker extends PersistenceWorker<InstanceReferenceMetric, InstanceReferenceMetric> {
 
-    public ServiceReferenceMetricPersistenceWorker(ModuleManager moduleManager) {
+    public InstanceReferencePersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     @Override public int id() {
-        return ServiceGraphNodeIdDefine.SERVICE_REFERENCE_METRIC_PERSISTENCE_NODE_ID;
+        return InstanceGraphNodeIdDefine.INSTANCE_REFERENCE_METRIC_PERSISTENCE_NODE_ID;
+    }
+
+    @Override protected IPersistenceDAO persistenceDAO() {
+        return getModuleManager().find(StorageModule.NAME).getService(IInstanceReferenceMetricPersistenceDAO.class);
     }
 
     @Override protected boolean needMergeDBData() {
         return true;
     }
 
-    @Override protected IPersistenceDAO persistenceDAO() {
-        return getModuleManager().find(StorageModule.NAME).getService(IServiceReferenceMetricPersistenceDAO.class);
-    }
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<InstanceReferenceMetric, InstanceReferenceMetric, InstanceReferencePersistenceWorker> {
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<ServiceReferenceMetric, ServiceReferenceMetric, ServiceReferenceMetricPersistenceWorker> {
-
-        public Factory(ModuleManager moduleManager, QueueCreatorService<ServiceReferenceMetric> queueCreatorService) {
+        public Factory(ModuleManager moduleManager, QueueCreatorService<InstanceReferenceMetric> queueCreatorService) {
             super(moduleManager, queueCreatorService);
         }
 
-        @Override public ServiceReferenceMetricPersistenceWorker workerInstance(ModuleManager moduleManager) {
-            return new ServiceReferenceMetricPersistenceWorker(moduleManager);
+        @Override public InstanceReferencePersistenceWorker workerInstance(ModuleManager moduleManager) {
+            return new InstanceReferencePersistenceWorker(moduleManager);
         }
 
         @Override

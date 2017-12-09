@@ -16,13 +16,15 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.agent.stream.parser;
+package org.skywalking.apm.collector.storage.table.instance;
 
-import org.skywalking.apm.collector.agent.stream.parser.standardization.ReferenceDecorator;
+import org.skywalking.apm.collector.storage.table.CommonMetricTable;
 
 /**
  * @author peng-yongsheng
  */
-public interface RefsListener extends SpanListener {
-    void parseRef(ReferenceDecorator referenceDecorator, int applicationId, int instanceId, String segmentId);
+public class InstanceReferenceMetricTable extends CommonMetricTable {
+    public static final String TABLE = "instance_reference_metric";
+    public static final String COLUMN_FRONT_INSTANCE_ID = "front_instance_id";
+    public static final String COLUMN_BEHIND_INSTANCE_ID = "behind_instance_id";
 }

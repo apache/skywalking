@@ -92,8 +92,7 @@ public class ElasticSearchClient implements Client {
         List<AddressPairs> pairsList = new LinkedList<>();
         logger.info("elasticsearch cluster nodes: {}", nodes);
         String[] nodesSplit = nodes.split(",");
-        for (int i = 0; i < nodesSplit.length; i++) {
-            String node = nodesSplit[i];
+        for (String node : nodesSplit) {
             String host = node.split(":")[0];
             String port = node.split(":")[1];
             pairsList.add(new AddressPairs(host, Integer.valueOf(port)));
@@ -106,7 +105,7 @@ public class ElasticSearchClient implements Client {
         private String host;
         private Integer port;
 
-        public AddressPairs(String host, Integer port) {
+        AddressPairs(String host, Integer port) {
             this.host = host;
             this.port = port;
         }

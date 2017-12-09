@@ -22,32 +22,32 @@ import java.util.LinkedList;
 import java.util.List;
 import org.skywalking.apm.collector.agent.stream.graph.TraceStreamGraph;
 import org.skywalking.apm.collector.agent.stream.parser.EntrySpanListener;
+import org.skywalking.apm.collector.agent.stream.parser.ExitSpanListener;
 import org.skywalking.apm.collector.agent.stream.parser.FirstSpanListener;
-import org.skywalking.apm.collector.agent.stream.parser.RefsListener;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.ReferenceDecorator;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SpanDecorator;
+import org.skywalking.apm.collector.agent.stream.service.trace.MetricSource;
 import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.util.Const;
+import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
+import org.skywalking.apm.network.proto.SpanLayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceReferenceMetricSpanListener implements FirstSpanListener, EntrySpanListener, RefsListener {
+public class ServiceReferenceMetricSpanListener implements FirstSpanListener, EntrySpanListener, ExitSpanListener {
 
     private final Logger logger = LoggerFactory.getLogger(ServiceReferenceMetricSpanListener.class);
 
-    private List<ReferenceDecorator> referenceServices = new LinkedList<>();
-    private int serviceId = 0;
-    private long startTime = 0;
-    private long endTime = 0;
-    private boolean isError = false;
+    private List<ServiceReferenceMetric> entryReferenceMetric = new LinkedList<>();
+    private List<ServiceReferenceMetric> exitReferenceMetric = new LinkedList<>();
+    private SpanDecorator entrySpanDecorator;
     private long timeBucket;
-    private boolean hasEntry = false;
 
     @Override
     public void parseFirst(SpanDecorator spanDecorator, int applicationId, int instanceId,
@@ -55,80 +55,110 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
         timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
     }
 
-    @Override public void parseRef(ReferenceDecorator referenceDecorator, int applicationId, int applicationInstanceId,
-        String segmentId) {
-        referenceServices.add(referenceDecorator);
-    }
-
     @Override
     public void parseEntry(SpanDecorator spanDecorator, int applicationId, int instanceId,
         String segmentId) {
-        serviceId = spanDecorator.getOperationNameId();
-        startTime = spanDecorator.getStartTime();
-        endTime = spanDecorator.getEndTime();
-        isError = spanDecorator.getIsError();
-        this.hasEntry = true;
+        if (spanDecorator.getRefsCount() > 0) {
+            for (int i = 0; i < spanDecorator.getRefsCount(); i++) {
+                ReferenceDecorator reference = spanDecorator.getRefs(i);
+                ServiceReferenceMetric serviceReferenceMetric = new ServiceReferenceMetric(Const.EMPTY_STRING);
+                serviceReferenceMetric.setEntryServiceId(reference.getEntryServiceId());
+                serviceReferenceMetric.setEntryInstanceId(reference.getEntryApplicationInstanceId());
+                serviceReferenceMetric.setFrontServiceId(reference.getParentServiceId());
+                serviceReferenceMetric.setFrontInstanceId(reference.getParentApplicationInstanceId());
+                serviceReferenceMetric.setBehindServiceId(spanDecorator.getOperationNameId());
+                serviceReferenceMetric.setBehindInstanceId(instanceId);
+                serviceReferenceMetric.setSourceValue(MetricSource.Entry.ordinal());
+                calculateCost(serviceReferenceMetric, spanDecorator, true);
+                entryReferenceMetric.add(serviceReferenceMetric);
+            }
+        } else {
+            ServiceReferenceMetric serviceReferenceMetric = new ServiceReferenceMetric(Const.EMPTY_STRING);
+            serviceReferenceMetric.setEntryServiceId(spanDecorator.getOperationNameId());
+            serviceReferenceMetric.setEntryInstanceId(instanceId);
+            serviceReferenceMetric.setFrontServiceId(Const.NONE_SERVICE_ID);
+            serviceReferenceMetric.setFrontInstanceId(instanceId);
+            serviceReferenceMetric.setBehindServiceId(spanDecorator.getOperationNameId());
+            serviceReferenceMetric.setBehindServiceId(instanceId);
+            serviceReferenceMetric.setSourceValue(MetricSource.Entry.ordinal());
+
+            calculateCost(serviceReferenceMetric, spanDecorator, false);
+            entryReferenceMetric.add(serviceReferenceMetric);
+        }
+        this.entrySpanDecorator = spanDecorator;
     }
 
-    private void calculateCost(ServiceReferenceMetric serviceReferenceMetric, long startTime,
-        long endTime, boolean isError) {
-        long duration = endTime - startTime;
+    @Override public void parseExit(SpanDecorator spanDecorator, int applicationId, int instanceId, String segmentId) {
+        ServiceReferenceMetric serviceReferenceMetric = new ServiceReferenceMetric(Const.EMPTY_STRING);
 
-        serviceReferenceMetric.setTransactionCalls(1L);
-        serviceReferenceMetric.setTransactionDurationSum(duration);
+        serviceReferenceMetric.setFrontInstanceId(instanceId);
+        serviceReferenceMetric.setBehindServiceId(spanDecorator.getOperationNameId());
+        serviceReferenceMetric.setSourceValue(MetricSource.Exit.ordinal());
+        calculateCost(serviceReferenceMetric, spanDecorator, true);
+        exitReferenceMetric.add(serviceReferenceMetric);
+    }
 
-        if (isError) {
+    private void calculateCost(ServiceReferenceMetric serviceReferenceMetric, SpanDecorator spanDecorator,
+        boolean hasReference) {
+        long duration = spanDecorator.getStartTime() - spanDecorator.getEndTime();
+
+        if (spanDecorator.getIsError()) {
             serviceReferenceMetric.setTransactionErrorCalls(1L);
             serviceReferenceMetric.setTransactionErrorDurationSum(duration);
+        } else {
+            serviceReferenceMetric.setTransactionCalls(1L);
+            serviceReferenceMetric.setTransactionDurationSum(duration);
+        }
+
+        if (hasReference) {
+            if (spanDecorator.getIsError()) {
+                serviceReferenceMetric.setBusinessTransactionErrorCalls(1L);
+                serviceReferenceMetric.setBusinessTransactionErrorDurationSum(duration);
+            } else {
+                serviceReferenceMetric.setBusinessTransactionCalls(1L);
+                serviceReferenceMetric.setBusinessTransactionDurationSum(duration);
+            }
+        }
+
+        if (SpanLayer.MQ.equals(spanDecorator.getSpanLayer())) {
+            if (spanDecorator.getIsError()) {
+                serviceReferenceMetric.setMqTransactionErrorCalls(1L);
+                serviceReferenceMetric.setMqTransactionErrorDurationSum(duration);
+            } else {
+                serviceReferenceMetric.setMqTransactionCalls(1L);
+                serviceReferenceMetric.setMqTransactionDurationSum(duration);
+            }
         }
     }
 
     @Override public void build() {
         logger.debug("service reference listener build");
-        if (hasEntry) {
-            if (referenceServices.size() > 0) {
-                referenceServices.forEach(reference -> {
-                    ServiceReferenceMetric serviceReferenceMetric = new ServiceReferenceMetric(Const.EMPTY_STRING);
-                    int entryServiceId = reference.getEntryServiceId();
-                    int frontServiceId = reference.getParentServiceId();
-                    int behindServiceId = serviceId;
-                    calculateCost(serviceReferenceMetric, startTime, endTime, isError);
-
-                    logger.debug("has reference, entryServiceId: {}", entryServiceId);
-                    sendToAggregationWorker(serviceReferenceMetric, entryServiceId, frontServiceId, behindServiceId);
-                });
-            } else {
-                ServiceReferenceMetric serviceReferenceMetric = new ServiceReferenceMetric(Const.EMPTY_STRING);
-                int entryServiceId = serviceId;
-                int frontServiceId = Const.NONE_SERVICE_ID;
-                int behindServiceId = serviceId;
-
-                calculateCost(serviceReferenceMetric, startTime, endTime, isError);
-                sendToAggregationWorker(serviceReferenceMetric, entryServiceId, frontServiceId, behindServiceId);
-            }
-        }
-    }
-
-    private void sendToAggregationWorker(ServiceReferenceMetric serviceReferenceMetric, int entryServiceId,
-        int frontServiceId,
-        int behindServiceId) {
-        StringBuilder idBuilder = new StringBuilder();
-        idBuilder.append(timeBucket).append(Const.ID_SPLIT);
-
-        idBuilder.append(entryServiceId).append(Const.ID_SPLIT);
-        serviceReferenceMetric.setEntryServiceId(entryServiceId);
-
-        idBuilder.append(frontServiceId).append(Const.ID_SPLIT);
-        serviceReferenceMetric.setFrontServiceId(frontServiceId);
-
-        idBuilder.append(behindServiceId);
-        serviceReferenceMetric.setBehindServiceId(behindServiceId);
-
-        serviceReferenceMetric.setId(idBuilder.toString());
-        serviceReferenceMetric.setTimeBucket(timeBucket);
-        logger.debug("push to service reference aggregation worker, id: {}", serviceReferenceMetric.getId());
-
         Graph<ServiceReferenceMetric> graph = GraphManager.INSTANCE.createIfAbsent(TraceStreamGraph.SERVICE_REFERENCE_GRAPH_ID, ServiceReferenceMetric.class);
-        graph.start(serviceReferenceMetric);
+        entryReferenceMetric.forEach(serviceReferenceMetric -> {
+            String id = timeBucket + Const.ID_SPLIT + serviceReferenceMetric.getEntryServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getFrontServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getBehindServiceId();
+
+            serviceReferenceMetric.setId(id);
+            serviceReferenceMetric.setTimeBucket(timeBucket);
+            logger.debug("push to service reference aggregation worker, id: {}", serviceReferenceMetric.getId());
+
+            graph.start(serviceReferenceMetric);
+        });
+
+        exitReferenceMetric.forEach(serviceReferenceMetric -> {
+            serviceReferenceMetric.setEntryInstanceId(Const.NONE_INSTANCE_ID);
+            if (ObjectUtils.isNotEmpty(entrySpanDecorator)) {
+                serviceReferenceMetric.setEntryServiceId(entrySpanDecorator.getOperationNameId());
+                serviceReferenceMetric.setFrontServiceId(entrySpanDecorator.getOperationNameId());
+            } else {
+                serviceReferenceMetric.setEntryServiceId(Const.NONE_SERVICE_ID);
+                serviceReferenceMetric.setFrontServiceId(Const.NONE_SERVICE_ID);
+            }
+
+            String id = timeBucket + Const.ID_SPLIT + serviceReferenceMetric.getEntryServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getFrontServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getBehindServiceId();
+            serviceReferenceMetric.setId(id);
+            serviceReferenceMetric.setTimeBucket(timeBucket);
+
+            graph.start(serviceReferenceMetric);
+        });
     }
 }

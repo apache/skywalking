@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.jvm;
 
-import org.skywalking.apm.collector.agent.stream.graph.JvmMetricStreamGraph;
+import org.skywalking.apm.collector.agent.stream.service.graph.JvmMetricStreamGraphDefine;
 import org.skywalking.apm.collector.agent.stream.service.jvm.IInstanceHeartBeatService;
 import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
@@ -39,7 +39,7 @@ public class InstanceHeartBeatService implements IInstanceHeartBeatService {
 
     private Graph<Instance> getHeartBeatGraph() {
         if (ObjectUtils.isEmpty(heartBeatGraph)) {
-            this.heartBeatGraph = GraphManager.INSTANCE.createIfAbsent(JvmMetricStreamGraph.INST_HEART_BEAT_GRAPH_ID, Instance.class);
+            this.heartBeatGraph = GraphManager.INSTANCE.createIfAbsent(JvmMetricStreamGraphDefine.INST_HEART_BEAT_GRAPH_ID, Instance.class);
         }
         return heartBeatGraph;
     }

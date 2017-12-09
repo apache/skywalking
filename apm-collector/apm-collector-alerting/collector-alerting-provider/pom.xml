@@ -41,5 +41,15 @@
             <artifactId>collector-agent-stream-define</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-storage-define</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-collector-stream</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

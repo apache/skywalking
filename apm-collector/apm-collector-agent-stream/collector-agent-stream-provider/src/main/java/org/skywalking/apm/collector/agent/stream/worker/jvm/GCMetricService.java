@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.jvm;
 
-import org.skywalking.apm.collector.agent.stream.graph.JvmMetricStreamGraph;
+import org.skywalking.apm.collector.agent.stream.service.graph.JvmMetricStreamGraphDefine;
 import org.skywalking.apm.collector.agent.stream.service.jvm.IGCMetricService;
 import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
@@ -39,7 +39,7 @@ public class GCMetricService implements IGCMetricService {
 
     private Graph<GCMetric> getGcMetricGraph() {
         if (ObjectUtils.isEmpty(gcMetricGraph)) {
-            gcMetricGraph = GraphManager.INSTANCE.createIfAbsent(JvmMetricStreamGraph.GC_METRIC_GRAPH_ID, GCMetric.class);
+            gcMetricGraph = GraphManager.INSTANCE.createIfAbsent(JvmMetricStreamGraphDefine.GC_METRIC_GRAPH_ID, GCMetric.class);
         }
         return gcMetricGraph;
     }

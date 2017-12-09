@@ -18,6 +18,7 @@
 
 package org.skywalking.apm.collector.agent.stream.graph;
 
+import org.skywalking.apm.collector.agent.stream.service.graph.RegisterStreamGraphDefine;
 import org.skywalking.apm.collector.agent.stream.worker.register.ApplicationRegisterRemoteWorker;
 import org.skywalking.apm.collector.agent.stream.worker.register.ApplicationRegisterSerialWorker;
 import org.skywalking.apm.collector.agent.stream.worker.register.InstanceRegisterRemoteWorker;
@@ -41,10 +42,6 @@ import org.skywalking.apm.collector.stream.worker.base.WorkerCreateListener;
  */
 public class RegisterStreamGraph {
 
-    public static final int APPLICATION_REGISTER_GRAPH_ID = 200;
-    public static final int INSTANCE_REGISTER_GRAPH_ID = 201;
-    public static final int SERVICE_NAME_REGISTER_GRAPH_ID = 202;
-
     private final ModuleManager moduleManager;
     private final WorkerCreateListener workerCreateListener;
 
@@ -59,8 +56,8 @@ public class RegisterStreamGraph {
 
         QueueCreatorService<Application> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
 
-        Graph<Application> graph = GraphManager.INSTANCE.createIfAbsent(APPLICATION_REGISTER_GRAPH_ID, Application.class);
-        graph.addNode(new ApplicationRegisterRemoteWorker.Factory(moduleManager, remoteSenderService, APPLICATION_REGISTER_GRAPH_ID).create(workerCreateListener))
+        Graph<Application> graph = GraphManager.INSTANCE.createIfAbsent(RegisterStreamGraphDefine.APPLICATION_REGISTER_GRAPH_ID, Application.class);
+        graph.addNode(new ApplicationRegisterRemoteWorker.Factory(moduleManager, remoteSenderService, RegisterStreamGraphDefine.APPLICATION_REGISTER_GRAPH_ID).create(workerCreateListener))
             .addNext(new ApplicationRegisterSerialWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
     }
 
@@ -70,8 +67,8 @@ public class RegisterStreamGraph {
 
         QueueCreatorService<Instance> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
 
-        Graph<Instance> graph = GraphManager.INSTANCE.createIfAbsent(INSTANCE_REGISTER_GRAPH_ID, Instance.class);
-        graph.addNode(new InstanceRegisterRemoteWorker.Factory(moduleManager, remoteSenderService, INSTANCE_REGISTER_GRAPH_ID).create(workerCreateListener))
+        Graph<Instance> graph = GraphManager.INSTANCE.createIfAbsent(RegisterStreamGraphDefine.INSTANCE_REGISTER_GRAPH_ID, Instance.class);
+        graph.addNode(new InstanceRegisterRemoteWorker.Factory(moduleManager, remoteSenderService, RegisterStreamGraphDefine.INSTANCE_REGISTER_GRAPH_ID).create(workerCreateListener))
             .addNext(new InstanceRegisterSerialWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
     }
 
@@ -81,8 +78,8 @@ public class RegisterStreamGraph {
 
         QueueCreatorService<ServiceName> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
 
-        Graph<ServiceName> graph = GraphManager.INSTANCE.createIfAbsent(SERVICE_NAME_REGISTER_GRAPH_ID, ServiceName.class);
-        graph.addNode(new ServiceNameRegisterRemoteWorker.Factory(moduleManager, remoteSenderService, SERVICE_NAME_REGISTER_GRAPH_ID).create(workerCreateListener))
+        Graph<ServiceName> graph = GraphManager.INSTANCE.createIfAbsent(RegisterStreamGraphDefine.SERVICE_NAME_REGISTER_GRAPH_ID, ServiceName.class);
+        graph.addNode(new ServiceNameRegisterRemoteWorker.Factory(moduleManager, remoteSenderService, RegisterStreamGraphDefine.SERVICE_NAME_REGISTER_GRAPH_ID).create(workerCreateListener))
             .addNext(new ServiceNameRegisterSerialWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
     }
 }

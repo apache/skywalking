@@ -16,19 +16,13 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.storage.table.service;
-
-import org.skywalking.apm.collector.storage.table.CommonMetricTable;
+package org.skywalking.apm.collector.agent.stream.service.graph;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceReferenceMetricTable extends CommonMetricTable {
-    public static final String TABLE = "service_reference_metric";
-    public static final String COLUMN_ENTRY_SERVICE_ID = "entry_service_id";
-    public static final String COLUMN_ENTRY_INSTANCE_ID = "entry_instance_id";
-    public static final String COLUMN_FRONT_SERVICE_ID = "front_service_id";
-    public static final String COLUMN_FRONT_INSTANCE_ID = "front_instance_id";
-    public static final String COLUMN_BEHIND_SERVICE_ID = "behind_service_id";
-    public static final String COLUMN_BEHIND_INSTANCE_ID = "behind_instance_id";
+public class RegisterStreamGraphDefine {
+    public static final int APPLICATION_REGISTER_GRAPH_ID = 200;
+    public static final int INSTANCE_REGISTER_GRAPH_ID = 201;
+    public static final int SERVICE_NAME_REGISTER_GRAPH_ID = 202;
 }

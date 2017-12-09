@@ -18,6 +18,7 @@
 
 package org.skywalking.apm.collector.agent.stream.graph;
 
+import org.skywalking.apm.collector.agent.stream.service.graph.JvmMetricStreamGraphDefine;
 import org.skywalking.apm.collector.agent.stream.worker.jvm.CpuMetricPersistenceWorker;
 import org.skywalking.apm.collector.agent.stream.worker.jvm.GCMetricPersistenceWorker;
 import org.skywalking.apm.collector.agent.stream.worker.jvm.InstHeartBeatPersistenceWorker;
@@ -40,12 +41,6 @@ import org.skywalking.apm.collector.stream.worker.base.WorkerCreateListener;
  */
 public class JvmMetricStreamGraph {
 
-    public static final int GC_METRIC_GRAPH_ID = 100;
-    public static final int MEMORY_METRIC_GRAPH_ID = 101;
-    public static final int MEMORY_POOL_METRIC_GRAPH_ID = 102;
-    public static final int CPU_METRIC_GRAPH_ID = 103;
-    public static final int INST_HEART_BEAT_GRAPH_ID = 104;
-
     private final ModuleManager moduleManager;
     private final WorkerCreateListener workerCreateListener;
 
@@ -58,7 +53,7 @@ public class JvmMetricStreamGraph {
     public void createGcMetricGraph() {
         QueueCreatorService<GCMetric> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
 
-        Graph<GCMetric> graph = GraphManager.INSTANCE.createIfAbsent(GC_METRIC_GRAPH_ID, GCMetric.class);
+        Graph<GCMetric> graph = GraphManager.INSTANCE.createIfAbsent(JvmMetricStreamGraphDefine.GC_METRIC_GRAPH_ID, GCMetric.class);
         graph.addNode(new GCMetricPersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
     }
 
@@ -66,7 +61,7 @@ public class JvmMetricStreamGraph {
     public void createCpuMetricGraph() {
         QueueCreatorService<CpuMetric> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
 
-        Graph<CpuMetric> graph = GraphManager.INSTANCE.createIfAbsent(CPU_METRIC_GRAPH_ID, CpuMetric.class);
+        Graph<CpuMetric> graph = GraphManager.INSTANCE.createIfAbsent(JvmMetricStreamGraphDefine.CPU_METRIC_GRAPH_ID, CpuMetric.class);
         graph.addNode(new CpuMetricPersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
     }
 
@@ -74,7 +69,7 @@ public class JvmMetricStreamGraph {
     public void createMemoryMetricGraph() {
         QueueCreatorService<MemoryMetric> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
 
-        Graph<MemoryMetric> graph = GraphManager.INSTANCE.createIfAbsent(MEMORY_METRIC_GRAPH_ID, MemoryMetric.class);
+        Graph<MemoryMetric> graph = GraphManager.INSTANCE.createIfAbsent(JvmMetricStreamGraphDefine.MEMORY_METRIC_GRAPH_ID, MemoryMetric.class);
         graph.addNode(new MemoryMetricPersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
     }
 
@@ -82,7 +77,7 @@ public class JvmMetricStreamGraph {
     public void createMemoryPoolMetricGraph() {
         QueueCreatorService<MemoryPoolMetric> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
 
-        Graph<MemoryPoolMetric> graph = GraphManager.INSTANCE.createIfAbsent(MEMORY_POOL_METRIC_GRAPH_ID, MemoryPoolMetric.class);
+        Graph<MemoryPoolMetric> graph = GraphManager.INSTANCE.createIfAbsent(JvmMetricStreamGraphDefine.MEMORY_POOL_METRIC_GRAPH_ID, MemoryPoolMetric.class);
         graph.addNode(new MemoryPoolMetricPersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
     }
 
@@ -90,7 +85,7 @@ public class JvmMetricStreamGraph {
     public void createHeartBeatGraph() {
         QueueCreatorService<Instance> queueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
 
-        Graph<Instance> graph = GraphManager.INSTANCE.createIfAbsent(INST_HEART_BEAT_GRAPH_ID, Instance.class);
+        Graph<Instance> graph = GraphManager.INSTANCE.createIfAbsent(JvmMetricStreamGraphDefine.INST_HEART_BEAT_GRAPH_ID, Instance.class);
         graph.addNode(new InstHeartBeatPersistenceWorker.Factory(moduleManager, queueCreatorService).create(workerCreateListener));
     }
 }

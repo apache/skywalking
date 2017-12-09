@@ -18,12 +18,11 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.trace.application;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import org.skywalking.apm.collector.agent.stream.graph.TraceStreamGraph;
+import org.skywalking.apm.collector.agent.stream.parser.EntrySpanListener;
 import org.skywalking.apm.collector.agent.stream.parser.FirstSpanListener;
-import org.skywalking.apm.collector.agent.stream.parser.RefsListener;
-import org.skywalking.apm.collector.agent.stream.parser.standardization.ReferenceDecorator;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SpanDecorator;
 import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
@@ -36,22 +35,23 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public class ApplicationMappingSpanListener implements RefsListener, FirstSpanListener {
+public class ApplicationMappingSpanListener implements FirstSpanListener, EntrySpanListener {
 
     private final Logger logger = LoggerFactory.getLogger(ApplicationMappingSpanListener.class);
 
-    private List<ApplicationMapping> applicationMappings = new ArrayList<>();
+    private List<ApplicationMapping> applicationMappings = new LinkedList<>();
     private long timeBucket;
 
-    @Override public void parseRef(ReferenceDecorator referenceDecorator, int applicationId, int instanceId,
-        String segmentId) {
+    @Override public void parseEntry(SpanDecorator spanDecorator, int applicationId, int instanceId, String segmentId) {
         logger.debug("node mapping listener parse reference");
-        ApplicationMapping applicationMapping = new ApplicationMapping(Const.EMPTY_STRING);
-        applicationMapping.setApplicationId(applicationId);
-        applicationMapping.setAddressId(referenceDecorator.getNetworkAddressId());
-        String id = String.valueOf(applicationId) + Const.ID_SPLIT + String.valueOf(applicationMapping.getAddressId());
-        applicationMapping.setId(id);
-        applicationMappings.add(applicationMapping);
+        if (spanDecorator.getRefsCount() > 0) {
+            ApplicationMapping applicationMapping = new ApplicationMapping(Const.EMPTY_STRING);
+            applicationMapping.setApplicationId(applicationId);
+            applicationMapping.setAddressId(spanDecorator.getRefs(0).getNetworkAddressId());
+            String id = String.valueOf(applicationId) + Const.ID_SPLIT + String.valueOf(applicationMapping.getAddressId());
+            applicationMapping.setId(id);
+            applicationMappings.add(applicationMapping);
+        }
     }
 
     @Override
@@ -63,12 +63,11 @@ public class ApplicationMappingSpanListener implements RefsListener, FirstSpanLi
     @Override public void build() {
         logger.debug("node mapping listener build");
         Graph<ApplicationMapping> graph = GraphManager.INSTANCE.createIfAbsent(TraceStreamGraph.APPLICATION_MAPPING_GRAPH_ID, ApplicationMapping.class);
-
-        for (ApplicationMapping applicationMapping : applicationMappings) {
+        applicationMappings.forEach(applicationMapping -> {
             applicationMapping.setId(timeBucket + Const.ID_SPLIT + applicationMapping.getId());
             applicationMapping.setTimeBucket(timeBucket);
             logger.debug("push to node mapping aggregation worker, id: {}", applicationMapping.getId());
             graph.start(applicationMapping);
-        }
+        });
     }
 }

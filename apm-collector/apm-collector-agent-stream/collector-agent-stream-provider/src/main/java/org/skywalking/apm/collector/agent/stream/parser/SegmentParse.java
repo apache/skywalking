@@ -36,6 +36,7 @@ import org.skywalking.apm.collector.agent.stream.worker.trace.instance.InstanceM
 import org.skywalking.apm.collector.agent.stream.worker.trace.segment.SegmentCostSpanListener;
 import org.skywalking.apm.collector.agent.stream.worker.trace.service.ServiceEntrySpanListener;
 import org.skywalking.apm.collector.agent.stream.worker.trace.service.ServiceReferenceMetricSpanListener;
+import org.skywalking.apm.collector.core.UnexpectedException;
 import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
 import org.skywalking.apm.collector.core.module.ModuleManager;
@@ -119,6 +120,7 @@ public class SegmentParse {
         int applicationId = segmentDecorator.getApplicationId();
         int applicationInstanceId = segmentDecorator.getApplicationInstanceId();
 
+        int entrySpanCount = 0;
         for (int i = 0; i < segmentDecorator.getSpansCount(); i++) {
             SpanDecorator spanDecorator = segmentDecorator.getSpans(i);
 
@@ -130,10 +132,20 @@ public class SegmentParse {
                     if (!ReferenceIdExchanger.getInstance(moduleManager).exchange(referenceDecorator, applicationId)) {
                         return false;
                     }
-
-                    notifyRefsListener(referenceDecorator, applicationId, applicationInstanceId, segmentId);
                 }
             }
+
+            if (SpanType.Entry.equals(spanDecorator.getSpanType())) {
+                entrySpanCount++;
+            }
+
+            if (entrySpanCount > 1) {
+                throw new UnexpectedException("This segment contains multiple entry span.");
+            }
+        }
+
+        for (int i = 0; i < segmentDecorator.getSpansCount(); i++) {
+            SpanDecorator spanDecorator = segmentDecorator.getSpans(i);
 
             if (spanDecorator.getSpanId() == 0) {
                 notifyFirstListener(spanDecorator, applicationId, applicationInstanceId, segmentId);
@@ -206,15 +218,6 @@ public class SegmentParse {
         for (SpanListener listener : spanListeners) {
             if (listener instanceof FirstSpanListener) {
                 ((FirstSpanListener)listener).parseFirst(spanDecorator, applicationId, applicationInstanceId, segmentId);
-            }
-        }
-    }
-
-    private void notifyRefsListener(ReferenceDecorator reference, int applicationId, int applicationInstanceId,
-        String segmentId) {
-        for (SpanListener listener : spanListeners) {
-            if (listener instanceof RefsListener) {
-                ((RefsListener)listener).parseRef(reference, applicationId, applicationInstanceId, segmentId);
             }
         }
     }

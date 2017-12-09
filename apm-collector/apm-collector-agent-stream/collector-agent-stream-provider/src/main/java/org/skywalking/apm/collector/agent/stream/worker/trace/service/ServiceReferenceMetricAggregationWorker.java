@@ -18,6 +18,7 @@
 
 package org.skywalking.apm.collector.agent.stream.worker.trace.service;
 
+import org.skywalking.apm.collector.agent.stream.service.graph.ServiceGraphNodeIdDefine;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
 import org.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
@@ -34,7 +35,7 @@ public class ServiceReferenceMetricAggregationWorker extends AggregationWorker<S
     }
 
     @Override public int id() {
-        return ServiceReferenceMetricAggregationWorker.class.hashCode();
+        return ServiceGraphNodeIdDefine.SERVICE_REFERENCE_METRIC_AGGREGATION_NODE_ID;
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<ServiceReferenceMetric, ServiceReferenceMetric, ServiceReferenceMetricAggregationWorker> {

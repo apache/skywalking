@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.storage.table.service;
+package org.skywalking.apm.collector.storage.table.instance;
 
 import org.skywalking.apm.collector.core.data.Column;
 import org.skywalking.apm.collector.core.data.Data;
@@ -26,105 +26,67 @@ import org.skywalking.apm.collector.core.data.operator.NonOperation;
 /**
  * @author peng-yongsheng
  */
-public class ServiceReferenceMetric extends Data {
+public class InstanceReferenceMetric extends Data {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(ServiceReferenceMetricTable.COLUMN_ID, new NonOperation()),
+        new Column(InstanceReferenceMetricTable.COLUMN_ID, new NonOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET, new NonOperation()),
+        new Column(InstanceReferenceMetricTable.COLUMN_TIME_BUCKET, new NonOperation()),
 
-        new Column(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_CALLS, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, new AddOperation()),
+        new Column(InstanceReferenceMetricTable.COLUMN_TRANSACTION_CALLS, new AddOperation()),
+        new Column(InstanceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, new AddOperation()),
+        new Column(InstanceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, new AddOperation()),
+        new Column(InstanceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, new AddOperation()),
+        new Column(InstanceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, new AddOperation()),
+        new Column(InstanceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, new AddOperation()),
+        new Column(InstanceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, new AddOperation()),
+        new Column(InstanceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, new AddOperation()),
+        new Column(InstanceReferenceMetricTable.COLUMN_MQ_TRANSACTION_CALLS, new AddOperation()),
+        new Column(InstanceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, new AddOperation()),
+        new Column(InstanceReferenceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, new AddOperation()),
+        new Column(InstanceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, new AddOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {};
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID, new NonOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, new NonOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, new NonOperation()),
-
-        new Column(ServiceReferenceMetricTable.COLUMN_ENTRY_INSTANCE_ID, new NonOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_FRONT_INSTANCE_ID, new NonOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_BEHIND_INSTANCE_ID, new NonOperation()),
-
-        new Column(ServiceReferenceMetricTable.COLUMN_SOURCE_VALUE, new NonOperation()),
+        new Column(InstanceReferenceMetricTable.COLUMN_FRONT_INSTANCE_ID, new NonOperation()),
+        new Column(InstanceReferenceMetricTable.COLUMN_BEHIND_INSTANCE_ID, new NonOperation()),
+        new Column(InstanceReferenceMetricTable.COLUMN_SOURCE_VALUE, new NonOperation()),
     };
 
     private static final Column[] BOOLEAN_COLUMNS = {};
 
     private static final Column[] BYTE_COLUMNS = {};
 
-    public ServiceReferenceMetric(String id) {
+    public InstanceReferenceMetric(String id) {
         super(id, STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
     }
 
-    public Integer getEntryServiceId() {
+    public Integer getFrontInstanceId() {
         return getDataInteger(0);
     }
 
-    public void setEntryServiceId(Integer entryServiceId) {
-        setDataInteger(0, entryServiceId);
-    }
-
-    public Integer getFrontServiceId() {
-        return getDataInteger(1);
-    }
-
-    public void setFrontServiceId(Integer frontServiceId) {
-        setDataInteger(1, frontServiceId);
-    }
-
-    public Integer getBehindServiceId() {
-        return getDataInteger(2);
-    }
-
-    public void setBehindServiceId(Integer behindServiceId) {
-        setDataInteger(2, behindServiceId);
-    }
-
-    public Integer getEntryInstanceId() {
-        return getDataInteger(3);
-    }
-
-    public void setEntryInstanceId(Integer entryInstanceId) {
-        setDataInteger(3, entryInstanceId);
-    }
-
-    public Integer getFrontInstanceId() {
-        return getDataInteger(4);
-    }
-
     public void setFrontInstanceId(Integer frontInstanceId) {
-        setDataInteger(4, frontInstanceId);
+        setDataInteger(0, frontInstanceId);
     }
 
     public Integer getBehindInstanceId() {
-        return getDataInteger(5);
+        return getDataInteger(1);
     }
 
     public void setBehindInstanceId(Integer behindInstanceId) {
-        setDataInteger(5, behindInstanceId);
+        setDataInteger(1, behindInstanceId);
     }
 
     public Integer getSourceValue() {
-        return getDataInteger(6);
+        return getDataInteger(2);
     }
 
     public void setSourceValue(Integer sourceValue) {
-        setDataInteger(6, sourceValue);
+        setDataInteger(2, sourceValue);
     }
 
     public Long getTimeBucket() {

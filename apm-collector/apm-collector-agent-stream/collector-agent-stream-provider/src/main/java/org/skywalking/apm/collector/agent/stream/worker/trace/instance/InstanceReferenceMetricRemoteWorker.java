@@ -16,13 +16,13 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.agent.stream.worker.trace.application;
+package org.skywalking.apm.collector.agent.stream.worker.trace.instance;
 
-import org.skywalking.apm.collector.agent.stream.service.graph.ApplicationGraphNodeIdDefine;
+import org.skywalking.apm.collector.agent.stream.service.graph.InstanceGraphNodeIdDefine;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.remote.service.RemoteSenderService;
 import org.skywalking.apm.collector.remote.service.Selector;
-import org.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetric;
+import org.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetric;
 import org.skywalking.apm.collector.stream.worker.base.AbstractRemoteWorker;
 import org.skywalking.apm.collector.stream.worker.base.AbstractRemoteWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.base.WorkerException;
@@ -30,31 +30,32 @@ import org.skywalking.apm.collector.stream.worker.base.WorkerException;
 /**
  * @author peng-yongsheng
  */
-public class ApplicationReferenceMetricRemoteWorker extends AbstractRemoteWorker<ApplicationReferenceMetric, ApplicationReferenceMetric> {
+public class InstanceReferenceMetricRemoteWorker extends AbstractRemoteWorker<InstanceReferenceMetric, InstanceReferenceMetric> {
 
-    ApplicationReferenceMetricRemoteWorker(ModuleManager moduleManager) {
+    public InstanceReferenceMetricRemoteWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     @Override public int id() {
-        return ApplicationGraphNodeIdDefine.APPLICATION_REFERENCE_METRIC_REMOTE_NODE_ID;
-    }
-
-    @Override protected void onWork(ApplicationReferenceMetric applicationReferenceMetric) throws WorkerException {
-        onNext(applicationReferenceMetric);
+        return InstanceGraphNodeIdDefine.INSTANCE_REFERENCE_METRIC_REMOTE_NODE_ID;
     }
 
     @Override public Selector selector() {
         return Selector.HashCode;
     }
 
-    public static class Factory extends AbstractRemoteWorkerProvider<ApplicationReferenceMetric, ApplicationReferenceMetric, ApplicationReferenceMetricRemoteWorker> {
+    @Override protected void onWork(InstanceReferenceMetric instanceReferenceMetric) throws WorkerException {
+        onNext(instanceReferenceMetric);
+    }
+
+    public static class Factory extends AbstractRemoteWorkerProvider<InstanceReferenceMetric, InstanceReferenceMetric, InstanceReferenceMetricRemoteWorker> {
+
         public Factory(ModuleManager moduleManager, RemoteSenderService remoteSenderService, int graphId) {
             super(moduleManager, remoteSenderService, graphId);
         }
 
-        @Override public ApplicationReferenceMetricRemoteWorker workerInstance(ModuleManager moduleManager) {
-            return new ApplicationReferenceMetricRemoteWorker(moduleManager);
+        @Override public InstanceReferenceMetricRemoteWorker workerInstance(ModuleManager moduleManager) {
+            return new InstanceReferenceMetricRemoteWorker(moduleManager);
         }
     }
 }
