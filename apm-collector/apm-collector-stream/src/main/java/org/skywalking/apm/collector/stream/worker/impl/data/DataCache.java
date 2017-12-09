@@ -24,11 +24,11 @@ import org.skywalking.apm.collector.core.data.Data;
 /**
  * @author peng-yongsheng
  */
-public class DataCache<DataImpl extends Data> extends Window<DataCollection<DataImpl>> {
+public class DataCache<DATA_IMPL extends Data> extends Window<DataCollection<DATA_IMPL>> {
 
-    private DataCollection<DataImpl> lockedDataCollection;
+    private DataCollection<DATA_IMPL> lockedDataCollection;
 
-    @Override public DataCollection<DataImpl> collectionInstance() {
+    @Override public DataCollection<DATA_IMPL> collectionInstance() {
         return new DataCollection<>();
     }
 
@@ -40,7 +40,7 @@ public class DataCache<DataImpl extends Data> extends Window<DataCollection<Data
         return lockedDataCollection.get(id);
     }
 
-    public void put(String id, DataImpl data) {
+    public void put(String id, DATA_IMPL data) {
         lockedDataCollection.put(id, data);
     }
 
