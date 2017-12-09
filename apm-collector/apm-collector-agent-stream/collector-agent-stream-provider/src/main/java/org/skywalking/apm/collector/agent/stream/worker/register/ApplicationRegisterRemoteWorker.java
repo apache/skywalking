@@ -40,7 +40,7 @@ public class ApplicationRegisterRemoteWorker extends AbstractRemoteWorker<Applic
     }
 
     @Override public int id() {
-        return ApplicationRegisterRemoteWorker.class.hashCode();
+        return 10006;
     }
 
     @Override protected void onWork(Application message) throws WorkerException {

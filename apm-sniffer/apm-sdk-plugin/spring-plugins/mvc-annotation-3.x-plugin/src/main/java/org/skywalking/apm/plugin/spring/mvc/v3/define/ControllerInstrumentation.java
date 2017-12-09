@@ -28,6 +28,7 @@ import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.isAnnotatedWith;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.skywalking.apm.agent.core.plugin.match.ClassAnnotationMatch.byClassAnnotationMatch;
+import static org.skywalking.apm.plugin.spring.mvc.commons.Constants.REQUEST_MAPPING_METHOD_INTERCEPTOR;
 
 /**
  * {@link ControllerInstrumentation} intercept the constructor and the methods annotated with {@link
@@ -40,7 +41,6 @@ public class ControllerInstrumentation extends AbstractSpring3Instrumentation {
     public static final String CONTROLLER_ENHANCE_ANNOTATION = "org.springframework.stereotype.Controller";
     public static final String CONSTRUCTOR_INTERCEPTOR = "org.skywalking.apm.plugin.spring.mvc.v3.ControllerConstructorInterceptor";
     public static final String REQUEST_MAPPING_ENHANCE_ANNOTATION = "org.springframework.web.bind.annotation.RequestMapping";
-    public static final String REQUEST_MAPPING_METHOD_INTERCEPTOR = "org.skywalking.apm.plugin.spring.mvc.v3.ControllerMethodInterceptor";
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

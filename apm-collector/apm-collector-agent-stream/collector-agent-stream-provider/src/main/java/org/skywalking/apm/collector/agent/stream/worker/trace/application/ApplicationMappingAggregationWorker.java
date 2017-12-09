@@ -34,7 +34,7 @@ public class ApplicationMappingAggregationWorker extends AggregationWorker<Appli
     }
 
     @Override public int id() {
-        return ApplicationMappingAggregationWorker.class.hashCode();
+        return 105;
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<ApplicationMapping, ApplicationMapping, ApplicationMappingAggregationWorker> {

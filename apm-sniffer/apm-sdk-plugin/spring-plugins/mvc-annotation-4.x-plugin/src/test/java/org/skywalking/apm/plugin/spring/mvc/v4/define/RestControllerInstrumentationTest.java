@@ -50,8 +50,8 @@ public class RestControllerInstrumentationTest {
     public void testGetInstanceMethodsInterceptPoints() throws Throwable {
         InstanceMethodsInterceptPoint[] methodPoints = restControllerInstrumentation.getInstanceMethodsInterceptPoints();
         assertThat(methodPoints.length, is(2));
-        assertThat(methodPoints[0].getMethodsInterceptor(), is("org.skywalking.apm.plugin.spring.mvc.v4.RequestMappingMethodInterceptor"));
-        assertThat(methodPoints[1].getMethodsInterceptor(), is("org.skywalking.apm.plugin.spring.mvc.v4.RestMappingMethodInterceptor"));
+        assertThat(methodPoints[0].getMethodsInterceptor(), is("org.skywalking.apm.plugin.spring.mvc.commons.interceptor.RequestMappingMethodInterceptor"));
+        assertThat(methodPoints[1].getMethodsInterceptor(), is("org.skywalking.apm.plugin.spring.mvc.commons.interceptor.RestMappingMethodInterceptor"));
 
         Assert.assertFalse(methodPoints[0].isOverrideArgs());
         Assert.assertFalse(methodPoints[1].isOverrideArgs());

@@ -36,7 +36,7 @@ public class ApplicationComponentRemoteWorker extends AbstractRemoteWorker<Appli
     }
 
     @Override public int id() {
-        return ApplicationComponentRemoteWorker.class.hashCode();
+        return 10005;
     }
 
     @Override protected void onWork(ApplicationComponent applicationComponent) throws WorkerException {

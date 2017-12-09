@@ -36,7 +36,7 @@ public class InstanceRegisterRemoteWorker extends AbstractRemoteWorker<Instance,
     private final Logger logger = LoggerFactory.getLogger(InstanceRegisterRemoteWorker.class);
 
     @Override public int id() {
-        return InstanceRegisterRemoteWorker.class.hashCode();
+        return 10001;
     }
 
     InstanceRegisterRemoteWorker(ModuleManager moduleManager) {

@@ -50,7 +50,7 @@ public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker<Ap
     }
 
     @Override public int id() {
-        return ApplicationRegisterSerialWorker.class.hashCode();
+        return 101;
     }
 
     @Override protected void onWork(Application application) throws WorkerException {

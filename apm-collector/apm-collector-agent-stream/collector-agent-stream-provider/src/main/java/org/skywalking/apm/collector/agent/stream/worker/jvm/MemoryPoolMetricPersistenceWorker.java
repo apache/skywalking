@@ -33,7 +33,7 @@ import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
 public class MemoryPoolMetricPersistenceWorker extends PersistenceWorker<MemoryPoolMetric, MemoryPoolMetric> {
 
     @Override public int id() {
-        return 0;
+        return 122;
     }
 
     public MemoryPoolMetricPersistenceWorker(ModuleManager moduleManager) {

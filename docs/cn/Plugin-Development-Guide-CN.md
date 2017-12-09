@@ -1,5 +1,5 @@
 ## 插件开发指南
-本文档描述 [v3.2+](https://github.com/OpenTracing/skywalking/releases) 插件开发方法、使用的API，以及注意事项。3.2版本将在2017 CNUTCon之前发布。
+本文档描述 [v3.2+](https://github.com/OpenTracing/skywalking/releases) 插件开发方法、使用的API，以及注意事项。
 
 ### 核心概念
 #### 一. Span

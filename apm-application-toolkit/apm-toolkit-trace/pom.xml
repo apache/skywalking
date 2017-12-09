@@ -22,7 +22,7 @@
     <parent>
         <artifactId>apm-application-toolkit</artifactId>
         <groupId>org.skywalking</groupId>
-        <version>3.3.0-2017</version>
+        <version>5.0-2018-preview</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -41,6 +41,7 @@
                 <executions>
                     <execution>
                         <id>attach-sources</id>
+                        <phase>none</phase>
                         <goals>
                             <goal>jar</goal>
                         </goals>

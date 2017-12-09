@@ -21,7 +21,7 @@
     <parent>
         <artifactId>spring-plugins</artifactId>
         <groupId>org.skywalking</groupId>
-        <version>3.3.0-2017</version>
+        <version>5.0-2018-preview</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -48,6 +48,12 @@
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>3.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-springmvc-annotation-commons</artifactId>
+            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

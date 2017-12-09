@@ -36,7 +36,7 @@ public class ApplicationMetricRemoteWorker extends AbstractRemoteWorker<Applicat
     }
 
     @Override public int id() {
-        return ApplicationMetricRemoteWorker.class.hashCode();
+        return 10002;
     }
 
     @Override protected void onWork(ApplicationMetric applicationMetric) throws WorkerException {

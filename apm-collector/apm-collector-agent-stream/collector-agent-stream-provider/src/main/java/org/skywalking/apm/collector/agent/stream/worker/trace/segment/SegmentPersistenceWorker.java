@@ -37,7 +37,7 @@ public class SegmentPersistenceWorker extends PersistenceWorker<Segment, Segment
     }
 
     @Override public int id() {
-        return 0;
+        return 117;
     }
 
     @Override protected boolean needMergeDBData() {
