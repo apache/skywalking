@@ -20,21 +20,14 @@ package org.skywalking.apm.collector.agent.stream.graph;
 
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SegmentStandardization;
 import org.skywalking.apm.collector.agent.stream.parser.standardization.SegmentStandardizationWorker;
-import org.skywalking.apm.collector.agent.stream.service.graph.ServiceGraphNodeIdDefine;
 import org.skywalking.apm.collector.agent.stream.worker.trace.application.ApplicationComponentAggregationWorker;
 import org.skywalking.apm.collector.agent.stream.worker.trace.application.ApplicationComponentPersistenceWorker;
 import org.skywalking.apm.collector.agent.stream.worker.trace.application.ApplicationComponentRemoteWorker;
 import org.skywalking.apm.collector.agent.stream.worker.trace.application.ApplicationMappingAggregationWorker;
 import org.skywalking.apm.collector.agent.stream.worker.trace.application.ApplicationMappingPersistenceWorker;
 import org.skywalking.apm.collector.agent.stream.worker.trace.application.ApplicationMappingRemoteWorker;
-import org.skywalking.apm.collector.agent.stream.worker.trace.application.ApplicationReferenceMetricAggregationWorker;
-import org.skywalking.apm.collector.agent.stream.worker.trace.application.ApplicationReferenceMetricPersistenceWorker;
-import org.skywalking.apm.collector.agent.stream.worker.trace.application.ApplicationReferenceMetricRemoteWorker;
 import org.skywalking.apm.collector.agent.stream.worker.trace.global.GlobalTracePersistenceWorker;
 import org.skywalking.apm.collector.agent.stream.worker.trace.instance.InstanceMetricPersistenceWorker;
-import org.skywalking.apm.collector.agent.stream.worker.trace.instance.InstanceReferenceMetricAggregationWorker;
-import org.skywalking.apm.collector.agent.stream.worker.trace.instance.InstanceReferenceMetricRemoteWorker;
-import org.skywalking.apm.collector.agent.stream.worker.trace.instance.InstanceReferencePersistenceWorker;
 import org.skywalking.apm.collector.agent.stream.worker.trace.segment.SegmentCostPersistenceWorker;
 import org.skywalking.apm.collector.agent.stream.worker.trace.segment.SegmentPersistenceWorker;
 import org.skywalking.apm.collector.agent.stream.worker.trace.service.ServiceEntryAggregationWorker;
@@ -45,7 +38,6 @@ import org.skywalking.apm.collector.agent.stream.worker.trace.service.ServiceRef
 import org.skywalking.apm.collector.agent.stream.worker.trace.service.ServiceReferenceMetricRemoteWorker;
 import org.skywalking.apm.collector.core.graph.Graph;
 import org.skywalking.apm.collector.core.graph.GraphManager;
-import org.skywalking.apm.collector.core.graph.Node;
 import org.skywalking.apm.collector.core.module.ModuleManager;
 import org.skywalking.apm.collector.queue.QueueModule;
 import org.skywalking.apm.collector.queue.service.QueueCreatorService;
@@ -71,7 +63,6 @@ public class TraceStreamGraph {
     public static final int INSTANCE_METRIC_GRAPH_ID = 301;
     public static final int APPLICATION_COMPONENT_GRAPH_ID = 302;
     public static final int APPLICATION_MAPPING_GRAPH_ID = 303;
-    public static final int APPLICATION_REFERENCE_METRIC_GRAPH_ID = 304;
     public static final int SERVICE_ENTRY_GRAPH_ID = 305;
     public static final int SERVICE_REFERENCE_GRAPH_ID = 306;
     public static final int SEGMENT_GRAPH_ID = 307;
@@ -162,10 +153,10 @@ public class TraceStreamGraph {
         QueueCreatorService<InstanceReferenceMetric> persistenceQueueCreatorService = moduleManager.find(QueueModule.NAME).getService(QueueCreatorService.class);
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
-        Node<?, ServiceReferenceMetric> serviceReferenceMetricNode = graph.toFinder().findNode(ServiceGraphNodeIdDefine.SERVICE_REFERENCE_METRIC_AGGREGATION_NODE_ID, ServiceReferenceMetric.class);
-        serviceReferenceMetricNode.addNext(new InstanceReferenceMetricAggregationWorker.Factory(moduleManager, aggregationQueueCreatorService).create(workerCreateListener))
-            .addNext(new InstanceReferenceMetricRemoteWorker.Factory(moduleManager, remoteSenderService, SERVICE_REFERENCE_GRAPH_ID).create(workerCreateListener))
-            .addNext(new InstanceReferencePersistenceWorker.Factory(moduleManager, persistenceQueueCreatorService).create(workerCreateListener));
+//        Node<?, ServiceReferenceMetric> serviceReferenceMetricNode = graph.toFinder().findNode(ServiceGraphNodeIdDefine.SERVICE_REFERENCE_METRIC_AGGREGATION_NODE_ID, ServiceReferenceMetric.class);
+//        serviceReferenceMetricNode.addNext(new InstanceReferenceMetricAggregationWorker.Factory(moduleManager, aggregationQueueCreatorService).create(workerCreateListener))
+//            .addNext(new InstanceReferenceMetricRemoteWorker.Factory(moduleManager, remoteSenderService, SERVICE_REFERENCE_GRAPH_ID).create(workerCreateListener))
+//            .addNext(new InstanceReferencePersistenceWorker.Factory(moduleManager, persistenceQueueCreatorService).create(workerCreateListener));
 
         createApplicationReferenceMetricGraph(graph);
     }

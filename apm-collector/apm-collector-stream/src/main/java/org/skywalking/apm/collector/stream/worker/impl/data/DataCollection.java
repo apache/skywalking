@@ -26,8 +26,8 @@ import org.skywalking.apm.collector.core.data.Data;
 /**
  * @author peng-yongsheng
  */
-public class DataCollection<DataImpl extends Data> implements Collection<Map<String, DataImpl>> {
-    private Map<String, DataImpl> data;
+public class DataCollection<DATA_IMPL extends Data> implements Collection<Map<String, DATA_IMPL>> {
+    private Map<String, DATA_IMPL> data;
     private volatile boolean writing;
     private volatile boolean reading;
 
@@ -65,11 +65,11 @@ public class DataCollection<DataImpl extends Data> implements Collection<Map<Str
         return data.containsKey(key);
     }
 
-    void put(String key, DataImpl value) {
+    void put(String key, DATA_IMPL value) {
         data.put(key, value);
     }
 
-    public DataImpl get(String key) {
+    public DATA_IMPL get(String key) {
         return data.get(key);
     }
 
@@ -81,7 +81,7 @@ public class DataCollection<DataImpl extends Data> implements Collection<Map<Str
         data.clear();
     }
 
-    public Map<String, DataImpl> collection() {
+    public Map<String, DATA_IMPL> collection() {
         return data;
     }
 }
