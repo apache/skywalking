@@ -31,7 +31,7 @@ import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * {@link ClientCallInstrumentation} presents that skywalking intercept the <code>start</code> method in
- * <code>io.grpc.internal.ClientCallImpl</code> class by <code>org.skywalking.apm.plugin.grpc.v1.ClientCallStartInterceptor</code>
+ * <code>io.grpc.internal.ClientCallImpl</code> class by <code>org.skywalking.apm.plugin.grpc.v1.ClientCallsMethodInterceptor</code>
  * and the constructor in <code>io.grpc.internal.ClientCallImpl</code> by <code>org.skywalking.apm.plugin.grpc.v1.ClientCallIConstructorInterceptor</code>
  *
  * @author zhangxin
