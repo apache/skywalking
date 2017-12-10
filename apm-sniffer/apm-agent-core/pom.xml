@@ -21,7 +21,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.skywalking</groupId>
+        <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
         <version>5.0-2018-preview</version>
     </parent>
@@ -56,12 +56,12 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.skywalking</groupId>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>apm-network</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.skywalking</groupId>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>apm-util</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -117,7 +117,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.skywalking</groupId>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>apm-datacarrier</artifactId>
             <version>${project.version}</version>
         </dependency>

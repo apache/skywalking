@@ -22,7 +22,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>apm-collector</artifactId>
-        <groupId>org.skywalking</groupId>
+        <groupId>org.apache.skywalking</groupId>
         <version>5.0-2018-preview</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -42,124 +42,124 @@
             <version>1.18</version>
         </dependency>
         <dependency>
-            <groupId>org.skywalking</groupId>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>apm-collector-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- cluster provider -->
         <dependency>
-            <groupId>org.skywalking</groupId>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>collector-cluster-redis-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.skywalking</groupId>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>collector-cluster-standalone-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.skywalking</groupId>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>collector-cluster-zookeeper-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- cluster provider -->
         <!-- grpc manager provider -->
         <dependency>
-            <groupId>org.skywalking</groupId>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>collector-grpc-manager-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- grpc manager provider -->
         <!-- jetty manager provider -->
         <dependency>
-            <groupId>org.skywalking</groupId>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>collector-jetty-manager-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- jetty manager provider -->
         <!-- naming jetty provider -->
         <dependency>
-            <groupId>org.skywalking</groupId>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>collector-naming-jetty-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- naming jetty provider -->
         <!-- agent gRPC provider -->
         <dependency>
-            <groupId>org.skywalking</groupId>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>collector-agent-grpc-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- agent gRPC provider -->
         <!-- agent jetty provider -->
         <dependency>
-            <groupId>org.skywalking</groupId>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>collector-agent-jetty-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- agent jetty provider -->
         <!-- agent stream provider -->
         <dependency>
-            <groupId>org.skywalking</groupId>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>collector-agent-stream-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- agent stream provider -->
         <!-- ui provider -->
         <dependency>
-            <groupId>org.skywalking</groupId>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>collector-ui-jetty-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- ui provider -->
         <!-- storage provider -->
         <dependency>
-            <groupId>org.skywalking</groupId>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>collector-storage-es-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.skywalking</groupId>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>collector-storage-h2-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- storage provider -->
         <!-- remote provider -->
         <dependency>
-            <groupId>org.skywalking</groupId>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>collector-remote-grpc-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- remote provider -->
         <!-- queue provider -->
         <dependency>
-            <groupId>org.skywalking</groupId>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>collector-queue-datacarrier-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.skywalking</groupId>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>collector-queue-disruptor-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- queue provider -->
         <!-- cache provider -->
         <dependency>
-            <groupId>org.skywalking</groupId>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>collector-cache-guava-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- cache provider -->
         <!-- configuration provider -->
         <dependency>
-            <groupId>org.skywalking</groupId>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>collector-configuration-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- configuration provider -->
         <!-- alerting provider -->
         <dependency>
-            <groupId>org.skywalking</groupId>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>collector-alerting-provider</artifactId>
             <version>${project.version}</version>
         </dependency>

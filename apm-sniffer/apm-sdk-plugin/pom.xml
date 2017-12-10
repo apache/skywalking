@@ -22,7 +22,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.skywalking</groupId>
+        <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
         <version>5.0-2018-preview</version>
     </parent>
@@ -70,19 +70,19 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.skywalking</groupId>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>apm-agent-core</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.skywalking</groupId>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>apm-util</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.skywalking</groupId>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>apm-test-tools</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

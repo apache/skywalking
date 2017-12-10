@@ -24,7 +24,7 @@
 
     <parent>
         <artifactId>apm-sdk-plugin</artifactId>
-        <groupId>org.skywalking</groupId>
+        <groupId>org.apache.skywalking</groupId>
         <version>5.0-2018-preview</version>
     </parent>
 
