@@ -1,6 +1,6 @@
-mysql-5.x=org.skywalking.apm.plugin.jdbc.mysql.define.DriverInstrumentation
-mysql-5.x=org.skywalking.apm.plugin.jdbc.mysql.define.Mysql5xConnectionInstrumentation
-mysql-5.x=org.skywalking.apm.plugin.jdbc.mysql.define.Mysql50ConnectionInstrumentation
-mysql-5.x=org.skywalking.apm.plugin.jdbc.mysql.define.CallableInstrumentation
-mysql-5.x=org.skywalking.apm.plugin.jdbc.mysql.define.PreparedStatementInstrumentation
-mysql-5.x=org.skywalking.apm.plugin.jdbc.mysql.define.StatementInstrumentation
+mysql-5.x=DriverInstrumentation
+mysql-5.x=Mysql5xConnectionInstrumentation
+mysql-5.x=Mysql50ConnectionInstrumentation
+mysql-5.x=CallableInstrumentation
+mysql-5.x=PreparedStatementInstrumentation
+mysql-5.x=StatementInstrumentation

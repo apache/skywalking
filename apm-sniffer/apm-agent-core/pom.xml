@@ -38,14 +38,12 @@
         <grpc.version>1.8.0</grpc.version>
         <bytebuddy.version>1.7.6</bytebuddy.version>
 
-        <shade.package>org.skywalking.apm.dependencies</shade.package>
+        <shade.package>org.apache.skywalking.apm.dependencies</shade.package>
         <shade.com.lmax.disruptor.source>com.lmax.disruptor</shade.com.lmax.disruptor.source>
         <shade.com.lmax.disruptor.target>${shade.package}.${shade.com.lmax.disruptor.source}
         </shade.com.lmax.disruptor.target>
         <shade.com.google.source>com.google</shade.com.google.source>
         <shade.com.google.target>${shade.package}.${shade.com.google.source}</shade.com.google.target>
-        <shade.org.apache.source>org.apache</shade.org.apache.source>
-        <shade.org.apache.target>${shade.package}.${shade.org.apache.source}</shade.org.apache.target>
         <shade.io.grpc.source>io.grpc</shade.io.grpc.source>
         <shade.io.grpc.target>${shade.package}.${shade.io.grpc.source}</shade.io.grpc.target>
         <shade.io.netty.source>io.netty</shade.io.netty.source>
@@ -165,10 +163,6 @@
                                 <relocation>
                                     <pattern>${shade.com.google.source}</pattern>
                                     <shadedPattern>${shade.com.google.target}</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>${shade.org.apache.source}</pattern>
-                                    <shadedPattern>${shade.org.apache.target}</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>${shade.io.grpc.source}</pattern>

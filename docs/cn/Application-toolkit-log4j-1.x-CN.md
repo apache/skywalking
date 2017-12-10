@@ -6,11 +6,11 @@
       <version>{project.release.version}</version>
    </dependency>
 ```
-&nbsp;&nbsp;&nbsp;[ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/org.skywalking.apm-toolkit-log4j-1.x/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/org.skywalking.apm-toolkit-log4j-1.x/_latestVersion)
+&nbsp;&nbsp;&nbsp;[ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/org.apache.skywalking.apm-toolkit-log4j-1.x/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/org.apache.skywalking.apm-toolkit-log4j-1.x/_latestVersion)
 
 * 配置layout
 ```properties
-log4j.appender.CONSOLE.layout=org.skywalking.apm.toolkit.log.log4j.v1.x.TraceIdPatternLayout
+log4j.appender.CONSOLE.layout=TraceIdPatternLayout
 ```
 
 * 在`layout.ConversionPattern`中设置 `%T`来展示traceid ( 在 2.0-2016版本中, 你应该设置为 %x, [为什么改变配置，请参考相关issue?](https://github.com/wu-sheng/sky-walking/issues/77) )

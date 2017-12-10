@@ -16,4 +16,4 @@
 # Project repository: https://github.com/OpenSkywalking/skywalking
 #
 
-org.skywalking.apm.collector.baseline.computing.ComputingModule
+ComputingModule

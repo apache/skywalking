@@ -6,13 +6,13 @@
       <version>{project.release.version}</version>
    </dependency>
 ```
-&nbsp;&nbsp;&nbsp;[ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/org.skywalking.apm-toolkit-log4j-2.x/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/org.skywalking.apm-toolkit-log4j-2.x/_latestVersion)
+&nbsp;&nbsp;&nbsp;[ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/org.apache.skywalking.apm-toolkit-log4j-2.x/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/org.apache.skywalking.apm-toolkit-log4j-2.x/_latestVersion)
 
 * 在logback.xml中的`Pattern`配制节中，设置`%tid`
 ```xml
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
-            <layout class="org.skywalking.apm.toolkit.log.logback.v1.x.TraceIdPatternLogbackLayout">
+            <layout class="TraceIdPatternLogbackLayout">
                 <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%tid] [%thread] %-5level %logger{36} -%msg%n</Pattern>
             </layout>
         </encoder>

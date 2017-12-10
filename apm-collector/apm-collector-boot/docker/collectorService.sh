@@ -20,4 +20,4 @@ do
     CLASSPATH="$i:$CLASSPATH"
 done
 
-${_RUNJAVA} ${JAVA_OPTS} -classpath $CLASSPATH org.skywalking.apm.collector.boot.CollectorBootStartUp
+${_RUNJAVA} ${JAVA_OPTS} -classpath $CLASSPATH org.apache.skywalking.apm.collector.boot.CollectorBootStartUp

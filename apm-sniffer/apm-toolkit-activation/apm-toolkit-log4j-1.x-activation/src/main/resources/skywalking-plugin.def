@@ -1,1 +1,1 @@
-toolkit-log4j=org.skywalking.apm.toolkit.activation.log.log4j.v1.x.TraceIdPatternConverterActivation
+toolkit-log4j=TraceIdPatternConverterActivation

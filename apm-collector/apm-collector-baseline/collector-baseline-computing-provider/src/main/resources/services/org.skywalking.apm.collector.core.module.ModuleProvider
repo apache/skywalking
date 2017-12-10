@@ -16,4 +16,4 @@
 # Project repository: https://github.com/OpenSkywalking/skywalking
 #
 
-org.skywalking.collector.baseline.computing.provider.ComputingProvider
+ComputingProvider

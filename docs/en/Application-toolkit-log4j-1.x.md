@@ -6,11 +6,11 @@
       <version>{project.release.version}</version>
    </dependency>
 ```
-&nbsp;&nbsp;&nbsp;[ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/org.skywalking.apm-toolkit-log4j-1.x/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/org.skywalking.apmg-toolkit-log4j-1.x/_latestVersion)
+&nbsp;&nbsp;&nbsp;[ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/org.apache.skywalking.apm-toolkit-log4j-1.x/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/org.apache.skywalking.apmg-toolkit-log4j-1.x/_latestVersion)
 
 * Config a layout
 ```properties
-log4j.appender.CONSOLE.layout=org.skywalking.apm.toolkit.log.log4j.v1.x.TraceIdPatternLayout
+log4j.appender.CONSOLE.layout=TraceIdPatternLayout
 ```
 
 * set `%T` in `layout.ConversionPattern` ( In 2.0-2016, you should use %x, [Why change?](https://github.com/wu-sheng/sky-walking/issues/77) )

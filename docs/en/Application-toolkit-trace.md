@@ -6,11 +6,11 @@
       <version>${skywalking.version}</version>
    </dependency>
 ```
-&nbsp;&nbsp;&nbsp;[ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/org.skywalking.apm-toolkit-trace/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/org.skywalking.apm-toolkit-trace/_latestVersion)
+&nbsp;&nbsp;&nbsp;[ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/org.apache.skywalking.apm-toolkit-trace/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/org.apache.skywalking.apm-toolkit-trace/_latestVersion)
 
 * Use `TraceContext.traceId()` API to obtain traceId.
 ```java
-import org.skywalking.apm.toolkit.trace.TraceContext;
+import TraceContext;
 ...
 
 modelAndView.addObject("traceId", TraceContext.traceId());

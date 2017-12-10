@@ -6,7 +6,7 @@
       <version>{project.release.version}</version>
    </dependency>
 ```
-&nbsp;&nbsp;&nbsp;[ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/org.skywalking.apm-toolkit-log4j-2.x/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/org.skywalking.apm-toolkit-log4j-2.x/_latestVersion)
+&nbsp;&nbsp;&nbsp;[ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/org.apache.skywalking.apm-toolkit-log4j-2.x/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/org.apache.skywalking.apm-toolkit-log4j-2.x/_latestVersion)
 
 * Config the `[%traceId]` pattern in your log4j2.xml
 ```xml

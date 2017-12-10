@@ -1,1 +1,1 @@
-memcache-2.x=org.skywalking.apm.plugin.xmemcached.v2.define.XMemcachedInstrumentation
+memcache-2.x=XMemcachedInstrumentation
