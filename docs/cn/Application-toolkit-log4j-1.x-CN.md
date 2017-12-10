@@ -1,7 +1,7 @@
 * 使用 maven 和 gradle 依赖相应的工具包
 ```xml
    <dependency>
-      <groupId>org.skywalking</groupId>
+      <groupId>org.apache.skywalking</groupId>
       <artifactId>apm-toolkit-log4j-1.x</artifactId>
       <version>{project.release.version}</version>
    </dependency>

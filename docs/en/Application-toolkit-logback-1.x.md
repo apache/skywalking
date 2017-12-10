@@ -1,7 +1,7 @@
 * Dependency the toolkit, such as using maven or gradle
 ```xml
    <dependency>
-      <groupId>org.skywalking</groupId>
+      <groupId>org.apache.skywalking</groupId>
       <artifactId>skywalking-toolkit-logback-1.x</artifactId>
       <version>{project.release.version}</version>
    </dependency>

@@ -22,7 +22,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.skywalking</groupId>
+        <groupId>org.apache.skywalking</groupId>
         <artifactId>spring-cloud</artifactId>
         <version>5.0-2018-preview</version>
     </parent>
