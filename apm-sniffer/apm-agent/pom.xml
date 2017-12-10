@@ -34,7 +34,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <premain.class>org.skywalking.apm.agent.SkyWalkingAgent</premain.class>
+        <premain.class>org.apache.skywalking.apm.agent.SkyWalkingAgent</premain.class>
         <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
         <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}</shade.net.bytebuddy.target>
     </properties>
@@ -123,11 +123,5 @@
         </plugins>
     </build>
 
-    <distributionManagement>
-        <repository>
-            <id>bintray-wu-sheng-sky-walking-repository</id>
-            <name>wu-sheng-sky-walking-repository</name>
-            <url>https://api.bintray.com/maven/wu-sheng/skywalking/org.skywalking.apm-agent/;publish=1</url>
-        </repository>
-    </distributionManagement>
+
 </project>

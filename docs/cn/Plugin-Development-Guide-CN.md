@@ -86,7 +86,7 @@ AbstractSpan提供了Span内部，进行操作的各项API
 
 ```java
     /**
-     * Set the component id, which defines in {@link org.skywalking.apm.network.trace.component.ComponentsDefine}
+     * Set the component id, which defines in {@link ComponentsDefine}
      *
      * @param component
      * @return the span for chaining.
@@ -215,14 +215,14 @@ public interface InstanceMethodsInterceptPoint {
 
 3. 定义skywalking-plugin.def文件
 ```properties
-tomcat-7.x/8.x=org.skywalking.apm.plugin.tomcat78x.define.TomcatInstrumentation
+tomcat-7.x/8.x=TomcatInstrumentation
 ```
 
 * 插件名称，要求全局唯一，命名规范：目标组件+版本号
 * 插件定义类全名
 
 #### 四. 实现拦截器逻辑
-我们继续以实现实例方法拦截为例，拦截器需要实现org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor。
+我们继续以实现实例方法拦截为例，拦截器需要实现org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor。
 ```java
 /**
  * A interceptor, which intercept method's invocation. The target methods will be defined in {@link

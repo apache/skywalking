@@ -64,7 +64,7 @@
         <repository>
             <id>bintray-wu-sheng-sky-walking-repository</id>
             <name>wu-sheng-sky-walking-repository</name>
-            <url>https://api.bintray.com/maven/wu-sheng/skywalking/org.skywalking.apm-toolkit-logback-1.x/;publish=1
+            <url>https://api.bintray.com/maven/wu-sheng/skywalking/org.apache.skywalking.apm-toolkit-logback-1.x/;publish=1
             </url>
         </repository>
     </distributionManagement>

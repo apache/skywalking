@@ -1,1 +1,1 @@
-jetty-server-9.x=org.skywalking.apm.plugin.jetty.v9.server.define.JettyInstrumentation
+jetty-server-9.x=JettyInstrumentation

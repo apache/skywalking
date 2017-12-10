@@ -22,7 +22,7 @@ done
 
 COLLECTOR_OPTIONS=" -Dcollector.logDir=${COLLECT_LOG_DIR}"
 
-eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} ${COLLECTOR_OPTIONS} -classpath $CLASSPATH org.skywalking.apm.collector.boot.CollectorBootStartUp \
+eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} ${COLLECTOR_OPTIONS} -classpath $CLASSPATH org.apache.skywalking.apm.collector.boot.CollectorBootStartUp \
         2>${COLLECT_LOG_DIR}/collector.log 1> /dev/null &"
 
 if [ $? -eq 0 ]; then

@@ -7,11 +7,11 @@
    </dependency>
 ```
 
-&nbsp;&nbsp;&nbsp;[ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/org.skywalking.apm-toolkit-opentracing/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/org.skywalking.apm-toolkit-opentracing/_latestVersion)
+&nbsp;&nbsp;&nbsp;[ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/org.apache.skywalking.apm-toolkit-opentracing/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/org.apache.skywalking.apm-toolkit-opentracing/_latestVersion)
 
 * 使用OpenTracing的标准API和桥接器，使用手动埋点
 ```java
-Tracer tracer = new org.skywalking.apm.toolkit.opentracing.SkyWalkingTracer();
+Tracer tracer = new org.apache.skywalking.apm.toolkit.opentracing.SkyWalkingTracer();
 Tracer.SpanBuilder spanBuilder = tracer.buildSpan("/yourApplication/yourService");
 
 ```

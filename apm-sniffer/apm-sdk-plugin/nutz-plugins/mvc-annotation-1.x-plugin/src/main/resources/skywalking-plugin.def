@@ -1,1 +1,1 @@
-nutz-mvc-annotation-1.x=org.skywalking.apm.plugin.nutz.mvc.define.ActionInstrumentation
+nutz-mvc-annotation-1.x=ActionInstrumentation

@@ -13,6 +13,6 @@
 1. 在IntelliJ Terminal中，执行`mvn compile -Dmaven.test.skip=true`进行编译
 1. 设置gRPC的自动生成代码目录，为源码目录
   - **apm-network/target/generated--sources/protobuf**目录下的`grpc-java`和`java`目录
-  - **apm-collector/apm-collector-stream/target/protobuf**目录下的`grpc-java`和`java`目录
+  - **apm-collector/apm-collector-remote/apm-remote-grpc-provider/target/protobuf**目录下的`grpc-java`和`java`目录
 
 注：从3.2开始，网络通讯协议引入GRPC，所以增加上述的步骤

@@ -38,7 +38,7 @@ https://github.com/OpenSkywalking/skywalking/blob/master/apm-network/src/main/pr
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "org.skywalking.apm.network.proto";
+option java_package = "org.apache.skywalking.apm.network.proto";
 
 import "KeyWithIntegerValue.proto";
 
@@ -184,7 +184,7 @@ https://github.com/OpenSkywalking/skywalking/blob/master/apm-network/src/main/pr
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "org.skywalking.apm.network.proto";
+option java_package = "org.apache.skywalking.apm.network.proto";
 
 import "Downstream.proto";
 
@@ -260,7 +260,7 @@ gRPC服务
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "org.skywalking.apm.network.proto";
+option java_package = "org.apache.skywalking.apm.network.proto";
 
 import "Downstream.proto";
 import "KeyWithStringValue.proto";
@@ -349,4 +349,4 @@ message LogMessage {
   - entryServiceName/entryServiceId
   - parentServiceName/parentServiceId
   - peerId/peer
-- componentId为默认支持的插件id，非官方支持，需传输名称或修改服务端源代码。[官方组件列表](https://github.com/OpenSkywalking/skywalking/blob/master/apm-network/src/main/java/org/skywalking/apm/network/trace/component/ComponentsDefine.java)
+- componentId为默认支持的插件id，非官方支持，需传输名称或修改服务端源代码。[官方组件列表](https://github.com/OpenSkywalking/skywalking/blob/master/apm-network/src/main/java/org.apache.skywalking.apm/network/trace/component/ComponentsDefine.java)
