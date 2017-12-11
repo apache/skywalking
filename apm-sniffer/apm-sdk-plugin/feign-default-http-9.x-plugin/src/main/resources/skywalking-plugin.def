@@ -1,1 +1,1 @@
-feign-default-http-9.x=DefaultHttpClientInstrumentation
+feign-default-http-9.x=org.apache.skywalking.apm.plugin.feign.http.v9.define.DefaultHttpClientInstrumentation

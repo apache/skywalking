@@ -1,1 +1,1 @@
-tomcat-7.x/8.x=TomcatInstrumentation
+tomcat-7.x/8.x=org.apache.skywalking.apm.plugin.tomcat78x.define.TomcatInstrumentation

@@ -1,1 +1,1 @@
-mongodb-3.x=MongoDBInstrumentation
+mongodb-3.x=org.apache.skywalking.apm.plugin.mongodb.v3.define.MongoDBInstrumentation

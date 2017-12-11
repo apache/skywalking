@@ -1,1 +1,1 @@
-okhttp-3.x=RealCallInstrumentation
+okhttp-3.x=org.apache.skywalking.apm.plugin.okhttp.v3.define.RealCallInstrumentation

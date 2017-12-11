@@ -1,1 +1,1 @@
-dubbo=DubboInstrumentation
+dubbo=org.apache.skywalking.apm.plugin.dubbo.DubboInstrumentation

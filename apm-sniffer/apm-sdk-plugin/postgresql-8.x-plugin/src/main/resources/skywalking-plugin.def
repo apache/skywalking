@@ -1,5 +1,5 @@
-postgresql-8.x=DriverInstrumentation
-postgresql-8.x=Jdbc3ConnectionInstrumentation
-postgresql-8.x=Jdbc4ConnectionInstrumentation
-postgresql-8.x=ConnectionInstrumentation
-postgresql-8.x=AbstractJdbc2StatementInstrumentation
+postgresql-8.x=org.apache.skywalking.apm.plugin.jdbc.postgresql.define.DriverInstrumentation
+postgresql-8.x=org.apache.skywalking.apm.plugin.jdbc.postgresql.define.Jdbc3ConnectionInstrumentation
+postgresql-8.x=org.apache.skywalking.apm.plugin.jdbc.postgresql.define.Jdbc4ConnectionInstrumentation
+postgresql-8.x=org.apache.skywalking.apm.plugin.jdbc.postgresql.define.ConnectionInstrumentation
+postgresql-8.x=org.apache.skywalking.apm.plugin.jdbc.postgresql.define.AbstractJdbc2StatementInstrumentation
