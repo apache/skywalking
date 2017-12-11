@@ -1,1 +1,1 @@
-elastic-job-2.x=JobExecutorInstrumentation
+elastic-job-2.x=org.apache.skywalking.apm.plugin.esjob.define.JobExecutorInstrumentation

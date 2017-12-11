@@ -1,2 +1,2 @@
-mongodb-2.x=MongoDBCollectionInstrumentation
-mongodb-2.x=MongoDBCollectionImplInstrumentation
+mongodb-2.x=org.apache.skywalking.apm.plugin.mongodb.v2.define.MongoDBCollectionInstrumentation
+mongodb-2.x=org.apache.skywalking.apm.plugin.mongodb.v2.define.MongoDBCollectionImplInstrumentation
