@@ -1,1 +1,1 @@
-sharding-jdbc-1.5.x=ExecutorInstrumentation
+sharding-jdbc-1.5.x=org.apache.skywalking.apm.plugin.sjdbc.define.ExecutorInstrumentation

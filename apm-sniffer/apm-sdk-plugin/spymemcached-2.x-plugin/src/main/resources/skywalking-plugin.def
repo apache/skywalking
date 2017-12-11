@@ -1,1 +1,1 @@
-spymemcached-2.x=MemcachedInstrumentation
+spymemcached-2.x=org.apache.skywalking.apm.plugin.spymemcached.v2.define.MemcachedInstrumentation

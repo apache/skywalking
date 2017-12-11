@@ -1,2 +1,2 @@
-oracle-10.x=DriverInstrumentation
-oracle-10.x=ConnectionInstrumentation
+oracle-10.x=org.apache.skywalking.apm.plugin.jdbc.oracle.define.DriverInstrumentation
+oracle-10.x=org.apache.skywalking.apm.plugin.jdbc.oracle.define.ConnectionInstrumentation
