@@ -1,2 +1,2 @@
-motan-0.x=MotanConsumerInstrumentation
-motan-0.x=MotanProviderInstrumentation
+motan-0.x=org.apache.skywalking.apm.plugin.motan.define.MotanConsumerInstrumentation
+motan-0.x=org.apache.skywalking.apm.plugin.motan.define.MotanProviderInstrumentation

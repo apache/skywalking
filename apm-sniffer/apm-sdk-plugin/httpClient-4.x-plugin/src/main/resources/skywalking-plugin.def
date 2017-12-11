@@ -1,4 +1,4 @@
-httpclient-4.x=AbstractHttpClientInstrumentation
-httpclient-4.x=InternalHttpClientInstrumentation
-httpclient-4.x=MinimalHttpClientInstrumentation
-httpclient-4.x=DefaultRequestDirectorInstrumentation
+httpclient-4.x=org.apache.skywalking.apm.plugin.httpClient.v4.define.AbstractHttpClientInstrumentation
+httpclient-4.x=org.apache.skywalking.apm.plugin.httpClient.v4.define.InternalHttpClientInstrumentation
+httpclient-4.x=org.apache.skywalking.apm.plugin.httpClient.v4.define.MinimalHttpClientInstrumentation
+httpclient-4.x=org.apache.skywalking.apm.plugin.httpClient.v4.define.DefaultRequestDirectorInstrumentation
