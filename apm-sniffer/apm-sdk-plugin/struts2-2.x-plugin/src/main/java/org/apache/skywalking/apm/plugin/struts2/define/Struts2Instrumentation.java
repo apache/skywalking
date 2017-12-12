@@ -40,7 +40,7 @@ public class Struts2Instrumentation extends ClassInstanceMethodsEnhancePluginDef
 
     private static final String ENHANCE_CLASS = "com.opensymphony.xwork2.DefaultActionInvocation";
     private static final String ENHANCE_METHOD = "invokeAction";
-    private static final String INTERCEPT_CLASS = "Struts2Interceptor";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.struts2.Struts2Interceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];

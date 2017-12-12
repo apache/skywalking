@@ -46,9 +46,9 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 public class ResponseExtractorFutureInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ADD_CALLBACK_METHOD_NAME = "addCallback";
-    private static final String ADD_CALLBACK_INTERCEPTOR = "ResponseCallBackInterceptor";
+    private static final String ADD_CALLBACK_INTERCEPTOR = "org.apache.skywalking.apm.plugin.spring.resttemplate.async.ResponseCallBackInterceptor";
     private static final String ENHANCE_CLASS = "org.springframework.web.client.AsyncRestTemplate$ResponseExtractorFuture";
-    private static final String GET_METHOD_INTERCEPTOR = "FutureGetInterceptor";
+    private static final String GET_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.spring.resttemplate.async.FutureGetInterceptor";
     private static final String GET_METHOD_NAME = "get";
 
     @Override

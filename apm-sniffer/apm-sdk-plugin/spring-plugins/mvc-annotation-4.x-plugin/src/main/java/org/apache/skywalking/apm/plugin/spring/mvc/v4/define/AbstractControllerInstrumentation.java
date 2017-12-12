@@ -58,7 +58,7 @@ public abstract class AbstractControllerInstrumentation extends AbstractSpring4I
 
                 @Override
                 public String getConstructorInterceptor() {
-                    return "ControllerConstructorInterceptor";
+                    return "org.apache.skywalking.apm.plugin.spring.mvc.v4.ControllerConstructorInterceptor";
                 }
             }
         };

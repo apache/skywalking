@@ -20,13 +20,13 @@
 package org.apache.skywalking.apm.plugin.jdbc.define;
 
 public class Constants {
-    public static final String CREATE_STATEMENT_INTERCEPT_CLASS = "JDBCStatementInterceptor";
+    public static final String CREATE_STATEMENT_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jdbc.JDBCStatementInterceptor";
 
-    public static final String PREPARE_STATEMENT_INTERCEPT_CLASS = "JDBCPrepareStatementInterceptor";
+    public static final String PREPARE_STATEMENT_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jdbc.JDBCPrepareStatementInterceptor";
 
-    public static final String PREPARE_CALL_INTERCEPT_CLASS = "JDBCPrepareCallInterceptor";
+    public static final String PREPARE_CALL_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jdbc.JDBCPrepareCallInterceptor";
 
-    public static final String SERVICE_METHOD_INTERCEPT_CLASS = "ConnectionServiceMethodInterceptor";
+    public static final String SERVICE_METHOD_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jdbc.ConnectionServiceMethodInterceptor";
 
     public static final String PREPARE_STATEMENT_METHOD_NAME = "prepareStatement";
 

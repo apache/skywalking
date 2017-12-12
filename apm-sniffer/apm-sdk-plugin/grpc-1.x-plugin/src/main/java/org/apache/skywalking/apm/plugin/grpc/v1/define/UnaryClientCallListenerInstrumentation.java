@@ -37,7 +37,7 @@ import static net.bytebuddy.matcher.ElementMatchers.any;
  */
 public class UnaryClientCallListenerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "io.grpc.stub.ClientCalls$UnaryStreamToFuture";
-    public static final String INTERCEPT_CLASS = "UnaryStreamToFutureConstructorInterceptor";
+    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.UnaryStreamToFutureConstructorInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {

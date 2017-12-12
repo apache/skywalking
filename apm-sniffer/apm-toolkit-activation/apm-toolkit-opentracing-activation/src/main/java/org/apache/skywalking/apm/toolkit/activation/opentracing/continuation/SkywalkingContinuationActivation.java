@@ -42,9 +42,9 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  */
 public class SkywalkingContinuationActivation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "SkywalkingContinuation";
-    private static final String CONSTRUCTOR_INTERCEPTOR = "ConstructorInterceptor";
-    private static final String ACTIVATE_METHOD_INTERCEPTOR = "ActivateInterceptor";
+    private static final String ENHANCE_CLASS = "org.skywalking.apm.toolkit.opentracing.SkywalkingContinuation";
+    private static final String CONSTRUCTOR_INTERCEPTOR = "org.apache.skywalking.apm.toolkit.activation.opentracing.continuation.ConstructorInterceptor";
+    private static final String ACTIVATE_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.toolkit.activation.opentracing.continuation.ActivateInterceptor";
 
     @Override
     protected ClassMatch enhanceClass() {

@@ -39,7 +39,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 public class ResinV4Instrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "com.caucho.server.dispatch.ServletInvocation";
 
-    private static final String METHOD_INTERCET_CLASS = "ResinV4Interceptor";
+    private static final String METHOD_INTERCET_CLASS = "org.apache.skywalking.apm.plugin.resin.v4.ResinV4Interceptor";
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

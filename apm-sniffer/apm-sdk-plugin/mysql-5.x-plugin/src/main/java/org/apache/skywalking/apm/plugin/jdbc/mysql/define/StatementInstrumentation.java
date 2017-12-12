@@ -46,7 +46,7 @@ import static org.apache.skywalking.apm.plugin.jdbc.mysql.define.MultiClassNameM
  */
 public class StatementInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String STATEMENT_CLASS_NAME = "com.mysql.jdbc.StatementImpl";
-    private static final String SERVICE_METHOD_INTERCEPTOR = "StatementExecuteMethodsInterceptor";
+    private static final String SERVICE_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.mysql.StatementExecuteMethodsInterceptor";
     public static final String MYSQL6_STATEMENT_CLASS_NAME = "com.mysql.cj.jdbc.StatementImpl";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

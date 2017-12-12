@@ -42,13 +42,13 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 public class StreamingServerCallListenerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "io.grpc.stub.ServerCalls$StreamingServerCallHandler$StreamingServerCallListener";
     public static final String ON_READY_METHOD = "onReady";
-    public static final String ON_READ_INTERCEPT_CLASS = "ServerCallOnReadyInterceptor";
+    public static final String ON_READ_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.ServerCallOnReadyInterceptor";
     public static final String ON_HALF_CLOSE_METHOD = "onHalfClose";
-    public static final String ON_HALF_CLOSE_INTERCEPT_CLASS = "ServerCallOnCloseInterceptor";
+    public static final String ON_HALF_CLOSE_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.ServerCallOnCloseInterceptor";
     public static final String ON_MESSAGE_METHOD = "onMessage";
-    public static final String ON_MESSAGE_INTERCEPT_CLASS = "ServerCallOnMessageInterceptor";
+    public static final String ON_MESSAGE_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.ServerCallOnMessageInterceptor";
     public static final String ON_CANCEL_METHOD = "onCancel";
-    public static final String ON_CANCEL_INTERCEPT_CLASS = "ServerCallOnCancelInterceptor";
+    public static final String ON_CANCEL_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.ServerCallOnCancelInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
