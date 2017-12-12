@@ -210,7 +210,7 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
                             .withBinders(
                                 Morph.Binder.install(OverrideCallable.class)
                             )
-                            .to(new StaticMethodsInter(interceptor))
+                            .to(new StaticMethodsInterWithOverrideArgs(interceptor))
                     );
             } else {
                 newClassBuilder = newClassBuilder.method(isStatic().and(staticMethodsInterceptPoint.getMethodsMatcher()))
