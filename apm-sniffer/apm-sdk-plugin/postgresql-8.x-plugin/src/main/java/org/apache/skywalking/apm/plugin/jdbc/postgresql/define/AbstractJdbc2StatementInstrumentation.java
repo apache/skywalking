@@ -65,9 +65,7 @@ public class AbstractJdbc2StatementInstrumentation extends ClassInstanceMethodsE
                         .or(named("executeQuery").and(takesArguments(0)))
                         .or(named("executeQuery").and(takesArguments(1)))
                         .or(named("executeUpdate").and(takesArguments(0)))
-                        .or(named("executeUpdate").and(takesArguments(1)))
-                        .or(named("addBatch").and(takesArguments(1)))
-                        .or(named("addBatch").and(takesArguments(0)));
+                        .or(named("executeUpdate").and(takesArguments(1)));
                 }
 
                 @Override public String getMethodsInterceptor() {
