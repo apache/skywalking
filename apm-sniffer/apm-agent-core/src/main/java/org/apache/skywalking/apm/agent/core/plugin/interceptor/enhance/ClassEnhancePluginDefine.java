@@ -216,7 +216,7 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
                 newClassBuilder = newClassBuilder.method(isStatic().and(staticMethodsInterceptPoint.getMethodsMatcher()))
                     .intercept(
                         MethodDelegation.withDefaultConfiguration()
-                            .to(new StaticMethodsInter(interceptor))
+                            .to(new StaticMethodsInterWithOverrideArgs(interceptor))
                     );
             }
 
