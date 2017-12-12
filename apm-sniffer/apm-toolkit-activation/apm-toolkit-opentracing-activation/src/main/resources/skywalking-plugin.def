@@ -1,3 +1,3 @@
 toolkit-opentracing=org.apache.skywalking.apm.toolkit.activation.opentracing.tracer.SkywalkingTracerActivation
-toolkit-opentracing=org.apache.skywalking.apm.toolkit.activation.opentracing.tracer.SkywalkingSpanActivation
-toolkit-opentracing=org.apache.skywalking.apm.toolkit.activation.opentracing.tracer.SkywalkingContinuationActivation
+toolkit-opentracing=org.apache.skywalking.apm.toolkit.activation.opentracing.span.SkywalkingSpanActivation
+toolkit-opentracing=org.apache.skywalking.apm.toolkit.activation.opentracing.continuation.SkywalkingContinuationActivation

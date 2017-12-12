@@ -41,9 +41,9 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  **/
 public class SkywalkingTracerActivation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "SkywalkingTracer";
-    private static final String INJECT_INTERCEPTOR = "SkywalkingTracerInjectInterceptor";
-    private static final String EXTRACT_INTERCEPTOR = "SkywalkingTracerExtractInterceptor";
+    private static final String ENHANCE_CLASS = "org.apache.skywalking.apm.toolkit.opentracing.SkywalkingTracer";
+    private static final String INJECT_INTERCEPTOR = "org.apache.skywalking.apm.toolkit.activation.opentracing.tracer.SkywalkingTracerInjectInterceptor";
+    private static final String EXTRACT_INTERCEPTOR = "org.apache.skywalking.apm.toolkit.activation.opentracing.tracer.SkywalkingTracerExtractInterceptor";
 
     @Override protected ClassMatch enhanceClass() {
         return NameMatch.byName(ENHANCE_CLASS);

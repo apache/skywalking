@@ -32,8 +32,8 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 public abstract class AbstractNutzHttpInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String DO_SEND_METHOD_NAME = "send";
-    private static final String DO_SEND_INTERCEPTOR = "SenderSendInterceptor";
-    private static final String DO_CONSTRUCTOR_INTERCEPTOR = "SenderConstructorInterceptor";
+    private static final String DO_SEND_INTERCEPTOR = "org.apache.skywalking.apm.plugin.nutz.http.sync.SenderSendInterceptor";
+    private static final String DO_CONSTRUCTOR_INTERCEPTOR = "org.apache.skywalking.apm.plugin.nutz.http.sync.SenderConstructorInterceptor";
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

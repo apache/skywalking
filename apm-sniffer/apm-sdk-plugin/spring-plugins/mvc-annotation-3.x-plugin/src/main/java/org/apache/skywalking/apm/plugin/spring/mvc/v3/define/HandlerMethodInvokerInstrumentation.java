@@ -37,7 +37,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 public class HandlerMethodInvokerInstrumentation extends AbstractSpring3Instrumentation {
     private static final String ENHANCE_CLASS = "org.springframework.web.bind.annotation.support.HandlerMethodInvoker";
     private static final String ENHANCE_METHOD = "invokeHandlerMethod";
-    private static final String INTERCEPTOR_CLASS = "HandlerMethodInvokerInterceptor";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.spring.mvc.v3.HandlerMethodInvokerInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];

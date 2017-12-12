@@ -49,11 +49,11 @@ public class MotanProviderInstrumentation extends ClassInstanceMethodsEnhancePlu
     /**
      * Class that intercept all constructor of ${@link com.weibo.api.motan.rpc.AbstractProvider}.
      */
-    private static final String CONSTRUCTOR_INTERCEPT_CLASS = "MotanConsumerInterceptor";
+    private static final String CONSTRUCTOR_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.motan.MotanConsumerInterceptor";
     /**
      * Class that intercept {@link com.weibo.api.motan.rpc.AbstractProvider#call(Request)}.
      */
-    private static final String PROVIDER_INVOKE_INTERCEPT_CLASS = "MotanConsumerInterceptor";
+    private static final String PROVIDER_INVOKE_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.motan.MotanConsumerInterceptor";
 
     @Override
     protected ClassMatch enhanceClass() {

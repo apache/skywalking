@@ -48,7 +48,7 @@ public class DefaultHttpClientInstrumentation extends ClassInstanceMethodsEnhanc
     /**
      * Intercept class.
      */
-    private static final String INTERCEPT_CLASS = "DefaultHttpClientInterceptor";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.feign.http.v9.DefaultHttpClientInterceptor";
 
     @Override protected ClassMatch enhanceClass() {
         return byName(ENHANCE_CLASS);

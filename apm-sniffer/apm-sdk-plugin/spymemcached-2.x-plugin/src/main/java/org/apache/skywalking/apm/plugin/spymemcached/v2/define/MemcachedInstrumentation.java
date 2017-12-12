@@ -42,8 +42,8 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 public class MemcachedInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "net.spy.memcached.MemcachedClient";
-    private static final String CONSTRUCTOR_WITH_INETSOCKETADDRESS_LIST_ARG_INTERCEPT_CLASS = "MemcachedConstructorWithInetSocketAddressListArgInterceptor";
-    private static final String METHOD_INTERCEPT_CLASS = "MemcachedMethodInterceptor";
+    private static final String CONSTRUCTOR_WITH_INETSOCKETADDRESS_LIST_ARG_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.spymemcached.MemcachedConstructorWithInetSocketAddressListArgInterceptor";
+    private static final String METHOD_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.spymemcached.MemcachedMethodInterceptor";
 
     @Override
     public ClassMatch enhanceClass() {

@@ -38,7 +38,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 public class ManagedChannelInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "io.grpc.internal.ManagedChannelImpl";
     private static final String ENHANCE_METHOD = "newCall";
-    public static final String INTERCEPT_CLASS = "ManagedChannelInterceptor";
+    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.ManagedChannelInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];

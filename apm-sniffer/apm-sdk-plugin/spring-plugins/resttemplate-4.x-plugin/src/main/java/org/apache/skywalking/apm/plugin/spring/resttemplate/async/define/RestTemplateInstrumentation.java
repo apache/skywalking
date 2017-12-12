@@ -46,9 +46,9 @@ public class RestTemplateInstrumentation extends ClassInstanceMethodsEnhancePlug
 
     private static final String ENHANCE_CLASS = "org.springframework.web.client.AsyncRestTemplate";
     private static final String DO_EXECUTE_METHOD_NAME = "doExecute";
-    private static final String DO_EXECUTE_INTERCEPTOR = "RestExecuteInterceptor";
+    private static final String DO_EXECUTE_INTERCEPTOR = "org.apache.skywalking.apm.plugin.spring.resttemplate.async.RestExecuteInterceptor";
     private static final String CREATE_REQUEST_METHOD_NAME = "createAsyncRequest";
-    private static final String CREATE_REQUEST_INTERCEPTOR = "RestRequestInterceptor";
+    private static final String CREATE_REQUEST_INTERCEPTOR = "org.apache.skywalking.apm.plugin.spring.resttemplate.async.RestRequestInterceptor";
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
