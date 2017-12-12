@@ -35,7 +35,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  */
 public abstract class AbstractDriverInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String DRIVER_INTERCEPT_CLASS = "JDBCDriverInterceptor";
+    private static final String DRIVER_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jdbc.JDBCDriverInterceptor";
 
     @Override
     protected final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

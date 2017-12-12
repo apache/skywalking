@@ -39,11 +39,11 @@ public class ExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDe
     
     private static final String ENHANCE_CLASS = "com.dangdang.ddframe.rdb.sharding.executor.ExecutorEngine";
     
-    private static final String EXECUTOR_ENGINE_CONSTRUCTOR_INTERCEPTOR_CLASS = "ExecutorEngineConstructorInterceptor";
+    private static final String EXECUTOR_ENGINE_CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.sjdbc.define.ExecutorEngineConstructorInterceptor";
 
-    private static final String EXECUTE_INTERCEPTOR_CLASS = "ExecuteInterceptor";
+    private static final String EXECUTE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.sjdbc.define.ExecuteInterceptor";
     
-    private static final String ASYNC_EXECUTE_INTERCEPTOR_CLASS = "AsyncExecuteInterceptor";
+    private static final String ASYNC_EXECUTE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.sjdbc.define.AsyncExecuteInterceptor";
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

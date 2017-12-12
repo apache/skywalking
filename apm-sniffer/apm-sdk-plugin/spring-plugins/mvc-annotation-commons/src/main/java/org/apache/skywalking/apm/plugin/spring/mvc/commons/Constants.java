@@ -25,11 +25,11 @@ package org.apache.skywalking.apm.plugin.spring.mvc.commons;
  * @author zhangxin
  */
 public class Constants {
-    public static final String GET_BEAN_INTERCEPTOR = "GetBeanInterceptor";
+    public static final String GET_BEAN_INTERCEPTOR = "org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor.GetBeanInterceptor";
 
-    public static final String INVOKE_FOR_REQUEST_INTERCEPTOR = "InvokeForRequestInterceptor";
+    public static final String INVOKE_FOR_REQUEST_INTERCEPTOR = "org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor.InvokeForRequestInterceptor";
 
-    public static final String REQUEST_MAPPING_METHOD_INTERCEPTOR = "RequestMappingMethodInterceptor";
+    public static final String REQUEST_MAPPING_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor.RequestMappingMethodInterceptor";
 
-    public static final String REST_MAPPING_METHOD_INTERCEPTOR = "RestMappingMethodInterceptor";
+    public static final String REST_MAPPING_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor.RestMappingMethodInterceptor";
 }

@@ -40,7 +40,7 @@ import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.REQU
  */
 public class ControllerInstrumentation extends AbstractSpring3Instrumentation {
     public static final String CONTROLLER_ENHANCE_ANNOTATION = "org.springframework.stereotype.Controller";
-    public static final String CONSTRUCTOR_INTERCEPTOR = "ControllerConstructorInterceptor";
+    public static final String CONSTRUCTOR_INTERCEPTOR = "org.apache.skywalking.apm.plugin.spring.mvc.v3.ControllerConstructorInterceptor";
     public static final String REQUEST_MAPPING_ENHANCE_ANNOTATION = "org.springframework.web.bind.annotation.RequestMapping";
 
     @Override

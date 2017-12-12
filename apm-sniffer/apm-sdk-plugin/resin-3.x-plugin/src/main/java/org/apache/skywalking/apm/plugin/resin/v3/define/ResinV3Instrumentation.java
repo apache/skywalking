@@ -40,7 +40,7 @@ public class ResinV3Instrumentation extends ClassInstanceMethodsEnhancePluginDef
 
     private static final String ENHANCE_CLASS = "com.caucho.server.dispatch.ServletInvocation";
 
-    private static final String METHOD_INTERCET_CLASS = "ResinV3Interceptor";
+    private static final String METHOD_INTERCET_CLASS = "org.apache.skywalking.apm.plugin.resin.v3.ResinV3Interceptor";
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

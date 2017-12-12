@@ -46,7 +46,7 @@ public class ActionInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
 
                 @Override
                 public String getConstructorInterceptor() {
-                    return "ActionConstructorInterceptor";
+                    return "org.apache.skywalking.apm.plugin.nutz.mvc.ActionConstructorInterceptor";
                 }
             }
         };
@@ -63,7 +63,7 @@ public class ActionInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "ActionMethodInterceptor";
+                    return "org.apache.skywalking.apm.plugin.nutz.mvc.ActionMethodInterceptor";
                 }
 
                 @Override

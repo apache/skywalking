@@ -56,18 +56,18 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
  **/
 public class SkywalkingSpanActivation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "SkywalkingSpan";
+    private static final String ENHANCE_CLASS = "org.apache.skywalking.apm.toolkit.opentracing.SkywalkingSpan";
 
-    private static final String SPAN_BUILDER_CLASS_NAME = "SkywalkingSpanBuilder";
-    private static final String CONSTRUCTOR_WITH_SPAN_BUILDER_INTERCEPTOR = "ConstructorWithSpanBuilderInterceptor";
+    private static final String SPAN_BUILDER_CLASS_NAME = "org.skywalking.apm.toolkit.opentracing.SkywalkingSpanBuilder";
+    private static final String CONSTRUCTOR_WITH_SPAN_BUILDER_INTERCEPTOR = "org.apache.skywalking.apm.toolkit.activation.opentracing.span.ConstructorWithSpanBuilderInterceptor";
 
     private static final String SKYWALKING_TRACER_CLASS_NAME = "SkywalkingTracer";
-    private static final String CONSTRUCTOR_WITH_TRACER_INTERCEPTOR = "ConstructorWithTracerInterceptor";
+    private static final String CONSTRUCTOR_WITH_TRACER_INTERCEPTOR = "org.apache.skywalking.apm.toolkit.activation.opentracing.span.ConstructorWithTracerInterceptor";
 
-    private static final String FINISH_METHOD_INTERCEPTOR = "SpanFinishInterceptor";
-    private static final String LOG_INTERCEPTOR = "SpanLogInterceptor";
-    private static final String SET_OPERATION_NAME_INTERCEPTOR = "SpanSetOperationNameInterceptor";
-    private static final String SET_TAG_INTERCEPTOR = "SpanSetTagInterceptor";
+    private static final String FINISH_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.toolkit.activation.opentracing.span.SpanFinishInterceptor";
+    private static final String LOG_INTERCEPTOR = "org.apache.skywalking.apm.toolkit.activation.opentracing.span.SpanLogInterceptor";
+    private static final String SET_OPERATION_NAME_INTERCEPTOR = "org.apache.skywalking.apm.toolkit.activation.opentracing.span.SpanSetOperationNameInterceptor";
+    private static final String SET_TAG_INTERCEPTOR = "org.apache.skywalking.apm.toolkit.activation.opentracing.span.SpanSetTagInterceptor";
 
     @Override
     protected ClassMatch enhanceClass() {

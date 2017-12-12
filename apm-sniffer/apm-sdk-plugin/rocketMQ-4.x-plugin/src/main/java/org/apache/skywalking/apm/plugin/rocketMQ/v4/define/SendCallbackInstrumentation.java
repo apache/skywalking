@@ -43,9 +43,9 @@ public class SendCallbackInstrumentation extends ClassInstanceMethodsEnhancePlug
 
     private static final String ENHANCE_CLASS = "org.apache.rocketmq.client.producer.SendCallback";
     private static final String ON_SUCCESS_ENHANCE_METHOD = "onSuccess";
-    private static final String ON_SUCCESS_INTERCEPTOR = "OnSuccessInterceptor";
+    private static final String ON_SUCCESS_INTERCEPTOR = "org.apache.skywalking.apm.plugin.rocketMQ.v4.OnSuccessInterceptor";
     private static final String ON_EXCEPTION_METHOD = "onException";
-    private static final String ON_EXCEPTION_INTERCEPTOR = "OnExceptionInterceptor";
+    private static final String ON_EXCEPTION_INTERCEPTOR = "org.apache.skywalking.apm.plugin.rocketMQ.v4.OnExceptionInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];

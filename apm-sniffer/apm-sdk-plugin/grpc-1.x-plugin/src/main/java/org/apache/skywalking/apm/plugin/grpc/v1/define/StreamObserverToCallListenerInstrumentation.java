@@ -41,11 +41,11 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 public class StreamObserverToCallListenerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "io.grpc.stub.ClientCalls$StreamObserverToCallListenerAdapter";
     public static final String ON_READY_METHOD = "onReady";
-    public static final String ON_READY_INTERCEPT_CLASS = "StreamClientOnReadyInterceptor";
+    public static final String ON_READY_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.StreamClientOnReadyInterceptor";
     public static final String ON_CLASS_METHOD = "onClose";
-    public static final String ON_CLOSE_INTERCEPT_CLASS = "StreamClientOnCloseInterceptor";
+    public static final String ON_CLOSE_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.StreamClientOnCloseInterceptor";
     public static final String ON_MESSAGE_METHOD = "onMessage";
-    public static final String ON_MESSAGE_INTERCEPT_CLASS = "ClientCallOnNextInterceptor";
+    public static final String ON_MESSAGE_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.ClientCallOnNextInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];

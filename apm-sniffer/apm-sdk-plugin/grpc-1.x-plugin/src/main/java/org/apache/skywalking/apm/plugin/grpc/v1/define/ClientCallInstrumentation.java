@@ -40,8 +40,8 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 public class ClientCallInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "io.grpc.internal.ClientCallImpl";
     private static final String ENHANCE_METHOD = "start";
-    public static final String CONSTRUCTOR_CLASS = "ClientCallIConstructorInterceptor";
-    public static final String START_METHOD_INTERCEPT_CLASS = "ClientCallStartInterceptor";
+    public static final String CONSTRUCTOR_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.ClientCallIConstructorInterceptor";
+    public static final String START_METHOD_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.ClientCallStartInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {

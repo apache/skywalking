@@ -49,7 +49,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 public class AbstractJdbc2StatementInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "org.postgresql.jdbc2.AbstractJdbc2Statement";
-    private static final String INTERCEPTOR_CLASS = "StatementExecuteMethodsInterceptor";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.jdbc.postgresql.StatementExecuteMethodsInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];

@@ -55,7 +55,7 @@ public abstract class ConnectionInstrumentation extends ClassInstanceMethodsEnha
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return "CreatePreparedStatementInterceptor";
+                    return "org.apache.skywalking.apm.plugin.jdbc.mysql.CreatePreparedStatementInterceptor";
                 }
 
                 @Override public boolean isOverrideArgs() {
@@ -68,7 +68,7 @@ public abstract class ConnectionInstrumentation extends ClassInstanceMethodsEnha
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return "CreateCallableStatementInterceptor";
+                    return "org.apache.skywalking.apm.plugin.jdbc.mysql.CreateCallableStatementInterceptor";
                 }
 
                 @Override public boolean isOverrideArgs() {
@@ -81,7 +81,7 @@ public abstract class ConnectionInstrumentation extends ClassInstanceMethodsEnha
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return "CreateStatementInterceptor";
+                    return "org.apache.skywalking.apm.plugin.jdbc.mysql.CreateStatementInterceptor";
                 }
 
                 @Override public boolean isOverrideArgs() {
