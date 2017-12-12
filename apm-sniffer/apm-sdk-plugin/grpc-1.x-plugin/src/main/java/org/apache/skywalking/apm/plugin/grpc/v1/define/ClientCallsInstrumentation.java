@@ -43,7 +43,7 @@ public class ClientCallsInstrumentation extends ClassStaticMethodsEnhancePluginD
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return "ClientCallsMethodInterceptor";
+                    return "org.apache.skywalking.apm.plugin.grpc.v1.ClientCallsMethodInterceptor";
                 }
 
                 @Override public boolean isOverrideArgs() {

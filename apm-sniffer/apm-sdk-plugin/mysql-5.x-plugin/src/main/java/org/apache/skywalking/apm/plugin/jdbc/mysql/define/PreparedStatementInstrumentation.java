@@ -44,7 +44,7 @@ import static org.apache.skywalking.apm.plugin.jdbc.mysql.define.MultiClassNameM
 public class PreparedStatementInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String PREPARED_STATEMENT_CLASS_NAME = "com.mysql.jdbc.PreparedStatement";
-    private static final String SERVICE_METHOD_INTERCEPTOR = "StatementExecuteMethodsInterceptor";
+    private static final String SERVICE_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.mysql.StatementExecuteMethodsInterceptor";
     public static final String MYSQL6_PREPARED_STATEMENT_CLASS_NAME = "com.mysql.cj.jdbc.PreparedStatement";
     public static final String JDBC42_PREPARED_STATEMENT_CLASS_NAME = "com.mysql.jdbc.JDBC42PreparedStatement";
 

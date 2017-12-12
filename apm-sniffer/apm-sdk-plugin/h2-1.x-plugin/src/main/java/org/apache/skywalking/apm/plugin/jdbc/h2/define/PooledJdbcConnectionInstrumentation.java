@@ -35,7 +35,7 @@ import static net.bytebuddy.matcher.ElementMatchers.any;
  */
 public class PooledJdbcConnectionInstrumentation extends AbstractConnectionInstrumentation {
 
-    public static final String CONSTRUCTOR_INTERCEPT_CLASS = "PooledJdbcConnectionConstructorInterceptor";
+    public static final String CONSTRUCTOR_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jdbc.h2.PooledJdbcConnectionConstructorInterceptor";
     public static final String ENHANCE_CLASS = "org.h2.jdbcx.JdbcXAConnection$PooledJdbcConnection";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

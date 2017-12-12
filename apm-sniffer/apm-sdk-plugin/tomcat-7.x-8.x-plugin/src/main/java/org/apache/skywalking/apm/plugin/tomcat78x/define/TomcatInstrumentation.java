@@ -47,12 +47,12 @@ public class TomcatInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
     /**
      * The intercept class for "invoke" method in the class "org.apache.catalina.core.StandardWrapperValve"
      */
-    private static final String INVOKE_INTERCEPT_CLASS = "TomcatInvokeInterceptor";
+    private static final String INVOKE_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.tomcat78x.TomcatInvokeInterceptor";
 
     /**
      * The intercept class for "exception" method in the class "org.apache.catalina.core.StandardWrapperValve"
      */
-    private static final String EXCEPTION_INTERCEPT_CLASS = "TomcatExceptionInterceptor";
+    private static final String EXCEPTION_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.tomcat78x.TomcatExceptionInterceptor";
 
     @Override
     protected ClassMatch enhanceClass() {

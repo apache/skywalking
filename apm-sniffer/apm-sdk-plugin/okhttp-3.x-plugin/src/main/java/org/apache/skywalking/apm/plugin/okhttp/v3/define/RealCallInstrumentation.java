@@ -49,7 +49,7 @@ public class RealCallInstrumentation extends ClassInstanceMethodsEnhancePluginDe
     /**
      * Intercept class.
      */
-    private static final String INTERCEPT_CLASS = "RealCallInterceptor";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.okhttp.v3.RealCallInterceptor";
 
     @Override protected ClassMatch enhanceClass() {
         return NameMatch.byName(ENHANCE_CLASS);

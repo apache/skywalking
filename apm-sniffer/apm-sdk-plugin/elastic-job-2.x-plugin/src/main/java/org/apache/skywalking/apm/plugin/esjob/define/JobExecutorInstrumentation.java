@@ -38,7 +38,7 @@ public class JobExecutorInstrumentation extends ClassInstanceMethodsEnhancePlugi
 
     private static final String ENHANCE_CLASS = "com.dangdang.ddframe.job.executor.AbstractElasticJobExecutor";
 
-    private static final String JOB_EXECUTOR_INTERCEPTOR_CLASS = "JobExecutorInterceptor";
+    private static final String JOB_EXECUTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.esjob.JobExecutorInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];

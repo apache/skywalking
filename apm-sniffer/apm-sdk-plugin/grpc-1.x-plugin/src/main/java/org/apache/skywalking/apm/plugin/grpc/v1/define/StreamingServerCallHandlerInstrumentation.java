@@ -39,7 +39,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 public class StreamingServerCallHandlerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "io.grpc.stub.ServerCalls$UnaryServerCallHandler";
     private static final String ENHANCE_METHOD = "startCall";
-    public static final String INTERCEPT_CLASS = "ServerCallHandlerInterceptor";
+    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.ServerCallHandlerInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];

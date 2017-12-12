@@ -53,8 +53,8 @@ public class ControllerInstrumentationTest {
     public void testGetInstanceMethodsInterceptPoints() throws Throwable {
         InstanceMethodsInterceptPoint[] methodPoints = controllerInstrumentation.getInstanceMethodsInterceptPoints();
         assertThat(methodPoints.length, is(2));
-        assertThat(methodPoints[0].getMethodsInterceptor(), is("RequestMappingMethodInterceptor"));
-        assertThat(methodPoints[1].getMethodsInterceptor(), is("RestMappingMethodInterceptor"));
+        assertThat(methodPoints[0].getMethodsInterceptor(), is("org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor.RequestMappingMethodInterceptor"));
+        assertThat(methodPoints[1].getMethodsInterceptor(), is("org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor.RestMappingMethodInterceptor"));
 
         Assert.assertFalse(methodPoints[0].isOverrideArgs());
         Assert.assertFalse(methodPoints[1].isOverrideArgs());
@@ -71,7 +71,7 @@ public class ControllerInstrumentationTest {
         ConstructorInterceptPoint cip = cips[0];
         Assert.assertNotNull(cip);
 
-        Assert.assertEquals(cip.getConstructorInterceptor(), "ControllerConstructorInterceptor");
+        Assert.assertEquals(cip.getConstructorInterceptor(), "org.apache.skywalking.apm.plugin.spring.mvc.v4.ControllerConstructorInterceptor");
         Assert.assertTrue(cip.getConstructorMatcher().equals(ElementMatchers.any()));
     }
 }

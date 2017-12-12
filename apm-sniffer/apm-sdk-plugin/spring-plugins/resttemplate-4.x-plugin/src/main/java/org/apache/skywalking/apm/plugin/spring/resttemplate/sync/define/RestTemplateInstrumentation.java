@@ -45,11 +45,11 @@ public class RestTemplateInstrumentation extends ClassInstanceMethodsEnhancePlug
 
     private static final String ENHANCE_CLASS = "org.springframework.web.client.RestTemplate";
     private static final String DO_EXECUTE_METHOD_NAME = "doExecute";
-    private static final String DO_EXECUTE_INTERCEPTOR = "RestExecuteInterceptor";
+    private static final String DO_EXECUTE_INTERCEPTOR = "org.apache.skywalking.apm.plugin.spring.resttemplate.sync.RestExecuteInterceptor";
     private static final String HANDLE_REQUEST_METHOD_NAME = "handleResponse";
-    private static final String HAND_REQUEST_INTERCEPTOR = "RestResponseInterceptor";
+    private static final String HAND_REQUEST_INTERCEPTOR = "org.apache.skywalking.apm.plugin.spring.resttemplate.sync.RestResponseInterceptor";
     private static final String CREATE_REQUEST_METHOD_NAME = "createRequest";
-    private static final String CREATE_REQUEST_INTERCEPTOR = "RestRequestInterceptor";
+    private static final String CREATE_REQUEST_INTERCEPTOR = "org.apache.skywalking.apm.plugin.spring.resttemplate.sync.RestRequestInterceptor";
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

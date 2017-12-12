@@ -38,7 +38,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 public class UnaryServerCallHandlerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "io.grpc.stub.ServerCalls$StreamingServerCallHandler";
     private static final String ENHANCE_METHOD = "startCall";
-    public static final String INTERCEPT_CLASS = "ServerCallHandlerInterceptor";
+    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.ServerCallHandlerInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
