@@ -37,8 +37,8 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  */
 public class ActiveSpanTagActivation extends ClassStaticMethodsEnhancePluginDefine {
 
-    public static final String ENHANCE_CLASS = "ActiveSpan";
-    public static final String INTERCEPTOR_CLASS = "ActiveSpanTagInterceptor";
+    public static final String ENHANCE_CLASS = "org.apache.skywalking.apm.toolkit.trace.ActiveSpan";
+    public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.toolkit.activation.trace.ActiveSpanTagInterceptor";
     public static final String INTERCEPTOR_METHOD_NAME = "tag";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
