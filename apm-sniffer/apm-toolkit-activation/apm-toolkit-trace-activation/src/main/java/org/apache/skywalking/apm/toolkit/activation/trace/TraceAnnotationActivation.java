@@ -38,8 +38,8 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  */
 public class TraceAnnotationActivation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    public static final String TRACE_ANNOTATION_METHOD_INTERCEPTOR = "TraceAnnotationMethodInterceptor";
-    public static final String TRACE_ANNOTATION = "Trace";
+    public static final String TRACE_ANNOTATION_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.toolkit.activation.trace.TraceAnnotationMethodInterceptor";
+    public static final String TRACE_ANNOTATION = "org.apache.skywalking.apm.toolkit.trace.Trace";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
