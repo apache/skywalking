@@ -40,7 +40,7 @@ import static org.apache.skywalking.apm.plugin.jdbc.mysql.define.MultiClassNameM
  */
 public class CallableInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "com.mysql.jdbc.CallableStatement";
-    private static final String SERVICE_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.mysql.StatementExecuteMethodsInterceptor";
+    private static final String SERVICE_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.mysql.PreparedStatementExecuteMethodsInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];

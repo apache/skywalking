@@ -30,11 +30,10 @@ import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 /**
- * {@link StatementExecuteMethodsInterceptor} create the exit span when the client call the interceptor methods.
- *
- * @author zhangxin
+ * @author zhang xin
  */
-public class StatementExecuteMethodsInterceptor implements InstanceMethodsAroundInterceptor {
+public class PreparedStatementExecuteMethodsInterceptor implements InstanceMethodsAroundInterceptor {
+
     @Override
     public final void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes,
@@ -42,9 +41,8 @@ public class StatementExecuteMethodsInterceptor implements InstanceMethodsAround
         StatementEnhanceInfos cacheObject = (StatementEnhanceInfos)objInst.getSkyWalkingDynamicField();
         ConnectionInfo connectInfo = cacheObject.getConnectionInfo();
         /**
-         * To protected the code occur NullPointException. because mysql execute system sql when constructor method in
-         * {@link com.mysql.jdbc.ConnectionImpl} class executed. but the interceptor set the connection Info after
-         * the constructor method executed.
+         * For avoid NPE. In this particular case, Execute sql inside the {@link com.mysql.jdbc.ConnectionImpl} constructor,
+         * before the interceptor sets the connectionInfo.
          *
          * @see JDBCDriverInterceptor#afterMethod(EnhancedInstance, Method, Object[], Class[], Object)
          */
@@ -53,17 +51,7 @@ public class StatementExecuteMethodsInterceptor implements InstanceMethodsAround
             AbstractSpan span = ContextManager.createExitSpan(buildOperationName(connectInfo, method.getName(), cacheObject.getStatementName()), connectInfo.getDatabasePeer());
             Tags.DB_TYPE.set(span, "sql");
             Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
-
-            /**
-             * The first argument of all intercept method in `com.mysql.jdbc.StatementImpl` class is SQL, except the
-             * `executeBatch` method that the jdbc plugin need to trace, because of this method argument size is zero.
-             */
-            String sql = "";
-            if (allArguments.length > 0) {
-                sql = (String)allArguments[0];
-            }
-
-            Tags.DB_STATEMENT.set(span, sql);
+            Tags.DB_STATEMENT.set(span, cacheObject.getSql());
             span.setComponent(connectInfo.getComponent());
 
             SpanLayer.asDB(span);
