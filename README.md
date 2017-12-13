@@ -1,12 +1,9 @@
 Sky Walking | [中文](README_ZH.md)
 ==========
 
-# Announcement:
-## SkyWalking has been accepted as an incubator project by Apache Foundation. All pull requests can't be accepted until Apache/SkyWalking repository established.
-
 <img src="https://skywalkingtest.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
 
-**SkyWalking 3**: APM for Distributed Systems, also known Distributed Tracing System. 
+**SkyWalking**: APM for Distributed Systems, also known Distributed Tracing System. 
 
 [![Build Status](https://travis-ci.org/OpenSkywalking/skywalking.svg?branch=master)](https://travis-ci.org/OpenSkywalking/skywalking)
 [![Coverage Status](https://coveralls.io/repos/github/OpenSkywalking/skywalking/badge.svg?branch=master&forceUpdate=3)](https://coveralls.io/github/OpenSkywalking/skywalking?branch=master)
