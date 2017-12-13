@@ -5,7 +5,7 @@ SkyWalking | [中文](README_ZH.md)
 
 **SkyWalking**: APM for Distributed Systems, also known Distributed Tracing System. 
 
-[![Build Status](https://travis-ci.org/OpenSkywalking/skywalking.svg?branch=master)](https://travis-ci.org/OpenSkywalking/skywalking)
+[![Build Status](https://travis-ci.org/apache/incubating-skywalking.svg?branch=master)](https://travis-ci.org/apache/incubating-skywalking)
 [![Coverage Status](https://coveralls.io/repos/github/OpenSkywalking/skywalking/badge.svg?branch=master&forceUpdate=3)](https://coveralls.io/github/OpenSkywalking/skywalking?branch=master)
 [![Join the chat at https://gitter.im/sky-walking/Lobby](https://badges.gitter.im/openskywalking/Lobby.svg)](https://gitter.im/openskywalking/Lobby)
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
