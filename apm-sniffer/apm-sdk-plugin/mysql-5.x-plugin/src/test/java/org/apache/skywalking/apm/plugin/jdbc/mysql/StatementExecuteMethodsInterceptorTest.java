@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.mysql;
 
 import java.lang.reflect.Method;
@@ -80,8 +79,8 @@ public class StatementExecuteMethodsInterceptorTest {
 
     @Test
     public void testCreateDatabaseSpan() throws Throwable {
-        serviceMethodInterceptor.beforeMethod(objectInstance, method, null, null, null);
-        serviceMethodInterceptor.afterMethod(objectInstance, method, null, null, null);
+        serviceMethodInterceptor.beforeMethod(objectInstance, method, new Object[] {"SELECT * FROM test"}, null, null);
+        serviceMethodInterceptor.afterMethod(objectInstance, method, new Object[] {"SELECT * FROM test"}, null, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment segment = segmentStorage.getTraceSegments().get(0);

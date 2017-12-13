@@ -61,7 +61,6 @@ public class StatementInstrumentation extends ClassInstanceMethodsEnhancePluginD
                         .or(named("executeQuery"))
                         .or(named("executeUpdate"))
                         .or(named("executeLargeUpdate"))
-                        .or(named("addBatch"))
                         .or(named("executeBatchInternal"))
                         .or(named("executeUpdateInternal"))
                         .or(named("executeQuery"))
