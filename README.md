@@ -1,4 +1,4 @@
-SkyWalking | [中文](README_ZH.md)
+Apache SkyWalking | [中文](README_ZH.md)
 ==========
 
 <img src="https://skywalkingtest.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
