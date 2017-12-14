@@ -1,11 +1,11 @@
-Sky Walking | [English](README.md)
+Apache SkyWalking | [English](README.md)
 ==========
 
 <img src="https://skywalkingtest.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
 
-**SkyWalking 3**: 针对分布式系统的APM系统，也被称为分布式追踪系统
+**SkyWalking**: 针对分布式系统的APM系统，也被称为分布式追踪系统
 
-[![Build Status](https://travis-ci.org/OpenSkywalking/skywalking.svg?branch=master)](https://travis-ci.org/OpenSkywalking/skywalking)
+[![Build Status](https://travis-ci.org/apache/incubator-skywalking.svg?branch=master)](https://travis-ci.org/apache/incubator-skywalking)
 [![Coverage Status](https://coveralls.io/repos/github/OpenSkywalking/skywalking/badge.svg?branch=master&forceUpdate=3)](https://coveralls.io/github/OpenSkywalking/skywalking?branch=master)
 [![Join the chat at https://gitter.im/openskywalking/Lobby](https://badges.gitter.im/openskywalking/Lobby.svg)](https://gitter.im/openskywalking/Lobby)
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
@@ -61,14 +61,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 # Contact Us
 * 直接提交Issue
 * [Gitter](https://gitter.im/openskywalking/Lobby)
-* [Google Mailing List](https://groups.google.com/forum/#!forum/skywalking-distributed-tracing-and-apm)
 * QQ群: 392443393
-
-# Open Skywalking Organization
-[Open Skywalking Organization Teams and Contributors](https://github.com/OpenSkywalking/Organization/blob/master/README.md)
-
-# Partners
-<img src="https://skywalkingtest.github.io/page-resources/3.2.4/partners.png" width="800"/>
 
 # License
 [Apache 2.0 License.](/LICENSE)
