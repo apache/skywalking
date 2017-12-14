@@ -16,10 +16,9 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jedis.v2;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.junit.After;
@@ -45,7 +44,7 @@ public class JedisClusterConstructorWithListHostAndPortArgInterceptorTest {
 
     @Before
     public void setUp() throws Exception {
-        hostAndPortSet = new HashSet<HostAndPort>();
+        hostAndPortSet = new LinkedHashSet<HostAndPort>();
         interceptor = new JedisClusterConstructorWithListHostAndPortArgInterceptor();
         hostAndPortSet.add(new HostAndPort("127.0.0.1", 6379));
         hostAndPortSet.add(new HostAndPort("127.0.0.1", 16379));
