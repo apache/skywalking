@@ -38,12 +38,6 @@ import org.apache.skywalking.apm.network.trace.component.Component;
  * @author wusheng
  */
 public class EntrySpan extends StackBasedTracingSpan {
-    /**
-     * The refs of parent trace segments, except the primary one. For most RPC call, {@link #refs} contains only one
-     * element, but if this segment is a start span of batch process, the segment faces multi parents, at this moment,
-     * we use this {@link #refs} to link them.
-     */
-    private List<TraceSegmentRef> refs;
 
     private int currentMaxDepth;
 
@@ -144,15 +138,6 @@ public class EntrySpan extends StackBasedTracingSpan {
             }
         }
         return builder;
-    }
-
-    public void ref(TraceSegmentRef ref) {
-        if (refs == null) {
-            refs = new LinkedList<TraceSegmentRef>();
-        }
-        if (!refs.contains(ref)) {
-            refs.add(ref);
-        }
     }
 
     private void clearWhenRestart() {
