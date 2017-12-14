@@ -40,7 +40,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 public class AutowiredAnnotationProcessorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor";
     private static final String ENHANCE_METHOD = "determineCandidateConstructors";
-    private static final String INTERCEPTOR_CLASS = "AutowiredAnnotationProcessorInterceptor";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.spring.patch.AutowiredAnnotationProcessorInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
