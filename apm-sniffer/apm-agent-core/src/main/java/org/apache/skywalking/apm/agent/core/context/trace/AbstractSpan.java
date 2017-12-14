@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context.trace;
 
 import java.util.Map;
@@ -110,4 +109,11 @@ public interface AbstractSpan {
     String getOperationName();
 
     AbstractSpan setOperationId(int operationId);
+
+    /**
+     * Reference other trace segment.
+     *
+     * @param ref segment ref
+     */
+    void ref(TraceSegmentRef ref);
 }

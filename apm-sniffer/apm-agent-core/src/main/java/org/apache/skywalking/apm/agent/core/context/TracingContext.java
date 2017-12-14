@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context;
 
 import java.util.LinkedList;
@@ -50,6 +49,7 @@ import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
  * ContextCarrier} or {@link ContextSnapshot}.
  *
  * @author wusheng
+ * @author zhang xin
  */
 public class TracingContext implements AbstractTracerContext {
     /**
@@ -159,7 +159,7 @@ public class TracingContext implements AbstractTracerContext {
         this.segment.relatedGlobalTraces(carrier.getDistributedTraceId());
         AbstractSpan span = this.activeSpan();
         if (span instanceof EntrySpan) {
-            ((EntrySpan)span).ref(ref);
+            span.ref(ref);
         }
     }
 
@@ -213,7 +213,9 @@ public class TracingContext implements AbstractTracerContext {
      */
     @Override
     public void continued(ContextSnapshot snapshot) {
-        this.segment.ref(new TraceSegmentRef(snapshot));
+        TraceSegmentRef segmentRef = new TraceSegmentRef(snapshot);
+        this.segment.ref(segmentRef);
+        this.activeSpan().ref(segmentRef);
         this.segment.relatedGlobalTraces(snapshot.getDistributedTraceId());
     }
 
