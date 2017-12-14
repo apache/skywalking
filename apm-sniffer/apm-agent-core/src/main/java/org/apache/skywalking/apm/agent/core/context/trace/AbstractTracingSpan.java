@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context.trace;
 
 import java.util.LinkedList;
@@ -278,6 +277,11 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         if (this.logs != null) {
             for (LogDataEntity log : this.logs) {
                 spanBuilder.addLogs(log.transform());
+            }
+        }
+        if (this.refs != null) {
+            for (TraceSegmentRef ref : this.refs) {
+                spanBuilder.addRefs(ref.transform());
             }
         }
 

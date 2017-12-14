@@ -19,7 +19,6 @@
 package org.apache.skywalking.apm.agent.core.context.trace;
 
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
-import org.apache.skywalking.apm.network.proto.SpanObject;
 import org.apache.skywalking.apm.network.trace.component.Component;
 
 /**
@@ -125,16 +124,6 @@ public class EntrySpan extends StackBasedTracingSpan {
 
     @Override public boolean isExit() {
         return false;
-    }
-
-    @Override public SpanObject.Builder transform() {
-        SpanObject.Builder builder = super.transform();
-        if (refs != null) {
-            for (TraceSegmentRef ref : refs) {
-                builder.addRefs(ref.transform());
-            }
-        }
-        return builder;
     }
 
     private void clearWhenRestart() {
