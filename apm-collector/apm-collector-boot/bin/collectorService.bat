@@ -17,5 +17,5 @@ if not defined JAVA_HOME (
  set _EXECJAVA=java
 )
 
-start "%COLLECTOR_PROCESS_TITLE%" %_EXECJAVA% "%COLLECTOR_OPTS%" -cp "%CLASSPATH%" CollectorBootStartUp
+start "%COLLECTOR_PROCESS_TITLE%" %_EXECJAVA% "%COLLECTOR_OPTS%" -cp "%CLASSPATH%" org.apache.skywalking.apm.collector.boot.CollectorBootStartUp
 endlocal
