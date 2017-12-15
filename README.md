@@ -4,7 +4,7 @@ Apache SkyWalking | [中文](README_ZH.md)
 <img src="https://skywalkingtest.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
 
 **SkyWalking**: APM (application performance monitor) tool for distributed systems, especially designed for 
-microservices, cloud native and container-based architectures.
+microservices, cloud native and container-based (Docker, K8s, Mesos) architectures.
 Underlying technology is a distributed tracing system.
 
 [![Build Status](https://travis-ci.org/apache/incubator-skywalking.svg?branch=master)](https://travis-ci.org/apache/incubator-skywalking)
