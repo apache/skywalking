@@ -1,0 +1,21 @@
+Apache SkyWalking
+Copyright 2015-2017 The Apache Software Foundation
+
+This product includes software developed by The Apache Software
+Foundation (http://www.apache.org/).
+
+The binary distribution contains software developed by:
+
+raphw (byte-buddy): http://bytebuddy.net/
+INRIA, France Telecom (asm): http://asm.ow2.org/
+Google:
+- grpc: https://grpc.io/
+- guava: https://github.com/google/guava
+- gson: https://github.com/google/gson
+Elasticsearch BV (Elasticsearch): https://www.elastic.co/products/elasticsearch
+H2 Database: http://www.h2database.com/html/main.html
+LMAX Ltd.(disruptor): https://github.com/LMAX-Exchange/disruptor
+mockito: http://site.mockito.org/
+QOS.ch (slf4j): https://www.slf4j.org/
+powermock: https://github.com/powermock/powermock
+Eclipse (Jetty): https://www.eclipse.org/jetty/
