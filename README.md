@@ -18,7 +18,7 @@ Apache SkyWalking | [中文](README_ZH.md)
   * Use **@Trace** annotation for any methods you want to trace.
   * Integrate traceId into logs for log4j, log4j2 and logback.
 * Pure Java server implementation, provide RESTful and gRPC services. Compatibility with other language agents/SDKs. 
-* The UI released on [skywalking-ui](https://github.com/OpenSkywalking/sky-walking-ui)
+* The UI released on [skywalking-ui](https://github.com/apache/incubator-skywalking-ui)
 
 # Architecture
 * Architecture graph for 3.2.5+

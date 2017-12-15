@@ -1,4 +1,4 @@
-- [Download source code](https://github.com/OpenSkywalking/skywalking/releases) and unzip source package. Execute following command under the unzipped directory.
+- [Download source code](https://github.com/apache/incubator-skywalking/releases) and unzip source package. Execute following command under the unzipped directory.
  
 ```shell
 > docker-compose pull

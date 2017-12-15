@@ -20,7 +20,7 @@ Apache SkyWalking | [English](README.md)
   * 将 traceId 集成到 log4j, log4j2 或 logback这些日志组件中
 * 纯Java后端Collector实现，提供RESTful和gRPC接口。兼容接受其他语言探针发送数据 
   * [如何将探针的Metric和Trace数据上传到Collector？](/docs/cn/How-to-communicate-with-the-collector-CN.md)
-* UI工程请查看 [skywalking-ui](https://github.com/OpenSkywalking/skywalking-ui)
+* UI工程请查看 [skywalking-ui](https://github.com/apache/incubator-skywalking-ui)
 * 中文QQ群：392443393
 
 # Architecture
