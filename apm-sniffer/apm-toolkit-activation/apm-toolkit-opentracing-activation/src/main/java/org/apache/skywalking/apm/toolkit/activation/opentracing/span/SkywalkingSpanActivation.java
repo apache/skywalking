@@ -58,10 +58,10 @@ public class SkywalkingSpanActivation extends ClassInstanceMethodsEnhancePluginD
 
     private static final String ENHANCE_CLASS = "org.apache.skywalking.apm.toolkit.opentracing.SkywalkingSpan";
 
-    private static final String SPAN_BUILDER_CLASS_NAME = "org.skywalking.apm.toolkit.opentracing.SkywalkingSpanBuilder";
+    private static final String SPAN_BUILDER_CLASS_NAME = "org.apache.skywalking.apm.toolkit.opentracing.SkywalkingSpanBuilder";
     private static final String CONSTRUCTOR_WITH_SPAN_BUILDER_INTERCEPTOR = "org.apache.skywalking.apm.toolkit.activation.opentracing.span.ConstructorWithSpanBuilderInterceptor";
 
-    private static final String SKYWALKING_TRACER_CLASS_NAME = "SkywalkingTracer";
+    private static final String SKYWALKING_TRACER_CLASS_NAME = "org.apache.skywalking.apm.toolkit.opentracing.SkywalkingTracer";
     private static final String CONSTRUCTOR_WITH_TRACER_INTERCEPTOR = "org.apache.skywalking.apm.toolkit.activation.opentracing.span.ConstructorWithTracerInterceptor";
 
     private static final String FINISH_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.toolkit.activation.opentracing.span.SpanFinishInterceptor";

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context.trace;
 
 import java.util.LinkedList;
@@ -63,6 +62,13 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
      * Log is a concept from OpenTracing spec. <p> {@see https://github.com/opentracing/specification/blob/master/specification.md#log-structured-data}
      */
     protected List<LogDataEntity> logs;
+
+    /**
+     * The refs of parent trace segments, except the primary one. For most RPC call, {@link #refs} contains only one
+     * element, but if this segment is a start span of batch process, the segment faces multi parents, at this moment,
+     * we use this {@link #refs} to link them.
+     */
+    protected List<TraceSegmentRef> refs;
 
     protected AbstractTracingSpan(int spanId, int parentSpanId, String operationName) {
         this.operationName = operationName;
@@ -273,7 +279,21 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
                 spanBuilder.addLogs(log.transform());
             }
         }
+        if (this.refs != null) {
+            for (TraceSegmentRef ref : this.refs) {
+                spanBuilder.addRefs(ref.transform());
+            }
+        }
 
         return spanBuilder;
+    }
+
+    @Override public void ref(TraceSegmentRef ref) {
+        if (refs == null) {
+            refs = new LinkedList<TraceSegmentRef>();
+        }
+        if (!refs.contains(ref)) {
+            refs.add(ref);
+        }
     }
 }
