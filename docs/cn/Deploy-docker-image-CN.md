@@ -1,4 +1,4 @@
-- [下载Source code](https://github.com/OpenSkywalking/skywalking/releases)并解压，进入解压目录，执行以下命令：
+- [下载Source code](https://github.com/apache/incubator-skywalking/releases)并解压，进入解压目录，执行以下命令：
 
 ```shell
 > docker-compose pull
