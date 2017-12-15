@@ -5,7 +5,7 @@
 - JDK8+
 
 ## 下载发布版本
-- 前向[发布页面](https://github.com/OpenSkywalking/skywalking/releases)
+- 前向[发布页面](https://github.com/apache/incubator-skywalking/releases)
 
 ## Quick Start
 Collector单机模拟启动简单，提供和集群模式相同的功能，单机模式下除端口被占用的情况下，直接启动即可。
