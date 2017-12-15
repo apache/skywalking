@@ -1,12 +1,12 @@
-Sky Walking | [English](README.md)
+Apache SkyWalking | [English](README.md)
 ==========
 
 <img src="https://skywalkingtest.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
 
-**SkyWalking 3**: 针对分布式系统的APM系统，也被称为分布式追踪系统
+**SkyWalking**: 针对分布式系统的APM系统，也被称为分布式追踪系统
 
-[![Build Status](https://travis-ci.org/OpenSkywalking/skywalking.svg?branch=master)](https://travis-ci.org/OpenSkywalking/skywalking)
-[![Coverage Status](https://coveralls.io/repos/github/OpenSkywalking/skywalking/badge.svg?branch=master&forceUpdate=3)](https://coveralls.io/github/OpenSkywalking/skywalking?branch=master)
+[![Build Status](https://travis-ci.org/apache/incubator-skywalking.svg?branch=master)](https://travis-ci.org/apache/incubator-skywalking)
+[![Coverage Status](https://coveralls.io/repos/github/apache/incubator-skywalking/badge.svg?branch=master&u=1)](https://coveralls.io/github/apache/incubator-skywalking?branch=master)
 [![Join the chat at https://gitter.im/openskywalking/Lobby](https://badges.gitter.im/openskywalking/Lobby.svg)](https://gitter.im/openskywalking/Lobby)
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
 
@@ -20,7 +20,7 @@ Sky Walking | [English](README.md)
   * 将 traceId 集成到 log4j, log4j2 或 logback这些日志组件中
 * 纯Java后端Collector实现，提供RESTful和gRPC接口。兼容接受其他语言探针发送数据 
   * [如何将探针的Metric和Trace数据上传到Collector？](/docs/cn/How-to-communicate-with-the-collector-CN.md)
-* UI工程请查看 [skywalking-ui](https://github.com/OpenSkywalking/skywalking-ui)
+* UI工程请查看 [skywalking-ui](https://github.com/apache/incubator-skywalking-ui)
 * 中文QQ群：392443393
 
 # Architecture
@@ -61,14 +61,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 # Contact Us
 * 直接提交Issue
 * [Gitter](https://gitter.im/openskywalking/Lobby)
-* [Google Mailing List](https://groups.google.com/forum/#!forum/skywalking-distributed-tracing-and-apm)
 * QQ群: 392443393
-
-# Open Skywalking Organization
-[Open Skywalking Organization Teams and Contributors](https://github.com/OpenSkywalking/Organization/blob/master/README.md)
-
-# Partners
-<img src="https://skywalkingtest.github.io/page-resources/3.2.4/partners.png" width="800"/>
 
 # License
 [Apache 2.0 License.](/LICENSE)

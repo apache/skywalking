@@ -99,4 +99,7 @@ public class NoopSpan implements AbstractSpan {
     @Override public AbstractSpan setOperationId(int operationId) {
         return this;
     }
+
+    @Override public void ref(TraceSegmentRef ref) {
+    }
 }

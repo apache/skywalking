@@ -7,7 +7,7 @@ If you are using skywalking in a low throughputs monitoring scenario, and don't 
 * JDK 8+
 
 ## Download
-* [Releases](https://github.com/OpenSkywalking/skywalking/releases)
+* [Releases](https://github.com/apache/incubator-skywalking/releases)
 
 ## Quick start
 You can simplely tar/unzip and startup if ports 10800, 11800, 12800 are free.
