@@ -61,11 +61,11 @@
     <packaging>pom</packaging>
 
     <name>apm</name>
-    <url>https://github.com/OpenSkywalking/skywalking</url>
+    <url>https://github.com/apache/incubator-skywalking</url>
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/OpenSkywalking/skywalking/issues</url>
+        <url>https://github.com/apache/incubator-skywalking/issues</url>
     </issueManagement>
 
     <ciManagement>
@@ -270,7 +270,7 @@
                 <artifactId>coveralls-maven-plugin</artifactId>
                 <version>4.1.0</version>
                 <configuration>
-                    <repoToken>lSwNTzlZBFIz3fmFntWGtc6BUwgU7dlms</repoToken>
+                    <repoToken>xFwR2GqmxcMxV7tGEpW2NfwIrbCD4cQCS</repoToken>
                     <sourceDirectories>
                         <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
                     </sourceDirectories>

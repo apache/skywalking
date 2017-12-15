@@ -33,7 +33,7 @@ JSON数组，数组的每个元素，为一个有效的gRPC服务地址。
 gRPC服务
 
 ### 协议内容
-https://github.com/OpenSkywalking/skywalking/blob/master/apm-network/src/main/proto/ApplicationRegisterService.proto
+https://github.com/apache/incubator-skywalking/blob/master/apm-network/src/main/proto/ApplicationRegisterService.proto
 ```proto
 syntax = "proto3";
 
@@ -71,7 +71,7 @@ message ApplicationMapping {
 gRPC服务
 
 ### 实例注册服务
-https://github.com/OpenSkywalking/skywalking/blob/master/apm-network/src/main/proto/DiscoveryService.proto#L11-L12
+https://github.com/apache/incubator-skywalking/blob/master/apm-network/src/main/proto/DiscoveryService.proto#L11-L12
 ```proto
 service InstanceDiscoveryService {
     rpc register (ApplicationInstance) returns (ApplicationInstanceMapping) {
@@ -102,7 +102,7 @@ message ApplicationInstanceMapping {
 - 服务端返回应用实例id，applicationInstanceId 。后续上报服务使用实例id标识。
 
 ### 实例心跳服务
-https://github.com/OpenSkywalking/skywalking/blob/master/apm-network/src/main/proto/DiscoveryService.proto#L14-L15
+https://github.com/apache/incubator-skywalking/blob/master/apm-network/src/main/proto/DiscoveryService.proto#L14-L15
 ```proto
 service InstanceDiscoveryService {
     rpc heartbeat (ApplicationInstanceHeartbeat) returns (Downstream) {
@@ -118,7 +118,7 @@ message ApplicationInstanceHeartbeat {
 - 如一分钟内有segment数据上报，则可不必上报心跳。
 
 ### 实例注册重连服务
-https://github.com/OpenSkywalking/skywalking/blob/master/apm-network/src/main/proto/DiscoveryService.proto#L17-L18
+https://github.com/apache/incubator-skywalking/blob/master/apm-network/src/main/proto/DiscoveryService.proto#L17-L18
 ```proto
 service InstanceDiscoveryService {
     rpc registerRecover (ApplicationInstanceRecover) returns (Downstream) {
@@ -142,7 +142,7 @@ message ApplicationInstanceRecover {
 gRPC服务
 
 ### 协议内容
-https://github.com/OpenSkywalking/skywalking/blob/master/apm-network/src/main/proto/DiscoveryService.proto#L53-L74
+https://github.com/apache/incubator-skywalking/blob/master/apm-network/src/main/proto/DiscoveryService.proto#L53-L74
 ```proto
 //discovery service for ServiceName by Network address or application code
 service ServiceNameDiscoveryService {
@@ -179,7 +179,7 @@ message ServiceNameElement {
 gRPC服务
 
 ### 协议内容
-https://github.com/OpenSkywalking/skywalking/blob/master/apm-network/src/main/proto/JVMMetricsService.proto
+https://github.com/apache/incubator-skywalking/blob/master/apm-network/src/main/proto/JVMMetricsService.proto
 ```proto
 syntax = "proto3";
 
@@ -342,11 +342,11 @@ message LogMessage {
 }
 ```
 - UniqueId为segment或者globalTraceId的数字表示。由3个long组成，1）applicationInstanceId，2）当前线程id，3）当前时间戳*10000 + seq(0-10000自循环)
-- Span的数据，请参考[插件开发规范](https://github.com/OpenSkywalking/skywalking/wiki/Plugin-Development-Guide)
+- Span的数据，请参考[插件开发规范](https://github.com/apache/incubator-skywalking/wiki/Plugin-Development-Guide)
 - 以下id和名称根据注册返回结果，优先上报id，无法获取id时，再上传name。参考之前的应用和服务注册章节。
   - operationNameId/operationName 
   - networkAddress/networkAddressId
   - entryServiceName/entryServiceId
   - parentServiceName/parentServiceId
   - peerId/peer
-- componentId为默认支持的插件id，非官方支持，需传输名称或修改服务端源代码。[官方组件列表](https://github.com/OpenSkywalking/skywalking/blob/master/apm-network/src/main/java/org.apache.skywalking.apm/network/trace/component/ComponentsDefine.java)
+- componentId为默认支持的插件id，非官方支持，需传输名称或修改服务端源代码。[官方组件列表](https://github.com/apache/incubator-skywalking/blob/master/apm-network/src/main/java/org.apache.skywalking.apm/network/trace/component/ComponentsDefine.java)
