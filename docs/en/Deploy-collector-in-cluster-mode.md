@@ -5,7 +5,7 @@
 - Zookeeper 3.4.10
 
 ## Download released version
-- Go to [released page](https://github.com/OpenSkywalking/skywalking/releases)
+- Go to [released page](https://github.com/apache/incubator-skywalking/releases)
 
 ## Deploy Elasticsearch server
 - Modify `elasticsearch.yml`
