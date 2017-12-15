@@ -3,7 +3,8 @@ Apache SkyWalking | [English](README.md)
 
 <img src="https://skywalkingtest.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
 
-**SkyWalking**: 针对分布式系统的APM系统，也被称为分布式追踪系统
+**SkyWalking**: 针对分布式系统的APM（应用性能监控）系统，特别针对微服务、cloud native和容器化设计，
+其核心是个分布式追踪系统。
 
 [![Build Status](https://travis-ci.org/apache/incubator-skywalking.svg?branch=master)](https://travis-ci.org/apache/incubator-skywalking)
 [![Coverage Status](https://coveralls.io/repos/github/apache/incubator-skywalking/badge.svg?branch=master&u=1)](https://coveralls.io/github/apache/incubator-skywalking?branch=master)
@@ -24,13 +25,12 @@ Apache SkyWalking | [English](README.md)
 * 中文QQ群：392443393
 
 # Architecture
-* 3.2.5+版本架构图
 <img src="https://skywalkingtest.github.io/page-resources/3.2.5%2b_architecture.jpg"/>
 
 # Document
 [![EN doc](https://img.shields.io/badge/document-English-blue.svg)](docs/README.md) [![cn doc](https://img.shields.io/badge/document-中文-blue.svg)](docs/README_ZH.md)
 
-This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wu.sheng@foxmail.com.
+This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wusheng@apache.org.
 
 # Screenshots
 - 分布式系统拓扑图自动发现
