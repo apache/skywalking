@@ -30,7 +30,7 @@
 
     <!-- header -->
     <module name="Header">
-        <property name="headerFile" value="${checkstyle.header.file}"/>
+        <property name="headerFile" value="CHECKSTYLE_HEAD"/>
     </module>
 
     <module name="RegexpSingleline">
