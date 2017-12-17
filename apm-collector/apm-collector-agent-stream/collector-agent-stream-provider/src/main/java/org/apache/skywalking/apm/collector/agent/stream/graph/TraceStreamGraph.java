@@ -31,7 +31,7 @@ import org.apache.skywalking.apm.collector.queue.QueueModule;
 import org.apache.skywalking.apm.collector.remote.service.RemoteSenderService;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMapping;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetric;
-import org.apache.skywalking.apm.collector.stream.worker.base.WorkerCreateListener;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.agent.stream.parser.standardization.SegmentStandardization;
 import org.apache.skywalking.apm.collector.agent.stream.worker.trace.application.ApplicationComponentAggregationWorker;
 import org.apache.skywalking.apm.collector.agent.stream.worker.trace.application.ApplicationMappingPersistenceWorker;

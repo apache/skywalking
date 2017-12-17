@@ -157,13 +157,13 @@
             <version>${project.version}</version>
         </dependency>
         <!-- configuration provider -->
-        <!-- alerting provider -->
+        <!-- alarm provider -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>collector-alerting-provider</artifactId>
+            <artifactId>alarm-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- alerting provider -->
+        <!-- alarm provider -->
     </dependencies>
 
     <build>

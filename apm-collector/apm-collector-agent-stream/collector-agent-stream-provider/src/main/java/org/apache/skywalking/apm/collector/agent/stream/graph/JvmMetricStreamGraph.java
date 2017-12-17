@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.collector.queue.QueueModule;
 import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetric;
 import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetric;
 import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetric;
-import org.apache.skywalking.apm.collector.stream.worker.base.WorkerCreateListener;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.agent.stream.worker.jvm.GCMetricPersistenceWorker;
 import org.apache.skywalking.apm.collector.agent.stream.worker.jvm.InstHeartBeatPersistenceWorker;
 import org.apache.skywalking.apm.collector.agent.stream.worker.jvm.MemoryMetricPersistenceWorker;

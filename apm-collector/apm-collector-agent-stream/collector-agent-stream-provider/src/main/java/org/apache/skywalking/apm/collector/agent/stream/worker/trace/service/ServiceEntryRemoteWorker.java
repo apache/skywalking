@@ -20,12 +20,12 @@
 package org.apache.skywalking.apm.collector.agent.stream.worker.trace.service;
 
 import org.apache.skywalking.apm.collector.remote.service.RemoteSenderService;
-import org.apache.skywalking.apm.collector.stream.worker.base.AbstractRemoteWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractRemoteWorkerProvider;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.remote.service.Selector;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceEntry;
-import org.apache.skywalking.apm.collector.stream.worker.base.AbstractRemoteWorker;
-import org.apache.skywalking.apm.collector.stream.worker.base.WorkerException;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractRemoteWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
 
 /**
  * @author peng-yongsheng

@@ -21,12 +21,12 @@ package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.par
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import org.apache.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorker;
 import org.apache.skywalking.apm.collector.agent.stream.buffer.SegmentBufferManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.queue.service.QueueCreatorService;
-import org.apache.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
-import org.apache.skywalking.apm.collector.stream.worker.base.WorkerException;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

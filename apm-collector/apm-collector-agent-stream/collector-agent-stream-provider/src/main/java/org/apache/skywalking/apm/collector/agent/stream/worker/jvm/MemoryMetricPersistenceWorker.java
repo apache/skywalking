@@ -25,8 +25,8 @@ import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IMemoryMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetric;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
-import org.apache.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
 
 /**
  * @author peng-yongsheng

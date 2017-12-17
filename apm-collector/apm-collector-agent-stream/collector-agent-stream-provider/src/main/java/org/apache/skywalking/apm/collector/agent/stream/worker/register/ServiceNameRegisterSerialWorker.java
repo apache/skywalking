@@ -26,11 +26,11 @@ import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.queue.service.QueueCreatorService;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceNameRegisterDAO;
-import org.apache.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorker;
-import org.apache.skywalking.apm.collector.stream.worker.base.WorkerException;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
-import org.apache.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
