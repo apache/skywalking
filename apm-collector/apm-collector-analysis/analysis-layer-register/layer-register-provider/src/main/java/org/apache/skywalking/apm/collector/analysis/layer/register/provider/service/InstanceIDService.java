@@ -16,20 +16,17 @@
  *
  */
 
+package org.apache.skywalking.apm.collector.analysis.layer.register.provider.service;
 
-package org.apache.skywalking.apm.collector.agent.stream.worker.register;
-
-import org.apache.skywalking.apm.collector.agent.stream.service.register.IInstanceIDService;
+import org.apache.skywalking.apm.collector.analysis.layer.register.define.service.IInstanceIDService;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
-import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
+import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
-import org.apache.skywalking.apm.collector.agent.stream.service.graph.RegisterStreamGraphDefine;
-import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +55,7 @@ public class InstanceIDService implements IInstanceIDService {
 
     private Graph<Instance> getInstanceRegisterGraph() {
         if (ObjectUtils.isEmpty(instanceRegisterGraph)) {
-            this.instanceRegisterGraph = GraphManager.INSTANCE.createIfAbsent(RegisterStreamGraphDefine.INSTANCE_REGISTER_GRAPH_ID, Instance.class);
+//            this.instanceRegisterGraph = GraphManager.INSTANCE.createIfAbsent(RegisterStreamGraphDefine.INSTANCE_REGISTER_GRAPH_ID, Instance.class);
         }
         return instanceRegisterGraph;
     }

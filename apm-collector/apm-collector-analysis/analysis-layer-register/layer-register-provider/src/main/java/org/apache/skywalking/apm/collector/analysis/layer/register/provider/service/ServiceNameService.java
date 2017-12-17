@@ -16,17 +16,14 @@
  *
  */
 
+package org.apache.skywalking.apm.collector.analysis.layer.register.provider.service;
 
-package org.apache.skywalking.apm.collector.agent.stream.worker.register;
-
+import org.apache.skywalking.apm.collector.analysis.layer.register.define.service.IServiceNameService;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
+import org.apache.skywalking.apm.collector.cache.service.ServiceIdCacheService;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
-import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
-import org.apache.skywalking.apm.collector.agent.stream.service.graph.RegisterStreamGraphDefine;
-import org.apache.skywalking.apm.collector.agent.stream.service.register.IServiceNameService;
-import org.apache.skywalking.apm.collector.cache.service.ServiceIdCacheService;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +52,7 @@ public class ServiceNameService implements IServiceNameService {
 
     private Graph<ServiceName> getServiceNameRegisterGraph() {
         if (ObjectUtils.isEmpty(serviceNameRegisterGraph)) {
-            this.serviceNameRegisterGraph = GraphManager.INSTANCE.createIfAbsent(RegisterStreamGraphDefine.SERVICE_NAME_REGISTER_GRAPH_ID, ServiceName.class);
+//            this.serviceNameRegisterGraph = GraphManager.INSTANCE.createIfAbsent(RegisterStreamGraphDefine.SERVICE_NAME_REGISTER_GRAPH_ID, ServiceName.class);
         }
         return serviceNameRegisterGraph;
     }

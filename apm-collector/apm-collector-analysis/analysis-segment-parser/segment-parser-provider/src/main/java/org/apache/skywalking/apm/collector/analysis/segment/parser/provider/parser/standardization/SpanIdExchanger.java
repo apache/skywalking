@@ -18,8 +18,9 @@
 
 package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.standardization;
 
-import org.apache.skywalking.apm.collector.agent.stream.worker.register.ApplicationIDService;
-import org.apache.skywalking.apm.collector.agent.stream.worker.register.ServiceNameService;
+import org.apache.skywalking.apm.collector.analysis.layer.register.define.AnalysisLayerRegisterModule;
+import org.apache.skywalking.apm.collector.analysis.layer.register.define.service.IApplicationIDService;
+import org.apache.skywalking.apm.collector.analysis.layer.register.define.service.IServiceNameService;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
@@ -35,8 +36,8 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
     private final Logger logger = LoggerFactory.getLogger(SpanIdExchanger.class);
 
     private static SpanIdExchanger EXCHANGER;
-    private final ApplicationIDService applicationIDService;
-    private final ServiceNameService serviceNameService;
+    private final IApplicationIDService applicationIDService;
+    private final IServiceNameService serviceNameService;
 
     public static SpanIdExchanger getInstance(ModuleManager moduleManager) {
         if (EXCHANGER == null) {
@@ -46,8 +47,8 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
     }
 
     private SpanIdExchanger(ModuleManager moduleManager) {
-        this.applicationIDService = new ApplicationIDService(moduleManager);
-        this.serviceNameService = new ServiceNameService(moduleManager);
+        applicationIDService = moduleManager.find(AnalysisLayerRegisterModule.NAME).getService(IApplicationIDService.class);
+        serviceNameService = moduleManager.find(AnalysisLayerRegisterModule.NAME).getService(IServiceNameService.class);
     }
 
     @Override public boolean exchange(SpanDecorator standardBuilder, int applicationId) {

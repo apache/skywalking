@@ -63,10 +63,6 @@ public class AgentStreamModuleProvider extends ModuleProvider {
     }
 
     @Override public void prepare(Properties config) throws ServiceNotProvidedException {
-        this.registerServiceImplementation(IApplicationIDService.class, new ApplicationIDService(getManager()));
-        this.registerServiceImplementation(IInstanceIDService.class, new InstanceIDService(getManager()));
-        this.registerServiceImplementation(IServiceNameService.class, new ServiceNameService(getManager()));
-
         this.registerServiceImplementation(ICpuMetricService.class, new CpuMetricService());
         this.registerServiceImplementation(IGCMetricService.class, new GCMetricService());
         this.registerServiceImplementation(IMemoryMetricService.class, new MemoryMetricService());
