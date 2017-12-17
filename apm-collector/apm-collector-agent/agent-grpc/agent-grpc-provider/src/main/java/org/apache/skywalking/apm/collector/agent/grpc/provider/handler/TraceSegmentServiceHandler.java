@@ -16,12 +16,11 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.agent.grpc.provider.handler;
 
 import io.grpc.stub.StreamObserver;
-import org.apache.skywalking.apm.collector.agent.stream.AgentStreamModule;
-import org.apache.skywalking.apm.collector.agent.stream.service.trace.ITraceSegmentService;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.AnalysisSegmentParserModule;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParseService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.server.grpc.GRPCHandler;
 import org.apache.skywalking.apm.network.proto.Downstream;
@@ -37,17 +36,17 @@ public class TraceSegmentServiceHandler extends TraceSegmentServiceGrpc.TraceSeg
 
     private final Logger logger = LoggerFactory.getLogger(TraceSegmentServiceHandler.class);
 
-    private final ITraceSegmentService traceSegmentService;
+    private final ISegmentParseService segmentParseService;
 
     public TraceSegmentServiceHandler(ModuleManager moduleManager) {
-        this.traceSegmentService = moduleManager.find(AgentStreamModule.NAME).getService(ITraceSegmentService.class);
+        this.segmentParseService = moduleManager.find(AnalysisSegmentParserModule.NAME).getService(ISegmentParseService.class);
     }
 
     @Override public StreamObserver<UpstreamSegment> collect(StreamObserver<Downstream> responseObserver) {
         return new StreamObserver<UpstreamSegment>() {
             @Override public void onNext(UpstreamSegment segment) {
                 logger.debug("receive segment");
-                traceSegmentService.send(segment);
+                segmentParseService.parse(segment, ISegmentParseService.Source.Agent);
             }
 
             @Override public void onError(Throwable throwable) {
