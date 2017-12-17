@@ -36,5 +36,10 @@
             <artifactId>collector-storage-define</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-datacarrier</artifactId>
+            <version>5.0.0-alpha</version>
+        </dependency>
     </dependencies>
 </project>

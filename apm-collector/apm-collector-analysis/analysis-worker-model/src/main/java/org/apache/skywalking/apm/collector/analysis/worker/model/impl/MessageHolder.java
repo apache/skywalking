@@ -17,18 +17,25 @@
  */
 
 
-package org.apache.skywalking.apm.collector.queue.datacarrier.service;
+package org.apache.skywalking.apm.collector.analysis.worker.model.impl;
 
-import org.apache.skywalking.apm.collector.queue.base.QueueEventHandler;
-import org.apache.skywalking.apm.collector.queue.base.QueueExecutor;
-import org.apache.skywalking.apm.collector.queue.service.QueueCreatorService;
+import org.apache.skywalking.apm.collector.core.data.EndOfBatchQueueMessage;
 
 /**
  * @author peng-yongsheng
  */
-public class DataCarrierQueueCreatorService implements QueueCreatorService {
+public class MessageHolder<MESSAGE extends EndOfBatchQueueMessage> {
+    private MESSAGE message;
 
-    @Override public QueueEventHandler create(int queueSize, QueueExecutor executor) {
-        return null;
+    public MESSAGE getMessage() {
+        return message;
+    }
+
+    public void setMessage(MESSAGE message) {
+        this.message = message;
+    }
+
+    public void reset() {
+        message = null;
     }
 }
