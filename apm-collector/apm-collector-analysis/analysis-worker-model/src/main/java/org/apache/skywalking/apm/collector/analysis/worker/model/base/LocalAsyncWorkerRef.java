@@ -18,32 +18,46 @@
 
 package org.apache.skywalking.apm.collector.analysis.worker.model.base;
 
-import org.apache.skywalking.apm.collector.core.CollectorException;
+import java.util.List;
 import org.apache.skywalking.apm.collector.core.graph.NodeProcessor;
-import org.apache.skywalking.apm.collector.queue.base.QueueEventHandler;
-import org.apache.skywalking.apm.collector.queue.base.QueueExecutor;
+import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
-public class LocalAsyncWorkerRef<INPUT, OUTPUT> extends WorkerRef<INPUT, OUTPUT> implements QueueExecutor<INPUT> {
+public class LocalAsyncWorkerRef<INPUT, OUTPUT> extends WorkerRef<INPUT, OUTPUT> implements IConsumer<INPUT> {
 
-    private QueueEventHandler<INPUT> queueEventHandler;
+    private final Logger logger = LoggerFactory.getLogger(LocalAsyncWorkerRef.class);
+
+    private DataCarrier<INPUT> dataCarrier;
 
     LocalAsyncWorkerRef(NodeProcessor<INPUT, OUTPUT> destinationHandler) {
         super(destinationHandler);
     }
 
-    public void setQueueEventHandler(QueueEventHandler<INPUT> queueEventHandler) {
-        this.queueEventHandler = queueEventHandler;
+    public void setQueueEventHandler(DataCarrier<INPUT> dataCarrier) {
+        this.dataCarrier = dataCarrier;
     }
 
-    @Override public void execute(INPUT input) throws CollectorException {
-        out(input);
+    @Override public void consume(List<INPUT> data) {
+        data.forEach(this::out);
+    }
+
+    @Override public void init() {
+    }
+
+    @Override public void onError(List<INPUT> data, Throwable t) {
+        logger.error(t.getMessage(), t);
+    }
+
+    @Override public void onExit() {
     }
 
     @Override protected void in(INPUT input) {
-        queueEventHandler.tell(input);
+        dataCarrier.produce(input);
     }
 
     @Override protected void out(INPUT input) {

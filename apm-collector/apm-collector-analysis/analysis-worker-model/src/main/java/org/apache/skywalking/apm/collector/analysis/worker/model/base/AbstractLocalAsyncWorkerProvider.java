@@ -19,8 +19,7 @@
 package org.apache.skywalking.apm.collector.analysis.worker.model.base;
 
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.queue.base.QueueEventHandler;
-import org.apache.skywalking.apm.collector.queue.service.QueueCreatorService;
+import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 
 /**
  * @author peng-yongsheng
@@ -29,12 +28,8 @@ public abstract class AbstractLocalAsyncWorkerProvider<INPUT, OUTPUT, WORKER_TYP
 
     public abstract int queueSize();
 
-    private final QueueCreatorService<INPUT> queueCreatorService;
-
-    public AbstractLocalAsyncWorkerProvider(ModuleManager moduleManager,
-        QueueCreatorService<INPUT> queueCreatorService) {
+    public AbstractLocalAsyncWorkerProvider(ModuleManager moduleManager) {
         super(moduleManager);
-        this.queueCreatorService = queueCreatorService;
     }
 
     @Override
@@ -43,8 +38,8 @@ public abstract class AbstractLocalAsyncWorkerProvider<INPUT, OUTPUT, WORKER_TYP
         workerCreateListener.addWorker(localAsyncWorker);
 
         LocalAsyncWorkerRef<INPUT, OUTPUT> localAsyncWorkerRef = new LocalAsyncWorkerRef<>(localAsyncWorker);
-        QueueEventHandler<INPUT> queueEventHandler = queueCreatorService.create(queueSize(), localAsyncWorkerRef);
-        localAsyncWorkerRef.setQueueEventHandler(queueEventHandler);
+        DataCarrier<INPUT> dataCarrier = new DataCarrier<>(1, queueSize());
+        localAsyncWorkerRef.setQueueEventHandler(dataCarrier);
         return localAsyncWorkerRef;
     }
 }
