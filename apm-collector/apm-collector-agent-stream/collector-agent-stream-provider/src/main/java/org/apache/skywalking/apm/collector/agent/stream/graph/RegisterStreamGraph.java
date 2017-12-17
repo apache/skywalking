@@ -36,7 +36,7 @@ import org.apache.skywalking.apm.collector.remote.service.RemoteSenderService;
 import org.apache.skywalking.apm.collector.storage.table.register.Application;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
-import org.apache.skywalking.apm.collector.stream.worker.base.WorkerCreateListener;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 
 /**
  * @author peng-yongsheng

@@ -22,8 +22,8 @@ package org.apache.skywalking.apm.collector.agent.stream.worker.trace.applicatio
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.queue.service.QueueCreatorService;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMapping;
-import org.apache.skywalking.apm.collector.stream.worker.base.AbstractLocalAsyncWorkerProvider;
-import org.apache.skywalking.apm.collector.stream.worker.impl.AggregationWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.AggregationWorker;
 
 /**
  * @author peng-yongsheng
