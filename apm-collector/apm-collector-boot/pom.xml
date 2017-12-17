@@ -87,14 +87,14 @@
         <!-- agent gRPC provider -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>collector-agent-grpc-provider</artifactId>
+            <artifactId>agent-grpc-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- agent gRPC provider -->
         <!-- agent jetty provider -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>collector-agent-jetty-provider</artifactId>
+            <artifactId>agent-jetty-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- agent jetty provider -->

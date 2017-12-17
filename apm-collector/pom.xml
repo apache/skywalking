@@ -46,11 +46,11 @@
         <module>apm-collector-queue</module>
         <module>apm-collector-instrument</module>
         <module>apm-collector-baseline</module>
-        <module>apm-collector-agent-grpc</module>
-        <module>apm-collector-agent-jetty</module>
         <module>apm-collector-agent-stream</module>
         <module>apm-collector-alerting</module>
         <module>apm-collector-configuration</module>
+        <module>apm-collector-agent</module>
+        <module>apm-collector-analysis</module>
     </modules>
 
     <dependencies>
