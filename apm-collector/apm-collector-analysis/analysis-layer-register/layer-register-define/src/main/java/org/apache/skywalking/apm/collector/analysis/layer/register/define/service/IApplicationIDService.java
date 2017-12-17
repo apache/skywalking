@@ -17,13 +17,13 @@
  */
 
 
-package org.apache.skywalking.apm.collector.agent.stream.service.register;
+package org.apache.skywalking.apm.collector.analysis.layer.register.define.service;
 
 import org.apache.skywalking.apm.collector.core.module.Service;
 
 /**
  * @author peng-yongsheng
  */
-public interface IServiceNameService extends Service {
-    int getOrCreate(int applicationId, String serviceName);
+public interface IApplicationIDService extends Service {
+    int getOrCreate(String applicationCode);
 }

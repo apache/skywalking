@@ -16,14 +16,25 @@
  *
  */
 
+package org.apache.skywalking.apm.collector.analysis.layer.register.define;
 
-package org.apache.skywalking.apm.collector.agent.stream.service.register;
-
-import org.apache.skywalking.apm.collector.core.module.Service;
+import org.apache.skywalking.apm.collector.analysis.layer.register.define.service.IApplicationIDService;
+import org.apache.skywalking.apm.collector.analysis.layer.register.define.service.IInstanceIDService;
+import org.apache.skywalking.apm.collector.analysis.layer.register.define.service.IServiceNameService;
+import org.apache.skywalking.apm.collector.core.module.Module;
 
 /**
  * @author peng-yongsheng
  */
-public interface IApplicationIDService extends Service {
-    int getOrCreate(String applicationCode);
+public class AnalysisLayerRegisterModule extends Module {
+
+    public static final String NAME = "analysis_layer_register";
+
+    @Override public String name() {
+        return NAME;
+    }
+
+    @Override public Class[] services() {
+        return new Class[] {IApplicationIDService.class, IInstanceIDService.class, IServiceNameService.class};
+    }
 }

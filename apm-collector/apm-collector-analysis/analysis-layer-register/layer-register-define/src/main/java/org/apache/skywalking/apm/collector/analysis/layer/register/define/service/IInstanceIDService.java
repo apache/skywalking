@@ -17,7 +17,7 @@
  */
 
 
-package org.apache.skywalking.apm.collector.agent.stream.service.register;
+package org.apache.skywalking.apm.collector.analysis.layer.register.define.service;
 
 import org.apache.skywalking.apm.collector.core.module.Service;
 

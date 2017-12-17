@@ -36,5 +36,15 @@
             <artifactId>segment-parser-define</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>layer-register-define</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>collector-cache-define</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

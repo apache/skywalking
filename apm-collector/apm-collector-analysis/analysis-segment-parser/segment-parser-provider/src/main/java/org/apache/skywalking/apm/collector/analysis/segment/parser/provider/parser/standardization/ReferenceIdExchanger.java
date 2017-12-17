@@ -16,16 +16,16 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.standardization;
 
+import org.apache.skywalking.apm.collector.analysis.layer.register.define.AnalysisLayerRegisterModule;
+import org.apache.skywalking.apm.collector.analysis.layer.register.define.service.IApplicationIDService;
+import org.apache.skywalking.apm.collector.analysis.layer.register.define.service.IServiceNameService;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.ReferenceDecorator;
-import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.agent.stream.worker.register.ApplicationIDService;
-import org.apache.skywalking.apm.collector.agent.stream.worker.register.ServiceNameService;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,8 +38,8 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
     private final Logger logger = LoggerFactory.getLogger(ReferenceIdExchanger.class);
 
     private static ReferenceIdExchanger EXCHANGER;
-    private final ServiceNameService serviceNameService;
-    private final ApplicationIDService applicationIDService;
+    private final IApplicationIDService applicationIDService;
+    private final IServiceNameService serviceNameService;
     private final InstanceCacheService instanceCacheService;
 
     public static ReferenceIdExchanger getInstance(ModuleManager moduleManager) {
@@ -50,8 +50,8 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
     }
 
     private ReferenceIdExchanger(ModuleManager moduleManager) {
-        applicationIDService = new ApplicationIDService(moduleManager);
-        serviceNameService = new ServiceNameService(moduleManager);
+        applicationIDService = moduleManager.find(AnalysisLayerRegisterModule.NAME).getService(IApplicationIDService.class);
+        serviceNameService = moduleManager.find(AnalysisLayerRegisterModule.NAME).getService(IServiceNameService.class);
         instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
     }
 

@@ -32,7 +32,7 @@ import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedExcepti
 /**
  * @author peng-yongsheng
  */
-public class AnalysisTraceParseModuleProvider extends ModuleProvider {
+public class AnalysisSegmentParserModuleProvider extends ModuleProvider {
 
     public static final String NAME = "default";
     private SegmentParserListenerManager listenerManager;
