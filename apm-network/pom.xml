@@ -23,7 +23,7 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0-2018-preview</version>
+        <version>5.0.0-alpha</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

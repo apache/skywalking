@@ -1,15 +1,14 @@
-Sky Walking | [中文](README_ZH.md)
+Apache SkyWalking | [中文](README_ZH.md)
 ==========
-
-# Announcement:
-## SkyWalking has been accepted as an incubator project by Apache Foundation. All pull requests can't be accepted until Apache/SkyWalking repository established.
 
 <img src="https://skywalkingtest.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
 
-**SkyWalking 3**: APM for Distributed Systems, also known Distributed Tracing System. 
+**SkyWalking**: APM (application performance monitor) tool for distributed systems, especially designed for 
+microservices, cloud native and container-based (Docker, K8s, Mesos) architectures.
+Underlying technology is a distributed tracing system.
 
-[![Build Status](https://travis-ci.org/OpenSkywalking/skywalking.svg?branch=master)](https://travis-ci.org/OpenSkywalking/skywalking)
-[![Coverage Status](https://coveralls.io/repos/github/OpenSkywalking/skywalking/badge.svg?branch=master&forceUpdate=3)](https://coveralls.io/github/OpenSkywalking/skywalking?branch=master)
+[![Build Status](https://travis-ci.org/apache/incubator-skywalking.svg?branch=master)](https://travis-ci.org/apache/incubator-skywalking)
+[![Coverage Status](https://coveralls.io/repos/github/apache/incubator-skywalking/badge.svg?branch=master&u=1)](https://coveralls.io/github/apache/incubator-skywalking?branch=master)
 [![Join the chat at https://gitter.im/sky-walking/Lobby](https://badges.gitter.im/openskywalking/Lobby.svg)](https://gitter.im/openskywalking/Lobby)
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
 
@@ -21,16 +20,15 @@ Sky Walking | [中文](README_ZH.md)
   * Use **@Trace** annotation for any methods you want to trace.
   * Integrate traceId into logs for log4j, log4j2 and logback.
 * Pure Java server implementation, provide RESTful and gRPC services. Compatibility with other language agents/SDKs. 
-* The UI released on [skywalking-ui](https://github.com/OpenSkywalking/sky-walking-ui)
+* The UI released on [skywalking-ui](https://github.com/apache/incubator-skywalking-ui)
 
 # Architecture
-* Architecture graph for 3.2.5+
 <img src="https://skywalkingtest.github.io/page-resources/3.2.5%2b_architecture.jpg"/>
 
 # Document
 [![EN doc](https://img.shields.io/badge/document-English-blue.svg)](docs/README.md) [![cn doc](https://img.shields.io/badge/document-中文-blue.svg)](docs/README_ZH.md)
 
-This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wu.sheng@foxmail.com.
+This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wusheng@apache.org.
 
 # Screenshots
 - Discovery topological graph of application clusters automatically.
@@ -60,14 +58,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 # Contact Us
 * Submit an issue
 * [Gitter](https://gitter.im/openskywalking/Lobby)
-* [Google Mailing List](https://groups.google.com/forum/#!forum/skywalking-distributed-tracing-and-apm)
 * QQ Group: 392443393
-
-# Open Skywalking Organization
-[Open Skywalking Organization Teams and Contributors](https://github.com/OpenSkywalking/Organization/blob/master/README.md)
-
-# Partners
-<img src="https://skywalkingtest.github.io/page-resources/3.2.4/partners.png" width="800"/>
 
 # License
 [Apache 2.0 License.](/LICENSE)

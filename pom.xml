@@ -23,7 +23,7 @@
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>5.0-2018-preview</version>
+    <version>5.0.0-alpha</version>
 
     <developers>
         <developer>
@@ -61,11 +61,11 @@
     <packaging>pom</packaging>
 
     <name>apm</name>
-    <url>https://github.com/OpenSkywalking/skywalking</url>
+    <url>https://github.com/apache/incubator-skywalking</url>
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/OpenSkywalking/skywalking/issues</url>
+        <url>https://github.com/apache/incubator-skywalking/issues</url>
     </issueManagement>
 
     <ciManagement>
@@ -79,7 +79,6 @@
         <scala.compiler.version>2.11.7</scala.compiler.version>
         <powermock.version>1.6.4</powermock.version>
         <docker.plugin.version>0.4.13</docker.plugin.version>
-        <checkstyle.header.file>CHECKSTYLE_HEAD</checkstyle.header.file>
     </properties>
 
     <dependencies>
@@ -270,7 +269,7 @@
                 <artifactId>coveralls-maven-plugin</artifactId>
                 <version>4.1.0</version>
                 <configuration>
-                    <repoToken>lSwNTzlZBFIz3fmFntWGtc6BUwgU7dlms</repoToken>
+                    <repoToken>xFwR2GqmxcMxV7tGEpW2NfwIrbCD4cQCS</repoToken>
                     <sourceDirectories>
                         <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
                     </sourceDirectories>
