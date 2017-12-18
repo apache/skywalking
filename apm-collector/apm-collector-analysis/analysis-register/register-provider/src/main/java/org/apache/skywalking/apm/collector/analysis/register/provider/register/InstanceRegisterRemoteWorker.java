@@ -16,16 +16,16 @@
  *
  */
 
+package org.apache.skywalking.apm.collector.analysis.register.provider.register;
 
-package org.apache.skywalking.apm.collector.agent.stream.worker.register;
-
+import org.apache.skywalking.apm.collector.analysis.register.define.graph.WorkerIdDefine;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractRemoteWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractRemoteWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.remote.service.RemoteSenderService;
 import org.apache.skywalking.apm.collector.remote.service.Selector;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractRemoteWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractRemoteWorkerProvider;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +37,7 @@ public class InstanceRegisterRemoteWorker extends AbstractRemoteWorker<Instance,
     private final Logger logger = LoggerFactory.getLogger(InstanceRegisterRemoteWorker.class);
 
     @Override public int id() {
-        return 10001;
+        return WorkerIdDefine.INSTANCE_REGISTER_REMOTE_WORKER;
     }
 
     InstanceRegisterRemoteWorker(ModuleManager moduleManager) {

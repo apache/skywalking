@@ -16,51 +16,50 @@
  *
  */
 
+package org.apache.skywalking.apm.collector.analysis.register.provider.register;
 
-package org.apache.skywalking.apm.collector.agent.stream.worker.register;
-
+import org.apache.skywalking.apm.collector.analysis.register.define.graph.WorkerIdDefine;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractRemoteWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractRemoteWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.remote.service.RemoteSenderService;
-import org.apache.skywalking.apm.collector.storage.table.register.Application;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractRemoteWorkerProvider;
 import org.apache.skywalking.apm.collector.remote.service.Selector;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractRemoteWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
+import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationRegisterRemoteWorker extends AbstractRemoteWorker<Application, Application> {
+public class ServiceNameRegisterRemoteWorker extends AbstractRemoteWorker<ServiceName, ServiceName> {
 
-    private final Logger logger = LoggerFactory.getLogger(ApplicationRegisterRemoteWorker.class);
+    private final Logger logger = LoggerFactory.getLogger(ServiceNameRegisterRemoteWorker.class);
 
-    public ApplicationRegisterRemoteWorker(ModuleManager moduleManager) {
+    public ServiceNameRegisterRemoteWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     @Override public int id() {
-        return 10006;
+        return WorkerIdDefine.SERVICE_NAME_REGISTER_REMOTE_WORKER;
     }
 
-    @Override protected void onWork(Application message) throws WorkerException {
-        logger.debug("application code: {}", message.getApplicationCode());
-        onNext(message);
+    @Override protected void onWork(ServiceName serviceName) throws WorkerException {
+        onNext(serviceName);
     }
 
     @Override public Selector selector() {
         return Selector.ForeverFirst;
     }
 
-    public static class Factory extends AbstractRemoteWorkerProvider<Application, Application, ApplicationRegisterRemoteWorker> {
+    public static class Factory extends AbstractRemoteWorkerProvider<ServiceName, ServiceName, ServiceNameRegisterRemoteWorker> {
 
         public Factory(ModuleManager moduleManager, RemoteSenderService remoteSenderService, int graphId) {
             super(moduleManager, remoteSenderService, graphId);
         }
 
-        @Override public ApplicationRegisterRemoteWorker workerInstance(ModuleManager moduleManager) {
-            return new ApplicationRegisterRemoteWorker(moduleManager);
+        @Override public ServiceNameRegisterRemoteWorker workerInstance(ModuleManager moduleManager) {
+            return new ServiceNameRegisterRemoteWorker(moduleManager);
         }
     }
 }

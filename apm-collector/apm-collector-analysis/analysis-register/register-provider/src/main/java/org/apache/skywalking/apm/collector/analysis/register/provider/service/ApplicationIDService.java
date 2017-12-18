@@ -18,10 +18,12 @@
 
 package org.apache.skywalking.apm.collector.analysis.register.provider.service;
 
+import org.apache.skywalking.apm.collector.analysis.register.define.graph.GraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IApplicationIDService;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
+import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.table.register.Application;
@@ -45,7 +47,7 @@ public class ApplicationIDService implements IApplicationIDService {
 
     private Graph<Application> getApplicationRegisterGraph() {
         if (ObjectUtils.isEmpty(applicationRegisterGraph)) {
-//            this.applicationRegisterGraph = GraphManager.INSTANCE.createIfAbsent(RegisterStreamGraphDefine.APPLICATION_REGISTER_GRAPH_ID, Application.class);
+            this.applicationRegisterGraph = GraphManager.INSTANCE.findGraph(GraphIdDefine.APPLICATION_REGISTER_GRAPH_ID, Application.class);
         }
         return this.applicationRegisterGraph;
     }

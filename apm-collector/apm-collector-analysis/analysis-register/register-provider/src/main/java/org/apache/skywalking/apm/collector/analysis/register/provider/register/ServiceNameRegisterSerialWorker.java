@@ -16,21 +16,19 @@
  *
  */
 
+package org.apache.skywalking.apm.collector.analysis.register.provider.register;
 
-package org.apache.skywalking.apm.collector.agent.stream.worker.register;
-
-import org.apache.skywalking.apm.collector.agent.stream.IdAutoIncrement;
+import org.apache.skywalking.apm.collector.analysis.register.define.graph.WorkerIdDefine;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ServiceIdCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.queue.service.QueueCreatorService;
-import org.apache.skywalking.apm.collector.storage.dao.IServiceNameRegisterDAO;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
+import org.apache.skywalking.apm.collector.storage.dao.IServiceNameRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +49,7 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker<Se
     }
 
     @Override public int id() {
-        return 100;
+        return WorkerIdDefine.SERVICE_NAME_REGISTER_SERIAL_WORKER;
     }
 
     @Override protected void onWork(ServiceName serviceName) throws WorkerException {
@@ -87,8 +85,8 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker<Se
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<ServiceName, ServiceName, ServiceNameRegisterSerialWorker> {
 
-        public Factory(ModuleManager moduleManager, QueueCreatorService<ServiceName> queueCreatorService) {
-            super(moduleManager, queueCreatorService);
+        public Factory(ModuleManager moduleManager) {
+            super(moduleManager);
         }
 
         @Override public ServiceNameRegisterSerialWorker workerInstance(ModuleManager moduleManager) {

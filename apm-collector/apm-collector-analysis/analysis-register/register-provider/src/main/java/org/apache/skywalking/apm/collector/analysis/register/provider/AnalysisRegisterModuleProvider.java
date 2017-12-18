@@ -23,6 +23,9 @@ import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegi
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IApplicationIDService;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IInstanceIDService;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IServiceNameService;
+import org.apache.skywalking.apm.collector.analysis.register.provider.register.ApplicationRegisterGraph;
+import org.apache.skywalking.apm.collector.analysis.register.provider.register.InstanceRegisterGraph;
+import org.apache.skywalking.apm.collector.analysis.register.provider.register.ServiceNameRegisterGraph;
 import org.apache.skywalking.apm.collector.analysis.register.provider.service.ApplicationIDService;
 import org.apache.skywalking.apm.collector.analysis.register.provider.service.InstanceIDService;
 import org.apache.skywalking.apm.collector.analysis.register.provider.service.ServiceNameService;
@@ -52,7 +55,14 @@ public class AnalysisRegisterModuleProvider extends ModuleProvider {
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
+        ApplicationRegisterGraph applicationRegisterGraph = new ApplicationRegisterGraph(getManager());
+        applicationRegisterGraph.create();
 
+        InstanceRegisterGraph instanceRegisterGraph = new InstanceRegisterGraph(getManager());
+        instanceRegisterGraph.create();
+
+        ServiceNameRegisterGraph serviceNameRegisterGraph = new ServiceNameRegisterGraph(getManager());
+        serviceNameRegisterGraph.create();
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {

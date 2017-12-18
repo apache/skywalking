@@ -16,19 +16,18 @@
  *
  */
 
+package org.apache.skywalking.apm.collector.analysis.register.provider.register;
 
-package org.apache.skywalking.apm.collector.agent.stream.worker.register;
-
+import org.apache.skywalking.apm.collector.analysis.register.define.graph.WorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.queue.service.QueueCreatorService;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +48,7 @@ public class InstanceRegisterSerialWorker extends AbstractLocalAsyncWorker<Insta
     }
 
     @Override public int id() {
-        return 102;
+        return WorkerIdDefine.INSTANCE_REGISTER_SERIAL_WORKER;
     }
 
     @Override protected void onWork(Instance instance) throws WorkerException {
@@ -83,8 +82,8 @@ public class InstanceRegisterSerialWorker extends AbstractLocalAsyncWorker<Insta
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<Instance, Instance, InstanceRegisterSerialWorker> {
 
-        public Factory(ModuleManager moduleManager, QueueCreatorService<Instance> queueCreatorService) {
-            super(moduleManager, queueCreatorService);
+        public Factory(ModuleManager moduleManager) {
+            super(moduleManager);
         }
 
         @Override public InstanceRegisterSerialWorker workerInstance(ModuleManager moduleManager) {

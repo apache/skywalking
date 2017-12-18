@@ -18,10 +18,12 @@
 
 package org.apache.skywalking.apm.collector.analysis.register.provider.service;
 
+import org.apache.skywalking.apm.collector.analysis.register.define.graph.GraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IServiceNameService;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ServiceIdCacheService;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
+import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
@@ -52,7 +54,7 @@ public class ServiceNameService implements IServiceNameService {
 
     private Graph<ServiceName> getServiceNameRegisterGraph() {
         if (ObjectUtils.isEmpty(serviceNameRegisterGraph)) {
-//            this.serviceNameRegisterGraph = GraphManager.INSTANCE.createIfAbsent(RegisterStreamGraphDefine.SERVICE_NAME_REGISTER_GRAPH_ID, ServiceName.class);
+            this.serviceNameRegisterGraph = GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.SERVICE_NAME_REGISTER_GRAPH_ID, ServiceName.class);
         }
         return serviceNameRegisterGraph;
     }

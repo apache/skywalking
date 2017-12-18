@@ -18,10 +18,12 @@
 
 package org.apache.skywalking.apm.collector.analysis.register.provider.service;
 
+import org.apache.skywalking.apm.collector.analysis.register.define.graph.GraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IInstanceIDService;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
+import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
@@ -55,7 +57,7 @@ public class InstanceIDService implements IInstanceIDService {
 
     private Graph<Instance> getInstanceRegisterGraph() {
         if (ObjectUtils.isEmpty(instanceRegisterGraph)) {
-//            this.instanceRegisterGraph = GraphManager.INSTANCE.createIfAbsent(RegisterStreamGraphDefine.INSTANCE_REGISTER_GRAPH_ID, Instance.class);
+            this.instanceRegisterGraph = GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.INSTANCE_REGISTER_GRAPH_ID, Instance.class);
         }
         return instanceRegisterGraph;
     }

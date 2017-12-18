@@ -16,28 +16,13 @@
  *
  */
 
-
-package org.apache.skywalking.apm.collector.agent.stream;
+package org.apache.skywalking.apm.collector.analysis.register.define.graph;
 
 /**
  * @author peng-yongsheng
  */
-public enum IdAutoIncrement {
-    INSTANCE;
-
-    public int increment(int min, int max) {
-        int instanceId;
-        if (min == max) {
-            instanceId = -1;
-        } else if (min + max == 0) {
-            instanceId = max + 1;
-        } else if (min + max > 0) {
-            instanceId = min - 1;
-        } else if (max < 0) {
-            instanceId = 1;
-        } else {
-            instanceId = max + 1;
-        }
-        return instanceId;
-    }
+public class GraphIdDefine {
+    public static final int APPLICATION_REGISTER_GRAPH_ID = 200;
+    public static final int INSTANCE_REGISTER_GRAPH_ID = 201;
+    public static final int SERVICE_NAME_REGISTER_GRAPH_ID = 202;
 }
