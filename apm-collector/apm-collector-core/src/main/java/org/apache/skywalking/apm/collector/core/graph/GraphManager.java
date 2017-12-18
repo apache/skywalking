@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.core.graph;
 
 import java.util.HashMap;
@@ -46,7 +45,7 @@ public enum GraphManager {
         }
     }
 
-    public Graph findGraph(int graphId) {
+    public <INPUT> Graph<INPUT> findGraph(int graphId, Class<INPUT> input) {
         Graph graph = allGraphs.get(graphId);
         if (graph == null) {
             throw new GraphNotFoundException("Graph id=" + graphId + " not found in this GraphManager");

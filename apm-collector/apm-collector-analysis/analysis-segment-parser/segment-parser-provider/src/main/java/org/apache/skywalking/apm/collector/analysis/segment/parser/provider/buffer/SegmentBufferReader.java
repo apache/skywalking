@@ -16,8 +16,7 @@
  *
  */
 
-
-package org.apache.skywalking.apm.collector.agent.stream.buffer;
+package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.buffer;
 
 import com.google.protobuf.CodedOutputStream;
 import java.io.File;
@@ -27,7 +26,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import org.apache.skywalking.apm.collector.agent.stream.parser.SegmentParse;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParseService;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.SegmentParse;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.SegmentParserListenerManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
@@ -45,10 +46,15 @@ public enum SegmentBufferReader {
     private final Logger logger = LoggerFactory.getLogger(SegmentBufferReader.class);
     private InputStream inputStream;
     private ModuleManager moduleManager;
+    private SegmentParserListenerManager listenerManager;
 
     public void initialize(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::preRead, 3, 3, TimeUnit.SECONDS);
+    }
+
+    public void setSegmentParserListenerManager(SegmentParserListenerManager listenerManager) {
+        this.listenerManager = listenerManager;
     }
 
     private void preRead() {
@@ -121,8 +127,8 @@ public enum SegmentBufferReader {
 
             while (readFile.length() > readFileOffset && readFileOffset < endPoint) {
                 UpstreamSegment upstreamSegment = UpstreamSegment.parser().parseDelimitedFrom(inputStream);
-                SegmentParse parse = new SegmentParse(moduleManager);
-                if (!parse.parse(upstreamSegment, SegmentParse.Source.Buffer)) {
+                SegmentParse parse = new SegmentParse(moduleManager, listenerManager);
+                if (!parse.parse(upstreamSegment, ISegmentParseService.Source.Buffer)) {
                     return false;
                 }
 

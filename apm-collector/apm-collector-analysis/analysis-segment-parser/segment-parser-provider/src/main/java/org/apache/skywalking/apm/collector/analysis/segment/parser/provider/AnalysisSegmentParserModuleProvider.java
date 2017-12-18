@@ -22,7 +22,10 @@ import java.util.Properties;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.AnalysisSegmentParserModule;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParseService;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParserListenerRegister;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.buffer.SegmentBufferReader;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.SegmentParserListenerManager;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.SegmentPersistenceGraph;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.standardization.SegmentStandardizationGraph;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.service.SegmentParseService;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.service.SegmentParserListenerRegister;
 import org.apache.skywalking.apm.collector.core.module.Module;
@@ -52,7 +55,12 @@ public class AnalysisSegmentParserModuleProvider extends ModuleProvider {
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
+        SegmentPersistenceGraph segmentPersistenceGraph = new SegmentPersistenceGraph(getManager());
+        segmentPersistenceGraph.create();
+        SegmentStandardizationGraph segmentStandardizationGraph = new SegmentStandardizationGraph(getManager());
+        segmentStandardizationGraph.create();
 
+        SegmentBufferReader.INSTANCE.setSegmentParserListenerManager(listenerManager);
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {

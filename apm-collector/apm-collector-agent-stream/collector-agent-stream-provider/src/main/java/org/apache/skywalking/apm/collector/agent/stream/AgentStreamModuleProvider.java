@@ -20,7 +20,7 @@
 package org.apache.skywalking.apm.collector.agent.stream;
 
 import java.util.Properties;
-import org.apache.skywalking.apm.collector.agent.stream.buffer.BufferFileConfig;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.buffer.BufferFileConfig;
 import org.apache.skywalking.apm.collector.agent.stream.service.jvm.IGCMetricService;
 import org.apache.skywalking.apm.collector.agent.stream.service.jvm.IInstanceHeartBeatService;
 import org.apache.skywalking.apm.collector.agent.stream.service.jvm.IMemoryMetricService;

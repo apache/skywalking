@@ -16,17 +16,16 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.standardization;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.graph.WorkerIdDefine;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.buffer.SegmentBufferManager;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorker;
-import org.apache.skywalking.apm.collector.agent.stream.buffer.SegmentBufferManager;
-import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.queue.service.QueueCreatorService;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
+import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +42,7 @@ public class SegmentStandardizationWorker extends AbstractLocalAsyncWorker<Segme
     }
 
     @Override public int id() {
-        return 108;
+        return WorkerIdDefine.SEGMENT_STANDARDIZATION_WORKER_ID;
     }
 
     @Override protected void onWork(SegmentStandardization segmentStandardization) throws WorkerException {
@@ -56,8 +55,8 @@ public class SegmentStandardizationWorker extends AbstractLocalAsyncWorker<Segme
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<SegmentStandardization, SegmentStandardization, SegmentStandardizationWorker> {
 
-        public Factory(ModuleManager moduleManager, QueueCreatorService<SegmentStandardization> queueCreatorService) {
-            super(moduleManager, queueCreatorService);
+        public Factory(ModuleManager moduleManager) {
+            super(moduleManager);
         }
 
         @Override public SegmentStandardizationWorker workerInstance(ModuleManager moduleManager) {
