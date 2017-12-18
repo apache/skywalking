@@ -23,9 +23,9 @@ import io.netty.util.internal.ConcurrentSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.skywalking.apm.network.proto.Application;
-import org.apache.skywalking.apm.network.proto.ApplicationMapping;
+import org.apache.skywalking.apm.network.proto.ApplicationMappings;
 import org.apache.skywalking.apm.network.proto.ApplicationRegisterServiceGrpc;
+import org.apache.skywalking.apm.network.proto.Applications;
 import org.apache.skywalking.apm.network.proto.KeyWithIntegerValue;
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Dictionary.APPLICATION_CODE_BUFFER_SIZE;
@@ -55,10 +55,10 @@ public enum ApplicationDictionary {
     public void syncRemoteDictionary(
         ApplicationRegisterServiceGrpc.ApplicationRegisterServiceBlockingStub applicationRegisterServiceBlockingStub) {
         if (unRegisterApplications.size() > 0) {
-            ApplicationMapping applicationMapping = applicationRegisterServiceBlockingStub.register(
-                Application.newBuilder().addAllApplicationCode(unRegisterApplications).build());
-            if (applicationMapping.getApplicationCount() > 0) {
-                for (KeyWithIntegerValue keyWithIntegerValue : applicationMapping.getApplicationList()) {
+            ApplicationMappings applicationMapping = applicationRegisterServiceBlockingStub.batchRegister(
+                Applications.newBuilder().addAllApplicationCodes(unRegisterApplications).build());
+            if (applicationMapping.getApplicationsCount() > 0) {
+                for (KeyWithIntegerValue keyWithIntegerValue : applicationMapping.getApplicationsList()) {
                     unRegisterApplications.remove(keyWithIntegerValue.getKey());
                     applicationDictionary.put(keyWithIntegerValue.getKey(), keyWithIntegerValue.getValue());
                 }
