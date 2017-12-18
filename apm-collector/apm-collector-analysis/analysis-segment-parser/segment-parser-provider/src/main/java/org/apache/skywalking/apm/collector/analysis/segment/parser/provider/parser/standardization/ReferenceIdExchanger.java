@@ -19,8 +19,8 @@
 package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.standardization;
 
 import org.apache.skywalking.apm.collector.analysis.layer.register.define.AnalysisLayerRegisterModule;
-import org.apache.skywalking.apm.collector.analysis.layer.register.define.service.IApplicationIDService;
-import org.apache.skywalking.apm.collector.analysis.layer.register.define.service.IServiceNameService;
+import org.apache.skywalking.apm.collector.analysis.register.define.service.IApplicationIDService;
+import org.apache.skywalking.apm.collector.analysis.register.define.service.IServiceNameService;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.ReferenceDecorator;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
