@@ -98,13 +98,6 @@
             <version>${project.version}</version>
         </dependency>
         <!-- agent jetty provider -->
-        <!-- agent stream provider -->
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>collector-agent-stream-provider</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <!-- agent stream provider -->
         <!-- ui provider -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
@@ -131,18 +124,6 @@
             <version>${project.version}</version>
         </dependency>
         <!-- remote provider -->
-        <!-- queue provider -->
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>collector-queue-datacarrier-provider</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>collector-queue-disruptor-provider</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <!-- queue provider -->
         <!-- cache provider -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
