@@ -79,7 +79,6 @@
         <scala.compiler.version>2.11.7</scala.compiler.version>
         <powermock.version>1.6.4</powermock.version>
         <docker.plugin.version>0.4.13</docker.plugin.version>
-        <checkstyle.header.file>CHECKSTYLE_HEAD</checkstyle.header.file>
     </properties>
 
     <dependencies>
