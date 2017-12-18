@@ -16,21 +16,19 @@
  *
  */
 
+package org.apache.skywalking.apm.collector.analysis.register.provider.register;
 
-package org.apache.skywalking.apm.collector.agent.stream.worker.register;
-
-import org.apache.skywalking.apm.collector.agent.stream.IdAutoIncrement;
-import org.apache.skywalking.apm.collector.cache.CacheModule;
-import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.storage.dao.IApplicationRegisterDAO;
-import org.apache.skywalking.apm.collector.storage.table.register.Application;
+import org.apache.skywalking.apm.collector.analysis.register.define.graph.WorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorker;
-import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
-import org.apache.skywalking.apm.collector.queue.service.QueueCreatorService;
-import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
+import org.apache.skywalking.apm.collector.cache.CacheModule;
+import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
+import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.core.util.Const;
+import org.apache.skywalking.apm.collector.storage.StorageModule;
+import org.apache.skywalking.apm.collector.storage.dao.IApplicationRegisterDAO;
+import org.apache.skywalking.apm.collector.storage.table.register.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +49,7 @@ public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker<Ap
     }
 
     @Override public int id() {
-        return 101;
+        return WorkerIdDefine.APPLICATION_REGISTER_SERIAL_WORKER;
     }
 
     @Override protected void onWork(Application application) throws WorkerException {
@@ -84,8 +82,8 @@ public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker<Ap
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<Application, Application, ApplicationRegisterSerialWorker> {
 
-        public Factory(ModuleManager moduleManager, QueueCreatorService<Application> queueCreatorService) {
-            super(moduleManager, queueCreatorService);
+        public Factory(ModuleManager moduleManager) {
+            super(moduleManager);
         }
 
         @Override public ApplicationRegisterSerialWorker workerInstance(ModuleManager moduleManager) {

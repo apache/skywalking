@@ -48,7 +48,7 @@ public abstract class AbstractRemoteWorkerProvider<INPUT extends Data, OUTPUT ex
      * @return The created worker reference. See {@link RemoteWorkerRef} worker instance, when the worker provider not
      * find then Throw this Exception.
      */
-    @Override final public RemoteWorkerRef create(WorkerCreateListener workerCreateListener) {
+    @Override final public RemoteWorkerRef<INPUT, OUTPUT> create(WorkerCreateListener workerCreateListener) {
         WORKER_TYPE remoteWorker = workerInstance(getModuleManager());
         workerCreateListener.addWorker(remoteWorker);
         return new RemoteWorkerRef<>(remoteWorker, remoteSenderService, graphId);
