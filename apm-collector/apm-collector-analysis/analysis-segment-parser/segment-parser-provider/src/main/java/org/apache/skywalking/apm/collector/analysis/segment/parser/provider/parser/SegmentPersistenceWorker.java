@@ -16,17 +16,16 @@
  *
  */
 
+package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser;
 
-package org.apache.skywalking.apm.collector.agent.stream.worker.trace.segment;
-
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.graph.WorkerIdDefine;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.queue.service.QueueCreatorService;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.segment.Segment;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
 
 /**
  * @author peng-yongsheng
@@ -38,7 +37,7 @@ public class SegmentPersistenceWorker extends PersistenceWorker<Segment, Segment
     }
 
     @Override public int id() {
-        return 117;
+        return WorkerIdDefine.SEGMENT_PERSISTENCE_WORKER_ID;
     }
 
     @Override protected boolean needMergeDBData() {
@@ -50,8 +49,8 @@ public class SegmentPersistenceWorker extends PersistenceWorker<Segment, Segment
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<Segment, Segment, SegmentPersistenceWorker> {
-        public Factory(ModuleManager moduleManager, QueueCreatorService<Segment> queueCreatorService) {
-            super(moduleManager, queueCreatorService);
+        public Factory(ModuleManager moduleManager) {
+            super(moduleManager);
         }
 
         @Override public SegmentPersistenceWorker workerInstance(ModuleManager moduleManager) {

@@ -33,7 +33,7 @@ public abstract class AbstractLocalAsyncWorkerProvider<INPUT, OUTPUT, WORKER_TYP
     }
 
     @Override
-    public final WorkerRef create(WorkerCreateListener workerCreateListener) {
+    public final WorkerRef<INPUT, OUTPUT> create(WorkerCreateListener workerCreateListener) {
         WORKER_TYPE localAsyncWorker = workerInstance(getModuleManager());
         workerCreateListener.addWorker(localAsyncWorker);
 

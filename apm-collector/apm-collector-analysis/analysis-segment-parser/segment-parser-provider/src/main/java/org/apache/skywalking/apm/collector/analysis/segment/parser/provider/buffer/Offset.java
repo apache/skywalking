@@ -17,7 +17,7 @@
  */
 
 
-package org.apache.skywalking.apm.collector.agent.stream.buffer;
+package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.buffer;
 
 /**
  * @author peng-yongsheng

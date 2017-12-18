@@ -16,8 +16,7 @@
  *
  */
 
-
-package org.apache.skywalking.apm.collector.agent.stream.buffer;
+package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.buffer;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -27,7 +26,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.agent.stream.util.FileUtils;
+import org.apache.skywalking.apm.collector.core.util.FileUtils;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
