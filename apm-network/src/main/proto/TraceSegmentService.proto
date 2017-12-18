@@ -78,6 +78,7 @@ enum SpanLayer {
     RPCFramework = 2;
     Http = 3;
     MQ = 4;
+    Cache = 5;
 }
 
 message LogMessage {
