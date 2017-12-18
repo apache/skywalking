@@ -21,28 +21,29 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>apm-collector</artifactId>
+        <artifactId>analysis-jvm</artifactId>
         <groupId>org.apache.skywalking</groupId>
         <version>5.0.0-alpha</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-collector-analysis</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>analysis-segment-parser</module>
-        <module>analysis-alarm</module>
-        <module>analysis-baseline</module>
-        <module>analysis-worker-model</module>
-        <module>analysis-metric</module>
-        <module>analysis-register</module>
-        <module>analysis-jvm</module>
-    </modules>
+    <artifactId>jvm-provider</artifactId>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>apm-collector-core</artifactId>
+            <artifactId>jvm-define</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>collector-storage-define</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>analysis-worker-model</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
