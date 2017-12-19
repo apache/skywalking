@@ -26,10 +26,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
-import org.apache.skywalking.apm.agent.core.conf.Config;
 
 /**
  * The <code>SamplingService</code> take charge of how to sample the {@link TraceSegment}. Every {@link TraceSegment}s
@@ -83,7 +83,9 @@ public class SamplingService implements BootService {
 
     @Override
     public void shutdown() throws Throwable {
-        scheduledFuture.cancel(true);
+        if (scheduledFuture != null) {
+            scheduledFuture.cancel(true);
+        }
     }
 
     /**

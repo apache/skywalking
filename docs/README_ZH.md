@@ -10,7 +10,7 @@
   * [中间件，框架与类库支持列表](Supported-list.md)
     * [如何关闭特定插件](cn/How-to-disable-plugin-CN.md)
   * APM相关介绍资料
-    * [OpenTracing中文版](https://github.com/opentracing-contrib/opentracing-specification-zh.md)
+    * [OpenTracing中文版](https://github.com/opentracing-contrib/opentracing-specification-zh)
   * Application Toolkit，应用程序工具包
     * [概述](cn/Application-toolkit-CN.md)
     * [OpenTracing Tracer](cn/skywalking-opentracing-CN.md)
