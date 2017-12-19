@@ -25,9 +25,9 @@ import org.apache.skywalking.apm.collector.agent.stream.AgentStreamModule;
 import org.apache.skywalking.apm.collector.agent.stream.service.register.IApplicationIDService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.server.grpc.GRPCHandler;
-import org.apache.skywalking.apm.network.proto.Application;
-import org.apache.skywalking.apm.network.proto.ApplicationMapping;
+import org.apache.skywalking.apm.network.proto.ApplicationMappings;
 import org.apache.skywalking.apm.network.proto.ApplicationRegisterServiceGrpc;
+import org.apache.skywalking.apm.network.proto.Applications;
 import org.apache.skywalking.apm.network.proto.KeyWithIntegerValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,18 +45,18 @@ public class ApplicationRegisterServiceHandler extends ApplicationRegisterServic
         applicationIDService = moduleManager.find(AgentStreamModule.NAME).getService(IApplicationIDService.class);
     }
 
-    @Override public void register(Application request, StreamObserver<ApplicationMapping> responseObserver) {
+    @Override public void batchRegister(Applications request, StreamObserver<ApplicationMappings> responseObserver) {
         logger.debug("register application");
-        ProtocolStringList applicationCodes = request.getApplicationCodeList();
+        ProtocolStringList applicationCodes = request.getApplicationCodesList();
 
-        ApplicationMapping.Builder builder = ApplicationMapping.newBuilder();
+        ApplicationMappings.Builder builder = ApplicationMappings.newBuilder();
         for (int i = 0; i < applicationCodes.size(); i++) {
             String applicationCode = applicationCodes.get(i);
             int applicationId = applicationIDService.getOrCreate(applicationCode);
 
             if (applicationId != 0) {
                 KeyWithIntegerValue value = KeyWithIntegerValue.newBuilder().setKey(applicationCode).setValue(applicationId).build();
-                builder.addApplication(value);
+                builder.addApplications(value);
             }
         }
         responseObserver.onNext(builder.build());

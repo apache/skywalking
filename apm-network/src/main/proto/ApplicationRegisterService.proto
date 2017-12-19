@@ -7,14 +7,14 @@ import "KeyWithIntegerValue.proto";
 
 //register service for ApplicationCode, this service is called when service starts.
 service ApplicationRegisterService {
-    rpc register (Application) returns (ApplicationMapping) {
+    rpc batchRegister (Applications) returns (ApplicationMappings) {
     }
 }
 
-message Application {
-    repeated string applicationCode = 1;
+message Applications {
+    repeated string applicationCodes = 1;
 }
 
-message ApplicationMapping {
-    repeated KeyWithIntegerValue application = 1;
+message ApplicationMappings {
+    repeated KeyWithIntegerValue applications = 1;
 }
