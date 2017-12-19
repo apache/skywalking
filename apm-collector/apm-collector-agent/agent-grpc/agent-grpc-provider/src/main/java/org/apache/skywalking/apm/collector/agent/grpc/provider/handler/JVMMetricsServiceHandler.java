@@ -16,17 +16,16 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.agent.grpc.provider.handler;
 
 import io.grpc.stub.StreamObserver;
 import java.util.List;
-import org.apache.skywalking.apm.collector.agent.stream.AgentStreamModule;
-import org.apache.skywalking.apm.collector.agent.stream.service.jvm.IGCMetricService;
-import org.apache.skywalking.apm.collector.agent.stream.service.jvm.IInstanceHeartBeatService;
-import org.apache.skywalking.apm.collector.agent.stream.service.jvm.IMemoryMetricService;
-import org.apache.skywalking.apm.collector.agent.stream.service.jvm.IMemoryPoolMetricService;
-import org.apache.skywalking.apm.collector.agent.stream.service.jvm.ICpuMetricService;
+import org.apache.skywalking.apm.collector.analysis.jvm.define.AnalysisJVMModule;
+import org.apache.skywalking.apm.collector.analysis.jvm.define.service.ICpuMetricService;
+import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IGCMetricService;
+import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IInstanceHeartBeatService;
+import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IMemoryMetricService;
+import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IMemoryPoolMetricService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.server.grpc.GRPCHandler;
@@ -54,11 +53,11 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
     private final IInstanceHeartBeatService instanceHeartBeatService;
 
     public JVMMetricsServiceHandler(ModuleManager moduleManager) {
-        this.cpuMetricService = moduleManager.find(AgentStreamModule.NAME).getService(ICpuMetricService.class);
-        this.gcMetricService = moduleManager.find(AgentStreamModule.NAME).getService(IGCMetricService.class);
-        this.memoryMetricService = moduleManager.find(AgentStreamModule.NAME).getService(IMemoryMetricService.class);
-        this.memoryPoolMetricService = moduleManager.find(AgentStreamModule.NAME).getService(IMemoryPoolMetricService.class);
-        this.instanceHeartBeatService = moduleManager.find(AgentStreamModule.NAME).getService(IInstanceHeartBeatService.class);
+        this.cpuMetricService = moduleManager.find(AnalysisJVMModule.NAME).getService(ICpuMetricService.class);
+        this.gcMetricService = moduleManager.find(AnalysisJVMModule.NAME).getService(IGCMetricService.class);
+        this.memoryMetricService = moduleManager.find(AnalysisJVMModule.NAME).getService(IMemoryMetricService.class);
+        this.memoryPoolMetricService = moduleManager.find(AnalysisJVMModule.NAME).getService(IMemoryPoolMetricService.class);
+        this.instanceHeartBeatService = moduleManager.find(AnalysisJVMModule.NAME).getService(IInstanceHeartBeatService.class);
     }
 
     @Override public void collect(JVMMetrics request, StreamObserver<Downstream> responseObserver) {

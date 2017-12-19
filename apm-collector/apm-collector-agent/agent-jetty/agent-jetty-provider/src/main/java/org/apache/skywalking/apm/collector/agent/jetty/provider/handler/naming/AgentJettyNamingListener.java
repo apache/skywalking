@@ -16,10 +16,9 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.agent.jetty.provider.handler.naming;
 
-import org.apache.skywalking.apm.collector.agent.jetty.AgentJettyModule;
+import org.apache.skywalking.apm.collector.agent.jetty.define.AgentJettyModule;
 import org.apache.skywalking.apm.collector.agent.jetty.provider.AgentModuleJettyProvider;
 import org.apache.skywalking.apm.collector.cluster.ClusterModuleListener;
 

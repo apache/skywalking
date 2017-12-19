@@ -16,17 +16,15 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.analysis.alarm.provider.worker;
 
-import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.queue.service.QueueCreatorService;
-import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.dao.IAlertingListPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.table.alerting.AlertingList;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
+import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.storage.StorageModule;
+import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.IAlertingListPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.table.alerting.AlertingList;
 
 /**
  * @author peng-yongsheng
@@ -51,8 +49,8 @@ public class AlertingListPersistenceWorker extends PersistenceWorker<AlertingLis
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<AlertingList, AlertingList, AlertingListPersistenceWorker> {
 
-        public Factory(ModuleManager moduleManager, QueueCreatorService<AlertingList> queueCreatorService) {
-            super(moduleManager, queueCreatorService);
+        public Factory(ModuleManager moduleManager) {
+            super(moduleManager);
         }
 
         @Override public AlertingListPersistenceWorker workerInstance(ModuleManager moduleManager) {

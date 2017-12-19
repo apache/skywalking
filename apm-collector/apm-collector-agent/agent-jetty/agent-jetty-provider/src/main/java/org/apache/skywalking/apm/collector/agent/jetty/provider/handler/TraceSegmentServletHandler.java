@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.agent.jetty.provider.handler;
 
 import com.google.gson.JsonElement;
@@ -26,8 +25,8 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.skywalking.apm.collector.agent.jetty.provider.handler.reader.TraceSegment;
 import org.apache.skywalking.apm.collector.agent.jetty.provider.handler.reader.TraceSegmentJsonReader;
-import org.apache.skywalking.apm.collector.agent.stream.AgentStreamModule;
-import org.apache.skywalking.apm.collector.agent.stream.service.trace.ITraceSegmentService;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.AnalysisSegmentParserModule;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParseService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.apache.skywalking.apm.collector.server.jetty.JettyHandler;
@@ -41,10 +40,10 @@ public class TraceSegmentServletHandler extends JettyHandler {
 
     private final Logger logger = LoggerFactory.getLogger(TraceSegmentServletHandler.class);
 
-    private final ITraceSegmentService traceSegmentService;
+    private final ISegmentParseService segmentParseService;
 
     public TraceSegmentServletHandler(ModuleManager moduleManager) {
-        this.traceSegmentService = moduleManager.find(AgentStreamModule.NAME).getService(ITraceSegmentService.class);
+        this.segmentParseService = moduleManager.find(AnalysisSegmentParserModule.NAME).getService(ISegmentParseService.class);
     }
 
     @Override public String pathSpec() {
@@ -74,7 +73,7 @@ public class TraceSegmentServletHandler extends JettyHandler {
         reader.beginArray();
         while (reader.hasNext()) {
             TraceSegment traceSegment = jsonReader.read(reader);
-            traceSegmentService.send(traceSegment.getUpstreamSegment());
+            segmentParseService.parse(traceSegment.getUpstreamSegment(), ISegmentParseService.Source.Agent);
         }
         reader.endArray();
     }

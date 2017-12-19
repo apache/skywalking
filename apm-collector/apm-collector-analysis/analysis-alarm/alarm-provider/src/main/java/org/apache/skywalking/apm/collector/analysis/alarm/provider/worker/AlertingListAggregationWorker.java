@@ -16,13 +16,12 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.analysis.alarm.provider.worker;
 
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.table.alerting.AlertingList;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
 
 /**
  * @author peng-yongsheng

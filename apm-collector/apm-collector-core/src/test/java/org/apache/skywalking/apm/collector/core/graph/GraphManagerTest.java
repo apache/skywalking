@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.core.graph;
 
 import java.io.ByteArrayOutputStream;
@@ -88,7 +87,7 @@ public class GraphManagerTest {
         Graph<String> graph = GraphManager.INSTANCE.createIfAbsent(4, String.class);
         graph.addNode(new Node1Processor()).addNext(new Node2Processor()).addNext(new Node4Processor());
 
-        Next next = GraphManager.INSTANCE.findGraph(4).toFinder().findNext(2);
+        Next next = GraphManager.INSTANCE.findGraph(4, String.class).toFinder().findNext(2);
 
         next.execute(123);
         String output = outputStream.toString();
@@ -103,7 +102,7 @@ public class GraphManagerTest {
         Graph<String> graph = GraphManager.INSTANCE.createIfAbsent(5, String.class);
         graph.addNode(new Node1Processor()).addNext(new Node2Processor()).addNext(new Node4Processor());
 
-        Next next = GraphManager.INSTANCE.findGraph(5).toFinder().findNext(3);
+        Next next = GraphManager.INSTANCE.findGraph(5, String.class).toFinder().findNext(3);
     }
 
     @Test

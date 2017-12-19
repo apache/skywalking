@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.boot;
 
 import org.apache.skywalking.apm.collector.boot.config.ApplicationConfigLoader;
@@ -42,19 +41,8 @@ public class CollectorBootStartUp {
         try {
             ApplicationConfiguration applicationConfiguration = configLoader.load();
             manager.init(applicationConfiguration);
-        } catch (ConfigFileNotFoundException e) {
+        } catch (ConfigFileNotFoundException | ModuleNotFoundException | ProviderNotFoundException | ServiceNotProvidedException e) {
             logger.error(e.getMessage(), e);
-        } catch (ModuleNotFoundException e) {
-            logger.error(e.getMessage(), e);
-        } catch (ProviderNotFoundException e) {
-            logger.error(e.getMessage(), e);
-        } catch (ServiceNotProvidedException e) {
-            logger.error(e.getMessage(), e);
-        }
-
-        try {
-            Thread.sleep(60000);
-        } catch (InterruptedException e) {
         }
     }
 }

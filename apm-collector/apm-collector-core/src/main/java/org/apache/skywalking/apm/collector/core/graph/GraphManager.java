@@ -45,12 +45,16 @@ public enum GraphManager {
         }
     }
 
-    public <INPUT> Graph<INPUT> findGraph(int graphId, Class<INPUT> input) {
+    public Graph findGraph(int graphId) {
         Graph graph = allGraphs.get(graphId);
         if (graph == null) {
             throw new GraphNotFoundException("Graph id=" + graphId + " not found in this GraphManager");
         }
         return graph;
+    }
+
+    public <INPUT> Graph<INPUT> findGraph(int graphId, Class<INPUT> input) {
+        return findGraph(graphId);
     }
 
     public void reset() {
