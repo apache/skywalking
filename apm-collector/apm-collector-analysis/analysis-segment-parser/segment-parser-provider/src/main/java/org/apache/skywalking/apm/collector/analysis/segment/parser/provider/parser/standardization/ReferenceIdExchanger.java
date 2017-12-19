@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.standardization;
 
-import org.apache.skywalking.apm.collector.analysis.layer.register.define.AnalysisLayerRegisterModule;
+import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegisterModule;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IApplicationIDService;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IServiceNameService;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.ReferenceDecorator;
@@ -50,8 +50,8 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
     }
 
     private ReferenceIdExchanger(ModuleManager moduleManager) {
-        applicationIDService = moduleManager.find(AnalysisLayerRegisterModule.NAME).getService(IApplicationIDService.class);
-        serviceNameService = moduleManager.find(AnalysisLayerRegisterModule.NAME).getService(IServiceNameService.class);
+        applicationIDService = moduleManager.find(AnalysisRegisterModule.NAME).getService(IApplicationIDService.class);
+        serviceNameService = moduleManager.find(AnalysisRegisterModule.NAME).getService(IServiceNameService.class);
         instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
     }
 

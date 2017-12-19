@@ -16,14 +16,13 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.agent.grpc.provider.handler;
 
 import io.grpc.stub.StreamObserver;
 import java.util.List;
-import org.apache.skywalking.apm.collector.agent.stream.AgentStreamModule;
+import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegisterModule;
+import org.apache.skywalking.apm.collector.analysis.register.define.service.IServiceNameService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.agent.stream.service.register.IServiceNameService;
 import org.apache.skywalking.apm.collector.server.grpc.GRPCHandler;
 import org.apache.skywalking.apm.network.proto.ServiceNameCollection;
 import org.apache.skywalking.apm.network.proto.ServiceNameDiscoveryServiceGrpc;
@@ -43,7 +42,7 @@ public class ServiceNameDiscoveryServiceHandler extends ServiceNameDiscoveryServ
     private final IServiceNameService serviceNameService;
 
     public ServiceNameDiscoveryServiceHandler(ModuleManager moduleManager) {
-        this.serviceNameService = moduleManager.find(AgentStreamModule.NAME).getService(IServiceNameService.class);
+        this.serviceNameService = moduleManager.find(AnalysisRegisterModule.NAME).getService(IServiceNameService.class);
     }
 
     @Override public void discovery(ServiceNameCollection request,

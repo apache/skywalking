@@ -16,13 +16,12 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.agent.grpc.provider.handler;
 
 import com.google.protobuf.ProtocolStringList;
 import io.grpc.stub.StreamObserver;
-import org.apache.skywalking.apm.collector.agent.stream.AgentStreamModule;
-import org.apache.skywalking.apm.collector.agent.stream.service.register.IApplicationIDService;
+import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegisterModule;
+import org.apache.skywalking.apm.collector.analysis.register.define.service.IApplicationIDService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.server.grpc.GRPCHandler;
 import org.apache.skywalking.apm.network.proto.Application;
@@ -42,7 +41,7 @@ public class ApplicationRegisterServiceHandler extends ApplicationRegisterServic
     private final IApplicationIDService applicationIDService;
 
     public ApplicationRegisterServiceHandler(ModuleManager moduleManager) {
-        applicationIDService = moduleManager.find(AgentStreamModule.NAME).getService(IApplicationIDService.class);
+        applicationIDService = moduleManager.find(AnalysisRegisterModule.NAME).getService(IApplicationIDService.class);
     }
 
     @Override public void register(Application request, StreamObserver<ApplicationMapping> responseObserver) {

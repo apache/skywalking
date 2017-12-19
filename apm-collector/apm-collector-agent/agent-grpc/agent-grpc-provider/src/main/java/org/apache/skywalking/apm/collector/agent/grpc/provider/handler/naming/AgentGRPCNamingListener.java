@@ -16,10 +16,9 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.agent.grpc.provider.handler.naming;
 
-import org.apache.skywalking.apm.collector.agent.grpc.AgentGRPCModule;
+import org.apache.skywalking.apm.collector.agent.grpc.define.AgentGRPCModule;
 import org.apache.skywalking.apm.collector.agent.grpc.provider.AgentModuleGRPCProvider;
 import org.apache.skywalking.apm.collector.cluster.ClusterModuleListener;
 

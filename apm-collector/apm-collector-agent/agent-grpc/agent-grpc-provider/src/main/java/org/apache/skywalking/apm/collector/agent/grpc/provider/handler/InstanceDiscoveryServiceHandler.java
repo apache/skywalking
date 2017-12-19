@@ -16,14 +16,13 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.agent.grpc.provider.handler;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.grpc.stub.StreamObserver;
-import org.apache.skywalking.apm.collector.agent.stream.AgentStreamModule;
-import org.apache.skywalking.apm.collector.agent.stream.service.register.IInstanceIDService;
+import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegisterModule;
+import org.apache.skywalking.apm.collector.analysis.register.define.service.IInstanceIDService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.server.grpc.GRPCHandler;
@@ -46,7 +45,7 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
     private final IInstanceIDService instanceIDService;
 
     public InstanceDiscoveryServiceHandler(ModuleManager moduleManager) {
-        this.instanceIDService = moduleManager.find(AgentStreamModule.NAME).getService(IInstanceIDService.class);
+        this.instanceIDService = moduleManager.find(AnalysisRegisterModule.NAME).getService(IInstanceIDService.class);
     }
 
     @Override

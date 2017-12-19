@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.agent.jetty.provider.handler;
 
 import com.google.gson.Gson;
@@ -25,8 +24,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.skywalking.apm.collector.agent.stream.AgentStreamModule;
-import org.apache.skywalking.apm.collector.agent.stream.service.register.IServiceNameService;
+import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegisterModule;
+import org.apache.skywalking.apm.collector.analysis.register.define.service.IServiceNameService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.apache.skywalking.apm.collector.server.jetty.JettyHandler;
@@ -49,7 +48,7 @@ public class ServiceNameDiscoveryServiceHandler extends JettyHandler {
     private static final String ELEMENT = "el";
 
     public ServiceNameDiscoveryServiceHandler(ModuleManager moduleManager) {
-        this.serviceNameService = moduleManager.find(AgentStreamModule.NAME).getService(IServiceNameService.class);
+        this.serviceNameService = moduleManager.find(AnalysisRegisterModule.NAME).getService(IServiceNameService.class);
     }
 
     @Override public String pathSpec() {

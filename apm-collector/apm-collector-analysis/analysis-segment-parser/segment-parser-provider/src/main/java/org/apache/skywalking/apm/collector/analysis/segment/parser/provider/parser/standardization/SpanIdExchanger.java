@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.standardization;
 
-import org.apache.skywalking.apm.collector.analysis.layer.register.define.AnalysisLayerRegisterModule;
+import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegisterModule;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IApplicationIDService;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IServiceNameService;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
@@ -47,8 +47,8 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
     }
 
     private SpanIdExchanger(ModuleManager moduleManager) {
-        applicationIDService = moduleManager.find(AnalysisLayerRegisterModule.NAME).getService(IApplicationIDService.class);
-        serviceNameService = moduleManager.find(AnalysisLayerRegisterModule.NAME).getService(IServiceNameService.class);
+        applicationIDService = moduleManager.find(AnalysisRegisterModule.NAME).getService(IApplicationIDService.class);
+        serviceNameService = moduleManager.find(AnalysisRegisterModule.NAME).getService(IServiceNameService.class);
     }
 
     @Override public boolean exchange(SpanDecorator standardBuilder, int applicationId) {
