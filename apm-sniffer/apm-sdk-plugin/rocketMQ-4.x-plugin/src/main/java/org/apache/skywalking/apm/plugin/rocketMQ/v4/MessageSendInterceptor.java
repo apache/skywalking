@@ -60,7 +60,7 @@ public class MessageSendInterceptor implements InstanceMethodsAroundInterceptor 
         String namingServiceAddress = String.valueOf(objInst.getSkyWalkingDynamicField());
         AbstractSpan span = ContextManager.createExitSpan(buildOperationName(message.getTopic()), contextCarrier, namingServiceAddress);
         span.setComponent(ComponentsDefine.ROCKET_MQ);
-        span.setLayer(SpanLayer.MQ);
+        SpanLayer.asMQ(span);
         span.tag("brokerName", (String)allArguments[1]);
         span.tag("tags", message.getTags());
         span.tag("communication.mode", ((CommunicationMode)allArguments[5]).name());
