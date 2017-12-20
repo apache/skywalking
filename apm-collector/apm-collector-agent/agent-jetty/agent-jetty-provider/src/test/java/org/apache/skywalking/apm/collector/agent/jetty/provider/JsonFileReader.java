@@ -16,19 +16,27 @@
  *
  */
 
-
-package org.apache.skywalking.apm.collector.agent.jetty.provider.handler;
+package org.apache.skywalking.apm.collector.agent.jetty.provider;
 
 import com.google.gson.JsonElement;
-import java.io.IOException;
+import com.google.gson.JsonParser;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationRegisterPost {
+public enum JsonFileReader {
+    INSTANCE;
 
-    public void send(String jsonFile) throws IOException {
-        JsonElement application = JsonFileReader.INSTANCE.read(jsonFile);
-        HttpClientTools.INSTANCE.post("http://localhost:12800/application/register", application.toString());
+    private final Logger logger = LoggerFactory.getLogger(JsonFileReader.class);
+
+    public JsonElement read(String fileName) throws FileNotFoundException {
+        String path = this.getClass().getClassLoader().getResource(fileName).getFile();
+        logger.debug("path: {}", path);
+        JsonParser jsonParser = new JsonParser();
+        return jsonParser.parse(new FileReader(path));
     }
 }

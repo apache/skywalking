@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.standardization;
 
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.graph.GraphIdDefine;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 
@@ -28,13 +29,15 @@ import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 public class SegmentStandardizationGraph {
 
     private final ModuleManager moduleManager;
+    private final WorkerCreateListener workerCreateListener;
 
-    public SegmentStandardizationGraph(ModuleManager moduleManager) {
+    public SegmentStandardizationGraph(ModuleManager moduleManager, WorkerCreateListener workerCreateListener) {
         this.moduleManager = moduleManager;
+        this.workerCreateListener = workerCreateListener;
     }
 
     public void create() {
         GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.SEGMENT_STANDARDIZATION_GRAPH_ID, SegmentStandardization.class)
-            .addNode(new SegmentStandardizationWorker.Factory(moduleManager).create(null));
+            .addNode(new SegmentStandardizationWorker.Factory(moduleManager).create(workerCreateListener));
     }
 }

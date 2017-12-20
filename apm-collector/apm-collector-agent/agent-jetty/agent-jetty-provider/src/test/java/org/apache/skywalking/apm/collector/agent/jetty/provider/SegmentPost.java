@@ -16,8 +16,7 @@
  *
  */
 
-
-package org.apache.skywalking.apm.collector.agent.jetty.provider.handler;
+package org.apache.skywalking.apm.collector.agent.jetty.provider;
 
 import com.google.gson.JsonElement;
 import java.io.IOException;

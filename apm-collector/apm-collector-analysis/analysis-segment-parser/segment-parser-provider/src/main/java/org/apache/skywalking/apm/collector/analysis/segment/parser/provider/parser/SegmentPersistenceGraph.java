@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser;
 
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.graph.GraphIdDefine;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.table.segment.Segment;
@@ -29,13 +30,15 @@ import org.apache.skywalking.apm.collector.storage.table.segment.Segment;
 public class SegmentPersistenceGraph {
 
     private final ModuleManager moduleManager;
+    private final WorkerCreateListener workerCreateListener;
 
-    public SegmentPersistenceGraph(ModuleManager moduleManager) {
+    public SegmentPersistenceGraph(ModuleManager moduleManager, WorkerCreateListener workerCreateListener) {
         this.moduleManager = moduleManager;
+        this.workerCreateListener = workerCreateListener;
     }
 
     public void create() {
         GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.SEGMENT_PERSISTENCE_GRAPH_ID, Segment.class)
-            .addNode(new SegmentPersistenceWorker.Factory(moduleManager).create(null));
+            .addNode(new SegmentPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
     }
 }

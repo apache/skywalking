@@ -98,6 +98,38 @@
             <version>${project.version}</version>
         </dependency>
         <!-- agent jetty provider -->
+        <!-- analysis provider -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>segment-parser-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>register-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>jvm-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>metric-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>alarm-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>baseline-computing-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- analysis provider -->
         <!-- ui provider -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>

@@ -35,6 +35,12 @@ import org.slf4j.LoggerFactory;
  */
 public class PersistenceTimer {
 
+    private final String belongsToModuleName;
+
+    public PersistenceTimer(String belongsToModuleName) {
+        this.belongsToModuleName = belongsToModuleName;
+    }
+
     private final Logger logger = LoggerFactory.getLogger(PersistenceTimer.class);
 
     public void start(ModuleManager moduleManager, List<PersistenceWorker> persistenceWorkers) {
@@ -63,7 +69,7 @@ public class PersistenceTimer {
 
             batchDAO.batchPersistence(batchAllCollection);
         } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
+            logger.error("The persistence timer belongs to module name: " + belongsToModuleName + ", error message: " + e.getMessage(), e);
         } finally {
             logger.debug("persistence data save finish");
         }

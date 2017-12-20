@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.dao;
 
 import org.apache.skywalking.apm.collector.core.data.Data;

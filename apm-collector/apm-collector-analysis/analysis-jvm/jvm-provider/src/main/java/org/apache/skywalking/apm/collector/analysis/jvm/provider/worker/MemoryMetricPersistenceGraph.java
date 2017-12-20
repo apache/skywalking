@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.collector.analysis.jvm.provider.worker;
 
 import org.apache.skywalking.apm.collector.analysis.jvm.define.graph.GraphIdDefine;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetric;
@@ -29,13 +30,15 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetric;
 public class MemoryMetricPersistenceGraph {
 
     private final ModuleManager moduleManager;
+    private final WorkerCreateListener workerCreateListener;
 
-    public MemoryMetricPersistenceGraph(ModuleManager moduleManager) {
+    public MemoryMetricPersistenceGraph(ModuleManager moduleManager, WorkerCreateListener workerCreateListener) {
         this.moduleManager = moduleManager;
+        this.workerCreateListener = workerCreateListener;
     }
 
     public void create() {
         GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.MEMORY_METRIC_PERSISTENCE_GRAPH_ID, MemoryMetric.class)
-            .addNode(new MemoryMetricPersistenceWorker.Factory(moduleManager).create(null));
+            .addNode(new MemoryMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
     }
 }

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.agent.jetty.provider;
 
 import org.apache.skywalking.apm.collector.cluster.ModuleRegistration;

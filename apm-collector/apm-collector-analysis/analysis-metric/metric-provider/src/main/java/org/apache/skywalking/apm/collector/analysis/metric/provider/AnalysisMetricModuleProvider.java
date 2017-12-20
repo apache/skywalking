@@ -39,6 +39,8 @@ import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.servi
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.ServiceReferenceMetricSpanListener;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.AnalysisSegmentParserModule;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParserListenerRegister;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
+import org.apache.skywalking.apm.collector.analysis.worker.timer.PersistenceTimer;
 import org.apache.skywalking.apm.collector.core.module.Module;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
@@ -64,38 +66,12 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
     @Override public void start(Properties config) throws ServiceNotProvidedException {
         segmentParserListenerRegister();
 
-        ServiceReferenceMetricGraph serviceReferenceMetricGraph = new ServiceReferenceMetricGraph(getManager());
-        serviceReferenceMetricGraph.create();
+        WorkerCreateListener workerCreateListener = new WorkerCreateListener();
 
-        InstanceReferenceMetricGraph instanceReferenceMetricGraph = new InstanceReferenceMetricGraph(getManager());
-        instanceReferenceMetricGraph.create();
+        graphCreate(workerCreateListener);
 
-        ApplicationReferenceMetricGraph applicationReferenceMetricGraph = new ApplicationReferenceMetricGraph(getManager());
-        applicationReferenceMetricGraph.create();
-
-        ServiceMetricGraph serviceMetricGraph = new ServiceMetricGraph(getManager());
-        serviceMetricGraph.create();
-
-        InstanceMetricGraph instanceMetricGraph = new InstanceMetricGraph(getManager());
-        instanceMetricGraph.create();
-
-        ApplicationMetricGraph applicationMetricGraph = new ApplicationMetricGraph(getManager());
-        applicationMetricGraph.create();
-
-        ApplicationComponentGraph applicationComponentGraph = new ApplicationComponentGraph(getManager());
-        applicationComponentGraph.create();
-
-        ApplicationMappingGraph applicationMappingGraph = new ApplicationMappingGraph(getManager());
-        applicationMappingGraph.create();
-
-        ServiceEntryGraph serviceEntryGraph = new ServiceEntryGraph(getManager());
-        serviceEntryGraph.create();
-
-        GlobalTraceGraph globalTraceGraph = new GlobalTraceGraph(getManager());
-        globalTraceGraph.create();
-
-        SegmentCostGraph segmentCostGraph = new SegmentCostGraph(getManager());
-        segmentCostGraph.create();
+        PersistenceTimer persistenceTimer = new PersistenceTimer(AnalysisMetricModule.NAME);
+        persistenceTimer.start(getManager(), workerCreateListener.getPersistenceWorkers());
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
@@ -103,7 +79,7 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[0];
+        return new String[] {AnalysisSegmentParserModule.NAME};
     }
 
     private void segmentParserListenerRegister() {
@@ -114,5 +90,40 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
         segmentParserListenerRegister.register(new ServiceEntrySpanListener(getManager()));
         segmentParserListenerRegister.register(new GlobalTraceSpanListener());
         segmentParserListenerRegister.register(new SegmentCostSpanListener(getManager()));
+    }
+
+    private void graphCreate(WorkerCreateListener workerCreateListener) {
+        ServiceReferenceMetricGraph serviceReferenceMetricGraph = new ServiceReferenceMetricGraph(getManager(), workerCreateListener);
+        serviceReferenceMetricGraph.create();
+
+        InstanceReferenceMetricGraph instanceReferenceMetricGraph = new InstanceReferenceMetricGraph(getManager(), workerCreateListener);
+        instanceReferenceMetricGraph.create();
+
+        ApplicationReferenceMetricGraph applicationReferenceMetricGraph = new ApplicationReferenceMetricGraph(getManager(), workerCreateListener);
+        applicationReferenceMetricGraph.create();
+
+        ServiceMetricGraph serviceMetricGraph = new ServiceMetricGraph(getManager(), workerCreateListener);
+        serviceMetricGraph.create();
+
+        InstanceMetricGraph instanceMetricGraph = new InstanceMetricGraph(getManager(), workerCreateListener);
+        instanceMetricGraph.create();
+
+        ApplicationMetricGraph applicationMetricGraph = new ApplicationMetricGraph(getManager(), workerCreateListener);
+        applicationMetricGraph.create();
+
+        ApplicationComponentGraph applicationComponentGraph = new ApplicationComponentGraph(getManager(), workerCreateListener);
+        applicationComponentGraph.create();
+
+        ApplicationMappingGraph applicationMappingGraph = new ApplicationMappingGraph(getManager(), workerCreateListener);
+        applicationMappingGraph.create();
+
+        ServiceEntryGraph serviceEntryGraph = new ServiceEntryGraph(getManager(), workerCreateListener);
+        serviceEntryGraph.create();
+
+        GlobalTraceGraph globalTraceGraph = new GlobalTraceGraph(getManager(), workerCreateListener);
+        globalTraceGraph.create();
+
+        SegmentCostGraph segmentCostGraph = new SegmentCostGraph(getManager(), workerCreateListener);
+        segmentCostGraph.create();
     }
 }
