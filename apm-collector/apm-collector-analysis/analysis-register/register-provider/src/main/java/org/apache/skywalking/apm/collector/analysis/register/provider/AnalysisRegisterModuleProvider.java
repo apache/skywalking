@@ -29,9 +29,14 @@ import org.apache.skywalking.apm.collector.analysis.register.provider.register.S
 import org.apache.skywalking.apm.collector.analysis.register.provider.service.ApplicationIDService;
 import org.apache.skywalking.apm.collector.analysis.register.provider.service.InstanceIDService;
 import org.apache.skywalking.apm.collector.analysis.register.provider.service.ServiceNameService;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
+import org.apache.skywalking.apm.collector.analysis.worker.timer.PersistenceTimer;
+import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.core.module.Module;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.apache.skywalking.apm.collector.remote.RemoteModule;
+import org.apache.skywalking.apm.collector.storage.StorageModule;
 
 /**
  * @author peng-yongsheng
@@ -55,14 +60,12 @@ public class AnalysisRegisterModuleProvider extends ModuleProvider {
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
-        ApplicationRegisterGraph applicationRegisterGraph = new ApplicationRegisterGraph(getManager());
-        applicationRegisterGraph.create();
+        WorkerCreateListener workerCreateListener = new WorkerCreateListener();
 
-        InstanceRegisterGraph instanceRegisterGraph = new InstanceRegisterGraph(getManager());
-        instanceRegisterGraph.create();
+        graphCreate(workerCreateListener);
 
-        ServiceNameRegisterGraph serviceNameRegisterGraph = new ServiceNameRegisterGraph(getManager());
-        serviceNameRegisterGraph.create();
+        PersistenceTimer persistenceTimer = new PersistenceTimer(AnalysisRegisterModule.NAME);
+        persistenceTimer.start(getManager(), workerCreateListener.getPersistenceWorkers());
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
@@ -70,6 +73,17 @@ public class AnalysisRegisterModuleProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[0];
+        return new String[] {StorageModule.NAME, RemoteModule.NAME, CacheModule.NAME};
+    }
+
+    private void graphCreate(WorkerCreateListener workerCreateListener) {
+        ApplicationRegisterGraph applicationRegisterGraph = new ApplicationRegisterGraph(getManager(), workerCreateListener);
+        applicationRegisterGraph.create();
+
+        InstanceRegisterGraph instanceRegisterGraph = new InstanceRegisterGraph(getManager(), workerCreateListener);
+        instanceRegisterGraph.create();
+
+        ServiceNameRegisterGraph serviceNameRegisterGraph = new ServiceNameRegisterGraph(getManager(), workerCreateListener);
+        serviceNameRegisterGraph.create();
     }
 }

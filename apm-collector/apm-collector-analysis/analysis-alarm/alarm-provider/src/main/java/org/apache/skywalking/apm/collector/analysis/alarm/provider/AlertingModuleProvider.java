@@ -50,6 +50,6 @@ public class AlertingModuleProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {};
+        return new String[0];
     }
 }

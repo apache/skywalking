@@ -16,8 +16,7 @@
  *
  */
 
-
-package org.apache.skywalking.apm.collector.agent.jetty.provider.handler;
+package org.apache.skywalking.apm.collector.agent.jetty.provider;
 
 import java.io.IOException;
 import java.net.URI;

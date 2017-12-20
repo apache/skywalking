@@ -18,7 +18,9 @@
 
 package org.apache.skywalking.apm.collector.analysis.worker.model.base;
 
+import java.util.Iterator;
 import java.util.List;
+import org.apache.skywalking.apm.collector.core.data.EndOfBatchQueueMessage;
 import org.apache.skywalking.apm.collector.core.graph.NodeProcessor;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
@@ -28,7 +30,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public class LocalAsyncWorkerRef<INPUT, OUTPUT> extends WorkerRef<INPUT, OUTPUT> implements IConsumer<INPUT> {
+public class LocalAsyncWorkerRef<INPUT extends EndOfBatchQueueMessage, OUTPUT extends EndOfBatchQueueMessage> extends WorkerRef<INPUT, OUTPUT> implements IConsumer<INPUT> {
 
     private final Logger logger = LoggerFactory.getLogger(LocalAsyncWorkerRef.class);
 
@@ -43,7 +45,17 @@ public class LocalAsyncWorkerRef<INPUT, OUTPUT> extends WorkerRef<INPUT, OUTPUT>
     }
 
     @Override public void consume(List<INPUT> data) {
-        data.forEach(this::out);
+        Iterator<INPUT> inputIterator = data.iterator();
+
+        int i = 0;
+        while (inputIterator.hasNext()) {
+            INPUT input = inputIterator.next();
+            i++;
+            if (i == data.size()) {
+                input.setEndOfBatch(true);
+            }
+            out(input);
+        }
     }
 
     @Override public void init() {

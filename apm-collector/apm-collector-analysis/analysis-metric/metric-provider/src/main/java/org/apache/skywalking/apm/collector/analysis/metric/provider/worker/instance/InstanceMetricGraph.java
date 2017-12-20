@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.inst
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.GraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.WorkerIdDefine;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.graph.Next;
@@ -35,9 +36,11 @@ import org.apache.skywalking.apm.collector.storage.table.instance.InstanceRefere
 public class InstanceMetricGraph {
 
     private final ModuleManager moduleManager;
+    private final WorkerCreateListener workerCreateListener;
 
-    public InstanceMetricGraph(ModuleManager moduleManager) {
+    public InstanceMetricGraph(ModuleManager moduleManager, WorkerCreateListener workerCreateListener) {
         this.moduleManager = moduleManager;
+        this.workerCreateListener = workerCreateListener;
     }
 
     public void create() {
@@ -45,9 +48,9 @@ public class InstanceMetricGraph {
 
         Graph<InstanceReferenceMetric> graph = GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.INSTANCE_METRIC_GRAPH_ID, InstanceReferenceMetric.class);
 
-        graph.addNode(new InstanceMetricAggregationWorker.Factory(moduleManager).create(null))
-            .addNext(new InstanceMetricRemoteWorker.Factory(moduleManager, remoteSenderService, GraphIdDefine.INSTANCE_METRIC_GRAPH_ID).create(null))
-            .addNext(new InstanceMetricPersistenceWorker.Factory(moduleManager).create(null));
+        graph.addNode(new InstanceMetricAggregationWorker.Factory(moduleManager).create(workerCreateListener))
+            .addNext(new InstanceMetricRemoteWorker.Factory(moduleManager, remoteSenderService, GraphIdDefine.INSTANCE_METRIC_GRAPH_ID).create(workerCreateListener))
+            .addNext(new InstanceMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
         link(graph);
     }

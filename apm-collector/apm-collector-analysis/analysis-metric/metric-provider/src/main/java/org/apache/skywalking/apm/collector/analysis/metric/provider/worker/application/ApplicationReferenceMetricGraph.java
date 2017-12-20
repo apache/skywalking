@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.appl
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.GraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.WorkerIdDefine;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.graph.Next;
@@ -35,9 +36,11 @@ import org.apache.skywalking.apm.collector.storage.table.instance.InstanceRefere
 public class ApplicationReferenceMetricGraph {
 
     private final ModuleManager moduleManager;
+    private final WorkerCreateListener workerCreateListener;
 
-    public ApplicationReferenceMetricGraph(ModuleManager moduleManager) {
+    public ApplicationReferenceMetricGraph(ModuleManager moduleManager, WorkerCreateListener workerCreateListener) {
         this.moduleManager = moduleManager;
+        this.workerCreateListener = workerCreateListener;
     }
 
     public void create() {
@@ -45,9 +48,9 @@ public class ApplicationReferenceMetricGraph {
 
         Graph<InstanceReferenceMetric> graph = GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.APPLICATION_REFERENCE_METRIC_GRAPH_ID, InstanceReferenceMetric.class);
 
-        graph.addNode(new ApplicationReferenceMetricAggregationWorker.Factory(moduleManager).create(null))
-            .addNext(new ApplicationReferenceMetricRemoteWorker.Factory(moduleManager, remoteSenderService, GraphIdDefine.APPLICATION_REFERENCE_METRIC_GRAPH_ID).create(null))
-            .addNext(new ApplicationReferenceMetricPersistenceWorker.Factory(moduleManager).create(null));
+        graph.addNode(new ApplicationReferenceMetricAggregationWorker.Factory(moduleManager).create(workerCreateListener))
+            .addNext(new ApplicationReferenceMetricRemoteWorker.Factory(moduleManager, remoteSenderService, GraphIdDefine.APPLICATION_REFERENCE_METRIC_GRAPH_ID).create(workerCreateListener))
+            .addNext(new ApplicationReferenceMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
         link(graph);
     }

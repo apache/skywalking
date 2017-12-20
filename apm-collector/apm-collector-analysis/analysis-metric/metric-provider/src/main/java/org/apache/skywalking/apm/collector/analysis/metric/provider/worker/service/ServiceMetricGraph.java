@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.serv
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.GraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.WorkerIdDefine;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.graph.Next;
@@ -35,9 +36,11 @@ import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenc
 public class ServiceMetricGraph {
 
     private final ModuleManager moduleManager;
+    private final WorkerCreateListener workerCreateListener;
 
-    public ServiceMetricGraph(ModuleManager moduleManager) {
+    public ServiceMetricGraph(ModuleManager moduleManager, WorkerCreateListener workerCreateListener) {
         this.moduleManager = moduleManager;
+        this.workerCreateListener = workerCreateListener;
     }
 
     public void create() {
@@ -45,9 +48,9 @@ public class ServiceMetricGraph {
 
         Graph<ServiceReferenceMetric> graph = GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.SERVICE_METRIC_GRAPH_ID, ServiceReferenceMetric.class);
 
-        graph.addNode(new ServiceMetricAggregationWorker.Factory(moduleManager).create(null))
-            .addNext(new ServiceMetricRemoteWorker.Factory(moduleManager, remoteSenderService, GraphIdDefine.SERVICE_METRIC_GRAPH_ID).create(null))
-            .addNext(new ServiceMetricPersistenceWorker.Factory(moduleManager).create(null));
+        graph.addNode(new ServiceMetricAggregationWorker.Factory(moduleManager).create(workerCreateListener))
+            .addNext(new ServiceMetricRemoteWorker.Factory(moduleManager, remoteSenderService, GraphIdDefine.SERVICE_METRIC_GRAPH_ID).create(workerCreateListener))
+            .addNext(new ServiceMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
         link(graph);
     }

@@ -20,7 +20,11 @@ agent_jetty:
     host: localhost
     port: 12800
     context_path: /
-agent_stream:
+analysis_register:
+  default:
+analysis_jvm:
+  default:
+analysis_segment_parser:
   default:
     buffer_file_path: ../buffer/
     buffer_offset_max_file_size: 10M

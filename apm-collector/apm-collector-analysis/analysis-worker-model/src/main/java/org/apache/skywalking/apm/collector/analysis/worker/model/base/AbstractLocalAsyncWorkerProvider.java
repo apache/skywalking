@@ -18,13 +18,14 @@
 
 package org.apache.skywalking.apm.collector.analysis.worker.model.base;
 
+import org.apache.skywalking.apm.collector.core.data.EndOfBatchQueueMessage;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class AbstractLocalAsyncWorkerProvider<INPUT, OUTPUT, WORKER_TYPE extends AbstractLocalAsyncWorker<INPUT, OUTPUT>> extends AbstractWorkerProvider<INPUT, OUTPUT, WORKER_TYPE> {
+public abstract class AbstractLocalAsyncWorkerProvider<INPUT extends EndOfBatchQueueMessage, OUTPUT extends EndOfBatchQueueMessage, WORKER_TYPE extends AbstractLocalAsyncWorker<INPUT, OUTPUT>> extends AbstractWorkerProvider<INPUT, OUTPUT, WORKER_TYPE> {
 
     public abstract int queueSize();
 
@@ -40,6 +41,7 @@ public abstract class AbstractLocalAsyncWorkerProvider<INPUT, OUTPUT, WORKER_TYP
         LocalAsyncWorkerRef<INPUT, OUTPUT> localAsyncWorkerRef = new LocalAsyncWorkerRef<>(localAsyncWorker);
         DataCarrier<INPUT> dataCarrier = new DataCarrier<>(1, queueSize());
         localAsyncWorkerRef.setQueueEventHandler(dataCarrier);
+        dataCarrier.consume(localAsyncWorkerRef, 1);
         return localAsyncWorkerRef;
     }
 }

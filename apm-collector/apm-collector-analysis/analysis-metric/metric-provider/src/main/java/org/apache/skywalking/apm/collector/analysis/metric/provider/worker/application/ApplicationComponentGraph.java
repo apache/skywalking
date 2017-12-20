@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.GraphIdDefine;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.remote.RemoteModule;
@@ -31,17 +32,19 @@ import org.apache.skywalking.apm.collector.storage.table.application.Application
 public class ApplicationComponentGraph {
 
     private final ModuleManager moduleManager;
+    private final WorkerCreateListener workerCreateListener;
 
-    public ApplicationComponentGraph(ModuleManager moduleManager) {
+    public ApplicationComponentGraph(ModuleManager moduleManager, WorkerCreateListener workerCreateListener) {
         this.moduleManager = moduleManager;
+        this.workerCreateListener = workerCreateListener;
     }
 
     public void create() {
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
         GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.APPLICATION_COMPONENT_GRAPH_ID, ApplicationComponent.class)
-            .addNode(new ApplicationComponentAggregationWorker.Factory(moduleManager).create(null))
-            .addNext(new ApplicationComponentRemoteWorker.Factory(moduleManager, remoteSenderService, GraphIdDefine.APPLICATION_COMPONENT_GRAPH_ID).create(null))
-            .addNext(new ApplicationComponentPersistenceWorker.Factory(moduleManager).create(null));
+            .addNode(new ApplicationComponentAggregationWorker.Factory(moduleManager).create(workerCreateListener))
+            .addNext(new ApplicationComponentRemoteWorker.Factory(moduleManager, remoteSenderService, GraphIdDefine.APPLICATION_COMPONENT_GRAPH_ID).create(workerCreateListener))
+            .addNext(new ApplicationComponentPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
     }
 }

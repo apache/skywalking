@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.collector.analysis.register.provider.register;
 
 import org.apache.skywalking.apm.collector.analysis.register.define.graph.GraphIdDefine;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.remote.RemoteModule;
@@ -31,16 +32,18 @@ import org.apache.skywalking.apm.collector.storage.table.register.Application;
 public class ApplicationRegisterGraph {
 
     private final ModuleManager moduleManager;
+    private final WorkerCreateListener workerCreateListener;
 
-    public ApplicationRegisterGraph(ModuleManager moduleManager) {
+    public ApplicationRegisterGraph(ModuleManager moduleManager, WorkerCreateListener workerCreateListener) {
         this.moduleManager = moduleManager;
+        this.workerCreateListener = workerCreateListener;
     }
 
     public void create() {
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
         GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.APPLICATION_REGISTER_GRAPH_ID, Application.class)
-            .addNode(new ApplicationRegisterRemoteWorker.Factory(moduleManager, remoteSenderService, GraphIdDefine.APPLICATION_REGISTER_GRAPH_ID).create(null))
-            .addNext(new ApplicationRegisterSerialWorker.Factory(moduleManager).create(null));
+            .addNode(new ApplicationRegisterRemoteWorker.Factory(moduleManager, remoteSenderService, GraphIdDefine.APPLICATION_REGISTER_GRAPH_ID).create(workerCreateListener))
+            .addNext(new ApplicationRegisterSerialWorker.Factory(moduleManager).create(workerCreateListener));
     }
 }

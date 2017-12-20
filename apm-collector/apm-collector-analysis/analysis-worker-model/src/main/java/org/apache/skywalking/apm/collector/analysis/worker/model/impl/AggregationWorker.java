@@ -47,7 +47,10 @@ public abstract class AggregationWorker<INPUT extends Data, OUTPUT extends Data>
     }
 
     @Override protected final void onWork(INPUT message) throws WorkerException {
+        boolean isEndOfBatch = message.isEndOfBatch();
         OUTPUT output = transform(message);
+        output.setEndOfBatch(isEndOfBatch);
+
         messageNum++;
         aggregate(output);
 
@@ -56,6 +59,7 @@ public abstract class AggregationWorker<INPUT extends Data, OUTPUT extends Data>
             messageNum = 0;
         }
         if (output.isEndOfBatch()) {
+            output.setEndOfBatch(false);
             sendToNext();
         }
     }

@@ -19,18 +19,24 @@
 package org.apache.skywalking.apm.collector.analysis.segment.parser.provider;
 
 import java.util.Properties;
+import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegisterModule;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.AnalysisSegmentParserModule;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParseService;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParserListenerRegister;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.buffer.BufferFileConfig;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.buffer.SegmentBufferReader;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.SegmentParserListenerManager;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.SegmentPersistenceGraph;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.standardization.SegmentStandardizationGraph;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.service.SegmentParseService;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.service.SegmentParserListenerRegister;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
+import org.apache.skywalking.apm.collector.analysis.worker.timer.PersistenceTimer;
+import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.core.module.Module;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.apache.skywalking.apm.collector.storage.StorageModule;
 
 /**
  * @author peng-yongsheng
@@ -52,13 +58,18 @@ public class AnalysisSegmentParserModuleProvider extends ModuleProvider {
         this.listenerManager = new SegmentParserListenerManager();
         this.registerServiceImplementation(ISegmentParserListenerRegister.class, new SegmentParserListenerRegister(listenerManager));
         this.registerServiceImplementation(ISegmentParseService.class, new SegmentParseService(getManager(), listenerManager));
+
+        BufferFileConfig.Parser parser = new BufferFileConfig.Parser();
+        parser.parse(config);
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
-        SegmentPersistenceGraph segmentPersistenceGraph = new SegmentPersistenceGraph(getManager());
-        segmentPersistenceGraph.create();
-        SegmentStandardizationGraph segmentStandardizationGraph = new SegmentStandardizationGraph(getManager());
-        segmentStandardizationGraph.create();
+        WorkerCreateListener workerCreateListener = new WorkerCreateListener();
+
+        graphCreate(workerCreateListener);
+
+        PersistenceTimer persistenceTimer = new PersistenceTimer(AnalysisSegmentParserModule.NAME);
+        persistenceTimer.start(getManager(), workerCreateListener.getPersistenceWorkers());
 
         SegmentBufferReader.INSTANCE.setSegmentParserListenerManager(listenerManager);
     }
@@ -68,6 +79,14 @@ public class AnalysisSegmentParserModuleProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[0];
+        return new String[] {AnalysisRegisterModule.NAME, CacheModule.NAME, StorageModule.NAME};
+    }
+
+    private void graphCreate(WorkerCreateListener workerCreateListener) {
+        SegmentPersistenceGraph segmentPersistenceGraph = new SegmentPersistenceGraph(getManager(), workerCreateListener);
+        segmentPersistenceGraph.create();
+
+        SegmentStandardizationGraph segmentStandardizationGraph = new SegmentStandardizationGraph(getManager(), workerCreateListener);
+        segmentStandardizationGraph.create();
     }
 }

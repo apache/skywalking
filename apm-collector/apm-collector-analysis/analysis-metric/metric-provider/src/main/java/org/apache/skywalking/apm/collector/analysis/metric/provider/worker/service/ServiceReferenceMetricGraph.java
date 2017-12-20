@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.GraphIdDefine;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.remote.RemoteModule;
@@ -31,17 +32,19 @@ import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenc
 public class ServiceReferenceMetricGraph {
 
     private final ModuleManager moduleManager;
+    private final WorkerCreateListener workerCreateListener;
 
-    public ServiceReferenceMetricGraph(ModuleManager moduleManager) {
+    public ServiceReferenceMetricGraph(ModuleManager moduleManager, WorkerCreateListener workerCreateListener) {
         this.moduleManager = moduleManager;
+        this.workerCreateListener = workerCreateListener;
     }
 
     public void create() {
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
         GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.SERVICE_REFERENCE_METRIC_GRAPH_ID, ServiceReferenceMetric.class)
-            .addNode(new ServiceReferenceMetricAggregationWorker.Factory(moduleManager).create(null))
-            .addNext(new ServiceReferenceMetricRemoteWorker.Factory(moduleManager, remoteSenderService, GraphIdDefine.SERVICE_REFERENCE_METRIC_GRAPH_ID).create(null))
-            .addNext(new ServiceReferenceMetricAggregationWorker.Factory(moduleManager).create(null));
+            .addNode(new ServiceReferenceMetricAggregationWorker.Factory(moduleManager).create(workerCreateListener))
+            .addNext(new ServiceReferenceMetricRemoteWorker.Factory(moduleManager, remoteSenderService, GraphIdDefine.SERVICE_REFERENCE_METRIC_GRAPH_ID).create(workerCreateListener))
+            .addNext(new ServiceReferenceMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
     }
 }

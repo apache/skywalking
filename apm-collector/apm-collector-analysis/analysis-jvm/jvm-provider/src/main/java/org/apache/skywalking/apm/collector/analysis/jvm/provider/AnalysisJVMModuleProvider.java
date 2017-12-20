@@ -35,9 +35,13 @@ import org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.GCMetric
 import org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.InstanceHeartBeatPersistenceGraph;
 import org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.MemoryMetricPersistenceGraph;
 import org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.MemoryPoolMetricPersistenceGraph;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
+import org.apache.skywalking.apm.collector.analysis.worker.timer.PersistenceTimer;
 import org.apache.skywalking.apm.collector.core.module.Module;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.apache.skywalking.apm.collector.remote.RemoteModule;
+import org.apache.skywalking.apm.collector.storage.StorageModule;
 
 /**
  * @author peng-yongsheng
@@ -63,20 +67,12 @@ public class AnalysisJVMModuleProvider extends ModuleProvider {
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
-        CpuMetricPersistenceGraph cpuMetricPersistenceGraph = new CpuMetricPersistenceGraph(getManager());
-        cpuMetricPersistenceGraph.create();
+        WorkerCreateListener workerCreateListener = new WorkerCreateListener();
 
-        GCMetricPersistenceGraph gcMetricPersistenceGraph = new GCMetricPersistenceGraph(getManager());
-        gcMetricPersistenceGraph.create();
+        graphCreate(workerCreateListener);
 
-        InstanceHeartBeatPersistenceGraph instanceHeartBeatPersistenceGraph = new InstanceHeartBeatPersistenceGraph(getManager());
-        instanceHeartBeatPersistenceGraph.create();
-
-        MemoryMetricPersistenceGraph memoryMetricPersistenceGraph = new MemoryMetricPersistenceGraph(getManager());
-        memoryMetricPersistenceGraph.create();
-
-        MemoryPoolMetricPersistenceGraph memoryPoolMetricPersistenceGraph = new MemoryPoolMetricPersistenceGraph(getManager());
-        memoryPoolMetricPersistenceGraph.create();
+        PersistenceTimer persistenceTimer = new PersistenceTimer(AnalysisJVMModule.NAME);
+        persistenceTimer.start(getManager(), workerCreateListener.getPersistenceWorkers());
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
@@ -84,6 +80,23 @@ public class AnalysisJVMModuleProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[0];
+        return new String[] {StorageModule.NAME, RemoteModule.NAME};
+    }
+
+    private void graphCreate(WorkerCreateListener workerCreateListener) {
+        CpuMetricPersistenceGraph cpuMetricPersistenceGraph = new CpuMetricPersistenceGraph(getManager(), workerCreateListener);
+        cpuMetricPersistenceGraph.create();
+
+        GCMetricPersistenceGraph gcMetricPersistenceGraph = new GCMetricPersistenceGraph(getManager(), workerCreateListener);
+        gcMetricPersistenceGraph.create();
+
+        InstanceHeartBeatPersistenceGraph instanceHeartBeatPersistenceGraph = new InstanceHeartBeatPersistenceGraph(getManager(), workerCreateListener);
+        instanceHeartBeatPersistenceGraph.create();
+
+        MemoryMetricPersistenceGraph memoryMetricPersistenceGraph = new MemoryMetricPersistenceGraph(getManager(), workerCreateListener);
+        memoryMetricPersistenceGraph.create();
+
+        MemoryPoolMetricPersistenceGraph memoryPoolMetricPersistenceGraph = new MemoryPoolMetricPersistenceGraph(getManager(), workerCreateListener);
+        memoryPoolMetricPersistenceGraph.create();
     }
 }

@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.GraphIdDefine;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.remote.RemoteModule;
@@ -31,17 +32,19 @@ import org.apache.skywalking.apm.collector.storage.table.application.Application
 public class ApplicationMetricGraph {
 
     private final ModuleManager moduleManager;
+    private final WorkerCreateListener workerCreateListener;
 
-    public ApplicationMetricGraph(ModuleManager moduleManager) {
+    public ApplicationMetricGraph(ModuleManager moduleManager, WorkerCreateListener workerCreateListener) {
         this.moduleManager = moduleManager;
+        this.workerCreateListener = workerCreateListener;
     }
 
     public void create() {
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
         GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.APPLICATION_METRIC_GRAPH_ID, ApplicationReferenceMetric.class)
-            .addNode(new ApplicationMetricAggregationWorker.Factory(moduleManager).create(null))
-            .addNext(new ApplicationMetricRemoteWorker.Factory(moduleManager, remoteSenderService, GraphIdDefine.APPLICATION_METRIC_GRAPH_ID).create(null))
-            .addNext(new ApplicationMetricPersistenceWorker.Factory(moduleManager).create(null));
+            .addNode(new ApplicationMetricAggregationWorker.Factory(moduleManager).create(workerCreateListener))
+            .addNext(new ApplicationMetricRemoteWorker.Factory(moduleManager, remoteSenderService, GraphIdDefine.APPLICATION_METRIC_GRAPH_ID).create(workerCreateListener))
+            .addNext(new ApplicationMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
     }
 }
