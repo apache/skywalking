@@ -37,7 +37,6 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 public class ProcessResponseInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "org.apache.http.nio.protocol.HttpAsyncRequestExecutor";
-    private static final String LOCAL_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.httpasyncclient.v4.ConnectedIterceptor";
     private static final String END_EXIT_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.httpasyncclient.v4.ProcessResponseInterceptor";
 
     @Override
@@ -62,22 +61,6 @@ public class ProcessResponseInstrumentation extends ClassInstanceMethodsEnhanceP
                 @Override
                 public String getMethodsInterceptor() {
                     return END_EXIT_INTERCEPT_CLASS;
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            },
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("connected");
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return LOCAL_INTERCEPT_CLASS;
                 }
 
                 @Override

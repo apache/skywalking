@@ -29,17 +29,17 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link StateInstrumentation} presents that skywalking intercept {@link org.apache.http.nio.protocol.HttpAsyncRequestExecutor$State#setRequest #setResponse}
- * .
+ * {@link DefaultConnectingIOReactorInstrumentation} presents that skywalking intercepts {@link
+ * org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor#processEvent}
  *
  * @author liyuntao
  */
 
-public class StateInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class DefaultConnectingIOReactorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "org.apache.http.nio.protocol.HttpAsyncRequestExecutor$State";
-    private static final String START_EXIT_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.httpasyncclient.v4.StateInterceptor";
-    private static final String END_EXIT_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.httpasyncclient.v4.SetResponseInterceptor";
+    private static final String ENHANCE_CLASS = "org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.httpasyncclient.v4.DefaultConnectingIOReactorIterceptor";
+    private static final String LOCAL_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.httpasyncclient.v4.ConnectIterceptor";
 
     @Override
     public ClassMatch enhanceClass() {
@@ -57,12 +57,12 @@ public class StateInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("setRequest");
+                    return named("processEvent");
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return START_EXIT_INTERCEPT_CLASS;
+                    return INTERCEPT_CLASS;
                 }
 
                 @Override
@@ -73,12 +73,12 @@ public class StateInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("setResponse");
+                    return named("connect");
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return END_EXIT_INTERCEPT_CLASS;
+                    return LOCAL_INTERCEPT_CLASS;
                 }
 
                 @Override
@@ -86,7 +86,6 @@ public class StateInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
                     return false;
                 }
             }
-
         };
     }
 }

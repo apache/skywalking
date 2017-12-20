@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.plugin.httpasyncclient.v4;
 
 import java.lang.reflect.Method;
+import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -29,19 +30,21 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * Create local span :httpasyncclient/HttpAsyncRequestExecutor
+ * Create a local sapn and passing ref accross thread by SessionRequest.
  *
  * @author liyuntao
  */
 
-public class ConnectedIterceptor implements InstanceMethodsAroundInterceptor {
+public class FailedInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
 
-        AbstractSpan span = ContextManager.createLocalSpan("httpasyncclient/HttpAsyncRequestExecutor:");
-        span.setComponent(ComponentsDefine.HTTP_ASYNC_CLIENT).setLayer(SpanLayer.HTTP);
-        Object cacheValue = objInst.getSkyWalkingDynamicField();
+        SessionRequest request = (SessionRequest)allArguments[0];
+
+        AbstractSpan localSpan = ContextManager.createLocalSpan("httpasyncclient/request");
+        localSpan.setComponent(ComponentsDefine.HTTP_ASYNC_CLIENT).setLayer(SpanLayer.HTTP);
+        Object cacheValue = ((EnhancedInstance)request).getSkyWalkingDynamicField();
         ContextManager.continued((ContextSnapshot)cacheValue);
 
     }

@@ -25,47 +25,50 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
-import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
+import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link HttpAsyncRequestExecutorInstrumentation} presents that skywalking intercept {@link
- * org.apache.http.nio.protocol.HttpAsyncRequestExecutor} constructor with two arguments.
+ * {@link SessionRequestImplInstrumentation} presents that skywalking intercepts {@link
+ * org.apache.http.impl.nio.reactor.SessionRequestImpl#failed(final IOException exception)}
  *
  * @author liyuntao
  */
 
-public class HttpAsyncRequestExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class SessionRequestImplInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "org.apache.http.nio.protocol.HttpAsyncRequestExecutor";
-
-    private static final String METHOD_INTERCET_CLASS = "org.apache.skywalking.apm.plugin.httpasyncclient.v4.HttpAsyncRequestExecutorInterceptor";
+    private static final String ENHANCE_CLASS = "org.apache.http.impl.nio.reactor.SessionRequestImpl";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestImplIterceptor";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[] {
-            new ConstructorInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return takesArguments(2);
-                }
-
-                @Override
-                public String getConstructorInterceptor() {
-                    return METHOD_INTERCET_CLASS;
-                }
-            }
-        };
+    public ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS);
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return null;
     }
 
     @Override
-    protected ClassMatch enhanceClass() {
-        return byName(ENHANCE_CLASS);
-    }
+    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("failed");
+                }
 
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPT_CLASS;
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            }
+        };
+    }
 }

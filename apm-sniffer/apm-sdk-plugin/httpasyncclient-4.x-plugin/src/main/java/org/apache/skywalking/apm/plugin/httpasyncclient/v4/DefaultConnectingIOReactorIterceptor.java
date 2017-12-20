@@ -19,9 +19,7 @@
 package org.apache.skywalking.apm.plugin.httpasyncclient.v4;
 
 import java.lang.reflect.Method;
-import org.apache.http.HttpHost;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -30,22 +28,18 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * End a local span for  {@link org.apache.http.impl.nio.client.CloseableHttpAsyncClient#execute} called by
- * application.
+ * Create local span :httpasyncclient/SocketChannel, to showcase the ability to connect to the remote host.
  *
  * @author liyuntao
  */
 
-public class HttpHostInterceptor implements InstanceMethodsAroundInterceptor {
+public class DefaultConnectingIOReactorIterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
 
-        HttpHost producer = (HttpHost)allArguments[0];
-        String uri = producer.toURI();
-        AbstractSpan span = ContextManager.createLocalSpan("HttpAsyncClient/execute");
+        AbstractSpan span = ContextManager.createLocalSpan("httpasyncclient/DefaultConnectingIOReactor:");
         span.setComponent(ComponentsDefine.HTTP_ASYNC_CLIENT).setLayer(SpanLayer.HTTP);
-        Tags.URL.set(span, uri);
 
     }
 

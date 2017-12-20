@@ -48,7 +48,7 @@ public class ProcessResponseInterceptor implements InstanceMethodsAroundIntercep
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
         //stop local span:future/Callback
         ContextManager.stopSpan();
-        //stop local span:httpasyncclient/HttpAsyncRequestExecutor
+        //stop local span:httpasyncclient/request
         ContextManager.stopSpan();
 
         return ret;

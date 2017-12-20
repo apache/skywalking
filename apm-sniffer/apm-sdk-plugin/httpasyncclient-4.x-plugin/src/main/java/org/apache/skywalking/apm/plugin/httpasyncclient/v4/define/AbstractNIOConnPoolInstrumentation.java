@@ -29,17 +29,17 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link StateInstrumentation} presents that skywalking intercept {@link org.apache.http.nio.protocol.HttpAsyncRequestExecutor$State#setRequest #setResponse}
- * .
+ * {@link AbstractNIOConnPoolInstrumentation} presents that skywalking intercept {@link
+ * org.apache.http.nio.protocol.AbstractNIOConnPool #requestCancelled ,#requestFailed,#requestTimeout,#requestCompleted}.
  *
  * @author liyuntao
  */
 
-public class StateInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class AbstractNIOConnPoolInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "org.apache.http.nio.protocol.HttpAsyncRequestExecutor$State";
-    private static final String START_EXIT_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.httpasyncclient.v4.StateInterceptor";
-    private static final String END_EXIT_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.httpasyncclient.v4.SetResponseInterceptor";
+    private static final String ENHANCE_CLASS = "org.apache.http.nio.pool.AbstractNIOConnPool";
+    private static final String START_LOCAL_SUCCESS_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.httpasyncclient.v4.SuccessInterceptor";
+    private static final String START_EXIT_FAILED_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.httpasyncclient.v4.FailedInterceptor";
 
     @Override
     public ClassMatch enhanceClass() {
@@ -57,12 +57,12 @@ public class StateInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("setRequest");
+                    return named("requestCancelled").or(named("requestFailed")).or(named("requestTimeout"));
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return START_EXIT_INTERCEPT_CLASS;
+                    return START_EXIT_FAILED_INTERCEPT_CLASS;
                 }
 
                 @Override
@@ -73,12 +73,12 @@ public class StateInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("setResponse");
+                    return named("requestCompleted");
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return END_EXIT_INTERCEPT_CLASS;
+                    return START_LOCAL_SUCCESS_INTERCEPT_CLASS;
                 }
 
                 @Override

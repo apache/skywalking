@@ -18,24 +18,36 @@
 
 package org.apache.skywalking.apm.plugin.httpasyncclient.v4;
 
+import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
 /**
- * Create a local span for  {@link org.apache.http.impl.nio.client.CloseableHttpAsyncClient#execute} called by
- * application.
+ * Pass ref accross thread by SessionRequest.
  *
  * @author liyuntao
  */
 
-public class HttpAsyncRequestExecutorInterceptor implements InstanceConstructorInterceptor {
+public class ConnectIterceptor implements InstanceMethodsAroundInterceptor {
 
-    @Override
-    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+    @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
 
-        AbstractSpan span = ContextManager.createLocalSpan("HttpAsyncClient/execute");
-        objInst.setSkyWalkingDynamicField(ContextManager.capture());
+    }
+
+    @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Object ret) throws Throwable {
+        ((EnhancedInstance)ret).setSkyWalkingDynamicField(ContextManager.capture());
+        return ret;
+    }
+
+    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
+        AbstractSpan activeSpan = ContextManager.activeSpan();
+        activeSpan.errorOccurred();
+        activeSpan.log(t);
     }
 }

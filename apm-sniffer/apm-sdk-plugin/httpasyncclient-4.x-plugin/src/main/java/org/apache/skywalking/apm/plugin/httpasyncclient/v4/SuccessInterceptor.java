@@ -19,9 +19,9 @@
 package org.apache.skywalking.apm.plugin.httpasyncclient.v4;
 
 import java.lang.reflect.Method;
-import org.apache.http.HttpHost;
+import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.tag.Tags;
+import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -30,28 +30,26 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * End a local span for  {@link org.apache.http.impl.nio.client.CloseableHttpAsyncClient#execute} called by
- * application.
+ * Create a local sapn and passing ref accross thread by SessionRequest.
  *
  * @author liyuntao
  */
 
-public class HttpHostInterceptor implements InstanceMethodsAroundInterceptor {
+public class SuccessInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+        SessionRequest request = (SessionRequest)allArguments[0];
 
-        HttpHost producer = (HttpHost)allArguments[0];
-        String uri = producer.toURI();
-        AbstractSpan span = ContextManager.createLocalSpan("HttpAsyncClient/execute");
-        span.setComponent(ComponentsDefine.HTTP_ASYNC_CLIENT).setLayer(SpanLayer.HTTP);
-        Tags.URL.set(span, uri);
+        AbstractSpan localSpan = ContextManager.createLocalSpan("httpasyncclient/request");
+        localSpan.setComponent(ComponentsDefine.HTTP_ASYNC_CLIENT).setLayer(SpanLayer.HTTP);
+        Object cacheValue = ((EnhancedInstance)request).getSkyWalkingDynamicField();
+        ContextManager.continued((ContextSnapshot)cacheValue);
 
     }
 
     @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        ContextManager.stopSpan();
         return ret;
     }
 
