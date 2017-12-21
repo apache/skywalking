@@ -22,6 +22,8 @@ import org.apache.skywalking.apm.collector.analysis.metric.define.graph.GraphIdD
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.EntrySpanListener;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.FirstSpanListener;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListener;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListenerFactory;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
@@ -83,6 +85,12 @@ public class ServiceEntrySpanListener implements FirstSpanListener, EntrySpanLis
             logger.debug("push to service entry aggregation worker, id: {}", serviceEntry.getId());
             Graph<ServiceEntry> graph = GraphManager.INSTANCE.findGraph(GraphIdDefine.SERVICE_ENTRY_GRAPH_ID, ServiceEntry.class);
             graph.start(serviceEntry);
+        }
+    }
+
+    public static class Factory implements SpanListenerFactory {
+        @Override public SpanListener create(ModuleManager moduleManager) {
+            return new ServiceEntrySpanListener(moduleManager);
         }
     }
 }

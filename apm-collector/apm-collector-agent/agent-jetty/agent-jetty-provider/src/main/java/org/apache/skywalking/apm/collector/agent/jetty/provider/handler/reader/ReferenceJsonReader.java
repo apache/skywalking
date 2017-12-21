@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.agent.jetty.provider.handler.reader;
 
 import com.google.gson.stream.JsonReader;
@@ -30,16 +29,16 @@ public class ReferenceJsonReader implements StreamJsonReader<TraceSegmentReferen
 
     private UniqueIdJsonReader uniqueIdJsonReader = new UniqueIdJsonReader();
 
-    private static final String PARENT_TRACE_SEGMENT_ID = "ts";
-    private static final String PARENT_APPLICATION_ID = "ai";
-    private static final String PARENT_SPAN_ID = "si";
-    private static final String PARENT_SERVICE_ID = "vi";
-    private static final String PARENT_SERVICE_NAME = "vn";
+    private static final String PARENT_TRACE_SEGMENT_ID = "pts";
+    private static final String PARENT_APPLICATION_INSTANCE_ID = "pii";
+    private static final String PARENT_SPAN_ID = "psp";
+    private static final String PARENT_SERVICE_ID = "psi";
+    private static final String PARENT_SERVICE_NAME = "psn";
     private static final String NETWORK_ADDRESS_ID = "ni";
     private static final String NETWORK_ADDRESS = "nn";
-    private static final String ENTRY_APPLICATION_INSTANCE_ID = "ea";
-    private static final String ENTRY_SERVICE_ID = "ei";
-    private static final String ENTRY_SERVICE_NAME = "en";
+    private static final String ENTRY_APPLICATION_INSTANCE_ID = "eii";
+    private static final String ENTRY_SERVICE_ID = "esi";
+    private static final String ENTRY_SERVICE_NAME = "esn";
     private static final String REF_TYPE_VALUE = "rv";
 
     @Override public TraceSegmentReference read(JsonReader reader) throws IOException {
@@ -51,7 +50,7 @@ public class ReferenceJsonReader implements StreamJsonReader<TraceSegmentReferen
                 case PARENT_TRACE_SEGMENT_ID:
                     builder.setParentTraceSegmentId(uniqueIdJsonReader.read(reader));
                     break;
-                case PARENT_APPLICATION_ID:
+                case PARENT_APPLICATION_INSTANCE_ID:
                     builder.setParentApplicationInstanceId(reader.nextInt());
                     break;
                 case PARENT_SPAN_ID:

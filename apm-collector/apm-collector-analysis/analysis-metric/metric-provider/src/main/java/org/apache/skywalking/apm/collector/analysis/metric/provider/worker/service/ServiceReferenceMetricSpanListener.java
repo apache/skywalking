@@ -27,8 +27,11 @@ import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decora
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.EntrySpanListener;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.ExitSpanListener;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.FirstSpanListener;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListener;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListenerFactory;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
+import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
@@ -79,7 +82,7 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
             serviceReferenceMetric.setFrontServiceId(Const.NONE_SERVICE_ID);
             serviceReferenceMetric.setFrontInstanceId(instanceId);
             serviceReferenceMetric.setBehindServiceId(spanDecorator.getOperationNameId());
-            serviceReferenceMetric.setBehindServiceId(instanceId);
+            serviceReferenceMetric.setBehindInstanceId(instanceId);
             serviceReferenceMetric.setSourceValue(MetricSource.Entry.ordinal());
 
             calculateCost(serviceReferenceMetric, spanDecorator, false);
@@ -100,7 +103,7 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
 
     private void calculateCost(ServiceReferenceMetric serviceReferenceMetric, SpanDecorator spanDecorator,
         boolean hasReference) {
-        long duration = spanDecorator.getStartTime() - spanDecorator.getEndTime();
+        long duration = spanDecorator.getEndTime() - spanDecorator.getStartTime();
 
         if (spanDecorator.getIsError()) {
             serviceReferenceMetric.setTransactionErrorCalls(1L);
@@ -160,5 +163,11 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
 
             graph.start(serviceReferenceMetric);
         });
+    }
+
+    public static class Factory implements SpanListenerFactory {
+        @Override public SpanListener create(ModuleManager moduleManager) {
+            return new ServiceReferenceMetricSpanListener();
+        }
     }
 }

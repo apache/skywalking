@@ -82,6 +82,9 @@ public class ApplicationReferenceMetricAggregationWorker extends AggregationWork
         } else {
             applicationReferenceMetric.setFrustratedCount(1L);
         }
+
+        applicationReferenceMetric.setTimeBucket(instanceReferenceMetric.getTimeBucket());
+
         return applicationReferenceMetric;
     }
 

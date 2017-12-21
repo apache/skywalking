@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.service;
 
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListener;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListenerFactory;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParserListenerRegister;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.SegmentParserListenerManager;
 
@@ -33,7 +33,7 @@ public class SegmentParserListenerRegister implements ISegmentParserListenerRegi
         this.listenerManager = listenerManager;
     }
 
-    @Override public void register(SpanListener spanListener) {
-        this.listenerManager.add(spanListener);
+    @Override public void register(SpanListenerFactory spanListenerFactory) {
+        this.listenerManager.add(spanListenerFactory);
     }
 }
