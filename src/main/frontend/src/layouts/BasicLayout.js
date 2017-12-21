@@ -285,7 +285,7 @@ class BasicLayout extends React.PureComponent {
                 popupAlign={{ offset: [20, -16] }}
                 locale={{
                   emptyText: 'No alert',
-                  clear: 'Clear ',
+                  clear: 'More ',
                 }}
               >
                 <NoticeIcon.Tab
@@ -309,7 +309,7 @@ class BasicLayout extends React.PureComponent {
                     read: true,
                     type: 'app-alert',
                   }]}
-                  title="Application"
+                  title="Application Alert"
                   emptyText="No alert"
                   emptyImage="https://gw.alipayobjects.com/zos/rmsportal/wAhyIChODzsoKIOBHcBk.svg"
                 />
@@ -334,7 +334,7 @@ class BasicLayout extends React.PureComponent {
                     read: true,
                     type: 'server-alert',
                   }]}
-                  title="Server"
+                  title="Server Alert"
                   emptyText="No alert"
                   emptyImage="https://gw.alipayobjects.com/zos/rmsportal/wAhyIChODzsoKIOBHcBk.svg"
                 />
