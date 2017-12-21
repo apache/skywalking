@@ -1,6 +1,6 @@
 // import { xxx } from '../services/xxx';
 export default {
-  namespace: 'dashboard',
+  namespace: "service",
   state: {},
   effects: {
     *fetch({ payload }, { call, put }) {
@@ -14,3 +14,4 @@ export default {
     },
   },
 };
+

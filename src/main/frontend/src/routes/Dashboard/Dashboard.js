@@ -2,13 +2,9 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Row, Col, Icon, Tooltip, Card, Table } from 'antd';
 import moment from 'moment';
-import numeral from 'numeral';
 import {
-  ChartCard, Pie, MiniArea, MiniBar, MiniProgress, Field,
+  ChartCard, Pie, MiniArea, Field,
 } from '../../components/Charts';
-import Trend from '../../components/Trend';
-
-import styles from './Dashboard.less';
 
 @connect(state => ({
   dashboard: state.dashboard,
@@ -168,7 +164,7 @@ export default class Dashboard extends PureComponent {
           bordered={false}
           bodyStyle={{ padding: 0 }}
         >
-          <div Style="height: 400px">Topoloy</div>
+          <div Style="height: 480px">Topoloy</div>
         </Card>
         <Row gutter={24}>
           <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginTop: 24 }}>
@@ -183,7 +179,7 @@ export default class Dashboard extends PureComponent {
                 color="#D87093"
                 borderColor="#B22222"
                 line="true"
-                height={196}
+                height={96}
                 data={visitData}
                 yAxis={{
                   formatter(val) {

@@ -4,7 +4,7 @@ import DocumentTitle from 'react-document-title';
 
 import { connect } from 'dva';
 import { Link, Route, Redirect, Switch } from 'dva/router';
-import { Layout, Menu, Icon, Dropdown, Tag, message } from 'antd';
+import { Layout, Menu, Icon, Dropdown, Tag } from 'antd';
 
 import NoticeIcon from 'ant-design-pro/lib/NoticeIcon';
 import GlobalFooter from 'ant-design-pro/lib/GlobalFooter';
@@ -221,22 +221,8 @@ class BasicLayout extends React.PureComponent {
       window.dispatchEvent(event);
     }, 600);
   }
-  handleNoticeClear = (type) => {
-    message.success(`清空了${type}`);
-    this.props.dispatch({
-      type: 'global/clearNotices',
-      payload: type,
-    });
-  }
-  handleNoticeVisibleChange = (visible) => {
-    if (visible) {
-      this.props.dispatch({
-        type: 'global/fetchNotices',
-      });
-    }
-  }
   render() {
-    const { currentUser, collapsed, fetchingNotices, getRouteData } = this.props;
+    const { collapsed, getRouteData } = this.props;
 
     const menu = (
       <Menu selectedKeys={['1']} onClick={this.onMenuClick}>
@@ -244,8 +230,6 @@ class BasicLayout extends React.PureComponent {
         <Menu.Item key="2">Last 1 hour</Menu.Item>
       </Menu>
     );
-    const noticeData = this.getNoticeData();
-
     // Don't show popup menu when it is been collapsed
     const menuProps = collapsed ? {} : {
       openKeys: this.state.openKeys,
@@ -293,26 +277,66 @@ class BasicLayout extends React.PureComponent {
               </Dropdown>
               <NoticeIcon
                 className={styles.action}
-                count={currentUser.notifyCount}
+                count={3}
                 onItemClick={(item, tabProps) => {
                   console.log(item, tabProps); // eslint-disable-line
                 }}
-                onClear={this.handleNoticeClear}
-                onPopupVisibleChange={this.handleNoticeVisibleChange}
-                loading={fetchingNotices}
+                loading={false}
                 popupAlign={{ offset: [20, -16] }}
+                locale={{
+                  emptyText: 'No alert',
+                  clear: 'Clear ',
+                }}
               >
                 <NoticeIcon.Tab
-                  list={noticeData['告警']}
-                  title="告警"
-                  emptyText="无告警信息"
+                  list={[{
+                    id: '000000001',
+                    avatar: 'https://gw.alipayobjects.com/zos/rmsportal/ThXAXghbEsBCCSDihZxY.png',
+                    title: 'Appliction A error',
+                    datetime: '2017-08-09',
+                    type: 'app-alert',
+                  }, {
+                    id: '000000002',
+                    avatar: 'https://gw.alipayobjects.com/zos/rmsportal/OKJXDXrmkNshAMvwtvhu.png',
+                    title: 'Appliction A error',
+                    datetime: '2017-08-08',
+                    type: 'app-alert',
+                  }, {
+                    id: '000000003',
+                    avatar: 'https://gw.alipayobjects.com/zos/rmsportal/kISTdvpyTAhtGxpovNWd.png',
+                    title: 'Appliction A error',
+                    datetime: '2017-08-07',
+                    read: true,
+                    type: 'app-alert',
+                  }]}
+                  title="Application"
+                  emptyText="No alert"
                   emptyImage="https://gw.alipayobjects.com/zos/rmsportal/wAhyIChODzsoKIOBHcBk.svg"
                 />
                 <NoticeIcon.Tab
-                  list={noticeData['消息']}
-                  title="消息"
-                  emptyText="您已读完所有消息"
-                  emptyImage="https://gw.alipayobjects.com/zos/rmsportal/sAuJeJzSKbUmHfBQRzmZ.svg"
+                  list={[{
+                    id: '000000001',
+                    avatar: 'https://gw.alipayobjects.com/zos/rmsportal/ThXAXghbEsBCCSDihZxY.png',
+                    title: 'Server A error',
+                    datetime: '2017-08-09',
+                    type: 'server-alert',
+                  }, {
+                    id: '000000002',
+                    avatar: 'https://gw.alipayobjects.com/zos/rmsportal/OKJXDXrmkNshAMvwtvhu.png',
+                    title: 'Server A error',
+                    datetime: '2017-08-08',
+                    type: 'server-alert',
+                  }, {
+                    id: '000000003',
+                    avatar: 'https://gw.alipayobjects.com/zos/rmsportal/kISTdvpyTAhtGxpovNWd.png',
+                    title: 'Service A error',
+                    datetime: '2017-08-07',
+                    read: true,
+                    type: 'server-alert',
+                  }]}
+                  title="Server"
+                  emptyText="No alert"
+                  emptyImage="https://gw.alipayobjects.com/zos/rmsportal/wAhyIChODzsoKIOBHcBk.svg"
                 />
               </NoticeIcon>
             </div>
