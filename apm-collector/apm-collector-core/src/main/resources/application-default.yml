@@ -4,8 +4,6 @@ cluster:
     user_name: sa
 cache:
   guava:
-queue:
-  disruptor:
 naming:
   jetty:
     host: localhost
@@ -24,14 +22,16 @@ agent_jetty:
     host: localhost
     port: 12800
     context_path: /
-agent_stream:
+analysis_segment_parser:
   default:
     buffer_file_path: ../buffer/
     buffer_offset_max_file_size: 10M
     buffer_segment_max_file_size: 500M
-configuration:
+analysis_metric:
   default:
-alerting:
+analysis_alarm:
+  default:
+configuration:
   default:
 ui:
   jetty:
@@ -39,9 +39,9 @@ ui:
     port: 12800
     context_path: /
 jetty_manager:
-  jetty:
+  default:
 gRPC_manager:
-  gRPC:
+  default:
 storage:
   h2:
     url: jdbc:h2:~/memorydb

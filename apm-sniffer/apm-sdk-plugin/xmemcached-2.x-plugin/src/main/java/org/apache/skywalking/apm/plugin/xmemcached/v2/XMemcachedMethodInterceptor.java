@@ -46,7 +46,7 @@ public class XMemcachedMethodInterceptor implements InstanceMethodsAroundInterce
         AbstractSpan span = ContextManager.createExitSpan(XMEMCACHED + method.getName(), peer);
         span.setComponent(ComponentsDefine.MEMCACHED);
         Tags.DB_TYPE.set(span, ComponentsDefine.MEMCACHED.getName());
-        SpanLayer.asDB(span);
+        SpanLayer.asCache(span);
         Tags.DB_STATEMENT.set(span, method.getName() + " " + allArguments[0]);
     }
 

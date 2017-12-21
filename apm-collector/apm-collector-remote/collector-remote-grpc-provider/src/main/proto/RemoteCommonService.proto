@@ -20,7 +20,6 @@ message RemoteData {
     repeated int64 dataLongs = 2;
     repeated double dataDoubles = 3;
     repeated int32 dataIntegers = 4;
-    //    repeated bytes dataBytes = 5;
     repeated bool dataBooleans = 5;
 }
 

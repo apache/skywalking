@@ -38,13 +38,13 @@ import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.agent.core.dictionary.OperationNameDictionary;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
-import org.apache.skywalking.apm.network.proto.Application;
 import org.apache.skywalking.apm.network.proto.ApplicationInstance;
 import org.apache.skywalking.apm.network.proto.ApplicationInstanceHeartbeat;
 import org.apache.skywalking.apm.network.proto.ApplicationInstanceMapping;
 import org.apache.skywalking.apm.network.proto.ApplicationInstanceRecover;
-import org.apache.skywalking.apm.network.proto.ApplicationMapping;
+import org.apache.skywalking.apm.network.proto.ApplicationMappings;
 import org.apache.skywalking.apm.network.proto.ApplicationRegisterServiceGrpc;
+import org.apache.skywalking.apm.network.proto.Applications;
 import org.apache.skywalking.apm.network.proto.InstanceDiscoveryServiceGrpc;
 import org.apache.skywalking.apm.network.proto.ServiceNameDiscoveryServiceGrpc;
 
@@ -112,10 +112,10 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
             try {
                 if (RemoteDownstreamConfig.Agent.APPLICATION_ID == DictionaryUtil.nullValue()) {
                     if (applicationRegisterServiceBlockingStub != null) {
-                        ApplicationMapping applicationMapping = applicationRegisterServiceBlockingStub.register(
-                            Application.newBuilder().addApplicationCode(Config.Agent.APPLICATION_CODE).build());
-                        if (applicationMapping.getApplicationCount() > 0) {
-                            RemoteDownstreamConfig.Agent.APPLICATION_ID = applicationMapping.getApplication(0).getValue();
+                        ApplicationMappings applicationMapping = applicationRegisterServiceBlockingStub.batchRegister(
+                            Applications.newBuilder().addApplicationCodes(Config.Agent.APPLICATION_CODE).build());
+                        if (applicationMapping.getApplicationsCount() > 0) {
+                            RemoteDownstreamConfig.Agent.APPLICATION_ID = applicationMapping.getApplications(0).getValue();
                             shouldTry = true;
                         }
                     }
