@@ -42,7 +42,7 @@ public class JettyManagerProvider extends ModuleProvider {
     private Map<String, JettyServer> servers = new HashMap<>();
 
     @Override public String name() {
-        return "jetty";
+        return "default";
     }
 
     @Override public Class<? extends Module> module() {

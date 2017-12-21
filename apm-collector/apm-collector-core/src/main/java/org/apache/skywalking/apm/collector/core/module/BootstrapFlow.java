@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.core.module;
 
 import java.util.ArrayList;
@@ -114,11 +113,11 @@ public class BootstrapFlow {
             }
 
             if (numOfToBeSequenced == allProviders.size()) {
-                StringBuilder unsequencedProviders = new StringBuilder();
+                StringBuilder unSequencedProviders = new StringBuilder();
                 allProviders.forEach(provider -> {
-                    unsequencedProviders.append(provider.getModuleName()).append("[provider=").append(provider.getClass().getName()).append("]\n");
+                    unSequencedProviders.append(provider.getModuleName()).append("[provider=").append(provider.getClass().getName()).append("]\n");
                 });
-                throw new CycleDependencyException("Exist cycle module dependencies in \n" + unsequencedProviders.substring(0, unsequencedProviders.length() - 1));
+                throw new CycleDependencyException("Exist cycle module dependencies in \n" + unSequencedProviders.substring(0, unSequencedProviders.length() - 1));
             }
             if (allProviders.size() == 0) {
                 break;

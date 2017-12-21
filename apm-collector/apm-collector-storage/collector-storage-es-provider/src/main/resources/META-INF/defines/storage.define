@@ -1,12 +1,13 @@
 org.apache.skywalking.apm.collector.storage.es.define.ApplicationEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.InstanceEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.InstanceMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.InstanceReferenceMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.ServiceNameEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.CpuMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.GCMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.MemoryMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.MemoryPoolMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.GlobalTraceEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.define.InstanceMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.ApplicationComponentEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.ApplicationMappingEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.ApplicationReferenceMetricEsTableDefine
