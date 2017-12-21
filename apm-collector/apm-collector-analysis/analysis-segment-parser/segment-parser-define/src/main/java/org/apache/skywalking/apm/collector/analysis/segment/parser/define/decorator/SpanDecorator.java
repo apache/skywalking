@@ -16,9 +16,9 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator;
 
+import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.network.proto.SpanLayer;
 import org.apache.skywalking.apm.network.proto.SpanObject;
 import org.apache.skywalking.apm.network.proto.SpanType;
@@ -31,16 +31,19 @@ public class SpanDecorator implements StandardBuilder {
     private StandardBuilder standardBuilder;
     private SpanObject spanObject;
     private SpanObject.Builder spanBuilder;
+    private final ReferenceDecorator[] referenceDecorators;
 
     public SpanDecorator(SpanObject spanObject, StandardBuilder standardBuilder) {
         this.spanObject = spanObject;
         this.standardBuilder = standardBuilder;
+        this.referenceDecorators = new ReferenceDecorator[spanObject.getRefsCount()];
     }
 
     public SpanDecorator(SpanObject.Builder spanBuilder, StandardBuilder standardBuilder) {
         this.spanBuilder = spanBuilder;
         this.standardBuilder = standardBuilder;
         this.isOrigin = false;
+        this.referenceDecorators = new ReferenceDecorator[spanBuilder.getRefsCount()];
     }
 
     public int getSpanId() {
@@ -200,11 +203,14 @@ public class SpanDecorator implements StandardBuilder {
     }
 
     public ReferenceDecorator getRefs(int index) {
-        if (isOrigin) {
-            return new ReferenceDecorator(spanObject.getRefs(index), this);
-        } else {
-            return new ReferenceDecorator(spanBuilder.getRefsBuilder(index), this);
+        if (ObjectUtils.isEmpty(referenceDecorators[index])) {
+            if (isOrigin) {
+                referenceDecorators[index] = new ReferenceDecorator(spanObject.getRefs(index), this);
+            } else {
+                referenceDecorators[index] = new ReferenceDecorator(spanBuilder.getRefsBuilder(index), this);
+            }
         }
+        return referenceDecorators[index];
     }
 
     @Override public void toBuilder() {

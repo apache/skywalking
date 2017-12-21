@@ -60,6 +60,7 @@ public class InstanceMetricAggregationWorker extends AggregationWorker<InstanceR
         instanceMetric.setMqTransactionDurationSum(instanceReferenceMetric.getMqTransactionDurationSum());
         instanceMetric.setMqTransactionErrorDurationSum(instanceReferenceMetric.getMqTransactionErrorDurationSum());
 
+        instanceMetric.setTimeBucket(instanceReferenceMetric.getTimeBucket());
         return instanceMetric;
     }
 

@@ -63,6 +63,7 @@ public class ApplicationMetricAggregationWorker extends AggregationWorker<Applic
         applicationMetric.setSatisfiedCount(applicationReferenceMetric.getSatisfiedCount());
         applicationMetric.setToleratingCount(applicationReferenceMetric.getToleratingCount());
         applicationMetric.setFrustratedCount(applicationReferenceMetric.getFrustratedCount());
+
         applicationMetric.setTimeBucket(timeBucket);
 
         return applicationMetric;

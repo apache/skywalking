@@ -20,24 +20,24 @@ package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.par
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListener;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListenerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class SegmentParserListenerManager {
 
-    private List<SpanListener> spanListeners;
+    private List<SpanListenerFactory> spanListenerFactories;
 
     public SegmentParserListenerManager() {
-        this.spanListeners = new ArrayList<>();
+        this.spanListenerFactories = new ArrayList<>();
     }
 
-    public void add(SpanListener spanListener) {
-        spanListeners.add(spanListener);
+    public void add(SpanListenerFactory spanListenerFactory) {
+        spanListenerFactories.add(spanListenerFactory);
     }
 
-    public List<SpanListener> getSpanListeners() {
-        return spanListeners;
+    public List<SpanListenerFactory> getSpanListenerFactories() {
+        return spanListenerFactories;
     }
 }

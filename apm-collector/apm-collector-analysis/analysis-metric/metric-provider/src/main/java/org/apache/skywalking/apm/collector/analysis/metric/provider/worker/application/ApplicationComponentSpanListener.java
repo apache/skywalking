@@ -25,8 +25,11 @@ import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decora
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.EntrySpanListener;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.ExitSpanListener;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.FirstSpanListener;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListener;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListenerFactory;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
+import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponent;
@@ -45,26 +48,21 @@ public class ApplicationComponentSpanListener implements EntrySpanListener, Exit
 
     @Override
     public void parseExit(SpanDecorator spanDecorator, int applicationId, int instanceId, String segmentId) {
-        ApplicationComponent applicationComponent = new ApplicationComponent(Const.EMPTY_STRING);
+        String id = spanDecorator.getPeerId() + Const.ID_SPLIT + String.valueOf(spanDecorator.getComponentId());
+
+        ApplicationComponent applicationComponent = new ApplicationComponent(id);
         applicationComponent.setComponentId(spanDecorator.getComponentId());
         applicationComponent.setPeerId(spanDecorator.getPeerId());
-
-        String id = String.valueOf(applicationComponent.getComponentId()) + Const.ID_SPLIT + applicationComponent.getPeerId();
-
-        applicationComponent.setId(id);
         applicationComponents.add(applicationComponent);
     }
 
     @Override
-    public void parseEntry(SpanDecorator spanDecorator, int applicationId, int instanceId,
-        String segmentId) {
-        ApplicationComponent applicationComponent = new ApplicationComponent(Const.EMPTY_STRING);
+    public void parseEntry(SpanDecorator spanDecorator, int applicationId, int instanceId, String segmentId) {
+        String id = String.valueOf(applicationId) + Const.ID_SPLIT + String.valueOf(spanDecorator.getComponentId());
+
+        ApplicationComponent applicationComponent = new ApplicationComponent(id);
         applicationComponent.setComponentId(spanDecorator.getComponentId());
         applicationComponent.setPeerId(applicationId);
-
-        String id = String.valueOf(applicationComponent.getComponentId()) + Const.ID_SPLIT + String.valueOf(applicationId);
-        applicationComponent.setId(id);
-
         applicationComponents.add(applicationComponent);
     }
 
@@ -82,5 +80,11 @@ public class ApplicationComponentSpanListener implements EntrySpanListener, Exit
             applicationComponent.setTimeBucket(timeBucket);
             graph.start(applicationComponent);
         });
+    }
+
+    public static class Factory implements SpanListenerFactory {
+        @Override public SpanListener create(ModuleManager moduleManager) {
+            return new ApplicationComponentSpanListener();
+        }
     }
 }

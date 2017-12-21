@@ -26,6 +26,8 @@ import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listen
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.ExitSpanListener;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.FirstSpanListener;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.LocalSpanListener;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListener;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListenerFactory;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
@@ -100,6 +102,12 @@ public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListe
             segmentCost.setIsError(isError);
             segmentCost.setTimeBucket(timeBucket);
             graph.start(segmentCost);
+        }
+    }
+
+    public static class Factory implements SpanListenerFactory {
+        @Override public SpanListener create(ModuleManager moduleManager) {
+            return new SegmentCostSpanListener(moduleManager);
         }
     }
 }

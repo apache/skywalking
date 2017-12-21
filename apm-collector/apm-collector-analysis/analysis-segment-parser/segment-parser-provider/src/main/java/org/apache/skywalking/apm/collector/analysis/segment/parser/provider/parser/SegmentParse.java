@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.ReferenceDecorator;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SegmentDecorator;
@@ -55,6 +56,7 @@ public class SegmentParse {
     private final Logger logger = LoggerFactory.getLogger(SegmentParse.class);
 
     private final ModuleManager moduleManager;
+    private List<SpanListener> spanListeners;
     private final SegmentParserListenerManager listenerManager;
     private String segmentId;
     private long timeBucket = 0;
@@ -62,9 +64,12 @@ public class SegmentParse {
     public SegmentParse(ModuleManager moduleManager, SegmentParserListenerManager listenerManager) {
         this.moduleManager = moduleManager;
         this.listenerManager = listenerManager;
+        this.spanListeners = new LinkedList<>();
     }
 
     public boolean parse(UpstreamSegment segment, ISegmentParseService.Source source) {
+        createSpanListeners();
+
         try {
             List<UniqueId> traceIds = segment.getGlobalTraceIdsList();
             TraceSegmentObject segmentObject = TraceSegmentObject.parseFrom(segment.getSegment());
@@ -173,12 +178,12 @@ public class SegmentParse {
     }
 
     private void notifyListenerToBuild() {
-        listenerManager.getSpanListeners().forEach(SpanListener::build);
+        spanListeners.forEach(SpanListener::build);
     }
 
     private void notifyExitListener(SpanDecorator spanDecorator, int applicationId, int applicationInstanceId,
         String segmentId) {
-        for (SpanListener listener : listenerManager.getSpanListeners()) {
+        for (SpanListener listener : spanListeners) {
             if (listener instanceof ExitSpanListener) {
                 ((ExitSpanListener)listener).parseExit(spanDecorator, applicationId, applicationInstanceId, segmentId);
             }
@@ -187,7 +192,7 @@ public class SegmentParse {
 
     private void notifyEntryListener(SpanDecorator spanDecorator, int applicationId, int applicationInstanceId,
         String segmentId) {
-        for (SpanListener listener : listenerManager.getSpanListeners()) {
+        for (SpanListener listener : spanListeners) {
             if (listener instanceof EntrySpanListener) {
                 ((EntrySpanListener)listener).parseEntry(spanDecorator, applicationId, applicationInstanceId, segmentId);
             }
@@ -196,7 +201,7 @@ public class SegmentParse {
 
     private void notifyLocalListener(SpanDecorator spanDecorator, int applicationId, int applicationInstanceId,
         String segmentId) {
-        for (SpanListener listener : listenerManager.getSpanListeners()) {
+        for (SpanListener listener : spanListeners) {
             if (listener instanceof LocalSpanListener) {
                 ((LocalSpanListener)listener).parseLocal(spanDecorator, applicationId, applicationInstanceId, segmentId);
             }
@@ -205,7 +210,7 @@ public class SegmentParse {
 
     private void notifyFirstListener(SpanDecorator spanDecorator, int applicationId, int applicationInstanceId,
         String segmentId) {
-        for (SpanListener listener : listenerManager.getSpanListeners()) {
+        for (SpanListener listener : spanListeners) {
             if (listener instanceof FirstSpanListener) {
                 ((FirstSpanListener)listener).parseFirst(spanDecorator, applicationId, applicationInstanceId, segmentId);
             }
@@ -213,10 +218,14 @@ public class SegmentParse {
     }
 
     private void notifyGlobalsListener(UniqueId uniqueId) {
-        for (SpanListener listener : listenerManager.getSpanListeners()) {
+        for (SpanListener listener : spanListeners) {
             if (listener instanceof GlobalTraceIdsListener) {
                 ((GlobalTraceIdsListener)listener).parseGlobalTraceId(uniqueId);
             }
         }
+    }
+
+    private void createSpanListeners() {
+        listenerManager.getSpanListenerFactories().forEach(spanListenerFactory -> spanListeners.add(spanListenerFactory.create(moduleManager)));
     }
 }

@@ -16,14 +16,13 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.segment.parser.define.service;
+package org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener;
 
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListenerFactory;
-import org.apache.skywalking.apm.collector.core.module.Service;
+import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 
 /**
  * @author peng-yongsheng
  */
-public interface ISegmentParserListenerRegister extends Service {
-    void register(SpanListenerFactory spanListenerFactory);
+public interface SpanListenerFactory {
+    SpanListener create(ModuleManager moduleManager);
 }
