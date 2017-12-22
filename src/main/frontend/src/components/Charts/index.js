@@ -1,6 +1,7 @@
 import numeral from 'numeral';
 import ChartCard from './ChartCard';
 import Bar from './Bar';
+import Line from './Line';
 import Pie from './Pie';
 import Radar from './Radar';
 import Gauge from './Gauge';
@@ -17,6 +18,7 @@ const yuan = val => `&yen; ${numeral(val).format('0,0')}`;
 export default {
   yuan,
   Bar,
+  Line,
   Pie,
   Gauge,
   Radar,

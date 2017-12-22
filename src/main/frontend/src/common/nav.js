@@ -28,10 +28,22 @@ export const getNavData = app => [
         component: dynamicWrapper(app, ['application'], () => import('../routes/Application/Application')),
       },
       {
+        name: 'Server',
+        icon: 'server',
+        path: 'server',
+        component: dynamicWrapper(app, ['server'], () => import('../routes/Server/Server')),
+      },
+      {
         name: 'Service',
         icon: 'service',
         path: 'service',
         component: dynamicWrapper(app, ['service'], () => import('../routes/Service/Service')),
+      },
+      {
+        name: 'Alert',
+        icon: 'alert',
+        path: 'alert',
+        component: dynamicWrapper(app, ['alert'], () => import('../routes/Alert/Alert')),
       },
     ],
   },
