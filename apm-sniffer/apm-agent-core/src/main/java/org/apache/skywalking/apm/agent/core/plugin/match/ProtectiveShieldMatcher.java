@@ -22,7 +22,7 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
 /**
- * In same cases, some frameworks and libraries use some binary codes tech too. From the community feedback, some of
+ * In some cases, some frameworks and libraries use some binary codes tech too. From the community feedback, some of
  * them have compatible issues with byte-buddy core, which trigger "Can't resolve type description" exception.
  *
  * So I build this protective shield by a nested matcher. When the origin matcher(s) can't resolve the type, the
