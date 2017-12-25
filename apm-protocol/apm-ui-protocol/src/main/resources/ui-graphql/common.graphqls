@@ -1,0 +1,21 @@
+schema {
+  query: Query
+}
+
+type Query {
+  version: String
+}
+
+type Duration{
+  start: String!  # https://www.ietf.org/rfc/rfc3339.txt
+  end: String!
+  step: Step!
+}
+
+enum Step{
+  MONTH
+  DAY
+  HOUR
+  MINUTE
+  SECOND
+}
