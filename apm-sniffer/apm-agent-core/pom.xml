@@ -36,7 +36,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jetty.version>9.4.2.v20170220</jetty.version>
         <grpc.version>1.8.0</grpc.version>
-        <bytebuddy.version>1.7.6</bytebuddy.version>
+        <bytebuddy.version>1.7.9</bytebuddy.version>
 
         <shade.package>org.apache.skywalking.apm.dependencies</shade.package>
         <shade.com.lmax.disruptor.source>com.lmax.disruptor</shade.com.lmax.disruptor.source>
