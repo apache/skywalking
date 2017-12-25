@@ -16,22 +16,22 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jetty.v9.client;
 
 import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.eclipse.jetty.client.HttpRequest;
 import org.eclipse.jetty.http.HttpFields;
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.eclipse.jetty.http.HttpMethod;
 
 public class SyncHttpRequestSendInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -42,7 +42,19 @@ public class SyncHttpRequestSendInterceptor implements InstanceMethodsAroundInte
         ContextCarrier contextCarrier = new ContextCarrier();
         AbstractSpan span = ContextManager.createExitSpan(request.getURI().getPath(), contextCarrier, request.getHost() + ":" + request.getPort());
         span.setComponent(ComponentsDefine.JETTY_CLIENT);
-        Tags.HTTP.METHOD.set(span, "GET");
+        HttpMethod httpMethod = HttpMethod.GET;
+
+        /**
+         * The method is null if the client using GET method.
+         *
+         * @see org.eclipse.jetty.client.HttpRequest#GET(String uri)
+         * @see org.eclipse.jetty.client.HttpRequest( org.eclipse.jetty.client.HttpClient client, long conversation, java.net.URI uri)
+         */
+        if (request.getMethod() != null) {
+            httpMethod = request.getMethod();
+        }
+
+        Tags.HTTP.METHOD.set(span, httpMethod.asString());
         Tags.URL.set(span, request.getURI().toString());
         SpanLayer.asHttp(span);
 
