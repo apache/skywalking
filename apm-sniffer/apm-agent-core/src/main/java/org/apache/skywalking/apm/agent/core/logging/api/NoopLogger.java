@@ -26,9 +26,7 @@ package org.apache.skywalking.apm.agent.core.logging.api;
  * Created by xin on 2016/11/10.
  */
 public enum NoopLogger implements ILog {
-    INSTANCE {
-
-    };
+    INSTANCE;
 
     @Override
     public void info(String message) {
@@ -87,6 +85,12 @@ public enum NoopLogger implements ILog {
 
     @Override
     public void error(Throwable e, String format, Object... arguments) {
+
+    }
+
+
+    @Override
+    public void warn(Throwable e, String format, Object... arguments) {
 
     }
 }
