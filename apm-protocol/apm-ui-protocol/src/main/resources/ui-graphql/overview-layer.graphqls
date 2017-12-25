@@ -1,0 +1,38 @@
+type ApplicationTopology {
+  nodes: [Node]!
+  edges: [Edge]
+  duration: Duration!
+}
+
+interface Node {
+  id: ID!
+  name: String!
+  type: String
+}
+
+type ApplicationNode implements Node {
+  id: ID!
+  name: String!
+  type: String
+  sla: Float!
+  calls: Long!
+  apdex: Float!
+  totalInstance: Int!
+  totalAlert: Int!
+}
+
+type ResourceNode implements Node {
+  id: ID!
+  name: String!
+  type: String
+}
+
+type Edge {
+  source: ID!
+  target: ID!
+  isAlert: Boolean
+}
+
+extend type Query {
+  getApplicationTopology: ApplicationTopology
+}
