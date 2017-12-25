@@ -30,6 +30,7 @@ import org.apache.skywalking.apm.agent.core.plugin.bytebuddy.AbstractJunction;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.IndirectMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
+import org.apache.skywalking.apm.agent.core.plugin.match.ProtectiveShieldMatcher;
 
 import static net.bytebuddy.matcher.ElementMatchers.isInterface;
 import static net.bytebuddy.matcher.ElementMatchers.not;
@@ -98,6 +99,6 @@ public class PluginFinder {
                 judge = judge.or(((IndirectMatch)match).buildJunction());
             }
         }
-        return judge;
+        return new ProtectiveShieldMatcher(judge);
     }
 }
