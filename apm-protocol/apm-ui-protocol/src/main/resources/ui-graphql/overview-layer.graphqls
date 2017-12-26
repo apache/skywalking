@@ -3,7 +3,6 @@
 type ApplicationTopology {
   nodes: [Node]!
   calls: [Call]
-  duration: Duration!
 }
 
 # The base Node of all node types in topology
@@ -70,20 +69,17 @@ type ClusterBrief {
   numOfDatabase: Int
   numOfCache: Int
   numOfMQ: Int
-  duration: Duration!
 }
 
 # Query the trend of alarm rate based on the given duration
 type AlarmTrend {
   numOfAlarmRate: [Int]!
-  duration: Duration!
 }
 
 # Query all conjectural applications based on the given duration
 # All applications here are not installed agent.
 type ConjecturalAppBrief {
   apps: [ConjecturalApp!]
-  duration: Duration!
 }
 
 # The basic info of the conjectural application,
@@ -96,7 +92,8 @@ type ConjecturalApp {
 }
 
 extend type Query {
-  getApplicationTopology: ApplicationTopology
-  getClusterBrief: ClusterBrief
-  getAlarmTrend: AlarmTrend
+  getApplicationTopology(duration: Duration!): ApplicationTopology
+  getClusterBrief(duration: Duration!): ClusterBrief
+  getAlarmTrend(duration: Duration!): AlarmTrend
+  getConjecturalApps(duration: Duration!): ConjecturalAppBrief
 }

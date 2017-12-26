@@ -1,16 +1,37 @@
+# The list of traces
 type TraceBrief {
   traces: [BasicTrace!]
-  duration: Duration!
-
 }
 
+# Trace basic info
 type BasicTrace {
    operationName: String!
    duration: Int!
    start: String!
+   isError: Boolean
+   traceId: String
 }
 
+# Represent the conditions used for query TraceBrief
+type TraceQueryCondition {
+  applicationCodes: [String!]
+  traceId: String
+  operationName: String
+  # The time range of traces started
+  queryDuration: Duration
+  # The mix time of trace
+  minTraceDuration: Int
+  # The max time of trace
+  maxTraceDuration: Int
+  topN: Boolean
+  needTotal: Int
+}
+
+enum QueryOrder {
+  BY_START_TIME
+  BY_DURATION
+}
 
 extend type Query {
-   queryBasicTraces: TraceBrief
+   queryBasicTraces(condition: TraceQueryCondition): TraceBrief
 }
