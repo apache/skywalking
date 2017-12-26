@@ -6,8 +6,26 @@ type Query {
   version: String
 }
 
+# The Duration defines the start and end time for each query operation.
+# Fields: `start` and `end`
+#   represents the time span. And each of them matches the step.
+#   ref https://www.ietf.org/rfc/rfc3339.txt
+#   The time formats are
+#       `SECOND` step: yyyy-MM-dd HHmmss
+#       `MINUTE` step: yyyy-MM-dd HHmm
+#       `HOUR` step: yyyy-MM-dd HH
+#       `DAY` step: yyyy-MM-dd
+#       `MONTH` step: yyyy-MM
+# Field: `step`
+#   represents the accurate time point.
+# e.g.
+#   if step==HOUR , start=2017-11-08 09, end=2017-11-08 19
+#   then
+#       metrics from the following time points expected
+#       2017-11-08 9:00 -> 2017-11-08 19:00
+#       there are 11 time points (hours) in the time span.
 type Duration{
-  start: String!  # https://www.ietf.org/rfc/rfc3339.txt
+  start: String!
   end: String!
   step: Step!
 }
