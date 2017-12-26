@@ -91,9 +91,19 @@ type ConjecturalApp {
   num: int!
 }
 
+type ApplicationBrief {
+  apps: [ApplicationInfo!]
+}
+
+type ApplicationInfo {
+  name: String!
+  tps: int!
+}
+
 extend type Query {
   getApplicationTopology(duration: Duration!): ApplicationTopology
   getClusterBrief(duration: Duration!): ClusterBrief
   getAlarmTrend(duration: Duration!): AlarmTrend
   getConjecturalApps(duration: Duration!): ConjecturalAppBrief
+  getApplicationBrief(duration: Duration!, topN: Int!): ApplicationBrief
 }
