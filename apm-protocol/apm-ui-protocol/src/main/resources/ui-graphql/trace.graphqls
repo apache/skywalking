@@ -1,0 +1,16 @@
+type TraceBrief {
+  traces: [BasicTrace!]
+  duration: Duration!
+
+}
+
+type BasicTrace {
+   operationName: String!
+   duration: Int!
+   start: String!
+}
+
+
+extend type Query {
+   queryBasicTraces: TraceBrief
+}

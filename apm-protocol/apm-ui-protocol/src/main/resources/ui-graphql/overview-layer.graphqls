@@ -63,6 +63,40 @@ type Call {
   responseTimePerSec: Int!
 }
 
+# Query the cluster brief based on the given duration
+type ClusterBrief {
+  numOfApplication: Int
+  numOfService: Int
+  numOfDatabase: Int
+  numOfCache: Int
+  numOfMQ: Int
+  duration: Duration!
+}
+
+# Query the trend of alarm rate based on the given duration
+type AlarmTrend {
+  numOfAlarmRate: [Int]!
+  duration: Duration!
+}
+
+# Query all conjectural applications based on the given duration
+# All applications here are not installed agent.
+type ConjecturalAppBrief {
+  apps: [ConjecturalApp!]
+  duration: Duration!
+}
+
+# The basic info of the conjectural application,
+# includes the type and num of same type application
+type ConjecturalApp {
+  # The display name of the application
+  # e.g. MySQL, RocketMQ, Kafka, Nginx
+  name: String!
+  num: int!
+}
+
 extend type Query {
   getApplicationTopology: ApplicationTopology
+  getClusterBrief: ClusterBrief
+  getAlarmTrend: AlarmTrend
 }
