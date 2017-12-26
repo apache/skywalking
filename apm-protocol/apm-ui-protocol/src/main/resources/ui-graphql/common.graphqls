@@ -2,6 +2,7 @@ schema {
   query: Query
 }
 
+#Root node
 type Query {
   version: String
 }
@@ -24,7 +25,7 @@ type Query {
 #       metrics from the following time points expected
 #       2017-11-08 9:00 -> 2017-11-08 19:00
 #       there are 11 time points (hours) in the time span.
-type Duration{
+input Duration{
   start: String!
   end: String!
   step: Step!

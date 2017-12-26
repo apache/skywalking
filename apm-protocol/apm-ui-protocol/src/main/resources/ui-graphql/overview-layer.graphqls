@@ -88,7 +88,7 @@ type ConjecturalApp {
   # The display name of the application
   # e.g. MySQL, RocketMQ, Kafka, Nginx
   name: String!
-  num: int!
+  num: Int!
 }
 
 type ApplicationBrief {
@@ -97,7 +97,7 @@ type ApplicationBrief {
 
 type ApplicationInfo {
   name: String!
-  tps: int!
+  tps: Int!
 }
 
 extend type Query {

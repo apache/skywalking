@@ -13,7 +13,7 @@ type BasicTrace {
 }
 
 # Represent the conditions used for query TraceBrief
-type TraceQueryCondition {
+input TraceQueryCondition {
   applicationCodes: [String!]
   traceId: String
   operationName: String
