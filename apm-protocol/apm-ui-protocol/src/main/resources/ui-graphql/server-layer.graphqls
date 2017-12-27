@@ -1,0 +1,19 @@
+# The server info.
+# At here, `Server` represents a process in OS,
+# e.g.
+#   1. Spring boot application
+#   2. A Tomcat server instance
+type AppServerInfo {
+  id: ID!
+  name: String!
+  tps: Int!
+  os: String
+  host: String
+  pid: Int
+  IPv4: String
+  IPv6: String
+}
+
+extend type Query {
+  
+}
