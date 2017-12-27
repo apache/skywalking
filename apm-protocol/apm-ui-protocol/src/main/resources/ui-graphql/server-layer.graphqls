@@ -14,6 +14,29 @@ type AppServerInfo {
   IPv6: String
 }
 
+type CPUTrend {
+  cost: [Int!]
+}
+
+# The gc trend represents the numbers of Garbage Collector execution
+type GCTrend {
+  youngGC: [Int!]
+  oldGC: [Int!]
+}
+
+# The memory used and max limit in heap and noheap space.
+type MemoryTrend {
+  heap: [int!]
+  maxHeap: [int!]
+  noheap: [int!]
+  maxNoheap: [int!]
+}
+
+
 extend type Query {
-  
+  getServerResponseTimeTrend(serverId: ID!, duration: Duration!): ResponseTimeTrend
+  getServerTPSTrend(serverId: ID!, duration: Duration!): TPSTrend
+  getCPUTrend(serverId: ID!, duration: Duration!): CPUTrend
+  getGCTrend(serverId: ID!, duration: Duration!): GCTrend
+  getMemoryTrend(serverId: ID!, duration: Duration!): MemoryTrend
 }
