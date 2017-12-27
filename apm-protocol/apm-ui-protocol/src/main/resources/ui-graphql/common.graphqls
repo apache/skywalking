@@ -1,10 +1,10 @@
 schema {
-  query: Query
+    query: Query
 }
 
 #Root node
 type Query {
-  version: String
+    version: String
 }
 
 # The Duration defines the start and end time for each query operation.
@@ -25,31 +25,76 @@ type Query {
 #       metrics from the following time points expected
 #       2017-11-08 9:00 -> 2017-11-08 19:00
 #       there are 11 time points (hours) in the time span.
-input Duration{
-  start: String!
-  end: String!
-  step: Step!
+input Duration {
+    start: String!
+    end: String!
+    step: Step!
 }
 
-enum Step{
-  MONTH
-  DAY
-  HOUR
-  MINUTE
-  SECOND
+enum Step {
+    MONTH
+    DAY
+    HOUR
+    MINUTE
+    SECOND
 }
 
 ######################################
 # Common Metrics and Trends
 ######################################
 type ResponseTimeTrend {
-  trendList: [Int!]
-}
-
-type TPSTrend {
-  trendList: [Int!]
+    trendList: [Int!]
 }
 
 type ThroughputTrend {
-  trendList: [Int!]
+    trendList: [Int!]
+}
+
+type SLATrend {
+    trendList: [Int!]
+}
+
+# The overview topology of the whole application cluster or services,
+type Topology {
+    nodes: [Node]!
+    calls: [Call]
+}
+
+# The base Node of all node types in topology
+interface Node {
+    # The global id of each node,
+    # 1. `Application ID` represents application under monitoring
+    # 2. `Peer ID` string represents the conjectural dependency.
+    id: ID!
+    # Application Code or literal Peer
+    name: String!
+    # The type name
+    # 1. The most important component in the application, from service provider perspective.
+    # 2. Conjectural dependent component, e.g. MySQL, Redis, Kafka
+    type: String
+}
+
+# The Call represents a directed distributed call,
+# from the `source` to the `target`.
+type Call {
+    source: ID!
+    target: ID!
+    isAlert: Boolean
+    # The protocol and tech stack used in this distributed call
+    callType: String!
+    callsPerSec: Int!
+    # Unit: millisecond
+    responseTimePerSec: Int!
+}
+
+# The item of slow service list
+type DurationItem {
+    name: String!
+    duration: Int!
+}
+
+# The item of throughput list
+type ThroughputItem {
+    name: String!
+    tps: Int!
 }
