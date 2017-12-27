@@ -38,3 +38,18 @@ enum Step{
   MINUTE
   SECOND
 }
+
+######################################
+# Common Metrics and Trends
+######################################
+type ResponseTimeTrend {
+  trendList: [Int!]
+}
+
+type TPSTrend {
+  trendList: [Int!]
+}
+
+type ThroughputTrend {
+  trendList: [Int!]
+}

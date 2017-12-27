@@ -1,0 +1,8 @@
+type AppServerList {
+   servers: [AppServerInfo!]
+}
+
+extend type Query {
+  getApplicationTopology(appId: ID!, duration: Duration!): ApplicationTopology
+  getServers(appId: ID!, duration: Duration!): AppServerList
+}
