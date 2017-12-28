@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.plugin.okhttp.v3;
 
 import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -29,15 +28,12 @@ public class OnFailureInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        EnhancedInstance realCallInstance = (EnhancedInstance)allArguments[0];
-        ContextManager.createLocalSpan("CallBack/AsyncCall").errorOccurred();
-        ContextManager.continued((ContextSnapshot)realCallInstance.getSkyWalkingDynamicField());
+        ContextManager.activeSpan().errorOccurred();
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        ContextManager.stopSpan();
         return ret;
     }
 
