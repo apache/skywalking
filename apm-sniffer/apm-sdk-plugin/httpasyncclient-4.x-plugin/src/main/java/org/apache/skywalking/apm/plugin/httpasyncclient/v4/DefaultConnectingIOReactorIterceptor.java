@@ -19,7 +19,9 @@
 package org.apache.skywalking.apm.plugin.httpasyncclient.v4;
 
 import java.lang.reflect.Method;
+import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -37,10 +39,11 @@ public class DefaultConnectingIOReactorIterceptor implements InstanceMethodsArou
 
     @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-
-        AbstractSpan span = ContextManager.createLocalSpan("httpasyncclient/DefaultConnectingIOReactor:");
+        Object[] cacheValue = (Object[])objInst.getSkyWalkingDynamicField();
+        final ContextCarrier contextCarrier = new ContextCarrier();
+        AbstractSpan span = ContextManager.createExitSpan("httpasyncclient/" + method.getName(), contextCarrier, cacheValue[1].toString());
+        ContextManager.continued((ContextSnapshot)cacheValue[0]);
         span.setComponent(ComponentsDefine.HTTP_ASYNC_CLIENT).setLayer(SpanLayer.HTTP);
-
     }
 
     @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,

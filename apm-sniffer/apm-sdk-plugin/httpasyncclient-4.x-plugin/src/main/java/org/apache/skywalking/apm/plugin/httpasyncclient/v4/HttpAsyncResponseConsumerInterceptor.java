@@ -43,7 +43,9 @@ public class HttpAsyncResponseConsumerInterceptor implements InstanceMethodsArou
 
         HttpAsyncRequestProducer producer = (HttpAsyncRequestProducer)allArguments[0];
         String uri = producer.generateRequest().getRequestLine().getUri();
-        AbstractSpan span = ContextManager.createLocalSpan("HttpAsyncClient/execute");
+        String requestMethod = producer.generateRequest().getRequestLine().getMethod();
+        AbstractSpan span = ContextManager.createLocalSpan("httpasyncclient/" + method.getName());
+        Tags.HTTP.METHOD.set(span, requestMethod);
         span.setComponent(ComponentsDefine.HTTP_ASYNC_CLIENT).setLayer(SpanLayer.HTTP);
         Tags.URL.set(span, uri);
 

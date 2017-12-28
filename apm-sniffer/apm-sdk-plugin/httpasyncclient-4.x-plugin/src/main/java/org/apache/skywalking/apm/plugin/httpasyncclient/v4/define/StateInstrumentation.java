@@ -29,8 +29,8 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link StateInstrumentation} presents that skywalking intercept {@link org.apache.http.nio.protocol.HttpAsyncRequestExecutor$State#setRequest #setResponse}
- * .
+ * {@link StateInstrumentation} presents that skywalking intercept {@link org.apache.http.nio.protocol.HttpAsyncRequestExecutor$State#setRequest
+ * #setResponse} .
  *
  * @author liyuntao
  */

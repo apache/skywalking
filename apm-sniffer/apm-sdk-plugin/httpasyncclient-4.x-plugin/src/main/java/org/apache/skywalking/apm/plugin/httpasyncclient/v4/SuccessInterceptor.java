@@ -41,7 +41,7 @@ public class SuccessInterceptor implements InstanceMethodsAroundInterceptor {
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         SessionRequest request = (SessionRequest)allArguments[0];
 
-        AbstractSpan localSpan = ContextManager.createLocalSpan("httpasyncclient/request");
+        AbstractSpan localSpan = ContextManager.createLocalSpan("httpasyncclient/" + method.getName());
         localSpan.setComponent(ComponentsDefine.HTTP_ASYNC_CLIENT).setLayer(SpanLayer.HTTP);
         Object cacheValue = ((EnhancedInstance)request).getSkyWalkingDynamicField();
         ContextManager.continued((ContextSnapshot)cacheValue);

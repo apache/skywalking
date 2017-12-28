@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.plugin.httpasyncclient.v4;
 
 import java.lang.reflect.Method;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -43,8 +44,9 @@ public class HttpHostInterceptor implements InstanceMethodsAroundInterceptor {
 
         HttpHost producer = (HttpHost)allArguments[0];
         String uri = producer.toURI();
-        AbstractSpan span = ContextManager.createLocalSpan("HttpAsyncClient/execute");
+        AbstractSpan span = ContextManager.createLocalSpan("httpasyncclient/" + method.getName());
         span.setComponent(ComponentsDefine.HTTP_ASYNC_CLIENT).setLayer(SpanLayer.HTTP);
+        Tags.HTTP.METHOD.set(span, ((HttpRequest)allArguments[1]).getRequestLine().getMethod());
         Tags.URL.set(span, uri);
 
     }

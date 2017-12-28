@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.plugin.httpasyncclient.v4;
 
 import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -41,6 +42,14 @@ public class ConnectIterceptor implements InstanceMethodsAroundInterceptor {
     @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
         ((EnhancedInstance)ret).setSkyWalkingDynamicField(ContextManager.capture());
+
+        InetSocketAddress remoteAddress = (InetSocketAddress)allArguments[0];
+        String peer = remoteAddress.toString().substring(1);
+
+        Object[] cacheValue = new Object[3];
+        cacheValue[0] = ContextManager.capture();
+        cacheValue[1] = peer;
+        objInst.setSkyWalkingDynamicField(cacheValue);
         return ret;
     }
 

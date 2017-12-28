@@ -35,13 +35,13 @@ public class SessionRequestImplIterceptor implements InstanceMethodsAroundInterc
 
     @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+        AbstractSpan activeSpan = ContextManager.activeSpan();
+        activeSpan.errorOccurred();
 
     }
 
     @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        AbstractSpan activeSpan = ContextManager.activeSpan();
-        activeSpan.errorOccurred();
         return ret;
     }
 

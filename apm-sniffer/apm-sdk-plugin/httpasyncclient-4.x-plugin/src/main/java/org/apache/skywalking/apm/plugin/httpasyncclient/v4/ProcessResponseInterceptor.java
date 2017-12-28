@@ -37,10 +37,11 @@ public class ProcessResponseInterceptor implements InstanceMethodsAroundIntercep
 
     @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-
+        AbstractSpan activeSpan = ContextManager.activeSpan();
+        String uri = activeSpan.getOperationName();
         //stop exitSpan
         ContextManager.stopSpan();
-        AbstractSpan localSpan = ContextManager.createLocalSpan("future/Callback:");
+        AbstractSpan localSpan = ContextManager.createLocalSpan("callback:" + uri);
         localSpan.setComponent(ComponentsDefine.HTTP_ASYNC_CLIENT).setLayer(SpanLayer.HTTP);
     }
 

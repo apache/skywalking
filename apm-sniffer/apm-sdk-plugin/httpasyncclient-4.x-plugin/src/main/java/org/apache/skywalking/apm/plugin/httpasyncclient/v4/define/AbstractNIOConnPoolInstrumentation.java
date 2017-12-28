@@ -30,7 +30,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 
 /**
  * {@link AbstractNIOConnPoolInstrumentation} presents that skywalking intercept {@link
- * org.apache.http.nio.protocol.AbstractNIOConnPool #requestCancelled ,#requestFailed,#requestTimeout,#requestCompleted}.
+ * org.apache.http.nio.protocol.AbstractNIOConnPool #requestCompleted}.
  *
  * @author liyuntao
  */
@@ -39,7 +39,6 @@ public class AbstractNIOConnPoolInstrumentation extends ClassInstanceMethodsEnha
 
     private static final String ENHANCE_CLASS = "org.apache.http.nio.pool.AbstractNIOConnPool";
     private static final String START_LOCAL_SUCCESS_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.httpasyncclient.v4.SuccessInterceptor";
-    private static final String START_EXIT_FAILED_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.httpasyncclient.v4.FailedInterceptor";
 
     @Override
     public ClassMatch enhanceClass() {
@@ -54,22 +53,7 @@ public class AbstractNIOConnPoolInstrumentation extends ClassInstanceMethodsEnha
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("requestCancelled").or(named("requestFailed")).or(named("requestTimeout"));
-                }
 
-                @Override
-                public String getMethodsInterceptor() {
-                    return START_EXIT_FAILED_INTERCEPT_CLASS;
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            },
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
