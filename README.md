@@ -22,12 +22,13 @@ Underlying technology is a distributed tracing system.
 * Pure Java server implementation, provide RESTful and gRPC services. Compatibility with other language agents/SDKs. 
 * The UI released on [skywalking-ui](https://github.com/apache/incubator-skywalking-ui)
 
-# Architecture
-<img src="https://skywalkingtest.github.io/page-resources/3.2.5%2b_architecture.jpg"/>
-
 # Document
 [![EN doc](https://img.shields.io/badge/document-English-blue.svg)](docs/README.md) [![cn doc](https://img.shields.io/badge/document-中文-blue.svg)](docs/README_ZH.md)
 
+# Architecture
+<img src="https://skywalkingtest.github.io/page-resources/5.0/architecture.png"/>
+
+# Code f conduct
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wusheng@apache.org.
 
 # Screenshots
