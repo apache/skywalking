@@ -19,25 +19,32 @@
 package org.apache.skywalking.apm.plugin.okhttp.v3;
 
 import java.lang.reflect.Method;
+import okhttp3.Response;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
+/**
+ * {@link OnResponseInterceptor} validate the response code if it is great equal than 400. if so. the transaction status
+ * chang to `error`, or do nothing.
+ *
+ * @author zhangxin
+ */
 public class OnResponseInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        EnhancedInstance realCallInstance = (EnhancedInstance)allArguments[0];
-        ContextManager.createLocalSpan("CallBack/AsyncCall");
-        ContextManager.continued((ContextSnapshot)realCallInstance.getSkyWalkingDynamicField());
+        Response response = (Response)allArguments[1];
+
+        if (response.code() >= 400) {
+            ContextManager.activeSpan().errorOccurred();
+        }
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        ContextManager.stopSpan();
         return ret;
     }
 
