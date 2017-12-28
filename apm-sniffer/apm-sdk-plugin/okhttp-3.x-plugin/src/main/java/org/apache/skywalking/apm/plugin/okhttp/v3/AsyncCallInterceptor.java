@@ -64,9 +64,12 @@ public class AsyncCallInterceptor implements InstanceConstructorInterceptor, Ins
         EnhanceRequiredInfo enhanceRequiredInfo = (EnhanceRequiredInfo)objInst.getSkyWalkingDynamicField();
         Request request = (Request)enhanceRequiredInfo.getRealCallEnhance().getSkyWalkingDynamicField();
 
-        ContextCarrier contextCarrier = new ContextCarrier();
+
         HttpUrl requestUrl = request.url();
-        AbstractSpan span = ContextManager.createExitSpan(requestUrl.uri().getPath(), contextCarrier, requestUrl.host() + ":" + requestUrl.port());
+        AbstractSpan span = ContextManager.createExitSpan(requestUrl.uri().getPath(), requestUrl.host() + ":" + requestUrl.port());
+        ContextManager.continued(enhanceRequiredInfo.getContextSnapshot());
+        ContextCarrier contextCarrier = new ContextCarrier();
+        ContextManager.inject(contextCarrier);
         span.setComponent(ComponentsDefine.OKHTTP);
         Tags.HTTP.METHOD.set(span, request.method());
         Tags.URL.set(span, requestUrl.uri().toString());
@@ -86,7 +89,7 @@ public class AsyncCallInterceptor implements InstanceConstructorInterceptor, Ins
         }
         headersField.set(request, headerBuilder.build());
 
-        ContextManager.continued(enhanceRequiredInfo.getContextSnapshot());
+
     }
 
     @Override
