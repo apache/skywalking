@@ -26,6 +26,13 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
+/**
+ * {@link EnqueueInterceptor} create a local span and the prefix of the span operation name is start with `Async` when
+ * the `enqueue` method called and also put the `ContextSnapshot` and `RealCall` instance into the
+ * `SkyWalkingDynamicField`.
+ *
+ * @author zhangxin
+ */
 public class EnqueueInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
@@ -35,12 +42,13 @@ public class EnqueueInterceptor implements InstanceMethodsAroundInterceptor, Ins
         ContextManager.createLocalSpan("Async" + request.url().uri().getPath());
 
         /**
-         * Here is the process how to buried the point of async function.
+         * Here is the process about how to trace the async function.
          *
          * 1. Storage `Request` object into `RealCall` instance when the constructor of `RealCall` called.
          * 2. Put the `RealCall` instance to `CallBack` instance
-         * 3. Get the `RealCall` instance into `AsyncCall` instance when the constructor of `RealCall` called.
-         * 4. Create the exist span by using the `RealCall` instance when `AsyncCall` method called.
+         * 3. Get the `RealCall` instance from `CallBack` and then Put the `RealCall` into `AsyncCall` instance
+         *    since the constructor of `RealCall` called.
+         * 5. Create the exit span by using the `RealCall` instance when `AsyncCall` method called.
          */
 
         callbackInstance.setSkyWalkingDynamicField(new EnhanceRequiredInfo(objInst, ContextManager.capture()));

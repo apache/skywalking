@@ -36,6 +36,15 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
+/**
+ * {@link AsyncCallInterceptor} get the `EnhanceRequiredInfo` instance from `SkyWalkingDynamicField` and then put it
+ * into `AsyncCall` instance when the `AsyncCall` constructor called.
+ *
+ * {@link AsyncCallInterceptor} also create an exit span by using the `EnhanceRequiredInfo` when the `execute` method
+ * called.
+ *
+ * @author zhangxin
+ */
 public class AsyncCallInterceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {

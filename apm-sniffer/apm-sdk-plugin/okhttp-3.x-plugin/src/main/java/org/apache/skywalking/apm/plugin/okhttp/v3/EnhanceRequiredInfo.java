@@ -21,6 +21,12 @@ package org.apache.skywalking.apm.plugin.okhttp.v3;
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 
+/**
+ * {@link EnhanceRequiredInfo} storage the `ContextSnapshot` and `RealCall` instances for support the async function of
+ * okhttp client.
+ *
+ * @author zhangxin
+ */
 public class EnhanceRequiredInfo {
     private ContextSnapshot contextSnapshot;
     private EnhancedInstance realCallEnhance;
