@@ -47,6 +47,19 @@ public class CallbackInstrumentation extends ClassInstanceMethodsEnhancePluginDe
                 @Override public boolean isOverrideArgs() {
                     return false;
                 }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("onResponse");
+                }
+
+                @Override public String getMethodsInterceptor() {
+                    return "org.apache.skywalking.apm.plugin.okhttp.v3.OnResponseInterceptor";
+                }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
+                }
             }
         };
     }
