@@ -25,7 +25,7 @@ Underlying technology is a distributed tracing system.
 # Document
 [![EN doc](https://img.shields.io/badge/document-English-blue.svg)](docs/README.md) [![cn doc](https://img.shields.io/badge/document-中文-blue.svg)](docs/README_ZH.md)
 
-# Architecture
+# 5.x Architecture
 <img src="https://skywalkingtest.github.io/page-resources/5.0/architecture.png"/>
 
 # Code of conduct
