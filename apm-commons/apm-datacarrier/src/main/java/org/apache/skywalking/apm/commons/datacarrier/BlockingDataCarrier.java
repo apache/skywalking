@@ -16,22 +16,22 @@
  *
  */
 
+package org.apache.skywalking.apm.commons.datacarrier;
 
-package org.apache.skywalking.apm.plugin.jdbc.mysql.define;
-
-import org.apache.skywalking.apm.plugin.jdbc.define.AbstractDriverInstrumentation;
-import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-
-import static org.apache.skywalking.apm.plugin.jdbc.mysql.define.MultiClassNameMatch.byMultiClassMatch;
+import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
+import org.apache.skywalking.apm.commons.datacarrier.callback.QueueBlockingCallback;
 
 /**
- * {@link DriverInstrumentation} presents that skywalking intercepts {@link com.mysql.jdbc.Driver}.
- *
- * @author zhangxin
+ * @author wu-sheng
  */
-public class DriverInstrumentation extends AbstractDriverInstrumentation {
-    @Override
-    protected ClassMatch enhanceClass() {
-        return byMultiClassMatch("com.mysql.jdbc.Driver", "com.mysql.cj.jdbc.Driver", "com.mysql.jdbc.NonRegisteringDriver");
+public class BlockingDataCarrier<T> {
+    private Channels<T> channels;
+
+    BlockingDataCarrier(Channels<T> channels) {
+        this.channels = channels;
+    }
+
+    public void addCallback(QueueBlockingCallback<T> callback) {
+        this.channels.addCallback(callback);
     }
 }

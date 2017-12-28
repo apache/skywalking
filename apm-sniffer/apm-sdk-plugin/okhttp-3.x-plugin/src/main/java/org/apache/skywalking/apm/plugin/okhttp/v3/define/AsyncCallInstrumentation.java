@@ -16,8 +16,7 @@
  *
  */
 
-
-package org.apache.skywalking.apm.plugin.jetty.v9.client.define;
+package org.apache.skywalking.apm.plugin.okhttp.v3.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -25,39 +24,36 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
+import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
+import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * {@link HttpRequestInstrumentation} enhance the <code>send</code> method without argument in
- * <code>org.eclipse.jetty.client.HttpRequest</code> by <code>org.apache.skywalking.apm.plugin.jetty.client.SyncHttpRequestSendInterceptor</code>
- * and enhance the <code>send</code> with <code>org.eclipse.jetty.client.api.Response$CompleteListener</code> parameter
- * by <code>org.apache.skywalking.apm.plugin.jetty.client.AsyncHttpRequestSendInterceptor</code>
- *
- * @author zhangxin
- */
-public class HttpRequestInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-
-    private static final String ENHANCE_CLASS = "org.eclipse.jetty.client.HttpRequest";
-    private static final String ENHANCE_CLASS_NAME = "send";
-    public static final String SYNC_SEND_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jetty.v9.client.SyncHttpRequestSendInterceptor";
+public class AsyncCallInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[0];
+        return new ConstructorInterceptPoint[] {
+            new ConstructorInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return any();
+                }
+
+                @Override public String getConstructorInterceptor() {
+                    return "org.apache.skywalking.apm.plugin.okhttp.v3.AsyncCallInterceptor";
+                }
+            }
+        };
     }
 
     @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                //sync call interceptor point
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_CLASS_NAME).and(takesArguments(0));
+                    return named("execute");
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return SYNC_SEND_INTERCEPTOR;
+                    return "org.apache.skywalking.apm.plugin.okhttp.v3.AsyncCallInterceptor";
                 }
 
                 @Override public boolean isOverrideArgs() {
@@ -68,6 +64,6 @@ public class HttpRequestInstrumentation extends ClassInstanceMethodsEnhancePlugi
     }
 
     @Override protected ClassMatch enhanceClass() {
-        return NameMatch.byName(ENHANCE_CLASS);
+        return byName("okhttp3.RealCall$AsyncCall");
     }
 }

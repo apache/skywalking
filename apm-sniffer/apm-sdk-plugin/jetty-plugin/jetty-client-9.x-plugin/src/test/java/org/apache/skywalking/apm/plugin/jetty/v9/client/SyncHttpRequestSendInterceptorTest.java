@@ -63,7 +63,7 @@ public class SyncHttpRequestSendInterceptorTest {
     private Object[] allArguments;
     private Class[] argumentTypes;
     private MockHttpRequest enhancedInstance;
-    private AsyncHttpRequestSendInterceptor interceptor;
+    private SyncHttpRequestSendInterceptor interceptor;
     private URI uri = URI.create("http://localhost:8080/test");
 
     @Before
@@ -72,7 +72,7 @@ public class SyncHttpRequestSendInterceptorTest {
         allArguments = new Object[] {"OperationKey", "OperationValue"};
         argumentTypes = new Class[] {String.class, String.class};
 
-        interceptor = new AsyncHttpRequestSendInterceptor();
+        interceptor = new SyncHttpRequestSendInterceptor();
         allArguments = new Object[] {callBackEnhanceInstance};
     }
 

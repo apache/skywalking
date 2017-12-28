@@ -16,22 +16,13 @@
  *
  */
 
-
-package org.apache.skywalking.apm.plugin.jdbc.mysql.define;
-
-import org.apache.skywalking.apm.plugin.jdbc.define.AbstractDriverInstrumentation;
-import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-
-import static org.apache.skywalking.apm.plugin.jdbc.mysql.define.MultiClassNameMatch.byMultiClassMatch;
+package org.apache.skywalking.apm.commons.datacarrier.callback;
 
 /**
- * {@link DriverInstrumentation} presents that skywalking intercepts {@link com.mysql.jdbc.Driver}.
+ * Notify when the queue, which is in blocking strategy, has be blocked.
  *
- * @author zhangxin
+ * @author wu-sheng
  */
-public class DriverInstrumentation extends AbstractDriverInstrumentation {
-    @Override
-    protected ClassMatch enhanceClass() {
-        return byMultiClassMatch("com.mysql.jdbc.Driver", "com.mysql.cj.jdbc.Driver", "com.mysql.jdbc.NonRegisteringDriver");
-    }
+public interface QueueBlockingCallback<T> {
+    void notify(T message);
 }

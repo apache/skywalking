@@ -55,8 +55,8 @@
         <module>apm-commons</module>
         <module>apm-sniffer</module>
         <module>apm-application-toolkit</module>
-        <module>apm-network</module>
         <module>apm-collector</module>
+        <module>apm-protocol</module>
     </modules>
     <packaging>pom</packaging>
 
