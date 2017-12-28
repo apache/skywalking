@@ -25,23 +25,35 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
+import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierarchyMatch;
+import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-public class CallbackInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class AsyncCallInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[0];
+        return new ConstructorInterceptPoint[] {
+            new ConstructorInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return any();
+                }
+
+                @Override public String getConstructorInterceptor() {
+                    return "org.apache.skywalking.apm.plugin.okhttp.v3.AsyncCallInterceptor";
+                }
+            }
+        };
     }
 
     @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("onFailure");
+                    return named("execute");
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.okhttp.v3.OnFailureInterceptor";
+                    return "org.apache.skywalking.apm.plugin.okhttp.v3.AsyncCallInterceptor";
                 }
 
                 @Override public boolean isOverrideArgs() {
@@ -52,6 +64,6 @@ public class CallbackInstrumentation extends ClassInstanceMethodsEnhancePluginDe
     }
 
     @Override protected ClassMatch enhanceClass() {
-        return byHierarchyMatch(new String[] {"okhttp3.Callback"});
+        return byName("okhttp3.RealCall$AsyncCall");
     }
 }

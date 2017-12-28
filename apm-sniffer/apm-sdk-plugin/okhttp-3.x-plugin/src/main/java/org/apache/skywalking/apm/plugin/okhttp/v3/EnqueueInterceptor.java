@@ -18,54 +18,32 @@
 
 package org.apache.skywalking.apm.plugin.okhttp.v3;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import okhttp3.Headers;
-import okhttp3.HttpUrl;
 import okhttp3.Request;
-import org.apache.skywalking.apm.agent.core.context.CarrierItem;
-import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.tag.Tags;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 public class EnqueueInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-
+        EnhancedInstance callbackInstance = (EnhancedInstance)allArguments[0];
         Request request = (Request)objInst.getSkyWalkingDynamicField();
+        ContextManager.createLocalSpan("Async" + request.url().uri().getPath());
 
-        ContextCarrier contextCarrier = new ContextCarrier();
-        HttpUrl requestUrl = request.url();
-        AbstractSpan span = ContextManager.createExitSpan(requestUrl.uri().getPath(), contextCarrier, requestUrl.host() + ":" + requestUrl.port());
-        span.setComponent(ComponentsDefine.OKHTTP);
-        Tags.HTTP.METHOD.set(span, request.method());
-        Tags.URL.set(span, requestUrl.uri().toString());
-        SpanLayer.asHttp(span);
+        /**
+         * Here is the process how to buried the point of async function.
+         *
+         * 1. Storage `Request` object into `RealCall` instance when the constructor of `RealCall` called.
+         * 2. Put the `RealCall` instance to `CallBack` instance
+         * 3. Get the `RealCall` instance into `AsyncCall` instance when the constructor of `RealCall` called.
+         * 4. Create the exist span by using the `RealCall` instance when `AsyncCall` method called.
+         */
 
-        Field headersField = Request.class.getDeclaredField("headers");
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(headersField, headersField.getModifiers() & ~Modifier.FINAL);
-
-        headersField.setAccessible(true);
-        Headers.Builder headerBuilder = request.headers().newBuilder();
-        CarrierItem next = contextCarrier.items();
-        while (next.hasNext()) {
-            next = next.next();
-            headerBuilder.add(next.getHeadKey(), next.getHeadValue());
-        }
-        headersField.set(request, headerBuilder.build());
-
-        objInst.setSkyWalkingDynamicField(ContextManager.capture());
+        callbackInstance.setSkyWalkingDynamicField(new EnhanceRequiredInfo(objInst, ContextManager.capture()));
     }
 
     @Override
