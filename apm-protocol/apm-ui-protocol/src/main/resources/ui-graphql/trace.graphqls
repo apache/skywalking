@@ -32,6 +32,58 @@ enum QueryOrder {
   BY_DURATION
 }
 
+# The trace represents a distributed trace, includes all segments and spans.
+type Trace {
+  traceId: ID!
+  segments: [Segment!]
+}
+
+type Segment {
+  segmentId: ID!
+  appName: String!
+  isSizeLimited: Boolean!
+  spans: [Span!]!
+}
+
+type Span {
+  refs: [Ref!]
+  spanId: Int!
+  parentSpanId: Int!
+  startTime: Long!
+  endTime: Long!
+  operationName: String
+  # There are three span types: Local, Entry and Exit
+  type: String!
+  # Peer network id, e.g. host+port, ip+port
+  peer: String
+  component: String
+  isError: Boolean
+  # There are 5 layers: Unknown, Database, RPCFramework, Http, MQ and Cache
+  layer: String
+  tags: [KeyValue!]
+  logs: [LogEntity!]
+}
+
+# Ref represents the link between the segment and its parents.
+type Ref {
+  parentSegmentId: ID!
+  parentSpanId: Int!
+  # Ref type represents why did the ref happen.
+  # Include: 1) CrossProcess 2) CrossThread
+  type: String!
+}
+
+type KeyValue {
+  key: String!
+  value: String
+}
+
+type LogEntity {
+  time: String
+  data: [KeyValue!]
+}
+
 extend type Query {
    queryBasicTraces(condition: TraceQueryCondition): TraceBrief
+   queryTrace(traceId: ID!): Trace
 }
