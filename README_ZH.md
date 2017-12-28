@@ -28,7 +28,7 @@ Apache SkyWalking | [English](README.md)
 [![EN doc](https://img.shields.io/badge/document-English-blue.svg)](docs/README.md) [![cn doc](https://img.shields.io/badge/-中文-blue.svg)](docs/README_ZH.md)
 
 
-# Architecture
+# 5.x Architecture
 <img src="https://skywalkingtest.github.io/page-resources/5.0/architecture.png"/>
 
 # code of conduct
