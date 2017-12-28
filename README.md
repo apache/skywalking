@@ -28,7 +28,7 @@ Underlying technology is a distributed tracing system.
 # Architecture
 <img src="https://skywalkingtest.github.io/page-resources/5.0/architecture.png"/>
 
-# Code f conduct
+# Code of conduct
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wusheng@apache.org.
 
 # Screenshots
