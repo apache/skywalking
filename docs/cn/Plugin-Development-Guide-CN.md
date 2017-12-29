@@ -4,7 +4,8 @@
 ### 核心概念
 #### 一. Span
 Span是追踪系统中的通用概念（有时候被翻译成埋点），关于Span的定义，请参考[OpenTracing 中文版](https://github.com/opentracing-contrib/opentracing-specification-zh/blob/master/specification.md#opentracing数据模型)。
-sky-walking作为OpenTracing的支持者，在核心实现中，与标准有较高的相似度。
+
+SkyWalking作为OpenTracing的支持者，在核心实现中，与标准有较高的相似度。当然，作为实际产品的需要，我们一会扩展相关概念。
 
 我们将span分为三类：
 
@@ -15,10 +16,10 @@ EntrySpan代表一个服务的提供方，即，服务端的入口点。它是�
 LocalSpan代表一个普通的Span,代表任意一个本地逻辑块（或方法）
 
 1.3 ExitSpan
-ExitSpan也可以称为LeafSpan(sky-walking的早期版本中的称呼)，代表了一个远程服务的客户端调用。如：一次JDBC调用。
+ExitSpan也可以称为LeafSpan(SkyWalking的早期版本中的称呼)，代表了一个远程服务的客户端调用。如：一次JDBC调用。
 
 #### 二. ContextCarrier
-分布式追踪要解决的一个重要问题，就是跨进程的问题，ContextCarrier的概念就是为了解决这种场景。
+分布式追踪要解决的一个重要问题，就是跨进程调用链连接的问题，ContextCarrier的概念就是为了解决这种场景。
 
 当发生一次**A->B**的网络调用时：
 1. 需要在客户端生成(inject操作)ContextCarrier，并序列化成String
@@ -52,7 +53,8 @@ ExitSpan也可以称为LeafSpan(sky-walking的早期版本中的称呼)，代表
 ```
 
 #### 三. ContextSnapshot
-除了跨进程的RPC调用，另外一种追踪的常见场景是跨线程。跨线程和跨进程有很高的相似度，都是需要完成上下文的传递工作。所以ContextSnapshot具有和ContextCarrier十分类似的API风格。
+除了跨进程的RPC调用，另外一种追踪的常见场景是跨线程保持链路连接。跨线程和跨进程有很高的相似度，都是需要完成上下文的传递工作。
+所以ContextSnapshot具有和ContextCarrier十分类似的API风格。
 
 当发生一次**A->B**的跨线程调用时：
 1. 需要在A线程中通过ContextManager#capture操作生成ContextSnapshot对象实例
@@ -147,7 +149,7 @@ SpanLayer为我们的特有概念，如果是远程调用类的服务，请设�
 
 ### 开发插件
 #### 一. 简介
-因为所有的程序调用都是基于方法的，所以插件实际上就是基于方法的拦截，类似面向切面编程的AOP技术。sky-walking底层已经完成相关的技术封装，所以插件开发者只需要定位需要拦截的类、方法，然后结合上文中的追踪API，即可完成插件的开发。
+因为所有的程序调用都是基于方法的，所以插件实际上就是基于方法的拦截，类似面向切面编程的AOP技术。SkyWalking底层已经完成相关的技术封装，所以插件开发者只需要定位需要拦截的类、方法，然后结合上文中的追踪API，即可完成插件的开发。
 
 #### 二. 拦截类型
 根据Java方法，共有三种拦截类型
@@ -267,10 +269,10 @@ public interface InstanceMethodsAroundInterceptor {
 
 大家需支持以下步骤执行：
 1. 在issue页面提出插件扩展需求，对应的版本。
-1. Fork wu-sheng/sky-walking到本地
+1. Fork apache/incubator-skywalking到本地
 1. 在apm-sniffer/apm-sdk-plugin下新建自己的插件模块，模块名为：支持类库名称+版本号
 1. 按照规范开发插件
 1. 完善注释和测试用例
 1. 在本地打包进行集成测试
-1. 提交Pull Request到 wu-sheng/sky-walking，提供插件追踪的截图（拓扑和Trace明细），可独立运行的被追踪程序、docker镜像或docker-compose。
-1. sky-walking PMC( Project Management Committee) 成员完成插件审核，确定发布版本，并合并到主仓库。
+1. 提交Pull Request到 apache/incubator-skywalking，根据评审团队要求，提供相关自动化测试用例
+1. SkyWalking Committer成员完成插件审核，确定发布版本，并合并到主仓库。
