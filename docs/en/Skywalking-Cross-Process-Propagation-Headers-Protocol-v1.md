@@ -9,7 +9,7 @@ You can find many similar mechanism in other commercial APM system.(Some even mu
 * Header Name: `sw3`
 * Header Value: Split by `|`, the parts are following.
 
-_The header protocol comes from SkyWalking 3, back to 2017. So sw3 header name keeps now._ 
+_The header protocol came from SkyWalking 3, back to 2017. So sw3 header name keeps now._ 
 
 ## Values
 * Trace Segment Id
