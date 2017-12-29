@@ -1,12 +1,11 @@
-# 探针与Collector间通讯协议
+# Trace Data Protocol 中文
+Trace Data Protocol协议，也就是探针与Collector间通讯协议
+
 ## 前言
-这篇文章主要介绍3.2版本的Collector对外提供的服务协议。一般情况下，使用者和开发者都无需了解此协议细节。但是在庞大的开源生态中，我们已经收到过多次有公司或个人的使用案例，使用自己的非Java探针（PHP,GO等）探针，接入我们的Collector进行数据分析和监控。
+此协议包含了Agent上行/下行数据的格式，可用于定制开发，或者探针的多语言扩展
 
 ## 协议类型
-Collector从3.2开始，对外同时提供gRPC和HTTP RESTFul两种类型的协议。从效率上，我们推荐使用gRPC
-
-# gRPC服务
-本章节，描述官方java探针使用的网络协议
+对外同时提供gRPC和HTTP RESTFul两种类型的协议。从效率上，我们推荐使用gRPC
 
 ## Collector服务发现协议
 ### 简介
@@ -17,7 +16,7 @@ HTTP GET
 
 ### 协议内容
 - 请求
-GET操作：http://collectorIp:port/agentstream/grpc 。 其中`/agentstream/grpc`是默认值，如需修改，需要参考collector相关配置。
+GET操作：http://collectorIp:port/agent/grpc 。 其中`/agent/grpc`是默认值，如需修改，需要参考collector相关配置。
 
 - 返回
 JSON数组，数组的每个元素，为一个有效的gRPC服务地址。
@@ -33,7 +32,7 @@ JSON数组，数组的每个元素，为一个有效的gRPC服务地址。
 gRPC服务
 
 ### 协议内容
-https://github.com/apache/incubator-skywalking/blob/master/apm-network/src/main/proto/ApplicationRegisterService.proto
+[gRPC service define](../..apm-protocol/apm-network/src/main/proto/ApplicationRegisterService.proto)
 ```proto
 syntax = "proto3";
 
@@ -44,22 +43,22 @@ import "KeyWithIntegerValue.proto";
 
 //register service for ApplicationCode, this service is called when service starts.
 service ApplicationRegisterService {
-    rpc register (Application) returns (ApplicationMapping) {
+    rpc batchRegister (Applications) returns (ApplicationMappings) {
     }
 }
 
-message Application {
-    repeated string applicationCode = 1;
+message Applications {
+    repeated string applicationCodes = 1;
 }
 
-message ApplicationMapping {
-    repeated KeyWithIntegerValue application = 1;
+message ApplicationMappings {
+    repeated KeyWithIntegerValue applications = 1;
 }
 ```
 - 首次调用时，applicationCode为客户端设置的应用名（显示在拓扑图和应用列表上的名字）。之后随着追踪过程，会上报此应用相关的周边服务的`ip:port`地址列表
 - KeyWithIntegerValue 返回，key为上报的applicationCode和ip:port地址，value为对应的id。applicationCode对应的返回id,在后续协议中，被称为applicationId。
 - 此服务按需调用，本地无法找到ip:port对应的id时，可异步发起调用。
-- 获取applicationId的操作是必选。
+- 获取applicationId的操作是必选。后续追踪数据依赖此id
 - 获取ip:port对应的id是可选，但是完成id设置，会有效提高collector处理效率，降低网络消耗。
 
 
@@ -71,7 +70,7 @@ message ApplicationMapping {
 gRPC服务
 
 ### 实例注册服务
-https://github.com/apache/incubator-skywalking/blob/master/apm-network/src/main/proto/DiscoveryService.proto#L11-L12
+[gRPC service define](../../apm-protocol/apm-network/src/main/proto/DiscoveryService.proto#L11-L12)
 ```proto
 service InstanceDiscoveryService {
     rpc register (ApplicationInstance) returns (ApplicationInstanceMapping) {
@@ -102,7 +101,7 @@ message ApplicationInstanceMapping {
 - 服务端返回应用实例id，applicationInstanceId 。后续上报服务使用实例id标识。
 
 ### 实例心跳服务
-https://github.com/apache/incubator-skywalking/blob/master/apm-network/src/main/proto/DiscoveryService.proto#L14-L15
+[gRPC service define](../../apm-protocol/apm-network/src/main/proto/DiscoveryService.proto#L14-L15)
 ```proto
 service InstanceDiscoveryService {
     rpc heartbeat (ApplicationInstanceHeartbeat) returns (Downstream) {
@@ -142,7 +141,7 @@ message ApplicationInstanceRecover {
 gRPC服务
 
 ### 协议内容
-https://github.com/apache/incubator-skywalking/blob/master/apm-network/src/main/proto/DiscoveryService.proto#L53-L74
+[gRPC service define](../../apm-protocol/apm-network/src/main/proto/DiscoveryService.proto#L53-L74)
 ```proto
 //discovery service for ServiceName by Network address or application code
 service ServiceNameDiscoveryService {
@@ -179,7 +178,7 @@ message ServiceNameElement {
 gRPC服务
 
 ### 协议内容
-https://github.com/apache/incubator-skywalking/blob/master/apm-network/src/main/proto/JVMMetricsService.proto
+[gRPC service define](../../apm-protocol/apm-network/src/main/proto/JVMMetricsService.proto)
 ```proto
 syntax = "proto3";
 
@@ -256,6 +255,7 @@ enum GCPhrase {
 gRPC服务
 
 ### 协议内容
+[gRPC service define](../../apm-protocol/apm-network/src/main/proto/TraceSegmentService.proto)
 ```proto
 syntax = "proto3";
 
@@ -281,10 +281,10 @@ message UniqueId {
 
 message TraceSegmentObject {
     UniqueId traceSegmentId = 1;
-    repeated TraceSegmentReference refs = 2;
-    repeated SpanObject spans = 3;
-    int32 applicationId = 4;
-    int32 applicationInstanceId = 5;
+    repeated SpanObject spans = 2;
+    int32 applicationId = 3;
+    int32 applicationInstanceId = 4;
+    bool isSizeLimited = 5;
 }
 
 message TraceSegmentReference {
@@ -294,10 +294,11 @@ message TraceSegmentReference {
     int32 parentApplicationInstanceId = 4;
     string networkAddress = 5;
     int32 networkAddressId = 6;
-    string entryServiceName = 7;
-    int32 entryServiceId = 8;
-    string parentServiceName = 9;
-    int32 parentServiceId = 10;
+    int32 entryApplicationInstanceId = 7;
+    string entryServiceName = 8;
+    int32 entryServiceId = 9;
+    string parentServiceName = 10;
+    int32 parentServiceId = 11;
 }
 
 message SpanObject {
@@ -305,17 +306,18 @@ message SpanObject {
     int32 parentSpanId = 2;
     int64 startTime = 3;
     int64 endTime = 4;
-    int32 operationNameId = 5;
-    string operationName = 6;
-    int32 peerId = 7;
-    string peer = 8;
-    SpanType spanType = 9;
-    SpanLayer spanLayer = 10;
-    int32 componentId = 11;
-    string component = 12;
-    bool isError = 13;
-    repeated KeyWithStringValue tags = 14;
-    repeated LogMessage logs = 15;
+    repeated TraceSegmentReference refs = 5;
+    int32 operationNameId = 6;
+    string operationName = 7;
+    int32 peerId = 8;
+    string peer = 9;
+    SpanType spanType = 10;
+    SpanLayer spanLayer = 11;
+    int32 componentId = 12;
+    string component = 13;
+    bool isError = 14;
+    repeated KeyWithStringValue tags = 15;
+    repeated LogMessage logs = 16;
 }
 
 enum RefType {
@@ -330,10 +332,12 @@ enum SpanType {
 }
 
 enum SpanLayer {
-    Database = 0;
-    RPCFramework = 1;
-    Http = 2;
-    MQ = 3;
+    Unknown = 0;
+    Database = 1;
+    RPCFramework = 2;
+    Http = 3;
+    MQ = 4;
+    Cache = 5;
 }
 
 message LogMessage {
@@ -342,11 +346,11 @@ message LogMessage {
 }
 ```
 - UniqueId为segment或者globalTraceId的数字表示。由3个long组成，1）applicationInstanceId，2）当前线程id，3）当前时间戳*10000 + seq(0-10000自循环)
-- Span的数据，请参考[插件开发规范](https://github.com/apache/incubator-skywalking/wiki/Plugin-Development-Guide)
+- Span的数据，请参考[插件开发规范](Plugin-Development-Guide-CN.md)
 - 以下id和名称根据注册返回结果，优先上报id，无法获取id时，再上传name。参考之前的应用和服务注册章节。
   - operationNameId/operationName 
   - networkAddress/networkAddressId
   - entryServiceName/entryServiceId
   - parentServiceName/parentServiceId
   - peerId/peer
-- componentId为默认支持的插件id，非官方支持，需传输名称或修改服务端源代码。[官方组件列表](../../apm-network/src/main/java/org/apache/skywalking/apm/network/trace/component/ComponentsDefine.java)
+- componentId为默认支持的插件id，非官方支持，需传输名称或修改服务端源代码。[官方组件列表](../../apm-protocol/apm-network/src/main/java/org/apache/skywalking/apm/network/trace/component/ComponentsDefine.java)
