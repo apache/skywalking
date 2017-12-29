@@ -15,4 +15,3 @@
   - **apm-network/target/generated--sources/protobuf**目录下的`grpc-java`和`java`目录
   - **apm-collector/apm-collector-remote/apm-remote-grpc-provider/target/protobuf**目录下的`grpc-java`和`java`目录
 
-注：从3.2开始，网络通讯协议引入GRPC，所以增加上述的步骤
