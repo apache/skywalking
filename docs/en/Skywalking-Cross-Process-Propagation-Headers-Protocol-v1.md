@@ -1,11 +1,15 @@
-# Skywalking 3 Cross Process Propagation Headers Protocol
+# Skywalking Cross Process Propagation Headers Protocol
 * Version 1.0
 
-This is the first open edition about `Skywalking 3 Cross Process Propagation Headers Protocol`. The skywalking is more likely an APM system, rather than normal distributed tracing system. The Headers is much more complex than them in order to improving analysis performance of collector. You can find many similar mechanism in other commercial APM system.(Some even much more complex than us)
+SkyWalking is more likely an APM system, rather than common distributed tracing system. 
+The Headers is much more complex than them in order to improving analysis performance of collector. 
+You can find many similar mechanism in other commercial APM system.(Some even much more complex than us)
 
 # Header Item
 * Header Name: `sw3`
 * Header Value: Split by `|`, the parts are following.
+
+_The header protocol came from SkyWalking 3, back to 2017. So sw3 header name keeps now._ 
 
 ## Values
 * Trace Segment Id
