@@ -12,6 +12,14 @@ type ServiceNode implements Node {
     numOfServiceAlarm: Int!
 }
 
+type ServiceInfo {
+    id: ID!
+    name: String
+    # The unit is millisecond.
+    avgResponseTime: Int!
+    tps: Int!
+}
+
 type TraceItem {
     time: String!
     entry: String!
@@ -24,5 +32,4 @@ extend type Query {
     getServiceTPSTrend(serviceId: ID!, duration: Duration!): ThroughputTrend
     getServiceSLATrend(serviceId: ID!, duration: Duration!): SLATrend
     getServiceTopology(serviceId: ID!, duration: Duration!): Topology
-    getServiceSlowTrace(serviceId: ID!, duration: Duration!): [TraceItem]
 }

@@ -86,15 +86,3 @@ type Call {
     # Unit: millisecond
     responseTimePerSec: Int!
 }
-
-# The item of slow service list
-type DurationItem {
-    name: String!
-    duration: Int!
-}
-
-# The item of throughput list
-type ThroughputItem {
-    name: String!
-    tps: Int!
-}
