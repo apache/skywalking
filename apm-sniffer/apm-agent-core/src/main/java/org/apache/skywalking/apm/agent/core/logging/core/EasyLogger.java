@@ -106,6 +106,12 @@ public class EasyLogger implements ILog {
     }
 
     @Override
+    public void warn(Throwable e, String format, Object... arguments) {
+        if (isWarnEnable())
+            logger(LogLevel.WARN, replaceParam(format, arguments), e);
+    }
+
+    @Override
     public void error(String format, Throwable e) {
         if (isErrorEnable())
             logger(LogLevel.ERROR, format, e);
