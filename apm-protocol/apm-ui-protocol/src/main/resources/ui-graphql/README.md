@@ -31,4 +31,11 @@ Query trace by some conditions.
 Query alarm info.
 
 ## Version
-1.0-alpha
+v1alpha1
+
+### Versioning
+Use URI Versioning, to follow the most straightforward approach, 
+though it does violate the principle that a URI should refer to a unique resource.
+
+e.g.
+http://collector.host/graphql/v1alpha1
