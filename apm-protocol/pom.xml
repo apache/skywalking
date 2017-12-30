@@ -32,6 +32,6 @@
 
     <modules>
         <module>apm-network</module>
-        <module>apm-ui-query</module>
+        <module>apm-ui-protocol</module>
     </modules>
 </project>
