@@ -16,44 +16,44 @@
  *
  */
 
-
-package org.apache.skywalking.apm.plugin.spring.concurrent.define;
+package org.apache.skywalking.apm.plugin.okhttp.v3.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
+import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static org.apache.skywalking.apm.plugin.spring.concurrent.match.SuccessCallbackMatch.successCallbackMatch;
+import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * {@link SuccessCallbackInstrumentation} enhance the <code>onSuccess</code> method that class inherited
- * <code>org.springframework.util.concurrent.SuccessCallback</code> by <code>SuccessCallbackInterceptor</code>.
- *
- * @author zhangxin
- */
-public class SuccessCallbackInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-
-    public static final String SUCCESS_CALLBACK_INTERCEPTOR =
-        "org.apache.skywalking.apm.plugin.spring.concurrent.SuccessCallbackInterceptor";
-    public static final String SUCCESS_METHOD_NAME = "onSuccess";
+public class AsyncCallInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[0];
+        return new ConstructorInterceptPoint[] {
+            new ConstructorInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return any();
+                }
+
+                @Override public String getConstructorInterceptor() {
+                    return "org.apache.skywalking.apm.plugin.okhttp.v3.AsyncCallInterceptor";
+                }
+            }
+        };
     }
 
     @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(SUCCESS_METHOD_NAME);
+                    return named("execute");
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return SUCCESS_CALLBACK_INTERCEPTOR;
+                    return "org.apache.skywalking.apm.plugin.okhttp.v3.AsyncCallInterceptor";
                 }
 
                 @Override public boolean isOverrideArgs() {
@@ -64,6 +64,6 @@ public class SuccessCallbackInstrumentation extends ClassInstanceMethodsEnhanceP
     }
 
     @Override protected ClassMatch enhanceClass() {
-        return successCallbackMatch();
+        return byName("okhttp3.RealCall$AsyncCall");
     }
 }
