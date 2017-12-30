@@ -38,7 +38,7 @@ import static org.apache.skywalking.apm.plugin.spring.concurrent.match.SuccessCa
 public class SuccessCallbackInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     public static final String SUCCESS_CALLBACK_INTERCEPTOR =
-        "SuccessCallbackInterceptor";
+        "org.apache.skywalking.apm.plugin.spring.concurrent.SuccessCallbackInterceptor";
     public static final String SUCCESS_METHOD_NAME = "onSuccess";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
