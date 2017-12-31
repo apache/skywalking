@@ -87,7 +87,7 @@ public class DefaultHttpClientInterceptorTest {
     public void setUp() throws Exception {
 
         Map<String, Collection<String>> headers = new LinkedHashMap<String, Collection<String>>();
-        request = Request.create("GET", "http://skywalking.org", headers, "Test".getBytes(), Charset.forName("UTF-8"));
+        request = Request.create("GET", "http://skywalking.org/", headers, "Test".getBytes(), Charset.forName("UTF-8"));
         Request.Options options = new Request.Options();
         allArguments = new Object[] {request, options};
         argumentTypes = new Class[] {request.getClass(), options.getClass()};
@@ -112,7 +112,7 @@ public class DefaultHttpClientInterceptorTest {
         List<KeyValuePair> tags = SpanHelper.getTags(finishedSpan);
         assertThat(tags.size(), is(2));
         assertThat(tags.get(0).getValue(), is("GET"));
-        assertThat(tags.get(1).getValue(), is(""));
+        assertThat(tags.get(1).getValue(), is("http://skywalking.org/"));
 
         Assert.assertEquals(false, SpanHelper.getErrorOccurred(finishedSpan));
     }
@@ -135,7 +135,7 @@ public class DefaultHttpClientInterceptorTest {
         List<KeyValuePair> tags = SpanHelper.getTags(finishedSpan);
         assertThat(tags.size(), is(3));
         assertThat(tags.get(0).getValue(), is("GET"));
-        assertThat(tags.get(1).getValue(), is(""));
+        assertThat(tags.get(1).getValue(), is("http://skywalking.org/"));
         assertThat(tags.get(2).getValue(), is("404"));
 
         Assert.assertEquals(true, SpanHelper.getErrorOccurred(finishedSpan));
@@ -166,7 +166,7 @@ public class DefaultHttpClientInterceptorTest {
         List<KeyValuePair> tags = SpanHelper.getTags(finishedSpan);
         assertThat(tags.size(), is(2));
         assertThat(tags.get(0).getValue(), is("GET"));
-        assertThat(tags.get(1).getValue(), is(""));
+        assertThat(tags.get(1).getValue(), is("http://skywalking.org/"));
 
         Assert.assertEquals(true, SpanHelper.getErrorOccurred(finishedSpan));
 
