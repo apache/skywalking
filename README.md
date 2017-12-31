@@ -23,7 +23,7 @@ Underlying technology is a distributed tracing system.
 * The UI released on [skywalking-ui](https://github.com/apache/incubator-skywalking-ui)
 
 # Document
-[![EN doc](https://img.shields.io/badge/document-English-blue.svg)](docs/README.md) [![cn doc](https://img.shields.io/badge/document-中文-blue.svg)](docs/README_ZH.md)
+[![EN doc](https://img.shields.io/badge/document-English-blue.svg)](docs/README.md) [![cn doc](https://img.shields.io/badge/文档-中文版-blue.svg)](docs/README_ZH.md)
 
 # 5.x Architecture
 <img src="https://skywalkingtest.github.io/page-resources/5.0/architecture.png"/>
