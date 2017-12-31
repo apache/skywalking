@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.resttemplate.sync;
 
 import java.lang.reflect.Method;
@@ -40,7 +39,8 @@ public class RestExecuteInterceptor implements InstanceMethodsAroundInterceptor 
         final URI requestURL = (URI)allArguments[0];
         final HttpMethod httpMethod = (HttpMethod)allArguments[1];
         final ContextCarrier contextCarrier = new ContextCarrier();
-        String remotePeer = requestURL.getHost() + ":" + requestURL.getPort();
+
+        String remotePeer = requestURL.getHost() + ":" + (requestURL.getPort() > 0 ? requestURL.getPort() : "https".equalsIgnoreCase(requestURL.getScheme()) ? 443 : 80);
         AbstractSpan span = ContextManager.createExitSpan(requestURL.getPath(), contextCarrier, remotePeer);
 
         span.setComponent(ComponentsDefine.SPRING_REST_TEMPLATE);
