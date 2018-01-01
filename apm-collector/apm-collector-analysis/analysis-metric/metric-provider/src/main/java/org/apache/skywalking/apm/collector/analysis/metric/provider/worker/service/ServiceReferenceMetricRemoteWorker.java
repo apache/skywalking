@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service;
 
-import org.apache.skywalking.apm.collector.analysis.metric.define.graph.WorkerIdDefine;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractRemoteWorker;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractRemoteWorkerProvider;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
@@ -37,7 +37,7 @@ public class ServiceReferenceMetricRemoteWorker extends AbstractRemoteWorker<Ser
     }
 
     @Override public int id() {
-        return WorkerIdDefine.SERVICE_REFERENCE_METRIC_REMOTE_WORKER_ID;
+        return MetricWorkerIdDefine.SERVICE_REFERENCE_METRIC_REMOTE_WORKER_ID;
     }
 
     @Override protected void onWork(ServiceReferenceMetric serviceReferenceMetric) throws WorkerException {

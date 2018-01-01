@@ -20,7 +20,7 @@ package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.appl
 
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.skywalking.apm.collector.analysis.metric.define.graph.GraphIdDefine;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.EntrySpanListener;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.FirstSpanListener;
@@ -65,7 +65,7 @@ public class ApplicationMappingSpanListener implements FirstSpanListener, EntryS
 
     @Override public void build() {
         logger.debug("node mapping listener build");
-        Graph<ApplicationMapping> graph = GraphManager.INSTANCE.findGraph(GraphIdDefine.APPLICATION_MAPPING_GRAPH_ID, ApplicationMapping.class);
+        Graph<ApplicationMapping> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.APPLICATION_MAPPING_GRAPH_ID, ApplicationMapping.class);
         applicationMappings.forEach(applicationMapping -> {
             applicationMapping.setId(timeBucket + Const.ID_SPLIT + applicationMapping.getId());
             applicationMapping.setTimeBucket(timeBucket);

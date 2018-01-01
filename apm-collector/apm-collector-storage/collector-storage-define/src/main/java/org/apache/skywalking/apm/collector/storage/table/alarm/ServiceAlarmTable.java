@@ -16,21 +16,16 @@
  *
  */
 
+package org.apache.skywalking.apm.collector.storage.table.alarm;
 
-package org.apache.skywalking.apm.collector.storage.table.alerting;
-
-import org.apache.skywalking.apm.collector.core.data.CommonTable;
+import org.apache.skywalking.apm.collector.storage.table.CommonMetricTable;
 
 /**
  * @author peng-yongsheng
  */
-public class AlertingListTable extends CommonTable {
-    public static final String TABLE = "alerting_list";
-    public static final String COLUMN_LAYER = "layer";
-    public static final String COLUMN_LAYER_ID = "layer_id";
-    public static final String COLUMN_FIRST_TIME_BUCKET = "first_time_bucket";
+public class ServiceAlarmTable extends CommonMetricTable {
+    public static final String TABLE = "service_alarm";
+    public static final String COLUMN_ALARM_TYPE = "alarm_type";
     public static final String COLUMN_LAST_TIME_BUCKET = "last_time_bucket";
-    public static final String COLUMN_EXPECTED = "expected";
-    public static final String COLUMN_ACTUAL = "actual";
-    public static final String COLUMN_VALID = "valid";
+    public static final String COLUMN_ALARM_CONTENT = "alarm_content";
 }

@@ -16,45 +16,46 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.alarm.provider.worker;
+package org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.service;
 
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.alarm.define.graph.AlarmWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IAlertingListPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.table.alerting.AlertingList;
+import org.apache.skywalking.apm.collector.storage.dao.IServiceAlarmListPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.table.alarm.ServiceAlarmList;
 
 /**
  * @author peng-yongsheng
  */
-public class AlertingListPersistenceWorker extends PersistenceWorker<AlertingList, AlertingList> {
+public class ServiceMetricAlarmListPersistenceWorker extends PersistenceWorker<ServiceAlarmList> {
 
-    public AlertingListPersistenceWorker(ModuleManager moduleManager) {
+    public ServiceMetricAlarmListPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     @Override public int id() {
-        return 114;
+        return AlarmWorkerIdDefine.SERVICE_METRIC_ALARM_LIST_PERSISTENCE_WORKER_ID;
     }
 
     @Override protected boolean needMergeDBData() {
         return true;
     }
 
-    @Override protected IPersistenceDAO persistenceDAO() {
-        return getModuleManager().find(StorageModule.NAME).getService(IAlertingListPersistenceDAO.class);
+    @SuppressWarnings("unchecked")
+    @Override protected IPersistenceDAO<?, ?, ServiceAlarmList> persistenceDAO() {
+        return getModuleManager().find(StorageModule.NAME).getService(IServiceAlarmListPersistenceDAO.class);
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<AlertingList, AlertingList, AlertingListPersistenceWorker> {
-
+    public static class Factory extends PersistenceWorkerProvider<ServiceAlarmList, ServiceMetricAlarmListPersistenceWorker> {
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
         }
 
-        @Override public AlertingListPersistenceWorker workerInstance(ModuleManager moduleManager) {
-            return new AlertingListPersistenceWorker(moduleManager);
+        @Override public ServiceMetricAlarmListPersistenceWorker workerInstance(ModuleManager moduleManager) {
+            return new ServiceMetricAlarmListPersistenceWorker(moduleManager);
         }
 
         @Override

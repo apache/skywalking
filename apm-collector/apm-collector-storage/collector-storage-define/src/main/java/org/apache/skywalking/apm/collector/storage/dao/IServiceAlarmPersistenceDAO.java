@@ -16,12 +16,13 @@
  *
  */
 
+package org.apache.skywalking.apm.collector.storage.dao;
 
-package org.apache.skywalking.apm.collector.analysis.metric.provider.worker;
+import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.table.alarm.ServiceAlarm;
 
 /**
  * @author peng-yongsheng
  */
-public enum MetricSource {
-    Exit, Entry
+public interface IServiceAlarmPersistenceDAO<Insert, Update, DataImpl extends ServiceAlarm> extends IPersistenceDAO<Insert, Update, DataImpl> {
 }

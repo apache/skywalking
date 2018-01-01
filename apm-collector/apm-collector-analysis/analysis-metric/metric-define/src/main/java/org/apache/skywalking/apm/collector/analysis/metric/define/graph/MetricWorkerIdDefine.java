@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.collector.analysis.metric.define.graph;
 /**
  * @author peng-yongsheng
  */
-public class WorkerIdDefine {
+public class MetricWorkerIdDefine {
     public static final int SERVICE_REFERENCE_METRIC_AGGREGATION_WORKER_ID = 400;
     public static final int SERVICE_REFERENCE_METRIC_REMOTE_WORKER_ID = 401;
     public static final int SERVICE_REFERENCE_METRIC_PERSISTENCE_WORKER_ID = 402;

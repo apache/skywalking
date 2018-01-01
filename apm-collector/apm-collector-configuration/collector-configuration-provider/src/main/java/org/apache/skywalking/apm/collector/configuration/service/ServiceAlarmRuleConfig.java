@@ -16,23 +16,26 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.metric.define.graph;
+package org.apache.skywalking.apm.collector.configuration.service;
 
 /**
  * @author peng-yongsheng
  */
-public class GraphIdDefine {
-    public static final int SERVICE_REFERENCE_METRIC_GRAPH_ID = 400;
-    public static final int INSTANCE_REFERENCE_METRIC_GRAPH_ID = 401;
-    public static final int APPLICATION_REFERENCE_METRIC_GRAPH_ID = 402;
+public class ServiceAlarmRuleConfig implements IServiceAlarmRuleConfig {
 
-    public static final int SERVICE_METRIC_GRAPH_ID = 403;
-    public static final int INSTANCE_METRIC_GRAPH_ID = 404;
-    public static final int APPLICATION_METRIC_GRAPH_ID = 405;
+    @Override public double calleeErrorRateThreshold() {
+        return 10.00;
+    }
 
-    public static final int APPLICATION_COMPONENT_GRAPH_ID = 406;
-    public static final int APPLICATION_MAPPING_GRAPH_ID = 407;
-    public static final int SERVICE_ENTRY_GRAPH_ID = 408;
-    public static final int GLOBAL_TRACE_GRAPH_ID = 409;
-    public static final int SEGMENT_COST_GRAPH_ID = 410;
+    @Override public double calleeAverageResponseTimeThreshold() {
+        return 2000;
+    }
+
+    @Override public double callerErrorRateThreshold() {
+        return 10.00;
+    }
+
+    @Override public double callerAverageResponseTimeThreshold() {
+        return 3000;
+    }
 }

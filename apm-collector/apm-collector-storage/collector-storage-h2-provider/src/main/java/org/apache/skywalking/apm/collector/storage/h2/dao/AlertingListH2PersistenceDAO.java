@@ -31,8 +31,8 @@ import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
 import org.apache.skywalking.apm.collector.storage.dao.IAlertingListPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
-import org.apache.skywalking.apm.collector.storage.table.alerting.AlertingList;
-import org.apache.skywalking.apm.collector.storage.table.alerting.AlertingListTable;
+import org.apache.skywalking.apm.collector.storage.table.alarm.AlertingList;
+import org.apache.skywalking.apm.collector.storage.table.alarm.AlertingListTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

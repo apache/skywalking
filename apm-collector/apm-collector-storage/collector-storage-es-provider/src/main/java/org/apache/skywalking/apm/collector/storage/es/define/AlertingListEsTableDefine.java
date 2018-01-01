@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.collector.storage.es.define;
 
 import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchColumnDefine;
 import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchTableDefine;
-import org.apache.skywalking.apm.collector.storage.table.alerting.AlertingListTable;
+import org.apache.skywalking.apm.collector.storage.table.alarm.AlertingListTable;
 
 /**
  * @author peng-yongsheng

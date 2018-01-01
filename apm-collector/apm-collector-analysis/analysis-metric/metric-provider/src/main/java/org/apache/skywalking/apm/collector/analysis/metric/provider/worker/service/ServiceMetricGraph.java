@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service;
 
-import org.apache.skywalking.apm.collector.analysis.metric.define.graph.GraphIdDefine;
-import org.apache.skywalking.apm.collector.analysis.metric.define.graph.WorkerIdDefine;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
@@ -46,21 +46,21 @@ public class ServiceMetricGraph {
     public void create() {
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
-        Graph<ServiceReferenceMetric> graph = GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.SERVICE_METRIC_GRAPH_ID, ServiceReferenceMetric.class);
+        Graph<ServiceReferenceMetric> graph = GraphManager.INSTANCE.createIfAbsent(MetricGraphIdDefine.SERVICE_METRIC_GRAPH_ID, ServiceReferenceMetric.class);
 
         graph.addNode(new ServiceMetricAggregationWorker.Factory(moduleManager).create(workerCreateListener))
-            .addNext(new ServiceMetricRemoteWorker.Factory(moduleManager, remoteSenderService, GraphIdDefine.SERVICE_METRIC_GRAPH_ID).create(workerCreateListener))
+            .addNext(new ServiceMetricRemoteWorker.Factory(moduleManager, remoteSenderService, MetricGraphIdDefine.SERVICE_METRIC_GRAPH_ID).create(workerCreateListener))
             .addNext(new ServiceMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
         link(graph);
     }
 
     private void link(Graph<ServiceReferenceMetric> graph) {
-        GraphManager.INSTANCE.findGraph(GraphIdDefine.SERVICE_REFERENCE_METRIC_GRAPH_ID, ServiceReferenceMetric.class)
-            .toFinder().findNode(WorkerIdDefine.SERVICE_REFERENCE_METRIC_AGGREGATION_WORKER_ID, ServiceReferenceMetric.class)
+        GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.SERVICE_REFERENCE_METRIC_GRAPH_ID, ServiceReferenceMetric.class)
+            .toFinder().findNode(MetricWorkerIdDefine.SERVICE_REFERENCE_METRIC_AGGREGATION_WORKER_ID, ServiceReferenceMetric.class)
             .addNext(new NodeProcessor<ServiceReferenceMetric, ServiceReferenceMetric>() {
                 @Override public int id() {
-                    return WorkerIdDefine.SERVICE_METRIC_GRAPH_BRIDGE_WORKER_ID;
+                    return MetricWorkerIdDefine.SERVICE_METRIC_GRAPH_BRIDGE_WORKER_ID;
                 }
 
                 @Override

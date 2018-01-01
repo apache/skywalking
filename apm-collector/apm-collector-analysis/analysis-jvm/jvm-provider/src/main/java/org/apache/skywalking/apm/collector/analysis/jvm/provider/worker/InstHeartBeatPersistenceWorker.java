@@ -19,8 +19,8 @@
 package org.apache.skywalking.apm.collector.analysis.jvm.provider.worker;
 
 import org.apache.skywalking.apm.collector.analysis.jvm.define.graph.WorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
@@ -30,7 +30,7 @@ import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 /**
  * @author peng-yongsheng
  */
-public class InstHeartBeatPersistenceWorker extends PersistenceWorker<Instance, Instance> {
+public class InstHeartBeatPersistenceWorker extends PersistenceWorker<Instance> {
 
     public InstHeartBeatPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
@@ -44,11 +44,12 @@ public class InstHeartBeatPersistenceWorker extends PersistenceWorker<Instance, 
         return true;
     }
 
-    @Override protected IPersistenceDAO persistenceDAO() {
+    @SuppressWarnings("unchecked")
+    @Override protected IPersistenceDAO<?, ?, Instance> persistenceDAO() {
         return getModuleManager().find(StorageModule.NAME).getService(IInstanceHeartBeatPersistenceDAO.class);
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<Instance, Instance, InstHeartBeatPersistenceWorker> {
+    public static class Factory extends PersistenceWorkerProvider<Instance, InstHeartBeatPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
