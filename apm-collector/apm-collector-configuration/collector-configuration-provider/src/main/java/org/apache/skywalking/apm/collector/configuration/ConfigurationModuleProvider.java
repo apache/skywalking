@@ -25,8 +25,10 @@ import org.apache.skywalking.apm.collector.configuration.service.IApdexThreshold
 import org.apache.skywalking.apm.collector.configuration.service.IApplicationAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.configuration.service.IInstanceAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.configuration.service.IServiceAlarmRuleConfig;
+import org.apache.skywalking.apm.collector.configuration.service.IServiceReferenceAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.configuration.service.InstanceAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.configuration.service.ServiceAlarmRuleConfig;
+import org.apache.skywalking.apm.collector.configuration.service.ServiceReferenceAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.core.module.Module;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
@@ -49,6 +51,7 @@ public class ConfigurationModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(IServiceAlarmRuleConfig.class, new ServiceAlarmRuleConfig());
         this.registerServiceImplementation(IInstanceAlarmRuleConfig.class, new InstanceAlarmRuleConfig());
         this.registerServiceImplementation(IApplicationAlarmRuleConfig.class, new ApplicationAlarmRuleConfig());
+        this.registerServiceImplementation(IServiceReferenceAlarmRuleConfig.class, new ServiceReferenceAlarmRuleConfig());
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
