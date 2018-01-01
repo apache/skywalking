@@ -18,9 +18,9 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance;
 
-import org.apache.skywalking.apm.collector.analysis.metric.define.graph.WorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
@@ -30,17 +30,18 @@ import org.apache.skywalking.apm.collector.storage.table.instance.InstanceRefere
 /**
  * @author peng-yongsheng
  */
-public class InstanceReferencePersistenceWorker extends PersistenceWorker<InstanceReferenceMetric, InstanceReferenceMetric> {
+public class InstanceReferencePersistenceWorker extends PersistenceWorker<InstanceReferenceMetric> {
 
     public InstanceReferencePersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     @Override public int id() {
-        return WorkerIdDefine.INSTANCE_REFERENCE_METRIC_PERSISTENCE_WORKER_ID;
+        return MetricWorkerIdDefine.INSTANCE_REFERENCE_METRIC_PERSISTENCE_WORKER_ID;
     }
 
-    @Override protected IPersistenceDAO persistenceDAO() {
+    @SuppressWarnings("unchecked")
+    @Override protected IPersistenceDAO<?, ?, InstanceReferenceMetric> persistenceDAO() {
         return getModuleManager().find(StorageModule.NAME).getService(IInstanceReferenceMetricPersistenceDAO.class);
     }
 
@@ -48,7 +49,7 @@ public class InstanceReferencePersistenceWorker extends PersistenceWorker<Instan
         return true;
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<InstanceReferenceMetric, InstanceReferenceMetric, InstanceReferencePersistenceWorker> {
+    public static class Factory extends PersistenceWorkerProvider<InstanceReferenceMetric, InstanceReferencePersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);

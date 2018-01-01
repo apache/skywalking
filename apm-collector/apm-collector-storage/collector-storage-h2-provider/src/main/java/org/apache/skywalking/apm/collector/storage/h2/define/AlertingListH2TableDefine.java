@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.collector.storage.h2.define;
 
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2ColumnDefine;
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2TableDefine;
-import org.apache.skywalking.apm.collector.storage.table.alerting.AlertingListTable;
+import org.apache.skywalking.apm.collector.storage.table.alarm.AlertingListTable;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponentTable;
 
 /**

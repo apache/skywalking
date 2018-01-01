@@ -19,8 +19,8 @@
 package org.apache.skywalking.apm.collector.analysis.jvm.provider.worker;
 
 import org.apache.skywalking.apm.collector.analysis.jvm.define.graph.WorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
@@ -30,7 +30,7 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetric;
 /**
  * @author peng-yongsheng
  */
-public class GCMetricPersistenceWorker extends PersistenceWorker<GCMetric, GCMetric> {
+public class GCMetricPersistenceWorker extends PersistenceWorker<GCMetric> {
 
     public GCMetricPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
@@ -44,11 +44,12 @@ public class GCMetricPersistenceWorker extends PersistenceWorker<GCMetric, GCMet
         return false;
     }
 
-    @Override protected IPersistenceDAO persistenceDAO() {
+    @SuppressWarnings("unchecked")
+    @Override protected IPersistenceDAO<?, ?, GCMetric> persistenceDAO() {
         return getModuleManager().find(StorageModule.NAME).getService(IGCMetricPersistenceDAO.class);
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<GCMetric, GCMetric, GCMetricPersistenceWorker> {
+    public static class Factory extends PersistenceWorkerProvider<GCMetric, GCMetricPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);

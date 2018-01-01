@@ -20,7 +20,7 @@ package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.glob
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.skywalking.apm.collector.analysis.metric.define.graph.GraphIdDefine;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.FirstSpanListener;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.GlobalTraceIdsListener;
@@ -69,7 +69,7 @@ public class GlobalTraceSpanListener implements FirstSpanListener, GlobalTraceId
     @Override public void build() {
         logger.debug("global trace listener build");
 
-        Graph<GlobalTrace> graph = GraphManager.INSTANCE.findGraph(GraphIdDefine.GLOBAL_TRACE_GRAPH_ID, GlobalTrace.class);
+        Graph<GlobalTrace> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.GLOBAL_TRACE_GRAPH_ID, GlobalTrace.class);
         for (String globalTraceId : globalTraceIds) {
             GlobalTrace globalTrace = new GlobalTrace(segmentId + Const.ID_SPLIT + globalTraceId);
             globalTrace.setGlobalTraceId(globalTraceId);

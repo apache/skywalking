@@ -20,14 +20,21 @@ package org.apache.skywalking.apm.collector.analysis.alarm.provider;
 
 import java.util.Properties;
 import org.apache.skywalking.apm.collector.analysis.alarm.define.AnalysisAlarmModule;
+import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.ApplicationMetricTransformGraph;
+import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.InstanceMetricTransformGraph;
+import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.service.ServiceMetricAlarmGraph;
+import org.apache.skywalking.apm.collector.analysis.metric.define.AnalysisMetricModule;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
+import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
 import org.apache.skywalking.apm.collector.core.module.Module;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.apache.skywalking.apm.collector.remote.RemoteModule;
 
 /**
  * @author peng-yongsheng
  */
-public class AlertingModuleProvider extends ModuleProvider {
+public class AnalysisAlarmModuleProvider extends ModuleProvider {
 
     @Override public String name() {
         return "default";
@@ -42,6 +49,16 @@ public class AlertingModuleProvider extends ModuleProvider {
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
+        WorkerCreateListener workerCreateListener = new WorkerCreateListener();
+
+        ServiceMetricAlarmGraph serviceMetricAlarmGraph = new ServiceMetricAlarmGraph(getManager(), workerCreateListener);
+        serviceMetricAlarmGraph.create();
+
+        InstanceMetricTransformGraph instanceMetricTransformGraph = new InstanceMetricTransformGraph(getManager(), workerCreateListener);
+        instanceMetricTransformGraph.create();
+
+        ApplicationMetricTransformGraph applicationMetricTransformGraph = new ApplicationMetricTransformGraph(getManager(), workerCreateListener);
+        applicationMetricTransformGraph.create();
 
     }
 
@@ -50,6 +67,6 @@ public class AlertingModuleProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[0];
+        return new String[] {RemoteModule.NAME, AnalysisMetricModule.NAME, ConfigurationModule.NAME};
     }
 }

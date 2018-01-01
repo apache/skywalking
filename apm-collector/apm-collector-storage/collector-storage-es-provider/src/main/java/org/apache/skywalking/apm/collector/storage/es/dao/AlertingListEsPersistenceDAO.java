@@ -30,8 +30,8 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.IAlertingListPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.table.alerting.AlertingList;
-import org.apache.skywalking.apm.collector.storage.table.alerting.AlertingListTable;
+import org.apache.skywalking.apm.collector.storage.table.alarm.AlertingList;
+import org.apache.skywalking.apm.collector.storage.table.alarm.AlertingListTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

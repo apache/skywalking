@@ -18,9 +18,9 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global;
 
-import org.apache.skywalking.apm.collector.analysis.metric.define.graph.WorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
@@ -30,25 +30,26 @@ import org.apache.skywalking.apm.collector.storage.table.global.GlobalTrace;
 /**
  * @author peng-yongsheng
  */
-public class GlobalTracePersistenceWorker extends PersistenceWorker<GlobalTrace, GlobalTrace> {
+public class GlobalTracePersistenceWorker extends PersistenceWorker<GlobalTrace> {
 
     public GlobalTracePersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     @Override public int id() {
-        return WorkerIdDefine.GLOBAL_TRACE_PERSISTENCE_WORKER_ID;
+        return MetricWorkerIdDefine.GLOBAL_TRACE_PERSISTENCE_WORKER_ID;
     }
 
     @Override protected boolean needMergeDBData() {
         return false;
     }
 
-    @Override protected IPersistenceDAO persistenceDAO() {
+    @SuppressWarnings("unchecked")
+    @Override protected IPersistenceDAO<?, ?, GlobalTrace> persistenceDAO() {
         return getModuleManager().find(StorageModule.NAME).getService(IGlobalTracePersistenceDAO.class);
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<GlobalTrace, GlobalTrace, GlobalTracePersistenceWorker> {
+    public static class Factory extends PersistenceWorkerProvider<GlobalTrace, GlobalTracePersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);

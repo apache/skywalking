@@ -20,8 +20,8 @@ package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.serv
 
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.skywalking.apm.collector.analysis.metric.define.graph.GraphIdDefine;
-import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.MetricSource;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
+import org.apache.skywalking.apm.collector.analysis.metric.define.MetricSource;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.ReferenceDecorator;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.EntrySpanListener;
@@ -71,8 +71,8 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
                 serviceReferenceMetric.setFrontInstanceId(reference.getParentApplicationInstanceId());
                 serviceReferenceMetric.setBehindServiceId(spanDecorator.getOperationNameId());
                 serviceReferenceMetric.setBehindInstanceId(instanceId);
-                serviceReferenceMetric.setSourceValue(MetricSource.Entry.ordinal());
-                calculateCost(serviceReferenceMetric, spanDecorator, true);
+                serviceReferenceMetric.setSourceValue(MetricSource.Callee.getValue());
+                calculateDuration(serviceReferenceMetric, spanDecorator, true);
                 entryReferenceMetric.add(serviceReferenceMetric);
             }
         } else {
@@ -83,9 +83,9 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
             serviceReferenceMetric.setFrontInstanceId(instanceId);
             serviceReferenceMetric.setBehindServiceId(spanDecorator.getOperationNameId());
             serviceReferenceMetric.setBehindInstanceId(instanceId);
-            serviceReferenceMetric.setSourceValue(MetricSource.Entry.ordinal());
+            serviceReferenceMetric.setSourceValue(MetricSource.Callee.getValue());
 
-            calculateCost(serviceReferenceMetric, spanDecorator, false);
+            calculateDuration(serviceReferenceMetric, spanDecorator, false);
             entryReferenceMetric.add(serviceReferenceMetric);
         }
         this.entrySpanDecorator = spanDecorator;
@@ -96,47 +96,44 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
 
         serviceReferenceMetric.setFrontInstanceId(instanceId);
         serviceReferenceMetric.setBehindServiceId(spanDecorator.getOperationNameId());
-        serviceReferenceMetric.setSourceValue(MetricSource.Exit.ordinal());
-        calculateCost(serviceReferenceMetric, spanDecorator, true);
+        serviceReferenceMetric.setSourceValue(MetricSource.Caller.getValue());
+        calculateDuration(serviceReferenceMetric, spanDecorator, true);
         exitReferenceMetric.add(serviceReferenceMetric);
     }
 
-    private void calculateCost(ServiceReferenceMetric serviceReferenceMetric, SpanDecorator spanDecorator,
+    private void calculateDuration(ServiceReferenceMetric serviceReferenceMetric, SpanDecorator spanDecorator,
         boolean hasReference) {
         long duration = spanDecorator.getEndTime() - spanDecorator.getStartTime();
 
         if (spanDecorator.getIsError()) {
             serviceReferenceMetric.setTransactionErrorCalls(1L);
             serviceReferenceMetric.setTransactionErrorDurationSum(duration);
-        } else {
-            serviceReferenceMetric.setTransactionCalls(1L);
-            serviceReferenceMetric.setTransactionDurationSum(duration);
         }
+        serviceReferenceMetric.setTransactionCalls(1L);
+        serviceReferenceMetric.setTransactionDurationSum(duration);
 
         if (hasReference) {
             if (spanDecorator.getIsError()) {
                 serviceReferenceMetric.setBusinessTransactionErrorCalls(1L);
                 serviceReferenceMetric.setBusinessTransactionErrorDurationSum(duration);
-            } else {
-                serviceReferenceMetric.setBusinessTransactionCalls(1L);
-                serviceReferenceMetric.setBusinessTransactionDurationSum(duration);
             }
+            serviceReferenceMetric.setBusinessTransactionCalls(1L);
+            serviceReferenceMetric.setBusinessTransactionDurationSum(duration);
         }
 
         if (SpanLayer.MQ.equals(spanDecorator.getSpanLayer())) {
             if (spanDecorator.getIsError()) {
                 serviceReferenceMetric.setMqTransactionErrorCalls(1L);
                 serviceReferenceMetric.setMqTransactionErrorDurationSum(duration);
-            } else {
-                serviceReferenceMetric.setMqTransactionCalls(1L);
-                serviceReferenceMetric.setMqTransactionDurationSum(duration);
             }
+            serviceReferenceMetric.setMqTransactionCalls(1L);
+            serviceReferenceMetric.setMqTransactionDurationSum(duration);
         }
     }
 
     @Override public void build() {
         logger.debug("service reference listener build");
-        Graph<ServiceReferenceMetric> graph = GraphManager.INSTANCE.findGraph(GraphIdDefine.SERVICE_REFERENCE_METRIC_GRAPH_ID, ServiceReferenceMetric.class);
+        Graph<ServiceReferenceMetric> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.SERVICE_REFERENCE_METRIC_GRAPH_ID, ServiceReferenceMetric.class);
         entryReferenceMetric.forEach(serviceReferenceMetric -> {
             String id = timeBucket + Const.ID_SPLIT + serviceReferenceMetric.getEntryServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getFrontServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getBehindServiceId();
 

@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service;
 
-import org.apache.skywalking.apm.collector.analysis.metric.define.graph.WorkerIdDefine;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.AggregationWorker;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -36,7 +36,7 @@ public class ServiceMetricAggregationWorker extends AggregationWorker<ServiceRef
     }
 
     @Override public int id() {
-        return WorkerIdDefine.SERVICE_METRIC_AGGREGATION_WORKER_ID;
+        return MetricWorkerIdDefine.SERVICE_METRIC_AGGREGATION_WORKER_ID;
     }
 
     @Override protected ServiceMetric transform(ServiceReferenceMetric serviceReferenceMetric) {

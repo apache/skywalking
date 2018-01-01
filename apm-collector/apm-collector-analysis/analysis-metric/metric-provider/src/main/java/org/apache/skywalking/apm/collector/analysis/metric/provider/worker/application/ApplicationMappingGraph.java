@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application;
 
-import org.apache.skywalking.apm.collector.analysis.metric.define.graph.GraphIdDefine;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -42,9 +42,9 @@ public class ApplicationMappingGraph {
     public void create() {
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
-        GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.APPLICATION_MAPPING_GRAPH_ID, ApplicationMapping.class)
+        GraphManager.INSTANCE.createIfAbsent(MetricGraphIdDefine.APPLICATION_MAPPING_GRAPH_ID, ApplicationMapping.class)
             .addNode(new ApplicationMappingAggregationWorker.Factory(moduleManager).create(workerCreateListener))
-            .addNext(new ApplicationMappingRemoteWorker.Factory(moduleManager, remoteSenderService, GraphIdDefine.APPLICATION_MAPPING_GRAPH_ID).create(workerCreateListener))
+            .addNext(new ApplicationMappingRemoteWorker.Factory(moduleManager, remoteSenderService, MetricGraphIdDefine.APPLICATION_MAPPING_GRAPH_ID).create(workerCreateListener))
             .addNext(new ApplicationMappingPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
     }
 }

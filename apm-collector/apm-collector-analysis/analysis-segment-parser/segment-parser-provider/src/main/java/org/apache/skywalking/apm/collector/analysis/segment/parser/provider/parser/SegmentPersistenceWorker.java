@@ -19,8 +19,8 @@
 package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser;
 
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.graph.WorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
@@ -30,7 +30,7 @@ import org.apache.skywalking.apm.collector.storage.table.segment.Segment;
 /**
  * @author peng-yongsheng
  */
-public class SegmentPersistenceWorker extends PersistenceWorker<Segment, Segment> {
+public class SegmentPersistenceWorker extends PersistenceWorker<Segment> {
 
     public SegmentPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
@@ -44,11 +44,12 @@ public class SegmentPersistenceWorker extends PersistenceWorker<Segment, Segment
         return false;
     }
 
-    @Override protected IPersistenceDAO persistenceDAO() {
+    @SuppressWarnings("unchecked")
+    @Override protected IPersistenceDAO<?, ?, Segment> persistenceDAO() {
         return getModuleManager().find(StorageModule.NAME).getService(ISegmentPersistenceDAO.class);
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<Segment, Segment, SegmentPersistenceWorker> {
+    public static class Factory extends PersistenceWorkerProvider<Segment, SegmentPersistenceWorker> {
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
         }
