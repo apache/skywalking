@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.collector.analysis.alarm.provider;
 import java.util.Properties;
 import org.apache.skywalking.apm.collector.analysis.alarm.define.AnalysisAlarmModule;
 import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.application.ApplicationMetricAlarmGraph;
+import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.application.ApplicationReferenceMetricAlarmGraph;
 import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.instance.InstanceMetricAlarmGraph;
 import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.instance.InstanceReferenceMetricAlarmGraph;
 import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.service.ServiceMetricAlarmGraph;
@@ -68,6 +69,9 @@ public class AnalysisAlarmModuleProvider extends ModuleProvider {
 
         InstanceReferenceMetricAlarmGraph instanceReferenceMetricAlarmGraph = new InstanceReferenceMetricAlarmGraph(getManager(), workerCreateListener);
         instanceReferenceMetricAlarmGraph.create();
+
+        ApplicationReferenceMetricAlarmGraph applicationReferenceMetricAlarmGraph = new ApplicationReferenceMetricAlarmGraph(getManager(), workerCreateListener);
+        applicationReferenceMetricAlarmGraph.create();
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
