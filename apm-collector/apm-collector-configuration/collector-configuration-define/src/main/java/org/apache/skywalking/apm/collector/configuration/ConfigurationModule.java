@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.collector.configuration;
 
 import org.apache.skywalking.apm.collector.configuration.service.IApdexThresholdService;
 import org.apache.skywalking.apm.collector.configuration.service.IApplicationAlarmRuleConfig;
+import org.apache.skywalking.apm.collector.configuration.service.IApplicationReferenceAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.configuration.service.IInstanceAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.configuration.service.IInstanceReferenceAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.configuration.service.IServiceAlarmRuleConfig;
@@ -41,6 +42,6 @@ public class ConfigurationModule extends Module {
         return new Class[] {
             IApdexThresholdService.class,
             IServiceAlarmRuleConfig.class, IInstanceAlarmRuleConfig.class, IApplicationAlarmRuleConfig.class,
-            IServiceReferenceAlarmRuleConfig.class, IInstanceReferenceAlarmRuleConfig.class};
+            IServiceReferenceAlarmRuleConfig.class, IInstanceReferenceAlarmRuleConfig.class, IApplicationReferenceAlarmRuleConfig.class};
     }
 }
