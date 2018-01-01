@@ -18,11 +18,11 @@
 
 package org.apache.skywalking.apm.collector.storage.dao;
 
-import org.apache.skywalking.apm.collector.core.data.Data;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetric;
 
 /**
  * @author peng-yongsheng
  */
-public interface IInstanceReferenceMetricPersistenceDAO<Insert, Update, DataImpl extends Data> extends IPersistenceDAO<Insert, Update, DataImpl> {
+public interface IInstanceReferenceMetricPersistenceDAO<Insert, Update, DataImpl extends InstanceReferenceMetric> extends IPersistenceDAO<Insert, Update, DataImpl> {
 }
