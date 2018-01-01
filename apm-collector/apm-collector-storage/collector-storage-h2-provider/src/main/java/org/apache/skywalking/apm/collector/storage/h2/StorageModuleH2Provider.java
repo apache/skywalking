@@ -27,7 +27,6 @@ import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedExcepti
 import org.apache.skywalking.apm.collector.storage.StorageException;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IBatchDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IAlertingListPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationCacheDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationComponentPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationComponentUIDAO;
@@ -67,7 +66,6 @@ import org.apache.skywalking.apm.collector.storage.dao.IServiceReferenceMetricPe
 import org.apache.skywalking.apm.collector.storage.dao.IServiceReferenceUIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.BatchH2DAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2StorageInstaller;
-import org.apache.skywalking.apm.collector.storage.h2.dao.AlertingListH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ApplicationComponentH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ApplicationComponentH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ApplicationH2CacheDAO;
@@ -140,7 +138,7 @@ public class StorageModuleH2Provider extends ModuleProvider {
         registerRegisterDAO();
         registerPersistenceDAO();
         registerUiDAO();
-        registerAlertingDAO();
+        registerAlarmDAO();
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
@@ -215,7 +213,6 @@ public class StorageModuleH2Provider extends ModuleProvider {
         this.registerServiceImplementation(IServiceReferenceUIDAO.class, new ServiceReferenceH2UIDAO(h2Client));
     }
 
-    private void registerAlertingDAO() throws ServiceNotProvidedException {
-        this.registerServiceImplementation(IAlertingListPersistenceDAO.class, new AlertingListH2PersistenceDAO(h2Client));
+    private void registerAlarmDAO() throws ServiceNotProvidedException {
     }
 }

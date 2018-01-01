@@ -20,8 +20,8 @@ package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.serv
 
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.metric.define.MetricSource;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.ReferenceDecorator;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.EntrySpanListener;
@@ -55,7 +55,7 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
     @Override
     public void parseFirst(SpanDecorator spanDecorator, int applicationId, int instanceId,
         String segmentId) {
-        timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
+        this.timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
     }
 
     @Override
@@ -65,8 +65,6 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
             for (int i = 0; i < spanDecorator.getRefsCount(); i++) {
                 ReferenceDecorator reference = spanDecorator.getRefs(i);
                 ServiceReferenceMetric serviceReferenceMetric = new ServiceReferenceMetric(Const.EMPTY_STRING);
-                serviceReferenceMetric.setEntryServiceId(reference.getEntryServiceId());
-                serviceReferenceMetric.setEntryInstanceId(reference.getEntryApplicationInstanceId());
                 serviceReferenceMetric.setFrontServiceId(reference.getParentServiceId());
                 serviceReferenceMetric.setFrontInstanceId(reference.getParentApplicationInstanceId());
                 serviceReferenceMetric.setBehindServiceId(spanDecorator.getOperationNameId());
@@ -77,8 +75,6 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
             }
         } else {
             ServiceReferenceMetric serviceReferenceMetric = new ServiceReferenceMetric(Const.EMPTY_STRING);
-            serviceReferenceMetric.setEntryServiceId(spanDecorator.getOperationNameId());
-            serviceReferenceMetric.setEntryInstanceId(instanceId);
             serviceReferenceMetric.setFrontServiceId(Const.NONE_SERVICE_ID);
             serviceReferenceMetric.setFrontInstanceId(instanceId);
             serviceReferenceMetric.setBehindServiceId(spanDecorator.getOperationNameId());
@@ -135,7 +131,7 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
         logger.debug("service reference listener build");
         Graph<ServiceReferenceMetric> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.SERVICE_REFERENCE_METRIC_GRAPH_ID, ServiceReferenceMetric.class);
         entryReferenceMetric.forEach(serviceReferenceMetric -> {
-            String id = timeBucket + Const.ID_SPLIT + serviceReferenceMetric.getEntryServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getFrontServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getBehindServiceId();
+            String id = timeBucket + Const.ID_SPLIT + serviceReferenceMetric.getFrontServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getBehindServiceId();
 
             serviceReferenceMetric.setId(id);
             serviceReferenceMetric.setTimeBucket(timeBucket);
@@ -145,16 +141,13 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
         });
 
         exitReferenceMetric.forEach(serviceReferenceMetric -> {
-            serviceReferenceMetric.setEntryInstanceId(Const.NONE_INSTANCE_ID);
             if (ObjectUtils.isNotEmpty(entrySpanDecorator)) {
-                serviceReferenceMetric.setEntryServiceId(entrySpanDecorator.getOperationNameId());
                 serviceReferenceMetric.setFrontServiceId(entrySpanDecorator.getOperationNameId());
             } else {
-                serviceReferenceMetric.setEntryServiceId(Const.NONE_SERVICE_ID);
                 serviceReferenceMetric.setFrontServiceId(Const.NONE_SERVICE_ID);
             }
 
-            String id = timeBucket + Const.ID_SPLIT + serviceReferenceMetric.getEntryServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getFrontServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getBehindServiceId();
+            String id = timeBucket + Const.ID_SPLIT + serviceReferenceMetric.getFrontServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getBehindServiceId();
             serviceReferenceMetric.setId(id);
             serviceReferenceMetric.setTimeBucket(timeBucket);
 
