@@ -16,15 +16,26 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.alarm.define.graph;
+package org.apache.skywalking.apm.collector.configuration.service;
 
 /**
  * @author peng-yongsheng
  */
-public class AlarmGraphIdDefine {
-    public static final int SERVICE_METRIC_ALARM_GRAPH_ID = 500;
-    public static final int INSTANCE_METRIC_ALARM_GRAPH_ID = 501;
-    public static final int APPLICATION_METRIC_ALARM_GRAPH_ID = 502;
-    public static final int SERVICE_REFERENCE_METRIC_ALARM_GRAPH_ID = 503;
-    public static final int INSTANCE_REFERENCE_METRIC_ALARM_GRAPH_ID = 504;
+public class InstanceReferenceAlarmRuleConfig implements IInstanceReferenceAlarmRuleConfig {
+
+    @Override public double calleeErrorRateThreshold() {
+        return 10.00;
+    }
+
+    @Override public double calleeAverageResponseTimeThreshold() {
+        return 2000;
+    }
+
+    @Override public double callerErrorRateThreshold() {
+        return 10.00;
+    }
+
+    @Override public double callerAverageResponseTimeThreshold() {
+        return 3000;
+    }
 }
