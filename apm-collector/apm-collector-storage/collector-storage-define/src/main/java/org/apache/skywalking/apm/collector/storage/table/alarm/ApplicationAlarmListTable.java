@@ -16,13 +16,15 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.alarm.define.graph;
+package org.apache.skywalking.apm.collector.storage.table.alarm;
+
+import org.apache.skywalking.apm.collector.storage.table.CommonMetricTable;
 
 /**
  * @author peng-yongsheng
  */
-public class AlarmGraphIdDefine {
-    public static final int SERVICE_METRIC_ALARM_GRAPH_ID = 500;
-    public static final int INSTANCE_METRIC_ALARM_GRAPH_ID = 501;
-    public static final int APPLICATION_METRIC_ALARM_GRAPH_ID = 502;
+public class ApplicationAlarmListTable extends CommonMetricTable {
+    public static final String TABLE = "application_alarm_list";
+    public static final String COLUMN_ALARM_TYPE = "alarm_type";
+    public static final String COLUMN_ALARM_CONTENT = "alarm_content";
 }

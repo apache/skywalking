@@ -20,7 +20,7 @@ package org.apache.skywalking.apm.collector.analysis.alarm.provider;
 
 import java.util.Properties;
 import org.apache.skywalking.apm.collector.analysis.alarm.define.AnalysisAlarmModule;
-import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.ApplicationMetricTransformGraph;
+import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.application.ApplicationMetricAlarmGraph;
 import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.instance.InstanceMetricAlarmGraph;
 import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.service.ServiceMetricAlarmGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.define.AnalysisMetricModule;
@@ -58,8 +58,8 @@ public class AnalysisAlarmModuleProvider extends ModuleProvider {
         InstanceMetricAlarmGraph instanceMetricAlarmGraph = new InstanceMetricAlarmGraph(getManager(), workerCreateListener);
         instanceMetricAlarmGraph.create();
 
-        ApplicationMetricTransformGraph applicationMetricTransformGraph = new ApplicationMetricTransformGraph(getManager(), workerCreateListener);
-        applicationMetricTransformGraph.create();
+        ApplicationMetricAlarmGraph applicationMetricAlarmGraph = new ApplicationMetricAlarmGraph(getManager(), workerCreateListener);
+        applicationMetricAlarmGraph.create();
 
     }
 

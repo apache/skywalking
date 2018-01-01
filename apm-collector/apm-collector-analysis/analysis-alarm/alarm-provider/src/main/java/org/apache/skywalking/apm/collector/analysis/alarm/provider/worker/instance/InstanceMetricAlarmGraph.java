@@ -49,10 +49,10 @@ public class InstanceMetricAlarmGraph {
     public void create() {
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
-        Graph<InstanceMetric> graph = GraphManager.INSTANCE.createIfAbsent(AlarmGraphIdDefine.INSTANCE_METRIC_TRANSFORM_GRAPH_ID, InstanceMetric.class);
+        Graph<InstanceMetric> graph = GraphManager.INSTANCE.createIfAbsent(AlarmGraphIdDefine.INSTANCE_METRIC_ALARM_GRAPH_ID, InstanceMetric.class);
 
         graph.addNode(new InstanceMetricAlarmAssertWorker.Factory(moduleManager).create(workerCreateListener))
-            .addNext(new InstanceMetricAlarmRemoteWorker.Factory(moduleManager, remoteSenderService, AlarmGraphIdDefine.INSTANCE_METRIC_TRANSFORM_GRAPH_ID).create(workerCreateListener))
+            .addNext(new InstanceMetricAlarmRemoteWorker.Factory(moduleManager, remoteSenderService, AlarmGraphIdDefine.INSTANCE_METRIC_ALARM_GRAPH_ID).create(workerCreateListener))
             .addNext(new InstanceMetricAlarmPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
         graph.toFinder().findNode(AlarmWorkerIdDefine.INSTANCE_METRIC_ALARM_REMOTE_WORKER_ID, InstanceAlarm.class)

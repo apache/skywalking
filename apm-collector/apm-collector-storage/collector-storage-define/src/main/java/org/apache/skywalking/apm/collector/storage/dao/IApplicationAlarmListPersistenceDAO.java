@@ -16,13 +16,13 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.alarm.define.graph;
+package org.apache.skywalking.apm.collector.storage.dao;
+
+import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmList;
 
 /**
  * @author peng-yongsheng
  */
-public class AlarmGraphIdDefine {
-    public static final int SERVICE_METRIC_ALARM_GRAPH_ID = 500;
-    public static final int INSTANCE_METRIC_ALARM_GRAPH_ID = 501;
-    public static final int APPLICATION_METRIC_ALARM_GRAPH_ID = 502;
+public interface IApplicationAlarmListPersistenceDAO<Insert, Update, DataImpl extends ApplicationAlarmList> extends IPersistenceDAO<Insert, Update, DataImpl> {
 }

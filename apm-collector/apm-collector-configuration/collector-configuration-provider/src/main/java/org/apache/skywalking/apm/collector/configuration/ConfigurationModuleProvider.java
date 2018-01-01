@@ -20,7 +20,9 @@ package org.apache.skywalking.apm.collector.configuration;
 
 import java.util.Properties;
 import org.apache.skywalking.apm.collector.configuration.service.ApdexThresholdService;
+import org.apache.skywalking.apm.collector.configuration.service.ApplicationAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.configuration.service.IApdexThresholdService;
+import org.apache.skywalking.apm.collector.configuration.service.IApplicationAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.configuration.service.IInstanceAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.configuration.service.IServiceAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.configuration.service.InstanceAlarmRuleConfig;
@@ -46,6 +48,7 @@ public class ConfigurationModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(IApdexThresholdService.class, new ApdexThresholdService());
         this.registerServiceImplementation(IServiceAlarmRuleConfig.class, new ServiceAlarmRuleConfig());
         this.registerServiceImplementation(IInstanceAlarmRuleConfig.class, new InstanceAlarmRuleConfig());
+        this.registerServiceImplementation(IApplicationAlarmRuleConfig.class, new ApplicationAlarmRuleConfig());
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {

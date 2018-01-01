@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.alarm.provider.worker;
+package org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.application;
 
 import org.apache.skywalking.apm.collector.analysis.alarm.define.graph.AlarmGraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.alarm.define.graph.AlarmWorkerIdDefine;
@@ -28,38 +28,51 @@ import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.graph.Next;
 import org.apache.skywalking.apm.collector.core.graph.NodeProcessor;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.remote.RemoteModule;
+import org.apache.skywalking.apm.collector.remote.service.RemoteSenderService;
+import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarm;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMetric;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationMetricTransformGraph {
+public class ApplicationMetricAlarmGraph {
 
     private final ModuleManager moduleManager;
     private final WorkerCreateListener workerCreateListener;
 
-    public ApplicationMetricTransformGraph(ModuleManager moduleManager, WorkerCreateListener workerCreateListener) {
+    public ApplicationMetricAlarmGraph(ModuleManager moduleManager, WorkerCreateListener workerCreateListener) {
         this.moduleManager = moduleManager;
         this.workerCreateListener = workerCreateListener;
     }
 
     public void create() {
-        Graph<ApplicationMetric> graph = GraphManager.INSTANCE.createIfAbsent(AlarmGraphIdDefine.APPLICATION_METRIC_TRANSFORM_GRAPH_ID, ApplicationMetric.class);
-        graph.addNode(new ApplicationMetricTransformWorker.Factory(moduleManager).create(workerCreateListener));
+        RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
+
+        Graph<ApplicationMetric> graph = GraphManager.INSTANCE.createIfAbsent(AlarmGraphIdDefine.APPLICATION_METRIC_ALARM_GRAPH_ID, ApplicationMetric.class);
+
+        graph.addNode(new ApplicationMetricAlarmAssertWorker.Factory(moduleManager).create(workerCreateListener))
+            .addNext(new ApplicationMetricAlarmRemoteWorker.Factory(moduleManager, remoteSenderService, AlarmGraphIdDefine.APPLICATION_METRIC_ALARM_GRAPH_ID).create(workerCreateListener))
+            .addNext(new ApplicationMetricAlarmPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        graph.toFinder().findNode(AlarmWorkerIdDefine.APPLICATION_METRIC_ALARM_REMOTE_WORKER_ID, ApplicationAlarm.class)
+            .addNext(new ApplicationMetricAlarmToListNodeProcessor())
+            .addNext(new ApplicationMetricAlarmListPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
         link(graph);
     }
 
     private void link(Graph<ApplicationMetric> graph) {
         GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.APPLICATION_METRIC_GRAPH_ID, ApplicationMetric.class)
-            .toFinder().findNode(MetricWorkerIdDefine.APPLICATION_MAPPING_AGGREGATION_WORKER_ID, ApplicationMetric.class)
+            .toFinder().findNode(MetricWorkerIdDefine.APPLICATION_METRIC_PERSISTENCE_WORKER_ID, ApplicationMetric.class)
             .addNext(new NodeProcessor<ApplicationMetric, ApplicationMetric>() {
                 @Override public int id() {
                     return AlarmWorkerIdDefine.APPLICATION_METRIC_TRANSFORM_GRAPH_BRIDGE_WORKER_ID;
                 }
 
-                @Override public void process(ApplicationMetric applicationMetric,
+                @Override public void process(ApplicationMetric instanceMetric,
                     Next<ApplicationMetric> next) {
-                    graph.start(applicationMetric);
+                    graph.start(instanceMetric);
                 }
             });
     }
