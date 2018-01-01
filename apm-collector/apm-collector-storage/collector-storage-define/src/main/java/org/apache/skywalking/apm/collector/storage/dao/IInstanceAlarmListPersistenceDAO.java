@@ -16,25 +16,13 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.configuration;
+package org.apache.skywalking.apm.collector.storage.dao;
 
-import org.apache.skywalking.apm.collector.configuration.service.IApdexThresholdService;
-import org.apache.skywalking.apm.collector.configuration.service.IInstanceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.IServiceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.table.alarm.InstanceAlarmList;
 
 /**
  * @author peng-yongsheng
  */
-public class ConfigurationModule extends Module {
-
-    public static final String NAME = "configuration";
-
-    @Override public String name() {
-        return NAME;
-    }
-
-    @Override public Class[] services() {
-        return new Class[] {IApdexThresholdService.class, IServiceAlarmRuleConfig.class, IInstanceAlarmRuleConfig.class};
-    }
+public interface IInstanceAlarmListPersistenceDAO<Insert, Update, DataImpl extends InstanceAlarmList> extends IPersistenceDAO<Insert, Update, DataImpl> {
 }
