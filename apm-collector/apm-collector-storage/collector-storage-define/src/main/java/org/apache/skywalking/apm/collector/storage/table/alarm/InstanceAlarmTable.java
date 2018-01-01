@@ -16,25 +16,16 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.configuration;
+package org.apache.skywalking.apm.collector.storage.table.alarm;
 
-import org.apache.skywalking.apm.collector.configuration.service.IApdexThresholdService;
-import org.apache.skywalking.apm.collector.configuration.service.IInstanceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.IServiceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.storage.table.CommonMetricTable;
 
 /**
  * @author peng-yongsheng
  */
-public class ConfigurationModule extends Module {
-
-    public static final String NAME = "configuration";
-
-    @Override public String name() {
-        return NAME;
-    }
-
-    @Override public Class[] services() {
-        return new Class[] {IApdexThresholdService.class, IServiceAlarmRuleConfig.class, IInstanceAlarmRuleConfig.class};
-    }
+public class InstanceAlarmTable extends CommonMetricTable {
+    public static final String TABLE = "instance_alarm";
+    public static final String COLUMN_ALARM_TYPE = "alarm_type";
+    public static final String COLUMN_LAST_TIME_BUCKET = "last_time_bucket";
+    public static final String COLUMN_ALARM_CONTENT = "alarm_content";
 }

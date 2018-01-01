@@ -16,25 +16,19 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.configuration;
+package org.apache.skywalking.apm.collector.configuration.service;
 
-import org.apache.skywalking.apm.collector.configuration.service.IApdexThresholdService;
-import org.apache.skywalking.apm.collector.configuration.service.IInstanceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.IServiceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.core.module.Service;
 
 /**
  * @author peng-yongsheng
  */
-public class ConfigurationModule extends Module {
+public interface IInstanceAlarmRuleConfig extends Service {
+    double calleeErrorRateThreshold();
 
-    public static final String NAME = "configuration";
+    double calleeAverageResponseTimeThreshold();
 
-    @Override public String name() {
-        return NAME;
-    }
+    double callerErrorRateThreshold();
 
-    @Override public Class[] services() {
-        return new Class[] {IApdexThresholdService.class, IServiceAlarmRuleConfig.class, IInstanceAlarmRuleConfig.class};
-    }
+    double callerAverageResponseTimeThreshold();
 }

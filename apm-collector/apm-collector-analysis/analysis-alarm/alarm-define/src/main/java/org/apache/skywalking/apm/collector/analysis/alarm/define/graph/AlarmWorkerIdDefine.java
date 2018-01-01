@@ -29,8 +29,13 @@ public class AlarmWorkerIdDefine {
     public static final int SERVICE_METRIC_ALARM_LIST_PERSISTENCE_WORKER_ID = 500;
     public static final int SERVICE_METRIC_ALARM_TO_LIST_NODE_PROCESSOR_ID = 500;
 
-    public static final int INSTANCE_METRIC_TRANSFORM_WORKER_ID = 502;
-    public static final int INSTANCE_METRIC_TRANSFORM_GRAPH_BRIDGE_WORKER_ID = 503;
+    public static final int INSTANCE_METRIC_ALARM_ASSERT_WORKER_ID = 500;
+    public static final int INSTANCE_METRIC_TRANSFORM_GRAPH_BRIDGE_WORKER_ID = 501;
+    public static final int INSTANCE_METRIC_ALARM_REMOTE_WORKER_ID = 500;
+    public static final int INSTANCE_METRIC_ALARM_PERSISTENCE_WORKER_ID = 500;
+    public static final int INSTANCE_METRIC_ALARM_LIST_PERSISTENCE_WORKER_ID = 500;
+    public static final int INSTANCE_METRIC_ALARM_TO_LIST_NODE_PROCESSOR_ID = 500;
+
     public static final int APPLICATION_METRIC_TRANSFORM_WORKER_ID = 504;
     public static final int APPLICATION_METRIC_TRANSFORM_GRAPH_BRIDGE_WORKER_ID = 505;
     public static final int ALARM_METRIC_REMOTE_WORKER_ID = 506;

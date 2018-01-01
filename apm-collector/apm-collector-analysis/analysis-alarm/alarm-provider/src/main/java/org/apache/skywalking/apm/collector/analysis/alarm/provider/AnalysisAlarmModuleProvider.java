@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.collector.analysis.alarm.provider;
 import java.util.Properties;
 import org.apache.skywalking.apm.collector.analysis.alarm.define.AnalysisAlarmModule;
 import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.ApplicationMetricTransformGraph;
-import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.InstanceMetricTransformGraph;
+import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.instance.InstanceMetricAlarmGraph;
 import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.service.ServiceMetricAlarmGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.define.AnalysisMetricModule;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
@@ -30,6 +30,7 @@ import org.apache.skywalking.apm.collector.core.module.Module;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.apache.skywalking.apm.collector.remote.RemoteModule;
+import org.apache.skywalking.apm.collector.storage.StorageModule;
 
 /**
  * @author peng-yongsheng
@@ -54,8 +55,8 @@ public class AnalysisAlarmModuleProvider extends ModuleProvider {
         ServiceMetricAlarmGraph serviceMetricAlarmGraph = new ServiceMetricAlarmGraph(getManager(), workerCreateListener);
         serviceMetricAlarmGraph.create();
 
-        InstanceMetricTransformGraph instanceMetricTransformGraph = new InstanceMetricTransformGraph(getManager(), workerCreateListener);
-        instanceMetricTransformGraph.create();
+        InstanceMetricAlarmGraph instanceMetricAlarmGraph = new InstanceMetricAlarmGraph(getManager(), workerCreateListener);
+        instanceMetricAlarmGraph.create();
 
         ApplicationMetricTransformGraph applicationMetricTransformGraph = new ApplicationMetricTransformGraph(getManager(), workerCreateListener);
         applicationMetricTransformGraph.create();
@@ -67,6 +68,6 @@ public class AnalysisAlarmModuleProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {RemoteModule.NAME, AnalysisMetricModule.NAME, ConfigurationModule.NAME};
+        return new String[] {RemoteModule.NAME, AnalysisMetricModule.NAME, ConfigurationModule.NAME, StorageModule.NAME};
     }
 }
