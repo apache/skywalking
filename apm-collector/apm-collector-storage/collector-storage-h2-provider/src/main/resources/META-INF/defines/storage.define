@@ -16,4 +16,3 @@ org.apache.skywalking.apm.collector.storage.h2.define.SegmentH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.ServiceEntryH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.ServiceMetricH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.ServiceReferenceMetricH2TableDefine
-org.apache.skywalking.apm.collector.storage.h2.define.AlertingListH2TableDefine

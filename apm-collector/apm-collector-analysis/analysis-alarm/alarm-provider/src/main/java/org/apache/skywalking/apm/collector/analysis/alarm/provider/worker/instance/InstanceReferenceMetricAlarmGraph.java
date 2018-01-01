@@ -55,7 +55,7 @@ public class InstanceReferenceMetricAlarmGraph {
             .addNext(new InstanceReferenceMetricAlarmRemoteWorker.Factory(moduleManager, remoteSenderService, AlarmGraphIdDefine.INSTANCE_REFERENCE_METRIC_ALARM_GRAPH_ID).create(workerCreateListener))
             .addNext(new InstanceReferenceMetricAlarmPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
-        graph.toFinder().findNode(AlarmWorkerIdDefine.INSTANCE_METRIC_ALARM_REMOTE_WORKER_ID, InstanceReferenceAlarm.class)
+        graph.toFinder().findNode(AlarmWorkerIdDefine.INSTANCE_REFERENCE_METRIC_ALARM_REMOTE_WORKER_ID, InstanceReferenceAlarm.class)
             .addNext(new InstanceReferenceMetricAlarmToListNodeProcessor())
             .addNext(new InstanceReferenceMetricAlarmListPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
@@ -67,7 +67,7 @@ public class InstanceReferenceMetricAlarmGraph {
             .toFinder().findNode(MetricWorkerIdDefine.INSTANCE_REFERENCE_METRIC_PERSISTENCE_WORKER_ID, InstanceReferenceMetric.class)
             .addNext(new NodeProcessor<InstanceReferenceMetric, InstanceReferenceMetric>() {
                 @Override public int id() {
-                    return AlarmWorkerIdDefine.INSTANCE_REFERENCE_METRIC_TRANSFORM_GRAPH_BRIDGE_WORKER_ID;
+                    return AlarmWorkerIdDefine.INSTANCE_REFERENCE_METRIC_ALARM_GRAPH_BRIDGE_WORKER_ID;
                 }
 
                 @Override public void process(InstanceReferenceMetric instanceReferenceMetric,
