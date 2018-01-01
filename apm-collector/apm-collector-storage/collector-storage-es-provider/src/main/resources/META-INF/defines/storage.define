@@ -16,4 +16,3 @@ org.apache.skywalking.apm.collector.storage.es.define.SegmentEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.ServiceEntryEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.ServiceMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.ServiceReferenceMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.define.AlertingListEsTableDefine

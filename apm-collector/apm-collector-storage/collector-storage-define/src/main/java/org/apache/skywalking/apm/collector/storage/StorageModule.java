@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.core.module.Module;
 import org.apache.skywalking.apm.collector.storage.base.dao.IBatchDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IAlertingListPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationCacheDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationComponentPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationComponentUIDAO;
@@ -80,7 +79,7 @@ public class StorageModule extends Module {
         addRegisterDAO(classes);
         addPersistenceDAO(classes);
         addUiDAO(classes);
-        addAlertingDAO(classes);
+        addAlarmDAO(classes);
 
         return classes.toArray(new Class[] {});
     }
@@ -138,7 +137,7 @@ public class StorageModule extends Module {
         classes.add(IServiceReferenceUIDAO.class);
     }
 
-    private void addAlertingDAO(List<Class> classes) {
-        classes.add(IAlertingListPersistenceDAO.class);
+    private void addAlarmDAO(List<Class> classes) {
+
     }
 }

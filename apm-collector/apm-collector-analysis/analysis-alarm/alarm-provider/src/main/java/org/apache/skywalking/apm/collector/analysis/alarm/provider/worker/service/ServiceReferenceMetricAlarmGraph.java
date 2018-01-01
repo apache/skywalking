@@ -52,10 +52,10 @@ public class ServiceReferenceMetricAlarmGraph {
         Graph<ServiceReferenceMetric> graph = GraphManager.INSTANCE.createIfAbsent(AlarmGraphIdDefine.SERVICE_REFERENCE_METRIC_ALARM_GRAPH_ID, ServiceReferenceMetric.class);
 
         graph.addNode(new ServiceReferenceMetricAlarmAssertWorker.Factory(moduleManager).create(workerCreateListener))
-            .addNext(new ServiceReferenceMetricAlarmRemoteWorker.Factory(moduleManager, remoteSenderService, AlarmGraphIdDefine.SERVICE_METRIC_ALARM_GRAPH_ID).create(workerCreateListener))
+            .addNext(new ServiceReferenceMetricAlarmRemoteWorker.Factory(moduleManager, remoteSenderService, AlarmGraphIdDefine.SERVICE_REFERENCE_METRIC_ALARM_GRAPH_ID).create(workerCreateListener))
             .addNext(new ServiceReferenceMetricAlarmPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
-        graph.toFinder().findNode(AlarmWorkerIdDefine.SERVICE_METRIC_ALARM_REMOTE_WORKER_ID, ServiceReferenceAlarm.class)
+        graph.toFinder().findNode(AlarmWorkerIdDefine.SERVICE_REFERENCE_METRIC_ALARM_REMOTE_WORKER_ID, ServiceReferenceAlarm.class)
             .addNext(new ServiceReferenceMetricAlarmToListNodeProcessor())
             .addNext(new ServiceReferenceMetricAlarmListPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
@@ -67,7 +67,7 @@ public class ServiceReferenceMetricAlarmGraph {
             .toFinder().findNode(MetricWorkerIdDefine.SERVICE_REFERENCE_METRIC_PERSISTENCE_WORKER_ID, ServiceReferenceMetric.class)
             .addNext(new NodeProcessor<ServiceReferenceMetric, ServiceReferenceMetric>() {
                 @Override public int id() {
-                    return AlarmWorkerIdDefine.SERVICE_REFERENCE_METRIC_TRANSFORM_GRAPH_BRIDGE_WORKER_ID;
+                    return AlarmWorkerIdDefine.SERVICE_REFERENCE_METRIC_ALARM_GRAPH_BRIDGE_WORKER_ID;
                 }
 
                 @Override public void process(ServiceReferenceMetric serviceReferenceMetric,
