@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.service;
+package org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.instance;
 
 import org.apache.skywalking.apm.collector.analysis.alarm.define.graph.AlarmGraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.alarm.define.graph.AlarmWorkerIdDefine;
@@ -30,18 +30,18 @@ import org.apache.skywalking.apm.collector.core.graph.NodeProcessor;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.remote.RemoteModule;
 import org.apache.skywalking.apm.collector.remote.service.RemoteSenderService;
-import org.apache.skywalking.apm.collector.storage.table.alarm.ServiceReferenceAlarm;
-import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
+import org.apache.skywalking.apm.collector.storage.table.alarm.InstanceReferenceAlarm;
+import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetric;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceReferenceMetricAlarmGraph {
+public class InstanceReferenceMetricAlarmGraph {
 
     private final ModuleManager moduleManager;
     private final WorkerCreateListener workerCreateListener;
 
-    public ServiceReferenceMetricAlarmGraph(ModuleManager moduleManager, WorkerCreateListener workerCreateListener) {
+    public InstanceReferenceMetricAlarmGraph(ModuleManager moduleManager, WorkerCreateListener workerCreateListener) {
         this.moduleManager = moduleManager;
         this.workerCreateListener = workerCreateListener;
     }
@@ -49,30 +49,30 @@ public class ServiceReferenceMetricAlarmGraph {
     public void create() {
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
-        Graph<ServiceReferenceMetric> graph = GraphManager.INSTANCE.createIfAbsent(AlarmGraphIdDefine.SERVICE_REFERENCE_METRIC_ALARM_GRAPH_ID, ServiceReferenceMetric.class);
+        Graph<InstanceReferenceMetric> graph = GraphManager.INSTANCE.createIfAbsent(AlarmGraphIdDefine.INSTANCE_REFERENCE_METRIC_ALARM_GRAPH_ID, InstanceReferenceMetric.class);
 
-        graph.addNode(new ServiceReferenceMetricAlarmAssertWorker.Factory(moduleManager).create(workerCreateListener))
-            .addNext(new ServiceReferenceMetricAlarmRemoteWorker.Factory(moduleManager, remoteSenderService, AlarmGraphIdDefine.SERVICE_METRIC_ALARM_GRAPH_ID).create(workerCreateListener))
-            .addNext(new ServiceReferenceMetricAlarmPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+        graph.addNode(new InstanceReferenceMetricAlarmAssertWorker.Factory(moduleManager).create(workerCreateListener))
+            .addNext(new InstanceReferenceMetricAlarmRemoteWorker.Factory(moduleManager, remoteSenderService, AlarmGraphIdDefine.INSTANCE_REFERENCE_METRIC_ALARM_GRAPH_ID).create(workerCreateListener))
+            .addNext(new InstanceReferenceMetricAlarmPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
-        graph.toFinder().findNode(AlarmWorkerIdDefine.SERVICE_METRIC_ALARM_REMOTE_WORKER_ID, ServiceReferenceAlarm.class)
-            .addNext(new ServiceReferenceMetricAlarmToListNodeProcessor())
-            .addNext(new ServiceReferenceMetricAlarmListPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+        graph.toFinder().findNode(AlarmWorkerIdDefine.INSTANCE_METRIC_ALARM_REMOTE_WORKER_ID, InstanceReferenceAlarm.class)
+            .addNext(new InstanceReferenceMetricAlarmToListNodeProcessor())
+            .addNext(new InstanceReferenceMetricAlarmListPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
         link(graph);
     }
 
-    private void link(Graph<ServiceReferenceMetric> graph) {
-        GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.SERVICE_REFERENCE_METRIC_GRAPH_ID, ServiceReferenceMetric.class)
-            .toFinder().findNode(MetricWorkerIdDefine.SERVICE_REFERENCE_METRIC_PERSISTENCE_WORKER_ID, ServiceReferenceMetric.class)
-            .addNext(new NodeProcessor<ServiceReferenceMetric, ServiceReferenceMetric>() {
+    private void link(Graph<InstanceReferenceMetric> graph) {
+        GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.INSTANCE_REFERENCE_METRIC_GRAPH_ID, InstanceReferenceMetric.class)
+            .toFinder().findNode(MetricWorkerIdDefine.INSTANCE_REFERENCE_METRIC_PERSISTENCE_WORKER_ID, InstanceReferenceMetric.class)
+            .addNext(new NodeProcessor<InstanceReferenceMetric, InstanceReferenceMetric>() {
                 @Override public int id() {
-                    return AlarmWorkerIdDefine.SERVICE_REFERENCE_METRIC_TRANSFORM_GRAPH_BRIDGE_WORKER_ID;
+                    return AlarmWorkerIdDefine.INSTANCE_REFERENCE_METRIC_TRANSFORM_GRAPH_BRIDGE_WORKER_ID;
                 }
 
-                @Override public void process(ServiceReferenceMetric serviceReferenceMetric,
-                    Next<ServiceReferenceMetric> next) {
-                    graph.start(serviceReferenceMetric);
+                @Override public void process(InstanceReferenceMetric instanceReferenceMetric,
+                    Next<InstanceReferenceMetric> next) {
+                    graph.start(instanceReferenceMetric);
                 }
             });
     }
