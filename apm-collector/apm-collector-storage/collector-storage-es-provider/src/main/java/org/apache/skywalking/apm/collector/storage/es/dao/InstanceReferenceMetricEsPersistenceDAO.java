@@ -51,8 +51,11 @@ public class InstanceReferenceMetricEsPersistenceDAO extends EsDAO implements II
             logger.debug("getId: {} is exist", id);
             InstanceReferenceMetric instanceReferenceMetric = new InstanceReferenceMetric(id);
             Map<String, Object> source = getResponse.getSource();
+            instanceReferenceMetric.setFrontApplicationId((Integer)source.get(InstanceReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID));
+            instanceReferenceMetric.setBehindApplicationId((Integer)source.get(InstanceReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID));
             instanceReferenceMetric.setFrontInstanceId((Integer)source.get(InstanceReferenceMetricTable.COLUMN_FRONT_INSTANCE_ID));
             instanceReferenceMetric.setBehindInstanceId((Integer)source.get(InstanceReferenceMetricTable.COLUMN_BEHIND_INSTANCE_ID));
+            instanceReferenceMetric.setSourceValue((Integer)source.get(InstanceReferenceMetricTable.COLUMN_SOURCE_VALUE));
 
             instanceReferenceMetric.setTransactionCalls(((Number)source.get(InstanceReferenceMetricTable.COLUMN_TRANSACTION_CALLS)).longValue());
             instanceReferenceMetric.setTransactionErrorCalls(((Number)source.get(InstanceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS)).longValue());
@@ -79,8 +82,11 @@ public class InstanceReferenceMetricEsPersistenceDAO extends EsDAO implements II
 
     @Override public IndexRequestBuilder prepareBatchInsert(InstanceReferenceMetric data) {
         Map<String, Object> source = new HashMap<>();
+        source.put(InstanceReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID, data.getFrontApplicationId());
+        source.put(InstanceReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID, data.getBehindApplicationId());
         source.put(InstanceReferenceMetricTable.COLUMN_FRONT_INSTANCE_ID, data.getFrontInstanceId());
         source.put(InstanceReferenceMetricTable.COLUMN_BEHIND_INSTANCE_ID, data.getBehindInstanceId());
+        source.put(InstanceReferenceMetricTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
 
         source.put(InstanceReferenceMetricTable.COLUMN_TRANSACTION_CALLS, data.getTransactionCalls());
         source.put(InstanceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, data.getTransactionErrorCalls());
@@ -104,8 +110,11 @@ public class InstanceReferenceMetricEsPersistenceDAO extends EsDAO implements II
 
     @Override public UpdateRequestBuilder prepareBatchUpdate(InstanceReferenceMetric data) {
         Map<String, Object> source = new HashMap<>();
+        source.put(InstanceReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID, data.getFrontApplicationId());
+        source.put(InstanceReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID, data.getBehindApplicationId());
         source.put(InstanceReferenceMetricTable.COLUMN_FRONT_INSTANCE_ID, data.getFrontInstanceId());
         source.put(InstanceReferenceMetricTable.COLUMN_BEHIND_INSTANCE_ID, data.getBehindInstanceId());
+        source.put(InstanceReferenceMetricTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
 
         source.put(InstanceReferenceMetricTable.COLUMN_TRANSACTION_CALLS, data.getTransactionCalls());
         source.put(InstanceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, data.getTransactionErrorCalls());

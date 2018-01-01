@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
