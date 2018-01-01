@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.h2.dao;
 
 import com.google.gson.JsonObject;
@@ -24,11 +23,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
 import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
 import org.apache.skywalking.apm.collector.core.util.ColumnNameUtils;
+import org.apache.skywalking.apm.collector.core.util.Const;
+import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceReferenceUIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetricTable;
@@ -53,7 +52,7 @@ public class ServiceReferenceH2UIDAO extends H2DAO implements IServiceReferenceU
     public Map<String, JsonObject> load(int entryServiceId, long startTime, long endTime) {
         H2Client client = getClient();
         String sql = SqlBuilder.buildSql(GET_SRV_REF_LOAD1, ServiceReferenceMetricTable.TABLE,
-            ServiceReferenceMetricTable.COLUMN_TIME_BUCKET, ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID,
+            ServiceReferenceMetricTable.COLUMN_TIME_BUCKET,
             ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID,
             ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS, ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM,
             ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM);

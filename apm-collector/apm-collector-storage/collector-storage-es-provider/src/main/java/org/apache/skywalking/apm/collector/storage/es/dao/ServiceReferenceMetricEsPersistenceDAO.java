@@ -50,7 +50,6 @@ public class ServiceReferenceMetricEsPersistenceDAO extends EsDAO implements ISe
         if (getResponse.isExists()) {
             ServiceReferenceMetric serviceReferenceMetric = new ServiceReferenceMetric(id);
             Map<String, Object> source = getResponse.getSource();
-            serviceReferenceMetric.setEntryServiceId(((Number)source.get(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID)).intValue());
             serviceReferenceMetric.setFrontServiceId(((Number)source.get(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID)).intValue());
             serviceReferenceMetric.setBehindServiceId(((Number)source.get(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID)).intValue());
             serviceReferenceMetric.setSourceValue(((Number)source.get(ServiceReferenceMetricTable.COLUMN_SOURCE_VALUE)).intValue());
@@ -79,7 +78,6 @@ public class ServiceReferenceMetricEsPersistenceDAO extends EsDAO implements ISe
 
     @Override public IndexRequestBuilder prepareBatchInsert(ServiceReferenceMetric data) {
         Map<String, Object> source = new HashMap<>();
-        source.put(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID, data.getEntryServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, data.getFrontServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, data.getBehindServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
@@ -106,7 +104,6 @@ public class ServiceReferenceMetricEsPersistenceDAO extends EsDAO implements ISe
 
     @Override public UpdateRequestBuilder prepareBatchUpdate(ServiceReferenceMetric data) {
         Map<String, Object> source = new HashMap<>();
-        source.put(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID, data.getEntryServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, data.getFrontServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, data.getBehindServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_SOURCE_VALUE, data.getSourceValue());

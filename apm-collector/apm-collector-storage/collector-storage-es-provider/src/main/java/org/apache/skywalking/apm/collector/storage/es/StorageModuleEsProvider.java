@@ -31,7 +31,6 @@ import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedExcepti
 import org.apache.skywalking.apm.collector.storage.StorageException;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IBatchDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IAlertingListPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationCacheDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationComponentPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationComponentUIDAO;
@@ -71,7 +70,6 @@ import org.apache.skywalking.apm.collector.storage.dao.IServiceReferenceMetricPe
 import org.apache.skywalking.apm.collector.storage.dao.IServiceReferenceUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.BatchEsDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchStorageInstaller;
-import org.apache.skywalking.apm.collector.storage.es.dao.AlertingListEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ApplicationComponentEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ApplicationComponentEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ApplicationEsCacheDAO;
@@ -149,7 +147,7 @@ public class StorageModuleEsProvider extends ModuleProvider {
         registerRegisterDAO();
         registerPersistenceDAO();
         registerUiDAO();
-        registerAlertingDAO();
+        registerAlarmDAO();
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
@@ -237,7 +235,6 @@ public class StorageModuleEsProvider extends ModuleProvider {
         this.registerServiceImplementation(IServiceReferenceUIDAO.class, new ServiceReferenceEsUIDAO(elasticSearchClient));
     }
 
-    private void registerAlertingDAO() throws ServiceNotProvidedException {
-        this.registerServiceImplementation(IAlertingListPersistenceDAO.class, new AlertingListEsPersistenceDAO(elasticSearchClient));
+    private void registerAlarmDAO() throws ServiceNotProvidedException {
     }
 }
