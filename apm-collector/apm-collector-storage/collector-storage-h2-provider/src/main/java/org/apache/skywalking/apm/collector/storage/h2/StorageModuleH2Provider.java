@@ -27,12 +27,16 @@ import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedExcepti
 import org.apache.skywalking.apm.collector.storage.StorageException;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IBatchDAO;
+import org.apache.skywalking.apm.collector.storage.dao.IApplicationAlarmListPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.IApplicationAlarmPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationCacheDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationComponentPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationComponentUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationMappingPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationMappingUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.IApplicationReferenceAlarmListPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.IApplicationReferenceAlarmPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationReferenceMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationReferenceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationRegisterDAO;
@@ -42,10 +46,14 @@ import org.apache.skywalking.apm.collector.storage.dao.IGCMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IGCMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IGlobalTracePersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IGlobalTraceUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.IInstanceAlarmListPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.IInstanceAlarmPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceCacheDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceHeartBeatPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.IInstanceReferenceAlarmListPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.IInstanceReferenceAlarmPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceReferenceMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
@@ -57,15 +65,21 @@ import org.apache.skywalking.apm.collector.storage.dao.ISegmentCostPersistenceDA
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentCostUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.IServiceAlarmListPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.IServiceAlarmPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceEntryPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceEntryUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceNameCacheDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceNameRegisterDAO;
+import org.apache.skywalking.apm.collector.storage.dao.IServiceReferenceAlarmListPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.IServiceReferenceAlarmPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceReferenceMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceReferenceUIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.BatchH2DAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2StorageInstaller;
+import org.apache.skywalking.apm.collector.storage.h2.dao.ApplicationAlarmH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.ApplicationAlarmListH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ApplicationComponentH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ApplicationComponentH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ApplicationH2CacheDAO;
@@ -73,6 +87,8 @@ import org.apache.skywalking.apm.collector.storage.h2.dao.ApplicationH2RegisterD
 import org.apache.skywalking.apm.collector.storage.h2.dao.ApplicationMappingH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ApplicationMappingH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ApplicationMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.ApplicationReferenceAlarmH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.ApplicationReferenceAlarmListH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ApplicationReferenceMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ApplicationReferenceMetricH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.CpuMetricH2PersistenceDAO;
@@ -81,12 +97,16 @@ import org.apache.skywalking.apm.collector.storage.h2.dao.GCMetricH2PersistenceD
 import org.apache.skywalking.apm.collector.storage.h2.dao.GCMetricH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.GlobalTraceH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.GlobalTraceH2UIDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.InstanceAlarmH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.InstanceAlarmListH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.InstanceH2CacheDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.InstanceH2RegisterDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.InstanceH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.InstanceHeartBeatH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.InstanceMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.InstanceMetricH2UIDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.InstanceReferenceAlarmH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.InstanceReferenceAlarmListH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.InstanceReferenceMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.MemoryMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.MemoryMetricH2UIDAO;
@@ -96,11 +116,15 @@ import org.apache.skywalking.apm.collector.storage.h2.dao.SegmentCostH2Persisten
 import org.apache.skywalking.apm.collector.storage.h2.dao.SegmentCostH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.SegmentH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.SegmentH2UIDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.ServiceAlarmH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.ServiceAlarmListH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ServiceEntryH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ServiceEntryH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ServiceMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ServiceNameH2CacheDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ServiceNameH2RegisterDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.ServiceReferenceAlarmH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.ServiceReferenceAlarmListH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ServiceReferenceH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ServiceReferenceMetricH2PersistenceDAO;
 import org.slf4j.Logger;
@@ -214,5 +238,18 @@ public class StorageModuleH2Provider extends ModuleProvider {
     }
 
     private void registerAlarmDAO() throws ServiceNotProvidedException {
+        this.registerServiceImplementation(IServiceReferenceAlarmPersistenceDAO.class, new ServiceReferenceAlarmH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IServiceReferenceAlarmListPersistenceDAO.class, new ServiceReferenceAlarmListH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IInstanceReferenceAlarmPersistenceDAO.class, new InstanceReferenceAlarmH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IInstanceReferenceAlarmListPersistenceDAO.class, new InstanceReferenceAlarmListH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IApplicationReferenceAlarmPersistenceDAO.class, new ApplicationReferenceAlarmH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IApplicationReferenceAlarmListPersistenceDAO.class, new ApplicationReferenceAlarmListH2PersistenceDAO(h2Client));
+
+        this.registerServiceImplementation(IServiceAlarmPersistenceDAO.class, new ServiceAlarmH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IServiceAlarmListPersistenceDAO.class, new ServiceAlarmListH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IInstanceAlarmPersistenceDAO.class, new InstanceAlarmH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IInstanceAlarmListPersistenceDAO.class, new InstanceAlarmListH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IApplicationAlarmPersistenceDAO.class, new ApplicationAlarmH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IApplicationAlarmListPersistenceDAO.class, new ApplicationAlarmListH2PersistenceDAO(h2Client));
     }
 }
