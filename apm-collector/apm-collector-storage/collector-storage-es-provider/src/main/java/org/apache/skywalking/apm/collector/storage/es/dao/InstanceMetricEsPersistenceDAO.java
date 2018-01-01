@@ -16,22 +16,21 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetric;
+import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetricTable;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
-import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetricTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +53,7 @@ public class InstanceMetricEsPersistenceDAO extends EsDAO implements IInstanceMe
             Map<String, Object> source = getResponse.getSource();
             instanceMetric.setApplicationId((Integer)source.get(InstanceMetricTable.COLUMN_APPLICATION_ID));
             instanceMetric.setInstanceId((Integer)source.get(InstanceMetricTable.COLUMN_INSTANCE_ID));
+            instanceMetric.setSourceValue((Integer)source.get(InstanceMetricTable.COLUMN_SOURCE_VALUE));
 
             instanceMetric.setTransactionCalls(((Number)source.get(InstanceMetricTable.COLUMN_TRANSACTION_CALLS)).longValue());
             instanceMetric.setTransactionErrorCalls(((Number)source.get(InstanceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS)).longValue());
@@ -82,6 +82,7 @@ public class InstanceMetricEsPersistenceDAO extends EsDAO implements IInstanceMe
         Map<String, Object> source = new HashMap<>();
         source.put(InstanceMetricTable.COLUMN_APPLICATION_ID, data.getApplicationId());
         source.put(InstanceMetricTable.COLUMN_INSTANCE_ID, data.getInstanceId());
+        source.put(InstanceMetricTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
 
         source.put(InstanceMetricTable.COLUMN_TRANSACTION_CALLS, data.getTransactionCalls());
         source.put(InstanceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, data.getTransactionErrorCalls());
@@ -107,6 +108,7 @@ public class InstanceMetricEsPersistenceDAO extends EsDAO implements IInstanceMe
         Map<String, Object> source = new HashMap<>();
         source.put(InstanceMetricTable.COLUMN_APPLICATION_ID, data.getApplicationId());
         source.put(InstanceMetricTable.COLUMN_INSTANCE_ID, data.getInstanceId());
+        source.put(InstanceMetricTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
 
         source.put(InstanceMetricTable.COLUMN_TRANSACTION_CALLS, data.getTransactionCalls());
         source.put(InstanceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, data.getTransactionErrorCalls());

@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.collector.storage.table.CommonMetricTable;
  * @author peng-yongsheng
  */
 public class InstanceReferenceAlarmListTable extends CommonMetricTable {
-    public static final String TABLE = "service_reference_alarm_list";
+    public static final String TABLE = "instance_reference_alarm_list";
     public static final String COLUMN_FRONT_INSTANCE_ID = "front_instance_id";
     public static final String COLUMN_BEHIND_INSTANCE_ID = "behind_instance_id";
     public static final String COLUMN_FRONT_APPLICATION_ID = "front_application_id";
