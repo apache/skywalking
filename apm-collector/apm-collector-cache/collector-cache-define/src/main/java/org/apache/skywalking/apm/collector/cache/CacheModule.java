@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.cache;
 
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;

@@ -149,9 +149,9 @@ public class TraceStackService {
 //                        StringBuilder segmentIdBuilder = new StringBuilder();
 //                        for (int i = 0; i < uniqueId.getIdPartsList().size(); i++) {
 //                            if (i == 0) {
-//                                segmentIdBuilder.append(String.valueOf(uniqueId.getIdPartsList().get(i)));
+//                                segmentIdBuilder.append(String.valueOf(uniqueId.getIdPartsList().getApplicationId(i)));
 //                            } else {
-//                                segmentIdBuilder.append(".").append(String.valueOf(uniqueId.getIdPartsList().get(i)));
+//                                segmentIdBuilder.append(".").append(String.valueOf(uniqueId.getIdPartsList().getApplicationId(i)));
 //                            }
 //                        }
 //

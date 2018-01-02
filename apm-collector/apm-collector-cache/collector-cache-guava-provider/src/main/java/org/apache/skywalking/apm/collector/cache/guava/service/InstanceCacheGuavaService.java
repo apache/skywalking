@@ -55,7 +55,7 @@ public class InstanceCacheGuavaService implements InstanceCacheService {
         return this.instanceCacheDAO;
     }
 
-    public int get(int applicationInstanceId) {
+    public int getApplicationId(int applicationInstanceId) {
 
         int applicationId = 0;
         try {

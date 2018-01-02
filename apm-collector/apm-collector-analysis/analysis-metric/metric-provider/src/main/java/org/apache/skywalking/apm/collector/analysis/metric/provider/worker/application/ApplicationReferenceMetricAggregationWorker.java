@@ -50,8 +50,8 @@ public class ApplicationReferenceMetricAggregationWorker extends AggregationWork
     }
 
     @Override protected ApplicationReferenceMetric transform(InstanceReferenceMetric instanceReferenceMetric) {
-        Integer frontApplicationId = instanceCacheService.get(instanceReferenceMetric.getFrontInstanceId());
-        Integer behindApplicationId = instanceCacheService.get(instanceReferenceMetric.getBehindInstanceId());
+        Integer frontApplicationId = instanceCacheService.getApplicationId(instanceReferenceMetric.getFrontInstanceId());
+        Integer behindApplicationId = instanceCacheService.getApplicationId(instanceReferenceMetric.getBehindInstanceId());
 
         String id = instanceReferenceMetric.getTimeBucket() + Const.ID_SPLIT + frontApplicationId + Const.ID_SPLIT + behindApplicationId;
 

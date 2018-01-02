@@ -36,5 +36,11 @@ public class NumberFormatUtilsTest {
 
         rate = NumberFormatUtils.rateNumberFormat(12.1);
         Assert.assertEquals(rate, Double.valueOf(12.1));
+
+        rate = NumberFormatUtils.rateNumberFormat(12.00);
+        Assert.assertEquals(rate, Double.valueOf(12.00));
+
+        rate = NumberFormatUtils.rateNumberFormat(4624.00);
+        Assert.assertEquals(rate, Double.valueOf(4624.00));
     }
 }

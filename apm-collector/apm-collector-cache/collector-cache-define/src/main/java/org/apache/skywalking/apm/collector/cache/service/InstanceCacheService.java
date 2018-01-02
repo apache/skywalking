@@ -25,7 +25,7 @@ import org.apache.skywalking.apm.collector.core.module.Service;
  * @author peng-yongsheng
  */
 public interface InstanceCacheService extends Service {
-    int get(int applicationInstanceId);
+    int getApplicationId(int applicationInstanceId);
 
     int getInstanceId(int applicationId, String agentUUID);
 }

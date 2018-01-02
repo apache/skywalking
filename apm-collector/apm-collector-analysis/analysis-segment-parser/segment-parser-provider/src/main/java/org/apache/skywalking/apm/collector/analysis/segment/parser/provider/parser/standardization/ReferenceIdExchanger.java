@@ -57,11 +57,11 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
 
     @Override public boolean exchange(ReferenceDecorator standardBuilder, int applicationId) {
         if (standardBuilder.getEntryServiceId() == 0 && StringUtils.isNotEmpty(standardBuilder.getEntryServiceName())) {
-            int entryServiceId = serviceNameService.getOrCreate(instanceCacheService.get(standardBuilder.getEntryApplicationInstanceId()), standardBuilder.getEntryServiceName());
+            int entryServiceId = serviceNameService.getOrCreate(instanceCacheService.getApplicationId(standardBuilder.getEntryApplicationInstanceId()), standardBuilder.getEntryServiceName());
 
             if (entryServiceId == 0) {
                 if (logger.isDebugEnabled()) {
-                    int entryApplicationId = instanceCacheService.get(standardBuilder.getEntryApplicationInstanceId());
+                    int entryApplicationId = instanceCacheService.getApplicationId(standardBuilder.getEntryApplicationInstanceId());
                     logger.debug("entry service name: {} from application id: {} exchange failed", standardBuilder.getEntryServiceName(), entryApplicationId);
                 }
                 return false;
@@ -73,11 +73,11 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
         }
 
         if (standardBuilder.getParentServiceId() == 0 && StringUtils.isNotEmpty(standardBuilder.getParentServiceName())) {
-            int parentServiceId = serviceNameService.getOrCreate(instanceCacheService.get(standardBuilder.getParentApplicationInstanceId()), standardBuilder.getParentServiceName());
+            int parentServiceId = serviceNameService.getOrCreate(instanceCacheService.getApplicationId(standardBuilder.getParentApplicationInstanceId()), standardBuilder.getParentServiceName());
 
             if (parentServiceId == 0) {
                 if (logger.isDebugEnabled()) {
-                    int parentApplicationId = instanceCacheService.get(standardBuilder.getParentApplicationInstanceId());
+                    int parentApplicationId = instanceCacheService.getApplicationId(standardBuilder.getParentApplicationInstanceId());
                     logger.debug("parent service name: {} from application id: {} exchange failed", standardBuilder.getParentServiceName(), parentApplicationId);
                 }
                 return false;

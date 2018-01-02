@@ -92,7 +92,6 @@ public abstract class AlarmAssertWorker<INPUT extends Data & Metric, OUTPUT exte
         Long transactionSuccessDurationSum = inputMetric.getTransactionDurationSum() - inputMetric.getTransactionErrorDurationSum();
         Long transactionSuccessCalls = inputMetric.getTransactionCalls() - inputMetric.getTransactionErrorCalls();
         Double averageResponseTime = Double.valueOf(transactionSuccessDurationSum) / Double.valueOf(transactionSuccessCalls);
-        averageResponseTime = NumberFormatUtils.rateNumberFormat(averageResponseTime);
 
         if (inputMetric.getSourceValue().equals(MetricSource.Callee.getValue())) {
 
