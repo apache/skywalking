@@ -1,3 +1,4 @@
+org.apache.skywalking.apm.collector.storage.h2.define.NetworkAddressH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.ApplicationH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.InstanceH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.ServiceNameH2TableDefine

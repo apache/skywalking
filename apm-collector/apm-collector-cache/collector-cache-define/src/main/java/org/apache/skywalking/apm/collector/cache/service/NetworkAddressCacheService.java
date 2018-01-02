@@ -16,14 +16,15 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.register.define.graph;
+package org.apache.skywalking.apm.collector.cache.service;
+
+import org.apache.skywalking.apm.collector.core.module.Service;
 
 /**
  * @author peng-yongsheng
  */
-public class GraphIdDefine {
-    public static final int APPLICATION_REGISTER_GRAPH_ID = 200;
-    public static final int INSTANCE_REGISTER_GRAPH_ID = 201;
-    public static final int SERVICE_NAME_REGISTER_GRAPH_ID = 202;
-    public static final int NETWORK_ADDRESS_NAME_REGISTER_GRAPH_ID = 203;
+public interface NetworkAddressCacheService extends Service {
+    int getAddressId(String networkAddress);
+
+    String getAddress(int addressId);
 }

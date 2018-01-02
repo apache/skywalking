@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.collector.analysis.worker.model.impl.Persistenc
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IApplicationMappingPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.IInstanceMappingPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMapping;
 
 /**
@@ -46,7 +46,7 @@ public class InstanceMappingPersistenceWorker extends PersistenceWorker<Instance
 
     @SuppressWarnings("unchecked")
     @Override protected IPersistenceDAO<?, ?, InstanceMapping> persistenceDAO() {
-        return getModuleManager().find(StorageModule.NAME).getService(IApplicationMappingPersistenceDAO.class);
+        return getModuleManager().find(StorageModule.NAME).getService(IInstanceMappingPersistenceDAO.class);
     }
 
     public static class Factory extends PersistenceWorkerProvider<InstanceMapping, InstanceMappingPersistenceWorker> {

@@ -1,3 +1,4 @@
+org.apache.skywalking.apm.collector.storage.es.define.NetworkAddressEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.ApplicationEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.ApplicationMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.ApplicationAlarmEsTableDefine
