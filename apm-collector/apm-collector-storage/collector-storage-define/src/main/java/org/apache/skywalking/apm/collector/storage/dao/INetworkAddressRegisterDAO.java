@@ -16,14 +16,18 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.register.define.graph;
+package org.apache.skywalking.apm.collector.storage.dao;
+
+import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
+import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddress;
 
 /**
  * @author peng-yongsheng
  */
-public class GraphIdDefine {
-    public static final int APPLICATION_REGISTER_GRAPH_ID = 200;
-    public static final int INSTANCE_REGISTER_GRAPH_ID = 201;
-    public static final int SERVICE_NAME_REGISTER_GRAPH_ID = 202;
-    public static final int NETWORK_ADDRESS_NAME_REGISTER_GRAPH_ID = 203;
+public interface INetworkAddressRegisterDAO extends DAO {
+    int getMaxNetworkAddressId();
+
+    int getMinNetworkAddressId();
+
+    void save(NetworkAddress networkAddress);
 }

@@ -62,6 +62,8 @@ import org.apache.skywalking.apm.collector.storage.dao.IMemoryMetricPersistenceD
 import org.apache.skywalking.apm.collector.storage.dao.IMemoryMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IMemoryPoolMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IMemoryPoolMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.INetworkAddressCacheDAO;
+import org.apache.skywalking.apm.collector.storage.dao.INetworkAddressRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentCostPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentCostUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentPersistenceDAO;
@@ -114,6 +116,8 @@ import org.apache.skywalking.apm.collector.storage.h2.dao.MemoryMetricH2Persiste
 import org.apache.skywalking.apm.collector.storage.h2.dao.MemoryMetricH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.MemoryPoolMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.MemoryPoolMetricH2UIDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.NetworkAddressH2CacheDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.NetworkAddressRegisterH2DAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.SegmentCostH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.SegmentCostH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.SegmentH2PersistenceDAO;
@@ -190,9 +194,11 @@ public class StorageModuleH2Provider extends ModuleProvider {
         this.registerServiceImplementation(IApplicationCacheDAO.class, new ApplicationH2CacheDAO(h2Client));
         this.registerServiceImplementation(IInstanceCacheDAO.class, new InstanceH2CacheDAO(h2Client));
         this.registerServiceImplementation(IServiceNameCacheDAO.class, new ServiceNameH2CacheDAO(h2Client));
+        this.registerServiceImplementation(INetworkAddressCacheDAO.class, new NetworkAddressH2CacheDAO(h2Client));
     }
 
     private void registerRegisterDAO() throws ServiceNotProvidedException {
+        this.registerServiceImplementation(INetworkAddressRegisterDAO.class, new NetworkAddressRegisterH2DAO(h2Client));
         this.registerServiceImplementation(IApplicationRegisterDAO.class, new ApplicationH2RegisterDAO(h2Client));
         this.registerServiceImplementation(IInstanceRegisterDAO.class, new InstanceH2RegisterDAO(h2Client));
         this.registerServiceImplementation(IServiceNameRegisterDAO.class, new ServiceNameH2RegisterDAO(h2Client));

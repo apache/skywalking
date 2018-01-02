@@ -16,25 +16,25 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance;
+package org.apache.skywalking.apm.collector.analysis.register.provider.register;
 
-import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
+import org.apache.skywalking.apm.collector.analysis.register.define.graph.GraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.remote.RemoteModule;
 import org.apache.skywalking.apm.collector.remote.service.RemoteSenderService;
-import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMapping;
+import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddress;
 
 /**
  * @author peng-yongsheng
  */
-public class InstanceMappingGraph {
+public class NetworkAddressRegisterGraph {
 
     private final ModuleManager moduleManager;
     private final WorkerCreateListener workerCreateListener;
 
-    public InstanceMappingGraph(ModuleManager moduleManager, WorkerCreateListener workerCreateListener) {
+    public NetworkAddressRegisterGraph(ModuleManager moduleManager, WorkerCreateListener workerCreateListener) {
         this.moduleManager = moduleManager;
         this.workerCreateListener = workerCreateListener;
     }
@@ -42,9 +42,8 @@ public class InstanceMappingGraph {
     public void create() {
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
-        GraphManager.INSTANCE.createIfAbsent(MetricGraphIdDefine.INSTANCE_MAPPING_GRAPH_ID, InstanceMapping.class)
-            .addNode(new InstanceMappingAggregationWorker.Factory(moduleManager).create(workerCreateListener))
-            .addNext(new InstanceMappingRemoteWorker.Factory(moduleManager, remoteSenderService, MetricGraphIdDefine.INSTANCE_MAPPING_GRAPH_ID).create(workerCreateListener))
-            .addNext(new InstanceMappingPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+        GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.NETWORK_ADDRESS_NAME_REGISTER_GRAPH_ID, NetworkAddress.class)
+            .addNode(new NetworkAddressRegisterRemoteWorker.Factory(moduleManager, remoteSenderService, GraphIdDefine.NETWORK_ADDRESS_NAME_REGISTER_GRAPH_ID).create(workerCreateListener))
+            .addNext(new NetworkAddressRegisterSerialWorker.Factory(moduleManager).create(workerCreateListener));
     }
 }

@@ -25,6 +25,7 @@ import org.apache.skywalking.apm.collector.analysis.register.define.service.IIns
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IServiceNameService;
 import org.apache.skywalking.apm.collector.analysis.register.provider.register.ApplicationRegisterGraph;
 import org.apache.skywalking.apm.collector.analysis.register.provider.register.InstanceRegisterGraph;
+import org.apache.skywalking.apm.collector.analysis.register.provider.register.NetworkAddressRegisterGraph;
 import org.apache.skywalking.apm.collector.analysis.register.provider.register.ServiceNameRegisterGraph;
 import org.apache.skywalking.apm.collector.analysis.register.provider.service.ApplicationIDService;
 import org.apache.skywalking.apm.collector.analysis.register.provider.service.InstanceIDService;
@@ -85,5 +86,8 @@ public class AnalysisRegisterModuleProvider extends ModuleProvider {
 
         ServiceNameRegisterGraph serviceNameRegisterGraph = new ServiceNameRegisterGraph(getManager(), workerCreateListener);
         serviceNameRegisterGraph.create();
+
+        NetworkAddressRegisterGraph networkAddressRegisterGraph = new NetworkAddressRegisterGraph(getManager(), workerCreateListener);
+        networkAddressRegisterGraph.create();
     }
 }

@@ -66,6 +66,8 @@ import org.apache.skywalking.apm.collector.storage.dao.IMemoryMetricPersistenceD
 import org.apache.skywalking.apm.collector.storage.dao.IMemoryMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IMemoryPoolMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IMemoryPoolMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.INetworkAddressCacheDAO;
+import org.apache.skywalking.apm.collector.storage.dao.INetworkAddressRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentCostPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentCostUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentPersistenceDAO;
@@ -118,6 +120,8 @@ import org.apache.skywalking.apm.collector.storage.es.dao.MemoryMetricEsPersiste
 import org.apache.skywalking.apm.collector.storage.es.dao.MemoryMetricEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.MemoryPoolMetricEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.MemoryPoolMetricEsUIDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.NetworkAddressEsCacheDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.NetworkAddressRegisterEsDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.SegmentCostEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.SegmentCostEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.SegmentEsPersistenceDAO;
@@ -212,6 +216,7 @@ public class StorageModuleEsProvider extends ModuleProvider {
         this.registerServiceImplementation(IApplicationCacheDAO.class, new ApplicationEsCacheDAO(elasticSearchClient));
         this.registerServiceImplementation(IInstanceCacheDAO.class, new InstanceEsCacheDAO(elasticSearchClient));
         this.registerServiceImplementation(IServiceNameCacheDAO.class, new ServiceNameEsCacheDAO(elasticSearchClient));
+        this.registerServiceImplementation(INetworkAddressCacheDAO.class, new NetworkAddressEsCacheDAO(elasticSearchClient));
     }
 
     private void registerRegisterDAO() throws ServiceNotProvidedException {
@@ -244,6 +249,8 @@ public class StorageModuleEsProvider extends ModuleProvider {
     }
 
     private void registerUiDAO() throws ServiceNotProvidedException {
+        this.registerServiceImplementation(INetworkAddressRegisterDAO.class, new NetworkAddressRegisterEsDAO(elasticSearchClient));
+
         this.registerServiceImplementation(IInstanceUIDAO.class, new InstanceEsUIDAO(elasticSearchClient));
 
         this.registerServiceImplementation(ICpuMetricUIDAO.class, new CpuMetricEsUIDAO(elasticSearchClient));
