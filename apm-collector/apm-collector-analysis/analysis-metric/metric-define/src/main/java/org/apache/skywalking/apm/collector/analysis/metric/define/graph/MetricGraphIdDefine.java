@@ -35,4 +35,5 @@ public class MetricGraphIdDefine {
     public static final int SERVICE_ENTRY_GRAPH_ID = 408;
     public static final int GLOBAL_TRACE_GRAPH_ID = 409;
     public static final int SEGMENT_COST_GRAPH_ID = 410;
+    public static final int INSTANCE_MAPPING_GRAPH_ID = 411;
 }

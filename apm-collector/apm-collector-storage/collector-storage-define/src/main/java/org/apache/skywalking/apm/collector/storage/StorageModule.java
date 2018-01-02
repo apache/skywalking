@@ -45,6 +45,7 @@ import org.apache.skywalking.apm.collector.storage.dao.IInstanceAlarmListPersist
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceAlarmPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceCacheDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceHeartBeatPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.IInstanceMappingPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceReferenceAlarmListPersistenceDAO;
@@ -127,6 +128,7 @@ public class StorageModule extends Module {
 
         classes.add(IInstanceMetricPersistenceDAO.class);
         classes.add(IInstanceReferenceMetricPersistenceDAO.class);
+        classes.add(IInstanceMappingPersistenceDAO.class);
         classes.add(IInstanceHeartBeatPersistenceDAO.class);
     }
 

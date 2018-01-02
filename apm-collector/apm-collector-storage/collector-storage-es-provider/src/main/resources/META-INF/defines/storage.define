@@ -20,6 +20,7 @@ org.apache.skywalking.apm.collector.storage.es.define.MemoryPoolMetricEsTableDef
 org.apache.skywalking.apm.collector.storage.es.define.GlobalTraceEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.ApplicationComponentEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.ApplicationMappingEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.InstanceMappingEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.SegmentCostEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.SegmentEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.ServiceEntryEsTableDefine

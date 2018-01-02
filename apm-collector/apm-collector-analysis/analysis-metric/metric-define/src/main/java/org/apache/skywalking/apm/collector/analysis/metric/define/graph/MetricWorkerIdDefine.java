@@ -65,4 +65,8 @@ public class MetricWorkerIdDefine {
     public static final int APPLICATION_REFERENCE_GRAPH_BRIDGE_WORKER_ID = 430;
     public static final int SERVICE_METRIC_GRAPH_BRIDGE_WORKER_ID = 431;
     public static final int INSTANCE_METRIC_GRAPH_BRIDGE_WORKER_ID = 432;
+
+    public static final int INSTANCE_MAPPING_AGGREGATION_WORKER_ID = 433;
+    public static final int INSTANCE_MAPPING_REMOTE_WORKER_ID = 434;
+    public static final int INSTANCE_MAPPING_PERSISTENCE_WORKER_ID = 435;
 }
