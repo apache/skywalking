@@ -323,7 +323,7 @@ public class TracingContext implements AbstractTracerContext {
             exitSpan = parentSpan;
         } else {
             final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
-            exitSpan = (AbstractSpan)DictionaryManager.findApplicationCodeSection()
+            exitSpan = (AbstractSpan)DictionaryManager.findNetworkAddressSection()
                 .find(remotePeer).doInCondition(
                     new PossibleFound.FoundAndObtain() {
                         @Override
