@@ -23,42 +23,42 @@ import io.netty.util.internal.ConcurrentSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.skywalking.apm.network.proto.ApplicationMappings;
-import org.apache.skywalking.apm.network.proto.ApplicationRegisterServiceGrpc;
-import org.apache.skywalking.apm.network.proto.Applications;
 import org.apache.skywalking.apm.network.proto.KeyWithIntegerValue;
+import org.apache.skywalking.apm.network.proto.NetworkAddressMappings;
+import org.apache.skywalking.apm.network.proto.NetworkAddressRegisterServiceGrpc;
+import org.apache.skywalking.apm.network.proto.NetworkAddresses;
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Dictionary.APPLICATION_CODE_BUFFER_SIZE;
 
 /**
- * Map of application id to application code, which is from the collector side.
+ * Map of network address id to network literal address, which is from the collector side.
  *
  * @author wusheng
  */
-public enum ApplicationDictionary {
+public enum NetworkAddressDictionary {
     INSTANCE;
     private Map<String, Integer> applicationDictionary = new ConcurrentHashMap<String, Integer>();
     private Set<String> unRegisterApplications = new ConcurrentSet<String>();
 
-    public PossibleFound find(String applicationCode) {
-        Integer applicationId = applicationDictionary.get(applicationCode);
+    public PossibleFound find(String networkAddress) {
+        Integer applicationId = applicationDictionary.get(networkAddress);
         if (applicationId != null) {
             return new Found(applicationId);
         } else {
             if (applicationDictionary.size() + unRegisterApplications.size() < APPLICATION_CODE_BUFFER_SIZE) {
-                unRegisterApplications.add(applicationCode);
+                unRegisterApplications.add(networkAddress);
             }
             return new NotFound();
         }
     }
 
     public void syncRemoteDictionary(
-        ApplicationRegisterServiceGrpc.ApplicationRegisterServiceBlockingStub applicationRegisterServiceBlockingStub) {
+        NetworkAddressRegisterServiceGrpc.NetworkAddressRegisterServiceBlockingStub networkAddressRegisterServiceBlockingStub) {
         if (unRegisterApplications.size() > 0) {
-            ApplicationMappings applicationMapping = applicationRegisterServiceBlockingStub.batchRegister(
-                Applications.newBuilder().addAllApplicationCodes(unRegisterApplications).build());
-            if (applicationMapping.getApplicationsCount() > 0) {
-                for (KeyWithIntegerValue keyWithIntegerValue : applicationMapping.getApplicationsList()) {
+            NetworkAddressMappings networkAddressMappings = networkAddressRegisterServiceBlockingStub.batchRegister(
+                NetworkAddresses.newBuilder().addAllAddresses(unRegisterApplications).build());
+            if (networkAddressMappings.getAddressIdsCount() > 0) {
+                for (KeyWithIntegerValue keyWithIntegerValue : networkAddressMappings.getAddressIdsList()) {
                     unRegisterApplications.remove(keyWithIntegerValue.getKey());
                     applicationDictionary.put(keyWithIntegerValue.getKey(), keyWithIntegerValue.getValue());
                 }
