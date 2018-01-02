@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.feign.http.v9;
 
 import feign.Request;
@@ -52,9 +51,9 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
     private static final String COMPONENT_NAME = "FeignDefaultHttp";
 
     /**
-     * Get the {@link feign.Request} from {@link EnhancedInstance}, then create {@link AbstractSpan} and set host,
-     * port, kind, component, url from {@link feign.Request}.
-     * Through the reflection of the way, set the http header of context data into {@link feign.Request#headers}.
+     * Get the {@link feign.Request} from {@link EnhancedInstance}, then create {@link AbstractSpan} and set host, port,
+     * kind, component, url from {@link feign.Request}. Through the reflection of the way, set the http header of
+     * context data into {@link feign.Request#headers}.
      *
      * @param method
      * @param result change this result, if you want to truncate the method.
@@ -66,11 +65,16 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
 
         URL url = new URL(request.url());
         ContextCarrier contextCarrier = new ContextCarrier();
-        String remotePeer = url.getHost() + ":" + url.getPort();
-        AbstractSpan span = ContextManager.createExitSpan(request.url(), contextCarrier, remotePeer);
+        int port = url.getPort() == -1 ? 80 : url.getPort();
+        String remotePeer = url.getHost() + ":" + port;
+        String operationName = url.getPath();
+        if (operationName == null || operationName.length() == 0) {
+            operationName = "/";
+        }
+        AbstractSpan span = ContextManager.createExitSpan(operationName, contextCarrier, remotePeer);
         span.setComponent(ComponentsDefine.FEIGN);
         Tags.HTTP.METHOD.set(span, request.method());
-        Tags.URL.set(span, url.getPath());
+        Tags.URL.set(span, request.url());
         SpanLayer.asHttp(span);
 
         Field headersField = Request.class.getDeclaredField("headers");
@@ -94,8 +98,7 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
 
     /**
      * Get the status code from {@link Response}, when status code greater than 400, it means there was some errors in
-     * the server.
-     * Finish the {@link AbstractSpan}.
+     * the server. Finish the {@link AbstractSpan}.
      *
      * @param method
      * @param ret the method's original return value.

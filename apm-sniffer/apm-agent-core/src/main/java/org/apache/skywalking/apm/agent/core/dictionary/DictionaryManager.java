@@ -24,10 +24,10 @@ package org.apache.skywalking.apm.agent.core.dictionary;
  */
 public class DictionaryManager {
     /**
-     * @return {@link ApplicationDictionary} to find application id for application code and network address.
+     * @return {@link NetworkAddressDictionary} to find application id for application code and network address.
      */
-    public static ApplicationDictionary findApplicationCodeSection() {
-        return ApplicationDictionary.INSTANCE;
+    public static NetworkAddressDictionary findNetworkAddressSection() {
+        return NetworkAddressDictionary.INSTANCE;
     }
 
     /**

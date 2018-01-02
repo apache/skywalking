@@ -1,0 +1,15 @@
+type AlarmItem {
+    content: String!
+    startTime: String!
+    alertType: AlarmType!
+}
+
+enum AlarmType {
+    APPLICATION,
+    SERVER,
+    SERVICE
+}
+
+extend type Query {
+    loadAlertList(keyword: String, alertType: AlarmType, duration:Duration!):[AlarmItem]
+}

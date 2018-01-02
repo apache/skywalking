@@ -16,45 +16,42 @@
  *
  */
 
-
-package org.apache.skywalking.apm.plugin.jetty.v9.client;
+package org.apache.skywalking.apm.plugin.okhttp.v3;
 
 import java.lang.reflect.Method;
-import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
-import org.apache.skywalking.apm.agent.core.context.tag.Tags;
-import org.eclipse.jetty.client.HttpRequest;
-import org.eclipse.jetty.http.HttpFields;
-import org.apache.skywalking.apm.agent.core.context.CarrierItem;
+import okhttp3.Request;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-public class AsyncHttpRequestSendInterceptor implements InstanceMethodsAroundInterceptor {
-
+/**
+ * {@link EnqueueInterceptor} create a local span and the prefix of the span operation name is start with `Async` when
+ * the `enqueue` method called and also put the `ContextSnapshot` and `RealCall` instance into the
+ * `SkyWalkingDynamicField`.
+ *
+ * @author zhangxin
+ */
+public class EnqueueInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        HttpRequest request = (HttpRequest)objInst;
-        ContextCarrier contextCarrier = new ContextCarrier();
-        AbstractSpan span = ContextManager.createExitSpan(request.getURI().getPath(), contextCarrier, request.getHost() + ":" + request.getPort());
-        span.setComponent(ComponentsDefine.JETTY_CLIENT);
-        Tags.HTTP.METHOD.set(span, request.getMethod().asString());
-        Tags.URL.set(span, request.getURI().toString());
-        SpanLayer.asHttp(span);
+        EnhancedInstance callbackInstance = (EnhancedInstance)allArguments[0];
+        Request request = (Request)objInst.getSkyWalkingDynamicField();
+        ContextManager.createLocalSpan("Async" + request.url().uri().getPath());
 
-        CarrierItem next = contextCarrier.items();
-        HttpFields field = request.getHeaders();
-        while (next.hasNext()) {
-            next = next.next();
-            field.add(next.getHeadKey(), next.getHeadValue());
-        }
+        /**
+         * Here is the process about how to trace the async function.
+         *
+         * 1. Storage `Request` object into `RealCall` instance when the constructor of `RealCall` called.
+         * 2. Put the `RealCall` instance to `CallBack` instance
+         * 3. Get the `RealCall` instance from `CallBack` and then Put the `RealCall` into `AsyncCall` instance
+         *    since the constructor of `RealCall` called.
+         * 5. Create the exit span by using the `RealCall` instance when `AsyncCall` method called.
+         */
 
-        EnhancedInstance callBackResult = (EnhancedInstance)allArguments[0];
-        callBackResult.setSkyWalkingDynamicField(ContextManager.capture());
+        callbackInstance.setSkyWalkingDynamicField(new EnhanceRequiredInfo(objInst, ContextManager.capture()));
     }
 
     @Override
@@ -67,5 +64,9 @@ public class AsyncHttpRequestSendInterceptor implements InstanceMethodsAroundInt
     @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
+    }
+
+    @Override public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+        objInst.setSkyWalkingDynamicField(allArguments[1]);
     }
 }
