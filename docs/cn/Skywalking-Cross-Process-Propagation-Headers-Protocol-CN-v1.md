@@ -1,12 +1,14 @@
-# Skywalking 3 Cross Process Propagation Headers Protocol
+# Skywalking Cross Process Propagation Headers Protocol
 * Version 1.0
 
-这是Skywalking3跨进程传输头协议第一个公开版本。Skywalking是一个偏向APM的分布式追踪系统，所以，为了提供服务端处理性能。头信息会比其他的追踪系统要更复杂一些。你会发现，这个头信息，更像一个商业APM系统，并且，一些商业APM系统的头信息，比我们的要复杂的多。所以，如果你希望开发或者贡献其他语言探针、或者JAVA探针的其他市县模式，请耐心阅读，并理解此协议内容。
-
+Skywalking是一个偏向APM的分布式追踪系统，所以，为了提供服务端处理性能。头信息会比其他的追踪系统要更复杂一些。
+你会发现，这个头信息，更像一个商业APM系统，并且，一些商业APM系统的头信息，比我们的要复杂的多。
 
 # Header Item
 * Header Name: `sw3`
 * Header Value: 使用`|`分隔，包含以下内容
+
+_消息头使用sw3，因为此协议始于SkyWalking 3.x版本。_
 
 ## Values
 * Trace Segment Id

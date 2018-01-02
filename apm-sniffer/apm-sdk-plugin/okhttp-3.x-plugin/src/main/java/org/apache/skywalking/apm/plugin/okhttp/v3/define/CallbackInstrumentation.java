@@ -16,31 +16,19 @@
  *
  */
 
-
-package org.apache.skywalking.apm.plugin.jetty.v9.client.define;
+package org.apache.skywalking.apm.plugin.okhttp.v3.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierarchyMatch;
 
-/**
- * {@link CompleteListenerInstrumentation} enhance the <code>onComplete</code> method in all class of hierarchy
- * <code>org.eclipse.jetty.client.api.Response$CompleteListener</code> by <code>org.apache.skywalking.apm.plugin.jetty.client.CompleteListenerInterceptor</code>
- *
- * @author zhangxin
- */
-public class CompleteListenerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-
-    private static final String ENHANCE_CLASS = "org.eclipse.jetty.client.api.Response$CompleteListener";
-    private static final String ENHANCE_METHOD = "onComplete";
-    public static final String SEND_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jetty.client.CompleteListenerInterceptor";
-
+public class CallbackInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
@@ -48,18 +36,28 @@ public class CompleteListenerInstrumentation extends ClassInstanceMethodsEnhance
     @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD);
+                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("onFailure");
                 }
 
-                @Override
-                public String getMethodsInterceptor() {
-                    return SEND_INTERCEPTOR;
+                @Override public String getMethodsInterceptor() {
+                    return "org.apache.skywalking.apm.plugin.okhttp.v3.OnFailureInterceptor";
                 }
 
-                @Override
-                public boolean isOverrideArgs() {
+                @Override public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("onResponse");
+                }
+
+                @Override public String getMethodsInterceptor() {
+                    return "org.apache.skywalking.apm.plugin.okhttp.v3.OnResponseInterceptor";
+                }
+
+                @Override public boolean isOverrideArgs() {
                     return false;
                 }
             }
@@ -67,6 +65,6 @@ public class CompleteListenerInstrumentation extends ClassInstanceMethodsEnhance
     }
 
     @Override protected ClassMatch enhanceClass() {
-        return byHierarchyMatch(new String[] {ENHANCE_CLASS});
+        return byHierarchyMatch(new String[] {"okhttp3.Callback"});
     }
 }
