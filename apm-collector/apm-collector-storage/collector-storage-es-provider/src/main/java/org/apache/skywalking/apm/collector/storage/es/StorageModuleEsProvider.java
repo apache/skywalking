@@ -54,6 +54,7 @@ import org.apache.skywalking.apm.collector.storage.dao.IInstanceAlarmListPersist
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceAlarmPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceCacheDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceHeartBeatPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.IInstanceMappingPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceReferenceAlarmListPersistenceDAO;
@@ -107,6 +108,7 @@ import org.apache.skywalking.apm.collector.storage.es.dao.InstanceEsCacheDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.InstanceEsRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.InstanceEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.InstanceHeartBeatEsPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.InstanceMappingEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.InstanceMetricEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.InstanceMetricEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.InstanceReferenceAlarmEsPersistenceDAO;
@@ -237,6 +239,7 @@ public class StorageModuleEsProvider extends ModuleProvider {
 
         this.registerServiceImplementation(IInstanceMetricPersistenceDAO.class, new InstanceMetricEsPersistenceDAO(elasticSearchClient));
         this.registerServiceImplementation(IInstanceReferenceMetricPersistenceDAO.class, new InstanceReferenceMetricEsPersistenceDAO(elasticSearchClient));
+        this.registerServiceImplementation(IInstanceMappingPersistenceDAO.class, new InstanceMappingEsPersistenceDAO(elasticSearchClient));
         this.registerServiceImplementation(IInstanceHeartBeatPersistenceDAO.class, new InstanceHeartBeatEsPersistenceDAO(elasticSearchClient));
     }
 
