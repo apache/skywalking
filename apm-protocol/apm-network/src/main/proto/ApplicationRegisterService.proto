@@ -7,6 +7,7 @@ import "KeyWithIntegerValue.proto";
 
 //register service for ApplicationCode, this service is called when service starts.
 service ApplicationRegisterService {
+    //TODO: TODO: `batchRegister` should be replaces by applicationCodeRegister
     rpc batchRegister (Applications) returns (ApplicationMappings) {
     }
 }
