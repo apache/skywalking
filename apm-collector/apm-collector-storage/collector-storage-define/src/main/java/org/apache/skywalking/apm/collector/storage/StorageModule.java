@@ -58,6 +58,7 @@ import org.apache.skywalking.apm.collector.storage.dao.IMemoryMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IMemoryPoolMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IMemoryPoolMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.INetworkAddressCacheDAO;
+import org.apache.skywalking.apm.collector.storage.dao.INetworkAddressRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentCostPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentCostUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentPersistenceDAO;
@@ -109,6 +110,7 @@ public class StorageModule extends Module {
         classes.add(IApplicationRegisterDAO.class);
         classes.add(IInstanceRegisterDAO.class);
         classes.add(IServiceNameRegisterDAO.class);
+        classes.add(INetworkAddressRegisterDAO.class);
     }
 
     private void addPersistenceDAO(List<Class> classes) {

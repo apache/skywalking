@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.collector.analysis.register.define;
 
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IApplicationIDService;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IInstanceIDService;
+import org.apache.skywalking.apm.collector.analysis.register.define.service.INetworkAddressIDService;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IServiceNameService;
 import org.apache.skywalking.apm.collector.core.module.Module;
 
@@ -35,6 +36,6 @@ public class AnalysisRegisterModule extends Module {
     }
 
     @Override public Class[] services() {
-        return new Class[] {IApplicationIDService.class, IInstanceIDService.class, IServiceNameService.class};
+        return new Class[] {IApplicationIDService.class, IInstanceIDService.class, IServiceNameService.class, INetworkAddressIDService.class};
     }
 }

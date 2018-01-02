@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.agent.grpc.provider.handler;
 
 import io.grpc.ManagedChannel;

@@ -23,6 +23,7 @@ import org.apache.skywalking.apm.collector.agent.grpc.define.AgentGRPCModule;
 import org.apache.skywalking.apm.collector.agent.grpc.provider.handler.ApplicationRegisterServiceHandler;
 import org.apache.skywalking.apm.collector.agent.grpc.provider.handler.InstanceDiscoveryServiceHandler;
 import org.apache.skywalking.apm.collector.agent.grpc.provider.handler.JVMMetricsServiceHandler;
+import org.apache.skywalking.apm.collector.agent.grpc.provider.handler.NetworkAddressRegisterServiceHandler;
 import org.apache.skywalking.apm.collector.agent.grpc.provider.handler.ServiceNameDiscoveryServiceHandler;
 import org.apache.skywalking.apm.collector.agent.grpc.provider.handler.TraceSegmentServiceHandler;
 import org.apache.skywalking.apm.collector.agent.grpc.provider.handler.naming.AgentGRPCNamingHandler;
@@ -95,5 +96,6 @@ public class AgentModuleGRPCProvider extends ModuleProvider {
         gRPCServer.addHandler(new ServiceNameDiscoveryServiceHandler(getManager()));
         gRPCServer.addHandler(new JVMMetricsServiceHandler(getManager()));
         gRPCServer.addHandler(new TraceSegmentServiceHandler(getManager()));
+        gRPCServer.addHandler(new NetworkAddressRegisterServiceHandler(getManager()));
     }
 }
