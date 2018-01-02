@@ -29,7 +29,6 @@ public class NumberFormatUtils {
     public static Double rateNumberFormat(Double rate) {
         NumberFormat rateNumberFormat = NumberFormat.getNumberInstance();
         rateNumberFormat.setMaximumFractionDigits(2);
-        rateNumberFormat.setMinimumFractionDigits(2);
         rateNumberFormat.setRoundingMode(RoundingMode.HALF_UP);
         Double formattedRate = Double.valueOf(rateNumberFormat.format(rate));
         return Double.valueOf(formattedRate);

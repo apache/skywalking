@@ -29,6 +29,8 @@ import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listen
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.FirstSpanListener;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListener;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListenerFactory;
+import org.apache.skywalking.apm.collector.cache.CacheModule;
+import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -47,10 +49,15 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
 
     private final Logger logger = LoggerFactory.getLogger(ServiceReferenceMetricSpanListener.class);
 
+    private InstanceCacheService instanceCacheService;
     private List<ServiceReferenceMetric> entryReferenceMetric = new LinkedList<>();
     private List<ServiceReferenceMetric> exitReferenceMetric = new LinkedList<>();
     private SpanDecorator entrySpanDecorator;
     private long timeBucket;
+
+    public ServiceReferenceMetricSpanListener(ModuleManager moduleManager) {
+        this.instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
+    }
 
     @Override
     public void parseFirst(SpanDecorator spanDecorator, int applicationId, int instanceId,
@@ -67,8 +74,10 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
                 ServiceReferenceMetric serviceReferenceMetric = new ServiceReferenceMetric(Const.EMPTY_STRING);
                 serviceReferenceMetric.setFrontServiceId(reference.getParentServiceId());
                 serviceReferenceMetric.setFrontInstanceId(reference.getParentApplicationInstanceId());
+                serviceReferenceMetric.setFrontApplicationId(instanceCacheService.getApplicationId(reference.getParentApplicationInstanceId()));
                 serviceReferenceMetric.setBehindServiceId(spanDecorator.getOperationNameId());
                 serviceReferenceMetric.setBehindInstanceId(instanceId);
+                serviceReferenceMetric.setBehindApplicationId(applicationId);
                 serviceReferenceMetric.setSourceValue(MetricSource.Callee.getValue());
                 calculateDuration(serviceReferenceMetric, spanDecorator, true);
                 entryReferenceMetric.add(serviceReferenceMetric);
@@ -77,8 +86,10 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
             ServiceReferenceMetric serviceReferenceMetric = new ServiceReferenceMetric(Const.EMPTY_STRING);
             serviceReferenceMetric.setFrontServiceId(Const.NONE_SERVICE_ID);
             serviceReferenceMetric.setFrontInstanceId(instanceId);
+            serviceReferenceMetric.setFrontApplicationId(applicationId);
             serviceReferenceMetric.setBehindServiceId(spanDecorator.getOperationNameId());
             serviceReferenceMetric.setBehindInstanceId(instanceId);
+            serviceReferenceMetric.setBehindApplicationId(applicationId);
             serviceReferenceMetric.setSourceValue(MetricSource.Callee.getValue());
 
             calculateDuration(serviceReferenceMetric, spanDecorator, false);
@@ -90,7 +101,10 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
     @Override public void parseExit(SpanDecorator spanDecorator, int applicationId, int instanceId, String segmentId) {
         ServiceReferenceMetric serviceReferenceMetric = new ServiceReferenceMetric(Const.EMPTY_STRING);
 
+        serviceReferenceMetric.setFrontApplicationId(applicationId);
         serviceReferenceMetric.setFrontInstanceId(instanceId);
+//        serviceReferenceMetric.setBehindApplicationId();
+//        serviceReferenceMetric.setBehindInstanceId();
         serviceReferenceMetric.setBehindServiceId(spanDecorator.getOperationNameId());
         serviceReferenceMetric.setSourceValue(MetricSource.Caller.getValue());
         calculateDuration(serviceReferenceMetric, spanDecorator, true);
@@ -157,7 +171,7 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
 
     public static class Factory implements SpanListenerFactory {
         @Override public SpanListener create(ModuleManager moduleManager) {
-            return new ServiceReferenceMetricSpanListener();
+            return new ServiceReferenceMetricSpanListener(moduleManager);
         }
     }
 }

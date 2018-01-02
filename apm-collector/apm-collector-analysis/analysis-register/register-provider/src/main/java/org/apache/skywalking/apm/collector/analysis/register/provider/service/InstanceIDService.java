@@ -70,7 +70,7 @@ public class InstanceIDService implements IInstanceIDService {
     }
 
     public int getOrCreate(int applicationId, String agentUUID, long registerTime, String osInfo) {
-        logger.debug("get or create instance id, application id: {}, agentUUID: {}, registerTime: {}, osInfo: {}", applicationId, agentUUID, registerTime, osInfo);
+        logger.debug("getApplicationId or create instance id, application id: {}, agentUUID: {}, registerTime: {}, osInfo: {}", applicationId, agentUUID, registerTime, osInfo);
         int instanceId = getInstanceCacheService().getInstanceId(applicationId, agentUUID);
 
         if (instanceId == 0) {

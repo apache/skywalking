@@ -52,7 +52,7 @@ public class ApplicationsGetHandler extends JettyHandler {
 
         String startTimeStr = req.getParameter("startTime");
         String endTimeStr = req.getParameter("endTime");
-        logger.debug("applications get start time: {}, end time: {}", startTimeStr, endTimeStr);
+        logger.debug("applications getApplicationId start time: {}, end time: {}", startTimeStr, endTimeStr);
 
         long startTime;
         try {

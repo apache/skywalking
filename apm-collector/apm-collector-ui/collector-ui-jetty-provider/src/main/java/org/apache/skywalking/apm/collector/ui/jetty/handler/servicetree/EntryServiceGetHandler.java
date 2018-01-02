@@ -58,7 +58,7 @@ public class EntryServiceGetHandler extends JettyHandler {
         String endTimeStr = req.getParameter("endTime");
         String fromStr = req.getParameter("from");
         String sizeStr = req.getParameter("size");
-        logger.debug("service entry get applicationId: {}, entryServiceName: {}, startTime: {}, endTime: {}, from: {}, size: {}", applicationIdStr, entryServiceName, startTimeStr, endTimeStr, fromStr, sizeStr);
+        logger.debug("service entry getApplicationId applicationId: {}, entryServiceName: {}, startTime: {}, endTime: {}, from: {}, size: {}", applicationIdStr, entryServiceName, startTimeStr, endTimeStr, fromStr, sizeStr);
 
         int applicationId;
         try {

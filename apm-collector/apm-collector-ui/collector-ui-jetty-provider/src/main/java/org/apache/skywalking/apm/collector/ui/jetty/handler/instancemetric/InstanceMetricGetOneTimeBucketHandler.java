@@ -52,7 +52,7 @@ public class InstanceMetricGetOneTimeBucketHandler extends JettyHandler {
         String instanceIdStr = req.getParameter("instanceId");
         String[] metricTypes = req.getParameterValues("metricTypes");
 
-        logger.debug("instance jvm metric get timeBucket: {}, instance id: {}, metric types: {}", timeBucketStr, instanceIdStr, metricTypes);
+        logger.debug("instance jvm metric getApplicationId timeBucket: {}, instance id: {}, metric types: {}", timeBucketStr, instanceIdStr, metricTypes);
 
         long timeBucket;
         try {
