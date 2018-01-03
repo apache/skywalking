@@ -42,8 +42,15 @@ public class ServiceMetricAggregationWorker extends AggregationWorker<ServiceRef
     @Override protected ServiceMetric transform(ServiceReferenceMetric serviceReferenceMetric) {
         Integer serviceId = serviceReferenceMetric.getBehindServiceId();
         Long timeBucket = serviceReferenceMetric.getTimeBucket();
-        ServiceMetric serviceMetric = new ServiceMetric(String.valueOf(timeBucket) + Const.ID_SPLIT + String.valueOf(serviceId));
+        Integer sourceValue = serviceReferenceMetric.getSourceValue();
+
+        String id = String.valueOf(timeBucket) + Const.ID_SPLIT + String.valueOf(serviceId) + Const.ID_SPLIT + String.valueOf(sourceValue);
+
+        ServiceMetric serviceMetric = new ServiceMetric(id);
+        serviceMetric.setApplicationId(serviceReferenceMetric.getBehindApplicationId());
+        serviceMetric.setInstanceId(serviceReferenceMetric.getBehindInstanceId());
         serviceMetric.setServiceId(serviceId);
+        serviceMetric.setSourceValue(sourceValue);
 
         serviceMetric.setTransactionCalls(serviceReferenceMetric.getTransactionCalls());
         serviceMetric.setTransactionDurationSum(serviceReferenceMetric.getTransactionDurationSum());
