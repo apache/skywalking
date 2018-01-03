@@ -36,6 +36,6 @@ public class ServiceReferenceAlarmRuleConfig implements IServiceReferenceAlarmRu
     }
 
     @Override public double callerAverageResponseTimeThreshold() {
-        return 3000;
+        return 2000;
     }
 }

@@ -27,11 +27,15 @@ import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ServiceReferenceAlarm;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class ServiceReferenceMetricAlarmAssertWorker extends AlarmAssertWorker<ServiceReferenceMetric, ServiceReferenceAlarm> {
+
+    private final Logger logger = LoggerFactory.getLogger(ServiceReferenceMetricAlarmAssertWorker.class);
 
     private final IServiceReferenceAlarmRuleConfig serviceReferenceAlarmRuleConfig;
 

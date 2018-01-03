@@ -36,6 +36,6 @@ public class InstanceReferenceAlarmRuleConfig implements IInstanceReferenceAlarm
     }
 
     @Override public double callerAverageResponseTimeThreshold() {
-        return 3000;
+        return 2000;
     }
 }
