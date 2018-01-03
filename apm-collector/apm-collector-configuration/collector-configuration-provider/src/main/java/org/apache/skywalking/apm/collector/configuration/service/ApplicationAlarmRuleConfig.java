@@ -36,6 +36,6 @@ public class ApplicationAlarmRuleConfig implements IApplicationAlarmRuleConfig {
     }
 
     @Override public double callerAverageResponseTimeThreshold() {
-        return 3000;
+        return 2000;
     }
 }
