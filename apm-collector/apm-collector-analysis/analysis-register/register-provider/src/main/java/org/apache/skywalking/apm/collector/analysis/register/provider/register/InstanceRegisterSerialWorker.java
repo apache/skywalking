@@ -25,6 +25,7 @@ import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerExce
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
@@ -60,8 +61,19 @@ public class InstanceRegisterSerialWorker extends AbstractLocalAsyncWorker<Insta
             int min = instanceRegisterDAO.getMinInstanceId();
             int max = instanceRegisterDAO.getMaxInstanceId();
             if (min == 0 && max == 0) {
-                newInstance = new Instance("1");
-                newInstance.setInstanceId(1);
+                Instance userInstance = new Instance(String.valueOf(Const.NONE_INSTANCE_ID));
+                userInstance.setInstanceId(Const.NONE_INSTANCE_ID);
+                userInstance.setApplicationId(Const.NONE_APPLICATION_ID);
+                userInstance.setAgentUUID(Const.USER_CODE);
+                userInstance.setHeartBeatTime(System.currentTimeMillis());
+                userInstance.setOsInfo(Const.EMPTY_STRING);
+                userInstance.setRegisterTime(System.currentTimeMillis());
+                userInstance.setAddressId(Const.NONE);
+                userInstance.setIsAddress(false);
+                instanceRegisterDAO.save(userInstance);
+
+                newInstance = new Instance("2");
+                newInstance.setInstanceId(2);
                 newInstance.setApplicationId(instance.getApplicationId());
                 newInstance.setAgentUUID(instance.getAgentUUID());
                 newInstance.setHeartBeatTime(instance.getHeartBeatTime());
