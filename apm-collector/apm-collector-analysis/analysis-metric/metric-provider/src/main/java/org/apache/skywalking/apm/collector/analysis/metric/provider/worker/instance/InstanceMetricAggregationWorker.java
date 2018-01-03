@@ -40,10 +40,12 @@ public class InstanceMetricAggregationWorker extends AggregationWorker<InstanceR
     }
 
     @Override protected InstanceMetric transform(InstanceReferenceMetric instanceReferenceMetric) {
-        String id = instanceReferenceMetric.getTimeBucket() + Const.ID_SPLIT + instanceReferenceMetric.getBehindInstanceId();
+        String id = instanceReferenceMetric.getTimeBucket() + Const.ID_SPLIT + instanceReferenceMetric.getBehindInstanceId() + Const.ID_SPLIT + instanceReferenceMetric.getSourceValue();
 
         InstanceMetric instanceMetric = new InstanceMetric(id);
+        instanceMetric.setApplicationId(instanceReferenceMetric.getBehindApplicationId());
         instanceMetric.setInstanceId(instanceReferenceMetric.getBehindInstanceId());
+        instanceMetric.setSourceValue(instanceReferenceMetric.getSourceValue());
 
         instanceMetric.setTransactionCalls(instanceReferenceMetric.getTransactionCalls());
         instanceMetric.setTransactionErrorCalls(instanceReferenceMetric.getTransactionErrorCalls());
