@@ -50,7 +50,7 @@ public class InstanceHealthGetHandler extends JettyHandler {
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {
         String timeBucketStr = req.getParameter("timeBucket");
         String[] applicationIdsStr = req.getParameterValues("applicationIds");
-        logger.debug("instance health getApplicationId timeBucket: {}, applicationIdsStr: {}", timeBucketStr, applicationIdsStr);
+        logger.debug("instance health getApplicationIdByCode timeBucket: {}, applicationIdsStr: {}", timeBucketStr, applicationIdsStr);
 
         long timeBucket;
         try {

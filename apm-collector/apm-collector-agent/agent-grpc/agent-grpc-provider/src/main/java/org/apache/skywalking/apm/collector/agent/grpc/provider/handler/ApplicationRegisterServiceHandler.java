@@ -51,7 +51,7 @@ public class ApplicationRegisterServiceHandler extends ApplicationRegisterServic
         ApplicationMappings.Builder builder = ApplicationMappings.newBuilder();
         for (int i = 0; i < applicationCodes.size(); i++) {
             String applicationCode = applicationCodes.get(i);
-            int applicationId = applicationIDService.getOrCreate(applicationCode);
+            int applicationId = applicationIDService.getOrCreateForApplicationCode(applicationCode);
 
             if (applicationId != 0) {
                 KeyWithIntegerValue value = KeyWithIntegerValue.newBuilder().setKey(applicationCode).setValue(applicationId).build();

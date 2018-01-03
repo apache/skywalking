@@ -49,7 +49,7 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
     @Override
     public void register(ApplicationInstance request, StreamObserver<ApplicationInstanceMapping> responseObserver) {
         long timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(request.getRegisterTime());
-        int instanceId = instanceIDService.getOrCreate(request.getApplicationId(), request.getAgentUUID(), timeBucket, buildOsInfo(request.getOsinfo()));
+        int instanceId = instanceIDService.getOrCreateByAgentUUID(request.getApplicationId(), request.getAgentUUID(), timeBucket, buildOsInfo(request.getOsinfo()));
         ApplicationInstanceMapping.Builder builder = ApplicationInstanceMapping.newBuilder();
         builder.setApplicationId(request.getApplicationId());
         builder.setApplicationInstanceId(instanceId);

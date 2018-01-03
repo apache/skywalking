@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.analysis.register.define.service;
 
 import org.apache.skywalking.apm.collector.core.module.Service;
@@ -25,5 +24,7 @@ import org.apache.skywalking.apm.collector.core.module.Service;
  * @author peng-yongsheng
  */
 public interface IApplicationIDService extends Service {
-    int getOrCreate(String applicationCode);
+    int getOrCreateForApplicationCode(String applicationCode);
+
+    int getOrCreateForAddressId(int addressId, String networkAddress);
 }

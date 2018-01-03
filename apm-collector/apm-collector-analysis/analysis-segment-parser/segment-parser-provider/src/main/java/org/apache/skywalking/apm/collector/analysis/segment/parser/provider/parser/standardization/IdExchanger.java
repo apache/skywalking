@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.standardization;
 
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.StandardBuilder;

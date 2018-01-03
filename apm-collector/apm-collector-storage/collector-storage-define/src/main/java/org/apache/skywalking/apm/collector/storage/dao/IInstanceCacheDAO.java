@@ -26,5 +26,7 @@ import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
 public interface IInstanceCacheDAO extends DAO {
     int getApplicationId(int instanceId);
 
-    int getInstanceId(int applicationId, String agentUUID);
+    int getInstanceIdByAgentUUID(int applicationId, String agentUUID);
+
+    int getInstanceIdByAddressId(int applicationId, int addressId);
 }
