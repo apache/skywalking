@@ -16,18 +16,17 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.h2.dao;
 
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
+import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
 import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
-import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * @author peng-yongsheng, clevertension
  */
 public class InstanceH2RegisterDAO extends H2DAO implements IInstanceRegisterDAO {
-    
+
     private final Logger logger = LoggerFactory.getLogger(InstanceH2RegisterDAO.class);
 
     public InstanceH2RegisterDAO(H2Client client) {
@@ -62,6 +61,9 @@ public class InstanceH2RegisterDAO extends H2DAO implements IInstanceRegisterDAO
         source.put(InstanceTable.COLUMN_REGISTER_TIME, instance.getRegisterTime());
         source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, instance.getHeartBeatTime());
         source.put(InstanceTable.COLUMN_OS_INFO, instance.getOsInfo());
+        source.put(InstanceTable.COLUMN_ADDRESS_ID, instance.getAddressId());
+        source.put(InstanceTable.COLUMN_IS_ADDRESS, instance.getIsAddress());
+
         String sql = SqlBuilder.buildBatchInsertSql(InstanceTable.TABLE, source.keySet());
         Object[] params = source.values().toArray(new Object[0]);
         try {

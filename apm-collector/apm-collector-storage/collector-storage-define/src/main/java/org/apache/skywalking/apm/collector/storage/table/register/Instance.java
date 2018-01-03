@@ -16,11 +16,10 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.table.register;
 
-import org.apache.skywalking.apm.collector.core.data.Data;
 import org.apache.skywalking.apm.collector.core.data.Column;
+import org.apache.skywalking.apm.collector.core.data.Data;
 import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
 
@@ -39,13 +38,19 @@ public class Instance extends Data {
         new Column(InstanceTable.COLUMN_REGISTER_TIME, new CoverOperation()),
         new Column(InstanceTable.COLUMN_HEARTBEAT_TIME, new CoverOperation()),
     };
+
     private static final Column[] DOUBLE_COLUMNS = {};
+
     private static final Column[] INTEGER_COLUMNS = {
         new Column(InstanceTable.COLUMN_APPLICATION_ID, new CoverOperation()),
         new Column(InstanceTable.COLUMN_INSTANCE_ID, new CoverOperation()),
+        new Column(InstanceTable.COLUMN_ADDRESS_ID, new CoverOperation()),
     };
 
-    private static final Column[] BOOLEAN_COLUMNS = {};
+    private static final Column[] BOOLEAN_COLUMNS = {
+        new Column(InstanceTable.COLUMN_IS_ADDRESS, new CoverOperation()),
+    };
+
     private static final Column[] BYTE_COLUMNS = {};
 
     public Instance(String id) {
@@ -102,5 +107,21 @@ public class Instance extends Data {
 
     public void setOsInfo(String osInfo) {
         setDataString(2, osInfo);
+    }
+
+    public int getAddressId() {
+        return getDataInteger(2);
+    }
+
+    public void setAddressId(int addressId) {
+        setDataInteger(2, addressId);
+    }
+
+    public boolean getIsAddress() {
+        return getDataBoolean(0);
+    }
+
+    public void setIsAddress(boolean isAddress) {
+        setDataBoolean(0, isAddress);
     }
 }

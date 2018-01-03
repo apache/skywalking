@@ -16,13 +16,13 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.core.util;
 
 /**
  * @author peng-yongsheng
  */
 public class Const {
+    public static final int NONE = 0;
     public static final String ID_SPLIT = "_";
     public static final int USER_ID = 1;
     public static final int NONE_SERVICE_ID = 1;

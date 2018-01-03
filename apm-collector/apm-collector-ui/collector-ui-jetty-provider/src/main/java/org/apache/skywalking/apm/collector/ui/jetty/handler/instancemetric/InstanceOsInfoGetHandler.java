@@ -47,7 +47,7 @@ public class InstanceOsInfoGetHandler extends JettyHandler {
 
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {
         String instanceIdStr = req.getParameter("instanceId");
-        logger.debug("instance os info getApplicationId, instance id: {}", instanceIdStr);
+        logger.debug("instance os info getApplicationIdByCode, instance id: {}", instanceIdStr);
 
         int instanceId;
         try {

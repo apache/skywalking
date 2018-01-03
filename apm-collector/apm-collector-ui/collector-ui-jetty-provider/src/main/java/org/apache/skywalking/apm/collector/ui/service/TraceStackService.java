@@ -134,7 +134,7 @@ public class TraceStackService {
                         operationName = Const.EMPTY_STRING;
                     }
                 }
-                String applicationCode = applicationCacheService.get(segment.getApplicationId());
+                String applicationCode = applicationCacheService.getApplicationCodeById(segment.getApplicationId());
 
                 long cost = spanObject.getEndTime() - spanObject.getStartTime();
                 if (cost == 0) {
@@ -149,9 +149,9 @@ public class TraceStackService {
 //                        StringBuilder segmentIdBuilder = new StringBuilder();
 //                        for (int i = 0; i < uniqueId.getIdPartsList().size(); i++) {
 //                            if (i == 0) {
-//                                segmentIdBuilder.append(String.valueOf(uniqueId.getIdPartsList().getApplicationId(i)));
+//                                segmentIdBuilder.append(String.valueOf(uniqueId.getIdPartsList().getApplicationIdByCode(i)));
 //                            } else {
-//                                segmentIdBuilder.append(".").append(String.valueOf(uniqueId.getIdPartsList().getApplicationId(i)));
+//                                segmentIdBuilder.append(".").append(String.valueOf(uniqueId.getIdPartsList().getApplicationIdByCode(i)));
 //                            }
 //                        }
 //

@@ -18,7 +18,10 @@
 
 package org.apache.skywalking.apm.collector.analysis.register.provider.service;
 
+import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegisterModule;
 import org.apache.skywalking.apm.collector.analysis.register.define.graph.GraphIdDefine;
+import org.apache.skywalking.apm.collector.analysis.register.define.service.IApplicationIDService;
+import org.apache.skywalking.apm.collector.analysis.register.define.service.IInstanceIDService;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.INetworkAddressIDService;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.NetworkAddressCacheService;
@@ -39,6 +42,8 @@ public class NetworkAddressIDService implements INetworkAddressIDService {
 
     private final ModuleManager moduleManager;
     private NetworkAddressCacheService networkAddressCacheService;
+    private IApplicationIDService applicationIDService;
+    private IInstanceIDService instanceIDService;
     private Graph<NetworkAddress> networkAddressGraph;
 
     public NetworkAddressIDService(ModuleManager moduleManager) {
@@ -47,28 +52,53 @@ public class NetworkAddressIDService implements INetworkAddressIDService {
 
     private NetworkAddressCacheService getNetworkAddressCacheService() {
         if (ObjectUtils.isEmpty(networkAddressCacheService)) {
-            networkAddressCacheService = moduleManager.find(CacheModule.NAME).getService(NetworkAddressCacheService.class);
+            this.networkAddressCacheService = moduleManager.find(CacheModule.NAME).getService(NetworkAddressCacheService.class);
         }
-        return networkAddressCacheService;
+        return this.networkAddressCacheService;
+    }
+
+    private IApplicationIDService getApplicationIDService() {
+        if (ObjectUtils.isEmpty(applicationIDService)) {
+            this.applicationIDService = moduleManager.find(AnalysisRegisterModule.NAME).getService(IApplicationIDService.class);
+        }
+        return this.applicationIDService;
+    }
+
+    private IInstanceIDService getInstanceIDService() {
+        if (ObjectUtils.isEmpty(instanceIDService)) {
+            this.instanceIDService = moduleManager.find(AnalysisRegisterModule.NAME).getService(IInstanceIDService.class);
+        }
+        return this.instanceIDService;
     }
 
     private Graph<NetworkAddress> getNetworkAddressGraph() {
         if (ObjectUtils.isEmpty(networkAddressGraph)) {
             this.networkAddressGraph = GraphManager.INSTANCE.findGraph(GraphIdDefine.NETWORK_ADDRESS_NAME_REGISTER_GRAPH_ID, NetworkAddress.class);
         }
-        return networkAddressGraph;
+        return this.networkAddressGraph;
     }
 
     @Override public int getOrCreate(String networkAddress) {
         int addressId = getNetworkAddressCacheService().getAddressId(networkAddress);
 
-        if (addressId == 0) {
+        if (addressId != 0) {
+            int applicationId = getApplicationIDService().getOrCreateForAddressId(addressId, networkAddress);
+
+            if (applicationId != 0) {
+                int instanceId = getInstanceIDService().getOrCreateByAddressId(applicationId, addressId, System.currentTimeMillis());
+
+                if (instanceId != 0) {
+                    return addressId;
+                }
+            }
+        } else {
             NetworkAddress newNetworkAddress = new NetworkAddress("0");
             newNetworkAddress.setNetworkAddress(networkAddress);
             newNetworkAddress.setAddressId(0);
 
             getNetworkAddressGraph().start(newNetworkAddress);
         }
-        return addressId;
+
+        return 0;
     }
 }

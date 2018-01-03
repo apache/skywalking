@@ -54,7 +54,7 @@ public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker<Ap
 
     @Override protected void onWork(Application application) throws WorkerException {
         logger.debug("register application, application code: {}", application.getApplicationCode());
-        int applicationId = applicationCacheService.get(application.getApplicationCode());
+        int applicationId = applicationCacheService.getApplicationIdByCode(application.getApplicationCode());
 
         if (applicationId == 0) {
             Application newApplication;
@@ -63,11 +63,15 @@ public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker<Ap
                 Application userApplication = new Application(String.valueOf(Const.USER_ID));
                 userApplication.setApplicationCode(Const.USER_CODE);
                 userApplication.setApplicationId(Const.USER_ID);
+                userApplication.setAddressId(Const.NONE);
+                userApplication.setIsAddress(false);
                 applicationRegisterDAO.save(userApplication);
 
                 newApplication = new Application("-1");
                 newApplication.setApplicationId(-1);
                 newApplication.setApplicationCode(application.getApplicationCode());
+                newApplication.setAddressId(application.getAddressId());
+                newApplication.setIsAddress(application.getIsAddress());
             } else {
                 int max = applicationRegisterDAO.getMaxApplicationId();
                 applicationId = IdAutoIncrement.INSTANCE.increment(min, max);
@@ -75,6 +79,8 @@ public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker<Ap
                 newApplication = new Application(String.valueOf(applicationId));
                 newApplication.setApplicationId(applicationId);
                 newApplication.setApplicationCode(application.getApplicationCode());
+                newApplication.setAddressId(application.getAddressId());
+                newApplication.setIsAddress(application.getIsAddress());
             }
             applicationRegisterDAO.save(newApplication);
         }

@@ -60,6 +60,8 @@ public class InstanceEsRegisterDAO extends EsDAO implements IInstanceRegisterDAO
         source.put(InstanceTable.COLUMN_REGISTER_TIME, instance.getRegisterTime());
         source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, instance.getHeartBeatTime());
         source.put(InstanceTable.COLUMN_OS_INFO, instance.getOsInfo());
+        source.put(InstanceTable.COLUMN_ADDRESS_ID, instance.getAddressId());
+        source.put(InstanceTable.COLUMN_IS_ADDRESS, instance.getIsAddress());
 
         IndexResponse response = client.prepareIndex(InstanceTable.TABLE, instance.getId()).setSource(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
         logger.debug("save instance register info, application getId: {}, agentUUID: {}, status: {}", instance.getApplicationId(), instance.getAgentUUID(), response.status().name());

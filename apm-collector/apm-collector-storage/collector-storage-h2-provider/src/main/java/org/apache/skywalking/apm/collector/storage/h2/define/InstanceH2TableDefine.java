@@ -16,12 +16,11 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.h2.define;
 
+import org.apache.skywalking.apm.collector.storage.h2.base.define.H2ColumnDefine;
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2TableDefine;
 import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
-import org.apache.skywalking.apm.collector.storage.h2.base.define.H2ColumnDefine;
 
 /**
  * @author peng-yongsheng
@@ -40,5 +39,7 @@ public class InstanceH2TableDefine extends H2TableDefine {
         addColumn(new H2ColumnDefine(InstanceTable.COLUMN_INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
         addColumn(new H2ColumnDefine(InstanceTable.COLUMN_HEARTBEAT_TIME, H2ColumnDefine.Type.Bigint.name()));
         addColumn(new H2ColumnDefine(InstanceTable.COLUMN_OS_INFO, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(InstanceTable.COLUMN_ADDRESS_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(InstanceTable.COLUMN_IS_ADDRESS, H2ColumnDefine.Type.Boolean.name()));
     }
 }
