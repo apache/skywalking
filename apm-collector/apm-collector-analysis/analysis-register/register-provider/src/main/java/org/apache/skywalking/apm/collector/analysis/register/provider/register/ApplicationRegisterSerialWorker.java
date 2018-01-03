@@ -60,9 +60,9 @@ public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker<Ap
             Application newApplication;
             int min = applicationRegisterDAO.getMinApplicationId();
             if (min == 0) {
-                Application userApplication = new Application(String.valueOf(Const.USER_ID));
+                Application userApplication = new Application(String.valueOf(Const.NONE_APPLICATION_ID));
                 userApplication.setApplicationCode(Const.USER_CODE);
-                userApplication.setApplicationId(Const.USER_ID);
+                userApplication.setApplicationId(Const.NONE_APPLICATION_ID);
                 userApplication.setAddressId(Const.NONE);
                 userApplication.setIsAddress(false);
                 applicationRegisterDAO.save(userApplication);
