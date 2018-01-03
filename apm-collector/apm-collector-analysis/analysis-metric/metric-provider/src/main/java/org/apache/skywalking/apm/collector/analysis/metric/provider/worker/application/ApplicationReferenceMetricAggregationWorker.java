@@ -53,11 +53,15 @@ public class ApplicationReferenceMetricAggregationWorker extends AggregationWork
         Integer frontApplicationId = instanceCacheService.getApplicationId(instanceReferenceMetric.getFrontInstanceId());
         Integer behindApplicationId = instanceCacheService.getApplicationId(instanceReferenceMetric.getBehindInstanceId());
 
-        String id = instanceReferenceMetric.getTimeBucket() + Const.ID_SPLIT + frontApplicationId + Const.ID_SPLIT + behindApplicationId;
+        String id = instanceReferenceMetric.getTimeBucket()
+            + Const.ID_SPLIT + frontApplicationId
+            + Const.ID_SPLIT + behindApplicationId
+            + Const.ID_SPLIT + instanceReferenceMetric.getSourceValue();
 
         ApplicationReferenceMetric applicationReferenceMetric = new ApplicationReferenceMetric(id);
         applicationReferenceMetric.setFrontApplicationId(frontApplicationId);
         applicationReferenceMetric.setBehindApplicationId(behindApplicationId);
+        applicationReferenceMetric.setSourceValue(instanceReferenceMetric.getSourceValue());
 
         applicationReferenceMetric.setTransactionCalls(instanceReferenceMetric.getTransactionCalls());
         applicationReferenceMetric.setTransactionErrorCalls(instanceReferenceMetric.getTransactionErrorCalls());
