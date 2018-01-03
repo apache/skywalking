@@ -42,8 +42,14 @@ public class ApplicationMetricAggregationWorker extends AggregationWorker<Applic
     @Override protected ApplicationMetric transform(ApplicationReferenceMetric applicationReferenceMetric) {
         Integer applicationId = applicationReferenceMetric.getBehindApplicationId();
         Long timeBucket = applicationReferenceMetric.getTimeBucket();
-        ApplicationMetric applicationMetric = new ApplicationMetric(String.valueOf(timeBucket) + Const.ID_SPLIT + String.valueOf(applicationId));
+
+        String id = String.valueOf(timeBucket)
+            + Const.ID_SPLIT + String.valueOf(applicationId)
+            + Const.ID_SPLIT + applicationReferenceMetric.getSourceValue();
+
+        ApplicationMetric applicationMetric = new ApplicationMetric(id);
         applicationMetric.setApplicationId(applicationId);
+        applicationMetric.setSourceValue(applicationReferenceMetric.getSourceValue());
 
         applicationMetric.setTransactionCalls(applicationReferenceMetric.getTransactionCalls());
         applicationMetric.setTransactionDurationSum(applicationReferenceMetric.getTransactionDurationSum());
