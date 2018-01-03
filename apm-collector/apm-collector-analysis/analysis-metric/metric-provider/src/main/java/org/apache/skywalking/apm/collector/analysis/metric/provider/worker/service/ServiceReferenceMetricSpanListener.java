@@ -152,7 +152,7 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
         logger.debug("service reference listener build");
         Graph<ServiceReferenceMetric> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.SERVICE_REFERENCE_METRIC_GRAPH_ID, ServiceReferenceMetric.class);
         entryReferenceMetric.forEach(serviceReferenceMetric -> {
-            String id = timeBucket + Const.ID_SPLIT + serviceReferenceMetric.getFrontServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getBehindServiceId();
+            String id = timeBucket + Const.ID_SPLIT + serviceReferenceMetric.getFrontServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getBehindServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getSourceValue();
 
             serviceReferenceMetric.setId(id);
             serviceReferenceMetric.setTimeBucket(timeBucket);
@@ -168,7 +168,7 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
                 serviceReferenceMetric.setFrontServiceId(Const.NONE_SERVICE_ID);
             }
 
-            String id = timeBucket + Const.ID_SPLIT + serviceReferenceMetric.getFrontServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getBehindServiceId();
+            String id = timeBucket + Const.ID_SPLIT + serviceReferenceMetric.getFrontServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getBehindServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getSourceValue();
             serviceReferenceMetric.setId(id);
             serviceReferenceMetric.setTimeBucket(timeBucket);
 
