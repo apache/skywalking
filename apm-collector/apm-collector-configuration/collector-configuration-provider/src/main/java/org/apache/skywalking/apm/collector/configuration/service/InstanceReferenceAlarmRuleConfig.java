@@ -23,19 +23,27 @@ package org.apache.skywalking.apm.collector.configuration.service;
  */
 public class InstanceReferenceAlarmRuleConfig implements IInstanceReferenceAlarmRuleConfig {
 
+    private double errorRateThreshold;
+    private int averageResponseTimeThreshold;
+
+    public InstanceReferenceAlarmRuleConfig(double errorRateThreshold, int averageResponseTimeThreshold) {
+        this.errorRateThreshold = errorRateThreshold;
+        this.averageResponseTimeThreshold = averageResponseTimeThreshold;
+    }
+
     @Override public double calleeErrorRateThreshold() {
-        return 10.00;
+        return errorRateThreshold;
     }
 
     @Override public double calleeAverageResponseTimeThreshold() {
-        return 2000;
+        return averageResponseTimeThreshold;
     }
 
     @Override public double callerErrorRateThreshold() {
-        return 10.00;
+        return errorRateThreshold;
     }
 
     @Override public double callerAverageResponseTimeThreshold() {
-        return 2000;
+        return averageResponseTimeThreshold;
     }
 }
