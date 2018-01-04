@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.table.register;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
@@ -35,12 +34,18 @@ public class Application extends Data {
     };
 
     private static final Column[] LONG_COLUMNS = {};
+
     private static final Column[] DOUBLE_COLUMNS = {};
+
     private static final Column[] INTEGER_COLUMNS = {
         new Column(ApplicationTable.COLUMN_APPLICATION_ID, new CoverOperation()),
+        new Column(ApplicationTable.COLUMN_ADDRESS_ID, new CoverOperation()),
     };
 
-    private static final Column[] BOOLEAN_COLUMNS = {};
+    private static final Column[] BOOLEAN_COLUMNS = {
+        new Column(ApplicationTable.COLUMN_IS_ADDRESS, new CoverOperation()),
+    };
+
     private static final Column[] BYTE_COLUMNS = {};
 
     public Application(String id) {
@@ -61,5 +66,21 @@ public class Application extends Data {
 
     public void setApplicationId(int applicationId) {
         setDataInteger(0, applicationId);
+    }
+
+    public int getAddressId() {
+        return getDataInteger(1);
+    }
+
+    public void setAddressId(int addressId) {
+        setDataInteger(1, addressId);
+    }
+
+    public boolean getIsAddress() {
+        return getDataBoolean(0);
+    }
+
+    public void setIsAddress(boolean isAddress) {
+        setDataBoolean(0, isAddress);
     }
 }

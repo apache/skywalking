@@ -22,12 +22,15 @@ import java.util.Properties;
 import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegisterModule;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IApplicationIDService;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IInstanceIDService;
+import org.apache.skywalking.apm.collector.analysis.register.define.service.INetworkAddressIDService;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IServiceNameService;
 import org.apache.skywalking.apm.collector.analysis.register.provider.register.ApplicationRegisterGraph;
 import org.apache.skywalking.apm.collector.analysis.register.provider.register.InstanceRegisterGraph;
+import org.apache.skywalking.apm.collector.analysis.register.provider.register.NetworkAddressRegisterGraph;
 import org.apache.skywalking.apm.collector.analysis.register.provider.register.ServiceNameRegisterGraph;
 import org.apache.skywalking.apm.collector.analysis.register.provider.service.ApplicationIDService;
 import org.apache.skywalking.apm.collector.analysis.register.provider.service.InstanceIDService;
+import org.apache.skywalking.apm.collector.analysis.register.provider.service.NetworkAddressIDService;
 import org.apache.skywalking.apm.collector.analysis.register.provider.service.ServiceNameService;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.analysis.worker.timer.PersistenceTimer;
@@ -57,6 +60,7 @@ public class AnalysisRegisterModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(IApplicationIDService.class, new ApplicationIDService(getManager()));
         this.registerServiceImplementation(IInstanceIDService.class, new InstanceIDService(getManager()));
         this.registerServiceImplementation(IServiceNameService.class, new ServiceNameService(getManager()));
+        this.registerServiceImplementation(INetworkAddressIDService.class, new NetworkAddressIDService(getManager()));
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
@@ -85,5 +89,8 @@ public class AnalysisRegisterModuleProvider extends ModuleProvider {
 
         ServiceNameRegisterGraph serviceNameRegisterGraph = new ServiceNameRegisterGraph(getManager(), workerCreateListener);
         serviceNameRegisterGraph.create();
+
+        NetworkAddressRegisterGraph networkAddressRegisterGraph = new NetworkAddressRegisterGraph(getManager(), workerCreateListener);
+        networkAddressRegisterGraph.create();
     }
 }

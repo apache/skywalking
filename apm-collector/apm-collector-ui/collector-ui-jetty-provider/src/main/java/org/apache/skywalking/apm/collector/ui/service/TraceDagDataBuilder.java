@@ -108,9 +108,9 @@ public class TraceDagDataBuilder {
         for (int i = 0; i < nodesMappingArray.size(); i++) {
             JsonObject nodesMappingJsonObj = nodesMappingArray.get(i).getAsJsonObject();
             int applicationId = nodesMappingJsonObj.get(ApplicationMappingTable.COLUMN_APPLICATION_ID).getAsInt();
-            String applicationCode = applicationCacheService.get(applicationId);
+            String applicationCode = applicationCacheService.getApplicationCodeById(applicationId);
             int addressId = nodesMappingJsonObj.get(ApplicationMappingTable.COLUMN_ADDRESS_ID).getAsInt();
-            String address = applicationCacheService.get(addressId);
+            String address = applicationCacheService.getApplicationCodeById(addressId);
             mappingMap.put(address, applicationCode);
         }
     }
@@ -122,7 +122,7 @@ public class TraceDagDataBuilder {
             int componentId = nodesJsonObj.get(ApplicationComponentTable.COLUMN_COMPONENT_ID).getAsInt();
             String componentName = ComponentsDefine.getInstance().getComponentName(componentId);
             int peerId = nodesJsonObj.get(ApplicationComponentTable.COLUMN_PEER_ID).getAsInt();
-            String peer = applicationCacheService.get(peerId);
+            String peer = applicationCacheService.getApplicationCodeById(peerId);
             nodeCompMap.put(peer, componentName);
         }
     }
@@ -139,8 +139,8 @@ public class TraceDagDataBuilder {
             int frontApplicationId = nodeRefJsonObj.get(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID)).getAsInt();
             int behindApplicationId = nodeRefJsonObj.get(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID)).getAsInt();
 
-            String front = applicationCacheService.get(frontApplicationId);
-            String behind = applicationCacheService.get(behindApplicationId);
+            String front = applicationCacheService.getApplicationCodeById(frontApplicationId);
+            String behind = applicationCacheService.getApplicationCodeById(behindApplicationId);
 
             String id = front + Const.ID_SPLIT + behind;
             nodeRefJsonObj.addProperty("front", front);

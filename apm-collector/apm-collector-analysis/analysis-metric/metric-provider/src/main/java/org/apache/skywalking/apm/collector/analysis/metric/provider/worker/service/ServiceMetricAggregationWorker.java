@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service;
 
-import org.apache.skywalking.apm.collector.analysis.metric.define.graph.WorkerIdDefine;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.AggregationWorker;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -36,14 +36,21 @@ public class ServiceMetricAggregationWorker extends AggregationWorker<ServiceRef
     }
 
     @Override public int id() {
-        return WorkerIdDefine.SERVICE_METRIC_AGGREGATION_WORKER_ID;
+        return MetricWorkerIdDefine.SERVICE_METRIC_AGGREGATION_WORKER_ID;
     }
 
     @Override protected ServiceMetric transform(ServiceReferenceMetric serviceReferenceMetric) {
         Integer serviceId = serviceReferenceMetric.getBehindServiceId();
         Long timeBucket = serviceReferenceMetric.getTimeBucket();
-        ServiceMetric serviceMetric = new ServiceMetric(String.valueOf(timeBucket) + Const.ID_SPLIT + String.valueOf(serviceId));
+        Integer sourceValue = serviceReferenceMetric.getSourceValue();
+
+        String id = String.valueOf(timeBucket) + Const.ID_SPLIT + String.valueOf(serviceId) + Const.ID_SPLIT + String.valueOf(sourceValue);
+
+        ServiceMetric serviceMetric = new ServiceMetric(id);
+        serviceMetric.setApplicationId(serviceReferenceMetric.getBehindApplicationId());
+        serviceMetric.setInstanceId(serviceReferenceMetric.getBehindInstanceId());
         serviceMetric.setServiceId(serviceId);
+        serviceMetric.setSourceValue(sourceValue);
 
         serviceMetric.setTransactionCalls(serviceReferenceMetric.getTransactionCalls());
         serviceMetric.setTransactionDurationSum(serviceReferenceMetric.getTransactionDurationSum());

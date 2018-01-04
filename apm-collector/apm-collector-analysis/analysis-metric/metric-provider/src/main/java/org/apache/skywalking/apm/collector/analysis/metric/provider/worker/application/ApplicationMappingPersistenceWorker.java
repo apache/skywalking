@@ -18,9 +18,9 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application;
 
-import org.apache.skywalking.apm.collector.analysis.metric.define.graph.WorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
@@ -30,25 +30,26 @@ import org.apache.skywalking.apm.collector.storage.table.application.Application
 /**
  * @author peng-yongsheng
  */
-public class ApplicationMappingPersistenceWorker extends PersistenceWorker<ApplicationMapping, ApplicationMapping> {
+public class ApplicationMappingPersistenceWorker extends PersistenceWorker<ApplicationMapping> {
 
     ApplicationMappingPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     @Override public int id() {
-        return WorkerIdDefine.APPLICATION_MAPPING_PERSISTENCE_WORKER_ID;
+        return MetricWorkerIdDefine.APPLICATION_MAPPING_PERSISTENCE_WORKER_ID;
     }
 
     @Override protected boolean needMergeDBData() {
         return true;
     }
 
-    @Override protected IPersistenceDAO persistenceDAO() {
+    @SuppressWarnings("unchecked")
+    @Override protected IPersistenceDAO<?, ?, ApplicationMapping> persistenceDAO() {
         return getModuleManager().find(StorageModule.NAME).getService(IApplicationMappingPersistenceDAO.class);
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<ApplicationMapping, ApplicationMapping, ApplicationMappingPersistenceWorker> {
+    public static class Factory extends PersistenceWorkerProvider<ApplicationMapping, ApplicationMappingPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);

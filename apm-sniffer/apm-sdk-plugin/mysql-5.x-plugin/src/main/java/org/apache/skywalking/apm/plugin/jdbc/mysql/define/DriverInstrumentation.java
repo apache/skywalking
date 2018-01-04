@@ -32,6 +32,6 @@ import static org.apache.skywalking.apm.plugin.jdbc.mysql.define.MultiClassNameM
 public class DriverInstrumentation extends AbstractDriverInstrumentation {
     @Override
     protected ClassMatch enhanceClass() {
-        return byMultiClassMatch("com.mysql.jdbc.Driver", "com.mysql.cj.jdbc.Driver");
+        return byMultiClassMatch("com.mysql.jdbc.Driver", "com.mysql.cj.jdbc.Driver", "com.mysql.jdbc.NonRegisteringDriver");
     }
 }

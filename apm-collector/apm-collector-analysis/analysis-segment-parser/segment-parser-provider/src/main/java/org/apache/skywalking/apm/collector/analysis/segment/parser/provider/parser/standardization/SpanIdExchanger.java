@@ -19,7 +19,7 @@
 package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.standardization;
 
 import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegisterModule;
-import org.apache.skywalking.apm.collector.analysis.register.define.service.IApplicationIDService;
+import org.apache.skywalking.apm.collector.analysis.register.define.service.INetworkAddressIDService;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IServiceNameService;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -36,8 +36,8 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
     private final Logger logger = LoggerFactory.getLogger(SpanIdExchanger.class);
 
     private static SpanIdExchanger EXCHANGER;
-    private final IApplicationIDService applicationIDService;
     private final IServiceNameService serviceNameService;
+    private final INetworkAddressIDService networkAddressIDService;
 
     public static SpanIdExchanger getInstance(ModuleManager moduleManager) {
         if (EXCHANGER == null) {
@@ -47,13 +47,14 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
     }
 
     private SpanIdExchanger(ModuleManager moduleManager) {
-        applicationIDService = moduleManager.find(AnalysisRegisterModule.NAME).getService(IApplicationIDService.class);
-        serviceNameService = moduleManager.find(AnalysisRegisterModule.NAME).getService(IServiceNameService.class);
+        this.serviceNameService = moduleManager.find(AnalysisRegisterModule.NAME).getService(IServiceNameService.class);
+        this.networkAddressIDService = moduleManager.find(AnalysisRegisterModule.NAME).getService(INetworkAddressIDService.class);
     }
 
     @Override public boolean exchange(SpanDecorator standardBuilder, int applicationId) {
         if (standardBuilder.getPeerId() == 0 && StringUtils.isNotEmpty(standardBuilder.getPeer())) {
-            int peerId = applicationIDService.getOrCreate(standardBuilder.getPeer());
+            int peerId = networkAddressIDService.getOrCreate(standardBuilder.getPeer());
+
             if (peerId == 0) {
                 logger.debug("peer: {} in application: {} exchange failed", standardBuilder.getPeer(), applicationId);
                 return false;

@@ -16,11 +16,10 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.h2.define;
 
-import org.apache.skywalking.apm.collector.storage.h2.base.define.H2TableDefine;
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2ColumnDefine;
+import org.apache.skywalking.apm.collector.storage.h2.base.define.H2TableDefine;
 import org.apache.skywalking.apm.collector.storage.table.register.ApplicationTable;
 
 /**
@@ -36,5 +35,7 @@ public class ApplicationH2TableDefine extends H2TableDefine {
         addColumn(new H2ColumnDefine(ApplicationTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
         addColumn(new H2ColumnDefine(ApplicationTable.COLUMN_APPLICATION_CODE, H2ColumnDefine.Type.Varchar.name()));
         addColumn(new H2ColumnDefine(ApplicationTable.COLUMN_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ApplicationTable.COLUMN_ADDRESS_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ApplicationTable.COLUMN_IS_ADDRESS, H2ColumnDefine.Type.Boolean.name()));
     }
 }

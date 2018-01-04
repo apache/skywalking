@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.table.application;
 
 import org.apache.skywalking.apm.collector.storage.table.CommonMetricTable;
@@ -25,7 +24,7 @@ import org.apache.skywalking.apm.collector.storage.table.CommonMetricTable;
  * @author peng-yongsheng
  */
 public class ApplicationReferenceMetricTable extends CommonMetricTable {
-    public static final String TABLE = "application_reference";
+    public static final String TABLE = "application_reference_metric";
     public static final String COLUMN_FRONT_APPLICATION_ID = "front_application_id";
     public static final String COLUMN_BEHIND_APPLICATION_ID = "behind_application_id";
     public static final String COLUMN_SATISFIED_COUNT = "satisfied_count";

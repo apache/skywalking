@@ -16,22 +16,21 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMetric;
+import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMetricTable;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
-import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMetric;
-import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMetricTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +51,7 @@ public class ApplicationMetricEsPersistenceDAO extends EsDAO implements IApplica
             ApplicationMetric applicationMetric = new ApplicationMetric(id);
             Map<String, Object> source = getResponse.getSource();
             applicationMetric.setApplicationId(((Number)source.get(ApplicationMetricTable.COLUMN_APPLICATION_ID)).intValue());
+            applicationMetric.setSourceValue(((Number)source.get(ApplicationMetricTable.COLUMN_SOURCE_VALUE)).intValue());
 
             applicationMetric.setTransactionCalls(((Number)source.get(ApplicationMetricTable.COLUMN_TRANSACTION_CALLS)).longValue());
             applicationMetric.setTransactionErrorCalls(((Number)source.get(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_CALLS)).longValue());
@@ -81,6 +81,7 @@ public class ApplicationMetricEsPersistenceDAO extends EsDAO implements IApplica
     @Override public IndexRequestBuilder prepareBatchInsert(ApplicationMetric data) {
         Map<String, Object> source = new HashMap<>();
         source.put(ApplicationMetricTable.COLUMN_APPLICATION_ID, data.getApplicationId());
+        source.put(ApplicationMetricTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
 
         source.put(ApplicationMetricTable.COLUMN_TRANSACTION_CALLS, data.getTransactionCalls());
         source.put(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, data.getTransactionErrorCalls());
@@ -108,6 +109,7 @@ public class ApplicationMetricEsPersistenceDAO extends EsDAO implements IApplica
     @Override public UpdateRequestBuilder prepareBatchUpdate(ApplicationMetric data) {
         Map<String, Object> source = new HashMap<>();
         source.put(ApplicationMetricTable.COLUMN_APPLICATION_ID, data.getApplicationId());
+        source.put(ApplicationMetricTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
 
         source.put(ApplicationMetricTable.COLUMN_TRANSACTION_CALLS, data.getTransactionCalls());
         source.put(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, data.getTransactionErrorCalls());

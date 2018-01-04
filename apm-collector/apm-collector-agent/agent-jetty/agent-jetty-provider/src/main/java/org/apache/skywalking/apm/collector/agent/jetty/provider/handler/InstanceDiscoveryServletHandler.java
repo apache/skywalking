@@ -68,7 +68,7 @@ public class InstanceDiscoveryServletHandler extends JettyHandler {
             long registerTime = instance.get(REGISTER_TIME).getAsLong();
             JsonObject osInfo = instance.get(OS_INFO).getAsJsonObject();
 
-            int instanceId = instanceIDService.getOrCreate(applicationId, agentUUID, registerTime, osInfo.toString());
+            int instanceId = instanceIDService.getOrCreateByAgentUUID(applicationId, agentUUID, registerTime, osInfo.toString());
             responseJson.addProperty(APPLICATION_ID, applicationId);
             responseJson.addProperty(INSTANCE_ID, instanceId);
         } catch (IOException e) {

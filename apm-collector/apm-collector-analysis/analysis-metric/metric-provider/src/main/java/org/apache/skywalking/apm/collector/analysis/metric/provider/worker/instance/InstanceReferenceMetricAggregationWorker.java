@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance;
 
-import org.apache.skywalking.apm.collector.analysis.metric.define.graph.WorkerIdDefine;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.AggregationWorker;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -36,15 +36,21 @@ public class InstanceReferenceMetricAggregationWorker extends AggregationWorker<
     }
 
     @Override public int id() {
-        return WorkerIdDefine.INSTANCE_REFERENCE_METRIC_AGGREGATION_WORKER_ID;
+        return MetricWorkerIdDefine.INSTANCE_REFERENCE_METRIC_AGGREGATION_WORKER_ID;
     }
 
     @Override protected InstanceReferenceMetric transform(ServiceReferenceMetric serviceReferenceMetric) {
-        String id = serviceReferenceMetric.getTimeBucket() + Const.ID_SPLIT + serviceReferenceMetric.getFrontInstanceId() + Const.ID_SPLIT + serviceReferenceMetric.getBehindInstanceId();
+        String id = serviceReferenceMetric.getTimeBucket()
+            + Const.ID_SPLIT + serviceReferenceMetric.getFrontInstanceId()
+            + Const.ID_SPLIT + serviceReferenceMetric.getBehindInstanceId()
+            + Const.ID_SPLIT + serviceReferenceMetric.getSourceValue();
 
         InstanceReferenceMetric instanceReferenceMetric = new InstanceReferenceMetric(id);
+        instanceReferenceMetric.setFrontApplicationId(serviceReferenceMetric.getFrontApplicationId());
         instanceReferenceMetric.setFrontInstanceId(serviceReferenceMetric.getFrontInstanceId());
+        instanceReferenceMetric.setBehindApplicationId(serviceReferenceMetric.getBehindApplicationId());
         instanceReferenceMetric.setBehindInstanceId(serviceReferenceMetric.getBehindInstanceId());
+        instanceReferenceMetric.setSourceValue(serviceReferenceMetric.getSourceValue());
 
         instanceReferenceMetric.setTransactionCalls(serviceReferenceMetric.getTransactionCalls());
         instanceReferenceMetric.setTransactionErrorCalls(serviceReferenceMetric.getTransactionErrorCalls());
@@ -61,7 +67,6 @@ public class InstanceReferenceMetricAggregationWorker extends AggregationWorker<
         instanceReferenceMetric.setMqTransactionDurationSum(instanceReferenceMetric.getMqTransactionDurationSum());
         instanceReferenceMetric.setMqTransactionErrorDurationSum(instanceReferenceMetric.getMqTransactionErrorDurationSum());
 
-        instanceReferenceMetric.setSourceValue(serviceReferenceMetric.getSourceValue());
         instanceReferenceMetric.setTimeBucket(serviceReferenceMetric.getTimeBucket());
         return instanceReferenceMetric;
     }

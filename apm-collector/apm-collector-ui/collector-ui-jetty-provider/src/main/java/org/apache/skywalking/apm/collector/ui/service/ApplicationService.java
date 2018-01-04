@@ -46,7 +46,7 @@ public class ApplicationService {
         applications.forEach(jsonElement -> {
             JsonObject application = jsonElement.getAsJsonObject();
             int applicationId = application.get("applicationId").getAsInt();
-            String applicationCode = applicationCacheService.get(applicationId);
+            String applicationCode = applicationCacheService.getApplicationCodeById(applicationId);
             application.addProperty("applicationCode", applicationCode);
         });
         return applications;

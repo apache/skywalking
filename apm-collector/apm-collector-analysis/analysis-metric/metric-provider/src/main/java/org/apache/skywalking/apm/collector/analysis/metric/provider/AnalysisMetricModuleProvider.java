@@ -28,6 +28,8 @@ import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.appli
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.ApplicationReferenceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global.GlobalTraceGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global.GlobalTraceSpanListener;
+import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.InstanceMappingGraph;
+import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.InstanceMappingSpanListener;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.InstanceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.InstanceReferenceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.segment.SegmentCostGraph;
@@ -87,6 +89,7 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
         segmentParserListenerRegister.register(new ServiceReferenceMetricSpanListener.Factory());
         segmentParserListenerRegister.register(new ApplicationComponentSpanListener.Factory());
         segmentParserListenerRegister.register(new ApplicationMappingSpanListener.Factory());
+        segmentParserListenerRegister.register(new InstanceMappingSpanListener.Factory());
         segmentParserListenerRegister.register(new ServiceEntrySpanListener.Factory());
         segmentParserListenerRegister.register(new GlobalTraceSpanListener.Factory());
         segmentParserListenerRegister.register(new SegmentCostSpanListener.Factory());
@@ -116,6 +119,9 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
 
         ApplicationMappingGraph applicationMappingGraph = new ApplicationMappingGraph(getManager(), workerCreateListener);
         applicationMappingGraph.create();
+
+        InstanceMappingGraph instanceMappingGraph = new InstanceMappingGraph(getManager(), workerCreateListener);
+        instanceMappingGraph.create();
 
         ServiceEntryGraph serviceEntryGraph = new ServiceEntryGraph(getManager(), workerCreateListener);
         serviceEntryGraph.create();

@@ -16,21 +16,21 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
-import org.elasticsearch.action.get.GetRequestBuilder;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationCacheDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.ApplicationTable;
+import org.elasticsearch.action.get.GetRequestBuilder;
+import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,13 +45,18 @@ public class ApplicationEsCacheDAO extends EsDAO implements IApplicationCacheDAO
         super(client);
     }
 
-    @Override public int getApplicationId(String applicationCode) {
+    @Override public int getApplicationIdByCode(String applicationCode) {
         ElasticSearchClient client = getClient();
 
         SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ApplicationTable.TABLE);
         searchRequestBuilder.setTypes("type");
         searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH);
-        searchRequestBuilder.setQuery(QueryBuilders.termQuery(ApplicationTable.COLUMN_APPLICATION_CODE, applicationCode));
+
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(ApplicationTable.COLUMN_APPLICATION_CODE, applicationCode));
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(ApplicationTable.COLUMN_IS_ADDRESS, false));
+
+        searchRequestBuilder.setQuery(boolQueryBuilder);
         searchRequestBuilder.setSize(1);
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
@@ -72,5 +77,27 @@ public class ApplicationEsCacheDAO extends EsDAO implements IApplicationCacheDAO
             return (String)getResponse.getSource().get(ApplicationTable.COLUMN_APPLICATION_CODE);
         }
         return Const.EMPTY_STRING;
+    }
+
+    @Override public int getApplicationIdByAddressId(int addressId) {
+        ElasticSearchClient client = getClient();
+
+        SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ApplicationTable.TABLE);
+        searchRequestBuilder.setTypes("type");
+        searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH);
+
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(ApplicationTable.COLUMN_ADDRESS_ID, addressId));
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(ApplicationTable.COLUMN_IS_ADDRESS, true));
+
+        searchRequestBuilder.setQuery(boolQueryBuilder);
+        searchRequestBuilder.setSize(1);
+
+        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
+        if (searchResponse.getHits().totalHits > 0) {
+            SearchHit searchHit = searchResponse.getHits().iterator().next();
+            return (int)searchHit.getSource().get(ApplicationTable.COLUMN_APPLICATION_ID);
+        }
+        return 0;
     }
 }

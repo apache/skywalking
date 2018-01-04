@@ -30,12 +30,14 @@ public class ConsumerThread<T> extends Thread {
     private volatile boolean running;
     private IConsumer<T> consumer;
     private List<DataSource> dataSources;
+    private long consumeCycle;
 
-    ConsumerThread(String threadName, IConsumer<T> consumer) {
+    ConsumerThread(String threadName, IConsumer<T> consumer, long consumeCycle) {
         super(threadName);
         this.consumer = consumer;
         running = false;
         dataSources = new LinkedList<DataSource>();
+        this.consumeCycle = consumeCycle;
     }
 
     /**
@@ -67,7 +69,7 @@ public class ConsumerThread<T> extends Thread {
 
             if (!hasData) {
                 try {
-                    Thread.sleep(20);
+                    Thread.sleep(consumeCycle);
                 } catch (InterruptedException e) {
                 }
             }

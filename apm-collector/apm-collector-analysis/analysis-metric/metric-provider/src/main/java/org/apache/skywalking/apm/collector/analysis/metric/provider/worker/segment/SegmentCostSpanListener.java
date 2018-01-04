@@ -20,7 +20,7 @@ package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.segm
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.skywalking.apm.collector.analysis.metric.define.graph.GraphIdDefine;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.EntrySpanListener;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.ExitSpanListener;
@@ -96,7 +96,7 @@ public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListe
     }
 
     @Override public void build() {
-        Graph<SegmentCost> graph = GraphManager.INSTANCE.findGraph(GraphIdDefine.SEGMENT_COST_GRAPH_ID, SegmentCost.class);
+        Graph<SegmentCost> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.SEGMENT_COST_GRAPH_ID, SegmentCost.class);
         logger.debug("segment cost listener build");
         for (SegmentCost segmentCost : segmentCosts) {
             segmentCost.setIsError(isError);
