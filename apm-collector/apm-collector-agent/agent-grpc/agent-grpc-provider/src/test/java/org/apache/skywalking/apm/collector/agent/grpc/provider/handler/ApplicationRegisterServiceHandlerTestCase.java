@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.collector.agent.grpc.provider.handler;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.apache.skywalking.apm.network.proto.Application;
+import org.apache.skywalking.apm.network.proto.ApplicationMapping;
 import org.apache.skywalking.apm.network.proto.ApplicationMappings;
 import org.apache.skywalking.apm.network.proto.ApplicationRegisterServiceGrpc;
 import org.slf4j.Logger;
@@ -40,7 +41,7 @@ public class ApplicationRegisterServiceHandlerTestCase {
         stub = ApplicationRegisterServiceGrpc.newBlockingStub(channel);
 
         Application application = Application.newBuilder().setApplicationCode("test141").build();
-        ApplicationMappings mapping = stub.applicationCodeRegister(application);
-        logger.debug(mapping.getApplications(0).getKey() + ", " + mapping.getApplications(0).getValue());
+        ApplicationMapping mapping = stub.applicationCodeRegister(application);
+        logger.debug(mapping.getApplication().getKey() + ", " + mapping.getApplication().getValue());
     }
 }
