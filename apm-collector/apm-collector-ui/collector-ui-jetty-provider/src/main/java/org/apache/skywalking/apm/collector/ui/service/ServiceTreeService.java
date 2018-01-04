@@ -61,7 +61,7 @@ public class ServiceTreeService {
         for (JsonElement element : entryServices) {
             JsonObject entryService = element.getAsJsonObject();
             int respApplication = entryService.get(ColumnNameUtils.INSTANCE.rename(ServiceEntryTable.COLUMN_APPLICATION_ID)).getAsInt();
-            String applicationCode = applicationCacheService.get(respApplication);
+            String applicationCode = applicationCacheService.getApplicationCodeById(respApplication);
             entryService.addProperty("applicationCode", applicationCode);
         }
 

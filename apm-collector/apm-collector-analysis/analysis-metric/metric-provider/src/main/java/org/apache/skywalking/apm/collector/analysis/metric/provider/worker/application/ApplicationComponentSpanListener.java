@@ -20,7 +20,7 @@ package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.appl
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.skywalking.apm.collector.analysis.metric.define.graph.GraphIdDefine;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.EntrySpanListener;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.ExitSpanListener;
@@ -73,7 +73,7 @@ public class ApplicationComponentSpanListener implements EntrySpanListener, Exit
     }
 
     @Override public void build() {
-        Graph<ApplicationComponent> graph = GraphManager.INSTANCE.findGraph(GraphIdDefine.APPLICATION_COMPONENT_GRAPH_ID, ApplicationComponent.class);
+        Graph<ApplicationComponent> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.APPLICATION_COMPONENT_GRAPH_ID, ApplicationComponent.class);
 
         applicationComponents.forEach(applicationComponent -> {
             applicationComponent.setId(timeBucket + Const.ID_SPLIT + applicationComponent.getId());

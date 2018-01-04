@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.par
 
 import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegisterModule;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IApplicationIDService;
+import org.apache.skywalking.apm.collector.analysis.register.define.service.INetworkAddressIDService;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IServiceNameService;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.ReferenceDecorator;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
@@ -41,6 +42,7 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
     private final IApplicationIDService applicationIDService;
     private final IServiceNameService serviceNameService;
     private final InstanceCacheService instanceCacheService;
+    private final INetworkAddressIDService networkAddressIDService;
 
     public static ReferenceIdExchanger getInstance(ModuleManager moduleManager) {
         if (EXCHANGER == null) {
@@ -50,18 +52,19 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
     }
 
     private ReferenceIdExchanger(ModuleManager moduleManager) {
-        applicationIDService = moduleManager.find(AnalysisRegisterModule.NAME).getService(IApplicationIDService.class);
-        serviceNameService = moduleManager.find(AnalysisRegisterModule.NAME).getService(IServiceNameService.class);
-        instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
+        this.applicationIDService = moduleManager.find(AnalysisRegisterModule.NAME).getService(IApplicationIDService.class);
+        this.serviceNameService = moduleManager.find(AnalysisRegisterModule.NAME).getService(IServiceNameService.class);
+        this.networkAddressIDService = moduleManager.find(AnalysisRegisterModule.NAME).getService(INetworkAddressIDService.class);
+        this.instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
     }
 
     @Override public boolean exchange(ReferenceDecorator standardBuilder, int applicationId) {
         if (standardBuilder.getEntryServiceId() == 0 && StringUtils.isNotEmpty(standardBuilder.getEntryServiceName())) {
-            int entryServiceId = serviceNameService.getOrCreate(instanceCacheService.get(standardBuilder.getEntryApplicationInstanceId()), standardBuilder.getEntryServiceName());
+            int entryServiceId = serviceNameService.getOrCreate(instanceCacheService.getApplicationId(standardBuilder.getEntryApplicationInstanceId()), standardBuilder.getEntryServiceName());
 
             if (entryServiceId == 0) {
                 if (logger.isDebugEnabled()) {
-                    int entryApplicationId = instanceCacheService.get(standardBuilder.getEntryApplicationInstanceId());
+                    int entryApplicationId = instanceCacheService.getApplicationId(standardBuilder.getEntryApplicationInstanceId());
                     logger.debug("entry service name: {} from application id: {} exchange failed", standardBuilder.getEntryServiceName(), entryApplicationId);
                 }
                 return false;
@@ -73,11 +76,11 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
         }
 
         if (standardBuilder.getParentServiceId() == 0 && StringUtils.isNotEmpty(standardBuilder.getParentServiceName())) {
-            int parentServiceId = serviceNameService.getOrCreate(instanceCacheService.get(standardBuilder.getParentApplicationInstanceId()), standardBuilder.getParentServiceName());
+            int parentServiceId = serviceNameService.getOrCreate(instanceCacheService.getApplicationId(standardBuilder.getParentApplicationInstanceId()), standardBuilder.getParentServiceName());
 
             if (parentServiceId == 0) {
                 if (logger.isDebugEnabled()) {
-                    int parentApplicationId = instanceCacheService.get(standardBuilder.getParentApplicationInstanceId());
+                    int parentApplicationId = instanceCacheService.getApplicationId(standardBuilder.getParentApplicationInstanceId());
                     logger.debug("parent service name: {} from application id: {} exchange failed", standardBuilder.getParentServiceName(), parentApplicationId);
                 }
                 return false;
@@ -89,7 +92,7 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
         }
 
         if (standardBuilder.getNetworkAddressId() == 0 && StringUtils.isNotEmpty(standardBuilder.getNetworkAddress())) {
-            int networkAddressId = applicationIDService.getOrCreate(standardBuilder.getNetworkAddress());
+            int networkAddressId = networkAddressIDService.getOrCreate(standardBuilder.getNetworkAddress());
             if (networkAddressId == 0) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("network address: {} from application id: {} exchange failed", standardBuilder.getNetworkAddress(), applicationId);

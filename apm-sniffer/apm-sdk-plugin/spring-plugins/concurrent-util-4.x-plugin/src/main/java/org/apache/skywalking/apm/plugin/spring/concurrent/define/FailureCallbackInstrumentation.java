@@ -38,7 +38,7 @@ import static org.apache.skywalking.apm.plugin.spring.concurrent.match.FailedCal
  */
 public class FailureCallbackInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    public static final String FAILURE_CALLBACK_INTERCEPTOR = "FailureCallbackInterceptor";
+    public static final String FAILURE_CALLBACK_INTERCEPTOR = "org.apache.skywalking.apm.plugin.spring.concurrent.FailureCallbackInterceptor";
     public static final String FAILURE_METHOD_NAME = "onFailure";
 
     @Override

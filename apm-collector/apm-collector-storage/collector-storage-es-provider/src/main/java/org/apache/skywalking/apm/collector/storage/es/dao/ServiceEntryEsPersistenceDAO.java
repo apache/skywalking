@@ -16,19 +16,18 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.storage.dao.IServiceEntryPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceEntry;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceEntryTable;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
-import org.apache.skywalking.apm.collector.storage.dao.IServiceEntryPersistenceDAO;
 
 /**
  * @author peng-yongsheng

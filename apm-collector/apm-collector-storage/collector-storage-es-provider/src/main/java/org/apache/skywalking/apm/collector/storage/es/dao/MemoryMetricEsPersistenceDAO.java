@@ -16,21 +16,20 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.IMemoryMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetric;
+import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetricTable;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
-import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetricTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

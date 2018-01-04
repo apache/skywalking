@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.cache.guava.service;
 
 import com.google.common.cache.Cache;
@@ -54,16 +53,16 @@ public class ApplicationCacheGuavaService implements ApplicationCacheService {
         return this.applicationCacheDAO;
     }
 
-    public int get(String applicationCode) {
+    @Override public int getApplicationIdByCode(String applicationCode) {
         int applicationId = 0;
         try {
-            applicationId = codeCache.get(applicationCode, () -> getApplicationCacheDAO().getApplicationId(applicationCode));
+            applicationId = codeCache.get(applicationCode, () -> getApplicationCacheDAO().getApplicationIdByCode(applicationCode));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
 
         if (applicationId == 0) {
-            applicationId = getApplicationCacheDAO().getApplicationId(applicationCode);
+            applicationId = getApplicationCacheDAO().getApplicationIdByCode(applicationCode);
             if (applicationId != 0) {
                 codeCache.put(applicationCode, applicationId);
             }
@@ -73,7 +72,7 @@ public class ApplicationCacheGuavaService implements ApplicationCacheService {
 
     private final Cache<Integer, String> idCache = CacheBuilder.newBuilder().maximumSize(1000).build();
 
-    public String get(int applicationId) {
+    @Override public String getApplicationCodeById(int applicationId) {
         String applicationCode = Const.EMPTY_STRING;
         try {
             applicationCode = idCache.get(applicationId, () -> getApplicationCacheDAO().getApplicationCode(applicationId));
@@ -88,5 +87,24 @@ public class ApplicationCacheGuavaService implements ApplicationCacheService {
             }
         }
         return applicationCode;
+    }
+
+    private final Cache<Integer, Integer> addressIdCache = CacheBuilder.newBuilder().maximumSize(1000).build();
+
+    @Override public int getApplicationIdByAddressId(int addressId) {
+        int applicationId = 0;
+        try {
+            applicationId = addressIdCache.get(addressId, () -> getApplicationCacheDAO().getApplicationIdByAddressId(addressId));
+        } catch (Throwable e) {
+            logger.error(e.getMessage(), e);
+        }
+
+        if (applicationId == 0) {
+            applicationId = getApplicationCacheDAO().getApplicationIdByAddressId(addressId);
+            if (applicationId != 0) {
+                addressIdCache.put(addressId, applicationId);
+            }
+        }
+        return applicationId;
     }
 }

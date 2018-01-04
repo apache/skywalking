@@ -18,9 +18,9 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service;
 
-import org.apache.skywalking.apm.collector.analysis.metric.define.graph.WorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
@@ -30,17 +30,18 @@ import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetric;
 /**
  * @author peng-yongsheng
  */
-public class ServiceMetricPersistenceWorker extends PersistenceWorker<ServiceMetric, ServiceMetric> {
+public class ServiceMetricPersistenceWorker extends PersistenceWorker<ServiceMetric> {
 
     public ServiceMetricPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     @Override public int id() {
-        return WorkerIdDefine.SERVICE_METRIC_PERSISTENCE_WORKER_ID;
+        return MetricWorkerIdDefine.SERVICE_METRIC_PERSISTENCE_WORKER_ID;
     }
 
-    @Override protected IPersistenceDAO persistenceDAO() {
+    @SuppressWarnings("unchecked")
+    @Override protected IPersistenceDAO<?, ?, ServiceMetric> persistenceDAO() {
         return getModuleManager().find(StorageModule.NAME).getService(IServiceMetricPersistenceDAO.class);
     }
 
@@ -48,7 +49,7 @@ public class ServiceMetricPersistenceWorker extends PersistenceWorker<ServiceMet
         return true;
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<ServiceMetric, ServiceMetric, ServiceMetricPersistenceWorker> {
+    public static class Factory extends PersistenceWorkerProvider<ServiceMetric, ServiceMetricPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);

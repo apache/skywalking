@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
 import java.util.HashMap;
@@ -56,6 +55,8 @@ public class ApplicationEsRegisterDAO extends EsDAO implements IApplicationRegis
         Map<String, Object> source = new HashMap<>();
         source.put(ApplicationTable.COLUMN_APPLICATION_CODE, application.getApplicationCode());
         source.put(ApplicationTable.COLUMN_APPLICATION_ID, application.getApplicationId());
+        source.put(ApplicationTable.COLUMN_ADDRESS_ID, application.getAddressId());
+        source.put(ApplicationTable.COLUMN_IS_ADDRESS, application.getIsAddress());
 
         IndexResponse response = client.prepareIndex(ApplicationTable.TABLE, application.getId()).setSource(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
         logger.debug("save application register info, application getId: {}, application code: {}, status: {}", application.getApplicationId(), application.getApplicationCode(), response.status().name());

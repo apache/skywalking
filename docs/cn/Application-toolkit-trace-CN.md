@@ -6,7 +6,6 @@
       <version>${skywalking.version}</version>
    </dependency>
 ```
-&nbsp;&nbsp;&nbsp;[ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/org.apache.skywalking.apm-toolkit-trace/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/org.apache.skywalking.apm-toolkit-trace/_latestVersion)
 
 * 随时使用 `TraceContext.traceId()` API，在应用程序的任何地方获取traceId.
 ```java

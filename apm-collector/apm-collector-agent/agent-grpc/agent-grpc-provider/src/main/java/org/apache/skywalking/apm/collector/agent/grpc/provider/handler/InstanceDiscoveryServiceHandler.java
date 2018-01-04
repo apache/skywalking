@@ -28,8 +28,6 @@ import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.server.grpc.GRPCHandler;
 import org.apache.skywalking.apm.network.proto.ApplicationInstance;
 import org.apache.skywalking.apm.network.proto.ApplicationInstanceMapping;
-import org.apache.skywalking.apm.network.proto.ApplicationInstanceRecover;
-import org.apache.skywalking.apm.network.proto.Downstream;
 import org.apache.skywalking.apm.network.proto.InstanceDiscoveryServiceGrpc;
 import org.apache.skywalking.apm.network.proto.OSInfo;
 import org.slf4j.Logger;
@@ -51,19 +49,11 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
     @Override
     public void register(ApplicationInstance request, StreamObserver<ApplicationInstanceMapping> responseObserver) {
         long timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(request.getRegisterTime());
-        int instanceId = instanceIDService.getOrCreate(request.getApplicationId(), request.getAgentUUID(), timeBucket, buildOsInfo(request.getOsinfo()));
+        int instanceId = instanceIDService.getOrCreateByAgentUUID(request.getApplicationId(), request.getAgentUUID(), timeBucket, buildOsInfo(request.getOsinfo()));
         ApplicationInstanceMapping.Builder builder = ApplicationInstanceMapping.newBuilder();
         builder.setApplicationId(request.getApplicationId());
         builder.setApplicationInstanceId(instanceId);
         responseObserver.onNext(builder.build());
-        responseObserver.onCompleted();
-    }
-
-    @Override
-    public void registerRecover(ApplicationInstanceRecover request, StreamObserver<Downstream> responseObserver) {
-        long timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(request.getRegisterTime());
-        instanceIDService.recover(request.getApplicationInstanceId(), request.getApplicationId(), timeBucket, buildOsInfo(request.getOsinfo()));
-        responseObserver.onNext(Downstream.newBuilder().build());
         responseObserver.onCompleted();
     }
 

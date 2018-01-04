@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.dao;
 
 import com.google.gson.JsonObject;

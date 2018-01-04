@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service;
 
-import org.apache.skywalking.apm.collector.analysis.metric.define.graph.GraphIdDefine;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.EntrySpanListener;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.FirstSpanListener;
@@ -83,7 +83,7 @@ public class ServiceEntrySpanListener implements FirstSpanListener, EntrySpanLis
             serviceEntry.setNewestTime(timeBucket);
 
             logger.debug("push to service entry aggregation worker, id: {}", serviceEntry.getId());
-            Graph<ServiceEntry> graph = GraphManager.INSTANCE.findGraph(GraphIdDefine.SERVICE_ENTRY_GRAPH_ID, ServiceEntry.class);
+            Graph<ServiceEntry> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.SERVICE_ENTRY_GRAPH_ID, ServiceEntry.class);
             graph.start(serviceEntry);
         }
     }

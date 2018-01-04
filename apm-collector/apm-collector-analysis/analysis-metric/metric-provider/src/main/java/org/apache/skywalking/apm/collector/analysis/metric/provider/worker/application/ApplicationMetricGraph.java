@@ -18,9 +18,13 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application;
 
-import org.apache.skywalking.apm.collector.analysis.metric.define.graph.GraphIdDefine;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
+import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
+import org.apache.skywalking.apm.collector.core.graph.Next;
+import org.apache.skywalking.apm.collector.core.graph.NodeProcessor;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.remote.RemoteModule;
 import org.apache.skywalking.apm.collector.remote.service.RemoteSenderService;
@@ -42,9 +46,29 @@ public class ApplicationMetricGraph {
     public void create() {
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
-        GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.APPLICATION_METRIC_GRAPH_ID, ApplicationReferenceMetric.class)
-            .addNode(new ApplicationMetricAggregationWorker.Factory(moduleManager).create(workerCreateListener))
-            .addNext(new ApplicationMetricRemoteWorker.Factory(moduleManager, remoteSenderService, GraphIdDefine.APPLICATION_METRIC_GRAPH_ID).create(workerCreateListener))
+        Graph<ApplicationReferenceMetric> graph = GraphManager.INSTANCE.createIfAbsent(MetricGraphIdDefine.APPLICATION_METRIC_GRAPH_ID, ApplicationReferenceMetric.class);
+
+        graph.addNode(new ApplicationMetricAggregationWorker.Factory(moduleManager).create(workerCreateListener))
+            .addNext(new ApplicationMetricRemoteWorker.Factory(moduleManager, remoteSenderService, MetricGraphIdDefine.APPLICATION_METRIC_GRAPH_ID).create(workerCreateListener))
             .addNext(new ApplicationMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        link(graph);
+    }
+
+    private void link(Graph<ApplicationReferenceMetric> graph) {
+        GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.APPLICATION_REFERENCE_METRIC_GRAPH_ID, ApplicationReferenceMetric.class)
+            .toFinder().findNode(MetricWorkerIdDefine.APPLICATION_REFERENCE_METRIC_AGGREGATION_WORKER_ID, ApplicationReferenceMetric.class)
+            .addNext(new NodeProcessor<ApplicationReferenceMetric, ApplicationReferenceMetric>() {
+
+                @Override public int id() {
+                    return MetricWorkerIdDefine.APPLICATION_METRIC_GRAPH_BRIDGE_WORKER_ID;
+                }
+
+                @Override
+                public void process(ApplicationReferenceMetric applicationReferenceMetric,
+                    Next<ApplicationReferenceMetric> next) {
+                    graph.start(applicationReferenceMetric);
+                }
+            });
     }
 }
