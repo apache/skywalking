@@ -76,6 +76,9 @@ public class ComponentsDefine {
   
     public static final OfficialComponent ROCKET_MQ = new OfficialComponent(25, "RocketMQ");
 
+    public static final OfficialComponent HTTP_ASYNC_CLIENT = new OfficialComponent(26, "httpasyncclient");
+
+
 
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
@@ -86,7 +89,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[26];
+        components = new String[27];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -112,6 +115,7 @@ public class ComponentsDefine {
         addComponent(GRPC);
         addComponent(ELASTIC_JOB);
         addComponent(ROCKET_MQ);
+        addComponent(HTTP_ASYNC_CLIENT);
     }
 
     private void addComponent(OfficialComponent component) {
