@@ -19,7 +19,7 @@
 package org.apache.skywalking.apm.collector.core.util;
 
 import java.math.RoundingMode;
-import java.text.NumberFormat;
+import java.text.DecimalFormat;
 
 /**
  * @author peng-yongsheng
@@ -27,10 +27,9 @@ import java.text.NumberFormat;
 public class NumberFormatUtils {
 
     public static Double rateNumberFormat(Double rate) {
-        NumberFormat rateNumberFormat = NumberFormat.getNumberInstance();
-        rateNumberFormat.setMaximumFractionDigits(2);
-        rateNumberFormat.setRoundingMode(RoundingMode.HALF_UP);
-        Double formattedRate = Double.valueOf(rateNumberFormat.format(rate));
+        DecimalFormat decimalFormat = new DecimalFormat("#.00");
+        decimalFormat.setRoundingMode(RoundingMode.HALF_UP);
+        Double formattedRate = Double.valueOf(decimalFormat.format(rate));
         return Double.valueOf(formattedRate);
     }
 }
