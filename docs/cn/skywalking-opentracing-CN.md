@@ -11,7 +11,7 @@
 
 * 使用OpenTracing的标准API和桥接器，使用手动埋点
 ```java
-Tracer tracer = new org.apache.skywalking.apm.toolkit.opentracing.SkyWalkingTracer();
+Tracer tracer = new org.apache.skywalking.apm.toolkit.opentracing.SkywalkingTracer();
 Tracer.SpanBuilder spanBuilder = tracer.buildSpan("/yourApplication/yourService");
 
 ```

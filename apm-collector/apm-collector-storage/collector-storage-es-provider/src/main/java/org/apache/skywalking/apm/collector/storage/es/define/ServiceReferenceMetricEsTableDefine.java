@@ -16,12 +16,11 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.es.define;
 
-import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetricTable;
 import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchColumnDefine;
 import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchTableDefine;
+import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetricTable;
 
 /**
  * @author peng-yongsheng
@@ -37,7 +36,6 @@ public class ServiceReferenceMetricEsTableDefine extends ElasticSearchTableDefin
     }
 
     @Override public void initialize() {
-        addColumn(new ElasticSearchColumnDefine(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
         addColumn(new ElasticSearchColumnDefine(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
         addColumn(new ElasticSearchColumnDefine(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
         addColumn(new ElasticSearchColumnDefine(ServiceReferenceMetricTable.COLUMN_SOURCE_VALUE, ElasticSearchColumnDefine.Type.Integer.name()));

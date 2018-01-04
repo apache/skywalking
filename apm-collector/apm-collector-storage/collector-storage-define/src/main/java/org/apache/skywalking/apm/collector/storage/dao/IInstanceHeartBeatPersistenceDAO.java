@@ -16,14 +16,13 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.dao;
 
-import org.apache.skywalking.apm.collector.core.data.Data;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 
 /**
  * @author peng-yongsheng
  */
-public interface IInstanceHeartBeatPersistenceDAO<Insert, Update, DataImpl extends Data> extends IPersistenceDAO<Insert, Update, DataImpl> {
+public interface IInstanceHeartBeatPersistenceDAO<Insert, Update, DataImpl extends Instance> extends IPersistenceDAO<Insert, Update, DataImpl> {
 }

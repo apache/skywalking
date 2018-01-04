@@ -16,17 +16,14 @@
  *
  */
 
-
 package org.apache.skywalking.apm.commons.datacarrier.buffer;
 
+import org.apache.skywalking.apm.commons.datacarrier.callback.QueueBlockingCallback;
 import org.apache.skywalking.apm.commons.datacarrier.partition.IDataPartitioner;
 
 /**
- * Channels of Buffer
- * It contais all buffer data which belongs to this channel.
- * It supports several strategy when buffer is full. The Default is BLOCKING
- * <p>
- * Created by wusheng on 2016/10/25.
+ * Channels of Buffer It contais all buffer data which belongs to this channel. It supports several strategy when buffer
+ * is full. The Default is BLOCKING <p> Created by wusheng on 2016/10/25.
  */
 public class Channels<T> {
     private final Buffer<T>[] bufferChannels;
@@ -86,5 +83,11 @@ public class Channels<T> {
 
     public Buffer<T> getBuffer(int index) {
         return this.bufferChannels[index];
+    }
+
+    public void addCallback(QueueBlockingCallback<T> callback) {
+        for (Buffer<T> channel : bufferChannels) {
+            channel.addCallback(callback);
+        }
     }
 }

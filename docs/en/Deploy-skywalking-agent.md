@@ -1,5 +1,5 @@
 ## Download skywalking agent release version
-- Go to [release page](https://github.com/wu-sheng/sky-walking/releases)
+- Go to [release page](https://github.com/apache/incubator-skywalking/releases)
 
 ## Deploy skywalking javaagent
 1. Copy the agent package to anywhere you like. The logs, plugins and config are all included in the package.
@@ -42,5 +42,5 @@ CATALINA_OPTS="$CATALINA_OPTS -javaagent:/path/to/skywalking-agent/skywalking-ag
 - Tomcat 8
 Change the first line of `tomcat/bin/catalina.sh`.
 ```shell
-set "CATALINA_OPTS=... -javaagent:E:\apache-tomcat-8.5.20\skywalking-agent\skywalking-agent.jar -Dconfig=\skywalking\config\dir"
+set "CATALINA_OPTS=-javaagent:E:\apache-tomcat-8.5.20\skywalking-agent\skywalking-agent.jar -Dconfig=\skywalking\config\dir"
 ```
