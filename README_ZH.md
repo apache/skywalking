@@ -25,7 +25,7 @@ Apache SkyWalking | [English](README.md)
 * 中文QQ群：392443393
 
 # Document
-[![EN doc](https://img.shields.io/badge/document-English-blue.svg)](docs/README.md) [![cn doc](https://img.shields.io/badge/-中文-blue.svg)](docs/README_ZH.md)
+[![EN doc](https://img.shields.io/badge/document-English-blue.svg)](docs/README.md) [![cn doc](https://img.shields.io/badge/文档-中文版-blue.svg)](docs/README_ZH.md)
 
 
 # 5.x Architecture

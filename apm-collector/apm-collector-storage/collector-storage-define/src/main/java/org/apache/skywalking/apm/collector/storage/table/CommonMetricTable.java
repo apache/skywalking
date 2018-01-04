@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.table;
 
 import org.apache.skywalking.apm.collector.core.data.CommonTable;
@@ -25,6 +24,9 @@ import org.apache.skywalking.apm.collector.core.data.CommonTable;
  * @author peng-yongsheng
  */
 public abstract class CommonMetricTable extends CommonTable {
+    public static final String COLUMN_APPLICATION_ID = "application_id";
+    public static final String COLUMN_INSTANCE_ID = "instance_id";
+    public static final String COLUMN_SERVICE_ID = "service_id";
     public static final String COLUMN_TRANSACTION_CALLS = "transaction_calls";
     public static final String COLUMN_TRANSACTION_ERROR_CALLS = "transaction_error_calls";
     public static final String COLUMN_TRANSACTION_DURATION_SUM = "transaction_duration_sum";

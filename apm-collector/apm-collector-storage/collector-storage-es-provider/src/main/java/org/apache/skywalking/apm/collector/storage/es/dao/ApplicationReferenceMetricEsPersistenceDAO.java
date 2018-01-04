@@ -16,22 +16,21 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationReferenceMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetric;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetricTable;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
-import org.apache.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +52,7 @@ public class ApplicationReferenceMetricEsPersistenceDAO extends EsDAO implements
             Map<String, Object> source = getResponse.getSource();
             applicationReferenceMetric.setFrontApplicationId(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID)).intValue());
             applicationReferenceMetric.setBehindApplicationId(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID)).intValue());
+            applicationReferenceMetric.setSourceValue(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_SOURCE_VALUE)).intValue());
 
             applicationReferenceMetric.setTransactionCalls(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_CALLS)).longValue());
             applicationReferenceMetric.setTransactionErrorCalls(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS)).longValue());
@@ -83,6 +83,7 @@ public class ApplicationReferenceMetricEsPersistenceDAO extends EsDAO implements
         Map<String, Object> source = new HashMap<>();
         source.put(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID, data.getFrontApplicationId());
         source.put(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID, data.getBehindApplicationId());
+        source.put(ApplicationReferenceMetricTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
 
         source.put(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_CALLS, data.getTransactionCalls());
         source.put(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, data.getTransactionErrorCalls());
@@ -111,6 +112,7 @@ public class ApplicationReferenceMetricEsPersistenceDAO extends EsDAO implements
         Map<String, Object> source = new HashMap<>();
         source.put(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID, data.getFrontApplicationId());
         source.put(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID, data.getBehindApplicationId());
+        source.put(ApplicationReferenceMetricTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
 
         source.put(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_CALLS, data.getTransactionCalls());
         source.put(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, data.getTransactionErrorCalls());

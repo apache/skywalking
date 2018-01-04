@@ -16,12 +16,12 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceReferenceMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
@@ -31,7 +31,6 @@ import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +50,10 @@ public class ServiceReferenceMetricEsPersistenceDAO extends EsDAO implements ISe
         if (getResponse.isExists()) {
             ServiceReferenceMetric serviceReferenceMetric = new ServiceReferenceMetric(id);
             Map<String, Object> source = getResponse.getSource();
-            serviceReferenceMetric.setEntryServiceId(((Number)source.get(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID)).intValue());
+            serviceReferenceMetric.setFrontApplicationId(((Number)source.get(ServiceReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID)).intValue());
+            serviceReferenceMetric.setBehindApplicationId(((Number)source.get(ServiceReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID)).intValue());
+            serviceReferenceMetric.setFrontInstanceId(((Number)source.get(ServiceReferenceMetricTable.COLUMN_FRONT_INSTANCE_ID)).intValue());
+            serviceReferenceMetric.setBehindInstanceId(((Number)source.get(ServiceReferenceMetricTable.COLUMN_BEHIND_INSTANCE_ID)).intValue());
             serviceReferenceMetric.setFrontServiceId(((Number)source.get(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID)).intValue());
             serviceReferenceMetric.setBehindServiceId(((Number)source.get(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID)).intValue());
             serviceReferenceMetric.setSourceValue(((Number)source.get(ServiceReferenceMetricTable.COLUMN_SOURCE_VALUE)).intValue());
@@ -80,7 +82,10 @@ public class ServiceReferenceMetricEsPersistenceDAO extends EsDAO implements ISe
 
     @Override public IndexRequestBuilder prepareBatchInsert(ServiceReferenceMetric data) {
         Map<String, Object> source = new HashMap<>();
-        source.put(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID, data.getEntryServiceId());
+        source.put(ServiceReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID, data.getFrontApplicationId());
+        source.put(ServiceReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID, data.getBehindApplicationId());
+        source.put(ServiceReferenceMetricTable.COLUMN_FRONT_INSTANCE_ID, data.getFrontInstanceId());
+        source.put(ServiceReferenceMetricTable.COLUMN_BEHIND_INSTANCE_ID, data.getBehindInstanceId());
         source.put(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, data.getFrontServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, data.getBehindServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
@@ -107,7 +112,10 @@ public class ServiceReferenceMetricEsPersistenceDAO extends EsDAO implements ISe
 
     @Override public UpdateRequestBuilder prepareBatchUpdate(ServiceReferenceMetric data) {
         Map<String, Object> source = new HashMap<>();
-        source.put(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID, data.getEntryServiceId());
+        source.put(ServiceReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID, data.getFrontApplicationId());
+        source.put(ServiceReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID, data.getBehindApplicationId());
+        source.put(ServiceReferenceMetricTable.COLUMN_FRONT_INSTANCE_ID, data.getFrontInstanceId());
+        source.put(ServiceReferenceMetricTable.COLUMN_BEHIND_INSTANCE_ID, data.getBehindInstanceId());
         source.put(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, data.getFrontServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, data.getBehindServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_SOURCE_VALUE, data.getSourceValue());

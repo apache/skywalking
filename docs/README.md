@@ -18,6 +18,9 @@
     * [Plugin Test](https://github.com/SkywalkingTest/agent-integration-test-report)
     * [Java Agent Performance Test](https://skywalkingtest.github.io/Agent-Benchmarks/)
   * Development Guides
-    * [Skywalking 3 Cross Process Propagation Headers Protocol, v1.0](en/Skywalking-3-Cross-Process-Propagation-Headers-Protocol.md)
+    * [How to build project](en/How-to-build.md)
+    * [Plugin development guide](en/Plugin-Development-Guide.md)
+    * Protocol
+      * [Cross Process Propagation Headers Protocol, v1.0](en/Skywalking-Cross-Process-Propagation-Headers-Protocol-v1.md)
   * FAQ
 

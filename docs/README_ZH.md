@@ -22,8 +22,9 @@
   * 开发指南
     * [工程编译指南](cn/How-to-build-CN.md)
     * [插件开发指南](cn/Plugin-Development-Guide-CN.md)
-    * [跨进程追踪上下文传递协议](cn/Skywalking-3-Cross-Process-Propagation-Headers-Protocol-CN.md)
-    * [探针与Collector间网络协议，v3.2+](cn/How-to-communicate-with-the-collector-CN.md)
+    * 交互协议
+        * [Cross Process Propagation Headers Protocol, v1.0  跨进程追踪上下文传递协议](cn/Skywalking-Cross-Process-Propagation-Headers-Protocol-CN-v1.md)
+        * [SkyWalking Trace Data Protocol 探针与Collector间网络协议](cn/Trace-Data-Protocol-CN.md)
   * FAQ
     * [Trace查询有数据，但是没有拓扑图和JVM数据?](cn/FAQ/Why-have-traces-no-others-CN.md)
     * [加载探针，Console被GRPC日志刷屏](cn/FAQ/Too-many-gRPC-logs-CN.md)
