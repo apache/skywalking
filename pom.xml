@@ -68,11 +68,6 @@
         <url>https://github.com/apache/incubator-skywalking/issues</url>
     </issueManagement>
 
-    <ciManagement>
-        <system>travis</system>
-        <url>https://travis-ci.org/wu-sheng/sky-walking</url>
-    </ciManagement>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler.version>1.8</compiler.version>
