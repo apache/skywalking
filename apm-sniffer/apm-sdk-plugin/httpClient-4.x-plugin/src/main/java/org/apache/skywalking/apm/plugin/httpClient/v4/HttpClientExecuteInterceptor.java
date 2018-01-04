@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.httpClient.v4;
 
-import io.netty.handler.codec.http.HttpScheme;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -50,7 +49,7 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         AbstractSpan span = null;
 
         String remotePeer = httpHost.getHostName() + ":" + (httpHost.getPort() > 0 ? httpHost.getPort() :
-            HttpScheme.HTTPS.name().equals(httpHost.getSchemeName().toLowerCase()) ? 443 : 80);
+            "https".equals(httpHost.getSchemeName().toLowerCase()) ? 443 : 80);
 
         try {
             URL url = new URL(httpRequest.getRequestLine().getUri());
