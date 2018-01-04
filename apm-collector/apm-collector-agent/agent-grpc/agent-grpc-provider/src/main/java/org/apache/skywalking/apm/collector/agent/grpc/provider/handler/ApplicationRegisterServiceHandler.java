@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.collector.analysis.register.define.service.IApp
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.server.grpc.GRPCHandler;
 import org.apache.skywalking.apm.network.proto.Application;
-import org.apache.skywalking.apm.network.proto.ApplicationMappings;
+import org.apache.skywalking.apm.network.proto.ApplicationMapping;
 import org.apache.skywalking.apm.network.proto.ApplicationRegisterServiceGrpc;
 import org.apache.skywalking.apm.network.proto.KeyWithIntegerValue;
 import org.slf4j.Logger;
@@ -44,16 +44,16 @@ public class ApplicationRegisterServiceHandler extends ApplicationRegisterServic
     }
 
     @Override
-    public void applicationCodeRegister(Application request, StreamObserver<ApplicationMappings> responseObserver) {
+    public void applicationCodeRegister(Application request, StreamObserver<ApplicationMapping> responseObserver) {
         logger.debug("register application");
 
-        ApplicationMappings.Builder builder = ApplicationMappings.newBuilder();
+        ApplicationMapping.Builder builder = ApplicationMapping.newBuilder();
         String applicationCode = request.getApplicationCode();
         int applicationId = applicationIDService.getOrCreateForApplicationCode(applicationCode);
 
         if (applicationId != 0) {
             KeyWithIntegerValue value = KeyWithIntegerValue.newBuilder().setKey(applicationCode).setValue(applicationId).build();
-            builder.addApplications(value);
+            builder.setApplication(value);
         }
         responseObserver.onNext(builder.build());
         responseObserver.onCompleted();
