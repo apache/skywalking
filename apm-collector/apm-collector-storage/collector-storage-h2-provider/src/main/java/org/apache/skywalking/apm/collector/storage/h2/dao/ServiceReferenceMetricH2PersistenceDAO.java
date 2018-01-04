@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.h2.dao;
 
 import java.sql.ResultSet;
@@ -26,13 +25,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
+import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
 import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceReferenceMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetricTable;
-import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +55,6 @@ public class ServiceReferenceMetricH2PersistenceDAO extends H2DAO implements ISe
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
                 ServiceReferenceMetric serviceReferenceMetric = new ServiceReferenceMetric(id);
-                serviceReferenceMetric.setEntryServiceId(rs.getInt(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID));
                 serviceReferenceMetric.setFrontServiceId(rs.getInt(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID));
                 serviceReferenceMetric.setBehindServiceId(rs.getInt(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID));
                 serviceReferenceMetric.setSourceValue(rs.getInt(ServiceReferenceMetricTable.COLUMN_SOURCE_VALUE));
@@ -90,7 +88,6 @@ public class ServiceReferenceMetricH2PersistenceDAO extends H2DAO implements ISe
         H2SqlEntity entity = new H2SqlEntity();
         Map<String, Object> source = new HashMap<>();
         source.put(ServiceReferenceMetricTable.COLUMN_ID, data.getId());
-        source.put(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID, data.getEntryServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, data.getFrontServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, data.getBehindServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
@@ -122,7 +119,6 @@ public class ServiceReferenceMetricH2PersistenceDAO extends H2DAO implements ISe
     public H2SqlEntity prepareBatchUpdate(ServiceReferenceMetric data) {
         H2SqlEntity entity = new H2SqlEntity();
         Map<String, Object> source = new HashMap<>();
-        source.put(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID, data.getEntryServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, data.getFrontServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, data.getBehindServiceId());
         source.put(ServiceReferenceMetricTable.COLUMN_SOURCE_VALUE, data.getSourceValue());

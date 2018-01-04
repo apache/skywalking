@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.dao;
 
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
@@ -25,7 +24,9 @@ import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
  * @author peng-yongsheng
  */
 public interface IApplicationCacheDAO extends DAO {
-    int getApplicationId(String applicationCode);
+    int getApplicationIdByCode(String applicationCode);
 
     String getApplicationCode(int applicationId);
+
+    int getApplicationIdByAddressId(int addressId);
 }

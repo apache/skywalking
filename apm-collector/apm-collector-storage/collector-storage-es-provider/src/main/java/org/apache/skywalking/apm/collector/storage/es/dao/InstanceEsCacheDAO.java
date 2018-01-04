@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
@@ -53,7 +52,7 @@ public class InstanceEsCacheDAO extends EsDAO implements IInstanceCacheDAO {
         }
     }
 
-    @Override public int getInstanceId(int applicationId, String agentUUID) {
+    @Override public int getInstanceIdByAgentUUID(int applicationId, String agentUUID) {
         ElasticSearchClient client = getClient();
 
         SearchRequestBuilder searchRequestBuilder = client.prepareSearch(InstanceTable.TABLE);
@@ -62,6 +61,28 @@ public class InstanceEsCacheDAO extends EsDAO implements IInstanceCacheDAO {
         BoolQueryBuilder builder = QueryBuilders.boolQuery();
         builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationId));
         builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_AGENT_UUID, agentUUID));
+        builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, false));
+        searchRequestBuilder.setQuery(builder);
+        searchRequestBuilder.setSize(1);
+
+        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
+        if (searchResponse.getHits().totalHits > 0) {
+            SearchHit searchHit = searchResponse.getHits().iterator().next();
+            return (int)searchHit.getSource().get(InstanceTable.COLUMN_INSTANCE_ID);
+        }
+        return 0;
+    }
+
+    @Override public int getInstanceIdByAddressId(int applicationId, int addressId) {
+        ElasticSearchClient client = getClient();
+
+        SearchRequestBuilder searchRequestBuilder = client.prepareSearch(InstanceTable.TABLE);
+        searchRequestBuilder.setTypes("type");
+        searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH);
+        BoolQueryBuilder builder = QueryBuilders.boolQuery();
+        builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationId));
+        builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_ADDRESS_ID, addressId));
+        builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, true));
         searchRequestBuilder.setQuery(builder);
         searchRequestBuilder.setSize(1);
 

@@ -4,8 +4,6 @@ cluster:
     user_name: sa
 cache:
   guava:
-queue:
-  disruptor:
 naming:
   jetty:
     host: localhost
@@ -24,24 +22,33 @@ agent_jetty:
     host: localhost
     port: 12800
     context_path: /
-agent_stream:
+analysis_segment_parser:
   default:
     buffer_file_path: ../buffer/
     buffer_offset_max_file_size: 10M
     buffer_segment_max_file_size: 500M
+analysis_metric:
+  default:
+analysis_alarm:
+  default:
 configuration:
   default:
-alerting:
-  default:
+    application_apdex_threshold: 2000
+    service_error_rate_threshold: 10.00
+    service_average_response_time_threshold: 2000
+    instance_error_rate_threshold: 10.00
+    instance_average_response_time_threshold: 2000
+    application_error_rate_threshold: 10.00
+    application_average_response_time_threshold: 2000
 ui:
   jetty:
     host: localhost
     port: 12800
     context_path: /
 jetty_manager:
-  jetty:
+  default:
 gRPC_manager:
-  gRPC:
+  default:
 storage:
   h2:
     url: jdbc:h2:~/memorydb

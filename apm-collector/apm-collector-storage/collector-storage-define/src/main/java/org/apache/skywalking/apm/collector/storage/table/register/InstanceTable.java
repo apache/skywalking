@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.table.register;
 
 import org.apache.skywalking.apm.collector.core.data.CommonTable;
@@ -32,4 +31,6 @@ public class InstanceTable extends CommonTable {
     public static final String COLUMN_INSTANCE_ID = "instance_id";
     public static final String COLUMN_HEARTBEAT_TIME = "heartbeat_time";
     public static final String COLUMN_OS_INFO = "os_info";
+    public static final String COLUMN_IS_ADDRESS = "is_address";
+    public static final String COLUMN_ADDRESS_ID = "address_id";
 }
