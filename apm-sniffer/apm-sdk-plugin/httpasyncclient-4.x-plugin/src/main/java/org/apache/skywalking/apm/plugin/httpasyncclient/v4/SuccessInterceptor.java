@@ -40,8 +40,7 @@ public class SuccessInterceptor implements InstanceMethodsAroundInterceptor {
     @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         SessionRequest request = (SessionRequest)allArguments[0];
-        String remoteAddress = request.getRemoteAddress().toString().substring(1);
-        AbstractSpan localSpan = ContextManager.createLocalSpan("execute asynchronous request thread" );
+        AbstractSpan localSpan = ContextManager.createLocalSpan("execute asynchronous request thread");
         localSpan.setComponent(ComponentsDefine.HTTP_ASYNC_CLIENT).setLayer(SpanLayer.HTTP);
         Object cacheValue = ((EnhancedInstance)request).getSkyWalkingDynamicField();
         ContextManager.continued((ContextSnapshot)cacheValue);
