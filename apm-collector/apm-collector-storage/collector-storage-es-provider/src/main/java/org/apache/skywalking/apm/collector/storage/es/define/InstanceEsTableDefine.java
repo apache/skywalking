@@ -16,12 +16,11 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.es.define;
 
 import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchColumnDefine;
-import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
 import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchTableDefine;
+import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
 
 /**
  * @author peng-yongsheng
@@ -43,5 +42,7 @@ public class InstanceEsTableDefine extends ElasticSearchTableDefine {
         addColumn(new ElasticSearchColumnDefine(InstanceTable.COLUMN_INSTANCE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
         addColumn(new ElasticSearchColumnDefine(InstanceTable.COLUMN_HEARTBEAT_TIME, ElasticSearchColumnDefine.Type.Long.name()));
         addColumn(new ElasticSearchColumnDefine(InstanceTable.COLUMN_OS_INFO, ElasticSearchColumnDefine.Type.Keyword.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceTable.COLUMN_ADDRESS_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceTable.COLUMN_IS_ADDRESS, ElasticSearchColumnDefine.Type.Boolean.name()));
     }
 }

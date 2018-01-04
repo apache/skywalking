@@ -16,13 +16,13 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
+import org.apache.skywalking.apm.collector.storage.dao.IServiceMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetric;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetricTable;
@@ -31,7 +31,6 @@ import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
-import org.apache.skywalking.apm.collector.storage.dao.IServiceMetricPersistenceDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +50,10 @@ public class ServiceMetricEsPersistenceDAO extends EsDAO implements IServiceMetr
         if (getResponse.isExists()) {
             ServiceMetric serviceMetric = new ServiceMetric(id);
             Map<String, Object> source = getResponse.getSource();
+            serviceMetric.setApplicationId(((Number)source.get(ServiceMetricTable.COLUMN_APPLICATION_ID)).intValue());
+            serviceMetric.setInstanceId(((Number)source.get(ServiceMetricTable.COLUMN_INSTANCE_ID)).intValue());
             serviceMetric.setServiceId(((Number)source.get(ServiceMetricTable.COLUMN_SERVICE_ID)).intValue());
+            serviceMetric.setSourceValue(((Number)source.get(ServiceMetricTable.COLUMN_SOURCE_VALUE)).intValue());
 
             serviceMetric.setTransactionCalls(((Number)source.get(ServiceMetricTable.COLUMN_TRANSACTION_CALLS)).longValue());
             serviceMetric.setTransactionErrorCalls(((Number)source.get(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS)).longValue());
@@ -77,7 +79,10 @@ public class ServiceMetricEsPersistenceDAO extends EsDAO implements IServiceMetr
 
     @Override public IndexRequestBuilder prepareBatchInsert(ServiceMetric data) {
         Map<String, Object> source = new HashMap<>();
+        source.put(ServiceMetricTable.COLUMN_APPLICATION_ID, data.getApplicationId());
+        source.put(ServiceMetricTable.COLUMN_INSTANCE_ID, data.getInstanceId());
         source.put(ServiceMetricTable.COLUMN_SERVICE_ID, data.getServiceId());
+        source.put(ServiceMetricTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
 
         source.put(ServiceMetricTable.COLUMN_TRANSACTION_CALLS, data.getTransactionCalls());
         source.put(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, data.getTransactionErrorCalls());
@@ -101,7 +106,10 @@ public class ServiceMetricEsPersistenceDAO extends EsDAO implements IServiceMetr
 
     @Override public UpdateRequestBuilder prepareBatchUpdate(ServiceMetric data) {
         Map<String, Object> source = new HashMap<>();
+        source.put(ServiceMetricTable.COLUMN_APPLICATION_ID, data.getApplicationId());
+        source.put(ServiceMetricTable.COLUMN_INSTANCE_ID, data.getInstanceId());
         source.put(ServiceMetricTable.COLUMN_SERVICE_ID, data.getServiceId());
+        source.put(ServiceMetricTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
 
         source.put(ServiceMetricTable.COLUMN_TRANSACTION_CALLS, data.getTransactionCalls());
         source.put(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, data.getTransactionErrorCalls());

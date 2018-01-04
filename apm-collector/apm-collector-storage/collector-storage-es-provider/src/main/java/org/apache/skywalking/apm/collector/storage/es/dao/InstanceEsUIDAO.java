@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
 import com.google.gson.JsonArray;
@@ -24,6 +23,8 @@ import com.google.gson.JsonObject;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
+import org.apache.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
@@ -42,8 +43,6 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.valuecount.ValueCount;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortMode;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
-import org.apache.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

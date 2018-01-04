@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.cache.guava.service;
 
 import com.google.common.cache.Cache;
@@ -25,8 +24,8 @@ import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
-import org.apache.skywalking.apm.collector.storage.dao.IInstanceCacheDAO;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
+import org.apache.skywalking.apm.collector.storage.dao.IInstanceCacheDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,9 +36,11 @@ public class InstanceCacheGuavaService implements InstanceCacheService {
 
     private final Logger logger = LoggerFactory.getLogger(InstanceCacheGuavaService.class);
 
-    private final Cache<Integer, Integer> integerCache = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(5000).build();
+    private final Cache<Integer, Integer> applicationIdCache = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(5000).build();
 
-    private final Cache<String, Integer> stringCache = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(5000).build();
+    private final Cache<String, Integer> agentUUIDCache = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(5000).build();
+
+    private final Cache<String, Integer> addressIdCache = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(5000).build();
 
     private final ModuleManager moduleManager;
     private IInstanceCacheDAO instanceCacheDAO;
@@ -55,38 +56,56 @@ public class InstanceCacheGuavaService implements InstanceCacheService {
         return this.instanceCacheDAO;
     }
 
-    public int get(int applicationInstanceId) {
-
+    @Override public int getApplicationId(int instanceId) {
         int applicationId = 0;
         try {
-            applicationId = integerCache.get(applicationInstanceId, () -> getInstanceCacheDAO().getApplicationId(applicationInstanceId));
+            applicationId = applicationIdCache.get(instanceId, () -> getInstanceCacheDAO().getApplicationId(instanceId));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
 
         if (applicationId == 0) {
-            applicationId = getInstanceCacheDAO().getApplicationId(applicationInstanceId);
+            applicationId = getInstanceCacheDAO().getApplicationId(instanceId);
             if (applicationId != 0) {
-                integerCache.put(applicationInstanceId, applicationId);
+                applicationIdCache.put(instanceId, applicationId);
             }
         }
         return applicationId;
     }
 
-    @Override public int getInstanceId(int applicationId, String agentUUID) {
+    @Override public int getInstanceIdByAgentUUID(int applicationId, String agentUUID) {
         String key = applicationId + Const.ID_SPLIT + agentUUID;
 
         int instanceId = 0;
         try {
-            instanceId = stringCache.get(key, () -> getInstanceCacheDAO().getInstanceId(applicationId, agentUUID));
+            instanceId = agentUUIDCache.get(key, () -> getInstanceCacheDAO().getInstanceIdByAgentUUID(applicationId, agentUUID));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
 
         if (instanceId == 0) {
-            instanceId = getInstanceCacheDAO().getInstanceId(applicationId, agentUUID);
+            instanceId = getInstanceCacheDAO().getInstanceIdByAgentUUID(applicationId, agentUUID);
             if (applicationId != 0) {
-                stringCache.put(key, instanceId);
+                agentUUIDCache.put(key, instanceId);
+            }
+        }
+        return instanceId;
+    }
+
+    @Override public int getInstanceIdByAddressId(int applicationId, int addressId) {
+        String key = applicationId + Const.ID_SPLIT + addressId;
+
+        int instanceId = 0;
+        try {
+            instanceId = addressIdCache.get(key, () -> getInstanceCacheDAO().getInstanceIdByAddressId(applicationId, addressId));
+        } catch (Throwable e) {
+            logger.error(e.getMessage(), e);
+        }
+
+        if (instanceId == 0) {
+            instanceId = getInstanceCacheDAO().getInstanceIdByAddressId(applicationId, addressId);
+            if (applicationId != 0) {
+                addressIdCache.put(key, instanceId);
             }
         }
         return instanceId;

@@ -16,12 +16,12 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.storage.dao.IApplicationMappingUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMappingTable;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -30,7 +30,6 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.apache.skywalking.apm.collector.storage.dao.IApplicationMappingUIDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
