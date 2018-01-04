@@ -35,6 +35,8 @@ import org.apache.skywalking.apm.agent.core.context.trace.WithPeerInfo;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryManager;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.agent.core.dictionary.PossibleFound;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
 
 /**
@@ -52,6 +54,9 @@ import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
  * @author zhang xin
  */
 public class TracingContext implements AbstractTracerContext {
+    private static final ILog logger = LogManager.getLogger(TracingContext.class);
+    private long lastWarningTimestamp = 0;
+
     /**
      * @see {@link SamplingService}
      */
@@ -506,6 +511,16 @@ public class TracingContext implements AbstractTracerContext {
     }
 
     private boolean isLimitMechanismWorking() {
-        return spanIdGenerator >= Config.Agent.SPAN_LIMIT_PER_SEGMENT;
+        if (spanIdGenerator >= Config.Agent.SPAN_LIMIT_PER_SEGMENT) {
+            long currentTimeMillis = System.currentTimeMillis();
+            if (currentTimeMillis - lastWarningTimestamp > 30 * 1000) {
+                logger.warn(new RuntimeException("Shadow tracing context. Thread dump"), "More than {} spans required to create",
+                    Config.Agent.SPAN_LIMIT_PER_SEGMENT);
+                lastWarningTimestamp = currentTimeMillis;
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 }
