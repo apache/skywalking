@@ -16,30 +16,27 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.instrument;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
-import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
-import net.bytebuddy.implementation.bind.annotation.This;
 
 /**
  * @author wu-sheng
  */
 public class ServiceMetricTracing {
-    private MetricCollector.ServiceMetric serviceMetric;
+    private String serviceName;
 
-    public ServiceMetricTracing(String module, String provider, String service) {
-        serviceMetric = MetricCollector.INSTANCE.registerService(module, provider, service);
+    public ServiceMetricTracing(String service) {
+        this.serviceName = service;
+        MetricCollector.INSTANCE.registerService(service);
     }
 
     @RuntimeType
-    public Object intercept(@This Object obj,
-        @AllArguments Object[] allArguments,
+    public Object intercept(
         @SuperCall Callable<?> zuper,
         @Origin Method method
     ) throws Throwable {
@@ -53,7 +50,7 @@ public class ServiceMetricTracing {
             throw t;
         } finally {
             endNano = System.nanoTime();
-            serviceMetric.trace(method, endNano - startNano, occurError);
+            MetricCollector.INSTANCE.trace(serviceName, method, endNano - startNano, occurError);
         }
     }
 }

@@ -16,11 +16,9 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.instrument;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -36,7 +34,9 @@ public enum MetricCollector implements Runnable {
     INSTANCE;
 
     private final Logger logger = LoggerFactory.getLogger(MetricCollector.class);
-    private HashMap<String, ModuleMetric> modules = new HashMap<>();
+    private ConcurrentHashMap<String, ServiceMetric> serviceMetricsA = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, ServiceMetric> serviceMetricsB = new ConcurrentHashMap<>();
+    private volatile boolean isA = true;
 
     MetricCollector() {
         ScheduledExecutorService service = Executors
@@ -46,99 +46,77 @@ public enum MetricCollector implements Runnable {
 
     @Override
     public void run() {
-        if (!logger.isDebugEnabled()) {
-            return;
+        ConcurrentHashMap<String, ServiceMetric> now;
+        if (isA) {
+            now = serviceMetricsA;
+            isA = false;
+        } else {
+            now = serviceMetricsB;
+            isA = true;
         }
+        try {
+            // Wait the A/B switch completed.
+            Thread.sleep(1000L);
+        } catch (InterruptedException e) {
+
+        }
+
         StringBuilder report = new StringBuilder();
         report.append("\n");
         report.append("##################################################################################################################\n");
         report.append("#                                             Collector Service Report                                           #\n");
         report.append("##################################################################################################################\n");
-        modules.forEach((moduleName, moduleMetric) -> {
-            report.append(moduleName).append(":\n");
-            moduleMetric.providers.forEach((providerName, providerMetric) -> {
-                report.append("\t").append(providerName).append(":\n");
-                providerMetric.services.forEach((serviceName, serviceMetric) -> {
-                    serviceMetric.methodMetrics.forEach((method, metric) -> {
-                        report.append("\t\t").append(method).append(":\n");
-                        report.append("\t\t\t").append(metric).append("\n");
-                        serviceMetric.methodMetrics.put(method, new ServiceMethodMetric());
-                    });
-                });
+        now.forEach((serviceName, serviceMetric) -> {
+            report.append(serviceName).append(":\n");
+            serviceMetric.methodMetrics.forEach((method, metric) -> {
+                if (metric.isExecuted()) {
+                    report.append(method).append(":\n");
+                    report.append("\t").append(metric).append("\n");
+                    metric.clear();
+                }
             });
+            serviceMetric.reset();
         });
 
-        logger.debug(report.toString());
+        /**
+         * The reason of outputing in warn info, is to make sure this logs aren't blocked in performance test.(debug/info log level off)
+         */
+        logger.warn(report.toString());
 
     }
 
-    ServiceMetric registerService(String module, String provider, String service) {
-        return initIfAbsent(module).initIfAbsent(provider).initIfAbsent(service);
+    void registerService(String service) {
+        serviceMetricsA.put(service, new ServiceMetric(service));
+        serviceMetricsB.put(service, new ServiceMetric(service));
     }
 
-    private ModuleMetric initIfAbsent(String moduleName) {
-        if (!modules.containsKey(moduleName)) {
-            ModuleMetric metric = new ModuleMetric(moduleName);
-            modules.put(moduleName, metric);
-            return metric;
-        }
-        return modules.get(moduleName);
-    }
-
-    private class ModuleMetric {
-        private String moduleName;
-        private HashMap<String, ProviderMetric> providers = new HashMap<>();
-
-        public ModuleMetric(String moduleName) {
-            this.moduleName = moduleName;
-        }
-
-        private ProviderMetric initIfAbsent(String providerName) {
-            if (!providers.containsKey(providerName)) {
-                ProviderMetric metric = new ProviderMetric(providerName);
-                providers.put(providerName, metric);
-                return metric;
-            }
-            return providers.get(providerName);
-        }
-    }
-
-    private class ProviderMetric {
-        private String providerName;
-        private HashMap<String, ServiceMetric> services = new HashMap<>();
-
-        public ProviderMetric(String providerName) {
-            this.providerName = providerName;
-        }
-
-        private ServiceMetric initIfAbsent(String serviceName) {
-            if (!services.containsKey(serviceName)) {
-                ServiceMetric metric = new ServiceMetric(serviceName);
-                services.put(serviceName, metric);
-                return metric;
-            }
-            return services.get(serviceName);
-        }
+    void trace(String service, Method method, long nano, boolean occurException) {
+        ConcurrentHashMap<String, ServiceMetric> now = isA ? serviceMetricsA : serviceMetricsB;
+        now.get(service).trace(method, nano, occurException);
     }
 
     class ServiceMetric {
         private String serviceName;
         private ConcurrentHashMap<Method, ServiceMethodMetric> methodMetrics = new ConcurrentHashMap<>();
+        private volatile boolean isExecuted = false;
 
         public ServiceMetric(String serviceName) {
             this.serviceName = serviceName;
         }
 
+        private void reset() {
+            isExecuted = false;
+        }
+
         void trace(Method method, long nano, boolean occurException) {
-            if (logger.isDebugEnabled()) {
-                ServiceMethodMetric metric = methodMetrics.get(method);
-                if (metric == null) {
-                    ServiceMethodMetric methodMetric = new ServiceMethodMetric();
-                    methodMetrics.putIfAbsent(method, methodMetric);
-                    metric = methodMetrics.get(method);
-                }
-                metric.add(nano, occurException);
+            isExecuted = true;
+            ServiceMethodMetric metric = methodMetrics.get(method);
+            if (metric == null) {
+                ServiceMethodMetric methodMetric = new ServiceMethodMetric();
+                methodMetrics.putIfAbsent(method, methodMetric);
+                metric = methodMetrics.get(method);
             }
+            metric.add(nano, occurException);
         }
     }
 
@@ -153,11 +131,21 @@ public enum MetricCollector implements Runnable {
             errorCounter = new AtomicLong(0);
         }
 
+        private boolean isExecuted() {
+            return counter.get() > 0;
+        }
+
         private void add(long nano, boolean occurException) {
             totalTimeNano.addAndGet(nano);
             counter.incrementAndGet();
             if (occurException)
                 errorCounter.incrementAndGet();
+        }
+
+        private void clear() {
+            totalTimeNano.set(0);
+            counter.set(0);
+            errorCounter.set(0);
         }
 
         @Override public String toString() {
@@ -166,7 +154,7 @@ public enum MetricCollector implements Runnable {
             }
             return "Avg=" + (totalTimeNano.longValue() / counter.longValue()) + " (nano)" +
                 ", Success Rate=" + (counter.longValue() - errorCounter.longValue()) * 100 / counter.longValue() +
-                "%";
+                "%, Calls=" + counter.longValue();
         }
     }
 }
