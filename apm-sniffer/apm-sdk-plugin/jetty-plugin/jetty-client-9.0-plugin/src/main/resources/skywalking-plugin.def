@@ -1,0 +1,1 @@
+jetty-client-9.0=org.apache.skywalking.apm.plugin.jetty.v90.client.define.HttpRequestInstrumentation

@@ -31,6 +31,7 @@
     <modules>
         <module>jetty-client-9.x-plugin</module>
         <module>jetty-server-9.x-plugin</module>
+        <module>jetty-client-9.0-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
