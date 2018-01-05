@@ -16,7 +16,8 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.jetty.v9.client;
+
+package org.apache.skywalking.apm.plugin.jetty.v90.client;
 
 import java.net.URI;
 import java.util.List;
@@ -30,9 +31,9 @@ import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
-import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.HttpRequest;
+import org.eclipse.jetty.http.HttpMethod;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -41,6 +42,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
+import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -128,8 +130,8 @@ public class SyncHttpRequestSendInterceptorTest {
 
         }
 
-        @Override public String getMethod() {
-            return "GET";
+        @Override public HttpMethod getMethod() {
+            return HttpMethod.GET;
         }
 
         @Override public URI getURI() {
