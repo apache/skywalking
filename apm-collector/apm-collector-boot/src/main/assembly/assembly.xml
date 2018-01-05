@@ -63,5 +63,12 @@
             </includes>
             <outputDirectory>/config</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/../apm-collector-instrument/target</directory>
+            <includes>
+                <include>collector-instrument-agent.jar</include>
+            </includes>
+            <outputDirectory>/agent</outputDirectory>
+        </fileSet>
     </fileSets>
 </assembly>
