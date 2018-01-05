@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.jetty.v9.client;
+package org.apache.skywalking.apm.plugin.jetty.v90.client;
 
 import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
@@ -31,6 +31,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.eclipse.jetty.client.HttpRequest;
 import org.eclipse.jetty.http.HttpFields;
+import org.eclipse.jetty.http.HttpMethod;
 
 public class SyncHttpRequestSendInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -67,12 +68,18 @@ public class SyncHttpRequestSendInterceptor implements InstanceMethodsAroundInte
     }
 
     public String getHttpMethod(HttpRequest request) {
-        String method = request.getMethod();
+        HttpMethod httpMethod = HttpMethod.GET;
 
-        if (method == null || method.length() == 0) {
-            method = "GET";
+        /**
+         * The method is null if the client using GET method.
+         *
+         * @see org.eclipse.jetty.client.HttpRequest#GET(String uri)
+         * @see org.eclipse.jetty.client.HttpRequest( org.eclipse.jetty.client.HttpClient client, long conversation, java.net.URI uri)
+         */
+        if (request.getMethod() != null) {
+            httpMethod = request.getMethod();
         }
 
-        return method;
+        return httpMethod.name();
     }
 }
