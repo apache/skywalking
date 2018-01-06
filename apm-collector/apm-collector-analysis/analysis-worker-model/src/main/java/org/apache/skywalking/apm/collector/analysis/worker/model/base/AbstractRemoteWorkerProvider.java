@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.collector.analysis.worker.model.base;
 
-import org.apache.skywalking.apm.collector.core.data.Data;
+import org.apache.skywalking.apm.collector.core.data.AbstractData;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.remote.service.RemoteSenderService;
 
@@ -30,7 +30,7 @@ import org.apache.skywalking.apm.collector.remote.service.RemoteSenderService;
  * @author peng-yongsheng
  * @since v3.0-2017
  */
-public abstract class AbstractRemoteWorkerProvider<INPUT extends Data, OUTPUT extends Data, WORKER_TYPE extends AbstractRemoteWorker<INPUT, OUTPUT>> extends AbstractWorkerProvider<INPUT, OUTPUT, WORKER_TYPE> {
+public abstract class AbstractRemoteWorkerProvider<INPUT extends AbstractData, OUTPUT extends AbstractData, WORKER_TYPE extends AbstractRemoteWorker<INPUT, OUTPUT>> extends AbstractWorkerProvider<INPUT, OUTPUT, WORKER_TYPE> {
 
     private final RemoteSenderService remoteSenderService;
     private final int graphId;

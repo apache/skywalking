@@ -19,12 +19,12 @@
 
 package org.apache.skywalking.apm.collector.storage.base.dao;
 
-import org.apache.skywalking.apm.collector.core.data.Data;
+import org.apache.skywalking.apm.collector.core.data.AbstractData;
 
 /**
  * @author peng-yongsheng
  */
-public interface IPersistenceDAO<Insert, Update, DataImpl extends Data> extends DAO {
+public interface IPersistenceDAO<Insert, Update, DataImpl extends AbstractData> extends DAO {
     DataImpl get(String id);
 
     Insert prepareBatchInsert(DataImpl data);

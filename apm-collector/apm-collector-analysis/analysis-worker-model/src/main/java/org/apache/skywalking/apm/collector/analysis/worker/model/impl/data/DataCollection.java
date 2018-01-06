@@ -22,12 +22,12 @@ package org.apache.skywalking.apm.collector.analysis.worker.model.impl.data;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.skywalking.apm.collector.core.cache.Collection;
-import org.apache.skywalking.apm.collector.core.data.Data;
+import org.apache.skywalking.apm.collector.core.data.AbstractData;
 
 /**
  * @author peng-yongsheng
  */
-public class DataCollection<DATA_IMPL extends Data> implements Collection<Map<String, DATA_IMPL>> {
+public class DataCollection<DATA_IMPL extends AbstractData> implements Collection<Map<String, DATA_IMPL>> {
     private Map<String, DATA_IMPL> data;
     private volatile boolean writing;
     private volatile boolean reading;

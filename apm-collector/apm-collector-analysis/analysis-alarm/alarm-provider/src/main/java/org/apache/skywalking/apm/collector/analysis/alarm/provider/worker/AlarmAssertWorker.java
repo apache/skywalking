@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.collector.analysis.alarm.provider.worker;
 import org.apache.skywalking.apm.collector.analysis.metric.define.MetricSource;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorker;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
-import org.apache.skywalking.apm.collector.core.data.Data;
+import org.apache.skywalking.apm.collector.core.data.AbstractData;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.NumberFormatUtils;
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public abstract class AlarmAssertWorker<INPUT extends Data & Metric, OUTPUT extends Data & Alarm> extends AbstractLocalAsyncWorker<INPUT, OUTPUT> {
+public abstract class AlarmAssertWorker<INPUT extends AbstractData & Metric, OUTPUT extends AbstractData & Alarm> extends AbstractLocalAsyncWorker<INPUT, OUTPUT> {
 
     private final Logger logger = LoggerFactory.getLogger(AlarmAssertWorker.class);
 

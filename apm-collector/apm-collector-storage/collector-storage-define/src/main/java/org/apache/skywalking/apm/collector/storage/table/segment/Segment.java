@@ -19,7 +19,7 @@
 
 package org.apache.skywalking.apm.collector.storage.table.segment;
 
-import org.apache.skywalking.apm.collector.core.data.Data;
+import org.apache.skywalking.apm.collector.core.data.AbstractData;
 import org.apache.skywalking.apm.collector.core.data.Column;
 import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
 /**
  * @author peng-yongsheng
  */
-public class Segment extends Data {
+public class Segment extends AbstractData {
 
     private static final Column[] STRING_COLUMNS = {
         new Column(SegmentTable.COLUMN_ID, new NonOperation()),

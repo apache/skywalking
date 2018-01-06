@@ -16,26 +16,22 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.core.data;
+
+import org.apache.skywalking.apm.collector.core.queue.EndOfBatchContext;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class EndOfBatchQueueMessage extends AbstractHashMessage {
+public abstract class StreamData implements RemoteData, QueueData {
 
-    private boolean endOfBatch;
+    private EndOfBatchContext endOfBatchContext;
 
-    public EndOfBatchQueueMessage(String key) {
-        super(key);
-        endOfBatch = false;
+    @Override public final EndOfBatchContext getEndOfBatchContext() {
+        return this.endOfBatchContext;
     }
 
-    public final boolean isEndOfBatch() {
-        return endOfBatch;
-    }
-
-    public final void setEndOfBatch(boolean endOfBatch) {
-        this.endOfBatch = endOfBatch;
+    @Override public final void setEndOfBatchContext(EndOfBatchContext context) {
+        this.endOfBatchContext = endOfBatchContext;
     }
 }

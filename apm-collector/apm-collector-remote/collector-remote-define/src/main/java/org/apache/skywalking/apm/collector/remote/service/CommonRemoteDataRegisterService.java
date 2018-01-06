@@ -16,12 +16,11 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.remote.service;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.skywalking.apm.collector.core.data.Data;
+import org.apache.skywalking.apm.collector.core.data.RemoteData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +32,7 @@ public class CommonRemoteDataRegisterService implements RemoteDataRegisterServic
     private final Logger logger = LoggerFactory.getLogger(CommonRemoteDataRegisterService.class);
 
     private Integer id;
-    private final Map<Class<? extends Data>, Integer> dataClassMapping;
+    private final Map<Class<? extends RemoteData>, Integer> dataClassMapping;
     private final Map<Integer, RemoteDataInstanceCreator> dataInstanceCreatorMapping;
 
     public CommonRemoteDataRegisterService() {
@@ -42,7 +41,7 @@ public class CommonRemoteDataRegisterService implements RemoteDataRegisterServic
         this.dataInstanceCreatorMapping = new HashMap<>();
     }
 
-    @Override public void register(Class<? extends Data> dataClass, RemoteDataInstanceCreator instanceCreator) {
+    @Override public void register(Class<? extends RemoteData> dataClass, RemoteDataInstanceCreator instanceCreator) {
         if (!dataClassMapping.containsKey(dataClass)) {
             dataClassMapping.put(dataClass, this.id);
             dataInstanceCreatorMapping.put(this.id, instanceCreator);
@@ -53,7 +52,7 @@ public class CommonRemoteDataRegisterService implements RemoteDataRegisterServic
     }
 
     @Override
-    public Integer getRemoteDataId(Class<? extends Data> dataClass) throws RemoteDataMappingIdNotFoundException {
+    public Integer getRemoteDataId(Class<? extends RemoteData> dataClass) throws RemoteDataMappingIdNotFoundException {
         if (dataClassMapping.containsKey(dataClass)) {
             return dataClassMapping.get(dataClass);
         } else {

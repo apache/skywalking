@@ -20,14 +20,14 @@
 package org.apache.skywalking.apm.collector.storage.table.service;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
-import org.apache.skywalking.apm.collector.core.data.Data;
+import org.apache.skywalking.apm.collector.core.data.AbstractData;
 import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceEntry extends Data {
+public class ServiceEntry extends AbstractData {
 
     private static final Column[] STRING_COLUMNS = {
         new Column(ServiceEntryTable.COLUMN_ID, new NonOperation()),
