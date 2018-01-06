@@ -16,29 +16,11 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.core.data;
 
 /**
- * The <code>AbstractHashMessage</code> implementations represent aggregate message,
- * which use to aggregate metric.
- * <p>
- *
  * @author peng-yongsheng
- * @since v3.0-2017
  */
-public abstract class AbstractHashMessage {
-    private int hashCode;
-
-    public AbstractHashMessage(String key) {
-        this.hashCode = key.hashCode();
-    }
-
-    public int getHashCode() {
-        return hashCode;
-    }
-
-    public void setKey(String key) {
-        this.hashCode = key.hashCode();
-    }
+public interface RemoteData extends Data {
+    String selectKey();
 }

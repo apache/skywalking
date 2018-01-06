@@ -20,12 +20,12 @@
 package org.apache.skywalking.apm.collector.analysis.worker.model.impl.data;
 
 import org.apache.skywalking.apm.collector.core.cache.Window;
-import org.apache.skywalking.apm.collector.core.data.Data;
+import org.apache.skywalking.apm.collector.core.data.AbstractData;
 
 /**
  * @author peng-yongsheng
  */
-public class DataCache<DATA_IMPL extends Data> extends Window<DataCollection<DATA_IMPL>> {
+public class DataCache<DATA_IMPL extends AbstractData> extends Window<DataCollection<DATA_IMPL>> {
 
     private DataCollection<DATA_IMPL> lockedDataCollection;
 
@@ -37,7 +37,7 @@ public class DataCache<DATA_IMPL extends Data> extends Window<DataCollection<DAT
         return lockedDataCollection.containsKey(id);
     }
 
-    public Data get(String id) {
+    public AbstractData get(String id) {
         return lockedDataCollection.get(id);
     }
 

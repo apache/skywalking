@@ -16,23 +16,24 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.remote.grpc.service.selector;
-
-import java.util.List;
-import org.apache.skywalking.apm.collector.core.data.RemoteData;
-import org.apache.skywalking.apm.collector.remote.service.RemoteClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package org.apache.skywalking.apm.collector.core.queue;
 
 /**
  * @author peng-yongsheng
  */
-public class ForeverFirstSelector implements RemoteClientSelector {
+public class EndOfBatchContext {
 
-    private final Logger logger = LoggerFactory.getLogger(ForeverFirstSelector.class);
+    private boolean isEndOfBatch;
 
-    @Override public RemoteClient select(List<RemoteClient> clients, RemoteData remoteData) {
-        logger.debug("clients size: {}", clients.size());
-        return clients.get(0);
+    public EndOfBatchContext(boolean isEndOfBatch) {
+        this.isEndOfBatch = isEndOfBatch;
+    }
+
+    public boolean isEndOfBatch() {
+        return isEndOfBatch;
+    }
+
+    public void setEndOfBatch(boolean endOfBatch) {
+        isEndOfBatch = endOfBatch;
     }
 }

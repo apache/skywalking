@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.collector.analysis.worker.model.impl;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorker;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.data.DataCache;
-import org.apache.skywalking.apm.collector.core.data.Data;
+import org.apache.skywalking.apm.collector.core.data.AbstractData;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public abstract class AggregationWorker<INPUT extends Data, OUTPUT extends Data> extends AbstractLocalAsyncWorker<INPUT, OUTPUT> {
+public abstract class AggregationWorker<INPUT extends AbstractData, OUTPUT extends AbstractData> extends AbstractLocalAsyncWorker<INPUT, OUTPUT> {
 
     private final Logger logger = LoggerFactory.getLogger(AggregationWorker.class);
 

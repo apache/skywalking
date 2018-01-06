@@ -16,10 +16,9 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.remote.service;
 
-import org.apache.skywalking.apm.collector.core.data.Data;
+import org.apache.skywalking.apm.collector.core.data.RemoteData;
 
 /**
  * @author peng-yongsheng
@@ -27,7 +26,7 @@ import org.apache.skywalking.apm.collector.core.data.Data;
 public interface RemoteClient extends Comparable<RemoteClient> {
     String getAddress();
 
-    void push(int graphId, int nodeId, Data data);
+    void push(int graphId, int nodeId, RemoteData data);
 
     boolean equals(String address);
 }

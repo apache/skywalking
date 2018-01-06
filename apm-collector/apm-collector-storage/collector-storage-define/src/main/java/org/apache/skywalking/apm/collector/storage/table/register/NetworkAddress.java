@@ -19,13 +19,13 @@
 package org.apache.skywalking.apm.collector.storage.table.register;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
-import org.apache.skywalking.apm.collector.core.data.Data;
+import org.apache.skywalking.apm.collector.core.data.AbstractData;
 import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
 
 /**
  * @author peng-yongsheng
  */
-public class NetworkAddress extends Data {
+public class NetworkAddress extends AbstractData {
 
     private static final Column[] STRING_COLUMNS = {
         new Column(NetworkAddressTable.COLUMN_ID, new NonOperation()),

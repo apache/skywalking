@@ -19,14 +19,14 @@
 package org.apache.skywalking.apm.collector.storage.table.alarm;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
-import org.apache.skywalking.apm.collector.core.data.Data;
+import org.apache.skywalking.apm.collector.core.data.AbstractData;
 import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationAlarm extends Data implements Alarm {
+public class ApplicationAlarm extends AbstractData implements Alarm {
 
     private static final Column[] STRING_COLUMNS = {
         new Column(ApplicationAlarmTable.COLUMN_ID, new NonOperation()),
