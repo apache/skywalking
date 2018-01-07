@@ -24,5 +24,5 @@ import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetric
 /**
  * @author peng-yongsheng
  */
-public interface IInstanceMetricPersistenceDAO<Insert, Update, DataImpl extends InstanceMetric> extends IPersistenceDAO<Insert, Update, DataImpl> {
+public interface IInstanceMetricPersistenceDAO<INSERT, UPDATE, STREAM_DATA extends InstanceMetric> extends IPersistenceDAO<INSERT, UPDATE, STREAM_DATA> {
 }

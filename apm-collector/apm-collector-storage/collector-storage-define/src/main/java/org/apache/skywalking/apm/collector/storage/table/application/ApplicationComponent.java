@@ -16,18 +16,17 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.table.application;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
-import org.apache.skywalking.apm.collector.core.data.AbstractData;
+import org.apache.skywalking.apm.collector.core.data.StreamData;
 import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationComponent extends AbstractData {
+public class ApplicationComponent extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
         new Column(ApplicationComponentTable.COLUMN_ID, new NonOperation()),
@@ -45,8 +44,24 @@ public class ApplicationComponent extends AbstractData {
     private static final Column[] BOOLEAN_COLUMNS = {};
     private static final Column[] BYTE_COLUMNS = {};
 
-    public ApplicationComponent(String id) {
-        super(id, STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
+    public ApplicationComponent() {
+        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
+    }
+
+    @Override public String getId() {
+        return null;
+    }
+
+    @Override public void setId(String id) {
+
+    }
+
+    @Override public String getMetricId() {
+        return null;
+    }
+
+    @Override public void setMetricId(String metricId) {
+
     }
 
     public Long getTimeBucket() {
