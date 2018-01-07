@@ -67,7 +67,6 @@ public class CpuMetric extends StreamData {
 
     @Override public void setMetricId(String metricId) {
         setDataString(1, metricId);
-
     }
 
     public Integer getInstanceId() {

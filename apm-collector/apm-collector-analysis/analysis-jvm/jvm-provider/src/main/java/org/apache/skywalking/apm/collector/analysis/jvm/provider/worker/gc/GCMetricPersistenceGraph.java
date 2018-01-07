@@ -16,11 +16,12 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.jvm.provider.worker;
+package org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.gc;
 
 import org.apache.skywalking.apm.collector.analysis.jvm.define.graph.GraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
+import org.apache.skywalking.apm.collector.core.graph.Node;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetric;
 
@@ -38,7 +39,21 @@ public class GCMetricPersistenceGraph {
     }
 
     public void create() {
-        GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.GC_METRIC_PERSISTENCE_GRAPH_ID, GCMetric.class)
-            .addNode(new GCMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+        Node<GCMetric, GCMetric> bridgeNode = GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.GC_METRIC_PERSISTENCE_GRAPH_ID, GCMetric.class)
+            .addNode(new GCMetricBridgeNode());
+
+        bridgeNode.addNext(new GCSecondMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        bridgeNode.addNext(new GCMinuteMetricTransformNode())
+            .addNext(new GCMinuteMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        bridgeNode.addNext(new GCHourMetricTransformNode())
+            .addNext(new GCHourMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        bridgeNode.addNext(new GCDayMetricTransformNode())
+            .addNext(new GCDayMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        bridgeNode.addNext(new GCMonthMetricTransformNode())
+            .addNext(new GCMonthMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
     }
 }

@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.dao;
+package org.apache.skywalking.apm.collector.storage.dao.gcmp;
 
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetric;
@@ -24,5 +24,5 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetric;
 /**
  * @author peng-yongsheng
  */
-public interface IGCMetricPersistenceDAO<Insert, Update, DataImpl extends GCMetric> extends IPersistenceDAO<Insert, Update, DataImpl> {
+public interface IGCSecondMetricPersistenceDAO<INSERT, UPDATE, STREAM_DATA extends GCMetric> extends IPersistenceDAO<INSERT, UPDATE, STREAM_DATA> {
 }

@@ -24,7 +24,7 @@ import java.util.Map;
 import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetricTable;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
 import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
-import org.apache.skywalking.apm.collector.storage.dao.IGCMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.gcmp.IGCSecondMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
 import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetric;
@@ -32,9 +32,9 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetric;
 /**
  * @author peng-yongsheng, clevertension
  */
-public class GCMetricH2PersistenceDAO extends H2DAO implements IGCMetricPersistenceDAO<H2SqlEntity, H2SqlEntity, GCMetric> {
+public class GCSecondMetricH2PersistenceDAO extends H2DAO implements IGCSecondMetricPersistenceDAO<H2SqlEntity, H2SqlEntity, GCMetric> {
 
-    public GCMetricH2PersistenceDAO(H2Client client) {
+    public GCSecondMetricH2PersistenceDAO(H2Client client) {
         super(client);
     }
 
