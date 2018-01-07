@@ -44,7 +44,17 @@ public class WorkerIdDefine {
     public static final int GC_MONTH_METRIC_PERSISTENCE_WORKER_ID = 3108;
     public static final int GC_MONTH_METRIC_TRANSFORM_NODE_ID = 3109;
 
+    public static final int MEMORY_METRIC_BRIDGE_NODE_ID = 3200;
+    public static final int MEMORY_SECOND_METRIC_PERSISTENCE_WORKER_ID = 3201;
+    public static final int MEMORY_MINUTE_METRIC_PERSISTENCE_WORKER_ID = 3202;
+    public static final int MEMORY_MINUTE_METRIC_TRANSFORM_NODE_ID = 3203;
+    public static final int MEMORY_HOUR_METRIC_PERSISTENCE_WORKER_ID = 3204;
+    public static final int MEMORY_HOUR_METRIC_TRANSFORM_NODE_ID = 3205;
+    public static final int MEMORY_DAY_METRIC_PERSISTENCE_WORKER_ID = 3206;
+    public static final int MEMORY_DAY_METRIC_TRANSFORM_NODE_ID = 3207;
+    public static final int MEMORY_MONTH_METRIC_PERSISTENCE_WORKER_ID = 3208;
+    public static final int MEMORY_MONTH_METRIC_TRANSFORM_NODE_ID = 3209;
+
     public static final int INST_HEART_BEAT_PERSISTENCE_WORKER_ID = 302;
-    public static final int MEMORY_METRIC_PERSISTENCE_WORKER_ID = 303;
     public static final int MEMORY_POOL_METRIC_PERSISTENCE_WORKER_ID = 303;
 }

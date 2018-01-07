@@ -16,11 +16,12 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.jvm.provider.worker;
+package org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.memory;
 
 import org.apache.skywalking.apm.collector.analysis.jvm.define.graph.GraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
+import org.apache.skywalking.apm.collector.core.graph.Node;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetric;
 
@@ -38,7 +39,21 @@ public class MemoryMetricPersistenceGraph {
     }
 
     public void create() {
-        GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.MEMORY_METRIC_PERSISTENCE_GRAPH_ID, MemoryMetric.class)
-            .addNode(new MemoryMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+        Node<MemoryMetric, MemoryMetric> bridgeNode = GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.MEMORY_METRIC_PERSISTENCE_GRAPH_ID, MemoryMetric.class)
+            .addNode(new MemoryMetricBridgeNode());
+
+        bridgeNode.addNext(new MemorySecondMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        bridgeNode.addNext(new MemoryMinuteMetricTransformNode())
+            .addNext(new MemoryMinuteMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        bridgeNode.addNext(new MemoryHourMetricTransformNode())
+            .addNext(new MemoryHourMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        bridgeNode.addNext(new MemoryDayMetricTransformNode())
+            .addNext(new MemoryDayMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        bridgeNode.addNext(new MemoryMonthMetricTransformNode())
+            .addNext(new MemoryMonthMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
     }
 }

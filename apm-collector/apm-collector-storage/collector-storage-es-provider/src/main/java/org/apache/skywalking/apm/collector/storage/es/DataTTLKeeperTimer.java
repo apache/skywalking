@@ -32,6 +32,7 @@ import org.apache.skywalking.apm.collector.storage.dao.armp.IApplicationReferenc
 import org.apache.skywalking.apm.collector.storage.dao.cpump.ICpuSecondMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.gcmp.IGCSecondMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.imp.IInstanceMinuteMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.memorymp.IMemorySecondMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceMinuteMetricPersistenceDAO;
 
 /**
@@ -82,7 +83,7 @@ public class DataTTLKeeperTimer {
         IGCSecondMetricPersistenceDAO gcMetricPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IGCSecondMetricPersistenceDAO.class);
         gcMetricPersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
 
-        IMemoryMetricPersistenceDAO memoryMetricPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IMemoryMetricPersistenceDAO.class);
+        IMemorySecondMetricPersistenceDAO memoryMetricPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IMemorySecondMetricPersistenceDAO.class);
         memoryMetricPersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
 
         IMemoryPoolMetricPersistenceDAO memoryPoolMetricPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IMemoryPoolMetricPersistenceDAO.class);
