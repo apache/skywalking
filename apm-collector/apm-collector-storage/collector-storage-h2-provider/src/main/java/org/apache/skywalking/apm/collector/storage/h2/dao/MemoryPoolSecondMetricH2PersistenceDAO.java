@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
 import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
-import org.apache.skywalking.apm.collector.storage.dao.IMemoryPoolMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.mpoolmp.IMemoryPoolSecondMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
 import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetric;
@@ -32,9 +32,9 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetricTab
 /**
  * @author peng-yongsheng, clevertension
  */
-public class MemoryPoolMetricH2PersistenceDAO extends H2DAO implements IMemoryPoolMetricPersistenceDAO<H2SqlEntity, H2SqlEntity, MemoryPoolMetric> {
+public class MemoryPoolSecondMetricH2PersistenceDAO extends H2DAO implements IMemoryPoolSecondMetricPersistenceDAO<H2SqlEntity, H2SqlEntity, MemoryPoolMetric> {
 
-    public MemoryPoolMetricH2PersistenceDAO(H2Client client) {
+    public MemoryPoolSecondMetricH2PersistenceDAO(H2Client client) {
         super(client);
     }
 

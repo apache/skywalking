@@ -16,11 +16,12 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.jvm.provider.worker;
+package org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.memorypool;
 
 import org.apache.skywalking.apm.collector.analysis.jvm.define.graph.GraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
+import org.apache.skywalking.apm.collector.core.graph.Node;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetric;
 
@@ -38,7 +39,21 @@ public class MemoryPoolMetricPersistenceGraph {
     }
 
     public void create() {
-        GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.MEMORY_POOL_METRIC_PERSISTENCE_GRAPH_ID, MemoryPoolMetric.class)
-            .addNode(new MemoryPoolMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+        Node<MemoryPoolMetric, MemoryPoolMetric> bridgeNode = GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.MEMORY_POOL_METRIC_PERSISTENCE_GRAPH_ID, MemoryPoolMetric.class)
+            .addNode(new MemoryPoolMetricBridgeNode());
+
+        bridgeNode.addNext(new MemoryPoolSecondMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        bridgeNode.addNext(new MemoryPoolMinuteMetricTransformNode())
+            .addNext(new MemoryPoolMinuteMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        bridgeNode.addNext(new MemoryPoolHourMetricTransformNode())
+            .addNext(new MemoryPoolHourMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        bridgeNode.addNext(new MemoryPoolDayMetricTransformNode())
+            .addNext(new MemoryPoolDayMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        bridgeNode.addNext(new MemoryPoolMonthMetricTransformNode())
+            .addNext(new MemoryPoolMonthMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
     }
 }

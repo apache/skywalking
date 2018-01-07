@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.dao;
+package org.apache.skywalking.apm.collector.storage.dao.mpoolmp;
 
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetric;
@@ -24,5 +24,5 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetric;
 /**
  * @author peng-yongsheng
  */
-public interface IMemoryPoolMetricPersistenceDAO<Insert, Update, DataImpl extends MemoryPoolMetric> extends IPersistenceDAO<Insert, Update, DataImpl> {
+public interface IMemoryPoolHourMetricPersistenceDAO<INSERT, UPDATE, STREAM_DATA extends MemoryPoolMetric> extends IPersistenceDAO<INSERT, UPDATE, STREAM_DATA> {
 }
