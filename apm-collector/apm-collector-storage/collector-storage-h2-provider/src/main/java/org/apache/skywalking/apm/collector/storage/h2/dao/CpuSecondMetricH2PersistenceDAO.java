@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
 import org.apache.skywalking.apm.collector.storage.table.jvm.CpuMetric;
 import org.apache.skywalking.apm.collector.storage.table.jvm.CpuMetricTable;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
-import org.apache.skywalking.apm.collector.storage.dao.ICpuMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.cpump.ICpuSecondMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,11 +34,11 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng, clevertension
  */
-public class CpuMetricH2PersistenceDAO extends H2DAO implements ICpuMetricPersistenceDAO<H2SqlEntity, H2SqlEntity, CpuMetric> {
+public class CpuSecondMetricH2PersistenceDAO extends H2DAO implements ICpuSecondMetricPersistenceDAO<H2SqlEntity, H2SqlEntity, CpuMetric> {
 
-    private final Logger logger = LoggerFactory.getLogger(CpuMetricH2PersistenceDAO.class);
+    private final Logger logger = LoggerFactory.getLogger(CpuSecondMetricH2PersistenceDAO.class);
 
-    public CpuMetricH2PersistenceDAO(H2Client client) {
+    public CpuSecondMetricH2PersistenceDAO(H2Client client) {
         super(client);
     }
 

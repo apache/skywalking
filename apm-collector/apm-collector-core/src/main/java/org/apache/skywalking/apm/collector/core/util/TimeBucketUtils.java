@@ -74,6 +74,22 @@ public enum TimeBucketUtils {
         return minuteBucket / 100 / 100 / 100;
     }
 
+    public long secondToMinute(long secondBucket) {
+        return secondBucket / 100;
+    }
+
+    public long secondToHour(long secondBucket) {
+        return secondBucket / 100 / 100;
+    }
+
+    public long secondToDay(long secondBucket) {
+        return secondBucket / 100 / 100 / 100;
+    }
+
+    public long secondToMonth(long secondBucket) {
+        return secondBucket / 100 / 100 / 100;
+    }
+
     public long changeTimeBucket2TimeStamp(String timeBucketType, long timeBucket) {
         if (TimeBucketType.SECOND.name().toLowerCase().equals(timeBucketType.toLowerCase())) {
             Calendar calendar = Calendar.getInstance();

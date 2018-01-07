@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.jvm.provider.worker;
+package org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.cpu;
 
 import org.apache.skywalking.apm.collector.analysis.jvm.define.graph.WorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
@@ -24,39 +24,39 @@ import org.apache.skywalking.apm.collector.analysis.worker.model.impl.Persistenc
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ICpuMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.cpump.ICpuMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.jvm.CpuMetric;
 
 /**
  * @author peng-yongsheng
  */
-public class CpuMetricPersistenceWorker extends PersistenceWorker<CpuMetric> {
+public class CpuMinuteMetricPersistenceWorker extends PersistenceWorker<CpuMetric> {
 
-    public CpuMetricPersistenceWorker(ModuleManager moduleManager) {
+    public CpuMinuteMetricPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     @Override public int id() {
-        return WorkerIdDefine.CPU_METRIC_PERSISTENCE_WORKER_ID;
+        return WorkerIdDefine.CPU_MINUTE_METRIC_PERSISTENCE_WORKER_ID;
     }
 
     @Override protected boolean needMergeDBData() {
-        return false;
+        return true;
     }
 
     @SuppressWarnings("unchecked")
     @Override protected IPersistenceDAO<?, ?, CpuMetric> persistenceDAO() {
-        return getModuleManager().find(StorageModule.NAME).getService(ICpuMetricPersistenceDAO.class);
+        return getModuleManager().find(StorageModule.NAME).getService(ICpuMinuteMetricPersistenceDAO.class);
     }
 
-    public static class Factory extends PersistenceWorkerProvider<CpuMetric, CpuMetricPersistenceWorker> {
+    public static class Factory extends PersistenceWorkerProvider<CpuMetric, CpuMinuteMetricPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
         }
 
-        @Override public CpuMetricPersistenceWorker workerInstance(ModuleManager moduleManager) {
-            return new CpuMetricPersistenceWorker(moduleManager);
+        @Override public CpuMinuteMetricPersistenceWorker workerInstance(ModuleManager moduleManager) {
+            return new CpuMinuteMetricPersistenceWorker(moduleManager);
         }
 
         @Override

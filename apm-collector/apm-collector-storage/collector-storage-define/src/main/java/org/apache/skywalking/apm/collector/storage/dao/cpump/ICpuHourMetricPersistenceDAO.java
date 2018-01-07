@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.dao;
+package org.apache.skywalking.apm.collector.storage.dao.cpump;
 
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.jvm.CpuMetric;
@@ -24,5 +24,5 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.CpuMetric;
 /**
  * @author peng-yongsheng
  */
-public interface ICpuMetricPersistenceDAO<Insert, Update, DataImpl extends CpuMetric> extends IPersistenceDAO<Insert, Update, DataImpl> {
+public interface ICpuHourMetricPersistenceDAO<INSERT, UPDATE, STREAM_DATA extends CpuMetric> extends IPersistenceDAO<INSERT, UPDATE, STREAM_DATA> {
 }

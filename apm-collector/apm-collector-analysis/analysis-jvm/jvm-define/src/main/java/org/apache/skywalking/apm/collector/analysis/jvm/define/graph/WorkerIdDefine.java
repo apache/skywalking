@@ -22,7 +22,17 @@ package org.apache.skywalking.apm.collector.analysis.jvm.define.graph;
  * @author peng-yongsheng
  */
 public class WorkerIdDefine {
-    public static final int CPU_METRIC_PERSISTENCE_WORKER_ID = 300;
+    public static final int CPU_METRIC_BRIDGE_NODE_ID = 3000;
+    public static final int CPU_SECOND_METRIC_PERSISTENCE_WORKER_ID = 3001;
+    public static final int CPU_MINUTE_METRIC_PERSISTENCE_WORKER_ID = 3002;
+    public static final int CPU_MINUTE_METRIC_TRANSFORM_NODE_ID = 3003;
+    public static final int CPU_HOUR_METRIC_PERSISTENCE_WORKER_ID = 3004;
+    public static final int CPU_HOUR_METRIC_TRANSFORM_NODE_ID = 3005;
+    public static final int CPU_DAY_METRIC_PERSISTENCE_WORKER_ID = 3006;
+    public static final int CPU_DAY_METRIC_TRANSFORM_NODE_ID = 3007;
+    public static final int CPU_MONTH_METRIC_PERSISTENCE_WORKER_ID = 3008;
+    public static final int CPU_MONTH_METRIC_TRANSFORM_NODE_ID = 3009;
+
     public static final int GC_METRIC_PERSISTENCE_WORKER_ID = 301;
     public static final int INST_HEART_BEAT_PERSISTENCE_WORKER_ID = 302;
     public static final int MEMORY_METRIC_PERSISTENCE_WORKER_ID = 303;
