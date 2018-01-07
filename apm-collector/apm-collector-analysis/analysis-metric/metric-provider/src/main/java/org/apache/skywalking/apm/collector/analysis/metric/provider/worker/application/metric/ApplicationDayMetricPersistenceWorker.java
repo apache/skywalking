@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.metric;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
@@ -24,39 +24,39 @@ import org.apache.skywalking.apm.collector.analysis.worker.model.impl.Persistenc
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IApplicationMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.amp.IApplicationDayMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMetric;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationMetricPersistenceWorker extends PersistenceWorker<ApplicationMetric> {
+public class ApplicationDayMetricPersistenceWorker extends PersistenceWorker<ApplicationMetric> {
 
-    public ApplicationMetricPersistenceWorker(ModuleManager moduleManager) {
+    public ApplicationDayMetricPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     @Override public int id() {
-        return MetricWorkerIdDefine.APPLICATION_METRIC_PERSISTENCE_WORKER_ID;
+        return MetricWorkerIdDefine.APPLICATION_DAY_METRIC_PERSISTENCE_WORKER_ID;
     }
 
     @SuppressWarnings("unchecked")
     @Override protected IPersistenceDAO<?, ?, ApplicationMetric> persistenceDAO() {
-        return getModuleManager().find(StorageModule.NAME).getService(IApplicationMetricPersistenceDAO.class);
+        return getModuleManager().find(StorageModule.NAME).getService(IApplicationDayMetricPersistenceDAO.class);
     }
 
     @Override protected boolean needMergeDBData() {
         return true;
     }
 
-    public static class Factory extends PersistenceWorkerProvider<ApplicationMetric, ApplicationMetricPersistenceWorker> {
+    public static class Factory extends PersistenceWorkerProvider<ApplicationMetric, ApplicationDayMetricPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
         }
 
-        @Override public ApplicationMetricPersistenceWorker workerInstance(ModuleManager moduleManager) {
-            return new ApplicationMetricPersistenceWorker(moduleManager);
+        @Override public ApplicationDayMetricPersistenceWorker workerInstance(ModuleManager moduleManager) {
+            return new ApplicationDayMetricPersistenceWorker(moduleManager);
         }
 
         @Override

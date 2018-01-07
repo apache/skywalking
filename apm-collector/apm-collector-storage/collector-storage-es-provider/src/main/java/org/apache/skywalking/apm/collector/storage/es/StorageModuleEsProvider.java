@@ -38,7 +38,7 @@ import org.apache.skywalking.apm.collector.storage.dao.IApplicationComponentPers
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationComponentUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationMappingPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationMappingUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IApplicationMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.amp.IApplicationMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationReferenceAlarmListPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationReferenceAlarmPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.armp.IApplicationReferenceMinuteMetricPersistenceDAO;
@@ -93,7 +93,7 @@ import org.apache.skywalking.apm.collector.storage.es.dao.ApplicationEsCacheDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ApplicationEsRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ApplicationMappingEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ApplicationMappingEsUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ApplicationMetricEsPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.amp.ApplicationMinuteMetricEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ApplicationReferenceAlarmEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ApplicationReferenceAlarmListEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.armp.ApplicationReferenceMinuteMetricEsPersistenceDAO;
@@ -235,7 +235,7 @@ public class StorageModuleEsProvider extends ModuleProvider {
         this.registerServiceImplementation(IGlobalTracePersistenceDAO.class, new GlobalTraceEsPersistenceDAO(elasticSearchClient));
         this.registerServiceImplementation(IApplicationComponentPersistenceDAO.class, new ApplicationComponentEsPersistenceDAO(elasticSearchClient));
         this.registerServiceImplementation(IApplicationMappingPersistenceDAO.class, new ApplicationMappingEsPersistenceDAO(elasticSearchClient));
-        this.registerServiceImplementation(IApplicationMetricPersistenceDAO.class, new ApplicationMetricEsPersistenceDAO(elasticSearchClient));
+        this.registerServiceImplementation(IApplicationMinuteMetricPersistenceDAO.class, new ApplicationMinuteMetricEsPersistenceDAO(elasticSearchClient));
         this.registerServiceImplementation(IApplicationReferenceMinuteMetricPersistenceDAO.class, new ApplicationReferenceMinuteMetricEsPersistenceDAO(elasticSearchClient));
         this.registerServiceImplementation(ISegmentCostPersistenceDAO.class, new SegmentCostEsPersistenceDAO(elasticSearchClient));
         this.registerServiceImplementation(ISegmentPersistenceDAO.class, new SegmentEsPersistenceDAO(elasticSearchClient));

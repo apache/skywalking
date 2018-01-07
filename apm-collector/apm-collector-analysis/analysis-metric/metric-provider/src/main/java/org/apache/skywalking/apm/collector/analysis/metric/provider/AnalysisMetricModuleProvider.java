@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.appli
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.ApplicationComponentSpanListener;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.ApplicationMappingGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.ApplicationMappingSpanListener;
-import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.ApplicationMetricGraph;
+import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.metric.ApplicationMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.refmetric.ApplicationReferenceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global.GlobalTraceGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global.GlobalTraceSpanListener;
