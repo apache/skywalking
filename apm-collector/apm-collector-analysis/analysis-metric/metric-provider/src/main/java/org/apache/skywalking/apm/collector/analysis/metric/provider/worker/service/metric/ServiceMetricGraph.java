@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.metric;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
@@ -24,10 +24,12 @@ import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCrea
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.graph.Next;
+import org.apache.skywalking.apm.collector.core.graph.Node;
 import org.apache.skywalking.apm.collector.core.graph.NodeProcessor;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.remote.RemoteModule;
 import org.apache.skywalking.apm.collector.remote.service.RemoteSenderService;
+import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetric;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
 
 /**
@@ -48,9 +50,19 @@ public class ServiceMetricGraph {
 
         Graph<ServiceReferenceMetric> graph = GraphManager.INSTANCE.createIfAbsent(MetricGraphIdDefine.SERVICE_METRIC_GRAPH_ID, ServiceReferenceMetric.class);
 
-        graph.addNode(new ServiceMetricAggregationWorker.Factory(moduleManager).create(workerCreateListener))
-            .addNext(new ServiceMetricRemoteWorker.Factory(moduleManager, remoteSenderService, MetricGraphIdDefine.SERVICE_METRIC_GRAPH_ID).create(workerCreateListener))
-            .addNext(new ServiceMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+        Node<ServiceMetric, ServiceMetric> remoteNode = graph.addNode(new ServiceMetricAggregationWorker.Factory(moduleManager).create(workerCreateListener))
+            .addNext(new ServiceMetricRemoteWorker.Factory(moduleManager, remoteSenderService, MetricGraphIdDefine.SERVICE_METRIC_GRAPH_ID).create(workerCreateListener));
+
+        remoteNode.addNext(new ServiceMinuteMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        remoteNode.addNext(new ServiceHourMetricTransformNode())
+            .addNext(new ServiceHourMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        remoteNode.addNext(new ServiceDayMetricTransformNode())
+            .addNext(new ServiceDayMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        remoteNode.addNext(new ServiceMonthMetricTransformNode())
+            .addNext(new ServiceMonthMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
         link(graph);
     }

@@ -76,7 +76,7 @@ import org.apache.skywalking.apm.collector.storage.dao.IServiceAlarmListPersiste
 import org.apache.skywalking.apm.collector.storage.dao.IServiceAlarmPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceEntryPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceEntryUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IServiceMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.smp.IServiceMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceNameCacheDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceNameRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceReferenceAlarmListPersistenceDAO;
@@ -130,7 +130,7 @@ import org.apache.skywalking.apm.collector.storage.es.dao.ServiceAlarmEsPersiste
 import org.apache.skywalking.apm.collector.storage.es.dao.ServiceAlarmListEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ServiceEntryEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ServiceEntryEsUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ServiceMetricEsPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.smp.ServiceMinuteMetricEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ServiceNameEsCacheDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ServiceNameEsRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ServiceReferenceAlarmEsPersistenceDAO;
@@ -240,7 +240,7 @@ public class StorageModuleEsProvider extends ModuleProvider {
         this.registerServiceImplementation(ISegmentCostPersistenceDAO.class, new SegmentCostEsPersistenceDAO(elasticSearchClient));
         this.registerServiceImplementation(ISegmentPersistenceDAO.class, new SegmentEsPersistenceDAO(elasticSearchClient));
         this.registerServiceImplementation(IServiceEntryPersistenceDAO.class, new ServiceEntryEsPersistenceDAO(elasticSearchClient));
-        this.registerServiceImplementation(IServiceMetricPersistenceDAO.class, new ServiceMetricEsPersistenceDAO(elasticSearchClient));
+        this.registerServiceImplementation(IServiceMinuteMetricPersistenceDAO.class, new ServiceMinuteMetricEsPersistenceDAO(elasticSearchClient));
         this.registerServiceImplementation(IServiceReferenceMinuteMetricPersistenceDAO.class, new ServiceReferenceMinuteMetricEsPersistenceDAO(elasticSearchClient));
 
         this.registerServiceImplementation(IInstanceMetricPersistenceDAO.class, new InstanceMetricEsPersistenceDAO(elasticSearchClient));

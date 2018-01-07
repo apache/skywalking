@@ -30,7 +30,7 @@ import org.apache.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetricTable;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
 import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
-import org.apache.skywalking.apm.collector.storage.dao.IServiceMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.smp.IServiceMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetric;
 import org.slf4j.Logger;
@@ -39,12 +39,12 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng, clevertension
  */
-public class ServiceMetricH2PersistenceDAO extends H2DAO implements IServiceMetricPersistenceDAO<H2SqlEntity, H2SqlEntity, ServiceMetric> {
+public class ServiceMinuteMetricH2PersistenceDAO extends H2DAO implements IServiceMinuteMetricPersistenceDAO<H2SqlEntity, H2SqlEntity, ServiceMetric> {
 
-    private final Logger logger = LoggerFactory.getLogger(ServiceMetricH2PersistenceDAO.class);
+    private final Logger logger = LoggerFactory.getLogger(ServiceMinuteMetricH2PersistenceDAO.class);
     private static final String GET_SQL = "select * from {0} where {1} = ?";
 
-    public ServiceMetricH2PersistenceDAO(H2Client client) {
+    public ServiceMinuteMetricH2PersistenceDAO(H2Client client) {
         super(client);
     }
 

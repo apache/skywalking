@@ -52,9 +52,15 @@ public class MetricWorkerIdDefine {
     public static final int APPLICATION_REFERENCE_MONTH_METRIC_PERSISTENCE_WORKER_ID = 4307;
     public static final int APPLICATION_REFERENCE_MONTH_METRIC_TRANSFORM_NODE_ID = 4308;
 
-    public static final int SERVICE_METRIC_AGGREGATION_WORKER_ID = 409;
-    public static final int SERVICE_METRIC_REMOTE_WORKER_ID = 410;
-    public static final int SERVICE_METRIC_PERSISTENCE_WORKER_ID = 411;
+    public static final int SERVICE_MINUTE_METRIC_AGGREGATION_WORKER_ID = 4400;
+    public static final int SERVICE_MINUTE_METRIC_REMOTE_WORKER_ID = 4401;
+    public static final int SERVICE_MINUTE_METRIC_PERSISTENCE_WORKER_ID = 4402;
+    public static final int SERVICE_HOUR_METRIC_PERSISTENCE_WORKER_ID = 4403;
+    public static final int SERVICE_HOUR_METRIC_TRANSFORM_NODE_ID = 4404;
+    public static final int SERVICE_DAY_METRIC_PERSISTENCE_WORKER_ID = 4405;
+    public static final int SERVICE_DAY_METRIC_TRANSFORM_NODE_ID = 4406;
+    public static final int SERVICE_MONTH_METRIC_PERSISTENCE_WORKER_ID = 4407;
+    public static final int SERVICE_MONTH_METRIC_TRANSFORM_NODE_ID = 4408;
 
     public static final int INSTANCE_METRIC_AGGREGATION_WORKER_ID = 412;
     public static final int INSTANCE_METRIC_REMOTE_WORKER_ID = 413;
