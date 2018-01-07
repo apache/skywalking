@@ -71,7 +71,8 @@ public class GlobalTraceSpanListener implements FirstSpanListener, GlobalTraceId
 
         Graph<GlobalTrace> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.GLOBAL_TRACE_GRAPH_ID, GlobalTrace.class);
         for (String globalTraceId : globalTraceIds) {
-            GlobalTrace globalTrace = new GlobalTrace(segmentId + Const.ID_SPLIT + globalTraceId);
+            GlobalTrace globalTrace = new GlobalTrace();
+            globalTrace.setId(segmentId + Const.ID_SPLIT + globalTraceId);
             globalTrace.setGlobalTraceId(globalTraceId);
             globalTrace.setSegmentId(segmentId);
             globalTrace.setTimeBucket(timeBucket);

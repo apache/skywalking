@@ -59,14 +59,16 @@ public class NetworkAddressRegisterSerialWorker extends AbstractLocalAsyncWorker
             NetworkAddress newNetworkAddress;
             int min = networkAddressRegisterDAO.getMinNetworkAddressId();
             if (min == 0) {
-                newNetworkAddress = new NetworkAddress("-1");
+                newNetworkAddress = new NetworkAddress();
+                newNetworkAddress.setId("-1");
                 newNetworkAddress.setAddressId(-1);
                 newNetworkAddress.setNetworkAddress(networkAddress.getNetworkAddress());
             } else {
                 int max = networkAddressRegisterDAO.getMaxNetworkAddressId();
                 addressId = IdAutoIncrement.INSTANCE.increment(min, max);
 
-                newNetworkAddress = new NetworkAddress(String.valueOf(addressId));
+                newNetworkAddress = new NetworkAddress();
+                newNetworkAddress.setId(String.valueOf(addressId));
                 newNetworkAddress.setAddressId(addressId);
                 newNetworkAddress.setNetworkAddress(networkAddress.getNetworkAddress());
             }

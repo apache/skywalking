@@ -19,13 +19,13 @@
 package org.apache.skywalking.apm.collector.storage.table.register;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
-import org.apache.skywalking.apm.collector.core.data.AbstractData;
+import org.apache.skywalking.apm.collector.core.data.RegisterData;
 import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
 
 /**
  * @author peng-yongsheng
  */
-public class NetworkAddress extends AbstractData {
+public class NetworkAddress extends RegisterData {
 
     private static final Column[] STRING_COLUMNS = {
         new Column(NetworkAddressTable.COLUMN_ID, new NonOperation()),
@@ -45,12 +45,16 @@ public class NetworkAddress extends AbstractData {
 
     private static final Column[] BYTE_COLUMNS = {};
 
-    public NetworkAddress(String id) {
-        super(id, STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
+    public NetworkAddress() {
+        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
     }
 
-    public String getId() {
+    @Override public String getId() {
         return getDataString(0);
+    }
+
+    @Override public void setId(String id) {
+        setDataString(0, id);
     }
 
     public String getNetworkAddress() {
