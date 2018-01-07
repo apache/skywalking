@@ -33,7 +33,7 @@ public class WorkerCreateListener {
         this.persistenceWorkers = new ArrayList<>();
     }
 
-    public void addWorker(AbstractWorker worker) {
+    void addWorker(AbstractWorker worker) {
         if (worker instanceof PersistenceWorker) {
             persistenceWorkers.add((PersistenceWorker)worker);
         }
