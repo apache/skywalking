@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.dao;
+package org.apache.skywalking.apm.collector.storage.dao.smp;
 
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetric;
@@ -24,5 +24,5 @@ import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetric;
 /**
  * @author peng-yongsheng
  */
-public interface IServiceMetricPersistenceDAO<Insert, Update, DataImpl extends ServiceMetric> extends IPersistenceDAO<Insert, Update, DataImpl> {
+public interface IServiceHourMetricPersistenceDAO<INSERT, UPDATE, STREAM_DATA extends ServiceMetric> extends IPersistenceDAO<INSERT, UPDATE, STREAM_DATA> {
 }

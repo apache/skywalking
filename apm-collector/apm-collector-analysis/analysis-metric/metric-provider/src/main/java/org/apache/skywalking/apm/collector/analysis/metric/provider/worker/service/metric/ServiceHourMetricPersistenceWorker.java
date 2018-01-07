@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.metric;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
@@ -24,39 +24,39 @@ import org.apache.skywalking.apm.collector.analysis.worker.model.impl.Persistenc
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IServiceMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.smp.IServiceHourMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetric;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceMetricPersistenceWorker extends PersistenceWorker<ServiceMetric> {
+public class ServiceHourMetricPersistenceWorker extends PersistenceWorker<ServiceMetric> {
 
-    public ServiceMetricPersistenceWorker(ModuleManager moduleManager) {
+    public ServiceHourMetricPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     @Override public int id() {
-        return MetricWorkerIdDefine.SERVICE_METRIC_PERSISTENCE_WORKER_ID;
+        return MetricWorkerIdDefine.SERVICE_HOUR_METRIC_PERSISTENCE_WORKER_ID;
     }
 
     @SuppressWarnings("unchecked")
     @Override protected IPersistenceDAO<?, ?, ServiceMetric> persistenceDAO() {
-        return getModuleManager().find(StorageModule.NAME).getService(IServiceMetricPersistenceDAO.class);
+        return getModuleManager().find(StorageModule.NAME).getService(IServiceHourMetricPersistenceDAO.class);
     }
 
     @Override protected boolean needMergeDBData() {
         return true;
     }
 
-    public static class Factory extends PersistenceWorkerProvider<ServiceMetric, ServiceMetricPersistenceWorker> {
+    public static class Factory extends PersistenceWorkerProvider<ServiceMetric, ServiceHourMetricPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
         }
 
-        @Override public ServiceMetricPersistenceWorker workerInstance(ModuleManager moduleManager) {
-            return new ServiceMetricPersistenceWorker(moduleManager);
+        @Override public ServiceHourMetricPersistenceWorker workerInstance(ModuleManager moduleManager) {
+            return new ServiceHourMetricPersistenceWorker(moduleManager);
         }
 
         @Override
