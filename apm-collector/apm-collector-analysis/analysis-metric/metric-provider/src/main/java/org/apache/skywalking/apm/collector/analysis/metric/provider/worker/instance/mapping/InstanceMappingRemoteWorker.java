@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.mapping;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractRemoteWorker;
@@ -37,7 +37,7 @@ public class InstanceMappingRemoteWorker extends AbstractRemoteWorker<InstanceMa
     }
 
     @Override public int id() {
-        return MetricWorkerIdDefine.INSTANCE_MAPPING_REMOTE_WORKER_ID;
+        return MetricWorkerIdDefine.INSTANCE_MINUTE_MAPPING_REMOTE_WORKER_ID;
     }
 
     @Override protected void onWork(InstanceMapping instanceMapping) throws WorkerException {

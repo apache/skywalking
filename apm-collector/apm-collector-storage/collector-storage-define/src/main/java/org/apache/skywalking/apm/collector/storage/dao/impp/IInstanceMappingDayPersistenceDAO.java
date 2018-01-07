@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.dao;
+package org.apache.skywalking.apm.collector.storage.dao.impp;
 
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMapping;
@@ -24,5 +24,5 @@ import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMappin
 /**
  * @author peng-yongsheng
  */
-public interface IInstanceMappingPersistenceDAO<Insert, Update, DataImpl extends InstanceMapping> extends IPersistenceDAO<Insert, Update, DataImpl> {
+public interface IInstanceMappingDayPersistenceDAO<INSERT, UPDATE, STREAM_DATA extends InstanceMapping> extends IPersistenceDAO<INSERT, UPDATE, STREAM_DATA> {
 }

@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.mapping;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -49,7 +49,7 @@ public class InstanceMappingSpanListener implements FirstSpanListener, EntrySpan
         logger.debug("instance mapping listener parse reference");
         if (spanDecorator.getRefsCount() > 0) {
             for (int i = 0; i < spanDecorator.getRefsCount(); i++) {
-                InstanceMapping instanceMapping = new InstanceMapping(Const.EMPTY_STRING);
+                InstanceMapping instanceMapping = new InstanceMapping();
                 instanceMapping.setApplicationId(applicationId);
                 instanceMapping.setInstanceId(instanceId);
                 instanceMapping.setAddressId(spanDecorator.getRefs(i).getNetworkAddressId());
