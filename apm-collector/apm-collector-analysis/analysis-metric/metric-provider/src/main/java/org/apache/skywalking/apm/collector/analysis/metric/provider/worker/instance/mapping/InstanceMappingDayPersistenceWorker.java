@@ -37,7 +37,7 @@ public class InstanceMappingDayPersistenceWorker extends PersistenceWorker<Insta
     }
 
     @Override public int id() {
-        return MetricWorkerIdDefine.INSTANCE_DAY_MAPPING_PERSISTENCE_WORKER_ID;
+        return MetricWorkerIdDefine.INSTANCE_MAPPING_DAY_PERSISTENCE_WORKER_ID;
     }
 
     @Override protected boolean needMergeDBData() {

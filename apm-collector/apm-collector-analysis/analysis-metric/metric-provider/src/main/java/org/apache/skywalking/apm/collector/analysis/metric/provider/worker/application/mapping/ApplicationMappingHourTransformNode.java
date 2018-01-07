@@ -16,29 +16,30 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.mapping;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.mapping;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.core.graph.Next;
 import org.apache.skywalking.apm.collector.core.graph.NodeProcessor;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
-import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMapping;
+import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMapping;
 
 /**
  * @author peng-yongsheng
  */
-public class InstanceMappingHourTransformNode implements NodeProcessor<InstanceMapping, InstanceMapping> {
+public class ApplicationMappingHourTransformNode implements NodeProcessor<ApplicationMapping, ApplicationMapping> {
 
     @Override public int id() {
-        return MetricWorkerIdDefine.INSTANCE_MAPPING_HOUR_TRANSFORM_NODE_ID;
+        return MetricWorkerIdDefine.APPLICATION_MAPPING_HOUR_TRANSFORM_NODE_ID;
     }
 
-    @Override public void process(InstanceMapping instanceMapping, Next<InstanceMapping> next) {
-        long timeBucket = TimeBucketUtils.INSTANCE.minuteToHour(instanceMapping.getTimeBucket());
-        instanceMapping.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + instanceMapping.getMetricId());
-        instanceMapping.setTimeBucket(timeBucket);
+    @Override
+    public void process(ApplicationMapping applicationMapping, Next<ApplicationMapping> next) {
+        long timeBucket = TimeBucketUtils.INSTANCE.minuteToHour(applicationMapping.getTimeBucket());
+        applicationMapping.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + applicationMapping.getMetricId());
+        applicationMapping.setTimeBucket(timeBucket);
 
-        next.execute(instanceMapping);
+        next.execute(applicationMapping);
     }
 }

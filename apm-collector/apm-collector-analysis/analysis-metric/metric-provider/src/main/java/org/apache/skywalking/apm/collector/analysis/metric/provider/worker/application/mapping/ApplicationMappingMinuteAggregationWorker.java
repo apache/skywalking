@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.mapping;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
@@ -27,24 +27,24 @@ import org.apache.skywalking.apm.collector.storage.table.application.Application
 /**
  * @author peng-yongsheng
  */
-public class ApplicationMappingAggregationWorker extends AggregationWorker<ApplicationMapping, ApplicationMapping> {
+public class ApplicationMappingMinuteAggregationWorker extends AggregationWorker<ApplicationMapping, ApplicationMapping> {
 
-    ApplicationMappingAggregationWorker(ModuleManager moduleManager) {
+    ApplicationMappingMinuteAggregationWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     @Override public int id() {
-        return MetricWorkerIdDefine.APPLICATION_MAPPING_AGGREGATION_WORKER_ID;
+        return MetricWorkerIdDefine.APPLICATION_MAPPING_MINUTE_AGGREGATION_WORKER_ID;
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<ApplicationMapping, ApplicationMapping, ApplicationMappingAggregationWorker> {
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<ApplicationMapping, ApplicationMapping, ApplicationMappingMinuteAggregationWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
         }
 
-        @Override public ApplicationMappingAggregationWorker workerInstance(ModuleManager moduleManager) {
-            return new ApplicationMappingAggregationWorker(moduleManager);
+        @Override public ApplicationMappingMinuteAggregationWorker workerInstance(ModuleManager moduleManager) {
+            return new ApplicationMappingMinuteAggregationWorker(moduleManager);
         }
 
         @Override

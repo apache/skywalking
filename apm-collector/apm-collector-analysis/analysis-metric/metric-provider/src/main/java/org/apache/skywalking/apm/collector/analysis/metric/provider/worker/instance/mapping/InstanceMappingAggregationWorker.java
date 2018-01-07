@@ -34,7 +34,7 @@ public class InstanceMappingAggregationWorker extends AggregationWorker<Instance
     }
 
     @Override public int id() {
-        return MetricWorkerIdDefine.INSTANCE_MINUTE_MAPPING_AGGREGATION_WORKER_ID;
+        return MetricWorkerIdDefine.INSTANCE_MAPPING_MINUTE_AGGREGATION_WORKER_ID;
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<InstanceMapping, InstanceMapping, InstanceMappingAggregationWorker> {

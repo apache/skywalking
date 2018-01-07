@@ -31,7 +31,7 @@ import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMappin
 public class InstanceMappingDayTransformNode implements NodeProcessor<InstanceMapping, InstanceMapping> {
 
     @Override public int id() {
-        return MetricWorkerIdDefine.INSTANCE_DAY_MAPPING_TRANSFORM_NODE_ID;
+        return MetricWorkerIdDefine.INSTANCE_MAPPING_DAY_TRANSFORM_NODE_ID;
     }
 
     @Override public void process(InstanceMapping instanceMapping, Next<InstanceMapping> next) {

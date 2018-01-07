@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.mapping;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
@@ -24,20 +24,20 @@ import org.apache.skywalking.apm.collector.analysis.worker.model.impl.Persistenc
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IApplicationMappingPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ampp.IApplicationMappingMonthPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMapping;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationMappingPersistenceWorker extends PersistenceWorker<ApplicationMapping> {
+public class ApplicationMappingMonthPersistenceWorker extends PersistenceWorker<ApplicationMapping> {
 
-    ApplicationMappingPersistenceWorker(ModuleManager moduleManager) {
+    ApplicationMappingMonthPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     @Override public int id() {
-        return MetricWorkerIdDefine.APPLICATION_MAPPING_PERSISTENCE_WORKER_ID;
+        return MetricWorkerIdDefine.APPLICATION_MAPPING_MONTH_PERSISTENCE_WORKER_ID;
     }
 
     @Override protected boolean needMergeDBData() {
@@ -46,17 +46,17 @@ public class ApplicationMappingPersistenceWorker extends PersistenceWorker<Appli
 
     @SuppressWarnings("unchecked")
     @Override protected IPersistenceDAO<?, ?, ApplicationMapping> persistenceDAO() {
-        return getModuleManager().find(StorageModule.NAME).getService(IApplicationMappingPersistenceDAO.class);
+        return getModuleManager().find(StorageModule.NAME).getService(IApplicationMappingMonthPersistenceDAO.class);
     }
 
-    public static class Factory extends PersistenceWorkerProvider<ApplicationMapping, ApplicationMappingPersistenceWorker> {
+    public static class Factory extends PersistenceWorkerProvider<ApplicationMapping, ApplicationMappingMonthPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
         }
 
-        @Override public ApplicationMappingPersistenceWorker workerInstance(ModuleManager moduleManager) {
-            return new ApplicationMappingPersistenceWorker(moduleManager);
+        @Override public ApplicationMappingMonthPersistenceWorker workerInstance(ModuleManager moduleManager) {
+            return new ApplicationMappingMonthPersistenceWorker(moduleManager);
         }
 
         @Override

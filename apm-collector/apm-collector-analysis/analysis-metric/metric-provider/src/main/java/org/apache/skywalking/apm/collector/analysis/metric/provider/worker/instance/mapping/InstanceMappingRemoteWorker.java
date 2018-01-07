@@ -37,7 +37,7 @@ public class InstanceMappingRemoteWorker extends AbstractRemoteWorker<InstanceMa
     }
 
     @Override public int id() {
-        return MetricWorkerIdDefine.INSTANCE_MINUTE_MAPPING_REMOTE_WORKER_ID;
+        return MetricWorkerIdDefine.INSTANCE_MAPPING_MINUTE_REMOTE_WORKER_ID;
     }
 
     @Override protected void onWork(InstanceMapping instanceMapping) throws WorkerException {
