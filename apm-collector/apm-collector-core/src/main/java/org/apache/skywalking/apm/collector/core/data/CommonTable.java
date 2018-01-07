@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.core.data;
 
 /**
@@ -25,5 +24,6 @@ package org.apache.skywalking.apm.collector.core.data;
 public abstract class CommonTable {
     public static final String TABLE_TYPE = "type";
     public static final String COLUMN_ID = "id";
+    public static final String COLUMN_METRIC_ID = "metric_id";
     public static final String COLUMN_TIME_BUCKET = "time_bucket";
 }
