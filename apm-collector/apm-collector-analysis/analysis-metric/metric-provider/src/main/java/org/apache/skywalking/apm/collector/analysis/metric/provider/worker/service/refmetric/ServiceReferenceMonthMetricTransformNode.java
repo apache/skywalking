@@ -38,5 +38,7 @@ public class ServiceReferenceMonthMetricTransformNode implements NodeProcessor<S
         long timeBucket = TimeBucketUtils.INSTANCE.minuteToMonth(serviceReferenceMetric.getTimeBucket());
         serviceReferenceMetric.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + serviceReferenceMetric.getMetricId());
         serviceReferenceMetric.setTimeBucket(timeBucket);
+
+        next.execute(serviceReferenceMetric);
     }
 }

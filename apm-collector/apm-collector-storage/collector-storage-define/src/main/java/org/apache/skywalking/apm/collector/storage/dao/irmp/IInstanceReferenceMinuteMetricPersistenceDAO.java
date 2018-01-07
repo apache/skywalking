@@ -16,13 +16,13 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.dao.srmp;
+package org.apache.skywalking.apm.collector.storage.dao.irmp;
 
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
+import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetric;
 
 /**
  * @author peng-yongsheng
  */
-public interface IServiceReferenceDayMetricPersistenceDAO<INSERT, UPDATE, STREAM_DATA extends ServiceReferenceMetric> extends IPersistenceDAO<INSERT, UPDATE, STREAM_DATA> {
+public interface IInstanceReferenceMinuteMetricPersistenceDAO<INSERT, UPDATE, STREAM_DATA extends InstanceReferenceMetric> extends IPersistenceDAO<INSERT, UPDATE, STREAM_DATA> {
 }

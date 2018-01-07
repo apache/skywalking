@@ -38,5 +38,7 @@ public class ServiceReferenceHourMetricTransformNode implements NodeProcessor<Se
         long timeBucket = TimeBucketUtils.INSTANCE.minuteToHour(serviceReferenceMetric.getTimeBucket());
         serviceReferenceMetric.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + serviceReferenceMetric.getMetricId());
         serviceReferenceMetric.setTimeBucket(timeBucket);
+
+        next.execute(serviceReferenceMetric);
     }
 }
