@@ -16,37 +16,31 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.es.dao;
+package org.apache.skywalking.apm.collector.storage.es.dao.imp;
 
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.apm.collector.storage.dao.IInstanceMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetric;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetricTable;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.update.UpdateRequestBuilder;
 
 /**
  * @author peng-yongsheng
  */
-public class InstanceMetricEsPersistenceDAO extends AbstractPersistenceEsDAO<InstanceMetric> implements IInstanceMetricPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, InstanceMetric> {
+public abstract class AbstractInstanceMetricEsPersistenceDAO extends AbstractPersistenceEsDAO<InstanceMetric> {
 
-    public InstanceMetricEsPersistenceDAO(ElasticSearchClient client) {
+    AbstractInstanceMetricEsPersistenceDAO(ElasticSearchClient client) {
         super(client);
     }
 
-    @Override protected String tableName() {
-        return InstanceMetricTable.TABLE;
-    }
-
-    @Override protected String timeBucketColumnNameForDelete() {
+    @Override protected final String timeBucketColumnNameForDelete() {
         return InstanceMetricTable.COLUMN_TIME_BUCKET;
     }
 
-    @Override protected InstanceMetric esDataToStreamData(Map<String, Object> source) {
+    @Override protected final InstanceMetric esDataToStreamData(Map<String, Object> source) {
         InstanceMetric instanceMetric = new InstanceMetric();
+
         instanceMetric.setId((String)source.get(InstanceMetricTable.COLUMN_ID));
         instanceMetric.setMetricId((String)source.get(InstanceMetricTable.COLUMN_METRIC_ID));
         instanceMetric.setApplicationId((Integer)source.get(InstanceMetricTable.COLUMN_APPLICATION_ID));
@@ -69,11 +63,14 @@ public class InstanceMetricEsPersistenceDAO extends AbstractPersistenceEsDAO<Ins
         instanceMetric.setMqTransactionErrorDurationSum(((Number)source.get(InstanceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM)).longValue());
 
         instanceMetric.setTimeBucket(((Number)source.get(InstanceMetricTable.COLUMN_TIME_BUCKET)).longValue());
-        return null;
+        return instanceMetric;
     }
 
-    @Override protected Map<String, Object> esStreamDataToEsData(InstanceMetric streamData) {
+    @Override protected final Map<String, Object> esStreamDataToEsData(InstanceMetric streamData) {
         Map<String, Object> source = new HashMap<>();
+        source.put(InstanceMetricTable.COLUMN_ID, streamData.getId());
+        source.put(InstanceMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
+
         source.put(InstanceMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
 
         source.put(InstanceMetricTable.COLUMN_APPLICATION_ID, streamData.getApplicationId());
