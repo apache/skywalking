@@ -72,7 +72,7 @@ import org.apache.skywalking.apm.collector.storage.dao.IServiceNameCacheDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceNameRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceReferenceAlarmListPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceReferenceAlarmPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IServiceReferenceMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceReferenceUIDAO;
 
 /**
@@ -128,7 +128,7 @@ public class StorageModule extends Module {
         classes.add(ISegmentPersistenceDAO.class);
         classes.add(IServiceEntryPersistenceDAO.class);
         classes.add(IServiceMetricPersistenceDAO.class);
-        classes.add(IServiceReferenceMetricPersistenceDAO.class);
+        classes.add(IServiceReferenceMinuteMetricPersistenceDAO.class);
 
         classes.add(IInstanceMetricPersistenceDAO.class);
         classes.add(IInstanceReferenceMetricPersistenceDAO.class);

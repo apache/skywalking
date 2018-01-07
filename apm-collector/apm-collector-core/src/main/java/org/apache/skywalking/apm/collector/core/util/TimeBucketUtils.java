@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.core.util;
 
 import java.text.SimpleDateFormat;
@@ -61,6 +60,18 @@ public enum TimeBucketUtils {
         calendar.setTimeInMillis(time);
         String timeStr = dayDateFormat.format(calendar.getTime()) + "0000";
         return Long.valueOf(timeStr);
+    }
+
+    public long minuteToHour(long minuteBucket) {
+        return minuteBucket / 100;
+    }
+
+    public long minuteToDay(long minuteBucket) {
+        return minuteBucket / 100 / 100;
+    }
+
+    public long minuteToMonth(long minuteBucket) {
+        return minuteBucket / 100 / 100 / 100;
     }
 
     public long changeTimeBucket2TimeStamp(String timeBucketType, long timeBucket) {

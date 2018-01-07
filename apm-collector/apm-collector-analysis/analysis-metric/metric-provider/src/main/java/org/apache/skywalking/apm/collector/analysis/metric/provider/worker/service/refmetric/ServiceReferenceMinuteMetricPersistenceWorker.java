@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.refmetric;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
@@ -24,20 +24,20 @@ import org.apache.skywalking.apm.collector.analysis.worker.model.impl.Persistenc
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IServiceReferenceMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceReferenceMetricPersistenceWorker extends PersistenceWorker<ServiceReferenceMetric> {
+public class ServiceReferenceMinuteMetricPersistenceWorker extends PersistenceWorker<ServiceReferenceMetric> {
 
-    public ServiceReferenceMetricPersistenceWorker(ModuleManager moduleManager) {
+    public ServiceReferenceMinuteMetricPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     @Override public int id() {
-        return MetricWorkerIdDefine.SERVICE_REFERENCE_METRIC_PERSISTENCE_WORKER_ID;
+        return MetricWorkerIdDefine.SERVICE_REFERENCE_MINUTE_METRIC_PERSISTENCE_WORKER_ID;
     }
 
     @Override protected boolean needMergeDBData() {
@@ -46,17 +46,17 @@ public class ServiceReferenceMetricPersistenceWorker extends PersistenceWorker<S
 
     @SuppressWarnings("unchecked")
     @Override protected IPersistenceDAO<?, ?, ServiceReferenceMetric> persistenceDAO() {
-        return getModuleManager().find(StorageModule.NAME).getService(IServiceReferenceMetricPersistenceDAO.class);
+        return getModuleManager().find(StorageModule.NAME).getService(IServiceReferenceMinuteMetricPersistenceDAO.class);
     }
 
-    public static class Factory extends PersistenceWorkerProvider<ServiceReferenceMetric, ServiceReferenceMetricPersistenceWorker> {
+    public static class Factory extends PersistenceWorkerProvider<ServiceReferenceMetric, ServiceReferenceMinuteMetricPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
         }
 
-        @Override public ServiceReferenceMetricPersistenceWorker workerInstance(ModuleManager moduleManager) {
-            return new ServiceReferenceMetricPersistenceWorker(moduleManager);
+        @Override public ServiceReferenceMinuteMetricPersistenceWorker workerInstance(ModuleManager moduleManager) {
+            return new ServiceReferenceMinuteMetricPersistenceWorker(moduleManager);
         }
 
         @Override

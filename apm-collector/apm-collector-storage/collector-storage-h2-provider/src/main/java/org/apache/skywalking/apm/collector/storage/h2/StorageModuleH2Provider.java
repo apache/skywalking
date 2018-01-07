@@ -77,7 +77,7 @@ import org.apache.skywalking.apm.collector.storage.dao.IServiceNameCacheDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceNameRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceReferenceAlarmListPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceReferenceAlarmPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IServiceReferenceMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceReferenceUIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.BatchH2DAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2StorageInstaller;
@@ -219,7 +219,7 @@ public class StorageModuleH2Provider extends ModuleProvider {
         this.registerServiceImplementation(ISegmentPersistenceDAO.class, new SegmentH2PersistenceDAO(h2Client));
         this.registerServiceImplementation(IServiceEntryPersistenceDAO.class, new ServiceEntryH2PersistenceDAO(h2Client));
         this.registerServiceImplementation(IServiceMetricPersistenceDAO.class, new ServiceMetricH2PersistenceDAO(h2Client));
-        this.registerServiceImplementation(IServiceReferenceMetricPersistenceDAO.class, new ServiceReferenceMetricH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IServiceReferenceMinuteMetricPersistenceDAO.class, new ServiceReferenceMetricH2PersistenceDAO(h2Client));
 
         this.registerServiceImplementation(IInstanceMetricPersistenceDAO.class, new InstanceMetricH2PersistenceDAO(h2Client));
         this.registerServiceImplementation(IInstanceReferenceMetricPersistenceDAO.class, new InstanceReferenceMetricH2PersistenceDAO(h2Client));
