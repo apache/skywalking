@@ -16,20 +16,19 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.analysis.worker.model.impl.data;
 
 import org.apache.skywalking.apm.collector.core.cache.Window;
-import org.apache.skywalking.apm.collector.core.data.AbstractData;
+import org.apache.skywalking.apm.collector.core.data.StreamData;
 
 /**
  * @author peng-yongsheng
  */
-public class DataCache<DATA_IMPL extends AbstractData> extends Window<DataCollection<DATA_IMPL>> {
+public class DataCache<STREAM_DATA extends StreamData> extends Window<DataCollection<STREAM_DATA>> {
 
-    private DataCollection<DATA_IMPL> lockedDataCollection;
+    private DataCollection<STREAM_DATA> lockedDataCollection;
 
-    @Override public DataCollection<DATA_IMPL> collectionInstance() {
+    @Override public DataCollection<STREAM_DATA> collectionInstance() {
         return new DataCollection<>();
     }
 
@@ -37,11 +36,11 @@ public class DataCache<DATA_IMPL extends AbstractData> extends Window<DataCollec
         return lockedDataCollection.containsKey(id);
     }
 
-    public AbstractData get(String id) {
+    public StreamData get(String id) {
         return lockedDataCollection.get(id);
     }
 
-    public void put(String id, DATA_IMPL data) {
+    public void put(String id, STREAM_DATA data) {
         lockedDataCollection.put(id, data);
     }
 

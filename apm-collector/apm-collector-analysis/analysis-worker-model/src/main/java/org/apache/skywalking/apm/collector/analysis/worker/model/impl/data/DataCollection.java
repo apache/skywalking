@@ -16,19 +16,18 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.analysis.worker.model.impl.data;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.skywalking.apm.collector.core.cache.Collection;
-import org.apache.skywalking.apm.collector.core.data.AbstractData;
+import org.apache.skywalking.apm.collector.core.data.StreamData;
 
 /**
  * @author peng-yongsheng
  */
-public class DataCollection<DATA_IMPL extends AbstractData> implements Collection<Map<String, DATA_IMPL>> {
-    private Map<String, DATA_IMPL> data;
+public class DataCollection<STREAM_DATA extends StreamData> implements Collection<Map<String, STREAM_DATA>> {
+    private Map<String, STREAM_DATA> data;
     private volatile boolean writing;
     private volatile boolean reading;
 
@@ -66,11 +65,11 @@ public class DataCollection<DATA_IMPL extends AbstractData> implements Collectio
         return data.containsKey(key);
     }
 
-    void put(String key, DATA_IMPL value) {
+    void put(String key, STREAM_DATA value) {
         data.put(key, value);
     }
 
-    public DATA_IMPL get(String key) {
+    public STREAM_DATA get(String key) {
         return data.get(key);
     }
 
@@ -82,7 +81,7 @@ public class DataCollection<DATA_IMPL extends AbstractData> implements Collectio
         data.clear();
     }
 
-    public Map<String, DATA_IMPL> collection() {
+    public Map<String, STREAM_DATA> collection() {
         return data;
     }
 }
