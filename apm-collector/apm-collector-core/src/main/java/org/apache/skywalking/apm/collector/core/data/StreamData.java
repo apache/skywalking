@@ -23,7 +23,7 @@ import org.apache.skywalking.apm.collector.core.queue.EndOfBatchContext;
 /**
  * @author peng-yongsheng
  */
-public abstract class StreamData implements RemoteData, QueueData {
+public abstract class StreamData extends AbstractData implements RemoteData, QueueData {
 
     private EndOfBatchContext endOfBatchContext;
 
@@ -32,6 +32,23 @@ public abstract class StreamData implements RemoteData, QueueData {
     }
 
     @Override public final void setEndOfBatchContext(EndOfBatchContext context) {
-        this.endOfBatchContext = endOfBatchContext;
+        this.endOfBatchContext = context;
     }
+
+    public StreamData(Column[] stringColumns, Column[] longColumns, Column[] doubleColumns,
+        Column[] integerColumns, Column[] booleanColumns, Column[] byteColumns) {
+        super(stringColumns, longColumns, doubleColumns, integerColumns, booleanColumns, byteColumns);
+    }
+
+    @Override public final String selectKey() {
+        return getMetricId();
+    }
+
+    public abstract String getId();
+
+    public abstract void setId(String id);
+
+    public abstract String getMetricId();
+
+    public abstract void setMetricId(String metricId);
 }

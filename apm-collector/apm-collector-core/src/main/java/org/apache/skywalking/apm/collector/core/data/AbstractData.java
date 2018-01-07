@@ -51,59 +51,59 @@ public abstract class AbstractData {
         this.byteColumns = byteColumns;
     }
 
-    public int getDataStringsCount() {
+    public final int getDataStringsCount() {
         return dataStrings.length;
     }
 
-    public int getDataLongsCount() {
+    public final int getDataLongsCount() {
         return dataLongs.length;
     }
 
-    public int getDataDoublesCount() {
+    public final int getDataDoublesCount() {
         return dataDoubles.length;
     }
 
-    public int getDataIntegersCount() {
+    public final int getDataIntegersCount() {
         return dataIntegers.length;
     }
 
-    public int getDataBooleansCount() {
+    public final int getDataBooleansCount() {
         return dataBooleans.length;
     }
 
-    public int getDataBytesCount() {
+    public final int getDataBytesCount() {
         return dataBytes.length;
     }
 
-    public void setDataString(int position, String value) {
+    public final void setDataString(int position, String value) {
         dataStrings[position] = value;
     }
 
-    public void setDataLong(int position, Long value) {
+    public final void setDataLong(int position, Long value) {
         dataLongs[position] = value;
     }
 
-    public void setDataDouble(int position, Double value) {
+    public final void setDataDouble(int position, Double value) {
         dataDoubles[position] = value;
     }
 
-    public void setDataInteger(int position, Integer value) {
+    public final void setDataInteger(int position, Integer value) {
         dataIntegers[position] = value;
     }
 
-    public void setDataBoolean(int position, Boolean value) {
+    public final void setDataBoolean(int position, Boolean value) {
         dataBooleans[position] = value;
     }
 
-    public void setDataBytes(int position, byte[] dataBytes) {
+    public final void setDataBytes(int position, byte[] dataBytes) {
         this.dataBytes[position] = dataBytes;
     }
 
-    public String getDataString(int position) {
+    public final String getDataString(int position) {
         return dataStrings[position];
     }
 
-    public Long getDataLong(int position) {
+    public final Long getDataLong(int position) {
         if (position + 1 > dataLongs.length) {
             throw new IndexOutOfBoundsException();
         } else if (dataLongs[position] == null) {
@@ -113,7 +113,7 @@ public abstract class AbstractData {
         }
     }
 
-    public Double getDataDouble(int position) {
+    public final Double getDataDouble(int position) {
         if (position + 1 > dataDoubles.length) {
             throw new IndexOutOfBoundsException();
         } else if (dataDoubles[position] == null) {
@@ -123,7 +123,7 @@ public abstract class AbstractData {
         }
     }
 
-    public Integer getDataInteger(int position) {
+    public final Integer getDataInteger(int position) {
         if (position + 1 > dataIntegers.length) {
             throw new IndexOutOfBoundsException();
         } else if (dataIntegers[position] == null) {
@@ -133,15 +133,15 @@ public abstract class AbstractData {
         }
     }
 
-    public Boolean getDataBoolean(int position) {
+    public final Boolean getDataBoolean(int position) {
         return dataBooleans[position];
     }
 
-    public byte[] getDataBytes(int position) {
+    public final byte[] getDataBytes(int position) {
         return dataBytes[position];
     }
 
-    public void mergeData(AbstractData newData) {
+    public final void mergeData(AbstractData newData) {
         for (int i = 0; i < stringColumns.length; i++) {
             String stringData = stringColumns[i].getOperation().operate(newData.getDataString(i), this.getDataString(i));
             this.dataStrings[i] = stringData;
@@ -168,7 +168,7 @@ public abstract class AbstractData {
         }
     }
 
-    @Override public String toString() {
+    @Override public final String toString() {
         StringBuilder dataStr = new StringBuilder();
         dataStr.append("string: [");
         for (String dataString : dataStrings) {
