@@ -18,21 +18,22 @@
 
 package org.apache.skywalking.apm.collector.core.annotations.trace;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.List;
 
 /**
- * The method with this annotation should be traced,
- * and the metrics(avg response time, call count, success rate) could be collected by the instrument agent.
- *
- * This is an optional annotation.
+ * This is an example about how to use the tracing annotation in collector.
+ * These annotations effect only in `-instrument` mode active.
  *
  * @author wusheng
  */
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface GraphComputingMetric {
-    String name();
+public class TracedGraphElement {
+    @GraphComputingMetric(name = "/traced/element/run")
+    public void run() {
+
+    }
+
+    @GraphComputingMetric(name = "/traced/element/runWithBatch")
+    public void runWithBatch(@BatchParameter List<Object> data) {
+
+    }
 }

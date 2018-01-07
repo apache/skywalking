@@ -16,23 +16,33 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.core.annotations.trace;
+package org.apache.skywalking.apm.collector.instrument;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * The method with this annotation should be traced,
- * and the metrics(avg response time, call count, success rate) could be collected by the instrument agent.
- *
- * This is an optional annotation.
- *
  * @author wusheng
  */
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface GraphComputingMetric {
-    String name();
+public class ServiceMetricBatchRecord extends ServiceMetricRecord {
+    private AtomicLong batchRowSize;
+
+    public ServiceMetricBatchRecord(){
+        super();
+        batchRowSize = new AtomicLong(0);
+    }
+
+    void add(long nano, boolean occurException, int rowSize) {
+        super.add(nano, occurException);
+        batchRowSize.addAndGet(rowSize);
+    }
+
+    @Override void clear() {
+        super.clear();
+        batchRowSize.set(0);
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + " Rows per call = " + (batchRowSize.get() / counter.get());
+    }
 }

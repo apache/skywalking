@@ -28,11 +28,8 @@ import net.bytebuddy.implementation.bind.annotation.SuperCall;
  * @author wu-sheng
  */
 public class ServiceMetricTracing {
-    private String serviceName;
 
-    public ServiceMetricTracing(String service) {
-        this.serviceName = service;
-        MetricCollector.INSTANCE.registerService(service);
+    public ServiceMetricTracing() {
     }
 
     @RuntimeType
@@ -50,7 +47,7 @@ public class ServiceMetricTracing {
             throw t;
         } finally {
             endNano = System.nanoTime();
-            MetricCollector.INSTANCE.trace(serviceName, method, endNano - startNano, occurError);
+            //MetricCollector.INSTANCE.trace(serviceName, method, endNano - startNano, occurError);
         }
     }
 }

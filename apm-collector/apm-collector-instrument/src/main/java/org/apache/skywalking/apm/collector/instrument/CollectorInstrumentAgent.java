@@ -29,7 +29,9 @@ import net.bytebuddy.utility.JavaModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static net.bytebuddy.matcher.ElementMatchers.declaresMethod;
 import static net.bytebuddy.matcher.ElementMatchers.hasSuperType;
+import static net.bytebuddy.matcher.ElementMatchers.isAnnotatedWith;
 import static net.bytebuddy.matcher.ElementMatchers.isStatic;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.not;
@@ -46,18 +48,15 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
  */
 public class CollectorInstrumentAgent {
     private final static Logger logger = LoggerFactory.getLogger(CollectorInstrumentAgent.class);
-    private static ElementMatcher<? super MethodDescription> EXCLUDE_OBJECT_DEFAULT_METHODS;
 
     public static void premain(String agentArgs, Instrumentation instrumentation) {
-        new AgentBuilder.Default().type(hasSuperType(named("org.apache.skywalking.apm.collector.core.module.Service"))).transform(new AgentBuilder.Transformer() {
-            @Override
-            public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription,
-                ClassLoader classLoader, JavaModule module) {
-                builder = builder.method(excludeDefaultMethodsMatcher())
-                    .intercept(MethodDelegation.withDefaultConfiguration()
-                        .to(new ServiceMetricTracing(typeDescription.getActualName())));
-                return builder;
-            }
+        new AgentBuilder.Default().type(
+            declaresMethod(isAnnotationedMatch())
+        ).transform((builder, typeDescription, classLoader, module) -> {
+            builder = builder.method(isAnnotationedMatch())
+                .intercept(MethodDelegation.withDefaultConfiguration()
+                    .to(new ServiceMetricTracing()));
+            return builder;
         }).with(new AgentBuilder.Listener() {
             @Override
             public void onDiscovery(String typeName, ClassLoader classLoader, JavaModule module, boolean loaded) {
@@ -88,11 +87,7 @@ public class CollectorInstrumentAgent {
         }).installOn(instrumentation);
     }
 
-    private static ElementMatcher<? super MethodDescription> excludeDefaultMethodsMatcher() {
-        if (EXCLUDE_OBJECT_DEFAULT_METHODS == null) {
-            EXCLUDE_OBJECT_DEFAULT_METHODS = not(isStatic().or(named("getClass")).or(named("hashCode")).or(named("equals")).or(named("clone"))
-                .or(named("toString")).or(named("notify")).or(named("notifyAll")).or(named("wait")).or(named("finalize")));
-        }
-        return EXCLUDE_OBJECT_DEFAULT_METHODS;
+    private static ElementMatcher<? super MethodDescription> isAnnotationedMatch() {
+        return isAnnotatedWith(named("org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric"));
     }
 }

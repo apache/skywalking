@@ -24,15 +24,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * The method with this annotation should be traced,
- * and the metrics(avg response time, call count, success rate) could be collected by the instrument agent.
- *
- * This is an optional annotation.
- *
  * @author wusheng
  */
-@Target(ElementType.METHOD)
+@Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface GraphComputingMetric {
-    String name();
+public @interface BatchParameter {
 }
