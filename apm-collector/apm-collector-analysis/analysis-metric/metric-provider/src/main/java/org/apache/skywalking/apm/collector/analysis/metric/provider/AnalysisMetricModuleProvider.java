@@ -20,8 +20,8 @@ package org.apache.skywalking.apm.collector.analysis.metric.provider;
 
 import java.util.Properties;
 import org.apache.skywalking.apm.collector.analysis.metric.define.AnalysisMetricModule;
-import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.ApplicationComponentGraph;
-import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.ApplicationComponentSpanListener;
+import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.component.ApplicationComponentGraph;
+import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.component.ApplicationComponentSpanListener;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.mapping.ApplicationMappingGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.mapping.ApplicationMappingSpanListener;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.metric.ApplicationMetricGraph;

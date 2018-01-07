@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +50,8 @@ public class ApplicationComponentSpanListener implements EntrySpanListener, Exit
     public void parseExit(SpanDecorator spanDecorator, int applicationId, int instanceId, String segmentId) {
         String id = spanDecorator.getPeerId() + Const.ID_SPLIT + String.valueOf(spanDecorator.getComponentId());
 
-        ApplicationComponent applicationComponent = new ApplicationComponent(id);
+        ApplicationComponent applicationComponent = new ApplicationComponent();
+        applicationComponent.setId(id);
         applicationComponent.setComponentId(spanDecorator.getComponentId());
         applicationComponent.setPeerId(spanDecorator.getPeerId());
         applicationComponents.add(applicationComponent);
@@ -60,7 +61,8 @@ public class ApplicationComponentSpanListener implements EntrySpanListener, Exit
     public void parseEntry(SpanDecorator spanDecorator, int applicationId, int instanceId, String segmentId) {
         String id = String.valueOf(applicationId) + Const.ID_SPLIT + String.valueOf(spanDecorator.getComponentId());
 
-        ApplicationComponent applicationComponent = new ApplicationComponent(id);
+        ApplicationComponent applicationComponent = new ApplicationComponent();
+        applicationComponent.setId(id);
         applicationComponent.setComponentId(spanDecorator.getComponentId());
         applicationComponent.setPeerId(applicationId);
         applicationComponents.add(applicationComponent);

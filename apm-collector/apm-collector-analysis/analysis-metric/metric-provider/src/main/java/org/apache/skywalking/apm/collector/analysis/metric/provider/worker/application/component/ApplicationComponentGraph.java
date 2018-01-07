@@ -16,11 +16,12 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.component;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
+import org.apache.skywalking.apm.collector.core.graph.Node;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.remote.RemoteModule;
 import org.apache.skywalking.apm.collector.remote.service.RemoteSenderService;
@@ -42,9 +43,19 @@ public class ApplicationComponentGraph {
     public void create() {
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
-        GraphManager.INSTANCE.createIfAbsent(MetricGraphIdDefine.APPLICATION_COMPONENT_GRAPH_ID, ApplicationComponent.class)
+        Node<ApplicationComponent, ApplicationComponent> remoteNode = GraphManager.INSTANCE.createIfAbsent(MetricGraphIdDefine.APPLICATION_COMPONENT_GRAPH_ID, ApplicationComponent.class)
             .addNode(new ApplicationComponentAggregationWorker.Factory(moduleManager).create(workerCreateListener))
-            .addNext(new ApplicationComponentRemoteWorker.Factory(moduleManager, remoteSenderService, MetricGraphIdDefine.APPLICATION_COMPONENT_GRAPH_ID).create(workerCreateListener))
-            .addNext(new ApplicationComponentPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+            .addNext(new ApplicationComponentRemoteWorker.Factory(moduleManager, remoteSenderService, MetricGraphIdDefine.APPLICATION_COMPONENT_GRAPH_ID).create(workerCreateListener));
+
+        remoteNode.addNext(new ApplicationComponentMinutePersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        remoteNode.addNext(new ApplicationComponentHourTransformNode())
+            .addNext(new ApplicationComponentHourPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        remoteNode.addNext(new ApplicationComponentDayTransformNode())
+            .addNext(new ApplicationComponentDayPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        remoteNode.addNext(new ApplicationComponentMonthTransformNode())
+            .addNext(new ApplicationComponentMonthPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
     }
 }
