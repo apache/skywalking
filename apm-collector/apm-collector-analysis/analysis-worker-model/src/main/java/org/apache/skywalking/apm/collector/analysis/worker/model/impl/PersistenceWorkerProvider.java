@@ -19,13 +19,13 @@
 package org.apache.skywalking.apm.collector.analysis.worker.model.impl;
 
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
-import org.apache.skywalking.apm.collector.core.data.AbstractData;
+import org.apache.skywalking.apm.collector.core.data.StreamData;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class PersistenceWorkerProvider<INPUT_AND_OUTPUT extends AbstractData, WORKER_TYPE extends PersistenceWorker<INPUT_AND_OUTPUT>> extends AbstractLocalAsyncWorkerProvider<INPUT_AND_OUTPUT, INPUT_AND_OUTPUT, WORKER_TYPE> {
+public abstract class PersistenceWorkerProvider<INPUT_AND_OUTPUT extends StreamData, WORKER_TYPE extends PersistenceWorker<INPUT_AND_OUTPUT>> extends AbstractLocalAsyncWorkerProvider<INPUT_AND_OUTPUT, INPUT_AND_OUTPUT, WORKER_TYPE> {
 
     public PersistenceWorkerProvider(ModuleManager moduleManager) {
         super(moduleManager);
