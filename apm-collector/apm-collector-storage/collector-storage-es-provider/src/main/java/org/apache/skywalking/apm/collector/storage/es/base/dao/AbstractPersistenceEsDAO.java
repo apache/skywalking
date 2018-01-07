@@ -42,9 +42,9 @@ public abstract class AbstractPersistenceEsDAO<STREAM_DATA extends StreamData> e
         super(client);
     }
 
-    protected abstract String tableName();
-
     protected abstract STREAM_DATA esDataToStreamData(Map<String, Object> source);
+
+    protected abstract String tableName();
 
     @Override public final STREAM_DATA get(String id) {
         GetResponse getResponse = getClient().prepareGet(tableName(), id).get();

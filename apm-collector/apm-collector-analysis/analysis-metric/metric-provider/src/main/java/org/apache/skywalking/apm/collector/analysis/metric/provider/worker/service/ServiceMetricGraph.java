@@ -57,7 +57,7 @@ public class ServiceMetricGraph {
 
     private void link(Graph<ServiceReferenceMetric> graph) {
         GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.SERVICE_REFERENCE_METRIC_GRAPH_ID, ServiceReferenceMetric.class)
-            .toFinder().findNode(MetricWorkerIdDefine.SERVICE_REFERENCE_METRIC_AGGREGATION_WORKER_ID, ServiceReferenceMetric.class)
+            .toFinder().findNode(MetricWorkerIdDefine.SERVICE_REFERENCE_MINUTE_METRIC_AGGREGATION_WORKER_ID, ServiceReferenceMetric.class)
             .addNext(new NodeProcessor<ServiceReferenceMetric, ServiceReferenceMetric>() {
                 @Override public int id() {
                     return MetricWorkerIdDefine.SERVICE_METRIC_GRAPH_BRIDGE_WORKER_ID;

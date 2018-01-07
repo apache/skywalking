@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.collector.core.data.StreamData;
  * @author peng-yongsheng
  */
 public interface IPersistenceDAO<Insert, Update, STREAM_DATA extends StreamData> extends DAO {
+
     STREAM_DATA get(String id);
 
     Insert prepareBatchInsert(STREAM_DATA data);

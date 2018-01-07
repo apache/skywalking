@@ -16,36 +16,27 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.core.data;
-
-import java.util.LinkedList;
-import java.util.List;
+package org.apache.skywalking.apm.collector.core.storage;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class TableDefine {
+public enum TimePyramid {
+    Minute(0, "minute"), Hour(1, "hour"), Day(2, "day"), Month(3, "month");
+
+    private final int value;
     private final String name;
-    private final List<ColumnDefine> columnDefines;
 
-    public TableDefine(String name) {
+    TimePyramid(int value, String name) {
+        this.value = value;
         this.name = name;
-        this.columnDefines = new LinkedList<>();
     }
 
-    public abstract void initialize();
-
-    public abstract boolean isPyramidTable();
-
-    public final void addColumn(ColumnDefine columnDefine) {
-        columnDefines.add(columnDefine);
+    public int getValue() {
+        return value;
     }
 
-    public final String getName() {
+    public String getName() {
         return name;
-    }
-
-    public final List<ColumnDefine> getColumnDefines() {
-        return columnDefines;
     }
 }

@@ -16,36 +16,13 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.core.data;
+package org.apache.skywalking.apm.collector.storage.dao.srmp;
 
-import java.util.LinkedList;
-import java.util.List;
+import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class TableDefine {
-    private final String name;
-    private final List<ColumnDefine> columnDefines;
-
-    public TableDefine(String name) {
-        this.name = name;
-        this.columnDefines = new LinkedList<>();
-    }
-
-    public abstract void initialize();
-
-    public abstract boolean isPyramidTable();
-
-    public final void addColumn(ColumnDefine columnDefine) {
-        columnDefines.add(columnDefine);
-    }
-
-    public final String getName() {
-        return name;
-    }
-
-    public final List<ColumnDefine> getColumnDefines() {
-        return columnDefines;
-    }
+public interface IServiceReferenceDayMetricPersistenceDAO<Insert, Update, DataImpl extends ServiceReferenceMetric> extends IPersistenceDAO<Insert, Update, DataImpl> {
 }
