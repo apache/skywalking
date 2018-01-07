@@ -82,6 +82,16 @@ public class MetricWorkerIdDefine {
     public static final int APPLICATION_MONTH_METRIC_PERSISTENCE_WORKER_ID = 4607;
     public static final int APPLICATION_MONTH_METRIC_TRANSFORM_NODE_ID = 4608;
 
+    public static final int INSTANCE_MINUTE_MAPPING_AGGREGATION_WORKER_ID = 4700;
+    public static final int INSTANCE_MINUTE_MAPPING_REMOTE_WORKER_ID = 4701;
+    public static final int INSTANCE_MINUTE_MAPPING_PERSISTENCE_WORKER_ID = 4702;
+    public static final int INSTANCE_HOUR_MAPPING_PERSISTENCE_WORKER_ID = 4703;
+    public static final int INSTANCE_HOUR_MAPPING_TRANSFORM_NODE_ID = 4704;
+    public static final int INSTANCE_DAY_MAPPING_PERSISTENCE_WORKER_ID = 4705;
+    public static final int INSTANCE_DAY_MAPPING_TRANSFORM_NODE_ID = 4706;
+    public static final int INSTANCE_MONTH_MAPPING_PERSISTENCE_WORKER_ID = 4707;
+    public static final int INSTANCE_MONTH_MAPPING_TRANSFORM_NODE_ID = 4708;
+
     public static final int APPLICATION_COMPONENT_AGGREGATION_WORKER_ID = 418;
     public static final int APPLICATION_COMPONENT_REMOTE_WORKER_ID = 419;
     public static final int APPLICATION_COMPONENT_PERSISTENCE_WORKER_ID = 420;
@@ -103,7 +113,4 @@ public class MetricWorkerIdDefine {
     public static final int INSTANCE_METRIC_GRAPH_BRIDGE_WORKER_ID = 432;
     public static final int APPLICATION_METRIC_GRAPH_BRIDGE_WORKER_ID = 433;
 
-    public static final int INSTANCE_MAPPING_AGGREGATION_WORKER_ID = 434;
-    public static final int INSTANCE_MAPPING_REMOTE_WORKER_ID = 435;
-    public static final int INSTANCE_MAPPING_PERSISTENCE_WORKER_ID = 436;
 }

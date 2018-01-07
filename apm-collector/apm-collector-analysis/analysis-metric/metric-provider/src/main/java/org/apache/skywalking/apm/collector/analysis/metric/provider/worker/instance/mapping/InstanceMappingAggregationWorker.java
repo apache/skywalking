@@ -16,47 +16,35 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.mapping;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.AggregationWorker;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IInstanceMappingPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMapping;
 
 /**
  * @author peng-yongsheng
  */
-public class InstanceMappingPersistenceWorker extends PersistenceWorker<InstanceMapping> {
+public class InstanceMappingAggregationWorker extends AggregationWorker<InstanceMapping, InstanceMapping> {
 
-    InstanceMappingPersistenceWorker(ModuleManager moduleManager) {
+    InstanceMappingAggregationWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     @Override public int id() {
-        return MetricWorkerIdDefine.INSTANCE_MAPPING_PERSISTENCE_WORKER_ID;
+        return MetricWorkerIdDefine.INSTANCE_MINUTE_MAPPING_AGGREGATION_WORKER_ID;
     }
 
-    @Override protected boolean needMergeDBData() {
-        return true;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override protected IPersistenceDAO<?, ?, InstanceMapping> persistenceDAO() {
-        return getModuleManager().find(StorageModule.NAME).getService(IInstanceMappingPersistenceDAO.class);
-    }
-
-    public static class Factory extends PersistenceWorkerProvider<InstanceMapping, InstanceMappingPersistenceWorker> {
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<InstanceMapping, InstanceMapping, InstanceMappingAggregationWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
         }
 
-        @Override public InstanceMappingPersistenceWorker workerInstance(ModuleManager moduleManager) {
-            return new InstanceMappingPersistenceWorker(moduleManager);
+        @Override public InstanceMappingAggregationWorker workerInstance(ModuleManager moduleManager) {
+            return new InstanceMappingAggregationWorker(moduleManager);
         }
 
         @Override

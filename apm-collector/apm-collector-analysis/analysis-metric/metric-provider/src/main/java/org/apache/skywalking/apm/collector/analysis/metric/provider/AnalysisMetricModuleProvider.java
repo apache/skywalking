@@ -28,8 +28,8 @@ import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.appli
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.refmetric.ApplicationReferenceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global.GlobalTraceGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global.GlobalTraceSpanListener;
-import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.InstanceMappingGraph;
-import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.InstanceMappingSpanListener;
+import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.mapping.InstanceMappingGraph;
+import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.mapping.InstanceMappingSpanListener;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.metric.InstanceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.refmetric.InstanceReferenceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.segment.SegmentCostGraph;

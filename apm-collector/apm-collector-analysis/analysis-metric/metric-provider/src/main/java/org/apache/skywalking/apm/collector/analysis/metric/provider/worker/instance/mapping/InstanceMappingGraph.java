@@ -16,11 +16,12 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.mapping;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
+import org.apache.skywalking.apm.collector.core.graph.Node;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.remote.RemoteModule;
 import org.apache.skywalking.apm.collector.remote.service.RemoteSenderService;
@@ -42,9 +43,19 @@ public class InstanceMappingGraph {
     public void create() {
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
-        GraphManager.INSTANCE.createIfAbsent(MetricGraphIdDefine.INSTANCE_MAPPING_GRAPH_ID, InstanceMapping.class)
+        Node<InstanceMapping, InstanceMapping> remoteNode = GraphManager.INSTANCE.createIfAbsent(MetricGraphIdDefine.INSTANCE_MAPPING_GRAPH_ID, InstanceMapping.class)
             .addNode(new InstanceMappingAggregationWorker.Factory(moduleManager).create(workerCreateListener))
-            .addNext(new InstanceMappingRemoteWorker.Factory(moduleManager, remoteSenderService, MetricGraphIdDefine.INSTANCE_MAPPING_GRAPH_ID).create(workerCreateListener))
-            .addNext(new InstanceMappingPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+            .addNext(new InstanceMappingRemoteWorker.Factory(moduleManager, remoteSenderService, MetricGraphIdDefine.INSTANCE_MAPPING_GRAPH_ID).create(workerCreateListener));
+
+        remoteNode.addNext(new InstanceMappingMinutePersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        remoteNode.addNext(new InstanceMappingHourTransformNode())
+            .addNext(new InstanceMappingHourPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        remoteNode.addNext(new InstanceMappingDayTransformNode())
+            .addNext(new InstanceMappingDayPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        remoteNode.addNext(new InstanceMappingMonthTransformNode())
+            .addNext(new InstanceMappingMonthPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
     }
 }
