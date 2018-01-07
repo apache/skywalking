@@ -61,7 +61,8 @@ public class InstanceRegisterSerialWorker extends AbstractLocalAsyncWorker<Insta
             int min = instanceRegisterDAO.getMinInstanceId();
             int max = instanceRegisterDAO.getMaxInstanceId();
             if (min == 0 && max == 0) {
-                Instance userInstance = new Instance(String.valueOf(Const.NONE_INSTANCE_ID));
+                Instance userInstance = new Instance();
+                userInstance.setId(String.valueOf(Const.NONE_INSTANCE_ID));
                 userInstance.setInstanceId(Const.NONE_INSTANCE_ID);
                 userInstance.setApplicationId(Const.NONE_APPLICATION_ID);
                 userInstance.setAgentUUID(Const.USER_CODE);
@@ -72,7 +73,8 @@ public class InstanceRegisterSerialWorker extends AbstractLocalAsyncWorker<Insta
                 userInstance.setIsAddress(false);
                 instanceRegisterDAO.save(userInstance);
 
-                newInstance = new Instance("2");
+                newInstance = new Instance();
+                newInstance.setId("2");
                 newInstance.setInstanceId(2);
                 newInstance.setApplicationId(instance.getApplicationId());
                 newInstance.setAgentUUID(instance.getAgentUUID());
@@ -82,7 +84,8 @@ public class InstanceRegisterSerialWorker extends AbstractLocalAsyncWorker<Insta
                 newInstance.setAddressId(instance.getAddressId());
                 newInstance.setIsAddress(instance.getIsAddress());
             } else {
-                newInstance = new Instance(String.valueOf(max + 1));
+                newInstance = new Instance();
+                newInstance.setId(String.valueOf(max + 1));
                 newInstance.setInstanceId(max + 1);
                 newInstance.setApplicationId(instance.getApplicationId());
                 newInstance.setAgentUUID(instance.getAgentUUID());

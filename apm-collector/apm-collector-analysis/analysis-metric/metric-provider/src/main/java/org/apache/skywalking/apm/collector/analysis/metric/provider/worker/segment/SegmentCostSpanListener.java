@@ -33,7 +33,6 @@ import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.table.segment.SegmentCost;
 import org.slf4j.Logger;
@@ -61,7 +60,7 @@ public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListe
         String segmentId) {
         timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
 
-        SegmentCost segmentCost = new SegmentCost(Const.EMPTY_STRING);
+        SegmentCost segmentCost = new SegmentCost();
         segmentCost.setSegmentId(segmentId);
         segmentCost.setApplicationId(applicationId);
         segmentCost.setCost(spanDecorator.getEndTime() - spanDecorator.getStartTime());
