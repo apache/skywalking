@@ -16,29 +16,29 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.refmetric;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.refmetric;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.core.graph.Next;
 import org.apache.skywalking.apm.collector.core.graph.NodeProcessor;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
-import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
+import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetric;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceReferenceDayMetricTransformNode implements NodeProcessor<ServiceReferenceMetric, ServiceReferenceMetric> {
+public class InstanceReferenceMonthMetricTransformNode implements NodeProcessor<InstanceReferenceMetric, InstanceReferenceMetric> {
 
     @Override public int id() {
-        return MetricWorkerIdDefine.SERVICE_REFERENCE_DAY_METRIC_TRANSFORM_NODE_ID;
+        return MetricWorkerIdDefine.INSTANCE_REFERENCE_MONTH_METRIC_TRANSFORM_NODE_ID;
     }
 
-    @Override public void process(ServiceReferenceMetric serviceReferenceMetric, Next<ServiceReferenceMetric> next) {
-        long timeBucket = TimeBucketUtils.INSTANCE.minuteToDay(serviceReferenceMetric.getTimeBucket());
-        serviceReferenceMetric.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + serviceReferenceMetric.getMetricId());
-        serviceReferenceMetric.setTimeBucket(timeBucket);
+    @Override public void process(InstanceReferenceMetric instanceReferenceMetric, Next<InstanceReferenceMetric> next) {
+        long timeBucket = TimeBucketUtils.INSTANCE.minuteToMonth(instanceReferenceMetric.getTimeBucket());
+        instanceReferenceMetric.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + instanceReferenceMetric.getMetricId());
+        instanceReferenceMetric.setTimeBucket(timeBucket);
 
-        next.execute(serviceReferenceMetric);
+        next.execute(instanceReferenceMetric);
     }
 }

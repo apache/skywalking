@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.refmetric;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
@@ -24,39 +24,39 @@ import org.apache.skywalking.apm.collector.analysis.worker.model.impl.Persistenc
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IInstanceReferenceMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.irmp.IInstanceReferenceMonthMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetric;
 
 /**
  * @author peng-yongsheng
  */
-public class InstanceReferencePersistenceWorker extends PersistenceWorker<InstanceReferenceMetric> {
+public class InstanceReferenceMonthMetricPersistenceWorker extends PersistenceWorker<InstanceReferenceMetric> {
 
-    public InstanceReferencePersistenceWorker(ModuleManager moduleManager) {
+    public InstanceReferenceMonthMetricPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     @Override public int id() {
-        return MetricWorkerIdDefine.INSTANCE_REFERENCE_METRIC_PERSISTENCE_WORKER_ID;
+        return MetricWorkerIdDefine.INSTANCE_REFERENCE_MONTH_METRIC_PERSISTENCE_WORKER_ID;
     }
 
     @SuppressWarnings("unchecked")
     @Override protected IPersistenceDAO<?, ?, InstanceReferenceMetric> persistenceDAO() {
-        return getModuleManager().find(StorageModule.NAME).getService(IInstanceReferenceMetricPersistenceDAO.class);
+        return getModuleManager().find(StorageModule.NAME).getService(IInstanceReferenceMonthMetricPersistenceDAO.class);
     }
 
     @Override protected boolean needMergeDBData() {
         return true;
     }
 
-    public static class Factory extends PersistenceWorkerProvider<InstanceReferenceMetric, InstanceReferencePersistenceWorker> {
+    public static class Factory extends PersistenceWorkerProvider<InstanceReferenceMetric, InstanceReferenceMonthMetricPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
         }
 
-        @Override public InstanceReferencePersistenceWorker workerInstance(ModuleManager moduleManager) {
-            return new InstanceReferencePersistenceWorker(moduleManager);
+        @Override public InstanceReferenceMonthMetricPersistenceWorker workerInstance(ModuleManager moduleManager) {
+            return new InstanceReferenceMonthMetricPersistenceWorker(moduleManager);
         }
 
         @Override

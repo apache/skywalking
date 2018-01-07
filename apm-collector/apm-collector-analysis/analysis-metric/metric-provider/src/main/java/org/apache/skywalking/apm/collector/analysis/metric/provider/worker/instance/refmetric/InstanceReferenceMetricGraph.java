@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.refmetric;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
@@ -24,10 +24,12 @@ import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCrea
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.graph.Next;
+import org.apache.skywalking.apm.collector.core.graph.Node;
 import org.apache.skywalking.apm.collector.core.graph.NodeProcessor;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.remote.RemoteModule;
 import org.apache.skywalking.apm.collector.remote.service.RemoteSenderService;
+import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetric;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
 
 /**
@@ -48,9 +50,19 @@ public class InstanceReferenceMetricGraph {
 
         Graph<ServiceReferenceMetric> graph = GraphManager.INSTANCE.createIfAbsent(MetricGraphIdDefine.INSTANCE_REFERENCE_METRIC_GRAPH_ID, ServiceReferenceMetric.class);
 
-        graph.addNode(new InstanceReferenceMetricAggregationWorker.Factory(moduleManager).create(workerCreateListener))
-            .addNext(new InstanceReferenceMetricRemoteWorker.Factory(moduleManager, remoteSenderService, MetricGraphIdDefine.INSTANCE_REFERENCE_METRIC_GRAPH_ID).create(workerCreateListener))
-            .addNext(new InstanceReferencePersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+        Node<InstanceReferenceMetric, InstanceReferenceMetric> remoteNode = graph.addNode(new InstanceReferenceMetricAggregationWorker.Factory(moduleManager).create(workerCreateListener))
+            .addNext(new InstanceReferenceMetricRemoteWorker.Factory(moduleManager, remoteSenderService, MetricGraphIdDefine.INSTANCE_REFERENCE_METRIC_GRAPH_ID).create(workerCreateListener));
+
+        remoteNode.addNext(new InstanceReferenceMinuteMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        remoteNode.addNext(new InstanceReferenceHourMetricTransformNode())
+            .addNext(new InstanceReferenceHourMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        remoteNode.addNext(new InstanceReferenceDayMetricTransformNode())
+            .addNext(new InstanceReferenceDayMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        remoteNode.addNext(new InstanceReferenceMonthMetricTransformNode())
+            .addNext(new InstanceReferenceMonthMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
         link(graph);
     }

@@ -24,5 +24,5 @@ import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenc
 /**
  * @author peng-yongsheng
  */
-public interface IServiceReferenceMinuteMetricPersistenceDAO<Insert, Update, DataImpl extends ServiceReferenceMetric> extends IPersistenceDAO<Insert, Update, DataImpl> {
+public interface IServiceReferenceMinuteMetricPersistenceDAO<INSERT, UPDATE, STREAM_DATA extends ServiceReferenceMetric> extends IPersistenceDAO<INSERT, UPDATE, STREAM_DATA> {
 }
