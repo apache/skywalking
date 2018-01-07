@@ -31,7 +31,7 @@ import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMappin
 public class InstanceMappingMonthTransformNode implements NodeProcessor<InstanceMapping, InstanceMapping> {
 
     @Override public int id() {
-        return MetricWorkerIdDefine.INSTANCE_MONTH_MAPPING_TRANSFORM_NODE_ID;
+        return MetricWorkerIdDefine.INSTANCE_MAPPING_MONTH_TRANSFORM_NODE_ID;
     }
 
     @Override public void process(InstanceMapping instanceMapping, Next<InstanceMapping> next) {

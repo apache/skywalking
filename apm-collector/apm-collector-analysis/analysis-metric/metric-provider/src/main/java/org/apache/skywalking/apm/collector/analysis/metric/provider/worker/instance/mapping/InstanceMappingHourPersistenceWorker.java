@@ -37,7 +37,7 @@ public class InstanceMappingHourPersistenceWorker extends PersistenceWorker<Inst
     }
 
     @Override public int id() {
-        return MetricWorkerIdDefine.INSTANCE_HOUR_MAPPING_PERSISTENCE_WORKER_ID;
+        return MetricWorkerIdDefine.INSTANCE_MAPPING_HOUR_PERSISTENCE_WORKER_ID;
     }
 
     @Override protected boolean needMergeDBData() {

@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.collector.storage.dao.IApplicationAlarmPersiste
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationCacheDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationComponentPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationComponentUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IApplicationMappingPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ampp.IApplicationMappingMinutePersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationMappingUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.amp.IApplicationMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationReferenceAlarmListPersistenceDAO;
@@ -121,7 +121,7 @@ public class StorageModule extends Module {
 
         classes.add(IGlobalTracePersistenceDAO.class);
         classes.add(IApplicationComponentPersistenceDAO.class);
-        classes.add(IApplicationMappingPersistenceDAO.class);
+        classes.add(IApplicationMappingMinutePersistenceDAO.class);
         classes.add(IApplicationMinuteMetricPersistenceDAO.class);
         classes.add(IApplicationReferenceMinuteMetricPersistenceDAO.class);
         classes.add(ISegmentCostPersistenceDAO.class);

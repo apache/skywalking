@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.mapping;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractRemoteWorker;
@@ -37,7 +37,7 @@ public class ApplicationMappingRemoteWorker extends AbstractRemoteWorker<Applica
     }
 
     @Override public int id() {
-        return MetricWorkerIdDefine.APPLICATION_MAPPING_REMOTE_WORKER_ID;
+        return MetricWorkerIdDefine.APPLICATION_MAPPING_MINUTE_REMOTE_WORKER_ID;
     }
 
     @Override protected void onWork(ApplicationMapping applicationMapping) throws WorkerException {
