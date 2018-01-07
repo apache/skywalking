@@ -61,6 +61,28 @@ export default {
         fetchingNotices: payload,
       };
     },
+    changeSelectedTime(state, { payload }) {
+      const { from, to } = payload;
+      return {
+        ...state,
+        duration: { ...payload, fromValue: from(), toValue: to() },
+        isShowSelectTime: false,
+      };
+    },
+    toggleSelectTime(state) {
+      return {
+        ...state,
+        isShowSelectTime: !state.isShowSelectTime,
+      };
+    },
+    reload(state) {
+      const { duration } = state;
+      const { from, to } = duration;
+      return {
+        ...state,
+        duration: { ...duration, fromValue: from(), toValue: to() },
+      };
+    },
   },
 
   subscriptions: {

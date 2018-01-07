@@ -4,7 +4,7 @@ import DocumentTitle from 'react-document-title';
 
 import { connect } from 'dva';
 import { Link, Route, Redirect, Switch } from 'dva/router';
-import { Layout, Menu, Icon, Dropdown, Tag } from 'antd';
+import { Layout, Menu, Icon, Tag } from 'antd';
 
 import NoticeIcon from 'ant-design-pro/lib/NoticeIcon';
 import GlobalFooter from 'ant-design-pro/lib/GlobalFooter';
@@ -16,8 +16,11 @@ import { ContainerQuery } from 'react-container-query';
 
 import styles from './BasicLayout.less';
 
+import TimeSelect from '../components/Time/TimeSelect';
+
 const { Header, Sider, Content } = Layout;
 const { SubMenu } = Menu;
+
 
 const query = {
   'screen-xs': {
@@ -221,19 +224,46 @@ class BasicLayout extends React.PureComponent {
       window.dispatchEvent(event);
     }, 600);
   }
+  handleTimeSelected = (duration) => {
+    this.props.dispatch({
+      type: 'global/changeSelectedTime',
+      payload: duration,
+    });
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
+    const { step = 0 } = duration;
+    if (step < 1) {
+      return;
+    }
+    this.intervalId = setInterval(this.reload, duration.step);
+  }
+  reload = () => {
+    this.props.dispatch({
+      type: 'global/reload',
+    });
+  }
+  toggleSelectTime = () => {
+    this.props.dispatch({
+      type: 'global/toggleSelectTime',
+    });
+  }
   render() {
     const { collapsed, getRouteData } = this.props;
-
-    const menu = (
-      <Menu selectedKeys={['1']} onClick={this.onMenuClick}>
-        <Menu.Item key="1">Last 15 minutes</Menu.Item>
-        <Menu.Item key="2">Last 1 hour</Menu.Item>
-      </Menu>
-    );
     // Don't show popup menu when it is been collapsed
     const menuProps = collapsed ? {} : {
       openKeys: this.state.openKeys,
     };
+    const { duration = {
+      from() {
+        return moment();
+      },
+      to() {
+        return moment();
+      },
+      lable: 'Nan',
+    } } = this.props;
+    const timeFormat = 'YYYY-MM-DD HH:mm:ss';
 
     const layout = (
       <Layout>
@@ -270,11 +300,14 @@ class BasicLayout extends React.PureComponent {
               onClick={this.toggle}
             />
             <div className={styles.right}>
-              <Dropdown overlay={menu}>
-                <span className={`${styles.action}`}>
-                  Last 15 minutes
-                </span>
-              </Dropdown>
+              <span
+                className={styles.action}
+                onClick={this.toggleSelectTime}
+              >
+                {duration.label ? duration.label : `${duration.from().format(timeFormat)} ~ ${duration.to().format(timeFormat)}`}
+                {duration.step > 0 ? ` Reloading every ${duration.step / 1000} seconds` : null }
+              </span>
+              <span className={styles.action} onClick={this.reload}> <Icon type="reload" /> </span>
               <NoticeIcon
                 className={styles.action}
                 count={3}
@@ -341,6 +374,11 @@ class BasicLayout extends React.PureComponent {
               </NoticeIcon>
             </div>
           </Header>
+          <TimeSelect
+            duration={this.props.duration}
+            onSelected={this.handleTimeSelected}
+            isShow={this.props.isShowSelectTime}
+          />
           <Content style={{ margin: '24px 24px 0', height: '100%' }}>
             <Switch>
               {
@@ -393,4 +431,6 @@ export default connect(state => ({
   collapsed: state.global.collapsed,
   fetchingNotices: state.global.fetchingNotices,
   notices: state.global.notices,
+  duration: state.global.duration,
+  isShowSelectTime: state.global.isShowSelectTime,
 }))(BasicLayout);

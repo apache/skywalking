@@ -55,22 +55,22 @@ export default class Dashboard extends PureComponent {
       time: '2017/12/11 19:22:32',
       duration: '5000ms',
     }, {
-      key: '1',
+      key: '2',
       name: 'ServiceA',
       time: '2017/12/11 19:22:32',
       duration: '5000ms',
     }, {
-      key: '1',
+      key: '3',
       name: 'ServiceA',
       time: '2017/12/11 19:22:32',
       duration: '5000ms',
     }, {
-      key: '1',
+      key: '4',
       name: 'ServiceA',
       time: '2017/12/11 19:22:32',
       duration: '5000ms',
     }, {
-      key: '1',
+      key: '5',
       name: 'ServiceA',
       time: '2017/12/11 19:22:32',
       duration: '5000ms',
@@ -91,19 +91,19 @@ export default class Dashboard extends PureComponent {
       name: 'App1',
       tps: '500',
     }, {
-      key: '1',
+      key: '2',
       name: 'App1',
       tps: '500',
     }, {
-      key: '1',
+      key: '3',
       name: 'App1',
       tps: '500',
     }, {
-      key: '1',
+      key: '4',
       name: 'App1',
       tps: '500',
     }, {
-      key: '1',
+      key: '5',
       name: 'App1',
       tps: '500',
     }];
@@ -164,7 +164,7 @@ export default class Dashboard extends PureComponent {
           bordered={false}
           bodyStyle={{ padding: 0 }}
         >
-          <div Style="height: 480px">Topoloy</div>
+          <div style={{ height: 480 }}>Topoloy</div>
         </Card>
         <Row gutter={24}>
           <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginTop: 24 }}>
