@@ -16,35 +16,46 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.entry;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.AggregationWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.storage.StorageModule;
+import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.IServiceEntryPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceEntry;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceEntryAggregationWorker extends AggregationWorker<ServiceEntry, ServiceEntry> {
+public class ServiceEntryPersistenceWorker extends PersistenceWorker<ServiceEntry> {
 
-    public ServiceEntryAggregationWorker(ModuleManager moduleManager) {
+    public ServiceEntryPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     @Override public int id() {
-        return MetricWorkerIdDefine.SERVICE_ENTRY_AGGREGATION_WORKER_ID;
+        return MetricWorkerIdDefine.SERVICE_ENTRY_PERSISTENCE_WORKER_ID;
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<ServiceEntry, ServiceEntry, ServiceEntryAggregationWorker> {
+    @Override protected boolean needMergeDBData() {
+        return true;
+    }
 
+    @SuppressWarnings("unchecked")
+    @Override protected IPersistenceDAO<?, ?, ServiceEntry> persistenceDAO() {
+        return getModuleManager().find(StorageModule.NAME).getService(IServiceEntryPersistenceDAO.class);
+    }
+
+    public static class Factory extends PersistenceWorkerProvider<ServiceEntry, ServiceEntryPersistenceWorker> {
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
         }
 
-        @Override public ServiceEntryAggregationWorker workerInstance(ModuleManager moduleManager) {
-            return new ServiceEntryAggregationWorker(moduleManager);
+        @Override public ServiceEntryPersistenceWorker workerInstance(ModuleManager moduleManager) {
+            return new ServiceEntryPersistenceWorker(moduleManager);
         }
 
         @Override

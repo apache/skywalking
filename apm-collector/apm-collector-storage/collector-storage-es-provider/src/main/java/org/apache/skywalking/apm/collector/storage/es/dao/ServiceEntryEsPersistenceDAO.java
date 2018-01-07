@@ -41,8 +41,9 @@ public class ServiceEntryEsPersistenceDAO extends EsDAO implements IServiceEntry
     @Override public ServiceEntry get(String id) {
         GetResponse getResponse = getClient().prepareGet(ServiceEntryTable.TABLE, id).get();
         if (getResponse.isExists()) {
-            ServiceEntry serviceEntry = new ServiceEntry(id);
+            ServiceEntry serviceEntry = new ServiceEntry();
             Map<String, Object> source = getResponse.getSource();
+            serviceEntry.setId((String)source.get(ServiceEntryTable.COLUMN_ID));
             serviceEntry.setApplicationId(((Number)source.get(ServiceEntryTable.COLUMN_APPLICATION_ID)).intValue());
             serviceEntry.setEntryServiceId(((Number)source.get(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID)).intValue());
             serviceEntry.setEntryServiceName((String)source.get(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME));

@@ -24,5 +24,5 @@ import org.apache.skywalking.apm.collector.storage.table.service.ServiceEntry;
 /**
  * @author peng-yongsheng
  */
-public interface IServiceEntryPersistenceDAO<Insert, Update, DataImpl extends ServiceEntry> extends IPersistenceDAO<Insert, Update, DataImpl> {
+public interface IServiceEntryPersistenceDAO<INSERT, UPDATE, STREAM_DATA extends ServiceEntry> extends IPersistenceDAO<INSERT, UPDATE, STREAM_DATA> {
 }

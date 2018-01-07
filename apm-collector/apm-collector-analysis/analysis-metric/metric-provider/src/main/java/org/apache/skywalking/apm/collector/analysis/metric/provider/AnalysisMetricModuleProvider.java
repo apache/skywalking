@@ -34,8 +34,8 @@ import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.insta
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.refmetric.InstanceReferenceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.segment.SegmentCostGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.segment.SegmentCostSpanListener;
-import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.ServiceEntryGraph;
-import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.ServiceEntrySpanListener;
+import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.entry.ServiceEntryGraph;
+import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.entry.ServiceEntrySpanListener;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.metric.ServiceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.refmetric.ServiceReferenceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.refmetric.ServiceReferenceMetricSpanListener;
