@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.jvm.provider.worker;
+package org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.gc;
 
 import org.apache.skywalking.apm.collector.analysis.jvm.define.graph.WorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
@@ -24,39 +24,39 @@ import org.apache.skywalking.apm.collector.analysis.worker.model.impl.Persistenc
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IGCMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.gcmp.IGCHourMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetric;
 
 /**
  * @author peng-yongsheng
  */
-public class GCMetricPersistenceWorker extends PersistenceWorker<GCMetric> {
+public class GCHourMetricPersistenceWorker extends PersistenceWorker<GCMetric> {
 
-    public GCMetricPersistenceWorker(ModuleManager moduleManager) {
+    public GCHourMetricPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     @Override public int id() {
-        return WorkerIdDefine.GC_METRIC_PERSISTENCE_WORKER_ID;
+        return WorkerIdDefine.GC_HOUR_METRIC_PERSISTENCE_WORKER_ID;
     }
 
     @Override protected boolean needMergeDBData() {
-        return false;
+        return true;
     }
 
     @SuppressWarnings("unchecked")
     @Override protected IPersistenceDAO<?, ?, GCMetric> persistenceDAO() {
-        return getModuleManager().find(StorageModule.NAME).getService(IGCMetricPersistenceDAO.class);
+        return getModuleManager().find(StorageModule.NAME).getService(IGCHourMetricPersistenceDAO.class);
     }
 
-    public static class Factory extends PersistenceWorkerProvider<GCMetric, GCMetricPersistenceWorker> {
+    public static class Factory extends PersistenceWorkerProvider<GCMetric, GCHourMetricPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
         }
 
-        @Override public GCMetricPersistenceWorker workerInstance(ModuleManager moduleManager) {
-            return new GCMetricPersistenceWorker(moduleManager);
+        @Override public GCHourMetricPersistenceWorker workerInstance(ModuleManager moduleManager) {
+            return new GCHourMetricPersistenceWorker(moduleManager);
         }
 
         @Override
