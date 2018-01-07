@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.dao;
+package org.apache.skywalking.apm.collector.storage.dao.imp;
 
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetric;
@@ -24,5 +24,5 @@ import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetric
 /**
  * @author peng-yongsheng
  */
-public interface IInstanceMetricPersistenceDAO<INSERT, UPDATE, STREAM_DATA extends InstanceMetric> extends IPersistenceDAO<INSERT, UPDATE, STREAM_DATA> {
+public interface IInstanceHourMetricPersistenceDAO<INSERT, UPDATE, STREAM_DATA extends InstanceMetric> extends IPersistenceDAO<INSERT, UPDATE, STREAM_DATA> {
 }

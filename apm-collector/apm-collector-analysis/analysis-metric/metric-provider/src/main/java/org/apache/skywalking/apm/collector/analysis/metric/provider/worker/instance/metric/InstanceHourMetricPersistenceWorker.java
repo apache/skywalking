@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.metric;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
@@ -24,20 +24,20 @@ import org.apache.skywalking.apm.collector.analysis.worker.model.impl.Persistenc
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IInstanceMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.imp.IInstanceHourMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetric;
 
 /**
  * @author peng-yongsheng
  */
-public class InstanceMetricPersistenceWorker extends PersistenceWorker<InstanceMetric> {
+public class InstanceHourMetricPersistenceWorker extends PersistenceWorker<InstanceMetric> {
 
-    public InstanceMetricPersistenceWorker(ModuleManager moduleManager) {
+    public InstanceHourMetricPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     @Override public int id() {
-        return MetricWorkerIdDefine.INSTANCE_METRIC_PERSISTENCE_WORKER_ID;
+        return MetricWorkerIdDefine.INSTANCE_HOUR_METRIC_PERSISTENCE_WORKER_ID;
     }
 
     @Override protected boolean needMergeDBData() {
@@ -46,17 +46,17 @@ public class InstanceMetricPersistenceWorker extends PersistenceWorker<InstanceM
 
     @SuppressWarnings("unchecked")
     @Override protected IPersistenceDAO<?, ?, InstanceMetric> persistenceDAO() {
-        return getModuleManager().find(StorageModule.NAME).getService(IInstanceMetricPersistenceDAO.class);
+        return getModuleManager().find(StorageModule.NAME).getService(IInstanceHourMetricPersistenceDAO.class);
     }
 
-    public static class Factory extends PersistenceWorkerProvider<InstanceMetric, InstanceMetricPersistenceWorker> {
+    public static class Factory extends PersistenceWorkerProvider<InstanceMetric, InstanceHourMetricPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
         }
 
-        @Override public InstanceMetricPersistenceWorker workerInstance(ModuleManager moduleManager) {
-            return new InstanceMetricPersistenceWorker(moduleManager);
+        @Override public InstanceHourMetricPersistenceWorker workerInstance(ModuleManager moduleManager) {
+            return new InstanceHourMetricPersistenceWorker(moduleManager);
         }
 
         @Override

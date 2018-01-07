@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.metric;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractRemoteWorker;
@@ -37,7 +37,7 @@ public class InstanceMetricRemoteWorker extends AbstractRemoteWorker<InstanceMet
     }
 
     @Override public int id() {
-        return MetricWorkerIdDefine.INSTANCE_METRIC_REMOTE_WORKER_ID;
+        return MetricWorkerIdDefine.INSTANCE_MINUTE_METRIC_REMOTE_WORKER_ID;
     }
 
     @Override public Selector selector() {

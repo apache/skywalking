@@ -51,7 +51,7 @@ import org.apache.skywalking.apm.collector.storage.dao.IInstanceAlarmPersistence
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceCacheDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceHeartBeatPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceMappingPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IInstanceMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.imp.IInstanceMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceReferenceAlarmListPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceReferenceAlarmPersistenceDAO;
@@ -107,7 +107,7 @@ import org.apache.skywalking.apm.collector.storage.h2.dao.InstanceH2RegisterDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.InstanceH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.InstanceHeartBeatH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.InstanceMappingH2PersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.h2.dao.InstanceMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.InstanceMinuteMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.InstanceMetricH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.InstanceReferenceAlarmH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.InstanceReferenceAlarmListH2PersistenceDAO;
@@ -221,7 +221,7 @@ public class StorageModuleH2Provider extends ModuleProvider {
         this.registerServiceImplementation(IServiceMinuteMetricPersistenceDAO.class, new ServiceMinuteMetricH2PersistenceDAO(h2Client));
         this.registerServiceImplementation(IServiceReferenceMinuteMetricPersistenceDAO.class, new ServiceReferenceMetricH2PersistenceDAO(h2Client));
 
-        this.registerServiceImplementation(IInstanceMetricPersistenceDAO.class, new InstanceMetricH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IInstanceMinuteMetricPersistenceDAO.class, new InstanceMinuteMetricH2PersistenceDAO(h2Client));
         this.registerServiceImplementation(IInstanceReferenceMinuteMetricPersistenceDAO.class, new InstanceReferenceMetricH2PersistenceDAO(h2Client));
         this.registerServiceImplementation(IInstanceMappingPersistenceDAO.class, new InstanceMappingH2PersistenceDAO(h2Client));
         this.registerServiceImplementation(IInstanceHeartBeatPersistenceDAO.class, new InstanceHeartBeatH2PersistenceDAO(h2Client));

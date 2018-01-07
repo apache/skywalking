@@ -30,7 +30,7 @@ import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.globa
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global.GlobalTraceSpanListener;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.InstanceMappingGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.InstanceMappingSpanListener;
-import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.InstanceMetricGraph;
+import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.metric.InstanceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.refmetric.InstanceReferenceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.segment.SegmentCostGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.segment.SegmentCostSpanListener;
