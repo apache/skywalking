@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class ServiceMetricBatchRecord extends ServiceMetricRecord {
     private AtomicLong batchRowSize;
 
-    public ServiceMetricBatchRecord(){
+    public ServiceMetricBatchRecord() {
         super();
         batchRowSize = new AtomicLong(0);
     }
