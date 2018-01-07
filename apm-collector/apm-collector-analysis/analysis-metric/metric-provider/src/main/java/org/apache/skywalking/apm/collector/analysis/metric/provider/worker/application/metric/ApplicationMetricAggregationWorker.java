@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.metric;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
@@ -36,18 +36,23 @@ public class ApplicationMetricAggregationWorker extends AggregationWorker<Applic
     }
 
     @Override public int id() {
-        return MetricWorkerIdDefine.APPLICATION_METRIC_AGGREGATION_WORKER_ID;
+        return MetricWorkerIdDefine.APPLICATION_MINUTE_METRIC_AGGREGATION_WORKER_ID;
     }
 
     @Override protected ApplicationMetric transform(ApplicationReferenceMetric applicationReferenceMetric) {
         Integer applicationId = applicationReferenceMetric.getBehindApplicationId();
         Long timeBucket = applicationReferenceMetric.getTimeBucket();
 
-        String id = String.valueOf(timeBucket)
-            + Const.ID_SPLIT + String.valueOf(applicationId)
+        String metricId = String.valueOf(applicationId)
             + Const.ID_SPLIT + applicationReferenceMetric.getSourceValue();
 
-        ApplicationMetric applicationMetric = new ApplicationMetric(id);
+        String id = String.valueOf(timeBucket)
+            + Const.ID_SPLIT + metricId;
+
+        ApplicationMetric applicationMetric = new ApplicationMetric();
+        applicationMetric.setId(id);
+        applicationMetric.setMetricId(metricId);
+
         applicationMetric.setApplicationId(applicationId);
         applicationMetric.setSourceValue(applicationReferenceMetric.getSourceValue());
 

@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.dao;
+package org.apache.skywalking.apm.collector.storage.dao.amp;
 
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMetric;
@@ -24,5 +24,5 @@ import org.apache.skywalking.apm.collector.storage.table.application.Application
 /**
  * @author peng-yongsheng
  */
-public interface IApplicationMetricPersistenceDAO<Insert, Update, DataImpl extends ApplicationMetric> extends IPersistenceDAO<Insert, Update, DataImpl> {
+public interface IApplicationHourMetricPersistenceDAO<INSERT, UPDATE, STREAM_DATA extends ApplicationMetric> extends IPersistenceDAO<INSERT, UPDATE, STREAM_DATA> {
 }
