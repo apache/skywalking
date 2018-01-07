@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.dao;
+package org.apache.skywalking.apm.collector.storage.dao.acp;
 
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponent;
@@ -24,5 +24,5 @@ import org.apache.skywalking.apm.collector.storage.table.application.Application
 /**
  * @author peng-yongsheng
  */
-public interface IApplicationComponentPersistenceDAO<Insert, Update, DataImpl extends ApplicationComponent> extends IPersistenceDAO<Insert, Update, DataImpl> {
+public interface IApplicationComponentHourPersistenceDAO<INSERT, UPDATE, STREAM_DATA extends ApplicationComponent> extends IPersistenceDAO<INSERT, UPDATE, STREAM_DATA> {
 }

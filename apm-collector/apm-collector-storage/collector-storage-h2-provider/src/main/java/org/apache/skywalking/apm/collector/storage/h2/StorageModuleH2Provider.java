@@ -30,7 +30,7 @@ import org.apache.skywalking.apm.collector.storage.base.dao.IBatchDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationAlarmListPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationAlarmPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationCacheDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IApplicationComponentPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentMinutePersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationComponentUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ampp.IApplicationMappingMinutePersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationMappingUIDAO;
@@ -83,7 +83,7 @@ import org.apache.skywalking.apm.collector.storage.h2.base.dao.BatchH2DAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2StorageInstaller;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ApplicationAlarmH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ApplicationAlarmListH2PersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.h2.dao.ApplicationComponentH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.ApplicationComponentH2MinutePersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ApplicationComponentH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ApplicationH2CacheDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ApplicationH2RegisterDAO;
@@ -211,7 +211,7 @@ public class StorageModuleH2Provider extends ModuleProvider {
         this.registerServiceImplementation(IMemoryPoolMetricPersistenceDAO.class, new MemoryPoolMetricH2PersistenceDAO(h2Client));
 
         this.registerServiceImplementation(IGlobalTracePersistenceDAO.class, new GlobalTraceH2PersistenceDAO(h2Client));
-        this.registerServiceImplementation(IApplicationComponentPersistenceDAO.class, new ApplicationComponentH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IApplicationComponentMinutePersistenceDAO.class, new ApplicationComponentH2MinutePersistenceDAO(h2Client));
         this.registerServiceImplementation(IApplicationMappingMinutePersistenceDAO.class, new ApplicationMappingH2MinutePersistenceDAO(h2Client));
         this.registerServiceImplementation(IApplicationMinuteMetricPersistenceDAO.class, new ApplicationMinuteMetricH2PersistenceDAO(h2Client));
         this.registerServiceImplementation(IApplicationReferenceMinuteMetricPersistenceDAO.class, new ApplicationReferenceMinuteMetricH2PersistenceDAO(h2Client));

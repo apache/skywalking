@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.component;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
@@ -34,7 +34,7 @@ public class ApplicationComponentAggregationWorker extends AggregationWorker<App
     }
 
     @Override public int id() {
-        return MetricWorkerIdDefine.APPLICATION_COMPONENT_AGGREGATION_WORKER_ID;
+        return MetricWorkerIdDefine.APPLICATION_COMPONENT_MINUTE_AGGREGATION_WORKER_ID;
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<ApplicationComponent, ApplicationComponent, ApplicationComponentAggregationWorker> {
