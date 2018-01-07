@@ -16,11 +16,12 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.jvm.provider.worker;
+package org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.cpu;
 
 import org.apache.skywalking.apm.collector.analysis.jvm.define.graph.GraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
+import org.apache.skywalking.apm.collector.core.graph.Node;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.table.jvm.CpuMetric;
 
@@ -38,7 +39,21 @@ public class CpuMetricPersistenceGraph {
     }
 
     public void create() {
-        GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.CPU_METRIC_PERSISTENCE_GRAPH_ID, CpuMetric.class)
-            .addNode(new CpuMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+        Node<CpuMetric, CpuMetric> bridgeNode = GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.CPU_METRIC_PERSISTENCE_GRAPH_ID, CpuMetric.class)
+            .addNode(new CpuMetricBridgeNode());
+
+        bridgeNode.addNext(new CpuSecondMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        bridgeNode.addNext(new CpuMinuteMetricTransformNode())
+            .addNext(new CpuMinuteMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        bridgeNode.addNext(new CpuHourMetricTransformNode())
+            .addNext(new CpuHourMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        bridgeNode.addNext(new CpuDayMetricTransformNode())
+            .addNext(new CpuDayMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        bridgeNode.addNext(new CpuMonthMetricTransformNode())
+            .addNext(new CpuMonthMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
     }
 }

@@ -30,7 +30,7 @@ import org.apache.skywalking.apm.collector.analysis.jvm.provider.service.GCMetri
 import org.apache.skywalking.apm.collector.analysis.jvm.provider.service.InstanceHeartBeatService;
 import org.apache.skywalking.apm.collector.analysis.jvm.provider.service.MemoryMetricService;
 import org.apache.skywalking.apm.collector.analysis.jvm.provider.service.MemoryPoolMetricService;
-import org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.CpuMetricPersistenceGraph;
+import org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.cpu.CpuMetricPersistenceGraph;
 import org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.GCMetricPersistenceGraph;
 import org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.InstanceHeartBeatPersistenceGraph;
 import org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.MemoryMetricPersistenceGraph;

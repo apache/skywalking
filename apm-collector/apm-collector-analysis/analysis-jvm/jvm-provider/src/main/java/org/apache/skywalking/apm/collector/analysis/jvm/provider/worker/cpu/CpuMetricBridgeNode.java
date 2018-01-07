@@ -16,27 +16,23 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.core.storage;
+package org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.cpu;
+
+import org.apache.skywalking.apm.collector.analysis.jvm.define.graph.WorkerIdDefine;
+import org.apache.skywalking.apm.collector.core.graph.Next;
+import org.apache.skywalking.apm.collector.core.graph.NodeProcessor;
+import org.apache.skywalking.apm.collector.storage.table.jvm.CpuMetric;
 
 /**
  * @author peng-yongsheng
  */
-public enum TimePyramid {
-    Second(0, "second"), Minute(1, "minute"), Hour(2, "hour"), Day(3, "day"), Month(4, "month");
+public class CpuMetricBridgeNode implements NodeProcessor<CpuMetric, CpuMetric> {
 
-    private final int value;
-    private final String name;
-
-    TimePyramid(int value, String name) {
-        this.value = value;
-        this.name = name;
+    @Override public int id() {
+        return WorkerIdDefine.CPU_METRIC_BRIDGE_NODE_ID;
     }
 
-    public int getValue() {
-        return value;
-    }
-
-    public String getName() {
-        return name;
+    @Override public void process(CpuMetric metric, Next<CpuMetric> next) {
+        next.execute(metric);
     }
 }
