@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.refmetric;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
@@ -46,19 +46,23 @@ public class ApplicationReferenceMetricAggregationWorker extends AggregationWork
     }
 
     @Override public int id() {
-        return MetricWorkerIdDefine.APPLICATION_REFERENCE_METRIC_AGGREGATION_WORKER_ID;
+        return MetricWorkerIdDefine.APPLICATION_REFERENCE_MINUTE_METRIC_AGGREGATION_WORKER_ID;
     }
 
     @Override protected ApplicationReferenceMetric transform(InstanceReferenceMetric instanceReferenceMetric) {
         Integer frontApplicationId = instanceCacheService.getApplicationId(instanceReferenceMetric.getFrontInstanceId());
         Integer behindApplicationId = instanceCacheService.getApplicationId(instanceReferenceMetric.getBehindInstanceId());
 
-        String id = instanceReferenceMetric.getTimeBucket()
-            + Const.ID_SPLIT + frontApplicationId
+        String metricId = frontApplicationId
             + Const.ID_SPLIT + behindApplicationId
             + Const.ID_SPLIT + instanceReferenceMetric.getSourceValue();
 
-        ApplicationReferenceMetric applicationReferenceMetric = new ApplicationReferenceMetric(id);
+        String id = instanceReferenceMetric.getTimeBucket()
+            + Const.ID_SPLIT + metricId;
+
+        ApplicationReferenceMetric applicationReferenceMetric = new ApplicationReferenceMetric();
+        applicationReferenceMetric.setId(id);
+        applicationReferenceMetric.setMetricId(metricId);
         applicationReferenceMetric.setFrontApplicationId(frontApplicationId);
         applicationReferenceMetric.setBehindApplicationId(behindApplicationId);
         applicationReferenceMetric.setSourceValue(instanceReferenceMetric.getSourceValue());

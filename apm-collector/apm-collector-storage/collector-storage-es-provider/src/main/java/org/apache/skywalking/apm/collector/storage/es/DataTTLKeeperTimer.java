@@ -26,6 +26,7 @@ import org.apache.skywalking.apm.collector.storage.dao.*;
 import java.util.Calendar;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.apm.collector.storage.dao.armp.IApplicationReferenceMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceMinuteMetricPersistenceDAO;
 
 /**
@@ -96,7 +97,7 @@ public class DataTTLKeeperTimer {
         IApplicationMappingPersistenceDAO applicationMappingPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationMappingPersistenceDAO.class);
         applicationMappingPersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
 
-        IApplicationReferenceMetricPersistenceDAO applicationReferenceMetricPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationReferenceMetricPersistenceDAO.class);
+        IApplicationReferenceMinuteMetricPersistenceDAO applicationReferenceMetricPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationReferenceMinuteMetricPersistenceDAO.class);
         applicationReferenceMetricPersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
 
         ISegmentCostPersistenceDAO segmentCostPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(ISegmentCostPersistenceDAO.class);

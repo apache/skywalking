@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.refmetric;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
@@ -24,20 +24,20 @@ import org.apache.skywalking.apm.collector.analysis.worker.model.impl.Persistenc
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IApplicationReferenceMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.armp.IApplicationReferenceDayMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetric;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationReferenceMetricPersistenceWorker extends PersistenceWorker<ApplicationReferenceMetric> {
+public class ApplicationReferenceDayMetricPersistenceWorker extends PersistenceWorker<ApplicationReferenceMetric> {
 
-    public ApplicationReferenceMetricPersistenceWorker(ModuleManager moduleManager) {
+    public ApplicationReferenceDayMetricPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     @Override public int id() {
-        return MetricWorkerIdDefine.APPLICATION_REFERENCE_METRIC_PERSISTENCE_WORKER_ID;
+        return MetricWorkerIdDefine.APPLICATION_REFERENCE_DAY_METRIC_PERSISTENCE_WORKER_ID;
     }
 
     @Override protected boolean needMergeDBData() {
@@ -46,17 +46,17 @@ public class ApplicationReferenceMetricPersistenceWorker extends PersistenceWork
 
     @SuppressWarnings("unchecked")
     @Override protected IPersistenceDAO<?, ?, ApplicationReferenceMetric> persistenceDAO() {
-        return getModuleManager().find(StorageModule.NAME).getService(IApplicationReferenceMetricPersistenceDAO.class);
+        return getModuleManager().find(StorageModule.NAME).getService(IApplicationReferenceDayMetricPersistenceDAO.class);
     }
 
-    public static class Factory extends PersistenceWorkerProvider<ApplicationReferenceMetric, ApplicationReferenceMetricPersistenceWorker> {
+    public static class Factory extends PersistenceWorkerProvider<ApplicationReferenceMetric, ApplicationReferenceDayMetricPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
         }
 
-        @Override public ApplicationReferenceMetricPersistenceWorker workerInstance(ModuleManager moduleManager) {
-            return new ApplicationReferenceMetricPersistenceWorker(moduleManager);
+        @Override public ApplicationReferenceDayMetricPersistenceWorker workerInstance(ModuleManager moduleManager) {
+            return new ApplicationReferenceDayMetricPersistenceWorker(moduleManager);
         }
 
         @Override

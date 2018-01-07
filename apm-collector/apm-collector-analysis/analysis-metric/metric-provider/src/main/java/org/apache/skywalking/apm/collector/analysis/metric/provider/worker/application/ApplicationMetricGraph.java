@@ -57,7 +57,7 @@ public class ApplicationMetricGraph {
 
     private void link(Graph<ApplicationReferenceMetric> graph) {
         GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.APPLICATION_REFERENCE_METRIC_GRAPH_ID, ApplicationReferenceMetric.class)
-            .toFinder().findNode(MetricWorkerIdDefine.APPLICATION_REFERENCE_METRIC_AGGREGATION_WORKER_ID, ApplicationReferenceMetric.class)
+            .toFinder().findNode(MetricWorkerIdDefine.APPLICATION_REFERENCE_MINUTE_METRIC_AGGREGATION_WORKER_ID, ApplicationReferenceMetric.class)
             .addNext(new NodeProcessor<ApplicationReferenceMetric, ApplicationReferenceMetric>() {
 
                 @Override public int id() {
