@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.collector.storage.es.dao.irmp;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.storage.TimePyramid;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.storage.dao.irmp.IInstanceReferenceHourMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.irmp.IInstanceReferenceMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetric;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetricTable;
 import org.elasticsearch.action.index.IndexRequestBuilder;
@@ -30,13 +30,13 @@ import org.elasticsearch.action.update.UpdateRequestBuilder;
 /**
  * @author peng-yongsheng
  */
-public class InstanceReferenceMinuteMetricEsPersistenceDAO extends AbstractInstanceReferenceMetricEsPersistenceDAO implements IInstanceReferenceHourMetricPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, InstanceReferenceMetric> {
+public class InstanceReferenceMinuteMetricEsPersistenceDAO extends AbstractInstanceReferenceMetricEsPersistenceDAO implements IInstanceReferenceMinuteMetricPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, InstanceReferenceMetric> {
 
     public InstanceReferenceMinuteMetricEsPersistenceDAO(ElasticSearchClient client) {
         super(client);
     }
 
     @Override protected String tableName() {
-        return InstanceReferenceMetricTable.TABLE + Const.ID_SPLIT + TimePyramid.Hour.getName();
+        return InstanceReferenceMetricTable.TABLE + Const.ID_SPLIT + TimePyramid.Minute.getName();
     }
 }
