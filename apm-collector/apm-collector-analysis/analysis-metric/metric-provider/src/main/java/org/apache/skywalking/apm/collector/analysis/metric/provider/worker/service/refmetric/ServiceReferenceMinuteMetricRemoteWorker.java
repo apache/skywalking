@@ -30,9 +30,9 @@ import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenc
 /**
  * @author peng-yongsheng
  */
-public class ServiceReferenceMetricRemoteWorker extends AbstractRemoteWorker<ServiceReferenceMetric, ServiceReferenceMetric> {
+public class ServiceReferenceMinuteMetricRemoteWorker extends AbstractRemoteWorker<ServiceReferenceMetric, ServiceReferenceMetric> {
 
-    public ServiceReferenceMetricRemoteWorker(ModuleManager moduleManager) {
+    public ServiceReferenceMinuteMetricRemoteWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -48,14 +48,14 @@ public class ServiceReferenceMetricRemoteWorker extends AbstractRemoteWorker<Ser
         return Selector.HashCode;
     }
 
-    public static class Factory extends AbstractRemoteWorkerProvider<ServiceReferenceMetric, ServiceReferenceMetric, ServiceReferenceMetricRemoteWorker> {
+    public static class Factory extends AbstractRemoteWorkerProvider<ServiceReferenceMetric, ServiceReferenceMetric, ServiceReferenceMinuteMetricRemoteWorker> {
 
         public Factory(ModuleManager moduleManager, RemoteSenderService remoteSenderService, int graphId) {
             super(moduleManager, remoteSenderService, graphId);
         }
 
-        @Override public ServiceReferenceMetricRemoteWorker workerInstance(ModuleManager moduleManager) {
-            return new ServiceReferenceMetricRemoteWorker(moduleManager);
+        @Override public ServiceReferenceMinuteMetricRemoteWorker workerInstance(ModuleManager moduleManager) {
+            return new ServiceReferenceMinuteMetricRemoteWorker(moduleManager);
         }
     }
 }

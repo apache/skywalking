@@ -37,15 +37,9 @@ public class InstanceMappingDayTransformNode implements NodeProcessor<InstanceMa
     @Override public void process(InstanceMapping instanceMapping, Next<InstanceMapping> next) {
         long timeBucket = TimeBucketUtils.INSTANCE.minuteToDay(instanceMapping.getTimeBucket());
 
-        InstanceMapping newInstanceMapping = new InstanceMapping();
+        InstanceMapping newInstanceMapping = InstanceMappingCopy.copy(instanceMapping);
         newInstanceMapping.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + instanceMapping.getMetricId());
-        newInstanceMapping.setMetricId(instanceMapping.getMetricId());
-
-        newInstanceMapping.setApplicationId(instanceMapping.getApplicationId());
-        newInstanceMapping.setInstanceId(instanceMapping.getInstanceId());
-        newInstanceMapping.setAddressId(instanceMapping.getAddressId());
         newInstanceMapping.setTimeBucket(timeBucket);
-
         next.execute(newInstanceMapping);
     }
 }

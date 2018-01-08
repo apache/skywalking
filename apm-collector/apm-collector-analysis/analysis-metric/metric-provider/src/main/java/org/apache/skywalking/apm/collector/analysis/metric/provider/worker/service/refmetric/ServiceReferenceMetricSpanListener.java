@@ -152,9 +152,11 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
         logger.debug("service reference listener build");
         Graph<ServiceReferenceMetric> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.SERVICE_REFERENCE_METRIC_GRAPH_ID, ServiceReferenceMetric.class);
         entryReferenceMetric.forEach(serviceReferenceMetric -> {
-            String id = timeBucket + Const.ID_SPLIT + serviceReferenceMetric.getFrontServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getBehindServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getSourceValue();
+            String metricId = serviceReferenceMetric.getFrontServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getBehindServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getSourceValue();
+            String id = timeBucket + Const.ID_SPLIT + metricId;
 
             serviceReferenceMetric.setId(id);
+            serviceReferenceMetric.setMetricId(metricId);
             serviceReferenceMetric.setTimeBucket(timeBucket);
             logger.debug("push to service reference aggregation worker, id: {}", serviceReferenceMetric.getId());
 
@@ -168,8 +170,10 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
                 serviceReferenceMetric.setFrontServiceId(Const.NONE_SERVICE_ID);
             }
 
-            String id = timeBucket + Const.ID_SPLIT + serviceReferenceMetric.getFrontServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getBehindServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getSourceValue();
+            String metricId = serviceReferenceMetric.getFrontServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getBehindServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getSourceValue();
+            String id = timeBucket + Const.ID_SPLIT + metricId;
             serviceReferenceMetric.setId(id);
+            serviceReferenceMetric.setMetricId(metricId);
             serviceReferenceMetric.setTimeBucket(timeBucket);
 
             graph.start(serviceReferenceMetric);

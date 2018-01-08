@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.es.define;
+package org.apache.skywalking.apm.collector.storage.es.define.srmp;
 
 import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchColumnDefine;
 import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchTableDefine;
@@ -25,17 +25,15 @@ import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenc
 /**
  * @author peng-yongsheng
  */
-public class ServiceReferenceMetricEsTableDefine extends ElasticSearchTableDefine {
+public abstract class AbstractServiceReferenceMetricEsTableDefine extends ElasticSearchTableDefine {
 
-    public ServiceReferenceMetricEsTableDefine() {
-        super(ServiceReferenceMetricTable.TABLE);
+    public AbstractServiceReferenceMetricEsTableDefine(String name) {
+        super(name);
     }
 
-    @Override public int refreshInterval() {
-        return 2;
-    }
+    @Override public final void initialize() {
+        addColumn(new ElasticSearchColumnDefine(ServiceReferenceMetricTable.COLUMN_METRIC_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
 
-    @Override public void initialize() {
         addColumn(new ElasticSearchColumnDefine(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
         addColumn(new ElasticSearchColumnDefine(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
         addColumn(new ElasticSearchColumnDefine(ServiceReferenceMetricTable.COLUMN_SOURCE_VALUE, ElasticSearchColumnDefine.Type.Integer.name()));

@@ -38,14 +38,9 @@ public class ApplicationMappingMonthTransformNode implements NodeProcessor<Appli
     public void process(ApplicationMapping applicationMapping, Next<ApplicationMapping> next) {
         long timeBucket = TimeBucketUtils.INSTANCE.minuteToMonth(applicationMapping.getTimeBucket());
 
-        ApplicationMapping newApplicationMapping = new ApplicationMapping();
+        ApplicationMapping newApplicationMapping = ApplicationMappingCopy.copy(applicationMapping);
         newApplicationMapping.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + applicationMapping.getMetricId());
-        newApplicationMapping.setMetricId(applicationMapping.getMetricId());
         newApplicationMapping.setTimeBucket(timeBucket);
-
-        newApplicationMapping.setApplicationId(applicationMapping.getApplicationId());
-        newApplicationMapping.setAddressId(applicationMapping.getAddressId());
-
         next.execute(newApplicationMapping);
     }
 }

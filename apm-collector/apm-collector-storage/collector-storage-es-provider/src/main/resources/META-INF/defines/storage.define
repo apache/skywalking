@@ -18,6 +18,11 @@ org.apache.skywalking.apm.collector.storage.es.define.instmapping.InstanceMappin
 org.apache.skywalking.apm.collector.storage.es.define.instmapping.InstanceMappingDayEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.instmapping.InstanceMappingMonthEsTableDefine
 
+org.apache.skywalking.apm.collector.storage.es.define.srmp.ServiceReferenceMinuteMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.srmp.ServiceReferenceHourMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.srmp.ServiceReferenceDayMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.srmp.ServiceReferenceMonthMetricEsTableDefine
+
 org.apache.skywalking.apm.collector.storage.es.define.GlobalTraceEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.SegmentEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.SegmentCostEsTableDefine

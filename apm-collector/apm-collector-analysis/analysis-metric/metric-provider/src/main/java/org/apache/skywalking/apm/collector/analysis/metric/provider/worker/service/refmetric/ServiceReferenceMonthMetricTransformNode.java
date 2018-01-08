@@ -36,9 +36,11 @@ public class ServiceReferenceMonthMetricTransformNode implements NodeProcessor<S
 
     @Override public void process(ServiceReferenceMetric serviceReferenceMetric, Next<ServiceReferenceMetric> next) {
         long timeBucket = TimeBucketUtils.INSTANCE.minuteToMonth(serviceReferenceMetric.getTimeBucket());
-        serviceReferenceMetric.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + serviceReferenceMetric.getMetricId());
-        serviceReferenceMetric.setTimeBucket(timeBucket);
 
-        next.execute(serviceReferenceMetric);
+        ServiceReferenceMetric newServiceReferenceMetric = ServiceReferenceMetricCopy.copy(serviceReferenceMetric);
+        newServiceReferenceMetric.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + serviceReferenceMetric.getMetricId());
+        newServiceReferenceMetric.setTimeBucket(timeBucket);
+
+        next.execute(newServiceReferenceMetric);
     }
 }
