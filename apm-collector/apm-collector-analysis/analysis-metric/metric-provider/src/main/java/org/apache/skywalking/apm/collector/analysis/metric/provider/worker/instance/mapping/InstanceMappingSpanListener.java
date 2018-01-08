@@ -53,8 +53,8 @@ public class InstanceMappingSpanListener implements FirstSpanListener, EntrySpan
                 instanceMapping.setApplicationId(applicationId);
                 instanceMapping.setInstanceId(instanceId);
                 instanceMapping.setAddressId(spanDecorator.getRefs(i).getNetworkAddressId());
-                String id = String.valueOf(instanceId) + Const.ID_SPLIT + String.valueOf(instanceMapping.getAddressId());
-                instanceMapping.setId(id);
+                String metricId = String.valueOf(instanceId) + Const.ID_SPLIT + String.valueOf(instanceMapping.getAddressId());
+                instanceMapping.setMetricId(metricId);
                 instanceMappings.add(instanceMapping);
             }
         }
@@ -70,7 +70,7 @@ public class InstanceMappingSpanListener implements FirstSpanListener, EntrySpan
         logger.debug("instance mapping listener build");
         Graph<InstanceMapping> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.INSTANCE_MAPPING_GRAPH_ID, InstanceMapping.class);
         instanceMappings.forEach(instanceMapping -> {
-            instanceMapping.setId(timeBucket + Const.ID_SPLIT + instanceMapping.getId());
+            instanceMapping.setId(timeBucket + Const.ID_SPLIT + instanceMapping.getMetricId());
             instanceMapping.setTimeBucket(timeBucket);
             logger.debug("push to instance mapping aggregation worker, id: {}", instanceMapping.getId());
             graph.start(instanceMapping);

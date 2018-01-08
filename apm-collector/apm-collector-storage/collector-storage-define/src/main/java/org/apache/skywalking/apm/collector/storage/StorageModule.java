@@ -70,7 +70,10 @@ import org.apache.skywalking.apm.collector.storage.dao.armp.IApplicationReferenc
 import org.apache.skywalking.apm.collector.storage.dao.cpump.ICpuSecondMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.gcmp.IGCSecondMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.imp.IInstanceMinuteMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.impp.IInstanceMappingDayPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.impp.IInstanceMappingHourPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.impp.IInstanceMappingMinutePersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.impp.IInstanceMappingMonthPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.irmp.IInstanceReferenceMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.memorymp.IMemorySecondMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.mpoolmp.IMemoryPoolSecondMetricPersistenceDAO;
@@ -135,6 +138,11 @@ public class StorageModule extends Module {
         classes.add(IApplicationMappingDayPersistenceDAO.class);
         classes.add(IApplicationMappingMonthPersistenceDAO.class);
 
+        classes.add(IInstanceMappingMinutePersistenceDAO.class);
+        classes.add(IInstanceMappingHourPersistenceDAO.class);
+        classes.add(IInstanceMappingDayPersistenceDAO.class);
+        classes.add(IInstanceMappingMonthPersistenceDAO.class);
+
         classes.add(IGlobalTracePersistenceDAO.class);
         classes.add(IApplicationMinuteMetricPersistenceDAO.class);
         classes.add(IApplicationReferenceMinuteMetricPersistenceDAO.class);
@@ -146,7 +154,6 @@ public class StorageModule extends Module {
 
         classes.add(IInstanceMinuteMetricPersistenceDAO.class);
         classes.add(IInstanceReferenceMinuteMetricPersistenceDAO.class);
-        classes.add(IInstanceMappingMinutePersistenceDAO.class);
         classes.add(IInstanceHeartBeatPersistenceDAO.class);
     }
 
