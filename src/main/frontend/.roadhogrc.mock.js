@@ -8,51 +8,27 @@ import { delay } from 'roadhog-api-doc';
 const noProxy = process.env.NO_PROXY === 'true';
 
 // 代码中会兼容本地 service mock 以及部署站点的静态数据
-const proxy = {
+const proxy = mockjs.mock({
   // 支持值为 Object 和 Array
-  'GET /api/currentUser': {
-    $desc: "获取当前用户接口",
-    $params: {
-      pageSize: {
-        desc: '分页',
-        exp: 2,
+  'POST /api/dashboard': {
+    data: {
+      getClusterBrief: {
+        'numOfApplication|1-100': 1,
+        'numOfService|1-100': 1,
+        'numOfDatabase|1-100': 1,
+        'numOfCache|1-100': 1,
+        'numOfMQ|1-100': 1,
       },
-    },
-    $body: {
-      name: 'Serati Ma',
-      avatar: 'https://gw.alipayobjects.com/zos/rmsportal/dRFVcIqZOYPcSNrlJsqQ.png',
-      userid: '00000001',
-      notifyCount: 12,
-    },
-  },
-  // GET POST 可省略
-  'GET /api/users': [{
-    key: '1',
-    name: 'John Brown',
-    age: 32,
-    address: 'New York No. 1 Lake Park',
-  }, {
-    key: '2',
-    name: 'Jim Green',
-    age: 42,
-    address: 'London No. 1 Lake Park',
-  }, {
-    key: '3',
-    name: 'Joe Black',
-    age: 32,
-    address: 'Sidney No. 1 Lake Park',
-  }],
-  'GET /api/rule': getRule,
-  'POST /api/rule': {
-    $params: {
-      pageSize: {
-        desc: '分页',
-        exp: 2,
+      getAlarmTrend: {
+        'numOfAlarmRate|5': [5, 3, 2,],
       },
-    },
-    $body: postRule,
+      getConjecturalApps: {
+        'apps|3-5': [{'name|1':['Oracle', 'MySQL', 'ActiveMQ', 'Redis', 'Memcache', 'SQLServer'], 'num|1-20':10}],
+      },
+      'getTopNSlowService|10': [{'key|+1': 1, 'name': '@name', 'avgResponseTime|200-1000': 1}],
+      'getTopNServerThroughput|10': [{'key|+1': 1, 'name': '@name', 'tps|100-10000': 1}],
+    }
   },
-  'GET /api/notices': getNotices,
-};
+});
 
 export default noProxy ? {} : delay(proxy, 1000);

@@ -1,79 +1,53 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Icon, Tooltip, Card, Table } from 'antd';
-import moment from 'moment';
+import { Row, Col, Card, Table } from 'antd';
 import {
   ChartCard, Pie, MiniArea, Field,
 } from '../../components/Charts';
+import { timeRange } from '../../utils/utils';
 
 @connect(state => ({
   dashboard: state.dashboard,
+  duration: state.global.duration,
 }))
-export default class Dashboard extends PureComponent {
-  render() {
-    const visitData = [];
-    const beginDay = new Date().getTime();
-
-    const fakeY = [7, 5, 4, 2, 4, 7, 5, 6, 5, 9, 6, 3, 1, 5, 3, 6, 5];
-    for (let i = 0; i < fakeY.length; i += 1) {
-      visitData.push({
-        x: moment(new Date(beginDay + (1000 * 60 * 60 * 24 * i))).format('YYYY-MM-DD'),
-        y: fakeY[i],
+export default class Dashboard extends Component {
+  componentDidMount() {
+    this.props.dispatch({
+      type: 'dashboard/fetch',
+      payload: {},
+    });
+  }
+  shouldComponentUpdate(nextProps) {
+    if (this.props.duration !== nextProps.duration) {
+      this.props.dispatch({
+        type: 'dashboard/fetch',
+        payload: {},
       });
     }
-    const databasePieData = [
-      {
-        x: 'MySQL',
-        y: 10,
-      },
-      {
-        x: 'Oracle',
-        y: 7,
-      },
-      {
-        x: 'SQLServer',
-        y: 3,
-      },
-    ];
+    return this.props.dashboard !== nextProps.dashboard;
+  }
+  render() {
+    const visitData = [];
+    const { numOfAlarmRate } = this.props.dashboard.getAlarmTrend;
+    let avg = 0;
+    let max = 0;
+    let min = 0;
+    if (numOfAlarmRate && numOfAlarmRate.length > 0) {
+      timeRange(this.props.duration).forEach((v, i) => {
+        visitData.push({ x: v, y: numOfAlarmRate[i] });
+      });
+      avg = numOfAlarmRate.reduce((acc, curr) => acc + curr) / numOfAlarmRate.length;
+      max = numOfAlarmRate.reduce((acc, curr) => { return acc < curr ? curr : acc; });
+      min = numOfAlarmRate.reduce((acc, curr) => { return acc > curr ? curr : acc; });
+    }
     const tableColumns = [{
-      title: 'Time',
-      dataIndex: 'time',
-      key: 'time',
-    }, {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
     }, {
-      title: 'Duration',
-      dataIndex: 'duration',
-      key: 'duration',
-    }];
-
-    const slowServiceData = [{
-      key: '1',
-      name: 'ServiceA',
-      time: '2017/12/11 19:22:32',
-      duration: '5000ms',
-    }, {
-      key: '2',
-      name: 'ServiceA',
-      time: '2017/12/11 19:22:32',
-      duration: '5000ms',
-    }, {
-      key: '3',
-      name: 'ServiceA',
-      time: '2017/12/11 19:22:32',
-      duration: '5000ms',
-    }, {
-      key: '4',
-      name: 'ServiceA',
-      time: '2017/12/11 19:22:32',
-      duration: '5000ms',
-    }, {
-      key: '5',
-      name: 'ServiceA',
-      time: '2017/12/11 19:22:32',
-      duration: '5000ms',
+      title: 'Response Time',
+      dataIndex: 'avgResponseTime',
+      key: 'avgResponseTime',
     }];
 
     const applicationThroughputColumns = [{
@@ -85,101 +59,59 @@ export default class Dashboard extends PureComponent {
       dataIndex: 'tps',
       key: 'tps',
     }];
-
-    const applicationThroughputData = [{
-      key: '1',
-      name: 'App1',
-      tps: '500',
-    }, {
-      key: '2',
-      name: 'App1',
-      tps: '500',
-    }, {
-      key: '3',
-      name: 'App1',
-      tps: '500',
-    }, {
-      key: '4',
-      name: 'App1',
-      tps: '500',
-    }, {
-      key: '5',
-      name: 'App1',
-      tps: '500',
-    }];
-
-    const topColResponsiveProps = {
-      xs: 24,
-      sm: 12,
-      md: 12,
-      lg: 6,
-      xl: 6,
-      style: { marginBottom: 24 },
-    };
-    const middleColResponsiveProps = {
-      xs: 24,
-      sm: 24,
-      md: 24,
-      lg: 8,
-      xl: 8,
-      style: { marginBottom: 24, marginTop: 24 },
-    };
     return (
       <div>
         <Row gutter={24}>
-          <Col {...topColResponsiveProps}>
+          <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
-              title="Total Application"
+              title="App"
               avatar={<img style={{ width: 56, height: 56 }} src="app.svg" alt="app" />}
-              action={<Tooltip title="Tip"><Icon type="info-circle-o" /></Tooltip>}
-              total={25}
+              total={this.props.dashboard.getClusterBrief.numOfApplication}
             />
           </Col>
-          <Col {...topColResponsiveProps}>
+          <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
-              title="Total Service"
+              title="Service"
               avatar={<img style={{ width: 56, height: 56 }} src="service.svg" alt="service" />}
-              action={<Tooltip title="Tip"><Icon type="info-circle-o" /></Tooltip>}
-              total={525}
+              total={this.props.dashboard.getClusterBrief.numOfService}
             />
           </Col>
-          <Col {...topColResponsiveProps}>
+          <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
-              title="Total Database"
-              avatar={<img style={{ width: 56, height: 56 }} src="database.svg" alt="database" />}
-              action={<Tooltip title="Tip"><Icon type="info-circle-o" /></Tooltip>}
-              total={18}
+              title="Store"
+              avatar={<img style={{ width: 48, height: 56 }} src="database.svg" alt="database" />}
+              total={this.props.dashboard.getClusterBrief.numOfDatabase
+                + this.props.dashboard.getClusterBrief.numOfCache}
             />
           </Col>
-          <Col {...topColResponsiveProps}>
+          <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
-              title="Total Cache"
+              title="MQ"
               avatar={<img style={{ width: 56, height: 56 }} src="redis.svg" alt="redis" />}
-              action={<Tooltip title="Tip"><Icon type="info-circle-o" /></Tooltip>}
-              total={5}
+              total={this.props.dashboard.getClusterBrief.numOfMQ}
             />
           </Col>
         </Row>
         <Card
           bordered={false}
-          bodyStyle={{ padding: 0 }}
+          bodyStyle={{ padding: 0, marginTop: 24 }}
         >
           <div style={{ height: 480 }}>Topoloy</div>
         </Card>
         <Row gutter={24}>
-          <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginTop: 24 }}>
+          <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 24 }}>
             <ChartCard
-              title="Avg Application Alert"
+              title="Avg Application Alarm"
               avatar={<img style={{ width: 56, height: 56 }} src="alert.svg" alt="app" />}
-              action={<Tooltip title="Tip"><Icon type="info-circle-o" /></Tooltip>}
-              total="5%"
-              footer={<div><Field label="Max" value="10%" /> <Field label="Min" value="2%" /></div>}
+              total={`${avg.toFixed(2)}%`}
+              footer={<div><Field label="Max" value={`${max}%`} /> <Field label="Min" value={`${min}%`} /></div>}
             >
               <MiniArea
+                animate={false}
                 color="#D87093"
                 borderColor="#B22222"
                 line="true"
-                height={96}
+                height={143}
                 data={visitData}
                 yAxis={{
                   formatter(val) {
@@ -189,49 +121,58 @@ export default class Dashboard extends PureComponent {
               />
             </ChartCard>
           </Col>
-        </Row>
-        <Row gutter={24}>
-          <Col {...middleColResponsiveProps}>
+          <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 24 }}>
             <Card
               bordered={false}
               bodyStyle={{ padding: 0 }}
             >
               <Pie
+                animate={false}
                 hasLegend
                 title="Database"
                 subTitle="Total"
-                total={databasePieData.reduce((pre, now) => now.y + pre, 0)}
-                data={databasePieData}
+                total={this.props.dashboard.getConjecturalApps.apps
+                  .reduce((pre, now) => now.num + pre, 0)}
+                data={this.props.dashboard.getConjecturalApps.apps
+                  .map((v) => { return { x: v.name, y: v.num }; })}
                 height={300}
                 lineWidth={4}
               />
             </Card>
           </Col>
-          <Col {...middleColResponsiveProps}>
+        </Row>
+        <Row gutter={24}>
+          <Col xs={24} sm={24} md={24} lg={16} xl={16} style={{ marginTop: 24 }}>
             <Card
               title="Slow Service"
               bordered={false}
               bodyStyle={{ padding: 0 }}
             >
               <Table
+                size="small"
                 columns={tableColumns}
-                dataSource={slowServiceData}
+                dataSource={this.props.dashboard.getTopNSlowService}
                 pagination={{
                   style: { marginBottom: 0 },
-                  pageSize: 5,
+                  pageSize: 10,
                 }}
               />
             </Card>
           </Col>
-          <Col {...middleColResponsiveProps}>
+          <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 24 }}>
             <Card
               title="Application Throughput"
               bordered={false}
               bodyStyle={{ padding: 0 }}
             >
               <Table
+                size="small"
                 columns={applicationThroughputColumns}
-                dataSource={applicationThroughputData}
+                dataSource={this.props.dashboard.getTopNServerThroughput}
+                pagination={{
+                  style: { marginBottom: 0 },
+                  pageSize: 10,
+                }}
               />
             </Card>
           </Col>
