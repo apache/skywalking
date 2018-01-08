@@ -24,5 +24,5 @@ import org.apache.skywalking.apm.collector.storage.table.global.GlobalTrace;
 /**
  * @author peng-yongsheng
  */
-public interface IGlobalTracePersistenceDAO<Insert, Update, DataImpl extends GlobalTrace> extends IPersistenceDAO<Insert, Update, DataImpl> {
+public interface IGlobalTracePersistenceDAO<INSERT, UPDATE, STREAM_DATA extends GlobalTrace> extends IPersistenceDAO<INSERT, UPDATE, STREAM_DATA> {
 }

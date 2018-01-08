@@ -16,23 +16,19 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.ui.service;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.util.Iterator;
 import java.util.Map;
-import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
-import org.apache.skywalking.apm.collector.storage.dao.IServiceEntryUIDAO;
-import org.apache.skywalking.apm.collector.storage.table.service.ServiceEntryTable;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.ColumnNameUtils;
+import org.apache.skywalking.apm.collector.core.util.Const;
+import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceReferenceUIDAO;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetricTable;
@@ -42,30 +38,14 @@ import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenc
  */
 public class ServiceTreeService {
 
-    private final IServiceEntryUIDAO serviceEntryDAO;
     private final IServiceReferenceUIDAO serviceReferenceDAO;
     private final ApplicationCacheService applicationCacheService;
     private final ServiceNameCacheService serviceNameCacheService;
 
     public ServiceTreeService(ModuleManager moduleManager) {
-        this.serviceEntryDAO = moduleManager.find(StorageModule.NAME).getService(IServiceEntryUIDAO.class);
         this.serviceReferenceDAO = moduleManager.find(StorageModule.NAME).getService(IServiceReferenceUIDAO.class);
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
         this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
-    }
-
-    public JsonObject loadEntryService(int applicationId, String entryServiceName, long startTime, long endTime,
-        int from, int size) {
-        JsonObject response = serviceEntryDAO.load(applicationId, entryServiceName, startTime, endTime, from, size);
-        JsonArray entryServices = response.get("array").getAsJsonArray();
-        for (JsonElement element : entryServices) {
-            JsonObject entryService = element.getAsJsonObject();
-            int respApplication = entryService.get(ColumnNameUtils.INSTANCE.rename(ServiceEntryTable.COLUMN_APPLICATION_ID)).getAsInt();
-            String applicationCode = applicationCacheService.getApplicationCodeById(respApplication);
-            entryService.addProperty("applicationCode", applicationCode);
-        }
-
-        return response;
     }
 
     public JsonArray loadServiceTree(int entryServiceId, long startTime, long endTime) {
