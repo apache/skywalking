@@ -61,12 +61,12 @@ public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListe
         timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
 
         SegmentCost segmentCost = new SegmentCost();
+        segmentCost.setId(segmentId);
         segmentCost.setSegmentId(segmentId);
         segmentCost.setApplicationId(applicationId);
         segmentCost.setCost(spanDecorator.getEndTime() - spanDecorator.getStartTime());
         segmentCost.setStartTime(spanDecorator.getStartTime());
         segmentCost.setEndTime(spanDecorator.getEndTime());
-        segmentCost.setId(segmentId);
         if (spanDecorator.getOperationNameId() == 0) {
             segmentCost.setServiceName(spanDecorator.getOperationName());
         } else {
