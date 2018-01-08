@@ -20,10 +20,10 @@ const proxy = mockjs.mock({
         'numOfMQ|1-100': 1,
       },
       getAlarmTrend: {
-        'numOfAlarmRate|5': [5, 3, 2,],
+        'numOfAlarmRate|15': ['@natural(0, 99)'],
       },
       getConjecturalApps: {
-        'apps|3-5': [{'name|1':['Oracle', 'MySQL', 'ActiveMQ', 'Redis', 'Memcache', 'SQLServer'], 'num|1-20':10}],
+        'apps|3-5': [{'name|1':['Oracle', 'MySQL', 'ActiveMQ', 'Redis', 'Memcache', 'SQLServer'], 'num':'@natural(1, 20)'}],
       },
       'getTopNSlowService|10': [{'key|+1': 1, 'name': '@name', 'avgResponseTime|200-1000': 1}],
       'getTopNServerThroughput|10': [{'key|+1': 1, 'name': '@name', 'tps|100-10000': 1}],
@@ -33,6 +33,31 @@ const proxy = mockjs.mock({
     data: {
       'getSlowService|10': [{'key|+1': 1, 'name': '@name', 'avgResponseTime|200-1000': 1}],
       'getServerThroughput|10': [{'key|+1': 1, 'name': '@name', 'tps|100-10000': 1}],
+    }
+  },
+
+  'POST /api/server': {
+    data: {
+      'searchServer|5': [{}],
+      getServerResponseTimeTrend: {
+        'trendList|15': ['@natural(100, 1000)'],
+      },
+      getServerTPSTrend: {
+        'trendList|15': ['@natural(500, 10000)'],
+      },
+      getCPUTrend: {
+        'cost|15': ['@natural(0, 99)'],
+      },
+      getMemoryTrend: {
+        'heap|15': ['@natural(500, 900)'],
+        'maxHeap|15': ['@natural(900, 2000)'],
+        'noheap|15': ['@natural(100, 200)'],
+        'maxNoheap|15': ['@natural(200, 300)'],
+      },
+      getGCTrend: {
+        'youngGC|15': ['@natural(200, 300)'],
+        'oldGC|15': ['@natural(10,100)'],
+      },
     }
   },
 });
