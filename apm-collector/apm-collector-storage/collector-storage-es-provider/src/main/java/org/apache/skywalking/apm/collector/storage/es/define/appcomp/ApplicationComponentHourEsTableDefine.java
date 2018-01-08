@@ -16,27 +16,22 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.es.dao.memorymp;
+package org.apache.skywalking.apm.collector.storage.es.define.appcomp;
 
-import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.storage.TimePyramid;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.storage.dao.memorymp.IMemoryMinuteMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetric;
-import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetricTable;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.update.UpdateRequestBuilder;
+import org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponentTable;
 
 /**
  * @author peng-yongsheng
  */
-public class MemoryMinuteMetricEsPersistenceDAO extends AbstractMemoryMetricEsPersistenceDAO implements IMemoryMinuteMetricPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, MemoryMetric> {
+public class ApplicationComponentHourEsTableDefine extends AbstractApplicationComponentEsTableDefine {
 
-    public MemoryMinuteMetricEsPersistenceDAO(ElasticSearchClient client) {
-        super(client);
+    public ApplicationComponentHourEsTableDefine() {
+        super(ApplicationComponentTable.TABLE + Const.ID_SPLIT + TimePyramid.Hour.getName());
     }
 
-    @Override protected String tableName() {
-        return MemoryMetricTable.TABLE + Const.ID_SPLIT + TimePyramid.Minute.getName();
+    @Override public int refreshInterval() {
+        return 2;
     }
 }

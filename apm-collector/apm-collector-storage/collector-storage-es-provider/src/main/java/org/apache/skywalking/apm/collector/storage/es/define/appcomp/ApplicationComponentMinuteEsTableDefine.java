@@ -16,29 +16,22 @@
  *
  */
 
+package org.apache.skywalking.apm.collector.storage.es.define.appcomp;
 
-package org.apache.skywalking.apm.collector.storage.es.define;
-
-import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchColumnDefine;
+import org.apache.skywalking.apm.collector.core.storage.TimePyramid;
+import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponentTable;
-import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchTableDefine;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationComponentEsTableDefine extends ElasticSearchTableDefine {
+public class ApplicationComponentMinuteEsTableDefine extends AbstractApplicationComponentEsTableDefine {
 
-    public ApplicationComponentEsTableDefine() {
-        super(ApplicationComponentTable.TABLE);
+    public ApplicationComponentMinuteEsTableDefine() {
+        super(ApplicationComponentTable.TABLE + Const.ID_SPLIT + TimePyramid.Minute.getName());
     }
 
     @Override public int refreshInterval() {
         return 2;
-    }
-
-    @Override public void initialize() {
-        addColumn(new ElasticSearchColumnDefine(ApplicationComponentTable.COLUMN_COMPONENT_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(ApplicationComponentTable.COLUMN_PEER_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(ApplicationComponentTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
     }
 }
