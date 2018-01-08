@@ -43,6 +43,11 @@ org.apache.skywalking.apm.collector.storage.es.define.armp.ApplicationReferenceH
 org.apache.skywalking.apm.collector.storage.es.define.armp.ApplicationReferenceDayMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.armp.ApplicationReferenceMonthMetricEsTableDefine
 
+org.apache.skywalking.apm.collector.storage.es.define.amp.ApplicationMinuteMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.amp.ApplicationHourMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.amp.ApplicationDayMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.amp.ApplicationMonthMetricEsTableDefine
+
 org.apache.skywalking.apm.collector.storage.es.define.GlobalTraceEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.SegmentEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.SegmentCostEsTableDefine

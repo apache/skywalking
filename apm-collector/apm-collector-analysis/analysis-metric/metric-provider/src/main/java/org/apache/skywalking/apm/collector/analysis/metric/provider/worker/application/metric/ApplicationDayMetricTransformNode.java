@@ -37,9 +37,10 @@ public class ApplicationDayMetricTransformNode implements NodeProcessor<Applicat
     @Override
     public void process(ApplicationMetric applicationMetric, Next<ApplicationMetric> next) {
         long timeBucket = TimeBucketUtils.INSTANCE.minuteToDay(applicationMetric.getTimeBucket());
-        applicationMetric.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + applicationMetric.getMetricId());
-        applicationMetric.setTimeBucket(timeBucket);
 
-        next.execute(applicationMetric);
+        ApplicationMetric newApplicationMetric = ApplicationMetricCopy.copy(applicationMetric);
+        newApplicationMetric.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + applicationMetric.getMetricId());
+        newApplicationMetric.setTimeBucket(timeBucket);
+        next.execute(newApplicationMetric);
     }
 }

@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.es.define;
+package org.apache.skywalking.apm.collector.storage.es.define.amp;
 
 import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchColumnDefine;
 import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchTableDefine;
@@ -25,18 +25,17 @@ import org.apache.skywalking.apm.collector.storage.table.application.Application
 /**
  * @author peng-yongsheng
  */
-public class ApplicationMetricEsTableDefine extends ElasticSearchTableDefine {
+public abstract class AbstractApplicationMetricEsTableDefine extends ElasticSearchTableDefine {
 
-    public ApplicationMetricEsTableDefine() {
-        super(ApplicationMetricTable.TABLE);
+    public AbstractApplicationMetricEsTableDefine(String name) {
+        super(name);
     }
 
-    @Override public int refreshInterval() {
-        return 2;
-    }
-
-    @Override public void initialize() {
+    @Override public final void initialize() {
+        addColumn(new ElasticSearchColumnDefine(ApplicationMetricTable.COLUMN_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationMetricTable.COLUMN_METRIC_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
         addColumn(new ElasticSearchColumnDefine(ApplicationMetricTable.COLUMN_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationMetricTable.COLUMN_SOURCE_VALUE, ElasticSearchColumnDefine.Type.Integer.name()));
 
         addColumn(new ElasticSearchColumnDefine(ApplicationMetricTable.COLUMN_TRANSACTION_CALLS, ElasticSearchColumnDefine.Type.Long.name()));
         addColumn(new ElasticSearchColumnDefine(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, ElasticSearchColumnDefine.Type.Long.name()));
@@ -58,6 +57,5 @@ public class ApplicationMetricEsTableDefine extends ElasticSearchTableDefine {
         addColumn(new ElasticSearchColumnDefine(ApplicationMetricTable.COLUMN_FRUSTRATED_COUNT, ElasticSearchColumnDefine.Type.Long.name()));
 
         addColumn(new ElasticSearchColumnDefine(ApplicationMetricTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(ApplicationMetricTable.COLUMN_SOURCE_VALUE, ElasticSearchColumnDefine.Type.Integer.name()));
     }
 }

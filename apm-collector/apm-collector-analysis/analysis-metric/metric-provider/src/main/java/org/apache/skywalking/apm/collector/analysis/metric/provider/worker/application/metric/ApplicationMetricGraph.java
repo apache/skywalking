@@ -50,8 +50,8 @@ public class ApplicationMetricGraph {
 
         Graph<ApplicationReferenceMetric> graph = GraphManager.INSTANCE.createIfAbsent(MetricGraphIdDefine.APPLICATION_METRIC_GRAPH_ID, ApplicationReferenceMetric.class);
 
-        Node<ApplicationMetric, ApplicationMetric> remoteNode = graph.addNode(new ApplicationMetricAggregationWorker.Factory(moduleManager).create(workerCreateListener))
-            .addNext(new ApplicationMetricRemoteWorker.Factory(moduleManager, remoteSenderService, MetricGraphIdDefine.APPLICATION_METRIC_GRAPH_ID).create(workerCreateListener));
+        Node<ApplicationMetric, ApplicationMetric> remoteNode = graph.addNode(new ApplicationMinuteMetricAggregationWorker.Factory(moduleManager).create(workerCreateListener))
+            .addNext(new ApplicationMinuteMetricRemoteWorker.Factory(moduleManager, remoteSenderService, MetricGraphIdDefine.APPLICATION_METRIC_GRAPH_ID).create(workerCreateListener));
 
         remoteNode.addNext(new ApplicationMinuteMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
@@ -64,7 +64,7 @@ public class ApplicationMetricGraph {
         remoteNode.addNext(new ApplicationMonthMetricTransformNode())
             .addNext(new ApplicationMonthMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
-//        link(graph);
+        link(graph);
     }
 
     private void link(Graph<ApplicationReferenceMetric> graph) {
