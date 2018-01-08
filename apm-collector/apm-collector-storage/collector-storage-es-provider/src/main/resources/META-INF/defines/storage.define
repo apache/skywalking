@@ -19,3 +19,5 @@ org.apache.skywalking.apm.collector.storage.es.define.instmapping.InstanceMappin
 org.apache.skywalking.apm.collector.storage.es.define.instmapping.InstanceMappingMonthEsTableDefine
 
 org.apache.skywalking.apm.collector.storage.es.define.GlobalTraceEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.SegmentEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.SegmentCostEsTableDefine

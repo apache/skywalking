@@ -167,7 +167,7 @@ public class SegmentParse {
         segment.setDataBinary(dataBinary);
         segment.setTimeBucket(timeBucket);
         Graph<Segment> graph = GraphManager.INSTANCE.findGraph(GraphIdDefine.SEGMENT_PERSISTENCE_GRAPH_ID, Segment.class);
-//        graph.start(segment);
+        graph.start(segment);
     }
 
     private void writeToBufferFile(String id, UpstreamSegment upstreamSegment) {
