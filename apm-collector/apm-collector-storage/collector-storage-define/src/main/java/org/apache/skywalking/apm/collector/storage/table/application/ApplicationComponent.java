@@ -30,18 +30,22 @@ public class ApplicationComponent extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
         new Column(ApplicationComponentTable.COLUMN_ID, new NonOperation()),
+        new Column(ApplicationComponentTable.COLUMN_METRIC_ID, new NonOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
         new Column(ApplicationComponentTable.COLUMN_TIME_BUCKET, new CoverOperation()),
     };
+
     private static final Column[] DOUBLE_COLUMNS = {};
+
     private static final Column[] INTEGER_COLUMNS = {
         new Column(ApplicationComponentTable.COLUMN_COMPONENT_ID, new CoverOperation()),
         new Column(ApplicationComponentTable.COLUMN_PEER_ID, new CoverOperation()),
     };
 
     private static final Column[] BOOLEAN_COLUMNS = {};
+    
     private static final Column[] BYTE_COLUMNS = {};
 
     public ApplicationComponent() {
@@ -49,19 +53,19 @@ public class ApplicationComponent extends StreamData {
     }
 
     @Override public String getId() {
-        return null;
+        return getDataString(0);
     }
 
     @Override public void setId(String id) {
-
+        setDataString(0, id);
     }
 
     @Override public String getMetricId() {
-        return null;
+        return getDataString(1);
     }
 
     @Override public void setMetricId(String metricId) {
-
+        setDataString(1, metricId);
     }
 
     public Long getTimeBucket() {

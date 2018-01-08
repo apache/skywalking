@@ -16,18 +16,18 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.dao;
+package org.apache.skywalking.apm.collector.storage.dao.register;
 
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
-import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddress;
+import org.apache.skywalking.apm.collector.storage.table.register.Application;
 
 /**
  * @author peng-yongsheng
  */
-public interface INetworkAddressRegisterDAO extends DAO {
-    int getMaxNetworkAddressId();
+public interface IApplicationRegisterDAO extends DAO {
+    int getMaxApplicationId();
 
-    int getMinNetworkAddressId();
+    int getMinApplicationId();
 
-    void save(NetworkAddress networkAddress);
+    void save(Application application);
 }

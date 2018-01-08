@@ -27,9 +27,9 @@ import org.apache.skywalking.apm.collector.storage.table.application.Application
 /**
  * @author peng-yongsheng
  */
-public class ApplicationComponentAggregationWorker extends AggregationWorker<ApplicationComponent, ApplicationComponent> {
+public class ApplicationComponentMinuteAggregationWorker extends AggregationWorker<ApplicationComponent, ApplicationComponent> {
 
-    public ApplicationComponentAggregationWorker(ModuleManager moduleManager) {
+    public ApplicationComponentMinuteAggregationWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -37,14 +37,14 @@ public class ApplicationComponentAggregationWorker extends AggregationWorker<App
         return MetricWorkerIdDefine.APPLICATION_COMPONENT_MINUTE_AGGREGATION_WORKER_ID;
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<ApplicationComponent, ApplicationComponent, ApplicationComponentAggregationWorker> {
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<ApplicationComponent, ApplicationComponent, ApplicationComponentMinuteAggregationWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
         }
 
-        @Override public ApplicationComponentAggregationWorker workerInstance(ModuleManager moduleManager) {
-            return new ApplicationComponentAggregationWorker(moduleManager);
+        @Override public ApplicationComponentMinuteAggregationWorker workerInstance(ModuleManager moduleManager) {
+            return new ApplicationComponentMinuteAggregationWorker(moduleManager);
         }
 
         @Override

@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.NetworkAddressCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.dao.INetworkAddressRegisterDAO;
+import org.apache.skywalking.apm.collector.storage.dao.register.INetworkAddressRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -45,7 +45,7 @@ public abstract class AbstractApplicationComponentEsPersistenceDAO extends Abstr
 
         applicationComponent.setComponentId(((Number)source.get(ApplicationComponentTable.COLUMN_COMPONENT_ID)).intValue());
         applicationComponent.setPeerId(((Number)source.get(ApplicationComponentTable.COLUMN_PEER_ID)).intValue());
-        applicationComponent.setTimeBucket((Long)source.get(ApplicationComponentTable.COLUMN_TIME_BUCKET));
+        applicationComponent.setTimeBucket(((Number)source.get(ApplicationComponentTable.COLUMN_TIME_BUCKET)).longValue());
         return applicationComponent;
     }
 

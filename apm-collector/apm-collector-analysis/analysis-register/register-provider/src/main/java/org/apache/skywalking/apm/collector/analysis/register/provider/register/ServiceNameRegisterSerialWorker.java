@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.collector.cache.service.ServiceIdCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.dao.IServiceNameRegisterDAO;
+import org.apache.skywalking.apm.collector.storage.dao.register.IServiceNameRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

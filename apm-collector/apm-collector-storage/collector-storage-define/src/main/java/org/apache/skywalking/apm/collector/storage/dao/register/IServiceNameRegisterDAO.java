@@ -16,20 +16,18 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.dao;
+package org.apache.skywalking.apm.collector.storage.dao.register;
 
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
-import org.apache.skywalking.apm.collector.storage.table.register.Instance;
+import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
 
 /**
  * @author peng-yongsheng
  */
-public interface IInstanceRegisterDAO extends DAO {
-    int getMaxInstanceId();
+public interface IServiceNameRegisterDAO extends DAO {
+    int getMaxServiceId();
 
-    int getMinInstanceId();
+    int getMinServiceId();
 
-    void save(Instance instance);
-
-    void updateHeartbeatTime(int instanceId, long heartbeatTime);
+    void save(ServiceName serviceName);
 }

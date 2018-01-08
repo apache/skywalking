@@ -37,9 +37,14 @@ public class ApplicationComponentHourTransformNode implements NodeProcessor<Appl
     @Override
     public void process(ApplicationComponent applicationComponent, Next<ApplicationComponent> next) {
         long timeBucket = TimeBucketUtils.INSTANCE.minuteToHour(applicationComponent.getTimeBucket());
-        applicationComponent.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + applicationComponent.getMetricId());
-        applicationComponent.setTimeBucket(timeBucket);
 
-        next.execute(applicationComponent);
+        ApplicationComponent newApplicationComponent = new ApplicationComponent();
+        newApplicationComponent.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + applicationComponent.getMetricId());
+        newApplicationComponent.setMetricId(applicationComponent.getMetricId());
+
+        newApplicationComponent.setComponentId(applicationComponent.getComponentId());
+        newApplicationComponent.setPeerId(applicationComponent.getPeerId());
+        newApplicationComponent.setTimeBucket(timeBucket);
+        next.execute(newApplicationComponent);
     }
 }

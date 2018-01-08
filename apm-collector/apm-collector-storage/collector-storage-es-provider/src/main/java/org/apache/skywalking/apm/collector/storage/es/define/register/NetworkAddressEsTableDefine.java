@@ -16,29 +16,27 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.es.define;
+package org.apache.skywalking.apm.collector.storage.es.define.register;
 
 import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchColumnDefine;
 import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchTableDefine;
-import org.apache.skywalking.apm.collector.storage.table.register.ApplicationTable;
+import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddressTable;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationEsTableDefine extends ElasticSearchTableDefine {
+public class NetworkAddressEsTableDefine extends ElasticSearchTableDefine {
 
-    public ApplicationEsTableDefine() {
-        super(ApplicationTable.TABLE);
+    public NetworkAddressEsTableDefine() {
+        super(NetworkAddressTable.TABLE);
     }
 
     @Override public int refreshInterval() {
-        return 2;
+        return 1;
     }
 
     @Override public void initialize() {
-        addColumn(new ElasticSearchColumnDefine(ApplicationTable.COLUMN_APPLICATION_CODE, ElasticSearchColumnDefine.Type.Keyword.name()));
-        addColumn(new ElasticSearchColumnDefine(ApplicationTable.COLUMN_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(ApplicationTable.COLUMN_ADDRESS_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(ApplicationTable.COLUMN_IS_ADDRESS, ElasticSearchColumnDefine.Type.Boolean.name()));
+        addColumn(new ElasticSearchColumnDefine(NetworkAddressTable.COLUMN_NETWORK_ADDRESS, ElasticSearchColumnDefine.Type.Keyword.name()));
+        addColumn(new ElasticSearchColumnDefine(NetworkAddressTable.COLUMN_ADDRESS_ID, ElasticSearchColumnDefine.Type.Integer.name()));
     }
 }
