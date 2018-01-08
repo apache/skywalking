@@ -31,6 +31,7 @@ public class ServiceMetric extends StreamData implements Metric {
 
     private static final Column[] STRING_COLUMNS = {
         new Column(ServiceMetricTable.COLUMN_ID, new NonOperation()),
+        new Column(ServiceMetricTable.COLUMN_METRIC_ID, new NonOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
@@ -76,11 +77,11 @@ public class ServiceMetric extends StreamData implements Metric {
     }
 
     @Override public String getMetricId() {
-        return getId();
+        return getDataString(1);
     }
 
     @Override public void setMetricId(String metricId) {
-        setId(metricId);
+        setDataString(1, metricId);
     }
 
     @Override

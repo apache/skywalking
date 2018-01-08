@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.collector.storage.es.dao.smp;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.storage.TimePyramid;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.storage.dao.smp.IServiceMinuteMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.smp.IServiceMonthMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetric;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetricTable;
 import org.elasticsearch.action.index.IndexRequestBuilder;
@@ -30,7 +30,7 @@ import org.elasticsearch.action.update.UpdateRequestBuilder;
 /**
  * @author peng-yongsheng
  */
-public class ServiceMonthMetricEsPersistenceDAO extends AbstractServiceMetricEsPersistenceDAO implements IServiceMinuteMetricPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, ServiceMetric> {
+public class ServiceMonthMetricEsPersistenceDAO extends AbstractServiceMetricEsPersistenceDAO implements IServiceMonthMetricPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, ServiceMetric> {
 
     public ServiceMonthMetricEsPersistenceDAO(ElasticSearchClient client) {
         super(client);

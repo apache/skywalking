@@ -16,27 +16,22 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.es.dao.smp;
+package org.apache.skywalking.apm.collector.storage.es.define.smp;
 
-import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.storage.TimePyramid;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.storage.dao.smp.IServiceDayMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetric;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetricTable;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.update.UpdateRequestBuilder;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceDayMetricEsPersistenceDAO extends AbstractServiceMetricEsPersistenceDAO implements IServiceDayMetricPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, ServiceMetric> {
+public class ServiceHourMetricEsTableDefine extends AbstractServiceMetricEsTableDefine {
 
-    public ServiceDayMetricEsPersistenceDAO(ElasticSearchClient client) {
-        super(client);
+    public ServiceHourMetricEsTableDefine() {
+        super(ServiceMetricTable.TABLE + Const.ID_SPLIT + TimePyramid.Hour.getName());
     }
 
-    @Override protected String tableName() {
-        return ServiceMetricTable.TABLE + Const.ID_SPLIT + TimePyramid.Day.getName();
+    @Override public int refreshInterval() {
+        return 2;
     }
 }

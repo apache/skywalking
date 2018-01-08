@@ -16,8 +16,7 @@
  *
  */
 
-
-package org.apache.skywalking.apm.collector.storage.es.define;
+package org.apache.skywalking.apm.collector.storage.es.define.smp;
 
 import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchColumnDefine;
 import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchTableDefine;
@@ -26,18 +25,17 @@ import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetricTa
 /**
  * @author peng-yongsheng
  */
-public class ServiceMetricEsTableDefine extends ElasticSearchTableDefine {
+public abstract class AbstractServiceMetricEsTableDefine extends ElasticSearchTableDefine {
 
-    public ServiceMetricEsTableDefine() {
-        super(ServiceMetricTable.TABLE);
+    public AbstractServiceMetricEsTableDefine(String name) {
+        super(name);
     }
 
-    @Override public int refreshInterval() {
-        return 2;
-    }
-
-    @Override public void initialize() {
+    @Override public final void initialize() {
+        addColumn(new ElasticSearchColumnDefine(ServiceMetricTable.COLUMN_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceMetricTable.COLUMN_METRIC_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
         addColumn(new ElasticSearchColumnDefine(ServiceMetricTable.COLUMN_SERVICE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceMetricTable.COLUMN_SOURCE_VALUE, ElasticSearchColumnDefine.Type.Integer.name()));
 
         addColumn(new ElasticSearchColumnDefine(ServiceMetricTable.COLUMN_TRANSACTION_CALLS, ElasticSearchColumnDefine.Type.Long.name()));
         addColumn(new ElasticSearchColumnDefine(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, ElasticSearchColumnDefine.Type.Long.name()));
