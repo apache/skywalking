@@ -29,9 +29,9 @@ import org.apache.skywalking.apm.collector.storage.table.application.Application
 /**
  * @author peng-yongsheng
  */
-public class ApplicationMetricAggregationWorker extends AggregationWorker<ApplicationReferenceMetric, ApplicationMetric> {
+public class ApplicationMinuteMetricAggregationWorker extends AggregationWorker<ApplicationReferenceMetric, ApplicationMetric> {
 
-    public ApplicationMetricAggregationWorker(ModuleManager moduleManager) {
+    public ApplicationMinuteMetricAggregationWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -80,14 +80,14 @@ public class ApplicationMetricAggregationWorker extends AggregationWorker<Applic
         return applicationMetric;
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<ApplicationReferenceMetric, ApplicationMetric, ApplicationMetricAggregationWorker> {
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<ApplicationReferenceMetric, ApplicationMetric, ApplicationMinuteMetricAggregationWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
         }
 
-        @Override public ApplicationMetricAggregationWorker workerInstance(ModuleManager moduleManager) {
-            return new ApplicationMetricAggregationWorker(moduleManager);
+        @Override public ApplicationMinuteMetricAggregationWorker workerInstance(ModuleManager moduleManager) {
+            return new ApplicationMinuteMetricAggregationWorker(moduleManager);
         }
 
         @Override public int queueSize() {

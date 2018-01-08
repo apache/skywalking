@@ -30,9 +30,9 @@ import org.apache.skywalking.apm.collector.storage.table.application.Application
 /**
  * @author peng-yongsheng
  */
-public class ApplicationMetricRemoteWorker extends AbstractRemoteWorker<ApplicationMetric, ApplicationMetric> {
+public class ApplicationMinuteMetricRemoteWorker extends AbstractRemoteWorker<ApplicationMetric, ApplicationMetric> {
 
-    public ApplicationMetricRemoteWorker(ModuleManager moduleManager) {
+    public ApplicationMinuteMetricRemoteWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -48,13 +48,13 @@ public class ApplicationMetricRemoteWorker extends AbstractRemoteWorker<Applicat
         return Selector.HashCode;
     }
 
-    public static class Factory extends AbstractRemoteWorkerProvider<ApplicationMetric, ApplicationMetric, ApplicationMetricRemoteWorker> {
+    public static class Factory extends AbstractRemoteWorkerProvider<ApplicationMetric, ApplicationMetric, ApplicationMinuteMetricRemoteWorker> {
         public Factory(ModuleManager moduleManager, RemoteSenderService remoteSenderService, int graphId) {
             super(moduleManager, remoteSenderService, graphId);
         }
 
-        @Override public ApplicationMetricRemoteWorker workerInstance(ModuleManager moduleManager) {
-            return new ApplicationMetricRemoteWorker(moduleManager);
+        @Override public ApplicationMinuteMetricRemoteWorker workerInstance(ModuleManager moduleManager) {
+            return new ApplicationMinuteMetricRemoteWorker(moduleManager);
         }
     }
 }
