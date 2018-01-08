@@ -33,6 +33,11 @@ org.apache.skywalking.apm.collector.storage.es.define.irmp.InstanceReferenceHour
 org.apache.skywalking.apm.collector.storage.es.define.irmp.InstanceReferenceDayMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.irmp.InstanceReferenceMonthMetricEsTableDefine
 
+org.apache.skywalking.apm.collector.storage.es.define.imp.InstanceMinuteMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.imp.InstanceHourMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.imp.InstanceDayMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.imp.InstanceMonthMetricEsTableDefine
+
 org.apache.skywalking.apm.collector.storage.es.define.armp.ApplicationReferenceMinuteMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.armp.ApplicationReferenceHourMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.armp.ApplicationReferenceDayMetricEsTableDefine

@@ -50,8 +50,8 @@ public class InstanceMetricGraph {
 
         Graph<InstanceReferenceMetric> graph = GraphManager.INSTANCE.createIfAbsent(MetricGraphIdDefine.INSTANCE_METRIC_GRAPH_ID, InstanceReferenceMetric.class);
 
-        Node<InstanceMetric, InstanceMetric> remoteNode = graph.addNode(new InstanceMetricAggregationWorker.Factory(moduleManager).create(workerCreateListener))
-            .addNext(new InstanceMetricRemoteWorker.Factory(moduleManager, remoteSenderService, MetricGraphIdDefine.INSTANCE_METRIC_GRAPH_ID).create(workerCreateListener));
+        Node<InstanceMetric, InstanceMetric> remoteNode = graph.addNode(new InstanceMinuteMetricAggregationWorker.Factory(moduleManager).create(workerCreateListener))
+            .addNext(new InstanceMinuteMetricRemoteWorker.Factory(moduleManager, remoteSenderService, MetricGraphIdDefine.INSTANCE_METRIC_GRAPH_ID).create(workerCreateListener));
 
         remoteNode.addNext(new InstanceMinuteMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
@@ -64,7 +64,7 @@ public class InstanceMetricGraph {
         remoteNode.addNext(new InstanceMonthMetricTransformNode())
             .addNext(new InstanceMonthMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
-//        link(graph);
+        link(graph);
     }
 
     private void link(Graph<InstanceReferenceMetric> graph) {
