@@ -73,6 +73,11 @@ const proxy = mockjs.mock({
       },
     }
   },
+  'POST /api/alert': {
+    data: {
+      'loadAlertList|100': [{'key|+1': 1, 'content':'@string(20)', 'startTime': '@datetime("yyyy-MM-dd HH:mm:ss")', 'alertType|1': ['APPLICATION', 'SERVER', 'SERVICE']}],
+    }
+  },
 });
 
 export default noProxy ? {} : delay(proxy, 1000);

@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'dva';
 import { Card, Table, Input } from 'antd';
 import styles from './Alert.less';
@@ -7,58 +7,47 @@ const { Search } = Input;
 
 @connect(state => ({
   alert: state.alert,
+  duration: state.global.duration,
 }))
-export default class Alert extends PureComponent {
+export default class Alert extends Component {
+  componentDidMount() {
+    this.props.dispatch({
+      type: 'alert/fetch',
+      payload: {},
+    });
+  }
+  shouldComponentUpdate(nextProps) {
+    if (this.props.duration !== nextProps.duration) {
+      this.props.dispatch({
+        type: 'alert/fetch',
+        payload: {},
+      });
+    }
+    return this.props.alert !== nextProps.alert;
+  }
   render() {
     const columns = [{
       title: 'Content',
       dataIndex: 'content',
     }, {
       title: 'Start Time',
-      dataIndex: 'time',
+      dataIndex: 'startTime',
     }, {
       title: 'Alert Type',
-      dataIndex: 'type',
+      dataIndex: 'alertType',
       filters: [{
-        text: 'Application',
-        value: 'Application',
+        text: 'APPLICATION',
+        value: 'APPLICATION',
       }, {
-        text: 'Server',
-        value: 'Server',
+        text: 'SERVER',
+        value: 'SERVER',
       }, {
-        text: 'Service',
-        value: 'Service',
+        text: 'SERVICE',
+        value: 'SERVICE',
       }],
       filterMultiple: false,
-      onFilter: (value, record) => record.type.indexOf(value) === 0,
+      onFilter: (value, record) => record.alertType.indexOf(value) === 0,
     }];
-
-    const data = [{
-      key: '1',
-      content: 'Application alert',
-      time: '19:30',
-      type: 'Application',
-    }, {
-      key: '2',
-      content: 'Server is down',
-      time: '13:30',
-      type: 'Server',
-    }, {
-      key: '3',
-      content: 'Server is slow',
-      time: '8:30',
-      type: 'Service',
-    }, {
-      key: '4',
-      content: 'Service sla is low',
-      time: '3:30',
-      type: 'Service',
-    }];
-
-    function onChange(pagination, filters, sorter) {
-      console.log('params', pagination, filters, sorter);
-    }
-
     const extraContent = (
       <div className={styles.extraContent}>
         <Search
@@ -76,7 +65,7 @@ export default class Alert extends PureComponent {
         extra={extraContent}
       >
         <div className={styles.tableList}>
-          <Table columns={columns} dataSource={data} onChange={onChange} />
+          <Table columns={columns} dataSource={this.props.alert.loadAlertList} />
         </div>
       </Card>
     );
