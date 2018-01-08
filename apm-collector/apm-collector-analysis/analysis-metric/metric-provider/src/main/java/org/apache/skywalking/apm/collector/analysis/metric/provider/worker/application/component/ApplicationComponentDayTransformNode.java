@@ -38,12 +38,8 @@ public class ApplicationComponentDayTransformNode implements NodeProcessor<Appli
     public void process(ApplicationComponent applicationComponent, Next<ApplicationComponent> next) {
         long timeBucket = TimeBucketUtils.INSTANCE.minuteToDay(applicationComponent.getTimeBucket());
 
-        ApplicationComponent newApplicationComponent = new ApplicationComponent();
+        ApplicationComponent newApplicationComponent = ApplicationComponentCopy.copy(applicationComponent);
         newApplicationComponent.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + applicationComponent.getMetricId());
-        newApplicationComponent.setMetricId(applicationComponent.getMetricId());
-
-        newApplicationComponent.setComponentId(applicationComponent.getComponentId());
-        newApplicationComponent.setPeerId(applicationComponent.getPeerId());
         newApplicationComponent.setTimeBucket(timeBucket);
         next.execute(newApplicationComponent);
     }

@@ -64,7 +64,7 @@ public class ServiceMetricGraph {
         remoteNode.addNext(new ServiceMonthMetricTransformNode())
             .addNext(new ServiceMonthMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
-        link(graph);
+//        link(graph);
     }
 
     private void link(Graph<ServiceReferenceMetric> graph) {

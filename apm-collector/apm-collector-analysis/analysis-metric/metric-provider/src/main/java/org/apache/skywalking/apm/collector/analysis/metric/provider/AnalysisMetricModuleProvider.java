@@ -36,6 +36,7 @@ import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.segme
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.segment.SegmentCostSpanListener;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.metric.ServiceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.refmetric.ServiceReferenceMetricGraph;
+import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.refmetric.ServiceReferenceMetricSpanListener;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.AnalysisSegmentParserModule;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParserListenerRegister;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
@@ -83,7 +84,7 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
 
     private void segmentParserListenerRegister() {
         ISegmentParserListenerRegister segmentParserListenerRegister = getManager().find(AnalysisSegmentParserModule.NAME).getService(ISegmentParserListenerRegister.class);
-//        segmentParserListenerRegister.register(new ServiceReferenceMetricSpanListener.Factory());
+        segmentParserListenerRegister.register(new ServiceReferenceMetricSpanListener.Factory());
         segmentParserListenerRegister.register(new ApplicationComponentSpanListener.Factory());
         segmentParserListenerRegister.register(new ApplicationMappingSpanListener.Factory());
         segmentParserListenerRegister.register(new InstanceMappingSpanListener.Factory());

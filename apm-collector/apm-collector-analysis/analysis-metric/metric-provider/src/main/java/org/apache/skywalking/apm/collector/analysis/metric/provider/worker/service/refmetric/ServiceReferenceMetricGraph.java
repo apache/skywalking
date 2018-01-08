@@ -44,8 +44,8 @@ public class ServiceReferenceMetricGraph {
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
         Node<ServiceReferenceMetric, ServiceReferenceMetric> remoteNode = GraphManager.INSTANCE.createIfAbsent(MetricGraphIdDefine.SERVICE_REFERENCE_METRIC_GRAPH_ID, ServiceReferenceMetric.class)
-            .addNode(new ServiceReferenceMetricAggregationWorker.Factory(moduleManager).create(workerCreateListener))
-            .addNext(new ServiceReferenceMetricRemoteWorker.Factory(moduleManager, remoteSenderService, MetricGraphIdDefine.SERVICE_REFERENCE_METRIC_GRAPH_ID).create(workerCreateListener));
+            .addNode(new ServiceReferenceMinuteMetricAggregationWorker.Factory(moduleManager).create(workerCreateListener))
+            .addNext(new ServiceReferenceMinuteMetricRemoteWorker.Factory(moduleManager, remoteSenderService, MetricGraphIdDefine.SERVICE_REFERENCE_METRIC_GRAPH_ID).create(workerCreateListener));
 
         remoteNode.addNext(new ServiceReferenceMinuteMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
