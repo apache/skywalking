@@ -64,7 +64,10 @@ import org.apache.skywalking.apm.collector.storage.dao.ampp.IApplicationMappingD
 import org.apache.skywalking.apm.collector.storage.dao.ampp.IApplicationMappingHourPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ampp.IApplicationMappingMinutePersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ampp.IApplicationMappingMonthPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.armp.IApplicationReferenceDayMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.armp.IApplicationReferenceHourMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.armp.IApplicationReferenceMinuteMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.armp.IApplicationReferenceMonthMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.cpump.ICpuSecondMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.gcmp.IGCSecondMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.imp.IInstanceMinuteMetricPersistenceDAO;
@@ -152,7 +155,12 @@ public class StorageModule extends Module {
 
         classes.add(IGlobalTracePersistenceDAO.class);
         classes.add(IApplicationMinuteMetricPersistenceDAO.class);
+
         classes.add(IApplicationReferenceMinuteMetricPersistenceDAO.class);
+        classes.add(IApplicationReferenceHourMetricPersistenceDAO.class);
+        classes.add(IApplicationReferenceDayMetricPersistenceDAO.class);
+        classes.add(IApplicationReferenceMonthMetricPersistenceDAO.class);
+
         classes.add(ISegmentCostPersistenceDAO.class);
         classes.add(ISegmentPersistenceDAO.class);
 

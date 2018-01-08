@@ -34,12 +34,12 @@ import org.apache.skywalking.apm.collector.storage.table.instance.InstanceRefere
 /**
  * @author peng-yongsheng
  */
-public class ApplicationReferenceMetricAggregationWorker extends AggregationWorker<InstanceReferenceMetric, ApplicationReferenceMetric> {
+public class ApplicationReferenceMinuteMetricAggregationWorker extends AggregationWorker<InstanceReferenceMetric, ApplicationReferenceMetric> {
 
     private final InstanceCacheService instanceCacheService;
     private final IApdexThresholdService apdexThresholdService;
 
-    public ApplicationReferenceMetricAggregationWorker(ModuleManager moduleManager) {
+    public ApplicationReferenceMinuteMetricAggregationWorker(ModuleManager moduleManager) {
         super(moduleManager);
         this.instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
         this.apdexThresholdService = moduleManager.find(ConfigurationModule.NAME).getService(IApdexThresholdService.class);
@@ -96,14 +96,14 @@ public class ApplicationReferenceMetricAggregationWorker extends AggregationWork
         return applicationReferenceMetric;
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<InstanceReferenceMetric, ApplicationReferenceMetric, ApplicationReferenceMetricAggregationWorker> {
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<InstanceReferenceMetric, ApplicationReferenceMetric, ApplicationReferenceMinuteMetricAggregationWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
         }
 
-        @Override public ApplicationReferenceMetricAggregationWorker workerInstance(ModuleManager moduleManager) {
-            return new ApplicationReferenceMetricAggregationWorker(moduleManager);
+        @Override public ApplicationReferenceMinuteMetricAggregationWorker workerInstance(ModuleManager moduleManager) {
+            return new ApplicationReferenceMinuteMetricAggregationWorker(moduleManager);
         }
 
         @Override
