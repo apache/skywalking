@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.h2.dao;
 
 import java.sql.ResultSet;
@@ -54,7 +53,8 @@ public class ServiceEntryH2PersistenceDAO extends H2DAO implements IServiceEntry
         Object[] params = new Object[] {id};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
-                ServiceEntry serviceEntry = new ServiceEntry(id);
+                ServiceEntry serviceEntry = new ServiceEntry();
+                serviceEntry.setId(id);
                 serviceEntry.setApplicationId(rs.getInt(ServiceEntryTable.COLUMN_APPLICATION_ID));
                 serviceEntry.setEntryServiceId(rs.getInt(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID));
                 serviceEntry.setEntryServiceName(rs.getString(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME));

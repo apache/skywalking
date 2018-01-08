@@ -48,7 +48,8 @@ public class ApplicationAlarmListEsPersistenceDAO extends EsDAO implements IAppl
     @Override public ApplicationAlarmList get(String id) {
         GetResponse getResponse = getClient().prepareGet(ApplicationAlarmListTable.TABLE, id).get();
         if (getResponse.isExists()) {
-            ApplicationAlarmList applicationAlarmList = new ApplicationAlarmList(id);
+            ApplicationAlarmList applicationAlarmList = new ApplicationAlarmList();
+            applicationAlarmList.setId(id);
             Map<String, Object> source = getResponse.getSource();
             applicationAlarmList.setApplicationId(((Number)source.get(ApplicationAlarmListTable.COLUMN_APPLICATION_ID)).intValue());
             applicationAlarmList.setSourceValue(((Number)source.get(ApplicationAlarmListTable.COLUMN_SOURCE_VALUE)).intValue());

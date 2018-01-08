@@ -48,7 +48,8 @@ public class ApplicationReferenceAlarmListEsPersistenceDAO extends EsDAO impleme
     @Override public ApplicationReferenceAlarmList get(String id) {
         GetResponse getResponse = getClient().prepareGet(ApplicationReferenceAlarmListTable.TABLE, id).get();
         if (getResponse.isExists()) {
-            ApplicationReferenceAlarmList applicationReferenceAlarmList = new ApplicationReferenceAlarmList(id);
+            ApplicationReferenceAlarmList applicationReferenceAlarmList = new ApplicationReferenceAlarmList();
+            applicationReferenceAlarmList.setId(id);
             Map<String, Object> source = getResponse.getSource();
             applicationReferenceAlarmList.setFrontApplicationId(((Number)source.get(ApplicationReferenceAlarmListTable.COLUMN_FRONT_APPLICATION_ID)).intValue());
             applicationReferenceAlarmList.setBehindApplicationId(((Number)source.get(ApplicationReferenceAlarmListTable.COLUMN_BEHIND_APPLICATION_ID)).intValue());

@@ -48,7 +48,8 @@ public class InstanceReferenceAlarmEsPersistenceDAO extends EsDAO implements IIn
     @Override public InstanceReferenceAlarm get(String id) {
         GetResponse getResponse = getClient().prepareGet(InstanceReferenceAlarmTable.TABLE, id).get();
         if (getResponse.isExists()) {
-            InstanceReferenceAlarm instanceReferenceAlarm = new InstanceReferenceAlarm(id);
+            InstanceReferenceAlarm instanceReferenceAlarm = new InstanceReferenceAlarm();
+            instanceReferenceAlarm.setId(id);
             Map<String, Object> source = getResponse.getSource();
             instanceReferenceAlarm.setFrontApplicationId(((Number)source.get(InstanceReferenceAlarmTable.COLUMN_FRONT_APPLICATION_ID)).intValue());
             instanceReferenceAlarm.setBehindApplicationId(((Number)source.get(InstanceReferenceAlarmTable.COLUMN_BEHIND_APPLICATION_ID)).intValue());

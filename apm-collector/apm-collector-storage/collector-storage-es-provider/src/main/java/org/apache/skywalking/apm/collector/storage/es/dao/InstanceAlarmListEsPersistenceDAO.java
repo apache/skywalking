@@ -48,7 +48,8 @@ public class InstanceAlarmListEsPersistenceDAO extends EsDAO implements IInstanc
     @Override public InstanceAlarmList get(String id) {
         GetResponse getResponse = getClient().prepareGet(InstanceAlarmListTable.TABLE, id).get();
         if (getResponse.isExists()) {
-            InstanceAlarmList instanceAlarmList = new InstanceAlarmList(id);
+            InstanceAlarmList instanceAlarmList = new InstanceAlarmList();
+            instanceAlarmList.setId(id);
             Map<String, Object> source = getResponse.getSource();
             instanceAlarmList.setApplicationId(((Number)source.get(InstanceAlarmListTable.COLUMN_APPLICATION_ID)).intValue());
             instanceAlarmList.setInstanceId(((Number)source.get(InstanceAlarmListTable.COLUMN_INSTANCE_ID)).intValue());

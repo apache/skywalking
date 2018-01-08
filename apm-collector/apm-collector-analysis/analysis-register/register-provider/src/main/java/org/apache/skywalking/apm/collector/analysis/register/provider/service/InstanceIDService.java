@@ -75,7 +75,8 @@ public class InstanceIDService implements IInstanceIDService {
         int instanceId = getInstanceCacheService().getInstanceIdByAgentUUID(applicationId, agentUUID);
 
         if (instanceId == 0) {
-            Instance instance = new Instance("0");
+            Instance instance = new Instance();
+            instance.setId("0");
             instance.setApplicationId(applicationId);
             instance.setAgentUUID(agentUUID);
             instance.setRegisterTime(registerTime);
@@ -95,7 +96,8 @@ public class InstanceIDService implements IInstanceIDService {
         int instanceId = getInstanceCacheService().getInstanceIdByAddressId(applicationId, addressId);
 
         if (instanceId == 0) {
-            Instance instance = new Instance("0");
+            Instance instance = new Instance();
+            instance.setId("0");
             instance.setApplicationId(applicationId);
             instance.setAgentUUID(Const.EMPTY_STRING);
             instance.setRegisterTime(registerTime);
@@ -112,7 +114,8 @@ public class InstanceIDService implements IInstanceIDService {
 
     @Override public void recover(int instanceId, int applicationId, long registerTime, String osInfo) {
         logger.debug("instance recover, instance id: {}, application id: {}, register time: {}", instanceId, applicationId, registerTime);
-        Instance instance = new Instance(String.valueOf(instanceId));
+        Instance instance = new Instance();
+        instance.setId(String.valueOf(instanceId));
         instance.setApplicationId(applicationId);
         instance.setAgentUUID("");
         instance.setRegisterTime(registerTime);

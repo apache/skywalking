@@ -49,7 +49,7 @@ public class ApplicationMappingSpanListener implements FirstSpanListener, EntryS
         logger.debug("application mapping listener parse reference");
         if (spanDecorator.getRefsCount() > 0) {
             for (int i = 0; i < spanDecorator.getRefsCount(); i++) {
-                ApplicationMapping applicationMapping = new ApplicationMapping(Const.EMPTY_STRING);
+                ApplicationMapping applicationMapping = new ApplicationMapping();
                 applicationMapping.setApplicationId(applicationId);
                 applicationMapping.setAddressId(spanDecorator.getRefs(i).getNetworkAddressId());
                 String id = String.valueOf(applicationId) + Const.ID_SPLIT + String.valueOf(applicationMapping.getAddressId());

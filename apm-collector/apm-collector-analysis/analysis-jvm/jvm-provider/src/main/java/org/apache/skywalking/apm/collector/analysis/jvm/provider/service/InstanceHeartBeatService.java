@@ -45,7 +45,8 @@ public class InstanceHeartBeatService implements IInstanceHeartBeatService {
     }
 
     @Override public void send(int instanceId, long heartBeatTime) {
-        Instance instance = new Instance(String.valueOf(instanceId));
+        Instance instance = new Instance();
+        instance.setId(String.valueOf(instanceId));
         instance.setHeartBeatTime(TimeBucketUtils.INSTANCE.getSecondTimeBucket(heartBeatTime));
         instance.setInstanceId(instanceId);
 

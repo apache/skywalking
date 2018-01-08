@@ -75,7 +75,8 @@ public class ServiceEntrySpanListener implements FirstSpanListener, EntrySpanLis
     @Override public void build() {
         logger.debug("entry service listener build");
         if (!hasReference && hasEntry) {
-            ServiceEntry serviceEntry = new ServiceEntry(applicationId + Const.ID_SPLIT + entryServiceId);
+            ServiceEntry serviceEntry = new ServiceEntry();
+            serviceEntry.setId(applicationId + Const.ID_SPLIT + entryServiceId);
             serviceEntry.setApplicationId(applicationId);
             serviceEntry.setEntryServiceId(entryServiceId);
             serviceEntry.setEntryServiceName(entryServiceName);
