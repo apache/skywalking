@@ -8,3 +8,7 @@ org.apache.skywalking.apm.collector.storage.es.define.appcomp.ApplicationCompone
 org.apache.skywalking.apm.collector.storage.es.define.appcomp.ApplicationComponentDayEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.appcomp.ApplicationComponentMonthEsTableDefine
 
+org.apache.skywalking.apm.collector.storage.es.define.appmapping.ApplicationMappingMinuteEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.appmapping.ApplicationMappingHourEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.appmapping.ApplicationMappingDayEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.appmapping.ApplicationMappingMonthEsTableDefine

@@ -16,25 +16,25 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.es.define.appcomp;
+package org.apache.skywalking.apm.collector.storage.es.define.appmapping;
 
 import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchColumnDefine;
 import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchTableDefine;
-import org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponentTable;
+import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMappingTable;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class AbstractApplicationComponentEsTableDefine extends ElasticSearchTableDefine {
+public abstract class AbstractApplicationMappingEsTableDefine extends ElasticSearchTableDefine {
 
-    AbstractApplicationComponentEsTableDefine(String name) {
+    AbstractApplicationMappingEsTableDefine(String name) {
         super(name);
     }
 
     @Override public final void initialize() {
-        addColumn(new ElasticSearchColumnDefine(ApplicationComponentTable.COLUMN_METRIC_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
-        addColumn(new ElasticSearchColumnDefine(ApplicationComponentTable.COLUMN_COMPONENT_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(ApplicationComponentTable.COLUMN_PEER_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(ApplicationComponentTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationMappingTable.COLUMN_METRIC_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationMappingTable.COLUMN_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationMappingTable.COLUMN_ADDRESS_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationMappingTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
     }
 }
