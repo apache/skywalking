@@ -1,57 +1,38 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'dva';
 import { Row, Col, Select, Card, Table } from 'antd';
 
+const { Option } = Select;
+
 @connect(state => ({
   application: state.application,
+  duration: state.global.duration,
 }))
-export default class Dashboard extends PureComponent {
+export default class Application extends Component {
+  shouldComponentUpdate(nextProps) {
+    if (this.props.duration !== nextProps.duration) {
+      this.props.dispatch({
+        type: 'application/fetch',
+        payload: {},
+      });
+    }
+    return this.props.application !== nextProps.application;
+  }
+  handleChange(appId) {
+    this.props.dispatch({
+      type: 'application/fetch',
+      payload: { applicationId: appId },
+    });
+  }
   render() {
-    function handleChange(value) {
-      console.log(`selected ${value}`);
-    }
-    function handleBlur() {
-      console.log('blur');
-    }
-
-    function handleFocus() {
-      console.log('focus');
-    }
     const tableColumns = [{
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
     }, {
       title: 'Duration',
-      dataIndex: 'duration',
-      key: 'duration',
-    }];
-    const { Option } = Select;
-    const slowServiceData = [{
-      key: '1',
-      name: 'ServiceA',
-      time: '2017/12/11 19:22:32',
-      duration: '5000ms',
-    }, {
-      key: '1',
-      name: 'ServiceA',
-      time: '2017/12/11 19:22:32',
-      duration: '5000ms',
-    }, {
-      key: '1',
-      name: 'ServiceA',
-      time: '2017/12/11 19:22:32',
-      duration: '5000ms',
-    }, {
-      key: '1',
-      name: 'ServiceA',
-      time: '2017/12/11 19:22:32',
-      duration: '5000ms',
-    }, {
-      key: '1',
-      name: 'ServiceA',
-      time: '2017/12/11 19:22:32',
-      duration: '5000ms',
+      dataIndex: 'avgResponseTime',
+      key: 'avgResponseTime',
     }];
 
     const applicationThroughputColumns = [{
@@ -62,28 +43,6 @@ export default class Dashboard extends PureComponent {
       title: 'Tps',
       dataIndex: 'tps',
       key: 'tps',
-    }];
-
-    const applicationThroughputData = [{
-      key: '1',
-      name: 'Server1',
-      tps: '500',
-    }, {
-      key: '1',
-      name: 'Server1',
-      tps: '500',
-    }, {
-      key: '1',
-      name: 'Server1',
-      tps: '500',
-    }, {
-      key: '1',
-      name: 'Server1',
-      tps: '500',
-    }, {
-      key: '1',
-      name: 'Server1',
-      tps: '500',
     }];
 
     const middleColResponsiveProps = {
@@ -101,9 +60,7 @@ export default class Dashboard extends PureComponent {
           style={{ width: 200 }}
           placeholder="Select a application"
           optionFilterProp="children"
-          onChange={handleChange}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
+          onChange={this.handleChange.bind(this)}
         >
           <Option value="App1">App1</Option>
           <Option value="App2">App2</Option>
@@ -113,7 +70,9 @@ export default class Dashboard extends PureComponent {
           bordered={false}
           bodyStyle={{ padding: 0, marginTop: 24 }}
         >
-          <div Style="height: 400px">Application and externel resources(Db, Cache or MQ) Topoloy</div>
+          <div style={{ height: 400 }}>
+              Application and externel resources(Db, Cache or MQ) Topoloy
+          </div>
         </Card>
         <Row gutter={24}>
           <Col {...middleColResponsiveProps}>
@@ -123,11 +82,12 @@ export default class Dashboard extends PureComponent {
               bodyStyle={{ padding: 0 }}
             >
               <Table
+                size="small"
                 columns={tableColumns}
-                dataSource={slowServiceData}
+                dataSource={this.props.application.getSlowService}
                 pagination={{
                   style: { marginBottom: 0 },
-                  pageSize: 5,
+                  pageSize: 10,
                 }}
               />
             </Card>
@@ -139,11 +99,12 @@ export default class Dashboard extends PureComponent {
               bodyStyle={{ padding: 0 }}
             >
               <Table
+                size="small"
                 columns={applicationThroughputColumns}
-                dataSource={applicationThroughputData}
+                dataSource={this.props.application.getServerThroughput}
                 pagination={{
                   style: { marginBottom: 0 },
-                  pageSize: 5,
+                  pageSize: 10,
                 }}
               />
             </Card>
