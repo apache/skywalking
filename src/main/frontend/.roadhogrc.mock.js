@@ -35,7 +35,6 @@ const proxy = mockjs.mock({
       'getServerThroughput|10': [{'key|+1': 1, 'name': '@name', 'tps|100-10000': 1}],
     }
   },
-
   'POST /api/server': {
     data: {
       'searchServer|5': [{}],
@@ -57,6 +56,20 @@ const proxy = mockjs.mock({
       getGCTrend: {
         'youngGC|15': ['@natural(200, 300)'],
         'oldGC|15': ['@natural(10,100)'],
+      },
+    }
+  },
+  'POST /api/service': {
+    data: {
+      'searchService|5': [{}],
+      getServiceResponseTimeTrend: {
+        'trendList|15': ['@natural(100, 1000)'],
+      },
+      getServiceTPSTrend: {
+        'trendList|15': ['@natural(500, 10000)'],
+      },
+      getServiceSLATrend: {
+        'trendList|15': ['@natural(80, 100)'],
       },
     }
   },
