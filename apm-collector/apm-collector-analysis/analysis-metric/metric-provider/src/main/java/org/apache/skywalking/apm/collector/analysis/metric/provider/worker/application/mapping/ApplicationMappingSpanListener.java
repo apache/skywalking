@@ -52,8 +52,9 @@ public class ApplicationMappingSpanListener implements FirstSpanListener, EntryS
                 ApplicationMapping applicationMapping = new ApplicationMapping();
                 applicationMapping.setApplicationId(applicationId);
                 applicationMapping.setAddressId(spanDecorator.getRefs(i).getNetworkAddressId());
-                String id = String.valueOf(applicationId) + Const.ID_SPLIT + String.valueOf(applicationMapping.getAddressId());
-                applicationMapping.setId(id);
+
+                String metricId = String.valueOf(applicationId) + Const.ID_SPLIT + String.valueOf(applicationMapping.getAddressId());
+                applicationMapping.setMetricId(metricId);
                 applicationMappings.add(applicationMapping);
             }
         }
@@ -69,7 +70,7 @@ public class ApplicationMappingSpanListener implements FirstSpanListener, EntryS
         logger.debug("application mapping listener build");
         Graph<ApplicationMapping> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.APPLICATION_MAPPING_GRAPH_ID, ApplicationMapping.class);
         applicationMappings.forEach(applicationMapping -> {
-            applicationMapping.setId(timeBucket + Const.ID_SPLIT + applicationMapping.getId());
+            applicationMapping.setId(timeBucket + Const.ID_SPLIT + applicationMapping.getMetricId());
             applicationMapping.setTimeBucket(timeBucket);
             logger.debug("push to application mapping aggregation worker, id: {}", applicationMapping.getId());
             graph.start(applicationMapping);

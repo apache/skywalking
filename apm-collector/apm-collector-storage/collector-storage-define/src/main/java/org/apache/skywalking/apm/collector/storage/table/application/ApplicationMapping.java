@@ -30,18 +30,22 @@ public class ApplicationMapping extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
         new Column(ApplicationMappingTable.COLUMN_ID, new NonOperation()),
+        new Column(ApplicationMappingTable.COLUMN_METRIC_ID, new NonOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
         new Column(ApplicationMappingTable.COLUMN_TIME_BUCKET, new CoverOperation()),
     };
+
     private static final Column[] DOUBLE_COLUMNS = {};
+
     private static final Column[] INTEGER_COLUMNS = {
         new Column(ApplicationMappingTable.COLUMN_APPLICATION_ID, new CoverOperation()),
         new Column(ApplicationMappingTable.COLUMN_ADDRESS_ID, new CoverOperation()),
     };
 
     private static final Column[] BOOLEAN_COLUMNS = {};
+
     private static final Column[] BYTE_COLUMNS = {};
 
     public ApplicationMapping() {

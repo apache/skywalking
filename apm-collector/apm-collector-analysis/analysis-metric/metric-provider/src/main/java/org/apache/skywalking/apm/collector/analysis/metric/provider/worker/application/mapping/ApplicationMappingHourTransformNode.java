@@ -37,9 +37,14 @@ public class ApplicationMappingHourTransformNode implements NodeProcessor<Applic
     @Override
     public void process(ApplicationMapping applicationMapping, Next<ApplicationMapping> next) {
         long timeBucket = TimeBucketUtils.INSTANCE.minuteToHour(applicationMapping.getTimeBucket());
-        applicationMapping.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + applicationMapping.getMetricId());
-        applicationMapping.setTimeBucket(timeBucket);
 
-        next.execute(applicationMapping);
+        ApplicationMapping newApplicationMapping = new ApplicationMapping();
+        newApplicationMapping.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + applicationMapping.getMetricId());
+        newApplicationMapping.setMetricId(applicationMapping.getMetricId());
+        newApplicationMapping.setTimeBucket(timeBucket);
+
+        newApplicationMapping.setApplicationId(applicationMapping.getApplicationId());
+        newApplicationMapping.setAddressId(applicationMapping.getAddressId());
+        next.execute(newApplicationMapping);
     }
 }

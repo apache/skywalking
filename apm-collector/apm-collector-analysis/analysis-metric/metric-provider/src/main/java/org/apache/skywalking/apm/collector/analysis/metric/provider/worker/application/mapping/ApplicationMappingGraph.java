@@ -45,7 +45,7 @@ public class ApplicationMappingGraph {
 
         Node<ApplicationMapping, ApplicationMapping> remoteNode = GraphManager.INSTANCE.createIfAbsent(MetricGraphIdDefine.APPLICATION_MAPPING_GRAPH_ID, ApplicationMapping.class)
             .addNode(new ApplicationMappingMinuteAggregationWorker.Factory(moduleManager).create(workerCreateListener))
-            .addNext(new ApplicationMappingRemoteWorker.Factory(moduleManager, remoteSenderService, MetricGraphIdDefine.APPLICATION_MAPPING_GRAPH_ID).create(workerCreateListener));
+            .addNext(new ApplicationMappingMinuteRemoteWorker.Factory(moduleManager, remoteSenderService, MetricGraphIdDefine.APPLICATION_MAPPING_GRAPH_ID).create(workerCreateListener));
 
         remoteNode.addNext(new ApplicationMappingMinutePersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
