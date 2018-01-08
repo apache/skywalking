@@ -37,9 +37,10 @@ public class ApplicationReferenceMonthMetricTransformNode implements NodeProcess
     @Override
     public void process(ApplicationReferenceMetric applicationReferenceMetric, Next<ApplicationReferenceMetric> next) {
         long timeBucket = TimeBucketUtils.INSTANCE.minuteToMonth(applicationReferenceMetric.getTimeBucket());
-        applicationReferenceMetric.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + applicationReferenceMetric.getMetricId());
-        applicationReferenceMetric.setTimeBucket(timeBucket);
 
-        next.execute(applicationReferenceMetric);
+        ApplicationReferenceMetric newApplicationReferenceMetric = ApplicationReferenceMetricCopy.copy(applicationReferenceMetric);
+        newApplicationReferenceMetric.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + applicationReferenceMetric.getMetricId());
+        newApplicationReferenceMetric.setTimeBucket(timeBucket);
+        next.execute(newApplicationReferenceMetric);
     }
 }
