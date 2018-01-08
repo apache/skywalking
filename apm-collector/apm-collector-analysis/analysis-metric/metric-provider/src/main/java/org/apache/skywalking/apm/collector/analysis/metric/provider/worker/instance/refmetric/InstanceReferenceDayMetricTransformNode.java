@@ -36,9 +36,10 @@ public class InstanceReferenceDayMetricTransformNode implements NodeProcessor<In
 
     @Override public void process(InstanceReferenceMetric instanceReferenceMetric, Next<InstanceReferenceMetric> next) {
         long timeBucket = TimeBucketUtils.INSTANCE.minuteToDay(instanceReferenceMetric.getTimeBucket());
-        instanceReferenceMetric.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + instanceReferenceMetric.getMetricId());
-        instanceReferenceMetric.setTimeBucket(timeBucket);
 
-        next.execute(instanceReferenceMetric);
+        InstanceReferenceMetric newInstanceReferenceMetric = InstanceReferenceMetricCopy.copy(instanceReferenceMetric);
+        newInstanceReferenceMetric.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + instanceReferenceMetric.getMetricId());
+        newInstanceReferenceMetric.setTimeBucket(timeBucket);
+        next.execute(newInstanceReferenceMetric);
     }
 }

@@ -64,7 +64,7 @@ public class ApplicationReferenceMetricGraph {
         remoteNode.addNext(new ApplicationReferenceMonthMetricTransformNode())
             .addNext(new ApplicationReferenceMonthMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
-        link(graph);
+//        link(graph);
     }
 
     private void link(Graph<InstanceReferenceMetric> graph) {

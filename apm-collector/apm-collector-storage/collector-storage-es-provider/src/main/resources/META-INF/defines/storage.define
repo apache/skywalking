@@ -28,6 +28,11 @@ org.apache.skywalking.apm.collector.storage.es.define.smp.ServiceHourMetricEsTab
 org.apache.skywalking.apm.collector.storage.es.define.smp.ServiceDayMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.smp.ServiceMonthMetricEsTableDefine
 
+org.apache.skywalking.apm.collector.storage.es.define.irmp.InstanceReferenceMinuteMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.irmp.InstanceReferenceHourMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.irmp.InstanceReferenceDayMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.irmp.InstanceReferenceMonthMetricEsTableDefine
+
 org.apache.skywalking.apm.collector.storage.es.define.GlobalTraceEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.SegmentEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.SegmentCostEsTableDefine

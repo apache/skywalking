@@ -63,7 +63,8 @@ public class InstanceMetricGraph {
 
         remoteNode.addNext(new InstanceMonthMetricTransformNode())
             .addNext(new InstanceMonthMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
-        link(graph);
+
+//        link(graph);
     }
 
     private void link(Graph<InstanceReferenceMetric> graph) {

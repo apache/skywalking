@@ -30,9 +30,9 @@ import org.apache.skywalking.apm.collector.storage.table.instance.InstanceRefere
 /**
  * @author peng-yongsheng
  */
-public class InstanceReferenceMetricRemoteWorker extends AbstractRemoteWorker<InstanceReferenceMetric, InstanceReferenceMetric> {
+public class InstanceReferenceMinuteMetricRemoteWorker extends AbstractRemoteWorker<InstanceReferenceMetric, InstanceReferenceMetric> {
 
-    public InstanceReferenceMetricRemoteWorker(ModuleManager moduleManager) {
+    public InstanceReferenceMinuteMetricRemoteWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -48,14 +48,14 @@ public class InstanceReferenceMetricRemoteWorker extends AbstractRemoteWorker<In
         onNext(instanceReferenceMetric);
     }
 
-    public static class Factory extends AbstractRemoteWorkerProvider<InstanceReferenceMetric, InstanceReferenceMetric, InstanceReferenceMetricRemoteWorker> {
+    public static class Factory extends AbstractRemoteWorkerProvider<InstanceReferenceMetric, InstanceReferenceMetric, InstanceReferenceMinuteMetricRemoteWorker> {
 
         public Factory(ModuleManager moduleManager, RemoteSenderService remoteSenderService, int graphId) {
             super(moduleManager, remoteSenderService, graphId);
         }
 
-        @Override public InstanceReferenceMetricRemoteWorker workerInstance(ModuleManager moduleManager) {
-            return new InstanceReferenceMetricRemoteWorker(moduleManager);
+        @Override public InstanceReferenceMinuteMetricRemoteWorker workerInstance(ModuleManager moduleManager) {
+            return new InstanceReferenceMinuteMetricRemoteWorker(moduleManager);
         }
     }
 }
