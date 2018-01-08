@@ -60,8 +60,6 @@ import org.apache.skywalking.apm.collector.storage.dao.ISegmentPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceAlarmListPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceAlarmPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IServiceEntryPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IServiceEntryUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceNameCacheDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceReferenceAlarmListPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IServiceReferenceAlarmPersistenceDAO;
@@ -123,8 +121,6 @@ import org.apache.skywalking.apm.collector.storage.es.dao.SegmentEsPersistenceDA
 import org.apache.skywalking.apm.collector.storage.es.dao.SegmentEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ServiceAlarmEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ServiceAlarmListEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ServiceEntryEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ServiceEntryEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ServiceNameEsCacheDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ServiceReferenceAlarmEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ServiceReferenceAlarmListEsPersistenceDAO;
@@ -270,7 +266,6 @@ public class StorageModuleEsProvider extends ModuleProvider {
         this.registerServiceImplementation(IApplicationReferenceMinuteMetricPersistenceDAO.class, new ApplicationReferenceMinuteMetricEsPersistenceDAO(elasticSearchClient));
         this.registerServiceImplementation(ISegmentCostPersistenceDAO.class, new SegmentCostEsPersistenceDAO(elasticSearchClient));
         this.registerServiceImplementation(ISegmentPersistenceDAO.class, new SegmentEsPersistenceDAO(elasticSearchClient));
-        this.registerServiceImplementation(IServiceEntryPersistenceDAO.class, new ServiceEntryEsPersistenceDAO(elasticSearchClient));
         this.registerServiceImplementation(IServiceMinuteMetricPersistenceDAO.class, new ServiceMinuteMetricEsPersistenceDAO(elasticSearchClient));
         this.registerServiceImplementation(IServiceReferenceMinuteMetricPersistenceDAO.class, new ServiceReferenceMinuteMetricEsPersistenceDAO(elasticSearchClient));
 
@@ -294,7 +289,6 @@ public class StorageModuleEsProvider extends ModuleProvider {
         this.registerServiceImplementation(IApplicationReferenceMetricUIDAO.class, new ApplicationReferenceMetricEsUIDAO(elasticSearchClient));
         this.registerServiceImplementation(ISegmentCostUIDAO.class, new SegmentCostEsUIDAO(elasticSearchClient));
         this.registerServiceImplementation(ISegmentUIDAO.class, new SegmentEsUIDAO(elasticSearchClient));
-        this.registerServiceImplementation(IServiceEntryUIDAO.class, new ServiceEntryEsUIDAO(elasticSearchClient));
         this.registerServiceImplementation(IServiceReferenceUIDAO.class, new ServiceReferenceEsUIDAO(elasticSearchClient));
     }
 

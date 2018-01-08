@@ -27,12 +27,12 @@ import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.appli
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.metric.ApplicationMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.refmetric.ApplicationReferenceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global.GlobalTraceGraph;
+import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global.GlobalTraceSpanListener;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.mapping.InstanceMappingGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.mapping.InstanceMappingSpanListener;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.metric.InstanceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.refmetric.InstanceReferenceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.segment.SegmentCostGraph;
-import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.entry.ServiceEntryGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.metric.ServiceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.refmetric.ServiceReferenceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.AnalysisSegmentParserModule;
@@ -86,8 +86,7 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
         segmentParserListenerRegister.register(new ApplicationComponentSpanListener.Factory());
         segmentParserListenerRegister.register(new ApplicationMappingSpanListener.Factory());
         segmentParserListenerRegister.register(new InstanceMappingSpanListener.Factory());
-//        segmentParserListenerRegister.register(new ServiceEntrySpanListener.Factory());
-//        segmentParserListenerRegister.register(new GlobalTraceSpanListener.Factory());
+        segmentParserListenerRegister.register(new GlobalTraceSpanListener.Factory());
 //        segmentParserListenerRegister.register(new SegmentCostSpanListener.Factory());
     }
 
@@ -118,9 +117,6 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
 
         InstanceMappingGraph instanceMappingGraph = new InstanceMappingGraph(getManager(), workerCreateListener);
         instanceMappingGraph.create();
-
-        ServiceEntryGraph serviceEntryGraph = new ServiceEntryGraph(getManager(), workerCreateListener);
-        serviceEntryGraph.create();
 
         GlobalTraceGraph globalTraceGraph = new GlobalTraceGraph(getManager(), workerCreateListener);
         globalTraceGraph.create();
