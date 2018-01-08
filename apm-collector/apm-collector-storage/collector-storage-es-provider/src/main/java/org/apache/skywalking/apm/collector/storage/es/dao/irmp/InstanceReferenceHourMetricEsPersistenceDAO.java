@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.collector.storage.es.dao.irmp;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.storage.TimePyramid;
 import org.apache.skywalking.apm.collector.core.util.Const;
+import org.apache.skywalking.apm.collector.storage.dao.irmp.IInstanceReferenceHourMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.irmp.IInstanceReferenceMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetric;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetricTable;
@@ -32,7 +33,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public class InstanceReferenceHourMetricEsPersistenceDAO extends AbstractInstanceReferenceMetricEsPersistenceDAO implements IInstanceReferenceMinuteMetricPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, InstanceReferenceMetric> {
+public class InstanceReferenceHourMetricEsPersistenceDAO extends AbstractInstanceReferenceMetricEsPersistenceDAO implements IInstanceReferenceHourMetricPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, InstanceReferenceMetric> {
 
     private final Logger logger = LoggerFactory.getLogger(InstanceReferenceHourMetricEsPersistenceDAO.class);
 
@@ -41,6 +42,6 @@ public class InstanceReferenceHourMetricEsPersistenceDAO extends AbstractInstanc
     }
 
     @Override protected String tableName() {
-        return InstanceReferenceMetricTable.TABLE + Const.ID_SPLIT + TimePyramid.Minute.getName();
+        return InstanceReferenceMetricTable.TABLE + Const.ID_SPLIT + TimePyramid.Hour.getName();
     }
 }

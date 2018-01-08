@@ -29,9 +29,9 @@ import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenc
 /**
  * @author peng-yongsheng
  */
-public class InstanceReferenceMetricAggregationWorker extends AggregationWorker<ServiceReferenceMetric, InstanceReferenceMetric> {
+public class InstanceReferenceMinuteMetricAggregationWorker extends AggregationWorker<ServiceReferenceMetric, InstanceReferenceMetric> {
 
-    public InstanceReferenceMetricAggregationWorker(ModuleManager moduleManager) {
+    public InstanceReferenceMinuteMetricAggregationWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -75,14 +75,14 @@ public class InstanceReferenceMetricAggregationWorker extends AggregationWorker<
         return instanceReferenceMetric;
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<ServiceReferenceMetric, InstanceReferenceMetric, InstanceReferenceMetricAggregationWorker> {
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<ServiceReferenceMetric, InstanceReferenceMetric, InstanceReferenceMinuteMetricAggregationWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
         }
 
-        @Override public InstanceReferenceMetricAggregationWorker workerInstance(ModuleManager moduleManager) {
-            return new InstanceReferenceMetricAggregationWorker(moduleManager);
+        @Override public InstanceReferenceMinuteMetricAggregationWorker workerInstance(ModuleManager moduleManager) {
+            return new InstanceReferenceMinuteMetricAggregationWorker(moduleManager);
         }
 
         @Override
