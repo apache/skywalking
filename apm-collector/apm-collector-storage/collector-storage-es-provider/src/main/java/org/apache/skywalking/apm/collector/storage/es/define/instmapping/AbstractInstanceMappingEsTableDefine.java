@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.es.define;
+package org.apache.skywalking.apm.collector.storage.es.define.instmapping;
 
 import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchColumnDefine;
 import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchTableDefine;
@@ -25,17 +25,15 @@ import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMappin
 /**
  * @author peng-yongsheng
  */
-public class InstanceMappingEsTableDefine extends ElasticSearchTableDefine {
+public abstract class AbstractInstanceMappingEsTableDefine extends ElasticSearchTableDefine {
 
-    public InstanceMappingEsTableDefine() {
-        super(InstanceMappingTable.TABLE);
+    AbstractInstanceMappingEsTableDefine(String name) {
+        super(name);
     }
 
-    @Override public int refreshInterval() {
-        return 2;
-    }
-
-    @Override public void initialize() {
+    @Override public final void initialize() {
+        addColumn(new ElasticSearchColumnDefine(InstanceMappingTable.COLUMN_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceMappingTable.COLUMN_METRIC_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
         addColumn(new ElasticSearchColumnDefine(InstanceMappingTable.COLUMN_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
         addColumn(new ElasticSearchColumnDefine(InstanceMappingTable.COLUMN_INSTANCE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
         addColumn(new ElasticSearchColumnDefine(InstanceMappingTable.COLUMN_ADDRESS_ID, ElasticSearchColumnDefine.Type.Integer.name()));

@@ -12,3 +12,8 @@ org.apache.skywalking.apm.collector.storage.es.define.appmapping.ApplicationMapp
 org.apache.skywalking.apm.collector.storage.es.define.appmapping.ApplicationMappingHourEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.appmapping.ApplicationMappingDayEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.appmapping.ApplicationMappingMonthEsTableDefine
+
+org.apache.skywalking.apm.collector.storage.es.define.instmapping.InstanceMappingMinuteEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.instmapping.InstanceMappingHourEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.instmapping.InstanceMappingDayEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.instmapping.InstanceMappingMonthEsTableDefine

@@ -44,8 +44,8 @@ public class InstanceMappingGraph {
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
         Node<InstanceMapping, InstanceMapping> remoteNode = GraphManager.INSTANCE.createIfAbsent(MetricGraphIdDefine.INSTANCE_MAPPING_GRAPH_ID, InstanceMapping.class)
-            .addNode(new InstanceMappingAggregationWorker.Factory(moduleManager).create(workerCreateListener))
-            .addNext(new InstanceMappingRemoteWorker.Factory(moduleManager, remoteSenderService, MetricGraphIdDefine.INSTANCE_MAPPING_GRAPH_ID).create(workerCreateListener));
+            .addNode(new InstanceMappingMinuteAggregationWorker.Factory(moduleManager).create(workerCreateListener))
+            .addNext(new InstanceMappingMinuteRemoteWorker.Factory(moduleManager, remoteSenderService, MetricGraphIdDefine.INSTANCE_MAPPING_GRAPH_ID).create(workerCreateListener));
 
         remoteNode.addNext(new InstanceMappingMinutePersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 

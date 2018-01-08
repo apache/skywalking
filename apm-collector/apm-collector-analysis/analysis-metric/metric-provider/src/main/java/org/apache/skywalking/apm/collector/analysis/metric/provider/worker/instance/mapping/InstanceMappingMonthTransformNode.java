@@ -36,9 +36,16 @@ public class InstanceMappingMonthTransformNode implements NodeProcessor<Instance
 
     @Override public void process(InstanceMapping instanceMapping, Next<InstanceMapping> next) {
         long timeBucket = TimeBucketUtils.INSTANCE.minuteToMonth(instanceMapping.getTimeBucket());
-        instanceMapping.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + instanceMapping.getMetricId());
-        instanceMapping.setTimeBucket(timeBucket);
 
-        next.execute(instanceMapping);
+        InstanceMapping newInstanceMapping = new InstanceMapping();
+        newInstanceMapping.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + instanceMapping.getMetricId());
+        newInstanceMapping.setMetricId(instanceMapping.getMetricId());
+
+        newInstanceMapping.setApplicationId(instanceMapping.getApplicationId());
+        newInstanceMapping.setInstanceId(instanceMapping.getInstanceId());
+        newInstanceMapping.setAddressId(instanceMapping.getAddressId());
+        newInstanceMapping.setTimeBucket(timeBucket);
+
+        next.execute(newInstanceMapping);
     }
 }

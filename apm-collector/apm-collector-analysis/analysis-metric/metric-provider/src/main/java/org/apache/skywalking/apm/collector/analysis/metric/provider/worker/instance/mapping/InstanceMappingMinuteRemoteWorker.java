@@ -30,9 +30,9 @@ import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMappin
 /**
  * @author peng-yongsheng
  */
-public class InstanceMappingRemoteWorker extends AbstractRemoteWorker<InstanceMapping, InstanceMapping> {
+public class InstanceMappingMinuteRemoteWorker extends AbstractRemoteWorker<InstanceMapping, InstanceMapping> {
 
-    InstanceMappingRemoteWorker(ModuleManager moduleManager) {
+    InstanceMappingMinuteRemoteWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -48,13 +48,13 @@ public class InstanceMappingRemoteWorker extends AbstractRemoteWorker<InstanceMa
         return Selector.HashCode;
     }
 
-    public static class Factory extends AbstractRemoteWorkerProvider<InstanceMapping, InstanceMapping, InstanceMappingRemoteWorker> {
+    public static class Factory extends AbstractRemoteWorkerProvider<InstanceMapping, InstanceMapping, InstanceMappingMinuteRemoteWorker> {
         public Factory(ModuleManager moduleManager, RemoteSenderService remoteSenderService, int graphId) {
             super(moduleManager, remoteSenderService, graphId);
         }
 
-        @Override public InstanceMappingRemoteWorker workerInstance(ModuleManager moduleManager) {
-            return new InstanceMappingRemoteWorker(moduleManager);
+        @Override public InstanceMappingMinuteRemoteWorker workerInstance(ModuleManager moduleManager) {
+            return new InstanceMappingMinuteRemoteWorker(moduleManager);
         }
     }
 }
