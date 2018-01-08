@@ -48,7 +48,8 @@ public class ServiceReferenceAlarmEsPersistenceDAO extends EsDAO implements ISer
     @Override public ServiceReferenceAlarm get(String id) {
         GetResponse getResponse = getClient().prepareGet(ServiceReferenceAlarmTable.TABLE, id).get();
         if (getResponse.isExists()) {
-            ServiceReferenceAlarm serviceReferenceAlarm = new ServiceReferenceAlarm(id);
+            ServiceReferenceAlarm serviceReferenceAlarm = new ServiceReferenceAlarm();
+            serviceReferenceAlarm.setId(id);
             Map<String, Object> source = getResponse.getSource();
             serviceReferenceAlarm.setFrontApplicationId(((Number)source.get(ServiceReferenceAlarmTable.COLUMN_FRONT_APPLICATION_ID)).intValue());
             serviceReferenceAlarm.setBehindApplicationId(((Number)source.get(ServiceReferenceAlarmTable.COLUMN_BEHIND_APPLICATION_ID)).intValue());

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.h2.dao;
 
 import com.google.gson.JsonArray;
@@ -25,14 +24,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
-import org.apache.skywalking.apm.collector.storage.table.register.Instance;
-import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
 import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
+import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
+import org.apache.skywalking.apm.collector.storage.table.register.Instance;
+import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,7 +116,8 @@ public class InstanceH2UIDAO extends H2DAO implements IInstanceUIDAO {
         Object[] params = new Object[] {instanceId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
-                Instance instance = new Instance(rs.getString(InstanceTable.COLUMN_ID));
+                Instance instance = new Instance();
+                instance.setId(rs.getString(InstanceTable.COLUMN_ID));
                 instance.setApplicationId(rs.getInt(InstanceTable.COLUMN_APPLICATION_ID));
                 instance.setAgentUUID(rs.getString(InstanceTable.COLUMN_AGENT_UUID));
                 instance.setRegisterTime(rs.getLong(InstanceTable.COLUMN_REGISTER_TIME));
@@ -140,7 +140,8 @@ public class InstanceH2UIDAO extends H2DAO implements IInstanceUIDAO {
         Object[] params = new Object[] {applicationId, timeBucket};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             while (rs.next()) {
-                Instance instance = new Instance(rs.getString(InstanceTable.COLUMN_ID));
+                Instance instance = new Instance();
+                instance.setId(rs.getString(InstanceTable.COLUMN_ID));
                 instance.setApplicationId(rs.getInt(InstanceTable.COLUMN_APPLICATION_ID));
                 instance.setHeartBeatTime(rs.getLong(InstanceTable.COLUMN_HEARTBEAT_TIME));
                 instance.setInstanceId(rs.getInt(InstanceTable.COLUMN_INSTANCE_ID));

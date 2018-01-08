@@ -45,7 +45,8 @@ public class GCMetricService implements IGCMetricService {
     }
 
     @Override public void send(int instanceId, long timeBucket, int phraseValue, long count, long time) {
-        GCMetric gcMetric = new GCMetric(timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + String.valueOf(phraseValue));
+        GCMetric gcMetric = new GCMetric();
+        gcMetric.setId(timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + String.valueOf(phraseValue));
         gcMetric.setInstanceId(instanceId);
         gcMetric.setPhrase(phraseValue);
         gcMetric.setCount(count);

@@ -48,7 +48,8 @@ public class ServiceAlarmEsPersistenceDAO extends EsDAO implements IServiceAlarm
     @Override public ServiceAlarm get(String id) {
         GetResponse getResponse = getClient().prepareGet(ServiceAlarmTable.TABLE, id).get();
         if (getResponse.isExists()) {
-            ServiceAlarm serviceAlarm = new ServiceAlarm(id);
+            ServiceAlarm serviceAlarm = new ServiceAlarm();
+            serviceAlarm.setId(id);
             Map<String, Object> source = getResponse.getSource();
             serviceAlarm.setApplicationId(((Number)source.get(ServiceAlarmTable.COLUMN_APPLICATION_ID)).intValue());
             serviceAlarm.setInstanceId(((Number)source.get(ServiceAlarmTable.COLUMN_INSTANCE_ID)).intValue());

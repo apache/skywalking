@@ -35,8 +35,6 @@ public abstract class TableDefine {
 
     public abstract void initialize();
 
-    public abstract boolean isPyramidTable();
-
     public final void addColumn(ColumnDefine columnDefine) {
         columnDefines.add(columnDefine);
     }

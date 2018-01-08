@@ -48,7 +48,9 @@ public class ApplicationAlarmEsPersistenceDAO extends EsDAO implements IApplicat
     @Override public ApplicationAlarm get(String id) {
         GetResponse getResponse = getClient().prepareGet(ApplicationAlarmTable.TABLE, id).get();
         if (getResponse.isExists()) {
-            ApplicationAlarm instanceAlarm = new ApplicationAlarm(id);
+            ApplicationAlarm instanceAlarm = new ApplicationAlarm();
+            instanceAlarm.setId(id);
+
             Map<String, Object> source = getResponse.getSource();
             instanceAlarm.setApplicationId(((Number)source.get(ApplicationAlarmTable.COLUMN_APPLICATION_ID)).intValue());
             instanceAlarm.setSourceValue(((Number)source.get(ApplicationAlarmTable.COLUMN_SOURCE_VALUE)).intValue());

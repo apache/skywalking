@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.h2.dao;
 
 import java.sql.ResultSet;
@@ -26,13 +25,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
+import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
 import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.apache.skywalking.apm.collector.storage.dao.ampp.IApplicationMappingMinutePersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMapping;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMappingTable;
-import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +53,8 @@ public class ApplicationMappingH2MinutePersistenceDAO extends H2DAO implements I
         Object[] params = new Object[] {id};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
-                ApplicationMapping applicationMapping = new ApplicationMapping(id);
+                ApplicationMapping applicationMapping = new ApplicationMapping();
+                applicationMapping.setId(id);
                 applicationMapping.setApplicationId(rs.getInt(ApplicationMappingTable.COLUMN_APPLICATION_ID));
                 applicationMapping.setAddressId(rs.getInt(ApplicationMappingTable.COLUMN_ADDRESS_ID));
                 applicationMapping.setTimeBucket(rs.getLong(ApplicationMappingTable.COLUMN_TIME_BUCKET));

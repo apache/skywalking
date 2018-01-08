@@ -53,7 +53,8 @@ public class InstanceMappingH2MinutePersistenceDAO extends H2DAO implements IIns
         Object[] params = new Object[] {id};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
-                InstanceMapping instanceMapping = new InstanceMapping(id);
+                InstanceMapping instanceMapping = new InstanceMapping();
+                instanceMapping.setId(id);
                 instanceMapping.setApplicationId(rs.getInt(InstanceMappingTable.COLUMN_APPLICATION_ID));
                 instanceMapping.setInstanceId(rs.getInt(InstanceMappingTable.COLUMN_INSTANCE_ID));
                 instanceMapping.setAddressId(rs.getInt(InstanceMappingTable.COLUMN_ADDRESS_ID));

@@ -19,14 +19,14 @@
 package org.apache.skywalking.apm.collector.storage.table.register;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
-import org.apache.skywalking.apm.collector.core.data.RegisterData;
+import org.apache.skywalking.apm.collector.core.data.StreamData;
 import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
 
 /**
  * @author peng-yongsheng
  */
-public class Application extends RegisterData {
+public class Application extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
         new Column(ApplicationTable.COLUMN_ID, new NonOperation()),
@@ -58,6 +58,14 @@ public class Application extends RegisterData {
 
     @Override public void setId(String id) {
         setDataString(0, id);
+    }
+
+    @Override public String getMetricId() {
+        return getId();
+    }
+
+    @Override public void setMetricId(String metricId) {
+        setId(metricId);
     }
 
     public String getApplicationCode() {

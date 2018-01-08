@@ -54,7 +54,8 @@ public class ServiceReferenceMetricH2PersistenceDAO extends H2DAO implements ISe
         Object[] params = new Object[] {id};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
-                ServiceReferenceMetric serviceReferenceMetric = new ServiceReferenceMetric(id);
+                ServiceReferenceMetric serviceReferenceMetric = new ServiceReferenceMetric();
+                serviceReferenceMetric.setId(id);
                 serviceReferenceMetric.setFrontServiceId(rs.getInt(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID));
                 serviceReferenceMetric.setBehindServiceId(rs.getInt(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID));
                 serviceReferenceMetric.setSourceValue(rs.getInt(ServiceReferenceMetricTable.COLUMN_SOURCE_VALUE));

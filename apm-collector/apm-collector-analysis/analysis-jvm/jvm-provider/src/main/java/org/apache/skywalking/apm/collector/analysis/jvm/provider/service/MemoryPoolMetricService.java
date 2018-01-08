@@ -46,7 +46,8 @@ public class MemoryPoolMetricService implements IMemoryPoolMetricService {
 
     @Override
     public void send(int instanceId, long timeBucket, int poolType, long init, long max, long used, long commited) {
-        MemoryPoolMetric memoryPoolMetric = new MemoryPoolMetric(timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + String.valueOf(poolType));
+        MemoryPoolMetric memoryPoolMetric = new MemoryPoolMetric();
+        memoryPoolMetric.setId(timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + String.valueOf(poolType));
         memoryPoolMetric.setInstanceId(instanceId);
         memoryPoolMetric.setPoolType(poolType);
         memoryPoolMetric.setInit(init);

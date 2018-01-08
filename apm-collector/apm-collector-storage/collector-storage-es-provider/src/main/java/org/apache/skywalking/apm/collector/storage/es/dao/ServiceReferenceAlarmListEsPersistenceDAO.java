@@ -48,7 +48,8 @@ public class ServiceReferenceAlarmListEsPersistenceDAO extends EsDAO implements 
     @Override public ServiceReferenceAlarmList get(String id) {
         GetResponse getResponse = getClient().prepareGet(ServiceReferenceAlarmListTable.TABLE, id).get();
         if (getResponse.isExists()) {
-            ServiceReferenceAlarmList serviceReferenceAlarmList = new ServiceReferenceAlarmList(id);
+            ServiceReferenceAlarmList serviceReferenceAlarmList = new ServiceReferenceAlarmList();
+            serviceReferenceAlarmList.setId(id);
             Map<String, Object> source = getResponse.getSource();
             serviceReferenceAlarmList.setFrontApplicationId(((Number)source.get(ServiceReferenceAlarmListTable.COLUMN_FRONT_APPLICATION_ID)).intValue());
             serviceReferenceAlarmList.setBehindApplicationId(((Number)source.get(ServiceReferenceAlarmListTable.COLUMN_BEHIND_APPLICATION_ID)).intValue());

@@ -53,7 +53,8 @@ public class InstanceReferenceMetricH2PersistenceDAO extends H2DAO implements II
         Object[] params = new Object[] {id};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
-                InstanceReferenceMetric instanceReferenceMetric = new InstanceReferenceMetric(id);
+                InstanceReferenceMetric instanceReferenceMetric = new InstanceReferenceMetric();
+                instanceReferenceMetric.setId(id);
                 instanceReferenceMetric.setFrontInstanceId(rs.getInt(InstanceReferenceMetricTable.COLUMN_FRONT_INSTANCE_ID));
                 instanceReferenceMetric.setBehindInstanceId(rs.getInt(InstanceReferenceMetricTable.COLUMN_BEHIND_INSTANCE_ID));
 

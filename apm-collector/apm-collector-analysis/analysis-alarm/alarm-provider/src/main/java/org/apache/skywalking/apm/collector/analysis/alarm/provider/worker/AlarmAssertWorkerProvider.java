@@ -19,7 +19,7 @@
 package org.apache.skywalking.apm.collector.analysis.alarm.provider.worker;
 
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
-import org.apache.skywalking.apm.collector.core.data.AbstractData;
+import org.apache.skywalking.apm.collector.core.data.StreamData;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.table.Metric;
 import org.apache.skywalking.apm.collector.storage.table.alarm.Alarm;
@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.collector.storage.table.alarm.Alarm;
 /**
  * @author peng-yongsheng
  */
-public abstract class AlarmAssertWorkerProvider<INPUT extends AbstractData & Metric, OUTPUT extends AbstractData & Alarm, WORKER_TYPE extends AlarmAssertWorker<INPUT, OUTPUT>> extends AbstractLocalAsyncWorkerProvider<INPUT, OUTPUT, WORKER_TYPE> {
+public abstract class AlarmAssertWorkerProvider<INPUT extends StreamData & Metric, OUTPUT extends StreamData & Alarm, WORKER_TYPE extends AlarmAssertWorker<INPUT, OUTPUT>> extends AbstractLocalAsyncWorkerProvider<INPUT, OUTPUT, WORKER_TYPE> {
 
     public AlarmAssertWorkerProvider(ModuleManager moduleManager) {
         super(moduleManager);

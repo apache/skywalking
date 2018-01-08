@@ -162,7 +162,8 @@ public class SegmentParse {
     }
 
     private void buildSegment(String id, byte[] dataBinary) {
-        Segment segment = new Segment(id);
+        Segment segment = new Segment();
+        segment.setId(id);
         segment.setDataBinary(dataBinary);
         segment.setTimeBucket(timeBucket);
         Graph<Segment> graph = GraphManager.INSTANCE.findGraph(GraphIdDefine.SEGMENT_PERSISTENCE_GRAPH_ID, Segment.class);
