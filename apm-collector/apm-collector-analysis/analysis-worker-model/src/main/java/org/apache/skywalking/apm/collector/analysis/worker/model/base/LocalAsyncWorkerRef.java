@@ -20,6 +20,8 @@ package org.apache.skywalking.apm.collector.analysis.worker.model.base;
 
 import java.util.Iterator;
 import java.util.List;
+import org.apache.skywalking.apm.collector.core.annotations.trace.BatchParameter;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.data.EndOfBatchQueueMessage;
 import org.apache.skywalking.apm.collector.core.graph.NodeProcessor;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
@@ -44,7 +46,9 @@ public class LocalAsyncWorkerRef<INPUT extends EndOfBatchQueueMessage, OUTPUT ex
         this.dataCarrier = dataCarrier;
     }
 
-    @Override public void consume(List<INPUT> data) {
+    @GraphComputingMetric(name = "/worker/async/consume")
+    @Override
+    public void consume(@BatchParameter List<INPUT> data) {
         Iterator<INPUT> inputIterator = data.iterator();
 
         int i = 0;

@@ -27,16 +27,19 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.collector.core.annotations.trace.BatchParameter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author wusheng
  */
 public enum MetricTree implements Runnable {
     INSTANCE;
+    private final Logger logger = LoggerFactory.getLogger(MetricTree.class);
 
     private MetricNode root = new MetricNode("/", "/");
     private ScheduledFuture<?> scheduledFuture;
-    private String lineSeparater = System.getProperty("line.separator");
+    private String lineSeparator = System.getProperty("line.separator");
 
     MetricTree() {
         ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
@@ -63,6 +66,10 @@ public enum MetricTree implements Runnable {
         }
 
         StringBuilder logBuffer = new StringBuilder();
+        logBuffer.append(lineSeparator);
+        logBuffer.append("##################################################################################################################").append(lineSeparator);
+        logBuffer.append("#                                             Collector Service Report                                           #").append(lineSeparator);
+        logBuffer.append("##################################################################################################################").append(lineSeparator);
         root.toOutput(new ReportWriter() {
             private int stackDepth = 0;
 
@@ -70,7 +77,7 @@ public enum MetricTree implements Runnable {
                 for (int i = 0; i < stackDepth; i++) {
                     logBuffer.append("\t");
                 }
-                logBuffer.append(name).append("").append(lineSeparater);
+                logBuffer.append(name).append("").append(lineSeparator);
             }
 
             @Override public void writeMetric(String metrics) {
@@ -78,7 +85,7 @@ public enum MetricTree implements Runnable {
                     logBuffer.append("\t");
                 }
                 logBuffer.append("\t");
-                logBuffer.append(metrics).append("").append(lineSeparater);
+                logBuffer.append(metrics).append("").append(lineSeparator);
             }
 
             @Override public void prepare4Child() {
@@ -89,6 +96,8 @@ public enum MetricTree implements Runnable {
                 stackDepth--;
             }
         });
+
+        logger.warn(logBuffer.toString());
     }
 
     class MetricNode {
@@ -103,7 +112,7 @@ public enum MetricTree implements Runnable {
 
         }
 
-        ServiceMetric getMetric(Method targetMethod) {
+        ServiceMetric getMetric(Method targetMethod, Object[] allArguments) {
             if (metric == null) {
                 synchronized (nodeName) {
                     if (metric == null) {
@@ -111,13 +120,24 @@ public enum MetricTree implements Runnable {
                         if (targetMethod != null) {
                             Annotation[][] annotations = targetMethod.getParameterAnnotations();
                             if (annotations != null) {
+                                int index = 0;
                                 for (Annotation[] parameterAnnotation : annotations) {
                                     if (parameterAnnotation != null) {
                                         for (Annotation annotation : parameterAnnotation) {
                                             if (annotation.equals(BatchParameter.class)) {
                                                 isBatchDetected = true;
+                                                break;
                                             }
                                         }
+                                    }
+                                    index++;
+                                }
+                                if (isBatchDetected) {
+                                    Object listArgs = allArguments[index];
+
+                                    if (listArgs instanceof List) {
+                                        List args = (List)listArgs;
+                                        metricName += "/" + args.get(0).getClass().getSimpleName();
                                     }
                                 }
                             }
@@ -147,19 +167,28 @@ public enum MetricTree implements Runnable {
         }
 
         void toOutput(ReportWriter writer) {
-            writer.writeMetric(nodeName);
-            if (metric != null) {
-                writer.prepare4Child();
-                metric.toOutput(writer);
-                writer.finished();
-            }
-            if (childs.size() > 0) {
-                for (MetricNode child : childs) {
-                    writer.prepare4Child();
-                    child.toOutput(writer);
-                    writer.finished();
+            if (!nodeName.equals("/")) {
+                writer.writeMetricName(nodeName);
+                if (metric != null) {
+                    metric.toOutput(writer);
+                }
+                if (childs.size() > 0) {
+                    for (MetricNode child : childs) {
+                        writer.prepare4Child();
+                        child.toOutput(writer);
+                        writer.finished();
+                    }
+                }
+            } else {
+                writer.writeMetricName("/");
+                if (childs.size() > 0) {
+                    for (MetricNode child : childs) {
+                        child.toOutput(writer);
+                    }
                 }
             }
+
+
         }
     }
 }

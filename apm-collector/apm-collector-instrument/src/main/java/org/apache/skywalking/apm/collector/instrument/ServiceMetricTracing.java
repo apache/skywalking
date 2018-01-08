@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.collector.instrument;
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
@@ -38,6 +39,7 @@ public class ServiceMetricTracing {
     @RuntimeType
     public Object intercept(
         @SuperCall Callable<?> zuper,
+        @AllArguments Object[] allArguments,
         @Origin Method method
     ) throws Throwable {
         ServiceMetric metric = this.metrics.get(method);
@@ -45,7 +47,7 @@ public class ServiceMetricTracing {
             GraphComputingMetric annotation = method.getAnnotation(GraphComputingMetric.class);
             String metricName = annotation.name();
             MetricTree.MetricNode metricNode = MetricTree.INSTANCE.lookup(metricName);
-            ServiceMetric serviceMetric = metricNode.getMetric(method);
+            ServiceMetric serviceMetric = metricNode.getMetric(method, allArguments);
             metrics.put(method, serviceMetric);
             metric = serviceMetric;
         }
