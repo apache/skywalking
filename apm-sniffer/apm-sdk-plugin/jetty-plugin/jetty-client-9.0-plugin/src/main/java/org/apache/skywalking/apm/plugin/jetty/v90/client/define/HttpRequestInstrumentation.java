@@ -16,8 +16,7 @@
  *
  */
 
-
-package org.apache.skywalking.apm.plugin.jetty.v9.client.define;
+package org.apache.skywalking.apm.plugin.jetty.v90.client.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -42,7 +41,7 @@ public class HttpRequestInstrumentation extends ClassInstanceMethodsEnhancePlugi
 
     private static final String ENHANCE_CLASS = "org.eclipse.jetty.client.HttpRequest";
     private static final String ENHANCE_CLASS_NAME = "send";
-    public static final String SYNC_SEND_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jetty.v9.client.SyncHttpRequestSendInterceptor";
+    public static final String SYNC_SEND_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jetty.v90.client.SyncHttpRequestSendV90Interceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -72,6 +71,6 @@ public class HttpRequestInstrumentation extends ClassInstanceMethodsEnhancePlugi
     }
 
     @Override protected String[] witnessClasses() {
-        return new String[] {"org.eclipse.jetty.client.AbstractHttpClientTransport"};
+        return new String[] {"org.eclipse.jetty.client.api.ProxyConfiguration"};
     }
 }
