@@ -30,9 +30,9 @@ import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetric
 /**
  * @author peng-yongsheng
  */
-public class InstanceMetricRemoteWorker extends AbstractRemoteWorker<InstanceMetric, InstanceMetric> {
+public class InstanceMinuteMetricRemoteWorker extends AbstractRemoteWorker<InstanceMetric, InstanceMetric> {
 
-    public InstanceMetricRemoteWorker(ModuleManager moduleManager) {
+    public InstanceMinuteMetricRemoteWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -48,14 +48,14 @@ public class InstanceMetricRemoteWorker extends AbstractRemoteWorker<InstanceMet
         onNext(instanceMetric);
     }
 
-    public static class Factory extends AbstractRemoteWorkerProvider<InstanceMetric, InstanceMetric, InstanceMetricRemoteWorker> {
+    public static class Factory extends AbstractRemoteWorkerProvider<InstanceMetric, InstanceMetric, InstanceMinuteMetricRemoteWorker> {
 
         public Factory(ModuleManager moduleManager, RemoteSenderService remoteSenderService, int graphId) {
             super(moduleManager, remoteSenderService, graphId);
         }
 
-        @Override public InstanceMetricRemoteWorker workerInstance(ModuleManager moduleManager) {
-            return new InstanceMetricRemoteWorker(moduleManager);
+        @Override public InstanceMinuteMetricRemoteWorker workerInstance(ModuleManager moduleManager) {
+            return new InstanceMinuteMetricRemoteWorker(moduleManager);
         }
     }
 }

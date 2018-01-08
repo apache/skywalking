@@ -61,6 +61,7 @@ public class InstanceMetric extends StreamData implements Metric {
     };
 
     private static final Column[] BOOLEAN_COLUMNS = {};
+    
     private static final Column[] BYTE_COLUMNS = {};
 
     public InstanceMetric() {

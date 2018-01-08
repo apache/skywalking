@@ -36,9 +36,10 @@ public class InstanceMonthMetricTransformNode implements NodeProcessor<InstanceM
 
     @Override public void process(InstanceMetric instanceMetric, Next<InstanceMetric> next) {
         long timeBucket = TimeBucketUtils.INSTANCE.minuteToMonth(instanceMetric.getTimeBucket());
-        instanceMetric.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + instanceMetric.getMetricId());
-        instanceMetric.setTimeBucket(timeBucket);
 
-        next.execute(instanceMetric);
+        InstanceMetric newInstanceMetric = InstanceMetricCopy.copy(instanceMetric);
+        newInstanceMetric.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + instanceMetric.getMetricId());
+        newInstanceMetric.setTimeBucket(timeBucket);
+        next.execute(newInstanceMetric);
     }
 }
