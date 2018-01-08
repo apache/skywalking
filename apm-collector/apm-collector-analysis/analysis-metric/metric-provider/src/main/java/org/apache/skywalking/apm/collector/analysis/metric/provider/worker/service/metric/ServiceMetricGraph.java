@@ -50,8 +50,8 @@ public class ServiceMetricGraph {
 
         Graph<ServiceReferenceMetric> graph = GraphManager.INSTANCE.createIfAbsent(MetricGraphIdDefine.SERVICE_METRIC_GRAPH_ID, ServiceReferenceMetric.class);
 
-        Node<ServiceMetric, ServiceMetric> remoteNode = graph.addNode(new ServiceMetricAggregationWorker.Factory(moduleManager).create(workerCreateListener))
-            .addNext(new ServiceMetricRemoteWorker.Factory(moduleManager, remoteSenderService, MetricGraphIdDefine.SERVICE_METRIC_GRAPH_ID).create(workerCreateListener));
+        Node<ServiceMetric, ServiceMetric> remoteNode = graph.addNode(new ServiceMetricMinuteAggregationWorker.Factory(moduleManager).create(workerCreateListener))
+            .addNext(new ServiceMinuteMetricRemoteWorker.Factory(moduleManager, remoteSenderService, MetricGraphIdDefine.SERVICE_METRIC_GRAPH_ID).create(workerCreateListener));
 
         remoteNode.addNext(new ServiceMinuteMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
@@ -64,7 +64,7 @@ public class ServiceMetricGraph {
         remoteNode.addNext(new ServiceMonthMetricTransformNode())
             .addNext(new ServiceMonthMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
-//        link(graph);
+        link(graph);
     }
 
     private void link(Graph<ServiceReferenceMetric> graph) {
