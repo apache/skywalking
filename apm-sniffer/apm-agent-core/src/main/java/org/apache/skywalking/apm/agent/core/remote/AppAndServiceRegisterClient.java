@@ -37,12 +37,12 @@ import org.apache.skywalking.apm.agent.core.dictionary.OperationNameDictionary;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.os.OSUtil;
+import org.apache.skywalking.apm.network.proto.Application;
 import org.apache.skywalking.apm.network.proto.ApplicationInstance;
 import org.apache.skywalking.apm.network.proto.ApplicationInstanceHeartbeat;
 import org.apache.skywalking.apm.network.proto.ApplicationInstanceMapping;
-import org.apache.skywalking.apm.network.proto.ApplicationMappings;
+import org.apache.skywalking.apm.network.proto.ApplicationMapping;
 import org.apache.skywalking.apm.network.proto.ApplicationRegisterServiceGrpc;
-import org.apache.skywalking.apm.network.proto.Applications;
 import org.apache.skywalking.apm.network.proto.InstanceDiscoveryServiceGrpc;
 import org.apache.skywalking.apm.network.proto.NetworkAddressRegisterServiceGrpc;
 import org.apache.skywalking.apm.network.proto.ServiceNameDiscoveryServiceGrpc;
@@ -109,11 +109,10 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
             try {
                 if (RemoteDownstreamConfig.Agent.APPLICATION_ID == DictionaryUtil.nullValue()) {
                     if (applicationRegisterServiceBlockingStub != null) {
-                        //TODO: `batchRegister` should be replaces by applicationCodeRegister
-                        ApplicationMappings applicationMapping = applicationRegisterServiceBlockingStub.batchRegister(
-                            Applications.newBuilder().addApplicationCodes(Config.Agent.APPLICATION_CODE).build());
-                        if (applicationMapping.getApplicationsCount() > 0) {
-                            RemoteDownstreamConfig.Agent.APPLICATION_ID = applicationMapping.getApplications(0).getValue();
+                        ApplicationMapping applicationMapping = applicationRegisterServiceBlockingStub.applicationCodeRegister(
+                            Application.newBuilder().setApplicationCode(Config.Agent.APPLICATION_CODE).build());
+                        if (applicationMapping != null) {
+                            RemoteDownstreamConfig.Agent.APPLICATION_ID = applicationMapping.getApplication().getValue();
                             shouldTry = true;
                         }
                     }
@@ -121,7 +120,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
                     if (instanceDiscoveryServiceBlockingStub != null) {
                         if (RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID == DictionaryUtil.nullValue()) {
 
-                            ApplicationInstanceMapping instanceMapping = instanceDiscoveryServiceBlockingStub.register(ApplicationInstance.newBuilder()
+                            ApplicationInstanceMapping instanceMapping = instanceDiscoveryServiceBlockingStub.registerInstance(ApplicationInstance.newBuilder()
                                 .setApplicationId(RemoteDownstreamConfig.Agent.APPLICATION_ID)
                                 .setAgentUUID(PROCESS_UUID)
                                 .setRegisterTime(System.currentTimeMillis())

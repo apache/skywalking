@@ -25,17 +25,17 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-jetty-client-9.x-plugin</artifactId>
+    <artifactId>apm-jetty-client-9.0-plugin</artifactId>
     <packaging>jar</packaging>
 
-    <name>jetty-client-9.x-plugin</name>
+    <name>jetty-client-9.0-plugin</name>
     <url>http://maven.apache.org</url>
 
     <dependencies>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-client</artifactId>
-            <version>9.1.0.v20131115</version>
+            <version>9.0.0.v20130308</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
