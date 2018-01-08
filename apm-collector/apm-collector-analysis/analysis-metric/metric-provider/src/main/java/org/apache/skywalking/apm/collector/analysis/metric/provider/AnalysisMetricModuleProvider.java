@@ -23,22 +23,16 @@ import org.apache.skywalking.apm.collector.analysis.metric.define.AnalysisMetric
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.component.ApplicationComponentGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.component.ApplicationComponentSpanListener;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.mapping.ApplicationMappingGraph;
-import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.mapping.ApplicationMappingSpanListener;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.metric.ApplicationMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.refmetric.ApplicationReferenceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global.GlobalTraceGraph;
-import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global.GlobalTraceSpanListener;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.mapping.InstanceMappingGraph;
-import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.mapping.InstanceMappingSpanListener;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.metric.InstanceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.refmetric.InstanceReferenceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.segment.SegmentCostGraph;
-import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.segment.SegmentCostSpanListener;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.entry.ServiceEntryGraph;
-import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.entry.ServiceEntrySpanListener;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.metric.ServiceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.refmetric.ServiceReferenceMetricGraph;
-import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.refmetric.ServiceReferenceMetricSpanListener;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.AnalysisSegmentParserModule;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParserListenerRegister;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
@@ -86,13 +80,13 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
 
     private void segmentParserListenerRegister() {
         ISegmentParserListenerRegister segmentParserListenerRegister = getManager().find(AnalysisSegmentParserModule.NAME).getService(ISegmentParserListenerRegister.class);
-        segmentParserListenerRegister.register(new ServiceReferenceMetricSpanListener.Factory());
+//        segmentParserListenerRegister.register(new ServiceReferenceMetricSpanListener.Factory());
         segmentParserListenerRegister.register(new ApplicationComponentSpanListener.Factory());
-        segmentParserListenerRegister.register(new ApplicationMappingSpanListener.Factory());
-        segmentParserListenerRegister.register(new InstanceMappingSpanListener.Factory());
-        segmentParserListenerRegister.register(new ServiceEntrySpanListener.Factory());
-        segmentParserListenerRegister.register(new GlobalTraceSpanListener.Factory());
-        segmentParserListenerRegister.register(new SegmentCostSpanListener.Factory());
+//        segmentParserListenerRegister.register(new ApplicationMappingSpanListener.Factory());
+//        segmentParserListenerRegister.register(new InstanceMappingSpanListener.Factory());
+//        segmentParserListenerRegister.register(new ServiceEntrySpanListener.Factory());
+//        segmentParserListenerRegister.register(new GlobalTraceSpanListener.Factory());
+//        segmentParserListenerRegister.register(new SegmentCostSpanListener.Factory());
     }
 
     private void graphCreate(WorkerCreateListener workerCreateListener) {

@@ -33,25 +33,21 @@ import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class ApplicationComponentSpanListener implements EntrySpanListener, ExitSpanListener, FirstSpanListener {
 
-    private final Logger logger = LoggerFactory.getLogger(ApplicationComponentSpanListener.class);
-
     private List<ApplicationComponent> applicationComponents = new ArrayList<>();
     private long timeBucket;
 
     @Override
     public void parseExit(SpanDecorator spanDecorator, int applicationId, int instanceId, String segmentId) {
-        String id = spanDecorator.getPeerId() + Const.ID_SPLIT + String.valueOf(spanDecorator.getComponentId());
+        String metricId = spanDecorator.getPeerId() + Const.ID_SPLIT + String.valueOf(spanDecorator.getComponentId());
 
         ApplicationComponent applicationComponent = new ApplicationComponent();
-        applicationComponent.setId(id);
+        applicationComponent.setMetricId(metricId);
         applicationComponent.setComponentId(spanDecorator.getComponentId());
         applicationComponent.setPeerId(spanDecorator.getPeerId());
         applicationComponents.add(applicationComponent);
@@ -59,10 +55,10 @@ public class ApplicationComponentSpanListener implements EntrySpanListener, Exit
 
     @Override
     public void parseEntry(SpanDecorator spanDecorator, int applicationId, int instanceId, String segmentId) {
-        String id = String.valueOf(applicationId) + Const.ID_SPLIT + String.valueOf(spanDecorator.getComponentId());
+        String metricId = String.valueOf(applicationId) + Const.ID_SPLIT + String.valueOf(spanDecorator.getComponentId());
 
         ApplicationComponent applicationComponent = new ApplicationComponent();
-        applicationComponent.setId(id);
+        applicationComponent.setMetricId(metricId);
         applicationComponent.setComponentId(spanDecorator.getComponentId());
         applicationComponent.setPeerId(applicationId);
         applicationComponents.add(applicationComponent);
@@ -78,7 +74,7 @@ public class ApplicationComponentSpanListener implements EntrySpanListener, Exit
         Graph<ApplicationComponent> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.APPLICATION_COMPONENT_GRAPH_ID, ApplicationComponent.class);
 
         applicationComponents.forEach(applicationComponent -> {
-            applicationComponent.setId(timeBucket + Const.ID_SPLIT + applicationComponent.getId());
+            applicationComponent.setId(timeBucket + Const.ID_SPLIT + applicationComponent.getMetricId());
             applicationComponent.setTimeBucket(timeBucket);
             graph.start(applicationComponent);
         });

@@ -44,8 +44,8 @@ public class ApplicationComponentGraph {
         RemoteSenderService remoteSenderService = moduleManager.find(RemoteModule.NAME).getService(RemoteSenderService.class);
 
         Node<ApplicationComponent, ApplicationComponent> remoteNode = GraphManager.INSTANCE.createIfAbsent(MetricGraphIdDefine.APPLICATION_COMPONENT_GRAPH_ID, ApplicationComponent.class)
-            .addNode(new ApplicationComponentAggregationWorker.Factory(moduleManager).create(workerCreateListener))
-            .addNext(new ApplicationComponentRemoteWorker.Factory(moduleManager, remoteSenderService, MetricGraphIdDefine.APPLICATION_COMPONENT_GRAPH_ID).create(workerCreateListener));
+            .addNode(new ApplicationComponentMinuteAggregationWorker.Factory(moduleManager).create(workerCreateListener))
+            .addNext(new ApplicationComponentMinuteRemoteWorker.Factory(moduleManager, remoteSenderService, MetricGraphIdDefine.APPLICATION_COMPONENT_GRAPH_ID).create(workerCreateListener));
 
         remoteNode.addNext(new ApplicationComponentMinutePersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 

@@ -16,12 +16,12 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.es.dao;
+package org.apache.skywalking.apm.collector.storage.es.dao.register;
 
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.apm.collector.storage.dao.INetworkAddressRegisterDAO;
+import org.apache.skywalking.apm.collector.storage.dao.register.INetworkAddressRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddress;
 import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddressTable;
