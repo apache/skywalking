@@ -20,14 +20,17 @@ package org.apache.skywalking.apm.collector.instrument;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 
 /**
  * @author wu-sheng
  */
 public class ServiceMetricTracing {
+    private volatile ConcurrentHashMap<Method, ServiceMetric> metrics = new ConcurrentHashMap<>();
 
     public ServiceMetricTracing() {
     }
@@ -37,6 +40,15 @@ public class ServiceMetricTracing {
         @SuperCall Callable<?> zuper,
         @Origin Method method
     ) throws Throwable {
+        ServiceMetric metric = this.metrics.get(method);
+        if (metric == null) {
+            GraphComputingMetric annotation = method.getAnnotation(GraphComputingMetric.class);
+            String metricName = annotation.name();
+            MetricTree.MetricNode metricNode = MetricTree.INSTANCE.lookup(metricName);
+            ServiceMetric serviceMetric = metricNode.getMetric(method);
+            metrics.put(method, serviceMetric);
+            metric = serviceMetric;
+        }
         boolean occurError = false;
         long startNano = System.nanoTime();
         long endNano;
@@ -47,7 +59,8 @@ public class ServiceMetricTracing {
             throw t;
         } finally {
             endNano = System.nanoTime();
-            //MetricCollector.INSTANCE.trace(serviceName, method, endNano - startNano, occurError);
+
+            metric.trace(endNano - startNano, occurError);
         }
     }
 }

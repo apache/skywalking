@@ -25,4 +25,8 @@ public interface ReportWriter {
     void writeMetricName(String name);
 
     void writeMetric(String metrics);
+
+    void prepare4Child();
+
+    void finished();
 }

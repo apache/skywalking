@@ -44,7 +44,6 @@ public class ServiceMetric {
     }
 
     public void toOutput(ReportWriter writer) {
-        writer.writeMetricName(metricName);
         /**
          * If using A, then B is available and free to output.
          */
