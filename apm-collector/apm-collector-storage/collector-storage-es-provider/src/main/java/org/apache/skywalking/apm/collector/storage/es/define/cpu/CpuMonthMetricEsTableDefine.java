@@ -16,29 +16,22 @@
  *
  */
 
+package org.apache.skywalking.apm.collector.storage.es.define.cpu;
 
-package org.apache.skywalking.apm.collector.storage.es.define;
-
-import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchColumnDefine;
-import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchTableDefine;
+import org.apache.skywalking.apm.collector.core.storage.TimePyramid;
+import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.table.jvm.CpuMetricTable;
 
 /**
  * @author peng-yongsheng
  */
-public class CpuMetricEsTableDefine extends ElasticSearchTableDefine {
+public class CpuMonthMetricEsTableDefine extends AbstractCpuMetricEsTableDefine {
 
-    public CpuMetricEsTableDefine() {
-        super(CpuMetricTable.TABLE);
+    public CpuMonthMetricEsTableDefine() {
+        super(CpuMetricTable.TABLE + Const.ID_SPLIT + TimePyramid.Month.getName());
     }
 
     @Override public int refreshInterval() {
         return 1;
-    }
-
-    @Override public void initialize() {
-        addColumn(new ElasticSearchColumnDefine(CpuMetricTable.COLUMN_INSTANCE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(CpuMetricTable.COLUMN_USAGE_PERCENT, ElasticSearchColumnDefine.Type.Double.name()));
-        addColumn(new ElasticSearchColumnDefine(CpuMetricTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
     }
 }

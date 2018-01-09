@@ -80,6 +80,10 @@ import org.apache.skywalking.apm.collector.storage.dao.cache.IApplicationCacheDA
 import org.apache.skywalking.apm.collector.storage.dao.cache.IInstanceCacheDAO;
 import org.apache.skywalking.apm.collector.storage.dao.cache.INetworkAddressCacheDAO;
 import org.apache.skywalking.apm.collector.storage.dao.cache.IServiceNameCacheDAO;
+import org.apache.skywalking.apm.collector.storage.dao.cpump.ICpuDayMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.cpump.ICpuHourMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.cpump.ICpuMinuteMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.cpump.ICpuMonthMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.cpump.ICpuSecondMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.gcmp.IGCDayMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.gcmp.IGCHourMetricPersistenceDAO;
@@ -171,6 +175,10 @@ import org.apache.skywalking.apm.collector.storage.es.dao.cache.ApplicationEsCac
 import org.apache.skywalking.apm.collector.storage.es.dao.cache.InstanceEsCacheDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.cache.NetworkAddressEsCacheDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.cache.ServiceNameEsCacheDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.cpump.CpuDayMetricEsPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.cpump.CpuHourMetricEsPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.cpump.CpuMinuteMetricEsPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.cpump.CpuMonthMetricEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.cpump.CpuSecondMetricEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.gcmp.GCDayMetricEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.gcmp.GCHourMetricEsPersistenceDAO;
@@ -302,6 +310,10 @@ public class StorageModuleEsProvider extends ModuleProvider {
 
     private void registerPersistenceDAO() throws ServiceNotProvidedException {
         this.registerServiceImplementation(ICpuSecondMetricPersistenceDAO.class, new CpuSecondMetricEsPersistenceDAO(elasticSearchClient));
+        this.registerServiceImplementation(ICpuMinuteMetricPersistenceDAO.class, new CpuMinuteMetricEsPersistenceDAO(elasticSearchClient));
+        this.registerServiceImplementation(ICpuHourMetricPersistenceDAO.class, new CpuHourMetricEsPersistenceDAO(elasticSearchClient));
+        this.registerServiceImplementation(ICpuDayMetricPersistenceDAO.class, new CpuDayMetricEsPersistenceDAO(elasticSearchClient));
+        this.registerServiceImplementation(ICpuMonthMetricPersistenceDAO.class, new CpuMonthMetricEsPersistenceDAO(elasticSearchClient));
 
         this.registerServiceImplementation(IGCSecondMetricPersistenceDAO.class, new GCSecondMetricEsPersistenceDAO(elasticSearchClient));
         this.registerServiceImplementation(IGCMinuteMetricPersistenceDAO.class, new GCMinuteMetricEsPersistenceDAO(elasticSearchClient));

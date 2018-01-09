@@ -16,16 +16,25 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.table.jvm;
+package org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.cpu;
 
-import org.apache.skywalking.apm.collector.core.data.CommonTable;
+import org.apache.skywalking.apm.collector.storage.table.jvm.CpuMetric;
 
 /**
  * @author peng-yongsheng
  */
-public class CpuMetricTable extends CommonTable {
-    public static final String TABLE = "cpu_metric";
-    public static final String COLUMN_INSTANCE_ID = "instance_id";
-    public static final String COLUMN_USAGE_PERCENT = "usage_percent";
-    public static final String COLUMN_TIMES = "times";
+public class CpuMetricCopy {
+
+    public static CpuMetric copy(CpuMetric cpuMetric) {
+        CpuMetric newCpuMetric = new CpuMetric();
+        newCpuMetric.setId(cpuMetric.getId());
+        newCpuMetric.setMetricId(cpuMetric.getMetricId());
+
+        newCpuMetric.setInstanceId(cpuMetric.getInstanceId());
+        newCpuMetric.setUsagePercent(cpuMetric.getUsagePercent());
+        newCpuMetric.setTimes(cpuMetric.getTimes());
+
+        newCpuMetric.setTimeBucket(cpuMetric.getTimeBucket());
+        return newCpuMetric;
+    }
 }
