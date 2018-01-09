@@ -70,3 +70,9 @@ org.apache.skywalking.apm.collector.storage.es.define.mpool.MemoryPoolMinuteMetr
 org.apache.skywalking.apm.collector.storage.es.define.mpool.MemoryPoolHourMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.mpool.MemoryPoolDayMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.mpool.MemoryPoolMonthMetricEsTableDefine
+
+org.apache.skywalking.apm.collector.storage.es.define.memory.MemorySecondMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.memory.MemoryMinuteMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.memory.MemoryHourMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.memory.MemoryDayMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.memory.MemoryMonthMetricEsTableDefine

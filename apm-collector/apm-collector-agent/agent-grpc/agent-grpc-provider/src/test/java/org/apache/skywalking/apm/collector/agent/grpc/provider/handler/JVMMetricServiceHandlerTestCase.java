@@ -23,6 +23,7 @@ import io.grpc.ManagedChannelBuilder;
 import org.apache.skywalking.apm.network.proto.JVMMetric;
 import org.apache.skywalking.apm.network.proto.JVMMetrics;
 import org.apache.skywalking.apm.network.proto.JVMMetricsServiceGrpc;
+import org.apache.skywalking.apm.network.proto.Memory;
 import org.apache.skywalking.apm.network.proto.MemoryPool;
 import org.apache.skywalking.apm.network.proto.PoolType;
 
@@ -41,7 +42,9 @@ public class JVMMetricServiceHandlerTestCase {
         JVMMetric.Builder metricBuilder = JVMMetric.newBuilder();
         metricBuilder.setTime(System.currentTimeMillis());
 
+        buildMemoryMetric(metricBuilder);
         buildMemoryPoolMetric(metricBuilder);
+
         builder.addMetrics(metricBuilder.build());
 
         blockingStub.collect(builder.build());
@@ -56,5 +59,16 @@ public class JVMMetricServiceHandlerTestCase {
         builder.setType(PoolType.NEWGEN_USAGE);
 
         metricBuilder.addMemoryPool(builder);
+    }
+
+    private static void buildMemoryMetric(JVMMetric.Builder metricBuilder) {
+        Memory.Builder builder = Memory.newBuilder();
+        builder.setInit(20);
+        builder.setMax(50);
+        builder.setCommitted(20);
+        builder.setUsed(15);
+        builder.setIsHeap(true);
+
+        metricBuilder.addMemory(builder);
     }
 }

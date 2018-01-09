@@ -20,7 +20,10 @@ package org.apache.skywalking.apm.collector.storage.table.jvm;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
+import org.apache.skywalking.apm.collector.core.data.operator.AddOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.MaxOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.MinOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
 
 /**
@@ -34,11 +37,12 @@ public class MemoryMetric extends StreamData {
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(MemoryMetricTable.COLUMN_INIT, new CoverOperation()),
-        new Column(MemoryMetricTable.COLUMN_MAX, new CoverOperation()),
-        new Column(MemoryMetricTable.COLUMN_USED, new CoverOperation()),
-        new Column(MemoryMetricTable.COLUMN_COMMITTED, new CoverOperation()),
-        new Column(MemoryMetricTable.COLUMN_TIME_BUCKET, new CoverOperation()),
+        new Column(MemoryMetricTable.COLUMN_INIT, new MinOperation()),
+        new Column(MemoryMetricTable.COLUMN_MAX, new MaxOperation()),
+        new Column(MemoryMetricTable.COLUMN_USED, new AddOperation()),
+        new Column(MemoryMetricTable.COLUMN_COMMITTED, new AddOperation()),
+        new Column(MemoryMetricTable.COLUMN_TIMES, new AddOperation()),
+        new Column(MemoryMetricTable.COLUMN_TIME_BUCKET, new NonOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {
@@ -105,12 +109,20 @@ public class MemoryMetric extends StreamData {
         setDataLong(3, committed);
     }
 
-    public Long getTimeBucket() {
+    public Long getTimes() {
         return getDataLong(4);
     }
 
+    public void setTimes(Long times) {
+        setDataLong(4, times);
+    }
+
+    public Long getTimeBucket() {
+        return getDataLong(5);
+    }
+
     public void setTimeBucket(Long timeBucket) {
-        setDataLong(4, timeBucket);
+        setDataLong(5, timeBucket);
     }
 
     public Boolean getIsHeap() {
