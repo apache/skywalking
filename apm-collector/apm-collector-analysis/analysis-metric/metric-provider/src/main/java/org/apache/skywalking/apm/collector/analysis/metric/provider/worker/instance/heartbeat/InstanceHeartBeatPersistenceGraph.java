@@ -16,9 +16,9 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.jvm.provider.worker;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.heartbeat;
 
-import org.apache.skywalking.apm.collector.analysis.jvm.define.graph.GraphIdDefine;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -38,7 +38,7 @@ public class InstanceHeartBeatPersistenceGraph {
     }
 
     public void create() {
-        GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.INSTANCE_HEART_BEAT_PERSISTENCE_GRAPH_ID, Instance.class)
+        GraphManager.INSTANCE.createIfAbsent(MetricGraphIdDefine.INSTANCE_HEART_BEAT_PERSISTENCE_GRAPH_ID, Instance.class)
             .addNode(new InstHeartBeatPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
     }
 }

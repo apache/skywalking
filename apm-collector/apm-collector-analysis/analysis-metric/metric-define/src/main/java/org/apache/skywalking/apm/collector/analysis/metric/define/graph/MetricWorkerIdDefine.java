@@ -112,10 +112,6 @@ public class MetricWorkerIdDefine {
     public static final int APPLICATION_COMPONENT_MONTH_PERSISTENCE_WORKER_ID = 4907;
     public static final int APPLICATION_COMPONENT_MONTH_TRANSFORM_NODE_ID = 4908;
 
-    public static final int SERVICE_ENTRY_AGGREGATION_WORKER_ID = 424;
-    public static final int SERVICE_ENTRY_REMOTE_WORKER_ID = 425;
-    public static final int SERVICE_ENTRY_PERSISTENCE_WORKER_ID = 426;
-
     public static final int GLOBAL_TRACE_PERSISTENCE_WORKER_ID = 427;
     public static final int SEGMENT_COST_PERSISTENCE_WORKER_ID = 428;
 
@@ -125,4 +121,5 @@ public class MetricWorkerIdDefine {
     public static final int INSTANCE_METRIC_GRAPH_BRIDGE_WORKER_ID = 432;
     public static final int APPLICATION_METRIC_GRAPH_BRIDGE_WORKER_ID = 433;
 
+    public static final int INST_HEART_BEAT_PERSISTENCE_WORKER_ID = 400;
 }

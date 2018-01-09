@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.jvm.define.service;
+package org.apache.skywalking.apm.collector.analysis.metric.define.service;
 
 import org.apache.skywalking.apm.collector.core.module.Service;
 
@@ -24,5 +24,5 @@ import org.apache.skywalking.apm.collector.core.module.Service;
  * @author peng-yongsheng
  */
 public interface IInstanceHeartBeatService extends Service {
-    void send(int instanceId, long heartBeatTime);
+    void heartBeat(int instanceId, long heartBeatTime);
 }

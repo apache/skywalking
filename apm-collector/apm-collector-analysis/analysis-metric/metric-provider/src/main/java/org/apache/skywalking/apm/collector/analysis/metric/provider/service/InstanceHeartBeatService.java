@@ -16,10 +16,10 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.jvm.provider.service;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.service;
 
-import org.apache.skywalking.apm.collector.analysis.jvm.define.graph.GraphIdDefine;
-import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IInstanceHeartBeatService;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
+import org.apache.skywalking.apm.collector.analysis.metric.define.service.IInstanceHeartBeatService;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
@@ -39,12 +39,12 @@ public class InstanceHeartBeatService implements IInstanceHeartBeatService {
 
     private Graph<Instance> getHeartBeatGraph() {
         if (ObjectUtils.isEmpty(heartBeatGraph)) {
-            this.heartBeatGraph = GraphManager.INSTANCE.findGraph(GraphIdDefine.INSTANCE_HEART_BEAT_PERSISTENCE_GRAPH_ID, Instance.class);
+            this.heartBeatGraph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.INSTANCE_HEART_BEAT_PERSISTENCE_GRAPH_ID, Instance.class);
         }
         return heartBeatGraph;
     }
 
-    @Override public void send(int instanceId, long heartBeatTime) {
+    @Override public void heartBeat(int instanceId, long heartBeatTime) {
         Instance instance = new Instance();
         instance.setId(String.valueOf(instanceId));
         instance.setHeartBeatTime(TimeBucketUtils.INSTANCE.getSecondTimeBucket(heartBeatTime));
