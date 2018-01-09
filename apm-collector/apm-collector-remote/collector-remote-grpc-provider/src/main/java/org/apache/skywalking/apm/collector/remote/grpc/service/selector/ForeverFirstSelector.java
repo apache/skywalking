@@ -16,11 +16,10 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.remote.grpc.service.selector;
 
 import java.util.List;
-import org.apache.skywalking.apm.collector.core.data.Data;
+import org.apache.skywalking.apm.collector.core.data.RemoteData;
 import org.apache.skywalking.apm.collector.remote.service.RemoteClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +31,7 @@ public class ForeverFirstSelector implements RemoteClientSelector {
 
     private final Logger logger = LoggerFactory.getLogger(ForeverFirstSelector.class);
 
-    @Override public RemoteClient select(List<RemoteClient> clients, Data message) {
+    @Override public RemoteClient select(List<RemoteClient> clients, RemoteData remoteData) {
         logger.debug("clients size: {}", clients.size());
         return clients.get(0);
     }

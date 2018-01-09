@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.collector.analysis.jvm.define;
 
 import org.apache.skywalking.apm.collector.analysis.jvm.define.service.ICpuMetricService;
 import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IGCMetricService;
-import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IInstanceHeartBeatService;
 import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IMemoryMetricService;
 import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IMemoryPoolMetricService;
 import org.apache.skywalking.apm.collector.core.module.Module;
@@ -38,7 +37,7 @@ public class AnalysisJVMModule extends Module {
 
     @Override public Class[] services() {
         return new Class[] {
-            ICpuMetricService.class, IGCMetricService.class, IInstanceHeartBeatService.class,
+            ICpuMetricService.class, IGCMetricService.class,
             IMemoryMetricService.class, IMemoryPoolMetricService.class
         };
     }

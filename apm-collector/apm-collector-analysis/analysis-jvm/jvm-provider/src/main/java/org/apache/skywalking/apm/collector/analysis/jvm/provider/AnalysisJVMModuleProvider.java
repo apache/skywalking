@@ -22,19 +22,16 @@ import java.util.Properties;
 import org.apache.skywalking.apm.collector.analysis.jvm.define.AnalysisJVMModule;
 import org.apache.skywalking.apm.collector.analysis.jvm.define.service.ICpuMetricService;
 import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IGCMetricService;
-import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IInstanceHeartBeatService;
 import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IMemoryMetricService;
 import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IMemoryPoolMetricService;
 import org.apache.skywalking.apm.collector.analysis.jvm.provider.service.CpuMetricService;
 import org.apache.skywalking.apm.collector.analysis.jvm.provider.service.GCMetricService;
-import org.apache.skywalking.apm.collector.analysis.jvm.provider.service.InstanceHeartBeatService;
 import org.apache.skywalking.apm.collector.analysis.jvm.provider.service.MemoryMetricService;
 import org.apache.skywalking.apm.collector.analysis.jvm.provider.service.MemoryPoolMetricService;
-import org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.CpuMetricPersistenceGraph;
-import org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.GCMetricPersistenceGraph;
-import org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.InstanceHeartBeatPersistenceGraph;
-import org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.MemoryMetricPersistenceGraph;
-import org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.MemoryPoolMetricPersistenceGraph;
+import org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.cpu.CpuMetricPersistenceGraph;
+import org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.gc.GCMetricPersistenceGraph;
+import org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.memory.MemoryMetricPersistenceGraph;
+import org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.memorypool.MemoryPoolMetricPersistenceGraph;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.analysis.worker.timer.PersistenceTimer;
 import org.apache.skywalking.apm.collector.core.module.Module;
@@ -61,7 +58,6 @@ public class AnalysisJVMModuleProvider extends ModuleProvider {
     @Override public void prepare(Properties config) throws ServiceNotProvidedException {
         this.registerServiceImplementation(ICpuMetricService.class, new CpuMetricService());
         this.registerServiceImplementation(IGCMetricService.class, new GCMetricService());
-        this.registerServiceImplementation(IInstanceHeartBeatService.class, new InstanceHeartBeatService());
         this.registerServiceImplementation(IMemoryMetricService.class, new MemoryMetricService());
         this.registerServiceImplementation(IMemoryPoolMetricService.class, new MemoryPoolMetricService());
     }
@@ -89,9 +85,6 @@ public class AnalysisJVMModuleProvider extends ModuleProvider {
 
         GCMetricPersistenceGraph gcMetricPersistenceGraph = new GCMetricPersistenceGraph(getManager(), workerCreateListener);
         gcMetricPersistenceGraph.create();
-
-        InstanceHeartBeatPersistenceGraph instanceHeartBeatPersistenceGraph = new InstanceHeartBeatPersistenceGraph(getManager(), workerCreateListener);
-        instanceHeartBeatPersistenceGraph.create();
 
         MemoryMetricPersistenceGraph memoryMetricPersistenceGraph = new MemoryMetricPersistenceGraph(getManager(), workerCreateListener);
         memoryMetricPersistenceGraph.create();
