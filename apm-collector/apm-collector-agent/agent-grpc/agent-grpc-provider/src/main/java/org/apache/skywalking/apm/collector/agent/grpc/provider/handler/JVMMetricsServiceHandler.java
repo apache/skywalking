@@ -70,7 +70,7 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
 //            sendToCpuMetricService(instanceId, time, metric.getCpu());
             sendToMemoryMetricService(instanceId, time, metric.getMemoryList());
             sendToMemoryPoolMetricService(instanceId, time, metric.getMemoryPoolList());
-//            sendToGCMetricService(instanceId, time, metric.getGcList());
+            sendToGCMetricService(instanceId, time, metric.getGcList());
         });
 
         responseObserver.onNext(Downstream.newBuilder().build());

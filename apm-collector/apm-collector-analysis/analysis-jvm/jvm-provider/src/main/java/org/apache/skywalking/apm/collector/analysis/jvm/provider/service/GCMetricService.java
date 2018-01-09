@@ -45,12 +45,16 @@ public class GCMetricService implements IGCMetricService {
     }
 
     @Override public void send(int instanceId, long timeBucket, int phraseValue, long count, long time) {
+        String metricId = instanceId + Const.ID_SPLIT + String.valueOf(phraseValue);
+        String id = timeBucket + Const.ID_SPLIT + metricId;
+
         GCMetric gcMetric = new GCMetric();
-        gcMetric.setId(timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + String.valueOf(phraseValue));
+        gcMetric.setId(id);
+        gcMetric.setMetricId(metricId);
         gcMetric.setInstanceId(instanceId);
         gcMetric.setPhrase(phraseValue);
         gcMetric.setCount(count);
-        gcMetric.setTime(time);
+        gcMetric.setTimes(1L);
         gcMetric.setTimeBucket(timeBucket);
 
         logger.debug("push to gc metric graph, id: {}", gcMetric.getId());

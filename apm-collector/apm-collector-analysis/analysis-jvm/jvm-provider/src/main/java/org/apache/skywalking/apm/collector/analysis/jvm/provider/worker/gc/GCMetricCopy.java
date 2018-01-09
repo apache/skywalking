@@ -18,28 +18,25 @@
 
 package org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.gc;
 
-import org.apache.skywalking.apm.collector.analysis.jvm.define.graph.WorkerIdDefine;
-import org.apache.skywalking.apm.collector.core.graph.Next;
-import org.apache.skywalking.apm.collector.core.graph.NodeProcessor;
-import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetric;
 
 /**
  * @author peng-yongsheng
  */
-public class GCMonthMetricTransformNode implements NodeProcessor<GCMetric, GCMetric> {
+public class GCMetricCopy {
 
-    @Override public int id() {
-        return WorkerIdDefine.GC_MONTH_METRIC_TRANSFORM_NODE_ID;
-    }
+    public static GCMetric copy(GCMetric gcMetric) {
+        GCMetric newGCMetric = new GCMetric();
+        newGCMetric.setId(gcMetric.getId());
+        newGCMetric.setMetricId(gcMetric.getMetricId());
 
-    @Override public void process(GCMetric gcMetric, Next<GCMetric> next) {
-        long timeBucket = TimeBucketUtils.INSTANCE.secondToMonth(gcMetric.getTimeBucket());
+        newGCMetric.setInstanceId(gcMetric.getInstanceId());
+        newGCMetric.setPhrase(gcMetric.getPhrase());
 
-        GCMetric newGCMetric = GCMetricCopy.copy(gcMetric);
-        newGCMetric.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + gcMetric.getMetricId());
-        newGCMetric.setTimeBucket(timeBucket);
-        next.execute(newGCMetric);
+        newGCMetric.setCount(gcMetric.getCount());
+        newGCMetric.setTimes(gcMetric.getTimes());
+
+        newGCMetric.setTimeBucket(gcMetric.getTimeBucket());
+        return newGCMetric;
     }
 }
