@@ -16,20 +16,22 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.table.jvm;
+package org.apache.skywalking.apm.collector.storage.es.define.mpool;
 
-import org.apache.skywalking.apm.collector.core.data.CommonTable;
+import org.apache.skywalking.apm.collector.core.storage.TimePyramid;
+import org.apache.skywalking.apm.collector.core.util.Const;
+import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetricTable;
 
 /**
  * @author peng-yongsheng
  */
-public class MemoryPoolMetricTable extends CommonTable {
-    public static final String TABLE = "memory_pool_metric";
-    public static final String COLUMN_INSTANCE_ID = "instance_id";
-    public static final String COLUMN_POOL_TYPE = "pool_type";
-    public static final String COLUMN_INIT = "init";
-    public static final String COLUMN_MAX = "max";
-    public static final String COLUMN_USED = "used";
-    public static final String COLUMN_COMMITTED = "committed";
-    public static final String COLUMN_TIMES = "times";
+public class MemoryPoolHourMetricEsTableDefine extends AbstractMemoryPoolMetricEsTableDefine {
+
+    public MemoryPoolHourMetricEsTableDefine() {
+        super(MemoryPoolMetricTable.TABLE + Const.ID_SPLIT + TimePyramid.Hour.getName());
+    }
+
+    @Override public int refreshInterval() {
+        return 1;
+    }
 }

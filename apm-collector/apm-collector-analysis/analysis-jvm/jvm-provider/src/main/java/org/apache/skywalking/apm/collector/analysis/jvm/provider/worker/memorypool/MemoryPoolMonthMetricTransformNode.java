@@ -36,9 +36,10 @@ public class MemoryPoolMonthMetricTransformNode implements NodeProcessor<MemoryP
 
     @Override public void process(MemoryPoolMetric memoryPoolMetric, Next<MemoryPoolMetric> next) {
         long timeBucket = TimeBucketUtils.INSTANCE.secondToMonth(memoryPoolMetric.getTimeBucket());
-        memoryPoolMetric.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + memoryPoolMetric.getMetricId());
-        memoryPoolMetric.setTimeBucket(timeBucket);
 
-        next.execute(memoryPoolMetric);
+        MemoryPoolMetric newMemoryPoolMetric = MemoryPoolMetricCopy.copy(memoryPoolMetric);
+        newMemoryPoolMetric.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + memoryPoolMetric.getMetricId());
+        newMemoryPoolMetric.setTimeBucket(timeBucket);
+        next.execute(newMemoryPoolMetric);
     }
 }

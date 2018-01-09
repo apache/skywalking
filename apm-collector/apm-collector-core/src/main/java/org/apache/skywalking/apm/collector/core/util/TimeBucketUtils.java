@@ -87,7 +87,7 @@ public enum TimeBucketUtils {
     }
 
     public long secondToMonth(long secondBucket) {
-        return secondBucket / 100 / 100 / 100;
+        return secondBucket / 100 / 100 / 100 / 100;
     }
 
     public long changeTimeBucket2TimeStamp(String timeBucketType, long timeBucket) {

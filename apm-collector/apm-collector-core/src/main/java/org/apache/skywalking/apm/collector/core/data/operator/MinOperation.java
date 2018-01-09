@@ -23,28 +23,41 @@ import org.apache.skywalking.apm.collector.core.data.Operation;
 /**
  * @author peng-yongsheng
  */
-public class CoverOperation implements Operation {
+public class MinOperation implements Operation {
+
     @Override public String operate(String newValue, String oldValue) {
-        return newValue;
+        throw new UnsupportedOperationException("not support string minimum operation");
     }
 
     @Override public Long operate(Long newValue, Long oldValue) {
-        return newValue;
+        if (newValue <= oldValue) {
+            return newValue;
+        } else {
+            return oldValue;
+        }
     }
 
     @Override public Double operate(Double newValue, Double oldValue) {
-        return newValue;
+        if (newValue <= oldValue) {
+            return newValue;
+        } else {
+            return oldValue;
+        }
     }
 
     @Override public Integer operate(Integer newValue, Integer oldValue) {
-        return newValue;
+        if (newValue <= oldValue) {
+            return newValue;
+        } else {
+            return oldValue;
+        }
     }
 
     @Override public Boolean operate(Boolean newValue, Boolean oldValue) {
-        return newValue;
+        throw new UnsupportedOperationException("not support boolean minimum operation");
     }
 
     @Override public byte[] operate(byte[] newValue, byte[] oldValue) {
-        return newValue;
+        throw new UnsupportedOperationException("not support byte minimum operation");
     }
 }
