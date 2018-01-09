@@ -16,8 +16,7 @@
  *
  */
 
-
-package org.apache.skywalking.apm.collector.storage.es.define;
+package org.apache.skywalking.apm.collector.storage.es.define.mpool;
 
 import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchColumnDefine;
 import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchTableDefine;
@@ -26,23 +25,26 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetricTab
 /**
  * @author peng-yongsheng
  */
-public class MemoryPoolMetricEsTableDefine extends ElasticSearchTableDefine {
+public abstract class AbstractMemoryPoolMetricEsTableDefine extends ElasticSearchTableDefine {
 
-    public MemoryPoolMetricEsTableDefine() {
-        super(MemoryPoolMetricTable.TABLE);
+    public AbstractMemoryPoolMetricEsTableDefine(String name) {
+        super(name);
     }
 
     @Override public int refreshInterval() {
         return 1;
     }
 
-    @Override public void initialize() {
+    @Override public final void initialize() {
+        addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.COLUMN_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
+        addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.COLUMN_METRIC_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
         addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.COLUMN_INSTANCE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
         addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.COLUMN_POOL_TYPE, ElasticSearchColumnDefine.Type.Integer.name()));
         addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.COLUMN_INIT, ElasticSearchColumnDefine.Type.Long.name()));
         addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.COLUMN_MAX, ElasticSearchColumnDefine.Type.Long.name()));
         addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.COLUMN_USED, ElasticSearchColumnDefine.Type.Long.name()));
         addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.COLUMN_COMMITTED, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.COLUMN_TIMES, ElasticSearchColumnDefine.Type.Long.name()));
         addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
     }
 }
