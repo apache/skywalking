@@ -49,7 +49,6 @@ public class GCSecondMetricH2PersistenceDAO extends H2DAO implements IGCSecondMe
         source.put(GCMetricTable.COLUMN_INSTANCE_ID, data.getInstanceId());
         source.put(GCMetricTable.COLUMN_PHRASE, data.getPhrase());
         source.put(GCMetricTable.COLUMN_COUNT, data.getCount());
-        source.put(GCMetricTable.COLUMN_TIME, data.getTime());
         source.put(GCMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
         String sql = SqlBuilder.buildBatchInsertSql(GCMetricTable.TABLE, source.keySet());

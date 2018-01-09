@@ -16,17 +16,22 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.table.jvm;
+package org.apache.skywalking.apm.collector.storage.es.define.gc;
 
-import org.apache.skywalking.apm.collector.core.data.CommonTable;
+import org.apache.skywalking.apm.collector.core.storage.TimePyramid;
+import org.apache.skywalking.apm.collector.core.util.Const;
+import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetricTable;
 
 /**
  * @author peng-yongsheng
  */
-public class GCMetricTable extends CommonTable {
-    public static final String TABLE = "gc_metric";
-    public static final String COLUMN_INSTANCE_ID = "instance_id";
-    public static final String COLUMN_PHRASE = "phrase";
-    public static final String COLUMN_COUNT = "count";
-    public static final String COLUMN_TIMES = "times";
+public class GCDayMetricEsTableDefine extends AbstractGCMetricEsTableDefine {
+
+    public GCDayMetricEsTableDefine() {
+        super(GCMetricTable.TABLE + Const.ID_SPLIT + TimePyramid.Day.getName());
+    }
+
+    @Override public int refreshInterval() {
+        return 1;
+    }
 }

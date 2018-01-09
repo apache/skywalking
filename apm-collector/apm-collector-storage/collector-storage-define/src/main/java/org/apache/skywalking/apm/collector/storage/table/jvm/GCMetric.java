@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.collector.storage.table.jvm;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
+import org.apache.skywalking.apm.collector.core.data.operator.AddOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
 
@@ -34,8 +35,8 @@ public class GCMetric extends StreamData {
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(GCMetricTable.COLUMN_COUNT, new CoverOperation()),
-        new Column(GCMetricTable.COLUMN_TIME, new CoverOperation()),
+        new Column(GCMetricTable.COLUMN_COUNT, new AddOperation()),
+        new Column(GCMetricTable.COLUMN_TIMES, new AddOperation()),
         new Column(GCMetricTable.COLUMN_TIME_BUCKET, new CoverOperation()),
     };
 
@@ -78,12 +79,12 @@ public class GCMetric extends StreamData {
         setDataLong(0, count);
     }
 
-    public Long getTime() {
+    public Long getTimes() {
         return getDataLong(1);
     }
 
-    public void setTime(Long time) {
-        setDataLong(1, time);
+    public void setTimes(Long times) {
+        setDataLong(1, times);
     }
 
     public Long getTimeBucket() {

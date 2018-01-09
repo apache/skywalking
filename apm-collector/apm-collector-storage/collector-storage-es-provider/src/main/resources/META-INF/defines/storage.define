@@ -76,3 +76,9 @@ org.apache.skywalking.apm.collector.storage.es.define.memory.MemoryMinuteMetricE
 org.apache.skywalking.apm.collector.storage.es.define.memory.MemoryHourMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.memory.MemoryDayMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.memory.MemoryMonthMetricEsTableDefine
+
+org.apache.skywalking.apm.collector.storage.es.define.gc.GCSecondMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.gc.GCMinuteMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.gc.GCHourMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.gc.GCDayMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.gc.GCMonthMetricEsTableDefine

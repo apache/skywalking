@@ -36,9 +36,10 @@ public class GCHourMetricTransformNode implements NodeProcessor<GCMetric, GCMetr
 
     @Override public void process(GCMetric gcMetric, Next<GCMetric> next) {
         long timeBucket = TimeBucketUtils.INSTANCE.secondToHour(gcMetric.getTimeBucket());
-        gcMetric.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + gcMetric.getMetricId());
-        gcMetric.setTimeBucket(timeBucket);
 
-        next.execute(gcMetric);
+        GCMetric newGCMetric = GCMetricCopy.copy(gcMetric);
+        newGCMetric.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + gcMetric.getMetricId());
+        newGCMetric.setTimeBucket(timeBucket);
+        next.execute(newGCMetric);
     }
 }

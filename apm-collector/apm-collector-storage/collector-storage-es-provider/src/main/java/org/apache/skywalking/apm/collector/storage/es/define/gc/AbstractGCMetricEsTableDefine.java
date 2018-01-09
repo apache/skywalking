@@ -16,31 +16,28 @@
  *
  */
 
-
-package org.apache.skywalking.apm.collector.storage.es.define;
+package org.apache.skywalking.apm.collector.storage.es.define.gc;
 
 import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchColumnDefine;
-import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetricTable;
 import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchTableDefine;
+import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetricTable;
 
 /**
  * @author peng-yongsheng
  */
-public class GCMetricEsTableDefine extends ElasticSearchTableDefine {
+public abstract class AbstractGCMetricEsTableDefine extends ElasticSearchTableDefine {
 
-    public GCMetricEsTableDefine() {
-        super(GCMetricTable.TABLE);
+    public AbstractGCMetricEsTableDefine(String name) {
+        super(name);
     }
 
-    @Override public int refreshInterval() {
-        return 1;
-    }
-
-    @Override public void initialize() {
+    @Override public final void initialize() {
+        addColumn(new ElasticSearchColumnDefine(GCMetricTable.COLUMN_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
+        addColumn(new ElasticSearchColumnDefine(GCMetricTable.COLUMN_METRIC_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
         addColumn(new ElasticSearchColumnDefine(GCMetricTable.COLUMN_INSTANCE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
         addColumn(new ElasticSearchColumnDefine(GCMetricTable.COLUMN_PHRASE, ElasticSearchColumnDefine.Type.Integer.name()));
         addColumn(new ElasticSearchColumnDefine(GCMetricTable.COLUMN_COUNT, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(GCMetricTable.COLUMN_TIME, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(GCMetricTable.COLUMN_TIMES, ElasticSearchColumnDefine.Type.Long.name()));
         addColumn(new ElasticSearchColumnDefine(GCMetricTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
     }
 }
