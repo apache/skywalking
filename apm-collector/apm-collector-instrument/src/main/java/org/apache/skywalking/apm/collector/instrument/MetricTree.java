@@ -122,13 +122,18 @@ public enum MetricTree implements Runnable {
                             if (annotations != null) {
                                 int index = 0;
                                 for (Annotation[] parameterAnnotation : annotations) {
+                                    boolean found = false;
                                     if (parameterAnnotation != null) {
                                         for (Annotation annotation : parameterAnnotation) {
-                                            if (annotation.equals(BatchParameter.class)) {
+                                            if (annotation instanceof BatchParameter) {
                                                 isBatchDetected = true;
+                                                found = true;
                                                 break;
                                             }
                                         }
+                                    }
+                                    if(found){
+                                        break;
                                     }
                                     index++;
                                 }
