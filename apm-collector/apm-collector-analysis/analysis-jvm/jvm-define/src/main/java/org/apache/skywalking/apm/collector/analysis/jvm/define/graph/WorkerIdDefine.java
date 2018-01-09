@@ -65,6 +65,4 @@ public class WorkerIdDefine {
     public static final int MEMORY_POOL_DAY_METRIC_TRANSFORM_NODE_ID = 3307;
     public static final int MEMORY_POOL_MONTH_METRIC_PERSISTENCE_WORKER_ID = 3308;
     public static final int MEMORY_POOL_MONTH_METRIC_TRANSFORM_NODE_ID = 3309;
-
-    public static final int INST_HEART_BEAT_PERSISTENCE_WORKER_ID = 302;
 }

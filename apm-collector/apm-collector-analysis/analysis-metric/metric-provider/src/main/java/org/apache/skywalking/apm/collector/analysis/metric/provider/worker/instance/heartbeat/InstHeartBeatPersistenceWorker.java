@@ -16,9 +16,9 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.jvm.provider.worker;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.heartbeat;
 
-import org.apache.skywalking.apm.collector.analysis.jvm.define.graph.WorkerIdDefine;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -37,7 +37,7 @@ public class InstHeartBeatPersistenceWorker extends PersistenceWorker<Instance> 
     }
 
     @Override public int id() {
-        return WorkerIdDefine.INST_HEART_BEAT_PERSISTENCE_WORKER_ID;
+        return MetricWorkerIdDefine.INST_HEART_BEAT_PERSISTENCE_WORKER_ID;
     }
 
     @Override protected boolean needMergeDBData() {

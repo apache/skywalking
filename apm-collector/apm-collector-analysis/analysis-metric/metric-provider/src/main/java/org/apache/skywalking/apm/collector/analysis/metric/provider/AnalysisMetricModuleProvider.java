@@ -20,6 +20,8 @@ package org.apache.skywalking.apm.collector.analysis.metric.provider;
 
 import java.util.Properties;
 import org.apache.skywalking.apm.collector.analysis.metric.define.AnalysisMetricModule;
+import org.apache.skywalking.apm.collector.analysis.metric.define.service.IInstanceHeartBeatService;
+import org.apache.skywalking.apm.collector.analysis.metric.provider.service.InstanceHeartBeatService;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.component.ApplicationComponentGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.component.ApplicationComponentSpanListener;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.mapping.ApplicationMappingGraph;
@@ -28,6 +30,7 @@ import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.appli
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.refmetric.ApplicationReferenceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global.GlobalTraceGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global.GlobalTraceSpanListener;
+import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.heartbeat.InstanceHeartBeatPersistenceGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.mapping.InstanceMappingGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.mapping.InstanceMappingSpanListener;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.metric.InstanceMetricGraph;
@@ -61,6 +64,7 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
     }
 
     @Override public void prepare(Properties config) throws ServiceNotProvidedException {
+        this.registerServiceImplementation(IInstanceHeartBeatService.class, new InstanceHeartBeatService());
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
@@ -125,5 +129,8 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
 
         SegmentCostGraph segmentCostGraph = new SegmentCostGraph(getManager(), workerCreateListener);
         segmentCostGraph.create();
+
+        InstanceHeartBeatPersistenceGraph instanceHeartBeatPersistenceGraph = new InstanceHeartBeatPersistenceGraph(getManager(), workerCreateListener);
+        instanceHeartBeatPersistenceGraph.create();
     }
 }

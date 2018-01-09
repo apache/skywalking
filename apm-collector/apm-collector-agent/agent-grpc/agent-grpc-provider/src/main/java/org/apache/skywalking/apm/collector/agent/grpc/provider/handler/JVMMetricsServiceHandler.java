@@ -23,7 +23,6 @@ import java.util.List;
 import org.apache.skywalking.apm.collector.analysis.jvm.define.AnalysisJVMModule;
 import org.apache.skywalking.apm.collector.analysis.jvm.define.service.ICpuMetricService;
 import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IGCMetricService;
-import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IInstanceHeartBeatService;
 import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IMemoryMetricService;
 import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IMemoryPoolMetricService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -50,14 +49,12 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
     private final IGCMetricService gcMetricService;
     private final IMemoryMetricService memoryMetricService;
     private final IMemoryPoolMetricService memoryPoolMetricService;
-    private final IInstanceHeartBeatService instanceHeartBeatService;
 
     public JVMMetricsServiceHandler(ModuleManager moduleManager) {
         this.cpuMetricService = moduleManager.find(AnalysisJVMModule.NAME).getService(ICpuMetricService.class);
         this.gcMetricService = moduleManager.find(AnalysisJVMModule.NAME).getService(IGCMetricService.class);
         this.memoryMetricService = moduleManager.find(AnalysisJVMModule.NAME).getService(IMemoryMetricService.class);
         this.memoryPoolMetricService = moduleManager.find(AnalysisJVMModule.NAME).getService(IMemoryPoolMetricService.class);
-        this.instanceHeartBeatService = moduleManager.find(AnalysisJVMModule.NAME).getService(IInstanceHeartBeatService.class);
     }
 
     @Override public void collect(JVMMetrics request, StreamObserver<Downstream> responseObserver) {
@@ -66,7 +63,6 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
 
         request.getMetricsList().forEach(metric -> {
             long time = TimeBucketUtils.INSTANCE.getSecondTimeBucket(metric.getTime());
-//            sendToInstanceHeartBeatService(instanceId, metric.getTime());
             sendToCpuMetricService(instanceId, time, metric.getCpu());
             sendToMemoryMetricService(instanceId, time, metric.getMemoryList());
             sendToMemoryPoolMetricService(instanceId, time, metric.getMemoryPoolList());
@@ -75,10 +71,6 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
 
         responseObserver.onNext(Downstream.newBuilder().build());
         responseObserver.onCompleted();
-    }
-
-    private void sendToInstanceHeartBeatService(int instanceId, long heartBeatTime) {
-        instanceHeartBeatService.send(instanceId, heartBeatTime);
     }
 
     private void sendToMemoryMetricService(int instanceId, long timeBucket, List<Memory> memories) {
