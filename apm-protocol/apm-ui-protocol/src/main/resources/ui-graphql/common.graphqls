@@ -56,8 +56,8 @@ type SLATrend {
 
 # The overview topology of the whole application cluster or services,
 type Topology {
-    nodes: [Node]!
-    calls: [Call]
+    nodes: [Node!]
+    calls: [Call!]
 }
 
 # The base Node of all node types in topology
