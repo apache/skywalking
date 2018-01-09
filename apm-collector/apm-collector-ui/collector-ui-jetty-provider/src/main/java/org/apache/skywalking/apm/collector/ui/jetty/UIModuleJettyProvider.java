@@ -16,11 +16,9 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.ui.jetty;
 
 import java.util.Properties;
-import org.apache.skywalking.apm.collector.ui.jetty.handler.time.OneInstanceLastTimeGetHandler;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cluster.ClusterModule;
 import org.apache.skywalking.apm.collector.cluster.service.ModuleListenerService;
@@ -46,9 +44,9 @@ import org.apache.skywalking.apm.collector.ui.jetty.handler.instancemetric.Insta
 import org.apache.skywalking.apm.collector.ui.jetty.handler.instancemetric.InstanceOsInfoGetHandler;
 import org.apache.skywalking.apm.collector.ui.jetty.handler.naming.UIJettyNamingHandler;
 import org.apache.skywalking.apm.collector.ui.jetty.handler.naming.UIJettyNamingListener;
-import org.apache.skywalking.apm.collector.ui.jetty.handler.servicetree.EntryServiceGetHandler;
 import org.apache.skywalking.apm.collector.ui.jetty.handler.servicetree.ServiceTreeGetByIdHandler;
 import org.apache.skywalking.apm.collector.ui.jetty.handler.time.AllInstanceLastTimeGetHandler;
+import org.apache.skywalking.apm.collector.ui.jetty.handler.time.OneInstanceLastTimeGetHandler;
 
 /**
  * @author peng-yongsheng
@@ -105,7 +103,6 @@ public class UIModuleJettyProvider extends ModuleProvider {
         jettyServer.addHandler(new InstanceMetricGetOneTimeBucketHandler(getManager()));
         jettyServer.addHandler(new InstanceMetricGetRangeTimeBucketHandler(getManager()));
         jettyServer.addHandler(new InstanceOsInfoGetHandler(getManager()));
-        jettyServer.addHandler(new EntryServiceGetHandler(getManager()));
         jettyServer.addHandler(new ServiceTreeGetByIdHandler(getManager()));
         jettyServer.addHandler(new AllInstanceLastTimeGetHandler(getManager()));
         jettyServer.addHandler(new OneInstanceLastTimeGetHandler(getManager()));

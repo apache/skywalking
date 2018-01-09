@@ -92,7 +92,8 @@ public class NetworkAddressIDService implements INetworkAddressIDService {
                 }
             }
         } else {
-            NetworkAddress newNetworkAddress = new NetworkAddress("0");
+            NetworkAddress newNetworkAddress = new NetworkAddress();
+            newNetworkAddress.setId("0");
             newNetworkAddress.setNetworkAddress(networkAddress);
             newNetworkAddress.setAddressId(0);
 

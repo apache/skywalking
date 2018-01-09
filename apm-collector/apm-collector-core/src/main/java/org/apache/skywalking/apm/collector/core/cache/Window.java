@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.core.cache;
 
 import java.util.concurrent.atomic.AtomicInteger;
