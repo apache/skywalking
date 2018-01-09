@@ -82,3 +82,9 @@ org.apache.skywalking.apm.collector.storage.es.define.gc.GCMinuteMetricEsTableDe
 org.apache.skywalking.apm.collector.storage.es.define.gc.GCHourMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.gc.GCDayMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.gc.GCMonthMetricEsTableDefine
+
+org.apache.skywalking.apm.collector.storage.es.define.cpu.CpuSecondMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.cpu.CpuMinuteMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.cpu.CpuHourMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.cpu.CpuDayMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.cpu.CpuMonthMetricEsTableDefine

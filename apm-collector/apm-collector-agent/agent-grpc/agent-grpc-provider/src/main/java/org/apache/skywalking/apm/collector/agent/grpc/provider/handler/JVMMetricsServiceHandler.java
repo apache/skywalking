@@ -67,7 +67,7 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
         request.getMetricsList().forEach(metric -> {
             long time = TimeBucketUtils.INSTANCE.getSecondTimeBucket(metric.getTime());
 //            sendToInstanceHeartBeatService(instanceId, metric.getTime());
-//            sendToCpuMetricService(instanceId, time, metric.getCpu());
+            sendToCpuMetricService(instanceId, time, metric.getCpu());
             sendToMemoryMetricService(instanceId, time, metric.getMemoryList());
             sendToMemoryPoolMetricService(instanceId, time, metric.getMemoryPoolList());
             sendToGCMetricService(instanceId, time, metric.getGcList());

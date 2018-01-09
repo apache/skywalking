@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.collector.agent.grpc.provider.handler;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import org.apache.skywalking.apm.network.proto.CPU;
 import org.apache.skywalking.apm.network.proto.GC;
 import org.apache.skywalking.apm.network.proto.GCPhrase;
 import org.apache.skywalking.apm.network.proto.JVMMetric;
@@ -44,6 +45,7 @@ public class JVMMetricServiceHandlerTestCase {
         JVMMetric.Builder metricBuilder = JVMMetric.newBuilder();
         metricBuilder.setTime(System.currentTimeMillis());
 
+        buildCPUMetric(metricBuilder);
         buildGCMetric(metricBuilder);
         buildMemoryMetric(metricBuilder);
         buildMemoryPoolMetric(metricBuilder);
@@ -81,5 +83,12 @@ public class JVMMetricServiceHandlerTestCase {
         builder.setCount(2);
 
         metricBuilder.addGc(builder);
+    }
+
+    private static void buildCPUMetric(JVMMetric.Builder metricBuilder) {
+        CPU.Builder builder = CPU.newBuilder();
+        builder.setUsagePercent(20);
+
+        metricBuilder.setCpu(builder.build());
     }
 }

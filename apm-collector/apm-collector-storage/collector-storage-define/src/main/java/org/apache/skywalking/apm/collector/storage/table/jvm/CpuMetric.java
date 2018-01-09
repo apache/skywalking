@@ -35,6 +35,7 @@ public class CpuMetric extends StreamData {
     };
 
     private static final Column[] LONG_COLUMNS = {
+        new Column(CpuMetricTable.COLUMN_TIMES, new AddOperation()),
         new Column(CpuMetricTable.COLUMN_TIME_BUCKET, new CoverOperation()),
     };
 
@@ -85,11 +86,19 @@ public class CpuMetric extends StreamData {
         setDataDouble(0, usagePercent);
     }
 
-    public Long getTimeBucket() {
+    public Long getTimes() {
         return getDataLong(0);
     }
 
+    public void setTimes(Long times) {
+        setDataLong(0, times);
+    }
+
+    public Long getTimeBucket() {
+        return getDataLong(1);
+    }
+
     public void setTimeBucket(Long timeBucket) {
-        setDataLong(0, timeBucket);
+        setDataLong(1, timeBucket);
     }
 }
