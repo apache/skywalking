@@ -39,7 +39,8 @@ public class ApplicationMetricAlarmToListNodeProcessor implements NodeProcessor<
             + Const.ID_SPLIT + applicationAlarm.getAlarmType()
             + Const.ID_SPLIT + applicationAlarm.getApplicationId();
 
-        ApplicationAlarmList applicationAlarmList = new ApplicationAlarmList(id);
+        ApplicationAlarmList applicationAlarmList = new ApplicationAlarmList();
+        applicationAlarmList.setId(id);
         applicationAlarmList.setApplicationId(applicationAlarm.getApplicationId());
         applicationAlarmList.setSourceValue(applicationAlarm.getSourceValue());
         applicationAlarmList.setAlarmType(applicationAlarm.getAlarmType());

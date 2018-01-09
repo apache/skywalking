@@ -16,11 +16,10 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.remote.grpc.service.selector;
 
 import java.util.List;
-import org.apache.skywalking.apm.collector.core.data.Data;
+import org.apache.skywalking.apm.collector.core.data.RemoteData;
 import org.apache.skywalking.apm.collector.remote.service.RemoteClient;
 
 /**
@@ -28,9 +27,9 @@ import org.apache.skywalking.apm.collector.remote.service.RemoteClient;
  */
 public class HashCodeSelector implements RemoteClientSelector {
 
-    @Override public RemoteClient select(List<RemoteClient> clients, Data message) {
+    @Override public RemoteClient select(List<RemoteClient> clients, RemoteData remoteData) {
         int size = clients.size();
-        int selectIndex = Math.abs(message.getHashCode()) % size;
+        int selectIndex = Math.abs(remoteData.selectKey().hashCode()) % size;
         return clients.get(selectIndex);
     }
 }

@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.collector.analysis.worker.model.base;
 
-import org.apache.skywalking.apm.collector.core.data.EndOfBatchQueueMessage;
+import org.apache.skywalking.apm.collector.core.data.QueueData;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 
 /**
@@ -28,7 +28,7 @@ import org.apache.skywalking.apm.collector.core.module.ModuleManager;
  * @author peng-yongsheng
  * @since v3.0-2017
  */
-public abstract class AbstractLocalAsyncWorker<INPUT extends EndOfBatchQueueMessage, OUTPUT extends EndOfBatchQueueMessage> extends AbstractWorker<INPUT, OUTPUT> {
+public abstract class AbstractLocalAsyncWorker<INPUT extends QueueData, OUTPUT extends QueueData> extends AbstractWorker<INPUT, OUTPUT> {
 
     public AbstractLocalAsyncWorker(ModuleManager moduleManager) {
         super(moduleManager);

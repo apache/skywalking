@@ -20,8 +20,9 @@ package org.apache.skywalking.apm.collector.analysis.worker.model.base;
 
 import java.util.Iterator;
 import java.util.List;
-import org.apache.skywalking.apm.collector.core.data.EndOfBatchQueueMessage;
+import org.apache.skywalking.apm.collector.core.data.QueueData;
 import org.apache.skywalking.apm.collector.core.graph.NodeProcessor;
+import org.apache.skywalking.apm.collector.core.queue.EndOfBatchContext;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.slf4j.Logger;
@@ -30,7 +31,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public class LocalAsyncWorkerRef<INPUT extends EndOfBatchQueueMessage, OUTPUT extends EndOfBatchQueueMessage> extends WorkerRef<INPUT, OUTPUT> implements IConsumer<INPUT> {
+public class LocalAsyncWorkerRef<INPUT extends QueueData, OUTPUT extends QueueData> extends WorkerRef<INPUT, OUTPUT> implements IConsumer<INPUT> {
 
     private final Logger logger = LoggerFactory.getLogger(LocalAsyncWorkerRef.class);
 
@@ -40,7 +41,7 @@ public class LocalAsyncWorkerRef<INPUT extends EndOfBatchQueueMessage, OUTPUT ex
         super(destinationHandler);
     }
 
-    public void setQueueEventHandler(DataCarrier<INPUT> dataCarrier) {
+    void setQueueEventHandler(DataCarrier<INPUT> dataCarrier) {
         this.dataCarrier = dataCarrier;
     }
 
@@ -52,7 +53,7 @@ public class LocalAsyncWorkerRef<INPUT extends EndOfBatchQueueMessage, OUTPUT ex
             INPUT input = inputIterator.next();
             i++;
             if (i == data.size()) {
-                input.setEndOfBatch(true);
+                input.getEndOfBatchContext().setEndOfBatch(true);
             }
             out(input);
         }
@@ -69,6 +70,7 @@ public class LocalAsyncWorkerRef<INPUT extends EndOfBatchQueueMessage, OUTPUT ex
     }
 
     @Override protected void in(INPUT input) {
+        input.setEndOfBatchContext(new EndOfBatchContext(false));
         dataCarrier.produce(input);
     }
 

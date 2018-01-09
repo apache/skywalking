@@ -24,5 +24,5 @@ import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 /**
  * @author peng-yongsheng
  */
-public interface IInstanceHeartBeatPersistenceDAO<Insert, Update, DataImpl extends Instance> extends IPersistenceDAO<Insert, Update, DataImpl> {
+public interface IInstanceHeartBeatPersistenceDAO<INSERT, UPDATE, STREAM_DATA extends Instance> extends IPersistenceDAO<INSERT, UPDATE, STREAM_DATA> {
 }

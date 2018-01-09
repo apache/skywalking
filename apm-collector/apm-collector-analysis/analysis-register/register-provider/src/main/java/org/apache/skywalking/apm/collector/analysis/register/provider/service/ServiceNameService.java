@@ -63,7 +63,8 @@ public class ServiceNameService implements IServiceNameService {
         int serviceId = getServiceIdCacheService().get(applicationId, serviceName);
 
         if (serviceId == 0) {
-            ServiceName service = new ServiceName("0");
+            ServiceName service = new ServiceName();
+            service.setId("0");
             service.setApplicationId(applicationId);
             service.setServiceName(serviceName);
             service.setServiceId(0);

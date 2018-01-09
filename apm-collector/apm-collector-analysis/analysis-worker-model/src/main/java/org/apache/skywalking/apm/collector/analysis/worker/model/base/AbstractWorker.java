@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.collector.analysis.worker.model.base;
 
-import org.apache.skywalking.apm.collector.core.data.EndOfBatchQueueMessage;
 import org.apache.skywalking.apm.collector.core.graph.Next;
 import org.apache.skywalking.apm.collector.core.graph.NodeProcessor;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -28,13 +27,13 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public abstract class AbstractWorker<INPUT extends EndOfBatchQueueMessage, OUTPUT extends EndOfBatchQueueMessage> implements NodeProcessor<INPUT, OUTPUT> {
+public abstract class AbstractWorker<INPUT, OUTPUT> implements NodeProcessor<INPUT, OUTPUT> {
 
     private final Logger logger = LoggerFactory.getLogger(AbstractWorker.class);
 
     private final ModuleManager moduleManager;
 
-    public AbstractWorker(ModuleManager moduleManager) {
+    AbstractWorker(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
     }
 

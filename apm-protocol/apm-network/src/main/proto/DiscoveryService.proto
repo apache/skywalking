@@ -6,8 +6,7 @@ option java_package = "org.apache.skywalking.apm.network.proto";
 import "Downstream.proto";
 
 service InstanceDiscoveryService {
-    //TODO: need rename, `register` is a key word.
-    rpc register (ApplicationInstance) returns (ApplicationInstanceMapping) {
+    rpc registerInstance (ApplicationInstance) returns (ApplicationInstanceMapping) {
     }
 
     rpc heartbeat (ApplicationInstanceHeartbeat) returns (Downstream) {
