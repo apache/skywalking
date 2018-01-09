@@ -59,7 +59,7 @@ public class ApplicationMetricAlarmGraph {
             .addNext(new ApplicationMetricAlarmToListNodeProcessor())
             .addNext(new ApplicationMetricAlarmListPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
-//        link(graph);
+        link(graph);
     }
 
     private void link(Graph<ApplicationMetric> graph) {

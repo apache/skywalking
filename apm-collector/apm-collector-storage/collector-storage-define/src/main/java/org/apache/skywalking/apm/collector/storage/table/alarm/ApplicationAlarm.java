@@ -30,7 +30,6 @@ public class ApplicationAlarm extends StreamData implements Alarm {
 
     private static final Column[] STRING_COLUMNS = {
         new Column(ApplicationAlarmTable.COLUMN_ID, new NonOperation()),
-        new Column(ApplicationAlarmTable.COLUMN_METRIC_ID, new NonOperation()),
         new Column(ApplicationAlarmTable.COLUMN_ALARM_CONTENT, new CoverOperation()),
     };
 
@@ -63,11 +62,11 @@ public class ApplicationAlarm extends StreamData implements Alarm {
     }
 
     @Override public String getMetricId() {
-        return getDataString(1);
+        return getId();
     }
 
     @Override public void setMetricId(String metricId) {
-        setDataString(1, metricId);
+        setId(metricId);
     }
 
     @Override
