@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.table.jvm;
 
 import org.apache.skywalking.apm.collector.core.data.CommonTable;
@@ -29,5 +28,5 @@ public class GCMetricTable extends CommonTable {
     public static final String COLUMN_INSTANCE_ID = "instance_id";
     public static final String COLUMN_PHRASE = "phrase";
     public static final String COLUMN_COUNT = "count";
-    public static final String COLUMN_TIME = "time";
+    public static final String COLUMN_TIMES = "times";
 }

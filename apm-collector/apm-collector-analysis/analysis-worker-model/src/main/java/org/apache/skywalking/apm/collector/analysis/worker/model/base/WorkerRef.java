@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.collector.core.graph.WayToNode;
 /**
  * @author peng-yongsheng
  */
-public abstract class WorkerRef<INPUT, OUTPUT> extends WayToNode<INPUT, OUTPUT> {
+abstract class WorkerRef<INPUT, OUTPUT> extends WayToNode<INPUT, OUTPUT> {
     WorkerRef(NodeProcessor<INPUT, OUTPUT> destinationHandler) {
         super(destinationHandler);
     }

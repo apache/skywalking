@@ -24,7 +24,6 @@ package org.apache.skywalking.apm.collector.analysis.jvm.define.graph;
 public class GraphIdDefine {
     public static final int CPU_METRIC_PERSISTENCE_GRAPH_ID = 300;
     public static final int GC_METRIC_PERSISTENCE_GRAPH_ID = 301;
-    public static final int INSTANCE_HEART_BEAT_PERSISTENCE_GRAPH_ID = 302;
     public static final int MEMORY_METRIC_PERSISTENCE_GRAPH_ID = 303;
     public static final int MEMORY_POOL_METRIC_PERSISTENCE_GRAPH_ID = 304;
 }

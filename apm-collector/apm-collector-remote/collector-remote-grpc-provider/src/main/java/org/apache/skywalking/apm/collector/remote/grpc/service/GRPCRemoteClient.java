@@ -16,13 +16,11 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.remote.grpc.service;
 
 import io.grpc.stub.StreamObserver;
 import java.util.List;
 import org.apache.skywalking.apm.collector.client.grpc.GRPCClient;
-import org.apache.skywalking.apm.collector.core.data.Data;
 import org.apache.skywalking.apm.collector.remote.grpc.proto.Empty;
 import org.apache.skywalking.apm.collector.remote.grpc.proto.RemoteCommonServiceGrpc;
 import org.apache.skywalking.apm.collector.remote.grpc.proto.RemoteMessage;
@@ -62,7 +60,7 @@ public class GRPCRemoteClient implements RemoteClient {
         return this.address;
     }
 
-    @Override public void push(int graphId, int nodeId, Data data) {
+    @Override public void push(int graphId, int nodeId, org.apache.skywalking.apm.collector.core.data.RemoteData data) {
         try {
             Integer remoteDataId = remoteDataIDGetter.getRemoteDataId(data.getClass());
             RemoteMessage.Builder builder = RemoteMessage.newBuilder();
@@ -72,7 +70,6 @@ public class GRPCRemoteClient implements RemoteClient {
             builder.setRemoteData(service.serialize(data));
 
             this.carrier.produce(builder.build());
-            logger.debug("put remote message into queue, id: {}", data.getId());
         } catch (RemoteDataMappingIdNotFoundException e) {
             logger.error(e.getMessage(), e);
         }

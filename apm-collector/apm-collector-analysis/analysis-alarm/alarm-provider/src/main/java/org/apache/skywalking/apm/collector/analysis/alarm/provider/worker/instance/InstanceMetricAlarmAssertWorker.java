@@ -45,7 +45,8 @@ public class InstanceMetricAlarmAssertWorker extends AlarmAssertWorker<InstanceM
     }
 
     @Override protected InstanceAlarm newAlarmObject(String id, InstanceMetric inputMetric) {
-        InstanceAlarm instanceAlarm = new InstanceAlarm(id + Const.ID_SPLIT + inputMetric.getInstanceId());
+        InstanceAlarm instanceAlarm = new InstanceAlarm();
+        instanceAlarm.setId(id + Const.ID_SPLIT + inputMetric.getInstanceId());
         instanceAlarm.setApplicationId(inputMetric.getApplicationId());
         instanceAlarm.setInstanceId(inputMetric.getInstanceId());
         return instanceAlarm;
