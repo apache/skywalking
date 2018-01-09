@@ -64,7 +64,7 @@ public class ServiceMetricAlarmGraph {
 
     private void link(Graph<ServiceMetric> graph) {
         GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.SERVICE_METRIC_GRAPH_ID, ServiceMetric.class)
-            .toFinder().findNode(MetricWorkerIdDefine.SERVICE_METRIC_PERSISTENCE_WORKER_ID, ServiceMetric.class)
+            .toFinder().findNode(MetricWorkerIdDefine.SERVICE_MINUTE_METRIC_PERSISTENCE_WORKER_ID, ServiceMetric.class)
             .addNext(new NodeProcessor<ServiceMetric, ServiceMetric>() {
                 @Override public int id() {
                     return AlarmWorkerIdDefine.SERVICE_METRIC_ALARM_GRAPH_BRIDGE_WORKER_ID;

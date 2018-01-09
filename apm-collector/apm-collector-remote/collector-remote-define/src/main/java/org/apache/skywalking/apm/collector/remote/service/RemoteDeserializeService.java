@@ -16,14 +16,11 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.remote.service;
-
-import org.apache.skywalking.apm.collector.core.data.Data;
 
 /**
  * @author peng-yongsheng
  */
 public interface RemoteDeserializeService<RemoteData> {
-    void deserialize(RemoteData remoteData, Data data);
+    void deserialize(RemoteData remoteData, org.apache.skywalking.apm.collector.core.data.RemoteData data);
 }

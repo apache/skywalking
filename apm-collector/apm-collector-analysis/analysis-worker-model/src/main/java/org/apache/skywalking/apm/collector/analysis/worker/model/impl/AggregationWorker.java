@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.collector.analysis.worker.model.impl;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorker;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.data.DataCache;
-import org.apache.skywalking.apm.collector.core.data.Data;
+import org.apache.skywalking.apm.collector.core.data.StreamData;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public abstract class AggregationWorker<INPUT extends Data, OUTPUT extends Data> extends AbstractLocalAsyncWorker<INPUT, OUTPUT> {
+public abstract class AggregationWorker<INPUT extends StreamData, OUTPUT extends StreamData> extends AbstractLocalAsyncWorker<INPUT, OUTPUT> {
 
     private final Logger logger = LoggerFactory.getLogger(AggregationWorker.class);
 
@@ -47,9 +47,7 @@ public abstract class AggregationWorker<INPUT extends Data, OUTPUT extends Data>
     }
 
     @Override protected final void onWork(INPUT message) throws WorkerException {
-        boolean isEndOfBatch = message.isEndOfBatch();
         OUTPUT output = transform(message);
-        output.setEndOfBatch(isEndOfBatch);
 
         messageNum++;
         aggregate(output);
@@ -58,8 +56,7 @@ public abstract class AggregationWorker<INPUT extends Data, OUTPUT extends Data>
             sendToNext();
             messageNum = 0;
         }
-        if (output.isEndOfBatch()) {
-            output.setEndOfBatch(false);
+        if (message.getEndOfBatchContext().isEndOfBatch()) {
             sendToNext();
         }
     }

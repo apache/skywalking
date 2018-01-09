@@ -40,7 +40,8 @@ public class ServiceReferenceMetricAlarmToListNodeProcessor implements NodeProce
             + Const.ID_SPLIT + serviceReferenceAlarm.getFrontServiceId()
             + Const.ID_SPLIT + serviceReferenceAlarm.getBehindServiceId();
 
-        ServiceReferenceAlarmList serviceReferenceAlarmList = new ServiceReferenceAlarmList(id);
+        ServiceReferenceAlarmList serviceReferenceAlarmList = new ServiceReferenceAlarmList();
+        serviceReferenceAlarmList.setId(id);
         serviceReferenceAlarmList.setFrontApplicationId(serviceReferenceAlarm.getFrontApplicationId());
         serviceReferenceAlarmList.setBehindApplicationId(serviceReferenceAlarm.getBehindApplicationId());
         serviceReferenceAlarmList.setFrontInstanceId(serviceReferenceAlarm.getFrontInstanceId());
