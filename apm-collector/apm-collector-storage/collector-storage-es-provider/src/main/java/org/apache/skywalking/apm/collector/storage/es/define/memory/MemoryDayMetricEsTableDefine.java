@@ -16,13 +16,22 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.jvm.define.service;
+package org.apache.skywalking.apm.collector.storage.es.define.memory;
 
-import org.apache.skywalking.apm.collector.core.module.Service;
+import org.apache.skywalking.apm.collector.core.storage.TimePyramid;
+import org.apache.skywalking.apm.collector.core.util.Const;
+import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetricTable;
 
 /**
  * @author peng-yongsheng
  */
-public interface IMemoryMetricService extends Service {
-    void send(int instanceId, long timeBucket, boolean isHeap, long init, long max, long used, long committed);
+public class MemoryDayMetricEsTableDefine extends AbstractMemoryMetricEsTableDefine {
+
+    public MemoryDayMetricEsTableDefine() {
+        super(MemoryMetricTable.TABLE + Const.ID_SPLIT + TimePyramid.Day.getName());
+    }
+
+    @Override public int refreshInterval() {
+        return 1;
+    }
 }

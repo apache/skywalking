@@ -18,28 +18,28 @@
 
 package org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.memory;
 
-import org.apache.skywalking.apm.collector.analysis.jvm.define.graph.WorkerIdDefine;
-import org.apache.skywalking.apm.collector.core.graph.Next;
-import org.apache.skywalking.apm.collector.core.graph.NodeProcessor;
-import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetric;
 
 /**
  * @author peng-yongsheng
  */
-public class MemoryDayMetricTransformNode implements NodeProcessor<MemoryMetric, MemoryMetric> {
+public class MemoryMetricCopy {
 
-    @Override public int id() {
-        return WorkerIdDefine.MEMORY_DAY_METRIC_TRANSFORM_NODE_ID;
-    }
+    public static MemoryMetric copy(MemoryMetric memoryMetric) {
+        MemoryMetric newMemoryMetric = new MemoryMetric();
+        newMemoryMetric.setId(memoryMetric.getId());
+        newMemoryMetric.setMetricId(memoryMetric.getMetricId());
 
-    @Override public void process(MemoryMetric memoryMetric, Next<MemoryMetric> next) {
-        long timeBucket = TimeBucketUtils.INSTANCE.secondToDay(memoryMetric.getTimeBucket());
+        newMemoryMetric.setInstanceId(memoryMetric.getInstanceId());
+        newMemoryMetric.setIsHeap(memoryMetric.getIsHeap());
 
-        MemoryMetric newMemoryMetric = MemoryMetricCopy.copy(memoryMetric);
-        newMemoryMetric.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + memoryMetric.getMetricId());
-        newMemoryMetric.setTimeBucket(timeBucket);
-        next.execute(newMemoryMetric);
+        newMemoryMetric.setInit(memoryMetric.getInit());
+        newMemoryMetric.setMax(memoryMetric.getMax());
+        newMemoryMetric.setUsed(memoryMetric.getUsed());
+        newMemoryMetric.setCommitted(memoryMetric.getCommitted());
+        newMemoryMetric.setTimes(memoryMetric.getTimes());
+
+        newMemoryMetric.setTimeBucket(memoryMetric.getTimeBucket());
+        return newMemoryMetric;
     }
 }

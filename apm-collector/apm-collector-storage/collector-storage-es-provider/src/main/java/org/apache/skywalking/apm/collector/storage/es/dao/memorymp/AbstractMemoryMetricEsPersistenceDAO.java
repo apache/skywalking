@@ -39,7 +39,21 @@ public abstract class AbstractMemoryMetricEsPersistenceDAO extends AbstractPersi
     }
 
     @Override protected final MemoryMetric esDataToStreamData(Map<String, Object> source) {
-        return null;
+        MemoryMetric memoryMetric = new MemoryMetric();
+        memoryMetric.setId((String)source.get(MemoryMetricTable.COLUMN_ID));
+        memoryMetric.setMetricId((String)source.get(MemoryMetricTable.COLUMN_METRIC_ID));
+
+        memoryMetric.setInstanceId(((Number)source.get(MemoryMetricTable.COLUMN_INSTANCE_ID)).intValue());
+        memoryMetric.setIsHeap((Boolean)source.get(MemoryMetricTable.COLUMN_IS_HEAP));
+
+        memoryMetric.setInit(((Number)source.get(MemoryMetricTable.COLUMN_INIT)).longValue());
+        memoryMetric.setMax(((Number)source.get(MemoryMetricTable.COLUMN_MAX)).longValue());
+        memoryMetric.setUsed(((Number)source.get(MemoryMetricTable.COLUMN_USED)).longValue());
+        memoryMetric.setCommitted(((Number)source.get(MemoryMetricTable.COLUMN_COMMITTED)).longValue());
+        memoryMetric.setTimes(((Number)source.get(MemoryMetricTable.COLUMN_TIMES)).longValue());
+
+        memoryMetric.setTimeBucket(((Number)source.get(MemoryMetricTable.COLUMN_TIME_BUCKET)).longValue());
+        return memoryMetric;
     }
 
     @Override protected final Map<String, Object> esStreamDataToEsData(MemoryMetric streamData) {
@@ -53,6 +67,7 @@ public abstract class AbstractMemoryMetricEsPersistenceDAO extends AbstractPersi
         source.put(MemoryMetricTable.COLUMN_MAX, streamData.getMax());
         source.put(MemoryMetricTable.COLUMN_USED, streamData.getUsed());
         source.put(MemoryMetricTable.COLUMN_COMMITTED, streamData.getCommitted());
+        source.put(MemoryMetricTable.COLUMN_TIMES, streamData.getTimes());
         source.put(MemoryMetricTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
 
         return source;
