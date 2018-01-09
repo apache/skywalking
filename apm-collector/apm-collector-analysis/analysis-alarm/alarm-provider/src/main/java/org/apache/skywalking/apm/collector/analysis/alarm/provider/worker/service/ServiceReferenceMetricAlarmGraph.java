@@ -59,7 +59,7 @@ public class ServiceReferenceMetricAlarmGraph {
             .addNext(new ServiceReferenceMetricAlarmToListNodeProcessor())
             .addNext(new ServiceReferenceMetricAlarmListPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
-//        link(graph);
+        link(graph);
     }
 
     private void link(Graph<ServiceReferenceMetric> graph) {

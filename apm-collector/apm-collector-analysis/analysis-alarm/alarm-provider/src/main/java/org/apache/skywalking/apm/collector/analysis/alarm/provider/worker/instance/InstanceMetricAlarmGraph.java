@@ -59,7 +59,7 @@ public class InstanceMetricAlarmGraph {
             .addNext(new InstanceMetricAlarmToListNodeProcessor())
             .addNext(new InstanceMetricAlarmListPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
-//        link(graph);
+        link(graph);
     }
 
     private void link(Graph<InstanceMetric> graph) {

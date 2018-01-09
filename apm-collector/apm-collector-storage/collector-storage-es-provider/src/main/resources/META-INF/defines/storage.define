@@ -51,3 +51,16 @@ org.apache.skywalking.apm.collector.storage.es.define.amp.ApplicationMonthMetric
 org.apache.skywalking.apm.collector.storage.es.define.GlobalTraceEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.SegmentEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.SegmentCostEsTableDefine
+
+org.apache.skywalking.apm.collector.storage.es.define.alarm.ApplicationAlarmEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.alarm.ApplicationAlarmListEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.alarm.ApplicationReferenceAlarmEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.alarm.ApplicationReferenceAlarmListEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.alarm.InstanceAlarmEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.alarm.InstanceAlarmListEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.alarm.InstanceReferenceAlarmEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.alarm.InstanceReferenceAlarmListEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.alarm.ServiceAlarmEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.alarm.ServiceAlarmListEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.alarm.ServiceReferenceAlarmEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.alarm.ServiceReferenceAlarmListEsTableDefine

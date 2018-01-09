@@ -60,7 +60,7 @@ public class ApplicationReferenceMetricAlarmGraph {
             .addNext(new ApplicationReferenceMetricAlarmToListNodeProcessor())
             .addNext(new ApplicationReferenceMetricAlarmListPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
-//        link(graph);
+        link(graph);
     }
 
     private void link(Graph<ApplicationReferenceMetric> graph) {
