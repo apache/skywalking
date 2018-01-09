@@ -22,7 +22,6 @@ import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchCli
 import org.apache.skywalking.apm.collector.core.storage.TimePyramid;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.irmp.IInstanceReferenceHourMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.irmp.IInstanceReferenceMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetric;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetricTable;
 import org.elasticsearch.action.index.IndexRequestBuilder;
