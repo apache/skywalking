@@ -2,6 +2,7 @@ type AlarmItem {
     content: String!
     startTime: String!
     alertType: AlarmType!
+    causeType: CauseType!
 }
 
 enum AlarmType {
@@ -10,6 +11,11 @@ enum AlarmType {
     SERVICE
 }
 
+enum CauseType {
+    LOW_SUCCESS_RATE,
+    SLOW_RESPONSE
+}
+
 extend type Query {
-    loadAlertList(keyword: String, alertType: AlarmType, duration:Duration!):[AlarmItem]
+    loadAlertList(keyword: String, alertType: AlarmType, duration:Duration!, paging: Pagination!):[AlarmItem!]!
 }
