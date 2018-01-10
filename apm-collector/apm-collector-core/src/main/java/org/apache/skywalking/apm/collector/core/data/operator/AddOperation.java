@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.core.data.operator;
 
 import org.apache.skywalking.apm.collector.core.data.Operation;

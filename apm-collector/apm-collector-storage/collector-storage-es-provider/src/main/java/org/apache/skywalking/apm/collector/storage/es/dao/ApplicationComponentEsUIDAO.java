@@ -23,6 +23,7 @@ import com.google.gson.JsonObject;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationComponentUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.acp.ApplicationComponentMinuteEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponentTable;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -38,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ApplicationComponentEsUIDAO extends EsDAO implements IApplicationComponentUIDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(ApplicationComponentEsPersistenceDAO.class);
+    private final Logger logger = LoggerFactory.getLogger(ApplicationComponentMinuteEsPersistenceDAO.class);
 
     public ApplicationComponentEsUIDAO(ElasticSearchClient client) {
         super(client);

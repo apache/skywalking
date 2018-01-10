@@ -16,14 +16,13 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.remote.service;
 
-import org.apache.skywalking.apm.collector.core.data.Data;
+import org.apache.skywalking.apm.collector.core.data.RemoteData;
 
 /**
  * @author peng-yongsheng
  */
 public interface RemoteDataIDGetter {
-    Integer getRemoteDataId(Class<? extends Data> dataClass) throws RemoteDataMappingIdNotFoundException;
+    Integer getRemoteDataId(Class<? extends RemoteData> dataClass) throws RemoteDataMappingIdNotFoundException;
 }

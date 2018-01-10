@@ -18,17 +18,16 @@
 
 package org.apache.skywalking.apm.collector.analysis.worker.model.base;
 
-import org.apache.skywalking.apm.collector.core.data.EndOfBatchQueueMessage;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class AbstractWorkerProvider<INPUT extends EndOfBatchQueueMessage, OUTPUT extends EndOfBatchQueueMessage, WORKER_TYPE extends AbstractWorker<INPUT, OUTPUT>> implements Provider {
+public abstract class AbstractWorkerProvider<INPUT, OUTPUT, WORKER_TYPE extends AbstractWorker<INPUT, OUTPUT>> implements Provider {
 
     private final ModuleManager moduleManager;
 
-    public AbstractWorkerProvider(ModuleManager moduleManager) {
+    AbstractWorkerProvider(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
     }
 

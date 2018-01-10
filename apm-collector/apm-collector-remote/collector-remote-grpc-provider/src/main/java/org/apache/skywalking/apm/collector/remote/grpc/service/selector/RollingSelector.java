@@ -16,11 +16,10 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.remote.grpc.service.selector;
 
 import java.util.List;
-import org.apache.skywalking.apm.collector.core.data.Data;
+import org.apache.skywalking.apm.collector.core.data.RemoteData;
 import org.apache.skywalking.apm.collector.remote.service.RemoteClient;
 
 /**
@@ -30,7 +29,7 @@ public class RollingSelector implements RemoteClientSelector {
 
     private int index = 0;
 
-    @Override public RemoteClient select(List<RemoteClient> clients, Data message) {
+    @Override public RemoteClient select(List<RemoteClient> clients, RemoteData remoteData) {
         int size = clients.size();
         index++;
         int selectIndex = Math.abs(index) % size;
