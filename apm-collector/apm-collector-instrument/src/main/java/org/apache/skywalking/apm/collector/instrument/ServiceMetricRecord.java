@@ -34,10 +34,6 @@ public class ServiceMetricRecord {
         errorCounter = new AtomicLong(0);
     }
 
-    private boolean isExecuted() {
-        return counter.get() > 0;
-    }
-
     void add(long nano, boolean occurException) {
         totalTimeNano.addAndGet(nano);
         counter.incrementAndGet();

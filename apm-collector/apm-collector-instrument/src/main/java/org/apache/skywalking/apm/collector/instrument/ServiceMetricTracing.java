@@ -25,6 +25,7 @@ import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
+import net.bytebuddy.implementation.bind.annotation.This;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 
 /**
@@ -38,6 +39,7 @@ public class ServiceMetricTracing {
 
     @RuntimeType
     public Object intercept(
+        @This Object inst,
         @SuperCall Callable<?> zuper,
         @AllArguments Object[] allArguments,
         @Origin Method method
@@ -46,10 +48,12 @@ public class ServiceMetricTracing {
         if (metric == null) {
             GraphComputingMetric annotation = method.getAnnotation(GraphComputingMetric.class);
             String metricName = annotation.name();
-            MetricTree.MetricNode metricNode = MetricTree.INSTANCE.lookup(metricName);
-            ServiceMetric serviceMetric = metricNode.getMetric(method, allArguments);
-            metrics.put(method, serviceMetric);
-            metric = serviceMetric;
+            synchronized (inst) {
+                MetricTree.MetricNode metricNode = MetricTree.INSTANCE.lookup(metricName);
+                ServiceMetric serviceMetric = metricNode.getMetric(method, allArguments);
+                metrics.put(method, serviceMetric);
+                metric = serviceMetric;
+            }
         }
         boolean occurError = false;
         long startNano = System.nanoTime();
@@ -62,7 +66,7 @@ public class ServiceMetricTracing {
         } finally {
             endNano = System.nanoTime();
 
-            metric.trace(endNano - startNano, occurError);
+            metric.trace(endNano - startNano, occurError, allArguments);
         }
     }
 }

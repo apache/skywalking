@@ -43,6 +43,9 @@ public class ServiceMetricBatchRecord extends ServiceMetricRecord {
 
     @Override
     public String toString() {
+        if (counter.longValue() == 0) {
+            return "Avg=N/A";
+        }
         return super.toString() + " Rows per call = " + (batchRowSize.get() / counter.get());
     }
 }

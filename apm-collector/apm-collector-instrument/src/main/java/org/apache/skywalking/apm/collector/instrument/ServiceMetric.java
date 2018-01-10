@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.apm.collector.instrument;
 
+import java.util.List;
+
 /**
  * @author wusheng
  */
@@ -26,17 +28,24 @@ public class ServiceMetric {
     private ServiceMetricRecord winA;
     private ServiceMetricRecord winB;
     private volatile boolean isUsingWinA;
+    private volatile int detectedBatchIndex;
 
-    ServiceMetric(String metricName, boolean isBatchDetected) {
+    ServiceMetric(String metricName, int detectedBatchIndex) {
         this.metricName = metricName;
-        winA = isBatchDetected ? new ServiceMetricBatchRecord() : new ServiceMetricRecord();
-        winB = isBatchDetected ? new ServiceMetricBatchRecord() : new ServiceMetricRecord();
+        winA = detectedBatchIndex > -1 ? new ServiceMetricBatchRecord() : new ServiceMetricRecord();
+        winB = detectedBatchIndex > -1 ? new ServiceMetricBatchRecord() : new ServiceMetricRecord();
         isUsingWinA = true;
+        this.detectedBatchIndex = detectedBatchIndex;
     }
 
-    public void trace(long nano, boolean occurException) {
+    public void trace(long nano, boolean occurException, Object[] allArguments) {
         ServiceMetricRecord usingRecord = isUsingWinA ? winA : winB;
-        usingRecord.add(nano, occurException);
+        if (detectedBatchIndex > -1) {
+            List listArgs = (List)allArguments[detectedBatchIndex];
+            ((ServiceMetricBatchRecord)usingRecord).add(nano, occurException, listArgs == null ? 0 : listArgs.size());
+        } else {
+            usingRecord.add(nano, occurException);
+        }
     }
 
     void exchangeWindows() {
