@@ -22,7 +22,6 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.skywalking.apm.collector.core.annotations.trace.BatchParameter;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
-import org.apache.skywalking.apm.collector.core.data.EndOfBatchQueueMessage;
 import org.apache.skywalking.apm.collector.core.data.QueueData;
 import org.apache.skywalking.apm.collector.core.graph.NodeProcessor;
 import org.apache.skywalking.apm.collector.core.queue.EndOfBatchContext;
