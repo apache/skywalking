@@ -1,4 +1,8 @@
 type AlarmItem {
+    # Typical include: Application Code + cause type. This is a short description.
+    title: String!
+    # Include all related info to trigger this alarm.
+    # such as: threshold, trigger value, relation(greater or lower), last time
     content: String!
     startTime: String!
     alertType: AlarmType!
