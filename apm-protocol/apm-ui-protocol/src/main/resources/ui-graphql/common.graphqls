@@ -44,11 +44,11 @@ enum Step {
     SECOND
 }
 
-type Pagination {
-    //pageNum starts in 1, the default is 1.
+input Pagination {
+    # pageNum starts in 1, the default is 1.
     pageNum: Int
     pageSize: Int!
-    //default false
+    # default false
     needTotal: Boolean
 }
 

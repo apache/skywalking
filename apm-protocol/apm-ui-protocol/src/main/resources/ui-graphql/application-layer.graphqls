@@ -35,6 +35,6 @@ type ConjecturalNode implements Node {
 extend type Query {
   getAllApplication(duration: Duration!): [ApplicationNode]
   getApplicationTopology(applicationId: ID!, duration: Duration!): Topology
-  getSlowService(applicationId: ID!, duration: Duration, top: Int!!): [ServiceInfo!]
+  getSlowService(applicationId: ID!, duration: Duration, top: Int!): [ServiceInfo!]
   getServerThroughput(applicationId: ID!, duration: Duration!, top: Int!): [AppServerInfo!]
 }

@@ -35,7 +35,7 @@ enum QueryOrder {
 # The trace represents a distributed trace, includes all segments and spans.
 type Trace {
   traceId: ID!
-  segments: [Segment!]
+  segments: [Segment!]!
 }
 
 type Segment {
