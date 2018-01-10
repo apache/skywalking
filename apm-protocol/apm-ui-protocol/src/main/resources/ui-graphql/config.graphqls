@@ -1,0 +1,12 @@
+type TTLConfigs {
+    items: [TTLConfigItem]!
+}
+
+type TTLConfigItem {
+    unit: Step!
+    value: Int!
+}
+
+extend type Mutation {
+    setDataTTLConfigs(ttl: TTLConfigs!): TTLConfigs
+}

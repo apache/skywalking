@@ -1,6 +1,7 @@
 # The list of traces
 type TraceBrief {
-  traces: [BasicTrace!]
+  traces: [BasicTrace!]!
+  total: Int!
 }
 
 # Trace basic info
@@ -23,8 +24,7 @@ input TraceQueryCondition {
   minTraceDuration: Int
   # The max time of trace
   maxTraceDuration: Int
-  topN: Boolean
-  needTotal: Int
+  paging: Pagination!
 }
 
 enum QueryOrder {
@@ -46,7 +46,7 @@ type Segment {
 }
 
 type Span {
-  refs: [Ref!]
+  refs: [Ref!]!
   spanId: Int!
   parentSpanId: Int!
   startTime: Long!
@@ -60,8 +60,8 @@ type Span {
   isError: Boolean
   # There are 5 layers: Unknown, Database, RPCFramework, Http, MQ and Cache
   layer: String
-  tags: [KeyValue!]
-  logs: [LogEntity!]
+  tags: [KeyValue!]!
+  logs: [LogEntity!]!
 }
 
 # Ref represents the link between the segment and its parents.
