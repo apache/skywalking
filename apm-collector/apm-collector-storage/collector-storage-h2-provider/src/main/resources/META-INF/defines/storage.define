@@ -43,3 +43,5 @@ org.apache.skywalking.apm.collector.storage.h2.define.instmapping.InstanceMappin
 org.apache.skywalking.apm.collector.storage.h2.define.instmapping.InstanceMappingMonthH2TableDefine
 
 org.apache.skywalking.apm.collector.storage.h2.define.GlobalTraceH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.SegmentCostH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.SegmentH2TableDefine
