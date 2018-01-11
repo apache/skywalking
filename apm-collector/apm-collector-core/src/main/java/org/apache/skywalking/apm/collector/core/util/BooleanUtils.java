@@ -16,20 +16,33 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.h2.base.define;
+package org.apache.skywalking.apm.collector.core.util;
 
-import org.apache.skywalking.apm.collector.core.data.ColumnDefine;
+import org.apache.skywalking.apm.collector.core.UnexpectedException;
 
 /**
  * @author peng-yongsheng
  */
-public class H2ColumnDefine extends ColumnDefine {
+public class BooleanUtils {
 
-    public H2ColumnDefine(String name, String type) {
-        super(name, type);
+    public static final Integer TRUE = 1;
+    public static final Integer FALSE = 0;
+
+    public static boolean valueToBoolean(Integer value) {
+        if (TRUE.equals(value)) {
+            return true;
+        } else if (FALSE.equals(value)) {
+            return false;
+        } else {
+            throw new UnexpectedException("Boolean value error, must be 0 or 1");
+        }
     }
 
-    public enum Type {
-        Varchar, Int, Bigint, BINARY, Double
+    public static Integer booleanToValue(Boolean booleanValue) {
+        if (booleanValue) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
     }
 }

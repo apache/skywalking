@@ -35,7 +35,7 @@ public abstract class AbstractMemoryMetricH2TableDefine extends H2TableDefine {
         addColumn(new H2ColumnDefine(MemoryMetricTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
         addColumn(new H2ColumnDefine(MemoryMetricTable.COLUMN_METRIC_ID, H2ColumnDefine.Type.Varchar.name()));
         addColumn(new H2ColumnDefine(MemoryMetricTable.COLUMN_INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(MemoryMetricTable.COLUMN_IS_HEAP, H2ColumnDefine.Type.Boolean.name()));
+        addColumn(new H2ColumnDefine(MemoryMetricTable.COLUMN_IS_HEAP, H2ColumnDefine.Type.Int.name()));
         addColumn(new H2ColumnDefine(MemoryMetricTable.COLUMN_INIT, H2ColumnDefine.Type.Bigint.name()));
         addColumn(new H2ColumnDefine(MemoryMetricTable.COLUMN_MAX, H2ColumnDefine.Type.Bigint.name()));
         addColumn(new H2ColumnDefine(MemoryMetricTable.COLUMN_USED, H2ColumnDefine.Type.Bigint.name()));

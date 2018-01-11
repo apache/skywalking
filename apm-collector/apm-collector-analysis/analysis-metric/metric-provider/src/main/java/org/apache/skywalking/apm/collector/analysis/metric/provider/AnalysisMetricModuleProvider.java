@@ -88,12 +88,12 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
 
     private void segmentParserListenerRegister() {
         ISegmentParserListenerRegister segmentParserListenerRegister = getManager().find(AnalysisSegmentParserModule.NAME).getService(ISegmentParserListenerRegister.class);
-        segmentParserListenerRegister.register(new ServiceReferenceMetricSpanListener.Factory());
+//        segmentParserListenerRegister.register(new ServiceReferenceMetricSpanListener.Factory());
         segmentParserListenerRegister.register(new ApplicationComponentSpanListener.Factory());
-        segmentParserListenerRegister.register(new ApplicationMappingSpanListener.Factory());
-        segmentParserListenerRegister.register(new InstanceMappingSpanListener.Factory());
-        segmentParserListenerRegister.register(new GlobalTraceSpanListener.Factory());
-        segmentParserListenerRegister.register(new SegmentCostSpanListener.Factory());
+//        segmentParserListenerRegister.register(new ApplicationMappingSpanListener.Factory());
+//        segmentParserListenerRegister.register(new InstanceMappingSpanListener.Factory());
+//        segmentParserListenerRegister.register(new GlobalTraceSpanListener.Factory());
+//        segmentParserListenerRegister.register(new SegmentCostSpanListener.Factory());
     }
 
     private void graphCreate(WorkerCreateListener workerCreateListener) {

@@ -16,26 +16,26 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.h2.define.register;
+package org.apache.skywalking.apm.collector.storage.h2.define.appcomp;
 
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2ColumnDefine;
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2TableDefine;
-import org.apache.skywalking.apm.collector.storage.table.register.ApplicationTable;
+import org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponentTable;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationH2TableDefine extends H2TableDefine {
+public abstract class AbstractApplicationComponentH2TableDefine extends H2TableDefine {
 
-    public ApplicationH2TableDefine() {
-        super(ApplicationTable.TABLE);
+    AbstractApplicationComponentH2TableDefine(String name) {
+        super(name);
     }
 
-    @Override public void initialize() {
-        addColumn(new H2ColumnDefine(ApplicationTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(ApplicationTable.COLUMN_APPLICATION_CODE, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(ApplicationTable.COLUMN_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(ApplicationTable.COLUMN_ADDRESS_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(ApplicationTable.COLUMN_IS_ADDRESS, H2ColumnDefine.Type.Int.name()));
+    @Override public final void initialize() {
+        addColumn(new H2ColumnDefine(ApplicationComponentTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(ApplicationComponentTable.COLUMN_METRIC_ID, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(ApplicationComponentTable.COLUMN_COMPONENT_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ApplicationComponentTable.COLUMN_PEER_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ApplicationComponentTable.COLUMN_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
     }
 }
