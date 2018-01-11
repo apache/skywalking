@@ -3,3 +3,6 @@ postgresql-8.x=org.apache.skywalking.apm.plugin.jdbc.postgresql.define.Jdbc3Conn
 postgresql-8.x=org.apache.skywalking.apm.plugin.jdbc.postgresql.define.Jdbc4ConnectionInstrumentation
 postgresql-8.x=org.apache.skywalking.apm.plugin.jdbc.postgresql.define.ConnectionInstrumentation
 postgresql-8.x=org.apache.skywalking.apm.plugin.jdbc.postgresql.define.AbstractJdbc2StatementInstrumentation
+postgresql-8.x=org.apache.skywalking.apm.plugin.jdbc.postgresql.define.PgCallableStatementInstrumentation
+postgresql-8.x=org.apache.skywalking.apm.plugin.jdbc.postgresql.define.PgPreparedStatementInstrumentation
+postgresql-8.x=org.apache.skywalking.apm.plugin.jdbc.postgresql.define.PgStatementInstrumentation
