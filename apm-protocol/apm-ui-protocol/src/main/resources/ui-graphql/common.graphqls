@@ -93,7 +93,7 @@ type VisualUserNode implements Node {
     # Constant, value = "User"
     name: String!
     # Constant, value = "USER"
-    type: String!
+    type: String
 }
 
 # The Call represents a directed distributed call,
