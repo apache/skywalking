@@ -7,7 +7,7 @@ Apache SkyWalking | [English](README.md)
 其核心是个分布式追踪系统。
 
 [![Build Status](https://travis-ci.org/apache/incubator-skywalking.svg?branch=master)](https://travis-ci.org/apache/incubator-skywalking)
-[![Coverage Status](https://coveralls.io/repos/github/apache/incubator-skywalking/badge.svg?branch=master&u=1)](https://coveralls.io/github/apache/incubator-skywalking?branch=master)
+[![Twitter URL](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/AsfSkyWalking)
 [![Join the chat at https://gitter.im/openskywalking/Lobby](https://badges.gitter.im/openskywalking/Lobby.svg)](https://gitter.im/openskywalking/Lobby)
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
 
@@ -24,12 +24,14 @@ Apache SkyWalking | [English](README.md)
 * UI工程请查看 [skywalking-ui](https://github.com/apache/incubator-skywalking-ui)
 * 中文QQ群：392443393
 
-# Architecture
-<img src="https://skywalkingtest.github.io/page-resources/3.2.5%2b_architecture.jpg"/>
-
 # Document
-[![EN doc](https://img.shields.io/badge/document-English-blue.svg)](docs/README.md) [![cn doc](https://img.shields.io/badge/document-中文-blue.svg)](docs/README_ZH.md)
+[![EN doc](https://img.shields.io/badge/document-English-blue.svg)](docs/README.md) [![cn doc](https://img.shields.io/badge/文档-中文版-blue.svg)](docs/README_ZH.md)
 
+
+# 5.x Architecture
+<img src="https://skywalkingtest.github.io/page-resources/5.0/architecture.png"/>
+
+# code of conduct
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wusheng@apache.org.
 
 # Screenshots

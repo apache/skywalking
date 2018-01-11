@@ -16,19 +16,35 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.standardization;
 
-import org.apache.skywalking.apm.collector.core.data.EndOfBatchQueueMessage;
+import org.apache.skywalking.apm.collector.core.data.QueueData;
+import org.apache.skywalking.apm.collector.core.queue.EndOfBatchContext;
 import org.apache.skywalking.apm.network.proto.UpstreamSegment;
 
 /**
  * @author peng-yongsheng
  */
-public class SegmentStandardization extends EndOfBatchQueueMessage {
+public class SegmentStandardization implements QueueData {
 
-    public SegmentStandardization(String key) {
-        super(key);
+    private final String id;
+
+    public SegmentStandardization(String id) {
+        this.id = id;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    private EndOfBatchContext context;
+
+    @Override public EndOfBatchContext getEndOfBatchContext() {
+        return this.context;
+    }
+
+    @Override public void setEndOfBatchContext(EndOfBatchContext context) {
+        this.context = context;
     }
 
     private UpstreamSegment upstreamSegment;

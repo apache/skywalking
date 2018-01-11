@@ -16,20 +16,20 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.base.dao;
 
-import org.apache.skywalking.apm.collector.core.data.Data;
+import org.apache.skywalking.apm.collector.core.data.StreamData;
 
 /**
  * @author peng-yongsheng
  */
-public interface IPersistenceDAO<Insert, Update, DataImpl extends Data> extends DAO {
-    DataImpl get(String id);
+public interface IPersistenceDAO<INSERT, UPDATE, STREAM_DATA extends StreamData> extends DAO {
 
-    Insert prepareBatchInsert(DataImpl data);
+    STREAM_DATA get(String id);
 
-    Update prepareBatchUpdate(DataImpl data);
+    INSERT prepareBatchInsert(STREAM_DATA data);
+
+    UPDATE prepareBatchUpdate(STREAM_DATA data);
 
     void deleteHistory(Long startTimestamp, Long endTimestamp);
 }

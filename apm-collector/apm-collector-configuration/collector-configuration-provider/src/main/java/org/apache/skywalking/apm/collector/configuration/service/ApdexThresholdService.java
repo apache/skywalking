@@ -16,13 +16,18 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.configuration.service;
 
 /**
  * @author peng-yongsheng
  */
 public class ApdexThresholdService implements IApdexThresholdService {
+
+    private int apdexThreshold;
+
+    public ApdexThresholdService(int apdexThreshold) {
+        this.apdexThreshold = apdexThreshold;
+    }
 
     /**
      * Apdex T applies to web transactions only
@@ -31,6 +36,6 @@ public class ApdexThresholdService implements IApdexThresholdService {
      * @return This value is in milli-seconds.
      */
     @Override public Integer getApplicationApdexThreshold(int applicationId) {
-        return 1000;
+        return apdexThreshold;
     }
 }

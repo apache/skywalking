@@ -53,7 +53,7 @@ public class ServiceTreeGetByIdHandler extends JettyHandler {
         String entryServiceIdStr = req.getParameter("entryServiceId");
         String startTimeStr = req.getParameter("startTime");
         String endTimeStr = req.getParameter("endTime");
-        logger.debug("service entry get entryServiceId: {}, startTime: {}, endTime: {}", entryServiceIdStr, startTimeStr, endTimeStr);
+        logger.debug("service entry getApplicationIdByCode entryServiceId: {}, startTime: {}, endTime: {}", entryServiceIdStr, startTimeStr, endTimeStr);
 
         int entryServiceId;
         try {

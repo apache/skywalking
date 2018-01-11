@@ -19,13 +19,6 @@
 
 package org.apache.skywalking.apm.agent.core.conf;
 
-import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
-import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
-import org.apache.skywalking.apm.util.ConfigInitializer;
-import org.apache.skywalking.apm.util.StringUtil;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -33,6 +26,12 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
+import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.util.ConfigInitializer;
+import org.apache.skywalking.apm.util.StringUtil;
 
 /**
  * The <code>SnifferConfigInitializer</code> initializes all configs in several way.
@@ -44,6 +43,7 @@ public class SnifferConfigInitializer {
     private static final ILog logger = LogManager.getLogger(SnifferConfigInitializer.class);
     private static String CONFIG_FILE_NAME = "/config/agent.config";
     private static String ENV_KEY_PREFIX = "skywalking.";
+    private static boolean IS_INIT_COMPLETED = false;
 
     /**
      * Try to locate `agent.config`, which should be in the /config dictionary of agent package.
@@ -78,6 +78,12 @@ public class SnifferConfigInitializer {
         if (StringUtil.isEmpty(Config.Collector.SERVERS)) {
             throw new ExceptionInInitializerError("`collector.servers` is missing.");
         }
+
+        IS_INIT_COMPLETED = true;
+    }
+
+    public static boolean isInitCompleted() {
+        return IS_INIT_COMPLETED;
     }
 
     /**

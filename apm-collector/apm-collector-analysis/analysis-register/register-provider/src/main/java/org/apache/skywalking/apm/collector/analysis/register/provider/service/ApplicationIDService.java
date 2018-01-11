@@ -22,9 +22,11 @@ import org.apache.skywalking.apm.collector.analysis.register.define.graph.GraphI
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IApplicationIDService;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
+import org.apache.skywalking.apm.collector.cache.service.NetworkAddressCacheService;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.table.register.Application;
 import org.slf4j.Logger;
@@ -39,6 +41,7 @@ public class ApplicationIDService implements IApplicationIDService {
 
     private final ModuleManager moduleManager;
     private ApplicationCacheService applicationCacheService;
+    private NetworkAddressCacheService networkAddressCacheService;
     private Graph<Application> applicationRegisterGraph;
 
     public ApplicationIDService(ModuleManager moduleManager) {
@@ -59,13 +62,39 @@ public class ApplicationIDService implements IApplicationIDService {
         return applicationCacheService;
     }
 
-    public int getOrCreate(String applicationCode) {
-        int applicationId = getApplicationCacheService().get(applicationCode);
+    private NetworkAddressCacheService getNetworkAddressCacheService() {
+        if (ObjectUtils.isEmpty(networkAddressCacheService)) {
+            this.networkAddressCacheService = moduleManager.find(CacheModule.NAME).getService(NetworkAddressCacheService.class);
+        }
+        return networkAddressCacheService;
+    }
+
+    @Override public int getOrCreateForApplicationCode(String applicationCode) {
+        int applicationId = getApplicationCacheService().getApplicationIdByCode(applicationCode);
 
         if (applicationId == 0) {
-            Application application = new Application(applicationCode);
+            Application application = new Application();
+            application.setId(applicationCode);
             application.setApplicationCode(applicationCode);
             application.setApplicationId(0);
+            application.setAddressId(Const.NONE);
+            application.setIsAddress(false);
+
+            getApplicationRegisterGraph().start(application);
+        }
+        return applicationId;
+    }
+
+    @Override public int getOrCreateForAddressId(int addressId, String networkAddress) {
+        int applicationId = getApplicationCacheService().getApplicationIdByAddressId(addressId);
+
+        if (applicationId == 0) {
+            Application application = new Application();
+            application.setId(networkAddress);
+            application.setApplicationCode(networkAddress);
+            application.setApplicationId(0);
+            application.setAddressId(addressId);
+            application.setIsAddress(true);
 
             getApplicationRegisterGraph().start(application);
         }

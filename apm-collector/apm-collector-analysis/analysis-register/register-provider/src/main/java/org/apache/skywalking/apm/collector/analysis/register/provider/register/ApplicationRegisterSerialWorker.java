@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.dao.IApplicationRegisterDAO;
+import org.apache.skywalking.apm.collector.storage.dao.register.IApplicationRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,27 +54,36 @@ public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker<Ap
 
     @Override protected void onWork(Application application) throws WorkerException {
         logger.debug("register application, application code: {}", application.getApplicationCode());
-        int applicationId = applicationCacheService.get(application.getApplicationCode());
+        int applicationId = applicationCacheService.getApplicationIdByCode(application.getApplicationCode());
 
         if (applicationId == 0) {
             Application newApplication;
             int min = applicationRegisterDAO.getMinApplicationId();
             if (min == 0) {
-                Application userApplication = new Application(String.valueOf(Const.USER_ID));
+                Application userApplication = new Application();
+                userApplication.setId(String.valueOf(Const.NONE_APPLICATION_ID));
                 userApplication.setApplicationCode(Const.USER_CODE);
-                userApplication.setApplicationId(Const.USER_ID);
+                userApplication.setApplicationId(Const.NONE_APPLICATION_ID);
+                userApplication.setAddressId(Const.NONE);
+                userApplication.setIsAddress(false);
                 applicationRegisterDAO.save(userApplication);
 
-                newApplication = new Application("-1");
+                newApplication = new Application();
+                newApplication.setId("-1");
                 newApplication.setApplicationId(-1);
                 newApplication.setApplicationCode(application.getApplicationCode());
+                newApplication.setAddressId(application.getAddressId());
+                newApplication.setIsAddress(application.getIsAddress());
             } else {
                 int max = applicationRegisterDAO.getMaxApplicationId();
                 applicationId = IdAutoIncrement.INSTANCE.increment(min, max);
 
-                newApplication = new Application(String.valueOf(applicationId));
+                newApplication = new Application();
+                newApplication.setId(String.valueOf(applicationId));
                 newApplication.setApplicationId(applicationId);
                 newApplication.setApplicationCode(application.getApplicationCode());
+                newApplication.setAddressId(application.getAddressId());
+                newApplication.setIsAddress(application.getIsAddress());
             }
             applicationRegisterDAO.save(newApplication);
         }

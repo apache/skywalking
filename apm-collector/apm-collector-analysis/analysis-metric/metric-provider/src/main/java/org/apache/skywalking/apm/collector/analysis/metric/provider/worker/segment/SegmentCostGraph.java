@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.segment;
 
-import org.apache.skywalking.apm.collector.analysis.metric.define.graph.GraphIdDefine;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -38,7 +38,7 @@ public class SegmentCostGraph {
     }
 
     public void create() {
-        GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.SEGMENT_COST_GRAPH_ID, SegmentCost.class)
+        GraphManager.INSTANCE.createIfAbsent(MetricGraphIdDefine.SEGMENT_COST_GRAPH_ID, SegmentCost.class)
             .addNode(new SegmentCostPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
     }
 }

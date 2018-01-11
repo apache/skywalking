@@ -16,18 +16,17 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.h2.dao;
 
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
+import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
 import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
-import org.apache.skywalking.apm.collector.storage.dao.IApplicationRegisterDAO;
+import org.apache.skywalking.apm.collector.storage.dao.register.IApplicationRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Application;
 import org.apache.skywalking.apm.collector.storage.table.register.ApplicationTable;
-import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +58,8 @@ public class ApplicationH2RegisterDAO extends H2DAO implements IApplicationRegis
         source.put(ApplicationTable.COLUMN_ID, application.getId());
         source.put(ApplicationTable.COLUMN_APPLICATION_CODE, application.getApplicationCode());
         source.put(ApplicationTable.COLUMN_APPLICATION_ID, application.getApplicationId());
+        source.put(ApplicationTable.COLUMN_ADDRESS_ID, application.getAddressId());
+        source.put(ApplicationTable.COLUMN_IS_ADDRESS, application.getIsAddress());
 
         String sql = SqlBuilder.buildBatchInsertSql(ApplicationTable.TABLE, source.keySet());
         Object[] params = source.values().toArray(new Object[0]);

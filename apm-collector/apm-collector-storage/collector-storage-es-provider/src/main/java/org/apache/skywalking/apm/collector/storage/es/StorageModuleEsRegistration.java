@@ -16,11 +16,10 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.es;
 
-import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.cluster.ModuleRegistration;
+import org.apache.skywalking.apm.collector.core.util.Const;
 
 /**
  * @author peng-yongsheng

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
 import java.util.ArrayList;
@@ -25,9 +24,7 @@ import org.apache.skywalking.apm.commons.datacarrier.buffer.Buffer;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
 
 /**
- * Pool of consumers
- * <p>
- * Created by wusheng on 2016/10/25.
+ * Pool of consumers <p> Created by wusheng on 2016/10/25.
  */
 public class ConsumerPool<T> {
     private boolean running;
@@ -35,19 +32,19 @@ public class ConsumerPool<T> {
     private Channels<T> channels;
     private ReentrantLock lock;
 
-    public ConsumerPool(Channels<T> channels, Class<? extends IConsumer<T>> consumerClass, int num) {
+    public ConsumerPool(Channels<T> channels, Class<? extends IConsumer<T>> consumerClass, int num, long consumeCycle) {
         this(channels, num);
         for (int i = 0; i < num; i++) {
-            consumerThreads[i] = new ConsumerThread("DataCarrier.Consumser." + i + ".Thread", getNewConsumerInstance(consumerClass));
+            consumerThreads[i] = new ConsumerThread("DataCarrier.Consumser." + i + ".Thread", getNewConsumerInstance(consumerClass), consumeCycle);
             consumerThreads[i].setDaemon(true);
         }
     }
 
-    public ConsumerPool(Channels<T> channels, IConsumer<T> prototype, int num) {
+    public ConsumerPool(Channels<T> channels, IConsumer<T> prototype, int num, long consumeCycle) {
         this(channels, num);
         prototype.init();
         for (int i = 0; i < num; i++) {
-            consumerThreads[i] = new ConsumerThread("DataCarrier.Consumser." + i + ".Thread", prototype);
+            consumerThreads[i] = new ConsumerThread("DataCarrier.Consumser." + i + ".Thread", prototype, consumeCycle);
             consumerThreads[i].setDaemon(true);
         }
 

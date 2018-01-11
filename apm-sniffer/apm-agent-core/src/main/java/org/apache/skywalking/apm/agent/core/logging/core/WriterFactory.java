@@ -22,11 +22,12 @@ package org.apache.skywalking.apm.agent.core.logging.core;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
 import org.apache.skywalking.apm.util.StringUtil;
 
 public class WriterFactory {
     public static IWriter getLogWriter() {
-        if (AgentPackagePath.isPathFound()) {
+        if (SnifferConfigInitializer.isInitCompleted() && AgentPackagePath.isPathFound()) {
             if (StringUtil.isEmpty(Config.Logging.DIR)) {
                 try {
                     Config.Logging.DIR = AgentPackagePath.getPath() + "/logs";

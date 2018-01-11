@@ -16,10 +16,8 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.remote.grpc.service;
 
-import org.apache.skywalking.apm.collector.core.data.Data;
 import org.apache.skywalking.apm.collector.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.apm.collector.remote.service.RemoteSerializeService;
 
@@ -28,7 +26,7 @@ import org.apache.skywalking.apm.collector.remote.service.RemoteSerializeService
  */
 public class GRPCRemoteSerializeService implements RemoteSerializeService<RemoteData.Builder> {
 
-    @Override public RemoteData.Builder serialize(Data data) {
+    @Override public RemoteData.Builder serialize(org.apache.skywalking.apm.collector.core.data.RemoteData data) {
         RemoteData.Builder builder = RemoteData.newBuilder();
         for (int i = 0; i < data.getDataStringsCount(); i++) {
             builder.addDataStrings(data.getDataString(i));

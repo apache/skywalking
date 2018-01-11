@@ -25,9 +25,10 @@ import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.dao.IInstanceRegisterDAO;
+import org.apache.skywalking.apm.collector.storage.dao.register.IInstanceRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,27 +70,52 @@ public class InstanceIDService implements IInstanceIDService {
         return instanceRegisterDAO;
     }
 
-    public int getOrCreate(int applicationId, String agentUUID, long registerTime, String osInfo) {
-        logger.debug("get or create instance id, application id: {}, agentUUID: {}, registerTime: {}, osInfo: {}", applicationId, agentUUID, registerTime, osInfo);
-        int instanceId = getInstanceCacheService().getInstanceId(applicationId, agentUUID);
+    @Override public int getOrCreateByAgentUUID(int applicationId, String agentUUID, long registerTime, String osInfo) {
+        logger.debug("get or create instance id by agent UUID, application id: {}, agentUUID: {}, registerTime: {}, osInfo: {}", applicationId, agentUUID, registerTime, osInfo);
+        int instanceId = getInstanceCacheService().getInstanceIdByAgentUUID(applicationId, agentUUID);
 
         if (instanceId == 0) {
-            Instance instance = new Instance("0");
+            Instance instance = new Instance();
+            instance.setId("0");
             instance.setApplicationId(applicationId);
             instance.setAgentUUID(agentUUID);
             instance.setRegisterTime(registerTime);
             instance.setHeartBeatTime(registerTime);
             instance.setInstanceId(0);
             instance.setOsInfo(osInfo);
+            instance.setIsAddress(false);
+            instance.setAddressId(Const.NONE);
 
             getInstanceRegisterGraph().start(instance);
         }
         return instanceId;
     }
 
-    public void recover(int instanceId, int applicationId, long registerTime, String osInfo) {
+    @Override public int getOrCreateByAddressId(int applicationId, int addressId, long registerTime) {
+        logger.debug("get or create instance id by address id, application id: {}, address id: {}, registerTime: {}", applicationId, addressId, registerTime);
+        int instanceId = getInstanceCacheService().getInstanceIdByAddressId(applicationId, addressId);
+
+        if (instanceId == 0) {
+            Instance instance = new Instance();
+            instance.setId("0");
+            instance.setApplicationId(applicationId);
+            instance.setAgentUUID(Const.EMPTY_STRING);
+            instance.setRegisterTime(registerTime);
+            instance.setHeartBeatTime(registerTime);
+            instance.setInstanceId(0);
+            instance.setOsInfo(Const.EMPTY_STRING);
+            instance.setIsAddress(true);
+            instance.setAddressId(addressId);
+
+            getInstanceRegisterGraph().start(instance);
+        }
+        return instanceId;
+    }
+
+    @Override public void recover(int instanceId, int applicationId, long registerTime, String osInfo) {
         logger.debug("instance recover, instance id: {}, application id: {}, register time: {}", instanceId, applicationId, registerTime);
-        Instance instance = new Instance(String.valueOf(instanceId));
+        Instance instance = new Instance();
+        instance.setId(String.valueOf(instanceId));
         instance.setApplicationId(applicationId);
         instance.setAgentUUID("");
         instance.setRegisterTime(registerTime);

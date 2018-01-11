@@ -21,14 +21,16 @@ package org.apache.skywalking.apm.collector.agent.grpc.provider.handler;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.grpc.stub.StreamObserver;
+import org.apache.skywalking.apm.collector.analysis.metric.define.AnalysisMetricModule;
+import org.apache.skywalking.apm.collector.analysis.metric.define.service.IInstanceHeartBeatService;
 import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegisterModule;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IInstanceIDService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.server.grpc.GRPCHandler;
 import org.apache.skywalking.apm.network.proto.ApplicationInstance;
+import org.apache.skywalking.apm.network.proto.ApplicationInstanceHeartbeat;
 import org.apache.skywalking.apm.network.proto.ApplicationInstanceMapping;
-import org.apache.skywalking.apm.network.proto.ApplicationInstanceRecover;
 import org.apache.skywalking.apm.network.proto.Downstream;
 import org.apache.skywalking.apm.network.proto.InstanceDiscoveryServiceGrpc;
 import org.apache.skywalking.apm.network.proto.OSInfo;
@@ -43,15 +45,18 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
     private final Logger logger = LoggerFactory.getLogger(InstanceDiscoveryServiceHandler.class);
 
     private final IInstanceIDService instanceIDService;
+    private final IInstanceHeartBeatService instanceHeartBeatService;
 
     public InstanceDiscoveryServiceHandler(ModuleManager moduleManager) {
         this.instanceIDService = moduleManager.find(AnalysisRegisterModule.NAME).getService(IInstanceIDService.class);
+        this.instanceHeartBeatService = moduleManager.find(AnalysisMetricModule.NAME).getService(IInstanceHeartBeatService.class);
     }
 
     @Override
-    public void register(ApplicationInstance request, StreamObserver<ApplicationInstanceMapping> responseObserver) {
+    public void registerInstance(ApplicationInstance request,
+        StreamObserver<ApplicationInstanceMapping> responseObserver) {
         long timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(request.getRegisterTime());
-        int instanceId = instanceIDService.getOrCreate(request.getApplicationId(), request.getAgentUUID(), timeBucket, buildOsInfo(request.getOsinfo()));
+        int instanceId = instanceIDService.getOrCreateByAgentUUID(request.getApplicationId(), request.getAgentUUID(), timeBucket, buildOsInfo(request.getOsinfo()));
         ApplicationInstanceMapping.Builder builder = ApplicationInstanceMapping.newBuilder();
         builder.setApplicationId(request.getApplicationId());
         builder.setApplicationInstanceId(instanceId);
@@ -59,12 +64,10 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
         responseObserver.onCompleted();
     }
 
-    @Override
-    public void registerRecover(ApplicationInstanceRecover request, StreamObserver<Downstream> responseObserver) {
-        long timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(request.getRegisterTime());
-        instanceIDService.recover(request.getApplicationInstanceId(), request.getApplicationId(), timeBucket, buildOsInfo(request.getOsinfo()));
-        responseObserver.onNext(Downstream.newBuilder().build());
-        responseObserver.onCompleted();
+    @Override public void heartbeat(ApplicationInstanceHeartbeat request, StreamObserver<Downstream> responseObserver) {
+        int instanceId = request.getApplicationInstanceId();
+        long heartBeatTime = request.getHeartbeatTime();
+        this.instanceHeartBeatService.heartBeat(instanceId, heartBeatTime);
     }
 
     private String buildOsInfo(OSInfo osinfo) {

@@ -64,7 +64,7 @@ public class InstanceHealthService {
         response.add("instances", instances);
 
         instanceList.forEach(instance -> {
-            response.addProperty("applicationCode", applicationCacheService.get(applicationId));
+            response.addProperty("applicationCode", applicationCacheService.getApplicationCodeById(applicationId));
             response.addProperty("applicationId", applicationId);
 
             IInstanceMetricUIDAO.InstanceMetric performance = instanceMetricUIDAO.get(timeBuckets, instance.getInstanceId());

@@ -29,6 +29,7 @@ import org.apache.skywalking.apm.plugin.okhttp.v3.RealCallInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
 /**
  * {@link RealCallInstrumentation} presents that skywalking intercepts {@link okhttp3.RealCall#RealCall(OkHttpClient,
@@ -75,6 +76,19 @@ public class RealCallInstrumentation extends ClassInstanceMethodsEnhancePluginDe
 
                 @Override public String getMethodsInterceptor() {
                     return INTERCEPT_CLASS;
+                }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("enqueue").and(takesArguments(1));
+                }
+
+                @Override public String getMethodsInterceptor() {
+                    return "org.apache.skywalking.apm.plugin.okhttp.v3.EnqueueInterceptor";
                 }
 
                 @Override public boolean isOverrideArgs() {
