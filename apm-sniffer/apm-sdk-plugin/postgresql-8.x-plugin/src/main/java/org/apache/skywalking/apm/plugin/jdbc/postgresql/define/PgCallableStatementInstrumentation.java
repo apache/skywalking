@@ -16,42 +16,21 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.postgresql.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.plugin.jdbc.postgresql.StatementExecuteMethodsInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
+import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 import static org.apache.skywalking.apm.plugin.jdbc.postgresql.Variables.PG_PREPARED_STATEMENT_EXECUTE_METHOD_INTERCEPTOR;
 
-/**
- * {@link AbstractJdbc2StatementInstrumentation} intercept the following methods that the class which extend {@link
- * org.postgresql.jdbc2.AbstractJdbc2Statement} by {@link StatementExecuteMethodsInterceptor}. <br/>
- * 1. the <code>execute</code> with non parameter
- * 2. the <code>execute</code> with one parameter
- * 3. the <code>executeBatch</code>
- * 4. the <code>executeQuery</code> with non parameter
- * 5. the <code>executeQuery</code> with one parameter
- * 6. the <code>executeUpdate</code> with non parameter
- * 7. the <code>executeUpdate</code> with one parameter
- * 8. the <code>addBatch</code> with non parameter
- * 9. the <code>addBatch</code> with one parameter
- *
- * @author zhangxin
- */
-public class AbstractJdbc2StatementInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-
-    private static final String ENHANCE_CLASS = "org.postgresql.jdbc2.AbstractJdbc2Statement";
-
-
+public class PgCallableStatementInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
@@ -60,13 +39,8 @@ public class AbstractJdbc2StatementInstrumentation extends ClassInstanceMethodsE
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("execute").and(takesArguments(0))
-                        .or(named("execute").and(takesArguments(1)))
-                        .or(named("executeBatch"))
-                        .or(named("executeQuery").and(takesArguments(0)))
-                        .or(named("executeQuery").and(takesArguments(1)))
-                        .or(named("executeUpdate").and(takesArguments(0)))
-                        .or(named("executeUpdate").and(takesArguments(1)));
+                    return named("executeWithFlags").and(takesArgumentWithType(0, "int"))
+                        .or(named("executeUpdate"));
                 }
 
                 @Override public String getMethodsInterceptor() {
@@ -81,6 +55,6 @@ public class AbstractJdbc2StatementInstrumentation extends ClassInstanceMethodsE
     }
 
     @Override protected ClassMatch enhanceClass() {
-        return byName(ENHANCE_CLASS);
+        return byName("org.postgresql.jdbc.PgCallableStatement");
     }
 }
