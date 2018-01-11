@@ -16,26 +16,27 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.h2.define;
+package org.apache.skywalking.apm.collector.storage.h2.define.cpu;
 
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2ColumnDefine;
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2TableDefine;
-import org.apache.skywalking.apm.collector.storage.table.register.ApplicationTable;
+import org.apache.skywalking.apm.collector.storage.table.jvm.CpuMetricTable;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationH2TableDefine extends H2TableDefine {
+public abstract class AbstractCpuMetricH2TableDefine extends H2TableDefine {
 
-    public ApplicationH2TableDefine() {
-        super(ApplicationTable.TABLE);
+    AbstractCpuMetricH2TableDefine(String name) {
+        super(name);
     }
 
-    @Override public void initialize() {
-        addColumn(new H2ColumnDefine(ApplicationTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(ApplicationTable.COLUMN_APPLICATION_CODE, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(ApplicationTable.COLUMN_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(ApplicationTable.COLUMN_ADDRESS_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(ApplicationTable.COLUMN_IS_ADDRESS, H2ColumnDefine.Type.Boolean.name()));
+    @Override public final void initialize() {
+        addColumn(new H2ColumnDefine(CpuMetricTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(CpuMetricTable.COLUMN_METRIC_ID, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(CpuMetricTable.COLUMN_INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(CpuMetricTable.COLUMN_USAGE_PERCENT, H2ColumnDefine.Type.Double.name()));
+        addColumn(new H2ColumnDefine(CpuMetricTable.COLUMN_TIMES, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(CpuMetricTable.COLUMN_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
     }
 }
