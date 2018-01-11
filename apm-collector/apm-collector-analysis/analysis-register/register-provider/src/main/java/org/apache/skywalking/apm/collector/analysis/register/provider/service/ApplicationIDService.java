@@ -73,7 +73,8 @@ public class ApplicationIDService implements IApplicationIDService {
         int applicationId = getApplicationCacheService().getApplicationIdByCode(applicationCode);
 
         if (applicationId == 0) {
-            Application application = new Application(applicationCode);
+            Application application = new Application();
+            application.setId(applicationCode);
             application.setApplicationCode(applicationCode);
             application.setApplicationId(0);
             application.setAddressId(Const.NONE);
@@ -88,7 +89,8 @@ public class ApplicationIDService implements IApplicationIDService {
         int applicationId = getApplicationCacheService().getApplicationIdByAddressId(addressId);
 
         if (applicationId == 0) {
-            Application application = new Application(networkAddress);
+            Application application = new Application();
+            application.setId(networkAddress);
             application.setApplicationCode(networkAddress);
             application.setApplicationId(0);
             application.setAddressId(addressId);

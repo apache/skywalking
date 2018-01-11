@@ -39,7 +39,8 @@ public class InstanceMetricAlarmToListNodeProcessor implements NodeProcessor<Ins
             + Const.ID_SPLIT + instanceAlarm.getAlarmType()
             + Const.ID_SPLIT + instanceAlarm.getInstanceId();
 
-        InstanceAlarmList instanceAlarmList = new InstanceAlarmList(id);
+        InstanceAlarmList instanceAlarmList = new InstanceAlarmList();
+        instanceAlarmList.setId(id);
         instanceAlarmList.setApplicationId(instanceAlarm.getApplicationId());
         instanceAlarmList.setInstanceId(instanceAlarm.getInstanceId());
         instanceAlarmList.setSourceValue(instanceAlarm.getSourceValue());

@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.collector.client.h2.H2Client;
 import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
-import org.apache.skywalking.apm.collector.storage.dao.INetworkAddressCacheDAO;
+import org.apache.skywalking.apm.collector.storage.dao.cache.INetworkAddressCacheDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddressTable;
 import org.slf4j.Logger;

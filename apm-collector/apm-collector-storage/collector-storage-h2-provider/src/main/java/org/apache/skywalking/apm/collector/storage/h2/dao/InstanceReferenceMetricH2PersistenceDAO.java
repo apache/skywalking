@@ -27,7 +27,7 @@ import java.util.Map;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
 import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
 import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
-import org.apache.skywalking.apm.collector.storage.dao.IInstanceReferenceMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.irmp.IInstanceReferenceMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetric;
@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng, clevertension
  */
-public class InstanceReferenceMetricH2PersistenceDAO extends H2DAO implements IInstanceReferenceMetricPersistenceDAO<H2SqlEntity, H2SqlEntity, InstanceReferenceMetric> {
+public class InstanceReferenceMetricH2PersistenceDAO extends H2DAO implements IInstanceReferenceMinuteMetricPersistenceDAO<H2SqlEntity, H2SqlEntity, InstanceReferenceMetric> {
 
     private final Logger logger = LoggerFactory.getLogger(InstanceReferenceMetricH2PersistenceDAO.class);
     private static final String GET_SQL = "select * from {0} where {1} = ?";
@@ -53,7 +53,8 @@ public class InstanceReferenceMetricH2PersistenceDAO extends H2DAO implements II
         Object[] params = new Object[] {id};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
-                InstanceReferenceMetric instanceReferenceMetric = new InstanceReferenceMetric(id);
+                InstanceReferenceMetric instanceReferenceMetric = new InstanceReferenceMetric();
+                instanceReferenceMetric.setId(id);
                 instanceReferenceMetric.setFrontInstanceId(rs.getInt(InstanceReferenceMetricTable.COLUMN_FRONT_INSTANCE_ID));
                 instanceReferenceMetric.setBehindInstanceId(rs.getInt(InstanceReferenceMetricTable.COLUMN_BEHIND_INSTANCE_ID));
 

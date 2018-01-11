@@ -45,14 +45,20 @@ public class MemoryMetricService implements IMemoryMetricService {
     }
 
     @Override
-    public void send(int instanceId, long timeBucket, boolean isHeap, long init, long max, long used, long commited) {
-        MemoryMetric memoryMetric = new MemoryMetric(timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + String.valueOf(isHeap));
+    public void send(int instanceId, long timeBucket, boolean isHeap, long init, long max, long used, long committed) {
+        String metricId = instanceId + Const.ID_SPLIT + String.valueOf(isHeap);
+        String id = timeBucket + Const.ID_SPLIT + metricId;
+
+        MemoryMetric memoryMetric = new MemoryMetric();
+        memoryMetric.setId(id);
+        memoryMetric.setMetricId(metricId);
         memoryMetric.setInstanceId(instanceId);
         memoryMetric.setIsHeap(isHeap);
         memoryMetric.setInit(init);
         memoryMetric.setMax(max);
         memoryMetric.setUsed(used);
-        memoryMetric.setCommitted(commited);
+        memoryMetric.setCommitted(committed);
+        memoryMetric.setTimes(1L);
         memoryMetric.setTimeBucket(timeBucket);
 
         logger.debug("push to memory metric graph, id: {}", memoryMetric.getId());
