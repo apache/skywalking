@@ -29,6 +29,7 @@ import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.appli
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.metric.ApplicationMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.refmetric.ApplicationReferenceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global.GlobalTraceGraph;
+import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global.GlobalTraceSpanListener;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.heartbeat.InstanceHeartBeatPersistenceGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.mapping.InstanceMappingGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.mapping.InstanceMappingSpanListener;
@@ -89,7 +90,7 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
         segmentParserListenerRegister.register(new ApplicationComponentSpanListener.Factory());
         segmentParserListenerRegister.register(new ApplicationMappingSpanListener.Factory());
         segmentParserListenerRegister.register(new InstanceMappingSpanListener.Factory());
-//        segmentParserListenerRegister.register(new GlobalTraceSpanListener.Factory());
+        segmentParserListenerRegister.register(new GlobalTraceSpanListener.Factory());
 //        segmentParserListenerRegister.register(new SegmentCostSpanListener.Factory());
     }
 
