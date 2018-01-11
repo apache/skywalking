@@ -56,8 +56,4 @@ public class EnhanceRequireObjectCache {
         this.httpResponse.set(httpResponse);
     }
 
-    public HttpServletResponse getHttpResponse() {
-        return httpResponse.get();
-    }
-
 }

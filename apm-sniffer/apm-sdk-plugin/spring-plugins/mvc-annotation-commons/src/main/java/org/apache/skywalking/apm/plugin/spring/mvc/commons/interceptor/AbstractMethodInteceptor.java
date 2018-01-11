@@ -19,22 +19,23 @@
 
 package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
-import java.lang.reflect.Method;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
-import org.apache.skywalking.apm.agent.core.context.CarrierItem;
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.Method;
 
 /**
  * the abstract method inteceptor
@@ -80,6 +81,8 @@ public abstract class AbstractMethodInteceptor implements InstanceMethodsAroundI
             Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
         }
         ContextManager.stopSpan();
+
+        ((EnhanceRequireObjectCache)objInst.getSkyWalkingDynamicField()).setNativeWebRequest(null);
         return ret;
     }
 
