@@ -19,7 +19,7 @@
 package org.apache.skywalking.apm.collector.storage.table.service;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
-import org.apache.skywalking.apm.collector.core.data.Data;
+import org.apache.skywalking.apm.collector.core.data.StreamData;
 import org.apache.skywalking.apm.collector.core.data.operator.AddOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
 import org.apache.skywalking.apm.collector.storage.table.Metric;
@@ -27,10 +27,11 @@ import org.apache.skywalking.apm.collector.storage.table.Metric;
 /**
  * @author peng-yongsheng
  */
-public class ServiceMetric extends Data implements Metric {
+public class ServiceMetric extends StreamData implements Metric {
 
     private static final Column[] STRING_COLUMNS = {
         new Column(ServiceMetricTable.COLUMN_ID, new NonOperation()),
+        new Column(ServiceMetricTable.COLUMN_METRIC_ID, new NonOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
@@ -63,8 +64,24 @@ public class ServiceMetric extends Data implements Metric {
 
     private static final Column[] BYTE_COLUMNS = {};
 
-    public ServiceMetric(String id) {
-        super(id, STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
+    public ServiceMetric() {
+        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
+    }
+
+    @Override public String getId() {
+        return getDataString(0);
+    }
+
+    @Override public void setId(String id) {
+        setDataString(0, id);
+    }
+
+    @Override public String getMetricId() {
+        return getDataString(1);
+    }
+
+    @Override public void setMetricId(String metricId) {
+        setDataString(1, metricId);
     }
 
     @Override

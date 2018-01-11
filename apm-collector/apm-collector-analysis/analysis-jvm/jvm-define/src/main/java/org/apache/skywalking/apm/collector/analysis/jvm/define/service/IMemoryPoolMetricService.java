@@ -24,5 +24,5 @@ import org.apache.skywalking.apm.collector.core.module.Service;
  * @author peng-yongsheng
  */
 public interface IMemoryPoolMetricService extends Service {
-    void send(int instanceId, long timeBucket, int poolType, long init, long max, long used, long commited);
+    void send(int instanceId, long timeBucket, int poolType, long init, long max, long used, long committed);
 }

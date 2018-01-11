@@ -41,7 +41,8 @@ public class InstanceReferenceMetricAlarmToListNodeProcessor implements NodeProc
             + Const.ID_SPLIT + instanceReferenceAlarm.getFrontInstanceId()
             + Const.ID_SPLIT + instanceReferenceAlarm.getBehindInstanceId();
 
-        InstanceReferenceAlarmList instanceReferenceAlarmList = new InstanceReferenceAlarmList(id);
+        InstanceReferenceAlarmList instanceReferenceAlarmList = new InstanceReferenceAlarmList();
+        instanceReferenceAlarmList.setId(id);
         instanceReferenceAlarmList.setFrontApplicationId(instanceReferenceAlarm.getFrontApplicationId());
         instanceReferenceAlarmList.setBehindApplicationId(instanceReferenceAlarm.getBehindApplicationId());
         instanceReferenceAlarmList.setFrontInstanceId(instanceReferenceAlarm.getFrontInstanceId());

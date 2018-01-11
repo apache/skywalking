@@ -41,7 +41,8 @@ public class ApplicationReferenceMetricAlarmToListNodeProcessor implements NodeP
             + Const.ID_SPLIT + applicationReferenceAlarm.getFrontApplicationId()
             + Const.ID_SPLIT + applicationReferenceAlarm.getBehindApplicationId();
 
-        ApplicationReferenceAlarmList applicationReferenceAlarmList = new ApplicationReferenceAlarmList(id);
+        ApplicationReferenceAlarmList applicationReferenceAlarmList = new ApplicationReferenceAlarmList();
+        applicationReferenceAlarmList.setId(id);
         applicationReferenceAlarmList.setFrontApplicationId(applicationReferenceAlarm.getFrontApplicationId());
         applicationReferenceAlarmList.setBehindApplicationId(applicationReferenceAlarm.getBehindApplicationId());
         applicationReferenceAlarmList.setSourceValue(applicationReferenceAlarm.getSourceValue());

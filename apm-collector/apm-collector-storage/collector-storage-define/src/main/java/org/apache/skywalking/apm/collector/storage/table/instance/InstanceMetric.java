@@ -19,7 +19,7 @@
 package org.apache.skywalking.apm.collector.storage.table.instance;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
-import org.apache.skywalking.apm.collector.core.data.Data;
+import org.apache.skywalking.apm.collector.core.data.StreamData;
 import org.apache.skywalking.apm.collector.core.data.operator.AddOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
@@ -28,10 +28,11 @@ import org.apache.skywalking.apm.collector.storage.table.Metric;
 /**
  * @author peng-yongsheng
  */
-public class InstanceMetric extends Data implements Metric {
+public class InstanceMetric extends StreamData implements Metric {
 
     private static final Column[] STRING_COLUMNS = {
         new Column(InstanceMetricTable.COLUMN_ID, new NonOperation()),
+        new Column(InstanceMetricTable.COLUMN_METRIC_ID, new NonOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
@@ -60,10 +61,27 @@ public class InstanceMetric extends Data implements Metric {
     };
 
     private static final Column[] BOOLEAN_COLUMNS = {};
+
     private static final Column[] BYTE_COLUMNS = {};
 
-    public InstanceMetric(String id) {
-        super(id, STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
+    public InstanceMetric() {
+        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
+    }
+
+    @Override public String getId() {
+        return getDataString(0);
+    }
+
+    @Override public void setId(String id) {
+        setDataString(0, id);
+    }
+
+    @Override public String getMetricId() {
+        return getDataString(1);
+    }
+
+    @Override public void setMetricId(String metricId) {
+        setDataString(1, metricId);
     }
 
     @Override
