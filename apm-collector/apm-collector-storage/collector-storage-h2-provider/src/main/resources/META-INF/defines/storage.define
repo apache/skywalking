@@ -14,3 +14,9 @@ org.apache.skywalking.apm.collector.storage.h2.define.gc.GCMinuteMetricH2TableDe
 org.apache.skywalking.apm.collector.storage.h2.define.gc.GCHourMetricH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.gc.GCDayMetricH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.gc.GCMonthMetricH2TableDefine
+
+org.apache.skywalking.apm.collector.storage.h2.define.memory.MemorySecondMetricH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.memory.MemoryMinuteMetricH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.memory.MemoryHourMetricH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.memory.MemoryDayMetricH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.memory.MemoryMonthMetricH2TableDefine

@@ -49,6 +49,11 @@ import org.apache.skywalking.apm.collector.storage.dao.gcmp.IGCHourMetricPersist
 import org.apache.skywalking.apm.collector.storage.dao.gcmp.IGCMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.gcmp.IGCMonthMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.gcmp.IGCSecondMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.memorymp.IMemoryDayMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.memorymp.IMemoryHourMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.memorymp.IMemoryMinuteMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.memorymp.IMemoryMonthMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.memorymp.IMemorySecondMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.register.IApplicationRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.dao.register.IInstanceRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.dao.register.INetworkAddressRegisterDAO;
@@ -105,12 +110,12 @@ public class StorageModule extends Module {
         classes.add(IGCDayMetricPersistenceDAO.class);
         classes.add(IGCMonthMetricPersistenceDAO.class);
 
-//        classes.add(IMemorySecondMetricPersistenceDAO.class);
-//        classes.add(IMemoryMinuteMetricPersistenceDAO.class);
-//        classes.add(IMemoryHourMetricPersistenceDAO.class);
-//        classes.add(IMemoryDayMetricPersistenceDAO.class);
-//        classes.add(IMemoryMonthMetricPersistenceDAO.class);
-//
+        classes.add(IMemorySecondMetricPersistenceDAO.class);
+        classes.add(IMemoryMinuteMetricPersistenceDAO.class);
+        classes.add(IMemoryHourMetricPersistenceDAO.class);
+        classes.add(IMemoryDayMetricPersistenceDAO.class);
+        classes.add(IMemoryMonthMetricPersistenceDAO.class);
+
 //        classes.add(IMemoryPoolSecondMetricPersistenceDAO.class);
 //        classes.add(IMemoryPoolMinuteMetricPersistenceDAO.class);
 //        classes.add(IMemoryPoolHourMetricPersistenceDAO.class);
