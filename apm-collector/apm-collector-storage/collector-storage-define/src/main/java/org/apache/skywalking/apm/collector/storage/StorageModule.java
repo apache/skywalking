@@ -39,6 +39,10 @@ import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponent
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentHourPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentMinutePersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentMonthPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ampp.IApplicationMappingDayPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ampp.IApplicationMappingHourPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ampp.IApplicationMappingMinutePersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ampp.IApplicationMappingMonthPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.cache.IApplicationCacheDAO;
 import org.apache.skywalking.apm.collector.storage.dao.cache.IInstanceCacheDAO;
 import org.apache.skywalking.apm.collector.storage.dao.cache.INetworkAddressCacheDAO;
@@ -53,6 +57,10 @@ import org.apache.skywalking.apm.collector.storage.dao.gcmp.IGCHourMetricPersist
 import org.apache.skywalking.apm.collector.storage.dao.gcmp.IGCMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.gcmp.IGCMonthMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.gcmp.IGCSecondMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.impp.IInstanceMappingDayPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.impp.IInstanceMappingHourPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.impp.IInstanceMappingMinutePersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.impp.IInstanceMappingMonthPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.memorymp.IMemoryDayMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.memorymp.IMemoryHourMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.memorymp.IMemoryMinuteMetricPersistenceDAO;
@@ -136,16 +144,16 @@ public class StorageModule extends Module {
         classes.add(IApplicationComponentDayPersistenceDAO.class);
         classes.add(IApplicationComponentMonthPersistenceDAO.class);
 
-//        classes.add(IApplicationMappingMinutePersistenceDAO.class);
-//        classes.add(IApplicationMappingHourPersistenceDAO.class);
-//        classes.add(IApplicationMappingDayPersistenceDAO.class);
-//        classes.add(IApplicationMappingMonthPersistenceDAO.class);
-//
-//        classes.add(IInstanceMappingMinutePersistenceDAO.class);
-//        classes.add(IInstanceMappingHourPersistenceDAO.class);
-//        classes.add(IInstanceMappingDayPersistenceDAO.class);
-//        classes.add(IInstanceMappingMonthPersistenceDAO.class);
-//
+        classes.add(IApplicationMappingMinutePersistenceDAO.class);
+        classes.add(IApplicationMappingHourPersistenceDAO.class);
+        classes.add(IApplicationMappingDayPersistenceDAO.class);
+        classes.add(IApplicationMappingMonthPersistenceDAO.class);
+
+        classes.add(IInstanceMappingMinutePersistenceDAO.class);
+        classes.add(IInstanceMappingHourPersistenceDAO.class);
+        classes.add(IInstanceMappingDayPersistenceDAO.class);
+        classes.add(IInstanceMappingMonthPersistenceDAO.class);
+
 //        classes.add(IGlobalTracePersistenceDAO.class);
 //
 //        classes.add(IApplicationMinuteMetricPersistenceDAO.class);
