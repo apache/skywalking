@@ -47,7 +47,7 @@ public class JVMMetricServiceHandlerTestCase {
 
         buildCPUMetric(metricBuilder);
         buildGCMetric(metricBuilder);
-//        buildMemoryMetric(metricBuilder);
+        buildMemoryMetric(metricBuilder);
 //        buildMemoryPoolMetric(metricBuilder);
 
         builder.addMetrics(metricBuilder.build());
