@@ -18,25 +18,26 @@
 
 package org.apache.skywalking.apm.plugin.spring.mvc.commons;
 
-import java.lang.reflect.Method;
-import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.context.request.NativeWebRequest;
+
+import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.Method;
 
 public class EnhanceRequireObjectCache {
     private PathMappingCache pathMappingCache;
-    private NativeWebRequest nativeWebRequest;
-    private HttpServletResponse httpResponse;
+    private ThreadLocal<NativeWebRequest> nativeWebRequest = new ThreadLocal<NativeWebRequest>();
+    private ThreadLocal<HttpServletResponse> httpResponse = new ThreadLocal<HttpServletResponse>();
 
     public void setPathMappingCache(PathMappingCache pathMappingCache) {
         this.pathMappingCache = pathMappingCache;
     }
 
     public HttpServletResponse getHttpServletResponse() {
-        return httpResponse == null ? (HttpServletResponse)nativeWebRequest.getNativeResponse() : httpResponse;
+        return httpResponse.get() == null ? (HttpServletResponse) nativeWebRequest.get().getNativeResponse() : httpResponse.get();
     }
 
     public void setNativeWebRequest(NativeWebRequest nativeWebRequest) {
-        this.nativeWebRequest = nativeWebRequest;
+        this.nativeWebRequest.set(nativeWebRequest);
     }
 
     public String findPathMapping(Method method) {
@@ -52,10 +53,11 @@ public class EnhanceRequireObjectCache {
     }
 
     public void setHttpResponse(HttpServletResponse httpResponse) {
-        this.httpResponse = httpResponse;
+        this.httpResponse.set(httpResponse);
     }
 
     public HttpServletResponse getHttpResponse() {
-        return httpResponse;
+        return httpResponse.get();
     }
+
 }
