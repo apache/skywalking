@@ -27,6 +27,7 @@ import org.apache.skywalking.apm.collector.analysis.worker.model.impl.Persistenc
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IBatchDAO;
+import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +50,9 @@ public class PersistenceTimer {
 //        final long timeInterval = EsConfig.Es.Persistence.Timer.VALUE * 1000;
         final long timeInterval = 3;
         IBatchDAO batchDAO = moduleManager.find(StorageModule.NAME).getService(IBatchDAO.class);
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> extractDataAndSave(batchDAO, persistenceWorkers), 1, timeInterval, TimeUnit.SECONDS);
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
+            new RunnableWithExceptionProtection(() -> extractDataAndSave(batchDAO, persistenceWorkers),
+                t -> logger.error("Extract data and save failure.", t)), 1, timeInterval, TimeUnit.SECONDS);
     }
 
     private void extractDataAndSave(IBatchDAO batchDAO, List<PersistenceWorker> persistenceWorkers) {
