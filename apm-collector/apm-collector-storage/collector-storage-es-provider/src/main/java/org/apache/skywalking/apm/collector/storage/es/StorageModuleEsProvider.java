@@ -207,10 +207,10 @@ import org.apache.skywalking.apm.collector.storage.es.dao.mpoolmp.MemoryPoolHour
 import org.apache.skywalking.apm.collector.storage.es.dao.mpoolmp.MemoryPoolMinuteMetricEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.mpoolmp.MemoryPoolMonthMetricEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.mpoolmp.MemoryPoolSecondMetricEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.register.ApplicationEsRegisterDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.register.InstanceEsRegisterDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.register.ApplicationRegisterEsDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.register.InstanceRegisterEsDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.register.NetworkAddressRegisterEsDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.register.ServiceNameEsRegisterDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.register.ServiceNameRegisterEsDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.smp.ServiceDayMetricEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.smp.ServiceHourMetricEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.smp.ServiceMinuteMetricEsPersistenceDAO;
@@ -303,9 +303,9 @@ public class StorageModuleEsProvider extends ModuleProvider {
 
     private void registerRegisterDAO() throws ServiceNotProvidedException {
         this.registerServiceImplementation(INetworkAddressRegisterDAO.class, new NetworkAddressRegisterEsDAO(elasticSearchClient));
-        this.registerServiceImplementation(IApplicationRegisterDAO.class, new ApplicationEsRegisterDAO(elasticSearchClient));
-        this.registerServiceImplementation(IInstanceRegisterDAO.class, new InstanceEsRegisterDAO(elasticSearchClient));
-        this.registerServiceImplementation(IServiceNameRegisterDAO.class, new ServiceNameEsRegisterDAO(elasticSearchClient));
+        this.registerServiceImplementation(IApplicationRegisterDAO.class, new ApplicationRegisterEsDAO(elasticSearchClient));
+        this.registerServiceImplementation(IInstanceRegisterDAO.class, new InstanceRegisterEsDAO(elasticSearchClient));
+        this.registerServiceImplementation(IServiceNameRegisterDAO.class, new ServiceNameRegisterEsDAO(elasticSearchClient));
     }
 
     private void registerPersistenceDAO() throws ServiceNotProvidedException {
