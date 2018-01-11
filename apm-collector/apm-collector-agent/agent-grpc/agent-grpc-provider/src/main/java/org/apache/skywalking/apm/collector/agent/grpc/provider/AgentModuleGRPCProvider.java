@@ -23,10 +23,12 @@ import org.apache.skywalking.apm.collector.agent.grpc.define.AgentGRPCModule;
 import org.apache.skywalking.apm.collector.agent.grpc.provider.handler.ApplicationRegisterServiceHandler;
 import org.apache.skywalking.apm.collector.agent.grpc.provider.handler.InstanceDiscoveryServiceHandler;
 import org.apache.skywalking.apm.collector.agent.grpc.provider.handler.JVMMetricsServiceHandler;
+import org.apache.skywalking.apm.collector.agent.grpc.provider.handler.NetworkAddressRegisterServiceHandler;
 import org.apache.skywalking.apm.collector.agent.grpc.provider.handler.ServiceNameDiscoveryServiceHandler;
 import org.apache.skywalking.apm.collector.agent.grpc.provider.handler.TraceSegmentServiceHandler;
 import org.apache.skywalking.apm.collector.agent.grpc.provider.handler.naming.AgentGRPCNamingHandler;
 import org.apache.skywalking.apm.collector.agent.grpc.provider.handler.naming.AgentGRPCNamingListener;
+import org.apache.skywalking.apm.collector.analysis.metric.define.AnalysisMetricModule;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.AnalysisSegmentParserModule;
 import org.apache.skywalking.apm.collector.cluster.ClusterModule;
 import org.apache.skywalking.apm.collector.cluster.service.ModuleListenerService;
@@ -86,7 +88,7 @@ public class AgentModuleGRPCProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {ClusterModule.NAME, NamingModule.NAME, GRPCManagerModule.NAME, AnalysisSegmentParserModule.NAME};
+        return new String[] {ClusterModule.NAME, NamingModule.NAME, GRPCManagerModule.NAME, AnalysisSegmentParserModule.NAME, AnalysisMetricModule.NAME};
     }
 
     private void addHandlers(Server gRPCServer) {
@@ -95,5 +97,6 @@ public class AgentModuleGRPCProvider extends ModuleProvider {
         gRPCServer.addHandler(new ServiceNameDiscoveryServiceHandler(getManager()));
         gRPCServer.addHandler(new JVMMetricsServiceHandler(getManager()));
         gRPCServer.addHandler(new TraceSegmentServiceHandler(getManager()));
+        gRPCServer.addHandler(new NetworkAddressRegisterServiceHandler(getManager()));
     }
 }

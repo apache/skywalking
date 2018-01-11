@@ -16,14 +16,17 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.Const;
+import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
+import org.apache.skywalking.apm.collector.storage.dao.IGCMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetricTable;
+import org.apache.skywalking.apm.network.proto.GCPhrase;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetRequestBuilder;
@@ -36,10 +39,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
-import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
-import org.apache.skywalking.apm.collector.storage.dao.IGCMetricUIDAO;
-import org.apache.skywalking.apm.network.proto.GCPhrase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

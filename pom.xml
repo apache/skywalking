@@ -55,8 +55,8 @@
         <module>apm-commons</module>
         <module>apm-sniffer</module>
         <module>apm-application-toolkit</module>
-        <module>apm-network</module>
         <module>apm-collector</module>
+        <module>apm-protocol</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -67,11 +67,6 @@
         <system>GitHub</system>
         <url>https://github.com/apache/incubator-skywalking/issues</url>
     </issueManagement>
-
-    <ciManagement>
-        <system>travis</system>
-        <url>https://travis-ci.org/wu-sheng/sky-walking</url>
-    </ciManagement>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

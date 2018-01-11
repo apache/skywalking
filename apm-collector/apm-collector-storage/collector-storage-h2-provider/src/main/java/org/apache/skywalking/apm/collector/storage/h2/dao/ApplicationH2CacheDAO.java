@@ -16,18 +16,17 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.h2.dao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
+import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
-import org.apache.skywalking.apm.collector.storage.dao.IApplicationCacheDAO;
+import org.apache.skywalking.apm.collector.storage.dao.cache.IApplicationCacheDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.table.register.ApplicationTable;
-import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,19 +36,21 @@ import org.slf4j.LoggerFactory;
 public class ApplicationH2CacheDAO extends H2DAO implements IApplicationCacheDAO {
 
     private final Logger logger = LoggerFactory.getLogger(ApplicationH2CacheDAO.class);
-    private static final String GET_APPLICATION_ID_OR_CODE_SQL = "select {0} from {1} where {2} = ?";
+
+    private static final String GET_APPLICATION_ID_SQL = "select {0} from {1} where {2} = ? and {3} = ?";
+    private static final String GET_APPLICATION_CODE_SQL = "select {0} from {1} where {2} = ?";
 
     public ApplicationH2CacheDAO(H2Client client) {
         super(client);
     }
 
     @Override
-    public int getApplicationId(String applicationCode) {
-        logger.info("get the application getId with application code = {}", applicationCode);
+    public int getApplicationIdByCode(String applicationCode) {
+        logger.info("get the application id with application code = {}", applicationCode);
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_APPLICATION_ID_OR_CODE_SQL, ApplicationTable.COLUMN_APPLICATION_ID, ApplicationTable.TABLE, ApplicationTable.COLUMN_APPLICATION_CODE);
+        String sql = SqlBuilder.buildSql(GET_APPLICATION_ID_SQL, ApplicationTable.COLUMN_APPLICATION_ID, ApplicationTable.TABLE, ApplicationTable.COLUMN_APPLICATION_CODE, ApplicationTable.COLUMN_IS_ADDRESS);
 
-        Object[] params = new Object[] {applicationCode};
+        Object[] params = new Object[] {applicationCode, false};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
                 return rs.getInt(1);
@@ -63,7 +64,7 @@ public class ApplicationH2CacheDAO extends H2DAO implements IApplicationCacheDAO
     @Override public String getApplicationCode(int applicationId) {
         logger.debug("get application code, applicationId: {}", applicationId);
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_APPLICATION_ID_OR_CODE_SQL, ApplicationTable.COLUMN_APPLICATION_CODE, ApplicationTable.TABLE, ApplicationTable.COLUMN_APPLICATION_ID);
+        String sql = SqlBuilder.buildSql(GET_APPLICATION_CODE_SQL, ApplicationTable.COLUMN_APPLICATION_CODE, ApplicationTable.TABLE, ApplicationTable.COLUMN_APPLICATION_ID);
         Object[] params = new Object[] {applicationId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
@@ -73,5 +74,21 @@ public class ApplicationH2CacheDAO extends H2DAO implements IApplicationCacheDAO
             logger.error(e.getMessage(), e);
         }
         return Const.EMPTY_STRING;
+    }
+
+    @Override public int getApplicationIdByAddressId(int addressId) {
+        logger.info("get the application id with address id = {}", addressId);
+        H2Client client = getClient();
+        String sql = SqlBuilder.buildSql(GET_APPLICATION_ID_SQL, ApplicationTable.COLUMN_APPLICATION_ID, ApplicationTable.TABLE, ApplicationTable.COLUMN_ADDRESS_ID, ApplicationTable.COLUMN_IS_ADDRESS);
+
+        Object[] params = new Object[] {addressId, true};
+        try (ResultSet rs = client.executeQuery(sql, params)) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException | H2ClientException e) {
+            logger.error(e.getMessage(), e);
+        }
+        return 0;
     }
 }

@@ -42,3 +42,12 @@ storage:
     index_shards_number: 2
     index_replicas_number: 0
     ttl: 7
+configuration:
+  default:
+    application_apdex_threshold: 2000
+    service_error_rate_threshold: 10.00
+    service_average_response_time_threshold: 2000
+    instance_error_rate_threshold: 10.00
+    instance_average_response_time_threshold: 2000
+    application_error_rate_threshold: 10.00
+    application_average_response_time_threshold: 2000

@@ -18,15 +18,14 @@
 
 package org.apache.skywalking.apm.collector.agent.grpc.provider.handler;
 
-import com.google.protobuf.ProtocolStringList;
 import io.grpc.stub.StreamObserver;
 import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegisterModule;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IApplicationIDService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.server.grpc.GRPCHandler;
-import org.apache.skywalking.apm.network.proto.ApplicationMappings;
+import org.apache.skywalking.apm.network.proto.Application;
+import org.apache.skywalking.apm.network.proto.ApplicationMapping;
 import org.apache.skywalking.apm.network.proto.ApplicationRegisterServiceGrpc;
-import org.apache.skywalking.apm.network.proto.Applications;
 import org.apache.skywalking.apm.network.proto.KeyWithIntegerValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,19 +43,17 @@ public class ApplicationRegisterServiceHandler extends ApplicationRegisterServic
         applicationIDService = moduleManager.find(AnalysisRegisterModule.NAME).getService(IApplicationIDService.class);
     }
 
-    @Override public void batchRegister(Applications request, StreamObserver<ApplicationMappings> responseObserver) {
+    @Override
+    public void applicationCodeRegister(Application request, StreamObserver<ApplicationMapping> responseObserver) {
         logger.debug("register application");
-        ProtocolStringList applicationCodes = request.getApplicationCodesList();
 
-        ApplicationMappings.Builder builder = ApplicationMappings.newBuilder();
-        for (int i = 0; i < applicationCodes.size(); i++) {
-            String applicationCode = applicationCodes.get(i);
-            int applicationId = applicationIDService.getOrCreate(applicationCode);
+        ApplicationMapping.Builder builder = ApplicationMapping.newBuilder();
+        String applicationCode = request.getApplicationCode();
+        int applicationId = applicationIDService.getOrCreateForApplicationCode(applicationCode);
 
-            if (applicationId != 0) {
-                KeyWithIntegerValue value = KeyWithIntegerValue.newBuilder().setKey(applicationCode).setValue(applicationId).build();
-                builder.addApplications(value);
-            }
+        if (applicationId != 0) {
+            KeyWithIntegerValue value = KeyWithIntegerValue.newBuilder().setKey(applicationCode).setValue(applicationId).build();
+            builder.setApplication(value);
         }
         responseObserver.onNext(builder.build());
         responseObserver.onCompleted();

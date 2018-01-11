@@ -28,4 +28,6 @@ public class WorkerIdDefine {
     public static final int INSTANCE_REGISTER_SERIAL_WORKER = 203;
     public static final int SERVICE_NAME_REGISTER_REMOTE_WORKER = 204;
     public static final int SERVICE_NAME_REGISTER_SERIAL_WORKER = 205;
+    public static final int NETWORK_ADDRESS_REGISTER_REMOTE_WORKER = 206;
+    public static final int NETWORK_ADDRESS_REGISTER_SERIAL_WORKER = 207;
 }

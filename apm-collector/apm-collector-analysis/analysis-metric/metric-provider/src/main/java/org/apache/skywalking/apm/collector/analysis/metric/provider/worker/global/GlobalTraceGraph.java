@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global;
 
-import org.apache.skywalking.apm.collector.analysis.metric.define.graph.GraphIdDefine;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -38,7 +38,7 @@ public class GlobalTraceGraph {
     }
 
     public void create() {
-        GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.GLOBAL_TRACE_GRAPH_ID, GlobalTrace.class)
+        GraphManager.INSTANCE.createIfAbsent(MetricGraphIdDefine.GLOBAL_TRACE_GRAPH_ID, GlobalTrace.class)
             .addNode(new GlobalTracePersistenceWorker.Factory(moduleManager).create(workerCreateListener));
     }
 }

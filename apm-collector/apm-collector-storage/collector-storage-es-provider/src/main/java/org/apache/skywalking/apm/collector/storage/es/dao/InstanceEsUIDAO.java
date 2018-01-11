@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
 import com.google.gson.JsonArray;
@@ -24,6 +23,8 @@ import com.google.gson.JsonObject;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
+import org.apache.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
@@ -42,8 +43,6 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.valuecount.ValueCount;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortMode;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
-import org.apache.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -129,7 +128,8 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         GetRequestBuilder requestBuilder = getClient().prepareGet(InstanceTable.TABLE, String.valueOf(instanceId));
         GetResponse getResponse = requestBuilder.get();
         if (getResponse.isExists()) {
-            Instance instance = new Instance(getResponse.getId());
+            Instance instance = new Instance();
+            instance.setId(getResponse.getId());
             instance.setApplicationId(((Number)getResponse.getSource().get(InstanceTable.COLUMN_APPLICATION_ID)).intValue());
             instance.setAgentUUID((String)getResponse.getSource().get(InstanceTable.COLUMN_AGENT_UUID));
             instance.setRegisterTime(((Number)getResponse.getSource().get(InstanceTable.COLUMN_REGISTER_TIME)).longValue());
@@ -157,7 +157,8 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
 
         List<Instance> instanceList = new LinkedList<>();
         for (SearchHit searchHit : searchHits) {
-            Instance instance = new Instance(searchHit.getId());
+            Instance instance = new Instance();
+            instance.setId(searchHit.getId());
             instance.setApplicationId(((Number)searchHit.getSource().get(InstanceTable.COLUMN_APPLICATION_ID)).intValue());
             instance.setHeartBeatTime(((Number)searchHit.getSource().get(InstanceTable.COLUMN_HEARTBEAT_TIME)).longValue());
             instance.setInstanceId(((Number)searchHit.getSource().get(InstanceTable.COLUMN_INSTANCE_ID)).intValue());

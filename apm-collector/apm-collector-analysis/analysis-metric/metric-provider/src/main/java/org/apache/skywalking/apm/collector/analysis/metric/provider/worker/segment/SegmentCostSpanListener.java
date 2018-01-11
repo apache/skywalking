@@ -20,7 +20,7 @@ package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.segm
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.skywalking.apm.collector.analysis.metric.define.graph.GraphIdDefine;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.EntrySpanListener;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.ExitSpanListener;
@@ -33,7 +33,6 @@ import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.table.segment.SegmentCost;
 import org.slf4j.Logger;
@@ -61,13 +60,13 @@ public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListe
         String segmentId) {
         timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
 
-        SegmentCost segmentCost = new SegmentCost(Const.EMPTY_STRING);
+        SegmentCost segmentCost = new SegmentCost();
+        segmentCost.setId(segmentId);
         segmentCost.setSegmentId(segmentId);
         segmentCost.setApplicationId(applicationId);
         segmentCost.setCost(spanDecorator.getEndTime() - spanDecorator.getStartTime());
         segmentCost.setStartTime(spanDecorator.getStartTime());
         segmentCost.setEndTime(spanDecorator.getEndTime());
-        segmentCost.setId(segmentId);
         if (spanDecorator.getOperationNameId() == 0) {
             segmentCost.setServiceName(spanDecorator.getOperationName());
         } else {
@@ -96,7 +95,7 @@ public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListe
     }
 
     @Override public void build() {
-        Graph<SegmentCost> graph = GraphManager.INSTANCE.findGraph(GraphIdDefine.SEGMENT_COST_GRAPH_ID, SegmentCost.class);
+        Graph<SegmentCost> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.SEGMENT_COST_GRAPH_ID, SegmentCost.class);
         logger.debug("segment cost listener build");
         for (SegmentCost segmentCost : segmentCosts) {
             segmentCost.setIsError(isError);

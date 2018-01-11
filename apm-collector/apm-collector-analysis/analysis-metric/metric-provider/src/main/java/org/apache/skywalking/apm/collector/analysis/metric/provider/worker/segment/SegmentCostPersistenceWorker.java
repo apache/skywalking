@@ -18,9 +18,9 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.segment;
 
-import org.apache.skywalking.apm.collector.analysis.metric.define.graph.WorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
@@ -30,25 +30,26 @@ import org.apache.skywalking.apm.collector.storage.table.segment.SegmentCost;
 /**
  * @author peng-yongsheng
  */
-public class SegmentCostPersistenceWorker extends PersistenceWorker<SegmentCost, SegmentCost> {
+public class SegmentCostPersistenceWorker extends PersistenceWorker<SegmentCost> {
 
     public SegmentCostPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     @Override public int id() {
-        return WorkerIdDefine.SEGMENT_COST_PERSISTENCE_WORKER_ID;
+        return MetricWorkerIdDefine.SEGMENT_COST_PERSISTENCE_WORKER_ID;
     }
 
     @Override protected boolean needMergeDBData() {
         return false;
     }
 
-    @Override protected IPersistenceDAO persistenceDAO() {
+    @SuppressWarnings("unchecked")
+    @Override protected IPersistenceDAO<?, ?, SegmentCost> persistenceDAO() {
         return getModuleManager().find(StorageModule.NAME).getService(ISegmentCostPersistenceDAO.class);
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<SegmentCost, SegmentCost, SegmentCostPersistenceWorker> {
+    public static class Factory extends PersistenceWorkerProvider<SegmentCost, SegmentCostPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);

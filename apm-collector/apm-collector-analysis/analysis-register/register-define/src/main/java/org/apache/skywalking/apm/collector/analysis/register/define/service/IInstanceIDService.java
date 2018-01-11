@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.analysis.register.define.service;
 
 import org.apache.skywalking.apm.collector.core.module.Service;
@@ -25,7 +24,9 @@ import org.apache.skywalking.apm.collector.core.module.Service;
  * @author peng-yongsheng
  */
 public interface IInstanceIDService extends Service {
-    int getOrCreate(int applicationId, String agentUUID, long registerTime, String osInfo);
+    int getOrCreateByAgentUUID(int applicationId, String agentUUID, long registerTime, String osInfo);
 
     void recover(int instanceId, int applicationId, long registerTime, String osInfo);
+
+    int getOrCreateByAddressId(int applicationId, int addressId, long registerTime);
 }

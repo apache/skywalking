@@ -16,19 +16,18 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.remote.grpc.service;
 
-import org.apache.skywalking.apm.collector.remote.service.RemoteDeserializeService;
-import org.apache.skywalking.apm.collector.core.data.Data;
 import org.apache.skywalking.apm.collector.remote.grpc.proto.RemoteData;
+import org.apache.skywalking.apm.collector.remote.service.RemoteDeserializeService;
 
 /**
  * @author peng-yongsheng
  */
 public class GRPCRemoteDeserializeService implements RemoteDeserializeService<RemoteData> {
 
-    @Override public void deserialize(RemoteData remoteData, Data data) {
+    @Override
+    public void deserialize(RemoteData remoteData, org.apache.skywalking.apm.collector.core.data.RemoteData data) {
         for (int i = 0; i < remoteData.getDataStringsCount(); i++) {
             data.setDataString(i, remoteData.getDataStrings(i));
         }
