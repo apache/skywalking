@@ -56,4 +56,9 @@ public class EnhanceRequireObjectCache {
         this.httpResponse.set(httpResponse);
     }
 
+    public void clearRequestAndResponse() {
+        setNativeWebRequest(null);
+        setHttpResponse(null);
+    }
+
 }

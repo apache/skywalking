@@ -38,9 +38,6 @@ public class InvokeHandlerMethodInterceptor implements InstanceMethodsAroundInte
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        if (allArguments[2] instanceof EnhancedInstance) {
-            ((EnhanceRequireObjectCache)((EnhancedInstance)allArguments[2]).getSkyWalkingDynamicField()).setHttpResponse(null);
-        }
         return ret;
     }
 
