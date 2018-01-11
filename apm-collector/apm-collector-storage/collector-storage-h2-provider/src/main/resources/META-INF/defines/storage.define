@@ -8,3 +8,9 @@ org.apache.skywalking.apm.collector.storage.h2.define.cpu.CpuMinuteMetricH2Table
 org.apache.skywalking.apm.collector.storage.h2.define.cpu.CpuHourMetricH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.cpu.CpuDayMetricH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.cpu.CpuMonthMetricH2TableDefine
+
+org.apache.skywalking.apm.collector.storage.h2.define.gc.GCSecondMetricH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.gc.GCMinuteMetricH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.gc.GCHourMetricH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.gc.GCDayMetricH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.gc.GCMonthMetricH2TableDefine
