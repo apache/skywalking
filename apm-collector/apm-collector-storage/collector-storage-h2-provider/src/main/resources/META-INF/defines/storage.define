@@ -20,3 +20,9 @@ org.apache.skywalking.apm.collector.storage.h2.define.memory.MemoryMinuteMetricH
 org.apache.skywalking.apm.collector.storage.h2.define.memory.MemoryHourMetricH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.memory.MemoryDayMetricH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.memory.MemoryMonthMetricH2TableDefine
+
+org.apache.skywalking.apm.collector.storage.h2.define.mpool.MemoryPoolSecondMetricH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.mpool.MemoryPoolMinuteMetricH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.mpool.MemoryPoolHourMetricH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.mpool.MemoryPoolDayMetricH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.mpool.MemoryPoolMonthMetricH2TableDefine
