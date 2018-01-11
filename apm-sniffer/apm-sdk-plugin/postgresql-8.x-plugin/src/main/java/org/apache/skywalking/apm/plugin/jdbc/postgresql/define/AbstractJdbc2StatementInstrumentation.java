@@ -31,6 +31,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 import static org.apache.skywalking.apm.plugin.jdbc.postgresql.Variables.PG_PREPARED_STATEMENT_EXECUTE_METHOD_INTERCEPTOR;
+import static org.apache.skywalking.apm.plugin.jdbc.postgresql.Variables.PG_STATEMENT_EXECUTE_METHOD_INTERCEPTOR;
 
 /**
  * {@link AbstractJdbc2StatementInstrumentation} intercept the following methods that the class which extend {@link
@@ -61,16 +62,27 @@ public class AbstractJdbc2StatementInstrumentation extends ClassInstanceMethodsE
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("execute").and(takesArguments(0))
-                        .or(named("execute").and(takesArguments(1)))
-                        .or(named("executeBatch"))
                         .or(named("executeQuery").and(takesArguments(0)))
-                        .or(named("executeQuery").and(takesArguments(1)))
-                        .or(named("executeUpdate").and(takesArguments(0)))
-                        .or(named("executeUpdate").and(takesArguments(1)));
+                        .or(named("executeUpdate").and(takesArguments(0)));
                 }
 
                 @Override public String getMethodsInterceptor() {
                     return PG_PREPARED_STATEMENT_EXECUTE_METHOD_INTERCEPTOR;
+                }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("execute").and(takesArguments(1))
+                        .or(named("executeQuery").and(takesArguments(1)))
+                        .or(named("executeUpdate").and(takesArguments(1)));
+                }
+
+                @Override public String getMethodsInterceptor() {
+                    return PG_STATEMENT_EXECUTE_METHOD_INTERCEPTOR;
                 }
 
                 @Override public boolean isOverrideArgs() {
