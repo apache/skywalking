@@ -155,81 +155,81 @@ public class StorageModule extends Module {
     }
 
     private void addPersistenceDAO(List<Class> classes) {
-        classes.add(ICpuSecondMetricPersistenceDAO.class);
-        classes.add(ICpuMinuteMetricPersistenceDAO.class);
-        classes.add(ICpuHourMetricPersistenceDAO.class);
-        classes.add(ICpuDayMetricPersistenceDAO.class);
-        classes.add(ICpuMonthMetricPersistenceDAO.class);
-
-        classes.add(IGCSecondMetricPersistenceDAO.class);
-        classes.add(IGCMinuteMetricPersistenceDAO.class);
-        classes.add(IGCHourMetricPersistenceDAO.class);
-        classes.add(IGCDayMetricPersistenceDAO.class);
-        classes.add(IGCMonthMetricPersistenceDAO.class);
-
-        classes.add(IMemorySecondMetricPersistenceDAO.class);
-        classes.add(IMemoryMinuteMetricPersistenceDAO.class);
-        classes.add(IMemoryHourMetricPersistenceDAO.class);
-        classes.add(IMemoryDayMetricPersistenceDAO.class);
-        classes.add(IMemoryMonthMetricPersistenceDAO.class);
-
-        classes.add(IMemoryPoolSecondMetricPersistenceDAO.class);
-        classes.add(IMemoryPoolMinuteMetricPersistenceDAO.class);
-        classes.add(IMemoryPoolHourMetricPersistenceDAO.class);
-        classes.add(IMemoryPoolDayMetricPersistenceDAO.class);
-        classes.add(IMemoryPoolMonthMetricPersistenceDAO.class);
-
-        classes.add(IApplicationComponentMinutePersistenceDAO.class);
-        classes.add(IApplicationComponentHourPersistenceDAO.class);
-        classes.add(IApplicationComponentDayPersistenceDAO.class);
-        classes.add(IApplicationComponentMonthPersistenceDAO.class);
-
-        classes.add(IApplicationMappingMinutePersistenceDAO.class);
-        classes.add(IApplicationMappingHourPersistenceDAO.class);
-        classes.add(IApplicationMappingDayPersistenceDAO.class);
-        classes.add(IApplicationMappingMonthPersistenceDAO.class);
-
-        classes.add(IInstanceMappingMinutePersistenceDAO.class);
-        classes.add(IInstanceMappingHourPersistenceDAO.class);
-        classes.add(IInstanceMappingDayPersistenceDAO.class);
-        classes.add(IInstanceMappingMonthPersistenceDAO.class);
-
-        classes.add(IGlobalTracePersistenceDAO.class);
-
-        classes.add(IApplicationMinuteMetricPersistenceDAO.class);
-        classes.add(IApplicationHourMetricPersistenceDAO.class);
-        classes.add(IApplicationDayMetricPersistenceDAO.class);
-        classes.add(IApplicationMonthMetricPersistenceDAO.class);
-
-        classes.add(IApplicationReferenceMinuteMetricPersistenceDAO.class);
-        classes.add(IApplicationReferenceHourMetricPersistenceDAO.class);
-        classes.add(IApplicationReferenceDayMetricPersistenceDAO.class);
-        classes.add(IApplicationReferenceMonthMetricPersistenceDAO.class);
-
-        classes.add(ISegmentCostPersistenceDAO.class);
-        classes.add(ISegmentPersistenceDAO.class);
-
-        classes.add(IServiceMinuteMetricPersistenceDAO.class);
-        classes.add(IServiceHourMetricPersistenceDAO.class);
-        classes.add(IServiceDayMetricPersistenceDAO.class);
-        classes.add(IServiceMonthMetricPersistenceDAO.class);
-
-        classes.add(IServiceReferenceMinuteMetricPersistenceDAO.class);
-        classes.add(IServiceReferenceHourMetricPersistenceDAO.class);
-        classes.add(IServiceReferenceDayMetricPersistenceDAO.class);
-        classes.add(IServiceReferenceMonthMetricPersistenceDAO.class);
-
-        classes.add(IInstanceMinuteMetricPersistenceDAO.class);
-        classes.add(IInstanceHourMetricPersistenceDAO.class);
-        classes.add(IInstanceDayMetricPersistenceDAO.class);
-        classes.add(IInstanceMonthMetricPersistenceDAO.class);
-
-        classes.add(IInstanceReferenceMinuteMetricPersistenceDAO.class);
-        classes.add(IInstanceReferenceHourMetricPersistenceDAO.class);
-        classes.add(IInstanceReferenceDayMetricPersistenceDAO.class);
-        classes.add(IInstanceReferenceMonthMetricPersistenceDAO.class);
-
-        classes.add(IInstanceHeartBeatPersistenceDAO.class);
+//        classes.add(ICpuSecondMetricPersistenceDAO.class);
+//        classes.add(ICpuMinuteMetricPersistenceDAO.class);
+//        classes.add(ICpuHourMetricPersistenceDAO.class);
+//        classes.add(ICpuDayMetricPersistenceDAO.class);
+//        classes.add(ICpuMonthMetricPersistenceDAO.class);
+//
+//        classes.add(IGCSecondMetricPersistenceDAO.class);
+//        classes.add(IGCMinuteMetricPersistenceDAO.class);
+//        classes.add(IGCHourMetricPersistenceDAO.class);
+//        classes.add(IGCDayMetricPersistenceDAO.class);
+//        classes.add(IGCMonthMetricPersistenceDAO.class);
+//
+//        classes.add(IMemorySecondMetricPersistenceDAO.class);
+//        classes.add(IMemoryMinuteMetricPersistenceDAO.class);
+//        classes.add(IMemoryHourMetricPersistenceDAO.class);
+//        classes.add(IMemoryDayMetricPersistenceDAO.class);
+//        classes.add(IMemoryMonthMetricPersistenceDAO.class);
+//
+//        classes.add(IMemoryPoolSecondMetricPersistenceDAO.class);
+//        classes.add(IMemoryPoolMinuteMetricPersistenceDAO.class);
+//        classes.add(IMemoryPoolHourMetricPersistenceDAO.class);
+//        classes.add(IMemoryPoolDayMetricPersistenceDAO.class);
+//        classes.add(IMemoryPoolMonthMetricPersistenceDAO.class);
+//
+//        classes.add(IApplicationComponentMinutePersistenceDAO.class);
+//        classes.add(IApplicationComponentHourPersistenceDAO.class);
+//        classes.add(IApplicationComponentDayPersistenceDAO.class);
+//        classes.add(IApplicationComponentMonthPersistenceDAO.class);
+//
+//        classes.add(IApplicationMappingMinutePersistenceDAO.class);
+//        classes.add(IApplicationMappingHourPersistenceDAO.class);
+//        classes.add(IApplicationMappingDayPersistenceDAO.class);
+//        classes.add(IApplicationMappingMonthPersistenceDAO.class);
+//
+//        classes.add(IInstanceMappingMinutePersistenceDAO.class);
+//        classes.add(IInstanceMappingHourPersistenceDAO.class);
+//        classes.add(IInstanceMappingDayPersistenceDAO.class);
+//        classes.add(IInstanceMappingMonthPersistenceDAO.class);
+//
+//        classes.add(IGlobalTracePersistenceDAO.class);
+//
+//        classes.add(IApplicationMinuteMetricPersistenceDAO.class);
+//        classes.add(IApplicationHourMetricPersistenceDAO.class);
+//        classes.add(IApplicationDayMetricPersistenceDAO.class);
+//        classes.add(IApplicationMonthMetricPersistenceDAO.class);
+//
+//        classes.add(IApplicationReferenceMinuteMetricPersistenceDAO.class);
+//        classes.add(IApplicationReferenceHourMetricPersistenceDAO.class);
+//        classes.add(IApplicationReferenceDayMetricPersistenceDAO.class);
+//        classes.add(IApplicationReferenceMonthMetricPersistenceDAO.class);
+//
+//        classes.add(ISegmentCostPersistenceDAO.class);
+//        classes.add(ISegmentPersistenceDAO.class);
+//
+//        classes.add(IServiceMinuteMetricPersistenceDAO.class);
+//        classes.add(IServiceHourMetricPersistenceDAO.class);
+//        classes.add(IServiceDayMetricPersistenceDAO.class);
+//        classes.add(IServiceMonthMetricPersistenceDAO.class);
+//
+//        classes.add(IServiceReferenceMinuteMetricPersistenceDAO.class);
+//        classes.add(IServiceReferenceHourMetricPersistenceDAO.class);
+//        classes.add(IServiceReferenceDayMetricPersistenceDAO.class);
+//        classes.add(IServiceReferenceMonthMetricPersistenceDAO.class);
+//
+//        classes.add(IInstanceMinuteMetricPersistenceDAO.class);
+//        classes.add(IInstanceHourMetricPersistenceDAO.class);
+//        classes.add(IInstanceDayMetricPersistenceDAO.class);
+//        classes.add(IInstanceMonthMetricPersistenceDAO.class);
+//
+//        classes.add(IInstanceReferenceMinuteMetricPersistenceDAO.class);
+//        classes.add(IInstanceReferenceHourMetricPersistenceDAO.class);
+//        classes.add(IInstanceReferenceDayMetricPersistenceDAO.class);
+//        classes.add(IInstanceReferenceMonthMetricPersistenceDAO.class);
+//
+//        classes.add(IInstanceHeartBeatPersistenceDAO.class);
     }
 
     private void addUiDAO(List<Class> classes) {
@@ -251,18 +251,18 @@ public class StorageModule extends Module {
     }
 
     private void addAlarmDAO(List<Class> classes) {
-        classes.add(IServiceReferenceAlarmPersistenceDAO.class);
-        classes.add(IServiceReferenceAlarmListPersistenceDAO.class);
-        classes.add(IInstanceReferenceAlarmPersistenceDAO.class);
-        classes.add(IInstanceReferenceAlarmListPersistenceDAO.class);
-        classes.add(IApplicationReferenceAlarmPersistenceDAO.class);
-        classes.add(IApplicationReferenceAlarmListPersistenceDAO.class);
-
-        classes.add(IServiceAlarmPersistenceDAO.class);
-        classes.add(IServiceAlarmListPersistenceDAO.class);
-        classes.add(IInstanceAlarmPersistenceDAO.class);
-        classes.add(IInstanceAlarmListPersistenceDAO.class);
-        classes.add(IApplicationAlarmPersistenceDAO.class);
-        classes.add(IApplicationAlarmListPersistenceDAO.class);
+//        classes.add(IServiceReferenceAlarmPersistenceDAO.class);
+//        classes.add(IServiceReferenceAlarmListPersistenceDAO.class);
+//        classes.add(IInstanceReferenceAlarmPersistenceDAO.class);
+//        classes.add(IInstanceReferenceAlarmListPersistenceDAO.class);
+//        classes.add(IApplicationReferenceAlarmPersistenceDAO.class);
+//        classes.add(IApplicationReferenceAlarmListPersistenceDAO.class);
+//
+//        classes.add(IServiceAlarmPersistenceDAO.class);
+//        classes.add(IServiceAlarmListPersistenceDAO.class);
+//        classes.add(IInstanceAlarmPersistenceDAO.class);
+//        classes.add(IInstanceAlarmListPersistenceDAO.class);
+//        classes.add(IApplicationAlarmPersistenceDAO.class);
+//        classes.add(IApplicationAlarmListPersistenceDAO.class);
     }
 }
