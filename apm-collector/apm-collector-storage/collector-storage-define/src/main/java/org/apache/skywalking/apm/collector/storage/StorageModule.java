@@ -54,6 +54,11 @@ import org.apache.skywalking.apm.collector.storage.dao.memorymp.IMemoryHourMetri
 import org.apache.skywalking.apm.collector.storage.dao.memorymp.IMemoryMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.memorymp.IMemoryMonthMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.memorymp.IMemorySecondMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.mpoolmp.IMemoryPoolDayMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.mpoolmp.IMemoryPoolHourMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.mpoolmp.IMemoryPoolMinuteMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.mpoolmp.IMemoryPoolMonthMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.mpoolmp.IMemoryPoolSecondMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.register.IApplicationRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.dao.register.IInstanceRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.dao.register.INetworkAddressRegisterDAO;
@@ -116,12 +121,12 @@ public class StorageModule extends Module {
         classes.add(IMemoryDayMetricPersistenceDAO.class);
         classes.add(IMemoryMonthMetricPersistenceDAO.class);
 
-//        classes.add(IMemoryPoolSecondMetricPersistenceDAO.class);
-//        classes.add(IMemoryPoolMinuteMetricPersistenceDAO.class);
-//        classes.add(IMemoryPoolHourMetricPersistenceDAO.class);
-//        classes.add(IMemoryPoolDayMetricPersistenceDAO.class);
-//        classes.add(IMemoryPoolMonthMetricPersistenceDAO.class);
-//
+        classes.add(IMemoryPoolSecondMetricPersistenceDAO.class);
+        classes.add(IMemoryPoolMinuteMetricPersistenceDAO.class);
+        classes.add(IMemoryPoolHourMetricPersistenceDAO.class);
+        classes.add(IMemoryPoolDayMetricPersistenceDAO.class);
+        classes.add(IMemoryPoolMonthMetricPersistenceDAO.class);
+
 //        classes.add(IApplicationComponentMinutePersistenceDAO.class);
 //        classes.add(IApplicationComponentHourPersistenceDAO.class);
 //        classes.add(IApplicationComponentDayPersistenceDAO.class);
