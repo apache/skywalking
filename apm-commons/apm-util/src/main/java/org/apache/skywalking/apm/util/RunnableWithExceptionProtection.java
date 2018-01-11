@@ -16,25 +16,30 @@
  *
  */
 
-
-package org.apache.skywalking.apm.plugin.jdbc.mysql.define;
-
-import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-
-import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
+package org.apache.skywalking.apm.util;
 
 /**
- * {@link Mysql5xConnectionInstrumentation } interceptor {@link com.mysql.cj.jdbc.ConnectionImpl} and
- * com.mysql.jdbc.ConnectionImpl in mysql jdbc driver 5.1 and 5.1+
- *
- * @author zhangxin
+ * @author wusheng
  */
-public class Mysql5xConnectionInstrumentation extends ConnectionInstrumentation {
-    public static final String ENHANCE_CLASS = "com.mysql.jdbc.ConnectionImpl";
+public class RunnableWithExceptionProtection implements Runnable {
+    private Runnable run;
+    private CallbackWhenException callback;
 
-    public static final String CJ_JDBC_ENHANCE_CLASS = "com.mysql.cj.jdbc.ConnectionImpl";
+    public RunnableWithExceptionProtection(Runnable run, CallbackWhenException callback) {
+        this.run = run;
+        this.callback = callback;
+    }
 
-    @Override protected ClassMatch enhanceClass() {
-        return byMultiClassMatch(ENHANCE_CLASS, CJ_JDBC_ENHANCE_CLASS);
+    @Override
+    public void run() {
+        try {
+            run.run();
+        } catch (Throwable t) {
+            callback.handle(t);
+        }
+    }
+
+    public interface CallbackWhenException {
+        void handle(Throwable t);
     }
 }

@@ -17,14 +17,12 @@
  */
 
 
-package org.apache.skywalking.apm.plugin.jdbc.mysql.define;
+package org.apache.skywalking.apm.agent.core.plugin.match;
 
 import java.util.Arrays;
 import java.util.List;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.matcher.ElementMatcher;
-import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.agent.core.plugin.match.IndirectMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
