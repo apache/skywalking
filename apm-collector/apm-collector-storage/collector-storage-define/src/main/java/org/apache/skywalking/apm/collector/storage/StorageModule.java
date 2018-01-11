@@ -27,6 +27,7 @@ import org.apache.skywalking.apm.collector.storage.dao.IApplicationMappingUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationReferenceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ICpuMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IGCMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.IGlobalTracePersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IGlobalTraceUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
@@ -154,8 +155,8 @@ public class StorageModule extends Module {
         classes.add(IInstanceMappingDayPersistenceDAO.class);
         classes.add(IInstanceMappingMonthPersistenceDAO.class);
 
-//        classes.add(IGlobalTracePersistenceDAO.class);
-//
+        classes.add(IGlobalTracePersistenceDAO.class);
+
 //        classes.add(IApplicationMinuteMetricPersistenceDAO.class);
 //        classes.add(IApplicationHourMetricPersistenceDAO.class);
 //        classes.add(IApplicationDayMetricPersistenceDAO.class);

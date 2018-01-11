@@ -41,3 +41,5 @@ org.apache.skywalking.apm.collector.storage.h2.define.instmapping.InstanceMappin
 org.apache.skywalking.apm.collector.storage.h2.define.instmapping.InstanceMappingHourH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.instmapping.InstanceMappingDayH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.instmapping.InstanceMappingMonthH2TableDefine
+
+org.apache.skywalking.apm.collector.storage.h2.define.GlobalTraceH2TableDefine
