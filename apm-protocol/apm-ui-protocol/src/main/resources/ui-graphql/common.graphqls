@@ -87,6 +87,12 @@ interface Node {
     type: String
 }
 
+# Incoming request node, means User or outside system access the cluster from this.
+type VisualUserNode implements Node {
+    id: ID!
+    name: String
+}
+
 # The Call represents a directed distributed call,
 # from the `source` to the `target`.
 type Call {
