@@ -40,7 +40,7 @@ import java.lang.reflect.Method;
 /**
  * the abstract method inteceptor
  */
-public abstract class AbstractMethodInteceptor implements InstanceMethodsAroundInterceptor {
+public abstract class AbstractMethodInterceptor implements InstanceMethodsAroundInterceptor {
     public abstract String getRequestURL(Method method);
 
     @Override
@@ -73,17 +73,19 @@ public abstract class AbstractMethodInteceptor implements InstanceMethodsAroundI
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        HttpServletResponse response = ((EnhanceRequireObjectCache)objInst.getSkyWalkingDynamicField()).getHttpServletResponse();
+        try {
+            HttpServletResponse response = ((EnhanceRequireObjectCache) objInst.getSkyWalkingDynamicField()).getHttpServletResponse();
 
-        AbstractSpan span = ContextManager.activeSpan();
-        if (response.getStatus() >= 400) {
-            span.errorOccurred();
-            Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
+            AbstractSpan span = ContextManager.activeSpan();
+            if (response.getStatus() >= 400) {
+                span.errorOccurred();
+                Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
+            }
+            ContextManager.stopSpan();
+            return ret;
+        } finally {
+            ((EnhanceRequireObjectCache)objInst.getSkyWalkingDynamicField()).clearRequestAndResponse();
         }
-        ContextManager.stopSpan();
-
-        ((EnhanceRequireObjectCache)objInst.getSkyWalkingDynamicField()).setNativeWebRequest(null);
-        return ret;
     }
 
     @Override
