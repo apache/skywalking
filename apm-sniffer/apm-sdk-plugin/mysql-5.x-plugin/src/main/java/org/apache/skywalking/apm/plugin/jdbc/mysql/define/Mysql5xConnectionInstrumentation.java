@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.plugin.jdbc.mysql.define;
 
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
-import static org.apache.skywalking.apm.plugin.jdbc.mysql.define.MultiClassNameMatch.byMultiClassMatch;
+import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
 
 /**
  * {@link Mysql5xConnectionInstrumentation } interceptor {@link com.mysql.cj.jdbc.ConnectionImpl} and

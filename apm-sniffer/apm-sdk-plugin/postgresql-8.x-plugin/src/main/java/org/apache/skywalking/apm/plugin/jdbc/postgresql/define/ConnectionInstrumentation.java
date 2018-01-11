@@ -29,7 +29,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
-import static org.apache.skywalking.apm.plugin.jdbc.postgresql.define.MultiClassNameMatch.byMultiClassMatch;
+import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
 
 /**
  * {@link ConnectionInstrumentation} intercept the following methods that the class which extend {@link
