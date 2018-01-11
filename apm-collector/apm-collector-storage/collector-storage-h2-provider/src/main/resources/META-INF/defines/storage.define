@@ -3,3 +3,8 @@ org.apache.skywalking.apm.collector.storage.h2.define.register.ApplicationH2Tabl
 org.apache.skywalking.apm.collector.storage.h2.define.register.InstanceH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.register.ServiceNameH2TableDefine
 
+org.apache.skywalking.apm.collector.storage.h2.define.cpu.CpuSecondMetricH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.cpu.CpuMinuteMetricH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.cpu.CpuHourMetricH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.cpu.CpuDayMetricH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.cpu.CpuMonthMetricH2TableDefine
