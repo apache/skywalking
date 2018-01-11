@@ -26,28 +26,24 @@ public abstract class AbstractData {
     private Long[] dataLongs;
     private Double[] dataDoubles;
     private Integer[] dataIntegers;
-    private Boolean[] dataBooleans;
     private byte[][] dataBytes;
     private final Column[] stringColumns;
     private final Column[] longColumns;
     private final Column[] doubleColumns;
     private final Column[] integerColumns;
-    private final Column[] booleanColumns;
     private final Column[] byteColumns;
 
     public AbstractData(Column[] stringColumns, Column[] longColumns, Column[] doubleColumns,
-        Column[] integerColumns, Column[] booleanColumns, Column[] byteColumns) {
+        Column[] integerColumns, Column[] byteColumns) {
         this.dataStrings = new String[stringColumns.length];
         this.dataLongs = new Long[longColumns.length];
         this.dataDoubles = new Double[doubleColumns.length];
         this.dataIntegers = new Integer[integerColumns.length];
-        this.dataBooleans = new Boolean[booleanColumns.length];
         this.dataBytes = new byte[byteColumns.length][];
         this.stringColumns = stringColumns;
         this.longColumns = longColumns;
         this.doubleColumns = doubleColumns;
         this.integerColumns = integerColumns;
-        this.booleanColumns = booleanColumns;
         this.byteColumns = byteColumns;
     }
 
@@ -65,10 +61,6 @@ public abstract class AbstractData {
 
     public final int getDataIntegersCount() {
         return dataIntegers.length;
-    }
-
-    public final int getDataBooleansCount() {
-        return dataBooleans.length;
     }
 
     public final int getDataBytesCount() {
@@ -89,10 +81,6 @@ public abstract class AbstractData {
 
     public final void setDataInteger(int position, Integer value) {
         dataIntegers[position] = value;
-    }
-
-    public final void setDataBoolean(int position, Boolean value) {
-        dataBooleans[position] = value;
     }
 
     public final void setDataBytes(int position, byte[] dataBytes) {
@@ -133,10 +121,6 @@ public abstract class AbstractData {
         }
     }
 
-    public final Boolean getDataBoolean(int position) {
-        return dataBooleans[position];
-    }
-
     public final byte[] getDataBytes(int position) {
         return dataBytes[position];
     }
@@ -157,10 +141,6 @@ public abstract class AbstractData {
         for (int i = 0; i < integerColumns.length; i++) {
             Integer integerData = integerColumns[i].getOperation().operate(newData.getDataInteger(i), this.getDataInteger(i));
             this.dataIntegers[i] = integerData;
-        }
-        for (int i = 0; i < booleanColumns.length; i++) {
-            Boolean booleanData = booleanColumns[i].getOperation().operate(newData.getDataBoolean(i), this.getDataBoolean(i));
-            this.dataBooleans[i] = booleanData;
         }
         for (int i = 0; i < byteColumns.length; i++) {
             byte[] byteData = byteColumns[i].getOperation().operate(newData.getDataBytes(i), this.getDataBytes(i));
@@ -185,10 +165,6 @@ public abstract class AbstractData {
         dataStr.append("], integer: [");
         for (Integer dataInteger : dataIntegers) {
             dataStr.append(dataInteger).append(",");
-        }
-        dataStr.append("], boolean: [");
-        for (Boolean dataBoolean : dataBooleans) {
-            dataStr.append(dataBoolean).append(",");
         }
         dataStr.append("]");
         return dataStr.toString();

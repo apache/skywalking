@@ -37,9 +37,6 @@ public class GRPCRemoteDeserializeService implements RemoteDeserializeService<Re
         for (int i = 0; i < remoteData.getDataLongsCount(); i++) {
             data.setDataLong(i, remoteData.getDataLongs(i));
         }
-        for (int i = 0; i < remoteData.getDataBooleansCount(); i++) {
-            data.setDataBoolean(i, remoteData.getDataBooleans(i));
-        }
         for (int i = 0; i < remoteData.getDataDoublesCount(); i++) {
             data.setDataDouble(i, remoteData.getDataDoubles(i));
         }

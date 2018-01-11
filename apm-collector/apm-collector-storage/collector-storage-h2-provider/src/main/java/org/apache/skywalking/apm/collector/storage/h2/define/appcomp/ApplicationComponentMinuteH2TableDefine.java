@@ -16,20 +16,18 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.h2.base.define;
+package org.apache.skywalking.apm.collector.storage.h2.define.appcomp;
 
-import org.apache.skywalking.apm.collector.core.data.ColumnDefine;
+import org.apache.skywalking.apm.collector.core.storage.TimePyramid;
+import org.apache.skywalking.apm.collector.core.util.Const;
+import org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponentTable;
 
 /**
  * @author peng-yongsheng
  */
-public class H2ColumnDefine extends ColumnDefine {
+public class ApplicationComponentMinuteH2TableDefine extends AbstractApplicationComponentH2TableDefine {
 
-    public H2ColumnDefine(String name, String type) {
-        super(name, type);
-    }
-
-    public enum Type {
-        Varchar, Int, Bigint, BINARY, Double
+    public ApplicationComponentMinuteH2TableDefine() {
+        super(ApplicationComponentTable.TABLE + Const.ID_SPLIT + TimePyramid.Minute.getName());
     }
 }
