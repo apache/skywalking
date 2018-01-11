@@ -16,22 +16,10 @@
  *
  */
 
+package org.apache.skywalking.apm.plugin.jdbc.postgresql;
 
-package org.apache.skywalking.apm.plugin.jdbc.mysql.define;
+public final class Variables {
+    public static final String PG_PREPARED_STATEMENT_EXECUTE_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.postgresql.PreparedStatementExecuteMethodsInterceptor";
 
-import org.apache.skywalking.apm.plugin.jdbc.define.AbstractDriverInstrumentation;
-import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-
-import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
-
-/**
- * {@link DriverInstrumentation} presents that skywalking intercepts {@link com.mysql.jdbc.Driver}.
- *
- * @author zhangxin
- */
-public class DriverInstrumentation extends AbstractDriverInstrumentation {
-    @Override
-    protected ClassMatch enhanceClass() {
-        return byMultiClassMatch("com.mysql.jdbc.Driver", "com.mysql.cj.jdbc.Driver", "com.mysql.jdbc.NonRegisteringDriver");
-    }
+    public static final String PG_STATEMENT_EXECUTE_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.postgresql.StatementExecuteMethodsInterceptor";
 }
