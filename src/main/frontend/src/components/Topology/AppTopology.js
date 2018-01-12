@@ -37,7 +37,8 @@ export default class AppTopology extends Base {
       {
         selector: 'edge',
         style: {
-          'curve-style': 'unbundled-bezier',
+          'curve-style': 'bezier',
+          'control-point-step-size': 100,
           'target-arrow-shape': 'triangle',
           'target-arrow-color': ele => (ele.data('isAlarm') ? 'red' : 'rgb(147, 198, 174)'),
           'line-color': ele => (ele.data('isAlarm') ? 'red' : 'rgb(147, 198, 174)'),
