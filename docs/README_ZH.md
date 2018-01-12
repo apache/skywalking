@@ -3,7 +3,7 @@
 
   * [项目简介](/README_ZH.md)
   * [快速入门](cn/Quick-start-CN.md)
-  * [部署Collector镜像](cn/Deploy-docker-image.CN.md)
+  * [部署Collector镜像](cn/Deploy-docker-image-CN.md)
   * [中间件，框架与类库支持列表](Supported-list.md)
     * [如何关闭特定插件](cn/How-to-disable-plugin-CN.md)
   * APM相关介绍资料
