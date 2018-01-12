@@ -256,37 +256,6 @@
             <modules>
                 <module>resin-3.x-plugin</module>
             </modules>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.6.0</version>
-                        <executions>
-                            <execution>
-                                <id>install-ojdbc</id>
-                                <inherited>false</inherited>
-                                <phase>process-resources</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <executable>mvn</executable>
-                                    <arguments>
-                                        <argument>install:install-file</argument>
-                                        <argument>-Dfile=resin-3.0.9.jar</argument>
-                                        <argument>-DgroupId=com.caucho</argument>
-                                        <argument>-DartifactId=resin</argument>
-                                        <argument>-Dversion=4.0.41</argument>
-                                        <argument>-Dpackaging=jar</argument>
-                                    </arguments>
-                                    <workingDirectory>${basedir}/../../ci-dependencies</workingDirectory>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
         <profile>
             <!-- resin-4 is not Apache license compatible, so it must be manually downloaded first -->
