@@ -323,7 +323,7 @@
         </profile>
         <profile>
             <!-- resin is not Apache license compatible, so it must be manually downloaded first -->
-            <!-- Use resin 3.x jar file as a trigger only -->
+            <!-- Use resin 3.x jar file as a becon only -->
             <id>install-resin-3</id>
             <activation>
                 <file>
