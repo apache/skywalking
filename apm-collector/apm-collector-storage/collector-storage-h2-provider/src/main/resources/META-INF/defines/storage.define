@@ -75,3 +75,16 @@ org.apache.skywalking.apm.collector.storage.h2.define.srmp.ServiceReferenceMinut
 org.apache.skywalking.apm.collector.storage.h2.define.srmp.ServiceReferenceHourMetricH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.srmp.ServiceReferenceDayMetricH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.srmp.ServiceReferenceMonthMetricH2TableDefine
+
+org.apache.skywalking.apm.collector.storage.h2.define.alarm.ApplicationAlarmH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.alarm.ApplicationAlarmListH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.alarm.ApplicationReferenceAlarmH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.alarm.ApplicationReferenceAlarmListH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.alarm.InstanceAlarmH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.alarm.InstanceAlarmListH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.alarm.InstanceReferenceAlarmH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.alarm.InstanceReferenceAlarmListH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.alarm.ServiceAlarmH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.alarm.ServiceAlarmListH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.alarm.ServiceReferenceAlarmH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.alarm.ServiceReferenceAlarmListH2TableDefine
