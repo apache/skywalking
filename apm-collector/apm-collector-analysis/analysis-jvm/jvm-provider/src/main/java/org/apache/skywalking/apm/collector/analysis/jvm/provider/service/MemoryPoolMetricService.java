@@ -45,14 +45,20 @@ public class MemoryPoolMetricService implements IMemoryPoolMetricService {
     }
 
     @Override
-    public void send(int instanceId, long timeBucket, int poolType, long init, long max, long used, long commited) {
-        MemoryPoolMetric memoryPoolMetric = new MemoryPoolMetric(timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + String.valueOf(poolType));
+    public void send(int instanceId, long timeBucket, int poolType, long init, long max, long used, long committed) {
+        String metricId = instanceId + Const.ID_SPLIT + String.valueOf(poolType);
+        String id = timeBucket + Const.ID_SPLIT + metricId;
+
+        MemoryPoolMetric memoryPoolMetric = new MemoryPoolMetric();
+        memoryPoolMetric.setId(id);
+        memoryPoolMetric.setMetricId(metricId);
         memoryPoolMetric.setInstanceId(instanceId);
         memoryPoolMetric.setPoolType(poolType);
         memoryPoolMetric.setInit(init);
         memoryPoolMetric.setMax(max);
         memoryPoolMetric.setUsed(used);
-        memoryPoolMetric.setCommitted(commited);
+        memoryPoolMetric.setCommitted(committed);
+        memoryPoolMetric.setTimes(1L);
         memoryPoolMetric.setTimeBucket(timeBucket);
 
         logger.debug("push to memory pool metric graph, id: {}", memoryPoolMetric.getId());

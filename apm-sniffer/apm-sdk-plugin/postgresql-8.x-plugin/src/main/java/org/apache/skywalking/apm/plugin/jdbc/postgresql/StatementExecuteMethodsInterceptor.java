@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.postgresql;
 
 import java.lang.reflect.Method;
@@ -26,8 +25,8 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 /**
@@ -45,7 +44,7 @@ public class StatementExecuteMethodsInterceptor implements InstanceMethodsAround
         AbstractSpan span = ContextManager.createExitSpan(buildOperationName(connectInfo, method.getName(), cacheObject.getStatementName()), connectInfo.getDatabasePeer());
         Tags.DB_TYPE.set(span, "sql");
         Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
-        Tags.DB_STATEMENT.set(span, cacheObject.getSql());
+        Tags.DB_STATEMENT.set(span, (String)allArguments[0]);
         span.setComponent(connectInfo.getComponent());
 
         SpanLayer.asDB(span);

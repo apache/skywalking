@@ -45,9 +45,15 @@ public class CpuMetricService implements ICpuMetricService {
     }
 
     @Override public void send(int instanceId, long timeBucket, double usagePercent) {
-        CpuMetric cpuMetric = new CpuMetric(timeBucket + Const.ID_SPLIT + instanceId);
+        String metricId = String.valueOf(instanceId);
+        String id = timeBucket + Const.ID_SPLIT + metricId;
+
+        CpuMetric cpuMetric = new CpuMetric();
+        cpuMetric.setId(id);
+        cpuMetric.setMetricId(metricId);
         cpuMetric.setInstanceId(instanceId);
         cpuMetric.setUsagePercent(usagePercent);
+        cpuMetric.setTimes(1L);
         cpuMetric.setTimeBucket(timeBucket);
 
         logger.debug("push to cpu metric graph, id: {}", cpuMetric.getId());

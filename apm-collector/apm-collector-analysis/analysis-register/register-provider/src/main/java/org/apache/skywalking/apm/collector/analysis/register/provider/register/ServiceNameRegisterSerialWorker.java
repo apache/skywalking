@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.collector.cache.service.ServiceIdCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.dao.IServiceNameRegisterDAO;
+import org.apache.skywalking.apm.collector.storage.dao.register.IServiceNameRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,13 +60,15 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker<Se
 
             int min = serviceNameRegisterDAO.getMinServiceId();
             if (min == 0) {
-                ServiceName noneServiceName = new ServiceName("1");
+                ServiceName noneServiceName = new ServiceName();
+                noneServiceName.setId("1");
                 noneServiceName.setApplicationId(0);
                 noneServiceName.setServiceId(Const.NONE_SERVICE_ID);
                 noneServiceName.setServiceName(Const.NONE_SERVICE_NAME);
                 serviceNameRegisterDAO.save(noneServiceName);
 
-                newServiceName = new ServiceName("-1");
+                newServiceName = new ServiceName();
+                newServiceName.setId("-1");
                 newServiceName.setApplicationId(serviceName.getApplicationId());
                 newServiceName.setServiceId(-1);
                 newServiceName.setServiceName(serviceName.getServiceName());
@@ -74,7 +76,8 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker<Se
                 int max = serviceNameRegisterDAO.getMaxServiceId();
                 serviceId = IdAutoIncrement.INSTANCE.increment(min, max);
 
-                newServiceName = new ServiceName(String.valueOf(serviceId));
+                newServiceName = new ServiceName();
+                newServiceName.setId(String.valueOf(serviceId));
                 newServiceName.setApplicationId(serviceName.getApplicationId());
                 newServiceName.setServiceId(serviceId);
                 newServiceName.setServiceName(serviceName.getServiceName());

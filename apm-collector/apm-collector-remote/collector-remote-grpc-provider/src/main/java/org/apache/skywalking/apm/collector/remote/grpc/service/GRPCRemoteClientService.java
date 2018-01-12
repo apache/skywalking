@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.remote.grpc.service;
 
 import org.apache.skywalking.apm.collector.client.ClientException;

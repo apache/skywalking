@@ -39,7 +39,8 @@ public class ServiceMetricAlarmToListNodeProcessor implements NodeProcessor<Serv
             + Const.ID_SPLIT + serviceAlarm.getAlarmType()
             + Const.ID_SPLIT + serviceAlarm.getServiceId();
 
-        ServiceAlarmList serviceAlarmList = new ServiceAlarmList(id);
+        ServiceAlarmList serviceAlarmList = new ServiceAlarmList();
+        serviceAlarmList.setId(id);
         serviceAlarmList.setApplicationId(serviceAlarm.getApplicationId());
         serviceAlarmList.setInstanceId(serviceAlarm.getInstanceId());
         serviceAlarmList.setServiceId(serviceAlarm.getServiceId());

@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.define;
 
+import org.apache.skywalking.apm.collector.analysis.metric.define.service.IInstanceHeartBeatService;
 import org.apache.skywalking.apm.collector.core.module.Module;
 
 /**
@@ -32,6 +33,6 @@ public class AnalysisMetricModule extends Module {
     }
 
     @Override public Class[] services() {
-        return new Class[] {};
+        return new Class[] {IInstanceHeartBeatService.class};
     }
 }

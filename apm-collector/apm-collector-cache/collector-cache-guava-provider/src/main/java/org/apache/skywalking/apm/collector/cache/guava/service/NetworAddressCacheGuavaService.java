@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.dao.INetworkAddressCacheDAO;
+import org.apache.skywalking.apm.collector.storage.dao.cache.INetworkAddressCacheDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

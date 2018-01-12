@@ -64,7 +64,7 @@ public class InstanceMetricAlarmGraph {
 
     private void link(Graph<InstanceMetric> graph) {
         GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.INSTANCE_METRIC_GRAPH_ID, InstanceMetric.class)
-            .toFinder().findNode(MetricWorkerIdDefine.INSTANCE_METRIC_PERSISTENCE_WORKER_ID, InstanceMetric.class)
+            .toFinder().findNode(MetricWorkerIdDefine.INSTANCE_MINUTE_METRIC_PERSISTENCE_WORKER_ID, InstanceMetric.class)
             .addNext(new NodeProcessor<InstanceMetric, InstanceMetric>() {
                 @Override public int id() {
                     return AlarmWorkerIdDefine.INSTANCE_METRIC_ALARM_GRAPH_BRIDGE_WORKER_ID;

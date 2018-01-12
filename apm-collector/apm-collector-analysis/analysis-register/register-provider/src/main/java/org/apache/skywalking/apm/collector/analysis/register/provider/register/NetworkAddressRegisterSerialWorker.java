@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.NetworkAddressCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.dao.INetworkAddressRegisterDAO;
+import org.apache.skywalking.apm.collector.storage.dao.register.INetworkAddressRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,14 +59,16 @@ public class NetworkAddressRegisterSerialWorker extends AbstractLocalAsyncWorker
             NetworkAddress newNetworkAddress;
             int min = networkAddressRegisterDAO.getMinNetworkAddressId();
             if (min == 0) {
-                newNetworkAddress = new NetworkAddress("-1");
+                newNetworkAddress = new NetworkAddress();
+                newNetworkAddress.setId("-1");
                 newNetworkAddress.setAddressId(-1);
                 newNetworkAddress.setNetworkAddress(networkAddress.getNetworkAddress());
             } else {
                 int max = networkAddressRegisterDAO.getMaxNetworkAddressId();
                 addressId = IdAutoIncrement.INSTANCE.increment(min, max);
 
-                newNetworkAddress = new NetworkAddress(String.valueOf(addressId));
+                newNetworkAddress = new NetworkAddress();
+                newNetworkAddress.setId(String.valueOf(addressId));
                 newNetworkAddress.setAddressId(addressId);
                 newNetworkAddress.setNetworkAddress(networkAddress.getNetworkAddress());
             }

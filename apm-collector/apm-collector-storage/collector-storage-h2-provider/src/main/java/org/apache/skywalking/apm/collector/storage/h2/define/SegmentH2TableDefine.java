@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.h2.define;
 
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2ColumnDefine;
