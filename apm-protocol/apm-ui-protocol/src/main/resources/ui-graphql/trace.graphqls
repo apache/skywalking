@@ -34,21 +34,14 @@ enum QueryOrder {
 
 # The trace represents a distributed trace, includes all segments and spans.
 type Trace {
-  traceId: ID!
-  segments: [Segment!]!
-}
-
-type Segment {
-  segmentId: ID!
-  appName: String!
-  isSizeLimited: Boolean!
   spans: [Span!]!
 }
 
 type Span {
-  refs: [Ref!]!
+  traceId: ID!
+  segmentId: ID!
   spanId: Int!
-  parentSpanId: Int!
+  refs: [Ref!]!
   startTime: Long!
   endTime: Long!
   operationName: String
@@ -65,12 +58,20 @@ type Span {
 }
 
 # Ref represents the link between the segment and its parents.
+# The parent(ref) may not exists, which means batch process.
+# The UI should display a list, representing the other trace IDs.
 type Ref {
+  traceId: ID!
   parentSegmentId: ID!
   parentSpanId: Int!
   # Ref type represents why did the ref happen.
   # Include: 1) CrossProcess 2) CrossThread
-  type: String!
+  type: RefType!
+}
+
+enum RefType {
+  CROSS_PROCESS,
+  CROSS_THREAD
 }
 
 type KeyValue {
