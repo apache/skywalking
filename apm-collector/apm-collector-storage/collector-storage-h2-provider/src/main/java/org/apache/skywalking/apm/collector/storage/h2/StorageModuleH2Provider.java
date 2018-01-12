@@ -34,6 +34,7 @@ import org.apache.skywalking.apm.collector.storage.dao.ICpuMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IGCMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IGlobalTracePersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IGlobalTraceUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.IInstanceHeartBeatPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IMemoryMetricUIDAO;
@@ -47,10 +48,18 @@ import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponent
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentHourPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentMinutePersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentMonthPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.amp.IApplicationDayMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.amp.IApplicationHourMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.amp.IApplicationMinuteMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.amp.IApplicationMonthMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ampp.IApplicationMappingDayPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ampp.IApplicationMappingHourPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ampp.IApplicationMappingMinutePersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ampp.IApplicationMappingMonthPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.armp.IApplicationReferenceDayMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.armp.IApplicationReferenceHourMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.armp.IApplicationReferenceMinuteMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.armp.IApplicationReferenceMonthMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.cache.IApplicationCacheDAO;
 import org.apache.skywalking.apm.collector.storage.dao.cache.IInstanceCacheDAO;
 import org.apache.skywalking.apm.collector.storage.dao.cache.INetworkAddressCacheDAO;
@@ -65,10 +74,18 @@ import org.apache.skywalking.apm.collector.storage.dao.gcmp.IGCHourMetricPersist
 import org.apache.skywalking.apm.collector.storage.dao.gcmp.IGCMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.gcmp.IGCMonthMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.gcmp.IGCSecondMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.imp.IInstanceDayMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.imp.IInstanceHourMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.imp.IInstanceMinuteMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.imp.IInstanceMonthMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.impp.IInstanceMappingDayPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.impp.IInstanceMappingHourPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.impp.IInstanceMappingMinutePersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.impp.IInstanceMappingMonthPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.irmp.IInstanceReferenceDayMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.irmp.IInstanceReferenceHourMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.irmp.IInstanceReferenceMinuteMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.irmp.IInstanceReferenceMonthMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.memorymp.IMemoryDayMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.memorymp.IMemoryHourMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.memorymp.IMemoryMinuteMetricPersistenceDAO;
@@ -83,6 +100,14 @@ import org.apache.skywalking.apm.collector.storage.dao.register.IApplicationRegi
 import org.apache.skywalking.apm.collector.storage.dao.register.IInstanceRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.dao.register.INetworkAddressRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.dao.register.IServiceNameRegisterDAO;
+import org.apache.skywalking.apm.collector.storage.dao.smp.IServiceDayMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.smp.IServiceHourMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.smp.IServiceMinuteMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.smp.IServiceMonthMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceDayMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceHourMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceMinuteMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceMonthMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.BatchH2DAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2StorageInstaller;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ApplicationComponentH2UIDAO;
@@ -93,6 +118,7 @@ import org.apache.skywalking.apm.collector.storage.h2.dao.GCMetricH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.GlobalTraceH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.GlobalTraceH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.InstanceH2UIDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.InstanceHeartBeatH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.InstanceMetricH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.MemoryMetricH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.MemoryPoolMetricH2UIDAO;
@@ -105,10 +131,18 @@ import org.apache.skywalking.apm.collector.storage.h2.dao.acp.ApplicationCompone
 import org.apache.skywalking.apm.collector.storage.h2.dao.acp.ApplicationComponentHourH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.acp.ApplicationComponentMinuteH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.acp.ApplicationComponentMonthH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.amp.ApplicationDayMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.amp.ApplicationHourMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.amp.ApplicationMinuteMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.amp.ApplicationMonthMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ampp.ApplicationMappingDayH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ampp.ApplicationMappingHourH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ampp.ApplicationMappingMinuteH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ampp.ApplicationMappingMonthH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.armp.ApplicationReferenceDayMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.armp.ApplicationReferenceHourMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.armp.ApplicationReferenceMinuteMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.armp.ApplicationReferenceMonthMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.cache.ApplicationH2CacheDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.cache.InstanceH2CacheDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.cache.NetworkAddressH2CacheDAO;
@@ -123,10 +157,18 @@ import org.apache.skywalking.apm.collector.storage.h2.dao.gcmp.GCHourMetricH2Per
 import org.apache.skywalking.apm.collector.storage.h2.dao.gcmp.GCMinuteMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.gcmp.GCMonthMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.gcmp.GCSecondMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.imp.InstanceDayMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.imp.InstanceHourMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.imp.InstanceMinuteMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.imp.InstanceMonthMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.impp.InstanceMappingDayH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.impp.InstanceMappingHourH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.impp.InstanceMappingMinuteH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.impp.InstanceMappingMonthH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.irmp.InstanceReferenceDayMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.irmp.InstanceReferenceHourMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.irmp.InstanceReferenceMinuteMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.irmp.InstanceReferenceMonthMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.memorymp.MemoryDayMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.memorymp.MemoryHourMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.memorymp.MemoryMinuteMetricH2PersistenceDAO;
@@ -141,6 +183,14 @@ import org.apache.skywalking.apm.collector.storage.h2.dao.register.ApplicationRe
 import org.apache.skywalking.apm.collector.storage.h2.dao.register.InstanceRegisterH2DAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.register.NetworkAddressRegisterH2DAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.register.ServiceNameRegisterH2DAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.smp.ServiceDayMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.smp.ServiceHourMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.smp.ServiceMinuteMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.smp.ServiceMonthMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.srmp.ServiceReferenceDayMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.srmp.ServiceReferenceHourMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.srmp.ServiceReferenceMinuteMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.srmp.ServiceReferenceMonthMetricH2PersistenceDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -240,6 +290,7 @@ public class StorageModuleH2Provider extends ModuleProvider {
         this.registerServiceImplementation(IGlobalTracePersistenceDAO.class, new GlobalTraceH2PersistenceDAO(h2Client));
         this.registerServiceImplementation(ISegmentCostPersistenceDAO.class, new SegmentCostH2PersistenceDAO(h2Client));
         this.registerServiceImplementation(ISegmentPersistenceDAO.class, new SegmentH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IInstanceHeartBeatPersistenceDAO.class, new InstanceHeartBeatH2PersistenceDAO(h2Client));
 
         this.registerServiceImplementation(IApplicationComponentMinutePersistenceDAO.class, new ApplicationComponentMinuteH2PersistenceDAO(h2Client));
         this.registerServiceImplementation(IApplicationComponentHourPersistenceDAO.class, new ApplicationComponentHourH2PersistenceDAO(h2Client));
@@ -256,14 +307,35 @@ public class StorageModuleH2Provider extends ModuleProvider {
         this.registerServiceImplementation(IInstanceMappingDayPersistenceDAO.class, new InstanceMappingDayH2PersistenceDAO(h2Client));
         this.registerServiceImplementation(IInstanceMappingMonthPersistenceDAO.class, new InstanceMappingMonthH2PersistenceDAO(h2Client));
 
-//        this.registerServiceImplementation(IApplicationMinuteMetricPersistenceDAO.class, new ApplicationMinuteMetricH2PersistenceDAO(h2Client));
-//        this.registerServiceImplementation(IApplicationReferenceMinuteMetricPersistenceDAO.class, new ApplicationReferenceMinuteMetricH2PersistenceDAO(h2Client));
-//        this.registerServiceImplementation(IServiceMinuteMetricPersistenceDAO.class, new ServiceMinuteMetricH2PersistenceDAO(h2Client));
-//        this.registerServiceImplementation(IServiceReferenceMinuteMetricPersistenceDAO.class, new ServiceReferenceMetricH2PersistenceDAO(h2Client));
-//
-//        this.registerServiceImplementation(IInstanceMinuteMetricPersistenceDAO.class, new InstanceMinuteMetricH2PersistenceDAO(h2Client));
-//        this.registerServiceImplementation(IInstanceReferenceMinuteMetricPersistenceDAO.class, new InstanceReferenceMetricH2PersistenceDAO(h2Client));
-//        this.registerServiceImplementation(IInstanceHeartBeatPersistenceDAO.class, new InstanceHeartBeatH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IApplicationMinuteMetricPersistenceDAO.class, new ApplicationMinuteMetricH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IApplicationHourMetricPersistenceDAO.class, new ApplicationHourMetricH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IApplicationDayMetricPersistenceDAO.class, new ApplicationDayMetricH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IApplicationMonthMetricPersistenceDAO.class, new ApplicationMonthMetricH2PersistenceDAO(h2Client));
+
+        this.registerServiceImplementation(IApplicationReferenceMinuteMetricPersistenceDAO.class, new ApplicationReferenceMinuteMetricH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IApplicationReferenceHourMetricPersistenceDAO.class, new ApplicationReferenceHourMetricH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IApplicationReferenceDayMetricPersistenceDAO.class, new ApplicationReferenceDayMetricH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IApplicationReferenceMonthMetricPersistenceDAO.class, new ApplicationReferenceMonthMetricH2PersistenceDAO(h2Client));
+
+        this.registerServiceImplementation(IInstanceMinuteMetricPersistenceDAO.class, new InstanceMinuteMetricH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IInstanceHourMetricPersistenceDAO.class, new InstanceHourMetricH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IInstanceDayMetricPersistenceDAO.class, new InstanceDayMetricH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IInstanceMonthMetricPersistenceDAO.class, new InstanceMonthMetricH2PersistenceDAO(h2Client));
+
+        this.registerServiceImplementation(IInstanceReferenceMinuteMetricPersistenceDAO.class, new InstanceReferenceMinuteMetricH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IInstanceReferenceHourMetricPersistenceDAO.class, new InstanceReferenceHourMetricH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IInstanceReferenceDayMetricPersistenceDAO.class, new InstanceReferenceDayMetricH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IInstanceReferenceMonthMetricPersistenceDAO.class, new InstanceReferenceMonthMetricH2PersistenceDAO(h2Client));
+
+        this.registerServiceImplementation(IServiceMinuteMetricPersistenceDAO.class, new ServiceMinuteMetricH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IServiceHourMetricPersistenceDAO.class, new ServiceHourMetricH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IServiceDayMetricPersistenceDAO.class, new ServiceDayMetricH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IServiceMonthMetricPersistenceDAO.class, new ServiceMonthMetricH2PersistenceDAO(h2Client));
+
+        this.registerServiceImplementation(IServiceReferenceMinuteMetricPersistenceDAO.class, new ServiceReferenceMinuteMetricH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IServiceReferenceHourMetricPersistenceDAO.class, new ServiceReferenceHourMetricH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IServiceReferenceDayMetricPersistenceDAO.class, new ServiceReferenceDayMetricH2PersistenceDAO(h2Client));
+        this.registerServiceImplementation(IServiceReferenceMonthMetricPersistenceDAO.class, new ServiceReferenceMonthMetricH2PersistenceDAO(h2Client));
     }
 
     private void registerUiDAO() throws ServiceNotProvidedException {

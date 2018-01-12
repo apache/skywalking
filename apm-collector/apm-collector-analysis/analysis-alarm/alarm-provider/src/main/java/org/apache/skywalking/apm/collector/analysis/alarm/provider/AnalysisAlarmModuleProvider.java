@@ -54,28 +54,28 @@ public class AnalysisAlarmModuleProvider extends ModuleProvider {
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
-        WorkerCreateListener workerCreateListener = new WorkerCreateListener();
-
-        ServiceMetricAlarmGraph serviceMetricAlarmGraph = new ServiceMetricAlarmGraph(getManager(), workerCreateListener);
-        serviceMetricAlarmGraph.create();
-
-        InstanceMetricAlarmGraph instanceMetricAlarmGraph = new InstanceMetricAlarmGraph(getManager(), workerCreateListener);
-        instanceMetricAlarmGraph.create();
-
-        ApplicationMetricAlarmGraph applicationMetricAlarmGraph = new ApplicationMetricAlarmGraph(getManager(), workerCreateListener);
-        applicationMetricAlarmGraph.create();
-
-        ServiceReferenceMetricAlarmGraph serviceReferenceMetricAlarmGraph = new ServiceReferenceMetricAlarmGraph(getManager(), workerCreateListener);
-        serviceReferenceMetricAlarmGraph.create();
-
-        InstanceReferenceMetricAlarmGraph instanceReferenceMetricAlarmGraph = new InstanceReferenceMetricAlarmGraph(getManager(), workerCreateListener);
-        instanceReferenceMetricAlarmGraph.create();
-
-        ApplicationReferenceMetricAlarmGraph applicationReferenceMetricAlarmGraph = new ApplicationReferenceMetricAlarmGraph(getManager(), workerCreateListener);
-        applicationReferenceMetricAlarmGraph.create();
-
-        PersistenceTimer persistenceTimer = new PersistenceTimer(AnalysisAlarmModule.NAME);
-        persistenceTimer.start(getManager(), workerCreateListener.getPersistenceWorkers());
+//        WorkerCreateListener workerCreateListener = new WorkerCreateListener();
+//
+//        ServiceMetricAlarmGraph serviceMetricAlarmGraph = new ServiceMetricAlarmGraph(getManager(), workerCreateListener);
+//        serviceMetricAlarmGraph.create();
+//
+//        InstanceMetricAlarmGraph instanceMetricAlarmGraph = new InstanceMetricAlarmGraph(getManager(), workerCreateListener);
+//        instanceMetricAlarmGraph.create();
+//
+//        ApplicationMetricAlarmGraph applicationMetricAlarmGraph = new ApplicationMetricAlarmGraph(getManager(), workerCreateListener);
+//        applicationMetricAlarmGraph.create();
+//
+//        ServiceReferenceMetricAlarmGraph serviceReferenceMetricAlarmGraph = new ServiceReferenceMetricAlarmGraph(getManager(), workerCreateListener);
+//        serviceReferenceMetricAlarmGraph.create();
+//
+//        InstanceReferenceMetricAlarmGraph instanceReferenceMetricAlarmGraph = new InstanceReferenceMetricAlarmGraph(getManager(), workerCreateListener);
+//        instanceReferenceMetricAlarmGraph.create();
+//
+//        ApplicationReferenceMetricAlarmGraph applicationReferenceMetricAlarmGraph = new ApplicationReferenceMetricAlarmGraph(getManager(), workerCreateListener);
+//        applicationReferenceMetricAlarmGraph.create();
+//
+//        PersistenceTimer persistenceTimer = new PersistenceTimer(AnalysisAlarmModule.NAME);
+//        persistenceTimer.start(getManager(), workerCreateListener.getPersistenceWorkers());
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
