@@ -237,7 +237,7 @@
                                         <argument>-Dversion=10.2.0.4.0</argument>
                                         <argument>-Dpackaging=jar</argument>
                                     </arguments>
-                                    <workingDirectory>${project.basedir}/ci-dependencies</workingDirectory>
+                                    <workingDirectory>${basedir}/../../ci-dependencies</workingDirectory>
                                 </configuration>
                             </execution>
                         </executions>
@@ -280,7 +280,7 @@
                                         <argument>-Dversion=4.0.41</argument>
                                         <argument>-Dpackaging=jar</argument>
                                     </arguments>
-                                    <workingDirectory>${project.basedir}/ci-dependencies</workingDirectory>
+                                    <workingDirectory>${basedir}/../../ci-dependencies</workingDirectory>
                                 </configuration>
                             </execution>
                         </executions>
@@ -323,7 +323,7 @@
                                         <argument>-Dversion=4.0.41</argument>
                                         <argument>-Dpackaging=jar</argument>
                                     </arguments>
-                                    <workingDirectory>${project.basedir}/ci-dependencies</workingDirectory>
+                                    <workingDirectory>${basedir}/../../ci-dependencies</workingDirectory>
                                 </configuration>
                             </execution>
                         </executions>
