@@ -39,6 +39,6 @@ public class ApplicationEsTableDefine extends ElasticSearchTableDefine {
         addColumn(new ElasticSearchColumnDefine(ApplicationTable.COLUMN_APPLICATION_CODE, ElasticSearchColumnDefine.Type.Keyword.name()));
         addColumn(new ElasticSearchColumnDefine(ApplicationTable.COLUMN_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
         addColumn(new ElasticSearchColumnDefine(ApplicationTable.COLUMN_ADDRESS_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(ApplicationTable.COLUMN_IS_ADDRESS, ElasticSearchColumnDefine.Type.Boolean.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationTable.COLUMN_IS_ADDRESS, ElasticSearchColumnDefine.Type.Integer.name()));
     }
 }

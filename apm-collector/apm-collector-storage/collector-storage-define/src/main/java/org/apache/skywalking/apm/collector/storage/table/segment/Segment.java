@@ -35,17 +35,18 @@ public class Segment extends StreamData {
     private static final Column[] LONG_COLUMNS = {
         new Column(SegmentTable.COLUMN_TIME_BUCKET, new NonOperation()),
     };
+
     private static final Column[] DOUBLE_COLUMNS = {};
+
     private static final Column[] INTEGER_COLUMNS = {
     };
 
-    private static final Column[] BOOLEAN_COLUMNS = {};
     private static final Column[] BYTE_COLUMNS = {
         new Column(SegmentTable.COLUMN_DATA_BINARY, new CoverOperation()),
     };
 
     public Segment() {
-        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
+        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
     }
 
     @Override public String getId() {

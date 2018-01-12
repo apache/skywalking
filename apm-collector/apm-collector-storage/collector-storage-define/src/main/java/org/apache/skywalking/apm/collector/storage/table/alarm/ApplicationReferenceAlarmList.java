@@ -46,12 +46,10 @@ public class ApplicationReferenceAlarmList extends StreamData {
         new Column(ApplicationReferenceAlarmListTable.COLUMN_BEHIND_APPLICATION_ID, new NonOperation()),
     };
 
-    private static final Column[] BOOLEAN_COLUMNS = {};
-
     private static final Column[] BYTE_COLUMNS = {};
 
     public ApplicationReferenceAlarmList() {
-        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
+        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
     }
 
     @Override public String getId() {

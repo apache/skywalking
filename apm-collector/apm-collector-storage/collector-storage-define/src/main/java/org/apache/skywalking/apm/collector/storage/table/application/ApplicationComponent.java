@@ -44,12 +44,10 @@ public class ApplicationComponent extends StreamData {
         new Column(ApplicationComponentTable.COLUMN_PEER_ID, new CoverOperation()),
     };
 
-    private static final Column[] BOOLEAN_COLUMNS = {};
-    
     private static final Column[] BYTE_COLUMNS = {};
 
     public ApplicationComponent() {
-        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
+        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
     }
 
     @Override public String getId() {

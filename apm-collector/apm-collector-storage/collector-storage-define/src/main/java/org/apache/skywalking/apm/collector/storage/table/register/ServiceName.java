@@ -34,17 +34,18 @@ public class ServiceName extends StreamData {
     };
 
     private static final Column[] LONG_COLUMNS = {};
+
     private static final Column[] DOUBLE_COLUMNS = {};
+    
     private static final Column[] INTEGER_COLUMNS = {
         new Column(ServiceNameTable.COLUMN_APPLICATION_ID, new CoverOperation()),
         new Column(ServiceNameTable.COLUMN_SERVICE_ID, new CoverOperation()),
     };
 
-    private static final Column[] BOOLEAN_COLUMNS = {};
     private static final Column[] BYTE_COLUMNS = {};
 
     public ServiceName() {
-        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
+        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
     }
 
     @Override public String getId() {

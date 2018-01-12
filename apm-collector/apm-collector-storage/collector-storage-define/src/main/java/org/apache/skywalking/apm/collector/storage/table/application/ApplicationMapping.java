@@ -44,12 +44,10 @@ public class ApplicationMapping extends StreamData {
         new Column(ApplicationMappingTable.COLUMN_ADDRESS_ID, new CoverOperation()),
     };
 
-    private static final Column[] BOOLEAN_COLUMNS = {};
-
     private static final Column[] BYTE_COLUMNS = {};
 
     public ApplicationMapping() {
-        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
+        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
     }
 
     @Override public String getId() {
