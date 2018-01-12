@@ -43,6 +43,18 @@ import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponent
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentHourPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentMinutePersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentMonthPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationReferenceAlarmListPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationReferenceAlarmPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.alarm.IInstanceAlarmListPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.alarm.IInstanceAlarmPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.alarm.IInstanceReferenceAlarmListPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.alarm.IInstanceReferenceAlarmPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.alarm.IServiceAlarmListPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.alarm.IServiceAlarmPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.alarm.IServiceReferenceAlarmListPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.alarm.IServiceReferenceAlarmPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.amp.IApplicationDayMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.amp.IApplicationHourMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.amp.IApplicationMinuteMetricPersistenceDAO;
@@ -237,18 +249,18 @@ public class StorageModule extends Module {
     }
 
     private void addAlarmDAO(List<Class> classes) {
-//        classes.add(IServiceReferenceAlarmPersistenceDAO.class);
-//        classes.add(IServiceReferenceAlarmListPersistenceDAO.class);
-//        classes.add(IInstanceReferenceAlarmPersistenceDAO.class);
-//        classes.add(IInstanceReferenceAlarmListPersistenceDAO.class);
-//        classes.add(IApplicationReferenceAlarmPersistenceDAO.class);
-//        classes.add(IApplicationReferenceAlarmListPersistenceDAO.class);
-//
-//        classes.add(IServiceAlarmPersistenceDAO.class);
-//        classes.add(IServiceAlarmListPersistenceDAO.class);
-//        classes.add(IInstanceAlarmPersistenceDAO.class);
-//        classes.add(IInstanceAlarmListPersistenceDAO.class);
-//        classes.add(IApplicationAlarmPersistenceDAO.class);
-//        classes.add(IApplicationAlarmListPersistenceDAO.class);
+        classes.add(IServiceReferenceAlarmPersistenceDAO.class);
+        classes.add(IServiceReferenceAlarmListPersistenceDAO.class);
+        classes.add(IInstanceReferenceAlarmPersistenceDAO.class);
+        classes.add(IInstanceReferenceAlarmListPersistenceDAO.class);
+        classes.add(IApplicationReferenceAlarmPersistenceDAO.class);
+        classes.add(IApplicationReferenceAlarmListPersistenceDAO.class);
+
+        classes.add(IServiceAlarmPersistenceDAO.class);
+        classes.add(IServiceAlarmListPersistenceDAO.class);
+        classes.add(IInstanceAlarmPersistenceDAO.class);
+        classes.add(IInstanceAlarmListPersistenceDAO.class);
+        classes.add(IApplicationAlarmPersistenceDAO.class);
+        classes.add(IApplicationAlarmListPersistenceDAO.class);
     }
 }
