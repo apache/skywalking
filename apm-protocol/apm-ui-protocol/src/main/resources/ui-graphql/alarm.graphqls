@@ -1,3 +1,8 @@
+type Alarm {
+    items: [AlarmItem!]!
+    count: Int!
+}
+
 type AlarmItem {
     # Typical include: Application Code + cause type. This is a short description.
     title: String!
@@ -21,5 +26,5 @@ enum CauseType {
 }
 
 extend type Query {
-    loadAlertList(keyword: String, alertType: AlarmType, duration:Duration!, paging: Pagination!):[AlarmItem!]!
+    loadAlertList(keyword: String, alertType: AlarmType, duration:Duration!, paging: Pagination!): Alarm
 }
