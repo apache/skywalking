@@ -35,11 +35,15 @@ import org.apache.skywalking.apm.collector.storage.dao.imp.IInstanceMinuteMetric
 import org.apache.skywalking.apm.collector.storage.dao.memorymp.IMemorySecondMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.mpoolmp.IMemoryPoolSecondMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceMinuteMetricPersistenceDAO;
+import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class DataTTLKeeperTimer {
+    private final Logger logger = LoggerFactory.getLogger(StorageModuleEsProvider.class);
 
     private final ModuleManager moduleManager;
     private final StorageModuleEsNamingListener namingListener;
@@ -55,7 +59,9 @@ public class DataTTLKeeperTimer {
     }
 
     public void start() {
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::delete, 1, 8, TimeUnit.HOURS);
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
+            new RunnableWithExceptionProtection(this::delete,
+                t -> logger.error("Remove data in background failure.", t)), 1, 8, TimeUnit.HOURS);
     }
 
     private void delete() {
