@@ -26,6 +26,7 @@ import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLo
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SegmentStandardizationWorker extends AbstractLocalAsyncWorker<SegmentStandardization, SegmentStandardization> {
 
-    private final Logger logger = LoggerFactory.getLogger(SegmentStandardizationWorker.class);
+    private static final Logger logger = LoggerFactory.getLogger(SegmentStandardizationWorker.class);
 
     public SegmentStandardizationWorker(ModuleManager moduleManager) {
         super(moduleManager);
@@ -70,7 +71,9 @@ public class SegmentStandardizationWorker extends AbstractLocalAsyncWorker<Segme
         }
 
         private void startTimer(SegmentStandardizationWorker standardizationWorker) {
-            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(standardizationWorker::flushAndSwitch, 10, 3, TimeUnit.SECONDS);
+            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
+                new RunnableWithExceptionProtection(standardizationWorker::flushAndSwitch,
+                    t -> logger.error("Segment standardization failure.", t)), 10, 3, TimeUnit.SECONDS);
         }
     }
 }

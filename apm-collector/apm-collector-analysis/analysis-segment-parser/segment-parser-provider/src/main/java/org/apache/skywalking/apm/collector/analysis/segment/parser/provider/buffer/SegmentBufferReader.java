@@ -34,6 +34,7 @@ import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.network.proto.UpstreamSegment;
+import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +51,9 @@ public enum SegmentBufferReader {
 
     public void initialize(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::preRead, 3, 3, TimeUnit.SECONDS);
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
+            new RunnableWithExceptionProtection(this::preRead,
+                t -> logger.error("Segment buffer pre read failure.", t)), 3, 3, TimeUnit.SECONDS);
     }
 
     public void setSegmentParserListenerManager(SegmentParserListenerManager listenerManager) {
