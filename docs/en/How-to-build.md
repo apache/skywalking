@@ -12,3 +12,11 @@ This document helps people to compile and build the project in your maven and ID
 1. Set **Generated Source Codes** folders.
     * `grpc-java` and `java` folders in **apm-protocol/apm-network/target/generated-sources/protobuf**
     * `grpc-java` and `java` folders in **apm-collector/apm-collector-remote/apm-remote-grpc-provider/target/protobuf**
+
+## Building Resin-3, Resin-4, and OJDBC sdk plugins
+Due to license incompatibilities/restrictions these plugins under `apm-sniffer/apm-sdk-plugin/` are not built by default.
+Download them manually into the `ci-dependencies/` directory and the plugins will be included in the maven reactor and built.
+The names of the artifacts downloaded and placed in the `ci-dependencies/` directory must be exact:
+* resin-3.0.9.jar
+* resin-4.0.41.jar
+* ojdbc14-10.2.0.4.0.jar
