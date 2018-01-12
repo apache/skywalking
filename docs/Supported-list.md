@@ -5,8 +5,8 @@
   * Spring MVC 3.x, 4.x with servlet 3.x
   * [Nutz Web Framework](https://github.com/nutzam/nutz)  1.x
   * [Struts2 MVC](http://struts.apache.org/)  2.3.x -> 2.5.x 
-  * [Resin](http://www.caucho.com/resin-4.0/) 3
-  * [Resin](http://www.caucho.com/resin-4.0/) 4
+  * [Resin](http://www.caucho.com/resin-4.0/) 3 (Optional¹)
+  * [Resin](http://www.caucho.com/resin-4.0/) 4 (Optional¹)
   * [Jetty Server](http://www.eclipse.org/jetty/) 9
 * HTTP Client
   * [Feign](https://github.com/OpenFeign/feign) 9.x
@@ -17,7 +17,7 @@
   * [Jetty Client](http://www.eclipse.org/jetty/) 9
 * JDBC
   * Mysql Driver 5.x, 6.x
-  * Oracle Driver
+  * Oracle Driver (Optional¹)
   * H2 Driver
   * [Sharding-JDBC](https://github.com/shardingjdbc/sharding-jdbc) 1.5.x
   * PostgreSQL Driver 8.x, 9.x, 42.x
@@ -44,3 +44,5 @@
 * OpenTracing community supported
   * Motan
   * Hprose-java
+
+¹Required dependencies for these components must be first manually downloaded before being built, due to license incompatibilities. For this reason these components are not by default included in the SkyWalking releases.
