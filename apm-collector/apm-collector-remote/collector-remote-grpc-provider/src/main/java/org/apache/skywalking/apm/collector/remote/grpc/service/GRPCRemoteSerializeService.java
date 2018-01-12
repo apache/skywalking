@@ -37,14 +37,8 @@ public class GRPCRemoteSerializeService implements RemoteSerializeService<Remote
         for (int i = 0; i < data.getDataLongsCount(); i++) {
             builder.addDataLongs(data.getDataLong(i));
         }
-        for (int i = 0; i < data.getDataBooleansCount(); i++) {
-            builder.addDataBooleans(data.getDataBoolean(i));
-        }
         for (int i = 0; i < data.getDataDoublesCount(); i++) {
             builder.addDataDoubles(data.getDataDouble(i));
-        }
-        for (int i = 0; i < data.getDataBytesCount(); i++) {
-//            builder.addDataBytes(ByteString.copyFrom(data.getDataBytes(i)));
         }
         return builder;
     }

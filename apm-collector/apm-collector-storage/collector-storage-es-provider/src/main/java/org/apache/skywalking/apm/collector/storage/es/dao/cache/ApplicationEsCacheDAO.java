@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.collector.storage.es.dao.cache;
 
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.cache.IApplicationCacheDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
@@ -54,7 +55,7 @@ public class ApplicationEsCacheDAO extends EsDAO implements IApplicationCacheDAO
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ApplicationTable.COLUMN_APPLICATION_CODE, applicationCode));
-        boolQueryBuilder.must().add(QueryBuilders.termQuery(ApplicationTable.COLUMN_IS_ADDRESS, false));
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(ApplicationTable.COLUMN_IS_ADDRESS, BooleanUtils.FALSE));
 
         searchRequestBuilder.setQuery(boolQueryBuilder);
         searchRequestBuilder.setSize(1);
@@ -88,7 +89,7 @@ public class ApplicationEsCacheDAO extends EsDAO implements IApplicationCacheDAO
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ApplicationTable.COLUMN_ADDRESS_ID, addressId));
-        boolQueryBuilder.must().add(QueryBuilders.termQuery(ApplicationTable.COLUMN_IS_ADDRESS, true));
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(ApplicationTable.COLUMN_IS_ADDRESS, BooleanUtils.TRUE));
 
         searchRequestBuilder.setQuery(boolQueryBuilder);
         searchRequestBuilder.setSize(1);

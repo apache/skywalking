@@ -16,13 +16,15 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.base.sql;
 
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * @author peng-yongsheng, clevertension
+ */
 public class SqlBuilder {
     public static String buildSql(String sql, Object... args) {
         return MessageFormat.format(sql, args);
