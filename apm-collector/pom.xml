@@ -50,6 +50,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.7.25</version>
