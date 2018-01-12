@@ -5,6 +5,7 @@ import {
   ChartCard, MiniArea, MiniBar,
 } from '../../components/Charts';
 import { timeRange } from '../../utils/utils';
+import { ServiceTopology } from '../../components/Topology';
 
 const { Option } = Select;
 
@@ -95,7 +96,7 @@ export default class Service extends Component {
               bordered={false}
               bodyStyle={{ padding: 0 }}
             >
-              <div style={{ height: 430 }}>The toplogy of service dependencies</div>
+              <ServiceTopology elements={this.props.service.getServiceTopology} />
             </Card>
           </Col>
         </Row>

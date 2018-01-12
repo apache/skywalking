@@ -1,4 +1,6 @@
 const conf = {
+  zoom: 1,
+  maxZoom: 1,
   boxSelectionEnabled: true,
   autounselectify: true,
   layout: {

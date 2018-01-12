@@ -26,10 +26,16 @@ export default class Base extends Component {
       return;
     }
     this.cy.json({ elements: this.transform(nextProps.elements), style: this.getStyle() });
-    this.cy.layout({
-      name: 'cose',
-      animate: true,
-    }).run();
+    const layout = this.cy.layout({
+      name: 'cose-bilkent',
+      animate: 'end',
+      dealEdgeLength: 200,
+      padding: 10,
+    });
+    layout.pon('layoutstop').then(() => {
+      this.cy.minZoom(this.cy.zoom());
+    });
+    layout.run();
   }
   shouldComponentUpdate() {
     return false;
@@ -41,12 +47,15 @@ export default class Base extends Component {
     return this.cy;
   }
   transform(elements) {
+    if (!elements) {
+      return [];
+    }
     this.elements = elements;
     const { nodes, calls } = elements;
     return {
       nodes: nodes.map(node => ({ data: node })),
-      edges: calls.filter(call => (nodes.findIndex(node => node.id === call.source)
-        && nodes.findIndex(node => node.id === call.target)))
+      edges: calls.filter(call => (nodes.findIndex(node => node.id === call.source) > -1
+        && nodes.findIndex(node => node.id === call.target) > -1))
         .map(call => ({ data: { ...call, id: `${call.source}-${call.target}` } })),
     };
   }
