@@ -28,6 +28,7 @@ import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.FileUtils;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
+import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +71,10 @@ public enum OffsetManager {
             offset.deserialize(offsetRecord);
             initialized = true;
 
-            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::flush, 10, 3, TimeUnit.SECONDS);
+            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
+                new RunnableWithExceptionProtection(this::flush,
+                    t -> logger.error("flush offset file in background failure.", t)
+                ), 10, 3, TimeUnit.SECONDS);
         }
     }
 

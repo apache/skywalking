@@ -16,29 +16,34 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.table.jvm;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
-import org.apache.skywalking.apm.collector.core.data.Data;
+import org.apache.skywalking.apm.collector.core.data.StreamData;
+import org.apache.skywalking.apm.collector.core.data.operator.AddOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.MaxOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.MinOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
+import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 
 /**
  * @author peng-yongsheng
  */
-public class MemoryMetric extends Data {
+public class MemoryMetric extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
         new Column(MemoryMetricTable.COLUMN_ID, new NonOperation()),
+        new Column(MemoryMetricTable.COLUMN_METRIC_ID, new NonOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(MemoryMetricTable.COLUMN_INIT, new CoverOperation()),
-        new Column(MemoryMetricTable.COLUMN_MAX, new CoverOperation()),
-        new Column(MemoryMetricTable.COLUMN_USED, new CoverOperation()),
-        new Column(MemoryMetricTable.COLUMN_COMMITTED, new CoverOperation()),
-        new Column(MemoryMetricTable.COLUMN_TIME_BUCKET, new CoverOperation()),
+        new Column(MemoryMetricTable.COLUMN_INIT, new MinOperation()),
+        new Column(MemoryMetricTable.COLUMN_MAX, new MaxOperation()),
+        new Column(MemoryMetricTable.COLUMN_USED, new AddOperation()),
+        new Column(MemoryMetricTable.COLUMN_COMMITTED, new AddOperation()),
+        new Column(MemoryMetricTable.COLUMN_TIMES, new AddOperation()),
+        new Column(MemoryMetricTable.COLUMN_TIME_BUCKET, new NonOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {
@@ -46,15 +51,29 @@ public class MemoryMetric extends Data {
 
     private static final Column[] INTEGER_COLUMNS = {
         new Column(MemoryMetricTable.COLUMN_INSTANCE_ID, new CoverOperation()),
-    };
-
-    private static final Column[] BOOLEAN_COLUMNS = {
         new Column(MemoryMetricTable.COLUMN_IS_HEAP, new CoverOperation()),
     };
+
     private static final Column[] BYTE_COLUMNS = {};
 
-    public MemoryMetric(String id) {
-        super(id, STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
+    public MemoryMetric() {
+        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
+    }
+
+    @Override public String getId() {
+        return getDataString(0);
+    }
+
+    @Override public void setId(String id) {
+        setDataString(0, id);
+    }
+
+    @Override public String getMetricId() {
+        return getDataString(1);
+    }
+
+    @Override public void setMetricId(String metricId) {
+        setDataString(1, metricId);
     }
 
     public Long getInit() {
@@ -89,20 +108,20 @@ public class MemoryMetric extends Data {
         setDataLong(3, committed);
     }
 
-    public Long getTimeBucket() {
+    public Long getTimes() {
         return getDataLong(4);
     }
 
+    public void setTimes(Long times) {
+        setDataLong(4, times);
+    }
+
+    public Long getTimeBucket() {
+        return getDataLong(5);
+    }
+
     public void setTimeBucket(Long timeBucket) {
-        setDataLong(4, timeBucket);
-    }
-
-    public Boolean getIsHeap() {
-        return getDataBoolean(0);
-    }
-
-    public void setIsHeap(Boolean isHeap) {
-        setDataBoolean(0, isHeap);
+        setDataLong(5, timeBucket);
     }
 
     public Integer getInstanceId() {
@@ -111,5 +130,13 @@ public class MemoryMetric extends Data {
 
     public void setInstanceId(Integer instanceId) {
         setDataInteger(0, instanceId);
+    }
+
+    public Boolean getIsHeap() {
+        return BooleanUtils.valueToBoolean(getDataInteger(1));
+    }
+
+    public void setIsHeap(Boolean isHeap) {
+        setDataInteger(1, BooleanUtils.booleanToValue(isHeap));
     }
 }

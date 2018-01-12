@@ -46,6 +46,7 @@ import org.apache.skywalking.apm.network.proto.ApplicationRegisterServiceGrpc;
 import org.apache.skywalking.apm.network.proto.InstanceDiscoveryServiceGrpc;
 import org.apache.skywalking.apm.network.proto.NetworkAddressRegisterServiceGrpc;
 import org.apache.skywalking.apm.network.proto.ServiceNameDiscoveryServiceGrpc;
+import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
 /**
  * @author wusheng
@@ -87,7 +88,11 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
     public void boot() throws Throwable {
         applicationRegisterFuture = Executors
             .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("AppAndServiceRegisterClient"))
-            .scheduleAtFixedRate(this, 0, Config.Collector.APP_AND_SERVICE_REGISTER_CHECK_INTERVAL, TimeUnit.SECONDS);
+            .scheduleAtFixedRate(new RunnableWithExceptionProtection(this, new RunnableWithExceptionProtection.CallbackWhenException() {
+                @Override public void handle(Throwable t) {
+                    logger.error("unexpected exception.", t);
+                }
+            }), 0, Config.Collector.APP_AND_SERVICE_REGISTER_CHECK_INTERVAL, TimeUnit.SECONDS);
     }
 
     @Override

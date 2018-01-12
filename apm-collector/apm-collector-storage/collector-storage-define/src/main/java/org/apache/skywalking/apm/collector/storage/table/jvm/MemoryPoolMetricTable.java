@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.table.jvm;
 
 import org.apache.skywalking.apm.collector.core.data.CommonTable;
@@ -32,4 +31,5 @@ public class MemoryPoolMetricTable extends CommonTable {
     public static final String COLUMN_MAX = "max";
     public static final String COLUMN_USED = "used";
     public static final String COLUMN_COMMITTED = "committed";
+    public static final String COLUMN_TIMES = "times";
 }

@@ -45,7 +45,8 @@ public class ServiceMetricAlarmAssertWorker extends AlarmAssertWorker<ServiceMet
     }
 
     @Override protected ServiceAlarm newAlarmObject(String id, ServiceMetric inputMetric) {
-        ServiceAlarm serviceAlarm = new ServiceAlarm(id + Const.ID_SPLIT + inputMetric.getServiceId());
+        ServiceAlarm serviceAlarm = new ServiceAlarm();
+        serviceAlarm.setId(id + Const.ID_SPLIT + inputMetric.getServiceId());
         serviceAlarm.setApplicationId(inputMetric.getApplicationId());
         serviceAlarm.setInstanceId(inputMetric.getInstanceId());
         serviceAlarm.setServiceId(inputMetric.getServiceId());

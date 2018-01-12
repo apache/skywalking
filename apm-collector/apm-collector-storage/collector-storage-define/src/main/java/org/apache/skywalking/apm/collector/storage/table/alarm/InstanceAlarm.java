@@ -19,14 +19,14 @@
 package org.apache.skywalking.apm.collector.storage.table.alarm;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
-import org.apache.skywalking.apm.collector.core.data.Data;
+import org.apache.skywalking.apm.collector.core.data.StreamData;
 import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
 
 /**
  * @author peng-yongsheng
  */
-public class InstanceAlarm extends Data implements Alarm {
+public class InstanceAlarm extends StreamData implements Alarm {
 
     private static final Column[] STRING_COLUMNS = {
         new Column(InstanceAlarmTable.COLUMN_ID, new NonOperation()),
@@ -46,12 +46,26 @@ public class InstanceAlarm extends Data implements Alarm {
         new Column(InstanceAlarmTable.COLUMN_INSTANCE_ID, new NonOperation()),
     };
 
-    private static final Column[] BOOLEAN_COLUMNS = {};
-
     private static final Column[] BYTE_COLUMNS = {};
 
-    public InstanceAlarm(String id) {
-        super(id, STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
+    public InstanceAlarm() {
+        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
+    }
+
+    @Override public String getId() {
+        return getDataString(0);
+    }
+
+    @Override public void setId(String id) {
+        setDataString(0, id);
+    }
+
+    @Override public String getMetricId() {
+        return getId();
+    }
+
+    @Override public void setMetricId(String metricId) {
+        setId(metricId);
     }
 
     @Override
