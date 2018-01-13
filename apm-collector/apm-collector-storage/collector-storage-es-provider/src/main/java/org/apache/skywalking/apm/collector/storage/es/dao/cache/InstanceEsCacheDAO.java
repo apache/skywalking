@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.collector.storage.es.dao.cache;
 
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.storage.dao.cache.IInstanceCacheDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
@@ -61,7 +62,7 @@ public class InstanceEsCacheDAO extends EsDAO implements IInstanceCacheDAO {
         BoolQueryBuilder builder = QueryBuilders.boolQuery();
         builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationId));
         builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_AGENT_UUID, agentUUID));
-        builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, false));
+        builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, BooleanUtils.FALSE));
         searchRequestBuilder.setQuery(builder);
         searchRequestBuilder.setSize(1);
 
@@ -82,7 +83,7 @@ public class InstanceEsCacheDAO extends EsDAO implements IInstanceCacheDAO {
         BoolQueryBuilder builder = QueryBuilders.boolQuery();
         builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationId));
         builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_ADDRESS_ID, addressId));
-        builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, true));
+        builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, BooleanUtils.TRUE));
         searchRequestBuilder.setQuery(builder);
         searchRequestBuilder.setSize(1);
 

@@ -43,6 +43,6 @@ public class InstanceEsTableDefine extends ElasticSearchTableDefine {
         addColumn(new ElasticSearchColumnDefine(InstanceTable.COLUMN_HEARTBEAT_TIME, ElasticSearchColumnDefine.Type.Long.name()));
         addColumn(new ElasticSearchColumnDefine(InstanceTable.COLUMN_OS_INFO, ElasticSearchColumnDefine.Type.Keyword.name()));
         addColumn(new ElasticSearchColumnDefine(InstanceTable.COLUMN_ADDRESS_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(InstanceTable.COLUMN_IS_ADDRESS, ElasticSearchColumnDefine.Type.Boolean.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceTable.COLUMN_IS_ADDRESS, ElasticSearchColumnDefine.Type.Integer.name()));
     }
 }

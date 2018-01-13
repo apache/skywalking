@@ -22,6 +22,7 @@ import org.apache.skywalking.apm.collector.core.data.Column;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
 import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
+import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 
 /**
  * @author peng-yongsheng
@@ -45,16 +46,13 @@ public class Instance extends StreamData {
         new Column(InstanceTable.COLUMN_APPLICATION_ID, new CoverOperation()),
         new Column(InstanceTable.COLUMN_INSTANCE_ID, new CoverOperation()),
         new Column(InstanceTable.COLUMN_ADDRESS_ID, new CoverOperation()),
-    };
-
-    private static final Column[] BOOLEAN_COLUMNS = {
         new Column(InstanceTable.COLUMN_IS_ADDRESS, new CoverOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};
 
     public Instance() {
-        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
+        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
     }
 
     @Override public String getId() {
@@ -130,10 +128,10 @@ public class Instance extends StreamData {
     }
 
     public boolean getIsAddress() {
-        return getDataBoolean(0);
+        return BooleanUtils.valueToBoolean(getDataInteger(3));
     }
 
     public void setIsAddress(boolean isAddress) {
-        setDataBoolean(0, isAddress);
+        setDataInteger(3, BooleanUtils.booleanToValue(isAddress));
     }
 }

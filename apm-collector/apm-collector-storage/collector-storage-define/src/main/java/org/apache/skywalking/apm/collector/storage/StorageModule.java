@@ -195,6 +195,9 @@ public class StorageModule extends Module {
         classes.add(IInstanceMappingMonthPersistenceDAO.class);
 
         classes.add(IGlobalTracePersistenceDAO.class);
+        classes.add(ISegmentCostPersistenceDAO.class);
+        classes.add(ISegmentPersistenceDAO.class);
+        classes.add(IInstanceHeartBeatPersistenceDAO.class);
 
         classes.add(IApplicationMinuteMetricPersistenceDAO.class);
         classes.add(IApplicationHourMetricPersistenceDAO.class);
@@ -205,9 +208,6 @@ public class StorageModule extends Module {
         classes.add(IApplicationReferenceHourMetricPersistenceDAO.class);
         classes.add(IApplicationReferenceDayMetricPersistenceDAO.class);
         classes.add(IApplicationReferenceMonthMetricPersistenceDAO.class);
-
-        classes.add(ISegmentCostPersistenceDAO.class);
-        classes.add(ISegmentPersistenceDAO.class);
 
         classes.add(IServiceMinuteMetricPersistenceDAO.class);
         classes.add(IServiceHourMetricPersistenceDAO.class);
@@ -228,8 +228,6 @@ public class StorageModule extends Module {
         classes.add(IInstanceReferenceHourMetricPersistenceDAO.class);
         classes.add(IInstanceReferenceDayMetricPersistenceDAO.class);
         classes.add(IInstanceReferenceMonthMetricPersistenceDAO.class);
-
-        classes.add(IInstanceHeartBeatPersistenceDAO.class);
     }
 
     private void addUiDAO(List<Class> classes) {
