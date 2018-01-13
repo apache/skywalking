@@ -22,6 +22,7 @@ import org.apache.skywalking.apm.collector.analysis.jvm.define.graph.GraphIdDefi
 import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IMemoryMetricService;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
+import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetric;
@@ -53,7 +54,7 @@ public class MemoryMetricService implements IMemoryMetricService {
         memoryMetric.setId(id);
         memoryMetric.setMetricId(metricId);
         memoryMetric.setInstanceId(instanceId);
-        memoryMetric.setIsHeap(isHeap);
+        memoryMetric.setIsHeap(BooleanUtils.booleanToValue(isHeap));
         memoryMetric.setInit(init);
         memoryMetric.setMax(max);
         memoryMetric.setUsed(used);

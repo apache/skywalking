@@ -50,15 +50,13 @@ public class MemoryMetric extends StreamData {
 
     private static final Column[] INTEGER_COLUMNS = {
         new Column(MemoryMetricTable.COLUMN_INSTANCE_ID, new CoverOperation()),
-    };
-
-    private static final Column[] BOOLEAN_COLUMNS = {
         new Column(MemoryMetricTable.COLUMN_IS_HEAP, new CoverOperation()),
     };
+
     private static final Column[] BYTE_COLUMNS = {};
 
     public MemoryMetric() {
-        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
+        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
     }
 
     @Override public String getId() {
@@ -125,19 +123,19 @@ public class MemoryMetric extends StreamData {
         setDataLong(5, timeBucket);
     }
 
-    public Boolean getIsHeap() {
-        return getDataBoolean(0);
-    }
-
-    public void setIsHeap(Boolean isHeap) {
-        setDataBoolean(0, isHeap);
-    }
-
     public Integer getInstanceId() {
         return getDataInteger(0);
     }
 
     public void setInstanceId(Integer instanceId) {
         setDataInteger(0, instanceId);
+    }
+
+    public Integer getIsHeap() {
+        return getDataInteger(1);
+    }
+
+    public void setIsHeap(Integer isHeap) {
+        setDataInteger(1, isHeap);
     }
 }

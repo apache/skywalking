@@ -40,16 +40,13 @@ public class Application extends StreamData {
     private static final Column[] INTEGER_COLUMNS = {
         new Column(ApplicationTable.COLUMN_APPLICATION_ID, new CoverOperation()),
         new Column(ApplicationTable.COLUMN_ADDRESS_ID, new CoverOperation()),
-    };
-
-    private static final Column[] BOOLEAN_COLUMNS = {
         new Column(ApplicationTable.COLUMN_IS_ADDRESS, new CoverOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};
 
     public Application() {
-        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
+        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
     }
 
     @Override public String getId() {
@@ -92,11 +89,11 @@ public class Application extends StreamData {
         setDataInteger(1, addressId);
     }
 
-    public boolean getIsAddress() {
-        return getDataBoolean(0);
+    public int getIsAddress() {
+        return getDataInteger(2);
     }
 
-    public void setIsAddress(boolean isAddress) {
-        setDataBoolean(0, isAddress);
+    public void setIsAddress(int isAddress) {
+        setDataInteger(2, isAddress);
     }
 }

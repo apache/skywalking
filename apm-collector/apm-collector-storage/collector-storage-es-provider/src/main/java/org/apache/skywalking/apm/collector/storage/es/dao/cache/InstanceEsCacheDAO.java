@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.collector.storage.es.dao.cache;
 
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.storage.dao.cache.IInstanceCacheDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
@@ -29,15 +30,11 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class InstanceEsCacheDAO extends EsDAO implements IInstanceCacheDAO {
-
-    private final Logger logger = LoggerFactory.getLogger(InstanceEsCacheDAO.class);
 
     public InstanceEsCacheDAO(ElasticSearchClient client) {
         super(client);
@@ -61,7 +58,7 @@ public class InstanceEsCacheDAO extends EsDAO implements IInstanceCacheDAO {
         BoolQueryBuilder builder = QueryBuilders.boolQuery();
         builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationId));
         builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_AGENT_UUID, agentUUID));
-        builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, false));
+        builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, BooleanUtils.FALSE));
         searchRequestBuilder.setQuery(builder);
         searchRequestBuilder.setSize(1);
 
@@ -82,7 +79,7 @@ public class InstanceEsCacheDAO extends EsDAO implements IInstanceCacheDAO {
         BoolQueryBuilder builder = QueryBuilders.boolQuery();
         builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationId));
         builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_ADDRESS_ID, addressId));
-        builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, true));
+        builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, BooleanUtils.TRUE));
         searchRequestBuilder.setQuery(builder);
         searchRequestBuilder.setSize(1);
 

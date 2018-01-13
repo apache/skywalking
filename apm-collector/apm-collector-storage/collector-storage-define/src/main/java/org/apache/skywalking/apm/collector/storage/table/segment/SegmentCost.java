@@ -22,6 +22,7 @@ import org.apache.skywalking.apm.collector.core.data.Column;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
 import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
+import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 
 /**
  * @author peng-yongsheng
@@ -40,18 +41,18 @@ public class SegmentCost extends StreamData {
         new Column(SegmentCostTable.COLUMN_END_TIME, new CoverOperation()),
         new Column(SegmentCostTable.COLUMN_TIME_BUCKET, new CoverOperation()),
     };
+
     private static final Column[] DOUBLE_COLUMNS = {};
+
     private static final Column[] INTEGER_COLUMNS = {
         new Column(SegmentCostTable.COLUMN_APPLICATION_ID, new CoverOperation()),
-    };
-
-    private static final Column[] BOOLEAN_COLUMNS = {
         new Column(SegmentCostTable.COLUMN_IS_ERROR, new CoverOperation()),
     };
+
     private static final Column[] BYTE_COLUMNS = {};
 
     public SegmentCost() {
-        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
+        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
     }
 
     @Override public String getId() {
@@ -127,10 +128,10 @@ public class SegmentCost extends StreamData {
     }
 
     public Boolean getIsError() {
-        return getDataBoolean(0);
+        return BooleanUtils.valueToBoolean(getDataInteger(1));
     }
 
     public void setIsError(Boolean isError) {
-        setDataBoolean(0, isError);
+        setDataInteger(0, BooleanUtils.booleanToValue(isError));
     }
 }
