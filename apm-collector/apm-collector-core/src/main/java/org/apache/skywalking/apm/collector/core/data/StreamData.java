@@ -36,8 +36,8 @@ public abstract class StreamData extends AbstractData implements RemoteData, Que
     }
 
     public StreamData(Column[] stringColumns, Column[] longColumns, Column[] doubleColumns,
-        Column[] integerColumns, Column[] booleanColumns, Column[] byteColumns) {
-        super(stringColumns, longColumns, doubleColumns, integerColumns, booleanColumns, byteColumns);
+        Column[] integerColumns, Column[] byteColumns) {
+        super(stringColumns, longColumns, doubleColumns, integerColumns, byteColumns);
     }
 
     @Override public final String selectKey() {

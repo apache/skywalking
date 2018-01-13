@@ -18,12 +18,13 @@
 
 package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
-import java.lang.reflect.Method;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
+
+import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.Method;
 
 public class InvokeHandlerMethodInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
@@ -42,6 +43,5 @@ public class InvokeHandlerMethodInterceptor implements InstanceMethodsAroundInte
 
     @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-
     }
 }
