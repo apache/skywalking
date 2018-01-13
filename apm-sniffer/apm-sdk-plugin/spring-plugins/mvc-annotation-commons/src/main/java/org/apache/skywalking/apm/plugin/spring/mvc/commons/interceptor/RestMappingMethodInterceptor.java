@@ -19,12 +19,9 @@
 
 package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
+import org.springframework.web.bind.annotation.*;
+
 import java.lang.reflect.Method;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 
 /**
  * The <code>RestMappingMethodInterceptor</code> only use the first mapping value.
@@ -34,7 +31,7 @@ import org.springframework.web.bind.annotation.PutMapping;
  *
  * @author clevertension
  */
-public class RestMappingMethodInterceptor extends AbstractMethodInteceptor {
+public class RestMappingMethodInterceptor extends AbstractMethodInterceptor {
     @Override
     public String getRequestURL(Method method) {
         String requestURL = "";
