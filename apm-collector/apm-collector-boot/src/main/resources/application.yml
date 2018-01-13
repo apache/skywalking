@@ -42,10 +42,10 @@ ui:
 #    index_shards_number: 2
 #    index_replicas_number: 0
 #    ttl: 7
-#storage:
-#  h2:
-#    url: jdbc:h2:tcp://localhost/~/test
-#    user_name: sa
+storage:
+  h2:
+    url: jdbc:h2:tcp://localhost/~/test
+    user_name: sa
 configuration:
   default:
     application_apdex_threshold: 2000

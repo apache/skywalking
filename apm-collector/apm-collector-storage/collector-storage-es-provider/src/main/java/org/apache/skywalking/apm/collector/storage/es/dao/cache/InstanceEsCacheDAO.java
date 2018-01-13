@@ -30,15 +30,11 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class InstanceEsCacheDAO extends EsDAO implements IInstanceCacheDAO {
-
-    private final Logger logger = LoggerFactory.getLogger(InstanceEsCacheDAO.class);
 
     public InstanceEsCacheDAO(ElasticSearchClient client) {
         super(client);

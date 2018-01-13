@@ -26,18 +26,15 @@ import org.apache.skywalking.apm.collector.cache.service.NetworkAddressCacheServ
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.table.register.Application;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class ApplicationIDService implements IApplicationIDService {
-
-    private final Logger logger = LoggerFactory.getLogger(ApplicationIDService.class);
 
     private final ModuleManager moduleManager;
     private ApplicationCacheService applicationCacheService;
@@ -78,7 +75,7 @@ public class ApplicationIDService implements IApplicationIDService {
             application.setApplicationCode(applicationCode);
             application.setApplicationId(0);
             application.setAddressId(Const.NONE);
-            application.setIsAddress(false);
+            application.setIsAddress(BooleanUtils.FALSE);
 
             getApplicationRegisterGraph().start(application);
         }
@@ -94,7 +91,7 @@ public class ApplicationIDService implements IApplicationIDService {
             application.setApplicationCode(networkAddress);
             application.setApplicationId(0);
             application.setAddressId(addressId);
-            application.setIsAddress(true);
+            application.setIsAddress(BooleanUtils.TRUE);
 
             getApplicationRegisterGraph().start(application);
         }

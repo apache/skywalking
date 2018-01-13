@@ -28,7 +28,7 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetric;
 import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetricTable;
 
 /**
- * @author peng-yongsheng, clevertension
+ * @author peng-yongsheng
  */
 public abstract class AbstractMemoryMetricH2PersistenceDAO extends AbstractPersistenceH2DAO<MemoryMetric> {
 
@@ -42,7 +42,7 @@ public abstract class AbstractMemoryMetricH2PersistenceDAO extends AbstractPersi
         memoryMetric.setMetricId(resultSet.getString(MemoryMetricTable.COLUMN_METRIC_ID));
 
         memoryMetric.setInstanceId(resultSet.getInt(MemoryMetricTable.COLUMN_INSTANCE_ID));
-        memoryMetric.setIsHeap(resultSet.getBoolean(MemoryMetricTable.COLUMN_IS_HEAP));
+        memoryMetric.setIsHeap(resultSet.getInt(MemoryMetricTable.COLUMN_IS_HEAP));
 
         memoryMetric.setInit(resultSet.getLong(MemoryMetricTable.COLUMN_INIT));
         memoryMetric.setMax(resultSet.getLong(MemoryMetricTable.COLUMN_MAX));
