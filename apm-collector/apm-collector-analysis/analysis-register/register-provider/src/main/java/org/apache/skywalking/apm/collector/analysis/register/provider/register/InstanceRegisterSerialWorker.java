@@ -25,6 +25,7 @@ import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerExce
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.register.IInstanceRegisterDAO;
@@ -70,7 +71,7 @@ public class InstanceRegisterSerialWorker extends AbstractLocalAsyncWorker<Insta
                 userInstance.setOsInfo(Const.EMPTY_STRING);
                 userInstance.setRegisterTime(System.currentTimeMillis());
                 userInstance.setAddressId(Const.NONE);
-                userInstance.setIsAddress(false);
+                userInstance.setIsAddress(BooleanUtils.FALSE);
                 instanceRegisterDAO.save(userInstance);
 
                 newInstance = new Instance();

@@ -25,6 +25,7 @@ import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
@@ -83,7 +84,7 @@ public class InstanceIDService implements IInstanceIDService {
             instance.setHeartBeatTime(registerTime);
             instance.setInstanceId(0);
             instance.setOsInfo(osInfo);
-            instance.setIsAddress(false);
+            instance.setIsAddress(BooleanUtils.FALSE);
             instance.setAddressId(Const.NONE);
 
             getInstanceRegisterGraph().start(instance);
@@ -104,7 +105,7 @@ public class InstanceIDService implements IInstanceIDService {
             instance.setHeartBeatTime(registerTime);
             instance.setInstanceId(0);
             instance.setOsInfo(Const.EMPTY_STRING);
-            instance.setIsAddress(true);
+            instance.setIsAddress(BooleanUtils.TRUE);
             instance.setAddressId(addressId);
 
             getInstanceRegisterGraph().start(instance);
