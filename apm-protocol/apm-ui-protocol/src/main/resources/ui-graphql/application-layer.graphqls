@@ -15,6 +15,9 @@ type ApplicationNode implements Node {
     # Max value is 1
     # 2 Digits after floating point.
     apdex: Float!
+    # Whether the application alerts?
+    # Default value is false.
+    isAlarm: Boolean!
     # The number of servers in the application code
     numOfServer: Int!
     # The number of servers alerting
