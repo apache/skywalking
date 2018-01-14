@@ -18,27 +18,29 @@
 
 package org.apache.skywalking.apm.collector.analysis.register.provider.register;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 /**
  * @author peng-yongsheng
  */
-public enum IdAutoIncrement {
-    INSTANCE;
+public class IdAutoIncrementTestCase {
 
-    public int increment(int min, int max) {
-        int id;
-        if (min == max) {
-            if (min == 0) {
-                id = -1;
-            } else {
-                id = 1;
-            }
-        } else if (min + max == 0) {
-            id = max + 1;
-        } else if (min + max > 0) {
-            id = min - 1;
-        } else {
-            id = max + 1;
-        }
-        return id;
+    @Test
+    public void testIncrement() {
+        int id = IdAutoIncrement.INSTANCE.increment(0, 0);
+        Assert.assertEquals(-1, id);
+
+        id = IdAutoIncrement.INSTANCE.increment(-1, -1);
+        Assert.assertEquals(1, id);
+
+        id = IdAutoIncrement.INSTANCE.increment(-1, 1);
+        Assert.assertEquals(2, id);
+
+        id = IdAutoIncrement.INSTANCE.increment(-1, 2);
+        Assert.assertEquals(-2, id);
+
+        id = IdAutoIncrement.INSTANCE.increment(-2, 2);
+        Assert.assertEquals(3, id);
     }
 }
