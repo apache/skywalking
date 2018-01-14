@@ -33,6 +33,7 @@ import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.table.segment.SegmentCost;
 import org.slf4j.Logger;
@@ -98,7 +99,7 @@ public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListe
         Graph<SegmentCost> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.SEGMENT_COST_GRAPH_ID, SegmentCost.class);
         logger.debug("segment cost listener build");
         for (SegmentCost segmentCost : segmentCosts) {
-            segmentCost.setIsError(isError);
+            segmentCost.setIsError(BooleanUtils.booleanToValue(isError));
             segmentCost.setTimeBucket(timeBucket);
             graph.start(segmentCost);
         }
