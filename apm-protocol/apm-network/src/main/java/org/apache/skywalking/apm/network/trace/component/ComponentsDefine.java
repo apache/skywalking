@@ -78,8 +78,6 @@ public class ComponentsDefine {
 
     public static final OfficialComponent HTTP_ASYNC_CLIENT = new OfficialComponent(26, "httpasyncclient");
 
-
-
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
     private String[] components;

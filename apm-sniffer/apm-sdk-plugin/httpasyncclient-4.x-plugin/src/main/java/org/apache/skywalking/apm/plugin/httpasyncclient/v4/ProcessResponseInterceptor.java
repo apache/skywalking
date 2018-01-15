@@ -28,7 +28,9 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * End exit span and create  a local span of  future/Callback.
+ * 1.End exit span.
+ * 2.Create a local span of  callback.
+ * 3.End local span:AsyncThread/execute.
  *
  * @author liyuntao
  */
@@ -47,9 +49,9 @@ public class ProcessResponseInterceptor implements InstanceMethodsAroundIntercep
 
     @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        //stop local span:future/Callback
+        //stop local span:callback
         ContextManager.stopSpan();
-        //stop local span:httpasyncclient/request
+        //stop local span:AsyncThread/execute
         ContextManager.stopSpan();
 
         return ret;
