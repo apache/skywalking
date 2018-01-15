@@ -7,9 +7,10 @@ Apache SkyWalking | [中文](README_ZH.md)
 microservices, cloud native and container-based (Docker, K8s, Mesos) architectures.
 Underlying technology is a distributed tracing system.
 
-[![Build Status](https://travis-ci.org/apache/incubator-skywalking.svg?branch=master)](https://travis-ci.org/apache/incubator-skywalking)
 [![GitHub stars](https://img.shields.io/github/stars/apache/incubator-skywalking.svg?style=social&label=Stars)](https://github.com/apache/incubator-skywalking)
 [![Twitter Follow](https://img.shields.io/twitter/follow/asfskywalking.svg?style=social&label=Follow)](https://twitter.com/AsfSkyWalking)
+
+[![Build Status](https://travis-ci.org/apache/incubator-skywalking.svg?branch=master)](https://travis-ci.org/apache/incubator-skywalking)
 [![Join the chat at https://gitter.im/sky-walking/Lobby](https://badges.gitter.im/openskywalking/Lobby.svg)](https://gitter.im/openskywalking/Lobby)
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
 
