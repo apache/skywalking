@@ -22,7 +22,6 @@ import org.apache.skywalking.apm.collector.core.data.Column;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
 import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
-import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 
 /**
  * @author peng-yongsheng
@@ -90,11 +89,11 @@ public class Application extends StreamData {
         setDataInteger(1, addressId);
     }
 
-    public boolean getIsAddress() {
-        return BooleanUtils.valueToBoolean(getDataInteger(2));
+    public int getIsAddress() {
+        return getDataInteger(2);
     }
 
-    public void setIsAddress(boolean isAddress) {
-        setDataInteger(2, BooleanUtils.booleanToValue(isAddress));
+    public void setIsAddress(int isAddress) {
+        setDataInteger(2, isAddress);
     }
 }

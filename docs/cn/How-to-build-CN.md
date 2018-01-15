@@ -16,3 +16,11 @@
   - **apm-protocol/apm-network/target/generated-sources/protobuf**目录下的`grpc-java`和`java`目录
   - **apm-collector/apm-collector-remote/apm-remote-grpc-provider/target/protobuf**目录下的`grpc-java`和`java`目录
 
+## 编译Resin-3， Resin-4 和 Oracle JDBC 驱动插件
+为了遵守Apache关于协议（License）的相关要求，不符合Apache相关要求的类库所对应的Plugin不会自动编译。如需编译对应的插件，
+需要手动下载驱动或类库，并将文件拷贝到`ci-dependencies/`中，运行`mvn package`进行编译。
+
+`ci-dependencies/`下对应的类库文件名为：
+* resin-3.0.9.jar
+* resin-4.0.41.jar
+* ojdbc14-10.2.0.4.0.jar

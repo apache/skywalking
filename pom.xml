@@ -323,43 +323,13 @@
         </profile>
         <profile>
             <!-- resin is not Apache license compatible, so it must be manually downloaded first -->
+            <!-- Use resin 3.x jar file as a beacon only -->
             <id>install-resin-3</id>
             <activation>
                 <file>
                     <exists>${basedir}/ci-dependencies/resin-3.0.9.jar</exists>
                 </file>
             </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.6.0</version>
-                        <executions>
-                            <execution>
-                                <id>install-resin-3</id>
-                                <inherited>false</inherited>
-                                <phase>process-resources</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <executable>mvn</executable>
-                                    <arguments>
-                                        <argument>install:install-file</argument>
-                                        <argument>-Dfile=resin-3.0.9.jar</argument>
-                                        <argument>-DgroupId=com.caucho</argument>
-                                        <argument>-DartifactId=resin</argument>
-                                        <argument>-Dversion=3.0.9</argument>
-                                        <argument>-Dpackaging=jar</argument>
-                                    </arguments>
-                                    <workingDirectory>${project.basedir}/ci-dependencies</workingDirectory>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
         <profile>
             <!-- resin is not Apache license compatible, so it must be manually downloaded first -->
