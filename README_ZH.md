@@ -6,9 +6,10 @@ Apache SkyWalking | [English](README.md)
 **SkyWalking**: 针对分布式系统的APM（应用性能监控）系统，特别针对微服务、cloud native和容器化(Docker, K8s, Mesos)架构，
 其核心是个分布式追踪系统。
 
-[![Build Status](https://travis-ci.org/apache/incubator-skywalking.svg?branch=master)](https://travis-ci.org/apache/incubator-skywalking)
 [![GitHub stars](https://img.shields.io/github/stars/apache/incubator-skywalking.svg?style=social&label=Stars)](https://github.com/apache/incubator-skywalking)
 [![Twitter Follow](https://img.shields.io/twitter/follow/asfskywalking.svg?style=social&label=Follow)](https://twitter.com/AsfSkyWalking)
+
+[![Build Status](https://travis-ci.org/apache/incubator-skywalking.svg?branch=master)](https://travis-ci.org/apache/incubator-skywalking)
 [![Join the chat at https://gitter.im/openskywalking/Lobby](https://badges.gitter.im/openskywalking/Lobby.svg)](https://gitter.im/openskywalking/Lobby)
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
 
