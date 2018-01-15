@@ -1,9 +1,14 @@
 schema {
     query: Query
+    mutation: Mutation
 }
 
 #Root node
 type Query {
+    version: String
+}
+
+type Mutation {
     version: String
 }
 
@@ -39,6 +44,14 @@ enum Step {
     SECOND
 }
 
+input Pagination {
+    # pageNum starts in 1, the default is 1.
+    pageNum: Int
+    pageSize: Int!
+    # default false
+    needTotal: Boolean
+}
+
 ######################################
 # Common Metrics and Trends
 ######################################
@@ -47,17 +60,17 @@ type ResponseTimeTrend {
 }
 
 type ThroughputTrend {
-    trendList: [Int!]
+    trendList: [Int!]!
 }
 
 type SLATrend {
-    trendList: [Int!]
+    trendList: [Int!]!
 }
 
 # The overview topology of the whole application cluster or services,
 type Topology {
-    nodes: [Node]!
-    calls: [Call]
+    nodes: [Node!]!
+    calls: [Call!]!
 }
 
 # The base Node of all node types in topology
@@ -71,6 +84,15 @@ interface Node {
     # The type name
     # 1. The most important component in the application, from service provider perspective.
     # 2. Conjectural dependent component, e.g. MySQL, Redis, Kafka
+    type: String
+}
+
+# Incoming request node, means User or outside system access the cluster from this.
+type VisualUserNode implements Node {
+    id: ID!
+    # Constant, value = "User"
+    name: String!
+    # Constant, value = "USER"
     type: String
 }
 

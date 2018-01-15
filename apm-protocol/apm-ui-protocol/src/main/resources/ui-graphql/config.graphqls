@@ -1,0 +1,38 @@
+input TTLConfigItem {
+    unit: Step!
+    value: Int!
+}
+
+type ExistedTTLConfigs{
+    ttl: [TTL!]!
+}
+
+type TTL {
+     unit: Step!
+     value: Int!
+}
+
+input AlarmThreshold {
+    type: AlarmType!
+    threshold: Int!
+    causeType: CauseType!
+}
+
+type ExistedAlarmThresholds {
+    items: [ExistedAlarmThresholdItem!]!
+}
+
+type ExistedAlarmThresholdItem {
+    threshold: Int!
+    causeType: CauseType!
+}
+
+extend type Mutation {
+    setDataTTLConfigs(ttl: [TTLConfigItem!]!): Boolean!
+    setAlarmThreshold(thresholds: [AlarmThreshold!]!): Boolean!
+}
+
+extend type Query {
+    queryAllDataTTLConfigs: ExistedTTLConfigs!
+    queryAlarmThresholds(alarmType: AlarmType): ExistedAlarmThresholds!
+}
