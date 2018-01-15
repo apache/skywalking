@@ -7,7 +7,8 @@ Apache SkyWalking | [English](README.md)
 其核心是个分布式追踪系统。
 
 [![Build Status](https://travis-ci.org/apache/incubator-skywalking.svg?branch=master)](https://travis-ci.org/apache/incubator-skywalking)
-[![Twitter URL](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/AsfSkyWalking)
+[![GitHub stars](https://img.shields.io/github/stars/apache/incubator-skywalking.svg?style=social&label=Stars)](https://github.com/apache/incubator-skywalking)
+[![Twitter Follow](https://img.shields.io/twitter/follow/asfskywalking.svg?style=social&label=Follow)](https://twitter.com/AsfSkyWalking)
 [![Join the chat at https://gitter.im/openskywalking/Lobby](https://badges.gitter.im/openskywalking/Lobby.svg)](https://gitter.im/openskywalking/Lobby)
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
 
