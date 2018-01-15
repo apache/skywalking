@@ -25,7 +25,6 @@ import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.MaxOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.MinOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
-import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 
 /**
  * @author peng-yongsheng
@@ -132,11 +131,11 @@ public class MemoryMetric extends StreamData {
         setDataInteger(0, instanceId);
     }
 
-    public Boolean getIsHeap() {
-        return BooleanUtils.valueToBoolean(getDataInteger(1));
+    public Integer getIsHeap() {
+        return getDataInteger(1);
     }
 
-    public void setIsHeap(Boolean isHeap) {
-        setDataInteger(1, BooleanUtils.booleanToValue(isHeap));
+    public void setIsHeap(Integer isHeap) {
+        setDataInteger(1, isHeap);
     }
 }

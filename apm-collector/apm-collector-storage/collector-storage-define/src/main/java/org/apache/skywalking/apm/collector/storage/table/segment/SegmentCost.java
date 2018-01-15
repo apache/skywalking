@@ -22,7 +22,6 @@ import org.apache.skywalking.apm.collector.core.data.Column;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
 import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
-import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 
 /**
  * @author peng-yongsheng
@@ -127,11 +126,11 @@ public class SegmentCost extends StreamData {
         setDataInteger(0, applicationId);
     }
 
-    public Boolean getIsError() {
-        return BooleanUtils.valueToBoolean(getDataInteger(1));
+    public Integer getIsError() {
+        return getDataInteger(1);
     }
 
-    public void setIsError(Boolean isError) {
-        setDataInteger(0, BooleanUtils.booleanToValue(isError));
+    public void setIsError(Integer isError) {
+        setDataInteger(1, isError);
     }
 }

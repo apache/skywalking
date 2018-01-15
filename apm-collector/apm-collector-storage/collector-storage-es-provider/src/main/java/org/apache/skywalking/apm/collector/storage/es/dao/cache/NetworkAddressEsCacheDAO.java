@@ -48,7 +48,7 @@ public class NetworkAddressEsCacheDAO extends EsDAO implements INetworkAddressCa
         ElasticSearchClient client = getClient();
 
         SearchRequestBuilder searchRequestBuilder = client.prepareSearch(NetworkAddressTable.TABLE);
-        searchRequestBuilder.setTypes("type");
+        searchRequestBuilder.setTypes(NetworkAddressTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH);
         searchRequestBuilder.setQuery(QueryBuilders.termQuery(NetworkAddressTable.COLUMN_NETWORK_ADDRESS, networkAddress));
         searchRequestBuilder.setSize(1);

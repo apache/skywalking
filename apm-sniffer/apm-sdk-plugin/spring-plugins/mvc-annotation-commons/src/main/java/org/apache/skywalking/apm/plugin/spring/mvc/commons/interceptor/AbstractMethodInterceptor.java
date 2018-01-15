@@ -19,27 +19,28 @@
 
 package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
-import java.lang.reflect.Method;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
-import org.apache.skywalking.apm.agent.core.context.CarrierItem;
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.Method;
 
 /**
  * the abstract method inteceptor
  */
-public abstract class AbstractMethodInteceptor implements InstanceMethodsAroundInterceptor {
+public abstract class AbstractMethodInterceptor implements InstanceMethodsAroundInterceptor {
     public abstract String getRequestURL(Method method);
 
     @Override
@@ -72,15 +73,19 @@ public abstract class AbstractMethodInteceptor implements InstanceMethodsAroundI
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        HttpServletResponse response = ((EnhanceRequireObjectCache)objInst.getSkyWalkingDynamicField()).getHttpServletResponse();
+        try {
+            HttpServletResponse response = ((EnhanceRequireObjectCache) objInst.getSkyWalkingDynamicField()).getHttpServletResponse();
 
-        AbstractSpan span = ContextManager.activeSpan();
-        if (response.getStatus() >= 400) {
-            span.errorOccurred();
-            Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
+            AbstractSpan span = ContextManager.activeSpan();
+            if (response.getStatus() >= 400) {
+                span.errorOccurred();
+                Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
+            }
+            ContextManager.stopSpan();
+            return ret;
+        } finally {
+            ((EnhanceRequireObjectCache)objInst.getSkyWalkingDynamicField()).clearRequestAndResponse();
         }
-        ContextManager.stopSpan();
-        return ret;
     }
 
     @Override

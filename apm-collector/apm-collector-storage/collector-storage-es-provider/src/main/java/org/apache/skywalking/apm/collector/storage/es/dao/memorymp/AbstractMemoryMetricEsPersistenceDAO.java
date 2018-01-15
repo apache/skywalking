@@ -44,7 +44,7 @@ public abstract class AbstractMemoryMetricEsPersistenceDAO extends AbstractPersi
         memoryMetric.setMetricId((String)source.get(MemoryMetricTable.COLUMN_METRIC_ID));
 
         memoryMetric.setInstanceId(((Number)source.get(MemoryMetricTable.COLUMN_INSTANCE_ID)).intValue());
-        memoryMetric.setIsHeap((Boolean)source.get(MemoryMetricTable.COLUMN_IS_HEAP));
+        memoryMetric.setIsHeap(((Number)source.get(MemoryMetricTable.COLUMN_IS_HEAP)).intValue());
 
         memoryMetric.setInit(((Number)source.get(MemoryMetricTable.COLUMN_INIT)).longValue());
         memoryMetric.setMax(((Number)source.get(MemoryMetricTable.COLUMN_MAX)).longValue());
