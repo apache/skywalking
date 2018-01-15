@@ -9,17 +9,17 @@ const { RangePicker } = DatePicker;
 
 @Form.create({
   mapPropsToFields(props) {
-    if (!props.duration) return null;
+    if (!props.selectedTime) return null;
     const result = {
       step: Form.createFormField({
-        value: props.duration.step,
+        value: props.selectedTime.step,
       }),
     };
-    if (props.duration.label) {
+    if (props.selectedTime.label) {
       return result;
     }
     result['range-time-picker'] = Form.createFormField({
-      value: [props.duration.from(), props.duration.to()],
+      value: [props.selectedTime.from(), props.selectedTime.to()],
     });
     return result;
   },
@@ -118,27 +118,27 @@ class TimeSelect extends PureComponent {
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      const duration = {};
+      const selectedTime = {};
       for (const key of Object.keys(fieldsValue)) {
         if (fieldsValue[key]) {
           if (key === 'range-time-picker') {
-            duration.from = () => fieldsValue[key][0];
-            duration.to = () => fieldsValue[key][1];
+            selectedTime.from = () => fieldsValue[key][0];
+            selectedTime.to = () => fieldsValue[key][1];
           } else {
-            duration[key] = fieldsValue[key];
+            selectedTime[key] = fieldsValue[key];
           }
         }
       }
-      if (duration.from && duration.to) {
-        this.select({ ...duration, label: null });
+      if (selectedTime.from && selectedTime.to) {
+        this.select({ ...selectedTime, label: null });
       } else {
-        this.select(duration);
+        this.select(selectedTime);
       }
     });
   }
-  select = (newDuration) => {
-    const { onSelected, duration } = this.props;
-    onSelected({ ...duration, ...newDuration });
+  select = (newSelectedTime) => {
+    const { onSelected, selectedTime } = this.props;
+    onSelected({ ...selectedTime, ...newSelectedTime });
   }
   render() {
     const { isShow, form } = this.props;

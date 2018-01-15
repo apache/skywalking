@@ -224,19 +224,19 @@ class BasicLayout extends React.PureComponent {
       window.dispatchEvent(event);
     }, 600);
   }
-  handleTimeSelected = (duration) => {
+  handleTimeSelected = (selectedTime) => {
     this.props.dispatch({
       type: 'global/changeSelectedTime',
-      payload: duration,
+      payload: selectedTime,
     });
     if (this.intervalId) {
       clearInterval(this.intervalId);
     }
-    const { step = 0 } = duration;
+    const { step = 0 } = selectedTime;
     if (step < 1) {
       return;
     }
-    this.intervalId = setInterval(this.reload, duration.step);
+    this.intervalId = setInterval(this.reload, step);
   }
   reload = () => {
     this.props.dispatch({
@@ -254,14 +254,14 @@ class BasicLayout extends React.PureComponent {
     const menuProps = collapsed ? {} : {
       openKeys: this.state.openKeys,
     };
-    const { duration = {
+    const { selectedTime = {
       from() {
         return moment();
       },
       to() {
         return moment();
       },
-      lable: 'Nan',
+      lable: 'NaN',
     } } = this.props;
     const timeFormat = 'YYYY-MM-DD HH:mm:ss';
 
@@ -304,8 +304,8 @@ class BasicLayout extends React.PureComponent {
                 className={styles.action}
                 onClick={this.toggleSelectTime}
               >
-                {duration.label ? duration.label : `${duration.from().format(timeFormat)} ~ ${duration.to().format(timeFormat)}`}
-                {duration.step > 0 ? ` Reloading every ${duration.step / 1000} seconds` : null }
+                {selectedTime.label ? selectedTime.label : `${selectedTime.from().format(timeFormat)} ~ ${selectedTime.to().format(timeFormat)}`}
+                {selectedTime.step > 0 ? ` Reloading every ${selectedTime.step / 1000} seconds` : null }
               </span>
               <span className={styles.action} onClick={this.reload}> <Icon type="reload" /> </span>
               <NoticeIcon
@@ -375,7 +375,7 @@ class BasicLayout extends React.PureComponent {
             </div>
           </Header>
           <TimeSelect
-            duration={this.props.duration}
+            selectedTime={this.props.selectedTime}
             onSelected={this.handleTimeSelected}
             isShow={this.props.isShowSelectTime}
           />
@@ -431,6 +431,6 @@ export default connect(state => ({
   collapsed: state.global.collapsed,
   fetchingNotices: state.global.fetchingNotices,
   notices: state.global.notices,
-  duration: state.global.duration,
+  selectedTime: state.global.selectedTime,
   isShowSelectTime: state.global.isShowSelectTime,
 }))(BasicLayout);

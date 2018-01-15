@@ -1,5 +1,16 @@
 import moment from 'moment';
 
+function createTimeMeasure(measureType, step, format) {
+  return {
+    measureType, step, format,
+  };
+}
+
+function getMeasureList() {
+  return [createTimeMeasure('months', 'MONTH', 'YYYY-MM'), createTimeMeasure('days', 'DAY', 'YYYY-MM-DD'),
+    createTimeMeasure('hours', 'HOUR', ' YYYY-MM-DD HH'), createTimeMeasure('minutes', 'MINUTE', ' YYYY-MM-DD HHmm'), createTimeMeasure('seconds', 'SECOND', ' YYYY-MM-DD HHmmss')];
+}
+
 export function fixedZero(val) {
   return val * 1 < 10 ? `0${val}` : val;
 }
@@ -93,6 +104,24 @@ export function digitUppercase(n) {
   return s.replace(/(零.)*零元/, '元').replace(/(零.)+/g, '零').replace(/^整$/, '零元整');
 }
 
-export function timeRange(duration) {
-  return Array(15).fill(0).map((v, i) => moment().subtract(i, 'minutes').format('YYYY-MM-DD HH:mm:ss'));
+export function timeRange({ display }) {
+  return display.range;
+}
+
+export function generateDuration({ from, to }) {
+  const start = from();
+  const end = to();
+  const { measureType, step, format } = getMeasureList()
+    .find(measure => (end.diff(start, measure.measureType) > 1));
+  return {
+    input: {
+      start: start.format(format),
+      end: end.format(format),
+      step,
+    },
+    display: {
+      range: Array.from({ length: end.diff(start, measureType) + 1 },
+        (v, i) => start.clone().add(i, measureType).format(format)),
+    },
+  };
 }

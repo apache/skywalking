@@ -1,4 +1,6 @@
 import { queryNotices } from '../services/api';
+import { generateDuration } from '../utils/utils';
+
 
 export default {
   namespace: 'global',
@@ -62,10 +64,10 @@ export default {
       };
     },
     changeSelectedTime(state, { payload }) {
-      const { from, to } = payload;
       return {
         ...state,
-        duration: { ...payload, fromValue: from(), toValue: to() },
+        selectedTime: payload,
+        duration: generateDuration(payload),
         isShowSelectTime: false,
       };
     },
@@ -76,15 +78,13 @@ export default {
       };
     },
     reload(state) {
-      const { duration } = state;
-      const { from, to } = duration;
+      const { selectedTime } = state;
       return {
         ...state,
-        duration: { ...duration, fromValue: from(), toValue: to() },
+        duration: generateDuration(selectedTime),
       };
     },
   },
-
   subscriptions: {
     setup({ history }) {
       // Subscribe history(url) change, trigger `load` action if pathname is `/`
