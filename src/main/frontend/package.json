@@ -27,6 +27,7 @@
     "cytoscape-cose-bilkent": "^4.0.0",
     "cytoscape-node-html-label": "^1.0.3",
     "dva": "^2.0.3",
+    "dva-loading": "^1.0.4",
     "lodash": "^4.17.4",
     "lodash-decorators": "^4.4.1",
     "lodash.clonedeep": "^4.5.0",

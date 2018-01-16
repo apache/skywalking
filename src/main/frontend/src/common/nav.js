@@ -40,6 +40,12 @@ export const getNavData = app => [
         component: dynamicWrapper(app, ['service'], () => import('../routes/Service/Service')),
       },
       {
+        name: 'Trace',
+        icon: 'trace',
+        path: 'trace',
+        component: dynamicWrapper(app, ['trace'], () => import('../routes/Trace/Trace')),
+      },
+      {
         name: 'Alert',
         icon: 'alert',
         path: 'alert',
