@@ -59,6 +59,16 @@ public final class Tags {
      */
     public static final StringTag DB_BIND_VARIABLES = new StringTag("db.bind_vars");
 
+    /**
+     * MQ_BROKER records the broker address of message-middleware
+     */
+    public static final StringTag MQ_BROKER = new StringTag("mq.broker");
+
+    /**
+     * MQ_TOPIC records the topic name of message-middleware
+     */
+    public static final StringTag MQ_TOPIC = new StringTag("mq.topic");
+
     public static final class HTTP {
         public static final StringTag METHOD = new StringTag("http.method");
     }
