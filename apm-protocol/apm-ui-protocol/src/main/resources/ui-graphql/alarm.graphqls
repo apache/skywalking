@@ -1,7 +1,17 @@
+type Alarm {
+    items: [AlarmItem!]!
+    count: Int!
+}
+
 type AlarmItem {
+    # Typical include: Application Code + cause type. This is a short description.
+    title: String!
+    # Include all related info to trigger this alarm.
+    # such as: threshold, trigger value, relation(greater or lower), last time
     content: String!
     startTime: String!
     alertType: AlarmType!
+    causeType: CauseType!
 }
 
 enum AlarmType {
@@ -10,6 +20,11 @@ enum AlarmType {
     SERVICE
 }
 
+enum CauseType {
+    LOW_SUCCESS_RATE,
+    SLOW_RESPONSE
+}
+
 extend type Query {
-    loadAlertList(keyword: String, alertType: AlarmType, duration:Duration!):[AlarmItem]
+    loadAlertList(keyword: String, alertType: AlarmType, duration:Duration!, paging: Pagination!): Alarm
 }

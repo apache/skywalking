@@ -15,7 +15,7 @@ type AlarmTrend {
 # Query all conjectural applications based on the given duration
 # All applications here are not installed agent.
 type ConjecturalAppBrief {
-    apps: [ConjecturalApp!]
+    apps: [ConjecturalApp!]!
 }
 
 # The basic info of the conjectural application,
@@ -32,6 +32,6 @@ extend type Query {
     getClusterBrief(duration: Duration!): ClusterBrief
     getAlarmTrend(duration: Duration!): AlarmTrend
     getConjecturalApps(duration: Duration!): ConjecturalAppBrief
-    getTopNSlowService(duration: Duration!, topN: Int!): [ServiceInfo!]
-    getTopNServerThroughput(duration: Duration!, topN: Int!): [AppServerInfo!]
+    getTopNSlowService(duration: Duration!, topN: Int!): [ServiceInfo!]!
+    getTopNServerThroughput(duration: Duration!, topN: Int!): [AppServerInfo!]!
 }

@@ -43,6 +43,7 @@ public class GraphQLScriptTest {
         typeRegistry.merge(schemaParser.parse(loadSchema("server-layer.graphqls")));
         typeRegistry.merge(schemaParser.parse(loadSchema("service-layer.graphqls")));
         typeRegistry.merge(schemaParser.parse(loadSchema("alarm.graphqls")));
+        typeRegistry.merge(schemaParser.parse(loadSchema("config.graphqls")));
         RuntimeWiring wiring = buildRuntimeWiring();
         assertTrue(schemaGenerator.makeExecutableSchema(typeRegistry, wiring).getAllTypesAsList().size() > 0);
     }
