@@ -10,8 +10,8 @@ type AppServerInfo {
     os: String
     host: String
     pid: Int
-    IPv4: String
-    IPv6: String
+    ipv4: String
+    ipv6: String
 }
 
 type CPUTrend {
