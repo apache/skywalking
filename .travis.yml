@@ -1,12 +1,13 @@
 sudo: required
 
-services:
-  - docker
-
 language: java
+before_install:
+  - cd ci-dependencies
+  - curl -O https://openskywalking.github.io/skywalking-ci-assist/jars/ojdbc14-10.2.0.4.0.jar
+  - curl -O https://openskywalking.github.io/skywalking-ci-assist/jars/resin-4.0.41.jar
+  - cd ..
+
 install:
   - jdk_switcher use oraclejdk8
   - mvn clean install --quiet jacoco:report coveralls:report
 
-after_success:
-  - bash ./travis/push_image.sh
