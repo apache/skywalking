@@ -110,8 +110,7 @@ public class MessageSendInterceptorTest {
 
         SpanAssert.assertLayer(mqSpan, SpanLayer.MQ);
         SpanAssert.assertComponent(mqSpan, ComponentsDefine.ROCKET_MQ);
-        SpanAssert.assertTag(mqSpan, 0, "test");
-        SpanAssert.assertTag(mqSpan, 1, "TagA");
+        SpanAssert.assertTag(mqSpan, 0, "127.0.0.1");
         verify(messageRequestHeader, times(1)).setProperties(anyString());
         verify(callBack, times(1)).setSkyWalkingDynamicField(Matchers.any());
     }
@@ -130,8 +129,7 @@ public class MessageSendInterceptorTest {
 
         SpanAssert.assertLayer(mqSpan, SpanLayer.MQ);
         SpanAssert.assertComponent(mqSpan, ComponentsDefine.ROCKET_MQ);
-        SpanAssert.assertTag(mqSpan, 0, "test");
-        SpanAssert.assertTag(mqSpan, 1, "TagA");
+        SpanAssert.assertTag(mqSpan, 0, "127.0.0.1");
         verify(messageRequestHeader, times(1)).setProperties(anyString());
     }
 
