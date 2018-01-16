@@ -41,6 +41,7 @@ type Span {
   traceId: ID!
   segmentId: ID!
   spanId: Int!
+  parentSpanId: Int!
   refs: [Ref!]!
   startTime: Long!
   endTime: Long!
