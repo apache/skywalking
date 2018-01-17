@@ -8,7 +8,7 @@ import { getApplication } from './mock/application';
 import { getServer } from './mock/server';
 import { getService } from './mock/service';
 import { getAlarm } from './mock/alarm';
-import { getTrace } from './mock/trace'
+import { getTrace, getSpans } from './mock/trace'
 
 // 是否禁用代理
 const noProxy = process.env.NO_PROXY === 'true';
@@ -22,6 +22,7 @@ const proxy = {
   'POST /api/service': getService,
   'POST /api/alert': getAlarm,
   'POST /api/trace': getTrace,
+  'POST /api/spans': getSpans,
 };
 
 export default noProxy ? {} : delay(proxy, 1000);

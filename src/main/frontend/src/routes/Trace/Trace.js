@@ -20,8 +20,13 @@ export default class Trace extends PureComponent {
   state = {
     formValues: {},
   }
+  componentDidMount() {
+    this.handleSearch();
+  }
   handleSearch = (e) => {
-    e.preventDefault();
+    if (e) {
+      e.preventDefault();
+    }
     const { dispatch, form, duration: { input } } = this.props;
 
     form.validateFields((err, fieldsValue) => {
@@ -68,6 +73,15 @@ export default class Trace extends PureComponent {
       payload: { query, variables },
       pagination,
     });
+  }
+  handleTableExpand = (expanded, record) => {
+    const { dispatch } = this.props;
+    if (expanded && !record.spans) {
+      dispatch({
+        type: 'trace/fetchSpans',
+        payload: { query, variables: { traceId: record.traceId } },
+      });
+    }
   }
   renderForm() {
     const { getFieldDecorator } = this.props.form;
@@ -129,6 +143,7 @@ export default class Trace extends PureComponent {
             loading={loading}
             data={queryBasicTraces}
             onChange={this.handleTableChange}
+            onExpand={this.handleTableExpand}
           />
         </div>
       </Card>

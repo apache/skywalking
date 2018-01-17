@@ -1,14 +1,11 @@
 import React, { PureComponent } from 'react';
 import { Table } from 'antd';
+import TraceStack from '../../components/TraceStack';
 import styles from './index.less';
 
 class TraceTable extends PureComponent {
-  handleTableChange = (pagination, filters, sorter) => {
-    this.props.onChange(pagination, filters, sorter);
-  }
-
   render() {
-    const { data: { traces, pagination }, loading } = this.props;
+    const { data: { traces, pagination }, loading, onExpand, onChange } = this.props;
 
     const columns = [
       {
@@ -26,16 +23,13 @@ class TraceTable extends PureComponent {
       {
         title: 'State',
         dataIndex: 'isError',
-        filters: [
-          {
-            text: 'Error',
-            value: true,
-          },
-          {
-            text: 'Success',
-            value: false,
-          },
-        ],
+        render: (text, record) => {
+          if (record.isError) {
+            return 'Success';
+          } else {
+            return 'Error';
+          }
+        },
       },
       {
         title: 'GlobalTraceId',
@@ -47,11 +41,13 @@ class TraceTable extends PureComponent {
       <div className={styles.standardTable}>
         <Table
           loading={loading}
-          rowKey={record => record.key}
+          rowKey={record => record.traceId}
           dataSource={traces}
           columns={columns}
           pagination={pagination}
-          onChange={this.handleTableChange}
+          onChange={onChange}
+          onExpand={onExpand}
+          expandedRowRender={record => (record.spans ? <TraceStack spans={record.spans} /> : null)}
         />
       </div>
     );

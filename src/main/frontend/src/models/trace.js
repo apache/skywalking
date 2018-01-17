@@ -21,6 +21,14 @@ export default {
         pagination,
       });
     },
+    *fetchSpans({ payload }, { call, put }) {
+      const response = yield call(query, 'spans', payload);
+      yield put({
+        type: 'saveSpans',
+        payload: response,
+        traceId: payload.variables.traceId,
+      });
+    },
   },
 
   reducers: {
@@ -36,6 +44,16 @@ export default {
             total,
           },
         },
+      };
+    },
+    saveSpans(state, action) {
+      const { traceId } = action;
+      const { queryTrace: { spans } } = action.payload.data;
+      const { queryBasicTraces: { traces } } = state;
+      const trace = traces.find(t => t.traceId === traceId);
+      trace.spans = spans;
+      return {
+        ...state,
       };
     },
   },
