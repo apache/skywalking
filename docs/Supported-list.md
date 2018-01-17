@@ -1,6 +1,7 @@
 * HTTP Server
   * [Tomcat](https://github.com/apache/tomcat) 7
   * [Tomcat](https://github.com/apache/tomcat) 8
+  * [Tomcat](https://github.com/apache/tomcat) 9
   * [Spring Boot](https://github.com/spring-projects/spring-boot) Web 4.x
   * Spring MVC 3.x, 4.x with servlet 3.x
   * [Nutz Web Framework](https://github.com/nutzam/nutz)  1.x
@@ -15,22 +16,23 @@
   * [Apache httpcomponent HttpClient](http://hc.apache.org/) 4.2, 4.3
   * [Spring RestTemplete](https://github.com/spring-projects/spring-framework) 4.x
   * [Jetty Client](http://www.eclipse.org/jetty/) 9
+  * [Apache httpcomponent AsyncClient](https://hc.apache.org/httpcomponents-asyncclient-dev/) 4.x
 * JDBC
   * Mysql Driver 5.x, 6.x
   * Oracle Driver (Optional¹)
-  * H2 Driver
+  * H2 Driver 1.3.x -> 1.4.x
   * [Sharding-JDBC](https://github.com/shardingjdbc/sharding-jdbc) 1.5.x
   * PostgreSQL Driver 8.x, 9.x, 42.x
 * RPC Frameworks
   * [Dubbo](https://github.com/alibaba/dubbo) 2.5.3
   * [Dubbox](https://github.com/dangdangdotcom/dubbox) 2.8.4
-  * [Motan](https://github.com/weibocom/motan) 0.2
+  * [Motan](https://github.com/weibocom/motan) 0.2.x -> 1.1.0
   * [gRPC](https://github.com/grpc/grpc-java) 1.6+
 * MQ
   * [RocketMQ](https://github.com/apache/rocketmq) 4.x
 * NoSQL
   * Redis
-    * [Jedis](https://github.com/xetorthio/jedis) 2.8
+    * [Jedis](https://github.com/xetorthio/jedis) 2.x
   * [MongoDB Java Driver](https://github.com/mongodb/mongo-java-driver) 2.13-2.14,3.3+
   * Memcached Client
     * [Spymemcached](https://github.com/couchbase/spymemcached) 2.x
