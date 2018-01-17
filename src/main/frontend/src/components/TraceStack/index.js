@@ -48,6 +48,7 @@ class TraceStack extends PureComponent {
     this.state.width = this.axis.parentNode.clientWidth - 50;
     this.drawAxis();
     this.displayData();
+    window.addEventListener('resize', this.resize);
   }
   buildNode = (span, index) => {
     const { nodes, colorMap, idMap } = this.state;
@@ -173,6 +174,16 @@ class TraceStack extends PureComponent {
     });
   }
   showSpanModal = () => {}
+  resize = () => {
+    this.state.width = this.axis.parentNode.clientWidth - 50;
+    if (!this.axis || this.state.width <= 0) {
+      return;
+    }
+    this.axis.innerHTML = '';
+    this.duration.innerHTML = '';
+    this.drawAxis();
+    this.displayData();
+  }
   render() {
     const { colorMap } = this.state;
     const legendButtons = Object.keys(colorMap).map(key =>
