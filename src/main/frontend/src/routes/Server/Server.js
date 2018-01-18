@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { Row, Col, Select, Card } from 'antd';
 import {
-  ChartCard, MiniArea, MiniBar, Line,
+  ChartCard, MiniArea, MiniBar, Line, Area,
 } from '../../components/Charts';
 import DescriptionList from '../../components/DescriptionList';
 import { timeRange } from '../../utils/utils';
@@ -102,16 +102,33 @@ export default class Server extends Component {
           </Col>
         </Row>
         <Row gutter={24}>
-          <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginTop: 24 }}>
+          <Col xs={24} sm={24} md={12} lg={12} xl={12} style={{ marginTop: 24 }}>
             <Card
-              title="MEMORY"
+              title="Heap"
               bordered={false}
               bodyStyle={{ padding: 0 }}
             >
-              <Line
+              <Area
                 height={250}
                 data={getMemoryTrend.heap
-                  .map((v, i) => { return { x: timeRangeArray[i], y: v }; })}
+                  .map((v, i) => ({ x: timeRangeArray[i], y: v, type: 'value' }))
+                  .concat(getMemoryTrend.maxHeap
+                  .map((v, i) => ({ x: timeRangeArray[i], y: v, type: 'limit ' })))}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={24} md={12} lg={12} xl={12} style={{ marginTop: 24 }}>
+            <Card
+              title="No-Heap"
+              bordered={false}
+              bodyStyle={{ padding: 0 }}
+            >
+              <Area
+                height={250}
+                data={getMemoryTrend.noheap
+                  .map((v, i) => ({ x: timeRangeArray[i], y: v, type: 'value' }))
+                  .concat(getMemoryTrend.maxNoheap
+                  .map((v, i) => ({ x: timeRangeArray[i], y: v, type: 'limit ' })))}
               />
             </Card>
           </Col>

@@ -17,9 +17,9 @@ export default {
           },
           getMemoryTrend: {
             'heap|15': ['@natural(500, 900)'],
-            'maxHeap|15': ['@natural(900, 2000)'],
+            'maxHeap|15': [1000],
             'noheap|15': ['@natural(100, 200)'],
-            'maxNoheap|15': ['@natural(200, 300)'],
+            'maxNoheap|15': [300],
           },
           getGCTrend: {
             'youngGC|15': ['@natural(200, 300)'],
