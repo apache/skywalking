@@ -24,7 +24,7 @@
   * [Sharding-JDBC](https://github.com/shardingjdbc/sharding-jdbc) 1.5.x
   * PostgreSQL Driver 8.x, 9.x, 42.x
 * RPC Frameworks
-  * [Dubbo](https://github.com/alibaba/dubbo) 2.5.3
+  * [Dubbo](https://github.com/alibaba/dubbo) 2.5.4 -> 2.6.0
   * [Dubbox](https://github.com/dangdangdotcom/dubbox) 2.8.4
   * [Motan](https://github.com/weibocom/motan) 0.2.x -> 1.1.0
   * [gRPC](https://github.com/grpc/grpc-java) 1.6+
