@@ -1,7 +1,10 @@
 import React, { PureComponent } from 'react';
-import { Tag } from 'antd';
+import { Tag, Modal, List, Tabs } from 'antd';
 import * as d3 from 'd3';
+import moment from 'moment';
 import styles from './index.less';
+
+const { TabPane } = Tabs;
 
 const colors = [
   '#F2C2CE',
@@ -29,12 +32,15 @@ const height = 36;
 const margin = 10;
 const offX = 15;
 const offY = 6;
+const timeFormat = 'YYYY-MM-DD HH:mm:ss.SSS';
 class TraceStack extends PureComponent {
   state = {
     nodes: [],
     idMap: {},
     colorMap: {},
     bap: [],
+    visible: false,
+    span: {},
   }
   componentWillMount() {
     const { spans } = this.props;
@@ -60,6 +66,13 @@ class TraceStack extends PureComponent {
     node.content = span.operationName;
     node.spanSegId = span.spanId;
     node.parentSpanSegId = span.parentSpanId;
+    node.type = span.type;
+    node.peer = span.peer;
+    node.component = span.component;
+    node.isError = span.isError;
+    node.layer = span.layer;
+    node.tags = span.tags;
+    node.logs = span.logs;
     nodes.push(node);
 
     if (!colorMap[span.applicationCode]) {
@@ -118,7 +131,7 @@ class TraceStack extends PureComponent {
         .attr('width', width)
         .attr('height', height - margin)
         .style('opacity', '0')
-        .on('click', () => { console.info(spanSegId); });
+        .on('click', () => { this.showSpanModal(node); });
 
       bar.append('text')
         .attr('x', beginX + 5)
@@ -173,7 +186,19 @@ class TraceStack extends PureComponent {
       }
     });
   }
-  showSpanModal = () => {}
+  handleCancel = () => {
+    this.setState({
+      ...this.state,
+      visible: false,
+    });
+  }
+  showSpanModal = (span) => {
+    this.setState({
+      ...this.state,
+      visible: true,
+      span,
+    });
+  }
   resize = () => {
     this.state.width = this.axis.parentNode.clientWidth - 50;
     if (!this.axis || this.state.width <= 0) {
@@ -185,9 +210,56 @@ class TraceStack extends PureComponent {
     this.displayData();
   }
   render() {
-    const { colorMap } = this.state;
+    const { colorMap, span = {} } = this.state;
     const legendButtons = Object.keys(colorMap).map(key =>
       (<Tag color={colorMap[key]}>{key}</Tag>));
+    let data;
+    if (span.content) {
+      const base = [
+        {
+          title: 'operation name',
+          content: span.content,
+        },
+        {
+          title: 'duration',
+          content: `${moment(span.startTime).format(timeFormat)} - ${moment(span.endTime).format(timeFormat)}`,
+        },
+        {
+          title: 'span type',
+          content: span.type,
+        },
+        {
+          title: 'component',
+          content: span.component,
+        },
+        {
+          title: 'peer',
+          content: span.peer,
+        },
+        {
+          title: 'is error',
+          content: span.isError,
+        },
+      ];
+      data = base.concat(span.tags.map(t => ({ title: t.key, content: t.value })));
+    }
+    const logs = span.logs ? span.logs.map(l => (
+      <TabPane tab={moment(l.time).format('mm:ss.SSS')} key={l.time}>
+        <List
+          itemLayout="horizontal"
+          dataSource={l.data}
+          renderItem={item => (
+            <List.Item>
+              <List.Item.Meta
+                size="small"
+                title={item.key}
+                description={item.value}
+              />
+            </List.Item>
+          )}
+        />
+      </TabPane>
+    )) : null;
     return (
       <div className={styles.stack}>
         <div style={{ 'padding-bottom': 10 }}>
@@ -195,6 +267,30 @@ class TraceStack extends PureComponent {
         </div>
         <div ref={(el) => { this.axis = el; }} />
         <div className={styles.duration} ref={(el) => { this.duration = el; }} />
+        <Modal
+          title="Span Info"
+          visible={this.state.visible}
+          onCancel={this.handleCancel}
+          footer={null}
+        >
+          <Tabs defaultActiveKey="1" tabPosition="left">
+            <TabPane tab="Tags" key="1">
+              <List
+                itemLayout="horizontal"
+                dataSource={data}
+                renderItem={item => (
+                  <List.Item>
+                    <List.Item.Meta
+                      title={item.title}
+                      description={item.content}
+                    />
+                  </List.Item>
+                )}
+              />
+            </TabPane>
+            {logs}
+          </Tabs>
+        </Modal>
       </div>
     );
   }
