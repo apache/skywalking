@@ -81,7 +81,7 @@ type KeyValue {
 }
 
 type LogEntity {
-  time: String
+  time: Long!
   data: [KeyValue!]
 }
 
