@@ -43,6 +43,7 @@ type Span {
   spanId: Int!
   parentSpanId: Int!
   refs: [Ref!]!
+  applicationCode: String!
   startTime: Long!
   endTime: Long!
   operationName: String
