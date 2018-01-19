@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import { Row, Col, Select, Card, Table } from 'antd';
+import { AppTopology } from '../../components/Topology';
 
 const { Option } = Select;
 
@@ -70,9 +71,7 @@ export default class Application extends Component {
           bordered={false}
           bodyStyle={{ padding: 0, marginTop: 24 }}
         >
-          <div style={{ height: 400 }}>
-              Application and externel resources(Db, Cache or MQ) Topoloy
-          </div>
+          <AppTopology elements={this.props.application.getApplicationTopology} />
         </Card>
         <Row gutter={24}>
           <Col {...middleColResponsiveProps}>

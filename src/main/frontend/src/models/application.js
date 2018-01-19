@@ -6,6 +6,10 @@ export default {
     getAllApplication: [],
     getSlowService: [],
     getServerThroughput: [],
+    getApplicationTopology: {
+      nodes: [],
+      calls: [],
+    },
   },
   effects: {
     *fetch({ payload }, { call, put }) {
