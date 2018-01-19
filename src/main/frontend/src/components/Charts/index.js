@@ -13,6 +13,7 @@ import Field from './Field';
 import WaterWave from './WaterWave';
 import TagCloud from './TagCloud';
 import TimelineChart from './TimelineChart';
+import StackBar from './StackBar';
 
 const yuan = val => `&yen; ${numeral(val).format('0,0')}`;
 
@@ -32,4 +33,5 @@ export default {
   WaterWave,
   TagCloud,
   TimelineChart,
+  StackBar,
 };

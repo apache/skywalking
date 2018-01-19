@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { Row, Col, Select, Card } from 'antd';
 import {
-  ChartCard, MiniArea, MiniBar, Line, Area,
+  ChartCard, MiniArea, MiniBar, Line, Area, StackBar,
 } from '../../components/Charts';
 import DescriptionList from '../../components/DescriptionList';
 import { timeRange } from '../../utils/utils';
@@ -140,10 +140,12 @@ export default class Server extends Component {
               bordered={false}
               bodyStyle={{ padding: 0 }}
             >
-              <Line
+              <StackBar
                 height={250}
-                data={getGCTrend.youngGC
-                  .map((v, i) => { return { x: timeRangeArray[i], y: v }; })}
+                data={getGCTrend.oldGC
+                  .map((v, i) => ({ x: timeRangeArray[i], y: v, type: 'oldGC' }))
+                  .concat(getGCTrend.youngGC
+                  .map((v, i) => ({ x: timeRangeArray[i], y: v, type: 'youngGC' })))}
               />
             </Card>
           </Col>
