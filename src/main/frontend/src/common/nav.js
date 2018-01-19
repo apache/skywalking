@@ -22,6 +22,12 @@ export const getNavData = app => [
         component: dynamicWrapper(app, ['dashboard'], () => import('../routes/Dashboard/Dashboard')),
       },
       {
+        name: 'Topology',
+        icon: 'topology',
+        path: 'topology',
+        component: dynamicWrapper(app, ['topology'], () => import('../routes/Topology/Topology')),
+      },
+      {
         name: 'Application',
         icon: 'application',
         path: 'application',

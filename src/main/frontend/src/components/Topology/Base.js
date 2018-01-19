@@ -8,7 +8,7 @@ cytoscape.use(coseBilkent);
 cytoscape.use(nodeHtmlLabel);
 
 const cyStyle = {
-  height: '400px',
+  height: '600px',
   display: 'block',
 };
 
@@ -28,9 +28,9 @@ export default class Base extends Component {
     this.cy.json({ elements: this.transform(nextProps.elements), style: this.getStyle() });
     const layout = this.cy.layout({
       name: 'cose-bilkent',
-      animate: 'end',
-      dealEdgeLength: 200,
-      padding: 10,
+      animate: false,
+      idealEdgeLength: 200,
+      edgeElasticity: 0.1,
     });
     layout.pon('layoutstop').then(() => {
       this.cy.minZoom(this.cy.zoom());
@@ -60,6 +60,7 @@ export default class Base extends Component {
     };
   }
   render() {
-    return (<div style={cyStyle} ref={(el) => { conf.container = el; }} />);
+    const { height = cyStyle.height } = this.props;
+    return (<div style={{ ...cyStyle, height }} ref={(el) => { conf.container = el; }} />);
   }
 }

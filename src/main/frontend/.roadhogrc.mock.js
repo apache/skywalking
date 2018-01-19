@@ -4,6 +4,7 @@ import { imgMap } from './mock/utils';
 import { getNotices } from './mock/notices';
 import { delay } from 'roadhog-api-doc';
 import { getDashboard } from './mock/dashboard';
+import { getTopology } from './mock/topology';
 import { getApplication } from './mock/application';
 import { getServer } from './mock/server';
 import { getService } from './mock/service';
@@ -17,6 +18,7 @@ const noProxy = process.env.NO_PROXY === 'true';
 const proxy = {
   // 支持值为 Object 和 Array
   'POST /api/dashboard': getDashboard,
+  'POST /api/topology': getTopology,
   'POST /api/application': getApplication,
   'POST /api/server': getServer,
   'POST /api/service': getService,

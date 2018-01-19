@@ -5,7 +5,6 @@ import {
   ChartCard, Pie, MiniArea, Field,
 } from '../../components/Charts';
 import { timeRange } from '../../utils/utils';
-import { AppTopology } from '../../components/Topology';
 
 @connect(state => ({
   dashboard: state.dashboard,
@@ -93,12 +92,6 @@ export default class Dashboard extends Component {
             />
           </Col>
         </Row>
-        <Card
-          bordered={false}
-          bodyStyle={{ padding: 0, marginTop: 24 }}
-        >
-          <AppTopology elements={this.props.dashboard.getClusterTopology} />
-        </Card>
         <Row gutter={24}>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 24 }}>
             <ChartCard

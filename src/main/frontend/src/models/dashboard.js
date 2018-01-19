@@ -18,10 +18,6 @@ export default {
     },
     getTopNSlowService: [],
     getTopNServerThroughput: [],
-    getClusterTopology: {
-      nodes: [],
-      calls: [],
-    },
   },
   effects: {
     *fetch({ payload }, { call, put }) {
