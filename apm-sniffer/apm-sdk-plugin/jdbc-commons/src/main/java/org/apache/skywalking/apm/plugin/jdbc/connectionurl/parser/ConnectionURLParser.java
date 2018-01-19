@@ -28,4 +28,11 @@ public interface ConnectionURLParser {
      * @return connection info.
      */
     ConnectionInfo parse();
+
+    /**
+     * return the parser corresponding JDBC prefix
+     *
+     * @return JDBC prefix String
+     */
+    String getJDBCURLPrefix();
 }

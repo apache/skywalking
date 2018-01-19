@@ -16,14 +16,13 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.trace;
 
-import org.apache.skywalking.apm.network.trace.component.OfficialComponent;
+import org.apache.skywalking.apm.network.trace.component.Component;
 
 /**
  * {@link ConnectionInfo} stored the jdbc connection info, the connection info contains db type, host, port, database
- * name. The {@link #hosts} be null if {@link #host} is not null.
+ * name.
  *
  * @author zhangxin
  */
@@ -42,16 +41,16 @@ public class ConnectionInfo {
     /**
      * Component
      */
-    private final OfficialComponent component;
+    private final Component component;
 
-    public ConnectionInfo(OfficialComponent component, String dbType, String host, int port, String databaseName) {
+    public ConnectionInfo(Component component, String dbType, String host, int port, String databaseName) {
         this.dbType = dbType;
         this.databasePeer = host + ":" + port;
         this.databaseName = databaseName;
         this.component = component;
     }
 
-    public ConnectionInfo(OfficialComponent component, String dbType, String hosts, String databaseName) {
+    public ConnectionInfo(Component component, String dbType, String hosts, String databaseName) {
         this.dbType = dbType;
         this.databasePeer = hosts;
         this.databaseName = databaseName;
@@ -70,7 +69,7 @@ public class ConnectionInfo {
         return databasePeer;
     }
 
-    public OfficialComponent getComponent() {
+    public Component getComponent() {
         return component;
     }
 

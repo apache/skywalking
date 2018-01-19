@@ -16,9 +16,13 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.sql.Connection;
+import java.util.Iterator;
+import java.util.ServiceLoader;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 /**
@@ -29,22 +33,36 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
  */
 public class URLParser {
 
-    private static final String MYSQL_JDBC_URL_PREFIX = "jdbc:mysql";
-    private static final String ORACLE_JDBC_URL_PREFIX = "jdbc:oracle";
-    private static final String H2_JDBC_URL_PREFIX = "jdbc:h2";
-    private static final String POSTGRESQL_JDBC_URL_PREFIX = "jdbc:postgresql";
+    private static ServiceLoader<ConnectionURLParser> JDBCPARSERS
+        = ServiceLoader.load(ConnectionURLParser.class, URLParser.class
+        .getClassLoader());
+
+    public static ConnectionInfo parser(String url, Connection conn) {
+        ConnectionInfo rc = parser(url);
+        return rc;
+    }
 
     public static ConnectionInfo parser(String url) {
-        ConnectionURLParser parser = null;
-        if (url.startsWith(MYSQL_JDBC_URL_PREFIX)) {
-            parser = new MysqlURLParser(url);
-        } else if (url.startsWith(ORACLE_JDBC_URL_PREFIX)) {
-            parser = new OracleURLParser(url);
-        } else if (url.startsWith(H2_JDBC_URL_PREFIX)) {
-            parser = new H2URLParser(url);
-        } else if (url.startsWith(POSTGRESQL_JDBC_URL_PREFIX)) {
-            parser = new PostgreSQLURLParser(url);
+        Iterator<ConnectionURLParser> it = JDBCPARSERS.iterator();
+        while (it.hasNext()) {
+            ConnectionURLParser parser = (ConnectionURLParser)it.next();
+            if (url.startsWith(parser.getJDBCURLPrefix())) {
+                try {
+                    Constructor<? extends ConnectionURLParser> rc = parser.getClass().getConstructor(String.class);
+                    parser = rc.newInstance(url);
+                    return parser.parse();
+                } catch (NoSuchMethodException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+            }
         }
-        return parser.parse();
+        // required special handling,
+        throw new RuntimeException("no parser associate with " + url);
     }
 }
