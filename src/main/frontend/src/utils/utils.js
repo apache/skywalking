@@ -1,14 +1,15 @@
 import moment from 'moment';
 
-function createTimeMeasure(measureType, step, format) {
+function createTimeMeasure(measureType, step, format, displayFormat = format) {
   return {
-    measureType, step, format,
+    measureType, step, format, displayFormat,
   };
 }
 
 function getMeasureList() {
   return [createTimeMeasure('months', 'MONTH', 'YYYY-MM'), createTimeMeasure('days', 'DAY', 'YYYY-MM-DD'),
-    createTimeMeasure('hours', 'HOUR', ' YYYY-MM-DD HH'), createTimeMeasure('minutes', 'MINUTE', ' YYYY-MM-DD HHmm'), createTimeMeasure('seconds', 'SECOND', ' YYYY-MM-DD HHmmss')];
+    createTimeMeasure('hours', 'HOUR', ' YYYY-MM-DD HH', 'YYYY-MM-DD HH:00:00'), createTimeMeasure('minutes', 'MINUTE', ' YYYY-MM-DD HHmm', 'HH:mm:00'),
+    createTimeMeasure('seconds', 'SECOND', ' YYYY-MM-DD HHmmss', 'HH:mm:ss')];
 }
 
 export function fixedZero(val) {
@@ -111,7 +112,7 @@ export function timeRange({ display }) {
 export function generateDuration({ from, to }) {
   const start = from();
   const end = to();
-  const { measureType, step, format } = getMeasureList()
+  const { measureType, step, format, displayFormat } = getMeasureList()
     .find(measure => (end.diff(start, measure.measureType) > 1));
   return {
     input: {
@@ -121,7 +122,7 @@ export function generateDuration({ from, to }) {
     },
     display: {
       range: Array.from({ length: end.diff(start, measureType) + 1 },
-        (v, i) => start.clone().add(i, measureType).format(format)),
+        (v, i) => start.clone().add(i, measureType).format(displayFormat)),
     },
   };
 }
