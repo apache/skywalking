@@ -36,5 +36,10 @@
             <artifactId>graphql-java-tools</artifactId>
             <version>4.3.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-ui-protocol</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
