@@ -26,8 +26,10 @@ import org.apache.skywalking.apm.collector.ui.graphql.common.Pagination;
  * @author peng-yongsheng
  */
 public class AlarmQuery implements Query {
-    public Alarm loadAlertList(String keyword, AlarmType alarmType, Duration duration,
-        Pagination pagination) {
-        return null;
+
+    public Alarm loadAlertList(String keyword, AlarmType alarmType, Duration duration, Pagination pagination) {
+        Alarm alarm = new Alarm();
+        alarm.setCount(0);
+        return alarm;
     }
 }

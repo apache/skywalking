@@ -27,4 +27,27 @@ public class Duration {
     private String end;
     private Step step;
 
+    public String getStart() {
+        return start;
+    }
+
+    public void setStart(String start) {
+        this.start = start;
+    }
+
+    public String getEnd() {
+        return end;
+    }
+
+    public void setEnd(String end) {
+        this.end = end;
+    }
+
+    public Step getStep() {
+        return step;
+    }
+
+    public void setStep(Step step) {
+        this.step = step;
+    }
 }
