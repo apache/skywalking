@@ -25,4 +25,28 @@ public class Pagination {
     private Integer pageNum;
     private Integer pageSize;
     private Boolean needTotal;
+
+    public Integer getPageNum() {
+        return pageNum;
+    }
+
+    public void setPageNum(Integer pageNum) {
+        this.pageNum = pageNum;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public Boolean getNeedTotal() {
+        return needTotal;
+    }
+
+    public void setNeedTotal(Boolean needTotal) {
+        this.needTotal = needTotal;
+    }
 }

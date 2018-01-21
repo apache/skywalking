@@ -16,30 +16,19 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.ui.graphql.alarm;
+package org.apache.skywalking.apm.collector.ui.graphql;
 
-import java.util.List;
+import graphql.GraphQL;
+import org.junit.Test;
 
 /**
  * @author peng-yongsheng
  */
-public class Alarm {
-    private List<AlarmItem> items;
-    private Integer count;
+public class GraphQLCreatorTestCase {
 
-    public List<AlarmItem> getItems() {
-        return items;
-    }
-
-    public void setItems(List<AlarmItem> items) {
-        this.items = items;
-    }
-
-    public Integer getCount() {
-        return count;
-    }
-
-    public void setCount(Integer count) {
-        this.count = count;
+    @Test
+    public void test() {
+        GraphQLCreator creator = new GraphQLCreator();
+        GraphQL graphQL = creator.create();
     }
 }

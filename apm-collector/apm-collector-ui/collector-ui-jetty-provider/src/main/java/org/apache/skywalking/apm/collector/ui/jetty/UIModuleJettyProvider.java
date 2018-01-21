@@ -33,6 +33,7 @@ import org.apache.skywalking.apm.collector.naming.service.NamingHandlerRegisterS
 import org.apache.skywalking.apm.collector.server.Server;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.ui.UIModule;
+import org.apache.skywalking.apm.collector.ui.jetty.handler.GraphQLHandler;
 import org.apache.skywalking.apm.collector.ui.jetty.handler.SegmentTopGetHandler;
 import org.apache.skywalking.apm.collector.ui.jetty.handler.SpanGetHandler;
 import org.apache.skywalking.apm.collector.ui.jetty.handler.TraceDagGetHandler;
@@ -110,5 +111,7 @@ public class UIModuleJettyProvider extends ModuleProvider {
         jettyServer.addHandler(new SpanGetHandler(getManager()));
         jettyServer.addHandler(new TraceDagGetHandler(getManager()));
         jettyServer.addHandler(new TraceStackGetHandler(getManager()));
+
+        jettyServer.addHandler(new GraphQLHandler());
     }
 }

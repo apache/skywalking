@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.server.jetty;
 
 import com.google.gson.JsonElement;
@@ -61,7 +60,7 @@ public abstract class JettyHandler extends HttpServlet implements ServerHandler 
         }
     }
 
-    protected abstract JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException;
+    protected abstract JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException, IOException;
 
     @Override
     protected final void doHead(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -150,7 +149,7 @@ public abstract class JettyHandler extends HttpServlet implements ServerHandler 
     }
 
     private void reply(HttpServletResponse response, JsonElement resJson) throws IOException {
-        response.setContentType("text/json");
+        response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
 
@@ -163,7 +162,7 @@ public abstract class JettyHandler extends HttpServlet implements ServerHandler 
     }
 
     private void replyError(HttpServletResponse response, String errorMessage, int status) throws IOException {
-        response.setContentType("text/plain");
+        response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         response.setStatus(status);
         response.setHeader("error-message", errorMessage);
