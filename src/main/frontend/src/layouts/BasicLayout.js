@@ -132,7 +132,7 @@ class BasicLayout extends React.PureComponent {
             title={
               item.icon ? (
                 <span>
-                  <Icon type={item.icon} />
+                  {item.icon.indexOf('iconfont') > -1 ? (<i className={item.icon} />) : (<Icon type={item.icon} />)}
                   <span>{item.name}</span>
                 </span>
               ) : item.name
@@ -143,7 +143,7 @@ class BasicLayout extends React.PureComponent {
           </SubMenu>
         );
       }
-      const icon = item.icon && <Icon type={item.icon} />;
+      const icon = item.icon && (item.icon.indexOf('iconfont') > -1 ? (<i className={item.icon} />) : (<Icon type={item.icon} />));
       return (
         <Menu.Item key={item.key || item.path}>
           {
@@ -278,7 +278,8 @@ class BasicLayout extends React.PureComponent {
         >
           <div className={styles.logo}>
             <Link to="/">
-              <img src="https://camo.githubusercontent.com/4ac940361b7345156ff71aa21efdb42a449e67d7/68747470733a2f2f736b7977616c6b696e67746573742e6769746875622e696f2f706167652d7265736f75726365732f332e302f736b7977616c6b696e672e706e67" alt="logo" />
+              <img src="img/logo/sw-2.png" alt="logo" style={{ width: 50, height: 30 }} />
+              <h1>SkyWalking</h1>
             </Link>
           </div>
           <Menu
