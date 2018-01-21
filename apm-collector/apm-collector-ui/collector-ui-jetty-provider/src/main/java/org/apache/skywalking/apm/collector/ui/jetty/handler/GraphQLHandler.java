@@ -68,7 +68,8 @@ public class GraphQLHandler extends JettyHandler {
             request += line;
         }
 
-        return execute(request);
+        JsonObject requestJson = gson.fromJson(request, JsonObject.class);
+        return execute(requestJson.get(QUERY).getAsString());
     }
 
     private JsonObject execute(String request) {
