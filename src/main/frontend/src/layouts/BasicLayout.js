@@ -325,7 +325,7 @@ class BasicLayout extends React.PureComponent {
                 <NoticeIcon.Tab
                   list={[{
                     id: '000000001',
-                    avatar: 'https://gw.alipayobjects.com/zos/rmsportal/ThXAXghbEsBCCSDihZxY.png',
+                    avatar: ['https://gw.alipayobjects.com/zos/rmsportal/ThXAXghbEsBCCSDihZxY.png'],
                     title: 'Appliction A error',
                     datetime: '2017-08-09',
                     type: 'app-alert',
@@ -343,8 +343,8 @@ class BasicLayout extends React.PureComponent {
                     read: true,
                     type: 'app-alert',
                   }]}
-                  title="Application Alert"
-                  emptyText="No alert"
+                  title="Application"
+                  emptyText="No alarm"
                   emptyImage="https://gw.alipayobjects.com/zos/rmsportal/wAhyIChODzsoKIOBHcBk.svg"
                 />
                 <NoticeIcon.Tab
@@ -368,8 +368,8 @@ class BasicLayout extends React.PureComponent {
                     read: true,
                     type: 'server-alert',
                   }]}
-                  title="Server Alert"
-                  emptyText="No alert"
+                  title="Server"
+                  emptyText="No alarm"
                   emptyImage="https://gw.alipayobjects.com/zos/rmsportal/wAhyIChODzsoKIOBHcBk.svg"
                 />
               </NoticeIcon>

@@ -26,7 +26,7 @@ export default class Dashboard extends Component {
     }
     return this.props.dashboard !== nextProps.dashboard;
   }
-  renderList = (data, title, content) => {
+  renderList = (data, title, content, unit) => {
     return (<List
       size="small"
       itemLayout="horizontal"
@@ -40,8 +40,8 @@ export default class Dashboard extends Component {
               >
                 {item.key}
               </Avatar>}
-            title={`${title}: ${item[title]}`}
-            description={item[content]}
+            title={item[title]}
+            description={`${item[content]} ${unit}`}
           />
         </List.Item>
       )}
@@ -142,18 +142,18 @@ export default class Dashboard extends Component {
             <Card
               title="Slow Service"
               bordered={false}
-              bodyStyle={{ padding: 0 }}
+              bodyStyle={{ padding: 10 }}
             >
-              {this.renderList(this.props.dashboard.getTopNSlowService, 'avgResponseTime', 'name')}
+              {this.renderList(this.props.dashboard.getTopNSlowService, 'name', 'avgResponseTime', 'ms')}
             </Card>
           </Col>
           <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 24 }}>
             <Card
               title="Application Throughput"
               bordered={false}
-              bodyStyle={{ padding: 0 }}
+              bodyStyle={{ padding: 10 }}
             >
-              {this.renderList(this.props.dashboard.getTopNServerThroughput, 'tps', 'name')}
+              {this.renderList(this.props.dashboard.getTopNServerThroughput, 'name', 'tps', 't/s')}
             </Card>
           </Col>
         </Row>
