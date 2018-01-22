@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Card, Table, Input } from 'antd';
+import { Card, Input, Tabs, List, Avatar } from 'antd';
 import styles from './Alert.less';
 
 const { Search } = Input;
+const { TabPane } = Tabs;
 
 @connect(state => ({
   alert: state.alert,
   duration: state.global.duration,
+  loading: state.loading.models.alarm,
 }))
 export default class Alert extends Component {
   componentDidMount() {
@@ -25,29 +27,32 @@ export default class Alert extends Component {
     }
     return this.props.alert !== nextProps.alert;
   }
+  changeAlarmType = () => {}
+  renderList = (data) => {
+    const { loading } = this.props;
+    return (
+      <List
+        className="demo-loadmore-list"
+        loading={loading}
+        itemLayout="horizontal"
+        dataSource={data}
+        renderItem={item => (
+          <List.Item>
+            <List.Item.Meta
+              avatar={
+                <Avatar
+                  style={item.causeType === 'LOW_SUCCESS_RATE' ? { backgroundColor: '#e68a00' } : { backgroundColor: '#b32400' }}
+                  icon={item.causeType === 'LOW_SUCCESS_RATE' ? 'clock-circle-o' : 'close'}
+                />}
+              title={item.title}
+              description={item.content}
+            />
+            <div>{item.startTime}</div>
+          </List.Item>
+        )}
+      />);
+  }
   render() {
-    const columns = [{
-      title: 'Content',
-      dataIndex: 'content',
-    }, {
-      title: 'Start Time',
-      dataIndex: 'startTime',
-    }, {
-      title: 'Alert Type',
-      dataIndex: 'alertType',
-      filters: [{
-        text: 'APPLICATION',
-        value: 'APPLICATION',
-      }, {
-        text: 'SERVER',
-        value: 'SERVER',
-      }, {
-        text: 'SERVICE',
-        value: 'SERVICE',
-      }],
-      filterMultiple: false,
-      onFilter: (value, record) => record.alertType.indexOf(value) === 0,
-    }];
     const extraContent = (
       <div className={styles.extraContent}>
         <Search
@@ -57,16 +62,18 @@ export default class Alert extends Component {
         />
       </div>
     );
-
+    const { alert: { loadAlertList } } = this.props;
     return (
       <Card
-        title="Alert List"
+        title="Alarm List"
         bordered={false}
         extra={extraContent}
       >
-        <div className={styles.tableList}>
-          <Table columns={columns} dataSource={this.props.alert.loadAlertList} />
-        </div>
+        <Tabs defaultActiveKey="1" onChange={this.changeAlarmType}>
+          <TabPane tab="Application" key="1">{this.renderList(loadAlertList.filter(i => i.alertType === 'APPLICATION'))}</TabPane>
+          <TabPane tab="Server" key="2">{this.renderList(loadAlertList.filter(i => i.alertType === 'SERVER'))}</TabPane>
+          <TabPane tab="Service" key="3">{this.renderList(loadAlertList.filter(i => i.alertType === 'SERVICE'))}</TabPane>
+        </Tabs>
       </Card>
     );
   }
