@@ -7,13 +7,13 @@ export default {
         data: {
           'searchService|5': [{}],
           getServiceResponseTimeTrend: {
-            'trendList|15': ['@natural(100, 1000)'],
+            'trendList|60': ['@natural(100, 1000)'],
           },
           getServiceTPSTrend: {
-            'trendList|15': ['@natural(500, 10000)'],
+            'trendList|60': ['@natural(500, 10000)'],
           },
           getServiceSLATrend: {
-            'trendList|15': ['@natural(80, 100)'],
+            'trendList|60': ['@natural(80, 100)'],
           },
           getServiceTopology: () => {
             const upNodes = mockjs.mock({

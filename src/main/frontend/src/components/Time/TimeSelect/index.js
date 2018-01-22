@@ -36,12 +36,6 @@ class TimeSelect extends PureComponent {
     this.shortcuts = [
       { ...now,
         from() {
-          return moment().subtract('minutes', 5);
-        },
-        label: 'Last 5 minutes',
-      },
-      { ...now,
-        from() {
           return moment().subtract('minutes', 15);
         },
         label: 'Last 15 minutes',
@@ -57,12 +51,6 @@ class TimeSelect extends PureComponent {
           return moment().subtract('hours', 1);
         },
         label: 'Last 1 hour',
-      },
-      { ...now,
-        from() {
-          return moment().subtract('hours', 3);
-        },
-        label: 'Last 3 hours',
       },
       { ...now,
         from() {
@@ -101,6 +89,24 @@ class TimeSelect extends PureComponent {
           return moment().subtract('days', 14);
         },
         label: 'Last 14 days',
+      },
+      { ...now,
+        from() {
+          return moment().subtract('days', 30);
+        },
+        label: 'Last 30 days',
+      },
+      { ...now,
+        from() {
+          return moment().subtract('months', 6);
+        },
+        label: 'Last 6 months',
+      },
+      { ...now,
+        from() {
+          return moment().subtract('months', 12);
+        },
+        label: 'Last 12 months',
       },
     ];
   }
@@ -185,7 +191,9 @@ class TimeSelect extends PureComponent {
                 </Select>
               )}
             </FormItem>
-            <FormItem>
+            <FormItem
+              wrapperCol={{ offset: 7 }}
+            >
               <Button
                 type="primary"
                 htmlType="submit"
