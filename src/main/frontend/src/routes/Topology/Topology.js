@@ -8,6 +8,9 @@ import { AppTopology } from '../../components/Topology';
   duration: state.global.duration,
 }))
 export default class Topology extends Component {
+  state = {
+    graphHeight: 600,
+  }
   componentDidMount() {
     this.props.dispatch({
       type: 'topology/fetch',
@@ -25,11 +28,16 @@ export default class Topology extends Component {
   }
   render() {
     return (
-      <ChartCard
-        title="Topolgy Graph"
-      >
-        <AppTopology height={800} elements={this.props.topology.getClusterTopology} />
-      </ChartCard>
+      <div ref={(el) => { this.graph = el; }}>
+        <ChartCard
+          title="Topolgy Graph"
+        >
+          <AppTopology
+            height={this.state.graphHeight}
+            elements={this.props.topology.getClusterTopology}
+          />
+        </ChartCard>
+      </div>
     );
   }
 }

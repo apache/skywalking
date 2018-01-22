@@ -7,12 +7,11 @@ import conf from './conf';
 cytoscape.use(coseBilkent);
 cytoscape.use(nodeHtmlLabel);
 
-const cyStyle = {
-  height: '600px',
-  display: 'block',
-};
-
 export default class Base extends Component {
+  state= {
+    height: '600px',
+    display: 'block',
+  }
   componentDidMount() {
     this.cy = cytoscape({
       ...conf,
@@ -33,7 +32,7 @@ export default class Base extends Component {
       edgeElasticity: 0.1,
     });
     layout.pon('layoutstop').then(() => {
-      this.cy.minZoom(this.cy.zoom());
+      this.cy.minZoom(this.cy.zoom() - 0.3);
     });
     layout.run();
   }
@@ -60,7 +59,7 @@ export default class Base extends Component {
     };
   }
   render() {
-    const { height = cyStyle.height } = this.props;
-    return (<div style={{ ...cyStyle, height }} ref={(el) => { conf.container = el; }} />);
+    const { height } = this.props;
+    return (<div style={{ ...this.state, height }} ref={(el) => { conf.container = el; }} />);
   }
 }
