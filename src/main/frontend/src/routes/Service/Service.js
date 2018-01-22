@@ -39,7 +39,7 @@ export default class Service extends Component {
       <div>
         <Select
           showSearch
-          style={{ width: 200 }}
+          style={{ width: 600 }}
           placeholder="Select a service"
           optionFilterProp="children"
           onChange={this.handleChange.bind(this)}

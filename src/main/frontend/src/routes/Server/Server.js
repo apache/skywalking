@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Select, Card } from 'antd';
+import { Row, Col, Select, Card, Form } from 'antd';
 import {
   ChartCard, MiniArea, MiniBar, Line, Area, StackBar,
 } from '../../components/Charts';
@@ -9,12 +9,29 @@ import { timeRange } from '../../utils/utils';
 
 const { Description } = DescriptionList;
 const { Option } = Select;
+const { Item: FormItem } = Form;
 
 @connect(state => ({
   server: state.server,
   duration: state.global.duration,
 }))
+@Form.create({
+  mapPropsToFields() {
+    return {
+      serverId: Form.createFormField({
+        value: 'Server1',
+      }),
+    };
+  },
+})
 export default class Server extends Component {
+  componentDidMount() {
+    this.props.form.validateFields((err, values) => {
+      if (!err) {
+        this.handleChange(values.serverId);
+      }
+    });
+  }
   shouldComponentUpdate(nextProps) {
     if (this.props.duration !== nextProps.duration) {
       this.props.dispatch({
@@ -33,22 +50,29 @@ export default class Server extends Component {
   avg = list => (list.length > 0 ?
     (list.reduce((acc, curr) => acc + curr) / list.length).toFixed(2) : 0)
   render() {
+    const { getFieldDecorator } = this.props.form;
     const { getServerResponseTimeTrend, getServerTPSTrend,
       getCPUTrend, getMemoryTrend, getGCTrend } = this.props.server;
     const timeRangeArray = timeRange(this.props.duration);
     return (
       <div>
-        <Select
-          showSearch
-          style={{ width: 200 }}
-          placeholder="Select a server"
-          optionFilterProp="children"
-          onChange={this.handleChange.bind(this)}
-        >
-          <Option value="Server1">Server1</Option>
-          <Option value="Server2">Server2</Option>
-          <Option value="Server3">Server3</Option>
-        </Select>
+        <Form layout="inline">
+          <FormItem>
+            {getFieldDecorator('serverId')(
+              <Select
+                showSearch
+                style={{ width: 200 }}
+                placeholder="Select a server"
+                optionFilterProp="children"
+                onChange={this.handleChange.bind(this)}
+              >
+                <Option value="Server1">Server1</Option>
+                <Option value="Server2">Server2</Option>
+                <Option value="Server3">Server3</Option>
+              </Select>
+            )}
+          </FormItem>
+        </Form>
         <Card title="Info" style={{ marginTop: 24 }} bordered={false}>
           <DescriptionList>
             <Description term="OS Name">Mac OS X</Description>

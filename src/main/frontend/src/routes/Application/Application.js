@@ -1,15 +1,32 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Select, Card, Table } from 'antd';
+import { Row, Col, Select, Card, Table, Form } from 'antd';
 import { AppTopology } from '../../components/Topology';
 
 const { Option } = Select;
+const { Item: FormItem } = Form;
 
 @connect(state => ({
   application: state.application,
   duration: state.global.duration,
 }))
+@Form.create({
+  mapPropsToFields() {
+    return {
+      appId: Form.createFormField({
+        value: 'App1',
+      }),
+    };
+  },
+})
 export default class Application extends Component {
+  componentDidMount() {
+    this.props.form.validateFields((err, values) => {
+      if (!err) {
+        this.handleChange(values.appId);
+      }
+    });
+  }
   shouldComponentUpdate(nextProps) {
     if (this.props.duration !== nextProps.duration) {
       this.props.dispatch({
@@ -26,6 +43,7 @@ export default class Application extends Component {
     });
   }
   render() {
+    const { getFieldDecorator } = this.props.form;
     const tableColumns = [{
       title: 'Name',
       dataIndex: 'name',
@@ -56,17 +74,23 @@ export default class Application extends Component {
     };
     return (
       <div>
-        <Select
-          showSearch
-          style={{ width: 200 }}
-          placeholder="Select a application"
-          optionFilterProp="children"
-          onChange={this.handleChange.bind(this)}
-        >
-          <Option value="App1">App1</Option>
-          <Option value="App2">App2</Option>
-          <Option value="App3">App3</Option>
-        </Select>
+        <Form layout="inline">
+          <FormItem>
+            {getFieldDecorator('appId')(
+              <Select
+                showSearch
+                style={{ width: 200 }}
+                placeholder="Select a application"
+                optionFilterProp="children"
+                onSelect={this.handleChange.bind(this)}
+              >
+                <Option value="App1">App1</Option>
+                <Option value="App2">App2</Option>
+                <Option value="App3">App3</Option>
+              </Select>
+            )}
+          </FormItem>
+        </Form>
         <Card
           bordered={false}
           bodyStyle={{ padding: 0, marginTop: 24 }}
