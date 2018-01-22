@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Card, Table } from 'antd';
+import { Row, Col, Card, List, Avatar } from 'antd';
 import {
   ChartCard, Pie, MiniArea, Field,
 } from '../../components/Charts';
@@ -26,6 +26,27 @@ export default class Dashboard extends Component {
     }
     return this.props.dashboard !== nextProps.dashboard;
   }
+  renderList = (data, title, content) => {
+    return (<List
+      size="small"
+      itemLayout="horizontal"
+      dataSource={data}
+      renderItem={item => (
+        <List.Item>
+          <List.Item.Meta
+            avatar={
+              <Avatar
+                style={{ color: '#ff3333', backgroundColor: '#ffb84d' }}
+              >
+                {item.key}
+              </Avatar>}
+            title={`${title}: ${item[title]}`}
+            description={item[content]}
+          />
+        </List.Item>
+      )}
+    />);
+  }
   render() {
     const visitData = [];
     const { numOfAlarmRate } = this.props.dashboard.getAlarmTrend;
@@ -40,25 +61,6 @@ export default class Dashboard extends Component {
       max = numOfAlarmRate.reduce((acc, curr) => { return acc < curr ? curr : acc; });
       min = numOfAlarmRate.reduce((acc, curr) => { return acc > curr ? curr : acc; });
     }
-    const tableColumns = [{
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-    }, {
-      title: 'Response Time',
-      dataIndex: 'avgResponseTime',
-      key: 'avgResponseTime',
-    }];
-
-    const applicationThroughputColumns = [{
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-    }, {
-      title: 'Tps',
-      dataIndex: 'tps',
-      key: 'tps',
-    }];
     return (
       <div>
         <Row gutter={24}>
@@ -142,15 +144,7 @@ export default class Dashboard extends Component {
               bordered={false}
               bodyStyle={{ padding: 0 }}
             >
-              <Table
-                size="small"
-                columns={tableColumns}
-                dataSource={this.props.dashboard.getTopNSlowService}
-                pagination={{
-                  style: { marginBottom: 0 },
-                  pageSize: 10,
-                }}
-              />
+              {this.renderList(this.props.dashboard.getTopNSlowService, 'avgResponseTime', 'name')}
             </Card>
           </Col>
           <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 24 }}>
@@ -159,15 +153,7 @@ export default class Dashboard extends Component {
               bordered={false}
               bodyStyle={{ padding: 0 }}
             >
-              <Table
-                size="small"
-                columns={applicationThroughputColumns}
-                dataSource={this.props.dashboard.getTopNServerThroughput}
-                pagination={{
-                  style: { marginBottom: 0 },
-                  pageSize: 10,
-                }}
-              />
+              {this.renderList(this.props.dashboard.getTopNServerThroughput, 'tps', 'name')}
             </Card>
           </Col>
         </Row>
