@@ -24,13 +24,14 @@ export default class Base extends Component {
     if (nextProps.elements === this.elements) {
       return;
     }
-    this.cy.json({ elements: this.transform(nextProps.elements), style: this.getStyle() });
-    const layout = this.cy.layout({
+    const { layout: layoutConfig = {
       name: 'cose-bilkent',
       animate: false,
       idealEdgeLength: 200,
       edgeElasticity: 0.1,
-    });
+    } } = this.props;
+    this.cy.json({ elements: this.transform(nextProps.elements), style: this.getStyle() });
+    const layout = this.cy.layout(layoutConfig);
     layout.pon('layoutstop').then(() => {
       this.cy.minZoom(this.cy.zoom() - 0.3);
     });
@@ -59,7 +60,7 @@ export default class Base extends Component {
     };
   }
   render() {
-    const { height } = this.props;
+    const { height = this.state.height } = this.props;
     return (<div style={{ ...this.state, height }} ref={(el) => { conf.container = el; }} />);
   }
 }

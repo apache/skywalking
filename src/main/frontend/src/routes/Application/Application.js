@@ -71,7 +71,7 @@ export default class Application extends Component {
           bordered={false}
           bodyStyle={{ padding: 0, marginTop: 24 }}
         >
-          <AppTopology elements={this.props.application.getApplicationTopology} />
+          <AppTopology elements={this.props.application.getApplicationTopology} layout={{ name: 'concentric', minNodeSpacing: 200 }} />
         </Card>
         <Row gutter={24}>
           <Col {...middleColResponsiveProps}>

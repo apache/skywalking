@@ -96,7 +96,7 @@ export default class Service extends Component {
               bordered={false}
               bodyStyle={{ padding: 0 }}
             >
-              <ServiceTopology elements={this.props.service.getServiceTopology} />
+              <ServiceTopology elements={this.props.service.getServiceTopology} layout={{ name: 'concentric', minNodeSpacing: 200 }} />
             </Card>
           </Col>
         </Row>
