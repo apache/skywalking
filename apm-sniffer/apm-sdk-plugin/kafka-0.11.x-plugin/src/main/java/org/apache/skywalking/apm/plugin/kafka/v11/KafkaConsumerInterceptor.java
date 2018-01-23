@@ -56,7 +56,7 @@ public class KafkaConsumerInterceptor implements InstanceMethodsAroundIntercepto
         Object ret) throws Throwable {
         Map<TopicPartition, List<ConsumerRecord<?, ?>>> records = (Map<TopicPartition, List<ConsumerRecord<?, ?>>>)ret;
         //
-        // The entry span will create when the consumer fetch anyone message from kafka cluster, or the span will not create.
+        // The entry span will only be created when the consumer received at least one message.
         //
         if (records.size() > 0) {
             ConsumerEnhanceRequiredInfo requiredInfo = (ConsumerEnhanceRequiredInfo)objInst.getSkyWalkingDynamicField();

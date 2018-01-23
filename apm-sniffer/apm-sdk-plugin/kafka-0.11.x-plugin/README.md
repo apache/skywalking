@@ -1,5 +1,0 @@
-# Kafka Plugin
-
-## 
-## Buired Point
-

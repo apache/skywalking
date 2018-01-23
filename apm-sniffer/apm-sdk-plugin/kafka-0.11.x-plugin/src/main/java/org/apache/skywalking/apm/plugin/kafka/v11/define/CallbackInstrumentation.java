@@ -29,7 +29,8 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierarchyMatch;
 
 /**
- * {@link CallbackInstrumentation} intercept the method onCompletion in the class <code>org.apache.kafka.clients.producer.Callback</code>.
+ * {@link CallbackInstrumentation} defined that {@link org.apache.skywalking.apm.plugin.kafka.v11.CallbackInterceptor}
+ * intercept the method onCompletion in the class <code>org.apache.kafka.clients.producer.Callback</code>.
  *
  * @author zhangxin
  */

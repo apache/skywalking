@@ -29,8 +29,9 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link ProducerRecordInstrumentation} intercept the constructor in the class <code>org.apache.kafka.clients.producer.ProducerRecord</code>
- * for record the topic name and propagate the <code>Context</code> of trace.
+ * {@link ProducerRecordInstrumentation} define that {@link org.apache.skywalking.apm.plugin.kafka.v11.ProducerRecordConstructorInterceptor}
+ * intercept the constructor in the class <code>org.apache.kafka.clients.producer.ProducerRecord</code> for record the
+ * topic name and propagate the <code>Context</code> of trace.
  *
  * @author zhang xin
  * @see org.apache.skywalking.apm.plugin.kafka.v11.define.KafkaProducerInstrumentation

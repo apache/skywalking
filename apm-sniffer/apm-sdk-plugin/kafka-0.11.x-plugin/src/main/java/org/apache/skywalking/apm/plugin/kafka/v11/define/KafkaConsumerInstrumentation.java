@@ -30,34 +30,35 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link KafkaProducerInstrumentation} intercept the method <code>send</code> in the class
- * <code>org.apache.kafka.clients.producer.KafkaProducer</code>. Here is the intercept process steps.
+ * {@link KafkaProducerInstrumentation} define that {@link org.apache.skywalking.apm.plugin.kafka.v11.KafkaConsumerInterceptor}
+ * intercept the method <code>send</code> in the class <code>org.apache.kafka.clients.producer.KafkaProducer</code>.
+ * Here is the intercept process steps.
  *
  *
  * <pre>
- *  1. Record the topic when the client call <code>subscribed</code>
- *  3. Create the entry span when the client call the method <code>pollOnce</code>.
- *  4. Inject all the <code>Trace Context</code> by iterate all <code>ConsumerRecord</code>
- *  5. Stop the entry span when end the <code>pollOnce</code> method.
+ *  1. Record the topic when the client invoke <code>subscribed</code> method
+ *  2. Create the entry span when the client invoke the method <code>pollOnce</code>.
+ *  3. Extract all the <code>Trace Context</code> by iterate all <code>ConsumerRecord</code>
+ *  4. Stop the entry span when <code>pollOnce</code> method finished.
  * </pre>
  *
  * @author zhang xin
  */
 public class KafkaConsumerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    public static final String CONSTRUCTOR_INTERCEPT_FLAG = "org.apache.kafka.clients.consumer.ConsumerConfig";
+    public static final String CONSTRUCTOR_INTERCEPT_TYPE = "org.apache.kafka.clients.consumer.ConsumerConfig";
     public static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.v11.ConsumerConstructorInterceptor";
     public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.v11.KafkaConsumerInterceptor";
     public static final String ENHANCE_METHOD = "pollOnce";
     public static final String ENHANCE_CLASS = "org.apache.kafka.clients.consumer.KafkaConsumer";
     public static final String SUBSCRIBE_METHOD = "subscribe";
-    public static final String SUBSCRIBE_INTERCEPT_FLAG = "org.apache.kafka.clients.consumer.ConsumerRebalanceListener";
+    public static final String SUBSCRIBE_INTERCEPT_TYPE = "org.apache.kafka.clients.consumer.ConsumerRebalanceListener";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return takesArgumentWithType(0, CONSTRUCTOR_INTERCEPT_FLAG);
+                    return takesArgumentWithType(0, CONSTRUCTOR_INTERCEPT_TYPE);
                 }
 
                 @Override public String getConstructorInterceptor() {
@@ -84,7 +85,7 @@ public class KafkaConsumerInstrumentation extends ClassInstanceMethodsEnhancePlu
             },
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(SUBSCRIBE_METHOD).and(takesArgumentWithType(1, SUBSCRIBE_INTERCEPT_FLAG));
+                    return named(SUBSCRIBE_METHOD).and(takesArgumentWithType(1, SUBSCRIBE_INTERCEPT_TYPE));
                 }
 
                 @Override public String getMethodsInterceptor() {
