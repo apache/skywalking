@@ -40,39 +40,50 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
  * @autor zhang xin
  */
 public class KafkaConsumerInterceptor implements InstanceMethodsAroundInterceptor {
+
+    public static final String OPERATE_NAME_PREFIX = "Kafka/";
+    public static final String CONSUMER_OPERATE_NAME_SUFFIX = "/Consumer";
+
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        AbstractSpan activeSpan = ContextManager.createEntrySpan("Kafka/Consumer/Poll", null);
         ConsumerEnhanceRequiredInfo requiredInfo = (ConsumerEnhanceRequiredInfo)objInst.getSkyWalkingDynamicField();
-
-        activeSpan.setComponent(ComponentsDefine.KAFKA);
-        SpanLayer.asMQ(activeSpan);
-        Tags.MQ_BROKER.set(activeSpan, requiredInfo.getBrokerServers());
-        Tags.MQ_TOPIC.set(activeSpan, requiredInfo.getTopics());
+        requiredInfo.setStartTime(System.currentTimeMillis());
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
         Map<TopicPartition, List<ConsumerRecord<?, ?>>> records = (Map<TopicPartition, List<ConsumerRecord<?, ?>>>)ret;
-        for (List<ConsumerRecord<?, ?>> consumerRecords : records.values()) {
-            for (ConsumerRecord<?, ?> record : consumerRecords) {
-                ContextCarrier contextCarrier = new ContextCarrier();
+        //
+        // The entry span will create when the consumer fetch anyone message from kafka cluster, or the span will not create.
+        //
+        if (records.size() > 0) {
+            ConsumerEnhanceRequiredInfo requiredInfo = (ConsumerEnhanceRequiredInfo)objInst.getSkyWalkingDynamicField();
+            AbstractSpan activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + requiredInfo.getTopics() + CONSUMER_OPERATE_NAME_SUFFIX, null).start(requiredInfo.getStartTime());
 
-                CarrierItem next = contextCarrier.items();
-                while (next.hasNext()) {
-                    next = next.next();
-                    Iterator<Header> iterator = record.headers().headers(next.getHeadKey()).iterator();
-                    if (iterator.hasNext()) {
-                        next.setHeadValue(new String(iterator.next().value()));
+            activeSpan.setComponent(ComponentsDefine.KAFKA);
+            SpanLayer.asMQ(activeSpan);
+            Tags.MQ_BROKER.set(activeSpan, requiredInfo.getBrokerServers());
+            Tags.MQ_TOPIC.set(activeSpan, requiredInfo.getTopics());
+
+            for (List<ConsumerRecord<?, ?>> consumerRecords : records.values()) {
+                for (ConsumerRecord<?, ?> record : consumerRecords) {
+                    ContextCarrier contextCarrier = new ContextCarrier();
+
+                    CarrierItem next = contextCarrier.items();
+                    while (next.hasNext()) {
+                        next = next.next();
+                        Iterator<Header> iterator = record.headers().headers(next.getHeadKey()).iterator();
+                        if (iterator.hasNext()) {
+                            next.setHeadValue(new String(iterator.next().value()));
+                        }
                     }
+                    ContextManager.extract(contextCarrier);
                 }
-                ContextManager.extract(contextCarrier);
             }
+            ContextManager.stopSpan();
         }
-
-        ContextManager.stopSpan();
         return ret;
     }
 

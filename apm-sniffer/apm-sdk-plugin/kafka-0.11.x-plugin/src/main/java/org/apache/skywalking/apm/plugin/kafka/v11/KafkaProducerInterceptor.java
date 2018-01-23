@@ -35,17 +35,24 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
  * @author zhang xin
  */
 public class KafkaProducerInterceptor implements InstanceMethodsAroundInterceptor {
+
+    public static final String OPERATE_NAME_PREFIX = "Kafka/";
+    public static final String PRODUCER_OPERATE_NAME_SUFFIX = "/Producer";
+
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
 
         ContextCarrier contextCarrier = new ContextCarrier();
-        AbstractSpan activeSpan = ContextManager.createExitSpan("Kafka/Producer/send", contextCarrier, (String)objInst.getSkyWalkingDynamicField());
+
+        ProducerRecord record = (ProducerRecord)allArguments[0];
+        String topicName = (String)((EnhancedInstance)record).getSkyWalkingDynamicField();
+
+        AbstractSpan activeSpan = ContextManager.createExitSpan(OPERATE_NAME_PREFIX + topicName + PRODUCER_OPERATE_NAME_SUFFIX, contextCarrier, (String)objInst.getSkyWalkingDynamicField());
 
         //set tags
-        ProducerRecord record = (ProducerRecord)allArguments[0];
         Tags.MQ_BROKER.set(activeSpan, (String)objInst.getSkyWalkingDynamicField());
-        Tags.MQ_TOPIC.set(activeSpan, (String)((EnhancedInstance)record).getSkyWalkingDynamicField());
+        Tags.MQ_TOPIC.set(activeSpan, topicName);
         SpanLayer.asMQ(activeSpan);
         activeSpan.setComponent(ComponentsDefine.KAFKA);
 

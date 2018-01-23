@@ -25,13 +25,14 @@ import org.apache.skywalking.apm.util.StringUtil;
 public class ConsumerEnhanceRequiredInfo {
     private String brokerServers;
     private String topics;
+    private long startTime;
 
     public void setBrokerServers(List<String> brokerServers) {
-        this.brokerServers =  StringUtil.join(',', brokerServers.toArray(new String[0]));
+        this.brokerServers =  StringUtil.join(';', brokerServers.toArray(new String[0]));
     }
 
     public void setTopics(Collection<String> topics) {
-        this.topics = StringUtil.join(',', topics.toArray(new String[0]));
+        this.topics = StringUtil.join(';', topics.toArray(new String[0]));
     }
 
     public String getBrokerServers() {
@@ -40,5 +41,13 @@ public class ConsumerEnhanceRequiredInfo {
 
     public String getTopics() {
         return topics;
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+
+    public long getStartTime() {
+        return startTime;
     }
 }
