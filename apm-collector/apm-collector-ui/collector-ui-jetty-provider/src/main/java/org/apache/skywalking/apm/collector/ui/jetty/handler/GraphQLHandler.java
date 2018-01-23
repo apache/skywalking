@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.collector.ui.jetty.handler;
 
+import com.coxautodev.graphql.tools.SchemaParser;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -26,30 +27,67 @@ import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.GraphQLError;
+import graphql.schema.GraphQLSchema;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
 import org.apache.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.apache.skywalking.apm.collector.server.jetty.JettyHandler;
-import org.apache.skywalking.apm.collector.ui.graphql.GraphQLCreator;
+import org.apache.skywalking.apm.collector.storage.ui.application.ApplicationNode;
+import org.apache.skywalking.apm.collector.storage.ui.application.ConjecturalNode;
+import org.apache.skywalking.apm.collector.storage.ui.common.VisualUserNode;
+import org.apache.skywalking.apm.collector.ui.graphql.VersionMutation;
+import org.apache.skywalking.apm.collector.ui.graphql.VersionQuery;
+import org.apache.skywalking.apm.collector.ui.mutation.ConfigMutation;
+import org.apache.skywalking.apm.collector.ui.query.AlarmQuery;
+import org.apache.skywalking.apm.collector.ui.query.ApplicationQuery;
+import org.apache.skywalking.apm.collector.ui.query.ConfigQuery;
+import org.apache.skywalking.apm.collector.ui.query.OverViewLayerQuery;
+import org.apache.skywalking.apm.collector.ui.query.ServerQuery;
+import org.apache.skywalking.apm.collector.ui.query.ServiceQuery;
+import org.apache.skywalking.apm.collector.ui.query.TraceQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class GraphQLHandler extends JettyHandler {
 
+    private final Logger logger = LoggerFactory.getLogger(GraphQLHandler.class);
+
+    private final ModuleManager moduleManager;
     private final Gson gson = new Gson();
     private final GraphQL graphQL;
     private static final String QUERY = "query";
     private static final String DATA = "data";
     private static final String ERRORS = "errors";
+    private static final String MESSAGE = "message";
 
-    public GraphQLHandler() {
-        GraphQLCreator creator = new GraphQLCreator();
-        this.graphQL = creator.create();
+    public GraphQLHandler(ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
+
+        GraphQLSchema schema = SchemaParser.newParser()
+            .file("ui-graphql/alarm.graphqls")
+            .file("ui-graphql/application-layer.graphqls")
+            .file("ui-graphql/common.graphqls")
+            .file("ui-graphql/config.graphqls")
+            .file("ui-graphql/overview-layer.graphqls")
+            .file("ui-graphql/server-layer.graphqls")
+            .file("ui-graphql/service-layer.graphqls")
+            .file("ui-graphql/trace.graphqls")
+            .resolvers(new VersionQuery(), new VersionMutation(), new AlarmQuery(), new ApplicationQuery(moduleManager))
+            .resolvers(new OverViewLayerQuery(moduleManager), new ServerQuery(), new ServiceQuery(), new TraceQuery())
+            .resolvers(new ConfigQuery(), new ConfigMutation())
+            .dictionary(ConjecturalNode.class, VisualUserNode.class, ApplicationNode.class)
+            .build()
+            .makeExecutableSchema();
+
+        this.graphQL = GraphQL.newGraphQL(schema).build();
     }
 
     @Override public String pathSpec() {
@@ -73,21 +111,40 @@ public class GraphQLHandler extends JettyHandler {
     }
 
     private JsonObject execute(String request) {
-        ExecutionInput executionInput = ExecutionInput.newExecutionInput().query(request).build();
-        ExecutionResult executionResult = graphQL.execute(executionInput);
+        try {
+            ExecutionInput executionInput = ExecutionInput.newExecutionInput().query(request).build();
+            ExecutionResult executionResult = graphQL.execute(executionInput);
+            Object data = executionResult.getData();
+            List<GraphQLError> errors = executionResult.getErrors();
 
-        Object data = executionResult.getData();
-        List<GraphQLError> errors = executionResult.getErrors();
+            JsonObject jsonObject = new JsonObject();
+            if (data != null) {
+                jsonObject.addProperty(DATA, data.toString());
+            }
 
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty(DATA, data.toString());
+            if (CollectionUtils.isNotEmpty(errors)) {
+                JsonArray errorArray = new JsonArray();
+                errors.forEach(error -> {
+                    JsonObject errorJson = new JsonObject();
+                    errorJson.addProperty(MESSAGE, error.getMessage());
+                    errorArray.add(errorJson);
+                });
 
-        if (CollectionUtils.isNotEmpty(errors)) {
-            String errorJsonStr = gson.toJson(errors, JsonArray.class);
-            JsonArray errorArray = gson.fromJson(errorJsonStr, JsonArray.class);
+                jsonObject.add(ERRORS, errorArray);
+            }
+
+            return jsonObject;
+        } catch (Throwable e) {
+            logger.error(e.getMessage(), e);
+            JsonObject jsonObject = new JsonObject();
+
+            JsonArray errorArray = new JsonArray();
+            JsonObject errorJson = new JsonObject();
+            errorJson.addProperty(MESSAGE, e.getMessage());
+            errorArray.add(errorJson);
+
             jsonObject.add(ERRORS, errorArray);
+            return jsonObject;
         }
-
-        return jsonObject;
     }
 }

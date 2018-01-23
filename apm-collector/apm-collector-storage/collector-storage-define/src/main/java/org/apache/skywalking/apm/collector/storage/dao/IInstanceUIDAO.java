@@ -18,10 +18,10 @@
 
 package org.apache.skywalking.apm.collector.storage.dao;
 
-import com.google.gson.JsonArray;
 import java.util.List;
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
+import org.apache.skywalking.apm.collector.storage.ui.application.Application;
 
 /**
  * @author peng-yongsheng
@@ -31,27 +31,9 @@ public interface IInstanceUIDAO extends DAO {
 
     Long instanceLastHeartBeatTime(long applicationInstanceId);
 
-    JsonArray getApplications(long startTime, long endTime);
+    List<Application> getApplications(long startTime, long endTime);
 
     Instance getInstance(int instanceId);
 
     List<Instance> getInstances(int applicationId, long timeBucket);
-
-    class Application {
-        private final int applicationId;
-        private final long count;
-
-        public Application(int applicationId, long count) {
-            this.applicationId = applicationId;
-            this.count = count;
-        }
-
-        public int getApplicationId() {
-            return applicationId;
-        }
-
-        public long getCount() {
-            return count;
-        }
-    }
 }

@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
@@ -28,6 +26,7 @@ import org.apache.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
+import org.apache.skywalking.apm.collector.storage.ui.application.Application;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -95,7 +94,7 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         return heartBeatTime;
     }
 
-    @Override public JsonArray getApplications(long startTime, long endTime) {
+    @Override public List<Application> getApplications(long startTime, long endTime) {
         logger.debug("application list get, start time: {}, end time: {}", startTime, endTime);
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(InstanceTable.TABLE);
         searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
@@ -108,16 +107,16 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
         Terms genders = searchResponse.getAggregations().get(InstanceTable.COLUMN_APPLICATION_ID);
 
-        JsonArray applications = new JsonArray();
+        List<Application> applications = new LinkedList<>();
         for (Terms.Bucket applicationsBucket : genders.getBuckets()) {
             Integer applicationId = applicationsBucket.getKeyAsNumber().intValue();
             logger.debug("applicationId: {}", applicationId);
 
             ValueCount instanceCount = applicationsBucket.getAggregations().get(InstanceTable.COLUMN_INSTANCE_ID);
 
-            JsonObject application = new JsonObject();
-            application.addProperty("applicationId", applicationId);
-            application.addProperty("instanceCount", instanceCount.getValue());
+            Application application = new Application();
+            application.setId(applicationId);
+            application.setNumOfServer((int)instanceCount.getValue());
             applications.add(application);
         }
         return applications;

@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.apm.collector.storage.h2.dao;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
@@ -32,6 +30,7 @@ import org.apache.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
+import org.apache.skywalking.apm.collector.storage.ui.application.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,9 +87,9 @@ public class InstanceH2UIDAO extends H2DAO implements IInstanceUIDAO {
     }
 
     @Override
-    public JsonArray getApplications(long startTime, long endTime) {
+    public List<Application> getApplications(long startTime, long endTime) {
         H2Client client = getClient();
-        JsonArray applications = new JsonArray();
+        List<Application> applications = new LinkedList<>();
         String sql = SqlBuilder.buildSql(GET_APPLICATIONS_SQL, InstanceTable.COLUMN_INSTANCE_ID,
             InstanceTable.TABLE, InstanceTable.COLUMN_HEARTBEAT_TIME, InstanceTable.COLUMN_APPLICATION_ID);
         Object[] params = new Object[] {startTime};
@@ -98,9 +97,9 @@ public class InstanceH2UIDAO extends H2DAO implements IInstanceUIDAO {
             while (rs.next()) {
                 Integer applicationId = rs.getInt(InstanceTable.COLUMN_APPLICATION_ID);
                 logger.debug("applicationId: {}", applicationId);
-                JsonObject application = new JsonObject();
-                application.addProperty("applicationId", applicationId);
-                application.addProperty("instanceCount", rs.getInt("cnt"));
+                Application application = new Application();
+                application.setId(applicationId);
+                application.setNumOfServer(rs.getInt("cnt"));
                 applications.add(application);
             }
         } catch (SQLException | H2ClientException e) {

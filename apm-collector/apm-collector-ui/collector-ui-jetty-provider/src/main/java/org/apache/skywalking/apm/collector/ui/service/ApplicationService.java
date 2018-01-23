@@ -16,16 +16,15 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.ui.service;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import java.util.List;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
+import org.apache.skywalking.apm.collector.storage.ui.application.Application;
 
 /**
  * @author peng-yongsheng
@@ -40,14 +39,12 @@ public class ApplicationService {
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
     }
 
-    public JsonArray getApplications(long startTime, long endTime) {
-        JsonArray applications = instanceDAO.getApplications(startTime, endTime);
+    public List<Application> getApplications(long startTime, long endTime) {
+        List<Application> applications = instanceDAO.getApplications(startTime, endTime);
 
-        applications.forEach(jsonElement -> {
-            JsonObject application = jsonElement.getAsJsonObject();
-            int applicationId = application.get("applicationId").getAsInt();
-            String applicationCode = applicationCacheService.getApplicationCodeById(applicationId);
-            application.addProperty("applicationCode", applicationCode);
+        applications.forEach(application -> {
+            String applicationCode = applicationCacheService.getApplicationCodeById(application.getId());
+            application.setName(applicationCode);
         });
         return applications;
     }
