@@ -21,7 +21,6 @@ package org.apache.skywalking.apm.collector.storage.es.dao;
 import com.google.gson.JsonArray;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetricTable;
@@ -86,7 +85,7 @@ public class InstanceMetricEsUIDAO extends EsDAO implements IInstanceMetricUIDAO
         do {
             String id = timeBucket + Const.ID_SPLIT + instanceId;
             prepareMultiGet.add(InstanceMetricTable.TABLE, InstanceMetricTable.TABLE_TYPE, id);
-            timeBucket = TimeBucketUtils.INSTANCE.addSecondForSecondTimeBucket(TimeBucketUtils.TimeBucketType.SECOND.name(), timeBucket, 1);
+//            timeBucket = TimeBucketUtils.INSTANCE.addSecondForSecondTimeBucket(TimeBucketUtils.TimeBucketType.SECOND, timeBucket, 1);
         }
         while (timeBucket <= endTimeBucket);
 
@@ -118,9 +117,9 @@ public class InstanceMetricEsUIDAO extends EsDAO implements IInstanceMetricUIDAO
         MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet();
 
         int i = 0;
-        long timeBucket;
+        long timeBucket = 0;
         do {
-            timeBucket = TimeBucketUtils.INSTANCE.addSecondForSecondTimeBucket(TimeBucketUtils.TimeBucketType.SECOND.name(), startTimeBucket, i);
+//            timeBucket = TimeBucketUtils.INSTANCE.addSecondForSecondTimeBucket(TimeBucketUtils.TimeBucketType.SECOND, startTimeBucket, i);
             String id = timeBucket + Const.ID_SPLIT + instanceId;
             prepareMultiGet.add(InstanceMetricTable.TABLE, InstanceMetricTable.TABLE_TYPE, id);
             i++;

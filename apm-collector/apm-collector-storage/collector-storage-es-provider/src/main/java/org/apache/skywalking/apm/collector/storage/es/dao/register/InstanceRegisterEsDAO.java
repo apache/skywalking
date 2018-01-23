@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.collector.storage.es.dao.register;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.register.IInstanceRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
@@ -57,8 +58,8 @@ public class InstanceRegisterEsDAO extends EsDAO implements IInstanceRegisterDAO
         source.put(InstanceTable.COLUMN_INSTANCE_ID, instance.getInstanceId());
         source.put(InstanceTable.COLUMN_APPLICATION_ID, instance.getApplicationId());
         source.put(InstanceTable.COLUMN_AGENT_UUID, instance.getAgentUUID());
-        source.put(InstanceTable.COLUMN_REGISTER_TIME, instance.getRegisterTime());
-        source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, instance.getHeartBeatTime());
+        source.put(InstanceTable.COLUMN_REGISTER_TIME, TimeBucketUtils.INSTANCE.getSecondTimeBucket(instance.getRegisterTime()));
+        source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, TimeBucketUtils.INSTANCE.getSecondTimeBucket(instance.getHeartBeatTime()));
         source.put(InstanceTable.COLUMN_OS_INFO, instance.getOsInfo());
         source.put(InstanceTable.COLUMN_ADDRESS_ID, instance.getAddressId());
         source.put(InstanceTable.COLUMN_IS_ADDRESS, instance.getIsAddress());
@@ -76,7 +77,7 @@ public class InstanceRegisterEsDAO extends EsDAO implements IInstanceRegisterDAO
         updateRequest.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
 
         Map<String, Object> source = new HashMap<>();
-        source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, heartbeatTime);
+        source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, TimeBucketUtils.INSTANCE.getSecondTimeBucket(heartbeatTime));
 
         updateRequest.doc(source);
         client.update(updateRequest);

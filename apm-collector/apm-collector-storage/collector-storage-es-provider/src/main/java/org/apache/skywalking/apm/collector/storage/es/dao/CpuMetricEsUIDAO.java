@@ -21,7 +21,6 @@ package org.apache.skywalking.apm.collector.storage.es.dao;
 import com.google.gson.JsonArray;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.ICpuMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.jvm.CpuMetricTable;
@@ -54,7 +53,7 @@ public class CpuMetricEsUIDAO extends EsDAO implements ICpuMetricUIDAO {
 
         long timeBucket = startTimeBucket;
         do {
-            timeBucket = TimeBucketUtils.INSTANCE.addSecondForSecondTimeBucket(TimeBucketUtils.TimeBucketType.SECOND.name(), timeBucket, 1);
+//            timeBucket = TimeBucketUtils.INSTANCE.addSecondForSecondTimeBucket(TimeBucketUtils.TimeBucketType.SECOND, timeBucket, 1);
             String id = timeBucket + Const.ID_SPLIT + instanceId;
             prepareMultiGet.add(CpuMetricTable.TABLE, CpuMetricTable.TABLE_TYPE, id);
         }
