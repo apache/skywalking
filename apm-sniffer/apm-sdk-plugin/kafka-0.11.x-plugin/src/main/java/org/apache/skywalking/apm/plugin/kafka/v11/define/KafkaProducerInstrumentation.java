@@ -30,18 +30,17 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link KafkaProducerInstrumentation} intercept the method <code>send</code> in the class
- * <code>org.apache.kafka.clients.producer.KafkaProducer</code>. Here is the intercept process steps.
+ * {@link KafkaProducerInstrumentation} define that {@link org.apache.skywalking.apm.plugin.kafka.v11.KafkaProducerInterceptor}
+ * intercept the method <code>send</code> in the class <code>org.apache.kafka.clients.producer.KafkaProducer</code>.
+ * Here is the intercept process steps.
  *
  *
  * <pre>
  *  1. Record the broker address when the client create the <code>org.apache.kafka.clients.producer.KafkaProducer</code>
  * instance
- *  2. Fetch the topic name from <code>org.apache.kafka.clients.producer.ProducerRecord</code> when the client call
- * <code>send</code> method.
- *  3. Create the exit span when the client call <code>send</code> method
- *  4. Set the <code>Context</code> into the <code>org.apache.kafka.clients.producer.ProducerRecord#headers</code>
- *  5. Stop the exit span when end the <code>send</code> method.
+ *  2. Create the exit span when the client invoke <code>send</code> method
+ *  3. Inject the context to {@link org.apache.kafka.clients.producer.ProducerRecord#headers}
+ *  3. Stop the exit span when <code>send</code> method finished.
  * </pre>
  *
  * @author zhang xin

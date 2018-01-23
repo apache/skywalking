@@ -50,13 +50,11 @@ public class KafkaProducerInterceptor implements InstanceMethodsAroundIntercepto
 
         AbstractSpan activeSpan = ContextManager.createExitSpan(OPERATE_NAME_PREFIX + topicName + PRODUCER_OPERATE_NAME_SUFFIX, contextCarrier, (String)objInst.getSkyWalkingDynamicField());
 
-        //set tags
         Tags.MQ_BROKER.set(activeSpan, (String)objInst.getSkyWalkingDynamicField());
         Tags.MQ_TOPIC.set(activeSpan, topicName);
         SpanLayer.asMQ(activeSpan);
         activeSpan.setComponent(ComponentsDefine.KAFKA);
 
-        // set headers
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();

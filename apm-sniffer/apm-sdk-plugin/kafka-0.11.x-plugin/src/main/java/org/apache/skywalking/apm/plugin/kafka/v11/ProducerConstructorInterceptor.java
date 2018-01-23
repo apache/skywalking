@@ -27,7 +27,6 @@ public class ProducerConstructorInterceptor implements InstanceConstructorInterc
 
     @Override public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         ProducerConfig config = (ProducerConfig)allArguments[0];
-        // set the bootstrap server address
         objInst.setSkyWalkingDynamicField(StringUtil.join(';', config.getList("bootstrap.servers").toArray(new String[0])));
     }
 }
