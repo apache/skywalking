@@ -27,8 +27,8 @@ eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} ${COLLECTOR_OPTIONS} -classpath $CLASSPATH
 
 if [ $? -eq 0 ]; then
     sleep 1
-	echo "Skywalking Web started successfully!"
+	echo "Skywalking Collector started successfully!"
 else
-	echo "Skywalking Web started failure!"
+	echo "Skywalking Collector started failure!"
 	exit 1
 fi
