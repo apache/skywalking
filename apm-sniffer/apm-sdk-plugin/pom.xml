@@ -53,7 +53,7 @@
         <module>elastic-job-2.x-plugin</module>
         <module>mongodb-2.x-plugin</module>
         <module>httpasyncclient-4.x-plugin</module>
-        <module>servicecomb-java-chassis-plugin</module>
+        <module>servicecomb-plugin</module>
     </modules>
     <packaging>pom</packaging>
 

@@ -23,6 +23,7 @@ import io.servicecomb.swagger.invocation.InvocationType;
 import io.servicecomb.swagger.invocation.SwaggerInvocation;
 import io.servicecomb.swagger.invocation.context.InvocationContext;
 import java.lang.reflect.Method;
+import java.net.URI;
 import javax.ws.rs.core.Response.StatusType;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
@@ -61,7 +62,8 @@ public class NextInterceptor implements InstanceMethodsAroundInterceptor {
             Integer count = (Integer)DEEP.get();
             try {
                 if (count == 2) {
-                    String peer = invocation.getEndpoint().getAddress().toString();
+                    URI uri = new URI(invocation.getEndpoint().toString());
+                    String peer = uri.getHost() + ":" + uri.getPort();
                     final ContextCarrier contextCarrier = new ContextCarrier();
                     span = ContextManager.createExitSpan(invocation.getOperationName(), contextCarrier, peer);
                     CarrierItem next = contextCarrier.items();

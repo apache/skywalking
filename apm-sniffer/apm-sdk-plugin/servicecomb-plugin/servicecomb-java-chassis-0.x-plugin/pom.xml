@@ -3,16 +3,16 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>apm-sdk-plugin</artifactId>
+        <artifactId>servicecomb-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
         <version>5.0.0-alpha</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-servicecomb-java-chassis-plugin</artifactId>
+    <artifactId>apm-servicecomb-java-chassis-0.x-plugin</artifactId>
     <packaging>jar</packaging>
 
-    <name>servicecomb-java-chassis-plugin</name>
+    <name>servicecomb-java-chassis-0.x-plugin</name>
     <url>http://maven.apache.org</url>
 
 

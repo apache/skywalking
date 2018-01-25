@@ -18,12 +18,12 @@
 
 package org.apache.skywalking.apm.plugin.servicecomb;
 
+import io.servicecomb.core.Invocation;
+import io.servicecomb.swagger.invocation.InvocationType;
+import io.servicecomb.swagger.invocation.SwaggerInvocation;
+import io.servicecomb.swagger.invocation.context.InvocationContext;
 import java.lang.reflect.Method;
 import javax.ws.rs.core.Response.StatusType;
-import io.servicecomb.core.Invocation;
-import  io.servicecomb.swagger.invocation.InvocationType;
-import io.servicecomb.swagger.invocation.SwaggerInvocation;
-import  io.servicecomb.swagger.invocation.context.InvocationContext;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
