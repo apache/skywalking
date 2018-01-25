@@ -39,11 +39,11 @@ public class ApplicationService {
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
     }
 
-    public List<Application> getApplications(long startTime, long endTime) {
-        List<Application> applications = instanceDAO.getApplications(startTime, endTime);
+    public List<Application> getApplications(long startTime, long endTime, int... applicationIds) {
+        List<Application> applications = instanceDAO.getApplications(startTime, endTime, applicationIds);
 
         applications.forEach(application -> {
-            String applicationCode = applicationCacheService.getApplicationCodeById(application.getId());
+            String applicationCode = applicationCacheService.getApplicationById(application.getId()).getApplicationCode();
             application.setName(applicationCode);
         });
         return applications;

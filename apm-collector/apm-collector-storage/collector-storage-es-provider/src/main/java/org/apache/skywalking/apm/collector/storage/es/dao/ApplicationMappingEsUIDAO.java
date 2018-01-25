@@ -18,12 +18,14 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import java.util.LinkedList;
+import java.util.List;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationMappingUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMappingTable;
+import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -44,8 +46,10 @@ public class ApplicationMappingEsUIDAO extends EsDAO implements IApplicationMapp
         super(client);
     }
 
-    @Override public JsonArray load(long startTime, long endTime) {
-        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(ApplicationMappingTable.TABLE);
+    @Override public List<ApplicationMapping> load(Step step, long startTime, long endTime) {
+        String tableName = TimePyramidTableNameBuilder.build(step, ApplicationMappingTable.TABLE);
+
+        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
         searchRequestBuilder.setTypes(ApplicationMappingTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
         searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(ApplicationMappingTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
@@ -53,24 +57,25 @@ public class ApplicationMappingEsUIDAO extends EsDAO implements IApplicationMapp
 
         searchRequestBuilder.addAggregation(
             AggregationBuilders.terms(ApplicationMappingTable.COLUMN_APPLICATION_ID).field(ApplicationMappingTable.COLUMN_APPLICATION_ID).size(100)
-                .subAggregation(AggregationBuilders.terms(ApplicationMappingTable.COLUMN_ADDRESS_ID).field(ApplicationMappingTable.COLUMN_ADDRESS_ID).size(100)));
+                .subAggregation(AggregationBuilders.terms(ApplicationMappingTable.COLUMN_MAPPING_APPLICATION_ID).field(ApplicationMappingTable.COLUMN_MAPPING_APPLICATION_ID).size(100)));
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
         Terms applicationIdTerms = searchResponse.getAggregations().get(ApplicationMappingTable.COLUMN_APPLICATION_ID);
 
-        JsonArray applicationMappingArray = new JsonArray();
+        List<ApplicationMapping> applicationMappings = new LinkedList<>();
         for (Terms.Bucket applicationIdBucket : applicationIdTerms.getBuckets()) {
             int applicationId = applicationIdBucket.getKeyAsNumber().intValue();
-            Terms addressIdTerms = applicationIdBucket.getAggregations().get(ApplicationMappingTable.COLUMN_ADDRESS_ID);
+            Terms addressIdTerms = applicationIdBucket.getAggregations().get(ApplicationMappingTable.COLUMN_MAPPING_APPLICATION_ID);
             for (Terms.Bucket addressIdBucket : addressIdTerms.getBuckets()) {
                 int addressId = addressIdBucket.getKeyAsNumber().intValue();
-                JsonObject applicationMappingObj = new JsonObject();
-                applicationMappingObj.addProperty(ApplicationMappingTable.COLUMN_APPLICATION_ID, applicationId);
-                applicationMappingObj.addProperty(ApplicationMappingTable.COLUMN_ADDRESS_ID, addressId);
-                applicationMappingArray.add(applicationMappingObj);
+
+                ApplicationMapping applicationMapping = new ApplicationMapping();
+                applicationMapping.setApplicationId(applicationId);
+                applicationMapping.setMappingApplicationId(addressId);
+                applicationMappings.add(applicationMapping);
             }
         }
-        logger.debug("application mapping data: {}", applicationMappingArray.toString());
-        return applicationMappingArray;
+        logger.debug("application mapping data: {}", applicationMappings.toString());
+        return applicationMappings;
     }
 }

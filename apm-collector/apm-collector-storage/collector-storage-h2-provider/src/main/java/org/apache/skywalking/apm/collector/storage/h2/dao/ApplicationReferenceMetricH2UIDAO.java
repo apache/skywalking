@@ -16,13 +16,16 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.h2.dao;
 
 import com.google.gson.JsonArray;
+import java.util.List;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
-import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationReferenceMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
+import org.apache.skywalking.apm.collector.storage.table.MetricSource;
+import org.apache.skywalking.apm.collector.storage.ui.common.Call;
+import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +42,8 @@ public class ApplicationReferenceMetricH2UIDAO extends H2DAO implements IApplica
         super(client);
     }
 
-    @Override public JsonArray load(long startTime, long endTime) {
+    @Override public List<Call> getFrontApplications(Step step, int applicationId, long startTime, long endTime,
+        MetricSource metricSource) {
         H2Client client = getClient();
         JsonArray applicationReferenceMetricArray = new JsonArray();
 //        String sql = SqlBuilder.buildSql(APPLICATION_REFERENCE_SQL, ApplicationReferenceMetricTable.COLUMN_S1_LTE,
@@ -67,6 +71,11 @@ public class ApplicationReferenceMetricH2UIDAO extends H2DAO implements IApplica
 //        } catch (SQLException | H2ClientException e) {
 //            logger.error(e.getMessage(), e);
 //        }
-        return applicationReferenceMetricArray;
+        return null;
+    }
+
+    @Override public List<Call> getBehindApplications(Step step, int applicationId, long startTime, long endTime,
+        MetricSource metricSource) {
+        return null;
     }
 }

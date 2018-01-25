@@ -16,31 +16,21 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.ui.common;
-
-import java.util.List;
+package org.apache.skywalking.apm.collector.storage.table;
 
 /**
  * @author peng-yongsheng
  */
-public class Topology {
+public enum MetricSource {
+    Caller(0), Callee(1);
 
-    private List<Node> nodes;
-    private List<Call> calls;
+    private final int value;
 
-    public List<Node> getNodes() {
-        return nodes;
+    private MetricSource(int value) {
+        this.value = value;
     }
 
-    public void setNodes(List<Node> nodes) {
-        this.nodes = nodes;
-    }
-
-    public List<Call> getCalls() {
-        return calls;
-    }
-
-    public void setCalls(List<Call> calls) {
-        this.calls = calls;
+    public int getValue() {
+        return value;
     }
 }

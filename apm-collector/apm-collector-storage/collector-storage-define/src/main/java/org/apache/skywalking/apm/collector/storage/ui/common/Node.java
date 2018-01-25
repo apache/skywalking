@@ -22,15 +22,15 @@ package org.apache.skywalking.apm.collector.storage.ui.common;
  * @author peng-yongsheng
  */
 public abstract class Node {
-    private String id;
+    private int id;
     private String name;
     private String type;
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 

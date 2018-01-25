@@ -28,8 +28,9 @@ import org.apache.skywalking.apm.collector.storage.ui.common.Topology;
 import org.apache.skywalking.apm.collector.storage.ui.server.AppServerInfo;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
 import org.apache.skywalking.apm.collector.ui.graphql.Query;
-import org.apache.skywalking.apm.collector.ui.graphql.utils.DurationUtils;
 import org.apache.skywalking.apm.collector.ui.service.ApplicationService;
+import org.apache.skywalking.apm.collector.ui.service.ApplicationTopologyService;
+import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 
 /**
  * @author peng-yongsheng
@@ -38,6 +39,7 @@ public class ApplicationQuery implements Query {
 
     private final ModuleManager moduleManager;
     private ApplicationService applicationService;
+    private ApplicationTopologyService applicationTopologyService;
 
     public ApplicationQuery(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
@@ -50,38 +52,25 @@ public class ApplicationQuery implements Query {
         return applicationService;
     }
 
-    public List<Application> getAllApplication(Duration duration) throws ParseException {
-        long start = 0;
-        long end = 0;
-
-        switch (duration.getStep()) {
-            case MONTH:
-                start = DurationUtils.INSTANCE.monthDurationToSecondTimeBucket(duration.getStart());
-                end = DurationUtils.INSTANCE.monthDurationToSecondTimeBucket(duration.getEnd());
-                break;
-            case DAY:
-                start = DurationUtils.INSTANCE.dayDurationToSecondTimeBucket(duration.getStart());
-                end = DurationUtils.INSTANCE.dayDurationToSecondTimeBucket(duration.getEnd());
-                break;
-            case HOUR:
-                start = DurationUtils.INSTANCE.hourDurationToSecondTimeBucket(duration.getStart());
-                end = DurationUtils.INSTANCE.hourDurationToSecondTimeBucket(duration.getEnd());
-                break;
-            case MINUTE:
-                start = DurationUtils.INSTANCE.minuteDurationToSecondTimeBucket(duration.getStart());
-                end = DurationUtils.INSTANCE.minuteDurationToSecondTimeBucket(duration.getEnd());
-                break;
-            case SECOND:
-                start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-                end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
-                break;
+    private ApplicationTopologyService getApplicationTopologyService() {
+        if (ObjectUtils.isEmpty(applicationTopologyService)) {
+            this.applicationTopologyService = new ApplicationTopologyService(moduleManager);
         }
+        return applicationTopologyService;
+    }
+
+    public List<Application> getAllApplication(Duration duration) throws ParseException {
+        long start = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart());
+        long end = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd());
 
         return getApplicationService().getApplications(start, end);
     }
 
-    public Topology getApplicationTopology(int applicationId, Duration duration) {
-        return null;
+    public Topology getApplicationTopology(int applicationId, Duration duration) throws ParseException {
+        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+
+        return getApplicationTopologyService().getApplicationTopology(duration.getStep(), applicationId, start, end);
     }
 
     public List<ServiceInfo> getSlowService(int applicationId, Duration duration, Integer top) {

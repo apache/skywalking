@@ -94,12 +94,19 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         return heartBeatTime;
     }
 
-    @Override public List<Application> getApplications(long startTime, long endTime) {
+    @Override public List<Application> getApplications(long startTime, long endTime, int... applicationIds) {
         logger.debug("application list get, start time: {}, end time: {}", startTime, endTime);
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(InstanceTable.TABLE);
         searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-        searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startTime));
+
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        boolQueryBuilder.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startTime));
+        if (applicationIds.length > 0) {
+            boolQueryBuilder.must().add(QueryBuilders.termsQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationIds));
+        }
+
+        searchRequestBuilder.setQuery(boolQueryBuilder);
         searchRequestBuilder.setSize(0);
         searchRequestBuilder.addAggregation(AggregationBuilders.terms(InstanceTable.COLUMN_APPLICATION_ID).field(InstanceTable.COLUMN_APPLICATION_ID).size(100)
             .subAggregation(AggregationBuilders.count(InstanceTable.COLUMN_INSTANCE_ID).field(InstanceTable.COLUMN_INSTANCE_ID)));

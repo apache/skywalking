@@ -16,31 +16,17 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.ui.common;
+package org.apache.skywalking.apm.collector.ui.utils;
 
-import java.util.List;
+import java.text.ParseException;
+import org.junit.Test;
 
 /**
  * @author peng-yongsheng
  */
-public class Topology {
+public class DurationUtilsTestCase {
 
-    private List<Node> nodes;
-    private List<Call> calls;
-
-    public List<Node> getNodes() {
-        return nodes;
-    }
-
-    public void setNodes(List<Node> nodes) {
-        this.nodes = nodes;
-    }
-
-    public List<Call> getCalls() {
-        return calls;
-    }
-
-    public void setCalls(List<Call> calls) {
-        this.calls = calls;
+    @Test
+    public void test() throws ParseException {
     }
 }

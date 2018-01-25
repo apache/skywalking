@@ -42,7 +42,7 @@ public abstract class AbstractApplicationComponentH2PersistenceDAO extends Abstr
         applicationComponent.setMetricId(resultSet.getString(ApplicationComponentTable.COLUMN_METRIC_ID));
 
         applicationComponent.setComponentId(resultSet.getInt(ApplicationComponentTable.COLUMN_COMPONENT_ID));
-        applicationComponent.setPeerId(resultSet.getInt(ApplicationComponentTable.COLUMN_PEER_ID));
+        applicationComponent.setApplicationId(resultSet.getInt(ApplicationComponentTable.COLUMN_APPLICATION_ID));
         applicationComponent.setTimeBucket(resultSet.getLong(ApplicationComponentTable.COLUMN_TIME_BUCKET));
         return applicationComponent;
     }
@@ -52,7 +52,7 @@ public abstract class AbstractApplicationComponentH2PersistenceDAO extends Abstr
         source.put(ApplicationComponentTable.COLUMN_METRIC_ID, streamData.getMetricId());
 
         source.put(ApplicationComponentTable.COLUMN_COMPONENT_ID, streamData.getComponentId());
-        source.put(ApplicationComponentTable.COLUMN_PEER_ID, streamData.getPeerId());
+        source.put(ApplicationComponentTable.COLUMN_APPLICATION_ID, streamData.getApplicationId());
         source.put(ApplicationComponentTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
 
         return source;

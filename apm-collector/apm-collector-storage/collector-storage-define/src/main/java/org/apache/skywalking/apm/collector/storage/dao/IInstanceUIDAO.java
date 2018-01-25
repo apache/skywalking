@@ -31,7 +31,7 @@ public interface IInstanceUIDAO extends DAO {
 
     Long instanceLastHeartBeatTime(long applicationInstanceId);
 
-    List<Application> getApplications(long startTime, long endTime);
+    List<Application> getApplications(long startTime, long endTime, int... applicationIds);
 
     Instance getInstance(int instanceId);
 

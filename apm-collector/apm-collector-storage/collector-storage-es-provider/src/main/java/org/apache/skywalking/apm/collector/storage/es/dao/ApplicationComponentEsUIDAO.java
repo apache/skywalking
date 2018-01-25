@@ -18,13 +18,14 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import java.util.LinkedList;
+import java.util.List;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.storage.dao.IApplicationComponentUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.acp.ApplicationComponentMinuteEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponentTable;
+import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -39,51 +40,47 @@ import org.slf4j.LoggerFactory;
  */
 public class ApplicationComponentEsUIDAO extends EsDAO implements IApplicationComponentUIDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(ApplicationComponentMinuteEsPersistenceDAO.class);
+    private final Logger logger = LoggerFactory.getLogger(ApplicationComponentEsUIDAO.class);
 
     public ApplicationComponentEsUIDAO(ElasticSearchClient client) {
         super(client);
     }
 
-    @Override public JsonArray load(long startTime, long endTime) {
+    @Override public List<ApplicationComponent> load(Step step, long startTime, long endTime) {
         logger.debug("application component load, start time: {}, end time: {}", startTime, endTime);
-        JsonArray applicationComponentArray = new JsonArray();
-        applicationComponentArray.addAll(aggregationByComponentId(startTime, endTime));
-        return applicationComponentArray;
-    }
-
-    private JsonArray aggregationByComponentId(long startTime, long endTime) {
-        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(ApplicationComponentTable.TABLE);
+        String tableName = TimePyramidTableNameBuilder.build(step, ApplicationComponentTable.TABLE);
+        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
         searchRequestBuilder.setTypes(ApplicationComponentTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
         searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(ApplicationComponentTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
         searchRequestBuilder.setSize(0);
 
         searchRequestBuilder.addAggregation(AggregationBuilders.terms(ApplicationComponentTable.COLUMN_COMPONENT_ID).field(ApplicationComponentTable.COLUMN_COMPONENT_ID).size(100)
-            .subAggregation(AggregationBuilders.terms(ApplicationComponentTable.COLUMN_PEER_ID).field(ApplicationComponentTable.COLUMN_PEER_ID).size(100)));
+            .subAggregation(AggregationBuilders.terms(ApplicationComponentTable.COLUMN_APPLICATION_ID).field(ApplicationComponentTable.COLUMN_APPLICATION_ID).size(100)));
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
         Terms componentIdTerms = searchResponse.getAggregations().get(ApplicationComponentTable.COLUMN_COMPONENT_ID);
-        JsonArray applicationComponentArray = new JsonArray();
+
+        List<ApplicationComponent> applicationComponents = new LinkedList<>();
         for (Terms.Bucket componentIdBucket : componentIdTerms.getBuckets()) {
             int componentId = componentIdBucket.getKeyAsNumber().intValue();
-            buildComponentArray(componentIdBucket, componentId, applicationComponentArray);
+            buildApplicationComponents(componentIdBucket, componentId, applicationComponents);
         }
 
-        return applicationComponentArray;
+        return applicationComponents;
     }
 
-    private void buildComponentArray(Terms.Bucket componentBucket, int componentId,
-        JsonArray applicationComponentArray) {
-        Terms peerIdTerms = componentBucket.getAggregations().get(ApplicationComponentTable.COLUMN_PEER_ID);
+    private void buildApplicationComponents(Terms.Bucket componentBucket, int componentId,
+        List<ApplicationComponent> applicationComponents) {
+        Terms peerIdTerms = componentBucket.getAggregations().get(ApplicationComponentTable.COLUMN_APPLICATION_ID);
         for (Terms.Bucket peerIdBucket : peerIdTerms.getBuckets()) {
-            int peerId = peerIdBucket.getKeyAsNumber().intValue();
+            int applicationId = peerIdBucket.getKeyAsNumber().intValue();
 
-            JsonObject applicationComponentObj = new JsonObject();
-            applicationComponentObj.addProperty(ApplicationComponentTable.COLUMN_COMPONENT_ID, componentId);
-            applicationComponentObj.addProperty(ApplicationComponentTable.COLUMN_PEER_ID, peerId);
-            applicationComponentArray.add(applicationComponentObj);
+            ApplicationComponent applicationComponent = new ApplicationComponent();
+            applicationComponent.setComponentId(componentId);
+            applicationComponent.setApplicationId(applicationId);
+            applicationComponents.add(applicationComponent);
         }
     }
 }
