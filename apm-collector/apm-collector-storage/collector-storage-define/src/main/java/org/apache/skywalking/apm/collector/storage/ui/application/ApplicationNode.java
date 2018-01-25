@@ -28,7 +28,6 @@ public class ApplicationNode extends Node {
     private Float sla;
     private Long callsPerSec;
     private Integer responseTimePerSec;
-    private Long calls;
     private Float apdex;
     private Boolean isAlarm;
     private Integer numOfServer;
@@ -57,14 +56,6 @@ public class ApplicationNode extends Node {
 
     public void setResponseTimePerSec(Integer responseTimePerSec) {
         this.responseTimePerSec = responseTimePerSec;
-    }
-
-    public Long getCalls() {
-        return calls;
-    }
-
-    public void setCalls(Long calls) {
-        this.calls = calls;
     }
 
     public Float getApdex() {

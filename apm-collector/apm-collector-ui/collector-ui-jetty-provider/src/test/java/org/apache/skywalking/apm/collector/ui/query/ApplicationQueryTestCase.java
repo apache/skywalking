@@ -40,8 +40,8 @@ public class ApplicationQueryTestCase {
 
         Mockito.when(applicationService.getApplications(Mockito.anyLong(), Mockito.anyLong())).then(invocation -> {
             Object[] arguments = invocation.getArguments();
-            Assert.assertEquals(20170100000000l, arguments[0]);
-            Assert.assertEquals(20170100000000l, arguments[1]);
+            Assert.assertEquals(20170100000000L, arguments[0]);
+            Assert.assertEquals(20170100000000L, arguments[1]);
             return null;
         });
 
@@ -61,8 +61,8 @@ public class ApplicationQueryTestCase {
 
         Mockito.when(applicationService.getApplications(Mockito.anyLong(), Mockito.anyLong())).then(invocation -> {
             Object[] arguments = invocation.getArguments();
-            Assert.assertEquals(20170101000000l, arguments[0]);
-            Assert.assertEquals(20170101000000l, arguments[1]);
+            Assert.assertEquals(20170101000000L, arguments[0]);
+            Assert.assertEquals(20170101000000L, arguments[1]);
             return null;
         });
 
@@ -82,8 +82,8 @@ public class ApplicationQueryTestCase {
 
         Mockito.when(applicationService.getApplications(Mockito.anyLong(), Mockito.anyLong())).then(invocation -> {
             Object[] arguments = invocation.getArguments();
-            Assert.assertEquals(20170101010000l, arguments[0]);
-            Assert.assertEquals(20170101010000l, arguments[1]);
+            Assert.assertEquals(20170101010000L, arguments[0]);
+            Assert.assertEquals(20170101010000L, arguments[1]);
             return null;
         });
 
@@ -103,8 +103,8 @@ public class ApplicationQueryTestCase {
 
         Mockito.when(applicationService.getApplications(Mockito.anyLong(), Mockito.anyLong())).then(invocation -> {
             Object[] arguments = invocation.getArguments();
-            Assert.assertEquals(20170101010100l, arguments[0]);
-            Assert.assertEquals(20170101010100l, arguments[1]);
+            Assert.assertEquals(20170101010100L, arguments[0]);
+            Assert.assertEquals(20170101010100L, arguments[1]);
             return null;
         });
 
@@ -124,8 +124,8 @@ public class ApplicationQueryTestCase {
 
         Mockito.when(applicationService.getApplications(Mockito.anyLong(), Mockito.anyLong())).then(invocation -> {
             Object[] arguments = invocation.getArguments();
-            Assert.assertEquals(20170101010101l, arguments[0]);
-            Assert.assertEquals(20170101010101l, arguments[1]);
+            Assert.assertEquals(20170101010101L, arguments[0]);
+            Assert.assertEquals(20170101010101L, arguments[1]);
             return null;
         });
 

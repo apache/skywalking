@@ -35,7 +35,7 @@ public abstract class AbstractApplicationMappingH2TableDefine extends H2TableDef
         addColumn(new H2ColumnDefine(ApplicationMappingTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
         addColumn(new H2ColumnDefine(ApplicationMappingTable.COLUMN_METRIC_ID, H2ColumnDefine.Type.Varchar.name()));
         addColumn(new H2ColumnDefine(ApplicationMappingTable.COLUMN_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(ApplicationMappingTable.COLUMN_ADDRESS_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ApplicationMappingTable.COLUMN_MAPPING_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
         addColumn(new H2ColumnDefine(ApplicationMappingTable.COLUMN_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
     }
 }

@@ -87,7 +87,7 @@ public class InstanceH2UIDAO extends H2DAO implements IInstanceUIDAO {
     }
 
     @Override
-    public List<Application> getApplications(long startTime, long endTime) {
+    public List<Application> getApplications(long startTime, long endTime, int... applicationIds) {
         H2Client client = getClient();
         List<Application> applications = new LinkedList<>();
         String sql = SqlBuilder.buildSql(GET_APPLICATIONS_SQL, InstanceTable.COLUMN_INSTANCE_ID,

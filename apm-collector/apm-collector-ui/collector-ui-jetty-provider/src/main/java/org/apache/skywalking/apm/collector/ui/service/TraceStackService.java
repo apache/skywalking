@@ -134,7 +134,7 @@ public class TraceStackService {
                         operationName = Const.EMPTY_STRING;
                     }
                 }
-                String applicationCode = applicationCacheService.getApplicationCodeById(segment.getApplicationId());
+                String applicationCode = applicationCacheService.getApplicationById(segment.getApplicationId()).getApplicationCode();
 
                 long cost = spanObject.getEndTime() - spanObject.getStartTime();
                 if (cost == 0) {

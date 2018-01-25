@@ -22,10 +22,94 @@ package org.apache.skywalking.apm.collector.storage.ui.common;
  * @author peng-yongsheng
  */
 public class Call {
-    private String source;
-    private String target;
-    private Boolean isAlert;
+    private int source;
+    private String sourceName;
+    private int target;
+    private String targetName;
+    private boolean isAlert;
     private String callType;
-    private Integer callsPerSec;
-    private Integer responseTimePerSec;
+    private int calls;
+    private int callsPerSec;
+    private long responseTimes;
+    private int responseTimePerSec;
+
+    public int getSource() {
+        return source;
+    }
+
+    public void setSource(int source) {
+        this.source = source;
+    }
+
+    public String getSourceName() {
+        return sourceName;
+    }
+
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
+    }
+
+    public int getTarget() {
+        return target;
+    }
+
+    public void setTarget(int target) {
+        this.target = target;
+    }
+
+    public String getTargetName() {
+        return targetName;
+    }
+
+    public void setTargetName(String targetName) {
+        this.targetName = targetName;
+    }
+
+    public boolean isAlert() {
+        return isAlert;
+    }
+
+    public void setAlert(boolean alert) {
+        isAlert = alert;
+    }
+
+    public String getCallType() {
+        return callType;
+    }
+
+    public void setCallType(String callType) {
+        this.callType = callType;
+    }
+
+    public int getCalls() {
+        return calls;
+    }
+
+    public void setCalls(int calls) {
+        this.calls = calls;
+    }
+
+    public int getCallsPerSec() {
+        return callsPerSec;
+    }
+
+    public void setCallsPerSec(int callsPerSec) {
+        this.callsPerSec = callsPerSec;
+    }
+
+    public long getResponseTimes() {
+        return responseTimes;
+    }
+
+    public void setResponseTimes(long responseTimes) {
+        this.responseTimes = responseTimes;
+    }
+
+    public int getResponseTimePerSec() {
+        return responseTimePerSec;
+    }
+
+    public void setResponseTimePerSec(int responseTimePerSec) {
+        this.responseTimePerSec = responseTimePerSec;
+    }
 }

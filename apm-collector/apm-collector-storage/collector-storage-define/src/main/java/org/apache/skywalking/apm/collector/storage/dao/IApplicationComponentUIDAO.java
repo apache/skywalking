@@ -18,12 +18,35 @@
 
 package org.apache.skywalking.apm.collector.storage.dao;
 
-import com.google.gson.JsonArray;
+import java.util.List;
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
+import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 
 /**
  * @author peng-yongsheng
  */
 public interface IApplicationComponentUIDAO extends DAO {
-    JsonArray load(long startTime, long endTime);
+
+    List<ApplicationComponent> load(Step step, long startTime, long endTime);
+
+    class ApplicationComponent {
+        private int componentId;
+        private int applicationId;
+
+        public int getComponentId() {
+            return componentId;
+        }
+
+        public void setComponentId(int componentId) {
+            this.componentId = componentId;
+        }
+
+        public int getApplicationId() {
+            return applicationId;
+        }
+
+        public void setApplicationId(int applicationId) {
+            this.applicationId = applicationId;
+        }
+    }
 }

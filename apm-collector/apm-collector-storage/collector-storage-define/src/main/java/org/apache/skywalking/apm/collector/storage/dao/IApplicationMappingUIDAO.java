@@ -18,12 +18,34 @@
 
 package org.apache.skywalking.apm.collector.storage.dao;
 
-import com.google.gson.JsonArray;
+import java.util.List;
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
+import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 
 /**
  * @author peng-yongsheng
  */
 public interface IApplicationMappingUIDAO extends DAO {
-    JsonArray load(long startTime, long endTime);
+    List<ApplicationMapping> load(Step step, long startTime, long endTime);
+
+    class ApplicationMapping {
+        private int applicationId;
+        private int mappingApplicationId;
+
+        public int getApplicationId() {
+            return applicationId;
+        }
+
+        public void setApplicationId(int applicationId) {
+            this.applicationId = applicationId;
+        }
+
+        public int getMappingApplicationId() {
+            return mappingApplicationId;
+        }
+
+        public void setMappingApplicationId(int mappingApplicationId) {
+            this.mappingApplicationId = mappingApplicationId;
+        }
+    }
 }

@@ -108,7 +108,7 @@ public class SpanService {
                 if (spanObject.getPeerId() == 0) {
                     peerJson.addProperty("value", spanObject.getPeer());
                 } else {
-                    peerJson.addProperty("value", applicationCacheService.getApplicationCodeById(spanObject.getPeerId()));
+                    peerJson.addProperty("value", applicationCacheService.getApplicationById(spanObject.getPeerId()).getApplicationCode());
                 }
                 tagsArray.add(peerJson);
 

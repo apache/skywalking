@@ -16,19 +16,20 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.h2.dao;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
+import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
 import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
+import org.apache.skywalking.apm.collector.storage.dao.IApplicationMappingUIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMappingTable;
-import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
-import org.apache.skywalking.apm.collector.storage.dao.IApplicationMappingUIDAO;
+import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,26 +45,29 @@ public class ApplicationMappingH2UIDAO extends H2DAO implements IApplicationMapp
         super(client);
     }
 
-    @Override public JsonArray load(long startTime, long endTime) {
-        H2Client client = getClient();
-        JsonArray applicationMappingArray = new JsonArray();
-        String sql = SqlBuilder.buildSql(APPLICATION_MAPPING_SQL, ApplicationMappingTable.COLUMN_APPLICATION_ID,
-            ApplicationMappingTable.COLUMN_ADDRESS_ID, ApplicationMappingTable.TABLE, ApplicationMappingTable.COLUMN_TIME_BUCKET);
+    @Override public List<ApplicationMapping> load(Step step, long startTime, long endTime) {
+        String tableName = TimePyramidTableNameBuilder.build(step, ApplicationMappingTable.TABLE);
 
+        H2Client client = getClient();
+        String sql = SqlBuilder.buildSql(APPLICATION_MAPPING_SQL, ApplicationMappingTable.COLUMN_APPLICATION_ID,
+            ApplicationMappingTable.COLUMN_MAPPING_APPLICATION_ID, tableName, ApplicationMappingTable.COLUMN_TIME_BUCKET);
+
+        List<ApplicationMapping> applicationMappings = new LinkedList<>();
         Object[] params = new Object[] {startTime, endTime};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             while (rs.next()) {
                 int applicationId = rs.getInt(ApplicationMappingTable.COLUMN_APPLICATION_ID);
-                int addressId = rs.getInt(ApplicationMappingTable.COLUMN_ADDRESS_ID);
-                JsonObject applicationMappingObj = new JsonObject();
-                applicationMappingObj.addProperty(ApplicationMappingTable.COLUMN_APPLICATION_ID, applicationId);
-                applicationMappingObj.addProperty(ApplicationMappingTable.COLUMN_ADDRESS_ID, addressId);
-                applicationMappingArray.add(applicationMappingObj);
+                int addressId = rs.getInt(ApplicationMappingTable.COLUMN_MAPPING_APPLICATION_ID);
+
+                ApplicationMapping applicationMapping = new ApplicationMapping();
+                applicationMapping.setApplicationId(applicationId);
+                applicationMapping.setMappingApplicationId(addressId);
+                applicationMappings.add(applicationMapping);
             }
         } catch (SQLException | H2ClientException e) {
             logger.error(e.getMessage(), e);
         }
-        logger.debug("node mapping data: {}", applicationMappingArray.toString());
-        return applicationMappingArray;
+        logger.debug("node mapping data: {}", applicationMappings.toString());
+        return applicationMappings;
     }
 }

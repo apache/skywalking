@@ -18,12 +18,19 @@
 
 package org.apache.skywalking.apm.collector.storage.dao;
 
-import com.google.gson.JsonArray;
+import java.util.List;
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
+import org.apache.skywalking.apm.collector.storage.table.MetricSource;
+import org.apache.skywalking.apm.collector.storage.ui.common.Call;
+import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 
 /**
  * @author peng-yongsheng
  */
 public interface IApplicationReferenceMetricUIDAO extends DAO {
-    JsonArray load(long startTime, long endTime);
+    List<Call> getFrontApplications(Step step, int applicationId, long startTime, long endTime,
+        MetricSource metricSource);
+
+    List<Call> getBehindApplications(Step step, int applicationId, long startTime, long endTime,
+        MetricSource metricSource);
 }
