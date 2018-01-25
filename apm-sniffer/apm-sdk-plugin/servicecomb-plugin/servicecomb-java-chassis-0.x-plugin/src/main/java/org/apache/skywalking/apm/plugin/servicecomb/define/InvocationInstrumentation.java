@@ -18,9 +18,9 @@
 
 package org.apache.skywalking.apm.plugin.servicecomb.define;
 
+import io.servicecomb.core.Invocation;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
-import io.servicecomb.core.Invocation;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
@@ -60,7 +60,7 @@ public class InvocationInstrumentation extends ClassInstanceMethodsEnhancePlugin
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("getHandlerChain");
+                    return named("getHandlerContext");
                 }
 
                 @Override
