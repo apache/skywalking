@@ -36,18 +36,11 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * {@link NextInterceptor} define how to enhance class {@link Invocation#next(io.servicecomb.swagger.invocation.AsyncResponse)}.
+ * {@link InvocationInterceptor} define how to enhance class {@link Invocation#getHandlerContext()}.
  *
  * @author lytscu
  */
-public class NextInterceptor implements InstanceMethodsAroundInterceptor {
-    static final ThreadLocal DEEP = new ThreadLocal() {
-        @Override
-        protected Integer initialValue() {
-            Integer deepindex = 0;
-            return deepindex;
-        }
-    };
+public class InvocationInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
@@ -57,27 +50,20 @@ public class NextInterceptor implements InstanceMethodsAroundInterceptor {
         Invocation invocation = (Invocation)objInst;
         AbstractSpan span;
         boolean isConsumer = type.equals(InvocationType.CONSUMER);
-        if (isConsumer) {
-            Integer count = (Integer)DEEP.get();
-            try {
-                if (count == 2) {
-                    String peer = invocation.getEndpoint().getAddress().toString();
-                    final ContextCarrier contextCarrier = new ContextCarrier();
-                    span = ContextManager.createExitSpan(invocation.getOperationName(), contextCarrier, peer);
-                    CarrierItem next = contextCarrier.items();
-                    while (next.hasNext()) {
-                        next = next.next();
-                        invocation.getContext().put(next.getHeadKey(), next.getHeadValue());
-                    }
-                    String url = invocation.getOperationMeta().getOperationPath();
-                    Tags.URL.set(span, url);
-                    span.setComponent(ComponentsDefine.SERVICECOMB);
-                    SpanLayer.asRPCFramework(span);
-                }
-            } finally {
-                count++;
-                DEEP.set(count);
+        if (!isConsumer) {
+
+            ContextCarrier contextCarrier = new ContextCarrier();
+            CarrierItem next = contextCarrier.items();
+            while (next.hasNext()) {
+                next = next.next();
+                next.setHeadValue(invocation.getContext().get(next.getHeadKey()));
             }
+            String operationName = invocation.getOperationName();
+            span = ContextManager.createEntrySpan(operationName, contextCarrier);
+            String url = invocation.getOperationMeta().getOperationPath();
+            Tags.URL.set(span, url);
+            span.setComponent(ComponentsDefine.SERVICECOMB);
+            SpanLayer.asRPCFramework(span);
         }
     }
 
@@ -86,23 +72,15 @@ public class NextInterceptor implements InstanceMethodsAroundInterceptor {
         SwaggerInvocation swagger = (SwaggerInvocation)objInst;
         InvocationType type = swagger.getInvocationType();
         boolean isConsumer = type.equals(InvocationType.CONSUMER);
-        if (isConsumer) {
-            Integer count = (Integer)DEEP.get();
-            try {
-                if (count == 1) {
-                    AbstractSpan span = ContextManager.activeSpan();
-                    StatusType statusType = ((InvocationContext)objInst).getStatus();
-                    int statusCode = statusType.getStatusCode();
-                    if (statusCode >= 400) {
-                        span.errorOccurred();
-                        Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
-                    }
-                    ContextManager.stopSpan();
-                }
-            } finally {
-                count--;
-                DEEP.set(count);
+        if (!isConsumer) {
+            AbstractSpan span = ContextManager.activeSpan();
+            StatusType statusType = ((InvocationContext)objInst).getStatus();
+            int statusCode = statusType.getStatusCode();
+            if (statusCode >= 400) {
+                span.errorOccurred();
+                Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
             }
+            ContextManager.stopSpan();
         }
         return ret;
     }
