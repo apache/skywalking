@@ -1,6 +1,6 @@
-import { query } from '../services/graphql';
+import { generateBaseModal } from '../utils/utils';
 
-export default {
+export default generateBaseModal({
   namespace: 'dashboard',
   state: {
     getClusterBrief: {
@@ -19,22 +19,34 @@ export default {
     getTopNSlowService: [],
     getTopNServerThroughput: [],
   },
-  effects: {
-    *fetch({ payload }, { call, put }) {
-      const response = yield call(query, 'dashboard', payload);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
-    },
-  },
-
-  reducers: {
-    save(state, action) {
-      return {
-        ...state,
-        ...action.payload.data,
-      };
-    },
-  },
-};
+  query: `
+    query Dashboard($duration: Duration!) {
+      getClusterBrief(duration: $duration) {
+        numOfApplication
+        numOfService
+        numOfDatabase
+        numOfCache
+        numOfMQ
+      }
+      getAlarmTrend(duration: $duration) {
+        numOfAlarmRate
+      }
+      getConjecturalApps(duration: $duration) {
+        apps {
+          name
+          num
+        }
+      }
+      getTopNSlowService(duration: $duration, topN: 10) {
+        id
+        name
+        avgResponseTime
+      }
+      getTopNServerThroughput(duration: $duration, topN: 10) {
+        id
+        name
+        tps
+      }
+    }
+  `,
+});

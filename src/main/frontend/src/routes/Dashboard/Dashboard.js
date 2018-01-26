@@ -1,30 +1,22 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Row, Col, Card, List, Avatar } from 'antd';
 import {
   ChartCard, Pie, MiniArea, Field,
 } from '../../components/Charts';
 import { timeRange } from '../../utils/utils';
+import { Panel } from '../../components/Page';
 
 @connect(state => ({
   dashboard: state.dashboard,
   duration: state.global.duration,
 }))
-export default class Dashboard extends Component {
-  componentDidMount() {
+export default class Dashboard extends PureComponent {
+  handleDurationChange = (duration) => {
     this.props.dispatch({
       type: 'dashboard/fetch',
-      payload: {},
+      payload: { duration },
     });
-  }
-  shouldComponentUpdate(nextProps) {
-    if (this.props.duration !== nextProps.duration) {
-      this.props.dispatch({
-        type: 'dashboard/fetch',
-        payload: {},
-      });
-    }
-    return this.props.dashboard !== nextProps.dashboard;
   }
   renderList = (data, title, content, unit) => {
     return (<List
@@ -62,7 +54,7 @@ export default class Dashboard extends Component {
       min = numOfAlarmRate.reduce((acc, curr) => { return acc > curr ? curr : acc; });
     }
     return (
-      <div>
+      <Panel duration={this.props.duration} onDurationChange={this.handleDurationChange}>
         <Row gutter={24}>
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
@@ -157,7 +149,7 @@ export default class Dashboard extends Component {
             </Card>
           </Col>
         </Row>
-      </div>
+      </Panel>
     );
   }
 }

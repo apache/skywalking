@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { query as queryService } from '../services/graphql';
 
 function createTimeMeasure(measureType, step, format, displayFormat = format) {
   return {
@@ -123,6 +124,32 @@ export function generateDuration({ from, to }) {
     display: {
       range: Array.from({ length: end.diff(start, measureType) + 1 },
         (v, i) => start.clone().add(i, measureType).format(displayFormat)),
+    },
+  };
+}
+
+export function generateBaseModal({ namespace, query, state, effects = {}, reducers = {} }) {
+  return {
+    namespace,
+    state,
+    effects: {
+      ...effects,
+      *fetch({ payload }, { call, put }) {
+        const response = yield call(queryService, namespace, { variables: payload, query });
+        yield put({
+          type: 'save',
+          payload: response,
+        });
+      },
+    },
+    reducers: {
+      ...reducers,
+      save(preState, action) {
+        return {
+          ...preState,
+          ...action.payload.data,
+        };
+      },
     },
   };
 }
