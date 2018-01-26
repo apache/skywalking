@@ -58,7 +58,7 @@ public class InvocationInterceptor implements InstanceMethodsAroundInterceptor {
                 next = next.next();
                 next.setHeadValue(invocation.getContext().get(next.getHeadKey()));
             }
-            String operationName = invocation.getOperationName();
+            String operationName = invocation.getInvocationQualifiedName();
             span = ContextManager.createEntrySpan(operationName, contextCarrier);
             String url = invocation.getOperationMeta().getOperationPath();
             Tags.URL.set(span, url);

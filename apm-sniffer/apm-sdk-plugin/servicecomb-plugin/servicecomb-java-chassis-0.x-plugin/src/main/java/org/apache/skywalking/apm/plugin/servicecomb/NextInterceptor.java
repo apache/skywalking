@@ -66,7 +66,7 @@ public class NextInterceptor implements InstanceMethodsAroundInterceptor {
                     URI uri = new URI(invocation.getEndpoint().toString());
                     String peer = uri.getHost() + ":" + uri.getPort();
                     final ContextCarrier contextCarrier = new ContextCarrier();
-                    span = ContextManager.createExitSpan(invocation.getOperationName(), contextCarrier, peer);
+                    span = ContextManager.createExitSpan(invocation.getInvocationQualifiedName(), contextCarrier, peer);
                     CarrierItem next = contextCarrier.items();
                     while (next.hasNext()) {
                         next = next.next();
