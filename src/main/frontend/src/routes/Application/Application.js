@@ -1,7 +1,8 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Row, Col, Select, Card, Table, Form } from 'antd';
 import { AppTopology } from '../../components/Topology';
+import { Panel } from '../../components/Page';
 
 const { Option } = Select;
 const { Item: FormItem } = Form;
@@ -11,35 +12,35 @@ const { Item: FormItem } = Form;
   duration: state.global.duration,
 }))
 @Form.create({
-  mapPropsToFields() {
+  mapPropsToFields(props) {
     return {
-      appId: Form.createFormField({
-        value: 'App1',
+      applicationId: Form.createFormField({
+        value: props.application.applicationId,
       }),
     };
   },
 })
-export default class Application extends Component {
-  componentDidMount() {
-    this.props.form.validateFields((err, values) => {
-      if (!err) {
-        this.handleChange(values.appId);
-      }
+export default class Application extends PureComponent {
+  handleDurationChange = (duration) => {
+    this.props.dispatch({
+      type: 'application/loadAllApp',
+      payload: { duration },
     });
   }
-  shouldComponentUpdate(nextProps) {
-    if (this.props.duration !== nextProps.duration) {
-      this.props.dispatch({
-        type: 'application/fetch',
-        payload: {},
-      });
-    }
-    return this.props.application !== nextProps.application;
-  }
-  handleChange(appId) {
+  handleChange = (applicationId) => {
     this.props.dispatch({
-      type: 'application/fetch',
-      payload: { applicationId: appId },
+      type: 'application/fetchItem',
+      payload: {
+        variables:
+        {
+          applicationId,
+          duration: this.props.duration,
+        },
+        data:
+        {
+          applicationId,
+        },
+      },
     });
   }
   render() {
@@ -76,7 +77,7 @@ export default class Application extends Component {
       <div>
         <Form layout="inline">
           <FormItem>
-            {getFieldDecorator('appId')(
+            {getFieldDecorator('applicationId')(
               <Select
                 showSearch
                 style={{ width: 200 }}
@@ -84,55 +85,57 @@ export default class Application extends Component {
                 optionFilterProp="children"
                 onSelect={this.handleChange.bind(this)}
               >
-                <Option value="App1">App1</Option>
-                <Option value="App2">App2</Option>
-                <Option value="App3">App3</Option>
+                {this.props.application.allApplication.map((app) => {
+                    return (<Option value={app.key}>{app.name}</Option>);
+                  })}
               </Select>
             )}
           </FormItem>
         </Form>
-        <Card
-          bordered={false}
-          bodyStyle={{ padding: 0, marginTop: 24 }}
-        >
-          <AppTopology elements={this.props.application.getApplicationTopology} layout={{ name: 'concentric', minNodeSpacing: 200 }} />
-        </Card>
-        <Row gutter={24}>
-          <Col {...middleColResponsiveProps}>
-            <Card
-              title="Slow Service"
-              bordered={false}
-              bodyStyle={{ padding: 0 }}
-            >
-              <Table
-                size="small"
-                columns={tableColumns}
-                dataSource={this.props.application.getSlowService}
-                pagination={{
-                  style: { marginBottom: 0 },
-                  pageSize: 10,
-                }}
-              />
-            </Card>
-          </Col>
-          <Col {...middleColResponsiveProps}>
-            <Card
-              title="Servers Throughput"
-              bordered={false}
-              bodyStyle={{ padding: 0 }}
-            >
-              <Table
-                size="small"
-                columns={applicationThroughputColumns}
-                dataSource={this.props.application.getServerThroughput}
-                pagination={{
-                  style: { marginBottom: 0 },
-                  pageSize: 10,
-                }}
-              />
-            </Card>
-          </Col>
-        </Row>
+        <Panel duration={this.props.duration} onDurationChange={this.handleDurationChange}>
+          <Card
+            bordered={false}
+            bodyStyle={{ padding: 0, marginTop: 24 }}
+          >
+            <AppTopology elements={this.props.application.getApplicationTopology} layout={{ name: 'concentric', minNodeSpacing: 200 }} />
+          </Card>
+          <Row gutter={24}>
+            <Col {...middleColResponsiveProps}>
+              <Card
+                title="Slow Service"
+                bordered={false}
+                bodyStyle={{ padding: 0 }}
+              >
+                <Table
+                  size="small"
+                  columns={tableColumns}
+                  dataSource={this.props.application.getSlowService}
+                  pagination={{
+                    style: { marginBottom: 0 },
+                    pageSize: 10,
+                  }}
+                />
+              </Card>
+            </Col>
+            <Col {...middleColResponsiveProps}>
+              <Card
+                title="Servers Throughput"
+                bordered={false}
+                bodyStyle={{ padding: 0 }}
+              >
+                <Table
+                  size="small"
+                  columns={applicationThroughputColumns}
+                  dataSource={this.props.application.getServerThroughput}
+                  pagination={{
+                    style: { marginBottom: 0 },
+                    pageSize: 10,
+                  }}
+                />
+              </Card>
+            </Col>
+          </Row>
+        </Panel>
       </div>
     );
   }

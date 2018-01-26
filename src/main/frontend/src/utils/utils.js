@@ -141,6 +141,14 @@ export function generateBaseModal({ namespace, query, state, effects = {}, reduc
           payload: response,
         });
       },
+      *fetchItem({ payload }, { call, put }) {
+        const response = yield call(queryService, namespace,
+          { variables: payload.variables, query });
+        yield put({
+          type: 'save',
+          payload: { data: { ...response.data, ...payload.data } },
+        });
+      },
     },
     reducers: {
       ...reducers,

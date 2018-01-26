@@ -5,6 +5,7 @@ export default {
     res.json(mockjs.mock(
       {
         data: {
+          'getAllApplication|20-50': [{ 'key|+1': 3, name: function() { return `app-${this.key}`; } }],
           'getSlowService|10': [{ 'key|+1': 1, name: '@name', 'avgResponseTime|200-1000': 1 }],
           'getServerThroughput|10': [{ 'key|+1': 1, name: '@name', 'tps|100-10000': 1 }],
           getApplicationTopology: () => {

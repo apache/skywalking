@@ -8,7 +8,7 @@ export default class Panel extends Component {
   shouldComponentUpdate(nextProps) {
     const { duration, onDurationChange } = this.props;
     if (duration !== nextProps.duration) {
-      onDurationChange();
+      onDurationChange(duration);
       return false;
     }
     return true;
