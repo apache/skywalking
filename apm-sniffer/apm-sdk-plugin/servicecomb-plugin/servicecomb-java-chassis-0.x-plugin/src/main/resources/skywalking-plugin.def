@@ -1,1 +1,1 @@
-servicecomb-0.6=org.apache.skywalking.apm.plugin.servicecomb.define.InvocationInstrumentation
+servicecomb-0.x=org.apache.skywalking.apm.plugin.servicecomb.define.InvocationInstrumentation
