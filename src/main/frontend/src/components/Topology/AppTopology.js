@@ -5,7 +5,7 @@ export default class AppTopology extends Base {
   getStyle = () => {
     return [
       {
-        selector: 'node[calls]',
+        selector: 'node[sla]',
         style: {
           width: 120,
           height: 120,
@@ -19,7 +19,7 @@ export default class AppTopology extends Base {
         },
       },
       {
-        selector: 'node[!calls]',
+        selector: 'node[!sla]',
         style: {
           width: 60,
           height: 60,
@@ -54,7 +54,7 @@ export default class AppTopology extends Base {
   getNodeLabel = () => {
     return [
       {
-        query: 'node[calls]',
+        query: 'node[sla]',
         halign: 'center',
         valign: 'center',
         halignBox: 'center',
@@ -64,7 +64,7 @@ export default class AppTopology extends Base {
           return `
           <div class="${styles.circle}">
             <div class="node-percentage">${data.sla}%</div>
-            <div>${data.calls} calls/s</div>
+            <div>${data.callsPerSec} calls/s</div>
             <div>
               <img src="data.png" class="${styles.logo}"/>${data.numOfServer}
               <img src="alert.png" class="${styles.logo}"/>

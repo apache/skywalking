@@ -1,6 +1,6 @@
-import { query } from '../services/graphql';
+import { generateBaseModal } from '../utils/utils';
 
-export default {
+export default generateBaseModal({
   namespace: 'topology',
   state: {
     getClusterTopology: {
@@ -8,22 +8,33 @@ export default {
       calls: [],
     },
   },
-  effects: {
-    *fetch({ payload }, { call, put }) {
-      const response = yield call(query, 'topology', payload);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
-    },
-  },
-
-  reducers: {
-    save(state, action) {
-      return {
-        ...state,
-        ...action.payload.data,
-      };
-    },
-  },
-};
+  query: `
+    query Topology($duration: Duration!) {
+      getClusterTopology(duration: $duration) {
+        nodes {
+          id
+          name
+          type
+          ... on ApplicationNode {
+            sla
+            callsPerSec
+            responseTimePerSec
+            apdex
+            isAlarm
+            numOfServer
+            numOfServerAlarm
+            numOfServiceAlarm
+          }
+        },
+        calls: {
+          source
+          target
+          isAlert
+          callType
+          callsPerSec
+          responseTimePerSec
+        },
+      }
+    }
+  `,
+});

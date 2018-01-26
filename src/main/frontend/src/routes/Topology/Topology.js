@@ -1,43 +1,35 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { ChartCard } from '../../components/Charts';
 import { AppTopology } from '../../components/Topology';
+import { Panel } from '../../components/Page';
 
 @connect(state => ({
   topology: state.topology,
   duration: state.global.duration,
 }))
-export default class Topology extends Component {
-  state = {
+export default class Topology extends PureComponent {
+  static defaultProps = {
     graphHeight: 600,
-  }
-  componentDidMount() {
+  };
+  handleChange = (duration) => {
     this.props.dispatch({
       type: 'topology/fetch',
-      payload: {},
+      payload: { duration },
     });
-  }
-  shouldComponentUpdate(nextProps) {
-    if (this.props.duration !== nextProps.duration) {
-      this.props.dispatch({
-        type: 'topology/fetch',
-        payload: {},
-      });
-    }
-    return this.props.topology !== nextProps.topology;
   }
   render() {
     return (
-      <div ref={(el) => { this.graph = el; }}>
+      <Panel duration={this.props.duration} onDurationChange={this.handleChange}>
         <ChartCard
           title="Topolgy Graph"
         >
           <AppTopology
-            height={this.state.graphHeight}
+            height={this.props.graphHeight}
             elements={this.props.topology.getClusterTopology}
           />
         </ChartCard>
-      </div>
+      </Panel>
     );
   }
 }

@@ -9,8 +9,8 @@ function createTimeMeasure(measureType, step, format, displayFormat = format) {
 
 function getMeasureList() {
   return [createTimeMeasure('months', 'MONTH', 'YYYY-MM'), createTimeMeasure('days', 'DAY', 'YYYY-MM-DD'),
-    createTimeMeasure('hours', 'HOUR', ' YYYY-MM-DD HH', 'YYYY-MM-DD HH:00:00'), createTimeMeasure('minutes', 'MINUTE', ' YYYY-MM-DD HHmm', 'HH:mm:00'),
-    createTimeMeasure('seconds', 'SECOND', ' YYYY-MM-DD HHmmss', 'HH:mm:ss')];
+    createTimeMeasure('hours', 'HOUR', 'YYYY-MM-DD HH', 'YYYY-MM-DD HH:00:00'), createTimeMeasure('minutes', 'MINUTE', 'YYYY-MM-DD HHmm', 'HH:mm:00'),
+    createTimeMeasure('seconds', 'SECOND', 'YYYY-MM-DD HHmmss', 'HH:mm:ss')];
 }
 
 export function fixedZero(val) {
