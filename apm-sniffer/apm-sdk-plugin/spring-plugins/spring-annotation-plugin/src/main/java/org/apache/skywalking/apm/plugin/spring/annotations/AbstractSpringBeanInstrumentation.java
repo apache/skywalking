@@ -24,7 +24,10 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 
+import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
 import static net.bytebuddy.matcher.ElementMatchers.isPublic;
+import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.not;
 
 public abstract class AbstractSpringBeanInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.spring.annotations.SpringAnnotationInterceptor";
@@ -37,7 +40,7 @@ public abstract class AbstractSpringBeanInstrumentation extends ClassInstanceMet
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return isPublic();
+                    return isPublic().and(not(isDeclaredBy(Object.class)).and(not(named("getSkyWalkingDynamicField"))).and(not(named("setSkyWalkingDynamicField"))));
                 }
 
                 @Override public String getMethodsInterceptor() {
