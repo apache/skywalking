@@ -22,5 +22,6 @@
     * [Plugin development guide](en/Plugin-Development-Guide.md)
     * Protocol
       * [Cross Process Propagation Headers Protocol, v1.0](en/Skywalking-Cross-Process-Propagation-Headers-Protocol-v1.md)
+  * [Roadmap](ROADMAP.md)
   * FAQ
 
