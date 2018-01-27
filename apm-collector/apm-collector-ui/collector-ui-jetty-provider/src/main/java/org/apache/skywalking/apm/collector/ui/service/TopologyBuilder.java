@@ -95,10 +95,12 @@ class TopologyBuilder {
 
                     calleeCalls.forEach(call -> {
                         if (call.getTarget() == nodeId) {
-                            call.setCallsPerSec((int)(call.getCalls() / secondsBetween));
-                            call.setResponseTimePerSec((int)(call.getResponseTimes() / secondsBetween));
+                            call.setCallsPerSec(call.getCalls() / secondsBetween);
+                            call.setResponseTimePerSec(call.getResponseTimes() / secondsBetween);
                         }
                     });
+                    applicationNode.setCallsPerSec(100L);
+                    applicationNode.setResponseTimePerSec(100L);
                     nodes.add(applicationNode);
                 }
             }

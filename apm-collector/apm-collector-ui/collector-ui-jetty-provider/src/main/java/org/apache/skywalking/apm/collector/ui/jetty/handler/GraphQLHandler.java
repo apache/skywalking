@@ -60,7 +60,6 @@ public class GraphQLHandler extends JettyHandler {
 
     private final Logger logger = LoggerFactory.getLogger(GraphQLHandler.class);
 
-    private final ModuleManager moduleManager;
     private final Gson gson = new Gson();
     private final GraphQL graphQL;
     private static final String QUERY = "query";
@@ -69,8 +68,6 @@ public class GraphQLHandler extends JettyHandler {
     private static final String MESSAGE = "message";
 
     public GraphQLHandler(ModuleManager moduleManager) {
-        this.moduleManager = moduleManager;
-
         GraphQLSchema schema = SchemaParser.newParser()
             .file("ui-graphql/alarm.graphqls")
             .file("ui-graphql/application-layer.graphqls")
@@ -81,7 +78,7 @@ public class GraphQLHandler extends JettyHandler {
             .file("ui-graphql/service-layer.graphqls")
             .file("ui-graphql/trace.graphqls")
             .resolvers(new VersionQuery(), new VersionMutation(), new AlarmQuery(), new ApplicationQuery(moduleManager))
-            .resolvers(new OverViewLayerQuery(moduleManager), new ServerQuery(), new ServiceQuery(), new TraceQuery())
+            .resolvers(new OverViewLayerQuery(moduleManager), new ServerQuery(moduleManager), new ServiceQuery(), new TraceQuery())
             .resolvers(new ConfigQuery(), new ConfigMutation())
             .dictionary(ConjecturalNode.class, VisualUserNode.class, ApplicationNode.class)
             .build()
