@@ -58,8 +58,10 @@ public class ServerQuery implements Query {
         return getServerService().searchServer(keyword, start, end);
     }
 
-    public List<AppServerInfo> getAllServer(String applicationId, Duration duration) {
-        return null;
+    public List<AppServerInfo> getAllServer(int applicationId, Duration duration) throws ParseException {
+        long start = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart());
+        long end = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd());
+        return getServerService().getAllServer(applicationId, start, end);
     }
 
     public ResponseTimeTrend getServerResponseTimeTrend(int serverId, Duration duration) {

@@ -50,7 +50,6 @@ public class InstanceH2UIDAO extends H2DAO implements IInstanceUIDAO {
     private static final String GET_LAST_HEARTBEAT_TIME_SQL = "select {0} from {1} where {2} > ? limit 1";
     private static final String GET_INST_LAST_HEARTBEAT_TIME_SQL = "select {0} from {1} where {2} > ? and {3} = ? limit 1";
     private static final String GET_INSTANCE_SQL = "select * from {0} where {1} = ?";
-    private static final String GET_INSTANCES_SQL = "select * from {0} where {1} like ? and {2} >= ? and {2} <= ? and {3} = ?";
     private static final String GET_APPLICATIONS_SQL = "select {3}, count({0}) as cnt from {1} where {2} >= ? group by {3} limit 100";
 
     @Override
@@ -132,12 +131,26 @@ public class InstanceH2UIDAO extends H2DAO implements IInstanceUIDAO {
         return null;
     }
 
-    @Override public List<AppServerInfo> getInstances(String keyword, long start, long end) {
+    @Override public List<AppServerInfo> searchServer(String keyword, long start, long end) {
         logger.debug("get instances info, keyword: {}, start: {}, end: {}", keyword, start, end);
-        List<AppServerInfo> appServerInfos = new LinkedList<>();
-        H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_INSTANCES_SQL, InstanceTable.TABLE, InstanceTable.COLUMN_OS_INFO, InstanceTable.COLUMN_HEARTBEAT_TIME, InstanceTable.COLUMN_IS_ADDRESS);
+        String dynamicSql = "select * from {0} where {1} like ? and {2} >= ? and {2} <= ? and {3} = ?";
+        String sql = SqlBuilder.buildSql(dynamicSql, InstanceTable.TABLE, InstanceTable.COLUMN_OS_INFO, InstanceTable.COLUMN_HEARTBEAT_TIME, InstanceTable.COLUMN_IS_ADDRESS);
         Object[] params = new Object[] {keyword, start, end, BooleanUtils.FALSE};
+        return buildAppServerInfo(sql, params);
+    }
+
+    @Override public List<AppServerInfo> getAllServer(int applicationId, long start, long end) {
+        logger.debug("get instances info, applicationId: {}, start: {}, end: {}", applicationId, start, end);
+        String dynamicSql = "select * from {0} where {1} = ? and {2} >= ? and {2} <= ? and {3} = ?";
+        String sql = SqlBuilder.buildSql(dynamicSql, InstanceTable.TABLE, InstanceTable.COLUMN_APPLICATION_ID, InstanceTable.COLUMN_HEARTBEAT_TIME, InstanceTable.COLUMN_IS_ADDRESS);
+        Object[] params = new Object[] {applicationId, start, end, BooleanUtils.FALSE};
+        return buildAppServerInfo(sql, params);
+    }
+
+    private List<AppServerInfo> buildAppServerInfo(String sql, Object[] params) {
+        H2Client client = getClient();
+
+        List<AppServerInfo> appServerInfos = new LinkedList<>();
         try (ResultSet rs = client.executeQuery(sql, params)) {
             while (rs.next()) {
                 AppServerInfo appServerInfo = new AppServerInfo();

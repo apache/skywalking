@@ -149,7 +149,7 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         return null;
     }
 
-    @Override public List<AppServerInfo> getInstances(String keyword, long start, long end) {
+    @Override public List<AppServerInfo> searchServer(String keyword, long start, long end) {
         logger.debug("get instances info, keyword: {}, start: {}, end: {}", keyword, start, end);
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(InstanceTable.TABLE);
         searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
@@ -167,6 +167,29 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
         SearchHit[] searchHits = searchResponse.getHits().getHits();
 
+        return buildAppServerInfo(searchHits);
+    }
+
+    @Override public List<AppServerInfo> getAllServer(int applicationId, long start, long end) {
+        logger.debug("get instances info, applicationId: {}, start: {}, end: {}", applicationId, start, end);
+        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(InstanceTable.TABLE);
+        searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
+        searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
+        searchRequestBuilder.setSize(1000);
+
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+        boolQuery.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(start).lte(end));
+        boolQuery.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationId));
+        boolQuery.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, BooleanUtils.FALSE));
+        searchRequestBuilder.setQuery(boolQuery);
+
+        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
+        SearchHit[] searchHits = searchResponse.getHits().getHits();
+
+        return buildAppServerInfo(searchHits);
+    }
+
+    private List<AppServerInfo> buildAppServerInfo(SearchHit[] searchHits) {
         List<AppServerInfo> appServerInfos = new LinkedList<>();
         for (SearchHit searchHit : searchHits) {
             AppServerInfo appServerInfo = new AppServerInfo();
