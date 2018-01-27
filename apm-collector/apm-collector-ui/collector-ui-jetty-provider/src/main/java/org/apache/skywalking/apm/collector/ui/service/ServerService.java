@@ -43,13 +43,24 @@ public class ServerService {
     }
 
     public List<AppServerInfo> searchServer(String keyword, long start, long end) {
-        List<AppServerInfo> serverInfos = instanceDAO.getInstances(keyword, start, end);
+        List<AppServerInfo> serverInfos = instanceDAO.searchServer(keyword, start, end);
         serverInfos.forEach(serverInfo -> {
             if (serverInfo.getId() == Const.NONE_INSTANCE_ID) {
                 serverInfos.remove(serverInfo);
             }
         });
+        
+        buildAppServerInfo(serverInfos);
+        return serverInfos;
+    }
 
+    public List<AppServerInfo> getAllServer(int applicationId, long start, long end) {
+        List<AppServerInfo> serverInfos = instanceDAO.getAllServer(applicationId, start, end);
+        buildAppServerInfo(serverInfos);
+        return serverInfos;
+    }
+
+    private void buildAppServerInfo(List<AppServerInfo> serverInfos) {
         serverInfos.forEach(serverInfo -> {
             if (StringUtils.isNotEmpty(serverInfo.getOsInfo())) {
                 JsonObject osInfoJson = gson.fromJson(serverInfo.getOsInfo(), JsonObject.class);
@@ -74,7 +85,5 @@ public class ServerService {
                 }
             }
         });
-
-        return serverInfos;
     }
 }
