@@ -21,12 +21,15 @@ package org.apache.skywalking.apm.collector.storage.es.dao;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
+import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
 import org.apache.skywalking.apm.collector.storage.ui.application.Application;
+import org.apache.skywalking.apm.collector.storage.ui.server.AppServerInfo;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -146,30 +149,31 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         return null;
     }
 
-    @Override public List<Instance> getInstances(int applicationId, long timeBucket) {
-        logger.debug("get instances info, application id: {}, timeBucket: {}", applicationId, timeBucket);
+    @Override public List<AppServerInfo> getInstances(String keyword, long start, long end) {
+        logger.debug("get instances info, keyword: {}, start: {}, end: {}", keyword, start, end);
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(InstanceTable.TABLE);
         searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
         searchRequestBuilder.setSize(1000);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(timeBucket));
-        boolQuery.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationId));
+        boolQuery.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(start).lte(end));
+        if (StringUtils.isNotEmpty(keyword)) {
+            boolQuery.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_OS_INFO, keyword));
+        }
+        boolQuery.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, BooleanUtils.FALSE));
         searchRequestBuilder.setQuery(boolQuery);
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
         SearchHit[] searchHits = searchResponse.getHits().getHits();
 
-        List<Instance> instanceList = new LinkedList<>();
+        List<AppServerInfo> appServerInfos = new LinkedList<>();
         for (SearchHit searchHit : searchHits) {
-            Instance instance = new Instance();
-            instance.setId(searchHit.getId());
-            instance.setApplicationId(((Number)searchHit.getSource().get(InstanceTable.COLUMN_APPLICATION_ID)).intValue());
-            instance.setHeartBeatTime(((Number)searchHit.getSource().get(InstanceTable.COLUMN_HEARTBEAT_TIME)).longValue());
-            instance.setInstanceId(((Number)searchHit.getSource().get(InstanceTable.COLUMN_INSTANCE_ID)).intValue());
-            instanceList.add(instance);
+            AppServerInfo appServerInfo = new AppServerInfo();
+            appServerInfo.setId(((Number)searchHit.getSource().get(InstanceTable.COLUMN_INSTANCE_ID)).intValue());
+            appServerInfo.setOsInfo((String)searchHit.getSource().get(InstanceTable.COLUMN_OS_INFO));
+            appServerInfos.add(appServerInfo);
         }
-        return instanceList;
+        return appServerInfos;
     }
 }

@@ -28,10 +28,10 @@ public class Call {
     private String targetName;
     private boolean isAlert;
     private String callType;
-    private int calls;
-    private int callsPerSec;
+    private long calls;
+    private long callsPerSec;
     private long responseTimes;
-    private int responseTimePerSec;
+    private long responseTimePerSec;
 
     public int getSource() {
         return source;
@@ -81,19 +81,19 @@ public class Call {
         this.callType = callType;
     }
 
-    public int getCalls() {
+    public long getCalls() {
         return calls;
     }
 
-    public void setCalls(int calls) {
+    public void setCalls(long calls) {
         this.calls = calls;
     }
 
-    public int getCallsPerSec() {
+    public long getCallsPerSec() {
         return callsPerSec;
     }
 
-    public void setCallsPerSec(int callsPerSec) {
+    public void setCallsPerSec(long callsPerSec) {
         this.callsPerSec = callsPerSec;
     }
 
@@ -105,11 +105,11 @@ public class Call {
         this.responseTimes = responseTimes;
     }
 
-    public int getResponseTimePerSec() {
+    public long getResponseTimePerSec() {
         return responseTimePerSec;
     }
 
-    public void setResponseTimePerSec(int responseTimePerSec) {
+    public void setResponseTimePerSec(long responseTimePerSec) {
         this.responseTimePerSec = responseTimePerSec;
     }
 }

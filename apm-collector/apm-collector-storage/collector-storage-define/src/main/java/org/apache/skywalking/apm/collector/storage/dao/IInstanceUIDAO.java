@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 import org.apache.skywalking.apm.collector.storage.ui.application.Application;
+import org.apache.skywalking.apm.collector.storage.ui.server.AppServerInfo;
 
 /**
  * @author peng-yongsheng
@@ -35,5 +36,5 @@ public interface IInstanceUIDAO extends DAO {
 
     Instance getInstance(int instanceId);
 
-    List<Instance> getInstances(int applicationId, long timeBucket);
+    List<AppServerInfo> getInstances(String keyword, long start, long end);
 }

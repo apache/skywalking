@@ -119,10 +119,10 @@ public class ApplicationTopologyService {
         Topology topology = builder.build(applicationComponents, applicationMappings, callerCalls, calleeCalls, secondsBetween);
 
         topology.getCalls().forEach(call -> {
-            int calls = call.getCalls();
+            long calls = call.getCalls();
             long responseTimes = call.getResponseTimes();
-            call.setCallsPerSec((int)(calls / secondsBetween));
-            call.setResponseTimePerSec((int)(responseTimes / secondsBetween));
+            call.setCallsPerSec(calls / secondsBetween);
+            call.setResponseTimePerSec(responseTimes / secondsBetween);
         });
         return topology;
     }

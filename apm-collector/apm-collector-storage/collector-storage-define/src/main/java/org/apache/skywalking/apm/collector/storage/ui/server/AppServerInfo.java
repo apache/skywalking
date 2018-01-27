@@ -18,16 +18,73 @@
 
 package org.apache.skywalking.apm.collector.storage.ui.server;
 
+import java.util.List;
+
 /**
  * @author peng-yongsheng
  */
 public class AppServerInfo {
     private int id;
+    private String osInfo;
     private String name;
     private int tps;
-    private String os;
     private String host;
     private int pid;
-    private String ipv4;
-    private String ipv6;
+    private List<String> ipv4;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getOsInfo() {
+        return osInfo;
+    }
+
+    public void setOsInfo(String osInfo) {
+        this.osInfo = osInfo;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getTps() {
+        return tps;
+    }
+
+    public void setTps(int tps) {
+        this.tps = tps;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public int getPid() {
+        return pid;
+    }
+
+    public void setPid(int pid) {
+        this.pid = pid;
+    }
+
+    public List<String> getIpv4() {
+        return ipv4;
+    }
+
+    public void setIpv4(List<String> ipv4) {
+        this.ipv4 = ipv4;
+    }
 }
