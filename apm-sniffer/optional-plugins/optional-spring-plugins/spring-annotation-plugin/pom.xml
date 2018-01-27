@@ -21,17 +21,14 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>spring-plugins</artifactId>
+        <artifactId>optional-spring-plugins</artifactId>
         <groupId>org.apache.skywalking</groupId>
         <version>5.0.0-alpha</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
+    <packaging>jar</packaging>
 
     <artifactId>apm-spring-annotation-plugin</artifactId>
-
-    <properties>
-        <plugin.dest.dir>${agent.package.dest.dir}/optional-plugins</plugin.dest.dir>
-    </properties>
 
     <dependencies>
         <dependency>
