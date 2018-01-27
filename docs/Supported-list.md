@@ -30,6 +30,7 @@
   * [gRPC](https://github.com/grpc/grpc-java) 1.6+
 * MQ
   * [RocketMQ](https://github.com/apache/rocketmq) 4.x
+  * [Kafka](http://kafka.apache.org) 0.11.0.0 -> 1.0 (Optional²)
 * NoSQL
   * Redis
     * [Jedis](https://github.com/xetorthio/jedis) 2.x
@@ -48,3 +49,4 @@
   * Hprose-java
 
 ¹Required dependencies for these components must be first manually downloaded before being built, due to license incompatibilities. For this reason these components are not by default included in the SkyWalking releases.
+²These plugin would probably affect the performance because of enhancing class. Or some of them are in beta, If the above plugins are put under the plugins folder, it will cause the user experience not so good, For this reason these plugins is not load by default. 
