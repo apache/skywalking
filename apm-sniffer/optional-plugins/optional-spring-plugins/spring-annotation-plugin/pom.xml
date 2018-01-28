@@ -21,26 +21,21 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>apm</artifactId>
+        <artifactId>optional-spring-plugins</artifactId>
         <groupId>org.apache.skywalking</groupId>
         <version>5.0.0-alpha</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
+    <packaging>jar</packaging>
 
-    <artifactId>apm-sniffer</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>apm-spring-annotation-plugin</artifactId>
 
-    <modules>
-        <module>apm-agent</module>
-        <module>apm-agent-core</module>
-        <module>apm-sdk-plugin</module>
-        <module>apm-toolkit-activation</module>
-        <module>apm-test-tools</module>
-        <module>optional-plugins</module>
-    </modules>
-
-    <properties>
-        <compiler.version>1.6</compiler.version>
-        <shade.package>org.apache.skywalking.apm.dependencies</shade.package>
-    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>3.2.0.RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>
