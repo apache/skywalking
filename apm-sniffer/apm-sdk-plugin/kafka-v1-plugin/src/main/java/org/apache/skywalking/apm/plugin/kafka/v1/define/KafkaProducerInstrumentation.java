@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.kafka.v11.define;
+package org.apache.skywalking.apm.plugin.kafka.v1.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -24,13 +24,14 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.plugin.kafka.v1.KafkaProducerInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link KafkaProducerInstrumentation} define that {@link org.apache.skywalking.apm.plugin.kafka.v11.KafkaProducerInterceptor}
+ * {@link KafkaProducerInstrumentation} define that {@link KafkaProducerInterceptor}
  * intercept the method <code>send</code> in the class <code>org.apache.kafka.clients.producer.KafkaProducer</code>.
  * Here is the intercept process steps.
  *

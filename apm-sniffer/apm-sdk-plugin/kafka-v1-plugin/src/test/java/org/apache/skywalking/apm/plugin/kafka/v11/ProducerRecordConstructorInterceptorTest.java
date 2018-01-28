@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.plugin.kafka.v11;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.plugin.kafka.v1.ProducerRecordConstructorInterceptor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

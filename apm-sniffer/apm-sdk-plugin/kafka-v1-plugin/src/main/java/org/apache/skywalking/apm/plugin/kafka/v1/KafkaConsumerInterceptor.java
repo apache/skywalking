@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.kafka.v11;
+package org.apache.skywalking.apm.plugin.kafka.v1;
 
 import java.lang.reflect.Method;
 import java.util.Iterator;

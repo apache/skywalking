@@ -16,35 +16,28 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.kafka.v11;
+package org.apache.skywalking.apm.plugin.kafka.v1;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
-public class CallbackInterceptor implements InstanceMethodsAroundInterceptor {
+public class SubscribeMethodInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        AbstractSpan abstractSpan = ContextManager.createLocalSpan("Producer/Callback");
+        ConsumerEnhanceRequiredInfo requiredInfo = (ConsumerEnhanceRequiredInfo)objInst.getSkyWalkingDynamicField();
+        requiredInfo.setTopics((Collection<String>)allArguments[0]);
 
-        //Get the SnapshotContext
-        ContextSnapshot contextSnapshot = (ContextSnapshot)objInst.getSkyWalkingDynamicField();
-        ContextManager.continued(contextSnapshot);
+        objInst.setSkyWalkingDynamicField(requiredInfo);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        Exception exceptions = (Exception)allArguments[1];
-        if (exceptions != null) {
-            ContextManager.activeSpan().errorOccurred().log(exceptions);
-        }
-        ContextManager.stopSpan();
         return ret;
     }
 

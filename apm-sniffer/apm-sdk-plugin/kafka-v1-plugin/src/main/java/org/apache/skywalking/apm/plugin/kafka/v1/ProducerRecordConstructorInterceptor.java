@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.kafka.v11;
+package org.apache.skywalking.apm.plugin.kafka.v1;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
