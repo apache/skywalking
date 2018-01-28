@@ -23,5 +23,7 @@
     * Protocol
       * [Cross Process Propagation Headers Protocol, v1.0](en/Skywalking-Cross-Process-Propagation-Headers-Protocol-v1.md)
   * FAQ
+    * [No other data but UI can query trace](cn/FAQ/Why-have-traces-no-others.md)
+    * [Too many GRPC log in the console](cn/FAQ/Too-many-gRPC-logs.md)
     * [The trace doesn't continue in kafka consumer side](en/FAQ/kafka-plugin.md)
 
