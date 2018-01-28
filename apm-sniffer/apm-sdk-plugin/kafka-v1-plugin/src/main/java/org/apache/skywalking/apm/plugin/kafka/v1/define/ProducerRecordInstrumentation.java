@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.kafka.v11.define;
+package org.apache.skywalking.apm.plugin.kafka.v1.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -24,17 +24,18 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.plugin.kafka.v1.ProducerRecordConstructorInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link ProducerRecordInstrumentation} define that {@link org.apache.skywalking.apm.plugin.kafka.v11.ProducerRecordConstructorInterceptor}
+ * {@link ProducerRecordInstrumentation} define that {@link ProducerRecordConstructorInterceptor}
  * intercept the constructor in the class <code>org.apache.kafka.clients.producer.ProducerRecord</code> for record the
  * topic name and propagate the <code>Context</code> of trace.
  *
  * @author zhang xin
- * @see org.apache.skywalking.apm.plugin.kafka.v11.define.KafkaProducerInstrumentation
+ * @see org.apache.skywalking.apm.plugin.kafka.v1.define.KafkaProducerInstrumentation
  */
 public class ProducerRecordInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
