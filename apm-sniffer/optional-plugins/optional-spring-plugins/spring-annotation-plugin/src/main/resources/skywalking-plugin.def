@@ -1,0 +1,4 @@
+spring-annotation=org.apache.skywalking.apm.plugin.spring.annotations.bean.SpringBeanInstrumentation
+spring-annotation=org.apache.skywalking.apm.plugin.spring.annotations.component.SpringComponentInstrumentation
+spring-annotation=org.apache.skywalking.apm.plugin.spring.annotations.repository.SpringRepositoryInstrumentation
+spring-annotation=org.apache.skywalking.apm.plugin.spring.annotations.services.SpringServicesInstrumentation
