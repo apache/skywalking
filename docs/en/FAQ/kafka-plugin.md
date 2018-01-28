@@ -1,8 +1,8 @@
-**Problem**: <br/>
-The Kafka plug-in can't track how applications handle messages
+**Problem**: 
+The trace doesn't continue in kafka consumer side.
 
 **Reason**:
-The Kafka consumer actively takes a message from Kafka Cluster and the agent can not see if the consuming thread is being monitored.
+The kafka client is pulling message from server, the plugin also just traces the pull action. As that, you need to do the manual instrument before the pull action, and include the further data process.
 
 **Resolve**:
-Add the `@Trace` annotation to the method of handle message and the method of poll message , see the [document](https://github.com/apache/incubator-skywalking/blob/master/docs/en/Application-toolkit-trace.md)
+Use Application Toolkit libraries to do manual instrumentation. such as `@Trace` annotaion or OpenTracing API.
