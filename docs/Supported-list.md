@@ -49,4 +49,4 @@
   * Hprose-java
 
 ¹Required dependencies for these components must be first manually downloaded before being built, due to license incompatibilities. For this reason these components are not by default included in the SkyWalking releases.
-²These plugin would probably affect the performance because of enhancing class. Or some of them are in beta, If the above plugins are put under the plugins folder, it will cause the user experience not so good, For this reason these plugins is not load by default. 
+²These plugins affect the performance or must be used under some conditions, from experiences. So only released in `/optional-plugins`, copy to `/plugins` in order to make them work.
