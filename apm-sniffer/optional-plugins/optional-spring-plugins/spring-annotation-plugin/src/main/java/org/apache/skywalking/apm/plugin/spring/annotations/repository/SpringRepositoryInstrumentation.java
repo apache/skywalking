@@ -24,7 +24,10 @@ import org.apache.skywalking.apm.plugin.spring.annotations.AbstractSpringBeanIns
 import static org.apache.skywalking.apm.agent.core.plugin.match.ClassAnnotationMatch.byClassAnnotationMatch;
 
 public class SpringRepositoryInstrumentation extends AbstractSpringBeanInstrumentation {
+
+    public static final String ENHANCE_ANNOTATION = "org.springframework.stereotype.Repository";
+
     @Override protected ClassMatch enhanceClass() {
-        return byClassAnnotationMatch(new String[] {"org.springframework.stereotype.Repository"});
+        return byClassAnnotationMatch(new String[] {ENHANCE_ANNOTATION});
     }
 }

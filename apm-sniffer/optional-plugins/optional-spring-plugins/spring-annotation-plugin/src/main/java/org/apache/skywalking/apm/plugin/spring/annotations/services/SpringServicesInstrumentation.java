@@ -25,7 +25,9 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.ClassAnnotationM
 
 public class SpringServicesInstrumentation extends AbstractSpringBeanInstrumentation {
 
+    public static final String ENHANCE_ANNOTATION = "org.springframework.stereotype.Service";
+
     @Override protected ClassMatch enhanceClass() {
-        return byClassAnnotationMatch(new String[] {"org.springframework.stereotype.Service"});
+        return byClassAnnotationMatch(new String[] {ENHANCE_ANNOTATION});
     }
 }

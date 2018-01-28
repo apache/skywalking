@@ -28,7 +28,9 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.ClassAnnotationM
  */
 public class SpringBeanInstrumentation extends AbstractSpringBeanInstrumentation {
 
+    public static final String ENHANCE_ANNOTATION = "org.springframework.context.annotation.Bean";
+
     @Override protected ClassMatch enhanceClass() {
-        return byClassAnnotationMatch(new String[] {"org.springframework.context.annotation.Bean"});
+        return byClassAnnotationMatch(new String[] {ENHANCE_ANNOTATION});
     }
 }
