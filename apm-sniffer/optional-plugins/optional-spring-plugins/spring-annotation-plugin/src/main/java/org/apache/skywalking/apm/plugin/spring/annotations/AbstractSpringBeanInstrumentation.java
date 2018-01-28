@@ -31,6 +31,8 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
 
 public abstract class AbstractSpringBeanInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.spring.annotations.SpringAnnotationInterceptor";
+    public static final String INTERCEPT_GET_SKYWALKING_DYNAMIC_FIELD_METHOD = "getSkyWalkingDynamicField";
+    public static final String INTERCEPT_SET_SKYWALKING_DYNAMIC_FEILD_METHOD = "setSkyWalkingDynamicField";
 
     @Override protected final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -40,7 +42,7 @@ public abstract class AbstractSpringBeanInstrumentation extends ClassInstanceMet
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return isPublic().and(not(isDeclaredBy(Object.class)).and(not(named("getSkyWalkingDynamicField"))).and(not(named("setSkyWalkingDynamicField"))));
+                    return isPublic().and(not(isDeclaredBy(Object.class)).and(not(named(INTERCEPT_GET_SKYWALKING_DYNAMIC_FIELD_METHOD))).and(not(named(INTERCEPT_SET_SKYWALKING_DYNAMIC_FEILD_METHOD))));
                 }
 
                 @Override public String getMethodsInterceptor() {
