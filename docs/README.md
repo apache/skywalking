@@ -23,4 +23,5 @@
     * Protocol
       * [Cross Process Propagation Headers Protocol, v1.0](en/Skywalking-Cross-Process-Propagation-Headers-Protocol-v1.md)
   * FAQ
+    * [The trace doesn't continue in kafka consumer side](en/FAQ/kafka-plugin.md)
 
