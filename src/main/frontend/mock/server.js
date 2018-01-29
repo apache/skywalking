@@ -1,11 +1,28 @@
 import mockjs from 'mockjs';
 
 export default {
+  searchServer(req, res) {
+    res.json(mockjs.mock(
+      {
+        data: {
+          'searchServer|5': [
+            {
+              'key|+1': 3,
+              label: function() { return `server-${this.key}`; },
+              os: 'Mac-@name',
+              host: 'WORKSAPCE-@name',
+              pid: '@natural',
+              ipv4: '@ip',
+            },
+          ],
+        },
+      }
+    ));
+  },
   getServer(req, res) {
     res.json(mockjs.mock(
       {
         data: {
-          'searchServer|5': [{}],
           getServerResponseTimeTrend: {
             'trendList|60': ['@natural(100, 1000)'],
           },

@@ -1,6 +1,30 @@
-import { query } from '../services/graphql';
+import { generateModal } from '../utils/utils';
 
-export default {
+const dataQuery = `
+  query Application($serverId: ID!, $duration: Duration!) {
+    getServerResponseTimeTrend(serverId: $serverId, duration: $duration) {
+      trendList
+    }
+    getServerTPSTrend(serverId: $serverId, duration: $duration) {
+      trendList
+    }
+    getCPUTrend(serverId: $serverId, duration: $duration) {
+      cost
+    }
+    getGCTrend(serverId: $serverId, duration: $duration) {
+      youngGC
+      oldGC
+    }
+    getMemoryTrend(serverId: $serverId, duration: $duration) {
+      heap
+      maxHeap
+      noheap
+      maxNoheap
+    }
+  }
+`;
+
+export default generateModal({
   namespace: 'server',
   state: {
     searchServer: [],
@@ -24,22 +48,5 @@ export default {
       oldGC: [],
     },
   },
-  effects: {
-    *fetch({ payload }, { call, put }) {
-      const response = yield call(query, 'server', payload);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
-    },
-  },
-
-  reducers: {
-    save(state, action) {
-      return {
-        ...state,
-        ...action.payload.data,
-      };
-    },
-  },
-};
+  dataQuery,
+});
