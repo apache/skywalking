@@ -10,12 +10,13 @@ import { Panel } from '../../components/Page';
 @connect(state => ({
   dashboard: state.dashboard,
   duration: state.global.duration,
+  globalVariables: state.global.globalVariables,
 }))
 export default class Dashboard extends PureComponent {
-  handleDurationChange = (duration) => {
+  handleDurationChange = (variables) => {
     this.props.dispatch({
-      type: 'dashboard/fetch',
-      payload: { duration },
+      type: 'dashboard/fetchData',
+      payload: { variables },
     });
   }
   renderList = (data, title, content, unit) => {
@@ -40,8 +41,9 @@ export default class Dashboard extends PureComponent {
     />);
   }
   render() {
+    const { data } = this.props.dashboard;
     const visitData = [];
-    const { numOfAlarmRate } = this.props.dashboard.getAlarmTrend;
+    const { numOfAlarmRate } = data.getAlarmTrend;
     let avg = 0;
     let max = 0;
     let min = 0;
@@ -54,35 +56,35 @@ export default class Dashboard extends PureComponent {
       min = numOfAlarmRate.reduce((acc, curr) => { return acc > curr ? curr : acc; });
     }
     return (
-      <Panel duration={this.props.duration} onDurationChange={this.handleDurationChange}>
+      <Panel globalVariables={this.props.globalVariables} onChange={this.handleDurationChange}>
         <Row gutter={24}>
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
               title="App"
               avatar={<img style={{ width: 56, height: 56 }} src="app.svg" alt="app" />}
-              total={this.props.dashboard.getClusterBrief.numOfApplication}
+              total={data.getClusterBrief.numOfApplication}
             />
           </Col>
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
               title="Service"
               avatar={<img style={{ width: 56, height: 56 }} src="service.svg" alt="service" />}
-              total={this.props.dashboard.getClusterBrief.numOfService}
+              total={data.getClusterBrief.numOfService}
             />
           </Col>
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
               title="Store"
               avatar={<img style={{ width: 48, height: 56 }} src="database.svg" alt="database" />}
-              total={this.props.dashboard.getClusterBrief.numOfDatabase
-                + this.props.dashboard.getClusterBrief.numOfCache}
+              total={data.getClusterBrief.numOfDatabase
+                + data.getClusterBrief.numOfCache}
             />
           </Col>
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
               title="MQ"
               avatar={<img style={{ width: 56, height: 56 }} src="redis.svg" alt="redis" />}
-              total={this.props.dashboard.getClusterBrief.numOfMQ}
+              total={data.getClusterBrief.numOfMQ}
             />
           </Col>
         </Row>
@@ -119,9 +121,9 @@ export default class Dashboard extends PureComponent {
                 hasLegend
                 title="Database"
                 subTitle="Total"
-                total={this.props.dashboard.getConjecturalApps.apps
+                total={data.getConjecturalApps.apps
                   .reduce((pre, now) => now.num + pre, 0)}
-                data={this.props.dashboard.getConjecturalApps.apps
+                data={data.getConjecturalApps.apps
                   .map((v) => { return { x: v.name, y: v.num }; })}
                 height={300}
                 lineWidth={4}
@@ -136,7 +138,7 @@ export default class Dashboard extends PureComponent {
               bordered={false}
               bodyStyle={{ padding: 10 }}
             >
-              {this.renderList(this.props.dashboard.getTopNSlowService, 'name', 'avgResponseTime', 'ms')}
+              {this.renderList(data.getTopNSlowService, 'name', 'avgResponseTime', 'ms')}
             </Card>
           </Col>
           <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 24 }}>
@@ -145,7 +147,7 @@ export default class Dashboard extends PureComponent {
               bordered={false}
               bodyStyle={{ padding: 10 }}
             >
-              {this.renderList(this.props.dashboard.getTopNServerThroughput, 'name', 'tps', 't/s')}
+              {this.renderList(data.getTopNServerThroughput, 'name', 'tps', 't/s')}
             </Card>
           </Col>
         </Row>

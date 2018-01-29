@@ -1,6 +1,6 @@
-import { generateBaseModal } from '../utils/utils';
+import { generateModal } from '../utils/utils';
 
-export default generateBaseModal({
+export default generateModal({
   namespace: 'dashboard',
   state: {
     getClusterBrief: {
@@ -19,7 +19,7 @@ export default generateBaseModal({
     getTopNSlowService: [],
     getTopNServerThroughput: [],
   },
-  query: `
+  dataQuery: `
     query Dashboard($duration: Duration!) {
       getClusterBrief(duration: $duration) {
         numOfApplication
