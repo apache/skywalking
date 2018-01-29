@@ -1,6 +1,6 @@
-import { generateBaseModal } from '../utils/utils';
+import { generateModal } from '../utils/utils';
 
-export default generateBaseModal({
+export default generateModal({
   namespace: 'topology',
   state: {
     getClusterTopology: {
@@ -8,7 +8,7 @@ export default generateBaseModal({
       calls: [],
     },
   },
-  query: `
+  dataQuery: `
     query Topology($duration: Duration!) {
       getClusterTopology(duration: $duration) {
         nodes {
