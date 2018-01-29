@@ -161,3 +161,102 @@ export function generateBaseModal({ namespace, query, state, effects = {}, reduc
     },
   };
 }
+
+export function generateModal({ namespace, dataQuery, optionsQuery, state = {} }) {
+  return {
+    namespace,
+    state: {
+      variables: {
+        values: {},
+        labels: {},
+        options: {},
+      },
+      data: state,
+    },
+    effects: {
+      *initOptions({ payload }, { call, put }) {
+        const { variables } = payload;
+        const response = yield call(queryService, `${namespace}/all`, { variables, query: optionsQuery });
+        yield put({
+          type: 'saveOptions',
+          payload: response.data,
+        });
+      },
+      *fetchData({ payload }, { call, put }) {
+        const { variables } = payload;
+        const response = yield call(queryService, namespace, { variables, query: dataQuery });
+        yield put({
+          type: 'saveData',
+          payload: response.data,
+        });
+      },
+    },
+    reducers: {
+      saveOptions(preState, { payload: allOptions }) {
+        const { variables } = preState;
+        const { values, labels, options } = variables;
+        const amendOptions = {};
+        const defaultValues = {};
+        const defaultLabels = {};
+        Object.keys(allOptions).forEach((_) => {
+          const thisOptions = allOptions[_];
+          if (!values[_] && thisOptions.length > 0) {
+            defaultValues[_] = thisOptions[0].key;
+            defaultLabels[_] = thisOptions[0].label;
+          }
+          const key = values[_];
+          if (!thisOptions.find(o => o.key === key)) {
+            amendOptions[_] = [...thisOptions, { key, label: labels[_] }];
+          }
+        });
+        return {
+          ...preState,
+          variables: {
+            ...variables,
+            options: {
+              ...options,
+              ...allOptions,
+              ...amendOptions,
+            },
+            values: {
+              ...values,
+              ...defaultValues,
+            },
+            labels: {
+              ...labels,
+              ...defaultLabels,
+            },
+          },
+        };
+      },
+      saveData(preState, { payload }) {
+        const { data } = preState;
+        return {
+          ...preState,
+          data: {
+            ...data,
+            ...payload,
+          },
+        };
+      },
+      saveVariables(preState, { payload: { values: variableValues, labels = {} } }) {
+        const { variables: preVariables } = preState;
+        const { values: preValues, lables: preLabels } = preVariables;
+        return {
+          ...preState,
+          variables: {
+            ...preVariables,
+            values: {
+              ...preValues,
+              ...variableValues,
+            },
+            labels: {
+              ...preLabels,
+              ...labels,
+            },
+          },
+        };
+      },
+    },
+  };
+}

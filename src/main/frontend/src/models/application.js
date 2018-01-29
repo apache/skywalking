@@ -1,16 +1,15 @@
-import { generateBaseModal } from '../utils/utils';
-import { query as queryService } from '../services/graphql';
+import { generateModal } from '../utils/utils';
 
-const allAppQuery = `
-  query AllApplication($duration: Duration!) {
-    getAllApplication(duration: $duration) {
+const optionsQuery = `
+  query ApplicationOption($duration: Duration!) {
+    applicationId: getAllApplication(duration: $duration) {
       key: id
-      name
+      label: name
     }
   }
 `;
 
-const appQuery = `
+const dataQuery = `
   query Application($applicationId: ID!, $duration: Duration!) {
     getSlowService(applicationId: $applicationId, duration: $duration) {
       key: id
@@ -50,46 +49,8 @@ const appQuery = `
   }
 `;
 
-export default generateBaseModal({
+export default generateModal({
   namespace: 'application',
-  effects: {
-    *loadAllApp({ payload }, { call, put }) {
-      const { data: { getAllApplication: allApplication } } = yield call(queryService, 'application', { variables: payload, query: allAppQuery });
-      const applicationId = allApplication && allApplication.length > 0 && allApplication[0].key;
-      if (!applicationId) {
-        return;
-      }
-      yield put({
-        type: 'saveApplication',
-        payload: { allApplication, applicationId },
-      });
-      const response = yield put({
-        type: 'fetch',
-        payload: { variables: { ...payload, applicationId }, query: appQuery },
-      });
-      yield put({
-        type: 'save',
-        payload: response,
-      });
-    },
-  },
-  reducers: {
-    saveApplication(preState, action) {
-      const { applicationId } = preState;
-      const { allApplication, applicationId: newApplicationId } = action.payload;
-      if (allApplication.find(_ => _.key === applicationId)) {
-        return {
-          ...preState,
-          allApplication,
-        };
-      }
-      return {
-        ...preState,
-        allApplication,
-        applicationId: newApplicationId,
-      };
-    },
-  },
   state: {
     allApplication: [],
     getSlowService: [],
@@ -99,5 +60,6 @@ export default generateBaseModal({
       calls: [],
     },
   },
-  query: appQuery,
+  optionsQuery,
+  dataQuery,
 });

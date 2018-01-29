@@ -5,7 +5,7 @@ import { getNotices } from './mock/notices';
 import { delay } from 'roadhog-api-doc';
 import { getDashboard } from './mock/dashboard';
 import { getTopology } from './mock/topology';
-import { getApplication } from './mock/application';
+import { getAllApplication, getApplication } from './mock/application';
 import { getServer } from './mock/server';
 import { getService } from './mock/service';
 import { getAlarm } from './mock/alarm';
@@ -19,6 +19,7 @@ const proxy = {
   // 支持值为 Object 和 Array
   'POST /api/dashboard': getDashboard,
   'POST /api/topology': getTopology,
+  'POST /api/application/all': getAllApplication,
   'POST /api/application': getApplication,
   'POST /api/server': getServer,
   'POST /api/service': getService,

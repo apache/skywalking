@@ -64,11 +64,13 @@ export default {
       };
     },
     changeSelectedTime(state, { payload }) {
+      const duration = generateDuration(payload);
       return {
         ...state,
         selectedTime: payload,
-        duration: generateDuration(payload),
+        duration,
         isShowSelectTime: false,
+        globalVariables: { duration: duration.input },
       };
     },
     toggleSelectTime(state) {
@@ -79,9 +81,11 @@ export default {
     },
     reload(state) {
       const { selectedTime } = state;
+      const duration = generateDuration(selectedTime);
       return {
         ...state,
-        duration: generateDuration(selectedTime),
+        duration,
+        globalVariables: { duration: duration.input },
       };
     },
   },
