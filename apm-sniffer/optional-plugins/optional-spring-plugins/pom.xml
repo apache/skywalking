@@ -21,26 +21,20 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>apm</artifactId>
+        <artifactId>optional-plugins</artifactId>
         <groupId>org.apache.skywalking</groupId>
         <version>5.0.0-alpha</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
-    <artifactId>apm-sniffer</artifactId>
     <packaging>pom</packaging>
 
+    <artifactId>optional-spring-plugins</artifactId>
+    <properties>
+        <plugin.dest.dir>${project.build.directory}/../../../../../packages/skywalking-agent/optional-plugins</plugin.dest.dir>
+    </properties>
+
     <modules>
-        <module>apm-agent</module>
-        <module>apm-agent-core</module>
-        <module>apm-sdk-plugin</module>
-        <module>apm-toolkit-activation</module>
-        <module>apm-test-tools</module>
-        <module>optional-plugins</module>
+        <module>spring-annotation-plugin</module>
     </modules>
 
-    <properties>
-        <compiler.version>1.6</compiler.version>
-        <shade.package>org.apache.skywalking.apm.dependencies</shade.package>
-    </properties>
 </project>
