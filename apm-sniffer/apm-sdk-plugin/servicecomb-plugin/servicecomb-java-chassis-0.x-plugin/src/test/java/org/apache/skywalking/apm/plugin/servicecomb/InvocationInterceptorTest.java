@@ -98,7 +98,7 @@ public class InvocationInterceptorTest {
         when(operationMeta.getSchemaMeta()).thenReturn(schemaMeta);
         when(endpoint.getAddress()).thenReturn("0.0.0.0:7777");
         when(enhancedInstance.getEndpoint()).thenReturn(endpoint);
-        when(enhancedInstance.getInvocationQualifiedName()).thenReturn("productorTest");
+        when(enhancedInstance.getMicroserviceQualifiedName()).thenReturn("productorTest");
         when(operationMeta.getOperationPath()).thenReturn("/bmi");
         when(enhancedInstance.getOperationMeta()).thenReturn(operationMeta);
         when(enhancedInstance.getStatus()).thenReturn(statusType);
