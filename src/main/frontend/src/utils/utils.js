@@ -229,6 +229,31 @@ export function generateModal({ namespace, dataQuery, optionsQuery, state = {} }
           },
         };
       },
+      save(preState, { payload: { variables: { values = {}, options = {}, labels = {} },
+        data = {} } }) {
+        const { variables: { values: preValues, options: preOptions, labels: preLabels },
+          data: preData } = preState;
+        return {
+          variables: {
+            values: {
+              ...preValues,
+              ...values,
+            },
+            options: {
+              ...preOptions,
+              ...options,
+            },
+            labels: {
+              ...preLabels,
+              labels,
+            },
+          },
+          data: {
+            ...preData,
+            ...data,
+          },
+        };
+      },
       saveData(preState, { payload }) {
         const { data } = preState;
         return {

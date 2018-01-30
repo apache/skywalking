@@ -18,10 +18,10 @@ const { Item: FormItem } = Form;
 }))
 @Form.create({
   mapPropsToFields(props) {
-    const { variables: { values, labels: { serverId = {} } } } = props.server;
+    const { variables: { values, labels } } = props.server;
     return {
       serverId: Form.createFormField({
-        value: { key: values.serverId, label: serverId.label },
+        value: { key: values.serverId, label: labels.serverId },
       }),
     };
   },
@@ -29,10 +29,15 @@ const { Item: FormItem } = Form;
 export default class Server extends PureComponent {
   handleSelect = (selected) => {
     this.props.dispatch({
-      type: 'server/saveVariables',
+      type: 'server/save',
       payload: {
-        values: { serverId: selected.key },
-        labels: { serverId: selected },
+        variables: {
+          values: { serverId: selected.key },
+          labels: { serverId: selected.label },
+        },
+        data: {
+          serverInfo: selected,
+        },
       },
     });
   }
@@ -46,8 +51,8 @@ export default class Server extends PureComponent {
     (list.reduce((acc, curr) => acc + curr) / list.length).toFixed(2) : 0)
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { variables: { values, labels: { serverId = {} } }, data } = this.props.server;
-    const { getServerResponseTimeTrend, getServerTPSTrend,
+    const { variables: { values }, data } = this.props.server;
+    const { serverInfo, getServerResponseTimeTrend, getServerTPSTrend,
       getCPUTrend, getMemoryTrend, getGCTrend } = data;
     const timeRangeArray = timeRange(this.props.duration);
     return (
@@ -82,10 +87,10 @@ export default class Server extends PureComponent {
         >
           <Card title="Info" style={{ marginTop: 24 }} bordered={false}>
             <DescriptionList>
-              <Description term="OS Name">{serverId.os}</Description>
-              <Description term="Host Name">{serverId.host}</Description>
-              <Description term="Process Id">{serverId.pid}</Description>
-              <Description term="IPv4">{serverId.ipv4}</Description>
+              <Description term="OS Name">{serverInfo.os}</Description>
+              <Description term="Host Name">{serverInfo.host}</Description>
+              <Description term="Process Id">{serverInfo.pid}</Description>
+              <Description term="IPv4">{serverInfo.ipv4}</Description>
             </DescriptionList>
           </Card>
           <Row gutter={24}>

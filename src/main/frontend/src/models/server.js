@@ -27,7 +27,7 @@ const dataQuery = `
 export default generateModal({
   namespace: 'server',
   state: {
-    searchServer: [],
+    serverInfo: {},
     getServerResponseTimeTrend: {
       trendList: [],
     },
