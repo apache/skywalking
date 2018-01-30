@@ -2,76 +2,90 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Row, Col, Form, Input, Select, Button, Card, InputNumber } from 'antd';
 import TraceTable from '../../components/TraceTable';
+import { Panel } from '../../components/Page';
 import styles from './Trace.less';
 
 const { Option } = Select;
 const FormItem = Form.Item;
-const query = `query BasicTraces($condition: TraceQueryCondition){
-  queryBasicTraces(condition: $condition)
-}`;
+
 
 @connect(state => ({
   trace: state.trace,
   duration: state.global.duration,
   loading: state.loading.models.trace,
+  globalVariables: state.global.globalVariables,
 }))
-@Form.create()
+@Form.create({
+  mapPropsToFields(props) {
+    const { variables: { values } } = props.trace;
+    const result = {};
+    Object.keys(values).forEach((_) => {
+      result[_] = Form.createFormField({
+        value: values[_],
+      });
+    });
+    return result;
+  },
+})
 export default class Trace extends PureComponent {
-  state = {
-    formValues: {},
-  }
   componentDidMount() {
-    this.handleSearch();
+    this.props.dispatch({
+      type: 'trace/initOptions',
+      payload: { variables: this.props.globalVariables },
+    });
+  }
+  handleChange = (variables) => {
+    const filteredVariables = { ...variables };
+    filteredVariables.queryDuration = filteredVariables.duration;
+    delete filteredVariables.duration;
+    if (filteredVariables.applicationCodes && !Array.isArray(filteredVariables.applicationCodes)) {
+      filteredVariables.applicationCodes = [filteredVariables.applicationCodes];
+    }
+    this.props.dispatch({
+      type: 'trace/fetchData',
+      payload: { variables: { condition: filteredVariables } },
+    });
   }
   handleSearch = (e) => {
     if (e) {
       e.preventDefault();
     }
-    const { dispatch, form, duration: { input } } = this.props;
+    const { dispatch, form, globalVariables: { duration } } = this.props;
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-
-      const variables = {
-        condition: {
-          ...fieldsValue,
-          queryDuration: input,
-          paging: {
-            pageNum: 1,
-            pageSize: 10,
-            needTotal: true,
+      dispatch({
+        type: 'trace/saveVariables',
+        payload: {
+          values: {
+            ...fieldsValue,
+            queryDuration: duration,
+            paging: {
+              pageNum: 1,
+              pageSize: 10,
+              needTotal: true,
+            },
           },
         },
-      };
-
-      this.setState({
-        formValues: fieldsValue,
-      });
-
-      dispatch({
-        type: 'trace/fetch',
-        payload: { query, variables },
       });
     });
   }
   handleTableChange = (pagination) => {
-    const { formValues } = this.state;
-    const { dispatch, duration: { input } } = this.props;
-    const variables = {
-      condition: {
-        ...formValues,
-        queryDuration: input,
-        paging: {
-          pageNum: pagination.current,
-          pageSize: pagination.pageSize,
-          needTotal: true,
+    const { dispatch, globalVariables: { duration },
+      trace: { variables: { values } } } = this.props;
+    dispatch({
+      type: 'trace/saveVariables',
+      payload: {
+        values: {
+          ...values,
+          queryDuration: duration,
+          paging: {
+            pageNum: pagination.current,
+            pageSize: pagination.pageSize,
+            needTotal: true,
+          },
         },
       },
-    };
-    dispatch({
-      type: 'trace/fetch',
-      payload: { query, variables },
-      pagination,
     });
   }
   handleTableExpand = (expanded, record) => {
@@ -79,21 +93,23 @@ export default class Trace extends PureComponent {
     if (expanded && !record.spans) {
       dispatch({
         type: 'trace/fetchSpans',
-        payload: { query, variables: { traceId: record.traceId } },
+        payload: { variables: { traceId: record.traceId } },
       });
     }
   }
   renderForm() {
     const { getFieldDecorator } = this.props.form;
+    const { trace: { variables: { options } } } = this.props;
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={{ md: 8, lg: 8, xl: 8 }}>
           <Col xl={4} sm={24}>
             <FormItem label="Application">
-              {getFieldDecorator('application')(
-                <Select placeholder="Select application" style={{ width: '100%' }}>
-                  <Option value="all">All</Option>
-                  <Option value="app2">app2</Option>
+              {getFieldDecorator('applicationCodes')(
+                <Select mode="multiple" placeholder="Select application" style={{ width: '100%' }}>
+                  {options.applicationCodes && options.applicationCodes.map((app) => {
+                      return (<Option value={app.key}>{app.label}</Option>);
+                    })}
                 </Select>
               )}
             </FormItem>
@@ -132,19 +148,26 @@ export default class Trace extends PureComponent {
     );
   }
   render() {
-    const { trace: { queryBasicTraces }, loading } = this.props;
+    const { trace: { variables: { values }, data: { queryBasicTraces } }, loading } = this.props;
     return (
       <Card bordered={false}>
         <div className={styles.tableList}>
           <div className={styles.tableListForm}>
             {this.renderForm()}
           </div>
-          <TraceTable
-            loading={loading}
-            data={queryBasicTraces}
-            onChange={this.handleTableChange}
-            onExpand={this.handleTableExpand}
-          />
+          <Panel
+            variables={values}
+            globalVariables={this.props.globalVariables}
+            onChange={this.handleChange}
+          >
+            <TraceTable
+              loading={loading}
+              data={queryBasicTraces.traces}
+              pagination={{ ...values.paging, total: queryBasicTraces.total }}
+              onChange={this.handleTableChange}
+              onExpand={this.handleTableExpand}
+            />
+          </Panel>
         </div>
       </Card>
     );

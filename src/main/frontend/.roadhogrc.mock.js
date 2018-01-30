@@ -9,7 +9,7 @@ import { getAllApplication, getApplication } from './mock/application';
 import { searchServer, getServer } from './mock/server';
 import { searchService, getService } from './mock/service';
 import { getAlarm } from './mock/alarm';
-import { getTrace, getSpans } from './mock/trace'
+import { getAllApplication as getAllApplicationForTrace, getTrace, getSpans } from './mock/trace'
 
 // 是否禁用代理
 const noProxy = process.env.NO_PROXY === 'true';
@@ -19,13 +19,14 @@ const proxy = {
   // 支持值为 Object 和 Array
   'POST /api/dashboard': getDashboard,
   'POST /api/topology': getTopology,
-  'POST /api/application/all': getAllApplication,
+  'POST /api/application/options': getAllApplication,
   'POST /api/application': getApplication,
   'POST /api/server/search': searchServer,
   'POST /api/server': getServer,
   'POST /api/service/search': searchService,
   'POST /api/service': getService,
   'POST /api/alert': getAlarm,
+  'POST /api/trace/options': getAllApplicationForTrace,
   'POST /api/trace': getTrace,
   'POST /api/spans': getSpans,
 };

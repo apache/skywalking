@@ -5,7 +5,7 @@ import styles from './index.less';
 
 class TraceTable extends PureComponent {
   render() {
-    const { data: { traces, pagination }, loading, onExpand, onChange } = this.props;
+    const { data: traces, pagination, loading, onExpand, onChange } = this.props;
 
     const columns = [
       {

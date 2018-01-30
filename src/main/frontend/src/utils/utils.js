@@ -162,7 +162,8 @@ export function generateBaseModal({ namespace, query, state, effects = {}, reduc
   };
 }
 
-export function generateModal({ namespace, dataQuery, optionsQuery, state = {} }) {
+export function generateModal({ namespace, dataQuery, optionsQuery, state = {},
+  effects = {}, reducers = {} }) {
   return {
     namespace,
     state: {
@@ -176,7 +177,7 @@ export function generateModal({ namespace, dataQuery, optionsQuery, state = {} }
     effects: {
       *initOptions({ payload }, { call, put }) {
         const { variables } = payload;
-        const response = yield call(queryService, `${namespace}/all`, { variables, query: optionsQuery });
+        const response = yield call(queryService, `${namespace}/options`, { variables, query: optionsQuery });
         yield put({
           type: 'saveOptions',
           payload: response.data,
@@ -190,6 +191,7 @@ export function generateModal({ namespace, dataQuery, optionsQuery, state = {} }
           payload: response.data,
         });
       },
+      ...effects,
     },
     reducers: {
       saveOptions(preState, { payload: allOptions }) {
@@ -282,6 +284,7 @@ export function generateModal({ namespace, dataQuery, optionsQuery, state = {} }
           },
         };
       },
+      ...reducers,
     },
   };
 }

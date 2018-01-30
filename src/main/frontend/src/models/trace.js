@@ -1,6 +1,26 @@
 import { query } from '../services/graphql';
+import { generateModal } from '../utils/utils';
 
-export default {
+const optionsQuery = `
+  query ApplicationOption($duration: Duration!) {
+    applicationId: getAllApplication(duration: $duration) {
+      key: id
+      label: name
+    }
+  }
+`;
+
+const dataQuery = `
+  query BasicTraces($condition: TraceQueryCondition){
+    queryBasicTraces(condition: $condition)
+  }
+`;
+
+const spanQuery = `query Spans($traceId: ID!){
+  queryTrace(traceId: $traceId)
+}`;
+
+export default generateModal({
   namespace: 'trace',
   state: {
     queryBasicTraces: {
@@ -12,17 +32,11 @@ export default {
       },
     },
   },
+  optionsQuery,
+  dataQuery,
   effects: {
-    *fetch({ payload, pagination }, { call, put }) {
-      const response = yield call(query, 'trace', payload);
-      yield put({
-        type: 'save',
-        payload: response,
-        pagination,
-      });
-    },
     *fetchSpans({ payload }, { call, put }) {
-      const response = yield call(query, 'spans', payload);
+      const response = yield call(query, 'spans', { query: spanQuery, variables: payload.variables });
       yield put({
         type: 'saveSpans',
         payload: response,
@@ -30,26 +44,11 @@ export default {
       });
     },
   },
-
   reducers: {
-    save(state, action) {
-      const { pagination } = action;
-      const { queryBasicTraces: { traces, total } } = action.payload.data;
-      return {
-        ...state,
-        queryBasicTraces: {
-          traces,
-          pagination: {
-            ...pagination,
-            total,
-          },
-        },
-      };
-    },
     saveSpans(state, action) {
       const { traceId } = action;
       const { queryTrace: { spans } } = action.payload.data;
-      const { queryBasicTraces: { traces } } = state;
+      const { data: { queryBasicTraces: { traces } } } = state;
       const trace = traces.find(t => t.traceId === traceId);
       trace.spans = spans;
       return {
@@ -57,4 +56,4 @@ export default {
       };
     },
   },
-};
+});

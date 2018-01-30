@@ -1,6 +1,15 @@
 import mockjs from 'mockjs';
 
 export default {
+  getAllApplication(req, res) {
+    res.json(mockjs.mock(
+      {
+        data: {
+          'applicationCodes|20-50': [{ 'key|+1': 3, label: function() { return `app-${this.key}`; } }],
+        },
+      }
+    ));
+  },
   getTrace(req, res) {
     res.json(mockjs.mock(
       {
