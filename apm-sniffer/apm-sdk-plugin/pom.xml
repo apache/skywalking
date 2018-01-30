@@ -53,6 +53,7 @@
         <module>elastic-job-2.x-plugin</module>
         <module>mongodb-2.x-plugin</module>
         <module>httpasyncclient-4.x-plugin</module>
+        <module>kafka-v1-plugin</module>
         <module>servicecomb-plugin</module>
     </modules>
     <packaging>pom</packaging>
@@ -65,6 +66,9 @@
         <sdk.plugin.related.dir></sdk.plugin.related.dir>
         <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
         <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}</shade.net.bytebuddy.target>
+
+        <agent.package.dest.dir>${project.build.directory}${sdk.plugin.related.dir}/../../../../packages/skywalking-agent</agent.package.dest.dir>
+        <plugin.dest.dir>${agent.package.dest.dir}/plugins</plugin.dest.dir>
     </properties>
 
     <dependencies>
@@ -168,10 +172,10 @@
                                     <equals arg1="${project.packaging}" arg2="jar"/>
                                     <then>
                                         <mkdir
-                                            dir="${project.build.directory}${sdk.plugin.related.dir}/../../../../packages/skywalking-agent/plugins"/>
+                                            dir="${plugin.dest.dir}"/>
                                         <copy
                                             file="${project.build.directory}/${project.artifactId}-${project.version}.jar"
-                                            tofile="${project.build.directory}${sdk.plugin.related.dir}/../../../../packages/skywalking-agent/plugins/${project.artifactId}-${project.version}.jar"
+                                            tofile="${plugin.dest.dir}/${project.artifactId}-${project.version}.jar"
                                             overwrite="true"/>
                                     </then>
                                 </if>

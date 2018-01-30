@@ -78,7 +78,9 @@ public class ComponentsDefine {
 
     public static final OfficialComponent HTTP_ASYNC_CLIENT = new OfficialComponent(26, "httpasyncclient");
 
-    public static final OfficialComponent SERVICECOMB = new OfficialComponent(27, "ServiceComb");
+    public static final OfficialComponent KAFKA = new OfficialComponent(27, "Kafka");
+  
+    public static final OfficialComponent SERVICECOMB = new OfficialComponent(28, "ServiceComb");
 
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
@@ -89,7 +91,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[28];
+        components = new String[29];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -116,6 +118,7 @@ public class ComponentsDefine {
         addComponent(ELASTIC_JOB);
         addComponent(ROCKET_MQ);
         addComponent(HTTP_ASYNC_CLIENT);
+        addComponent(KAFKA);
         addComponent(SERVICECOMB);
     }
 
