@@ -16,48 +16,28 @@
  *
  */
 
-package oracle.jdbc.driver;
+package org.apache.skywalking.apm.plugin.jdbc.oracle;
 
 import java.lang.reflect.Method;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
-import org.apache.skywalking.apm.plugin.jdbc.trace.SWPreparedStatement;
 
-/**
- * {@link JDBCPrepareStatementWithArrayInterceptor} return {@link SWPreparedStatement} instance that wrapper the real
- * preparedStatement instance when the client call <code>oracle.jdbc.driver.PhysicalConnection#prepareStatement(String,
- * int[])</code> method or <code>oracle.jdbc.driver.PhysicalConnection#prepareStatement(String, String[])</code>
- * method.
- *
- * @author zhangxin
- */
-public class JDBCPrepareStatementWithArrayInterceptor implements InstanceMethodsAroundInterceptor {
+public class CreatePreparedStatementInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        /**
-         * To prevent the <code>org.postgresql.jdbc.prepareStatement(String sql)</code> method from repeating
-         * interceptor, Because PGConnection call <code>org.postgresql.jdbc.prepareStatement(String sql)</code> method when
-         * the second argument is empty.
-         *
-         * @see oracle.jdbc.driver.PhysicalConnection#prepareStatement(String, int[])
-         * @see oracle.jdbc.driver.PhysicalConnection#prepareStatement(String, String[])
-         **/
-        String sql = (String)allArguments[0];
-        if (!AutoKeyInfo.isInsertSqlStmt(sql)) {
-            return ret;
+        if (ret instanceof EnhancedInstance) {
+            ((EnhancedInstance)ret).setSkyWalkingDynamicField(new StatementEnhanceInfos((ConnectionInfo)objInst.getSkyWalkingDynamicField(), (String)allArguments[0], "PreparedStatement"));
         }
-        return new SWPreparedStatement((Connection)objInst, (PreparedStatement)ret, (ConnectionInfo)objInst.getSkyWalkingDynamicField(), (String)allArguments[0]);
+        return ret;
     }
 
     @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
