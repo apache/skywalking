@@ -127,7 +127,7 @@ public class InvocationInterceptorTest {
 
     private void assertCombSpan(AbstractTracingSpan span) {
         assertThat(span.getOperationName(), is("productorTest"));
-        assertThat(SpanHelper.getComponentId(span), is(27));
+        assertThat(SpanHelper.getComponentId(span), is(28));
         List<KeyValuePair> tags = SpanHelper.getTags(span);
         assertThat(tags.get(0).getValue(), is("/bmi"));
         assertThat(span.isEntry(), is(true));
