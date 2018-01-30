@@ -4,7 +4,7 @@ The SkyWalking Roadmap includes three lists of features.
 1. The community features, means the SkyWalking Team agrees the features are required, and welcome to accept the contributions.
 1. Long term features, means high value features, but can't be implemented recently.
 
-All the features of both lists are open for discussion.
+All the features of three lists are open for discussion.
 
 ## Core features
 Core features are separated into 3 groups: agent, collector and UI.
