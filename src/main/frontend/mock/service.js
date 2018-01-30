@@ -1,6 +1,25 @@
 import mockjs from 'mockjs';
 
 export default {
+  searchService(req, res) {
+    res.json(mockjs.mock(
+      {
+        data: {
+          'searchService|5': [
+            {
+              'key|+1': 3,
+              label: function() { return `service-${this.key}`; },
+              'type|1': ['DUBBO', 'USER', 'SPRINGMVC'],
+              'calls|1000-2000': 1,
+              'sla|1-100.1-2': 1,
+              'apdex|0.2': 1,
+              'numOfServiceAlarm|1-100': 1,
+            },
+          ],
+        },
+      }
+    ));
+  },
   getService(req, res) {
     res.json(mockjs.mock(
       {

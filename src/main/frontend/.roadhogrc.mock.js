@@ -7,7 +7,7 @@ import { getDashboard } from './mock/dashboard';
 import { getTopology } from './mock/topology';
 import { getAllApplication, getApplication } from './mock/application';
 import { searchServer, getServer } from './mock/server';
-import { getService } from './mock/service';
+import { searchService, getService } from './mock/service';
 import { getAlarm } from './mock/alarm';
 import { getTrace, getSpans } from './mock/trace'
 
@@ -23,6 +23,7 @@ const proxy = {
   'POST /api/application': getApplication,
   'POST /api/server/search': searchServer,
   'POST /api/server': getServer,
+  'POST /api/service/search': searchService,
   'POST /api/service': getService,
   'POST /api/alert': getAlarm,
   'POST /api/trace': getTrace,

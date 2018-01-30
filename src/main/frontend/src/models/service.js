@@ -1,9 +1,47 @@
-import { query } from '../services/graphql';
+import { generateModal } from '../utils/utils';
 
-export default {
+const dataQuery = `
+  query Service($service: ID!, $duration: Duration!) {
+    getServiceResponseTimeTrend(serverId: $serverId, duration: $duration) {
+      trendList
+    }
+    getServiceTPSTrend(serverId: $serverId, duration: $duration) {
+      trendList
+    }
+    getServiceSLATrend(serverId: $serverId, duration: $duration) {
+      trendList
+    }
+    getServiceTopology(serverId: $serverId, duration: $duration) {
+      nodes {
+        id
+        name
+        type
+        ... on ApplicationNode {
+          sla
+          callsPerSec
+          responseTimePerSec
+          apdex
+          isAlarm
+          numOfServer
+          numOfServerAlarm
+          numOfServiceAlarm
+        }
+      },
+      calls: {
+        source
+        target
+        isAlert
+        callType
+        callsPerSec
+        responseTimePerSec
+      },
+    }
+  }
+`;
+
+export default generateModal({
   namespace: 'service',
   state: {
-    searchService: [],
     getServiceResponseTimeTrend: {
       trendList: [],
     },
@@ -13,23 +51,10 @@ export default {
     getServiceSLATrend: {
       trendList: [],
     },
-  },
-  effects: {
-    *fetch({ payload }, { call, put }) {
-      const response = yield call(query, 'service', payload);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
+    getServiceTopology: {
+      nodes: [],
+      calls: [],
     },
   },
-
-  reducers: {
-    save(state, action) {
-      return {
-        ...state,
-        ...action.payload.data,
-      };
-    },
-  },
-};
+  dataQuery,
+});

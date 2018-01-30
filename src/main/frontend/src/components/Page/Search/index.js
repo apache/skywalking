@@ -37,7 +37,7 @@ export default class Search extends PureComponent {
         if (fetchId !== this.lastFetchId) { // for fetch callback order
           return;
         }
-        this.setState({ data: body.data.searchServer, fetching: false });
+        this.setState({ data: body.data[Object.keys(body.data)[0]], fetching: false });
       });
   }
   handleSelect = (value) => {
