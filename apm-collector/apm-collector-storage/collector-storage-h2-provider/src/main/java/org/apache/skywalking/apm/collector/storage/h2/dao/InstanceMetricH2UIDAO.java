@@ -42,58 +42,13 @@ import org.slf4j.LoggerFactory;
 public class InstanceMetricH2UIDAO extends H2DAO implements IInstanceMetricUIDAO {
 
     private final Logger logger = LoggerFactory.getLogger(InstanceMetricH2UIDAO.class);
-    private static final String GET_INSTANCE_METRIC_SQL = "select * from {0} where {1} = ? and {2} in (";
     private static final String GET_TPS_METRIC_SQL = "select * from {0} where {1} = ?";
 
     public InstanceMetricH2UIDAO(H2Client client) {
         super(client);
     }
 
-    @Override public InstanceMetric get(long[] timeBuckets, int instanceId) {
-        H2Client client = getClient();
-        logger.info("the inst performance inst id = {}", instanceId);
-        String sql = SqlBuilder.buildSql(GET_INSTANCE_METRIC_SQL, InstanceMetricTable.TABLE, InstanceMetricTable.COLUMN_INSTANCE_ID, InstanceMetricTable.COLUMN_TIME_BUCKET);
-        StringBuilder builder = new StringBuilder();
-        for (long timeBucket : timeBuckets) {
-            builder.append("?,");
-        }
-        builder.delete(builder.length() - 1, builder.length());
-        builder.append(")");
-        sql = sql + builder;
-        Object[] params = new Object[timeBuckets.length + 1];
-        for (int i = 0; i < timeBuckets.length; i++) {
-            params[i + 1] = timeBuckets[i];
-        }
-        params[0] = instanceId;
-        try (ResultSet rs = client.executeQuery(sql, params)) {
-            if (rs.next()) {
-                long callTimes = rs.getInt(InstanceMetricTable.COLUMN_TRANSACTION_CALLS);
-                long costTotal = rs.getInt(InstanceMetricTable.COLUMN_TRANSACTION_DURATION_SUM);
-                return new InstanceMetric(instanceId, callTimes, costTotal);
-            }
-        } catch (SQLException | H2ClientException e) {
-            logger.error(e.getMessage(), e);
-        }
-        return null;
-    }
-
-    @Override public long getTpsMetric(int instanceId, long timeBucket) {
-        logger.info("getTpMetric instanceId = {}, startTimeBucket = {}", instanceId, timeBucket);
-        H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_TPS_METRIC_SQL, InstanceMetricTable.TABLE, InstanceMetricTable.COLUMN_ID);
-        Object[] params = new Object[] {instanceId};
-        try (ResultSet rs = client.executeQuery(sql, params)) {
-            if (rs.next()) {
-                return rs.getLong(InstanceMetricTable.COLUMN_TRANSACTION_CALLS);
-            }
-        } catch (SQLException | H2ClientException e) {
-            logger.error(e.getMessage(), e);
-        }
-        return 0;
-    }
-
-    @Override
-    public List<Integer> getServerTPSTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
+    @Override public List<Integer> getServerTPSTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
         H2Client client = getClient();
         String tableName = TimePyramidTableNameBuilder.build(step, InstanceMetricTable.TABLE);
 
@@ -115,22 +70,6 @@ public class InstanceMetricH2UIDAO extends H2DAO implements IInstanceMetricUIDAO
         });
 
         return throughputTrend;
-    }
-
-    @Override public long getRespTimeMetric(int instanceId, long timeBucket) {
-        H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_TPS_METRIC_SQL, InstanceMetricTable.TABLE, InstanceMetricTable.COLUMN_ID);
-        Object[] params = new Object[] {instanceId};
-        try (ResultSet rs = client.executeQuery(sql, params)) {
-            if (rs.next()) {
-                long callTimes = rs.getLong(InstanceMetricTable.COLUMN_TRANSACTION_CALLS);
-                long costTotal = rs.getLong(InstanceMetricTable.COLUMN_TRANSACTION_DURATION_SUM);
-                return costTotal / callTimes;
-            }
-        } catch (SQLException | H2ClientException e) {
-            logger.error(e.getMessage(), e);
-        }
-        return 0;
     }
 
     @Override public List<Integer> getResponseTimeTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {

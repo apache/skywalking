@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.ui.service;
 
 import com.google.gson.Gson;
@@ -25,14 +24,14 @@ import java.util.Set;
 import org.apache.skywalking.apm.collector.core.UnexpectedException;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
+import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.ICpuMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IGCMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IMemoryMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.table.register.Instance;
-import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.IMemoryMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IMemoryPoolMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 import org.apache.skywalking.apm.network.proto.PoolType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,13 +74,10 @@ public class InstanceJVMService {
         JsonObject metrics = new JsonObject();
         for (String metricType : metricTypes) {
             if (metricType.toLowerCase().equals(MetricType.cpu.name())) {
-                metrics.addProperty(MetricType.cpu.name(), cpuMetricDAO.getMetric(instanceId, timeBucket));
             } else if (metricType.toLowerCase().equals(MetricType.gc.name())) {
                 metrics.add(MetricType.gc.name(), gcMetricDAO.getMetric(instanceId, timeBucket));
             } else if (metricType.toLowerCase().equals(MetricType.tps.name())) {
-                metrics.addProperty(MetricType.tps.name(), instanceMetricUIDAO.getTpsMetric(instanceId, timeBucket));
             } else if (metricType.toLowerCase().equals(MetricType.resptime.name())) {
-                metrics.addProperty(MetricType.resptime.name(), instanceMetricUIDAO.getRespTimeMetric(instanceId, timeBucket));
             } else if (metricType.toLowerCase().equals(MetricType.heapmemory.name())) {
                 metrics.add(MetricType.heapmemory.name(), memoryMetricDAO.getMetric(instanceId, timeBucket, true));
             } else if (metricType.toLowerCase().equals(MetricType.nonheapmemory.name())) {
@@ -108,7 +104,6 @@ public class InstanceJVMService {
         JsonObject metrics = new JsonObject();
         for (String metricType : metricTypes) {
             if (metricType.toLowerCase().equals(MetricType.cpu.name())) {
-                metrics.add(MetricType.cpu.name(), cpuMetricDAO.getMetric(instanceId, startTimeBucket, endTimeBucket));
             } else if (metricType.toLowerCase().equals(MetricType.gc.name())) {
                 metrics.add(MetricType.gc.name(), gcMetricDAO.getMetric(instanceId, startTimeBucket, endTimeBucket));
             } else if (metricType.toLowerCase().equals(MetricType.tps.name())) {

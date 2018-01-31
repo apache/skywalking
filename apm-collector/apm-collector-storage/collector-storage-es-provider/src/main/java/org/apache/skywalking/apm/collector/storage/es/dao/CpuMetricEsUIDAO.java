@@ -18,13 +18,16 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
-import com.google.gson.JsonArray;
+import java.util.LinkedList;
+import java.util.List;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.ICpuMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.jvm.CpuMetricTable;
-import org.elasticsearch.action.get.GetResponse;
+import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
+import org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetRequestBuilder;
 import org.elasticsearch.action.get.MultiGetResponse;
@@ -38,37 +41,26 @@ public class CpuMetricEsUIDAO extends EsDAO implements ICpuMetricUIDAO {
         super(client);
     }
 
-    @Override public int getMetric(int instanceId, long timeBucket) {
-        String id = timeBucket + Const.ID_SPLIT + instanceId;
-        GetResponse getResponse = getClient().prepareGet(CpuMetricTable.TABLE, id).get();
-
-        if (getResponse.isExists()) {
-            return ((Number)getResponse.getSource().get(CpuMetricTable.COLUMN_USAGE_PERCENT)).intValue();
-        }
-        return 0;
-    }
-
-    @Override public JsonArray getMetric(int instanceId, long startTimeBucket, long endTimeBucket) {
+    @Override public List<Integer> getCPUTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
         MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet();
+        String tableName = TimePyramidTableNameBuilder.build(step, CpuMetricTable.TABLE);
 
-        long timeBucket = startTimeBucket;
-        do {
-//            timeBucket = TimeBucketUtils.INSTANCE.addSecondForSecondTimeBucket(TimeBucketUtils.TimeBucketType.SECOND, timeBucket, 1);
-            String id = timeBucket + Const.ID_SPLIT + instanceId;
-            prepareMultiGet.add(CpuMetricTable.TABLE, CpuMetricTable.TABLE_TYPE, id);
-        }
-        while (timeBucket <= endTimeBucket);
+        durationPoints.forEach(durationPoint -> {
+            String id = durationPoint.getPoint() + Const.ID_SPLIT + instanceId;
+            prepareMultiGet.add(tableName, CpuMetricTable.TABLE_TYPE, id);
+        });
 
-        JsonArray metrics = new JsonArray();
+        List<Integer> cpuTrends = new LinkedList<>();
         MultiGetResponse multiGetResponse = prepareMultiGet.get();
         for (MultiGetItemResponse response : multiGetResponse.getResponses()) {
             if (response.getResponse().isExists()) {
                 double cpuUsed = ((Number)response.getResponse().getSource().get(CpuMetricTable.COLUMN_USAGE_PERCENT)).doubleValue();
-                metrics.add((int)(cpuUsed * 100));
+                long times = ((Number)response.getResponse().getSource().get(CpuMetricTable.COLUMN_TIMES)).longValue();
+                cpuTrends.add((int)((cpuUsed / times) * 100));
             } else {
-                metrics.add(0);
+                cpuTrends.add(0);
             }
         }
-        return metrics;
+        return cpuTrends;
     }
 }
