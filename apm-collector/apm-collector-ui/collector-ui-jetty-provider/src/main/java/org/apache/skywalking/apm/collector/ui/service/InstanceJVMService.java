@@ -75,7 +75,6 @@ public class InstanceJVMService {
         for (String metricType : metricTypes) {
             if (metricType.toLowerCase().equals(MetricType.cpu.name())) {
             } else if (metricType.toLowerCase().equals(MetricType.gc.name())) {
-                metrics.add(MetricType.gc.name(), gcMetricDAO.getMetric(instanceId, timeBucket));
             } else if (metricType.toLowerCase().equals(MetricType.tps.name())) {
             } else if (metricType.toLowerCase().equals(MetricType.resptime.name())) {
             } else if (metricType.toLowerCase().equals(MetricType.heapmemory.name())) {
@@ -105,7 +104,6 @@ public class InstanceJVMService {
         for (String metricType : metricTypes) {
             if (metricType.toLowerCase().equals(MetricType.cpu.name())) {
             } else if (metricType.toLowerCase().equals(MetricType.gc.name())) {
-                metrics.add(MetricType.gc.name(), gcMetricDAO.getMetric(instanceId, startTimeBucket, endTimeBucket));
             } else if (metricType.toLowerCase().equals(MetricType.tps.name())) {
             } else if (metricType.toLowerCase().equals(MetricType.resptime.name())) {
             } else if (metricType.toLowerCase().equals(MetricType.heapmemory.name())) {

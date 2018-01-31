@@ -26,4 +26,20 @@ import java.util.List;
 public class GCTrend {
     private List<Integer> youngGC;
     private List<Integer> oldGC;
+
+    public List<Integer> getYoungGC() {
+        return youngGC;
+    }
+
+    public void setYoungGC(List<Integer> youngGC) {
+        this.youngGC = youngGC;
+    }
+
+    public List<Integer> getOldGC() {
+        return oldGC;
+    }
+
+    public void setOldGC(List<Integer> oldGC) {
+        this.oldGC = oldGC;
+    }
 }

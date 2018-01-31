@@ -29,6 +29,7 @@ import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.ICpuMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.IGCMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
 import org.apache.skywalking.apm.collector.storage.ui.common.ResponseTimeTrend;
@@ -36,6 +37,7 @@ import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.ui.common.ThroughputTrend;
 import org.apache.skywalking.apm.collector.storage.ui.server.AppServerInfo;
 import org.apache.skywalking.apm.collector.storage.ui.server.CPUTrend;
+import org.apache.skywalking.apm.collector.storage.ui.server.GCTrend;
 import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 
@@ -46,13 +48,15 @@ public class ServerService {
 
     private final Gson gson = new Gson();
     private final IInstanceUIDAO instanceUIDAO;
-    private final ICpuMetricUIDAO cpuMetricUIDAO;
     private final IInstanceMetricUIDAO instanceMetricUIDAO;
+    private final ICpuMetricUIDAO cpuMetricUIDAO;
+    private final IGCMetricUIDAO gcMetricUIDAO;
 
     public ServerService(ModuleManager moduleManager) {
         this.instanceUIDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceUIDAO.class);
-        this.cpuMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(ICpuMetricUIDAO.class);
         this.instanceMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceMetricUIDAO.class);
+        this.cpuMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(ICpuMetricUIDAO.class);
+        this.gcMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IGCMetricUIDAO.class);
     }
 
     public List<AppServerInfo> searchServer(String keyword, long start, long end) {
@@ -96,6 +100,16 @@ public class ServerService {
         List<Integer> trends = cpuMetricUIDAO.getCPUTrend(instanceId, step, durationPoints);
         cpuTrend.setCost(trends);
         return cpuTrend;
+    }
+
+    public GCTrend getGCTrend(int instanceId, Step step, long start, long end) throws ParseException {
+        GCTrend gcTrend = new GCTrend();
+        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
+        List<Integer> youngGCTrend = gcMetricUIDAO.getYoungGCTrend(instanceId, step, durationPoints);
+        gcTrend.setYoungGC(youngGCTrend);
+        List<Integer> oldGCTrend = gcMetricUIDAO.getOldGCTrend(instanceId, step, durationPoints);
+        gcTrend.setOldGC(oldGCTrend);
+        return gcTrend;
     }
 
     private void buildAppServerInfo(List<AppServerInfo> serverInfos) {

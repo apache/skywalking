@@ -82,8 +82,10 @@ public class ServerQuery implements Query {
         return getServerService().getCPUTrend(serverId, duration.getStep(), start, end);
     }
 
-    public GCTrend getGCTrend(int serverId, Duration duration) {
-        return null;
+    public GCTrend getGCTrend(int serverId, Duration duration) throws ParseException {
+        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        return getServerService().getGCTrend(serverId, duration.getStep(), start, end);
     }
 
     public MemoryTrend getMemoryTrend(int serverId, Duration duration) {
