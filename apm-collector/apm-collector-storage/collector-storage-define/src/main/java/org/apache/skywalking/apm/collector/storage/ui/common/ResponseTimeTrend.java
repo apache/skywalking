@@ -25,4 +25,12 @@ import java.util.List;
  */
 public class ResponseTimeTrend {
     private List<Integer> trendList;
+
+    public List<Integer> getTrendList() {
+        return trendList;
+    }
+
+    public void setTrendList(List<Integer> trendList) {
+        this.trendList = trendList;
+    }
 }

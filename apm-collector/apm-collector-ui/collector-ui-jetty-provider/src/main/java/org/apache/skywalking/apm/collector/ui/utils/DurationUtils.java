@@ -20,6 +20,9 @@ package org.apache.skywalking.apm.collector.ui.utils;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import org.apache.skywalking.apm.collector.core.UnexpectedException;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
@@ -87,5 +90,79 @@ public enum DurationUtils {
         }
 
         return Seconds.secondsBetween(new DateTime(startDate), new DateTime(endDate)).getSeconds();
+    }
+
+    public DateTime parseToDateTime(Step step, long time) throws ParseException {
+        DateTime dateTime = null;
+
+        switch (step) {
+            case MONTH:
+                Date date = TimeBucketUtils.MONTH_DATE_FORMAT.parse(String.valueOf(time));
+                dateTime = new DateTime(date);
+                break;
+            case DAY:
+                date = TimeBucketUtils.DAY_DATE_FORMAT.parse(String.valueOf(time));
+                dateTime = new DateTime(date);
+                break;
+            case HOUR:
+                date = TimeBucketUtils.HOUR_DATE_FORMAT.parse(String.valueOf(time));
+                dateTime = new DateTime(date);
+                break;
+            case MINUTE:
+                date = TimeBucketUtils.MINUTE_DATE_FORMAT.parse(String.valueOf(time));
+                dateTime = new DateTime(date);
+                break;
+            case SECOND:
+                date = TimeBucketUtils.SECOND_DATE_FORMAT.parse(String.valueOf(time));
+                dateTime = new DateTime(date);
+                break;
+        }
+
+        return dateTime;
+    }
+
+    public Long[] getDurationPoints(Step step, long start, long end) throws ParseException {
+        DateTime dateTime = parseToDateTime(step, start);
+
+        List<Long> durations = new LinkedList<>();
+        durations.add(start);
+
+        int i = 0;
+        do {
+            switch (step) {
+                case MONTH:
+                    dateTime = dateTime.plusMonths(1);
+                    String timeBucket = TimeBucketUtils.MONTH_DATE_FORMAT.format(dateTime.toDate());
+                    durations.add(Long.valueOf(timeBucket));
+                    break;
+                case DAY:
+                    dateTime = dateTime.plusDays(1);
+                    timeBucket = TimeBucketUtils.DAY_DATE_FORMAT.format(dateTime.toDate());
+                    durations.add(Long.valueOf(timeBucket));
+                    break;
+                case HOUR:
+                    dateTime = dateTime.plusHours(1);
+                    timeBucket = TimeBucketUtils.HOUR_DATE_FORMAT.format(dateTime.toDate());
+                    durations.add(Long.valueOf(timeBucket));
+                    break;
+                case MINUTE:
+                    dateTime = dateTime.plusMinutes(1);
+                    timeBucket = TimeBucketUtils.MINUTE_DATE_FORMAT.format(dateTime.toDate());
+                    durations.add(Long.valueOf(timeBucket));
+                    break;
+                case SECOND:
+                    dateTime = dateTime.plusSeconds(1);
+                    timeBucket = TimeBucketUtils.SECOND_DATE_FORMAT.format(dateTime.toDate());
+                    durations.add(Long.valueOf(timeBucket));
+                    break;
+            }
+            i++;
+            if (i > 500) {
+                throw new UnexpectedException("Duration data error, step: " + step.name() + ", start: " + start + ", end: " + end);
+            }
+        }
+        while (end != durations.get(durations.size() - 1));
+
+        return durations.toArray(new Long[durations.size()]);
     }
 }
