@@ -18,19 +18,20 @@
 
 package org.apache.skywalking.apm.collector.storage.h2.dao;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
 import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
+import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.apache.skywalking.apm.collector.storage.dao.IMemoryMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetricTable;
+import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
+import org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,60 +47,40 @@ public class MemoryMetricH2UIDAO extends H2DAO implements IMemoryMetricUIDAO {
         super(client);
     }
 
-    @Override public JsonObject getMetric(int instanceId, long timeBucket, boolean isHeap) {
-        H2Client client = getClient();
-        String id = timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + isHeap;
-        String sql = SqlBuilder.buildSql(GET_MEMORY_METRIC_SQL, MemoryMetricTable.TABLE, MemoryMetricTable.COLUMN_ID);
-        Object[] params = new Object[] {id};
-        JsonObject metric = new JsonObject();
-        try (ResultSet rs = client.executeQuery(sql, params)) {
-            if (rs.next()) {
-                metric.addProperty("max", rs.getInt(MemoryMetricTable.COLUMN_MAX));
-                metric.addProperty("init", rs.getInt(MemoryMetricTable.COLUMN_INIT));
-                metric.addProperty("used", rs.getInt(MemoryMetricTable.COLUMN_USED));
-            } else {
-                metric.addProperty("max", 0);
-                metric.addProperty("init", 0);
-                metric.addProperty("used", 0);
-            }
-        } catch (SQLException | H2ClientException e) {
-            logger.error(e.getMessage(), e);
-        }
-        return metric;
+    @Override public Trend getHeapMemoryTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
+        return getMemoryTrend(instanceId, step, durationPoints, true);
     }
 
-    @Override public JsonObject getMetric(int instanceId, long startTimeBucket, long endTimeBucket, boolean isHeap) {
+    @Override public Trend getNoHeapMemoryTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
+        return getMemoryTrend(instanceId, step, durationPoints, false);
+    }
+
+    private Trend getMemoryTrend(int instanceId, Step step, List<DurationPoint> durationPoints,
+        boolean isHeap) {
+        String tableName = TimePyramidTableNameBuilder.build(step, MemoryMetricTable.TABLE);
+
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_MEMORY_METRIC_SQL, MemoryMetricTable.TABLE, MemoryMetricTable.COLUMN_ID);
-        List<String> idList = new ArrayList<>();
-        long timeBucket = startTimeBucket;
-        do {
-//            timeBucket = TimeBucketUtils.INSTANCE.addSecondForSecondTimeBucket(TimeBucketUtils.TimeBucketType.SECOND, timeBucket, 1);
-            String id = timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + isHeap;
-            idList.add(id);
-        }
-        while (timeBucket <= endTimeBucket);
+        String sql = SqlBuilder.buildSql(GET_MEMORY_METRIC_SQL, tableName, MemoryMetricTable.COLUMN_ID);
 
-        JsonObject metric = new JsonObject();
-        JsonArray usedMetric = new JsonArray();
-
-        idList.forEach(id -> {
+        Trend trend = new Trend();
+        durationPoints.forEach(durationPoint -> {
+            String id = durationPoint.getPoint() + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + BooleanUtils.booleanToValue(isHeap);
             try (ResultSet rs = client.executeQuery(sql, new String[] {id})) {
                 if (rs.next()) {
-                    metric.addProperty("max", rs.getLong(MemoryMetricTable.COLUMN_MAX));
-                    metric.addProperty("init", rs.getLong(MemoryMetricTable.COLUMN_INIT));
-                    usedMetric.add(rs.getLong(MemoryMetricTable.COLUMN_USED));
+                    long max = rs.getLong(MemoryMetricTable.COLUMN_MAX);
+                    long used = rs.getLong(MemoryMetricTable.COLUMN_USED);
+                    long times = rs.getLong(MemoryMetricTable.COLUMN_TIMES);
+                    trend.getMetrics().add((int)(used / times));
+                    trend.getMaxMetrics().add((int)(max / times));
                 } else {
-                    metric.addProperty("max", 0);
-                    metric.addProperty("init", 0);
-                    usedMetric.add(0);
+                    trend.getMetrics().add(0);
+                    trend.getMaxMetrics().add(0);
                 }
             } catch (SQLException | H2ClientException e) {
                 logger.error(e.getMessage(), e);
             }
         });
 
-        metric.add("used", usedMetric);
-        return metric;
+        return trend;
     }
 }

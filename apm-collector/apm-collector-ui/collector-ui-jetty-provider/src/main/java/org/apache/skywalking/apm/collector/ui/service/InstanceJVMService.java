@@ -78,9 +78,7 @@ public class InstanceJVMService {
             } else if (metricType.toLowerCase().equals(MetricType.tps.name())) {
             } else if (metricType.toLowerCase().equals(MetricType.resptime.name())) {
             } else if (metricType.toLowerCase().equals(MetricType.heapmemory.name())) {
-                metrics.add(MetricType.heapmemory.name(), memoryMetricDAO.getMetric(instanceId, timeBucket, true));
             } else if (metricType.toLowerCase().equals(MetricType.nonheapmemory.name())) {
-                metrics.add(MetricType.nonheapmemory.name(), memoryMetricDAO.getMetric(instanceId, timeBucket, false));
             } else if (metricType.toLowerCase().equals(MetricType.permgen.name())) {
                 metrics.add(MetricType.permgen.name(), memoryPoolMetricDAO.getMetric(instanceId, timeBucket, PoolType.PERMGEN_USAGE_VALUE));
             } else if (metricType.toLowerCase().equals(MetricType.metaspace.name())) {
@@ -107,9 +105,7 @@ public class InstanceJVMService {
             } else if (metricType.toLowerCase().equals(MetricType.tps.name())) {
             } else if (metricType.toLowerCase().equals(MetricType.resptime.name())) {
             } else if (metricType.toLowerCase().equals(MetricType.heapmemory.name())) {
-                metrics.add(MetricType.heapmemory.name(), memoryMetricDAO.getMetric(instanceId, startTimeBucket, endTimeBucket, true));
             } else if (metricType.toLowerCase().equals(MetricType.nonheapmemory.name())) {
-                metrics.add(MetricType.nonheapmemory.name(), memoryMetricDAO.getMetric(instanceId, startTimeBucket, endTimeBucket, false));
             } else if (metricType.toLowerCase().equals(MetricType.permgen.name())) {
                 metrics.add(MetricType.permgen.name(), memoryPoolMetricDAO.getMetric(instanceId, startTimeBucket, endTimeBucket, PoolType.PERMGEN_USAGE_VALUE));
             } else if (metricType.toLowerCase().equals(MetricType.metaspace.name())) {

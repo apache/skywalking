@@ -32,12 +32,14 @@ import org.apache.skywalking.apm.collector.storage.dao.ICpuMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IGCMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.IMemoryMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.ui.common.ResponseTimeTrend;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.ui.common.ThroughputTrend;
 import org.apache.skywalking.apm.collector.storage.ui.server.AppServerInfo;
 import org.apache.skywalking.apm.collector.storage.ui.server.CPUTrend;
 import org.apache.skywalking.apm.collector.storage.ui.server.GCTrend;
+import org.apache.skywalking.apm.collector.storage.ui.server.MemoryTrend;
 import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 
@@ -51,12 +53,14 @@ public class ServerService {
     private final IInstanceMetricUIDAO instanceMetricUIDAO;
     private final ICpuMetricUIDAO cpuMetricUIDAO;
     private final IGCMetricUIDAO gcMetricUIDAO;
+    private final IMemoryMetricUIDAO memoryMetricUIDAO;
 
     public ServerService(ModuleManager moduleManager) {
         this.instanceUIDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceUIDAO.class);
         this.instanceMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceMetricUIDAO.class);
         this.cpuMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(ICpuMetricUIDAO.class);
         this.gcMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IGCMetricUIDAO.class);
+        this.memoryMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IMemoryMetricUIDAO.class);
     }
 
     public List<AppServerInfo> searchServer(String keyword, long start, long end) {
@@ -112,6 +116,20 @@ public class ServerService {
         return gcTrend;
     }
 
+    public MemoryTrend getMemoryTrend(int instanceId, Step step, long start, long end) throws ParseException {
+        MemoryTrend memoryTrend = new MemoryTrend();
+        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
+        IMemoryMetricUIDAO.Trend heapMemoryTrend = memoryMetricUIDAO.getHeapMemoryTrend(instanceId, step, durationPoints);
+        memoryTrend.setHeap(heapMemoryTrend.getMetrics());
+        memoryTrend.setMaxHeap(heapMemoryTrend.getMaxMetrics());
+
+        IMemoryMetricUIDAO.Trend noHeapMemoryTrend = memoryMetricUIDAO.getNoHeapMemoryTrend(instanceId, step, durationPoints);
+        memoryTrend.setNoheap(noHeapMemoryTrend.getMetrics());
+        memoryTrend.setMaxNoheap(noHeapMemoryTrend.getMaxMetrics());
+
+        return memoryTrend;
+    }
+
     private void buildAppServerInfo(List<AppServerInfo> serverInfos) {
         serverInfos.forEach(serverInfo -> {
             if (StringUtils.isNotEmpty(serverInfo.getOsInfo())) {
@@ -130,9 +148,7 @@ public class ServerService {
                     JsonArray ipv4Array = osInfoJson.get("ipv4s").getAsJsonArray();
 
                     List<String> ipv4s = new LinkedList<>();
-                    ipv4Array.forEach(ipv4 -> {
-                        ipv4s.add(ipv4.getAsString());
-                    });
+                    ipv4Array.forEach(ipv4 -> ipv4s.add(ipv4.getAsString()));
                     serverInfo.setIpv4(ipv4s);
                 }
             }

@@ -18,14 +18,16 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import java.util.List;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.IMemoryMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetricTable;
-import org.elasticsearch.action.get.GetResponse;
+import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
+import org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetRequestBuilder;
 import org.elasticsearch.action.get.MultiGetResponse;
@@ -39,50 +41,39 @@ public class MemoryMetricEsUIDAO extends EsDAO implements IMemoryMetricUIDAO {
         super(client);
     }
 
-    @Override public JsonObject getMetric(int instanceId, long timeBucket, boolean isHeap) {
-        String id = timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + isHeap;
-        GetResponse getResponse = getClient().prepareGet(MemoryMetricTable.TABLE, id).get();
-
-        JsonObject metric = new JsonObject();
-        if (getResponse.isExists()) {
-            metric.addProperty("max", ((Number)getResponse.getSource().get(MemoryMetricTable.COLUMN_MAX)).intValue());
-            metric.addProperty("init", ((Number)getResponse.getSource().get(MemoryMetricTable.COLUMN_INIT)).intValue());
-            metric.addProperty("used", ((Number)getResponse.getSource().get(MemoryMetricTable.COLUMN_USED)).intValue());
-        } else {
-            metric.addProperty("max", 0);
-            metric.addProperty("init", 0);
-            metric.addProperty("used", 0);
-        }
-        return metric;
+    @Override public Trend getHeapMemoryTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
+        return getMemoryTrend(instanceId, step, durationPoints, true);
     }
 
-    @Override public JsonObject getMetric(int instanceId, long startTimeBucket, long endTimeBucket, boolean isHeap) {
+    @Override public Trend getNoHeapMemoryTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
+        return getMemoryTrend(instanceId, step, durationPoints, false);
+    }
+
+    private Trend getMemoryTrend(int instanceId, Step step, List<DurationPoint> durationPoints,
+        boolean isHeap) {
+        String tableName = TimePyramidTableNameBuilder.build(step, MemoryMetricTable.TABLE);
         MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet();
 
-        int i = 0;
-        long timeBucket = startTimeBucket;
-        do {
-//            timeBucket = TimeBucketUtils.INSTANCE.addSecondForSecondTimeBucket(TimeBucketUtils.TimeBucketType.SECOND, timeBucket, 1);
-            String id = timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + isHeap;
-            prepareMultiGet.add(MemoryMetricTable.TABLE, MemoryMetricTable.TABLE_TYPE, id);
-        }
-        while (timeBucket <= endTimeBucket);
+        durationPoints.forEach(durationPoint -> {
+            String id = durationPoint.getPoint() + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + BooleanUtils.booleanToValue(isHeap);
+            prepareMultiGet.add(tableName, MemoryMetricTable.TABLE_TYPE, id);
+        });
 
-        JsonObject metric = new JsonObject();
-        JsonArray usedMetric = new JsonArray();
+        Trend trend = new Trend();
         MultiGetResponse multiGetResponse = prepareMultiGet.get();
         for (MultiGetItemResponse response : multiGetResponse.getResponses()) {
             if (response.getResponse().isExists()) {
-                metric.addProperty("max", ((Number)response.getResponse().getSource().get(MemoryMetricTable.COLUMN_MAX)).longValue());
-                metric.addProperty("init", ((Number)response.getResponse().getSource().get(MemoryMetricTable.COLUMN_INIT)).longValue());
-                usedMetric.add(((Number)response.getResponse().getSource().get(MemoryMetricTable.COLUMN_USED)).longValue());
+                long max = ((Number)response.getResponse().getSource().get(MemoryMetricTable.COLUMN_MAX)).longValue();
+                long used = ((Number)response.getResponse().getSource().get(MemoryMetricTable.COLUMN_USED)).longValue();
+                long times = ((Number)response.getResponse().getSource().get(MemoryMetricTable.COLUMN_TIMES)).longValue();
+                trend.getMetrics().add((int)(used / times));
+                trend.getMaxMetrics().add((int)(max / times));
             } else {
-                metric.addProperty("max", 0);
-                metric.addProperty("init", 0);
-                usedMetric.add(0);
+                trend.getMetrics().add(0);
+                trend.getMaxMetrics().add(0);
             }
         }
-        metric.add("used", usedMetric);
-        return metric;
+
+        return trend;
     }
 }
