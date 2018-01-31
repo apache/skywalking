@@ -46,5 +46,6 @@ Community features are reported from SkyWalking community or the core team hopes
 ## Long term features
 - Multi-Tenancy
 - More language supported: PHP, Nodejs Server, Python. OpenCensus reporter implementor or Auto-instrument agent.
+- Configure delivery/downstream from collector to agent.
 - [Java]Server profile
 - [Java]Specific service profile
