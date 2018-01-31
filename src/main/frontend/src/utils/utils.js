@@ -128,40 +128,6 @@ export function generateDuration({ from, to }) {
   };
 }
 
-export function generateBaseModal({ namespace, query, state, effects = {}, reducers = {} }) {
-  return {
-    namespace,
-    state,
-    effects: {
-      ...effects,
-      *fetch({ payload }, { call, put }) {
-        const response = yield call(queryService, namespace, { variables: payload, query });
-        yield put({
-          type: 'save',
-          payload: response,
-        });
-      },
-      *fetchItem({ payload }, { call, put }) {
-        const response = yield call(queryService, namespace,
-          { variables: payload.variables, query });
-        yield put({
-          type: 'save',
-          payload: { data: { ...response.data, ...payload.data } },
-        });
-      },
-    },
-    reducers: {
-      ...reducers,
-      save(preState, action) {
-        return {
-          ...preState,
-          ...action.payload.data,
-        };
-      },
-    },
-  };
-}
-
 export function generateModal({ namespace, dataQuery, optionsQuery, state = {},
   effects = {}, reducers = {} }) {
   return {
@@ -176,20 +142,34 @@ export function generateModal({ namespace, dataQuery, optionsQuery, state = {},
     },
     effects: {
       *initOptions({ payload }, { call, put }) {
-        const { variables } = payload;
+        const { variables, reducer = undefined } = payload;
         const response = yield call(queryService, `${namespace}/options`, { variables, query: optionsQuery });
-        yield put({
-          type: 'saveOptions',
-          payload: response.data,
-        });
+        if (reducer) {
+          yield put({
+            type: reducer,
+            payload: response.data,
+          });
+        } else {
+          yield put({
+            type: 'saveOptions',
+            payload: response.data,
+          });
+        }
       },
       *fetchData({ payload }, { call, put }) {
-        const { variables } = payload;
+        const { variables, reducer = undefined } = payload;
         const response = yield call(queryService, namespace, { variables, query: dataQuery });
-        yield put({
-          type: 'saveData',
-          payload: response.data,
-        });
+        if (reducer) {
+          yield put({
+            type: reducer,
+            payload: response.data,
+          });
+        } else {
+          yield put({
+            type: 'saveData',
+            payload: response.data,
+          });
+        }
       },
       ...effects,
     },

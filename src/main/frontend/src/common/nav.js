@@ -55,7 +55,7 @@ export const getNavData = app => [
         name: 'Alarm',
         icon: 'iconfont icon-ALERT',
         path: 'alarm',
-        component: dynamicWrapper(app, ['alert'], () => import('../routes/Alert/Alert')),
+        component: dynamicWrapper(app, ['alarm'], () => import('../routes/Alarm/Alarm')),
       },
     ],
   },
