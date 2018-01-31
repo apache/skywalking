@@ -18,10 +18,10 @@
 
 package org.apache.skywalking.apm.collector.storage.dao;
 
-import com.google.gson.JsonArray;
 import java.util.List;
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 
 /**
  * @author peng-yongsheng
@@ -31,11 +31,11 @@ public interface IInstanceMetricUIDAO extends DAO {
 
     long getTpsMetric(int instanceId, long timeBucket);
 
-    JsonArray getTpsMetric(int instanceId, long startTimeBucket, long endTimeBucket);
+    List<Integer> getServerTPSTrend(int instanceId, Step step, List<DurationPoint> durationPoints);
 
     long getRespTimeMetric(int instanceId, long timeBucket);
 
-    List<Integer> getResponseTimeTrend(int instanceId, Step step, Long[] timeBuckets);
+    List<Integer> getResponseTimeTrend(int instanceId, Step step, List<DurationPoint> durationPoints);
 
     class InstanceMetric {
         private final int instanceId;

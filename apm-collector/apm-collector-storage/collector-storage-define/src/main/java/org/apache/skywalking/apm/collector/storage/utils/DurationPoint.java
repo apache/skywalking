@@ -16,21 +16,25 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.ui.common;
-
-import java.util.List;
+package org.apache.skywalking.apm.collector.storage.utils;
 
 /**
  * @author peng-yongsheng
  */
-public class ThroughputTrend {
-    private List<Integer> trendList;
+public class DurationPoint {
+    private long point;
+    private long secondsBetween;
 
-    public List<Integer> getTrendList() {
-        return trendList;
+    public DurationPoint(long point, long secondsBetween) {
+        this.point = point;
+        this.secondsBetween = secondsBetween;
     }
 
-    public void setTrendList(List<Integer> trendList) {
-        this.trendList = trendList;
+    public long getPoint() {
+        return point;
+    }
+
+    public long getSecondsBetween() {
+        return secondsBetween;
     }
 }

@@ -26,6 +26,7 @@ import org.apache.skywalking.apm.collector.core.UnexpectedException;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 import org.joda.time.DateTime;
 import org.joda.time.Seconds;
 
@@ -92,6 +93,23 @@ public enum DurationUtils {
         return Seconds.secondsBetween(new DateTime(startDate), new DateTime(endDate)).getSeconds();
     }
 
+    public long secondsBetween(Step step, DateTime dateTime) throws ParseException {
+        switch (step) {
+            case MONTH:
+                return dateTime.dayOfMonth().getMaximumValue() * 24 * 60 * 60;
+            case DAY:
+                return 24 * 60 * 60;
+            case HOUR:
+                return 60 * 60;
+            case MINUTE:
+                return 60;
+            case SECOND:
+                return 1;
+            default:
+                return 1;
+        }
+    }
+
     public DateTime parseToDateTime(Step step, long time) throws ParseException {
         DateTime dateTime = null;
 
@@ -121,11 +139,11 @@ public enum DurationUtils {
         return dateTime;
     }
 
-    public Long[] getDurationPoints(Step step, long start, long end) throws ParseException {
+    public List<DurationPoint> getDurationPoints(Step step, long start, long end) throws ParseException {
         DateTime dateTime = parseToDateTime(step, start);
 
-        List<Long> durations = new LinkedList<>();
-        durations.add(start);
+        List<DurationPoint> durations = new LinkedList<>();
+        durations.add(new DurationPoint(start, secondsBetween(step, dateTime)));
 
         int i = 0;
         do {
@@ -133,27 +151,27 @@ public enum DurationUtils {
                 case MONTH:
                     dateTime = dateTime.plusMonths(1);
                     String timeBucket = TimeBucketUtils.MONTH_DATE_FORMAT.format(dateTime.toDate());
-                    durations.add(Long.valueOf(timeBucket));
+                    durations.add(new DurationPoint(Long.valueOf(timeBucket), secondsBetween(step, dateTime)));
                     break;
                 case DAY:
                     dateTime = dateTime.plusDays(1);
                     timeBucket = TimeBucketUtils.DAY_DATE_FORMAT.format(dateTime.toDate());
-                    durations.add(Long.valueOf(timeBucket));
+                    durations.add(new DurationPoint(Long.valueOf(timeBucket), secondsBetween(step, dateTime)));
                     break;
                 case HOUR:
                     dateTime = dateTime.plusHours(1);
                     timeBucket = TimeBucketUtils.HOUR_DATE_FORMAT.format(dateTime.toDate());
-                    durations.add(Long.valueOf(timeBucket));
+                    durations.add(new DurationPoint(Long.valueOf(timeBucket), secondsBetween(step, dateTime)));
                     break;
                 case MINUTE:
                     dateTime = dateTime.plusMinutes(1);
                     timeBucket = TimeBucketUtils.MINUTE_DATE_FORMAT.format(dateTime.toDate());
-                    durations.add(Long.valueOf(timeBucket));
+                    durations.add(new DurationPoint(Long.valueOf(timeBucket), secondsBetween(step, dateTime)));
                     break;
                 case SECOND:
                     dateTime = dateTime.plusSeconds(1);
                     timeBucket = TimeBucketUtils.SECOND_DATE_FORMAT.format(dateTime.toDate());
-                    durations.add(Long.valueOf(timeBucket));
+                    durations.add(new DurationPoint(Long.valueOf(timeBucket), secondsBetween(step, dateTime)));
                     break;
             }
             i++;
@@ -161,8 +179,8 @@ public enum DurationUtils {
                 throw new UnexpectedException("Duration data error, step: " + step.name() + ", start: " + start + ", end: " + end);
             }
         }
-        while (end != durations.get(durations.size() - 1));
+        while (end != durations.get(durations.size() - 1).getPoint());
 
-        return durations.toArray(new Long[durations.size()]);
+        return durations;
     }
 }

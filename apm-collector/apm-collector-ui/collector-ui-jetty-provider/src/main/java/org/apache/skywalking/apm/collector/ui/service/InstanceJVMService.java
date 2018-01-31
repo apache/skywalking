@@ -112,7 +112,6 @@ public class InstanceJVMService {
             } else if (metricType.toLowerCase().equals(MetricType.gc.name())) {
                 metrics.add(MetricType.gc.name(), gcMetricDAO.getMetric(instanceId, startTimeBucket, endTimeBucket));
             } else if (metricType.toLowerCase().equals(MetricType.tps.name())) {
-                metrics.add(MetricType.tps.name(), instanceMetricUIDAO.getTpsMetric(instanceId, startTimeBucket, endTimeBucket));
             } else if (metricType.toLowerCase().equals(MetricType.resptime.name())) {
             } else if (metricType.toLowerCase().equals(MetricType.heapmemory.name())) {
                 metrics.add(MetricType.heapmemory.name(), memoryMetricDAO.getMetric(instanceId, startTimeBucket, endTimeBucket, true));
