@@ -18,47 +18,16 @@
 
 package org.apache.skywalking.apm.collector.storage.dao;
 
-import com.google.gson.JsonObject;
+import java.util.List;
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
+import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 
 /**
  * @author peng-yongsheng
  */
 public interface IGCMetricUIDAO extends DAO {
+    List<Integer> getYoungGCTrend(int instanceId, Step step, List<DurationPoint> durationPoints);
 
-    GCCount getGCCount(long[] timeBuckets, int instanceId);
-
-    JsonObject getMetric(int instanceId, long timeBucket);
-
-    JsonObject getMetric(int instanceId, long startTimeBucket, long endTimeBucket);
-
-    class GCCount {
-        private int young;
-        private int old;
-        private int full;
-
-        public int getYoung() {
-            return young;
-        }
-
-        public int getOld() {
-            return old;
-        }
-
-        public int getFull() {
-            return full;
-        }
-
-        public void setYoung(int young) {
-            this.young = young;
-        }
-
-        public void setOld(int old) {
-            this.old = old;
-        }
-
-        public void setFull(int full) {
-            this.full = full;
-        }
-    }
+    List<Integer> getOldGCTrend(int instanceId, Step step, List<DurationPoint> durationPoints);
 }
