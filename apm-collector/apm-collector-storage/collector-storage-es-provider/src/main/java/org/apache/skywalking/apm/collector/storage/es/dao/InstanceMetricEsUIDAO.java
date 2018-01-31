@@ -19,11 +19,16 @@
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
 import com.google.gson.JsonArray;
+import java.util.LinkedList;
+import java.util.List;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetricTable;
+import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetRequestBuilder;
@@ -113,30 +118,28 @@ public class InstanceMetricEsUIDAO extends EsDAO implements IInstanceMetricUIDAO
         return 0;
     }
 
-    @Override public JsonArray getRespTimeMetric(int instanceId, long startTimeBucket, long endTimeBucket) {
+    @Override public List<Integer> getResponseTimeTrend(int instanceId, Step step, Long[] timeBuckets) {
         MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet();
+        String tableName = TimePyramidTableNameBuilder.build(step, InstanceMetricTable.TABLE);
 
-        int i = 0;
-        long timeBucket = 0;
-        do {
-//            timeBucket = TimeBucketUtils.INSTANCE.addSecondForSecondTimeBucket(TimeBucketUtils.TimeBucketType.SECOND, startTimeBucket, i);
-            String id = timeBucket + Const.ID_SPLIT + instanceId;
-            prepareMultiGet.add(InstanceMetricTable.TABLE, InstanceMetricTable.TABLE_TYPE, id);
-            i++;
+        for (long timeBucket : timeBuckets) {
+            String id = timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + MetricSource.Callee.getValue();
+            prepareMultiGet.add(tableName, InstanceMetricTable.TABLE_TYPE, id);
         }
-        while (timeBucket <= endTimeBucket);
 
-        JsonArray metrics = new JsonArray();
+        List<Integer> responseTimeTrends = new LinkedList<>();
         MultiGetResponse multiGetResponse = prepareMultiGet.get();
         for (MultiGetItemResponse response : multiGetResponse.getResponses()) {
             if (response.getResponse().isExists()) {
                 long callTimes = ((Number)response.getResponse().getSource().get(InstanceMetricTable.COLUMN_TRANSACTION_CALLS)).longValue();
-                long costTotal = ((Number)response.getResponse().getSource().get(InstanceMetricTable.COLUMN_TRANSACTION_DURATION_SUM)).longValue();
-                metrics.add(costTotal / callTimes);
+                long errorCallTimes = ((Number)response.getResponse().getSource().get(InstanceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS)).longValue();
+                long durationSum = ((Number)response.getResponse().getSource().get(InstanceMetricTable.COLUMN_TRANSACTION_DURATION_SUM)).longValue();
+                long errorDurationSum = ((Number)response.getResponse().getSource().get(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM)).longValue();
+                responseTimeTrends.add((int)((durationSum - errorDurationSum) / (callTimes - errorCallTimes)));
             } else {
-                metrics.add(0);
+                responseTimeTrends.add(0);
             }
         }
-        return metrics;
+        return responseTimeTrends;
     }
 }

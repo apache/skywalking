@@ -21,14 +21,19 @@ package org.apache.skywalking.apm.collector.ui.service;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
+import org.apache.skywalking.apm.collector.storage.dao.IInstanceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
+import org.apache.skywalking.apm.collector.storage.ui.common.ResponseTimeTrend;
+import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.ui.server.AppServerInfo;
+import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 
 /**
  * @author peng-yongsheng
@@ -37,9 +42,11 @@ public class ServerService {
 
     private final Gson gson = new Gson();
     private final IInstanceUIDAO instanceDAO;
+    private final IInstanceMetricUIDAO instanceMetricUIDAO;
 
     public ServerService(ModuleManager moduleManager) {
         this.instanceDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceUIDAO.class);
+        this.instanceMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceMetricUIDAO.class);
     }
 
     public List<AppServerInfo> searchServer(String keyword, long start, long end) {
@@ -49,7 +56,7 @@ public class ServerService {
                 serverInfos.remove(serverInfo);
             }
         });
-        
+
         buildAppServerInfo(serverInfos);
         return serverInfos;
     }
@@ -58,6 +65,15 @@ public class ServerService {
         List<AppServerInfo> serverInfos = instanceDAO.getAllServer(applicationId, start, end);
         buildAppServerInfo(serverInfos);
         return serverInfos;
+    }
+
+    public ResponseTimeTrend getServerResponseTimeTrend(int instanceId, Step step, long start,
+        long end) throws ParseException {
+        ResponseTimeTrend responseTimeTrend = new ResponseTimeTrend();
+        Long[] timeBuckets = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
+        List<Integer> trends = instanceMetricUIDAO.getResponseTimeTrend(instanceId, step, timeBuckets);
+        responseTimeTrend.setTrendList(trends);
+        return responseTimeTrend;
     }
 
     private void buildAppServerInfo(List<AppServerInfo> serverInfos) {

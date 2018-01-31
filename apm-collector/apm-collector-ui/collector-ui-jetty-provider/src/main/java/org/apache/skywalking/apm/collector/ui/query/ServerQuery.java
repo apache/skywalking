@@ -64,8 +64,10 @@ public class ServerQuery implements Query {
         return getServerService().getAllServer(applicationId, start, end);
     }
 
-    public ResponseTimeTrend getServerResponseTimeTrend(int serverId, Duration duration) {
-        return null;
+    public ResponseTimeTrend getServerResponseTimeTrend(int serverId, Duration duration) throws ParseException {
+        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        return getServerService().getServerResponseTimeTrend(serverId, duration.getStep(), start, end);
     }
 
     public ThroughputTrend getServerTPSTrend(int serverId, Duration duration) {
