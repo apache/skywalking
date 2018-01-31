@@ -32,7 +32,9 @@ import org.apache.skywalking.apm.collector.storage.dao.IInstanceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
 import org.apache.skywalking.apm.collector.storage.ui.common.ResponseTimeTrend;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.ui.common.ThroughputTrend;
 import org.apache.skywalking.apm.collector.storage.ui.server.AppServerInfo;
+import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 
 /**
@@ -70,10 +72,18 @@ public class ServerService {
     public ResponseTimeTrend getServerResponseTimeTrend(int instanceId, Step step, long start,
         long end) throws ParseException {
         ResponseTimeTrend responseTimeTrend = new ResponseTimeTrend();
-        Long[] timeBuckets = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
-        List<Integer> trends = instanceMetricUIDAO.getResponseTimeTrend(instanceId, step, timeBuckets);
+        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
+        List<Integer> trends = instanceMetricUIDAO.getResponseTimeTrend(instanceId, step, durationPoints);
         responseTimeTrend.setTrendList(trends);
         return responseTimeTrend;
+    }
+
+    public ThroughputTrend getServerTPSTrend(int instanceId, Step step, long start, long end) throws ParseException {
+        ThroughputTrend throughputTrend = new ThroughputTrend();
+        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
+        List<Integer> trends = instanceMetricUIDAO.getServerTPSTrend(instanceId, step, durationPoints);
+        throughputTrend.setTrendList(trends);
+        return throughputTrend;
     }
 
     private void buildAppServerInfo(List<AppServerInfo> serverInfos) {

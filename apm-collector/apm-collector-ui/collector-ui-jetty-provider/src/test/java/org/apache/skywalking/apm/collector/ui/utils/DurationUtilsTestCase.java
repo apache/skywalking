@@ -19,8 +19,10 @@
 package org.apache.skywalking.apm.collector.ui.utils;
 
 import java.text.ParseException;
+import java.util.List;
 import org.apache.skywalking.apm.collector.core.UnexpectedException;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,20 +37,72 @@ public class DurationUtilsTestCase {
 
     @Test
     public void testGetDurationPoints() throws ParseException {
-        Long[] durationPoints = DurationUtils.INSTANCE.getDurationPoints(Step.MONTH, 201710, 201803);
-        Assert.assertArrayEquals(new Long[] {201710L, 201711L, 201712L, 201801L, 201802L, 201803L}, durationPoints);
+        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(Step.MONTH, 201710, 201803);
+        Assert.assertEquals(6, durationPoints.size());
+        Assert.assertEquals(201710L, durationPoints.get(0).getPoint());
+        Assert.assertEquals(2678400, durationPoints.get(0).getSecondsBetween());
+        Assert.assertEquals(201711L, durationPoints.get(1).getPoint());
+        Assert.assertEquals(2592000, durationPoints.get(1).getSecondsBetween());
+        Assert.assertEquals(201712L, durationPoints.get(2).getPoint());
+        Assert.assertEquals(2678400, durationPoints.get(2).getSecondsBetween());
+        Assert.assertEquals(201801L, durationPoints.get(3).getPoint());
+        Assert.assertEquals(2678400, durationPoints.get(3).getSecondsBetween());
+        Assert.assertEquals(201802L, durationPoints.get(4).getPoint());
+        Assert.assertEquals(2419200, durationPoints.get(4).getSecondsBetween());
+        Assert.assertEquals(201803L, durationPoints.get(5).getPoint());
+        Assert.assertEquals(2678400, durationPoints.get(5).getSecondsBetween());
 
         durationPoints = DurationUtils.INSTANCE.getDurationPoints(Step.DAY, 20180129, 20180202);
-        Assert.assertArrayEquals(new Long[] {20180129L, 20180130L, 20180131L, 20180201L, 20180202L}, durationPoints);
+        Assert.assertEquals(5, durationPoints.size());
+        Assert.assertEquals(20180129L, durationPoints.get(0).getPoint());
+        Assert.assertEquals(86400, durationPoints.get(0).getSecondsBetween());
+        Assert.assertEquals(20180130L, durationPoints.get(1).getPoint());
+        Assert.assertEquals(86400, durationPoints.get(1).getSecondsBetween());
+        Assert.assertEquals(20180131L, durationPoints.get(2).getPoint());
+        Assert.assertEquals(86400, durationPoints.get(2).getSecondsBetween());
+        Assert.assertEquals(20180201L, durationPoints.get(3).getPoint());
+        Assert.assertEquals(86400, durationPoints.get(3).getSecondsBetween());
+        Assert.assertEquals(20180202L, durationPoints.get(4).getPoint());
+        Assert.assertEquals(86400, durationPoints.get(4).getSecondsBetween());
 
         durationPoints = DurationUtils.INSTANCE.getDurationPoints(Step.HOUR, 2018012922, 2018013002);
-        Assert.assertArrayEquals(new Long[] {2018012922L, 2018012923L, 2018013000L, 2018013001L, 2018013002L}, durationPoints);
+        Assert.assertEquals(5, durationPoints.size());
+        Assert.assertEquals(2018012922L, durationPoints.get(0).getPoint());
+        Assert.assertEquals(3600, durationPoints.get(0).getSecondsBetween());
+        Assert.assertEquals(2018012923L, durationPoints.get(1).getPoint());
+        Assert.assertEquals(3600, durationPoints.get(1).getSecondsBetween());
+        Assert.assertEquals(2018013000L, durationPoints.get(2).getPoint());
+        Assert.assertEquals(3600, durationPoints.get(2).getSecondsBetween());
+        Assert.assertEquals(2018013001L, durationPoints.get(3).getPoint());
+        Assert.assertEquals(3600, durationPoints.get(3).getSecondsBetween());
+        Assert.assertEquals(2018013002L, durationPoints.get(4).getPoint());
+        Assert.assertEquals(3600, durationPoints.get(4).getSecondsBetween());
 
         durationPoints = DurationUtils.INSTANCE.getDurationPoints(Step.MINUTE, 201801292258L, 201801292302L);
-        Assert.assertArrayEquals(new Long[] {201801292258L, 201801292259L, 201801292300L, 201801292301L, 201801292302L}, durationPoints);
+        Assert.assertEquals(5, durationPoints.size());
+        Assert.assertEquals(201801292258L, durationPoints.get(0).getPoint());
+        Assert.assertEquals(60, durationPoints.get(0).getSecondsBetween());
+        Assert.assertEquals(201801292259L, durationPoints.get(1).getPoint());
+        Assert.assertEquals(60, durationPoints.get(1).getSecondsBetween());
+        Assert.assertEquals(201801292300L, durationPoints.get(2).getPoint());
+        Assert.assertEquals(60, durationPoints.get(2).getSecondsBetween());
+        Assert.assertEquals(201801292301L, durationPoints.get(3).getPoint());
+        Assert.assertEquals(60, durationPoints.get(3).getSecondsBetween());
+        Assert.assertEquals(201801292302L, durationPoints.get(4).getPoint());
+        Assert.assertEquals(60, durationPoints.get(4).getSecondsBetween());
 
         durationPoints = DurationUtils.INSTANCE.getDurationPoints(Step.SECOND, 20180129225858L, 20180129225902L);
-        Assert.assertArrayEquals(new Long[] {20180129225858L, 20180129225859L, 20180129225900L, 20180129225901L, 20180129225902L}, durationPoints);
+        Assert.assertEquals(5, durationPoints.size());
+        Assert.assertEquals(20180129225858L, durationPoints.get(0).getPoint());
+        Assert.assertEquals(1, durationPoints.get(0).getSecondsBetween());
+        Assert.assertEquals(20180129225859L, durationPoints.get(1).getPoint());
+        Assert.assertEquals(1, durationPoints.get(1).getSecondsBetween());
+        Assert.assertEquals(20180129225900L, durationPoints.get(2).getPoint());
+        Assert.assertEquals(1, durationPoints.get(2).getSecondsBetween());
+        Assert.assertEquals(20180129225901L, durationPoints.get(3).getPoint());
+        Assert.assertEquals(1, durationPoints.get(3).getSecondsBetween());
+        Assert.assertEquals(20180129225902L, durationPoints.get(4).getPoint());
+        Assert.assertEquals(1, durationPoints.get(4).getSecondsBetween());
     }
 
     @Test(expected = UnexpectedException.class)
