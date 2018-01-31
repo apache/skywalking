@@ -28,4 +28,36 @@ public class MemoryTrend {
     private List<Integer> maxHeap;
     private List<Integer> noheap;
     private List<Integer> maxNoheap;
+
+    public List<Integer> getHeap() {
+        return heap;
+    }
+
+    public void setHeap(List<Integer> heap) {
+        this.heap = heap;
+    }
+
+    public List<Integer> getMaxHeap() {
+        return maxHeap;
+    }
+
+    public void setMaxHeap(List<Integer> maxHeap) {
+        this.maxHeap = maxHeap;
+    }
+
+    public List<Integer> getNoheap() {
+        return noheap;
+    }
+
+    public void setNoheap(List<Integer> noheap) {
+        this.noheap = noheap;
+    }
+
+    public List<Integer> getMaxNoheap() {
+        return maxNoheap;
+    }
+
+    public void setMaxNoheap(List<Integer> maxNoheap) {
+        this.maxNoheap = maxNoheap;
+    }
 }

@@ -18,14 +18,43 @@
 
 package org.apache.skywalking.apm.collector.storage.dao;
 
-import com.google.gson.JsonObject;
+import java.util.LinkedList;
+import java.util.List;
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
+import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 
 /**
  * @author peng-yongsheng
  */
 public interface IMemoryMetricUIDAO extends DAO {
-    JsonObject getMetric(int instanceId, long timeBucket, boolean isHeap);
+    Trend getHeapMemoryTrend(int instanceId, Step step, List<DurationPoint> durationPoints);
 
-    JsonObject getMetric(int instanceId, long startTimeBucket, long endTimeBucket, boolean isHeap);
+    Trend getNoHeapMemoryTrend(int instanceId, Step step, List<DurationPoint> durationPoints);
+
+    class Trend {
+        private List<Integer> metrics;
+        private List<Integer> maxMetrics;
+
+        public Trend() {
+            this.metrics = new LinkedList<>();
+            this.maxMetrics = new LinkedList<>();
+        }
+
+        public List<Integer> getMetrics() {
+            return metrics;
+        }
+
+        public void setMetrics(List<Integer> metrics) {
+            this.metrics = metrics;
+        }
+
+        public List<Integer> getMaxMetrics() {
+            return maxMetrics;
+        }
+
+        public void setMaxMetrics(List<Integer> maxMetrics) {
+            this.maxMetrics = maxMetrics;
+        }
+    }
 }
