@@ -28,12 +28,14 @@ import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
+import org.apache.skywalking.apm.collector.storage.dao.ICpuMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
 import org.apache.skywalking.apm.collector.storage.ui.common.ResponseTimeTrend;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.ui.common.ThroughputTrend;
 import org.apache.skywalking.apm.collector.storage.ui.server.AppServerInfo;
+import org.apache.skywalking.apm.collector.storage.ui.server.CPUTrend;
 import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 
@@ -43,16 +45,18 @@ import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 public class ServerService {
 
     private final Gson gson = new Gson();
-    private final IInstanceUIDAO instanceDAO;
+    private final IInstanceUIDAO instanceUIDAO;
+    private final ICpuMetricUIDAO cpuMetricUIDAO;
     private final IInstanceMetricUIDAO instanceMetricUIDAO;
 
     public ServerService(ModuleManager moduleManager) {
-        this.instanceDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceUIDAO.class);
+        this.instanceUIDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceUIDAO.class);
+        this.cpuMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(ICpuMetricUIDAO.class);
         this.instanceMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceMetricUIDAO.class);
     }
 
     public List<AppServerInfo> searchServer(String keyword, long start, long end) {
-        List<AppServerInfo> serverInfos = instanceDAO.searchServer(keyword, start, end);
+        List<AppServerInfo> serverInfos = instanceUIDAO.searchServer(keyword, start, end);
         serverInfos.forEach(serverInfo -> {
             if (serverInfo.getId() == Const.NONE_INSTANCE_ID) {
                 serverInfos.remove(serverInfo);
@@ -64,7 +68,7 @@ public class ServerService {
     }
 
     public List<AppServerInfo> getAllServer(int applicationId, long start, long end) {
-        List<AppServerInfo> serverInfos = instanceDAO.getAllServer(applicationId, start, end);
+        List<AppServerInfo> serverInfos = instanceUIDAO.getAllServer(applicationId, start, end);
         buildAppServerInfo(serverInfos);
         return serverInfos;
     }
@@ -84,6 +88,14 @@ public class ServerService {
         List<Integer> trends = instanceMetricUIDAO.getServerTPSTrend(instanceId, step, durationPoints);
         throughputTrend.setTrendList(trends);
         return throughputTrend;
+    }
+
+    public CPUTrend getCPUTrend(int instanceId, Step step, long start, long end) throws ParseException {
+        CPUTrend cpuTrend = new CPUTrend();
+        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
+        List<Integer> trends = cpuMetricUIDAO.getCPUTrend(instanceId, step, durationPoints);
+        cpuTrend.setCost(trends);
+        return cpuTrend;
     }
 
     private void buildAppServerInfo(List<AppServerInfo> serverInfos) {

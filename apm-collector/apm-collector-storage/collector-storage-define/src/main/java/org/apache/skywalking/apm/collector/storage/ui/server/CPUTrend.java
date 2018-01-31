@@ -25,4 +25,12 @@ import java.util.List;
  */
 public class CPUTrend {
     private List<Integer> cost;
+
+    public List<Integer> getCost() {
+        return cost;
+    }
+
+    public void setCost(List<Integer> cost) {
+        this.cost = cost;
+    }
 }

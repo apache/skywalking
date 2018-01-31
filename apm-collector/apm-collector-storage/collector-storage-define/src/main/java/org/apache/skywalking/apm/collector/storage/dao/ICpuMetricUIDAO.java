@@ -18,14 +18,14 @@
 
 package org.apache.skywalking.apm.collector.storage.dao;
 
-import com.google.gson.JsonArray;
+import java.util.List;
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
+import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 
 /**
  * @author peng-yongsheng
  */
 public interface ICpuMetricUIDAO extends DAO {
-    int getMetric(int instanceId, long timeBucket);
-
-    JsonArray getMetric(int instanceId, long startTimeBucket, long endTimeBucket);
+    List<Integer> getCPUTrend(int instanceId, Step step, List<DurationPoint> durationPoints);
 }

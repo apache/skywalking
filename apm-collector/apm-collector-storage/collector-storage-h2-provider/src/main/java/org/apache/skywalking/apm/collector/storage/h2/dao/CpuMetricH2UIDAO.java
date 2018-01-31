@@ -18,10 +18,9 @@
 
 package org.apache.skywalking.apm.collector.storage.h2.dao;
 
-import com.google.gson.JsonArray;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
 import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
@@ -30,6 +29,9 @@ import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.apache.skywalking.apm.collector.storage.dao.ICpuMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.table.jvm.CpuMetricTable;
+import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
+import org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,48 +46,28 @@ public class CpuMetricH2UIDAO extends H2DAO implements ICpuMetricUIDAO {
         super(client);
     }
 
-    @Override public int getMetric(int instanceId, long timeBucket) {
-        String id = timeBucket + Const.ID_SPLIT + instanceId;
+    @Override public List<Integer> getCPUTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_CPU_METRIC_SQL, CpuMetricTable.TABLE, CpuMetricTable.COLUMN_ID);
-        Object[] params = new Object[] {id};
-        try (ResultSet rs = client.executeQuery(sql, params)) {
-            if (rs.next()) {
-                return rs.getInt(CpuMetricTable.COLUMN_USAGE_PERCENT);
-            }
-        } catch (SQLException | H2ClientException e) {
-            logger.error(e.getMessage(), e);
-        }
-        return 0;
-    }
+        String tableName = TimePyramidTableNameBuilder.build(step, CpuMetricTable.TABLE);
+        String sql = SqlBuilder.buildSql(GET_CPU_METRIC_SQL, tableName, CpuMetricTable.COLUMN_ID);
 
-    @Override public JsonArray getMetric(int instanceId, long startTimeBucket, long endTimeBucket) {
-        H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_CPU_METRIC_SQL, CpuMetricTable.TABLE, CpuMetricTable.COLUMN_ID);
+        List<Integer> cpuTrends = new LinkedList<>();
+        durationPoints.forEach(durationPoint -> {
+            String id = durationPoint.getPoint() + Const.ID_SPLIT + instanceId;
 
-        long timeBucket = startTimeBucket;
-        List<String> idList = new ArrayList<>();
-        do {
-//            timeBucket = TimeBucketUtils.INSTANCE.addSecondForSecondTimeBucket(TimeBucketUtils.TimeBucketType.SECOND, timeBucket, 1);
-            String id = timeBucket + Const.ID_SPLIT + instanceId;
-            idList.add(id);
-        }
-        while (timeBucket <= endTimeBucket);
-
-        JsonArray metrics = new JsonArray();
-        idList.forEach(id -> {
             try (ResultSet rs = client.executeQuery(sql, new String[] {id})) {
                 if (rs.next()) {
                     double cpuUsed = rs.getDouble(CpuMetricTable.COLUMN_USAGE_PERCENT);
-                    metrics.add((int)(cpuUsed * 100));
+                    long times = rs.getLong(CpuMetricTable.COLUMN_TIMES);
+                    cpuTrends.add((int)((cpuUsed / times) * 100));
                 } else {
-                    metrics.add(0);
+                    cpuTrends.add(0);
                 }
             } catch (SQLException | H2ClientException e) {
                 logger.error(e.getMessage(), e);
             }
         });
 
-        return metrics;
+        return cpuTrends;
     }
 }

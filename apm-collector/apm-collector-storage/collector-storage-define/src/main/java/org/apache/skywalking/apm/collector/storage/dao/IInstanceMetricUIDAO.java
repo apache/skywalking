@@ -27,37 +27,8 @@ import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
  * @author peng-yongsheng
  */
 public interface IInstanceMetricUIDAO extends DAO {
-    InstanceMetric get(long[] timeBuckets, int instanceId);
-
-    long getTpsMetric(int instanceId, long timeBucket);
 
     List<Integer> getServerTPSTrend(int instanceId, Step step, List<DurationPoint> durationPoints);
 
-    long getRespTimeMetric(int instanceId, long timeBucket);
-
     List<Integer> getResponseTimeTrend(int instanceId, Step step, List<DurationPoint> durationPoints);
-
-    class InstanceMetric {
-        private final int instanceId;
-        private final long calls;
-        private final long durationSum;
-
-        public InstanceMetric(int instanceId, long calls, long durationSum) {
-            this.instanceId = instanceId;
-            this.calls = calls;
-            this.durationSum = durationSum;
-        }
-
-        public int getInstanceId() {
-            return instanceId;
-        }
-
-        public long getCalls() {
-            return calls;
-        }
-
-        public long getDurationSum() {
-            return durationSum;
-        }
-    }
 }
