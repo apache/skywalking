@@ -70,6 +70,20 @@ class BasicLayout extends React.PureComponent {
   }
   componentDidMount() {
   }
+  componentWillUpdate(nextProps) {
+    const { globalVariables: { duration } } = nextProps;
+    if (!duration || Object.keys(duration).length < 1) {
+      return;
+    }
+    const { globalVariables: { duration: preDuration } } = this.props;
+    if (duration === preDuration) {
+      return;
+    }
+    this.props.dispatch({
+      type: 'global/fetchNotice',
+      payload: { variables: { duration } },
+    });
+  }
   componentWillUnmount() {
     clearTimeout(this.resizeTimeout);
   }
@@ -78,13 +92,6 @@ class BasicLayout extends React.PureComponent {
       type: 'global/changeLayoutCollapsed',
       payload: collapsed,
     });
-  }
-  onMenuClick = ({ key }) => {
-    if (key === 'logout') {
-      this.props.dispatch({
-        type: 'login/logout',
-      });
-    }
   }
   getMenuData = (data, parentPath) => {
     let arr = [];
@@ -249,8 +256,11 @@ class BasicLayout extends React.PureComponent {
     });
   }
   render() {
-    const { collapsed, getRouteData } = this.props;
+    const { collapsed, getRouteData,
+      notices: { applicationAlarmList, serverAlarmList }, history } = this.props;
     // Don't show popup menu when it is been collapsed
+    const applications = applicationAlarmList.items.map(_ => ({ ..._, datetime: _.startTime }));
+    const servers = serverAlarmList.items.map(_ => ({ ..._, datetime: _.startTime }));
     const menuProps = collapsed ? {} : {
       openKeys: this.state.openKeys,
     };
@@ -311,9 +321,12 @@ class BasicLayout extends React.PureComponent {
               <span className={styles.action} onClick={this.reload}> <Icon type="reload" /> </span>
               <NoticeIcon
                 className={styles.action}
-                count={3}
+                count={applicationAlarmList.total + serverAlarmList.total}
                 onItemClick={(item, tabProps) => {
-                  console.log(item, tabProps); // eslint-disable-line
+                  history.push({ pathname: '/alarm', state: { type: tabProps.title } });
+                }}
+                onClear={(tabTitle) => {
+                  history.push({ pathname: '/alarm', state: { type: tabTitle } });
                 }}
                 loading={false}
                 popupAlign={{ offset: [20, -16] }}
@@ -323,51 +336,13 @@ class BasicLayout extends React.PureComponent {
                 }}
               >
                 <NoticeIcon.Tab
-                  list={[{
-                    id: '000000001',
-                    avatar: ['https://gw.alipayobjects.com/zos/rmsportal/ThXAXghbEsBCCSDihZxY.png'],
-                    title: 'Appliction A error',
-                    datetime: '2017-08-09',
-                    type: 'app-alert',
-                  }, {
-                    id: '000000002',
-                    avatar: 'https://gw.alipayobjects.com/zos/rmsportal/OKJXDXrmkNshAMvwtvhu.png',
-                    title: 'Appliction A error',
-                    datetime: '2017-08-08',
-                    type: 'app-alert',
-                  }, {
-                    id: '000000003',
-                    avatar: 'https://gw.alipayobjects.com/zos/rmsportal/kISTdvpyTAhtGxpovNWd.png',
-                    title: 'Appliction A error',
-                    datetime: '2017-08-07',
-                    read: true,
-                    type: 'app-alert',
-                  }]}
+                  list={applications}
                   title="Application"
                   emptyText="No alarm"
                   emptyImage="https://gw.alipayobjects.com/zos/rmsportal/wAhyIChODzsoKIOBHcBk.svg"
                 />
                 <NoticeIcon.Tab
-                  list={[{
-                    id: '000000001',
-                    avatar: 'https://gw.alipayobjects.com/zos/rmsportal/ThXAXghbEsBCCSDihZxY.png',
-                    title: 'Server A error',
-                    datetime: '2017-08-09',
-                    type: 'server-alert',
-                  }, {
-                    id: '000000002',
-                    avatar: 'https://gw.alipayobjects.com/zos/rmsportal/OKJXDXrmkNshAMvwtvhu.png',
-                    title: 'Server A error',
-                    datetime: '2017-08-08',
-                    type: 'server-alert',
-                  }, {
-                    id: '000000003',
-                    avatar: 'https://gw.alipayobjects.com/zos/rmsportal/kISTdvpyTAhtGxpovNWd.png',
-                    title: 'Service A error',
-                    datetime: '2017-08-07',
-                    read: true,
-                    type: 'server-alert',
-                  }]}
+                  list={servers}
                   title="Server"
                   emptyText="No alarm"
                   emptyImage="https://gw.alipayobjects.com/zos/rmsportal/wAhyIChODzsoKIOBHcBk.svg"
@@ -430,8 +405,8 @@ class BasicLayout extends React.PureComponent {
 export default connect(state => ({
   currentUser: state.user.currentUser,
   collapsed: state.global.collapsed,
-  fetchingNotices: state.global.fetchingNotices,
-  notices: state.global.notices,
   selectedTime: state.global.selectedTime,
   isShowSelectTime: state.global.isShowSelectTime,
+  notices: state.global.notices,
+  globalVariables: state.global.globalVariables,
 }))(BasicLayout);

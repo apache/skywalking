@@ -19,13 +19,16 @@ const defaultPaging = {
 }))
 export default class Alarm extends PureComponent {
   componentDidMount() {
-    this.props.dispatch({
-      type: 'alarm/saveVariables',
-      payload: { values: {
-        alarmType: 'APPLICATION',
-        paging: defaultPaging,
-      } },
-    });
+    const { alarm: { variables: { values } } } = this.props;
+    if (!values.alarmType) {
+      this.props.dispatch({
+        type: 'alarm/saveVariables',
+        payload: { values: {
+          alarmType: 'APPLICATION',
+          paging: defaultPaging,
+        } },
+      });
+    }
   }
   handleSearch = (keyword) => {
     this.props.dispatch({
@@ -72,7 +75,6 @@ export default class Alarm extends PureComponent {
       total,
       onChange: this.handlePageChange,
     };
-
     return (
       <List
         className="demo-loadmore-list"
@@ -118,7 +120,7 @@ export default class Alarm extends PureComponent {
           bordered={false}
           extra={extraContent}
         >
-          <Tabs defaultActiveKey={values.alarmType} onChange={this.changeAlarmType}>
+          <Tabs activeKey={values.alarmType} onChange={this.changeAlarmType}>
             <TabPane tab="Application" key="APPLICATION">{this.renderList(data.applicationAlarmList)}</TabPane>
             <TabPane tab="Server" key="SERVER">{this.renderList(data.serverAlarmList)}</TabPane>
             <TabPane tab="Service" key="SERVICE">{this.renderList(data.serviceAlarmList)}</TabPane>

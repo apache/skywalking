@@ -1,26 +1,52 @@
-import { queryNotices } from '../services/api';
+import { query } from '../services/graphql';
 import { generateDuration } from '../utils/utils';
 
+const noticeQuery = `
+  query Notice($duration:Duration!){
+    applicationAlarmList: loadAlarmList(alarmType: 'APPLICATION', duration: $duration, paging: { pageNum: 1, pageSize: 5, needTotal: true }) {
+      items {
+        title
+        startTime
+        causeType
+      }
+      total
+    }
+    serverAlarmList: loadAlarmList(alarmType: 'SERVER', duration: $duration, paging: { pageNum: 1, pageSize: 5, needTotal: true }) {
+      items {
+        title
+        startTime
+        causeType
+      }
+      total
+    }
+  }
+`;
 
 export default {
   namespace: 'global',
 
   state: {
     collapsed: false,
-    notices: [],
+    notices: {
+      applicationAlarmList: {
+        items: [],
+        total: 0,
+      },
+      serverAlarmList: {
+        items: [],
+        total: 0,
+      },
+    },
     fetchingNotices: false,
+    globalVariables: { duration: {} },
   },
 
   effects: {
-    *fetchNotices(_, { call, put }) {
+    *fetchNotice({ payload: { variables } }, { call, put }) {
+      const response = yield call(query, 'notice', { query: noticeQuery, variables });
       yield put({
-        type: 'changeNoticeLoading',
-        payload: true,
-      });
-      const data = yield call(queryNotices);
-      yield put({
-        type: 'saveNotices',
-        payload: data,
+        type: 'saveNotice',
+        payload: response.data,
       });
     },
     *clearNotices({ payload }, { put, select }) {
@@ -44,11 +70,10 @@ export default {
         collapsed: payload,
       };
     },
-    saveNotices(state, { payload }) {
+    saveNotice(state, { payload }) {
       return {
         ...state,
         notices: payload,
-        fetchingNotices: false,
       };
     },
     saveClearedNotices(state, { payload }) {

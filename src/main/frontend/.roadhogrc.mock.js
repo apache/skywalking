@@ -8,7 +8,7 @@ import { getTopology } from './mock/topology';
 import { getAllApplication, getApplication } from './mock/application';
 import { searchServer, getServer } from './mock/server';
 import { searchService, getService } from './mock/service';
-import { getAlarm } from './mock/alarm';
+import { getAlarm, getNoticeAlarm } from './mock/alarm';
 import { getAllApplication as getAllApplicationForTrace, getTrace, getSpans } from './mock/trace'
 
 // 是否禁用代理
@@ -26,6 +26,7 @@ const proxy = {
   'POST /api/service/search': searchService,
   'POST /api/service': getService,
   'POST /api/alarm': getAlarm,
+  'POST /api/notice': getNoticeAlarm,
   'POST /api/trace/options': getAllApplicationForTrace,
   'POST /api/trace': getTrace,
   'POST /api/spans': getSpans,

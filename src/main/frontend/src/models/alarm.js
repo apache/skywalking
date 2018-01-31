@@ -2,7 +2,16 @@ import { generateModal } from '../utils/utils';
 
 const dataQuery = `
   query Alarm($keyword: String, $alarmType: AlarmType, $duration:Duration!, $paging: Pagination!){
-    loadAlarmList(keyword: $keyword, alarmType: $alarmType, duration: $duration, paging: $paging)
+    loadAlarmList(keyword: $keyword, alarmType: $alarmType, duration: $duration, paging: $paging) {
+      items {
+        key: id
+        title
+        content
+        startTime
+        causeType
+      }
+      total
+    }
   }
 `;
 
@@ -53,6 +62,20 @@ export default generateModal({
           serviceAlarmList: loadAlarmList,
         },
       };
+    },
+  },
+  subscriptions: {
+    setup({ history, dispatch }) {
+      return history.listen(({ pathname, state }) => {
+        if (pathname === '/alarm' && state) {
+          dispatch({
+            type: 'alarm/saveVariables',
+            payload: { values: {
+              alarmType: state.type.toUpperCase(),
+            } },
+          });
+        }
+      });
     },
   },
 });

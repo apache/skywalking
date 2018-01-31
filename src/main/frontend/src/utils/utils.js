@@ -129,7 +129,7 @@ export function generateDuration({ from, to }) {
 }
 
 export function generateModal({ namespace, dataQuery, optionsQuery, state = {},
-  effects = {}, reducers = {} }) {
+  effects = {}, reducers = {}, subscriptions = {} }) {
   return {
     namespace,
     state: {
@@ -265,6 +265,9 @@ export function generateModal({ namespace, dataQuery, optionsQuery, state = {},
         };
       },
       ...reducers,
+    },
+    subscriptions: {
+      ...subscriptions,
     },
   };
 }

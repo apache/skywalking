@@ -1,6 +1,34 @@
 import mockjs from 'mockjs';
 
 export default {
+  getNoticeAlarm(req, res) {
+    return res.json(mockjs.mock(
+      {
+        data: {
+          applicationAlarmList: {
+            'items|5': [{
+              'key|+1': 1,
+              title: '@name',
+              startTime: '@datetime("yyyy-MM-dd HH:mm:ss")',
+              'causeType|1': ['LOW_SUCCESS_RATE', 'SLOW_RESPONSE'],
+              alarmType: 'APPLICATION',
+            }],
+            total: '@natural(5, 50)',
+          },
+          serverAlarmList: {
+            'items|5': [{
+              'key|+1': 1,
+              title: '@name',
+              startTime: '@datetime("yyyy-MM-dd HH:mm:ss")',
+              'causeType|1': ['LOW_SUCCESS_RATE', 'SLOW_RESPONSE'],
+              alarmType: 'SERVER',
+            }],
+            total: '@natural(5, 50)',
+          },
+        },
+      }
+    ));
+  },
   getAlarm(req, res) {
     const { variables: { alarmType } } = req.body;
     switch (alarmType) {
