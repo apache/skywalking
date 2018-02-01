@@ -18,17 +18,14 @@
 
 package org.apache.skywalking.apm.ui;
 
-import graphql.Scalars;
-import graphql.schema.GraphQLObjectType;
-import graphql.schema.GraphQLSchema;
-import org.apache.skywalking.apm.ui.tools.CollectorUIServerGetterTimer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
+import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
+@EnableZuulProxy
 public class ApplicationStartUp extends SpringBootServletInitializer {
 
     public static void main(String[] args) throws Exception {

@@ -20,3 +20,9 @@ server:
   port: 8080
 collector:
   servers: 127.0.0.1:10800
+zuul:
+  ignoredServices: '*'
+  routes:
+    api:
+      path: /api/**
+      url: http://127.0.0.1:12800/graphql
