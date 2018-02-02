@@ -118,7 +118,7 @@ public class GraphQLHandler extends JettyHandler {
 
             JsonObject jsonObject = new JsonObject();
             if (data != null) {
-                jsonObject.addProperty(DATA, data.toString());
+                jsonObject.add(DATA, gson.fromJson(gson.toJson(data), JsonObject.class));
             }
 
             if (CollectionUtils.isNotEmpty(errors)) {
