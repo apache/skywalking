@@ -1,4 +1,4 @@
-{
+const config = {
   "entry": "src/index.js",
   "extraBabelPlugins": [
     "transform-runtime",
@@ -20,4 +20,19 @@
   },
   "ignoreMomentLocale": true,
   "theme": "./src/theme.js"
+};
+
+if (process.env.NO_PROXY) {
+  config.proxy = {
+    "/api":{
+      target: "http://localhost:12800",
+      changeOrigin: true,
+      pathRewrite:  (path) => {
+        console.log(path);
+        return "/graphql"
+      }
+    }
+  };
 }
+
+export default config;
