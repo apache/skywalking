@@ -32,6 +32,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
@@ -92,7 +93,7 @@ public class GraphQLHandler extends JettyHandler {
     }
 
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {
-        return execute(req.getParameter(QUERY));
+        return execute(req.getParameter(QUERY), null);
     }
 
     @Override protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException, IOException {
@@ -104,13 +105,14 @@ public class GraphQLHandler extends JettyHandler {
         }
 
         JsonObject requestJson = gson.fromJson(request, JsonObject.class);
-        return execute(requestJson.get(QUERY).getAsString());
+        return execute(requestJson.get(QUERY).getAsString(), gson.fromJson(requestJson.get("variables"), Map.class));
     }
 
-    private JsonObject execute(String request) {
+    private JsonObject execute(String request, Map<String, Object> variables) {
         try {
-            ExecutionInput executionInput = ExecutionInput.newExecutionInput().query(request).build();
+            ExecutionInput executionInput = ExecutionInput.newExecutionInput().query(request).variables(variables).build();
             ExecutionResult executionResult = graphQL.execute(executionInput);
+            logger.info("Execution result is {}", executionResult);
             Object data = executionResult.getData();
             List<GraphQLError> errors = executionResult.getErrors();
 
