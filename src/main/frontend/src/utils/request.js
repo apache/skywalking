@@ -14,6 +14,19 @@ function checkStatus(response) {
   throw error;
 }
 
+function checkErrors(body) {
+  const { errors } = body;
+  if (!errors) {
+    return body;
+  }
+  errors.forEach((_) => {
+    notification.error({
+      message: _.message,
+    });
+  });
+  throw new Error();
+}
+
 /**
  * Requests a URL, returning a promise.
  *
@@ -40,6 +53,7 @@ export default function request(url, options) {
     .then((response) => {
       return response.json();
     })
+    .then(checkErrors)
     .catch((error) => {
       if (error.code) {
         notification.error({

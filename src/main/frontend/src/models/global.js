@@ -49,18 +49,6 @@ export default {
         payload: response.data,
       });
     },
-    *clearNotices({ payload }, { put, select }) {
-      const count = yield select(state => state.global.notices.length);
-      yield put({
-        type: 'user/changeNotifyCount',
-        payload: count,
-      });
-
-      yield put({
-        type: 'saveClearedNotices',
-        payload,
-      });
-    },
   },
 
   reducers: {
@@ -73,19 +61,10 @@ export default {
     saveNotice(state, { payload }) {
       return {
         ...state,
-        notices: payload,
-      };
-    },
-    saveClearedNotices(state, { payload }) {
-      return {
-        ...state,
-        notices: state.notices.filter(item => item.type !== payload),
-      };
-    },
-    changeNoticeLoading(state, { payload }) {
-      return {
-        ...state,
-        fetchingNotices: payload,
+        notices: {
+          ...state.notices,
+          ...payload,
+        },
       };
     },
     changeSelectedTime(state, { payload }) {

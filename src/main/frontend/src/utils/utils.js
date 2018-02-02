@@ -175,6 +175,9 @@ export function generateModal({ namespace, dataQuery, optionsQuery, state = {},
     },
     reducers: {
       saveOptions(preState, { payload: allOptions }) {
+        if (!allOptions) {
+          return preState;
+        }
         const { variables } = preState;
         const { values, labels, options } = variables;
         const amendOptions = {};

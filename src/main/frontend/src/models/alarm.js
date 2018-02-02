@@ -33,7 +33,11 @@ export default generateModal({
   },
   dataQuery,
   reducers: {
-    saveApplicationAlarmList(preState, { payload: { loadAlarmList } }) {
+    saveApplicationAlarmList(preState, { payload }) {
+      if (!payload) {
+        return preState;
+      }
+      const { loadAlarmList } = payload;
       const { data } = preState;
       return {
         ...preState,
@@ -43,7 +47,11 @@ export default generateModal({
         },
       };
     },
-    saveServerAlarmList(preState, { payload: { loadAlarmList } }) {
+    saveServerAlarmList(preState, { payload }) {
+      if (!payload) {
+        return preState;
+      }
+      const { loadAlarmList } = payload;
       const { data } = preState;
       return {
         ...preState,
@@ -53,7 +61,11 @@ export default generateModal({
         },
       };
     },
-    saveServiceAlarmList(preState, { payload: { loadAlarmList } }) {
+    saveServiceAlarmList(preState, { payload }) {
+      if (!payload) {
+        return preState;
+      }
+      const { loadAlarmList } = payload;
       const { data } = preState;
       return {
         ...preState,
