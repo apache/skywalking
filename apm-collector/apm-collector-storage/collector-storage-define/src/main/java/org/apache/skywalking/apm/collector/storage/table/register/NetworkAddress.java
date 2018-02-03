@@ -39,6 +39,7 @@ public class NetworkAddress extends StreamData {
 
     private static final Column[] INTEGER_COLUMNS = {
         new Column(NetworkAddressTable.COLUMN_ADDRESS_ID, new NonOperation()),
+        new Column(NetworkAddressTable.COLUMN_SPAN_LAYER, new NonOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};
@@ -77,5 +78,13 @@ public class NetworkAddress extends StreamData {
 
     public void setAddressId(Integer addressId) {
         setDataInteger(0, addressId);
+    }
+
+    public Integer getSpanLayer() {
+        return getDataInteger(1);
+    }
+
+    public void setSpanLayer(Integer spanLayer) {
+        setDataInteger(1, spanLayer);
     }
 }

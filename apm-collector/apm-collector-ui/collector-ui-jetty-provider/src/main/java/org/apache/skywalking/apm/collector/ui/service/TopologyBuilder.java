@@ -29,8 +29,8 @@ import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.storage.dao.IApplicationComponentUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IApplicationMappingUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationComponentUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMappingUIDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Application;
 import org.apache.skywalking.apm.collector.storage.ui.application.ApplicationNode;
 import org.apache.skywalking.apm.collector.storage.ui.application.ConjecturalNode;

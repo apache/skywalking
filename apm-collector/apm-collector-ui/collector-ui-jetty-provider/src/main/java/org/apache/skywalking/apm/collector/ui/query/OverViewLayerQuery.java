@@ -18,8 +18,10 @@
 
 package org.apache.skywalking.apm.collector.ui.query;
 
+import java.text.ParseException;
 import java.util.List;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.ui.common.Duration;
 import org.apache.skywalking.apm.collector.storage.ui.common.Topology;
 import org.apache.skywalking.apm.collector.storage.ui.overview.AlarmTrend;
@@ -28,21 +30,73 @@ import org.apache.skywalking.apm.collector.storage.ui.overview.ConjecturalAppBri
 import org.apache.skywalking.apm.collector.storage.ui.server.AppServerInfo;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
 import org.apache.skywalking.apm.collector.ui.graphql.Query;
+import org.apache.skywalking.apm.collector.ui.service.ApplicationService;
+import org.apache.skywalking.apm.collector.ui.service.ClusterTopologyService;
+import org.apache.skywalking.apm.collector.ui.service.NetworkAddressService;
+import org.apache.skywalking.apm.collector.ui.service.ServiceNameService;
+import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 
 /**
  * @author peng-yongsheng
  */
 public class OverViewLayerQuery implements Query {
 
+    private final ModuleManager moduleManager;
+    private ClusterTopologyService clusterTopologyService;
+    private ApplicationService applicationService;
+    private NetworkAddressService networkAddressService;
+    private ServiceNameService serviceNameService;
+
     public OverViewLayerQuery(ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
     }
 
-    public Topology getClusterTopology(Duration duration) {
-        return null;
+    private ClusterTopologyService getClusterTopologyService() {
+        if (ObjectUtils.isEmpty(clusterTopologyService)) {
+            this.clusterTopologyService = new ClusterTopologyService(moduleManager);
+        }
+        return clusterTopologyService;
     }
 
-    public ClusterBrief getClusterBrief(Duration duration) {
-        return null;
+    private ApplicationService getApplicationService() {
+        if (ObjectUtils.isEmpty(applicationService)) {
+            this.applicationService = new ApplicationService(moduleManager);
+        }
+        return applicationService;
+    }
+
+    private NetworkAddressService getNetworkAddressService() {
+        if (ObjectUtils.isEmpty(networkAddressService)) {
+            this.networkAddressService = new NetworkAddressService(moduleManager);
+        }
+        return networkAddressService;
+    }
+
+    private ServiceNameService getServiceNameService() {
+        if (ObjectUtils.isEmpty(serviceNameService)) {
+            this.serviceNameService = new ServiceNameService(moduleManager);
+        }
+        return serviceNameService;
+    }
+
+    public Topology getClusterTopology(Duration duration) throws ParseException {
+        long start = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart());
+        long end = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd());
+
+        return getClusterTopologyService().getClusterTopology(duration.getStep(), start, end);
+    }
+
+    public ClusterBrief getClusterBrief(Duration duration) throws ParseException {
+        long start = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart());
+        long end = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd());
+
+        ClusterBrief clusterBrief = new ClusterBrief();
+        clusterBrief.setNumOfApplication(getApplicationService().getApplications(start, end).size());
+        clusterBrief.setNumOfDatabase(getNetworkAddressService().getNumOfDatabase());
+        clusterBrief.setNumOfCache(getNetworkAddressService().getNumOfCache());
+        clusterBrief.setNumOfMQ(getNetworkAddressService().getNumOfMQ());
+        clusterBrief.setNumOfService(getServiceNameService().getCount());
+        return clusterBrief;
     }
 
     public AlarmTrend getAlarmTrend(Duration duration) {
