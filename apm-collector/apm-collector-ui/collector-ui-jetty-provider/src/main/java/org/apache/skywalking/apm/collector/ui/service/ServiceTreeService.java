@@ -30,7 +30,7 @@ import org.apache.skywalking.apm.collector.core.util.ColumnNameUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.dao.IServiceReferenceUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceReferenceUIDAO;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetricTable;
 
 /**

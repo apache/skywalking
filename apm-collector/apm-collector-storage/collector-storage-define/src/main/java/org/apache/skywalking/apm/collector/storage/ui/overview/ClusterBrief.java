@@ -27,4 +27,44 @@ public class ClusterBrief {
     private int numOfDatabase;
     private int numOfCache;
     private int numOfMQ;
+
+    public int getNumOfApplication() {
+        return numOfApplication;
+    }
+
+    public void setNumOfApplication(int numOfApplication) {
+        this.numOfApplication = numOfApplication;
+    }
+
+    public int getNumOfService() {
+        return numOfService;
+    }
+
+    public void setNumOfService(int numOfService) {
+        this.numOfService = numOfService;
+    }
+
+    public int getNumOfDatabase() {
+        return numOfDatabase;
+    }
+
+    public void setNumOfDatabase(int numOfDatabase) {
+        this.numOfDatabase = numOfDatabase;
+    }
+
+    public int getNumOfCache() {
+        return numOfCache;
+    }
+
+    public void setNumOfCache(int numOfCache) {
+        this.numOfCache = numOfCache;
+    }
+
+    public int getNumOfMQ() {
+        return numOfMQ;
+    }
+
+    public void setNumOfMQ(int numOfMQ) {
+        this.numOfMQ = numOfMQ;
+    }
 }
