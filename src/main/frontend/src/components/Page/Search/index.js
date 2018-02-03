@@ -19,7 +19,7 @@ export default class Search extends PureComponent {
     if (!value || value.length < 1) {
       return;
     }
-    const { url, query } = this.props;
+    const { url, query, variables: { duration } } = this.props;
     this.lastFetchId += 1;
     const fetchId = this.lastFetchId;
     this.setState({ data: [], fetching: true });
@@ -28,6 +28,7 @@ export default class Search extends PureComponent {
       body: {
         variables: {
           keyword: value,
+          duration,
         },
         query,
       },

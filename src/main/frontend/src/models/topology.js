@@ -25,15 +25,15 @@ export default generateModal({
             numOfServerAlarm
             numOfServiceAlarm
           }
-        },
-        calls: {
+        }
+        calls {
           source
           target
           isAlert
           callType
           callsPerSec
           responseTimePerSec
-        },
+        }
       }
     }
   `,

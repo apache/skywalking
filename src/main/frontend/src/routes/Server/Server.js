@@ -64,12 +64,12 @@ export default class Server extends PureComponent {
                 placeholder="Select a server"
                 onSelect={this.handleSelect.bind(this)}
                 url="/server/search"
+                variables={{ duration: this.props.globalVariables.duration }}
                 query={`
                   query SearchServer($keyword: String!, $duration: Duration!) {
                     searchServer(keyword: $keyword, duration: $duration) {
                       key: id
                       label: name
-                      os
                       host
                       pid
                       ipv4
@@ -87,7 +87,6 @@ export default class Server extends PureComponent {
         >
           <Card title="Info" style={{ marginTop: 24 }} bordered={false}>
             <DescriptionList>
-              <Description term="OS Name">{serverInfo.os}</Description>
               <Description term="Host Name">{serverInfo.host}</Description>
               <Description term="Process Id">{serverInfo.pid}</Description>
               <Description term="IPv4">{serverInfo.ipv4}</Description>

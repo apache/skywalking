@@ -63,6 +63,7 @@ export default class Service extends PureComponent {
                 placeholder="Search a service"
                 onSelect={this.handleSelect.bind(this)}
                 url="/service/search"
+                variables={{ duration: this.props.globalVariables.duration }}
                 query={`
                   query SearchService($keyword: String!, $duration: Duration!) {
                     searchService(keyword: $keyword, duration: $duration) {

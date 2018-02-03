@@ -57,6 +57,15 @@ export default class Application extends PureComponent {
       payload: { variables: this.props.globalVariables },
     });
   }
+  componentWillUpdate(nextProps) {
+    if (nextProps.globalVariables.duration === this.props.globalVariables.duration) {
+      return;
+    }
+    this.props.dispatch({
+      type: 'application/initOptions',
+      payload: { variables: nextProps.globalVariables },
+    });
+  }
   handleSelect = (selected) => {
     this.props.dispatch({
       type: 'application/saveVariables',

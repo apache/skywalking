@@ -185,24 +185,27 @@ export function generateModal({ namespace, dataQuery, optionsQuery, state = {},
         const defaultLabels = {};
         Object.keys(allOptions).forEach((_) => {
           const thisOptions = allOptions[_];
-          if (!values[_] && thisOptions.length > 0) {
-            defaultValues[_] = thisOptions[0].key;
-            defaultLabels[_] = thisOptions[0].label;
+          if (!values[_]) {
+            if (thisOptions.length > 0) {
+              defaultValues[_] = thisOptions[0].key;
+              defaultLabels[_] = thisOptions[0].label;
+            }
+            return;
           }
           const key = values[_];
           if (!thisOptions.find(o => o.key === key)) {
             amendOptions[_] = [...thisOptions, { key, label: labels[_] }];
           }
         });
-        return {
-          ...preState,
-          variables: {
+        variables.options = {
+          ...options,
+          ...allOptions,
+          ...amendOptions,
+        };
+        let newVariables = variables;
+        if (Object.keys(defaultValues).length > 0) {
+          newVariables = {
             ...variables,
-            options: {
-              ...options,
-              ...allOptions,
-              ...amendOptions,
-            },
             values: {
               ...values,
               ...defaultValues,
@@ -211,7 +214,11 @@ export function generateModal({ namespace, dataQuery, optionsQuery, state = {},
               ...labels,
               ...defaultLabels,
             },
-          },
+          };
+        }
+        return {
+          ...preState,
+          variables: newVariables,
         };
       },
       save(preState, { payload: { variables: { values = {}, options = {}, labels = {} },

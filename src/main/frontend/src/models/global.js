@@ -3,7 +3,7 @@ import { generateDuration } from '../utils/utils';
 
 const noticeQuery = `
   query Notice($duration:Duration!){
-    applicationAlarmList: loadAlarmList(alarmType: 'APPLICATION', duration: $duration, paging: { pageNum: 1, pageSize: 5, needTotal: true }) {
+    applicationAlarmList: loadAlarmList(alarmType: APPLICATION, duration: $duration, paging: { pageNum: 1, pageSize: 5, needTotal: true }) {
       items {
         title
         startTime
@@ -11,7 +11,7 @@ const noticeQuery = `
       }
       total
     }
-    serverAlarmList: loadAlarmList(alarmType: 'SERVER', duration: $duration, paging: { pageNum: 1, pageSize: 5, needTotal: true }) {
+    serverAlarmList: loadAlarmList(alarmType: SERVER, duration: $duration, paging: { pageNum: 1, pageSize: 5, needTotal: true }) {
       items {
         title
         startTime
