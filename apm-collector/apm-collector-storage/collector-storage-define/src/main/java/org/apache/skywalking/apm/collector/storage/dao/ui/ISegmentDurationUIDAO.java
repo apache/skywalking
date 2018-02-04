@@ -18,22 +18,13 @@
 
 package org.apache.skywalking.apm.collector.storage.dao.ui;
 
-import com.google.gson.JsonObject;
-import java.util.List;
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
+import org.apache.skywalking.apm.collector.storage.ui.trace.TraceBrief;
 
 /**
  * @author peng-yongsheng
  */
-public interface ISegmentCostUIDAO extends DAO {
-    JsonObject loadTop(long startTime, long endTime, long minCost, long maxCost, String operationName,
-        Error error, int applicationId, List<String> segmentIds, int limit, int from, Sort sort);
-
-    enum Sort {
-        Cost, Time
-    }
-
-    enum Error {
-        All, True, False
-    }
+public interface ISegmentDurationUIDAO extends DAO {
+    TraceBrief loadTop(long startTime, long endTime, long minDuration, long maxDuration, String operationName,
+        int applicationId, String traceId, int limit, int from);
 }

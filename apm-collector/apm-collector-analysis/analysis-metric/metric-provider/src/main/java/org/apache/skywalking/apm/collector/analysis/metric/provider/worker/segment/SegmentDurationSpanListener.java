@@ -35,46 +35,46 @@ import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
-import org.apache.skywalking.apm.collector.storage.table.segment.SegmentCost;
+import org.apache.skywalking.apm.collector.storage.table.segment.SegmentDuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
-public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListener, LocalSpanListener, FirstSpanListener {
+public class SegmentDurationSpanListener implements EntrySpanListener, ExitSpanListener, LocalSpanListener, FirstSpanListener {
 
-    private final Logger logger = LoggerFactory.getLogger(SegmentCostSpanListener.class);
+    private final Logger logger = LoggerFactory.getLogger(SegmentDurationSpanListener.class);
 
-    private final List<SegmentCost> segmentCosts;
+    private final List<SegmentDuration> segmentDurations;
     private final ServiceNameCacheService serviceNameCacheService;
     private boolean isError = false;
     private long timeBucket;
 
-    public SegmentCostSpanListener(ModuleManager moduleManager) {
-        this.segmentCosts = new ArrayList<>();
+    SegmentDurationSpanListener(ModuleManager moduleManager) {
+        this.segmentDurations = new ArrayList<>();
         this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
     }
 
     @Override
     public void parseFirst(SpanDecorator spanDecorator, int applicationId, int instanceId,
         String segmentId) {
-        timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
+        timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(spanDecorator.getStartTime());
 
-        SegmentCost segmentCost = new SegmentCost();
-        segmentCost.setId(segmentId);
-        segmentCost.setSegmentId(segmentId);
-        segmentCost.setApplicationId(applicationId);
-        segmentCost.setCost(spanDecorator.getEndTime() - spanDecorator.getStartTime());
-        segmentCost.setStartTime(spanDecorator.getStartTime());
-        segmentCost.setEndTime(spanDecorator.getEndTime());
+        SegmentDuration segmentDuration = new SegmentDuration();
+        segmentDuration.setId(segmentId);
+        segmentDuration.setSegmentId(segmentId);
+        segmentDuration.setApplicationId(applicationId);
+        segmentDuration.setDuration(spanDecorator.getEndTime() - spanDecorator.getStartTime());
+        segmentDuration.setStartTime(spanDecorator.getStartTime());
+        segmentDuration.setEndTime(spanDecorator.getEndTime());
         if (spanDecorator.getOperationNameId() == 0) {
-            segmentCost.setServiceName(spanDecorator.getOperationName());
+            segmentDuration.setServiceName(spanDecorator.getOperationName());
         } else {
-            segmentCost.setServiceName(serviceNameCacheService.getSplitServiceName(serviceNameCacheService.get(spanDecorator.getOperationNameId())));
+            segmentDuration.setServiceName(serviceNameCacheService.getSplitServiceName(serviceNameCacheService.get(spanDecorator.getOperationNameId())));
         }
 
-        segmentCosts.add(segmentCost);
+        segmentDurations.add(segmentDuration);
         isError = isError || spanDecorator.getIsError();
     }
 
@@ -96,18 +96,18 @@ public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListe
     }
 
     @Override public void build() {
-        Graph<SegmentCost> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.SEGMENT_COST_GRAPH_ID, SegmentCost.class);
+        Graph<SegmentDuration> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.SEGMENT_DURATION_GRAPH_ID, SegmentDuration.class);
         logger.debug("segment cost listener build");
-        for (SegmentCost segmentCost : segmentCosts) {
-            segmentCost.setIsError(BooleanUtils.booleanToValue(isError));
-            segmentCost.setTimeBucket(timeBucket);
-            graph.start(segmentCost);
+        for (SegmentDuration segmentDuration : segmentDurations) {
+            segmentDuration.setIsError(BooleanUtils.booleanToValue(isError));
+            segmentDuration.setTimeBucket(timeBucket);
+            graph.start(segmentDuration);
         }
     }
 
     public static class Factory implements SpanListenerFactory {
         @Override public SpanListener create(ModuleManager moduleManager) {
-            return new SegmentCostSpanListener(moduleManager);
+            return new SegmentDurationSpanListener(moduleManager);
         }
     }
 }

@@ -15,7 +15,8 @@ type BasicTrace {
 
 # Represent the conditions used for query TraceBrief
 input TraceQueryCondition {
-  applicationCodes: [String!]
+  # The value of 0 means all application.
+  applicationId: Int
   traceId: String
   operationName: String
   # The time range of traces started

@@ -26,31 +26,32 @@ import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
 /**
  * @author peng-yongsheng
  */
-public class SegmentCost extends StreamData {
+public class SegmentDuration extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(SegmentCostTable.COLUMN_ID, new NonOperation()),
-        new Column(SegmentCostTable.COLUMN_SEGMENT_ID, new CoverOperation()),
-        new Column(SegmentCostTable.COLUMN_SERVICE_NAME, new CoverOperation()),
+        new Column(SegmentDurationTable.COLUMN_ID, new NonOperation()),
+        new Column(SegmentDurationTable.COLUMN_SEGMENT_ID, new CoverOperation()),
+        new Column(SegmentDurationTable.COLUMN_SERVICE_NAME, new CoverOperation()),
+        new Column(SegmentDurationTable.COLUMN_TRACE_ID, new CoverOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(SegmentCostTable.COLUMN_COST, new CoverOperation()),
-        new Column(SegmentCostTable.COLUMN_START_TIME, new CoverOperation()),
-        new Column(SegmentCostTable.COLUMN_END_TIME, new CoverOperation()),
-        new Column(SegmentCostTable.COLUMN_TIME_BUCKET, new CoverOperation()),
+        new Column(SegmentDurationTable.COLUMN_DURATION, new CoverOperation()),
+        new Column(SegmentDurationTable.COLUMN_START_TIME, new CoverOperation()),
+        new Column(SegmentDurationTable.COLUMN_END_TIME, new CoverOperation()),
+        new Column(SegmentDurationTable.COLUMN_TIME_BUCKET, new CoverOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {};
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(SegmentCostTable.COLUMN_APPLICATION_ID, new CoverOperation()),
-        new Column(SegmentCostTable.COLUMN_IS_ERROR, new CoverOperation()),
+        new Column(SegmentDurationTable.COLUMN_APPLICATION_ID, new CoverOperation()),
+        new Column(SegmentDurationTable.COLUMN_IS_ERROR, new CoverOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};
 
-    public SegmentCost() {
+    public SegmentDuration() {
         super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
     }
 
@@ -86,12 +87,20 @@ public class SegmentCost extends StreamData {
         setDataString(2, serviceName);
     }
 
-    public Long getCost() {
+    public String getTraceId() {
+        return getDataString(3);
+    }
+
+    public void setTraceId(String traceId) {
+        setDataString(3, traceId);
+    }
+
+    public Long getDuration() {
         return getDataLong(0);
     }
 
-    public void setCost(Long cost) {
-        setDataLong(0, cost);
+    public void setDuration(Long duration) {
+        setDataLong(0, duration);
     }
 
     public Long getStartTime() {

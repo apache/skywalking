@@ -19,10 +19,10 @@
 package org.apache.skywalking.apm.collector.storage.dao;
 
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.table.segment.SegmentCost;
+import org.apache.skywalking.apm.collector.storage.table.segment.SegmentDuration;
 
 /**
  * @author peng-yongsheng
  */
-public interface ISegmentCostPersistenceDAO<Insert, Update, DataImpl extends SegmentCost> extends IPersistenceDAO<Insert, Update, DataImpl> {
+public interface ISegmentDurationPersistenceDAO<Insert, Update, DataImpl extends SegmentDuration> extends IPersistenceDAO<Insert, Update, DataImpl> {
 }
