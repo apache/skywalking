@@ -22,23 +22,23 @@ import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGr
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.storage.table.segment.SegmentCost;
+import org.apache.skywalking.apm.collector.storage.table.segment.SegmentDuration;
 
 /**
  * @author peng-yongsheng
  */
-public class SegmentCostGraph {
+public class SegmentDurationGraph {
 
     private final ModuleManager moduleManager;
     private final WorkerCreateListener workerCreateListener;
 
-    public SegmentCostGraph(ModuleManager moduleManager, WorkerCreateListener workerCreateListener) {
+    public SegmentDurationGraph(ModuleManager moduleManager, WorkerCreateListener workerCreateListener) {
         this.moduleManager = moduleManager;
         this.workerCreateListener = workerCreateListener;
     }
 
     public void create() {
-        GraphManager.INSTANCE.createIfAbsent(MetricGraphIdDefine.SEGMENT_COST_GRAPH_ID, SegmentCost.class)
-            .addNode(new SegmentCostPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+        GraphManager.INSTANCE.createIfAbsent(MetricGraphIdDefine.SEGMENT_DURATION_GRAPH_ID, SegmentDuration.class)
+            .addNode(new SegmentDurationPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
     }
 }

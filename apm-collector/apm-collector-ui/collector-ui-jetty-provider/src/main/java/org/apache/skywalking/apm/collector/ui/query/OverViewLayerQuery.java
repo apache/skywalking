@@ -30,6 +30,7 @@ import org.apache.skywalking.apm.collector.storage.ui.overview.ConjecturalAppBri
 import org.apache.skywalking.apm.collector.storage.ui.server.AppServerInfo;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
 import org.apache.skywalking.apm.collector.ui.graphql.Query;
+import org.apache.skywalking.apm.collector.ui.service.AlarmService;
 import org.apache.skywalking.apm.collector.ui.service.ApplicationService;
 import org.apache.skywalking.apm.collector.ui.service.ClusterTopologyService;
 import org.apache.skywalking.apm.collector.ui.service.NetworkAddressService;
@@ -46,6 +47,7 @@ public class OverViewLayerQuery implements Query {
     private ApplicationService applicationService;
     private NetworkAddressService networkAddressService;
     private ServiceNameService serviceNameService;
+    private AlarmService alarmService;
 
     public OverViewLayerQuery(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
@@ -79,6 +81,13 @@ public class OverViewLayerQuery implements Query {
         return serviceNameService;
     }
 
+    private AlarmService getAlarmService() {
+        if (ObjectUtils.isEmpty(alarmService)) {
+            this.alarmService = new AlarmService(moduleManager);
+        }
+        return alarmService;
+    }
+
     public Topology getClusterTopology(Duration duration) throws ParseException {
         long start = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart());
         long end = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd());
@@ -99,8 +108,10 @@ public class OverViewLayerQuery implements Query {
         return clusterBrief;
     }
 
-    public AlarmTrend getAlarmTrend(Duration duration) {
-        return null;
+    public AlarmTrend getAlarmTrend(Duration duration) throws ParseException {
+        long start = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart());
+        long end = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd());
+        return getAlarmService().getApplicationAlarmTrend(duration.getStep(), start, end);
     }
 
     public ConjecturalAppBrief getConjecturalApps(Duration duration) {

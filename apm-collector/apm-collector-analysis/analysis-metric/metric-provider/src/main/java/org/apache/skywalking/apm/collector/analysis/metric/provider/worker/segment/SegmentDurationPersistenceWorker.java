@@ -24,20 +24,20 @@ import org.apache.skywalking.apm.collector.analysis.worker.model.impl.Persistenc
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ISegmentCostPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.table.segment.SegmentCost;
+import org.apache.skywalking.apm.collector.storage.dao.ISegmentDurationPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.table.segment.SegmentDuration;
 
 /**
  * @author peng-yongsheng
  */
-public class SegmentCostPersistenceWorker extends PersistenceWorker<SegmentCost> {
+public class SegmentDurationPersistenceWorker extends PersistenceWorker<SegmentDuration> {
 
-    public SegmentCostPersistenceWorker(ModuleManager moduleManager) {
+    SegmentDurationPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     @Override public int id() {
-        return MetricWorkerIdDefine.SEGMENT_COST_PERSISTENCE_WORKER_ID;
+        return MetricWorkerIdDefine.SEGMENT_DURATION_PERSISTENCE_WORKER_ID;
     }
 
     @Override protected boolean needMergeDBData() {
@@ -45,18 +45,18 @@ public class SegmentCostPersistenceWorker extends PersistenceWorker<SegmentCost>
     }
 
     @SuppressWarnings("unchecked")
-    @Override protected IPersistenceDAO<?, ?, SegmentCost> persistenceDAO() {
-        return getModuleManager().find(StorageModule.NAME).getService(ISegmentCostPersistenceDAO.class);
+    @Override protected IPersistenceDAO<?, ?, SegmentDuration> persistenceDAO() {
+        return getModuleManager().find(StorageModule.NAME).getService(ISegmentDurationPersistenceDAO.class);
     }
 
-    public static class Factory extends PersistenceWorkerProvider<SegmentCost, SegmentCostPersistenceWorker> {
+    public static class Factory extends PersistenceWorkerProvider<SegmentDuration, SegmentDurationPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
         }
 
-        @Override public SegmentCostPersistenceWorker workerInstance(ModuleManager moduleManager) {
-            return new SegmentCostPersistenceWorker(moduleManager);
+        @Override public SegmentDurationPersistenceWorker workerInstance(ModuleManager moduleManager) {
+            return new SegmentDurationPersistenceWorker(moduleManager);
         }
 
         @Override

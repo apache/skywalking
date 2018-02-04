@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.table.segment;
 
 import org.apache.skywalking.apm.collector.core.data.CommonTable;
@@ -24,13 +23,14 @@ import org.apache.skywalking.apm.collector.core.data.CommonTable;
 /**
  * @author peng-yongsheng
  */
-public class SegmentCostTable extends CommonTable {
-    public static final String TABLE = "segment_cost";
+public class SegmentDurationTable extends CommonTable {
+    public static final String TABLE = "segment_duration";
     public static final String COLUMN_SEGMENT_ID = "segment_id";
+    public static final String COLUMN_TRACE_ID = "trace_id";
     public static final String COLUMN_APPLICATION_ID = "application_id";
     public static final String COLUMN_START_TIME = "start_time";
     public static final String COLUMN_END_TIME = "end_time";
     public static final String COLUMN_SERVICE_NAME = "service_name";
-    public static final String COLUMN_COST = "cost";
+    public static final String COLUMN_DURATION = "duration";
     public static final String COLUMN_IS_ERROR = "is_error";
 }

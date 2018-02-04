@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.collector.core.module.Module;
 import org.apache.skywalking.apm.collector.storage.base.dao.IBatchDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IGlobalTracePersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceHeartBeatPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ISegmentCostPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ISegmentDurationPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentDayPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentHourPersistenceDAO;
@@ -113,7 +113,7 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IMemoryMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IMemoryPoolMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.INetworkAddressUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentCostUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentDurationUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceNameServiceUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceReferenceUIDAO;
@@ -197,7 +197,7 @@ public class StorageModule extends Module {
         classes.add(IInstanceMappingMonthPersistenceDAO.class);
 
         classes.add(IGlobalTracePersistenceDAO.class);
-        classes.add(ISegmentCostPersistenceDAO.class);
+        classes.add(ISegmentDurationPersistenceDAO.class);
         classes.add(ISegmentPersistenceDAO.class);
         classes.add(IInstanceHeartBeatPersistenceDAO.class);
 
@@ -247,7 +247,7 @@ public class StorageModule extends Module {
         classes.add(IApplicationComponentUIDAO.class);
         classes.add(IApplicationMappingUIDAO.class);
         classes.add(IApplicationReferenceMetricUIDAO.class);
-        classes.add(ISegmentCostUIDAO.class);
+        classes.add(ISegmentDurationUIDAO.class);
         classes.add(ISegmentUIDAO.class);
         classes.add(IServiceReferenceUIDAO.class);
     }

@@ -113,7 +113,7 @@ public class MetricWorkerIdDefine {
     public static final int APPLICATION_COMPONENT_MONTH_TRANSFORM_NODE_ID = 4908;
 
     public static final int GLOBAL_TRACE_PERSISTENCE_WORKER_ID = 427;
-    public static final int SEGMENT_COST_PERSISTENCE_WORKER_ID = 428;
+    public static final int SEGMENT_DURATION_PERSISTENCE_WORKER_ID = 428;
 
     public static final int INSTANCE_REFERENCE_GRAPH_BRIDGE_WORKER_ID = 429;
     public static final int APPLICATION_REFERENCE_GRAPH_BRIDGE_WORKER_ID = 430;

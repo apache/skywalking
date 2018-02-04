@@ -16,21 +16,29 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.ui.overview;
+package org.apache.skywalking.apm.collector.ui.service;
 
+import java.text.ParseException;
 import java.util.List;
+import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.ui.overview.AlarmTrend;
+import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
+import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 
 /**
  * @author peng-yongsheng
  */
-public class ConjecturalAppBrief {
-    private List<ConjecturalApp> apps;
+public class AlarmService {
 
-    public List<ConjecturalApp> getApps() {
-        return apps;
+    public AlarmService(ModuleManager moduleManager) {
+
     }
 
-    public void setApps(List<ConjecturalApp> apps) {
-        this.apps = apps;
+    public AlarmTrend getApplicationAlarmTrend(Step step, long start, long end) throws ParseException {
+        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
+
+        AlarmTrend alarmTrend = new AlarmTrend();
+        return alarmTrend;
     }
 }
