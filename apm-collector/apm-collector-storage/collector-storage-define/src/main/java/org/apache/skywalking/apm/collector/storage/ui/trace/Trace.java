@@ -18,11 +18,25 @@
 
 package org.apache.skywalking.apm.collector.storage.ui.trace;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
  * @author peng-yongsheng
  */
 public class Trace {
+
     private List<Span> spans;
+
+    public Trace() {
+        this.spans = new LinkedList<>();
+    }
+
+    public List<Span> getSpans() {
+        return spans;
+    }
+
+    public void setSpans(List<Span> spans) {
+        this.spans = spans;
+    }
 }

@@ -26,6 +26,7 @@ import org.apache.skywalking.apm.collector.storage.ui.trace.TraceBrief;
 import org.apache.skywalking.apm.collector.storage.ui.trace.TraceQueryCondition;
 import org.apache.skywalking.apm.collector.ui.graphql.Query;
 import org.apache.skywalking.apm.collector.ui.service.SegmentTopService;
+import org.apache.skywalking.apm.collector.ui.service.TraceStackService;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 
 /**
@@ -35,6 +36,7 @@ public class TraceQuery implements Query {
 
     private final ModuleManager moduleManager;
     private SegmentTopService segmentTopService;
+    private TraceStackService traceStackService;
 
     public TraceQuery(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
@@ -45,6 +47,13 @@ public class TraceQuery implements Query {
             this.segmentTopService = new SegmentTopService(moduleManager);
         }
         return segmentTopService;
+    }
+
+    private TraceStackService getTraceStackService() {
+        if (ObjectUtils.isEmpty(traceStackService)) {
+            this.traceStackService = new TraceStackService(moduleManager);
+        }
+        return traceStackService;
     }
 
     public TraceBrief queryBasicTraces(TraceQueryCondition condition) throws ParseException {
@@ -59,10 +68,10 @@ public class TraceQuery implements Query {
         int limit = condition.getPaging().getPageSize();
         int from = condition.getPaging().getPageSize() * condition.getPaging().getPageNum();
 
-        return segmentTopService.loadTop(start, end, minDuration, maxDuration, operationName, traceId, applicationId, limit, from);
+        return getSegmentTopService().loadTop(start, end, minDuration, maxDuration, operationName, traceId, applicationId, limit, from);
     }
 
-    public Trace queryTrace(String id) {
-        return null;
+    public Trace queryTrace(String traceId) {
+        return getTraceStackService().load(traceId);
     }
 }

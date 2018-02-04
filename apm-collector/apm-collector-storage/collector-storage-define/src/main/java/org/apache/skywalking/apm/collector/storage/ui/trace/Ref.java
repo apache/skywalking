@@ -23,7 +23,39 @@ package org.apache.skywalking.apm.collector.storage.ui.trace;
  */
 public class Ref {
     private String traceId;
-    private Integer parentSegmentId;
+    private String parentSegmentId;
     private Integer parentSpanId;
     private RefType type;
+
+    public String getTraceId() {
+        return traceId;
+    }
+
+    public void setTraceId(String traceId) {
+        this.traceId = traceId;
+    }
+
+    public String getParentSegmentId() {
+        return parentSegmentId;
+    }
+
+    public void setParentSegmentId(String parentSegmentId) {
+        this.parentSegmentId = parentSegmentId;
+    }
+
+    public Integer getParentSpanId() {
+        return parentSpanId;
+    }
+
+    public void setParentSpanId(Integer parentSpanId) {
+        this.parentSpanId = parentSpanId;
+    }
+
+    public RefType getType() {
+        return type;
+    }
+
+    public void setType(RefType type) {
+        this.type = type;
+    }
 }
