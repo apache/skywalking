@@ -47,7 +47,8 @@ public class ServiceMetricH2UIDAO extends H2DAO implements IServiceMetricUIDAO {
         super(client);
     }
 
-    @Override public List<Integer> load(int serviceId, Step step, List<DurationPoint> durationPoints) {
+    @Override
+    public List<Integer> getServiceResponseTimeTrend(int serviceId, Step step, List<DurationPoint> durationPoints) {
         String tableName = TimePyramidTableNameBuilder.build(step, ServiceMetricTable.TABLE);
 
         H2Client client = getClient();
@@ -67,6 +68,33 @@ public class ServiceMetricH2UIDAO extends H2DAO implements IServiceMetricUIDAO {
                     trends.add((int)((durationSum - errorDurationSum) / (calls - errorCalls)));
                 } else {
                     trends.add(0);
+                }
+            } catch (SQLException | H2ClientException e) {
+                logger.error(e.getMessage(), e);
+            }
+        });
+
+        return trends;
+    }
+
+    @Override public List<Integer> getServiceSLATrend(int serviceId, Step step, List<DurationPoint> durationPoints) {
+        String tableName = TimePyramidTableNameBuilder.build(step, ServiceMetricTable.TABLE);
+
+        H2Client client = getClient();
+        String dynamicSql = "select * from {0} where {1} = ?";
+        String sql = SqlBuilder.buildSql(dynamicSql, tableName, ServiceMetricTable.COLUMN_ID);
+
+        List<Integer> trends = new LinkedList<>();
+        durationPoints.forEach(durationPoint -> {
+            String id = durationPoint.getPoint() + Const.ID_SPLIT + serviceId + Const.ID_SPLIT + MetricSource.Callee.getValue();
+
+            try (ResultSet rs = client.executeQuery(sql, new String[] {id})) {
+                if (rs.next()) {
+                    long calls = rs.getLong(ServiceMetricTable.COLUMN_TRANSACTION_CALLS);
+                    long errorCalls = rs.getLong(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS);
+                    trends.add((int)(((calls - errorCalls) / calls)) * 10000);
+                } else {
+                    trends.add(10000);
                 }
             } catch (SQLException | H2ClientException e) {
                 logger.error(e.getMessage(), e);
