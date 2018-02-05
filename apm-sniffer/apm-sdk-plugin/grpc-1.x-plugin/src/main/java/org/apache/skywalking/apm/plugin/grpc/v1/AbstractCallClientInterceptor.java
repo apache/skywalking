@@ -16,20 +16,24 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.grpc.v1;
 
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
+import io.grpc.Channel;
+import io.grpc.ClientCall;
+import io.grpc.ForwardingClientCall;
+import io.grpc.MethodDescriptor;
 
-/**
- * {@link UnaryStreamToFutureConstructorInterceptor} stop the active span when the call end.
- *
- * @author zhangxin
- */
-public class UnaryStreamToFutureConstructorInterceptor implements InstanceConstructorInterceptor {
+import static org.apache.skywalking.apm.plugin.grpc.v1.OperationNameFormatUtil.formatOperationName;
 
-    @Override public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+public abstract class AbstractCallClientInterceptor extends ForwardingClientCall.SimpleForwardingClientCall {
 
+    protected final String serviceName;
+    protected final String remotePeer;
+
+    protected AbstractCallClientInterceptor(ClientCall delegate, MethodDescriptor method, Channel channel) {
+        super(delegate);
+        this.serviceName = formatOperationName(method);
+        this.remotePeer = channel.authority();
     }
+
 }
