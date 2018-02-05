@@ -18,13 +18,18 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao.ui;
 
+import java.util.LinkedList;
+import java.util.List;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceNameServiceUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceNameTable;
+import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
 
 /**
  * @author peng-yongsheng
@@ -43,5 +48,26 @@ public class ServiceNameServiceEsUIDAO extends EsDAO implements IServiceNameServ
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
         return (int)searchResponse.getHits().getTotalHits();
+    }
+
+    @Override public List<ServiceInfo> searchService(String keyword, int topN) {
+        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(ServiceNameTable.TABLE);
+        searchRequestBuilder.setTypes(ServiceNameTable.TABLE_TYPE);
+        searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
+        searchRequestBuilder.setSize(topN);
+
+        searchRequestBuilder.setQuery(QueryBuilders.matchQuery(ServiceNameTable.COLUMN_SERVICE_NAME, keyword));
+
+        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
+        SearchHit[] searchHits = searchResponse.getHits().getHits();
+
+        List<ServiceInfo> serviceInfos = new LinkedList<>();
+        for (SearchHit searchHit : searchHits) {
+            ServiceInfo serviceInfo = new ServiceInfo();
+            serviceInfo.setId(((Number)searchHit.getSource().get(ServiceNameTable.COLUMN_SERVICE_ID)).intValue());
+            serviceInfo.setName((String)searchHit.getSource().get(ServiceNameTable.COLUMN_SERVICE_NAME));
+            serviceInfos.add(serviceInfo);
+        }
+        return serviceInfos;
     }
 }

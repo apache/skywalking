@@ -18,9 +18,11 @@
 
 package org.apache.skywalking.apm.collector.ui.service;
 
+import java.util.List;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceNameServiceUIDAO;
+import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
 
 /**
  * @author peng-yongsheng
@@ -35,5 +37,9 @@ public class ServiceNameService {
 
     public int getCount() {
         return serviceNameServiceUIDAO.getCount();
+    }
+
+    public List<ServiceInfo> searchService(String keyword, int topN) {
+        return serviceNameServiceUIDAO.searchService(keyword, topN);
     }
 }

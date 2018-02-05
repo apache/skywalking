@@ -18,11 +18,15 @@
 
 package org.apache.skywalking.apm.collector.storage.dao.ui;
 
+import java.util.List;
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
+import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
 
 /**
  * @author peng-yongsheng
  */
 public interface IServiceNameServiceUIDAO extends DAO {
     int getCount();
+
+    List<ServiceInfo> searchService(String keyword, int topN);
 }
