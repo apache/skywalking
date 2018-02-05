@@ -20,6 +20,11 @@ package org.apache.skywalking.apm.plugin.grpc.v1;
 
 import io.grpc.MethodDescriptor;
 
+/**
+ * Operation Name utility
+ *
+ * @author zhangxin
+ */
 public class OperationNameFormatUtil {
 
     public static String formatOperationName(MethodDescriptor methodDescriptor) {

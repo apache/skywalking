@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.plugin.grpc.v1;
 
 import io.grpc.Channel;
 import io.grpc.ClientCall;
+import io.grpc.ForwardingClientCall;
 import io.grpc.ForwardingClientCallListener;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
@@ -32,10 +33,20 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-public class BlockingCallClientInterceptor extends AbstractCallClientInterceptor {
+import static org.apache.skywalking.apm.plugin.grpc.v1.OperationNameFormatUtil.formatOperationName;
+
+/**
+ * @author zhang xin
+ */
+public class BlockingCallClientInterceptor extends ForwardingClientCall.SimpleForwardingClientCall {
+
+    private final String serviceName;
+    private final String remotePeer;
 
     public BlockingCallClientInterceptor(ClientCall delegate, MethodDescriptor method, Channel channel) {
-        super(delegate, method, channel);
+        super(delegate);
+        this.serviceName = formatOperationName(method);
+        this.remotePeer = channel.authority();
     }
 
     @Override public void start(Listener responseListener, Metadata headers) {

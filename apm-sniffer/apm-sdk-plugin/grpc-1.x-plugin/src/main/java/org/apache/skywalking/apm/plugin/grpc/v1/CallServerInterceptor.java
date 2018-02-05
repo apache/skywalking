@@ -36,6 +36,9 @@ import org.apache.skywalking.apm.util.StringUtil;
 
 import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.STREAM_ON_NEXT_OPERATION_NAME;
 
+/**
+ * @author zhang xin
+ */
 public class CallServerInterceptor implements ServerInterceptor {
     @Override
     public ServerCall.Listener interceptCall(ServerCall call, Metadata headers, ServerCallHandler handler) {

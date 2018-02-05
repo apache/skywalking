@@ -18,6 +18,11 @@
 
 package org.apache.skywalking.apm.plugin.grpc.v1;
 
+/**
+ * Constant variables
+ *
+ * @author zhang xin
+ */
 public class Constants {
     public static final String STREAM_ON_READY_OPERATION_NAME = "RequestStreamObserver/onReady";
 

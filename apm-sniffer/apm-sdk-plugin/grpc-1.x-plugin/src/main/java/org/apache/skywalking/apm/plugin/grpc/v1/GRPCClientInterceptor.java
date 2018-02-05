@@ -24,9 +24,17 @@ import io.grpc.ClientCall;
 import io.grpc.ClientInterceptor;
 import io.grpc.MethodDescriptor;
 
+/**
+ * {@link GRPCClientInterceptor} determines the returned Interceptor based on the method type. If the method type is
+ * UNARY, {@link GRPCClientInterceptor} returns BlockingCallClientInterceptor, or it returns
+ * StreamCallClientInterceptor.
+ *
+ * @author zhang xin
+ */
 public class GRPCClientInterceptor implements ClientInterceptor {
 
-    @Override public ClientCall interceptCall(MethodDescriptor method,
+    @Override
+    public ClientCall interceptCall(MethodDescriptor method,
         CallOptions callOptions, Channel channel) {
         if (method.getType() != MethodDescriptor.MethodType.UNARY) {
             return new StreamCallClientInterceptor(channel.newCall(method, callOptions), method, channel);
