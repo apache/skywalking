@@ -25,6 +25,7 @@ import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceNameServiceUIDAO;
 import org.apache.skywalking.apm.collector.storage.ui.common.ResponseTimeTrend;
+import org.apache.skywalking.apm.collector.storage.ui.common.SLATrend;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
 import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
@@ -55,7 +56,14 @@ public class ServiceNameService {
         long end) throws ParseException {
         ResponseTimeTrend responseTimeTrend = new ResponseTimeTrend();
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
-        responseTimeTrend.setTrendList(serviceMetricUIDAO.load(serviceId, step, durationPoints));
+        responseTimeTrend.setTrendList(serviceMetricUIDAO.getServiceResponseTimeTrend(serviceId, step, durationPoints));
         return responseTimeTrend;
+    }
+
+    public SLATrend getServiceSLATrend(int serviceId, Step step, long start, long end) throws ParseException {
+        SLATrend slaTrend = new SLATrend();
+        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
+        slaTrend.setTrendList(serviceMetricUIDAO.getServiceSLATrend(serviceId, step, durationPoints));
+        return slaTrend;
     }
 }

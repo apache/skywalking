@@ -65,8 +65,10 @@ public class ServiceQuery implements Query {
         return null;
     }
 
-    public SLATrend getServiceSLATrend(int serviceId, Duration duration) {
-        return null;
+    public SLATrend getServiceSLATrend(int serviceId, Duration duration) throws ParseException {
+        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        return getServiceNameService().getServiceSLATrend(serviceId, duration.getStep(), start, end);
     }
 
     public Topology getServiceTopology(int serviceId, Duration duration) {
