@@ -30,6 +30,7 @@ import org.apache.skywalking.apm.collector.storage.ui.common.Topology;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
 import org.apache.skywalking.apm.collector.ui.graphql.Query;
 import org.apache.skywalking.apm.collector.ui.service.ServiceNameService;
+import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 
 /**
  * @author peng-yongsheng
@@ -54,8 +55,10 @@ public class ServiceQuery implements Query {
         return getServiceNameService().searchService(keyword, topN);
     }
 
-    public ResponseTimeTrend getServiceResponseTimeTrend(int serviceId, Duration duration) {
-        return null;
+    public ResponseTimeTrend getServiceResponseTimeTrend(int serviceId, Duration duration) throws ParseException {
+        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        return getServiceNameService().getServiceResponseTimeTrend(serviceId, duration.getStep(), start, end);
     }
 
     public ThroughputTrend getServiceTPSTrend(int serviceId, Duration duration) {

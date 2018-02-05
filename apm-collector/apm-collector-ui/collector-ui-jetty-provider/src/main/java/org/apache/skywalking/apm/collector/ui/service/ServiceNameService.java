@@ -18,11 +18,17 @@
 
 package org.apache.skywalking.apm.collector.ui.service;
 
+import java.text.ParseException;
 import java.util.List;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceNameServiceUIDAO;
+import org.apache.skywalking.apm.collector.storage.ui.common.ResponseTimeTrend;
+import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
+import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
+import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 
 /**
  * @author peng-yongsheng
@@ -30,9 +36,11 @@ import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
 public class ServiceNameService {
 
     private final IServiceNameServiceUIDAO serviceNameServiceUIDAO;
+    private final IServiceMetricUIDAO serviceMetricUIDAO;
 
     public ServiceNameService(ModuleManager moduleManager) {
         this.serviceNameServiceUIDAO = moduleManager.find(StorageModule.NAME).getService(IServiceNameServiceUIDAO.class);
+        this.serviceMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IServiceMetricUIDAO.class);
     }
 
     public int getCount() {
@@ -41,5 +49,13 @@ public class ServiceNameService {
 
     public List<ServiceInfo> searchService(String keyword, int topN) {
         return serviceNameServiceUIDAO.searchService(keyword, topN);
+    }
+
+    public ResponseTimeTrend getServiceResponseTimeTrend(int serviceId, Step step, long start,
+        long end) throws ParseException {
+        ResponseTimeTrend responseTimeTrend = new ResponseTimeTrend();
+        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
+        responseTimeTrend.setTrendList(serviceMetricUIDAO.load(serviceId, step, durationPoints));
+        return responseTimeTrend;
     }
 }

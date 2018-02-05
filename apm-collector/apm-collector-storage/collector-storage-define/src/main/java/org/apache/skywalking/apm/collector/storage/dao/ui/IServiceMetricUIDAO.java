@@ -16,27 +16,16 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.es;
+package org.apache.skywalking.apm.collector.storage.dao.ui;
 
-import org.apache.skywalking.apm.collector.cluster.ClusterModuleListener;
-import org.apache.skywalking.apm.collector.storage.StorageModule;
+import java.util.List;
+import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
+import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 
 /**
  * @author peng-yongsheng
  */
-public class StorageModuleEsNamingListener extends ClusterModuleListener {
-
-    private static final String PATH = "/" + StorageModule.NAME + "/" + StorageModuleEsProvider.NAME;
-
-    @Override public String path() {
-        return PATH;
-    }
-
-    @Override public void serverJoinNotify(String serverAddress) {
-
-    }
-
-    @Override public void serverQuitNotify(String serverAddress) {
-
-    }
+public interface IServiceMetricUIDAO extends DAO {
+    List<Integer> load(int serviceId, Step step, List<DurationPoint> durationPoints);
 }
