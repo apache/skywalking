@@ -18,21 +18,40 @@
 
 package org.apache.skywalking.apm.collector.ui.query;
 
+import java.text.ParseException;
 import java.util.List;
-import org.apache.skywalking.apm.collector.ui.graphql.Query;
+import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.ui.common.Duration;
 import org.apache.skywalking.apm.collector.storage.ui.common.ResponseTimeTrend;
 import org.apache.skywalking.apm.collector.storage.ui.common.SLATrend;
 import org.apache.skywalking.apm.collector.storage.ui.common.ThroughputTrend;
 import org.apache.skywalking.apm.collector.storage.ui.common.Topology;
-import org.apache.skywalking.apm.collector.storage.ui.service.ServiceNode;
+import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
+import org.apache.skywalking.apm.collector.ui.graphql.Query;
+import org.apache.skywalking.apm.collector.ui.service.ServiceNameService;
 
 /**
  * @author peng-yongsheng
  */
 public class ServiceQuery implements Query {
-    public List<ServiceNode> searchService(String keyword, Duration duration, Integer topN) {
-        return null;
+
+    private final ModuleManager moduleManager;
+    private ServiceNameService serviceNameService;
+
+    public ServiceQuery(ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
+    }
+
+    private ServiceNameService getServiceNameService() {
+        if (ObjectUtils.isEmpty(serviceNameService)) {
+            this.serviceNameService = new ServiceNameService(moduleManager);
+        }
+        return serviceNameService;
+    }
+
+    public List<ServiceInfo> searchService(String keyword, int topN) throws ParseException {
+        return getServiceNameService().searchService(keyword, topN);
     }
 
     public ResponseTimeTrend getServiceResponseTimeTrend(int serviceId, Duration duration) {
