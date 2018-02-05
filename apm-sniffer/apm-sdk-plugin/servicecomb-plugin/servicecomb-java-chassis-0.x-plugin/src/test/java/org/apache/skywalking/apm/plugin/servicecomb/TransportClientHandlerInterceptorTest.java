@@ -49,7 +49,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
-import static org.apache.skywalking.apm.plugin.servicecomb.NextInterceptor.DEEP;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.times;
@@ -58,30 +57,25 @@ import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
-public class NextInterceptorTest {
-
-    @SegmentStoragePoint
-    private SegmentStorage segmentStorage;
+public class TransportClientHandlerInterceptorTest {
 
     @Rule
     public AgentServiceRule agentServiceRule = new AgentServiceRule();
-
-    private NextInterceptor nextInterceptor;
-    @Mock
-    private OperationMeta operationMeta;
-
-    @Mock
-    private MockInvocation enhancedInstance;
-
-    @Mock
-    private Endpoint endpoint;
-
     @Mock
     Response.StatusType statusType;
-
     @Mock
     ReferenceConfig referenceConfig;
-
+    @SegmentStoragePoint
+    private SegmentStorage segmentStorage;
+    private TransportClientHandlerInterceptor nextInterceptor;
+    @Mock
+    private OperationMeta operationMeta;
+    @Mock
+    private EnhancedInstance enhancedInstance;
+    @Mock
+    private Invocation invocation;
+    @Mock
+    private Endpoint endpoint;
     @Mock
     private SwaggerInvocation swagger;
     private Object[] allArguments;
@@ -94,39 +88,33 @@ public class NextInterceptorTest {
     @Before
     public void setUp() throws Exception {
         ServiceManager.INSTANCE.boot();
-        nextInterceptor = new NextInterceptor();
+        nextInterceptor = new TransportClientHandlerInterceptor();
         PowerMockito.mock(Invocation.class);
         when(operationMeta.getSchemaMeta()).thenReturn(schemaMeta);
         when(endpoint.getAddress()).thenReturn("0.0.0.0:7777");
-        when(enhancedInstance.getEndpoint()).thenReturn(endpoint);
-        when(enhancedInstance.getMicroserviceQualifiedName()).thenReturn("consumerTest");
+        when(invocation.getEndpoint()).thenReturn(endpoint);
+        when(invocation.getMicroserviceQualifiedName()).thenReturn("consumerTest");
         when(operationMeta.getOperationPath()).thenReturn("/bmi");
-        when(enhancedInstance.getOperationMeta()).thenReturn(operationMeta);
-        when(enhancedInstance.getStatus()).thenReturn(statusType);
+        when(invocation.getOperationMeta()).thenReturn(operationMeta);
+        when(invocation.getStatus()).thenReturn(statusType);
         when(statusType.getStatusCode()).thenReturn(200);
-        when(enhancedInstance.getInvocationType()).thenReturn(InvocationType.CONSUMER);
+        when(invocation.getInvocationType()).thenReturn(InvocationType.CONSUMER);
         Config.Agent.APPLICATION_CODE = "serviceComnTestCases-APP";
 
-        allArguments = new Object[] {};
+        allArguments = new Object[] {invocation,};
         argumentsType = new Class[] {};
         swaggerArguments = new Class[] {};
     }
 
     @Test
     public void testConsumer() throws Throwable {
-        Integer count = 2;
-        DEEP.set(count);
         nextInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentsType, null);
-        count = 1;
-        DEEP.set(count);
         nextInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentsType, null);
-
         Assert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
-
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
         assertCombSpan(spans.get(0));
-        verify(enhancedInstance, times(1)).getContext();
+        verify(invocation, times(1)).getContext();
     }
 
     private void assertCombSpan(AbstractTracingSpan span) {
@@ -137,18 +125,4 @@ public class NextInterceptorTest {
         assertThat(span.isExit(), is(true));
     }
 
-    private class MockInvocation extends Invocation implements EnhancedInstance {
-        public MockInvocation(ReferenceConfig referenceConfig, OperationMeta operationMeta, Object[] swaggerArguments) {
-            super(referenceConfig, operationMeta, swaggerArguments);
-        }
-
-        @Override public Object getSkyWalkingDynamicField() {
-            return null;
-        }
-
-        @Override public void setSkyWalkingDynamicField(Object value) {
-
-        }
-
-    }
 }

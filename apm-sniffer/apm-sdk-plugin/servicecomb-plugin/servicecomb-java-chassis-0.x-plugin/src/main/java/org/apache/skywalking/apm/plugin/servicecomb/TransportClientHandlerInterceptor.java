@@ -19,11 +19,8 @@
 package org.apache.skywalking.apm.plugin.servicecomb;
 
 import io.servicecomb.core.Invocation;
-import io.servicecomb.swagger.invocation.InvocationType;
-import io.servicecomb.swagger.invocation.SwaggerInvocation;
-import io.servicecomb.swagger.invocation.context.InvocationContext;
 import java.lang.reflect.Method;
-import javax.ws.rs.core.Response.StatusType;
+import java.net.URI;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -36,52 +33,42 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * {@link InvocationInterceptor} define how to enhance class {@link Invocation#getHandlerContext()}.
+ * {@link TransportClientHandlerInterceptor} define how to enhance class {@link Invocation#next(io.servicecomb.swagger.invocation.AsyncResponse)}.
  *
  * @author lytscu
  */
-public class InvocationInterceptor implements InstanceMethodsAroundInterceptor {
+public class TransportClientHandlerInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        SwaggerInvocation swagger = (SwaggerInvocation)objInst;
-        InvocationType type = swagger.getInvocationType();
-        Invocation invocation = (Invocation)objInst;
-        AbstractSpan span;
-        boolean isConsumer = type.equals(InvocationType.CONSUMER);
-        if (!isConsumer) {
-
-            ContextCarrier contextCarrier = new ContextCarrier();
-            CarrierItem next = contextCarrier.items();
-            while (next.hasNext()) {
-                next = next.next();
-                next.setHeadValue(invocation.getContext().get(next.getHeadKey()));
-            }
-            String operationName = invocation.getMicroserviceQualifiedName();
-            span = ContextManager.createEntrySpan(operationName, contextCarrier);
-            String url = invocation.getOperationMeta().getOperationPath();
-            Tags.URL.set(span, url);
-            span.setComponent(ComponentsDefine.SERVICECOMB);
-            SpanLayer.asRPCFramework(span);
+        Invocation invocation = (Invocation)allArguments[0];
+        URI uri = new URI(invocation.getEndpoint().toString());
+        String peer = uri.getHost() + ":" + uri.getPort();
+        final ContextCarrier contextCarrier = new ContextCarrier();
+        AbstractSpan span = ContextManager.createExitSpan(invocation.getMicroserviceQualifiedName(), contextCarrier, peer);
+        CarrierItem next = contextCarrier.items();
+        while (next.hasNext()) {
+            next = next.next();
+            invocation.getContext().put(next.getHeadKey(), next.getHeadValue());
         }
+        String url = invocation.getOperationMeta().getOperationPath();
+        Tags.URL.set(span, url);
+        span.setComponent(ComponentsDefine.SERVICECOMB);
+        SpanLayer.asRPCFramework(span);
     }
 
     @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        SwaggerInvocation swagger = (SwaggerInvocation)objInst;
-        InvocationType type = swagger.getInvocationType();
-        boolean isConsumer = type.equals(InvocationType.CONSUMER);
-        if (!isConsumer) {
-            AbstractSpan span = ContextManager.activeSpan();
-            StatusType statusType = ((InvocationContext)objInst).getStatus();
-            int statusCode = statusType.getStatusCode();
-            if (statusCode >= 400) {
-                span.errorOccurred();
-                Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
-            }
-            ContextManager.stopSpan();
+        Invocation invocation = (Invocation)allArguments[0];
+        AbstractSpan span = ContextManager.activeSpan();
+        int statusCode = invocation.getStatus().getStatusCode();
+        if (statusCode >= 400) {
+            span.errorOccurred();
+            Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
         }
+        ContextManager.stopSpan();
+
         return ret;
     }
 
