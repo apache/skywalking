@@ -16,26 +16,26 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.grpc.v1;
 
 import io.grpc.MethodDescriptor;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
-import org.apache.skywalking.apm.plugin.grpc.v1.vo.GRPCDynamicFields;
 
-/**
- * {@link ClientCallIConstructorInterceptor} pass the {@link GRPCDynamicFields} into the
- * <code>io.grpc.internal.ClientCallImpl</code> instance for propagate the information of build span.
- *
- * @author zhangxin
- */
-public class ClientCallIConstructorInterceptor implements InstanceConstructorInterceptor {
+public class OperationNameFormatUtil {
 
-    @Override
-    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        GRPCDynamicFields dynamicFields = new GRPCDynamicFields();
-        dynamicFields.setDescriptor((MethodDescriptor)allArguments[0]);
-        objInst.setSkyWalkingDynamicField(dynamicFields);
+    public static String formatOperationName(MethodDescriptor methodDescriptor) {
+        String fullMethodName = methodDescriptor.getFullMethodName();
+        return formatServiceName(fullMethodName) + "." + formatMethodName(fullMethodName);
+    }
+
+    private static String formatServiceName(String requestMethodName) {
+        int splitIndex = requestMethodName.lastIndexOf("/");
+        return requestMethodName.substring(0, splitIndex);
+    }
+
+    private static String formatMethodName(String requestMethodName) {
+        int splitIndex = requestMethodName.lastIndexOf("/");
+        String methodName = requestMethodName.substring(splitIndex + 1);
+        methodName = methodName.substring(0, 1).toLowerCase() + methodName.substring(1);
+        return methodName;
     }
 }
