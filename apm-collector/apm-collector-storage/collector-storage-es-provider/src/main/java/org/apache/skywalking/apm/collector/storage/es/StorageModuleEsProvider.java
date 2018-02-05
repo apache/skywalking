@@ -124,6 +124,7 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.IMemoryPoolMetricUIDAO
 import org.apache.skywalking.apm.collector.storage.dao.ui.INetworkAddressUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentDurationUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceNameServiceUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceReferenceUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.BatchEsDAO;
@@ -221,6 +222,7 @@ import org.apache.skywalking.apm.collector.storage.es.dao.ui.MemoryPoolMetricEsU
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.NetworkAddressEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.SegmentDurationEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.SegmentEsUIDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.ui.ServiceMetricEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.ServiceNameServiceEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.ServiceReferenceEsUIDAO;
 import org.slf4j.Logger;
@@ -233,7 +235,7 @@ public class StorageModuleEsProvider extends ModuleProvider {
 
     private final Logger logger = LoggerFactory.getLogger(StorageModuleEsProvider.class);
 
-    public static final String NAME = "elasticsearch";
+    static final String NAME = "elasticsearch";
     private static final String CLUSTER_NAME = "cluster_name";
     private static final String CLUSTER_TRANSPORT_SNIFFER = "cluster_transport_sniffer";
     private static final String CLUSTER_NODES = "cluster_nodes";
@@ -394,6 +396,7 @@ public class StorageModuleEsProvider extends ModuleProvider {
         this.registerServiceImplementation(IInstanceUIDAO.class, new InstanceEsUIDAO(elasticSearchClient));
         this.registerServiceImplementation(INetworkAddressUIDAO.class, new NetworkAddressEsUIDAO(elasticSearchClient));
         this.registerServiceImplementation(IServiceNameServiceUIDAO.class, new ServiceNameServiceEsUIDAO(elasticSearchClient));
+        this.registerServiceImplementation(IServiceMetricUIDAO.class, new ServiceMetricEsUIDAO(elasticSearchClient));
 
         this.registerServiceImplementation(ICpuMetricUIDAO.class, new CpuMetricEsUIDAO(elasticSearchClient));
         this.registerServiceImplementation(IGCMetricUIDAO.class, new GCMetricEsUIDAO(elasticSearchClient));

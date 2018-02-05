@@ -120,6 +120,7 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.IMemoryPoolMetricUIDAO
 import org.apache.skywalking.apm.collector.storage.dao.ui.INetworkAddressUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentDurationUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceNameServiceUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceReferenceUIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.BatchH2DAO;
@@ -217,6 +218,7 @@ import org.apache.skywalking.apm.collector.storage.h2.dao.ui.MemoryPoolMetricH2U
 import org.apache.skywalking.apm.collector.storage.h2.dao.ui.NetworkAddressH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ui.SegmentDurationH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ui.SegmentH2UIDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.ui.ServiceMetricH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ui.ServiceNameServiceH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ui.ServiceReferenceH2UIDAO;
 import org.slf4j.Logger;
@@ -370,6 +372,7 @@ public class StorageModuleH2Provider extends ModuleProvider {
         this.registerServiceImplementation(IInstanceUIDAO.class, new InstanceH2UIDAO(h2Client));
         this.registerServiceImplementation(INetworkAddressUIDAO.class, new NetworkAddressH2UIDAO(h2Client));
         this.registerServiceImplementation(IServiceNameServiceUIDAO.class, new ServiceNameServiceH2UIDAO(h2Client));
+        this.registerServiceImplementation(IServiceMetricUIDAO.class, new ServiceMetricH2UIDAO(h2Client));
 
         this.registerServiceImplementation(ICpuMetricUIDAO.class, new CpuMetricH2UIDAO(h2Client));
         this.registerServiceImplementation(IGCMetricUIDAO.class, new GCMetricH2UIDAO(h2Client));
