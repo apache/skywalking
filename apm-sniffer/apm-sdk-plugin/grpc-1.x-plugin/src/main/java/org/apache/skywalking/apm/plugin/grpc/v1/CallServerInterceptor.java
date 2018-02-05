@@ -60,7 +60,7 @@ public class CallServerInterceptor implements ServerInterceptor {
             }
         }
 
-        final AbstractSpan span = ContextManager.createEntrySpan(call.getMethodDescriptor().getFullMethodName(), contextCarrier);
+        final AbstractSpan span = ContextManager.createEntrySpan(OperationNameFormatUtil.formatOperationName(call.getMethodDescriptor()), contextCarrier);
         span.setComponent(ComponentsDefine.GRPC);
 
         return new ServerCallListener(handler.startCall(new ForwardingServerCall.SimpleForwardingServerCall(call) {
