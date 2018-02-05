@@ -29,11 +29,19 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * {@link AbstractServerImplBuilderInstrumentation} present that the GRPC plugin intercept the method
+ * <code>addService</code> in the {@link io.grpc.internal.AbstractServerImplBuilder} class by using the {@link
+ * org.apache.skywalking.apm.plugin.grpc.v1.AbstractServerImplBuilderInterceptor} class.
+ *
+ * @author zhang xin
+ */
 public class AbstractServerImplBuilderInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     public static final String ENHANCE_CLASS = "io.grpc.internal.AbstractServerImplBuilder";
     public static final String ENHANCE_METHOD = "addService";
     public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.AbstractServerImplBuilderInterceptor";
+    public static final String ARGUMENT_TYPE = "io.grpc.ServerServiceDefinition";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -43,7 +51,7 @@ public class AbstractServerImplBuilderInstrumentation extends ClassInstanceMetho
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD).and(takesArgumentWithType(0, "io.grpc.ServerServiceDefinition"));
+                    return named(ENHANCE_METHOD).and(takesArgumentWithType(0, ARGUMENT_TYPE));
                 }
 
                 @Override public String getMethodsInterceptor() {

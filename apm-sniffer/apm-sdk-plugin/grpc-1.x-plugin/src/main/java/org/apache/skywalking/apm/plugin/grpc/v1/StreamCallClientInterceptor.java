@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.plugin.grpc.v1;
 
 import io.grpc.Channel;
 import io.grpc.ClientCall;
+import io.grpc.ForwardingClientCall;
 import io.grpc.ForwardingClientCallListener;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
@@ -35,11 +36,20 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.STREAM_ON_NEXT_OPERATION_NAME;
 import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.STREAM_ON_READY_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.OperationNameFormatUtil.formatOperationName;
 
-public class StreamCallClientInterceptor extends AbstractCallClientInterceptor {
+/**
+ * @author zhangxin
+ */
+public class StreamCallClientInterceptor extends ForwardingClientCall.SimpleForwardingClientCall {
+
+    private final String serviceName;
+    private final String remotePeer;
 
     protected StreamCallClientInterceptor(ClientCall delegate, MethodDescriptor method, Channel channel) {
-        super(delegate, method, channel);
+        super(delegate);
+        this.serviceName = formatOperationName(method);
+        this.remotePeer = channel.authority();
     }
 
     @Override
