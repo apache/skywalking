@@ -42,6 +42,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>io.servicecomb</groupId>
+            <artifactId>common-rest</artifactId>
+            <version>0.5.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-core</artifactId>
             <version>1.5.17</version>

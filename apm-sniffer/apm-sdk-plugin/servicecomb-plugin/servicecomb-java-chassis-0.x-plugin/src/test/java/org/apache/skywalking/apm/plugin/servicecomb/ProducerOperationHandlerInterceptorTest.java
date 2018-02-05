@@ -22,7 +22,6 @@ import io.servicecomb.core.Endpoint;
 import io.servicecomb.core.Invocation;
 import io.servicecomb.core.definition.OperationMeta;
 import io.servicecomb.core.definition.SchemaMeta;
-import io.servicecomb.core.provider.consumer.ReferenceConfig;
 import io.servicecomb.swagger.invocation.InvocationType;
 import io.servicecomb.swagger.invocation.SwaggerInvocation;
 import java.util.List;
@@ -57,30 +56,23 @@ import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
-public class InvocationInterceptorTest {
-
-    @SegmentStoragePoint
-    private SegmentStorage segmentStorage;
+public class ProducerOperationHandlerInterceptorTest {
 
     @Rule
     public AgentServiceRule agentServiceRule = new AgentServiceRule();
-
-    private InvocationInterceptor invocationInterceptor;
-    @Mock
-    private OperationMeta operationMeta;
-
-    @Mock
-    private MockInvocation enhancedInstance;
-
-    @Mock
-    private Endpoint endpoint;
-
     @Mock
     Response.StatusType statusType;
-
+    @SegmentStoragePoint
+    private SegmentStorage segmentStorage;
+    private ProducerOperationHandlerInterceptor invocationInterceptor;
     @Mock
-    ReferenceConfig referenceConfig;
-
+    private OperationMeta operationMeta;
+    @Mock
+    private EnhancedInstance enhancedInstance;
+    @Mock
+    private Invocation invocation;
+    @Mock
+    private Endpoint endpoint;
     @Mock
     private SwaggerInvocation swagger;
     private Object[] allArguments;
@@ -93,20 +85,20 @@ public class InvocationInterceptorTest {
     @Before
     public void setUp() throws Exception {
         ServiceManager.INSTANCE.boot();
-        invocationInterceptor = new InvocationInterceptor();
+        invocationInterceptor = new ProducerOperationHandlerInterceptor();
         PowerMockito.mock(Invocation.class);
         when(operationMeta.getSchemaMeta()).thenReturn(schemaMeta);
         when(endpoint.getAddress()).thenReturn("0.0.0.0:7777");
-        when(enhancedInstance.getEndpoint()).thenReturn(endpoint);
-        when(enhancedInstance.getMicroserviceQualifiedName()).thenReturn("productorTest");
+        when(invocation.getEndpoint()).thenReturn(endpoint);
+        when(invocation.getMicroserviceQualifiedName()).thenReturn("productorTest");
         when(operationMeta.getOperationPath()).thenReturn("/bmi");
-        when(enhancedInstance.getOperationMeta()).thenReturn(operationMeta);
-        when(enhancedInstance.getStatus()).thenReturn(statusType);
+        when(invocation.getOperationMeta()).thenReturn(operationMeta);
+        when(invocation.getStatus()).thenReturn(statusType);
         when(statusType.getStatusCode()).thenReturn(200);
-        when(enhancedInstance.getInvocationType()).thenReturn(InvocationType.PRODUCER);
+        when(invocation.getInvocationType()).thenReturn(InvocationType.PRODUCER);
         Config.Agent.APPLICATION_CODE = "serviceComnTestCases-APP";
 
-        allArguments = new Object[] {};
+        allArguments = new Object[] {invocation,};
         argumentsType = new Class[] {};
         swaggerArguments = new Class[] {};
     }
@@ -122,7 +114,7 @@ public class InvocationInterceptorTest {
 
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
         assertCombSpan(spans.get(0));
-        verify(enhancedInstance, times(1)).getContext();
+        verify(invocation, times(1)).getContext();
     }
 
     private void assertCombSpan(AbstractTracingSpan span) {
@@ -133,18 +125,4 @@ public class InvocationInterceptorTest {
         assertThat(span.isEntry(), is(true));
     }
 
-    private class MockInvocation extends Invocation implements EnhancedInstance {
-        public MockInvocation(ReferenceConfig referenceConfig, OperationMeta operationMeta, Object[] swaggerArguments) {
-            super(referenceConfig, operationMeta, swaggerArguments);
-        }
-
-        @Override public Object getSkyWalkingDynamicField() {
-            return null;
-        }
-
-        @Override public void setSkyWalkingDynamicField(Object value) {
-
-        }
-
-    }
 }

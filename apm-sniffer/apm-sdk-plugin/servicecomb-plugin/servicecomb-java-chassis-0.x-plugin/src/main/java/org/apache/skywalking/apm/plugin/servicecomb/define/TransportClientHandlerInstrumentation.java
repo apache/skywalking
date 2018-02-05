@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.servicecomb.define;
 
-import io.servicecomb.core.Invocation;
+import io.servicecomb.core.handler.impl.TransportClientHandler;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
@@ -26,23 +26,20 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
-import org.apache.skywalking.apm.plugin.servicecomb.InvocationInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link InvocationInstrumentation} presents that skywalking intercept {@link io.servicecomb.core.Invocation#getHandlerContext}by
- * using {@link InvocationInterceptor}, and {@link Invocation#next by using {@link NextInterceptor},
+ * {@link TransportClientHandlerInstrumentation} presents that skywalking intercept {@link TransportClientHandler}by
+ * using {@linkTransportClientHandlerInterceptor }
  *
  * @author lytscu
  */
-public class InvocationInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class TransportClientHandlerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "io.servicecomb.core.Invocation";
+    private static final String ENHANCE_CLASS = "io.servicecomb.core.handler.impl.TransportClientHandler";
 
-    private static final String PRODUCER_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.servicecomb.InvocationInterceptor";
-
-    private static final String CONSUMER_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.servicecomb.NextInterceptor";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.servicecomb.TransportClientHandlerInterceptor";
 
     @Override
     protected ClassMatch enhanceClass() {
@@ -60,33 +57,18 @@ public class InvocationInstrumentation extends ClassInstanceMethodsEnhancePlugin
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("getHandlerContext");
+                    return named("handle");
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return PRODUCER_INTERCEPT_CLASS;
+                    return INTERCEPT_CLASS;
                 }
 
                 @Override public boolean isOverrideArgs() {
                     return false;
                 }
             },
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("next");
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return CONSUMER_INTERCEPT_CLASS;
-                }
-
-                @Override public boolean isOverrideArgs() {
-                    return false;
-                }
-            }
         };
     }
 }
