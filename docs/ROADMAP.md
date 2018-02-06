@@ -24,6 +24,7 @@ Core features are separated into 3 groups: agent, collector and UI.
 - Support application, server and service metrics aggregation. [WIP]
 - Support alarm detection. [WIP]
 - Provide GraphQL-style query service for UI. [WIP]
+- Multi-Tenancy
 - Config alarm thresholds.
 - Config data TTL.
 - Support config data downstream to agent. Need adjust TDP(Trace Data Protocol)
@@ -42,10 +43,15 @@ Community features are reported from SkyWalking community or the core team hopes
 - Support Sharding-JDBC as Collector storage implementor.
 - Support connect ES under auth, in Collector.
 
-
 ## Long term features
-- Multi-Tenancy
 - More language supported: PHP, Nodejs Server, Python. OpenCensus reporter implementor or Auto-instrument agent.
 - Configure delivery/downstream from collector to agent.
 - [Java]Server profile
 - [Java]Specific service profile
+
+## Project release plan
+1. Feb. 2018, 5.0.0-alpha
+1. Mar. 2018, 5.0.0-beta
+1. Apr. 2018, 5.0.0-RC
+1. May. 2018, 5.0.0-RC2
+1. Jun.-Jul. 2018， 5.0.0(GA)
