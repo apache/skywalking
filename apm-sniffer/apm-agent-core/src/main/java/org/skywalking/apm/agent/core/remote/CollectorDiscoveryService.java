@@ -40,8 +40,10 @@ public class CollectorDiscoveryService implements BootService {
 
     @Override
     public void boot() throws Throwable {
+        DiscoveryRestServiceClient client = new DiscoveryRestServiceClient();
+        client.run();
         future = Executors.newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("CollectorDiscoveryService"))
-            .scheduleAtFixedRate(new DiscoveryRestServiceClient(), 0,
+            .scheduleAtFixedRate(client, Config.Collector.DISCOVERY_CHECK_INTERVAL,
                 Config.Collector.DISCOVERY_CHECK_INTERVAL, TimeUnit.SECONDS);
     }
 
