@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
 /**
- * {@link AbstractServerImplBuilderInterceptor} add the {@link CallServerInterceptor} interceptor for each the
+ * {@link AbstractServerImplBuilderInterceptor} add the {@link CallServerInterceptor} interceptor for every
  * ServerService.
  *
  * @author zhang xin

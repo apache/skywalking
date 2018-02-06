@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
 /**
- * {@link AbstractStubInterceptor} add the interceptor for each ClientCall.
+ * {@link AbstractStubInterceptor} add the interceptor for every ClientCall.
  *
  * @author zhang xin
  */
