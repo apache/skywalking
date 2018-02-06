@@ -1,6 +1,6 @@
 type Alarm {
     items: [AlarmItem!]!
-    count: Int!
+    total: Int!
 }
 
 type AlarmItem {
@@ -10,7 +10,7 @@ type AlarmItem {
     # such as: threshold, trigger value, relation(greater or lower), last time
     content: String!
     startTime: String!
-    alertType: AlarmType!
+    alarmType: AlarmType!
     causeType: CauseType!
 }
 
@@ -26,5 +26,5 @@ enum CauseType {
 }
 
 extend type Query {
-    loadAlertList(keyword: String, alertType: AlarmType, duration:Duration!, paging: Pagination!): Alarm
+    loadAlarmList(keyword: String, alarmType: AlarmType, duration:Duration!, paging: Pagination!): Alarm
 }

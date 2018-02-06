@@ -16,20 +16,15 @@
  *
  */
 
-
-package org.apache.skywalking.apm.plugin.grpc.v1;
-
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
+package org.apache.skywalking.apm.plugin.jdbc.oracle;
 
 /**
- * {@link UnaryStreamToFutureConstructorInterceptor} stop the active span when the call end.
+ * Constants variables
  *
- * @author zhangxin
+ * @author zhang xin
  */
-public class UnaryStreamToFutureConstructorInterceptor implements InstanceConstructorInterceptor {
+public final class Constants {
+    public static final String STATEMENT_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jdbc.oracle.StatementExecuteMethodsInterceptor";
 
-    @Override public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-
-    }
+    public static final String PREPARED_STATEMENT_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jdbc.oracle.PreparedStatementExecuteMethodsInterceptor";
 }

@@ -16,37 +16,33 @@
  *
  */
 
+package org.apache.skywalking.apm.plugin.jdbc.oracle;
 
-package org.apache.skywalking.apm.plugin.grpc.v1;
-
-import io.grpc.internal.ManagedChannelImpl;
 import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.plugin.grpc.v1.vo.GRPCDynamicFields;
+import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
+import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
-/**
- * {@link ManagedChannelInterceptor} record the IP address of the GRPC server into {@link GRPCDynamicFields} for build
- * span.
- *
- * @author zhangxin
- */
-public class ManagedChannelInterceptor implements InstanceMethodsAroundInterceptor {
+public class CreateCallableInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
+
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        GRPCDynamicFields cachedObjects = (GRPCDynamicFields)((EnhancedInstance)ret).getSkyWalkingDynamicField();
-        cachedObjects.setAuthority(((ManagedChannelImpl)((Object)objInst)).authority());
+        if (ret instanceof EnhancedInstance) {
+            ((EnhancedInstance)ret).setSkyWalkingDynamicField(new StatementEnhanceInfos((ConnectionInfo)objInst.getSkyWalkingDynamicField(), (String)allArguments[0], "CallableStatement"));
+        }
         return ret;
     }
 
     @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
+
     }
 }

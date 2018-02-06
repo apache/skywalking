@@ -16,30 +16,29 @@
  *
  */
 
-
-package org.apache.skywalking.apm.plugin.grpc.v1.define;
+package org.apache.skywalking.apm.plugin.jdbc.oracle.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
+import static org.apache.skywalking.apm.plugin.jdbc.oracle.Constants.STATEMENT_INTERCEPT_CLASS;
 
 /**
- * {@link StreamingServerCallHandlerInstrumentation} presents that skywalking intercept the <code>startCall</code>
- * method in <code>io.grpc.stub.ServerCalls$UnaryServerCallHandler</code> class by
- * <code>ServerCallHandlerInterceptor</code>
+ * {@link OracleStatementInstrumentation} define that the oracle plugin intercept the <code>execute, executeQuery,
+ * executeUpdate and executeLargeUpdate</code> method in {@link oracle.jdbc.driver.OracleStatement} class by ${@link
+ * org.apache.skywalking.apm.plugin.jdbc.oracle.StatementExecuteMethodsInterceptor}
  *
  * @author zhangxin
  */
-public class StreamingServerCallHandlerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    private static final String ENHANCE_CLASS = "io.grpc.stub.ServerCalls$UnaryServerCallHandler";
-    private static final String ENHANCE_METHOD = "startCall";
-    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.ServerCallHandlerInterceptor";
+public class OracleStatementInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+
+    public static final String ENHANCE_CLASS = "oracle.jdbc.driver.OracleStatement";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -49,11 +48,17 @@ public class StreamingServerCallHandlerInstrumentation extends ClassInstanceMeth
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD);
+                    return named("execute")
+                        .or(named("executeQuery"))
+                        .or(named("executeUpdate"))
+                        .or(named("executeLargeUpdate"))
+                        .or(named("executeBatchInternal"))
+                        .or(named("executeUpdateInternal"))
+                        .or(named("executeQuery"));
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return INTERCEPT_CLASS;
+                    return STATEMENT_INTERCEPT_CLASS;
                 }
 
                 @Override public boolean isOverrideArgs() {
@@ -64,6 +69,6 @@ public class StreamingServerCallHandlerInstrumentation extends ClassInstanceMeth
     }
 
     @Override protected ClassMatch enhanceClass() {
-        return NameMatch.byName(ENHANCE_CLASS);
+        return byName(ENHANCE_CLASS);
     }
 }

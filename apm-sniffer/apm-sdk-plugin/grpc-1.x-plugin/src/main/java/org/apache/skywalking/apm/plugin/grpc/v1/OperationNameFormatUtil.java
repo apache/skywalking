@@ -16,44 +16,31 @@
  *
  */
 
-
-package org.apache.skywalking.apm.plugin.grpc.v1.vo;
+package org.apache.skywalking.apm.plugin.grpc.v1;
 
 import io.grpc.MethodDescriptor;
 
 /**
- * {@link ServiceDescriptor} indicate the descriptor of an grpc service. it contains {@link #methodType} and
- * {@link #serviceName}.
+ * Operation Name utility
  *
  * @author zhangxin
  */
-public class ServiceDescriptor {
-    private MethodDescriptor.MethodType methodType;
-    private String serviceName;
+public class OperationNameFormatUtil {
 
-    public ServiceDescriptor(MethodDescriptor descriptor) {
-        this.methodType = descriptor.getType();
-        String fullMethodName = descriptor.getFullMethodName();
-        this.serviceName = formatServiceName(fullMethodName) + "." + formatMethodName(fullMethodName);
+    public static String formatOperationName(MethodDescriptor methodDescriptor) {
+        String fullMethodName = methodDescriptor.getFullMethodName();
+        return formatServiceName(fullMethodName) + "." + formatMethodName(fullMethodName);
     }
 
-    private String formatServiceName(String requestMethodName) {
+    private static String formatServiceName(String requestMethodName) {
         int splitIndex = requestMethodName.lastIndexOf("/");
         return requestMethodName.substring(0, splitIndex);
     }
 
-    private String formatMethodName(String requestMethodName) {
+    private static String formatMethodName(String requestMethodName) {
         int splitIndex = requestMethodName.lastIndexOf("/");
         String methodName = requestMethodName.substring(splitIndex + 1);
         methodName = methodName.substring(0, 1).toLowerCase() + methodName.substring(1);
         return methodName;
-    }
-
-    public MethodDescriptor.MethodType getMethodType() {
-        return methodType;
-    }
-
-    public String getServiceName() {
-        return serviceName;
     }
 }

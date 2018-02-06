@@ -16,34 +16,38 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.grpc.v1.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
-import static net.bytebuddy.matcher.ElementMatchers.any;
+import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
+import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link UnaryClientCallListenerInstrumentation} indicates that skywalking enhance the <code>onClose</code> method in
- * <code>io.grpc.stub.ClientCalls$UnaryStreamToFuture</code> class by <code>UnaryStreamToFutureConstructorInterceptor</code>
+ * {@link AbstractStubInstrumentation} present that the GRPC plugin intercept the method <code>getChannel</code> in the
+ * {@link io.grpc.stub.AbstractStub} class by using the {@link org.apache.skywalking.apm.plugin.grpc.v1.AbstractStubInterceptor}
+ * class.
  *
- * @author zhangxin
+ * @author zhang xin
  */
-public class UnaryClientCallListenerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    private static final String ENHANCE_CLASS = "io.grpc.stub.ClientCalls$UnaryStreamToFuture";
-    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.UnaryStreamToFutureConstructorInterceptor";
+public class AbstractStubInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.AbstractStubInterceptor";
+    public static final String ENHANCE_METHOD = "getChannel";
+    public static final String ENHANCE_CLASS = "io.grpc.stub.AbstractStub";
+
+    @Override
+    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return any();
+                    return takesArguments(2);
                 }
 
                 @Override public String getConstructorInterceptor() {
@@ -54,10 +58,24 @@ public class UnaryClientCallListenerInstrumentation extends ClassInstanceMethods
     }
 
     @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[0];
+        return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(ENHANCE_METHOD);
+                }
+
+                @Override public String getMethodsInterceptor() {
+                    return INTERCEPT_CLASS;
+                }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
+                }
+            }
+        };
     }
 
     @Override protected ClassMatch enhanceClass() {
-        return NameMatch.byName(ENHANCE_CLASS);
+        return byName(ENHANCE_CLASS);
     }
 }

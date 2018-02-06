@@ -16,43 +16,32 @@
  *
  */
 
-
-package org.apache.skywalking.apm.plugin.grpc.v1;
+package org.apache.skywalking.apm.plugin.jdbc.oracle;
 
 import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.plugin.grpc.v1.vo.GRPCDynamicFields;
+import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
+import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
-import static org.apache.skywalking.apm.plugin.grpc.v1.define.Constants.ON_NEXT_COUNT_TAG_KEY;
-
-/**
- * {@link ServerCallOnCloseInterceptor} stop the active span when the call end.
- *
- * @author zhangxin
- */
-public class ServerCallOnCloseInterceptor implements InstanceMethodsAroundInterceptor {
-
+public class CreateStatementInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        AbstractSpan abstractSpan = ContextManager.activeSpan();
-        abstractSpan.tag(ON_NEXT_COUNT_TAG_KEY, String.valueOf(((GRPCDynamicFields)objInst.getSkyWalkingDynamicField()).getOnNextCount()));
-        ContextManager.stopSpan();
+        if (ret instanceof EnhancedInstance) {
+            ((EnhancedInstance)ret).setSkyWalkingDynamicField(new StatementEnhanceInfos((ConnectionInfo)objInst.getSkyWalkingDynamicField(), "", "Statement"));
+        }
         return ret;
     }
 
     @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+
     }
 }

@@ -16,22 +16,15 @@
  *
  */
 
-
-package org.apache.skywalking.apm.plugin.grpc.v1.define;
+package org.apache.skywalking.apm.plugin.grpc.v1;
 
 /**
- * GRPC Plugin constants variables.
+ * Constant variables
  *
- * @author zhangxin
+ * @author zhang xin
  */
-public final class Constants {
+public class Constants {
+    public static final String STREAM_ON_READY_OPERATION_NAME = "RequestStreamObserver/onReady";
 
-    public static final String STREAM_OPERATION_NAME_SUFFIX = "/ResponseStreamObserver/OnNext";
-
-    public static final String ON_NEXT_COUNT_TAG_KEY = "onNext.count";
-
-    public static final String STREAM_CALL_OPERATION_NAME_SUFFIX = "/StreamCall";
-
-    public static final String BLOCK_CALL_OPERATION_NAME_SUFFIX = "/BlockCall";
-
+    public static final String STREAM_ON_NEXT_OPERATION_NAME = "ResponseStreamObserver/OnNext";
 }

@@ -16,66 +16,55 @@
  *
  */
 
-
-package org.apache.skywalking.apm.plugin.grpc.v1.define;
+package org.apache.skywalking.apm.plugin.jdbc.oracle.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 
-import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
+import static org.apache.skywalking.apm.plugin.jdbc.oracle.Constants.PREPARED_STATEMENT_INTERCEPT_CLASS;
 
 /**
- * {@link ClientCallInstrumentation} presents that skywalking intercept the <code>start</code> method in
- * <code>io.grpc.internal.ClientCallImpl</code> class by <code>ClientCallsMethodInterceptor</code>
- * and the constructor in <code>io.grpc.internal.ClientCallImpl</code> by <code>ClientCallIConstructorInterceptor</code>
+ * {@link OracleCallableInstrumentation} define that the oracle plugin intercept the <code>execute, executeQuery and
+ * executeUpdate</code> method in {@link oracle.jdbc.driver.OracleCallableStatement} class by ${@link
+ * org.apache.skywalking.apm.plugin.jdbc.oracle.StatementExecuteMethodsInterceptor}
  *
  * @author zhangxin
  */
-public class ClientCallInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    private static final String ENHANCE_CLASS = "io.grpc.internal.ClientCallImpl";
-    private static final String ENHANCE_METHOD = "start";
-    public static final String CONSTRUCTOR_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.ClientCallIConstructorInterceptor";
-    public static final String START_METHOD_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.ClientCallStartInterceptor";
+public class OracleCallableInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+
+    public static final String ENHANCE_CLASS = "oracle.jdbc.driver.OracleCallableStatement";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[] {
-            new ConstructorInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return any();
-                }
-
-                @Override public String getConstructorInterceptor() {
-                    return CONSTRUCTOR_CLASS;
-                }
-            }
-        };
+        return new ConstructorInterceptPoint[0];
     }
 
     @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD);
+                    return named("execute")
+                        .or(named("executeQuery"))
+                        .or(named("executeUpdate"));
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return START_METHOD_INTERCEPT_CLASS;
+                    return PREPARED_STATEMENT_INTERCEPT_CLASS;
                 }
 
                 @Override public boolean isOverrideArgs() {
-                    return true;
+                    return false;
                 }
             }
         };
     }
 
     @Override protected ClassMatch enhanceClass() {
-        return NameMatch.byName(ENHANCE_CLASS);
+        return byName(ENHANCE_CLASS);
     }
 }

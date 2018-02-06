@@ -108,19 +108,6 @@
                             <createDependencyReducedPom>true</createDependencyReducedPom>
                             <createSourcesJar>true</createSourcesJar>
                             <shadeSourcesContent>true</shadeSourcesContent>
-                            <artifactSet>
-                                <excludes>
-                                    <exclude>com.lmax:*</exclude>
-                                    <exclude>org.apache.httpcomponents:*</exclude>
-                                    <exclude>commons-logging:*</exclude>
-                                    <exclude>commons-codec:*</exclude>
-                                    <exclude>*:gson</exclude>
-                                    <exclude>io.grpc:*</exclude>
-                                    <exclude>io.netty:*</exclude>
-                                    <exclude>com.google.*:*</exclude>
-                                    <exclude>com.google.guava:guava</exclude>
-                                </excludes>
-                            </artifactSet>
                             <relocations>
                                 <relocation>
                                     <pattern>${shade.net.bytebuddy.source}</pattern>
