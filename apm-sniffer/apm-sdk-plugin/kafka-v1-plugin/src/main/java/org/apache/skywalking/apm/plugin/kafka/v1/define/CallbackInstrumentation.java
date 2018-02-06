@@ -39,7 +39,7 @@ public class CallbackInstrumentation extends ClassInstanceMethodsEnhancePluginDe
 
     public static final String ENHANCE_CLASS = "org.apache.kafka.clients.producer.Callback";
     public static final String ENHANCE_METHOD = "onCompletion";
-    public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.v11.CallbackInterceptor";
+    public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.v1.CallbackInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
