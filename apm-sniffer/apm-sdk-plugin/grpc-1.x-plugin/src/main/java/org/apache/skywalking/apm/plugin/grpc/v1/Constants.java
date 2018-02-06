@@ -16,20 +16,15 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.grpc.v1;
 
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
-
 /**
- * {@link UnaryStreamToFutureConstructorInterceptor} stop the active span when the call end.
+ * Constant variables
  *
- * @author zhangxin
+ * @author zhang xin
  */
-public class UnaryStreamToFutureConstructorInterceptor implements InstanceConstructorInterceptor {
+public class Constants {
+    public static final String STREAM_ON_READY_OPERATION_NAME = "RequestStreamObserver/onReady";
 
-    @Override public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-
-    }
+    public static final String STREAM_ON_NEXT_OPERATION_NAME = "ResponseStreamObserver/OnNext";
 }
