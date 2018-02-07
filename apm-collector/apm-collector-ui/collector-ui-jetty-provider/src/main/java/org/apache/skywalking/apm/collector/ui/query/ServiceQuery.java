@@ -30,6 +30,7 @@ import org.apache.skywalking.apm.collector.storage.ui.common.Topology;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
 import org.apache.skywalking.apm.collector.ui.graphql.Query;
 import org.apache.skywalking.apm.collector.ui.service.ServiceNameService;
+import org.apache.skywalking.apm.collector.ui.service.ServiceTopologyService;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 
 /**
@@ -39,6 +40,7 @@ public class ServiceQuery implements Query {
 
     private final ModuleManager moduleManager;
     private ServiceNameService serviceNameService;
+    private ServiceTopologyService serviceTopologyService;
 
     public ServiceQuery(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
@@ -49,6 +51,13 @@ public class ServiceQuery implements Query {
             this.serviceNameService = new ServiceNameService(moduleManager);
         }
         return serviceNameService;
+    }
+
+    private ServiceTopologyService getServiceTopologyService() {
+        if (ObjectUtils.isEmpty(serviceTopologyService)) {
+            this.serviceTopologyService = new ServiceTopologyService(moduleManager);
+        }
+        return serviceTopologyService;
     }
 
     public List<ServiceInfo> searchService(String keyword, int topN) throws ParseException {
@@ -71,7 +80,9 @@ public class ServiceQuery implements Query {
         return getServiceNameService().getServiceSLATrend(serviceId, duration.getStep(), start, end);
     }
 
-    public Topology getServiceTopology(int serviceId, Duration duration) {
-        return null;
+    public Topology getServiceTopology(int serviceId, Duration duration) throws ParseException {
+        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        return getServiceTopologyService().getServiceTopology(duration.getStep(), serviceId, start, end);
     }
 }

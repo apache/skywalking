@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.collector.storage.h2.dao.ui;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
@@ -30,6 +31,7 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetricTable;
+import org.apache.skywalking.apm.collector.storage.ui.common.Node;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 import org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder;
@@ -102,5 +104,11 @@ public class ServiceMetricH2UIDAO extends H2DAO implements IServiceMetricUIDAO {
         });
 
         return trends;
+    }
+
+    @Override
+    public List<Node> getServicesMetric(Step step, long startTime, long endTime, MetricSource metricSource,
+        Collection<Integer> serviceIds) {
+        return null;
     }
 }

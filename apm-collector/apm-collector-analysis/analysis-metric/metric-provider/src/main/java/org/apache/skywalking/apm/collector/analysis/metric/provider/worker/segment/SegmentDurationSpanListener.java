@@ -71,7 +71,7 @@ public class SegmentDurationSpanListener implements EntrySpanListener, ExitSpanL
         if (spanDecorator.getOperationNameId() == 0) {
             segmentDuration.setServiceName(spanDecorator.getOperationName());
         } else {
-            segmentDuration.setServiceName(serviceNameCacheService.getSplitServiceName(serviceNameCacheService.get(spanDecorator.getOperationNameId())));
+            segmentDuration.setServiceName(serviceNameCacheService.get(spanDecorator.getOperationNameId()).getServiceName());
         }
 
         segmentDurations.add(segmentDuration);

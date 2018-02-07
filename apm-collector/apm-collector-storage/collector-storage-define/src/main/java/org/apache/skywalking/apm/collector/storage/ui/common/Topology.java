@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.collector.storage.ui.common;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -27,6 +28,11 @@ public class Topology {
 
     private List<Node> nodes;
     private List<Call> calls;
+
+    public Topology() {
+        this.nodes = new LinkedList<>();
+        this.calls = new LinkedList<>();
+    }
 
     public List<Node> getNodes() {
         return nodes;

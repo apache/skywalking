@@ -122,7 +122,7 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentDurationUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceNameServiceUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceReferenceUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceReferenceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.BatchH2DAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2StorageInstaller;
 import org.apache.skywalking.apm.collector.storage.h2.dao.GlobalTraceH2PersistenceDAO;
@@ -220,7 +220,7 @@ import org.apache.skywalking.apm.collector.storage.h2.dao.ui.SegmentDurationH2UI
 import org.apache.skywalking.apm.collector.storage.h2.dao.ui.SegmentH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ui.ServiceMetricH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ui.ServiceNameServiceH2UIDAO;
-import org.apache.skywalking.apm.collector.storage.h2.dao.ui.ServiceReferenceH2UIDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.ui.ServiceReferenceH2MetricUIDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -386,7 +386,7 @@ public class StorageModuleH2Provider extends ModuleProvider {
         this.registerServiceImplementation(IApplicationReferenceMetricUIDAO.class, new ApplicationReferenceMetricH2UIDAO(h2Client));
         this.registerServiceImplementation(ISegmentDurationUIDAO.class, new SegmentDurationH2UIDAO(h2Client));
         this.registerServiceImplementation(ISegmentUIDAO.class, new SegmentH2UIDAO(h2Client));
-        this.registerServiceImplementation(IServiceReferenceUIDAO.class, new ServiceReferenceH2UIDAO(h2Client));
+        this.registerServiceImplementation(IServiceReferenceMetricUIDAO.class, new ServiceReferenceH2MetricUIDAO(h2Client));
     }
 
     private void registerAlarmDAO() throws ServiceNotProvidedException {

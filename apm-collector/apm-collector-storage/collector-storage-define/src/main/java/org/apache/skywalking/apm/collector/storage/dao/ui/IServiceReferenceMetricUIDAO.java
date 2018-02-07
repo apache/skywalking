@@ -18,13 +18,26 @@
 
 package org.apache.skywalking.apm.collector.storage.dao.ui;
 
-import com.google.gson.JsonObject;
-import java.util.Map;
+import java.util.List;
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
+import org.apache.skywalking.apm.collector.storage.table.MetricSource;
+import org.apache.skywalking.apm.collector.storage.ui.common.Call;
+import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 
 /**
  * @author peng-yongsheng
  */
-public interface IServiceReferenceUIDAO extends DAO {
-    Map<String, JsonObject> load(int entryServiceId, long startTime, long endTime);
+public interface IServiceReferenceMetricUIDAO extends DAO {
+
+    List<Call> getFrontServices(Step step, long startTime, long endTime,
+        MetricSource metricSource, int behindServiceId);
+
+    List<Call> getBehindServices(Step step, long startTime, long endTime,
+        MetricSource metricSource, int frontServiceId);
+
+    List<Call> getFrontServices(Step step, long startTime, long endTime,
+        MetricSource metricSource, List<Integer> behindServiceIds);
+
+    List<Call> getBehindServices(Step step, long startTime, long endTime,
+        MetricSource metricSource, List<Integer> frontServiceIds);
 }

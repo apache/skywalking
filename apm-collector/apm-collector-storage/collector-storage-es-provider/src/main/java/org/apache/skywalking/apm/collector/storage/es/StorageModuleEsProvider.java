@@ -126,7 +126,7 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentDurationUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceNameServiceUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceReferenceUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceReferenceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.BatchEsDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchStorageInstaller;
 import org.apache.skywalking.apm.collector.storage.es.dao.GlobalTraceEsPersistenceDAO;
@@ -224,7 +224,7 @@ import org.apache.skywalking.apm.collector.storage.es.dao.ui.SegmentDurationEsUI
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.SegmentEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.ServiceMetricEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.ServiceNameServiceEsUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ui.ServiceReferenceEsUIDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.ui.ServiceReferenceEsMetricUIDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -410,7 +410,7 @@ public class StorageModuleEsProvider extends ModuleProvider {
         this.registerServiceImplementation(IApplicationReferenceMetricUIDAO.class, new ApplicationReferenceMetricEsUIDAO(elasticSearchClient));
         this.registerServiceImplementation(ISegmentDurationUIDAO.class, new SegmentDurationEsUIDAO(elasticSearchClient));
         this.registerServiceImplementation(ISegmentUIDAO.class, new SegmentEsUIDAO(elasticSearchClient));
-        this.registerServiceImplementation(IServiceReferenceUIDAO.class, new ServiceReferenceEsUIDAO(elasticSearchClient));
+        this.registerServiceImplementation(IServiceReferenceMetricUIDAO.class, new ServiceReferenceEsMetricUIDAO(elasticSearchClient));
     }
 
     private void registerAlarmDAO() throws ServiceNotProvidedException {
