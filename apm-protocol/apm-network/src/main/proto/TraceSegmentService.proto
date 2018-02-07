@@ -3,6 +3,7 @@ syntax = "proto3";
 option java_multiple_files = true;
 option java_package = "org.apache.skywalking.apm.network.proto";
 
+import "Common.proto";
 import "Downstream.proto";
 import "KeyWithStringValue.proto";
 
@@ -64,12 +65,6 @@ message SpanObject {
 enum RefType {
     CrossProcess = 0;
     CrossThread = 1;
-}
-
-enum SpanType {
-    Entry = 0;
-    Exit = 1;
-    Local = 2;
 }
 
 enum SpanLayer {
