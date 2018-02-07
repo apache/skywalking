@@ -16,29 +16,32 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.grpc.v1.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link UnaryServerCallHandlerInstrumentation} indicates that skywalking enhance the <code>startCall</code> in
- * <code>io.grpc.stub.ServerCalls$StreamingServerCallHandler</code> class by <code>ServerCallHandlerInterceptor</code>.
+ * {@link AbstractServerImplBuilderInstrumentation} present that the GRPC plugin intercept the method
+ * <code>addService</code> in the {@link io.grpc.internal.AbstractServerImplBuilder} class by using the {@link
+ * org.apache.skywalking.apm.plugin.grpc.v1.AbstractServerImplBuilderInterceptor} class.
  *
- * @author zhangxin
+ * @author zhang xin
  */
-public class UnaryServerCallHandlerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    private static final String ENHANCE_CLASS = "io.grpc.stub.ServerCalls$StreamingServerCallHandler";
-    private static final String ENHANCE_METHOD = "startCall";
-    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.ServerCallHandlerInterceptor";
+public class AbstractServerImplBuilderInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+
+    public static final String ENHANCE_CLASS = "io.grpc.internal.AbstractServerImplBuilder";
+    public static final String ENHANCE_METHOD = "addService";
+    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.AbstractServerImplBuilderInterceptor";
+    public static final String ARGUMENT_TYPE = "io.grpc.ServerServiceDefinition";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -48,7 +51,7 @@ public class UnaryServerCallHandlerInstrumentation extends ClassInstanceMethodsE
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD);
+                    return named(ENHANCE_METHOD).and(takesArgumentWithType(0, ARGUMENT_TYPE));
                 }
 
                 @Override public String getMethodsInterceptor() {
@@ -56,7 +59,7 @@ public class UnaryServerCallHandlerInstrumentation extends ClassInstanceMethodsE
                 }
 
                 @Override public boolean isOverrideArgs() {
-                    return false;
+                    return true;
                 }
             }
         };

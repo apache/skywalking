@@ -16,32 +16,45 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.grpc.v1.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link ManagedChannelInstrumentation} presents that skywalking intercept the <code>newCall</code> method in
- * <code>io.grpc.internal.ManagedChannelImpl</code> class by <code>ManagedChannelInterceptor</code>
+ * {@link AbstractStubInstrumentation} present that the GRPC plugin intercept the method <code>getChannel</code> in the
+ * {@link io.grpc.stub.AbstractStub} class by using the {@link org.apache.skywalking.apm.plugin.grpc.v1.AbstractStubInterceptor}
+ * class.
  *
- * @author zhangxin
+ * @author zhang xin
  */
-public class ManagedChannelInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    private static final String ENHANCE_CLASS = "io.grpc.internal.ManagedChannelImpl";
-    private static final String ENHANCE_METHOD = "newCall";
-    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.ManagedChannelInterceptor";
+public class AbstractStubInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[0];
+    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.AbstractStubInterceptor";
+    public static final String ENHANCE_METHOD = "getChannel";
+    public static final String ENHANCE_CLASS = "io.grpc.stub.AbstractStub";
+
+    @Override
+    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+        return new ConstructorInterceptPoint[] {
+            new ConstructorInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return takesArguments(2);
+                }
+
+                @Override public String getConstructorInterceptor() {
+                    return INTERCEPT_CLASS;
+                }
+            }
+        };
     }
 
     @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
