@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.plugin.rocketMQ.v4.define;
+package org.skywalking.apm.plugin.rocketMQ.v3.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -29,16 +29,16 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierarchyMatch;
 
 /**
- * {@link ConsumeMessageOrderlyInstrumentation} intercepts the {@link org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly#consumeMessage(java.util.List,
- * org.apache.rocketmq.client.consumer.listener.ConsumeOrderlyContext)} method by using {@link
- * org.skywalking.apm.plugin.rocketMQ.v4.MessageConcurrentlyConsumeInterceptor}.
+ * {@link ConsumeMessageConcurrentlyInstrumentation} intercepts the {@link com.alibaba.rocketmq.client.consumer.listener.MessageListenerConcurrently#consumeMessage(java.util.List,
+ * com.alibaba.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext)} method by using {@link
+ * org.skywalking.apm.plugin.rocketMQ.v3.MessageConcurrentlyConsumeInterceptor}.
  *
  * @author zhang xin
  */
-public class ConsumeMessageOrderlyInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    private static final String ENHANCE_CLASS = "org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly";
-    private static final String ENHANCE_METHOD = "consumeMessage";
-    private static final String INTERCEPTOR_CLASS = "org.skywalking.apm.plugin.rocketMQ.v4.MessageOrderlyConsumeInterceptor";
+public class ConsumeMessageConcurrentlyInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+    private static final String ENHANCE_CLASS = "com.alibaba.rocketmq.client.consumer.listener.MessageListenerConcurrently";
+    private static final String CONSUMER_MESSAGE_METHOD = "consumeMessage";
+    private static final String INTERCEPTOR_CLASS = "org.skywalking.apm.plugin.rocketMQ.v3.MessageConcurrentlyConsumeInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -48,7 +48,7 @@ public class ConsumeMessageOrderlyInstrumentation extends ClassInstanceMethodsEn
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD);
+                    return named(CONSUMER_MESSAGE_METHOD);
                 }
 
                 @Override public String getMethodsInterceptor() {

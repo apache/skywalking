@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.plugin.rocketMQ.v4.define;
+package org.skywalking.apm.plugin.rocketMQ.v3.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -29,16 +29,16 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierarchyMatch;
 
 /**
- * {@link ConsumeMessageOrderlyInstrumentation} intercepts the {@link org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly#consumeMessage(java.util.List,
- * org.apache.rocketmq.client.consumer.listener.ConsumeOrderlyContext)} method by using {@link
- * org.skywalking.apm.plugin.rocketMQ.v4.MessageConcurrentlyConsumeInterceptor}.
+ * {@link ConsumeMessageOrderlyInstrumentation} intercepts the {@link com.alibaba.rocketmq.client.consumer.listener.MessageListenerOrderly#consumeMessage(java.util.List,
+ * com.alibaba.rocketmq.client.consumer.listener.ConsumeOrderlyContext)} method by using {@link
+ * org.skywalking.apm.plugin.rocketMQ.v3.MessageConcurrentlyConsumeInterceptor}.
  *
  * @author zhang xin
  */
 public class ConsumeMessageOrderlyInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    private static final String ENHANCE_CLASS = "org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly";
+    private static final String ENHANCE_CLASS = "com.alibaba.rocketmq.client.consumer.listener.MessageListenerOrderly";
     private static final String ENHANCE_METHOD = "consumeMessage";
-    private static final String INTERCEPTOR_CLASS = "org.skywalking.apm.plugin.rocketMQ.v4.MessageOrderlyConsumeInterceptor";
+    private static final String INTERCEPTOR_CLASS = "org.skywalking.apm.plugin.rocketMQ.v3.MessageOrderlyConsumeInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];

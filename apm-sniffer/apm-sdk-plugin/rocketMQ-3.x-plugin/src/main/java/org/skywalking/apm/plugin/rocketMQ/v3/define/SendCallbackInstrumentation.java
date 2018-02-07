@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.plugin.rocketMQ.v4.define;
+package org.skywalking.apm.plugin.rocketMQ.v3.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -26,19 +26,24 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMet
 import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierarchyMatch;
 
 /**
- * {@link ConsumeMessageOrderlyInstrumentation} intercepts the {@link org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly#consumeMessage(java.util.List,
- * org.apache.rocketmq.client.consumer.listener.ConsumeOrderlyContext)} method by using {@link
- * org.skywalking.apm.plugin.rocketMQ.v4.MessageConcurrentlyConsumeInterceptor}.
+ * {@link SendCallbackInstrumentation} intercepts {@link com.alibaba.rocketmq.client.producer.SendCallback#onSuccess(final SendResult sendResult)}
+ * method by using {@link org.skywalking.apm.plugin.rocketMQ.v3.OnSuccessInterceptor} and also intercepts {@link
+ * com.alibaba.rocketmq.client.producer.SendCallback#onException(Throwable)} by using {@link
+ * org.skywalking.apm.plugin.rocketMQ.v3.OnExceptionInterceptor}.
  *
  * @author zhang xin
  */
-public class ConsumeMessageOrderlyInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    private static final String ENHANCE_CLASS = "org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly";
-    private static final String ENHANCE_METHOD = "consumeMessage";
-    private static final String INTERCEPTOR_CLASS = "org.skywalking.apm.plugin.rocketMQ.v4.MessageOrderlyConsumeInterceptor";
+public class SendCallbackInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+
+    private static final String ENHANCE_CLASS = "com.alibaba.rocketmq.client.producer.SendCallback";
+    private static final String ON_SUCCESS_ENHANCE_METHOD = "onSuccess";
+    private static final String ON_SUCCESS_INTERCEPTOR = "org.skywalking.apm.plugin.rocketMQ.v3.OnSuccessInterceptor";
+    private static final String ON_EXCEPTION_METHOD = "onException";
+    private static final String ON_EXCEPTION_INTERCEPTOR = "org.skywalking.apm.plugin.rocketMQ.v3.OnExceptionInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -48,11 +53,24 @@ public class ConsumeMessageOrderlyInstrumentation extends ClassInstanceMethodsEn
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD);
+                    return named(ON_SUCCESS_ENHANCE_METHOD).and(takesArgumentWithType(0, "com.alibaba.rocketmq.client.producer.SendResult"));
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return INTERCEPTOR_CLASS;
+                    return ON_SUCCESS_INTERCEPTOR;
+                }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(ON_EXCEPTION_METHOD).and(takesArgumentWithType(0, "java.lang.Throwable"));
+                }
+
+                @Override public String getMethodsInterceptor() {
+                    return ON_EXCEPTION_INTERCEPTOR;
                 }
 
                 @Override public boolean isOverrideArgs() {

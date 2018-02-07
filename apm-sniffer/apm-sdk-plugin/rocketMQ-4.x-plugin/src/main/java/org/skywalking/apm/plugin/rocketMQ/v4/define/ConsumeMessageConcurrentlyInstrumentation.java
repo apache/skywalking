@@ -38,7 +38,7 @@ import static org.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierar
 public class ConsumeMessageConcurrentlyInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently";
     private static final String CONSUMER_MESSAGE_METHOD = "consumeMessage";
-    private static final String INTERCEPTOR_CLASS = "org.apache.rocketmq.common.message.MessageConcurrentlyConsumeInterceptor";
+    private static final String INTERCEPTOR_CLASS = "org.skywalking.apm.plugin.rocketMQ.v4.MessageConcurrentlyConsumeInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
