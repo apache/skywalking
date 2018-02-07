@@ -102,4 +102,8 @@ public class NoopSpan implements AbstractSpan {
 
     @Override public void ref(TraceSegmentRef ref) {
     }
+
+    @Override public AbstractSpan start(long startTime) {
+        return this;
+    }
 }
