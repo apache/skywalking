@@ -26,7 +26,7 @@
               "pii": 2, //上级的实例编号
               "psp": 1, //上级的埋点编号span_id
               "psi": 0, //上级的服务编号(org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()注册后的ID)
-              "psn": "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()", //上级的服务名
+              "psn": "/dubbox-case/case/dubbox-rest", //上级的服务名
               "ni": 0,  //上级调用时使用的地址注册后的ID
               "nn": "172.25.0.4:20880", //上级的地址
               "eii": 2, //入口的实例编号

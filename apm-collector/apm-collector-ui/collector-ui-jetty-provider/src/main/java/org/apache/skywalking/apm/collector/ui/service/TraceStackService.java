@@ -29,10 +29,10 @@ import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
-import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IGlobalTraceUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentUIDAO;
+import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
 import org.apache.skywalking.apm.collector.storage.ui.trace.KeyValue;
 import org.apache.skywalking.apm.collector.storage.ui.trace.LogEntity;
 import org.apache.skywalking.apm.collector.storage.ui.trace.Ref;
@@ -137,9 +137,9 @@ public class TraceStackService {
 
             String operationName = spanObject.getOperationName();
             if (spanObject.getOperationNameId() != 0) {
-                String serviceName = serviceNameCacheService.get(spanObject.getOperationNameId());
-                if (StringUtils.isNotEmpty(serviceName)) {
-                    operationName = serviceName.split(Const.ID_SPLIT)[1];
+                ServiceName serviceName = serviceNameCacheService.get(spanObject.getOperationNameId());
+                if (ObjectUtils.isNotEmpty(serviceName)) {
+                    operationName = serviceName.getServiceName();
                 } else {
                     operationName = Const.EMPTY_STRING;
                 }

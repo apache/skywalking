@@ -18,8 +18,11 @@
 
 package org.apache.skywalking.apm.collector.storage.dao.ui;
 
+import java.util.Collection;
 import java.util.List;
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
+import org.apache.skywalking.apm.collector.storage.table.MetricSource;
+import org.apache.skywalking.apm.collector.storage.ui.common.Node;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 
@@ -30,4 +33,7 @@ public interface IServiceMetricUIDAO extends DAO {
     List<Integer> getServiceResponseTimeTrend(int serviceId, Step step, List<DurationPoint> durationPoints);
 
     List<Integer> getServiceSLATrend(int serviceId, Step step, List<DurationPoint> durationPoints);
+
+    List<Node> getServicesMetric(Step step, long startTime, long endTime,
+        MetricSource metricSource, Collection<Integer> serviceIds);
 }

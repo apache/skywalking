@@ -117,7 +117,7 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentDurationUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceNameServiceUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceReferenceUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceReferenceMetricUIDAO;
 
 /**
  * @author peng-yongsheng
@@ -251,7 +251,7 @@ public class StorageModule extends Module {
         classes.add(IApplicationReferenceMetricUIDAO.class);
         classes.add(ISegmentDurationUIDAO.class);
         classes.add(ISegmentUIDAO.class);
-        classes.add(IServiceReferenceUIDAO.class);
+        classes.add(IServiceReferenceMetricUIDAO.class);
     }
 
     private void addAlarmDAO(List<Class> classes) {

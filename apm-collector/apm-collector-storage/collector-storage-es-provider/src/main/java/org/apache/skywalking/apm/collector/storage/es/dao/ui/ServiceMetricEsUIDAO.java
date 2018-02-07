@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao.ui;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
@@ -26,12 +27,23 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetricTable;
+import org.apache.skywalking.apm.collector.storage.ui.common.Node;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.ui.service.ServiceNode;
 import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 import org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetRequestBuilder;
 import org.elasticsearch.action.get.MultiGetResponse;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 
 /**
  * @author peng-yongsheng
@@ -89,5 +101,46 @@ public class ServiceMetricEsUIDAO extends EsDAO implements IServiceMetricUIDAO {
             }
         }
         return trends;
+    }
+
+    @Override
+    public List<Node> getServicesMetric(Step step, long startTime, long endTime, MetricSource metricSource,
+        Collection<Integer> serviceIds) {
+        String tableName = TimePyramidTableNameBuilder.build(step, ServiceMetricTable.TABLE);
+
+        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
+        searchRequestBuilder.setTypes(ServiceMetricTable.TABLE_TYPE);
+        searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
+
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceMetricTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
+        boolQuery.must().add(QueryBuilders.termsQuery(ServiceMetricTable.COLUMN_SERVICE_ID, serviceIds));
+        boolQuery.must().add(QueryBuilders.termQuery(ServiceMetricTable.COLUMN_SOURCE_VALUE, metricSource.getValue()));
+
+        searchRequestBuilder.setQuery(boolQuery);
+        searchRequestBuilder.setSize(0);
+
+        TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(ServiceMetricTable.COLUMN_SERVICE_ID).field(ServiceMetricTable.COLUMN_SERVICE_ID).size(100);
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceMetricTable.COLUMN_TRANSACTION_CALLS).field(ServiceMetricTable.COLUMN_TRANSACTION_CALLS));
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS).field(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS));
+
+        searchRequestBuilder.addAggregation(aggregationBuilder);
+        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
+
+        List<Node> nodes = new LinkedList<>();
+        Terms serviceIdTerms = searchResponse.getAggregations().get(ServiceMetricTable.COLUMN_SERVICE_ID);
+        serviceIdTerms.getBuckets().forEach(serviceIdBucket -> {
+            int serviceId = serviceIdBucket.getKeyAsNumber().intValue();
+
+            Sum callsSum = serviceIdBucket.getAggregations().get(ServiceMetricTable.COLUMN_TRANSACTION_CALLS);
+            Sum errorCallsSum = serviceIdBucket.getAggregations().get(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS);
+
+            ServiceNode serviceNode = new ServiceNode();
+            serviceNode.setId(serviceId);
+            serviceNode.setCalls((long)callsSum.getValue());
+            serviceNode.setSla((int)(((callsSum.getValue() - errorCallsSum.getValue()) / callsSum.getValue()) * 10000));
+            nodes.add(serviceNode);
+        });
+        return nodes;
     }
 }
