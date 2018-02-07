@@ -29,6 +29,6 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 public class UIConfig {
     
-    @Value("${collector.servers}")
-    private String[] servers;
+    @Value("${collector.path}")
+    private String rewritePath;
 }

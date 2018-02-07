@@ -18,11 +18,14 @@
 
 package org.apache.skywalking.apm.ui;
 
+import org.apache.skywalking.apm.ui.config.UIConfig;
+import org.apache.skywalking.apm.ui.tools.RewritePathFilter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 @EnableZuulProxy
@@ -30,7 +33,10 @@ public class ApplicationStartUp extends SpringBootServletInitializer {
 
     public static void main(String[] args) throws Exception {
         ApplicationContext applicationContext = SpringApplication.run(ApplicationStartUp.class, args);
-//        CollectorUIServerGetterTimer.INSTANCE.start(applicationContext);
     }
-    
+
+    @Bean
+    public RewritePathFilter addWritePathFilter(UIConfig uiConfig) {
+        return new RewritePathFilter(uiConfig.getRewritePath());
+    }
 }
