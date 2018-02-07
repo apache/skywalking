@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context.trace;
 
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryManager;
@@ -48,7 +47,7 @@ public abstract class StackBasedTracingSpan extends AbstractTracingSpan {
         if (--stackDepth == 0) {
             if (this.operationId == DictionaryUtil.nullValue()) {
                 this.operationId = (Integer)DictionaryManager.findOperationNameCodeSection()
-                    .findOrPrepare4Register(owner.getApplicationId(), operationName)
+                    .findOrPrepare4Register(owner.getApplicationId(), operationName, this.isEntry(), this.isExit())
                     .doInCondition(
                         new PossibleFound.FoundAndObtain() {
                             @Override public Object doProcess(int value) {
