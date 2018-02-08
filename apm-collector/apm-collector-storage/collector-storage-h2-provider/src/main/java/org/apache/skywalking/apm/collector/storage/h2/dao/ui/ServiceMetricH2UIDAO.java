@@ -33,6 +33,7 @@ import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetricTable;
 import org.apache.skywalking.apm.collector.storage.ui.common.Node;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.ui.service.ServiceMetric;
 import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 import org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder;
 import org.slf4j.Logger;
@@ -106,9 +107,13 @@ public class ServiceMetricH2UIDAO extends H2DAO implements IServiceMetricUIDAO {
         return trends;
     }
 
-    @Override
-    public List<Node> getServicesMetric(Step step, long startTime, long endTime, MetricSource metricSource,
+    @Override public List<Node> getServicesMetric(Step step, long startTime, long endTime, MetricSource metricSource,
         Collection<Integer> serviceIds) {
+        return null;
+    }
+
+    @Override public List<ServiceMetric> getSlowService(int applicationId, Step step, long start, long end, Integer top,
+        MetricSource metricSource) {
         return null;
     }
 }

@@ -16,30 +16,46 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.ui.alarm;
-
-import java.util.List;
+package org.apache.skywalking.apm.collector.storage.ui.service;
 
 /**
  * @author peng-yongsheng
  */
-public class Alarm {
-    private List<AlarmItem> items;
-    private int total;
+public class ServiceMetric {
+    private int id;
+    private String name;
+    private int avgResponseTime;
+    private int tps;
 
-    public List<AlarmItem> getItems() {
-        return items;
+    public int getId() {
+        return id;
     }
 
-    public void setItems(List<AlarmItem> items) {
-        this.items = items;
+    public void setId(int id) {
+        this.id = id;
     }
 
-    public int getTotal() {
-        return total;
+    public String getName() {
+        return name;
     }
 
-    public void setTotal(int total) {
-        this.total = total;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAvgResponseTime() {
+        return avgResponseTime;
+    }
+
+    public void setAvgResponseTime(int avgResponseTime) {
+        this.avgResponseTime = avgResponseTime;
+    }
+
+    public int getTps() {
+        return tps;
+    }
+
+    public void setTps(int tps) {
+        this.tps = tps;
     }
 }
