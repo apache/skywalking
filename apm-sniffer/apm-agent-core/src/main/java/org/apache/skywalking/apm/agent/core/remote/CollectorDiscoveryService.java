@@ -44,13 +44,15 @@ public class CollectorDiscoveryService implements BootService {
 
     @Override
     public void boot() throws Throwable {
+        DiscoveryRestServiceClient discoveryRestServiceClient = new DiscoveryRestServiceClient();
+        discoveryRestServiceClient.run();
         future = Executors.newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("CollectorDiscoveryService"))
-            .scheduleAtFixedRate(new RunnableWithExceptionProtection(new DiscoveryRestServiceClient(),
+            .scheduleAtFixedRate(new RunnableWithExceptionProtection(discoveryRestServiceClient,
                     new RunnableWithExceptionProtection.CallbackWhenException() {
                         @Override public void handle(Throwable t) {
                             logger.error("unexpected exception.", t);
                         }
-                    }), 0,
+                    }), Config.Collector.DISCOVERY_CHECK_INTERVAL,
                 Config.Collector.DISCOVERY_CHECK_INTERVAL, TimeUnit.SECONDS);
     }
 
