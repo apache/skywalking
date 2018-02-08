@@ -18,12 +18,33 @@
 
 package org.apache.skywalking.apm.collector.storage.ui.trace;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
  * @author peng-yongsheng
  */
 public class LogEntity {
-    private String time;
+    private long time;
     private List<KeyValue> data;
+
+    public LogEntity() {
+        this.data = new LinkedList<>();
+    }
+
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
+    }
+
+    public List<KeyValue> getData() {
+        return data;
+    }
+
+    public void setData(List<KeyValue> data) {
+        this.data = data;
+    }
 }

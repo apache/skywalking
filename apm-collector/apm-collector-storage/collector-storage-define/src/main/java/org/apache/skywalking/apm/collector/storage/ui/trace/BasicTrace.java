@@ -24,7 +24,47 @@ package org.apache.skywalking.apm.collector.storage.ui.trace;
 public class BasicTrace {
     private String operationName;
     private int duration;
-    private String start;
+    private long start;
     private Boolean isError;
     private String traceId;
+
+    public String getOperationName() {
+        return operationName;
+    }
+
+    public void setOperationName(String operationName) {
+        this.operationName = operationName;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public long getStart() {
+        return start;
+    }
+
+    public void setStart(long start) {
+        this.start = start;
+    }
+
+    public Boolean getError() {
+        return isError;
+    }
+
+    public void setError(Boolean error) {
+        isError = error;
+    }
+
+    public String getTraceId() {
+        return traceId;
+    }
+
+    public void setTraceId(String traceId) {
+        this.traceId = traceId;
+    }
 }

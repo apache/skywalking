@@ -50,7 +50,7 @@ org.apache.skywalking.apm.collector.storage.es.define.amp.ApplicationMonthMetric
 
 org.apache.skywalking.apm.collector.storage.es.define.GlobalTraceEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.SegmentEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.define.SegmentCostEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.SegmentDurationEsTableDefine
 
 org.apache.skywalking.apm.collector.storage.es.define.alarm.ApplicationAlarmEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.alarm.ApplicationAlarmListEsTableDefine

@@ -18,19 +18,74 @@
 
 package org.apache.skywalking.apm.collector.storage.ui.trace;
 
-import java.util.List;
 import org.apache.skywalking.apm.collector.storage.ui.common.Duration;
+import org.apache.skywalking.apm.collector.storage.ui.common.Pagination;
 
 /**
  * @author peng-yongsheng
  */
 public class TraceQueryCondition {
-    private List<String> applicationCodes;
+    private int applicationId;
     private String traceId;
     private String operationName;
     private Duration queryDuration;
     private int minTraceDuration;
     private int maxTraceDuration;
-    private Boolean topN;
-    private int needTotal;
+    private Pagination paging;
+
+    public int getApplicationId() {
+        return applicationId;
+    }
+
+    public void setApplicationId(int applicationId) {
+        this.applicationId = applicationId;
+    }
+
+    public String getTraceId() {
+        return traceId;
+    }
+
+    public void setTraceId(String traceId) {
+        this.traceId = traceId;
+    }
+
+    public String getOperationName() {
+        return operationName;
+    }
+
+    public void setOperationName(String operationName) {
+        this.operationName = operationName;
+    }
+
+    public Duration getQueryDuration() {
+        return queryDuration;
+    }
+
+    public void setQueryDuration(Duration queryDuration) {
+        this.queryDuration = queryDuration;
+    }
+
+    public int getMinTraceDuration() {
+        return minTraceDuration;
+    }
+
+    public void setMinTraceDuration(int minTraceDuration) {
+        this.minTraceDuration = minTraceDuration;
+    }
+
+    public int getMaxTraceDuration() {
+        return maxTraceDuration;
+    }
+
+    public void setMaxTraceDuration(int maxTraceDuration) {
+        this.maxTraceDuration = maxTraceDuration;
+    }
+
+    public Pagination getPaging() {
+        return paging;
+    }
+
+    public void setPaging(Pagination paging) {
+        this.paging = paging;
+    }
 }

@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
@@ -31,6 +32,7 @@ import graphql.schema.GraphQLSchema;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -41,6 +43,7 @@ import org.apache.skywalking.apm.collector.server.jetty.JettyHandler;
 import org.apache.skywalking.apm.collector.storage.ui.application.ApplicationNode;
 import org.apache.skywalking.apm.collector.storage.ui.application.ConjecturalNode;
 import org.apache.skywalking.apm.collector.storage.ui.common.VisualUserNode;
+import org.apache.skywalking.apm.collector.storage.ui.service.ServiceNode;
 import org.apache.skywalking.apm.collector.ui.graphql.VersionMutation;
 import org.apache.skywalking.apm.collector.ui.graphql.VersionQuery;
 import org.apache.skywalking.apm.collector.ui.mutation.ConfigMutation;
@@ -64,6 +67,7 @@ public class GraphQLHandler extends JettyHandler {
     private final Gson gson = new Gson();
     private final GraphQL graphQL;
     private static final String QUERY = "query";
+    private static final String VARIABLES = "variables";
     private static final String DATA = "data";
     private static final String ERRORS = "errors";
     private static final String MESSAGE = "message";
@@ -79,9 +83,9 @@ public class GraphQLHandler extends JettyHandler {
             .file("ui-graphql/service-layer.graphqls")
             .file("ui-graphql/trace.graphqls")
             .resolvers(new VersionQuery(), new VersionMutation(), new AlarmQuery(), new ApplicationQuery(moduleManager))
-            .resolvers(new OverViewLayerQuery(moduleManager), new ServerQuery(moduleManager), new ServiceQuery(), new TraceQuery())
+            .resolvers(new OverViewLayerQuery(moduleManager), new ServerQuery(moduleManager), new ServiceQuery(moduleManager), new TraceQuery(moduleManager))
             .resolvers(new ConfigQuery(), new ConfigMutation())
-            .dictionary(ConjecturalNode.class, VisualUserNode.class, ApplicationNode.class)
+            .dictionary(ConjecturalNode.class, VisualUserNode.class, ApplicationNode.class, ServiceNode.class)
             .build()
             .makeExecutableSchema();
 
@@ -105,7 +109,11 @@ public class GraphQLHandler extends JettyHandler {
         }
 
         JsonObject requestJson = gson.fromJson(request, JsonObject.class);
-        return execute(requestJson.get(QUERY).getAsString(), gson.fromJson(requestJson.get("variables"), Map.class));
+
+        Type mapType = new TypeToken<Map<String, Object>>() {
+        }.getType();
+
+        return execute(requestJson.get(QUERY).getAsString(), gson.fromJson(requestJson.get(VARIABLES), mapType));
     }
 
     private JsonObject execute(String request, Map<String, Object> variables) {

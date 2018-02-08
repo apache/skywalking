@@ -89,7 +89,7 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
         }
 
         if (standardBuilder.getNetworkAddressId() == 0 && StringUtils.isNotEmpty(standardBuilder.getNetworkAddress())) {
-            int networkAddressId = networkAddressIDService.getOrCreate(standardBuilder.getNetworkAddress());
+            int networkAddressId = networkAddressIDService.get(standardBuilder.getNetworkAddress());
             if (networkAddressId == 0) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("network address: {} from application id: {} exchange failed", standardBuilder.getNetworkAddress(), applicationId);

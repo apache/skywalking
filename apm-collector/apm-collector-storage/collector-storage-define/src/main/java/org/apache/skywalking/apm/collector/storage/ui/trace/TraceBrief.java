@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.collector.storage.ui.trace;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -25,5 +26,25 @@ import java.util.List;
  */
 public class TraceBrief {
     private List<BasicTrace> traces;
-    private Integer total;
+    private int total;
+
+    public TraceBrief() {
+        traces = new LinkedList<>();
+    }
+
+    public List<BasicTrace> getTraces() {
+        return traces;
+    }
+
+    public void setTraces(List<BasicTrace> traces) {
+        this.traces = traces;
+    }
+
+    public int getTotal() {
+        return total;
+    }
+
+    public void setTotal(int total) {
+        this.total = total;
+    }
 }
