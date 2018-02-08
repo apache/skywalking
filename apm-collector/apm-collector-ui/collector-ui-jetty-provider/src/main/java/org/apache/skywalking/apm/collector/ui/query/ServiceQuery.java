@@ -18,36 +18,71 @@
 
 package org.apache.skywalking.apm.collector.ui.query;
 
+import java.text.ParseException;
 import java.util.List;
-import org.apache.skywalking.apm.collector.ui.graphql.Query;
+import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.ui.common.Duration;
 import org.apache.skywalking.apm.collector.storage.ui.common.ResponseTimeTrend;
 import org.apache.skywalking.apm.collector.storage.ui.common.SLATrend;
 import org.apache.skywalking.apm.collector.storage.ui.common.ThroughputTrend;
 import org.apache.skywalking.apm.collector.storage.ui.common.Topology;
-import org.apache.skywalking.apm.collector.storage.ui.service.ServiceNode;
+import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
+import org.apache.skywalking.apm.collector.ui.graphql.Query;
+import org.apache.skywalking.apm.collector.ui.service.ServiceNameService;
+import org.apache.skywalking.apm.collector.ui.service.ServiceTopologyService;
+import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 
 /**
  * @author peng-yongsheng
  */
 public class ServiceQuery implements Query {
-    public List<ServiceNode> searchService(String keyword, Duration duration, Integer topN) {
-        return null;
+
+    private final ModuleManager moduleManager;
+    private ServiceNameService serviceNameService;
+    private ServiceTopologyService serviceTopologyService;
+
+    public ServiceQuery(ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
     }
 
-    public ResponseTimeTrend getServiceResponseTimeTrend(int serviceId, Duration duration) {
-        return null;
+    private ServiceNameService getServiceNameService() {
+        if (ObjectUtils.isEmpty(serviceNameService)) {
+            this.serviceNameService = new ServiceNameService(moduleManager);
+        }
+        return serviceNameService;
+    }
+
+    private ServiceTopologyService getServiceTopologyService() {
+        if (ObjectUtils.isEmpty(serviceTopologyService)) {
+            this.serviceTopologyService = new ServiceTopologyService(moduleManager);
+        }
+        return serviceTopologyService;
+    }
+
+    public List<ServiceInfo> searchService(String keyword, int topN) throws ParseException {
+        return getServiceNameService().searchService(keyword, topN);
+    }
+
+    public ResponseTimeTrend getServiceResponseTimeTrend(int serviceId, Duration duration) throws ParseException {
+        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        return getServiceNameService().getServiceResponseTimeTrend(serviceId, duration.getStep(), start, end);
     }
 
     public ThroughputTrend getServiceTPSTrend(int serviceId, Duration duration) {
         return null;
     }
 
-    public SLATrend getServiceSLATrend(int serviceId, Duration duration) {
-        return null;
+    public SLATrend getServiceSLATrend(int serviceId, Duration duration) throws ParseException {
+        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        return getServiceNameService().getServiceSLATrend(serviceId, duration.getStep(), start, end);
     }
 
-    public Topology getServiceTopology(int serviceId, Duration duration) {
-        return null;
+    public Topology getServiceTopology(int serviceId, Duration duration) throws ParseException {
+        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        return getServiceTopologyService().getServiceTopology(duration.getStep(), serviceId, start, end);
     }
 }

@@ -24,9 +24,9 @@ import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.dao.IGCMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IInstanceMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IGCMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

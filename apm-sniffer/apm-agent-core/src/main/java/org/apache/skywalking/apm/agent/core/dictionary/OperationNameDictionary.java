@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.dictionary;
 
 import io.netty.util.internal.ConcurrentSet;
@@ -28,6 +27,7 @@ import org.apache.skywalking.apm.network.proto.ServiceNameDiscoveryServiceGrpc;
 import org.apache.skywalking.apm.network.proto.ServiceNameElement;
 import org.apache.skywalking.apm.network.proto.ServiceNameMappingCollection;
 import org.apache.skywalking.apm.network.proto.ServiceNameMappingElement;
+import org.apache.skywalking.apm.network.proto.SpanType;
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Dictionary.OPERATION_NAME_BUFFER_SIZE;
 
@@ -39,19 +39,21 @@ public enum OperationNameDictionary {
     private Map<OperationNameKey, Integer> operationNameDictionary = new ConcurrentHashMap<OperationNameKey, Integer>();
     private Set<OperationNameKey> unRegisterOperationNames = new ConcurrentSet<OperationNameKey>();
 
-    public PossibleFound findOrPrepare4Register(int applicationId, String operationName) {
-        return find0(applicationId, operationName, true);
+    public PossibleFound findOrPrepare4Register(int applicationId, String operationName,
+        boolean isEntry, boolean isExit) {
+        return find0(applicationId, operationName, isEntry, isExit, true);
     }
 
     public PossibleFound findOnly(int applicationId, String operationName) {
-        return find0(applicationId, operationName, false);
+        return find0(applicationId, operationName, false, false, false);
     }
 
-    private PossibleFound find0(int applicationId, String operationName, boolean registerWhenNotFound) {
+    private PossibleFound find0(int applicationId, String operationName,
+        boolean isEntry, boolean isExit, boolean registerWhenNotFound) {
         if (operationName == null || operationName.length() == 0) {
             return new NotFound();
         }
-        OperationNameKey key = new OperationNameKey(applicationId, operationName);
+        OperationNameKey key = new OperationNameKey(applicationId, operationName, isEntry, isExit);
         Integer operationId = operationNameDictionary.get(key);
         if (operationId != null) {
             return new Found(operationId);
@@ -78,9 +80,12 @@ public enum OperationNameDictionary {
             ServiceNameMappingCollection serviceNameMappingCollection = serviceNameDiscoveryServiceBlockingStub.discovery(builder.build());
             if (serviceNameMappingCollection.getElementsCount() > 0) {
                 for (ServiceNameMappingElement serviceNameMappingElement : serviceNameMappingCollection.getElementsList()) {
+                    ServiceNameElement element = serviceNameMappingElement.getElement();
                     OperationNameKey key = new OperationNameKey(
-                        serviceNameMappingElement.getElement().getApplicationId(),
-                        serviceNameMappingElement.getElement().getServiceName());
+                        element.getApplicationId(),
+                        element.getServiceName(),
+                        SpanType.Entry.equals(element.getSrcSpanType()),
+                        SpanType.Exit.equals(element.getSrcSpanType()));
                     unRegisterOperationNames.remove(key);
                     operationNameDictionary.put(key, serviceNameMappingElement.getServiceId());
                 }
@@ -91,10 +96,14 @@ public enum OperationNameDictionary {
     private class OperationNameKey {
         private int applicationId;
         private String operationName;
+        private boolean isEntry;
+        private boolean isExit;
 
-        public OperationNameKey(int applicationId, String operationName) {
+        public OperationNameKey(int applicationId, String operationName, boolean isEntry, boolean isExit) {
             this.applicationId = applicationId;
             this.operationName = operationName;
+            this.isEntry = isEntry;
+            this.isExit = isExit;
         }
 
         public int getApplicationId() {
@@ -122,6 +131,14 @@ public enum OperationNameDictionary {
             int result = applicationId;
             result = 31 * result + operationName.hashCode();
             return result;
+        }
+
+        boolean isEntry() {
+            return isEntry;
+        }
+
+        boolean isExit() {
+            return isExit;
         }
     }
 }

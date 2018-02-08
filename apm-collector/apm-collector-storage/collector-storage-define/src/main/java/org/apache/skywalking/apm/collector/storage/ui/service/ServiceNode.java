@@ -24,7 +24,40 @@ import org.apache.skywalking.apm.collector.storage.ui.common.Node;
  * @author peng-yongsheng
  */
 public class ServiceNode extends Node {
-    private Float sla;
-    private Long calls;
-    private Integer numOfServiceAlarm;
+    private int sla;
+    private long calls;
+    private int numOfServiceAlarm;
+    private int applicationId;
+
+    public int getSla() {
+        return sla;
+    }
+
+    public void setSla(int sla) {
+        this.sla = sla;
+    }
+
+    public long getCalls() {
+        return calls;
+    }
+
+    public void setCalls(long calls) {
+        this.calls = calls;
+    }
+
+    public int getNumOfServiceAlarm() {
+        return numOfServiceAlarm;
+    }
+
+    public void setNumOfServiceAlarm(int numOfServiceAlarm) {
+        this.numOfServiceAlarm = numOfServiceAlarm;
+    }
+
+    public int getApplicationId() {
+        return applicationId;
+    }
+
+    public void setApplicationId(int applicationId) {
+        this.applicationId = applicationId;
+    }
 }

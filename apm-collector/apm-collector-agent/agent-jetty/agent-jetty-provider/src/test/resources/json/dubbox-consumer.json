@@ -10,7 +10,7 @@
         {
           "si": 1,  //埋点编号
           "tv": 1,  //埋点类型（手动、入口、出口）
-          "lv": 1,  //层（RPCFramework，Database，Http）
+          "lv": 2,  //层（RPCFramework，Database，Http）
           "ps": 0,  //上级埋点编号
           "st": 1501858094526,  //开始时间
           "et": 1501858097004,  //结束时间

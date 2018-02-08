@@ -25,4 +25,12 @@ import java.util.List;
  */
 public class ConjecturalAppBrief {
     private List<ConjecturalApp> apps;
+
+    public List<ConjecturalApp> getApps() {
+        return apps;
+    }
+
+    public void setApps(List<ConjecturalApp> apps) {
+        this.apps = apps;
+    }
 }
