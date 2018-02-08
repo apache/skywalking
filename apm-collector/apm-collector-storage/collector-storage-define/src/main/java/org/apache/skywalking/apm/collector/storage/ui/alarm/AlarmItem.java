@@ -25,6 +25,6 @@ public class AlarmItem {
     private String title;
     private String content;
     private String startTime;
-    private AlarmType alertType;
+    private AlarmType alarmType;
     private CauseType causeType;
 }
