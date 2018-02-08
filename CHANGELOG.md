@@ -20,7 +20,7 @@
  - Support Spring 3.x and 4.x bean annotation optional plugin
  - Support Apache httpcomponent AsyncClient 4.x plugin 
  - Provide automatic agent daily tests, and release reports [here](https://github.com/SkywalkingTest/agent-integration-test-report).
- - Refactor Postgresql, Oracle plugin for compatible.
+ - Refactor Postgresql, Oracle, MySQL plugin for compatible.
  - Fix jetty client 9 plugin error
  - Fix async APIs of okhttp plugin error
  - Fix log config didn't work
