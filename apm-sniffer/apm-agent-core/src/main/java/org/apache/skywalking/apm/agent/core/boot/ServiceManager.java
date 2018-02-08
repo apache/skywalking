@@ -19,8 +19,9 @@
 
 package org.apache.skywalking.apm.agent.core.boot;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
@@ -36,7 +37,7 @@ public enum ServiceManager {
     INSTANCE;
 
     private static final ILog logger = LogManager.getLogger(ServiceManager.class);
-    private Map<Class, BootService> bootedServices = new HashMap<Class, BootService>();
+    private Map<Class, BootService> bootedServices = Collections.emptyMap();
 
     public void boot() {
         bootedServices = loadAllServices();
@@ -57,7 +58,7 @@ public enum ServiceManager {
     }
 
     private Map<Class, BootService> loadAllServices() {
-        HashMap<Class, BootService> bootedServices = new HashMap<Class, BootService>();
+        Map<Class, BootService> bootedServices = new LinkedHashMap<Class, BootService>();
         Iterator<BootService> serviceIterator = load().iterator();
         while (serviceIterator.hasNext()) {
             BootService bootService = serviceIterator.next();
