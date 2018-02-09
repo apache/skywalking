@@ -63,7 +63,7 @@ public class NetworkAddressRegisterServletHandler extends JettyHandler {
             for (int i = 0; i < networkAddresses.size(); i++) {
                 String networkAddress = networkAddresses.get(i).getAsString();
                 logger.debug("network address register, network address: {}", networkAddress);
-                int addressId = networkAddressIDService.getOrCreate(networkAddress);
+                int addressId = networkAddressIDService.get(networkAddress);
                 JsonObject mapping = new JsonObject();
                 mapping.addProperty(ADDRESS_ID, addressId);
                 mapping.addProperty(NETWORK_ADDRESS, networkAddress);

@@ -16,21 +16,17 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.ui.service;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import java.util.List;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
-import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.storage.dao.IGCMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
+import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.dao.IInstanceMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IGCMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,58 +52,58 @@ public class InstanceHealthService {
     public JsonObject getInstances(long timeBucket, int applicationId) {
         JsonObject response = new JsonObject();
 
-        long[] timeBuckets = TimeBucketUtils.INSTANCE.getFiveSecondTimeBuckets(timeBucket);
-        long halfHourBeforeTimeBucket = TimeBucketUtils.INSTANCE.addSecondForSecondTimeBucket(TimeBucketUtils.TimeBucketType.SECOND.name(), timeBucket, -60 * 30);
-        List<Instance> instanceList = instanceDAO.getInstances(applicationId, halfHourBeforeTimeBucket);
+//        long[] timeBuckets = TimeBucketUtils.INSTANCE.getFiveSecondTimeBuckets(timeBucket);
+//        long halfHourBeforeTimeBucket = TimeBucketUtils.INSTANCE.addSecondForSecondTimeBucket(TimeBucketUtils.TimeBucketType.SECOND, timeBucket, -60 * 30);
+//        List<Instance> instanceList = instanceDAO.getInstances(applicationId, halfHourBeforeTimeBucket);
 
         JsonArray instances = new JsonArray();
         response.add("instances", instances);
 
-        instanceList.forEach(instance -> {
-            response.addProperty("applicationCode", applicationCacheService.getApplicationCodeById(applicationId));
-            response.addProperty("applicationId", applicationId);
+//        instanceList.forEach(instance -> {
+//            response.addProperty("applicationCode", applicationCacheService.getApplicationById(applicationId));
+//            response.addProperty("applicationId", applicationId);
+//
+//            IInstanceMetricUIDAO.InstanceMetric performance = instanceMetricUIDAO.get(timeBuckets, instance.getInstanceId());
+//
+//            JsonObject instanceJson = new JsonObject();
+//            instanceJson.addProperty("id", instance.getInstanceId());
+//            if (performance != null) {
+//                instanceJson.addProperty("tps", performance.getCalls());
+//            } else {
+//                instanceJson.addProperty("tps", 0);
+//            }
+//
+//            int avg = 0;
+//            if (performance != null && performance.getCalls() != 0) {
+//                avg = (int)(performance.getDurationSum() / performance.getCalls());
+//            }
+//            instanceJson.addProperty("avg", avg);
+//
+//            if (avg > 5000) {
+//                instanceJson.addProperty("healthLevel", 0);
+//            } else if (avg > 3000 && avg <= 5000) {
+//                instanceJson.addProperty("healthLevel", 1);
+//            } else if (avg > 1000 && avg <= 3000) {
+//                instanceJson.addProperty("healthLevel", 2);
+//            } else {
+//                instanceJson.addProperty("healthLevel", 3);
+//            }
 
-            IInstanceMetricUIDAO.InstanceMetric performance = instanceMetricUIDAO.get(timeBuckets, instance.getInstanceId());
-
-            JsonObject instanceJson = new JsonObject();
-            instanceJson.addProperty("id", instance.getInstanceId());
-            if (performance != null) {
-                instanceJson.addProperty("tps", performance.getCalls());
-            } else {
-                instanceJson.addProperty("tps", 0);
-            }
-
-            int avg = 0;
-            if (performance != null && performance.getCalls() != 0) {
-                avg = (int)(performance.getDurationSum() / performance.getCalls());
-            }
-            instanceJson.addProperty("avg", avg);
-
-            if (avg > 5000) {
-                instanceJson.addProperty("healthLevel", 0);
-            } else if (avg > 3000 && avg <= 5000) {
-                instanceJson.addProperty("healthLevel", 1);
-            } else if (avg > 1000 && avg <= 3000) {
-                instanceJson.addProperty("healthLevel", 2);
-            } else {
-                instanceJson.addProperty("healthLevel", 3);
-            }
-
-            long heartBeatTime = TimeBucketUtils.INSTANCE.changeTimeBucket2TimeStamp(TimeBucketUtils.TimeBucketType.SECOND.name(), instance.getHeartBeatTime());
-            long currentTime = TimeBucketUtils.INSTANCE.changeTimeBucket2TimeStamp(TimeBucketUtils.TimeBucketType.SECOND.name(), timeBucket);
-
-            if (currentTime - heartBeatTime < 1000 * 60 * 2) {
-                instanceJson.addProperty("status", 0);
-            } else {
-                instanceJson.addProperty("status", 1);
-            }
-
-            IGCMetricUIDAO.GCCount gcCount = gcMetricDAO.getGCCount(timeBuckets, instance.getInstanceId());
-            instanceJson.addProperty("ygc", gcCount.getYoung());
-            instanceJson.addProperty("ogc", gcCount.getOld());
-
-            instances.add(instanceJson);
-        });
+//            long heartBeatTime = TimeBucketUtils.INSTANCE.changeTimeBucket2TimeStamp(TimeBucketUtils.TimeBucketType.SECOND, instance.getHeartBeatTime());
+//            long currentTime = TimeBucketUtils.INSTANCE.changeTimeBucket2TimeStamp(TimeBucketUtils.TimeBucketType.SECOND, timeBucket);
+//
+//            if (currentTime - heartBeatTime < 1000 * 60 * 2) {
+//                instanceJson.addProperty("status", 0);
+//            } else {
+//                instanceJson.addProperty("status", 1);
+//            }
+//
+//            IGCMetricUIDAO.GCCount gcCount = gcMetricDAO.getGCCount(timeBuckets, instance.getInstanceId());
+//            instanceJson.addProperty("ygc", gcCount.getYoung());
+//            instanceJson.addProperty("ogc", gcCount.getOld());
+//
+//            instances.add(instanceJson);
+//        });
 
         return response;
     }

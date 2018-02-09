@@ -16,16 +16,16 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.es;
-
-import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.dao.*;
 
 import java.util.Calendar;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.storage.StorageModule;
+import org.apache.skywalking.apm.collector.storage.dao.IGlobalTracePersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ISegmentDurationPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ISegmentPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentMinutePersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ampp.IApplicationMappingMinutePersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.armp.IApplicationReferenceMinuteMetricPersistenceDAO;
@@ -113,8 +113,8 @@ public class DataTTLKeeperTimer {
         IApplicationReferenceMinuteMetricPersistenceDAO applicationReferenceMetricPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationReferenceMinuteMetricPersistenceDAO.class);
         applicationReferenceMetricPersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
 
-        ISegmentCostPersistenceDAO segmentCostPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(ISegmentCostPersistenceDAO.class);
-        segmentCostPersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
+        ISegmentDurationPersistenceDAO segmentDurationPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(ISegmentDurationPersistenceDAO.class);
+        segmentDurationPersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
 
         ISegmentPersistenceDAO segmentPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(ISegmentPersistenceDAO.class);
         segmentPersistenceDAO.deleteHistory(startTimestamp, endTimestamp);

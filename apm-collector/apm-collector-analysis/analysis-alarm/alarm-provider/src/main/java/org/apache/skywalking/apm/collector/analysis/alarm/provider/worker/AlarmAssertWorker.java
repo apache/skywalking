@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.collector.analysis.alarm.provider.worker;
 
-import org.apache.skywalking.apm.collector.analysis.metric.define.MetricSource;
+import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorker;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
 import org.apache.skywalking.apm.collector.core.data.StreamData;

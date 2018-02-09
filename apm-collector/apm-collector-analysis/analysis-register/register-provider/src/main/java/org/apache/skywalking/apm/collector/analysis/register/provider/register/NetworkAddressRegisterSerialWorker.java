@@ -62,6 +62,7 @@ public class NetworkAddressRegisterSerialWorker extends AbstractLocalAsyncWorker
                 newNetworkAddress = new NetworkAddress();
                 newNetworkAddress.setId("-1");
                 newNetworkAddress.setAddressId(-1);
+                newNetworkAddress.setSpanLayer(networkAddress.getSpanLayer());
                 newNetworkAddress.setNetworkAddress(networkAddress.getNetworkAddress());
             } else {
                 int max = networkAddressRegisterDAO.getMaxNetworkAddressId();
@@ -70,6 +71,7 @@ public class NetworkAddressRegisterSerialWorker extends AbstractLocalAsyncWorker
                 newNetworkAddress = new NetworkAddress();
                 newNetworkAddress.setId(String.valueOf(addressId));
                 newNetworkAddress.setAddressId(addressId);
+                newNetworkAddress.setSpanLayer(networkAddress.getSpanLayer());
                 newNetworkAddress.setNetworkAddress(networkAddress.getNetworkAddress());
             }
             networkAddressRegisterDAO.save(newNetworkAddress);

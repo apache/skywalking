@@ -31,6 +31,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>collector-ui-define</module>
+        <module>collector-ui-graphql</module>
         <module>collector-ui-jetty-provider</module>
     </modules>
 
