@@ -6,6 +6,8 @@
 type AppServerInfo {
     id: ID!
     name: String!
+    applicationId: Int!
+    applicationName: String
     tps: Int!
     host: String
     pid: Int
