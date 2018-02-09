@@ -19,8 +19,10 @@
 package org.apache.skywalking.apm.collector.storage.es.dao.ui;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceMetricUIDAO;
@@ -29,6 +31,7 @@ import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetricTable;
 import org.apache.skywalking.apm.collector.storage.ui.common.Node;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.ui.service.ServiceMetric;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceNode;
 import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 import org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder;
@@ -40,15 +43,20 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.script.Script;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
+import org.elasticsearch.search.aggregations.pipeline.InternalSimpleValue;
+import org.elasticsearch.search.aggregations.pipeline.PipelineAggregatorBuilders;
 
 /**
  * @author peng-yongsheng
  */
 public class ServiceMetricEsUIDAO extends EsDAO implements IServiceMetricUIDAO {
+
+    private static final String AVG_DURATION = "avg_duration";
 
     public ServiceMetricEsUIDAO(ElasticSearchClient client) {
         super(client);
@@ -142,5 +150,59 @@ public class ServiceMetricEsUIDAO extends EsDAO implements IServiceMetricUIDAO {
             nodes.add(serviceNode);
         });
         return nodes;
+    }
+
+    @Override public List<ServiceMetric> getSlowService(int applicationId, Step step, long start, long end, Integer top,
+        MetricSource metricSource) {
+        String tableName = TimePyramidTableNameBuilder.build(step, ServiceMetricTable.TABLE);
+
+        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
+        searchRequestBuilder.setTypes(ServiceMetricTable.TABLE_TYPE);
+        searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
+
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceMetricTable.COLUMN_TIME_BUCKET).gte(start).lte(end));
+        if (applicationId != 0) {
+            boolQuery.must().add(QueryBuilders.termQuery(ServiceMetricTable.COLUMN_APPLICATION_ID, applicationId));
+        }
+        boolQuery.must().add(QueryBuilders.termQuery(ServiceMetricTable.COLUMN_SOURCE_VALUE, metricSource.getValue()));
+
+        searchRequestBuilder.setQuery(boolQuery);
+        searchRequestBuilder.setSize(0);
+
+        TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(ServiceMetricTable.COLUMN_SERVICE_ID).field(ServiceMetricTable.COLUMN_SERVICE_ID).size(top);
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceMetricTable.COLUMN_TRANSACTION_CALLS).field(ServiceMetricTable.COLUMN_TRANSACTION_CALLS));
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS).field(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS));
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceMetricTable.COLUMN_TRANSACTION_DURATION_SUM).field(ServiceMetricTable.COLUMN_TRANSACTION_DURATION_SUM));
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM).field(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM));
+
+        Map<String, String> bucketsPathsMap = new HashMap<>();
+        bucketsPathsMap.put(ServiceMetricTable.COLUMN_TRANSACTION_CALLS, ServiceMetricTable.COLUMN_TRANSACTION_CALLS);
+        bucketsPathsMap.put(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS);
+        bucketsPathsMap.put(ServiceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, ServiceMetricTable.COLUMN_TRANSACTION_DURATION_SUM);
+        bucketsPathsMap.put(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, ServiceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM);
+
+        String idOrCode = "(params." + ServiceMetricTable.COLUMN_TRANSACTION_DURATION_SUM + " - params." + ServiceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM + ")"
+            + " / "
+            + "(params." + ServiceMetricTable.COLUMN_TRANSACTION_CALLS + " - params." + ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS + ")";
+        Script script = new Script(idOrCode);
+        aggregationBuilder.subAggregation(PipelineAggregatorBuilders.bucketScript(AVG_DURATION, bucketsPathsMap, script));
+
+        searchRequestBuilder.addAggregation(aggregationBuilder);
+        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
+
+        List<ServiceMetric> serviceMetrics = new LinkedList<>();
+        Terms serviceIdTerms = searchResponse.getAggregations().get(ServiceMetricTable.COLUMN_SERVICE_ID);
+        serviceIdTerms.getBuckets().forEach(serviceIdTerm -> {
+            int serviceId = serviceIdTerm.getKeyAsNumber().intValue();
+
+            ServiceMetric serviceMetric = new ServiceMetric();
+            InternalSimpleValue simpleValue = serviceIdTerm.getAggregations().get(AVG_DURATION);
+
+            serviceMetric.setId(serviceId);
+            serviceMetric.setAvgResponseTime((int)simpleValue.getValue());
+            serviceMetrics.add(serviceMetric);
+        });
+        return serviceMetrics;
     }
 }

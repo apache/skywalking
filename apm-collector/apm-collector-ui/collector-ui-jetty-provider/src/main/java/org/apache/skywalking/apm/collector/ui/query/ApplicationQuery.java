@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.collector.storage.ui.application.Application;
 import org.apache.skywalking.apm.collector.storage.ui.common.Duration;
 import org.apache.skywalking.apm.collector.storage.ui.common.Topology;
 import org.apache.skywalking.apm.collector.storage.ui.server.AppServerInfo;
-import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
+import org.apache.skywalking.apm.collector.storage.ui.service.ServiceMetric;
 import org.apache.skywalking.apm.collector.ui.graphql.Query;
 import org.apache.skywalking.apm.collector.ui.service.ApplicationService;
 import org.apache.skywalking.apm.collector.ui.service.ApplicationTopologyService;
@@ -73,8 +73,11 @@ public class ApplicationQuery implements Query {
         return getApplicationTopologyService().getApplicationTopology(duration.getStep(), applicationId, start, end);
     }
 
-    public List<ServiceInfo> getSlowService(int applicationId, Duration duration, Integer top) {
-        return null;
+    public List<ServiceMetric> getSlowService(int applicationId, Duration duration, Integer top) throws ParseException {
+        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+
+        return getApplicationService().getSlowService(applicationId, duration.getStep(), start, end, top);
     }
 
     public List<AppServerInfo> getServerThroughput(int applicationId, Duration duration, Integer top) {

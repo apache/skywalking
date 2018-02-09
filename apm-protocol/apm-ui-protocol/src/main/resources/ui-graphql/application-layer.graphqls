@@ -43,6 +43,6 @@ type Application {
 extend type Query {
   getAllApplication(duration: Duration!): [Application!]!
   getApplicationTopology(applicationId: ID!, duration: Duration!): Topology
-  getSlowService(applicationId: ID!, duration: Duration!, top: Int!): [ServiceInfo!]!
+  getSlowService(applicationId: ID!, duration: Duration!, top: Int!): [ServiceMetric!]!
   getServerThroughput(applicationId: ID!, duration: Duration!, top: Int!): [AppServerInfo!]!
 }

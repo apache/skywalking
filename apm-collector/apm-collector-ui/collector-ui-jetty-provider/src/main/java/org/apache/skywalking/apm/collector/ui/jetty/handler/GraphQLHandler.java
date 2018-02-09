@@ -110,8 +110,7 @@ public class GraphQLHandler extends JettyHandler {
 
         JsonObject requestJson = gson.fromJson(request, JsonObject.class);
 
-        Type mapType = new TypeToken<Map<String, Object>>() {
-        }.getType();
+        Type mapType = new TypeToken<Map<String, Object>>() { }.getType();
 
         return execute(requestJson.get(QUERY).getAsString(), gson.fromJson(requestJson.get(VARIABLES), mapType));
     }
