@@ -29,9 +29,9 @@ import org.apache.skywalking.apm.collector.storage.ui.common.Pagination;
  */
 public class AlarmQuery implements Query {
 
-    public Alarm loadAlertList(String keyword, AlarmType alarmType, Duration duration, Pagination pagination) {
+    public Alarm loadAlarmList(String keyword, AlarmType alarmType, Duration duration, Pagination paging) {
         Alarm alarm = new Alarm();
-        alarm.setCount(0);
+        alarm.setTotal(0);
         return alarm;
     }
 }

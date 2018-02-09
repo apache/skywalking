@@ -28,7 +28,7 @@ import org.apache.skywalking.apm.collector.storage.ui.overview.AlarmTrend;
 import org.apache.skywalking.apm.collector.storage.ui.overview.ClusterBrief;
 import org.apache.skywalking.apm.collector.storage.ui.overview.ConjecturalAppBrief;
 import org.apache.skywalking.apm.collector.storage.ui.server.AppServerInfo;
-import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
+import org.apache.skywalking.apm.collector.storage.ui.service.ServiceMetric;
 import org.apache.skywalking.apm.collector.ui.graphql.Query;
 import org.apache.skywalking.apm.collector.ui.service.AlarmService;
 import org.apache.skywalking.apm.collector.ui.service.ApplicationService;
@@ -118,8 +118,10 @@ public class OverViewLayerQuery implements Query {
         return null;
     }
 
-    public List<ServiceInfo> getTopNSlowService(Duration duration, int topN) {
-        return null;
+    public List<ServiceMetric> getTopNSlowService(Duration duration, int topN) throws ParseException {
+        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        return getServiceNameService().getSlowService(duration.getStep(), start, end, topN);
     }
 
     public List<AppServerInfo> getTopNServerThroughput(Duration duration, int topN) {

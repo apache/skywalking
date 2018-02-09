@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.ui.common.Node;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.ui.service.ServiceMetric;
 import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 
 /**
@@ -36,4 +37,7 @@ public interface IServiceMetricUIDAO extends DAO {
 
     List<Node> getServicesMetric(Step step, long startTime, long endTime,
         MetricSource metricSource, Collection<Integer> serviceIds);
+
+    List<ServiceMetric> getSlowService(int applicationId, Step step, long start, long end,
+        Integer top, MetricSource metricSource);
 }
