@@ -16,26 +16,33 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.ui.service;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
+import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
+import org.apache.skywalking.apm.collector.cache.service.NetworkAddressCacheService;
+import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
-import org.apache.skywalking.apm.collector.storage.dao.IGlobalTraceUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ISegmentUIDAO;
-import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
-import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
-import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IGlobalTraceUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentUIDAO;
+import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
+import org.apache.skywalking.apm.collector.storage.ui.trace.KeyValue;
+import org.apache.skywalking.apm.collector.storage.ui.trace.LogEntity;
+import org.apache.skywalking.apm.collector.storage.ui.trace.Ref;
+import org.apache.skywalking.apm.collector.storage.ui.trace.RefType;
+import org.apache.skywalking.apm.collector.storage.ui.trace.Span;
+import org.apache.skywalking.apm.collector.storage.ui.trace.Trace;
 import org.apache.skywalking.apm.network.proto.SpanObject;
 import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
+import org.apache.skywalking.apm.network.proto.UniqueId;
+import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
  * @author peng-yongsheng
@@ -46,60 +53,45 @@ public class TraceStackService {
     private final ISegmentUIDAO segmentDAO;
     private final ApplicationCacheService applicationCacheService;
     private final ServiceNameCacheService serviceNameCacheService;
+    private final NetworkAddressCacheService networkAddressCacheService;
 
     public TraceStackService(ModuleManager moduleManager) {
         this.globalTraceDAO = moduleManager.find(StorageModule.NAME).getService(IGlobalTraceUIDAO.class);
         this.segmentDAO = moduleManager.find(StorageModule.NAME).getService(ISegmentUIDAO.class);
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
         this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
+        this.networkAddressCacheService = moduleManager.find(CacheModule.NAME).getService(NetworkAddressCacheService.class);
     }
 
-    public JsonArray load(String globalTraceId) {
-        List<Span> spans = new ArrayList<>();
-        List<String> segmentIds = globalTraceDAO.getSegmentIds(globalTraceId);
+    public Trace load(String traceId) {
+        Trace trace = new Trace();
+        List<String> segmentIds = globalTraceDAO.getSegmentIds(traceId);
         if (CollectionUtils.isNotEmpty(segmentIds)) {
             for (String segmentId : segmentIds) {
                 TraceSegmentObject segment = segmentDAO.load(segmentId);
                 if (ObjectUtils.isNotEmpty(segment)) {
-                    spans.addAll(buildSpanList(segmentId, segment));
+                    trace.getSpans().addAll(buildSpanList(traceId, segmentId, segment.getApplicationId(), segment.getSpansList()));
                 }
             }
         }
 
-        List<Span> sortedSpans = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(spans)) {
-            List<Span> rootSpans = findRoot(spans);
+        List<Span> sortedSpans = new LinkedList<>();
+        if (CollectionUtils.isNotEmpty(trace.getSpans())) {
+            List<Span> rootSpans = findRoot(trace.getSpans());
 
             if (CollectionUtils.isNotEmpty(rootSpans)) {
                 rootSpans.forEach(span -> {
                     List<Span> childrenSpan = new ArrayList<>();
                     childrenSpan.add(span);
-                    findChildren(spans, span, childrenSpan);
+                    findChildren(trace.getSpans(), span, childrenSpan);
                     sortedSpans.addAll(childrenSpan);
                 });
             }
         }
-        minStartTime(sortedSpans);
+//        minStartTime(sortedSpans);
 
-        return toJsonArray(sortedSpans);
-    }
-
-    private JsonArray toJsonArray(List<Span> sortedSpans) {
-        JsonArray traceStackArray = new JsonArray();
-        sortedSpans.forEach(span -> {
-            JsonObject spanJson = new JsonObject();
-            spanJson.addProperty("spanId", span.getSpanId());
-            spanJson.addProperty("parentSpanId", span.getParentSpanId());
-            spanJson.addProperty("segmentSpanId", span.getSegmentSpanId());
-            spanJson.addProperty("segmentParentSpanId", span.getSegmentParentSpanId());
-            spanJson.addProperty("startTime", span.getStartTime());
-            spanJson.addProperty("operationName", span.getOperationName());
-            spanJson.addProperty("applicationCode", span.getApplicationCode());
-            spanJson.addProperty("cost", span.getCost());
-            spanJson.addProperty("isRoot", span.isRoot());
-            traceStackArray.add(spanJson);
-        });
-        return traceStackArray;
+        trace.setSpans(sortedSpans);
+        return trace;
     }
 
     private void minStartTime(List<Span> spans) {
@@ -115,56 +107,108 @@ public class TraceStackService {
         }
     }
 
-    private List<Span> buildSpanList(String segmentId, TraceSegmentObject segment) {
+    private List<Span> buildSpanList(String traceId, String segmentId, int applicationId,
+        List<SpanObject> spanObjects) {
         List<Span> spans = new ArrayList<>();
-        if (segment.getSpansCount() > 0) {
-            for (SpanObject spanObject : segment.getSpansList()) {
-                int spanId = spanObject.getSpanId();
-                int parentSpanId = spanObject.getParentSpanId();
-                String segmentSpanId = segmentId + Const.SEGMENT_SPAN_SPLIT + String.valueOf(spanId);
-                String segmentParentSpanId = segmentId + Const.SEGMENT_SPAN_SPLIT + String.valueOf(parentSpanId);
-                long startTime = spanObject.getStartTime();
 
-                String operationName = spanObject.getOperationName();
-                if (spanObject.getOperationNameId() != 0) {
-                    String serviceName = serviceNameCacheService.get(spanObject.getOperationNameId());
-                    if (StringUtils.isNotEmpty(serviceName)) {
-                        operationName = serviceName.split(Const.ID_SPLIT)[1];
+        spanObjects.forEach(spanObject -> {
+            Span span = new Span();
+            span.setTraceId(traceId);
+            span.setSegmentId(segmentId);
+            span.setSpanId(spanObject.getSpanId());
+            span.setParentSpanId(spanObject.getParentSpanId());
+            span.setStartTime(spanObject.getStartTime());
+            span.setEndTime(spanObject.getEndTime());
+            span.setError(spanObject.getIsError());
+            span.setLayer(spanObject.getSpanLayer().name());
+            span.setType(spanObject.getSpanType().name());
+
+            String segmentSpanId = segmentId + Const.SEGMENT_SPAN_SPLIT + String.valueOf(spanObject.getSpanId());
+            span.setSegmentSpanId(segmentSpanId);
+
+            String segmentParentSpanId = segmentId + Const.SEGMENT_SPAN_SPLIT + String.valueOf(spanObject.getParentSpanId());
+            span.setSegmentParentSpanId(segmentParentSpanId);
+
+            if (spanObject.getPeerId() == 0) {
+                span.setPeer(spanObject.getPeer());
+            } else {
+                span.setPeer(networkAddressCacheService.getAddress(spanObject.getPeerId()));
+            }
+
+            String operationName = spanObject.getOperationName();
+            if (spanObject.getOperationNameId() != 0) {
+                ServiceName serviceName = serviceNameCacheService.get(spanObject.getOperationNameId());
+                if (ObjectUtils.isNotEmpty(serviceName)) {
+                    operationName = serviceName.getServiceName();
+                } else {
+                    operationName = Const.EMPTY_STRING;
+                }
+            }
+            span.setOperationName(operationName);
+
+            String applicationCode = applicationCacheService.getApplicationById(applicationId).getApplicationCode();
+            span.setApplicationCode(applicationCode);
+
+            if (spanObject.getComponentId() == 0) {
+                span.setComponent(spanObject.getComponent());
+            } else {
+                span.setComponent(ComponentsDefine.getInstance().getComponentName(spanObject.getComponentId()));
+            }
+
+            spanObject.getRefsList().forEach(reference -> {
+                Ref ref = new Ref();
+                ref.setTraceId(traceId);
+
+                switch (reference.getRefType()) {
+                    case CrossThread:
+                        ref.setType(RefType.CROSS_THREAD);
+                        break;
+                    case CrossProcess:
+                        ref.setType(RefType.CROSS_PROCESS);
+                        break;
+                }
+                ref.setParentSpanId(reference.getParentSpanId());
+
+                UniqueId uniqueId = reference.getParentTraceSegmentId();
+                StringBuilder segmentIdBuilder = new StringBuilder();
+                for (int i = 0; i < uniqueId.getIdPartsList().size(); i++) {
+                    if (i == 0) {
+                        segmentIdBuilder.append(String.valueOf(uniqueId.getIdPartsList().get(i)));
                     } else {
-                        operationName = Const.EMPTY_STRING;
+                        segmentIdBuilder.append(".").append(String.valueOf(uniqueId.getIdPartsList().get(i)));
                     }
                 }
-                String applicationCode = applicationCacheService.getApplicationCodeById(segment.getApplicationId());
+                ref.setParentSegmentId(segmentIdBuilder.toString());
 
-                long cost = spanObject.getEndTime() - spanObject.getStartTime();
-                if (cost == 0) {
-                    cost = 1;
-                }
+                span.setSegmentParentSpanId(ref.getParentSegmentId() + Const.SEGMENT_SPAN_SPLIT + String.valueOf(ref.getParentSpanId()));
 
-//                if (parentSpanId == -1 && segment.getRefsCount() > 0) {
-//                    for (TraceSegmentReference reference : segment.getRefsList()) {
-//                        parentSpanId = reference.getParentSpanId();
-//                        UniqueId uniqueId = reference.getParentTraceSegmentId();
-//
-//                        StringBuilder segmentIdBuilder = new StringBuilder();
-//                        for (int i = 0; i < uniqueId.getIdPartsList().size(); i++) {
-//                            if (i == 0) {
-//                                segmentIdBuilder.append(String.valueOf(uniqueId.getIdPartsList().getApplicationIdByCode(i)));
-//                            } else {
-//                                segmentIdBuilder.append(".").append(String.valueOf(uniqueId.getIdPartsList().getApplicationIdByCode(i)));
-//                            }
-//                        }
-//
-//                        String parentSegmentId = segmentIdBuilder.toString();
-//                        segmentParentSpanId = parentSegmentId + Const.SEGMENT_SPAN_SPLIT + String.valueOf(parentSpanId);
-//
-//                        spans.add(new Span(spanId, parentSpanId, segmentSpanId, segmentParentSpanId, startTime, operationName, applicationCode, cost));
-//                    }
-//                } else {
-//                    spans.add(new Span(spanId, parentSpanId, segmentSpanId, segmentParentSpanId, startTime, operationName, applicationCode, cost));
-//                }
-            }
-        }
+                span.getRefs().add(ref);
+            });
+
+            spanObject.getTagsList().forEach(tag -> {
+                KeyValue keyValue = new KeyValue();
+                keyValue.setKey(tag.getKey());
+                keyValue.setValue(tag.getValue());
+                span.getTags().add(keyValue);
+            });
+
+            spanObject.getLogsList().forEach(log -> {
+                LogEntity logEntity = new LogEntity();
+                logEntity.setTime(log.getTime());
+
+                log.getDataList().forEach(data -> {
+                    KeyValue keyValue = new KeyValue();
+                    keyValue.setKey(data.getKey());
+                    keyValue.setValue(data.getValue());
+                    logEntity.getData().add(keyValue);
+                });
+
+                span.getLogs().add(logEntity);
+            });
+
+            spans.add(span);
+        });
+
         return spans;
     }
 
@@ -174,8 +218,8 @@ public class TraceStackService {
             String segmentParentSpanId = span.getSegmentParentSpanId();
 
             boolean hasParent = false;
-            for (Span span1 : spans) {
-                if (segmentParentSpanId.equals(span1.getSegmentSpanId())) {
+            for (Span subSpan : spans) {
+                if (segmentParentSpanId.equals(subSpan.getSegmentSpanId())) {
                     hasParent = true;
                 }
             }
@@ -195,73 +239,5 @@ public class TraceStackService {
                 findChildren(spans, span, childrenSpan);
             }
         });
-    }
-
-    class Span {
-        private int spanId;
-        private int parentSpanId;
-        private String segmentSpanId;
-        private String segmentParentSpanId;
-        private long startTime;
-        private String operationName;
-        private String applicationCode;
-        private long cost;
-        private boolean isRoot = false;
-
-        Span(int spanId, int parentSpanId, String segmentSpanId, String segmentParentSpanId, long startTime,
-            String operationName, String applicationCode, long cost) {
-            this.spanId = spanId;
-            this.parentSpanId = parentSpanId;
-            this.segmentSpanId = segmentSpanId;
-            this.segmentParentSpanId = segmentParentSpanId;
-            this.startTime = startTime;
-            this.operationName = operationName;
-            this.applicationCode = applicationCode;
-            this.cost = cost;
-        }
-
-        int getSpanId() {
-            return spanId;
-        }
-
-        int getParentSpanId() {
-            return parentSpanId;
-        }
-
-        String getSegmentSpanId() {
-            return segmentSpanId;
-        }
-
-        String getSegmentParentSpanId() {
-            return segmentParentSpanId;
-        }
-
-        long getStartTime() {
-            return startTime;
-        }
-
-        String getOperationName() {
-            return operationName;
-        }
-
-        String getApplicationCode() {
-            return applicationCode;
-        }
-
-        long getCost() {
-            return cost;
-        }
-
-        public boolean isRoot() {
-            return isRoot;
-        }
-
-        public void setRoot(boolean root) {
-            isRoot = root;
-        }
-
-        public void setStartTime(long startTime) {
-            this.startTime = startTime;
-        }
     }
 }

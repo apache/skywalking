@@ -53,7 +53,7 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
 
     @Override public boolean exchange(SpanDecorator standardBuilder, int applicationId) {
         if (standardBuilder.getPeerId() == 0 && StringUtils.isNotEmpty(standardBuilder.getPeer())) {
-            int peerId = networkAddressIDService.getOrCreate(standardBuilder.getPeer());
+            int peerId = networkAddressIDService.create(standardBuilder.getPeer(), standardBuilder.getSpanLayer().getNumber());
 
             if (peerId == 0) {
                 logger.debug("peer: {} in application: {} exchange failed", standardBuilder.getPeer(), applicationId);

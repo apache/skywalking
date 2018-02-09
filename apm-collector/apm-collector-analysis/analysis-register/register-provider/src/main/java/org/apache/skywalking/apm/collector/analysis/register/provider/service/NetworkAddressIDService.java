@@ -30,15 +30,11 @@ import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddress;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class NetworkAddressIDService implements INetworkAddressIDService {
-
-    private final Logger logger = LoggerFactory.getLogger(NetworkAddressIDService.class);
 
     private final ModuleManager moduleManager;
     private NetworkAddressCacheService networkAddressCacheService;
@@ -78,7 +74,7 @@ public class NetworkAddressIDService implements INetworkAddressIDService {
         return this.networkAddressGraph;
     }
 
-    @Override public int getOrCreate(String networkAddress) {
+    @Override public int create(String networkAddress, int spanLayer) {
         int addressId = getNetworkAddressCacheService().getAddressId(networkAddress);
 
         if (addressId != 0) {
@@ -95,11 +91,16 @@ public class NetworkAddressIDService implements INetworkAddressIDService {
             NetworkAddress newNetworkAddress = new NetworkAddress();
             newNetworkAddress.setId("0");
             newNetworkAddress.setNetworkAddress(networkAddress);
+            newNetworkAddress.setSpanLayer(spanLayer);
             newNetworkAddress.setAddressId(0);
 
             getNetworkAddressGraph().start(newNetworkAddress);
         }
 
         return 0;
+    }
+
+    @Override public int get(String networkAddress) {
+        return getNetworkAddressCacheService().getAddressId(networkAddress);
     }
 }

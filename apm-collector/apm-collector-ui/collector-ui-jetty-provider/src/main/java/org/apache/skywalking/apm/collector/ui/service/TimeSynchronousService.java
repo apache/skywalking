@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.collector.ui.service;
 
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
