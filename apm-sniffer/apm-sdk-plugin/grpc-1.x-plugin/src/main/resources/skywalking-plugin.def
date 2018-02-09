@@ -1,9 +1,2 @@
-grpc-1.x=org.apache.skywalking.apm.plugin.grpc.v1.define.ClientCallInstrumentation
-grpc-1.x=org.apache.skywalking.apm.plugin.grpc.v1.define.UnaryClientCallListenerInstrumentation
-grpc-1.x=org.apache.skywalking.apm.plugin.grpc.v1.define.UnaryServerCallListenerInstrumentation
-grpc-1.x=org.apache.skywalking.apm.plugin.grpc.v1.define.UnaryServerCallHandlerInstrumentation
-grpc-1.x=org.apache.skywalking.apm.plugin.grpc.v1.define.ClientCallsInstrumentation
-grpc-1.x=org.apache.skywalking.apm.plugin.grpc.v1.define.ManagedChannelInstrumentation
-grpc-1.x=org.apache.skywalking.apm.plugin.grpc.v1.define.StreamingServerCallHandlerInstrumentation
-grpc-1.x=org.apache.skywalking.apm.plugin.grpc.v1.define.StreamingServerCallListenerInstrumentation
-grpc-1.x=org.apache.skywalking.apm.plugin.grpc.v1.define.StreamObserverToCallListenerInstrumentation
+grpc-1.x=org.apache.skywalking.apm.plugin.grpc.v1.define.AbstractStubInstrumentation
+grpc-1.x=org.apache.skywalking.apm.plugin.grpc.v1.define.AbstractServerImplBuilderInstrumentation

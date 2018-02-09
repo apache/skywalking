@@ -16,41 +16,32 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.grpc.v1;
 
+import io.grpc.ForwardingServerCall;
+import io.grpc.ForwardingServerCallListener;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
-import java.lang.reflect.Method;
+import io.grpc.ServerCall;
+import io.grpc.ServerCallHandler;
+import io.grpc.ServerInterceptor;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.plugin.grpc.v1.vo.GRPCDynamicFields;
 import org.apache.skywalking.apm.util.StringUtil;
 
-import static org.apache.skywalking.apm.plugin.grpc.v1.define.Constants.STREAM_CALL_OPERATION_NAME_SUFFIX;
-import static org.apache.skywalking.apm.plugin.grpc.v1.define.Constants.BLOCK_CALL_OPERATION_NAME_SUFFIX;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.STREAM_ON_NEXT_OPERATION_NAME;
 
 /**
- * {@link ServerCallOnReadyInterceptor} create a entry span when the server side is ready for receive the message from
- * the client side.
- *
- * @author zhangxin
+ * @author zhang xin
  */
-public class ServerCallOnReadyInterceptor implements InstanceMethodsAroundInterceptor {
-
+public class CallServerInterceptor implements ServerInterceptor {
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
-        GRPCDynamicFields cachedObjects = (GRPCDynamicFields)objInst.getSkyWalkingDynamicField();
-        Metadata headers = cachedObjects.getMetadata();
+    public ServerCall.Listener interceptCall(ServerCall call, Metadata headers, ServerCallHandler handler) {
         Map<String, String> headerMap = new HashMap<String, String>();
         for (String key : headers.keys()) {
             if (!key.endsWith(Metadata.BINARY_HEADER_SUFFIX)) {
@@ -69,18 +60,51 @@ public class ServerCallOnReadyInterceptor implements InstanceMethodsAroundInterc
             }
         }
 
-        final AbstractSpan span = ContextManager.createEntrySpan(cachedObjects.getRequestMethodName() + (cachedObjects.getMethodType() != MethodDescriptor.MethodType.UNARY ? STREAM_CALL_OPERATION_NAME_SUFFIX : BLOCK_CALL_OPERATION_NAME_SUFFIX), contextCarrier);
+        final AbstractSpan span = ContextManager.createEntrySpan(OperationNameFormatUtil.formatOperationName(call.getMethodDescriptor()), contextCarrier);
         span.setComponent(ComponentsDefine.GRPC);
+
+        return new ServerCallListener(handler.startCall(new ForwardingServerCall.SimpleForwardingServerCall(call) {
+            @Override
+            public void sendHeaders(Metadata responseHeaders) {
+                delegate().sendHeaders(responseHeaders);
+            }
+        }, headers), call.getMethodDescriptor());
     }
 
-    @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
-        return ret;
+    public class ServerCallListener extends ForwardingServerCallListener.SimpleForwardingServerCallListener {
+
+        protected ServerCallListener(ServerCall.Listener delegate, MethodDescriptor descriptor) {
+            super(delegate);
+        }
+
+        @Override public void onReady() {
+            delegate().onReady();
+        }
+
+        @Override public void onMessage(Object message) {
+            try {
+                ContextManager.createLocalSpan(STREAM_ON_NEXT_OPERATION_NAME);
+                delegate().onMessage(message);
+            } catch (Throwable t) {
+                ContextManager.activeSpan().errorOccurred().log(t);
+            } finally {
+                ContextManager.stopSpan();
+            }
+        }
+
+        @Override public void onComplete() {
+            delegate().onComplete();
+            ContextManager.stopSpan();
+        }
+
+        @Override public void onCancel() {
+            delegate().onCancel();
+            ContextManager.stopSpan();
+        }
+
+        @Override public void onHalfClose() {
+            delegate().onHalfClose();
+        }
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
-    }
 }
