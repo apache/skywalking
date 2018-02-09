@@ -27,37 +27,35 @@ import java.util.Calendar;
 public enum TimeBucketUtils {
     INSTANCE;
 
-    public static final SimpleDateFormat MONTH_DATE_FORMAT = new SimpleDateFormat("yyyyMM");
-    public static final SimpleDateFormat DAY_DATE_FORMAT = new SimpleDateFormat("yyyyMMdd");
-    public static final SimpleDateFormat HOUR_DATE_FORMAT = new SimpleDateFormat("yyyyMMddHH");
-    public static final SimpleDateFormat MINUTE_DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmm");
-    public static final SimpleDateFormat SECOND_DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss");
-
     public long getMinuteTimeBucket(long time) {
+        SimpleDateFormat minuteDateFormat = new SimpleDateFormat("yyyyMMddHHmm");
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);
-        String timeStr = MINUTE_DATE_FORMAT.format(calendar.getTime());
+        String timeStr = minuteDateFormat.format(calendar.getTime());
         return Long.valueOf(timeStr);
     }
 
     public long getSecondTimeBucket(long time) {
+        SimpleDateFormat secondDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);
-        String timeStr = SECOND_DATE_FORMAT.format(calendar.getTime());
+        String timeStr = secondDateFormat.format(calendar.getTime());
         return Long.valueOf(timeStr);
     }
 
     public long getHourTimeBucket(long time) {
+        SimpleDateFormat hourDateFormat = new SimpleDateFormat("yyyyMMddHH");
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);
-        String timeStr = HOUR_DATE_FORMAT.format(calendar.getTime()) + "00";
+        String timeStr = hourDateFormat.format(calendar.getTime()) + "00";
         return Long.valueOf(timeStr);
     }
 
     public long getDayTimeBucket(long time) {
+        SimpleDateFormat dayDateFormat = new SimpleDateFormat("yyyyMMdd");
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);
-        String timeStr = DAY_DATE_FORMAT.format(calendar.getTime()) + "0000";
+        String timeStr = dayDateFormat.format(calendar.getTime()) + "0000";
         return Long.valueOf(timeStr);
     }
 
