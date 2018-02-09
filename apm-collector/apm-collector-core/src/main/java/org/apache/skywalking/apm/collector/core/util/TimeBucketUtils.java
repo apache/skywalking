@@ -29,12 +29,8 @@ import org.apache.skywalking.apm.collector.core.UnexpectedException;
 public enum TimeBucketUtils {
     INSTANCE;
 
-    private final SimpleDateFormat dayDateFormat = new SimpleDateFormat("yyyyMMdd");
-    private final SimpleDateFormat hourDateFormat = new SimpleDateFormat("yyyyMMddHH");
-    private final SimpleDateFormat minuteDateFormat = new SimpleDateFormat("yyyyMMddHHmm");
-    private final SimpleDateFormat secondDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-
     public long getMinuteTimeBucket(long time) {
+        SimpleDateFormat minuteDateFormat = new SimpleDateFormat("yyyyMMddHHmm");
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);
         String timeStr = minuteDateFormat.format(calendar.getTime());
@@ -42,6 +38,7 @@ public enum TimeBucketUtils {
     }
 
     public long getSecondTimeBucket(long time) {
+        SimpleDateFormat secondDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);
         String timeStr = secondDateFormat.format(calendar.getTime());
@@ -49,6 +46,7 @@ public enum TimeBucketUtils {
     }
 
     public long getHourTimeBucket(long time) {
+        SimpleDateFormat hourDateFormat = new SimpleDateFormat("yyyyMMddHH");
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);
         String timeStr = hourDateFormat.format(calendar.getTime()) + "00";
@@ -56,6 +54,7 @@ public enum TimeBucketUtils {
     }
 
     public long getDayTimeBucket(long time) {
+        SimpleDateFormat dayDateFormat = new SimpleDateFormat("yyyyMMdd");
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);
         String timeStr = dayDateFormat.format(calendar.getTime()) + "0000";
