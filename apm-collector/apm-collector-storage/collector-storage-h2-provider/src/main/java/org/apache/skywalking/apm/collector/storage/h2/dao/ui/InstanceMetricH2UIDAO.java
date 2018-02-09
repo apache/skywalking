@@ -31,6 +31,7 @@ import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetricTable;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.ui.server.AppServerInfo;
 import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 import org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder;
 import org.slf4j.Logger;
@@ -46,6 +47,11 @@ public class InstanceMetricH2UIDAO extends H2DAO implements IInstanceMetricUIDAO
 
     public InstanceMetricH2UIDAO(H2Client client) {
         super(client);
+    }
+
+    @Override public List<AppServerInfo> getTopNServerThroughput(int applicationId, Step step, long start, long end,
+        long secondBetween, int topN, MetricSource metricSource) {
+        return null;
     }
 
     @Override public List<Integer> getServerTPSTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
