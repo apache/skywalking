@@ -19,12 +19,12 @@
 package org.apache.skywalking.apm.collector.ui.utils;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.core.UnexpectedException;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 import org.joda.time.DateTime;
@@ -69,24 +69,24 @@ public enum DurationUtils {
         Date endDate = null;
         switch (step) {
             case MONTH:
-                startDate = TimeBucketUtils.MONTH_DATE_FORMAT.parse(String.valueOf(start));
-                endDate = TimeBucketUtils.MONTH_DATE_FORMAT.parse(String.valueOf(end));
+                startDate = new SimpleDateFormat("yyyyMM").parse(String.valueOf(start));
+                endDate = new SimpleDateFormat("yyyyMM").parse(String.valueOf(end));
                 break;
             case DAY:
-                startDate = TimeBucketUtils.DAY_DATE_FORMAT.parse(String.valueOf(start));
-                endDate = TimeBucketUtils.DAY_DATE_FORMAT.parse(String.valueOf(end));
+                startDate = new SimpleDateFormat("yyyyMMdd").parse(String.valueOf(start));
+                endDate = new SimpleDateFormat("yyyyMMdd").parse(String.valueOf(end));
                 break;
             case HOUR:
-                startDate = TimeBucketUtils.HOUR_DATE_FORMAT.parse(String.valueOf(start));
-                endDate = TimeBucketUtils.HOUR_DATE_FORMAT.parse(String.valueOf(end));
+                startDate = new SimpleDateFormat("yyyyMMddHH").parse(String.valueOf(start));
+                endDate = new SimpleDateFormat("yyyyMMddHH").parse(String.valueOf(end));
                 break;
             case MINUTE:
-                startDate = TimeBucketUtils.MINUTE_DATE_FORMAT.parse(String.valueOf(start));
-                endDate = TimeBucketUtils.MINUTE_DATE_FORMAT.parse(String.valueOf(end));
+                startDate = new SimpleDateFormat("yyyyMMddHHmm").parse(String.valueOf(start));
+                endDate = new SimpleDateFormat("yyyyMMddHHmm").parse(String.valueOf(end));
                 break;
             case SECOND:
-                startDate = TimeBucketUtils.SECOND_DATE_FORMAT.parse(String.valueOf(start));
-                endDate = TimeBucketUtils.SECOND_DATE_FORMAT.parse(String.valueOf(end));
+                startDate = new SimpleDateFormat("yyyyMMddHHmmss").parse(String.valueOf(start));
+                endDate = new SimpleDateFormat("yyyyMMddHHmmss").parse(String.valueOf(end));
                 break;
         }
 
@@ -115,23 +115,23 @@ public enum DurationUtils {
 
         switch (step) {
             case MONTH:
-                Date date = TimeBucketUtils.MONTH_DATE_FORMAT.parse(String.valueOf(time));
+                Date date = new SimpleDateFormat("yyyyMM").parse(String.valueOf(time));
                 dateTime = new DateTime(date);
                 break;
             case DAY:
-                date = TimeBucketUtils.DAY_DATE_FORMAT.parse(String.valueOf(time));
+                date = new SimpleDateFormat("yyyyMMdd").parse(String.valueOf(time));
                 dateTime = new DateTime(date);
                 break;
             case HOUR:
-                date = TimeBucketUtils.HOUR_DATE_FORMAT.parse(String.valueOf(time));
+                date = new SimpleDateFormat("yyyyMMddHH").parse(String.valueOf(time));
                 dateTime = new DateTime(date);
                 break;
             case MINUTE:
-                date = TimeBucketUtils.MINUTE_DATE_FORMAT.parse(String.valueOf(time));
+                date = new SimpleDateFormat("yyyyMMddHHmm").parse(String.valueOf(time));
                 dateTime = new DateTime(date);
                 break;
             case SECOND:
-                date = TimeBucketUtils.SECOND_DATE_FORMAT.parse(String.valueOf(time));
+                date = new SimpleDateFormat("yyyyMMddHHmmss").parse(String.valueOf(time));
                 dateTime = new DateTime(date);
                 break;
         }
@@ -150,27 +150,27 @@ public enum DurationUtils {
             switch (step) {
                 case MONTH:
                     dateTime = dateTime.plusMonths(1);
-                    String timeBucket = TimeBucketUtils.MONTH_DATE_FORMAT.format(dateTime.toDate());
+                    String timeBucket = new SimpleDateFormat("yyyyMM").format(dateTime.toDate());
                     durations.add(new DurationPoint(Long.valueOf(timeBucket), secondsBetween(step, dateTime)));
                     break;
                 case DAY:
                     dateTime = dateTime.plusDays(1);
-                    timeBucket = TimeBucketUtils.DAY_DATE_FORMAT.format(dateTime.toDate());
+                    timeBucket = new SimpleDateFormat("yyyyMMdd").format(dateTime.toDate());
                     durations.add(new DurationPoint(Long.valueOf(timeBucket), secondsBetween(step, dateTime)));
                     break;
                 case HOUR:
                     dateTime = dateTime.plusHours(1);
-                    timeBucket = TimeBucketUtils.HOUR_DATE_FORMAT.format(dateTime.toDate());
+                    timeBucket = new SimpleDateFormat("yyyyMMddHH").format(dateTime.toDate());
                     durations.add(new DurationPoint(Long.valueOf(timeBucket), secondsBetween(step, dateTime)));
                     break;
                 case MINUTE:
                     dateTime = dateTime.plusMinutes(1);
-                    timeBucket = TimeBucketUtils.MINUTE_DATE_FORMAT.format(dateTime.toDate());
+                    timeBucket = new SimpleDateFormat("yyyyMMddHHmm").format(dateTime.toDate());
                     durations.add(new DurationPoint(Long.valueOf(timeBucket), secondsBetween(step, dateTime)));
                     break;
                 case SECOND:
                     dateTime = dateTime.plusSeconds(1);
-                    timeBucket = TimeBucketUtils.SECOND_DATE_FORMAT.format(dateTime.toDate());
+                    timeBucket = new SimpleDateFormat("yyyyMMddHHmmss").format(dateTime.toDate());
                     durations.add(new DurationPoint(Long.valueOf(timeBucket), secondsBetween(step, dateTime)));
                     break;
             }
