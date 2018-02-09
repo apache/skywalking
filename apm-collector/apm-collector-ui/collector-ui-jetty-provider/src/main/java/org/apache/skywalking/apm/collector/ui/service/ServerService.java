@@ -24,6 +24,9 @@ import com.google.gson.JsonObject;
 import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
+import org.apache.skywalking.apm.collector.cache.CacheModule;
+import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
+import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
@@ -33,6 +36,8 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.IGCMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IMemoryMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.table.MetricSource;
+import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 import org.apache.skywalking.apm.collector.storage.ui.common.ResponseTimeTrend;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.ui.common.ThroughputTrend;
@@ -54,6 +59,8 @@ public class ServerService {
     private final ICpuMetricUIDAO cpuMetricUIDAO;
     private final IGCMetricUIDAO gcMetricUIDAO;
     private final IMemoryMetricUIDAO memoryMetricUIDAO;
+    private final InstanceCacheService instanceCacheService;
+    private final ApplicationCacheService applicationCacheService;
 
     public ServerService(ModuleManager moduleManager) {
         this.instanceUIDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceUIDAO.class);
@@ -61,6 +68,20 @@ public class ServerService {
         this.cpuMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(ICpuMetricUIDAO.class);
         this.gcMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IGCMetricUIDAO.class);
         this.memoryMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IMemoryMetricUIDAO.class);
+        this.instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
+        this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
+    }
+
+    public List<AppServerInfo> getTopNServerThroughput(int applicationId, Step step, long start, long end, int topN) {
+        //TODO
+        List<AppServerInfo> appServerInfos = instanceMetricUIDAO.getTopNServerThroughput(applicationId, step, start, end, 1000, topN, MetricSource.Callee);
+        appServerInfos.forEach(appServerInfo -> {
+            Instance instance = instanceUIDAO.getInstance(appServerInfo.getId());
+            appServerInfo.setOsInfo(instance.getOsInfo());
+        });
+        buildAppServerInfo(appServerInfos);
+
+        return appServerInfos;
     }
 
     public List<AppServerInfo> searchServer(String keyword, long start, long end) {
@@ -132,6 +153,9 @@ public class ServerService {
 
     private void buildAppServerInfo(List<AppServerInfo> serverInfos) {
         serverInfos.forEach(serverInfo -> {
+            int applicationId = instanceCacheService.getApplicationId(serverInfo.getId());
+            serverInfo.setApplicationId(applicationId);
+            serverInfo.setApplicationCode(applicationCacheService.getApplicationById(applicationId).getApplicationCode());
             if (StringUtils.isNotEmpty(serverInfo.getOsInfo())) {
                 JsonObject osInfoJson = gson.fromJson(serverInfo.getOsInfo(), JsonObject.class);
                 if (osInfoJson.has("osName")) {

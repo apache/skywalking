@@ -34,6 +34,7 @@ import org.apache.skywalking.apm.collector.ui.service.AlarmService;
 import org.apache.skywalking.apm.collector.ui.service.ApplicationService;
 import org.apache.skywalking.apm.collector.ui.service.ClusterTopologyService;
 import org.apache.skywalking.apm.collector.ui.service.NetworkAddressService;
+import org.apache.skywalking.apm.collector.ui.service.ServerService;
 import org.apache.skywalking.apm.collector.ui.service.ServiceNameService;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 
@@ -47,6 +48,7 @@ public class OverViewLayerQuery implements Query {
     private ApplicationService applicationService;
     private NetworkAddressService networkAddressService;
     private ServiceNameService serviceNameService;
+    private ServerService serverService;
     private AlarmService alarmService;
 
     public OverViewLayerQuery(ModuleManager moduleManager) {
@@ -88,6 +90,13 @@ public class OverViewLayerQuery implements Query {
         return alarmService;
     }
 
+    private ServerService getServerService() {
+        if (ObjectUtils.isEmpty(serverService)) {
+            this.serverService = new ServerService(moduleManager);
+        }
+        return serverService;
+    }
+
     public Topology getClusterTopology(Duration duration) throws ParseException {
         long start = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart());
         long end = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd());
@@ -111,6 +120,7 @@ public class OverViewLayerQuery implements Query {
     public AlarmTrend getAlarmTrend(Duration duration) throws ParseException {
         long start = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart());
         long end = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd());
+
         return getAlarmService().getApplicationAlarmTrend(duration.getStep(), start, end);
     }
 
@@ -121,10 +131,15 @@ public class OverViewLayerQuery implements Query {
     public List<ServiceMetric> getTopNSlowService(Duration duration, int topN) throws ParseException {
         long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+
         return getServiceNameService().getSlowService(duration.getStep(), start, end, topN);
     }
 
-    public List<AppServerInfo> getTopNServerThroughput(Duration duration, int topN) {
-        return null;
+    public List<AppServerInfo> getTopNServerThroughput(int applicationId, Duration duration,
+        int topN) throws ParseException {
+        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+
+        return getServerService().getTopNServerThroughput(applicationId, duration.getStep(), start, end, topN);
     }
 }

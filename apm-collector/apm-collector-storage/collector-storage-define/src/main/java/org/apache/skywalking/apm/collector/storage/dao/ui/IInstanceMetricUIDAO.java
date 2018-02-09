@@ -20,13 +20,19 @@ package org.apache.skywalking.apm.collector.storage.dao.ui;
 
 import java.util.List;
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
+import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.ui.server.AppServerInfo;
 import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 
 /**
  * @author peng-yongsheng
  */
 public interface IInstanceMetricUIDAO extends DAO {
+
+    List<AppServerInfo> getTopNServerThroughput(int applicationId, Step step, long start, long end, long secondBetween,
+        int topN,
+        MetricSource metricSource);
 
     List<Integer> getServerTPSTrend(int instanceId, Step step, List<DurationPoint> durationPoints);
 
