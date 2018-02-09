@@ -11,13 +11,55 @@ const optionsQuery = `
 `;
 
 const dataQuery = `
-  query BasicTraces($condition: TraceQueryCondition){
-    queryBasicTraces(condition: $condition)
+  query BasicTraces($condition: TraceQueryCondition) {
+    queryBasicTraces(condition: $condition) {
+      traces {
+        operationName
+        duration
+        start
+        isError
+        traceId
+  }
+      total
+    }
   }
 `;
 
-const spanQuery = `query Spans($traceId: ID!){
-  queryTrace(traceId: $traceId)
+const spanQuery = `query Spans($traceId: ID!) {
+  queryTrace(traceId: $traceId) {
+    spnas {
+      traceId
+      segmentId
+      spanId
+      parentSpanId
+      refs {
+        traceId
+        parentSegmentId
+        parentSpanId
+        type
+      }
+      applicationCode
+      startTime
+      endTime
+      operationName
+      type
+      peer
+      component
+      isError
+      layer
+      tags {
+        key
+        value
+      }
+      logs {
+        time
+        data {
+          key
+          value
+        }
+      }
+    }
+  }
 }`;
 
 export default generateModal({

@@ -34,12 +34,21 @@ export default class Trace extends PureComponent {
       payload: { variables: this.props.globalVariables },
     });
   }
+  componentWillUpdate(nextProps) {
+    if (nextProps.globalVariables.duration === this.props.globalVariables.duration) {
+      return;
+    }
+    this.props.dispatch({
+      type: 'trace/initOptions',
+      payload: { variables: nextProps.globalVariables },
+    });
+  }
   handleChange = (variables) => {
     const filteredVariables = { ...variables };
     filteredVariables.queryDuration = filteredVariables.duration;
     delete filteredVariables.duration;
-    if (filteredVariables.applicationCodes && !Array.isArray(filteredVariables.applicationCodes)) {
-      filteredVariables.applicationCodes = [filteredVariables.applicationCodes];
+    if (filteredVariables.applicationId && !Array.isArray(filteredVariables.applicationId)) {
+      filteredVariables.applicationId = [filteredVariables.applicationId];
     }
     this.props.dispatch({
       type: 'trace/fetchData',
@@ -105,9 +114,9 @@ export default class Trace extends PureComponent {
         <Row gutter={{ md: 8, lg: 8, xl: 8 }}>
           <Col xl={4} sm={24}>
             <FormItem label="Application">
-              {getFieldDecorator('applicationCodes')(
-                <Select mode="multiple" placeholder="Select application" style={{ width: '100%' }}>
-                  {options.applicationCodes && options.applicationCodes.map((app) => {
+              {getFieldDecorator('applicationId')(
+                <Select placeholder="No application" style={{ width: '100%' }}>
+                  {options.applicationId && options.applicationId.map((app) => {
                       return (<Option value={app.key}>{app.label}</Option>);
                     })}
                 </Select>

@@ -11,16 +11,16 @@ const optionsQuery = `
 
 const dataQuery = `
   query Application($applicationId: ID!, $duration: Duration!) {
-    # getSlowService(applicationId: $applicationId, duration: $duration, top: 10) {
-    #   key: id
-    #   name
-    #   avgResponseTime
-    # }
-    # getServerThroughput(applicationId: $applicationId, duration: $duration, top: 10) {
-    #   key: id
-    #   name
-    #   tps
-    # }
+    getSlowService(applicationId: $applicationId, duration: $duration, top: 10) {
+      key: id
+      name
+      avgResponseTime
+    }
+    getServerThroughput(applicationId: $applicationId, duration: $duration, top: 10) {
+      key: id
+      name
+      tps
+    }
     getApplicationTopology(applicationId: $applicationId, duration: $duration) {
       nodes {
         id
