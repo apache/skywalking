@@ -7,7 +7,7 @@ type AppServerInfo {
     id: ID!
     name: String!
     applicationId: Int!
-    applicationName: String
+    applicationCode: String
     tps: Int!
     host: String
     pid: Int
