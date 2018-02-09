@@ -16,26 +16,30 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.grpc.v1;
 
+import io.grpc.CallOptions;
+import io.grpc.Channel;
+import io.grpc.ClientCall;
+import io.grpc.ClientInterceptor;
 import io.grpc.MethodDescriptor;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
-import org.apache.skywalking.apm.plugin.grpc.v1.vo.GRPCDynamicFields;
 
 /**
- * {@link ClientCallIConstructorInterceptor} pass the {@link GRPCDynamicFields} into the
- * <code>io.grpc.internal.ClientCallImpl</code> instance for propagate the information of build span.
+ * {@link GRPCClientInterceptor} determines the returned Interceptor based on the method type. If the method type is
+ * UNARY, {@link GRPCClientInterceptor} returns BlockingCallClientInterceptor, or it returns
+ * StreamCallClientInterceptor.
  *
- * @author zhangxin
+ * @author zhang xin
  */
-public class ClientCallIConstructorInterceptor implements InstanceConstructorInterceptor {
+public class GRPCClientInterceptor implements ClientInterceptor {
 
     @Override
-    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        GRPCDynamicFields dynamicFields = new GRPCDynamicFields();
-        dynamicFields.setDescriptor((MethodDescriptor)allArguments[0]);
-        objInst.setSkyWalkingDynamicField(dynamicFields);
+    public ClientCall interceptCall(MethodDescriptor method,
+        CallOptions callOptions, Channel channel) {
+        if (method.getType() != MethodDescriptor.MethodType.UNARY) {
+            return new StreamCallClientInterceptor(channel.newCall(method, callOptions), method, channel);
+        }
+        return new BlockingCallClientInterceptor(channel.newCall(method, callOptions), method, channel);
     }
+
 }

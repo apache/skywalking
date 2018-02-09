@@ -296,7 +296,7 @@ public class TracingContext implements AbstractTracerContext {
         AbstractSpan parentSpan = peek();
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
         AbstractTracingSpan span = (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
-            .findOrPrepare4Register(segment.getApplicationId(), operationName)
+            .findOrPrepare4Register(segment.getApplicationId(), operationName, false, false)
             .doInCondition(new PossibleFound.FoundAndObtain() {
                 @Override
                 public Object doProcess(int operationId) {

@@ -16,42 +16,36 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.grpc.v1;
 
+import io.grpc.ServerInterceptors;
+import io.grpc.ServerServiceDefinition;
 import java.lang.reflect.Method;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.plugin.grpc.v1.define.Constants;
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.plugin.grpc.v1.vo.GRPCDynamicFields;
 
 /**
- * {@link ServerCallOnCancelInterceptor} stop the active span when the call cancelled.
+ * {@link AbstractServerImplBuilderInterceptor} add the {@link CallServerInterceptor} interceptor for every
+ * ServerService.
  *
- * @author zhangxin
+ * @author zhang xin
  */
-public class ServerCallOnCancelInterceptor implements InstanceMethodsAroundInterceptor {
-
+public class AbstractServerImplBuilderInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
+        allArguments[0] = ServerInterceptors.intercept((ServerServiceDefinition)allArguments[0], new CallServerInterceptor());
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        AbstractSpan abstractSpan = ContextManager.activeSpan();
-        abstractSpan.tag(Constants.ON_NEXT_COUNT_TAG_KEY, String.valueOf(((GRPCDynamicFields)objInst.getSkyWalkingDynamicField()).getOnNextCount()));
-
-        ContextManager.stopSpan();
         return ret;
     }
 
     @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+
     }
 }
