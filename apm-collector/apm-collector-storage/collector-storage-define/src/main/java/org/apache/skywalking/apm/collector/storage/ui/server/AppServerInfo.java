@@ -25,6 +25,8 @@ import java.util.List;
  */
 public class AppServerInfo {
     private int id;
+    private int applicationId;
+    private String applicationCode;
     private String osInfo;
     private String name;
     private int tps;
@@ -38,6 +40,22 @@ public class AppServerInfo {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getApplicationId() {
+        return applicationId;
+    }
+
+    public void setApplicationId(int applicationId) {
+        this.applicationId = applicationId;
+    }
+
+    public String getApplicationCode() {
+        return applicationCode;
+    }
+
+    public void setApplicationCode(String applicationCode) {
+        this.applicationCode = applicationCode;
     }
 
     public String getOsInfo() {
