@@ -22,6 +22,7 @@ package org.apache.skywalking.apm.collector.storage.ui.alarm;
  * @author peng-yongsheng
  */
 public class AlarmItem {
+    private String id;
     private String title;
     private String content;
     private String startTime;

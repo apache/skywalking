@@ -24,6 +24,8 @@ import org.apache.skywalking.apm.collector.storage.ui.alarm.AlarmType;
 import org.apache.skywalking.apm.collector.storage.ui.common.Duration;
 import org.apache.skywalking.apm.collector.storage.ui.common.Pagination;
 
+import java.util.Collections;
+
 /**
  * @author peng-yongsheng
  */
@@ -32,6 +34,7 @@ public class AlarmQuery implements Query {
     public Alarm loadAlarmList(String keyword, AlarmType alarmType, Duration duration, Pagination paging) {
         Alarm alarm = new Alarm();
         alarm.setTotal(0);
+        alarm.setItems(Collections.emptyList());
         return alarm;
     }
 }
