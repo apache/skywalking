@@ -47,7 +47,7 @@ public class MemoryMetricService implements IMemoryMetricService {
 
     @Override
     public void send(int instanceId, long timeBucket, boolean isHeap, long init, long max, long used, long committed) {
-        String metricId = instanceId + Const.ID_SPLIT + String.valueOf(isHeap);
+        String metricId = instanceId + Const.ID_SPLIT + BooleanUtils.booleanToValue(isHeap);
         String id = timeBucket + Const.ID_SPLIT + metricId;
 
         MemoryMetric memoryMetric = new MemoryMetric();

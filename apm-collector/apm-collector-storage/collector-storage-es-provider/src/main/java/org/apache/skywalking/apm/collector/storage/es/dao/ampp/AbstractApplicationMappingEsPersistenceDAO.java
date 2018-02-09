@@ -44,7 +44,7 @@ public abstract class AbstractApplicationMappingEsPersistenceDAO extends Abstrac
         applicationMapping.setMetricId((String)source.get(ApplicationMappingTable.COLUMN_METRIC_ID));
 
         applicationMapping.setApplicationId(((Number)source.get(ApplicationMappingTable.COLUMN_APPLICATION_ID)).intValue());
-        applicationMapping.setAddressId(((Number)source.get(ApplicationMappingTable.COLUMN_ADDRESS_ID)).intValue());
+        applicationMapping.setMappingApplicationId(((Number)source.get(ApplicationMappingTable.COLUMN_MAPPING_APPLICATION_ID)).intValue());
         applicationMapping.setTimeBucket(((Number)source.get(ApplicationMappingTable.COLUMN_TIME_BUCKET)).longValue());
         return applicationMapping;
     }
@@ -55,7 +55,7 @@ public abstract class AbstractApplicationMappingEsPersistenceDAO extends Abstrac
         source.put(ApplicationMappingTable.COLUMN_METRIC_ID, streamData.getMetricId());
 
         source.put(ApplicationMappingTable.COLUMN_APPLICATION_ID, streamData.getApplicationId());
-        source.put(ApplicationMappingTable.COLUMN_ADDRESS_ID, streamData.getAddressId());
+        source.put(ApplicationMappingTable.COLUMN_MAPPING_APPLICATION_ID, streamData.getMappingApplicationId());
         source.put(ApplicationMappingTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
 
         return source;

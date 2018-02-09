@@ -55,6 +55,7 @@ public class NetworkAddressRegisterEsDAO extends EsDAO implements INetworkAddres
         Map<String, Object> source = new HashMap<>();
         source.put(NetworkAddressTable.COLUMN_NETWORK_ADDRESS, networkAddress.getNetworkAddress());
         source.put(NetworkAddressTable.COLUMN_ADDRESS_ID, networkAddress.getAddressId());
+        source.put(NetworkAddressTable.COLUMN_SPAN_LAYER, networkAddress.getSpanLayer());
 
         IndexResponse response = client.prepareIndex(NetworkAddressTable.TABLE, networkAddress.getId()).setSource(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
         logger.debug("save network address register info, address getId: {}, network address code: {}, status: {}", networkAddress.getAddressId(), networkAddress.getNetworkAddress(), response.status().name());
