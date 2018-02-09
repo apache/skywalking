@@ -160,7 +160,7 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         boolQuery.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(start).lte(end));
         if (StringUtils.isNotEmpty(keyword)) {
-            boolQuery.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_OS_INFO, keyword));
+            boolQuery.must().add(QueryBuilders.queryStringQuery(keyword));
         }
         boolQuery.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, BooleanUtils.FALSE));
         searchRequestBuilder.setQuery(boolQuery);
