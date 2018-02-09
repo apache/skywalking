@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "start": "roadhog server",
-    "start:no-proxy": "cross-env NO_PROXY=true roadhog server",
+    "start:no-mock": "cross-env NO_MOCK=true roadhog server",
     "build": "roadhog build",
     "site": "roadhog-api-doc static && gh-pages -d dist",
     "analyze": "roadhog build --analyze",

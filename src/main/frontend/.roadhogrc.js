@@ -22,7 +22,7 @@ const config = {
   "theme": "./src/theme.js"
 };
 
-if (process.env.NO_PROXY) {
+if (process.env.NO_MOCK) {
   config.proxy = {
     "/api":{
       target: "http://localhost:12800",
