@@ -41,7 +41,7 @@ public class ApplicationMapping extends StreamData {
 
     private static final Column[] INTEGER_COLUMNS = {
         new Column(ApplicationMappingTable.COLUMN_APPLICATION_ID, new CoverOperation()),
-        new Column(ApplicationMappingTable.COLUMN_ADDRESS_ID, new CoverOperation()),
+        new Column(ApplicationMappingTable.COLUMN_MAPPING_APPLICATION_ID, new CoverOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};
@@ -74,12 +74,12 @@ public class ApplicationMapping extends StreamData {
         setDataInteger(0, applicationId);
     }
 
-    public int getAddressId() {
+    public int getMappingApplicationId() {
         return getDataInteger(1);
     }
 
-    public void setAddressId(int addressId) {
-        setDataInteger(1, addressId);
+    public void setMappingApplicationId(int mappingApplicationId) {
+        setDataInteger(1, mappingApplicationId);
     }
 
     public long getTimeBucket() {

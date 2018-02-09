@@ -4,6 +4,7 @@ type Alarm {
 }
 
 type AlarmItem {
+    id: ID!
     # Typical include: Application Code + cause type. This is a short description.
     title: String!
     # Include all related info to trigger this alarm.

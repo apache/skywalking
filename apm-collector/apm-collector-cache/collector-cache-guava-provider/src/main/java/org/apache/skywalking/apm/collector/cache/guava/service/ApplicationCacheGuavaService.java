@@ -22,11 +22,10 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
-import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.cache.IApplicationCacheDAO;
+import org.apache.skywalking.apm.collector.storage.table.register.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,23 +69,23 @@ public class ApplicationCacheGuavaService implements ApplicationCacheService {
         return applicationId;
     }
 
-    private final Cache<Integer, String> idCache = CacheBuilder.newBuilder().maximumSize(1000).build();
+    private final Cache<Integer, Application> applicationCache = CacheBuilder.newBuilder().maximumSize(1000).build();
 
-    @Override public String getApplicationCodeById(int applicationId) {
-        String applicationCode = Const.EMPTY_STRING;
+    @Override public Application getApplicationById(int applicationId) {
+        Application application = null;
         try {
-            applicationCode = idCache.get(applicationId, () -> getApplicationCacheDAO().getApplicationCode(applicationId));
+            application = applicationCache.get(applicationId, () -> getApplicationCacheDAO().getApplication(applicationId));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
 
-        if (StringUtils.isEmpty(applicationCode)) {
-            applicationCode = getApplicationCacheDAO().getApplicationCode(applicationId);
-            if (StringUtils.isNotEmpty(applicationCode)) {
-                codeCache.put(applicationCode, applicationId);
+        if (ObjectUtils.isEmpty(application)) {
+            application = getApplicationCacheDAO().getApplication(applicationId);
+            if (ObjectUtils.isNotEmpty(application)) {
+                applicationCache.put(applicationId, application);
             }
         }
-        return applicationCode;
+        return application;
     }
 
     private final Cache<Integer, Integer> addressIdCache = CacheBuilder.newBuilder().maximumSize(1000).build();

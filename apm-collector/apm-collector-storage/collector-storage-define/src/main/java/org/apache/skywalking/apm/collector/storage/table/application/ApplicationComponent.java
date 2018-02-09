@@ -41,7 +41,7 @@ public class ApplicationComponent extends StreamData {
 
     private static final Column[] INTEGER_COLUMNS = {
         new Column(ApplicationComponentTable.COLUMN_COMPONENT_ID, new CoverOperation()),
-        new Column(ApplicationComponentTable.COLUMN_PEER_ID, new CoverOperation()),
+        new Column(ApplicationComponentTable.COLUMN_APPLICATION_ID, new CoverOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};
@@ -82,11 +82,11 @@ public class ApplicationComponent extends StreamData {
         setDataInteger(0, componentId);
     }
 
-    public Integer getPeerId() {
+    public Integer getApplicationId() {
         return getDataInteger(1);
     }
 
-    public void setPeerId(Integer peerId) {
-        setDataInteger(1, peerId);
+    public void setApplicationId(Integer applicationId) {
+        setDataInteger(1, applicationId);
     }
 }

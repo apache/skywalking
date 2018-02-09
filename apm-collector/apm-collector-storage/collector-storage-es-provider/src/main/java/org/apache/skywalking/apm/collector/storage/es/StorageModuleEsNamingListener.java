@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.es;
 
 import org.apache.skywalking.apm.collector.cluster.ClusterModuleListener;
@@ -27,7 +26,7 @@ import org.apache.skywalking.apm.collector.storage.StorageModule;
  */
 public class StorageModuleEsNamingListener extends ClusterModuleListener {
 
-    public static final String PATH = "/" + StorageModule.NAME + "/" + StorageModuleEsProvider.NAME;
+    private static final String PATH = "/" + StorageModule.NAME + "/" + StorageModuleEsProvider.NAME;
 
     @Override public String path() {
         return PATH;

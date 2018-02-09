@@ -32,6 +32,6 @@ extend type Query {
     getClusterBrief(duration: Duration!): ClusterBrief
     getAlarmTrend(duration: Duration!): AlarmTrend
     getConjecturalApps(duration: Duration!): ConjecturalAppBrief
-    getTopNSlowService(duration: Duration!, topN: Int!): [ServiceInfo!]!
-    getTopNServerThroughput(duration: Duration!, topN: Int!): [AppServerInfo!]!
+    getTopNSlowService(duration: Duration!, topN: Int!): [ServiceMetric!]!
+    getTopNServerThroughput(applicationId: Int, duration: Duration!, topN: Int!): [AppServerInfo!]!
 }

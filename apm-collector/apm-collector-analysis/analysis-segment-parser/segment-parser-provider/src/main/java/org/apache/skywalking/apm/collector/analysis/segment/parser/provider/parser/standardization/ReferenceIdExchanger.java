@@ -19,7 +19,6 @@
 package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.standardization;
 
 import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegisterModule;
-import org.apache.skywalking.apm.collector.analysis.register.define.service.IApplicationIDService;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.INetworkAddressIDService;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IServiceNameService;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.ReferenceDecorator;
@@ -39,7 +38,6 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
     private final Logger logger = LoggerFactory.getLogger(ReferenceIdExchanger.class);
 
     private static ReferenceIdExchanger EXCHANGER;
-    private final IApplicationIDService applicationIDService;
     private final IServiceNameService serviceNameService;
     private final InstanceCacheService instanceCacheService;
     private final INetworkAddressIDService networkAddressIDService;
@@ -52,7 +50,6 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
     }
 
     private ReferenceIdExchanger(ModuleManager moduleManager) {
-        this.applicationIDService = moduleManager.find(AnalysisRegisterModule.NAME).getService(IApplicationIDService.class);
         this.serviceNameService = moduleManager.find(AnalysisRegisterModule.NAME).getService(IServiceNameService.class);
         this.networkAddressIDService = moduleManager.find(AnalysisRegisterModule.NAME).getService(INetworkAddressIDService.class);
         this.instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
@@ -92,7 +89,7 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
         }
 
         if (standardBuilder.getNetworkAddressId() == 0 && StringUtils.isNotEmpty(standardBuilder.getNetworkAddress())) {
-            int networkAddressId = networkAddressIDService.getOrCreate(standardBuilder.getNetworkAddress());
+            int networkAddressId = networkAddressIDService.get(standardBuilder.getNetworkAddress());
             if (networkAddressId == 0) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("network address: {} from application id: {} exchange failed", standardBuilder.getNetworkAddress(), applicationId);

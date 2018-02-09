@@ -16,16 +16,21 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.ui.service;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import java.text.ParseException;
+import java.util.List;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
+import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.table.MetricSource;
+import org.apache.skywalking.apm.collector.storage.ui.application.Application;
+import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.ui.service.ServiceMetric;
 
 /**
  * @author peng-yongsheng
@@ -33,22 +38,35 @@ import org.apache.skywalking.apm.collector.storage.dao.IInstanceUIDAO;
 public class ApplicationService {
 
     private final IInstanceUIDAO instanceDAO;
+    private final IServiceMetricUIDAO serviceMetricUIDAO;
     private final ApplicationCacheService applicationCacheService;
+    private final ServiceNameCacheService serviceNameCacheService;
 
     public ApplicationService(ModuleManager moduleManager) {
         this.instanceDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceUIDAO.class);
+        this.serviceMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IServiceMetricUIDAO.class);
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
+        this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
     }
 
-    public JsonArray getApplications(long startTime, long endTime) {
-        JsonArray applications = instanceDAO.getApplications(startTime, endTime);
+    public List<Application> getApplications(long startTime, long endTime, int... applicationIds) {
+        List<Application> applications = instanceDAO.getApplications(startTime, endTime, applicationIds);
 
-        applications.forEach(jsonElement -> {
-            JsonObject application = jsonElement.getAsJsonObject();
-            int applicationId = application.get("applicationId").getAsInt();
-            String applicationCode = applicationCacheService.getApplicationCodeById(applicationId);
-            application.addProperty("applicationCode", applicationCode);
+        applications.forEach(application -> {
+            String applicationCode = applicationCacheService.getApplicationById(application.getId()).getApplicationCode();
+            application.setName(applicationCode);
         });
         return applications;
+    }
+
+    public List<ServiceMetric> getSlowService(int applicationId, Step step, long start, long end,
+        Integer top) throws ParseException {
+        List<ServiceMetric> slowServices = serviceMetricUIDAO.getSlowService(applicationId, step, start, end, top, MetricSource.Callee);
+        slowServices.forEach(slowService -> {
+            slowService.setName(serviceNameCacheService.get(slowService.getId()).getServiceName());
+            //TODO
+            slowService.setTps(1);
+        });
+        return slowServices;
     }
 }

@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
 import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
+import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.apache.skywalking.apm.collector.storage.dao.register.IInstanceRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
@@ -58,8 +59,8 @@ public class InstanceRegisterH2DAO extends H2DAO implements IInstanceRegisterDAO
         source.put(InstanceTable.COLUMN_INSTANCE_ID, instance.getInstanceId());
         source.put(InstanceTable.COLUMN_APPLICATION_ID, instance.getApplicationId());
         source.put(InstanceTable.COLUMN_AGENT_UUID, instance.getAgentUUID());
-        source.put(InstanceTable.COLUMN_REGISTER_TIME, instance.getRegisterTime());
-        source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, instance.getHeartBeatTime());
+        source.put(InstanceTable.COLUMN_REGISTER_TIME, TimeBucketUtils.INSTANCE.getSecondTimeBucket(instance.getRegisterTime()));
+        source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, TimeBucketUtils.INSTANCE.getSecondTimeBucket(instance.getHeartBeatTime()));
         source.put(InstanceTable.COLUMN_OS_INFO, instance.getOsInfo());
         source.put(InstanceTable.COLUMN_ADDRESS_ID, instance.getAddressId());
         source.put(InstanceTable.COLUMN_IS_ADDRESS, instance.getIsAddress());
@@ -77,7 +78,7 @@ public class InstanceRegisterH2DAO extends H2DAO implements IInstanceRegisterDAO
         H2Client client = getClient();
         String sql = SqlBuilder.buildSql(UPDATE_HEARTBEAT_TIME_SQL, InstanceTable.TABLE, InstanceTable.COLUMN_HEARTBEAT_TIME,
             InstanceTable.COLUMN_ID);
-        Object[] params = new Object[] {heartbeatTime, instanceId};
+        Object[] params = new Object[] {TimeBucketUtils.INSTANCE.getSecondTimeBucket(heartbeatTime), instanceId};
         try {
             client.execute(sql, params);
         } catch (H2ClientException e) {
