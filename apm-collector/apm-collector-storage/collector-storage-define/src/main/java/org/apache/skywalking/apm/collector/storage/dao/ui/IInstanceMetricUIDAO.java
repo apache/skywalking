@@ -30,7 +30,7 @@ import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
  */
 public interface IInstanceMetricUIDAO extends DAO {
 
-    List<AppServerInfo> getTopNServerThroughput(int applicationId, Step step, long start, long end, long secondBetween,
+    List<AppServerInfo> getServerThroughput(int applicationId, Step step, long start, long end, long secondBetween,
         int topN,
         MetricSource metricSource);
 
