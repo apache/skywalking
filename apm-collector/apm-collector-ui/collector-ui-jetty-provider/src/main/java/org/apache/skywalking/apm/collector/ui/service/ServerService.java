@@ -36,6 +36,8 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.IGCMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IMemoryMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.table.MetricSource;
+import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 import org.apache.skywalking.apm.collector.storage.ui.common.ResponseTimeTrend;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.ui.common.ThroughputTrend;
@@ -95,6 +97,21 @@ public class ServerService {
         List<Integer> trends = instanceMetricUIDAO.getResponseTimeTrend(instanceId, step, durationPoints);
         responseTimeTrend.setTrendList(trends);
         return responseTimeTrend;
+    }
+
+    public List<AppServerInfo> getServerThroughput(int applicationId, Step step, long start,
+        long end, Integer topN) throws ParseException {
+        //TODO
+        List<AppServerInfo> serverThroughput = instanceMetricUIDAO.getServerThroughput(applicationId, step, start, end, 1000, topN, MetricSource.Callee);
+        serverThroughput.forEach(appServerInfo -> {
+            String applicationCode = applicationCacheService.getApplicationById(applicationId).getApplicationCode();
+            appServerInfo.setApplicationCode(applicationCode);
+            Instance instance = instanceUIDAO.getInstance(appServerInfo.getId());
+            appServerInfo.setOsInfo(instance.getOsInfo());
+        });
+
+        buildAppServerInfo(serverThroughput);
+        return serverThroughput;
     }
 
     public ThroughputTrend getServerTPSTrend(int instanceId, Step step, long start, long end) throws ParseException {
