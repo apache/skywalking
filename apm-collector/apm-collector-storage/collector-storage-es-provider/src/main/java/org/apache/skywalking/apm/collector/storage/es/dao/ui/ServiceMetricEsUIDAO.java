@@ -88,6 +88,29 @@ public class ServiceMetricEsUIDAO extends EsDAO implements IServiceMetricUIDAO {
         return trends;
     }
 
+    @Override public List<Integer> getServiceTPSTrend(int serviceId, Step step, List<DurationPoint> durationPoints) {
+        MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet();
+        String tableName = TimePyramidTableNameBuilder.build(step, ServiceMetricTable.TABLE);
+
+        durationPoints.forEach(durationPoint -> {
+            String id = durationPoint.getPoint() + Const.ID_SPLIT + serviceId + Const.ID_SPLIT + MetricSource.Callee.getValue();
+            prepareMultiGet.add(tableName, ServiceMetricTable.TABLE_TYPE, id);
+        });
+
+        List<Integer> trends = new LinkedList<>();
+        MultiGetResponse multiGetResponse = prepareMultiGet.get();
+        for (MultiGetItemResponse response : multiGetResponse.getResponses()) {
+            if (response.getResponse().isExists()) {
+                long calls = ((Number)response.getResponse().getSource().get(ServiceMetricTable.COLUMN_TRANSACTION_CALLS)).longValue();
+                long errorCalls = ((Number)response.getResponse().getSource().get(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS)).longValue();
+                trends.add((int)(calls - errorCalls));
+            } else {
+                trends.add(0);
+            }
+        }
+        return trends;
+    }
+
     @Override public List<Integer> getServiceSLATrend(int serviceId, Step step, List<DurationPoint> durationPoints) {
         MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet();
         String tableName = TimePyramidTableNameBuilder.build(step, ServiceMetricTable.TABLE);

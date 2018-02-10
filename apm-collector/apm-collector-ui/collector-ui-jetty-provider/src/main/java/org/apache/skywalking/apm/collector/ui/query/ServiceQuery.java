@@ -70,8 +70,11 @@ public class ServiceQuery implements Query {
         return getServiceNameService().getServiceResponseTimeTrend(serviceId, duration.getStep(), start, end);
     }
 
-    public ThroughputTrend getServiceTPSTrend(int serviceId, Duration duration) {
-        return null;
+    public ThroughputTrend getServiceTPSTrend(int serviceId, Duration duration) throws ParseException {
+        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+
+        return getServiceNameService().getServiceTPSTrend(serviceId, duration.getStep(), start, end);
     }
 
     public SLATrend getServiceSLATrend(int serviceId, Duration duration) throws ParseException {
