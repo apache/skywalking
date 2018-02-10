@@ -109,6 +109,7 @@ import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceMin
 import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceMonthMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationComponentUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMappingUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationReferenceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ICpuMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IGCMetricUIDAO;
@@ -207,6 +208,7 @@ import org.apache.skywalking.apm.collector.storage.h2.dao.srmp.ServiceReferenceM
 import org.apache.skywalking.apm.collector.storage.h2.dao.srmp.ServiceReferenceMonthMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ui.ApplicationComponentH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ui.ApplicationMappingH2UIDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.ui.ApplicationMetricH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ui.ApplicationReferenceMetricH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ui.CpuMetricH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ui.GCMetricH2UIDAO;
@@ -383,6 +385,7 @@ public class StorageModuleH2Provider extends ModuleProvider {
         this.registerServiceImplementation(IInstanceMetricUIDAO.class, new InstanceMetricH2UIDAO(h2Client));
         this.registerServiceImplementation(IApplicationComponentUIDAO.class, new ApplicationComponentH2UIDAO(h2Client));
         this.registerServiceImplementation(IApplicationMappingUIDAO.class, new ApplicationMappingH2UIDAO(h2Client));
+        this.registerServiceImplementation(IApplicationMetricUIDAO.class, new ApplicationMetricH2UIDAO(h2Client));
         this.registerServiceImplementation(IApplicationReferenceMetricUIDAO.class, new ApplicationReferenceMetricH2UIDAO(h2Client));
         this.registerServiceImplementation(ISegmentDurationUIDAO.class, new SegmentDurationH2UIDAO(h2Client));
         this.registerServiceImplementation(ISegmentUIDAO.class, new SegmentH2UIDAO(h2Client));

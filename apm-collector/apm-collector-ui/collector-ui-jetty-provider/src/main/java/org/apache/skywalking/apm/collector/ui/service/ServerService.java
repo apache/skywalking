@@ -36,8 +36,6 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.IGCMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IMemoryMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.table.MetricSource;
-import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 import org.apache.skywalking.apm.collector.storage.ui.common.ResponseTimeTrend;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.ui.common.ThroughputTrend;
@@ -70,18 +68,6 @@ public class ServerService {
         this.memoryMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IMemoryMetricUIDAO.class);
         this.instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
-    }
-
-    public List<AppServerInfo> getTopNServerThroughput(int applicationId, Step step, long start, long end, int topN) {
-        //TODO
-        List<AppServerInfo> appServerInfos = instanceMetricUIDAO.getTopNServerThroughput(applicationId, step, start, end, 1000, topN, MetricSource.Callee);
-        appServerInfos.forEach(appServerInfo -> {
-            Instance instance = instanceUIDAO.getInstance(appServerInfo.getId());
-            appServerInfo.setOsInfo(instance.getOsInfo());
-        });
-        buildAppServerInfo(appServerInfos);
-
-        return appServerInfos;
     }
 
     public List<AppServerInfo> searchServer(String keyword, long start, long end) {
