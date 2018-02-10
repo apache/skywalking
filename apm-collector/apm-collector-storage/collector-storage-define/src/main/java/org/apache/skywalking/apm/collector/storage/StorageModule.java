@@ -104,6 +104,7 @@ import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceMin
 import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceMonthMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationComponentUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMappingUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationReferenceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ICpuMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IGCMetricUIDAO;
@@ -248,6 +249,7 @@ public class StorageModule extends Module {
         classes.add(IInstanceMetricUIDAO.class);
         classes.add(IApplicationComponentUIDAO.class);
         classes.add(IApplicationMappingUIDAO.class);
+        classes.add(IApplicationMetricUIDAO.class);
         classes.add(IApplicationReferenceMetricUIDAO.class);
         classes.add(ISegmentDurationUIDAO.class);
         classes.add(ISegmentUIDAO.class);

@@ -113,6 +113,7 @@ import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceMin
 import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceMonthMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationComponentUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMappingUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationReferenceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ICpuMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IGCMetricUIDAO;
@@ -211,6 +212,7 @@ import org.apache.skywalking.apm.collector.storage.es.dao.srmp.ServiceReferenceM
 import org.apache.skywalking.apm.collector.storage.es.dao.srmp.ServiceReferenceMonthMetricEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.ApplicationComponentEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.ApplicationMappingEsUIDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.ui.ApplicationMetricEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.ApplicationReferenceMetricEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.CpuMetricEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.GCMetricEsUIDAO;
@@ -407,6 +409,7 @@ public class StorageModuleEsProvider extends ModuleProvider {
         this.registerServiceImplementation(IInstanceMetricUIDAO.class, new InstanceMetricEsUIDAO(elasticSearchClient));
         this.registerServiceImplementation(IApplicationComponentUIDAO.class, new ApplicationComponentEsUIDAO(elasticSearchClient));
         this.registerServiceImplementation(IApplicationMappingUIDAO.class, new ApplicationMappingEsUIDAO(elasticSearchClient));
+        this.registerServiceImplementation(IApplicationMetricUIDAO.class, new ApplicationMetricEsUIDAO(elasticSearchClient));
         this.registerServiceImplementation(IApplicationReferenceMetricUIDAO.class, new ApplicationReferenceMetricEsUIDAO(elasticSearchClient));
         this.registerServiceImplementation(ISegmentDurationUIDAO.class, new SegmentDurationEsUIDAO(elasticSearchClient));
         this.registerServiceImplementation(ISegmentUIDAO.class, new SegmentEsUIDAO(elasticSearchClient));
