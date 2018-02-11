@@ -16,17 +16,27 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.register.define.service;
+package org.apache.skywalking.apm.collector.storage.table.register;
 
-import org.apache.skywalking.apm.collector.core.module.Service;
+import java.lang.reflect.Field;
+import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.network.trace.component.OfficialComponent;
+import org.junit.Test;
 
 /**
  * @author peng-yongsheng
  */
-public interface INetworkAddressIDService extends Service {
-    int getOrCreate(String networkAddress);
+public class ServerTypeDefineTestCase {
 
-    int get(String networkAddress);
+    @Test
+    public void check() throws IllegalAccessException {
+        Field[] fields = ComponentsDefine.class.getDeclaredFields();
 
-    void update(int addressId, int spanLayer, int serverType);
+        for (Field field : fields) {
+            if (field.getType().equals(OfficialComponent.class)) {
+                OfficialComponent component = (OfficialComponent)field.get(ComponentsDefine.getInstance());
+                ServerTypeDefine.getInstance().getServerTypeId(component.getId());
+            }
+        }
+    }
 }
