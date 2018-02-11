@@ -43,10 +43,14 @@ public class TransportClientHandlerInterceptor implements InstanceMethodsAroundI
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         Invocation invocation = (Invocation)allArguments[0];
+        if (null == invocation.getOperationMeta() || null == invocation.getEndpoint()) {
+            return;
+        }
         URI uri = new URI(invocation.getEndpoint().toString());
         String peer = uri.getHost() + ":" + uri.getPort();
+        String operationName = invocation.getMicroserviceQualifiedName();
         final ContextCarrier contextCarrier = new ContextCarrier();
-        AbstractSpan span = ContextManager.createExitSpan(invocation.getMicroserviceQualifiedName(), contextCarrier, peer);
+        AbstractSpan span = ContextManager.createExitSpan(operationName, contextCarrier, peer);
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
