@@ -38,5 +38,7 @@ public class NetworkAddressEsTableDefine extends ElasticSearchTableDefine {
     @Override public void initialize() {
         addColumn(new ElasticSearchColumnDefine(NetworkAddressTable.COLUMN_NETWORK_ADDRESS, ElasticSearchColumnDefine.Type.Keyword.name()));
         addColumn(new ElasticSearchColumnDefine(NetworkAddressTable.COLUMN_ADDRESS_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(NetworkAddressTable.COLUMN_SPAN_LAYER, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(NetworkAddressTable.COLUMN_SERVER_TYPE, ElasticSearchColumnDefine.Type.Integer.name()));
     }
 }
