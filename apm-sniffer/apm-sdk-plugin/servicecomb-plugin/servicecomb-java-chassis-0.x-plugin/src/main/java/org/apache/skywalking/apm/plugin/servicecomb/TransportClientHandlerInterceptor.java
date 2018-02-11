@@ -65,6 +65,9 @@ public class TransportClientHandlerInterceptor implements InstanceMethodsAroundI
     @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
         Invocation invocation = (Invocation)allArguments[0];
+        if (null == invocation.getOperationMeta() || null == invocation.getEndpoint()) {
+            return ret;
+        }
         AbstractSpan span = ContextManager.activeSpan();
         int statusCode = invocation.getStatus().getStatusCode();
         if (statusCode >= 400) {
