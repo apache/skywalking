@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.collector.storage.ui.overview;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -25,6 +26,10 @@ import java.util.List;
  */
 public class ConjecturalAppBrief {
     private List<ConjecturalApp> apps;
+
+    public ConjecturalAppBrief() {
+        this.apps = new LinkedList<>();
+    }
 
     public List<ConjecturalApp> getApps() {
         return apps;
