@@ -22,6 +22,7 @@ import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchCli
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.cache.INetworkAddressCacheDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddress;
 import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddressTable;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
@@ -56,12 +57,12 @@ public class NetworkAddressEsCacheDAO extends EsDAO implements INetworkAddressCa
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
         if (searchResponse.getHits().totalHits > 0) {
             SearchHit searchHit = searchResponse.getHits().iterator().next();
-            return (int)searchHit.getSource().get(NetworkAddressTable.COLUMN_ADDRESS_ID);
+            return ((Number)searchHit.getSource().get(NetworkAddressTable.COLUMN_ADDRESS_ID)).intValue();
         }
-        return 0;
+        return Const.NONE;
     }
 
-    @Override public String getAddress(int addressId) {
+    @Override public String getAddressById(int addressId) {
         logger.debug("get network address, address id: {}", addressId);
         ElasticSearchClient client = getClient();
         GetRequestBuilder getRequestBuilder = client.prepareGet(NetworkAddressTable.TABLE, String.valueOf(addressId));
@@ -71,5 +72,22 @@ public class NetworkAddressEsCacheDAO extends EsDAO implements INetworkAddressCa
             return (String)getResponse.getSource().get(NetworkAddressTable.COLUMN_NETWORK_ADDRESS);
         }
         return Const.EMPTY_STRING;
+    }
+
+    @Override public NetworkAddress getAddress(int addressId) {
+        ElasticSearchClient client = getClient();
+        GetRequestBuilder getRequestBuilder = client.prepareGet(NetworkAddressTable.TABLE, String.valueOf(addressId));
+
+        GetResponse getResponse = getRequestBuilder.get();
+        if (getResponse.isExists()) {
+            NetworkAddress address = new NetworkAddress();
+            address.setId((String)getResponse.getSource().get(NetworkAddressTable.COLUMN_ID));
+            address.setAddressId(((Number)getResponse.getSource().get(NetworkAddressTable.COLUMN_ADDRESS_ID)).intValue());
+            address.setSpanLayer(((Number)getResponse.getSource().get(NetworkAddressTable.COLUMN_SPAN_LAYER)).intValue());
+            address.setServerType(((Number)getResponse.getSource().get(NetworkAddressTable.COLUMN_SERVER_TYPE)).intValue());
+            address.setNetworkAddress((String)getResponse.getSource().get(NetworkAddressTable.COLUMN_NETWORK_ADDRESS));
+            return address;
+        }
+        return null;
     }
 }

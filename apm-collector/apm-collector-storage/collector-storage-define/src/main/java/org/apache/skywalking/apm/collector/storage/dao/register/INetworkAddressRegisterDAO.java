@@ -30,4 +30,6 @@ public interface INetworkAddressRegisterDAO extends DAO {
     int getMinNetworkAddressId();
 
     void save(NetworkAddress networkAddress);
+
+    void update(String id, int spanLayer, int serverType);
 }
