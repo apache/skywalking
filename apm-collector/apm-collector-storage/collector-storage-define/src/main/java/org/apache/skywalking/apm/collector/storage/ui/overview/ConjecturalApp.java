@@ -22,8 +22,17 @@ package org.apache.skywalking.apm.collector.storage.ui.overview;
  * @author peng-yongsheng
  */
 public class ConjecturalApp {
+    private int id;
     private String name;
     private int num;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;

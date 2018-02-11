@@ -18,11 +18,15 @@
 
 package org.apache.skywalking.apm.collector.storage.dao.ui;
 
+import java.util.List;
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
+import org.apache.skywalking.apm.collector.storage.ui.overview.ConjecturalApp;
 
 /**
  * @author peng-yongsheng
  */
 public interface INetworkAddressUIDAO extends DAO {
     int getNumOfSpanLayer(int spanLayer);
+
+    List<ConjecturalApp> getConjecturalApps();
 }
