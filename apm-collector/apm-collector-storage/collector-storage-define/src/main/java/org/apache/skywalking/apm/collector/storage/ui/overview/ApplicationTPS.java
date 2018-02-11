@@ -16,26 +16,37 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.ui.common;
-
-import java.util.LinkedList;
-import java.util.List;
+package org.apache.skywalking.apm.collector.storage.ui.overview;
 
 /**
  * @author peng-yongsheng
  */
-public class ThroughputTrend {
-    private List<Integer> trendList;
+public class ApplicationTPS {
+    private int applicationId;
+    private String applicationCode;
+    private int tps;
 
-    public ThroughputTrend() {
-        this.trendList = new LinkedList<>();
+    public int getApplicationId() {
+        return applicationId;
     }
 
-    public List<Integer> getTrendList() {
-        return trendList;
+    public void setApplicationId(int applicationId) {
+        this.applicationId = applicationId;
     }
 
-    public void setTrendList(List<Integer> trendList) {
-        this.trendList = trendList;
+    public String getApplicationCode() {
+        return applicationCode;
+    }
+
+    public void setApplicationCode(String applicationCode) {
+        this.applicationCode = applicationCode;
+    }
+
+    public int getTps() {
+        return tps;
+    }
+
+    public void setTps(int tps) {
+        this.tps = tps;
     }
 }

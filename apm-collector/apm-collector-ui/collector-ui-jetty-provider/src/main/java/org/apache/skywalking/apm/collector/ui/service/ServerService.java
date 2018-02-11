@@ -72,18 +72,6 @@ public class ServerService {
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
     }
 
-    public List<AppServerInfo> getTopNServerThroughput(int applicationId, Step step, long start, long end, int topN) {
-        //TODO
-        List<AppServerInfo> appServerInfos = instanceMetricUIDAO.getTopNServerThroughput(applicationId, step, start, end, 1000, topN, MetricSource.Callee);
-        appServerInfos.forEach(appServerInfo -> {
-            Instance instance = instanceUIDAO.getInstance(appServerInfo.getId());
-            appServerInfo.setOsInfo(instance.getOsInfo());
-        });
-        buildAppServerInfo(appServerInfos);
-
-        return appServerInfos;
-    }
-
     public List<AppServerInfo> searchServer(String keyword, long start, long end) {
         List<AppServerInfo> serverInfos = instanceUIDAO.searchServer(keyword, start, end);
         serverInfos.forEach(serverInfo -> {
@@ -109,6 +97,21 @@ public class ServerService {
         List<Integer> trends = instanceMetricUIDAO.getResponseTimeTrend(instanceId, step, durationPoints);
         responseTimeTrend.setTrendList(trends);
         return responseTimeTrend;
+    }
+
+    public List<AppServerInfo> getServerThroughput(int applicationId, Step step, long start,
+        long end, Integer topN) throws ParseException {
+        //TODO
+        List<AppServerInfo> serverThroughput = instanceMetricUIDAO.getServerThroughput(applicationId, step, start, end, 1000, topN, MetricSource.Callee);
+        serverThroughput.forEach(appServerInfo -> {
+            String applicationCode = applicationCacheService.getApplicationById(applicationId).getApplicationCode();
+            appServerInfo.setApplicationCode(applicationCode);
+            Instance instance = instanceUIDAO.getInstance(appServerInfo.getId());
+            appServerInfo.setOsInfo(instance.getOsInfo());
+        });
+
+        buildAppServerInfo(serverThroughput);
+        return serverThroughput;
     }
 
     public ThroughputTrend getServerTPSTrend(int instanceId, Step step, long start, long end) throws ParseException {

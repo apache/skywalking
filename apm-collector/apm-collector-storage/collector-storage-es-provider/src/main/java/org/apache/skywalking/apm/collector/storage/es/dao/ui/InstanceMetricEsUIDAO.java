@@ -58,7 +58,7 @@ public class InstanceMetricEsUIDAO extends EsDAO implements IInstanceMetricUIDAO
         super(client);
     }
 
-    @Override public List<AppServerInfo> getTopNServerThroughput(int applicationId, Step step, long start, long end,
+    @Override public List<AppServerInfo> getServerThroughput(int applicationId, Step step, long start, long end,
         long secondBetween, int topN, MetricSource metricSource) {
         String tableName = TimePyramidTableNameBuilder.build(step, InstanceMetricTable.TABLE);
 

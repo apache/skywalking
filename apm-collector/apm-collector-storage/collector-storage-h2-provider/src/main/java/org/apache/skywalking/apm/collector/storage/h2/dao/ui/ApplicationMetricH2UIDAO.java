@@ -16,25 +16,32 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.dao.ui;
+package org.apache.skywalking.apm.collector.storage.h2.dao.ui;
 
 import java.util.List;
-import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
+import org.apache.skywalking.apm.collector.client.h2.H2Client;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
-import org.apache.skywalking.apm.collector.storage.ui.server.AppServerInfo;
-import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
+import org.apache.skywalking.apm.collector.storage.ui.overview.ApplicationTPS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
-public interface IInstanceMetricUIDAO extends DAO {
+public class ApplicationMetricH2UIDAO extends H2DAO implements IApplicationMetricUIDAO {
 
-    List<AppServerInfo> getServerThroughput(int applicationId, Step step, long start, long end, long secondBetween,
-        int topN,
-        MetricSource metricSource);
+    private final Logger logger = LoggerFactory.getLogger(ApplicationMetricH2UIDAO.class);
 
-    List<Integer> getServerTPSTrend(int instanceId, Step step, List<DurationPoint> durationPoints);
+    public ApplicationMetricH2UIDAO(H2Client client) {
+        super(client);
+    }
 
-    List<Integer> getResponseTimeTrend(int instanceId, Step step, List<DurationPoint> durationPoints);
+    @Override
+    public List<ApplicationTPS> getTopNApplicationThroughput(Step step, long start, long end, long betweenSecond,
+        int topN, MetricSource metricSource) {
+        return null;
+    }
 }

@@ -16,26 +16,18 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.ui.common;
+package org.apache.skywalking.apm.collector.storage.dao.ui;
 
-import java.util.LinkedList;
 import java.util.List;
+import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
+import org.apache.skywalking.apm.collector.storage.table.MetricSource;
+import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.ui.overview.ApplicationTPS;
 
 /**
  * @author peng-yongsheng
  */
-public class ThroughputTrend {
-    private List<Integer> trendList;
-
-    public ThroughputTrend() {
-        this.trendList = new LinkedList<>();
-    }
-
-    public List<Integer> getTrendList() {
-        return trendList;
-    }
-
-    public void setTrendList(List<Integer> trendList) {
-        this.trendList = trendList;
-    }
+public interface IApplicationMetricUIDAO extends DAO {
+    List<ApplicationTPS> getTopNApplicationThroughput(Step step, long start, long end, long betweenSecond, int topN,
+        MetricSource metricSource);
 }
