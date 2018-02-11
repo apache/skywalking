@@ -28,9 +28,6 @@ export default generateModal({
         numOfCache
         numOfMQ
       }
-      getAlarmTrend(duration: $duration) {
-        numOfAlarmRate
-      }
       getConjecturalApps(duration: $duration) {
         apps {
           name
@@ -38,13 +35,13 @@ export default generateModal({
         }
       }
       getTopNSlowService(duration: $duration, topN: 10) {
-        id
+        key: id
         name
         avgResponseTime
       }
-      getTopNServerThroughput(duration: $duration, topN: 10) {
-        id
-        name
+      getTopNApplicationThroughput(duration: $duration, topN: 10) {
+        key: applicationId
+        applicationCode
         tps
       }
     }

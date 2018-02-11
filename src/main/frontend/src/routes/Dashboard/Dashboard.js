@@ -20,6 +20,7 @@ export default class Dashboard extends PureComponent {
     });
   }
   renderList = (data, title, content, unit) => {
+    let index = 0;
     return (<List
       size="small"
       itemLayout="horizontal"
@@ -31,7 +32,7 @@ export default class Dashboard extends PureComponent {
               <Avatar
                 style={{ color: '#ff3333', backgroundColor: '#ffb84d' }}
               >
-                {item.key}
+                {(() => { index += 1; return index; })()}
               </Avatar>}
             title={item[title]}
             description={`${item[content]} ${unit}`}
@@ -147,7 +148,7 @@ export default class Dashboard extends PureComponent {
               bordered={false}
               bodyStyle={{ padding: 10 }}
             >
-              {this.renderList(data.getTopNServerThroughput, 'name', 'tps', 't/s')}
+              {this.renderList(data.getTopNApplicationThroughput, 'applicationCode', 'tps', 't/s')}
             </Card>
           </Col>
         </Row>

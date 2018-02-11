@@ -87,9 +87,10 @@ export default class Server extends PureComponent {
         >
           <Card title="Info" style={{ marginTop: 24 }} bordered={false}>
             <DescriptionList>
+              <Description term="OS">{serverInfo.label}</Description>
               <Description term="Host Name">{serverInfo.host}</Description>
               <Description term="Process Id">{serverInfo.pid}</Description>
-              <Description term="IPv4">{serverInfo.ipv4}</Description>
+              <Description term="IPv4">{serverInfo.ipv4 ? serverInfo.ipv4.join() : ''}</Description>
             </DescriptionList>
           </Card>
           <Row gutter={24}>

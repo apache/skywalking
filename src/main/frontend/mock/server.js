@@ -12,7 +12,7 @@ export default {
               os: 'Mac-@name',
               host: 'WORKSAPCE-@name',
               pid: '@natural',
-              ipv4: '@ip',
+              'ipv4|1-3': ['@ip'],
             },
           ],
         },
