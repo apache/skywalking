@@ -30,6 +30,7 @@ import org.apache.skywalking.apm.collector.storage.ui.service.ServiceMetric;
 import org.apache.skywalking.apm.collector.ui.graphql.Query;
 import org.apache.skywalking.apm.collector.ui.service.ApplicationService;
 import org.apache.skywalking.apm.collector.ui.service.ApplicationTopologyService;
+import org.apache.skywalking.apm.collector.ui.service.ServerService;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 
 /**
@@ -40,6 +41,7 @@ public class ApplicationQuery implements Query {
     private final ModuleManager moduleManager;
     private ApplicationService applicationService;
     private ApplicationTopologyService applicationTopologyService;
+    private ServerService serverService;
 
     public ApplicationQuery(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
@@ -59,6 +61,13 @@ public class ApplicationQuery implements Query {
         return applicationTopologyService;
     }
 
+    private ServerService getServerService() {
+        if (ObjectUtils.isEmpty(serverService)) {
+            this.serverService = new ServerService(moduleManager);
+        }
+        return serverService;
+    }
+
     public List<Application> getAllApplication(Duration duration) throws ParseException {
         long start = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart());
         long end = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd());
@@ -73,14 +82,19 @@ public class ApplicationQuery implements Query {
         return getApplicationTopologyService().getApplicationTopology(duration.getStep(), applicationId, start, end);
     }
 
-    public List<ServiceMetric> getSlowService(int applicationId, Duration duration, Integer top) throws ParseException {
+    public List<ServiceMetric> getSlowService(int applicationId, Duration duration,
+        Integer topN) throws ParseException {
         long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
-        return getApplicationService().getSlowService(applicationId, duration.getStep(), start, end, top);
+        return getApplicationService().getSlowService(applicationId, duration.getStep(), start, end, topN);
     }
 
-    public List<AppServerInfo> getServerThroughput(int applicationId, Duration duration, Integer top) {
-        return null;
+    public List<AppServerInfo> getServerThroughput(int applicationId, Duration duration,
+        Integer topN) throws ParseException {
+        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+
+        return getServerService().getServerThroughput(applicationId, duration.getStep(), start, end, topN);
     }
 }

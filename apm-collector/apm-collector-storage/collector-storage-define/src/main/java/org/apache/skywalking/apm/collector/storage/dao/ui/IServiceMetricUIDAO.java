@@ -33,6 +33,8 @@ import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 public interface IServiceMetricUIDAO extends DAO {
     List<Integer> getServiceResponseTimeTrend(int serviceId, Step step, List<DurationPoint> durationPoints);
 
+    List<Integer> getServiceTPSTrend(int serviceId, Step step, List<DurationPoint> durationPoints);
+
     List<Integer> getServiceSLATrend(int serviceId, Step step, List<DurationPoint> durationPoints);
 
     List<Node> getServicesMetric(Step step, long startTime, long endTime,

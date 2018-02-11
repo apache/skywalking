@@ -25,11 +25,13 @@ import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService
 import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.ui.application.Application;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.ui.overview.ApplicationTPS;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceMetric;
 
 /**
@@ -39,12 +41,14 @@ public class ApplicationService {
 
     private final IInstanceUIDAO instanceDAO;
     private final IServiceMetricUIDAO serviceMetricUIDAO;
+    private final IApplicationMetricUIDAO applicationMetricUIDAO;
     private final ApplicationCacheService applicationCacheService;
     private final ServiceNameCacheService serviceNameCacheService;
 
     public ApplicationService(ModuleManager moduleManager) {
         this.instanceDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceUIDAO.class);
         this.serviceMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IServiceMetricUIDAO.class);
+        this.applicationMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationMetricUIDAO.class);
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
         this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
     }
@@ -68,5 +72,16 @@ public class ApplicationService {
             slowService.setTps(1);
         });
         return slowServices;
+    }
+
+    public List<ApplicationTPS> getTopNApplicationThroughput(Step step, long start, long end,
+        int topN) throws ParseException {
+        //TODO
+        List<ApplicationTPS> applicationThroughput = applicationMetricUIDAO.getTopNApplicationThroughput(step, start, end, 1000, topN, MetricSource.Callee);
+        applicationThroughput.forEach(applicationTPS -> {
+            String applicationCode = applicationCacheService.getApplicationById(applicationTPS.getApplicationId()).getApplicationCode();
+            applicationTPS.setApplicationCode(applicationCode);
+        });
+        return applicationThroughput;
     }
 }

@@ -30,6 +30,7 @@ import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.ui.common.ResponseTimeTrend;
 import org.apache.skywalking.apm.collector.storage.ui.common.SLATrend;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.ui.common.ThroughputTrend;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceMetric;
 import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
@@ -56,6 +57,17 @@ public class ServiceNameService {
 
     public List<ServiceInfo> searchService(String keyword, int topN) {
         return serviceNameServiceUIDAO.searchService(keyword, topN);
+    }
+
+    public ThroughputTrend getServiceTPSTrend(int serviceId, Step step, long start, long end) throws ParseException {
+        ThroughputTrend throughputTrend = new ThroughputTrend();
+        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
+        List<Integer> callsTrends = serviceMetricUIDAO.getServiceTPSTrend(serviceId, step, durationPoints);
+
+        //TODO
+        callsTrends.forEach(calls -> throughputTrend.getTrendList().add(calls / 1000));
+
+        return throughputTrend;
     }
 
     public ResponseTimeTrend getServiceResponseTimeTrend(int serviceId, Step step, long start,
