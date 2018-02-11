@@ -27,11 +27,15 @@ import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.INetworkAddressUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
+import org.apache.skywalking.apm.collector.storage.table.register.ServerTypeDefine;
 import org.apache.skywalking.apm.collector.storage.ui.application.Application;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.ui.overview.ApplicationTPS;
+import org.apache.skywalking.apm.collector.storage.ui.overview.ConjecturalApp;
+import org.apache.skywalking.apm.collector.storage.ui.overview.ConjecturalAppBrief;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceMetric;
 
 /**
@@ -42,6 +46,7 @@ public class ApplicationService {
     private final IInstanceUIDAO instanceDAO;
     private final IServiceMetricUIDAO serviceMetricUIDAO;
     private final IApplicationMetricUIDAO applicationMetricUIDAO;
+    private final INetworkAddressUIDAO networkAddressUIDAO;
     private final ApplicationCacheService applicationCacheService;
     private final ServiceNameCacheService serviceNameCacheService;
 
@@ -49,6 +54,7 @@ public class ApplicationService {
         this.instanceDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceUIDAO.class);
         this.serviceMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IServiceMetricUIDAO.class);
         this.applicationMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationMetricUIDAO.class);
+        this.networkAddressUIDAO = moduleManager.find(StorageModule.NAME).getService(INetworkAddressUIDAO.class);
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
         this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
     }
@@ -84,4 +90,17 @@ public class ApplicationService {
         });
         return applicationThroughput;
     }
+
+    public ConjecturalAppBrief getConjecturalApps(Step step, long start, long end) throws ParseException {
+        List<ConjecturalApp> conjecturalApps = networkAddressUIDAO.getConjecturalApps();
+        conjecturalApps.forEach(conjecturalApp -> {
+            String name = ServerTypeDefine.getInstance().getServerType(conjecturalApp.getId());
+            conjecturalApp.setName(name);
+        });
+
+        ConjecturalAppBrief conjecturalAppBrief = new ConjecturalAppBrief();
+        conjecturalAppBrief.setApps(conjecturalApps);
+        return conjecturalAppBrief;
+    }
+
 }

@@ -20,12 +20,14 @@ package org.apache.skywalking.apm.collector.storage.h2.dao.ui;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
 import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
 import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.apache.skywalking.apm.collector.storage.dao.ui.INetworkAddressUIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddressTable;
+import org.apache.skywalking.apm.collector.storage.ui.overview.ConjecturalApp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,5 +55,9 @@ public class NetworkAddressH2UIDAO extends H2DAO implements INetworkAddressUIDAO
             logger.error(e.getMessage(), e);
         }
         return 0;
+    }
+
+    @Override public List<ConjecturalApp> getConjecturalApps() {
+        return null;
     }
 }
