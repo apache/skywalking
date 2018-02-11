@@ -60,7 +60,7 @@ export default class Search extends PureComponent {
         value={value}
       >
         {this.state.data.map((_) => {
-            return (<Option value={_.key}>{_.label}</Option>);
+            return (<Option key={_.key} value={_.key}>{_.label}</Option>);
           })}
       </Select>
     );

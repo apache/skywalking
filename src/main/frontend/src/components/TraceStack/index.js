@@ -212,7 +212,7 @@ class TraceStack extends PureComponent {
   render() {
     const { colorMap, span = {} } = this.state;
     const legendButtons = Object.keys(colorMap).map(key =>
-      (<Tag color={colorMap[key]}>{key}</Tag>));
+      (<Tag color={colorMap[key]} key={key}>{key}</Tag>));
     let data;
     if (span.content) {
       const base = [
@@ -262,7 +262,7 @@ class TraceStack extends PureComponent {
     )) : null;
     return (
       <div className={styles.stack}>
-        <div style={{ 'padding-bottom': 10 }}>
+        <div style={{ paddingBottom: 10 }}>
           { legendButtons }
         </div>
         <div ref={(el) => { this.axis = el; }} />

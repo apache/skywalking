@@ -21,7 +21,7 @@ const { Item: FormItem } = Form;
     const { variables: { values, labels } } = props.server;
     return {
       serverId: Form.createFormField({
-        value: { key: values.serverId, label: labels.serverId },
+        value: { key: values.serverId ? values.serverId : '', label: labels.serverId ? labels.serverId : '' },
       }),
     };
   },

@@ -45,7 +45,7 @@ const middleColResponsiveProps = {
     const { variables: { values, labels } } = props.application;
     return {
       applicationId: Form.createFormField({
-        value: { key: values.applicationId, label: labels.applicationId },
+        value: { key: values.applicationId ? values.applicationId : '', label: labels.applicationId ? labels.applicationId : '' },
       }),
     };
   },
@@ -97,7 +97,7 @@ export default class Application extends PureComponent {
                 onSelect={this.handleSelect.bind(this)}
               >
                 {options.applicationId && options.applicationId.map((app) => {
-                    return (<Option value={app.key}>{app.label}</Option>);
+                    return (<Option key={app.key} value={app.key}>{app.label}</Option>);
                   })}
               </Select>
             )}

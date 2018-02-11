@@ -36,37 +36,37 @@ class TimeSelect extends PureComponent {
     this.shortcuts = [
       { ...now,
         from() {
-          return moment().subtract('minutes', 15);
+          return moment().subtract(15, 'minutes');
         },
         label: 'Last 15 minutes',
       },
       { ...now,
         from() {
-          return moment().subtract('minutes', 30);
+          return moment().subtract(30, 'minutes');
         },
         label: 'Last 30 minutes',
       },
       { ...now,
         from() {
-          return moment().subtract('hours', 1);
+          return moment().subtract(1, 'hours');
         },
         label: 'Last 1 hour',
       },
       { ...now,
         from() {
-          return moment().subtract('hours', 6);
+          return moment().subtract(6, 'hours');
         },
         label: 'Last 6 hours',
       },
       { ...now,
         from() {
-          return moment().subtract('hours', 12);
+          return moment().subtract(12, 'hours');
         },
         label: 'Last 12 hours',
       },
       { ...now,
         from() {
-          return moment().subtract('hours', 24);
+          return moment().subtract(24, 'hours');
         },
         label: 'Last 24 hours',
       },
@@ -74,37 +74,37 @@ class TimeSelect extends PureComponent {
     this.shortcutsDays = [
       { ...now,
         from() {
-          return moment().subtract('days', 2);
+          return moment().subtract(2, 'days');
         },
         label: 'Last 2 days',
       },
       { ...now,
         from() {
-          return moment().subtract('days', 7);
+          return moment().subtract(7, 'days');
         },
         label: 'Last 7 days',
       },
       { ...now,
         from() {
-          return moment().subtract('days', 14);
+          return moment().subtract(14, 'days');
         },
         label: 'Last 14 days',
       },
       { ...now,
         from() {
-          return moment().subtract('days', 30);
+          return moment().subtract(30, 'days');
         },
         label: 'Last 30 days',
       },
       { ...now,
         from() {
-          return moment().subtract('months', 6);
+          return moment().subtract(6, 'months');
         },
         label: 'Last 6 months',
       },
       { ...now,
         from() {
-          return moment().subtract('months', 12);
+          return moment().subtract(12, 'months');
         },
         label: 'Last 12 months',
       },

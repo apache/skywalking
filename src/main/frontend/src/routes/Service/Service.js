@@ -20,7 +20,7 @@ const { Item: FormItem } = Form;
     const { variables: { values, labels } } = props.service;
     return {
       serviceId: Form.createFormField({
-        value: { key: values.serviceId, label: labels.serviceId },
+        value: { key: values.serviceId ? values.serviceId : '', label: labels.serviceId ? labels.serviceId : '' },
       }),
     };
   },
