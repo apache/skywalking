@@ -53,10 +53,8 @@ public class ProducerOperationHandlerInterceptor implements InstanceMethodsAroun
         }
         String operationName = invocation.getMicroserviceQualifiedName();
         AbstractSpan span = ContextManager.createEntrySpan(operationName, contextCarrier);
-        if (null != invocation.getOperationMeta() && null != invocation.getOperationMeta().getOperationPath()) {
-            String url = invocation.getOperationMeta().getOperationPath();
-            Tags.URL.set(span, url);
-        }
+        String url = invocation.getOperationMeta().getOperationPath();
+        Tags.URL.set(span, url);
         span.setComponent(ComponentsDefine.SERVICECOMB);
         SpanLayer.asRPCFramework(span);
     }
@@ -64,6 +62,9 @@ public class ProducerOperationHandlerInterceptor implements InstanceMethodsAroun
     @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
         Invocation invocation = (Invocation)allArguments[0];
+        if (null == invocation.getOperationMeta()) {
+            return ret;
+        }
         AbstractSpan span = ContextManager.activeSpan();
         int statusCode = invocation.getStatus().getStatusCode();
         if (statusCode >= 400) {
