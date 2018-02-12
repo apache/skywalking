@@ -82,7 +82,7 @@ public class GraphQLHandler extends JettyHandler {
             .file("ui-graphql/server-layer.graphqls")
             .file("ui-graphql/service-layer.graphqls")
             .file("ui-graphql/trace.graphqls")
-            .resolvers(new VersionQuery(), new VersionMutation(), new AlarmQuery(), new ApplicationQuery(moduleManager))
+            .resolvers(new VersionQuery(), new VersionMutation(), new AlarmQuery(moduleManager), new ApplicationQuery(moduleManager))
             .resolvers(new OverViewLayerQuery(moduleManager), new ServerQuery(moduleManager), new ServiceQuery(moduleManager), new TraceQuery(moduleManager))
             .resolvers(new ConfigQuery(), new ConfigMutation())
             .dictionary(ConjecturalNode.class, VisualUserNode.class, ApplicationNode.class, ServiceNode.class)

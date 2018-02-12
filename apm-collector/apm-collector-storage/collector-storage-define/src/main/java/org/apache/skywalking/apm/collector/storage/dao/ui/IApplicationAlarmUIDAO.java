@@ -16,35 +16,16 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.ui.alarm;
+package org.apache.skywalking.apm.collector.storage.dao.ui;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.text.ParseException;
+import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
+import org.apache.skywalking.apm.collector.storage.ui.alarm.Alarm;
 
 /**
  * @author peng-yongsheng
  */
-public class Alarm {
-    private List<AlarmItem> items;
-    private int total;
+public interface IApplicationAlarmUIDAO extends DAO {
 
-    public Alarm() {
-        this.items = new LinkedList<>();
-    }
-
-    public List<AlarmItem> getItems() {
-        return items;
-    }
-
-    public void setItems(List<AlarmItem> items) {
-        this.items = items;
-    }
-
-    public int getTotal() {
-        return total;
-    }
-
-    public void setTotal(int total) {
-        this.total = total;
-    }
+    Alarm loadAlarmList(String keyword, long start, long end, int limit, int from) throws ParseException;
 }
