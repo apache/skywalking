@@ -28,6 +28,7 @@ import org.apache.skywalking.apm.collector.cache.service.NetworkAddressCacheServ
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddress;
 
@@ -74,7 +75,7 @@ public class NetworkAddressIDService implements INetworkAddressIDService {
         return this.networkAddressGraph;
     }
 
-    @Override public int create(String networkAddress, int spanLayer) {
+    @Override public int getOrCreate(String networkAddress) {
         int addressId = getNetworkAddressCacheService().getAddressId(networkAddress);
 
         if (addressId != 0) {
@@ -89,10 +90,11 @@ public class NetworkAddressIDService implements INetworkAddressIDService {
             }
         } else {
             NetworkAddress newNetworkAddress = new NetworkAddress();
-            newNetworkAddress.setId("0");
+            newNetworkAddress.setId(String.valueOf(Const.NONE));
             newNetworkAddress.setNetworkAddress(networkAddress);
-            newNetworkAddress.setSpanLayer(spanLayer);
-            newNetworkAddress.setAddressId(0);
+            newNetworkAddress.setSpanLayer(Const.NONE);
+            newNetworkAddress.setServerType(Const.NONE);
+            newNetworkAddress.setAddressId(Const.NONE);
 
             getNetworkAddressGraph().start(newNetworkAddress);
         }
@@ -102,5 +104,17 @@ public class NetworkAddressIDService implements INetworkAddressIDService {
 
     @Override public int get(String networkAddress) {
         return getNetworkAddressCacheService().getAddressId(networkAddress);
+    }
+
+    @Override public void update(int addressId, int spanLayer, int serverType) {
+        if (!networkAddressCacheService.compare(addressId, spanLayer, serverType)) {
+            NetworkAddress newNetworkAddress = new NetworkAddress();
+            newNetworkAddress.setId(String.valueOf(addressId));
+            newNetworkAddress.setSpanLayer(spanLayer);
+            newNetworkAddress.setServerType(serverType);
+            newNetworkAddress.setAddressId(addressId);
+
+            getNetworkAddressGraph().start(newNetworkAddress);
+        }
     }
 }
