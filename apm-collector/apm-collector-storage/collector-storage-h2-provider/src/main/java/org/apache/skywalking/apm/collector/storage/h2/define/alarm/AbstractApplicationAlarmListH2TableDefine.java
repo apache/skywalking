@@ -25,10 +25,10 @@ import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmL
 /**
  * @author peng-yongsheng
  */
-public class ApplicationAlarmListH2TableDefine extends H2TableDefine {
+public abstract class AbstractApplicationAlarmListH2TableDefine extends H2TableDefine {
 
-    public ApplicationAlarmListH2TableDefine() {
-        super(ApplicationAlarmListTable.TABLE);
+    AbstractApplicationAlarmListH2TableDefine(String name) {
+        super(name);
     }
 
     @Override public void initialize() {

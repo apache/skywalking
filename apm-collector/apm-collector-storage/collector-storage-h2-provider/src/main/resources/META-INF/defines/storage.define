@@ -77,7 +77,12 @@ org.apache.skywalking.apm.collector.storage.h2.define.srmp.ServiceReferenceDayMe
 org.apache.skywalking.apm.collector.storage.h2.define.srmp.ServiceReferenceMonthMetricH2TableDefine
 
 org.apache.skywalking.apm.collector.storage.h2.define.alarm.ApplicationAlarmH2TableDefine
-org.apache.skywalking.apm.collector.storage.h2.define.alarm.ApplicationAlarmListH2TableDefine
+
+org.apache.skywalking.apm.collector.storage.h2.define.alarm.ApplicationAlarmListMinuteH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.alarm.ApplicationAlarmListHourH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.alarm.ApplicationAlarmListDayH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.alarm.ApplicationAlarmListMonthH2TableDefine
+
 org.apache.skywalking.apm.collector.storage.h2.define.alarm.ApplicationReferenceAlarmH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.alarm.ApplicationReferenceAlarmListH2TableDefine
 

@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.collector.analysis.worker.model.impl.Persistenc
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListMinutePersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmList;
 
 /**
@@ -46,7 +46,7 @@ public class ApplicationMetricAlarmListPersistenceWorker extends PersistenceWork
 
     @SuppressWarnings("unchecked")
     @Override protected IPersistenceDAO<?, ?, ApplicationAlarmList> persistenceDAO() {
-        return getModuleManager().find(StorageModule.NAME).getService(IApplicationAlarmListPersistenceDAO.class);
+        return getModuleManager().find(StorageModule.NAME).getService(IApplicationAlarmListMinutePersistenceDAO.class);
     }
 
     public static class Factory extends PersistenceWorkerProvider<ApplicationAlarmList, ApplicationMetricAlarmListPersistenceWorker> {

@@ -23,26 +23,20 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.AbstractPersistenceH2DAO;
-import org.apache.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmList;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmListTable;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationAlarmListH2PersistenceDAO extends AbstractPersistenceH2DAO<ApplicationAlarmList> implements IApplicationAlarmListPersistenceDAO<H2SqlEntity, H2SqlEntity, ApplicationAlarmList> {
+public abstract class AbstractApplicationAlarmListH2PersistenceDAO extends AbstractPersistenceH2DAO<ApplicationAlarmList> {
 
-    public ApplicationAlarmListH2PersistenceDAO(H2Client client) {
+    public AbstractApplicationAlarmListH2PersistenceDAO(H2Client client) {
         super(client);
     }
 
-    @Override protected String tableName() {
-        return ApplicationAlarmListTable.TABLE;
-    }
-
-    @Override protected ApplicationAlarmList h2DataToStreamData(ResultSet resultSet) throws SQLException {
+    @Override protected final ApplicationAlarmList h2DataToStreamData(ResultSet resultSet) throws SQLException {
         ApplicationAlarmList applicationAlarmList = new ApplicationAlarmList();
         applicationAlarmList.setId(resultSet.getString(ApplicationAlarmListTable.COLUMN_ID));
         applicationAlarmList.setSourceValue(resultSet.getInt(ApplicationAlarmListTable.COLUMN_SOURCE_VALUE));
@@ -57,7 +51,7 @@ public class ApplicationAlarmListH2PersistenceDAO extends AbstractPersistenceH2D
         return applicationAlarmList;
     }
 
-    @Override protected Map<String, Object> streamDataToH2Data(ApplicationAlarmList streamData) {
+    @Override protected final Map<String, Object> streamDataToH2Data(ApplicationAlarmList streamData) {
         Map<String, Object> source = new HashMap<>();
         source.put(ApplicationAlarmListTable.COLUMN_SOURCE_VALUE, streamData.getSourceValue());
 
