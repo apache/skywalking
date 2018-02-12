@@ -30,7 +30,10 @@ import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponent
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentHourPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentMinutePersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentMonthPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListDayPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListHourPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListMinutePersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListMonthPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationReferenceAlarmListPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationReferenceAlarmPersistenceDAO;
@@ -269,6 +272,10 @@ public class StorageModule extends Module {
         classes.add(IInstanceAlarmPersistenceDAO.class);
         classes.add(IInstanceAlarmListPersistenceDAO.class);
         classes.add(IApplicationAlarmPersistenceDAO.class);
-        classes.add(IApplicationAlarmListPersistenceDAO.class);
+
+        classes.add(IApplicationAlarmListMinutePersistenceDAO.class);
+        classes.add(IApplicationAlarmListHourPersistenceDAO.class);
+        classes.add(IApplicationAlarmListDayPersistenceDAO.class);
+        classes.add(IApplicationAlarmListMonthPersistenceDAO.class);
     }
 }

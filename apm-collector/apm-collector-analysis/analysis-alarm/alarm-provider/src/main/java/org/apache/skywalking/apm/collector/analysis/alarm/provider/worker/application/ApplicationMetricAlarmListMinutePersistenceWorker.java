@@ -24,20 +24,20 @@ import org.apache.skywalking.apm.collector.analysis.worker.model.impl.Persistenc
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListMinutePersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmList;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationMetricAlarmListPersistenceWorker extends PersistenceWorker<ApplicationAlarmList> {
+public class ApplicationMetricAlarmListMinutePersistenceWorker extends PersistenceWorker<ApplicationAlarmList> {
 
-    public ApplicationMetricAlarmListPersistenceWorker(ModuleManager moduleManager) {
+    public ApplicationMetricAlarmListMinutePersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     @Override public int id() {
-        return AlarmWorkerIdDefine.APPLICATION_METRIC_ALARM_LIST_PERSISTENCE_WORKER_ID;
+        return AlarmWorkerIdDefine.APPLICATION_METRIC_ALARM_LIST_MINUTE_PERSISTENCE_WORKER_ID;
     }
 
     @Override protected boolean needMergeDBData() {
@@ -46,16 +46,16 @@ public class ApplicationMetricAlarmListPersistenceWorker extends PersistenceWork
 
     @SuppressWarnings("unchecked")
     @Override protected IPersistenceDAO<?, ?, ApplicationAlarmList> persistenceDAO() {
-        return getModuleManager().find(StorageModule.NAME).getService(IApplicationAlarmListPersistenceDAO.class);
+        return getModuleManager().find(StorageModule.NAME).getService(IApplicationAlarmListMinutePersistenceDAO.class);
     }
 
-    public static class Factory extends PersistenceWorkerProvider<ApplicationAlarmList, ApplicationMetricAlarmListPersistenceWorker> {
+    public static class Factory extends PersistenceWorkerProvider<ApplicationAlarmList, ApplicationMetricAlarmListMinutePersistenceWorker> {
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
         }
 
-        @Override public ApplicationMetricAlarmListPersistenceWorker workerInstance(ModuleManager moduleManager) {
-            return new ApplicationMetricAlarmListPersistenceWorker(moduleManager);
+        @Override public ApplicationMetricAlarmListMinutePersistenceWorker workerInstance(ModuleManager moduleManager) {
+            return new ApplicationMetricAlarmListMinutePersistenceWorker(moduleManager);
         }
 
         @Override

@@ -31,6 +31,7 @@ import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.remote.RemoteModule;
 import org.apache.skywalking.apm.collector.remote.service.RemoteSenderService;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarm;
+import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmList;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMetric;
 
 /**
@@ -57,7 +58,19 @@ public class ApplicationMetricAlarmGraph {
 
         graph.toFinder().findNode(AlarmWorkerIdDefine.APPLICATION_METRIC_ALARM_REMOTE_WORKER_ID, ApplicationAlarm.class)
             .addNext(new ApplicationMetricAlarmToListNodeProcessor())
-            .addNext(new ApplicationMetricAlarmListPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+            .addNext(new ApplicationMetricAlarmListMinutePersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        graph.toFinder().findNode(AlarmWorkerIdDefine.APPLICATION_METRIC_ALARM_LIST_MINUTE_PERSISTENCE_WORKER_ID, ApplicationAlarmList.class)
+            .addNext(new ApplicationMetricAlarmListHourTransformNode())
+            .addNext(new ApplicationMetricAlarmListHourPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        graph.toFinder().findNode(AlarmWorkerIdDefine.APPLICATION_METRIC_ALARM_LIST_MINUTE_PERSISTENCE_WORKER_ID, ApplicationAlarmList.class)
+            .addNext(new ApplicationMetricAlarmListDayTransformNode())
+            .addNext(new ApplicationMetricAlarmListDayPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+
+        graph.toFinder().findNode(AlarmWorkerIdDefine.APPLICATION_METRIC_ALARM_LIST_MINUTE_PERSISTENCE_WORKER_ID, ApplicationAlarmList.class)
+            .addNext(new ApplicationMetricAlarmListMonthTransformNode())
+            .addNext(new ApplicationMetricAlarmListMonthPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
         link(graph);
     }
