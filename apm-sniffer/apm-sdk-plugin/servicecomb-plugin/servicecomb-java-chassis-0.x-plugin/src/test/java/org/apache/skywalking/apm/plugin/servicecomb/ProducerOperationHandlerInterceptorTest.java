@@ -24,6 +24,7 @@ import io.servicecomb.core.definition.OperationMeta;
 import io.servicecomb.core.definition.SchemaMeta;
 import io.servicecomb.swagger.invocation.InvocationType;
 import io.servicecomb.swagger.invocation.SwaggerInvocation;
+import java.lang.reflect.Method;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
@@ -74,6 +75,8 @@ public class ProducerOperationHandlerInterceptorTest {
     @Mock
     private Endpoint endpoint;
     @Mock
+    private Method method;
+    @Mock
     private SwaggerInvocation swagger;
     private Object[] allArguments;
     private Class[] argumentsType;
@@ -95,19 +98,21 @@ public class ProducerOperationHandlerInterceptorTest {
         when(invocation.getOperationMeta()).thenReturn(operationMeta);
         when(invocation.getStatus()).thenReturn(statusType);
         when(statusType.getStatusCode()).thenReturn(200);
+        when(method.getName()).thenReturn("producer");
         when(invocation.getInvocationType()).thenReturn(InvocationType.PRODUCER);
         Config.Agent.APPLICATION_CODE = "serviceComnTestCases-APP";
 
         allArguments = new Object[] {invocation,};
         argumentsType = new Class[] {};
         swaggerArguments = new Class[] {};
+
     }
 
     @Test
     public void testConsumer() throws Throwable {
 
-        invocationInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentsType, null);
-        invocationInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentsType, null);
+        invocationInterceptor.beforeMethod(enhancedInstance, method, allArguments, argumentsType, null);
+        invocationInterceptor.afterMethod(enhancedInstance, method, allArguments, argumentsType, null);
 
         Assert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
