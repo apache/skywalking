@@ -21,7 +21,6 @@ package org.apache.skywalking.apm.plugin.servicecomb;
 import io.servicecomb.core.Invocation;
 import java.lang.reflect.Method;
 import java.net.URI;
-import java.net.URISyntaxException;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -34,7 +33,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * {@link TransportClientHandlerInterceptor} define how to enhance class {@link Invocation#next(io.servicecomb.swagger.invocation.AsyncResponse)}.
+ * {@link TransportClientHandlerInterceptor} define how to enhance class {@link TransportClientHandler#handle(io.servicecomb.core.Invocation,
+ * io.servicecomb.swagger.invocation.AsyncResponse)}.
  *
  * @author lytscu
  */
@@ -44,10 +44,11 @@ public class TransportClientHandlerInterceptor implements InstanceMethodsAroundI
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         Invocation invocation = (Invocation)allArguments[0];
-        String peer = AsserRegister(invocation);
-        if (null == peer) {
+        if (!checkRegisterStatus(invocation)) {
             return;
         }
+        URI uri = new URI(invocation.getEndpoint().toString());
+        String peer = uri.getHost() + ":" + uri.getPort();
         String operationName = invocation.getMicroserviceQualifiedName();
         final ContextCarrier contextCarrier = new ContextCarrier();
         AbstractSpan span = ContextManager.createExitSpan(operationName, contextCarrier, peer);
@@ -65,8 +66,7 @@ public class TransportClientHandlerInterceptor implements InstanceMethodsAroundI
     @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
         Invocation invocation = (Invocation)allArguments[0];
-        String peer = AsserRegister(invocation);
-        if (null == peer) {
+        if (!checkRegisterStatus(invocation)) {
             return ret;
         }
         AbstractSpan span = ContextManager.activeSpan();
@@ -82,7 +82,7 @@ public class TransportClientHandlerInterceptor implements InstanceMethodsAroundI
     @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         Invocation invocation = (Invocation)allArguments[0];
-        if (null == invocation.getOperationMeta() || null == invocation.getEndpoint()) {
+        if (!checkRegisterStatus(invocation)) {
             return;
         }
         AbstractSpan span = ContextManager.activeSpan();
@@ -91,16 +91,14 @@ public class TransportClientHandlerInterceptor implements InstanceMethodsAroundI
     }
 
     /**
-     * Serviecomb chissis Consumers and providers need to register at the service center. If the consumer is not
-     * registered then return
+     * Serviecomb chassis Consumers and providers need to register at the service center. If the consumer is not
+     * registered then return false.
      */
-    private String AsserRegister(Invocation invocation) throws URISyntaxException {
+    private Boolean checkRegisterStatus(Invocation invocation) {
         if (null == invocation.getOperationMeta() || null == invocation.getEndpoint()) {
-            return null;
+            return false;
         }
-        URI uri = new URI(invocation.getEndpoint().toString());
-        String peer = uri.getHost() + ":" + uri.getPort();
-        return peer;
+        return true;
     }
 
 }

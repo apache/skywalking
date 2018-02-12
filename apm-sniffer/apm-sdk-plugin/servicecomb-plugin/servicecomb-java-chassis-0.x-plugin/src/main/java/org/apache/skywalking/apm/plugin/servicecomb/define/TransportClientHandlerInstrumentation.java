@@ -30,7 +30,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link TransportClientHandlerInstrumentation} presents that skywalking intercept {@link TransportClientHandler}by
+ * {@link TransportClientHandlerInstrumentation} represents that skywalking intercept {@link TransportClientHandler}by
  * using {@linkTransportClientHandlerInterceptor }
  *
  * @author lytscu
