@@ -30,14 +30,14 @@ import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmL
 /**
  * @author peng-yongsheng
  */
-public class ApplicationMetricAlarmListPersistenceWorker extends PersistenceWorker<ApplicationAlarmList> {
+public class ApplicationMetricAlarmListMinutePersistenceWorker extends PersistenceWorker<ApplicationAlarmList> {
 
-    public ApplicationMetricAlarmListPersistenceWorker(ModuleManager moduleManager) {
+    public ApplicationMetricAlarmListMinutePersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     @Override public int id() {
-        return AlarmWorkerIdDefine.APPLICATION_METRIC_ALARM_LIST_PERSISTENCE_WORKER_ID;
+        return AlarmWorkerIdDefine.APPLICATION_METRIC_ALARM_LIST_MINUTE_PERSISTENCE_WORKER_ID;
     }
 
     @Override protected boolean needMergeDBData() {
@@ -49,13 +49,13 @@ public class ApplicationMetricAlarmListPersistenceWorker extends PersistenceWork
         return getModuleManager().find(StorageModule.NAME).getService(IApplicationAlarmListMinutePersistenceDAO.class);
     }
 
-    public static class Factory extends PersistenceWorkerProvider<ApplicationAlarmList, ApplicationMetricAlarmListPersistenceWorker> {
+    public static class Factory extends PersistenceWorkerProvider<ApplicationAlarmList, ApplicationMetricAlarmListMinutePersistenceWorker> {
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
         }
 
-        @Override public ApplicationMetricAlarmListPersistenceWorker workerInstance(ModuleManager moduleManager) {
-            return new ApplicationMetricAlarmListPersistenceWorker(moduleManager);
+        @Override public ApplicationMetricAlarmListMinutePersistenceWorker workerInstance(ModuleManager moduleManager) {
+            return new ApplicationMetricAlarmListMinutePersistenceWorker(moduleManager);
         }
 
         @Override
