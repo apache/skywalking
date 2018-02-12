@@ -24,5 +24,5 @@ import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmL
 /**
  * @author peng-yongsheng
  */
-public interface IApplicationAlarmListPersistenceDAO<Insert, Update, DataImpl extends ApplicationAlarmList> extends IPersistenceDAO<Insert, Update, DataImpl> {
+public interface IApplicationAlarmListMinutePersistenceDAO<Insert, Update, DataImpl extends ApplicationAlarmList> extends IPersistenceDAO<Insert, Update, DataImpl> {
 }
