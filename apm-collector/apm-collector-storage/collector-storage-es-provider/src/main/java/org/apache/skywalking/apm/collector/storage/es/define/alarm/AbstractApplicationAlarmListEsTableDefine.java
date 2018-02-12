@@ -25,14 +25,10 @@ import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmL
 /**
  * @author peng-yongsheng
  */
-public class ApplicationAlarmListEsTableDefine extends ElasticSearchTableDefine {
+public abstract class AbstractApplicationAlarmListEsTableDefine extends ElasticSearchTableDefine {
 
-    public ApplicationAlarmListEsTableDefine() {
-        super(ApplicationAlarmListTable.TABLE);
-    }
-
-    @Override public int refreshInterval() {
-        return 2;
+    AbstractApplicationAlarmListEsTableDefine(String name) {
+        super(name);
     }
 
     @Override public void initialize() {
