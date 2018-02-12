@@ -22,33 +22,25 @@ import org.apache.skywalking.apm.collector.analysis.alarm.define.graph.AlarmWork
 import org.apache.skywalking.apm.collector.core.graph.Next;
 import org.apache.skywalking.apm.collector.core.graph.NodeProcessor;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarm;
+import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmList;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationMetricAlarmToListNodeProcessor implements NodeProcessor<ApplicationAlarm, ApplicationAlarmList> {
+public class ApplicationMetricAlarmListDayTransformNode implements NodeProcessor<ApplicationAlarmList, ApplicationAlarmList> {
 
     @Override public int id() {
-        return AlarmWorkerIdDefine.APPLICATION_METRIC_ALARM_TO_LIST_NODE_PROCESSOR_ID;
+        return AlarmWorkerIdDefine.APPLICATION_METRIC_ALARM_LIST_DAY_TRANSFORM_NODE_ID;
     }
 
-    @Override public void process(ApplicationAlarm applicationAlarm, Next<ApplicationAlarmList> next) {
-        String metricId = applicationAlarm.getSourceValue()
-            + Const.ID_SPLIT + applicationAlarm.getAlarmType()
-            + Const.ID_SPLIT + applicationAlarm.getApplicationId();
+    @Override
+    public void process(ApplicationAlarmList applicationAlarmList, Next<ApplicationAlarmList> next) {
+        long timeBucket = TimeBucketUtils.INSTANCE.minuteToDay(applicationAlarmList.getTimeBucket());
 
-        String id = applicationAlarm.getLastTimeBucket() + Const.ID_SPLIT + metricId;
-
-        ApplicationAlarmList applicationAlarmList = new ApplicationAlarmList();
-        applicationAlarmList.setId(id);
-        applicationAlarmList.setMetricId(metricId);
-        applicationAlarmList.setApplicationId(applicationAlarm.getApplicationId());
-        applicationAlarmList.setSourceValue(applicationAlarm.getSourceValue());
-        applicationAlarmList.setAlarmType(applicationAlarm.getAlarmType());
-        applicationAlarmList.setTimeBucket(applicationAlarm.getLastTimeBucket());
-        applicationAlarmList.setAlarmContent(applicationAlarm.getAlarmContent());
-        next.execute(applicationAlarmList);
+        ApplicationAlarmList newApplicationAlarmList = ApplicationMetricAlarmListCopy.copy(applicationAlarmList);
+        newApplicationAlarmList.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + applicationAlarmList.getMetricId());
+        newApplicationAlarmList.setTimeBucket(timeBucket);
+        next.execute(newApplicationAlarmList);
     }
 }

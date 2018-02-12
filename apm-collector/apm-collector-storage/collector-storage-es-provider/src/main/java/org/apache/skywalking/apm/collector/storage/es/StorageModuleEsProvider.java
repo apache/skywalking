@@ -39,7 +39,10 @@ import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponent
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentHourPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentMinutePersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentMonthPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListDayPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListHourPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListMinutePersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListMonthPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationReferenceAlarmListPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationReferenceAlarmPersistenceDAO;
@@ -139,7 +142,10 @@ import org.apache.skywalking.apm.collector.storage.es.dao.acp.ApplicationCompone
 import org.apache.skywalking.apm.collector.storage.es.dao.acp.ApplicationComponentMinuteEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.acp.ApplicationComponentMonthEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.alarm.ApplicationAlarmEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.alarm.ApplicationAlarmListEsPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.alarm.ApplicationAlarmListEsDayPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.alarm.ApplicationAlarmListEsHourPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.alarm.ApplicationAlarmListEsMinutePersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.alarm.ApplicationAlarmListEsMonthPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.alarm.ApplicationReferenceAlarmEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.alarm.ApplicationReferenceAlarmListEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.alarm.InstanceAlarmEsPersistenceDAO;
@@ -429,6 +435,10 @@ public class StorageModuleEsProvider extends ModuleProvider {
         this.registerServiceImplementation(IInstanceAlarmPersistenceDAO.class, new InstanceAlarmEsPersistenceDAO(elasticSearchClient));
         this.registerServiceImplementation(IInstanceAlarmListPersistenceDAO.class, new InstanceAlarmListEsPersistenceDAO(elasticSearchClient));
         this.registerServiceImplementation(IApplicationAlarmPersistenceDAO.class, new ApplicationAlarmEsPersistenceDAO(elasticSearchClient));
-        this.registerServiceImplementation(IApplicationAlarmListPersistenceDAO.class, new ApplicationAlarmListEsPersistenceDAO(elasticSearchClient));
+
+        this.registerServiceImplementation(IApplicationAlarmListMinutePersistenceDAO.class, new ApplicationAlarmListEsMinutePersistenceDAO(elasticSearchClient));
+        this.registerServiceImplementation(IApplicationAlarmListHourPersistenceDAO.class, new ApplicationAlarmListEsHourPersistenceDAO(elasticSearchClient));
+        this.registerServiceImplementation(IApplicationAlarmListDayPersistenceDAO.class, new ApplicationAlarmListEsDayPersistenceDAO(elasticSearchClient));
+        this.registerServiceImplementation(IApplicationAlarmListMonthPersistenceDAO.class, new ApplicationAlarmListEsMonthPersistenceDAO(elasticSearchClient));
     }
 }
