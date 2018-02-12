@@ -18,8 +18,10 @@
 
 package org.apache.skywalking.apm.collector.core.util;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 /**
  * @author peng-yongsheng
@@ -59,6 +61,13 @@ public enum TimeBucketUtils {
         return Long.valueOf(timeStr);
     }
 
+    public String formatMinuteTimeBucket(long minuteTimeBucket) throws ParseException {
+        SimpleDateFormat minuteDateFormat = new SimpleDateFormat("yyyyMMddHHmm");
+        Date date = minuteDateFormat.parse(String.valueOf(minuteTimeBucket));
+        SimpleDateFormat parsedMinuteDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        return parsedMinuteDateFormat.format(date);
+    }
+
     public long minuteToHour(long minuteBucket) {
         return minuteBucket / 100;
     }
@@ -85,9 +94,5 @@ public enum TimeBucketUtils {
 
     public long secondToMonth(long secondBucket) {
         return secondBucket / 100 / 100 / 100 / 100;
-    }
-
-    public enum TimeBucketType {
-        SECOND, MINUTE, HOUR, DAY, MONTH
     }
 }

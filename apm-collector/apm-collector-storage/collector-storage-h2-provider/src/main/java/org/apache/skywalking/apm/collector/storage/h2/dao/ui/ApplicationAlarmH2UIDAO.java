@@ -16,35 +16,25 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.ui.alarm;
+package org.apache.skywalking.apm.collector.storage.h2.dao.ui;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.text.ParseException;
+import org.apache.skywalking.apm.collector.client.h2.H2Client;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationAlarmUIDAO;
+import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
+import org.apache.skywalking.apm.collector.storage.ui.alarm.Alarm;
 
 /**
  * @author peng-yongsheng
  */
-public class Alarm {
-    private List<AlarmItem> items;
-    private int total;
+public class ApplicationAlarmH2UIDAO extends H2DAO implements IApplicationAlarmUIDAO {
 
-    public Alarm() {
-        this.items = new LinkedList<>();
+    public ApplicationAlarmH2UIDAO(H2Client client) {
+        super(client);
     }
 
-    public List<AlarmItem> getItems() {
-        return items;
-    }
-
-    public void setItems(List<AlarmItem> items) {
-        this.items = items;
-    }
-
-    public int getTotal() {
-        return total;
-    }
-
-    public void setTotal(int total) {
-        this.total = total;
+    @Override
+    public Alarm loadAlarmList(String keyword, long start, long end, int limit, int from) throws ParseException {
+        return null;
     }
 }

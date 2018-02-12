@@ -105,6 +105,7 @@ import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceDay
 import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceHourMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceMonthMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationAlarmUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationComponentUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMappingUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMetricUIDAO;
@@ -112,6 +113,7 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationReferenceM
 import org.apache.skywalking.apm.collector.storage.dao.ui.ICpuMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IGCMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IGlobalTraceUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceAlarmUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IMemoryMetricUIDAO;
@@ -119,6 +121,7 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.IMemoryPoolMetricUIDAO
 import org.apache.skywalking.apm.collector.storage.dao.ui.INetworkAddressUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentDurationUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceAlarmUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceNameServiceUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceReferenceMetricUIDAO;
@@ -257,6 +260,10 @@ public class StorageModule extends Module {
         classes.add(ISegmentDurationUIDAO.class);
         classes.add(ISegmentUIDAO.class);
         classes.add(IServiceReferenceMetricUIDAO.class);
+
+        classes.add(IApplicationAlarmUIDAO.class);
+        classes.add(IInstanceAlarmUIDAO.class);
+        classes.add(IServiceAlarmUIDAO.class);
     }
 
     private void addAlarmDAO(List<Class> classes) {
