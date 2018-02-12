@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.collector.storage.table.register;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
+import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
 
 /**
@@ -39,7 +40,8 @@ public class NetworkAddress extends StreamData {
 
     private static final Column[] INTEGER_COLUMNS = {
         new Column(NetworkAddressTable.COLUMN_ADDRESS_ID, new NonOperation()),
-        new Column(NetworkAddressTable.COLUMN_SPAN_LAYER, new NonOperation()),
+        new Column(NetworkAddressTable.COLUMN_SPAN_LAYER, new CoverOperation()),
+        new Column(NetworkAddressTable.COLUMN_SERVER_TYPE, new CoverOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};
@@ -86,5 +88,13 @@ public class NetworkAddress extends StreamData {
 
     public void setSpanLayer(Integer spanLayer) {
         setDataInteger(1, spanLayer);
+    }
+
+    public Integer getServerType() {
+        return getDataInteger(2);
+    }
+
+    public void setServerType(Integer serverType) {
+        setDataInteger(2, serverType);
     }
 }

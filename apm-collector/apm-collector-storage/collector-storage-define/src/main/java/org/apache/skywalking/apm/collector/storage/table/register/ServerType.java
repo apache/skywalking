@@ -16,17 +16,31 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.register.define.service;
-
-import org.apache.skywalking.apm.collector.core.module.Service;
+package org.apache.skywalking.apm.collector.storage.table.register;
 
 /**
  * @author peng-yongsheng
  */
-public interface INetworkAddressIDService extends Service {
-    int getOrCreate(String networkAddress);
+public class ServerType {
+    private int componentId;
+    private int id;
+    private String name;
 
-    int get(String networkAddress);
+    public ServerType(int componentId, int id, String name) {
+        this.componentId = componentId;
+        this.id = id;
+        this.name = name;
+    }
 
-    void update(int addressId, int spanLayer, int serverType);
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getComponentId() {
+        return componentId;
+    }
 }
