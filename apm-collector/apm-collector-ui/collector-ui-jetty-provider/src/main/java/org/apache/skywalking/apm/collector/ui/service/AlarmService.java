@@ -22,14 +22,15 @@ import java.text.ParseException;
 import java.util.List;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationAlarmListUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationAlarmUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceAlarmUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceAlarmUIDAO;
 import org.apache.skywalking.apm.collector.storage.ui.alarm.Alarm;
+import org.apache.skywalking.apm.collector.storage.ui.application.Application;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.ui.overview.AlarmTrend;
-import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
-import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,14 +41,18 @@ public class AlarmService {
 
     private final Logger logger = LoggerFactory.getLogger(AlarmService.class);
 
+    private final IInstanceUIDAO instanceDAO;
     private final IApplicationAlarmUIDAO applicationAlarmUIDAO;
     private final IInstanceAlarmUIDAO instanceAlarmUIDAO;
     private final IServiceAlarmUIDAO serviceAlarmUIDAO;
+    private final IApplicationAlarmListUIDAO applicationAlarmListUIDAO;
 
     public AlarmService(ModuleManager moduleManager) {
+        this.instanceDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceUIDAO.class);
         this.applicationAlarmUIDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationAlarmUIDAO.class);
         this.instanceAlarmUIDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceAlarmUIDAO.class);
         this.serviceAlarmUIDAO = moduleManager.find(StorageModule.NAME).getService(IServiceAlarmUIDAO.class);
+        this.applicationAlarmListUIDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationAlarmListUIDAO.class);
     }
 
     public Alarm loadApplicationAlarmList(String keyword, long start, long end,
@@ -68,10 +73,15 @@ public class AlarmService {
         return serviceAlarmUIDAO.loadAlarmList(keyword, start, end, limit, from);
     }
 
-    public AlarmTrend getApplicationAlarmTrend(Step step, long start, long end) throws ParseException {
-        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
+    public AlarmTrend getApplicationAlarmTrend(Step step, long startTimeBucket, long endTimeBucket, long start,
+        long end) throws ParseException {
+        List<Application> applications = instanceDAO.getApplications(start, end);
 
+        List<Integer> applicationNum = applicationAlarmListUIDAO.getAlarmedApplicationNum(step, startTimeBucket, endTimeBucket);
         AlarmTrend alarmTrend = new AlarmTrend();
+        applicationNum.forEach(num -> {
+            alarmTrend.getNumOfAlarmRate().add((num * 10000) / (applications.size()));
+        });
         return alarmTrend;
     }
 }

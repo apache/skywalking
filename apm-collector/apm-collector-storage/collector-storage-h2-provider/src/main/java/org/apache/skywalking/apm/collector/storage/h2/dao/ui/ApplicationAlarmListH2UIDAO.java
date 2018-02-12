@@ -16,27 +16,24 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.ui.overview;
+package org.apache.skywalking.apm.collector.storage.h2.dao.ui;
 
-import java.util.LinkedList;
 import java.util.List;
+import org.apache.skywalking.apm.collector.client.h2.H2Client;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationAlarmListUIDAO;
+import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
+import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 
 /**
  * @author peng-yongsheng
  */
-public class AlarmTrend {
+public class ApplicationAlarmListH2UIDAO extends H2DAO implements IApplicationAlarmListUIDAO {
 
-    private List<Integer> numOfAlarmRate;
-
-    public AlarmTrend() {
-        this.numOfAlarmRate = new LinkedList<>();
+    public ApplicationAlarmListH2UIDAO(H2Client client) {
+        super(client);
     }
 
-    public List<Integer> getNumOfAlarmRate() {
-        return numOfAlarmRate;
-    }
-
-    public void setNumOfAlarmRate(List<Integer> numOfAlarmRate) {
-        this.numOfAlarmRate = numOfAlarmRate;
+    @Override public List<Integer> getAlarmedApplicationNum(Step step, long start, long end) {
+        return null;
     }
 }
