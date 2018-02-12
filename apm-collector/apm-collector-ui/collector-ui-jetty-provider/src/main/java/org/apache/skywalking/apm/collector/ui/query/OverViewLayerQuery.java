@@ -109,10 +109,13 @@ public class OverViewLayerQuery implements Query {
     }
 
     public AlarmTrend getAlarmTrend(Duration duration) throws ParseException {
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+
         long start = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart());
         long end = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd());
 
-        return getAlarmService().getApplicationAlarmTrend(duration.getStep(), start, end);
+        return getAlarmService().getApplicationAlarmTrend(duration.getStep(), startTimeBucket, endTimeBucket, start, end);
     }
 
     public ConjecturalAppBrief getConjecturalApps(Duration duration) throws ParseException {

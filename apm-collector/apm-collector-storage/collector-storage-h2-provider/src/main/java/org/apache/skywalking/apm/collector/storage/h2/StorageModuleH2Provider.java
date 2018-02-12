@@ -110,6 +110,7 @@ import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceDay
 import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceHourMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceMonthMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationAlarmListUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationAlarmUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationComponentUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMappingUIDAO;
@@ -216,6 +217,7 @@ import org.apache.skywalking.apm.collector.storage.h2.dao.srmp.ServiceReferenceH
 import org.apache.skywalking.apm.collector.storage.h2.dao.srmp.ServiceReferenceMinuteMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.srmp.ServiceReferenceMonthMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ui.ApplicationAlarmH2UIDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.ui.ApplicationAlarmListH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ui.ApplicationComponentH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ui.ApplicationMappingH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ui.ApplicationMetricH2UIDAO;
@@ -406,6 +408,8 @@ public class StorageModuleH2Provider extends ModuleProvider {
         this.registerServiceImplementation(IApplicationAlarmUIDAO.class, new ApplicationAlarmH2UIDAO(h2Client));
         this.registerServiceImplementation(IInstanceAlarmUIDAO.class, new InstanceAlarmH2UIDAO(h2Client));
         this.registerServiceImplementation(IServiceAlarmUIDAO.class, new ServiceAlarmH2UIDAO(h2Client));
+
+        this.registerServiceImplementation(IApplicationAlarmListUIDAO.class, new ApplicationAlarmListH2UIDAO(h2Client));
     }
 
     private void registerAlarmDAO() throws ServiceNotProvidedException {
