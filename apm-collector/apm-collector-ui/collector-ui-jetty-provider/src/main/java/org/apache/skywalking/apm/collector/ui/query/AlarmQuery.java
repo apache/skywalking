@@ -18,23 +18,53 @@
 
 package org.apache.skywalking.apm.collector.ui.query;
 
-import org.apache.skywalking.apm.collector.ui.graphql.Query;
+import java.text.ParseException;
+import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.ui.alarm.Alarm;
 import org.apache.skywalking.apm.collector.storage.ui.alarm.AlarmType;
 import org.apache.skywalking.apm.collector.storage.ui.common.Duration;
 import org.apache.skywalking.apm.collector.storage.ui.common.Pagination;
-
-import java.util.Collections;
+import org.apache.skywalking.apm.collector.ui.graphql.Query;
+import org.apache.skywalking.apm.collector.ui.service.AlarmService;
+import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 
 /**
  * @author peng-yongsheng
  */
 public class AlarmQuery implements Query {
 
-    public Alarm loadAlarmList(String keyword, AlarmType alarmType, Duration duration, Pagination paging) {
-        Alarm alarm = new Alarm();
-        alarm.setTotal(0);
-        alarm.setItems(Collections.emptyList());
-        return alarm;
+    private final ModuleManager moduleManager;
+    private AlarmService alarmService;
+
+    public AlarmQuery(ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
+    }
+
+    private AlarmService getAlarmService() {
+        if (ObjectUtils.isEmpty(alarmService)) {
+            this.alarmService = new AlarmService(moduleManager);
+        }
+        return alarmService;
+    }
+
+    public Alarm loadAlarmList(String keyword, AlarmType alarmType, Duration duration,
+        Pagination paging) throws ParseException {
+        long start = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart()) / 100;
+        long end = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd()) / 100;
+
+        int limit = paging.getPageSize();
+        int from = paging.getPageSize() * paging.getPageNum();
+
+        switch (alarmType) {
+            case APPLICATION:
+                return getAlarmService().loadApplicationAlarmList(keyword, start, end, limit, from);
+            case SERVER:
+                return getAlarmService().loadInstanceAlarmList(keyword, start, end, limit, from);
+            case SERVICE:
+                return getAlarmService().loadServiceAlarmList(keyword, start, end, limit, from);
+            default:
+                return new Alarm();
+        }
     }
 }
