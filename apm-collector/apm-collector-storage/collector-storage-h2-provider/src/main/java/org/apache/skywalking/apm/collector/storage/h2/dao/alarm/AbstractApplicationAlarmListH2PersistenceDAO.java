@@ -39,6 +39,7 @@ public abstract class AbstractApplicationAlarmListH2PersistenceDAO extends Abstr
     @Override protected final ApplicationAlarmList h2DataToStreamData(ResultSet resultSet) throws SQLException {
         ApplicationAlarmList applicationAlarmList = new ApplicationAlarmList();
         applicationAlarmList.setId(resultSet.getString(ApplicationAlarmListTable.COLUMN_ID));
+        applicationAlarmList.setMetricId(resultSet.getString(ApplicationAlarmListTable.COLUMN_METRIC_ID));
         applicationAlarmList.setSourceValue(resultSet.getInt(ApplicationAlarmListTable.COLUMN_SOURCE_VALUE));
 
         applicationAlarmList.setAlarmType(resultSet.getInt(ApplicationAlarmListTable.COLUMN_ALARM_TYPE));
@@ -53,6 +54,7 @@ public abstract class AbstractApplicationAlarmListH2PersistenceDAO extends Abstr
 
     @Override protected final Map<String, Object> streamDataToH2Data(ApplicationAlarmList streamData) {
         Map<String, Object> source = new HashMap<>();
+        source.put(ApplicationAlarmListTable.COLUMN_METRIC_ID, streamData.getMetricId());
         source.put(ApplicationAlarmListTable.COLUMN_SOURCE_VALUE, streamData.getSourceValue());
 
         source.put(ApplicationAlarmListTable.COLUMN_ALARM_TYPE, streamData.getAlarmType());

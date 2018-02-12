@@ -24,17 +24,13 @@ import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchCli
 import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmList;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmListTable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public abstract class AbstractApplicationAlarmListEsPersistenceDAO extends AbstractPersistenceEsDAO<ApplicationAlarmList> {
 
-    private final Logger logger = LoggerFactory.getLogger(AbstractApplicationAlarmListEsPersistenceDAO.class);
-
-    public AbstractApplicationAlarmListEsPersistenceDAO(ElasticSearchClient client) {
+    AbstractApplicationAlarmListEsPersistenceDAO(ElasticSearchClient client) {
         super(client);
     }
 
@@ -45,6 +41,7 @@ public abstract class AbstractApplicationAlarmListEsPersistenceDAO extends Abstr
     @Override protected final ApplicationAlarmList esDataToStreamData(Map<String, Object> source) {
         ApplicationAlarmList applicationAlarmList = new ApplicationAlarmList();
         applicationAlarmList.setId((String)source.get(ApplicationAlarmListTable.COLUMN_ID));
+        applicationAlarmList.setMetricId((String)source.get(ApplicationAlarmListTable.COLUMN_METRIC_ID));
         applicationAlarmList.setApplicationId(((Number)source.get(ApplicationAlarmListTable.COLUMN_APPLICATION_ID)).intValue());
         applicationAlarmList.setSourceValue(((Number)source.get(ApplicationAlarmListTable.COLUMN_SOURCE_VALUE)).intValue());
 
@@ -57,7 +54,7 @@ public abstract class AbstractApplicationAlarmListEsPersistenceDAO extends Abstr
 
     @Override protected final Map<String, Object> esStreamDataToEsData(ApplicationAlarmList streamData) {
         Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationAlarmListTable.COLUMN_ID, streamData.getId());
+        source.put(ApplicationAlarmListTable.COLUMN_METRIC_ID, streamData.getMetricId());
         source.put(ApplicationAlarmListTable.COLUMN_APPLICATION_ID, streamData.getApplicationId());
         source.put(ApplicationAlarmListTable.COLUMN_SOURCE_VALUE, streamData.getSourceValue());
 

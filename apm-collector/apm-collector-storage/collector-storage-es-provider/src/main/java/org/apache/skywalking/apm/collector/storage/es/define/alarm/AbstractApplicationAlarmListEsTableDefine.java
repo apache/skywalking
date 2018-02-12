@@ -32,13 +32,11 @@ public abstract class AbstractApplicationAlarmListEsTableDefine extends ElasticS
     }
 
     @Override public void initialize() {
+        addColumn(new ElasticSearchColumnDefine(ApplicationAlarmListTable.COLUMN_METRIC_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationAlarmListTable.COLUMN_ALARM_CONTENT, ElasticSearchColumnDefine.Type.Text.name()));
         addColumn(new ElasticSearchColumnDefine(ApplicationAlarmListTable.COLUMN_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-
         addColumn(new ElasticSearchColumnDefine(ApplicationAlarmListTable.COLUMN_SOURCE_VALUE, ElasticSearchColumnDefine.Type.Integer.name()));
         addColumn(new ElasticSearchColumnDefine(ApplicationAlarmListTable.COLUMN_ALARM_TYPE, ElasticSearchColumnDefine.Type.Integer.name()));
-
-        addColumn(new ElasticSearchColumnDefine(ApplicationAlarmListTable.COLUMN_ALARM_CONTENT, ElasticSearchColumnDefine.Type.Text.name()));
-
         addColumn(new ElasticSearchColumnDefine(ApplicationAlarmListTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
     }
 }
