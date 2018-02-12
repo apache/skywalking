@@ -48,10 +48,10 @@ public class ProducerOperationHandlerInterceptor implements InstanceMethodsAroun
             next = next.next();
             next.setHeadValue(invocation.getContext().get(next.getHeadKey()));
         }
-        if (null == invocation.getOperationMeta()) {
-            return;
+        String operationName = "servicecomb/chassis" + method.getName();
+        if (null != invocation.getOperationMeta()) {
+            operationName = invocation.getMicroserviceQualifiedName();
         }
-        String operationName = invocation.getMicroserviceQualifiedName();
         AbstractSpan span = ContextManager.createEntrySpan(operationName, contextCarrier);
         String url = invocation.getOperationMeta().getOperationPath();
         Tags.URL.set(span, url);
@@ -62,9 +62,6 @@ public class ProducerOperationHandlerInterceptor implements InstanceMethodsAroun
     @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
         Invocation invocation = (Invocation)allArguments[0];
-        if (null == invocation.getOperationMeta()) {
-            return ret;
-        }
         AbstractSpan span = ContextManager.activeSpan();
         int statusCode = invocation.getStatus().getStatusCode();
         if (statusCode >= 400) {

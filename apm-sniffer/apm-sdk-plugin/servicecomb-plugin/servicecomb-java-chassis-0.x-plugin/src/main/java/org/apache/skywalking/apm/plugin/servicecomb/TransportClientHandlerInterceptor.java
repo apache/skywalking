@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.plugin.servicecomb;
 import io.servicecomb.core.Invocation;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.net.URISyntaxException;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -43,11 +44,10 @@ public class TransportClientHandlerInterceptor implements InstanceMethodsAroundI
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         Invocation invocation = (Invocation)allArguments[0];
-        if (null == invocation.getOperationMeta() || null == invocation.getEndpoint()) {
+        String peer = AsserRegister(invocation);
+        if (null == peer) {
             return;
         }
-        URI uri = new URI(invocation.getEndpoint().toString());
-        String peer = uri.getHost() + ":" + uri.getPort();
         String operationName = invocation.getMicroserviceQualifiedName();
         final ContextCarrier contextCarrier = new ContextCarrier();
         AbstractSpan span = ContextManager.createExitSpan(operationName, contextCarrier, peer);
@@ -65,7 +65,8 @@ public class TransportClientHandlerInterceptor implements InstanceMethodsAroundI
     @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
         Invocation invocation = (Invocation)allArguments[0];
-        if (null == invocation.getOperationMeta() || null == invocation.getEndpoint()) {
+        String peer = AsserRegister(invocation);
+        if (null == peer) {
             return ret;
         }
         AbstractSpan span = ContextManager.activeSpan();
@@ -75,15 +76,31 @@ public class TransportClientHandlerInterceptor implements InstanceMethodsAroundI
             Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
         }
         ContextManager.stopSpan();
-
         return ret;
     }
 
     @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
+        Invocation invocation = (Invocation)allArguments[0];
+        if (null == invocation.getOperationMeta() || null == invocation.getEndpoint()) {
+            return;
+        }
         AbstractSpan span = ContextManager.activeSpan();
         span.errorOccurred();
         span.log(t);
+    }
+
+    /**
+     * Serviecomb chissis Consumers and providers need to register at the service center. If the consumer is not
+     * registered then return
+     */
+    private String AsserRegister(Invocation invocation) throws URISyntaxException {
+        if (null == invocation.getOperationMeta() || null == invocation.getEndpoint()) {
+            return null;
+        }
+        URI uri = new URI(invocation.getEndpoint().toString());
+        String peer = uri.getHost() + ":" + uri.getPort();
+        return peer;
     }
 
 }
