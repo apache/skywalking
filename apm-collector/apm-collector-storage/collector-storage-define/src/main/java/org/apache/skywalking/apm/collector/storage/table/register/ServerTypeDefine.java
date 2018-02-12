@@ -32,7 +32,7 @@ public class ServerTypeDefine {
     private ServerType[] serverTypes;
 
     private ServerTypeDefine() {
-        this.serverTypes = new ServerType[28];
+        this.serverTypes = new ServerType[29];
         this.serverTypeNames = new String[11];
         addServerType(new ServerType(ComponentsDefine.TOMCAT.getId(), Const.NONE, Const.EMPTY_STRING));
         addServerType(new ServerType(ComponentsDefine.HTTPCLIENT.getId(), Const.NONE, Const.EMPTY_STRING));
@@ -61,6 +61,7 @@ public class ServerTypeDefine {
         addServerType(new ServerType(ComponentsDefine.ROCKET_MQ.getId(), 9, ComponentsDefine.ROCKET_MQ.getName()));
         addServerType(new ServerType(ComponentsDefine.HTTP_ASYNC_CLIENT.getId(), Const.NONE, Const.EMPTY_STRING));
         addServerType(new ServerType(ComponentsDefine.KAFKA.getId(), 10, ComponentsDefine.KAFKA.getName()));
+        addServerType(new ServerType(ComponentsDefine.SERVICECOMB.getId(), Const.NONE, ComponentsDefine.SERVICECOMB.getName()));
     }
 
     public static ServerTypeDefine getInstance() {
