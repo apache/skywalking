@@ -16,27 +16,16 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.ui.overview;
+package org.apache.skywalking.apm.collector.storage.dao.ui;
 
-import java.util.LinkedList;
 import java.util.List;
+import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
+import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 
 /**
  * @author peng-yongsheng
  */
-public class AlarmTrend {
+public interface IApplicationAlarmListUIDAO extends DAO {
 
-    private List<Integer> numOfAlarmRate;
-
-    public AlarmTrend() {
-        this.numOfAlarmRate = new LinkedList<>();
-    }
-
-    public List<Integer> getNumOfAlarmRate() {
-        return numOfAlarmRate;
-    }
-
-    public void setNumOfAlarmRate(List<Integer> numOfAlarmRate) {
-        this.numOfAlarmRate = numOfAlarmRate;
-    }
+    List<Integer> getAlarmedApplicationNum(Step step, long start, long end);
 }

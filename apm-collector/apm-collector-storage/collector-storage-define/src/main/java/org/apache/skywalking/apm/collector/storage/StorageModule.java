@@ -105,6 +105,7 @@ import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceDay
 import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceHourMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceMonthMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationAlarmListUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationAlarmUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationComponentUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMappingUIDAO;
@@ -264,6 +265,7 @@ public class StorageModule extends Module {
         classes.add(IApplicationAlarmUIDAO.class);
         classes.add(IInstanceAlarmUIDAO.class);
         classes.add(IServiceAlarmUIDAO.class);
+        classes.add(IApplicationAlarmListUIDAO.class);
     }
 
     private void addAlarmDAO(List<Class> classes) {
