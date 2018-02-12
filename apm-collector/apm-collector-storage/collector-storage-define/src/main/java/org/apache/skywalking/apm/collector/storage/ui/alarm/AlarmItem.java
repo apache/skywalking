@@ -28,4 +28,52 @@ public class AlarmItem {
     private String startTime;
     private AlarmType alarmType;
     private CauseType causeType;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    public AlarmType getAlarmType() {
+        return alarmType;
+    }
+
+    public void setAlarmType(AlarmType alarmType) {
+        this.alarmType = alarmType;
+    }
+
+    public CauseType getCauseType() {
+        return causeType;
+    }
+
+    public void setCauseType(CauseType causeType) {
+        this.causeType = causeType;
+    }
 }
