@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
 import org.apache.skywalking.apm.collector.storage.base.dao.IBatchDAO;
+import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
@@ -57,6 +58,9 @@ public class BatchEsDAO extends EsDAO implements IBatchDAO {
             BulkResponse bulkResponse = bulkRequest.execute().actionGet();
             if (bulkResponse.hasFailures()) {
                 logger.error(bulkResponse.buildFailureMessage());
+                for (BulkItemResponse itemResponse : bulkResponse.getItems()) {
+                    logger.error("Bulk request failure, index: {}, id: {}", itemResponse.getIndex(), itemResponse.getId());
+                }
             }
         }
     }

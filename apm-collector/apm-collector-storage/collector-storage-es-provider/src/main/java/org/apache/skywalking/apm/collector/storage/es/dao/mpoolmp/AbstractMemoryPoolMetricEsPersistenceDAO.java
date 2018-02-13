@@ -40,7 +40,6 @@ public abstract class AbstractMemoryPoolMetricEsPersistenceDAO extends AbstractP
 
     @Override protected final MemoryPoolMetric esDataToStreamData(Map<String, Object> source) {
         MemoryPoolMetric memoryPoolMetric = new MemoryPoolMetric();
-        memoryPoolMetric.setId((String)source.get(MemoryPoolMetricTable.COLUMN_ID));
         memoryPoolMetric.setMetricId((String)source.get(MemoryPoolMetricTable.COLUMN_METRIC_ID));
 
         memoryPoolMetric.setInstanceId(((Number)source.get(MemoryPoolMetricTable.COLUMN_INSTANCE_ID)).intValue());
@@ -58,7 +57,6 @@ public abstract class AbstractMemoryPoolMetricEsPersistenceDAO extends AbstractP
 
     @Override protected final Map<String, Object> esStreamDataToEsData(MemoryPoolMetric streamData) {
         Map<String, Object> source = new HashMap<>();
-        source.put(MemoryPoolMetricTable.COLUMN_ID, streamData.getId());
         source.put(MemoryPoolMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
 
         source.put(MemoryPoolMetricTable.COLUMN_INSTANCE_ID, streamData.getInstanceId());

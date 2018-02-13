@@ -54,6 +54,7 @@ public abstract class AbstractApplicationAlarmListH2PersistenceDAO extends Abstr
 
     @Override protected final Map<String, Object> streamDataToH2Data(ApplicationAlarmList streamData) {
         Map<String, Object> source = new HashMap<>();
+        source.put(ApplicationAlarmListTable.COLUMN_ID, streamData.getId());
         source.put(ApplicationAlarmListTable.COLUMN_METRIC_ID, streamData.getMetricId());
         source.put(ApplicationAlarmListTable.COLUMN_SOURCE_VALUE, streamData.getSourceValue());
 

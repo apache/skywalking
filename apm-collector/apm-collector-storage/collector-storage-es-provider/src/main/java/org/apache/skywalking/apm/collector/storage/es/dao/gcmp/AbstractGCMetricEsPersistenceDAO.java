@@ -40,7 +40,6 @@ public abstract class AbstractGCMetricEsPersistenceDAO extends AbstractPersisten
 
     @Override protected final GCMetric esDataToStreamData(Map<String, Object> source) {
         GCMetric gcMetric = new GCMetric();
-        gcMetric.setId((String)source.get(GCMetricTable.COLUMN_ID));
         gcMetric.setMetricId((String)source.get(GCMetricTable.COLUMN_METRIC_ID));
 
         gcMetric.setInstanceId(((Number)source.get(GCMetricTable.COLUMN_INSTANCE_ID)).intValue());
@@ -56,7 +55,6 @@ public abstract class AbstractGCMetricEsPersistenceDAO extends AbstractPersisten
 
     @Override protected final Map<String, Object> esStreamDataToEsData(GCMetric streamData) {
         Map<String, Object> source = new HashMap<>();
-        source.put(GCMetricTable.COLUMN_ID, streamData.getId());
         source.put(GCMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
 
         source.put(GCMetricTable.COLUMN_INSTANCE_ID, streamData.getInstanceId());

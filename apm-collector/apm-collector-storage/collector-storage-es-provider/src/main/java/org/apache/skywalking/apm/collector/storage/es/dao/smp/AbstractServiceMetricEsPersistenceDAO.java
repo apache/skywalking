@@ -40,7 +40,6 @@ public abstract class AbstractServiceMetricEsPersistenceDAO extends AbstractPers
 
     @Override protected final ServiceMetric esDataToStreamData(Map<String, Object> source) {
         ServiceMetric serviceMetric = new ServiceMetric();
-        serviceMetric.setId((String)source.get(ServiceMetricTable.COLUMN_ID));
         serviceMetric.setMetricId((String)source.get(ServiceMetricTable.COLUMN_METRIC_ID));
 
         serviceMetric.setApplicationId(((Number)source.get(ServiceMetricTable.COLUMN_APPLICATION_ID)).intValue());
@@ -69,7 +68,6 @@ public abstract class AbstractServiceMetricEsPersistenceDAO extends AbstractPers
 
     @Override protected final Map<String, Object> esStreamDataToEsData(ServiceMetric streamData) {
         Map<String, Object> source = new HashMap<>();
-        source.put(ServiceMetricTable.COLUMN_ID, streamData.getId());
         source.put(ServiceMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
 
         source.put(ServiceMetricTable.COLUMN_APPLICATION_ID, streamData.getApplicationId());
