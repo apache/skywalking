@@ -36,9 +36,13 @@ public class TraceSegmentMock {
     private static final Logger logger = LoggerFactory.getLogger(TraceSegmentMock.class);
 
     public static void main(String[] args) throws InterruptedException {
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
+
+        RegisterMock registerMock = new RegisterMock();
+        registerMock.mock(channel);
+
         Sleeping sleeping = new Sleeping();
 
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
         TraceSegmentServiceGrpc.TraceSegmentServiceStub stub = TraceSegmentServiceGrpc.newStub(channel);
         StreamObserver<UpstreamSegment> segmentStreamObserver = stub.collect(new StreamObserver<Downstream>() {
             @Override public void onNext(Downstream downstream) {
