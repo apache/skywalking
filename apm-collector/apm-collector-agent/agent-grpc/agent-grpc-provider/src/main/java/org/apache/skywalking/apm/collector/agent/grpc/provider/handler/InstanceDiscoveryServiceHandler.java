@@ -66,6 +66,8 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
         int instanceId = request.getApplicationInstanceId();
         long heartBeatTime = request.getHeartbeatTime();
         this.instanceHeartBeatService.heartBeat(instanceId, heartBeatTime);
+        responseObserver.onNext(Downstream.getDefaultInstance());
+        responseObserver.onCompleted();
     }
 
     private String buildOsInfo(OSInfo osinfo) {
