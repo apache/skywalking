@@ -56,6 +56,7 @@ public abstract class AbstractMemoryPoolMetricH2PersistenceDAO extends AbstractP
 
     @Override protected final Map<String, Object> streamDataToH2Data(MemoryPoolMetric streamData) {
         Map<String, Object> source = new HashMap<>();
+        source.put(MemoryPoolMetricTable.COLUMN_ID, streamData.getId());
         source.put(MemoryPoolMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
 
         source.put(MemoryPoolMetricTable.COLUMN_INSTANCE_ID, streamData.getInstanceId());

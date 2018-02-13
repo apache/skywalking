@@ -40,7 +40,6 @@ public abstract class AbstractApplicationComponentEsPersistenceDAO extends Abstr
 
     @Override protected final ApplicationComponent esDataToStreamData(Map<String, Object> source) {
         ApplicationComponent applicationComponent = new ApplicationComponent();
-        applicationComponent.setId((String)source.get(ApplicationComponentTable.COLUMN_ID));
         applicationComponent.setMetricId((String)source.get(ApplicationComponentTable.COLUMN_METRIC_ID));
 
         applicationComponent.setComponentId(((Number)source.get(ApplicationComponentTable.COLUMN_COMPONENT_ID)).intValue());
@@ -51,7 +50,6 @@ public abstract class AbstractApplicationComponentEsPersistenceDAO extends Abstr
 
     @Override protected final Map<String, Object> esStreamDataToEsData(ApplicationComponent streamData) {
         Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationComponentTable.COLUMN_ID, streamData.getId());
         source.put(ApplicationComponentTable.COLUMN_METRIC_ID, streamData.getMetricId());
 
         source.put(ApplicationComponentTable.COLUMN_COMPONENT_ID, streamData.getComponentId());

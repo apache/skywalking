@@ -54,6 +54,7 @@ public abstract class AbstractGCMetricH2PersistenceDAO extends AbstractPersisten
 
     @Override protected final Map<String, Object> streamDataToH2Data(GCMetric streamData) {
         Map<String, Object> source = new HashMap<>();
+        source.put(GCMetricTable.COLUMN_ID, streamData.getId());
         source.put(GCMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
 
         source.put(GCMetricTable.COLUMN_INSTANCE_ID, streamData.getInstanceId());
