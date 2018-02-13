@@ -50,7 +50,7 @@ public class ApplicationEsCacheDAO extends EsDAO implements IApplicationCacheDAO
         ElasticSearchClient client = getClient();
 
         SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ApplicationTable.TABLE);
-        searchRequestBuilder.setTypes("type");
+        searchRequestBuilder.setTypes(ApplicationTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -88,7 +88,7 @@ public class ApplicationEsCacheDAO extends EsDAO implements IApplicationCacheDAO
         ElasticSearchClient client = getClient();
 
         SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ApplicationTable.TABLE);
-        searchRequestBuilder.setTypes("type");
+        searchRequestBuilder.setTypes(ApplicationTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
