@@ -1,11 +1,11 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Card, List, Avatar } from 'antd';
+import { Row, Col, Card } from 'antd';
 import {
   ChartCard, Pie, MiniArea, Field,
 } from '../../components/Charts';
 import { timeRange } from '../../utils/utils';
-import { Panel } from '../../components/Page';
+import { Panel, Ranking } from '../../components/Page';
 
 @connect(state => ({
   dashboard: state.dashboard,
@@ -18,28 +18,6 @@ export default class Dashboard extends PureComponent {
       type: 'dashboard/fetchData',
       payload: { variables },
     });
-  }
-  renderList = (data, title, content, unit) => {
-    let index = 0;
-    return (<List
-      size="small"
-      itemLayout="horizontal"
-      dataSource={data}
-      renderItem={item => (
-        <List.Item>
-          <List.Item.Meta
-            avatar={
-              <Avatar
-                style={{ color: '#ff3333', backgroundColor: '#ffb84d' }}
-              >
-                {(() => { index += 1; return index; })()}
-              </Avatar>}
-            title={item[title]}
-            description={`${item[content]} ${unit}`}
-          />
-        </List.Item>
-      )}
-    />);
   }
   render() {
     const { data } = this.props.dashboard;
@@ -138,18 +116,18 @@ export default class Dashboard extends PureComponent {
             <Card
               title="Slow Service"
               bordered={false}
-              bodyStyle={{ padding: 10 }}
+              bodyStyle={{ padding: '0px 10px' }}
             >
-              {this.renderList(data.getTopNSlowService, 'name', 'avgResponseTime', 'ms')}
+              <Ranking data={data.getTopNSlowService} title="name" content="avgResponseTime" unit="ms" />
             </Card>
           </Col>
           <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 24 }}>
             <Card
               title="Application Throughput"
               bordered={false}
-              bodyStyle={{ padding: 10 }}
+              bodyStyle={{ padding: '0px 10px' }}
             >
-              {this.renderList(data.getTopNApplicationThroughput, 'applicationCode', 'tps', 't/s')}
+              <Ranking data={data.getTopNApplicationThroughput} title="applicationCode" content="tps" unit="t/s" />
             </Card>
           </Col>
         </Row>

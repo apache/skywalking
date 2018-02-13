@@ -1,31 +1,11 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Select, Card, Table, Form } from 'antd';
+import { Row, Col, Select, Card, Form } from 'antd';
 import { AppTopology } from '../../components/Topology';
-import { Panel } from '../../components/Page';
+import { Panel, Ranking } from '../../components/Page';
 
 const { Option } = Select;
 const { Item: FormItem } = Form;
-
-const tableColumns = [{
-  title: 'Name',
-  dataIndex: 'name',
-  key: 'name',
-}, {
-  title: 'Duration',
-  dataIndex: 'avgResponseTime',
-  key: 'avgResponseTime',
-}];
-
-const applicationThroughputColumns = [{
-  title: 'Name',
-  dataIndex: 'name',
-  key: 'name',
-}, {
-  title: 'Tps',
-  dataIndex: 'tps',
-  key: 'tps',
-}];
 
 const middleColResponsiveProps = {
   xs: 24,
@@ -119,34 +99,18 @@ export default class Application extends PureComponent {
               <Card
                 title="Slow Service"
                 bordered={false}
-                bodyStyle={{ padding: 0 }}
+                bodyStyle={{ padding: '0px 10px' }}
               >
-                <Table
-                  size="small"
-                  columns={tableColumns}
-                  dataSource={data.getSlowService}
-                  pagination={{
-                    style: { marginBottom: 0 },
-                    pageSize: 10,
-                  }}
-                />
+                <Ranking data={data.getSlowService} title="name" content="avgResponseTime" unit="ms" />
               </Card>
             </Col>
             <Col {...middleColResponsiveProps}>
               <Card
                 title="Servers Throughput"
                 bordered={false}
-                bodyStyle={{ padding: 0 }}
+                bodyStyle={{ padding: '0px 10px' }}
               >
-                <Table
-                  size="small"
-                  columns={applicationThroughputColumns}
-                  dataSource={data.getServerThroughput}
-                  pagination={{
-                    style: { marginBottom: 0 },
-                    pageSize: 10,
-                  }}
-                />
+                <Ranking data={data.getServerThroughput} title="name" content="tps" unit="t/s" />
               </Card>
             </Col>
           </Row>
