@@ -40,7 +40,6 @@ public abstract class AbstractInstanceReferenceMetricEsPersistenceDAO extends Ab
 
     @Override protected final InstanceReferenceMetric esDataToStreamData(Map<String, Object> source) {
         InstanceReferenceMetric instanceReferenceMetric = new InstanceReferenceMetric();
-        instanceReferenceMetric.setId((String)source.get(InstanceReferenceMetricTable.COLUMN_ID));
         instanceReferenceMetric.setMetricId((String)source.get(InstanceReferenceMetricTable.COLUMN_METRIC_ID));
 
         instanceReferenceMetric.setFrontApplicationId((Integer)source.get(InstanceReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID));
@@ -70,7 +69,6 @@ public abstract class AbstractInstanceReferenceMetricEsPersistenceDAO extends Ab
 
     @Override protected final Map<String, Object> esStreamDataToEsData(InstanceReferenceMetric streamData) {
         Map<String, Object> source = new HashMap<>();
-        source.put(InstanceReferenceMetricTable.COLUMN_ID, streamData.getId());
         source.put(InstanceReferenceMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
 
         source.put(InstanceReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID, streamData.getFrontApplicationId());
