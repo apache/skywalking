@@ -40,7 +40,6 @@ public abstract class AbstractApplicationAlarmListEsPersistenceDAO extends Abstr
 
     @Override protected final ApplicationAlarmList esDataToStreamData(Map<String, Object> source) {
         ApplicationAlarmList applicationAlarmList = new ApplicationAlarmList();
-        applicationAlarmList.setId((String)source.get(ApplicationAlarmListTable.COLUMN_ID));
         applicationAlarmList.setMetricId((String)source.get(ApplicationAlarmListTable.COLUMN_METRIC_ID));
         applicationAlarmList.setApplicationId(((Number)source.get(ApplicationAlarmListTable.COLUMN_APPLICATION_ID)).intValue());
         applicationAlarmList.setSourceValue(((Number)source.get(ApplicationAlarmListTable.COLUMN_SOURCE_VALUE)).intValue());

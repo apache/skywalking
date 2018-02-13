@@ -27,7 +27,6 @@ public class ApplicationMetricAlarmListCopy {
 
     public static ApplicationAlarmList copy(ApplicationAlarmList applicationAlarmList) {
         ApplicationAlarmList newApplicationAlarmList = new ApplicationAlarmList();
-        newApplicationAlarmList.setId(applicationAlarmList.getId());
         newApplicationAlarmList.setMetricId(applicationAlarmList.getMetricId());
 
         newApplicationAlarmList.setAlarmContent(applicationAlarmList.getAlarmContent());

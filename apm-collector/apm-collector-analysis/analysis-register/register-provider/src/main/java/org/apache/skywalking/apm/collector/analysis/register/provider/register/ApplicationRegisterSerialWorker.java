@@ -55,7 +55,14 @@ public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker<Ap
 
     @Override protected void onWork(Application application) throws WorkerException {
         logger.debug("register application, application code: {}", application.getApplicationCode());
-        int applicationId = applicationCacheService.getApplicationIdByCode(application.getApplicationCode());
+
+        int applicationId;
+
+        if (BooleanUtils.valueToBoolean(application.getIsAddress())) {
+            applicationId = applicationCacheService.getApplicationIdByAddressId(application.getAddressId());
+        } else {
+            applicationId = applicationCacheService.getApplicationIdByCode(application.getApplicationCode());
+        }
 
         if (applicationId == 0) {
             Application newApplication;
