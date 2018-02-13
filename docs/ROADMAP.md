@@ -10,9 +10,6 @@ All the features of three lists are open for discussion.
 Core features are separated into 3 groups: agent, collector and UI.
 
 ### Agent
-- Apache Incubator ServiceComb RPC Framework plugin. [WIP]
-- Apache Kafka plugin. [WIP]
-- Spring bean annotations plugins. [WIP]
 - Support OpenTracing-Java 0.31.0 or 1.0
 - Apache HttpClientComponent 3.x plugin.
 - Apache Tomcat6 plugin.
@@ -21,9 +18,6 @@ Core features are separated into 3 groups: agent, collector and UI.
 - Continue DB/Cache access span merged automatically.
 
 ### Collector
-- Support application, server and service metrics aggregation. [WIP]
-- Support alarm detection. [WIP]
-- Provide GraphQL-style query service for UI. [WIP]
 - Multi-Tenancy
 - Config alarm thresholds.
 - Config data TTL.
