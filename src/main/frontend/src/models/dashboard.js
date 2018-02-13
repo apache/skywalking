@@ -28,6 +28,9 @@ export default generateModal({
         numOfCache
         numOfMQ
       }
+      getAlarmTrend(duration: $duration) {
+        numOfAlarmRate
+      }
       getConjecturalApps(duration: $duration) {
         apps {
           name

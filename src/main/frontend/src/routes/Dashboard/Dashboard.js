@@ -45,16 +45,17 @@ export default class Dashboard extends PureComponent {
     const { data } = this.props.dashboard;
     const visitData = [];
     const { numOfAlarmRate } = data.getAlarmTrend;
+    const accuracy = 100;
     let avg = 0;
     let max = 0;
     let min = 0;
     if (numOfAlarmRate && numOfAlarmRate.length > 0) {
       timeRange(this.props.duration).forEach((v, i) => {
-        visitData.push({ x: v, y: numOfAlarmRate[i] });
+        visitData.push({ x: v, y: numOfAlarmRate[i] / accuracy });
       });
-      avg = numOfAlarmRate.reduce((acc, curr) => acc + curr) / numOfAlarmRate.length;
-      max = numOfAlarmRate.reduce((acc, curr) => { return acc < curr ? curr : acc; });
-      min = numOfAlarmRate.reduce((acc, curr) => { return acc > curr ? curr : acc; });
+      avg = numOfAlarmRate.reduce((acc, curr) => acc + curr) / numOfAlarmRate.length / accuracy;
+      max = numOfAlarmRate.reduce((acc, curr) => { return acc < curr ? curr : acc; }) / accuracy;
+      min = numOfAlarmRate.reduce((acc, curr) => { return acc > curr ? curr : acc; }) / accuracy;
     }
     return (
       <Panel globalVariables={this.props.globalVariables} onChange={this.handleDurationChange}>

@@ -111,13 +111,13 @@ export default class Service extends PureComponent {
             <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 24 }}>
               <ChartCard
                 title="Avg SLA"
-                total={`${this.avg(getServiceSLATrend.trendList)} %`}
+                total={`${this.avg(getServiceSLATrend.trendList) / 100} %`}
               >
                 <MiniBar
                   animate={false}
                   height={46}
                   data={getServiceSLATrend.trendList
-                    .map((v, i) => { return { x: timeRangeArray[i], y: v }; })}
+                    .map((v, i) => { return { x: timeRangeArray[i], y: v / 100 }; })}
                 />
               </ChartCard>
             </Col>

@@ -13,7 +13,7 @@ export default {
             'numOfMQ|1-100': 1,
           },
           getAlarmTrend: {
-            'numOfAlarmRate|60': ['@natural(0, 99)'],
+            'numOfAlarmRate|60': ['@natural(0, 9999)'],
           },
           getConjecturalApps: {
             'apps|3-5': [{ 'name|1': ['Oracle', 'MySQL', 'ActiveMQ', 'Redis', 'Memcache', 'SQLServer'], num: '@natural(1, 20)' }],

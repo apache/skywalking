@@ -9,11 +9,6 @@ export default {
             {
               'key|+1': 3,
               label: function() { return `service-${this.key}`; },
-              'type|1': ['DUBBO', 'USER', 'SPRINGMVC'],
-              'calls|1000-2000': 1,
-              'sla|1-100.1-2': 1,
-              'apdex|0.2': 1,
-              'numOfServiceAlarm|1-100': 1,
             },
           ],
         },
@@ -32,7 +27,7 @@ export default {
             'trendList|60': ['@natural(500, 10000)'],
           },
           getServiceSLATrend: {
-            'trendList|60': ['@natural(80, 100)'],
+            'trendList|60': ['@natural(8000, 10000)'],
           },
           getServiceTopology: () => {
             const upNodes = mockjs.mock({
