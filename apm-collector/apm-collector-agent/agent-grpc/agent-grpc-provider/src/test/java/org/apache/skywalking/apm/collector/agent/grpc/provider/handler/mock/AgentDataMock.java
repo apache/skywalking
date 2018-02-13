@@ -16,31 +16,35 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.agent.grpc.provider.handler;
+package org.apache.skywalking.apm.collector.agent.grpc.provider.handler.mock;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import org.apache.skywalking.apm.network.proto.Application;
-import org.apache.skywalking.apm.network.proto.ApplicationMapping;
-import org.apache.skywalking.apm.network.proto.ApplicationRegisterServiceGrpc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationRegisterServiceHandlerTestCase {
+public class AgentDataMock {
 
-    private final Logger logger = LoggerFactory.getLogger(ApplicationRegisterServiceHandlerTestCase.class);
+    private static final Logger logger = LoggerFactory.getLogger(TraceSegmentMock.class);
 
-    private ApplicationRegisterServiceGrpc.ApplicationRegisterServiceBlockingStub stub;
-
-    public void testRegister() {
+    public static void main(String[] args) throws InterruptedException {
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
-        stub = ApplicationRegisterServiceGrpc.newBlockingStub(channel);
 
-        Application application = Application.newBuilder().setApplicationCode("test141").build();
-        ApplicationMapping mapping = stub.applicationCodeRegister(application);
-        logger.debug(mapping.getApplication().getKey() + ", " + mapping.getApplication().getValue());
+        RegisterMock registerMock = new RegisterMock();
+        registerMock.mock(channel);
+
+        Long[] times = TimeBuilder.INSTANCE.generateTimes();
+        logger.info("times size: {}", times.length);
+
+        TraceSegmentMock segmentMock = new TraceSegmentMock();
+        segmentMock.mock(channel, times);
+
+        JVMMetricMock jvmMetricMock = new JVMMetricMock();
+        jvmMetricMock.mock(channel, times);
+
+        Thread.sleep(60);
     }
 }
