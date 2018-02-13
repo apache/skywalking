@@ -19,7 +19,6 @@
 package org.apache.skywalking.apm.collector.agent.grpc.provider.handler.mock;
 
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import org.apache.skywalking.apm.network.proto.Downstream;
 import org.apache.skywalking.apm.network.proto.TraceSegmentServiceGrpc;
@@ -31,14 +30,11 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public class TraceSegmentMock {
+class TraceSegmentMock {
 
     private static final Logger logger = LoggerFactory.getLogger(TraceSegmentMock.class);
 
-    public static void main(String[] args) throws InterruptedException {
-        Sleeping sleeping = new Sleeping();
-
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
+    void mock(ManagedChannel channel, Long[] times) {
         TraceSegmentServiceGrpc.TraceSegmentServiceStub stub = TraceSegmentServiceGrpc.newStub(channel);
         StreamObserver<UpstreamSegment> segmentStreamObserver = stub.collect(new StreamObserver<Downstream>() {
             @Override public void onNext(Downstream downstream) {
@@ -48,12 +44,8 @@ public class TraceSegmentMock {
             }
 
             @Override public void onCompleted() {
-                sleeping.setValue(Boolean.FALSE);
             }
         });
-
-        Long[] times = TimeBuilder.INSTANCE.generateTimes();
-        logger.info("times size: {}", times.length);
 
         for (int i = 0; i < times.length; i++) {
             long startTimestamp = times[i];
@@ -75,21 +67,5 @@ public class TraceSegmentMock {
         logger.info("sending segment number: {}", times.length);
 
         segmentStreamObserver.onCompleted();
-
-        while (sleeping.getValue()) {
-            Thread.sleep(200);
-        }
-    }
-
-    static class Sleeping {
-        private Boolean value = Boolean.TRUE;
-
-        Boolean getValue() {
-            return value;
-        }
-
-        void setValue(Boolean value) {
-            this.value = value;
-        }
     }
 }
