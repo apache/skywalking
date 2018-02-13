@@ -83,6 +83,8 @@ public class TraceSegmentMock {
         while (sleeping.getValue()) {
             Thread.sleep(200);
         }
+
+        Thread.sleep(200000);
     }
 
     static class Sleeping {

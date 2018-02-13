@@ -20,8 +20,11 @@ package org.apache.skywalking.apm.collector.agent.grpc.provider.handler.mock;
 
 import io.grpc.ManagedChannel;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.network.proto.Application;
 import org.apache.skywalking.apm.network.proto.ApplicationInstance;
+import org.apache.skywalking.apm.network.proto.ApplicationInstanceHeartbeat;
 import org.apache.skywalking.apm.network.proto.ApplicationInstanceMapping;
 import org.apache.skywalking.apm.network.proto.ApplicationMapping;
 import org.apache.skywalking.apm.network.proto.ApplicationRegisterServiceGrpc;
@@ -31,6 +34,7 @@ import org.apache.skywalking.apm.network.proto.ServiceNameCollection;
 import org.apache.skywalking.apm.network.proto.ServiceNameDiscoveryServiceGrpc;
 import org.apache.skywalking.apm.network.proto.ServiceNameElement;
 import org.apache.skywalking.apm.network.proto.ServiceNameMappingCollection;
+import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,6 +98,8 @@ class RegisterMock {
         serviceNameCollection.addElements(serviceNameElement);
 
         registerServiceName(serviceNameCollection);
+
+        heartBeatScheduled(instanceMapping.getApplicationInstanceId());
     }
 
     private void registerProvider() throws InterruptedException {
@@ -136,6 +142,8 @@ class RegisterMock {
         serviceNameCollection.addElements(serviceNameElement);
 
         registerServiceName(serviceNameCollection);
+
+        heartBeatScheduled(instanceMapping.getApplicationInstanceId());
     }
 
     private void registerServiceName(ServiceNameCollection.Builder serviceNameCollection) throws InterruptedException {
@@ -149,5 +157,20 @@ class RegisterMock {
             Thread.sleep(20);
         }
         while (serviceNameMappingCollection.getElementsCount() == 0 || serviceNameMappingCollection.getElements(0).getServiceId() == 0);
+    }
+
+    private void heartBeatScheduled(int instanceId) {
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
+            new RunnableWithExceptionProtection(() -> heartBeat(instanceId),
+                t -> logger.error("instance heart beat scheduled error.", t)), 4, 1, TimeUnit.SECONDS);
+    }
+
+    private void heartBeat(int instanceId) {
+        long now = System.currentTimeMillis();
+        logger.debug("instance heart beat, instance id: {}, time: {}", instanceId, now);
+        ApplicationInstanceHeartbeat.Builder heartbeat = ApplicationInstanceHeartbeat.newBuilder();
+        heartbeat.setApplicationInstanceId(instanceId);
+        heartbeat.setHeartbeatTime(now);
+        instanceDiscoveryServiceBlockingStub.heartbeat(heartbeat.build());
     }
 }
