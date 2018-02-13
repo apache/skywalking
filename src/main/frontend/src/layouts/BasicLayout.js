@@ -273,7 +273,7 @@ class BasicLayout extends React.PureComponent {
       },
       lable: 'NaN',
     } } = this.props;
-    const timeFormat = 'YYYY-MM-DD HH:mm:ss';
+    const timeFormat = 'YYYY-MM-DD HH:mm';
 
     const layout = (
       <Layout>

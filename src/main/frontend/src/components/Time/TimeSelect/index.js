@@ -175,7 +175,7 @@ class TimeSelect extends PureComponent {
               label="Time Range"
             >
               {getFieldDecorator('range-time-picker')(
-                <RangePicker showTime disabledDate={this.disabledDate} format="YYYY-MM-DD HH:mm:ss" />
+                <RangePicker showTime disabledDate={this.disabledDate} format="YYYY-MM-DD HH:mm" />
               )}
             </FormItem>
             <FormItem

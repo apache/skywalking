@@ -1,17 +1,17 @@
 import { generateModal } from '../utils/utils';
 
 const dataQuery = `
-  query Service($service: ID!, $duration: Duration!) {
-    getServiceResponseTimeTrend(serverId: $serverId, duration: $duration) {
+  query Service($serviceId: ID!, $duration: Duration!) {
+    getServiceResponseTimeTrend(serviceId: $serviceId, duration: $duration) {
       trendList
     }
-    getServiceTPSTrend(serverId: $serverId, duration: $duration) {
+    getServiceTPSTrend(serviceId: $serviceId, duration: $duration) {
       trendList
     }
-    getServiceSLATrend(serverId: $serverId, duration: $duration) {
+    getServiceSLATrend(serviceId: $serviceId, duration: $duration) {
       trendList
     }
-    getServiceTopology(serverId: $serverId, duration: $duration) {
+    getServiceTopology(serviceId: $serviceId, duration: $duration) {
       nodes {
         id
         name
@@ -26,15 +26,15 @@ const dataQuery = `
           numOfServerAlarm
           numOfServiceAlarm
         }
-      },
-      calls: {
+      }
+      calls {
         source
         target
         isAlert
         callType
         callsPerSec
         responseTimePerSec
-      },
+      }
     }
   }
 `;

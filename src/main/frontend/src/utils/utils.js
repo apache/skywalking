@@ -9,8 +9,7 @@ function createTimeMeasure(measureType, step, format, displayFormat = format) {
 
 function getMeasureList() {
   return [createTimeMeasure('months', 'MONTH', 'YYYY-MM'), createTimeMeasure('days', 'DAY', 'YYYY-MM-DD'),
-    createTimeMeasure('hours', 'HOUR', 'YYYY-MM-DD HH', 'YYYY-MM-DD HH:00:00'), createTimeMeasure('minutes', 'MINUTE', 'YYYY-MM-DD HHmm', 'HH:mm:00'),
-    createTimeMeasure('seconds', 'SECOND', 'YYYY-MM-DD HHmmss', 'HH:mm:ss')];
+    createTimeMeasure('hours', 'HOUR', 'YYYY-MM-DD HH', 'YYYY-MM-DD HH:00:00'), createTimeMeasure('minutes', 'MINUTE', 'YYYY-MM-DD HHmm', 'HH:mm:00')];
 }
 
 export function fixedZero(val) {
@@ -113,8 +112,10 @@ export function timeRange({ display }) {
 export function generateDuration({ from, to }) {
   const start = from();
   const end = to();
-  const { measureType, step, format, displayFormat } = getMeasureList()
-    .find(measure => (end.diff(start, measure.measureType) > 1));
+  const mlist = getMeasureList();
+  const lenght = mlist.length;
+  const { measureType, step, format, displayFormat } = mlist
+    .find((_, index) => ((index + 1 >= lenght) || end.diff(start, _.measureType) > 1));
   return {
     input: {
       start: start.format(format),
@@ -237,7 +238,7 @@ export function generateModal({ namespace, dataQuery, optionsQuery, state = {},
             },
             labels: {
               ...preLabels,
-              labels,
+              ...labels,
             },
           },
           data: {
