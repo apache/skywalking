@@ -7,7 +7,7 @@ The web UI for [SkyWalking APM](https://github.com/apache/incubator-skywalking).
 
 [![Build Status](https://travis-ci.org/apache/incubator-skywalking-ui.svg?branch=master)](https://travis-ci.org/apache/incubator-skywalking-ui)
 
-SkyWalking Web UI 5.0 is developing, **NOW!!**. Submit issue and [@hanahmily](https://github.com/hanahmily) if you want to proposal something.
+SkyWalking Web UI 5.0 is developing, **NOW!!**. Submit issue and [@hanahmily](https://github.com/hanahmily) if you want to proposal something. 
 
 ___
 _SkyWalking 3.0 documents:_
