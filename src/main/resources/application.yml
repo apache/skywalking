@@ -18,5 +18,15 @@
 
 server:
   port: 8080
+zuul:
+  ignoredServices: '*'
+  routes:
+    api:
+      path: /api/**
+      serviceId: collector
+
 collector:
-  servers: 127.0.0.1:10800
+  path: /graphql
+  ribbon:
+    listOfServers: 127.0.0.1:10800
+    NIWSServerListClassName: org.apache.skywalking.apm.ui.tools.CollectorServerList

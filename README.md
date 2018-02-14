@@ -3,7 +3,7 @@ Apache SkyWalking Web UI
 
 <img src="https://skywalkingtest.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
 
-The web UI for [SkyWalking APM](https://github.com/apache/incubator-skywalking). 
+The web UI for [SkyWalking APM](https://github.com/apache/incubator-skywalking).
 
 [![Build Status](https://travis-ci.org/apache/incubator-skywalking-ui.svg?branch=master)](https://travis-ci.org/apache/incubator-skywalking-ui)
 
@@ -27,9 +27,9 @@ Recommand browsers: Safari & Chrome
 2. Download and startup
 
 ```shell
-> curl -O https://github.com/wu-sheng/sky-walking-ui/releases/download/<project-version>/skywalking-web.tar.gz  
-> tar -xvf skywalking-web.tar.gz  
-> cd skywalking-web/bin  
+> curl -O https://github.com/wu-sheng/sky-walking-ui/releases/download/<project-version>/skywalking-web.tar.gz
+> tar -xvf skywalking-web.tar.gz
+> cd skywalking-web/bin
 > ./startup.sh
 ```
 3. Configuring skywalking-ui
@@ -44,9 +44,9 @@ Recommand browsers: Safari & Chrome
 2. 通过命令下载应用程序，或直接前往[发布页面](https://github.com/wu-sheng/sky-walking-ui/releases)下载
 
 ```shell
-> curl -O https://github.com/wu-sheng/sky-walking-ui/releases/download/<project-version>/skywalking-web.tar.gz  
-> tar -xvf skywalking-web.tar.gz  
-> cd skywalking-web/bin  
+> curl -O https://github.com/wu-sheng/sky-walking-ui/releases/download/<project-version>/skywalking-web.tar.gz
+> tar -xvf skywalking-web.tar.gz
+> cd skywalking-web/bin
 > ./startup.sh
 ```
 

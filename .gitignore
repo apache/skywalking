@@ -9,3 +9,4 @@ target/
 *~
 packages/
 **/dependency-reduced-pom.xml
+src/main/frontend/package-lock.json

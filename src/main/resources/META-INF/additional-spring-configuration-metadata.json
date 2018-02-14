@@ -1,8 +1,0 @@
-{
-  "properties": [
-    {
-      "name": "collector.servers",
-      "type": "java.lang.String[]",
-      "description": "Description for collector.servers."
-  }
-] }
