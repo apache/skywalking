@@ -64,8 +64,9 @@ class TraceStack extends PureComponent {
     node.endTime = span.endTime;
     node.duration = span.endTime - span.startTime;
     node.content = span.operationName;
-    node.spanSegId = span.spanId;
-    node.parentSpanSegId = span.parentSpanId;
+    node.spanSegId = this.id(span.segmentId, span.spanId);
+    node.parentSpanSegId = this.findParent(span);
+    node.refs = span.refs;
     node.type = span.type;
     node.peer = span.peer;
     node.component = span.component;
@@ -79,6 +80,22 @@ class TraceStack extends PureComponent {
       colorMap[span.applicationCode] = colors[index];
     }
     idMap[node.spanSegId] = nodes.length - 1;
+  }
+  id = (...seg) => seg.join();
+  findParent = (span) => {
+    const { spans } = this.props;
+    if (span.refs) {
+      const ref = span.refs.find(_ => spans.findIndex(s =>
+        this.id(_.parentSegmentId, _.parentSpanId) === this.id(s.segmentId, s.spanId)) > -1);
+      if (ref) {
+        return this.id(ref.parentSegmentId, ref.parentSpanId);
+      }
+    }
+    const result = this.id(span.segmentId, span.parentSpanId);
+    if (spans.findIndex(s => result === this.id(s.segmentId, s.spanId)) > -1) {
+      return result;
+    }
+    return null;
   }
   drawAxis = () => {
     const { width } = this.state;
@@ -138,7 +155,7 @@ class TraceStack extends PureComponent {
         .attr('y', (index * height) + (height / 2))
         .attr('class', styles.rectText)
         .text(content);
-      if (index > 0) {
+      if (index > 0 && positionMap[parentSpanSegId]) {
         const parentX = positionMap[parentSpanSegId].x;
         const parentY = positionMap[parentSpanSegId].y;
 
@@ -260,6 +277,23 @@ class TraceStack extends PureComponent {
         />
       </TabPane>
     )) : null;
+    const relatedTraces = span.parentSpanSegId ? null : (
+      <TabPane tab="Related Trace" key={3}>
+        <List
+          itemLayout="horizontal"
+          dataSource={span.refs}
+          renderItem={item => (
+            <List.Item>
+              <List.Item.Meta
+                size="small"
+                title={item.type}
+                description={item.traceId}
+              />
+            </List.Item>
+          )}
+        />
+      </TabPane>
+    );
     return (
       <div className={styles.stack}>
         <div style={{ paddingBottom: 10 }}>
@@ -289,6 +323,7 @@ class TraceStack extends PureComponent {
               />
             </TabPane>
             {logs}
+            {relatedTraces}
           </Tabs>
         </Modal>
       </div>
