@@ -56,6 +56,7 @@ public abstract class AbstractMemoryMetricH2PersistenceDAO extends AbstractPersi
 
     @Override protected final Map<String, Object> streamDataToH2Data(MemoryMetric streamData) {
         Map<String, Object> source = new HashMap<>();
+        source.put(MemoryMetricTable.COLUMN_ID, streamData.getId());
         source.put(MemoryMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
 
         source.put(MemoryMetricTable.COLUMN_INSTANCE_ID, streamData.getInstanceId());

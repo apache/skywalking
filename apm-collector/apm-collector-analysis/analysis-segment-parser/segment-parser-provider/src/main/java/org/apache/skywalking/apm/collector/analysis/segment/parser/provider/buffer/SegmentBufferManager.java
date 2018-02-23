@@ -81,7 +81,7 @@ public enum SegmentBufferManager {
     }
 
     private void newDataFile() throws IOException {
-        logger.debug("create new segment buffer file");
+        logger.debug("getOrCreate new segment buffer file");
         String timeBucket = String.valueOf(TimeBucketUtils.INSTANCE.getSecondTimeBucket(System.currentTimeMillis()));
         String writeFileName = DATA_FILE_PREFIX + "_" + timeBucket + "." + Const.FILE_SUFFIX;
         File dataFile = new File(BufferFileConfig.BUFFER_PATH + writeFileName);

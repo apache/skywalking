@@ -34,7 +34,7 @@ public abstract class AbstractApplicationMappingEsTableDefine extends ElasticSea
     @Override public final void initialize() {
         addColumn(new ElasticSearchColumnDefine(ApplicationMappingTable.COLUMN_METRIC_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
         addColumn(new ElasticSearchColumnDefine(ApplicationMappingTable.COLUMN_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(ApplicationMappingTable.COLUMN_ADDRESS_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ApplicationMappingTable.COLUMN_MAPPING_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
         addColumn(new ElasticSearchColumnDefine(ApplicationMappingTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
     }
 }

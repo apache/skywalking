@@ -18,10 +18,10 @@
 
 package org.apache.skywalking.apm.collector.core.util;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.TimeZone;
-import org.apache.skywalking.apm.collector.core.UnexpectedException;
+import java.util.Date;
 
 /**
  * @author peng-yongsheng
@@ -29,12 +29,8 @@ import org.apache.skywalking.apm.collector.core.UnexpectedException;
 public enum TimeBucketUtils {
     INSTANCE;
 
-    private final SimpleDateFormat dayDateFormat = new SimpleDateFormat("yyyyMMdd");
-    private final SimpleDateFormat hourDateFormat = new SimpleDateFormat("yyyyMMddHH");
-    private final SimpleDateFormat minuteDateFormat = new SimpleDateFormat("yyyyMMddHHmm");
-    private final SimpleDateFormat secondDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-
     public long getMinuteTimeBucket(long time) {
+        SimpleDateFormat minuteDateFormat = new SimpleDateFormat("yyyyMMddHHmm");
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);
         String timeStr = minuteDateFormat.format(calendar.getTime());
@@ -42,6 +38,7 @@ public enum TimeBucketUtils {
     }
 
     public long getSecondTimeBucket(long time) {
+        SimpleDateFormat secondDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);
         String timeStr = secondDateFormat.format(calendar.getTime());
@@ -49,6 +46,7 @@ public enum TimeBucketUtils {
     }
 
     public long getHourTimeBucket(long time) {
+        SimpleDateFormat hourDateFormat = new SimpleDateFormat("yyyyMMddHH");
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);
         String timeStr = hourDateFormat.format(calendar.getTime()) + "00";
@@ -56,10 +54,18 @@ public enum TimeBucketUtils {
     }
 
     public long getDayTimeBucket(long time) {
+        SimpleDateFormat dayDateFormat = new SimpleDateFormat("yyyyMMdd");
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);
         String timeStr = dayDateFormat.format(calendar.getTime()) + "0000";
         return Long.valueOf(timeStr);
+    }
+
+    public String formatMinuteTimeBucket(long minuteTimeBucket) throws ParseException {
+        SimpleDateFormat minuteDateFormat = new SimpleDateFormat("yyyyMMddHHmm");
+        Date date = minuteDateFormat.parse(String.valueOf(minuteTimeBucket));
+        SimpleDateFormat parsedMinuteDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        return parsedMinuteDateFormat.format(date);
     }
 
     public long minuteToHour(long minuteBucket) {
@@ -88,67 +94,5 @@ public enum TimeBucketUtils {
 
     public long secondToMonth(long secondBucket) {
         return secondBucket / 100 / 100 / 100 / 100;
-    }
-
-    public long changeTimeBucket2TimeStamp(String timeBucketType, long timeBucket) {
-        if (TimeBucketType.SECOND.name().toLowerCase().equals(timeBucketType.toLowerCase())) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(Calendar.YEAR, Integer.valueOf(String.valueOf(timeBucket).substring(0, 4)));
-            calendar.set(Calendar.MONTH, Integer.valueOf(String.valueOf(timeBucket).substring(4, 6)) - 1);
-            calendar.set(Calendar.DAY_OF_MONTH, Integer.valueOf(String.valueOf(timeBucket).substring(6, 8)));
-            calendar.set(Calendar.HOUR_OF_DAY, Integer.valueOf(String.valueOf(timeBucket).substring(8, 10)));
-            calendar.set(Calendar.MINUTE, Integer.valueOf(String.valueOf(timeBucket).substring(10, 12)));
-            calendar.set(Calendar.SECOND, Integer.valueOf(String.valueOf(timeBucket).substring(12, 14)));
-            return calendar.getTimeInMillis();
-        } else if (TimeBucketType.MINUTE.name().toLowerCase().equals(timeBucketType.toLowerCase())) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(Calendar.YEAR, Integer.valueOf(String.valueOf(timeBucket).substring(0, 4)));
-            calendar.set(Calendar.MONTH, Integer.valueOf(String.valueOf(timeBucket).substring(4, 6)) - 1);
-            calendar.set(Calendar.DAY_OF_MONTH, Integer.valueOf(String.valueOf(timeBucket).substring(6, 8)));
-            calendar.set(Calendar.HOUR_OF_DAY, Integer.valueOf(String.valueOf(timeBucket).substring(8, 10)));
-            calendar.set(Calendar.MINUTE, Integer.valueOf(String.valueOf(timeBucket).substring(10, 12)));
-            return calendar.getTimeInMillis();
-        } else {
-            throw new UnexpectedException("time bucket type must be second or minute");
-        }
-    }
-
-    public long[] getFiveSecondTimeBuckets(long secondTimeBucket) {
-        long timeStamp = changeTimeBucket2TimeStamp(TimeBucketType.SECOND.name(), secondTimeBucket);
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(timeStamp);
-
-        long[] timeBuckets = new long[5];
-        timeBuckets[0] = secondTimeBucket;
-        for (int i = 0; i < 4; i++) {
-            calendar.add(Calendar.SECOND, -1);
-            timeBuckets[i + 1] = getSecondTimeBucket(calendar.getTimeInMillis());
-        }
-        return timeBuckets;
-    }
-
-    public long changeToUTCTimeBucket(long timeBucket) {
-        String timeBucketStr = String.valueOf(timeBucket);
-
-        if (TimeZone.getDefault().getID().equals("GMT+08:00") || timeBucketStr.endsWith("0000")) {
-            return timeBucket;
-        } else {
-            return timeBucket - 800;
-        }
-    }
-
-    public long addSecondForSecondTimeBucket(String timeBucketType, long timeBucket, int second) {
-        if (!TimeBucketType.SECOND.name().equals(timeBucketType)) {
-            throw new UnexpectedException("time bucket type must be second ");
-        }
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(changeTimeBucket2TimeStamp(timeBucketType, timeBucket));
-        calendar.add(Calendar.SECOND, second);
-
-        return getSecondTimeBucket(calendar.getTimeInMillis());
-    }
-
-    public enum TimeBucketType {
-        SECOND, MINUTE, HOUR, DAY
     }
 }

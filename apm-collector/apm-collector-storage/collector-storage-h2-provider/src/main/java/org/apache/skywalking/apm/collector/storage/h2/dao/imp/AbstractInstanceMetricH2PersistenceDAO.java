@@ -66,8 +66,7 @@ public abstract class AbstractInstanceMetricH2PersistenceDAO extends AbstractPer
 
     @Override protected final Map<String, Object> streamDataToH2Data(InstanceMetric streamData) {
         Map<String, Object> source = new HashMap<>();
-        source.put(InstanceMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
-
+        source.put(InstanceMetricTable.COLUMN_ID, streamData.getId());
         source.put(InstanceMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
 
         source.put(InstanceMetricTable.COLUMN_APPLICATION_ID, streamData.getApplicationId());

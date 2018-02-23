@@ -25,6 +25,7 @@ import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decora
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
+import org.apache.skywalking.apm.collector.storage.table.register.ServerTypeDefine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +63,10 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
                 standardBuilder.toBuilder();
                 standardBuilder.setPeerId(peerId);
                 standardBuilder.setPeer(Const.EMPTY_STRING);
+
+                int spanLayer = standardBuilder.getSpanLayerValue();
+                int serverType = ServerTypeDefine.getInstance().getServerTypeId(standardBuilder.getComponentId());
+                networkAddressIDService.update(peerId, spanLayer, serverType);
             }
         }
 

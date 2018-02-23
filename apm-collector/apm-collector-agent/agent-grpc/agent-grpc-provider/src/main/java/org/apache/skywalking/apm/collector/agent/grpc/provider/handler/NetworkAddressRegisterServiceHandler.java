@@ -50,9 +50,8 @@ public class NetworkAddressRegisterServiceHandler extends NetworkAddressRegister
         ProtocolStringList addressesList = request.getAddressesList();
 
         NetworkAddressMappings.Builder builder = NetworkAddressMappings.newBuilder();
-        for (int i = 0; i < addressesList.size(); i++) {
-            String networkAddress = addressesList.get(i);
-            int addressId = networkAddressIDService.getOrCreate(networkAddress);
+        for (String networkAddress : addressesList) {
+            int addressId = networkAddressIDService.get(networkAddress);
 
             if (addressId != 0) {
                 KeyWithIntegerValue value = KeyWithIntegerValue.newBuilder().setKey(networkAddress).setValue(addressId).build();

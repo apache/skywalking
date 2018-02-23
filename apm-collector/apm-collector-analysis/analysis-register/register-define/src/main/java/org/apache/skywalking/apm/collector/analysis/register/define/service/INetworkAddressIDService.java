@@ -25,4 +25,8 @@ import org.apache.skywalking.apm.collector.core.module.Service;
  */
 public interface INetworkAddressIDService extends Service {
     int getOrCreate(String networkAddress);
+
+    int get(String networkAddress);
+
+    void update(int addressId, int spanLayer, int serverType);
 }

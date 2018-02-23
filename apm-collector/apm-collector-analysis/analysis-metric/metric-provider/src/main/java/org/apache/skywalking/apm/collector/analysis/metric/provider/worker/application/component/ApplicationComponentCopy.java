@@ -31,7 +31,7 @@ public class ApplicationComponentCopy {
         newApplicationComponent.setMetricId(applicationComponent.getMetricId());
 
         newApplicationComponent.setComponentId(applicationComponent.getComponentId());
-        newApplicationComponent.setPeerId(applicationComponent.getPeerId());
+        newApplicationComponent.setApplicationId(applicationComponent.getApplicationId());
         newApplicationComponent.setTimeBucket(newApplicationComponent.getTimeBucket());
         return newApplicationComponent;
     }

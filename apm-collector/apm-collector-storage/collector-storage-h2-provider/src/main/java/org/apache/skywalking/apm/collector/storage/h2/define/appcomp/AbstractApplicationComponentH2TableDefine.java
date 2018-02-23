@@ -35,7 +35,7 @@ public abstract class AbstractApplicationComponentH2TableDefine extends H2TableD
         addColumn(new H2ColumnDefine(ApplicationComponentTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
         addColumn(new H2ColumnDefine(ApplicationComponentTable.COLUMN_METRIC_ID, H2ColumnDefine.Type.Varchar.name()));
         addColumn(new H2ColumnDefine(ApplicationComponentTable.COLUMN_COMPONENT_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(ApplicationComponentTable.COLUMN_PEER_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ApplicationComponentTable.COLUMN_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
         addColumn(new H2ColumnDefine(ApplicationComponentTable.COLUMN_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
     }
 }
