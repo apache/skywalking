@@ -1,0 +1,3 @@
+[submodule "skywalking-ui"]
+	path = skywalking-ui
+	url = https://github.com/apache/incubator-skywalking-ui
