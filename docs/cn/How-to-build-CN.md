@@ -6,6 +6,9 @@
 
 ### 编译步骤
 1. 准备环境，jdk8，Maven
+1. `git clone https://github.com/apache/incubator-skywalking.git`
+1. `git submodule init`
+1. `git submodule update`
 1. 执行`mvn clean package`
 1. 生成包在`/packages`目录下，包括一个`skywalking-agent`的探针目录，以及两个collector包（.tar.gz是linux环境，.zip是windows环境）
 
