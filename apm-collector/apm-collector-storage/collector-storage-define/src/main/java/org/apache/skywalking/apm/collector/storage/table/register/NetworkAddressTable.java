@@ -26,5 +26,7 @@ import org.apache.skywalking.apm.collector.core.data.CommonTable;
 public class NetworkAddressTable extends CommonTable {
     public static final String TABLE = "network_address";
     public static final String COLUMN_NETWORK_ADDRESS = "network_address";
+    public static final String COLUMN_SPAN_LAYER = "span_layer";
+    public static final String COLUMN_SERVER_TYPE = "server_type";
     public static final String COLUMN_ADDRESS_ID = "address_id";
 }

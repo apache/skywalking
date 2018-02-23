@@ -40,7 +40,6 @@ public abstract class AbstractMemoryMetricEsPersistenceDAO extends AbstractPersi
 
     @Override protected final MemoryMetric esDataToStreamData(Map<String, Object> source) {
         MemoryMetric memoryMetric = new MemoryMetric();
-        memoryMetric.setId((String)source.get(MemoryMetricTable.COLUMN_ID));
         memoryMetric.setMetricId((String)source.get(MemoryMetricTable.COLUMN_METRIC_ID));
 
         memoryMetric.setInstanceId(((Number)source.get(MemoryMetricTable.COLUMN_INSTANCE_ID)).intValue());
@@ -58,7 +57,6 @@ public abstract class AbstractMemoryMetricEsPersistenceDAO extends AbstractPersi
 
     @Override protected final Map<String, Object> esStreamDataToEsData(MemoryMetric streamData) {
         Map<String, Object> source = new HashMap<>();
-        source.put(MemoryMetricTable.COLUMN_ID, streamData.getId());
         source.put(MemoryMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
 
         source.put(MemoryMetricTable.COLUMN_INSTANCE_ID, streamData.getInstanceId());

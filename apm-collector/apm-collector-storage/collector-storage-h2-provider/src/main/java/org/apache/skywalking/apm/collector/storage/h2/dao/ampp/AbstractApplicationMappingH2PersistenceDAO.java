@@ -42,17 +42,18 @@ public abstract class AbstractApplicationMappingH2PersistenceDAO extends Abstrac
         applicationMapping.setMetricId(resultSet.getString(ApplicationMappingTable.COLUMN_METRIC_ID));
 
         applicationMapping.setApplicationId(resultSet.getInt(ApplicationMappingTable.COLUMN_APPLICATION_ID));
-        applicationMapping.setAddressId(resultSet.getInt(ApplicationMappingTable.COLUMN_ADDRESS_ID));
+        applicationMapping.setMappingApplicationId(resultSet.getInt(ApplicationMappingTable.COLUMN_MAPPING_APPLICATION_ID));
         applicationMapping.setTimeBucket(resultSet.getLong(ApplicationMappingTable.COLUMN_TIME_BUCKET));
         return applicationMapping;
     }
 
     @Override protected final Map<String, Object> streamDataToH2Data(ApplicationMapping streamData) {
         Map<String, Object> source = new HashMap<>();
+        source.put(ApplicationMappingTable.COLUMN_ID, streamData.getId());
         source.put(ApplicationMappingTable.COLUMN_METRIC_ID, streamData.getMetricId());
 
         source.put(ApplicationMappingTable.COLUMN_APPLICATION_ID, streamData.getApplicationId());
-        source.put(ApplicationMappingTable.COLUMN_ADDRESS_ID, streamData.getAddressId());
+        source.put(ApplicationMappingTable.COLUMN_MAPPING_APPLICATION_ID, streamData.getMappingApplicationId());
         source.put(ApplicationMappingTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
 
         return source;

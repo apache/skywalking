@@ -70,6 +70,7 @@ public abstract class AbstractApplicationReferenceMetricH2PersistenceDAO extends
 
     @Override protected final Map<String, Object> streamDataToH2Data(ApplicationReferenceMetric streamData) {
         Map<String, Object> source = new HashMap<>();
+        source.put(ApplicationReferenceMetricTable.COLUMN_ID, streamData.getId());
         source.put(ApplicationReferenceMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
 
         source.put(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID, streamData.getFrontApplicationId());

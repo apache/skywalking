@@ -27,4 +27,6 @@ public interface NetworkAddressCacheService extends Service {
     int getAddressId(String networkAddress);
 
     String getAddress(int addressId);
+
+    boolean compare(int addressId, int spanLayer, int serverType);
 }

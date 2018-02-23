@@ -16,25 +16,24 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.ui.service;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.util.List;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
-import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.storage.dao.ISegmentUIDAO;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
+import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
+import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentUIDAO;
+import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
 import org.apache.skywalking.apm.network.proto.KeyWithStringValue;
 import org.apache.skywalking.apm.network.proto.LogMessage;
 import org.apache.skywalking.apm.network.proto.SpanObject;
 import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
+import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
  * @author peng-yongsheng
@@ -60,9 +59,9 @@ public class SpanService {
             if (spanId == spanObject.getSpanId()) {
                 String operationName = spanObject.getOperationName();
                 if (spanObject.getOperationNameId() != 0) {
-                    String serviceName = serviceNameCacheService.get(spanObject.getOperationNameId());
+                    ServiceName serviceName = serviceNameCacheService.get(spanObject.getOperationNameId());
                     if (StringUtils.isNotEmpty(serviceName)) {
-                        operationName = serviceName.split(Const.ID_SPLIT)[1];
+                        operationName = serviceName.getServiceName();
                     }
                 }
                 spanJson.addProperty("operationName", operationName);
@@ -108,7 +107,7 @@ public class SpanService {
                 if (spanObject.getPeerId() == 0) {
                     peerJson.addProperty("value", spanObject.getPeer());
                 } else {
-                    peerJson.addProperty("value", applicationCacheService.getApplicationCodeById(spanObject.getPeerId()));
+                    peerJson.addProperty("value", applicationCacheService.getApplicationById(spanObject.getPeerId()).getApplicationCode());
                 }
                 tagsArray.add(peerJson);
 

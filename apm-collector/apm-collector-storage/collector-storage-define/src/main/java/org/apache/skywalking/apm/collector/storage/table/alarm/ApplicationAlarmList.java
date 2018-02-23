@@ -30,6 +30,7 @@ public class ApplicationAlarmList extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
         new Column(ApplicationAlarmListTable.COLUMN_ID, new NonOperation()),
+        new Column(ApplicationAlarmListTable.COLUMN_METRIC_ID, new NonOperation()),
         new Column(ApplicationAlarmListTable.COLUMN_ALARM_CONTENT, new CoverOperation()),
     };
 
@@ -60,11 +61,19 @@ public class ApplicationAlarmList extends StreamData {
     }
 
     @Override public String getMetricId() {
-        return getId();
+        return getDataString(1);
     }
 
     @Override public void setMetricId(String metricId) {
-        setId(metricId);
+        setDataString(1, metricId);
+    }
+
+    public String getAlarmContent() {
+        return getDataString(2);
+    }
+
+    public void setAlarmContent(String alarmContent) {
+        setDataString(2, alarmContent);
     }
 
     public Integer getAlarmType() {
@@ -97,13 +106,5 @@ public class ApplicationAlarmList extends StreamData {
 
     public void setTimeBucket(Long timeBucket) {
         setDataLong(0, timeBucket);
-    }
-
-    public String getAlarmContent() {
-        return getDataString(1);
-    }
-
-    public void setAlarmContent(String alarmContent) {
-        setDataString(1, alarmContent);
     }
 }
