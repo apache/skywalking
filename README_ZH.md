@@ -58,7 +58,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 - 自动化集成测试报告
   - [Java探针测试报告](https://github.com/SkywalkingTest/agent-integration-test-report)
 - 性能测试报告
-  - [Java探针测试报告](https://skywalkingtest.github.io/Agent-Benchmarks/)
+  - [Java探针测试报告](https://skywalkingtest.github.io/Agent-Benchmarks/)
 
 # Contact Us
 * 直接提交Issue
