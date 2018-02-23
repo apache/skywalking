@@ -145,6 +145,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
+            <artifactId>collector-storage-es-http-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>collector-storage-h2-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
