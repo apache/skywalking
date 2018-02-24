@@ -50,10 +50,15 @@ org.apache.skywalking.apm.collector.storage.es.define.amp.ApplicationMonthMetric
 
 org.apache.skywalking.apm.collector.storage.es.define.GlobalTraceEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.SegmentEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.define.SegmentCostEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.SegmentDurationEsTableDefine
 
 org.apache.skywalking.apm.collector.storage.es.define.alarm.ApplicationAlarmEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.define.alarm.ApplicationAlarmListEsTableDefine
+
+org.apache.skywalking.apm.collector.storage.es.define.alarm.ApplicationAlarmListMinuteEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.alarm.ApplicationAlarmListHourEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.alarm.ApplicationAlarmListDayEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.alarm.ApplicationAlarmListMonthEsTableDefine
+
 org.apache.skywalking.apm.collector.storage.es.define.alarm.ApplicationReferenceAlarmEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.alarm.ApplicationReferenceAlarmListEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.alarm.InstanceAlarmEsTableDefine

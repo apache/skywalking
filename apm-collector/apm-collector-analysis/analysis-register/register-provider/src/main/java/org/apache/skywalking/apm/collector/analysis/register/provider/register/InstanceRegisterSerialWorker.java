@@ -55,7 +55,14 @@ public class InstanceRegisterSerialWorker extends AbstractLocalAsyncWorker<Insta
 
     @Override protected void onWork(Instance instance) throws WorkerException {
         logger.debug("register instance, application id: {}, agentUUID: {}", instance.getApplicationId(), instance.getAgentUUID());
-        int instanceId = instanceCacheService.getInstanceIdByAgentUUID(instance.getApplicationId(), instance.getAgentUUID());
+
+        int instanceId;
+        if (BooleanUtils.valueToBoolean(instance.getIsAddress())) {
+            instanceId = instanceCacheService.getInstanceIdByAddressId(instance.getApplicationId(), instance.getAddressId());
+        } else {
+            instanceId = instanceCacheService.getInstanceIdByAgentUUID(instance.getApplicationId(), instance.getAgentUUID());
+        }
+
         if (instanceId == 0) {
             Instance newInstance;
 

@@ -35,12 +35,15 @@ public class ApplicationMetricAlarmToListNodeProcessor implements NodeProcessor<
     }
 
     @Override public void process(ApplicationAlarm applicationAlarm, Next<ApplicationAlarmList> next) {
-        String id = applicationAlarm.getLastTimeBucket() + Const.ID_SPLIT + applicationAlarm.getSourceValue()
+        String metricId = applicationAlarm.getSourceValue()
             + Const.ID_SPLIT + applicationAlarm.getAlarmType()
             + Const.ID_SPLIT + applicationAlarm.getApplicationId();
 
+        String id = applicationAlarm.getLastTimeBucket() + Const.ID_SPLIT + metricId;
+
         ApplicationAlarmList applicationAlarmList = new ApplicationAlarmList();
         applicationAlarmList.setId(id);
+        applicationAlarmList.setMetricId(metricId);
         applicationAlarmList.setApplicationId(applicationAlarm.getApplicationId());
         applicationAlarmList.setSourceValue(applicationAlarm.getSourceValue());
         applicationAlarmList.setAlarmType(applicationAlarm.getAlarmType());

@@ -39,6 +39,7 @@ public class Application extends StreamData {
 
     private static final Column[] INTEGER_COLUMNS = {
         new Column(ApplicationTable.COLUMN_APPLICATION_ID, new CoverOperation()),
+        new Column(ApplicationTable.COLUMN_LAYER, new CoverOperation()),
         new Column(ApplicationTable.COLUMN_ADDRESS_ID, new CoverOperation()),
         new Column(ApplicationTable.COLUMN_IS_ADDRESS, new CoverOperation()),
     };
@@ -81,19 +82,27 @@ public class Application extends StreamData {
         setDataInteger(0, applicationId);
     }
 
-    public int getAddressId() {
+    public int getLayer() {
         return getDataInteger(1);
     }
 
-    public void setAddressId(int addressId) {
-        setDataInteger(1, addressId);
+    public void setLayer(int layer) {
+        setDataInteger(1, layer);
     }
 
-    public int getIsAddress() {
+    public int getAddressId() {
         return getDataInteger(2);
     }
 
+    public void setAddressId(int addressId) {
+        setDataInteger(2, addressId);
+    }
+
+    public int getIsAddress() {
+        return getDataInteger(3);
+    }
+
     public void setIsAddress(int isAddress) {
-        setDataInteger(2, isAddress);
+        setDataInteger(3, isAddress);
     }
 }

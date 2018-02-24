@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.collector.storage.dao.cache;
 
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
+import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddress;
 
 /**
  * @author peng-yongsheng
@@ -26,5 +27,7 @@ import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
 public interface INetworkAddressCacheDAO extends DAO {
     int getAddressId(String networkAddress);
 
-    String getAddress(int addressId);
+    String getAddressById(int addressId);
+
+    NetworkAddress getAddress(int addressId);
 }

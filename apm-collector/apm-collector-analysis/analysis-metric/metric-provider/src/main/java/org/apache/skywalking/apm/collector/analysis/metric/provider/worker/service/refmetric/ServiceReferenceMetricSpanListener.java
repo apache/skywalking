@@ -20,7 +20,7 @@ package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.serv
 
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.skywalking.apm.collector.analysis.metric.define.MetricSource;
+import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.ReferenceDecorator;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;

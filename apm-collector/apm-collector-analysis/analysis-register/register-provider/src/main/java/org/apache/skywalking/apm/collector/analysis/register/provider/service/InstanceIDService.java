@@ -72,7 +72,7 @@ public class InstanceIDService implements IInstanceIDService {
     }
 
     @Override public int getOrCreateByAgentUUID(int applicationId, String agentUUID, long registerTime, String osInfo) {
-        logger.debug("get or create instance id by agent UUID, application id: {}, agentUUID: {}, registerTime: {}, osInfo: {}", applicationId, agentUUID, registerTime, osInfo);
+        logger.debug("get or getOrCreate instance id by agent UUID, application id: {}, agentUUID: {}, registerTime: {}, osInfo: {}", applicationId, agentUUID, registerTime, osInfo);
         int instanceId = getInstanceCacheService().getInstanceIdByAgentUUID(applicationId, agentUUID);
 
         if (instanceId == 0) {
@@ -93,7 +93,7 @@ public class InstanceIDService implements IInstanceIDService {
     }
 
     @Override public int getOrCreateByAddressId(int applicationId, int addressId, long registerTime) {
-        logger.debug("get or create instance id by address id, application id: {}, address id: {}, registerTime: {}", applicationId, addressId, registerTime);
+        logger.debug("get or getOrCreate instance id by address id, application id: {}, address id: {}, registerTime: {}", applicationId, addressId, registerTime);
         int instanceId = getInstanceCacheService().getInstanceIdByAddressId(applicationId, addressId);
 
         if (instanceId == 0) {

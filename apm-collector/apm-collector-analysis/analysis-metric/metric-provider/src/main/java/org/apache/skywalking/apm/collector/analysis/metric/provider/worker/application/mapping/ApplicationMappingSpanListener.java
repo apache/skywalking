@@ -26,6 +26,8 @@ import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listen
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.FirstSpanListener;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListener;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListenerFactory;
+import org.apache.skywalking.apm.collector.cache.CacheModule;
+import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -42,8 +44,13 @@ public class ApplicationMappingSpanListener implements FirstSpanListener, EntryS
 
     private final Logger logger = LoggerFactory.getLogger(ApplicationMappingSpanListener.class);
 
+    private final ApplicationCacheService applicationCacheService;
     private List<ApplicationMapping> applicationMappings = new LinkedList<>();
     private long timeBucket;
+
+    ApplicationMappingSpanListener(ModuleManager moduleManager) {
+        this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
+    }
 
     @Override public void parseEntry(SpanDecorator spanDecorator, int applicationId, int instanceId, String segmentId) {
         logger.debug("application mapping listener parse reference");
@@ -51,9 +58,12 @@ public class ApplicationMappingSpanListener implements FirstSpanListener, EntryS
             for (int i = 0; i < spanDecorator.getRefsCount(); i++) {
                 ApplicationMapping applicationMapping = new ApplicationMapping();
                 applicationMapping.setApplicationId(applicationId);
-                applicationMapping.setAddressId(spanDecorator.getRefs(i).getNetworkAddressId());
 
-                String metricId = String.valueOf(applicationId) + Const.ID_SPLIT + String.valueOf(applicationMapping.getAddressId());
+                int addressId = spanDecorator.getRefs(i).getNetworkAddressId();
+                int mappingApplicationId = applicationCacheService.getApplicationIdByAddressId(addressId);
+                applicationMapping.setMappingApplicationId(mappingApplicationId);
+
+                String metricId = String.valueOf(applicationId) + Const.ID_SPLIT + String.valueOf(applicationMapping.getMappingApplicationId());
                 applicationMapping.setMetricId(metricId);
                 applicationMappings.add(applicationMapping);
             }
@@ -79,7 +89,7 @@ public class ApplicationMappingSpanListener implements FirstSpanListener, EntryS
 
     public static class Factory implements SpanListenerFactory {
         @Override public SpanListener create(ModuleManager moduleManager) {
-            return new ApplicationMappingSpanListener();
+            return new ApplicationMappingSpanListener(moduleManager);
         }
     }
 }

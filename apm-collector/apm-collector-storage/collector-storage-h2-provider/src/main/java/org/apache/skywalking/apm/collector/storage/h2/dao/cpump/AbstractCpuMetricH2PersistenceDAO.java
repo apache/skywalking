@@ -52,6 +52,7 @@ public abstract class AbstractCpuMetricH2PersistenceDAO extends AbstractPersiste
 
     @Override protected final Map<String, Object> streamDataToH2Data(CpuMetric streamData) {
         Map<String, Object> source = new HashMap<>();
+        source.put(CpuMetricTable.COLUMN_ID, streamData.getId());
         source.put(CpuMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
 
         source.put(CpuMetricTable.COLUMN_INSTANCE_ID, streamData.getInstanceId());
