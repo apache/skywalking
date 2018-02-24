@@ -28,6 +28,7 @@ Core features are separated into 3 groups: agent, collector and UI.
 
 ### UI
 - Whole new 5.0 UI. New topology; metrics of application, server and service; Trace query; Alarm. [WIP]
+- Support i18n.
 - More interactive UI for the DIG data from any domain. 
 - Plugin system for the 3rd extention of the UI.
 - Support dashboard on large screen.
