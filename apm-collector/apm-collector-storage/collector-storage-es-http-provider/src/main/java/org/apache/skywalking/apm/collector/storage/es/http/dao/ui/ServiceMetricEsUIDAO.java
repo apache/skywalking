@@ -27,7 +27,7 @@ import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetricTable;
 import org.apache.skywalking.apm.collector.storage.ui.common.Node;
@@ -61,7 +61,7 @@ import io.searchbox.core.search.aggregation.TermsAggregation;
 /**
  * @author peng-yongsheng
  */
-public class ServiceMetricEsUIDAO extends EsDAO implements IServiceMetricUIDAO {
+public class ServiceMetricEsUIDAO extends EsHttpDAO implements IServiceMetricUIDAO {
 
     private static final String AVG_DURATION = "avg_duration";
 

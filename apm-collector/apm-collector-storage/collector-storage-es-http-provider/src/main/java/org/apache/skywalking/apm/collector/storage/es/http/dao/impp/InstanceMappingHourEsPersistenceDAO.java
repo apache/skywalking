@@ -24,13 +24,13 @@ import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.impp.IInstanceMappingHourPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMapping;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMappingTable;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.update.UpdateRequestBuilder;
+import io.searchbox.core.Index;
+import io.searchbox.core.Update;
 
 /**
  * @author peng-yongsheng
  */
-public class InstanceMappingHourEsPersistenceDAO extends AbstractInstanceMappingEsPersistenceDAO implements IInstanceMappingHourPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, InstanceMapping> {
+public class InstanceMappingHourEsPersistenceDAO extends AbstractInstanceMappingEsPersistenceDAO implements IInstanceMappingHourPersistenceDAO<Index, Update, InstanceMapping> {
 
     public InstanceMappingHourEsPersistenceDAO(ElasticSearchHttpClient client) {
         super(client);

@@ -29,7 +29,7 @@ import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.segment.SegmentTable;
 import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
 import org.elasticsearch.action.get.GetResponse;
@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public class SegmentEsUIDAO extends EsDAO implements ISegmentUIDAO {
+public class SegmentEsUIDAO extends EsHttpDAO implements ISegmentUIDAO {
 
     private final Logger logger = LoggerFactory.getLogger(SegmentEsUIDAO.class);
 

@@ -20,7 +20,7 @@ package org.apache.skywalking.apm.collector.storage.es.http.dao.ui;
 
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.storage.dao.ui.INetworkAddressUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddressTable;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -34,7 +34,7 @@ import io.searchbox.core.SearchResult;
 /**
  * @author peng-yongsheng
  */
-public class NetworkAddressEsUIDAO extends EsDAO implements INetworkAddressUIDAO {
+public class NetworkAddressEsUIDAO extends EsHttpDAO implements INetworkAddressUIDAO {
 
     public NetworkAddressEsUIDAO(ElasticSearchHttpClient client) {
         super(client);

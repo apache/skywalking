@@ -35,9 +35,9 @@ import io.searchbox.core.search.aggregation.MinAggregation;
 /**
  * @author peng-yongsheng
  */
-public abstract class EsDAO extends AbstractDAO<ElasticSearchHttpClient> {
+public abstract class EsHttpDAO extends AbstractDAO<ElasticSearchHttpClient> {
 
-    public EsDAO(ElasticSearchHttpClient client) {
+    public EsHttpDAO(ElasticSearchHttpClient client) {
         super(client);
     }
 

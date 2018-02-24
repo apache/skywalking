@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSear
 import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentDurationUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.segment.SegmentDurationTable;
 import org.apache.skywalking.apm.collector.storage.ui.trace.BasicTrace;
 import org.apache.skywalking.apm.collector.storage.ui.trace.TraceBrief;
@@ -48,7 +48,7 @@ import io.searchbox.core.SearchResult;
 /**
  * @author peng-yongsheng
  */
-public class SegmentDurationEsUIDAO extends EsDAO implements ISegmentDurationUIDAO {
+public class SegmentDurationEsUIDAO extends EsHttpDAO implements ISegmentDurationUIDAO {
 
     public SegmentDurationEsUIDAO(ElasticSearchHttpClient client) {
         super(client);

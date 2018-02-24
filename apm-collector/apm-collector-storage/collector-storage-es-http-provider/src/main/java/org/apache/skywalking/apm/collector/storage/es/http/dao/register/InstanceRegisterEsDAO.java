@@ -24,7 +24,7 @@ import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.register.IInstanceRegisterDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
 import org.elasticsearch.action.index.IndexResponse;
@@ -38,7 +38,7 @@ import io.searchbox.core.Update;
 /**
  * @author peng-yongsheng
  */
-public class InstanceRegisterEsDAO extends EsDAO implements IInstanceRegisterDAO {
+public class InstanceRegisterEsDAO extends EsHttpDAO implements IInstanceRegisterDAO {
 
     private final Logger logger = LoggerFactory.getLogger(InstanceRegisterEsDAO.class);
 

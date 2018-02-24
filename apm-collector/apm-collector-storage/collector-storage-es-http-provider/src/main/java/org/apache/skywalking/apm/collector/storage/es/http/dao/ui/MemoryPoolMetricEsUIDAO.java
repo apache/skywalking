@@ -29,7 +29,7 @@ import io.searchbox.core.MultiGet;
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IMemoryPoolMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetricTable;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.MultiGetItemResponse;
@@ -39,7 +39,7 @@ import org.elasticsearch.action.get.MultiGetResponse;
 /**
  * @author peng-yongsheng
  */
-public class MemoryPoolMetricEsUIDAO extends EsDAO implements IMemoryPoolMetricUIDAO {
+public class MemoryPoolMetricEsUIDAO extends EsHttpDAO implements IMemoryPoolMetricUIDAO {
 
     public MemoryPoolMetricEsUIDAO(ElasticSearchHttpClient client) {
         super(client);

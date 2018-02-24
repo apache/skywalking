@@ -25,44 +25,42 @@ import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
 import org.apache.skywalking.apm.collector.storage.base.dao.IBatchDAO;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.update.UpdateRequestBuilder;
+import io.searchbox.core.Index;
+import io.searchbox.core.Update;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.searchbox.action.BulkableAction;
 import io.searchbox.core.Bulk;
+import io.searchbox.core.BulkResult;
 import io.searchbox.core.Index;
 
 /**
  * @author peng-yongsheng
  */
-public class BatchEsDAO extends EsDAO implements IBatchDAO {
+public class BatchEsHttpDAO extends EsHttpDAO implements IBatchDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(BatchEsDAO.class);
+    private final Logger logger = LoggerFactory.getLogger(BatchEsHttpDAO.class);
 
-    public BatchEsDAO(ElasticSearchHttpClient client) {
+    public BatchEsHttpDAO(ElasticSearchHttpClient client) {
         super(client);
     }
 
     @Override public void batchPersistence(List<?> batchCollection) {
-        BulkRequestBuilder bulkRequest = getClient().prepareBulk();
         Bulk.Builder bulk = new Bulk.Builder();
 
         logger.debug("bulk data size: {}", batchCollection.size());
         if (CollectionUtils.isNotEmpty(batchCollection)) {
             batchCollection.forEach(builder -> {
-                if (builder instanceof IndexRequestBuilder) {
-                    bulkRequest.add((IndexRequestBuilder)builder);
-                }
-                if (builder instanceof UpdateRequestBuilder) {
-                    bulkRequest.add((UpdateRequestBuilder)builder);
-                }
+                bulk.addAction((BulkableAction)builder);
             });
-
-            BulkResponse bulkResponse = bulkRequest.execute().actionGet();
-            if (bulkResponse.hasFailures()) {
-                logger.error(bulkResponse.buildFailureMessage());
+            
+            BulkResult bulkResult = getClient().execute(bulk.build());
+            
+            if(! bulkResult.isSucceeded()){
+                logger.error(bulkResult.getErrorMessage());
             }
+
         }
     }
 }

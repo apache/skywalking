@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IGlobalTraceUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.global.GlobalTraceTable;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -43,7 +43,7 @@ import io.searchbox.core.SearchResult;
 /**
  * @author peng-yongsheng
  */
-public class GlobalTraceEsUIDAO extends EsDAO implements IGlobalTraceUIDAO {
+public class GlobalTraceEsUIDAO extends EsHttpDAO implements IGlobalTraceUIDAO {
 
     private final Logger logger = LoggerFactory.getLogger(GlobalTraceEsUIDAO.class);
 

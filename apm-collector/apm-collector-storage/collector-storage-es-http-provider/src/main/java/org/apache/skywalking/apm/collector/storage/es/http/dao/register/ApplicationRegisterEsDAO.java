@@ -23,7 +23,7 @@ import java.util.Map;
 
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.storage.dao.register.IApplicationRegisterDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Application;
 import org.apache.skywalking.apm.collector.storage.table.register.ApplicationTable;
 import org.elasticsearch.action.index.IndexResponse;
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public class ApplicationRegisterEsDAO extends EsDAO implements IApplicationRegisterDAO {
+public class ApplicationRegisterEsDAO extends EsHttpDAO implements IApplicationRegisterDAO {
 
     private final Logger logger = LoggerFactory.getLogger(ApplicationRegisterEsDAO.class);
 

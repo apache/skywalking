@@ -24,25 +24,25 @@ import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.alarm.IServiceAlarmPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ServiceAlarm;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ServiceAlarmTable;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
 import io.searchbox.core.DocumentResult;
+import io.searchbox.core.Index;
+import io.searchbox.core.Update;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceAlarmEsPersistenceDAO extends EsDAO implements IServiceAlarmPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, ServiceAlarm> {
+public class ServiceAlarmEsPersistenceDAO extends EsHttpDAO implements IServiceAlarmPersistenceDAO<Index, Update, ServiceAlarm> {
 
     private final Logger logger = LoggerFactory.getLogger(ServiceAlarmEsPersistenceDAO.class);
 
@@ -71,7 +71,7 @@ public class ServiceAlarmEsPersistenceDAO extends EsDAO implements IServiceAlarm
         }
     }
 
-    @Override public IndexRequestBuilder prepareBatchInsert(ServiceAlarm data) {
+    @Override public Index prepareBatchInsert(ServiceAlarm data) {
         Map<String, Object> source = new HashMap<>();
         source.put(ServiceAlarmTable.COLUMN_APPLICATION_ID, data.getApplicationId());
         source.put(ServiceAlarmTable.COLUMN_INSTANCE_ID, data.getInstanceId());
@@ -83,10 +83,10 @@ public class ServiceAlarmEsPersistenceDAO extends EsDAO implements IServiceAlarm
 
         source.put(ServiceAlarmTable.COLUMN_LAST_TIME_BUCKET, data.getLastTimeBucket());
 
-        return getClient().prepareIndex(ServiceAlarmTable.TABLE, data.getId()).setSource(source);
+        return new Index.Builder(source).index(ServiceAlarmTable.TABLE).id(data.getId()).build();
     }
 
-    @Override public UpdateRequestBuilder prepareBatchUpdate(ServiceAlarm data) {
+    @Override public Update prepareBatchUpdate(ServiceAlarm data) {
         Map<String, Object> source = new HashMap<>();
         source.put(ServiceAlarmTable.COLUMN_APPLICATION_ID, data.getApplicationId());
         source.put(ServiceAlarmTable.COLUMN_INSTANCE_ID, data.getInstanceId());
@@ -98,18 +98,17 @@ public class ServiceAlarmEsPersistenceDAO extends EsDAO implements IServiceAlarm
 
         source.put(ServiceAlarmTable.COLUMN_LAST_TIME_BUCKET, data.getLastTimeBucket());
 
-        return getClient().prepareUpdate(ServiceAlarmTable.TABLE, data.getId()).setDoc(source);
+        return new Update.Builder(source).index(ServiceAlarmTable.TABLE).id(data.getId()).build();
     }
 
     @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
         long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
         long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
-        BulkByScrollResponse response = getClient().prepareDelete()
-            .filter(QueryBuilders.rangeQuery(ServiceAlarmTable.COLUMN_LAST_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket))
-            .source(ServiceAlarmTable.TABLE)
-            .get();
-
-        long deleted = response.getDeleted();
+        
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(QueryBuilders.rangeQuery(ServiceAlarmTable.COLUMN_LAST_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
+        
+        long deleted = getClient().batchDelete(ServiceAlarmTable.TABLE, searchSourceBuilder.toString());
         logger.info("Delete {} rows history from {} index.", deleted, ServiceAlarmTable.TABLE);
     }
 }

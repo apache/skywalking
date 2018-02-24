@@ -24,21 +24,26 @@ import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.alarm.IInstanceReferenceAlarmListPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.alarm.InstanceReferenceAlarmList;
 import org.apache.skywalking.apm.collector.storage.table.alarm.InstanceReferenceAlarmListTable;
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonObject;
+
+import io.searchbox.core.DocumentResult;
+import io.searchbox.core.Index;
+import io.searchbox.core.Update;
 
 /**
  * @author peng-yongsheng
  */
-public class InstanceReferenceAlarmListEsPersistenceDAO extends EsDAO implements IInstanceReferenceAlarmListPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, InstanceReferenceAlarmList> {
+public class InstanceReferenceAlarmListEsPersistenceDAO extends EsHttpDAO implements IInstanceReferenceAlarmListPersistenceDAO<Index, Update, InstanceReferenceAlarmList> {
 
     private final Logger logger = LoggerFactory.getLogger(InstanceReferenceAlarmListEsPersistenceDAO.class);
 
@@ -47,28 +52,28 @@ public class InstanceReferenceAlarmListEsPersistenceDAO extends EsDAO implements
     }
 
     @Override public InstanceReferenceAlarmList get(String id) {
-        GetResponse getResponse = getClient().prepareGet(InstanceReferenceAlarmListTable.TABLE, id).get();
-        if (getResponse.isExists()) {
+        DocumentResult getResponse = getClient().prepareGet(InstanceReferenceAlarmListTable.TABLE, id);
+        if (getResponse.isSucceeded()) {
             InstanceReferenceAlarmList serviceReferenceAlarmList = new InstanceReferenceAlarmList();
             serviceReferenceAlarmList.setId(id);
-            Map<String, Object> source = getResponse.getSource();
-            serviceReferenceAlarmList.setFrontApplicationId(((Number)source.get(InstanceReferenceAlarmListTable.COLUMN_FRONT_APPLICATION_ID)).intValue());
-            serviceReferenceAlarmList.setBehindApplicationId(((Number)source.get(InstanceReferenceAlarmListTable.COLUMN_BEHIND_APPLICATION_ID)).intValue());
-            serviceReferenceAlarmList.setFrontInstanceId(((Number)source.get(InstanceReferenceAlarmListTable.COLUMN_FRONT_INSTANCE_ID)).intValue());
-            serviceReferenceAlarmList.setBehindInstanceId(((Number)source.get(InstanceReferenceAlarmListTable.COLUMN_BEHIND_INSTANCE_ID)).intValue());
-            serviceReferenceAlarmList.setSourceValue(((Number)source.get(InstanceReferenceAlarmListTable.COLUMN_SOURCE_VALUE)).intValue());
+            JsonObject source = getResponse.getSourceAsObject(JsonObject.class);
+            serviceReferenceAlarmList.setFrontApplicationId((source.get(InstanceReferenceAlarmListTable.COLUMN_FRONT_APPLICATION_ID)).getAsInt());
+            serviceReferenceAlarmList.setBehindApplicationId((source.get(InstanceReferenceAlarmListTable.COLUMN_BEHIND_APPLICATION_ID)).getAsInt());
+            serviceReferenceAlarmList.setFrontInstanceId((source.get(InstanceReferenceAlarmListTable.COLUMN_FRONT_INSTANCE_ID)).getAsInt());
+            serviceReferenceAlarmList.setBehindInstanceId((source.get(InstanceReferenceAlarmListTable.COLUMN_BEHIND_INSTANCE_ID)).getAsInt());
+            serviceReferenceAlarmList.setSourceValue((source.get(InstanceReferenceAlarmListTable.COLUMN_SOURCE_VALUE)).getAsInt());
 
-            serviceReferenceAlarmList.setAlarmType(((Number)source.get(InstanceReferenceAlarmListTable.COLUMN_ALARM_TYPE)).intValue());
-            serviceReferenceAlarmList.setAlarmContent((String)source.get(InstanceReferenceAlarmListTable.COLUMN_ALARM_CONTENT));
+            serviceReferenceAlarmList.setAlarmType((source.get(InstanceReferenceAlarmListTable.COLUMN_ALARM_TYPE)).getAsInt());
+            serviceReferenceAlarmList.setAlarmContent(source.get(InstanceReferenceAlarmListTable.COLUMN_ALARM_CONTENT).getAsString());
 
-            serviceReferenceAlarmList.setTimeBucket(((Number)source.get(InstanceReferenceAlarmListTable.COLUMN_TIME_BUCKET)).longValue());
+            serviceReferenceAlarmList.setTimeBucket((source.get(InstanceReferenceAlarmListTable.COLUMN_TIME_BUCKET)).getAsLong());
             return serviceReferenceAlarmList;
         } else {
             return null;
         }
     }
 
-    @Override public IndexRequestBuilder prepareBatchInsert(InstanceReferenceAlarmList data) {
+    @Override public Index prepareBatchInsert(InstanceReferenceAlarmList data) {
         Map<String, Object> source = new HashMap<>();
         source.put(InstanceReferenceAlarmListTable.COLUMN_FRONT_APPLICATION_ID, data.getFrontApplicationId());
         source.put(InstanceReferenceAlarmListTable.COLUMN_BEHIND_APPLICATION_ID, data.getBehindApplicationId());
@@ -81,10 +86,10 @@ public class InstanceReferenceAlarmListEsPersistenceDAO extends EsDAO implements
 
         source.put(InstanceReferenceAlarmListTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
-        return getClient().prepareIndex(InstanceReferenceAlarmListTable.TABLE, data.getId()).setSource(source);
+        return new Index.Builder(source).index(InstanceReferenceAlarmListTable.TABLE).id(data.getId()).build();
     }
 
-    @Override public UpdateRequestBuilder prepareBatchUpdate(InstanceReferenceAlarmList data) {
+    @Override public Update prepareBatchUpdate(InstanceReferenceAlarmList data) {
         Map<String, Object> source = new HashMap<>();
         source.put(InstanceReferenceAlarmListTable.COLUMN_FRONT_APPLICATION_ID, data.getFrontApplicationId());
         source.put(InstanceReferenceAlarmListTable.COLUMN_BEHIND_APPLICATION_ID, data.getBehindApplicationId());
@@ -97,18 +102,17 @@ public class InstanceReferenceAlarmListEsPersistenceDAO extends EsDAO implements
 
         source.put(InstanceReferenceAlarmListTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
-        return getClient().prepareUpdate(InstanceReferenceAlarmListTable.TABLE, data.getId()).setDoc(source);
+        return new Update.Builder(source).index(InstanceReferenceAlarmListTable.TABLE).id(data.getId()).build();
     }
 
     @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
         long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
         long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
-        BulkByScrollResponse response = getClient().prepareDelete()
-            .filter(QueryBuilders.rangeQuery(InstanceReferenceAlarmListTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket))
-            .source(InstanceReferenceAlarmListTable.TABLE)
-            .get();
+        
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(QueryBuilders.rangeQuery(InstanceReferenceAlarmListTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
 
-        long deleted = response.getDeleted();
+        long deleted = getClient().batchDelete(InstanceReferenceAlarmListTable.TABLE, searchSourceBuilder.toString());
         logger.info("Delete {} rows history from {} index.", deleted, InstanceReferenceAlarmListTable.TABLE);
     }
 }

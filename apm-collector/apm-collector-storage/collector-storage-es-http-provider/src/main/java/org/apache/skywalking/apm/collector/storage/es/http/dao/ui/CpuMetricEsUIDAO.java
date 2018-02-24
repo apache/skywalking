@@ -24,7 +24,7 @@ import java.util.List;
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ICpuMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.jvm.CpuMetricTable;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
@@ -43,7 +43,7 @@ import io.searchbox.core.MultiGet;
 /**
  * @author peng-yongsheng
  */
-public class CpuMetricEsUIDAO extends EsDAO implements ICpuMetricUIDAO {
+public class CpuMetricEsUIDAO extends EsHttpDAO implements ICpuMetricUIDAO {
 
     public CpuMetricEsUIDAO(ElasticSearchHttpClient client) {
         super(client);

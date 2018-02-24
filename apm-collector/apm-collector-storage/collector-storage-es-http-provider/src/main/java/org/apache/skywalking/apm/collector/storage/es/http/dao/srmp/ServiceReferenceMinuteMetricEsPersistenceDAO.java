@@ -24,13 +24,13 @@ import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetricTable;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.update.UpdateRequestBuilder;
+import io.searchbox.core.Index;
+import io.searchbox.core.Update;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceReferenceMinuteMetricEsPersistenceDAO extends AbstractServiceReferenceMetricEsPersistenceDAO implements IServiceReferenceMinuteMetricPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, ServiceReferenceMetric> {
+public class ServiceReferenceMinuteMetricEsPersistenceDAO extends AbstractServiceReferenceMetricEsPersistenceDAO implements IServiceReferenceMinuteMetricPersistenceDAO<Index, Update, ServiceReferenceMetric> {
 
     public ServiceReferenceMinuteMetricEsPersistenceDAO(ElasticSearchHttpClient client) {
         super(client);

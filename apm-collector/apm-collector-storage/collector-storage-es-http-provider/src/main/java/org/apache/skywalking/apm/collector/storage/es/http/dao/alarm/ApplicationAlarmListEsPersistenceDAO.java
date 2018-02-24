@@ -24,21 +24,24 @@ import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmList;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmListTable;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.reindex.BulkByScrollResponse;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonObject;
+
+import io.searchbox.core.DocumentResult;
+import io.searchbox.core.Index;
+import io.searchbox.core.Update;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationAlarmListEsPersistenceDAO extends EsDAO implements IApplicationAlarmListPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, ApplicationAlarmList> {
+public class ApplicationAlarmListEsPersistenceDAO extends EsHttpDAO implements IApplicationAlarmListPersistenceDAO<Index, Update, ApplicationAlarmList> {
 
     private final Logger logger = LoggerFactory.getLogger(ApplicationAlarmListEsPersistenceDAO.class);
 
@@ -47,25 +50,25 @@ public class ApplicationAlarmListEsPersistenceDAO extends EsDAO implements IAppl
     }
 
     @Override public ApplicationAlarmList get(String id) {
-        GetResponse getResponse = getClient().prepareGet(ApplicationAlarmListTable.TABLE, id).get();
-        if (getResponse.isExists()) {
+        DocumentResult getResponse = getClient().prepareGet(ApplicationAlarmListTable.TABLE, id);
+        if (getResponse.isSucceeded()) {
             ApplicationAlarmList applicationAlarmList = new ApplicationAlarmList();
             applicationAlarmList.setId(id);
-            Map<String, Object> source = getResponse.getSource();
-            applicationAlarmList.setApplicationId(((Number)source.get(ApplicationAlarmListTable.COLUMN_APPLICATION_ID)).intValue());
-            applicationAlarmList.setSourceValue(((Number)source.get(ApplicationAlarmListTable.COLUMN_SOURCE_VALUE)).intValue());
+            JsonObject source = getResponse.getSourceAsObject(JsonObject.class);
+            applicationAlarmList.setApplicationId((source.get(ApplicationAlarmListTable.COLUMN_APPLICATION_ID)).getAsInt());
+            applicationAlarmList.setSourceValue((source.get(ApplicationAlarmListTable.COLUMN_SOURCE_VALUE)).getAsInt());
 
-            applicationAlarmList.setAlarmType(((Number)source.get(ApplicationAlarmListTable.COLUMN_ALARM_TYPE)).intValue());
-            applicationAlarmList.setAlarmContent((String)source.get(ApplicationAlarmListTable.COLUMN_ALARM_CONTENT));
+            applicationAlarmList.setAlarmType((source.get(ApplicationAlarmListTable.COLUMN_ALARM_TYPE)).getAsInt());
+            applicationAlarmList.setAlarmContent(source.get(ApplicationAlarmListTable.COLUMN_ALARM_CONTENT).getAsString());
 
-            applicationAlarmList.setTimeBucket(((Number)source.get(ApplicationAlarmListTable.COLUMN_TIME_BUCKET)).longValue());
+            applicationAlarmList.setTimeBucket((source.get(ApplicationAlarmListTable.COLUMN_TIME_BUCKET)).getAsLong());
             return applicationAlarmList;
         } else {
             return null;
         }
     }
 
-    @Override public IndexRequestBuilder prepareBatchInsert(ApplicationAlarmList data) {
+    @Override public Index prepareBatchInsert(ApplicationAlarmList data) {
         Map<String, Object> source = new HashMap<>();
         source.put(ApplicationAlarmListTable.COLUMN_APPLICATION_ID, data.getApplicationId());
         source.put(ApplicationAlarmListTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
@@ -75,10 +78,10 @@ public class ApplicationAlarmListEsPersistenceDAO extends EsDAO implements IAppl
 
         source.put(ApplicationAlarmListTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
-        return getClient().prepareIndex(ApplicationAlarmListTable.TABLE, data.getId()).setSource(source);
+        return new Index.Builder(source).index(ApplicationAlarmListTable.TABLE).id(data.getId()).build();
     }
 
-    @Override public UpdateRequestBuilder prepareBatchUpdate(ApplicationAlarmList data) {
+    @Override public Update prepareBatchUpdate(ApplicationAlarmList data) {
         Map<String, Object> source = new HashMap<>();
         source.put(ApplicationAlarmListTable.COLUMN_APPLICATION_ID, data.getApplicationId());
         source.put(ApplicationAlarmListTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
@@ -88,18 +91,17 @@ public class ApplicationAlarmListEsPersistenceDAO extends EsDAO implements IAppl
 
         source.put(ApplicationAlarmListTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
-        return getClient().prepareUpdate(ApplicationAlarmListTable.TABLE, data.getId()).setDoc(source);
+        return new Update.Builder(source).index(ApplicationAlarmListTable.TABLE).id(data.getId()).build();
     }
 
     @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
         long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
         long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
-        BulkByScrollResponse response = getClient().prepareDelete()
-            .filter(QueryBuilders.rangeQuery(ApplicationAlarmListTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket))
-            .source(ApplicationAlarmListTable.TABLE)
-            .get();
+        
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(QueryBuilders.rangeQuery(ApplicationAlarmListTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
 
-        long deleted = response.getDeleted();
+        long deleted = getClient().batchDelete(ApplicationAlarmListTable.TABLE, searchSourceBuilder.toString());
         logger.info("Delete {} rows history from {} index.", deleted, ApplicationAlarmListTable.TABLE);
     }
 }

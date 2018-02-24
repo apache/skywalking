@@ -25,20 +25,25 @@ import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.segment.Segment;
 import org.apache.skywalking.apm.collector.storage.table.segment.SegmentTable;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.update.UpdateRequestBuilder;
+import io.searchbox.core.Index;
+import io.searchbox.core.Update;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.searchbox.core.DeleteByQuery;
+import io.searchbox.core.Index;
+import io.searchbox.core.Update;
 
 /**
  * @author peng-yongsheng
  */
-public class SegmentEsPersistenceDAO extends EsDAO implements ISegmentPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, Segment> {
+public class SegmentEsPersistenceDAO extends EsHttpDAO implements ISegmentPersistenceDAO<Index, Update, Segment> {
 
     private final Logger logger = LoggerFactory.getLogger(SegmentEsPersistenceDAO.class);
 
@@ -50,27 +55,26 @@ public class SegmentEsPersistenceDAO extends EsDAO implements ISegmentPersistenc
         return null;
     }
 
-    @Override public UpdateRequestBuilder prepareBatchUpdate(Segment data) {
+    @Override public Update prepareBatchUpdate(Segment data) {
         return null;
     }
 
-    @Override public IndexRequestBuilder prepareBatchInsert(Segment data) {
+    @Override public Index prepareBatchInsert(Segment data) {
         Map<String, Object> source = new HashMap<>();
         source.put(SegmentTable.COLUMN_DATA_BINARY, new String(Base64.getEncoder().encode(data.getDataBinary())));
         source.put(SegmentTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
         logger.debug("segment source: {}", source.toString());
-        return getClient().prepareIndex(SegmentTable.TABLE, data.getId()).setSource(source);
+        return new Index.Builder(source).index(SegmentTable.TABLE).id(data.getId()).build();
     }
 
     @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
         long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
         long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
-        BulkByScrollResponse response = getClient().prepareDelete()
-            .filter(QueryBuilders.rangeQuery(SegmentTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket))
-            .source(SegmentTable.TABLE)
-            .get();
 
-        long deleted = response.getDeleted();
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(QueryBuilders.rangeQuery(SegmentTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
+        
+        long deleted = getClient().batchDelete(SegmentTable.TABLE, searchSourceBuilder.toString());
         logger.info("Delete {} rows history from {} index.", deleted, SegmentTable.TABLE);
     }
 }

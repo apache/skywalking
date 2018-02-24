@@ -24,14 +24,10 @@ import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarm;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmTable;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,11 +35,13 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 
 import io.searchbox.core.DocumentResult;
+import io.searchbox.core.Index;
+import io.searchbox.core.Update;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationAlarmEsPersistenceDAO extends EsDAO implements IApplicationAlarmPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, ApplicationAlarm> {
+public class ApplicationAlarmEsPersistenceDAO extends EsHttpDAO implements IApplicationAlarmPersistenceDAO<Index, Update, ApplicationAlarm> {
 
     private final Logger logger = LoggerFactory.getLogger(ApplicationAlarmEsPersistenceDAO.class);
 
@@ -71,7 +69,7 @@ public class ApplicationAlarmEsPersistenceDAO extends EsDAO implements IApplicat
         }
     }
 
-    @Override public IndexRequestBuilder prepareBatchInsert(ApplicationAlarm data) {
+    @Override public Index prepareBatchInsert(ApplicationAlarm data) {
         Map<String, Object> source = new HashMap<>();
         source.put(ApplicationAlarmTable.COLUMN_APPLICATION_ID, data.getApplicationId());
         source.put(ApplicationAlarmTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
@@ -81,10 +79,10 @@ public class ApplicationAlarmEsPersistenceDAO extends EsDAO implements IApplicat
 
         source.put(ApplicationAlarmTable.COLUMN_LAST_TIME_BUCKET, data.getLastTimeBucket());
 
-        return getClient().prepareIndex(ApplicationAlarmTable.TABLE, data.getId()).setSource(source);
+        return new Index.Builder(source).index(ApplicationAlarmTable.TABLE).id(data.getId()).build();
     }
 
-    @Override public UpdateRequestBuilder prepareBatchUpdate(ApplicationAlarm data) {
+    @Override public Update prepareBatchUpdate(ApplicationAlarm data) {
         Map<String, Object> source = new HashMap<>();
         source.put(ApplicationAlarmTable.COLUMN_APPLICATION_ID, data.getApplicationId());
         source.put(ApplicationAlarmTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
@@ -94,7 +92,7 @@ public class ApplicationAlarmEsPersistenceDAO extends EsDAO implements IApplicat
 
         source.put(ApplicationAlarmTable.COLUMN_LAST_TIME_BUCKET, data.getLastTimeBucket());
 
-        return getClient().prepareUpdate(ApplicationAlarmTable.TABLE, data.getId(),source);
+        return new Update.Builder(source).index(ApplicationAlarmTable.TABLE).id(data.getId()).build();
     }
 
     @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {

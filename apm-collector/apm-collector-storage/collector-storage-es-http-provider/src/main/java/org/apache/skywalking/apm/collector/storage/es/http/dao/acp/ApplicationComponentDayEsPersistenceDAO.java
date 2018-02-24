@@ -24,15 +24,16 @@ import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentDayPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponent;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponentTable;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.searchbox.core.Index;
+import io.searchbox.core.Update;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationComponentDayEsPersistenceDAO extends AbstractApplicationComponentEsPersistenceDAO implements IApplicationComponentDayPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, ApplicationComponent> {
+public class ApplicationComponentDayEsPersistenceDAO extends AbstractApplicationComponentEsPersistenceDAO implements IApplicationComponentDayPersistenceDAO<Index, Update, ApplicationComponent> {
 
     private final Logger logger = LoggerFactory.getLogger(ApplicationComponentDayEsPersistenceDAO.class);
 

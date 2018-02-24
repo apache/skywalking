@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSear
 import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IMemoryMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetricTable;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
@@ -43,7 +43,7 @@ import io.searchbox.core.MultiGet;
 /**
  * @author peng-yongsheng
  */
-public class MemoryMetricEsUIDAO extends EsDAO implements IMemoryMetricUIDAO {
+public class MemoryMetricEsUIDAO extends EsHttpDAO implements IMemoryMetricUIDAO {
 
     public MemoryMetricEsUIDAO(ElasticSearchHttpClient client) {
         super(client);

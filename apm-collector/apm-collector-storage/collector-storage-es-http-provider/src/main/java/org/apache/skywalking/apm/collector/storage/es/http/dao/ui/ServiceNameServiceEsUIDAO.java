@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceNameServiceUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceNameTable;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -43,7 +43,7 @@ import io.searchbox.core.SearchResult;
 /**
  * @author peng-yongsheng
  */
-public class ServiceNameServiceEsUIDAO extends EsDAO implements IServiceNameServiceUIDAO {
+public class ServiceNameServiceEsUIDAO extends EsHttpDAO implements IServiceNameServiceUIDAO {
 
     public ServiceNameServiceEsUIDAO(ElasticSearchHttpClient client) {
         super(client);

@@ -24,13 +24,13 @@ import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.gcmp.IGCHourMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetric;
 import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetricTable;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.update.UpdateRequestBuilder;
+import io.searchbox.core.Index;
+import io.searchbox.core.Update;
 
 /**
  * @author peng-yongsheng
  */
-public class GCHourMetricEsPersistenceDAO extends AbstractGCMetricEsPersistenceDAO implements IGCHourMetricPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, GCMetric> {
+public class GCHourMetricEsPersistenceDAO extends AbstractGCMetricEsPersistenceDAO implements IGCHourMetricPersistenceDAO<Index, Update, GCMetric> {
 
     public GCHourMetricEsPersistenceDAO(ElasticSearchHttpClient client) {
         super(client);

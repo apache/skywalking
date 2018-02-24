@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationComponentUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponentTable;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder;
@@ -45,7 +45,7 @@ import io.searchbox.core.search.aggregation.TermsAggregation.Entry;
 /**
  * @author peng-yongsheng
  */
-public class ApplicationComponentEsUIDAO extends EsDAO implements IApplicationComponentUIDAO {
+public class ApplicationComponentEsUIDAO extends EsHttpDAO implements IApplicationComponentUIDAO {
 
     private final Logger logger = LoggerFactory.getLogger(ApplicationComponentEsUIDAO.class);
 

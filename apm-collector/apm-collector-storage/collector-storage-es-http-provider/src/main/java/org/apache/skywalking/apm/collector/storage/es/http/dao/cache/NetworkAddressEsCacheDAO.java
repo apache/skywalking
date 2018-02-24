@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.collector.storage.es.http.dao.cache;
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.cache.INetworkAddressCacheDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddressTable;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
@@ -44,7 +44,7 @@ import io.searchbox.core.SearchResult;
 /**
  * @author peng-yongsheng
  */
-public class NetworkAddressEsCacheDAO extends EsDAO implements INetworkAddressCacheDAO {
+public class NetworkAddressEsCacheDAO extends EsHttpDAO implements INetworkAddressCacheDAO {
 
     private final Logger logger = LoggerFactory.getLogger(NetworkAddressEsCacheDAO.class);
 

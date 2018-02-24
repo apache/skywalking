@@ -23,7 +23,7 @@ import java.util.Map;
 
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.storage.dao.register.INetworkAddressRegisterDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddress;
 import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddressTable;
 import org.elasticsearch.action.index.IndexResponse;
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public class NetworkAddressRegisterEsDAO extends EsDAO implements INetworkAddressRegisterDAO {
+public class NetworkAddressRegisterEsDAO extends EsHttpDAO implements INetworkAddressRegisterDAO {
 
     private final Logger logger = LoggerFactory.getLogger(NetworkAddressRegisterEsDAO.class);
 

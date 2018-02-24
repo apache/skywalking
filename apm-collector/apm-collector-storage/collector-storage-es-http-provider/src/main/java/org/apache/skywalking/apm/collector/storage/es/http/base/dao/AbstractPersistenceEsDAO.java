@@ -25,19 +25,21 @@ import org.apache.skywalking.apm.collector.core.data.StreamData;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.update.UpdateRequestBuilder;
+import io.searchbox.core.Index;
+import io.searchbox.core.Update;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.searchbox.core.DocumentResult;
+import io.searchbox.core.Index;
+import io.searchbox.core.Update;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class AbstractPersistenceEsDAO<STREAM_DATA extends StreamData> extends EsDAO implements IPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, STREAM_DATA> {
+public abstract class AbstractPersistenceEsDAO<STREAM_DATA extends StreamData> extends EsHttpDAO implements IPersistenceDAO<Index, Update, STREAM_DATA> {
 
     private final Logger logger = LoggerFactory.getLogger(AbstractPersistenceEsDAO.class);
 
@@ -51,7 +53,7 @@ public abstract class AbstractPersistenceEsDAO<STREAM_DATA extends StreamData> e
 
     @Override public final STREAM_DATA get(String id) {
         DocumentResult result = getClient().prepareGet(tableName(), id);
-        if (result != null)) {
+        if (result != null) {
             return esDataToStreamData(result.getJsonMap());
         } else {
             return null;
@@ -60,14 +62,14 @@ public abstract class AbstractPersistenceEsDAO<STREAM_DATA extends StreamData> e
 
     protected abstract Map<String, Object> esStreamDataToEsData(STREAM_DATA streamData);
 
-    @Override public final IndexRequestBuilder prepareBatchInsert(STREAM_DATA streamData) {
+    @Override public final Index prepareBatchInsert(STREAM_DATA streamData) {
         Map<String, Object> source = esStreamDataToEsData(streamData);
-        return getClient().prepareIndex(tableName(), streamData.getId()).setSource(source);
+        return new Index.Builder(source).index(tableName()).id(streamData.getId()).build();
     }
 
-    @Override public final UpdateRequestBuilder prepareBatchUpdate(STREAM_DATA streamData) {
+    @Override public final Update prepareBatchUpdate(STREAM_DATA streamData) {
         Map<String, Object> source = esStreamDataToEsData(streamData);
-        return getClient().prepareUpdate(tableName(), streamData.getId()).setDoc(source);
+        return new Update.Builder(source).index(tableName()).id(streamData.getId()).build();
     }
 
     protected abstract String timeBucketColumnNameForDelete();

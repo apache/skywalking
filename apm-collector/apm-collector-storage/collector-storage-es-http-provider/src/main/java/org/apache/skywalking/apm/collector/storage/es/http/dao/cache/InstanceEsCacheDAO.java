@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.collector.storage.es.http.dao.cache;
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.storage.dao.cache.IInstanceCacheDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -41,7 +41,7 @@ import io.searchbox.core.SearchResult;
 /**
  * @author peng-yongsheng
  */
-public class InstanceEsCacheDAO extends EsDAO implements IInstanceCacheDAO {
+public class InstanceEsCacheDAO extends EsHttpDAO implements IInstanceCacheDAO {
 
     public InstanceEsCacheDAO(ElasticSearchHttpClient client) {
         super(client);

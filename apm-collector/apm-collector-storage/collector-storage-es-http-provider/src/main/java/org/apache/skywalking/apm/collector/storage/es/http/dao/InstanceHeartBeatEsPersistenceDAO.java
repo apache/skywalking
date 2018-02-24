@@ -24,23 +24,25 @@ import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.core.UnexpectedException;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceHeartBeatPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.update.UpdateRequestBuilder;
+import io.searchbox.core.Index;
+import io.searchbox.core.Update;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
 import io.searchbox.core.DocumentResult;
+import io.searchbox.core.Index;
+import io.searchbox.core.Update;
 
 /**
  * @author peng-yongsheng
  */
-public class InstanceHeartBeatEsPersistenceDAO extends EsDAO implements IInstanceHeartBeatPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, Instance> {
+public class InstanceHeartBeatEsPersistenceDAO extends EsHttpDAO implements IInstanceHeartBeatPersistenceDAO<Index, Update, Instance> {
 
     private final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatEsPersistenceDAO.class);
 
@@ -65,14 +67,14 @@ public class InstanceHeartBeatEsPersistenceDAO extends EsDAO implements IInstanc
         }
     }
 
-    @Override public IndexRequestBuilder prepareBatchInsert(Instance data) {
+    @Override public Index prepareBatchInsert(Instance data) {
         throw new UnexpectedException("There is no need to merge stream data with database data.");
     }
 
-    @Override public UpdateRequestBuilder prepareBatchUpdate(Instance data) {
+    @Override public Update prepareBatchUpdate(Instance data) {
         Map<String, Object> source = new HashMap<>();
         source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, data.getHeartBeatTime());
-        return getClient().prepareUpdate(InstanceTable.TABLE, data.getId()).setDoc(source);
+        return new Update.Builder(source).index(InstanceTable.TABLE).id(data.getId()).build();
     }
 
     @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {

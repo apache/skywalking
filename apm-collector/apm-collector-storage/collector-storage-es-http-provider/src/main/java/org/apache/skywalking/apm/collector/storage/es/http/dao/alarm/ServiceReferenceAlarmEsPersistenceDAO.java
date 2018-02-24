@@ -24,21 +24,26 @@ import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.alarm.IServiceReferenceAlarmPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ServiceReferenceAlarm;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ServiceReferenceAlarmTable;
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonObject;
+
+import io.searchbox.core.DocumentResult;
+import io.searchbox.core.Index;
+import io.searchbox.core.Update;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceReferenceAlarmEsPersistenceDAO extends EsDAO implements IServiceReferenceAlarmPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, ServiceReferenceAlarm> {
+public class ServiceReferenceAlarmEsPersistenceDAO extends EsHttpDAO implements IServiceReferenceAlarmPersistenceDAO<Index, Update, ServiceReferenceAlarm> {
 
     private final Logger logger = LoggerFactory.getLogger(ServiceReferenceAlarmEsPersistenceDAO.class);
 
@@ -47,30 +52,30 @@ public class ServiceReferenceAlarmEsPersistenceDAO extends EsDAO implements ISer
     }
 
     @Override public ServiceReferenceAlarm get(String id) {
-        GetResponse getResponse = getClient().prepareGet(ServiceReferenceAlarmTable.TABLE, id).get();
-        if (getResponse.isExists()) {
+        DocumentResult getResponse = getClient().prepareGet(ServiceReferenceAlarmTable.TABLE, id);
+        if (getResponse.isSucceeded()) {
             ServiceReferenceAlarm serviceReferenceAlarm = new ServiceReferenceAlarm();
             serviceReferenceAlarm.setId(id);
-            Map<String, Object> source = getResponse.getSource();
-            serviceReferenceAlarm.setFrontApplicationId(((Number)source.get(ServiceReferenceAlarmTable.COLUMN_FRONT_APPLICATION_ID)).intValue());
-            serviceReferenceAlarm.setBehindApplicationId(((Number)source.get(ServiceReferenceAlarmTable.COLUMN_BEHIND_APPLICATION_ID)).intValue());
-            serviceReferenceAlarm.setFrontInstanceId(((Number)source.get(ServiceReferenceAlarmTable.COLUMN_FRONT_INSTANCE_ID)).intValue());
-            serviceReferenceAlarm.setBehindInstanceId(((Number)source.get(ServiceReferenceAlarmTable.COLUMN_BEHIND_INSTANCE_ID)).intValue());
-            serviceReferenceAlarm.setFrontServiceId(((Number)source.get(ServiceReferenceAlarmTable.COLUMN_FRONT_SERVICE_ID)).intValue());
-            serviceReferenceAlarm.setBehindServiceId(((Number)source.get(ServiceReferenceAlarmTable.COLUMN_BEHIND_SERVICE_ID)).intValue());
-            serviceReferenceAlarm.setSourceValue(((Number)source.get(ServiceReferenceAlarmTable.COLUMN_SOURCE_VALUE)).intValue());
+            JsonObject source = getResponse.getSourceAsObject(JsonObject.class);
+            serviceReferenceAlarm.setFrontApplicationId((source.get(ServiceReferenceAlarmTable.COLUMN_FRONT_APPLICATION_ID)).getAsInt());
+            serviceReferenceAlarm.setBehindApplicationId((source.get(ServiceReferenceAlarmTable.COLUMN_BEHIND_APPLICATION_ID)).getAsInt());
+            serviceReferenceAlarm.setFrontInstanceId((source.get(ServiceReferenceAlarmTable.COLUMN_FRONT_INSTANCE_ID)).getAsInt());
+            serviceReferenceAlarm.setBehindInstanceId((source.get(ServiceReferenceAlarmTable.COLUMN_BEHIND_INSTANCE_ID)).getAsInt());
+            serviceReferenceAlarm.setFrontServiceId((source.get(ServiceReferenceAlarmTable.COLUMN_FRONT_SERVICE_ID)).getAsInt());
+            serviceReferenceAlarm.setBehindServiceId((source.get(ServiceReferenceAlarmTable.COLUMN_BEHIND_SERVICE_ID)).getAsInt());
+            serviceReferenceAlarm.setSourceValue((source.get(ServiceReferenceAlarmTable.COLUMN_SOURCE_VALUE)).getAsInt());
 
-            serviceReferenceAlarm.setAlarmType(((Number)source.get(ServiceReferenceAlarmTable.COLUMN_ALARM_TYPE)).intValue());
-            serviceReferenceAlarm.setAlarmContent((String)source.get(ServiceReferenceAlarmTable.COLUMN_ALARM_CONTENT));
+            serviceReferenceAlarm.setAlarmType((source.get(ServiceReferenceAlarmTable.COLUMN_ALARM_TYPE)).getAsInt());
+            serviceReferenceAlarm.setAlarmContent(source.get(ServiceReferenceAlarmTable.COLUMN_ALARM_CONTENT).getAsString());
 
-            serviceReferenceAlarm.setLastTimeBucket(((Number)source.get(ServiceReferenceAlarmTable.COLUMN_LAST_TIME_BUCKET)).longValue());
+            serviceReferenceAlarm.setLastTimeBucket((source.get(ServiceReferenceAlarmTable.COLUMN_LAST_TIME_BUCKET)).getAsLong());
             return serviceReferenceAlarm;
         } else {
             return null;
         }
     }
 
-    @Override public IndexRequestBuilder prepareBatchInsert(ServiceReferenceAlarm data) {
+    @Override public Index prepareBatchInsert(ServiceReferenceAlarm data) {
         Map<String, Object> source = new HashMap<>();
         source.put(ServiceReferenceAlarmTable.COLUMN_FRONT_APPLICATION_ID, data.getFrontApplicationId());
         source.put(ServiceReferenceAlarmTable.COLUMN_BEHIND_APPLICATION_ID, data.getBehindApplicationId());
@@ -85,10 +90,10 @@ public class ServiceReferenceAlarmEsPersistenceDAO extends EsDAO implements ISer
 
         source.put(ServiceReferenceAlarmTable.COLUMN_LAST_TIME_BUCKET, data.getLastTimeBucket());
 
-        return getClient().prepareIndex(ServiceReferenceAlarmTable.TABLE, data.getId()).setSource(source);
+        return new Index.Builder(source).index(ServiceReferenceAlarmTable.TABLE).id(data.getId()).build();
     }
 
-    @Override public UpdateRequestBuilder prepareBatchUpdate(ServiceReferenceAlarm data) {
+    @Override public Update prepareBatchUpdate(ServiceReferenceAlarm data) {
         Map<String, Object> source = new HashMap<>();
         source.put(ServiceReferenceAlarmTable.COLUMN_FRONT_APPLICATION_ID, data.getFrontApplicationId());
         source.put(ServiceReferenceAlarmTable.COLUMN_BEHIND_APPLICATION_ID, data.getBehindApplicationId());
@@ -103,18 +108,17 @@ public class ServiceReferenceAlarmEsPersistenceDAO extends EsDAO implements ISer
 
         source.put(ServiceReferenceAlarmTable.COLUMN_LAST_TIME_BUCKET, data.getLastTimeBucket());
 
-        return getClient().prepareUpdate(ServiceReferenceAlarmTable.TABLE, data.getId()).setDoc(source);
+        return new Update.Builder(source).index(ServiceReferenceAlarmTable.TABLE).id(data.getId()).build();
     }
 
     @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
         long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
         long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
-        BulkByScrollResponse response = getClient().prepareDelete()
-            .filter(QueryBuilders.rangeQuery(ServiceReferenceAlarmTable.COLUMN_LAST_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket))
-            .source(ServiceReferenceAlarmTable.TABLE)
-            .get();
-
-        long deleted = response.getDeleted();
+        
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(QueryBuilders.rangeQuery(ServiceReferenceAlarmTable.COLUMN_LAST_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
+        
+        long deleted = getClient().batchDelete(ServiceReferenceAlarmTable.TABLE, searchSourceBuilder.toString());
         logger.info("Delete {} rows history from {} index.", deleted, ServiceReferenceAlarmTable.TABLE);
     }
 }

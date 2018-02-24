@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceReferenceMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetricTable;
 import org.apache.skywalking.apm.collector.storage.ui.common.Call;
@@ -48,7 +48,7 @@ import io.searchbox.core.search.aggregation.TermsAggregation;
 /**
  * @author peng-yongsheng
  */
-public class ServiceReferenceEsMetricUIDAO extends EsDAO implements IServiceReferenceMetricUIDAO {
+public class ServiceReferenceEsMetricUIDAO extends EsHttpDAO implements IServiceReferenceMetricUIDAO {
 
     public ServiceReferenceEsMetricUIDAO(ElasticSearchHttpClient client) {
         super(client);

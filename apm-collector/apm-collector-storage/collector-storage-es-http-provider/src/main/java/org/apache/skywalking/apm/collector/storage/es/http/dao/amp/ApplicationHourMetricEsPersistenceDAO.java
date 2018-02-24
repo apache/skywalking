@@ -24,13 +24,13 @@ import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.amp.IApplicationHourMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMetric;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMetricTable;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.update.UpdateRequestBuilder;
+import io.searchbox.core.Index;
+import io.searchbox.core.Update;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationHourMetricEsPersistenceDAO extends AbstractApplicationMetricEsPersistenceDAO implements IApplicationHourMetricPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, ApplicationMetric> {
+public class ApplicationHourMetricEsPersistenceDAO extends AbstractApplicationMetricEsPersistenceDAO implements IApplicationHourMetricPersistenceDAO<Index, Update, ApplicationMetric> {
 
     public ApplicationHourMetricEsPersistenceDAO(ElasticSearchHttpClient client) {
         super(client);

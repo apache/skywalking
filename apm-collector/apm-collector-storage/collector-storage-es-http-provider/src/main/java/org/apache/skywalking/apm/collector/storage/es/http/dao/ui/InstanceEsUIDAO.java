@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
 import org.apache.skywalking.apm.collector.storage.ui.application.Application;
@@ -64,7 +64,7 @@ import io.searchbox.core.search.aggregation.ValueCountAggregation;
 /**
  * @author peng-yongsheng
  */
-public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
+public class InstanceEsUIDAO extends EsHttpDAO implements IInstanceUIDAO {
 
     private final Logger logger = LoggerFactory.getLogger(InstanceEsUIDAO.class);
 

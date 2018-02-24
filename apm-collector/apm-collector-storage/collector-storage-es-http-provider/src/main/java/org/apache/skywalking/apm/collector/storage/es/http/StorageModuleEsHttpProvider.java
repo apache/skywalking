@@ -128,7 +128,7 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceNameServiceUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceReferenceMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.BatchEsDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.BatchEsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.es.http.base.define.ElasticSearchStorageInstaller;
 import org.apache.skywalking.apm.collector.storage.es.http.dao.GlobalTraceEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.http.dao.InstanceHeartBeatEsPersistenceDAO;
@@ -266,7 +266,7 @@ public class StorageModuleEsHttpProvider extends ModuleProvider {
         String clusterNodes = config.getProperty(CLUSTER_NODES);
         elasticSearchHttpClient = new ElasticSearchHttpClient(clusterName, clusterNodes,ssl,userName,password);
 
-        this.registerServiceImplementation(IBatchDAO.class, new BatchEsDAO(elasticSearchHttpClient));
+        this.registerServiceImplementation(IBatchDAO.class, new BatchEsHttpDAO(elasticSearchHttpClient));
         registerCacheDAO();
         registerRegisterDAO();
         registerPersistenceDAO();

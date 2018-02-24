@@ -26,7 +26,7 @@ import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetricTable;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
@@ -60,7 +60,7 @@ import io.searchbox.core.Search;
 /**
  * @author peng-yongsheng
  */
-public class InstanceMetricEsUIDAO extends EsDAO implements IInstanceMetricUIDAO {
+public class InstanceMetricEsUIDAO extends EsHttpDAO implements IInstanceMetricUIDAO {
 
     private static final String AVG_TPS = "avg_tps";
 
