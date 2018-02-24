@@ -3,6 +3,9 @@ This document helps people to compile and build the project in your maven and ID
 
 ## Build in maven
 1. Prepare JDK8 and maven3
+1. `git clone https://github.com/apache/incubator-skywalking.git`
+1. `git submodule init`
+1. `git submodule update`
 1. Run `mvn clean package`
 1. All packages are in `/packages`, which includes `skywalking-agent` folder, and two collector files(.tar.gz for Linux and .zip for Windows)
 
