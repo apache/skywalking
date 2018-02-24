@@ -22,7 +22,6 @@ Underlying technology is a distributed tracing system.
   * Use **@Trace** annotation for any methods you want to trace.
   * Integrate traceId into logs for log4j, log4j2 and logback.
 * Pure Java server implementation, provide RESTful and gRPC services. Compatibility with other language agents/SDKs. 
-* The UI released on [skywalking-ui](https://github.com/apache/incubator-skywalking-ui)
 
 # Document
 [![EN doc](https://img.shields.io/badge/document-English-blue.svg)](docs/README.md) [![cn doc](https://img.shields.io/badge/文档-中文版-blue.svg)](docs/README_ZH.md)
