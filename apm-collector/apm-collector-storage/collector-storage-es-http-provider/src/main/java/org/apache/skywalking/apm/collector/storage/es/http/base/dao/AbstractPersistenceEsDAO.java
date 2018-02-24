@@ -29,8 +29,11 @@ import io.searchbox.core.Index;
 import io.searchbox.core.Update;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonObject;
 
 import io.searchbox.core.DocumentResult;
 import io.searchbox.core.Index;
@@ -54,7 +57,8 @@ public abstract class AbstractPersistenceEsDAO<STREAM_DATA extends StreamData> e
     @Override public final STREAM_DATA get(String id) {
         DocumentResult result = getClient().prepareGet(tableName(), id);
         if (result != null) {
-            return esDataToStreamData(result.getJsonMap());
+            Map<String, Object> map = result.getSourceAsObject(Map.class);
+            return esDataToStreamData(map);
         } else {
             return null;
         }
@@ -77,12 +81,11 @@ public abstract class AbstractPersistenceEsDAO<STREAM_DATA extends StreamData> e
     @Override public final void deleteHistory(Long startTimestamp, Long endTimestamp) {
         long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
         long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
-        BulkByScrollResponse response = getClient().prepareDelete()
-            .filter(QueryBuilders.rangeQuery(timeBucketColumnNameForDelete()).gte(startTimeBucket).lte(endTimeBucket))
-            .source(tableName())
-            .get();
+        
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(QueryBuilders.rangeQuery(timeBucketColumnNameForDelete()).gte(startTimeBucket).lte(endTimeBucket));
 
-        long deleted = response.getDeleted();
+        long deleted = getClient().batchDelete(tableName(), searchSourceBuilder.toString());
         logger.info("Delete {} rows history from {} index.", deleted, tableName());
     }
 }

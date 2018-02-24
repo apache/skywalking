@@ -47,6 +47,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.pipeline.InternalSimpleValue;
 import org.elasticsearch.search.aggregations.pipeline.PipelineAggregatorBuilders;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
@@ -56,6 +57,9 @@ import com.google.gson.JsonObject;
 import io.searchbox.client.JestResult;
 import io.searchbox.core.MultiGet;
 import io.searchbox.core.Search;
+import io.searchbox.core.SearchResult;
+import io.searchbox.core.search.aggregation.ScriptedMetricAggregation;
+import io.searchbox.core.search.aggregation.TermsAggregation;
 
 /**
  * @author peng-yongsheng
@@ -72,9 +76,9 @@ public class InstanceMetricEsUIDAO extends EsHttpDAO implements IInstanceMetricU
             long secondBetween, int topN, MetricSource metricSource) {
         String tableName = TimePyramidTableNameBuilder.build(step, InstanceMetricTable.TABLE);
 
-        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
-        searchRequestBuilder.setTypes(InstanceMetricTable.TABLE_TYPE);
-        searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
+//        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
+//        searchRequestBuilder.setTypes(InstanceMetricTable.TABLE_TYPE);
+//        searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         boolQuery.must().add(QueryBuilders.rangeQuery(InstanceMetricTable.COLUMN_TIME_BUCKET).gte(start).lte(end));
@@ -83,8 +87,8 @@ public class InstanceMetricEsUIDAO extends EsHttpDAO implements IInstanceMetricU
         }
         boolQuery.must().add(QueryBuilders.termQuery(InstanceMetricTable.COLUMN_SOURCE_VALUE, metricSource.getValue()));
 
-        searchRequestBuilder.setQuery(boolQuery);
-        searchRequestBuilder.setSize(0);
+//        searchRequestBuilder.setQuery(boolQuery);
+//        searchRequestBuilder.setSize(0);
 
         TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(InstanceMetricTable.COLUMN_INSTANCE_ID).field(InstanceMetricTable.COLUMN_INSTANCE_ID).size(topN);
         aggregationBuilder.subAggregation(AggregationBuilders.sum(InstanceMetricTable.COLUMN_TRANSACTION_CALLS).field(InstanceMetricTable.COLUMN_TRANSACTION_CALLS));
@@ -100,19 +104,26 @@ public class InstanceMetricEsUIDAO extends EsHttpDAO implements IInstanceMetricU
         Script script = new Script(idOrCode);
         aggregationBuilder.subAggregation(PipelineAggregatorBuilders.bucketScript(AVG_TPS, bucketsPathsMap, script));
 
-        searchRequestBuilder.addAggregation(aggregationBuilder);
-        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
+//        searchRequestBuilder.addAggregation(aggregationBuilder);
+        
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(boolQuery);
+        searchSourceBuilder.size(0);
+        searchSourceBuilder.aggregation(aggregationBuilder);
+        
+//        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
+        SearchResult result = getClient().execute(new Search.Builder(searchSourceBuilder.toString()).addIndex(tableName).build());
 
         List<AppServerInfo> appServerInfos = new LinkedList<>();
-        Terms serviceIdTerms = searchResponse.getAggregations().get(InstanceMetricTable.COLUMN_INSTANCE_ID);
+        TermsAggregation serviceIdTerms = result.getAggregations().getTermsAggregation(InstanceMetricTable.COLUMN_INSTANCE_ID);
         serviceIdTerms.getBuckets().forEach(serviceIdTerm -> {
-            int instanceId = serviceIdTerm.getKeyAsNumber().intValue();
+            int instanceId =  Integer.parseInt(serviceIdTerm.getKeyAsString());
 
             AppServerInfo appServerInfo = new AppServerInfo();
-            InternalSimpleValue simpleValue = serviceIdTerm.getAggregations().get(AVG_TPS);
+            ScriptedMetricAggregation simpleValue = serviceIdTerm.getScriptedMetricAggregation(AVG_TPS);
 
             appServerInfo.setId(instanceId);
-            appServerInfo.setTps((int)simpleValue.getValue());
+            appServerInfo.setTps(simpleValue.getScriptedMetric().intValue());
             appServerInfos.add(appServerInfo);
         });
         return appServerInfos;

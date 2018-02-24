@@ -53,8 +53,16 @@ import org.elasticsearch.search.aggregations.pipeline.InternalSimpleValue;
 import org.elasticsearch.search.aggregations.pipeline.PipelineAggregatorBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+import io.searchbox.client.JestResult;
+import io.searchbox.core.MultiGet;
 import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
+import io.searchbox.core.search.aggregation.MetricAggregation;
+import io.searchbox.core.search.aggregation.ScriptedMetricAggregation;
 import io.searchbox.core.search.aggregation.SumAggregation;
 import io.searchbox.core.search.aggregation.TermsAggregation;
 
@@ -71,22 +79,25 @@ public class ServiceMetricEsUIDAO extends EsHttpDAO implements IServiceMetricUID
 
     @Override
     public List<Integer> getServiceResponseTimeTrend(int serviceId, Step step, List<DurationPoint> durationPoints) {
-        MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet();
+        
         String tableName = TimePyramidTableNameBuilder.build(step, ServiceMetricTable.TABLE);
+        MultiGet.Builder.ById multiGet = new MultiGet.Builder.ById(tableName, "type");
 
         durationPoints.forEach(durationPoint -> {
             String id = durationPoint.getPoint() + Const.ID_SPLIT + serviceId + Const.ID_SPLIT + MetricSource.Callee.getValue();
-            prepareMultiGet.add(tableName, ServiceMetricTable.TABLE_TYPE, id);
+            multiGet.addId(id);
         });
 
         List<Integer> trends = new LinkedList<>();
-        MultiGetResponse multiGetResponse = prepareMultiGet.get();
-        for (MultiGetItemResponse response : multiGetResponse.getResponses()) {
-            if (response.getResponse().isExists()) {
-                long calls = ((Number)response.getResponse().getSource().get(ServiceMetricTable.COLUMN_TRANSACTION_CALLS)).longValue();
-                long errorCalls = ((Number)response.getResponse().getSource().get(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS)).longValue();
-                long durationSum = ((Number)response.getResponse().getSource().get(ServiceMetricTable.COLUMN_TRANSACTION_DURATION_SUM)).longValue();
-                long errorDurationSum = ((Number)response.getResponse().getSource().get(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM)).longValue();
+        JestResult result = getClient().execute(multiGet.build());
+        JsonArray docs =  result.getJsonObject().getAsJsonArray("docs");
+        for (JsonElement response : docs) {
+            if (response.getAsJsonObject().get("found").getAsBoolean()) {
+                JsonObject source = response.getAsJsonObject().getAsJsonObject("_source");
+                long calls = (source.get(ServiceMetricTable.COLUMN_TRANSACTION_CALLS)).getAsLong();
+                long errorCalls = (source.get(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS)).getAsLong();
+                long durationSum = (source.get(ServiceMetricTable.COLUMN_TRANSACTION_DURATION_SUM)).getAsLong();
+                long errorDurationSum = (source.get(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM)).getAsLong();
                 trends.add((int)((durationSum - errorDurationSum) / (calls - errorCalls)));
             } else {
                 trends.add(0);
@@ -96,20 +107,22 @@ public class ServiceMetricEsUIDAO extends EsHttpDAO implements IServiceMetricUID
     }
 
     @Override public List<Integer> getServiceSLATrend(int serviceId, Step step, List<DurationPoint> durationPoints) {
-        MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet();
         String tableName = TimePyramidTableNameBuilder.build(step, ServiceMetricTable.TABLE);
+        MultiGet.Builder.ById multiGet = new MultiGet.Builder.ById(tableName, "type");
 
         durationPoints.forEach(durationPoint -> {
             String id = durationPoint.getPoint() + Const.ID_SPLIT + serviceId + Const.ID_SPLIT + MetricSource.Callee.getValue();
-            prepareMultiGet.add(tableName, ServiceMetricTable.TABLE_TYPE, id);
+            multiGet.addId(id);
         });
 
         List<Integer> trends = new LinkedList<>();
-        MultiGetResponse multiGetResponse = prepareMultiGet.get();
-        for (MultiGetItemResponse response : multiGetResponse.getResponses()) {
-            if (response.getResponse().isExists()) {
-                long calls = ((Number)response.getResponse().getSource().get(ServiceMetricTable.COLUMN_TRANSACTION_CALLS)).longValue();
-                long errorCalls = ((Number)response.getResponse().getSource().get(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS)).longValue();
+        JestResult result = getClient().execute(multiGet.build());
+        JsonArray docs =  result.getJsonObject().getAsJsonArray("docs");
+        for (JsonElement response : docs) {
+            if (response.getAsJsonObject().get("found").getAsBoolean()) {
+                JsonObject source = response.getAsJsonObject().getAsJsonObject("_source");
+                long calls = (source.get(ServiceMetricTable.COLUMN_TRANSACTION_CALLS)).getAsLong();
+                long errorCalls = (source.get(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS)).getAsLong();
                 trends.add((int)(((calls - errorCalls) / calls)) * 10000);
             } else {
                 trends.add(10000);
@@ -171,9 +184,6 @@ public class ServiceMetricEsUIDAO extends EsHttpDAO implements IServiceMetricUID
         MetricSource metricSource) {
         String tableName = TimePyramidTableNameBuilder.build(step, ServiceMetricTable.TABLE);
 
-        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
-        searchRequestBuilder.setTypes(ServiceMetricTable.TABLE_TYPE);
-        searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         boolQuery.must().add(QueryBuilders.rangeQuery(ServiceMetricTable.COLUMN_TIME_BUCKET).gte(start).lte(end));
@@ -182,8 +192,6 @@ public class ServiceMetricEsUIDAO extends EsHttpDAO implements IServiceMetricUID
         }
         boolQuery.must().add(QueryBuilders.termQuery(ServiceMetricTable.COLUMN_SOURCE_VALUE, metricSource.getValue()));
 
-        searchRequestBuilder.setQuery(boolQuery);
-        searchRequestBuilder.setSize(0);
 
         TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(ServiceMetricTable.COLUMN_SERVICE_ID).field(ServiceMetricTable.COLUMN_SERVICE_ID).size(top);
         aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceMetricTable.COLUMN_TRANSACTION_CALLS).field(ServiceMetricTable.COLUMN_TRANSACTION_CALLS));
@@ -203,19 +211,26 @@ public class ServiceMetricEsUIDAO extends EsHttpDAO implements IServiceMetricUID
         Script script = new Script(idOrCode);
         aggregationBuilder.subAggregation(PipelineAggregatorBuilders.bucketScript(AVG_DURATION, bucketsPathsMap, script));
 
-        searchRequestBuilder.addAggregation(aggregationBuilder);
-        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
-
+        
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.size(0);
+        searchSourceBuilder.query(boolQuery);
+        searchSourceBuilder.aggregation(aggregationBuilder);
+        
+        Search search = new Search.Builder(searchSourceBuilder.toString()).addIndex(tableName).build();
+        
+        SearchResult searchResponse = getClient().execute(search);
+        
         List<ServiceMetric> serviceMetrics = new LinkedList<>();
-        Terms serviceIdTerms = searchResponse.getAggregations().get(ServiceMetricTable.COLUMN_SERVICE_ID);
+        TermsAggregation serviceIdTerms = searchResponse.getAggregations().getTermsAggregation(ServiceMetricTable.COLUMN_SERVICE_ID);
         serviceIdTerms.getBuckets().forEach(serviceIdTerm -> {
-            int serviceId = serviceIdTerm.getKeyAsNumber().intValue();
+            int serviceId =  Integer.parseInt(serviceIdTerm.getKeyAsString());
 
             ServiceMetric serviceMetric = new ServiceMetric();
-            InternalSimpleValue simpleValue = serviceIdTerm.getAggregations().get(AVG_DURATION);
+            ScriptedMetricAggregation  simpleValue = serviceIdTerm.getScriptedMetricAggregation(AVG_DURATION);
 
             serviceMetric.setId(serviceId);
-            serviceMetric.setAvgResponseTime((int)simpleValue.getValue());
+            serviceMetric.setAvgResponseTime(simpleValue.getScriptedMetric().intValue());
             serviceMetrics.add(serviceMetric);
         });
         return serviceMetrics;
