@@ -1,12 +1,23 @@
-/build/
-target/
-.idea/
-*.iml
-.classpath
-.project
-.settings/
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+# roadhog-api-doc ignore
+/src/utils/request-temp.js
+_roadhog-api-doc
+
+# production
+/dist
+
+# misc
 .DS_Store
-*~
-packages/
-**/dependency-reduced-pom.xml
-src/main/frontend/package-lock.json
+npm-debug.log*
+yarn-error.log
+
+/coverage
+.idea
+yarn.lock
+package-lock.json
+*bak
+jsconfig.json
+.vscode

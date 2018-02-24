@@ -1,57 +1,94 @@
-Apache SkyWalking Web UI
-===============
+English | [简体中文](./README.zh-CN.md)
 
-<img src="https://skywalkingtest.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
+# Ant Design Pro
 
-The web UI for [SkyWalking APM](https://github.com/apache/incubator-skywalking).
+[![](https://img.shields.io/travis/ant-design/ant-design-pro/master.svg?style=flat-square)](https://travis-ci.org/ant-design/ant-design-pro) [![Build status](https://ci.appveyor.com/api/projects/status/67fxu2by3ibvqtat/branch/master?svg=true)](https://ci.appveyor.com/project/afc163/ant-design-pro/branch/master)  [![Gitter](https://badges.gitter.im/ant-design/ant-design-pro.svg)](https://gitter.im/ant-design/ant-design-pro?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-[![Build Status](https://travis-ci.org/apache/incubator-skywalking-ui.svg?branch=master)](https://travis-ci.org/apache/incubator-skywalking-ui)
+An out-of-box UI solution for enterprise applications as a React boilerplate.
 
-SkyWalking Web UI 5.0 is developing, **NOW!!**. Submit issue and [@hanahmily](https://github.com/hanahmily) if you want to proposal something. 
+![](https://gw.alipayobjects.com/zos/rmsportal/xEdBqwSzvoSapmnSnYjU.png)
 
-___
-_SkyWalking 3.0 documents:_
+- Preview: http://preview.pro.ant.design
+- Home Page: http://pro.ant.design
+- Documentation: http://pro.ant.design/docs/getting-started
+- ChangeLog: http://pro.ant.design/docs/changelog
+- FAQ: http://pro.ant.design/docs/faq
 
-This independent UI repository works since sky-walking 3.0.
+## Translation Recruitment :loudspeaker:
 
-1. Realtime Application Topological Graph
-1. Distributed Trace Query.
-1. Application Instances Overview.
-1. JVM Metric View of application instances.
-1. The relationship of services.
+We need your help: https://github.com/ant-design/ant-design-pro/issues/120
 
-Recommand browsers: Safari & Chrome
+## Features
 
-#### QuickStart
-1. Requirement: Java 8+
-2. Download and startup
+- :gem: **Neat Design**: Follow [Ant Design specification](http://ant.design/)
+- :triangular_ruler: **Common Templates**: Typical templates for enterprise applications
+- :rocket: **State of The Art Development**: Newest development stack of React/dva/antd
+- :iphone: **Responsive**: Designed for varies of screen size
+- :art: **Themeing**: Customizable theme with simple config
+- :globe_with_meridians: **International**: Built-in i18n solution
+- :gear: **Best Practice**: Solid workflow make your code health
+- :1234: **Mock development**: Easy to use mock development solution
+- :white_check_mark: **UI Test**: Fly safely with unit test and e2e test
 
-```shell
-> curl -O https://github.com/wu-sheng/sky-walking-ui/releases/download/<project-version>/skywalking-web.tar.gz
-> tar -xvf skywalking-web.tar.gz
-> cd skywalking-web/bin
-> ./startup.sh
+## Templates
+
 ```
-3. Configuring skywalking-ui
-* Set server listening port in `config/application.properties`
-* Set log in `config/log4j2.xml`
-* Set addresses of collector servers in `config/collector_config.properties`
-
-4. open `http://127.0.0.1:8080/`
-
-#### QuickStart-zh
-1. 需要JDK8+
-2. 通过命令下载应用程序，或直接前往[发布页面](https://github.com/wu-sheng/sky-walking-ui/releases)下载
-
-```shell
-> curl -O https://github.com/wu-sheng/sky-walking-ui/releases/download/<project-version>/skywalking-web.tar.gz
-> tar -xvf skywalking-web.tar.gz
-> cd skywalking-web/bin
-> ./startup.sh
+- Dashboard
+  - Analytic
+  - Monitor
+  - Workspace
+- Form
+  - Basic Form
+  - Step Form
+  - Advanced From
+- List
+  - Standard Table
+  - Standard List
+  - Card List
+  - Search List (Project/Applications/Article)
+- Profile
+  - Simple Profile
+  - Advanced Profile
+- Result
+  - Success
+  - Failed
+- Exception
+  - 403
+  - 404
+  - 500
+- User
+  - Login
+  - Register
+  - Register Result
 ```
 
-3. 配置应用程序
-* 在`config/application.properties`文件中，设置webui的监听端口
-* 在`config/collector_config.properties`文件中，设置collector集群或单实例地址，地址对应的是 `skywalking-collector` 项目中配置文件 `config/application.yml` 中配置项 `naming.jetty.host` 和 `naming.jetty.port`
+## Usage
 
-4. 浏览器打开 `http://127.0.0.1:8080/`
+```bash
+$ git clone https://github.com/ant-design/ant-design-pro.git --depth=1
+$ cd ant-design-pro
+$ npm install
+$ npm start         # visit http://localhost:8000
+```
+
+Or you can use the command tool: [ant-design-pro-cli](https://github.com/ant-design/ant-design-pro-cli)
+
+```bash
+$ npm install ant-design-pro-cli -g
+$ mkdir pro-demo && cd pro-demo
+$ pro new
+```
+
+More instruction at [documentation](http://pro.ant.design/docs/getting-started).
+
+## Compatibility
+
+Modern browsers and IE11.
+
+## Contributing
+
+Any Contribution of following ways will be welcome:
+
+- Use Ant Design Pro in your daily work.
+- Submit [issue](http://github.com/ant-design/ant-design-pro/issues) to report bug or ask questions.
+- Propose [pull request](http://github.com/ant-design/ant-design-pro/pulls) to improve our code.
