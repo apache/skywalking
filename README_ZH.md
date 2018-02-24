@@ -15,7 +15,7 @@ Apache SkyWalking | [English](README.md)
 
 
 * Java自动探针，**不需要修改应用程序源代码**
-  * 高性能探针，针对单实例5000tps的应用，在**全量采集的情况下**，只增加**10%**的CPU开销。
+  * 高性能探针，针对单实例5000tps的应用，在**全量采集的情况下**，只增加 **10%** 的CPU开销。
   * [中间件，框架与类库支持列表](docs/Supported-list.md).
 * 手动探针
   * [使用OpenTracing手动探针API](http://opentracing.io/documentation/pages/supported-tracers)
@@ -23,8 +23,6 @@ Apache SkyWalking | [English](README.md)
   * 将 traceId 集成到 log4j, log4j2 或 logback这些日志组件中
 * 纯Java后端Collector实现，提供RESTful和gRPC接口。兼容接受其他语言探针发送数据 
   * [如何将探针的Metric和Trace数据上传到Collector？](/docs/cn/How-to-communicate-with-the-collector-CN.md)
-* UI工程请查看 [skywalking-ui](https://github.com/apache/incubator-skywalking-ui)
-* 中文QQ群：392443393
 
 # Document
 [![EN doc](https://img.shields.io/badge/document-English-blue.svg)](docs/README.md) [![cn doc](https://img.shields.io/badge/文档-中文版-blue.svg)](docs/README_ZH.md)
@@ -60,7 +58,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 - 自动化集成测试报告
   - [Java探针测试报告](https://github.com/SkywalkingTest/agent-integration-test-report)
 - 性能测试报告
-  - [Java探针测试报告](https://skywalkingtest.github.io/Agent-Benchmarks/)
+  - [Java探针测试报告](https://skywalkingtest.github.io/Agent-Benchmarks/)
 
 # Contact Us
 * 直接提交Issue
