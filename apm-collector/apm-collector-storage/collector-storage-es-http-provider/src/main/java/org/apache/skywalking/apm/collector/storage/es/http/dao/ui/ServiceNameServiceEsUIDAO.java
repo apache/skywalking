@@ -26,11 +26,7 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceNameServiceUID
 import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceNameTable;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import com.google.gson.JsonArray;
@@ -38,7 +34,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.searchbox.core.Search;
-import io.searchbox.core.SearchResult;
 
 /**
  * @author peng-yongsheng

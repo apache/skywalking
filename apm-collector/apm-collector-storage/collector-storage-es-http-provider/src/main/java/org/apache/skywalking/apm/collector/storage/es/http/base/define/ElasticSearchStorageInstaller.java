@@ -22,15 +22,15 @@ package org.apache.skywalking.apm.collector.storage.es.http.base.define;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.skywalking.apm.collector.client.Client;
+import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
+import org.apache.skywalking.apm.collector.core.data.ColumnDefine;
+import org.apache.skywalking.apm.collector.core.data.TableDefine;
 import org.apache.skywalking.apm.collector.storage.StorageInstaller;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.IndexNotFoundException;
-import org.apache.skywalking.apm.collector.client.Client;
-import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
-import org.apache.skywalking.apm.collector.core.data.ColumnDefine;
-import org.apache.skywalking.apm.collector.core.data.TableDefine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

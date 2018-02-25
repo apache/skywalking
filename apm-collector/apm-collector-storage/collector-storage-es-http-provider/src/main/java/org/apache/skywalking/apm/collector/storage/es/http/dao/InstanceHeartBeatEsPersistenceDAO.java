@@ -27,9 +27,6 @@ import org.apache.skywalking.apm.collector.storage.dao.IInstanceHeartBeatPersist
 import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
-import org.elasticsearch.action.get.GetResponse;
-import io.searchbox.core.Index;
-import io.searchbox.core.Update;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.armp.IApplicationReferenceMonthMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetric;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetricTable;
+
 import io.searchbox.core.Index;
 import io.searchbox.core.Update;
 

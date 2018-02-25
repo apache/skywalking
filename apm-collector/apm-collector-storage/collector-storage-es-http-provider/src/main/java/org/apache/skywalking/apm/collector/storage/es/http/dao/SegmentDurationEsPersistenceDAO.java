@@ -27,10 +27,7 @@ import org.apache.skywalking.apm.collector.storage.dao.ISegmentDurationPersisten
 import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.segment.SegmentDuration;
 import org.apache.skywalking.apm.collector.storage.table.segment.SegmentDurationTable;
-import io.searchbox.core.Index;
-import io.searchbox.core.Update;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

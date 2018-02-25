@@ -23,17 +23,12 @@ import java.util.List;
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
 import org.apache.skywalking.apm.collector.storage.base.dao.IBatchDAO;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
-import org.elasticsearch.action.bulk.BulkResponse;
-import io.searchbox.core.Index;
-import io.searchbox.core.Update;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.searchbox.action.BulkableAction;
 import io.searchbox.core.Bulk;
 import io.searchbox.core.BulkResult;
-import io.searchbox.core.Index;
 
 /**
  * @author peng-yongsheng

@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.collector.storage.es.http;
 
 import java.util.Properties;
 import java.util.UUID;
+
 import org.apache.skywalking.apm.collector.client.ClientException;
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.cluster.ClusterModule;

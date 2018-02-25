@@ -25,11 +25,7 @@ import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSear
 import org.apache.skywalking.apm.collector.storage.dao.ui.IGlobalTraceUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.global.GlobalTraceTable;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +34,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
 import io.searchbox.core.Search;
-import io.searchbox.core.SearchResult;
 
 /**
  * @author peng-yongsheng

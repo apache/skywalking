@@ -24,16 +24,10 @@ import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSear
 import org.apache.skywalking.apm.collector.core.data.StreamData;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.elasticsearch.action.get.GetResponse;
-import io.searchbox.core.Index;
-import io.searchbox.core.Update;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.gson.JsonObject;
 
 import io.searchbox.core.DocumentResult;
 import io.searchbox.core.Index;

@@ -27,9 +27,7 @@ import org.apache.skywalking.apm.collector.storage.dao.alarm.IServiceReferenceAl
 import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ServiceReferenceAlarm;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ServiceReferenceAlarmTable;
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

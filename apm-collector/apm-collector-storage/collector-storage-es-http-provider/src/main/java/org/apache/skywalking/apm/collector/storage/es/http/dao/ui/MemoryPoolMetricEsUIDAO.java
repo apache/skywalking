@@ -18,6 +18,12 @@
 
 package org.apache.skywalking.apm.collector.storage.es.http.dao.ui;
 
+import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
+import org.apache.skywalking.apm.collector.core.util.Const;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IMemoryPoolMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
+import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetricTable;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -25,16 +31,6 @@ import com.google.gson.JsonObject;
 import io.searchbox.client.JestResult;
 import io.searchbox.core.DocumentResult;
 import io.searchbox.core.MultiGet;
-
-import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
-import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IMemoryPoolMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
-import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetricTable;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.get.MultiGetItemResponse;
-import org.elasticsearch.action.get.MultiGetRequestBuilder;
-import org.elasticsearch.action.get.MultiGetResponse;
 
 /**
  * @author peng-yongsheng
