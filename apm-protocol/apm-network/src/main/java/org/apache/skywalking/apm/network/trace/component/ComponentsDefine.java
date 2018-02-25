@@ -82,6 +82,8 @@ public class ComponentsDefine {
   
     public static final OfficialComponent SERVICECOMB = new OfficialComponent(28, "ServiceComb");
 
+    public static final OfficialComponent HYSTRIX =  new OfficialComponent(29, "Hystrix");
+
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
     private String[] components;
@@ -91,7 +93,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[29];
+        components = new String[30];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -120,6 +122,7 @@ public class ComponentsDefine {
         addComponent(HTTP_ASYNC_CLIENT);
         addComponent(KAFKA);
         addComponent(SERVICECOMB);
+        addComponent(HYSTRIX);
     }
 
     private void addComponent(OfficialComponent component) {

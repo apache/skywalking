@@ -1,0 +1,2 @@
+hystrix-1.x=org.apache.skywalking.apm.plugin.hystrix.v1.define.HystrixCommandInstrumentation
+hystrix-1.x=org.apache.skywalking.apm.plugin.hystrix.v1.define.HystrixPluginsInstrumentation
