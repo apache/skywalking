@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.rocketMQ.v3.define;
 
-import com.alibaba.rocketmq.common.MQVersion;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
@@ -26,10 +25,9 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.plugin.rocketMQ.v3.MessageSendInterceptor;
-import org.apache.skywalking.apm.plugin.rocketMQ.v3.Version;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
+import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
@@ -58,8 +56,7 @@ public class MQClientAPIImplInstrumentation extends ClassInstanceMethodsEnhanceP
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    int argumentsLength = getArgumentsLength();
-                    return named(SEND_MESSAGE_METHOD_NAME).and(takesArguments(argumentsLength));
+                    return named(SEND_MESSAGE_METHOD_NAME).and(takesArgumentWithType(6, "com.alibaba.rocketmq.client.producer.SendCallback"));
                 }
 
                 @Override public String getMethodsInterceptor() {
@@ -86,20 +83,8 @@ public class MQClientAPIImplInstrumentation extends ClassInstanceMethodsEnhanceP
         };
     }
 
-
-
     @Override protected ClassMatch enhanceClass() {
         return byName(ENHANCE_CLASS);
     }
-
-    private int getArgumentsLength() {
-        if (MQVersion.CurrentVersion <= Version.V3_4_6.ordinal()) {
-            return 7;
-        } else if (MQVersion.CurrentVersion <= Version.V3_5_5.ordinal()) {
-            return 11;
-        }
-        return 12;
-    }
-
 
 }
