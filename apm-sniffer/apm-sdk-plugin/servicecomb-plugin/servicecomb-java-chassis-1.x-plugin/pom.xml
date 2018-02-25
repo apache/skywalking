@@ -28,10 +28,11 @@
         <repository>
             <id>apache-servicecomb</id>
             <url>
-                https://repository.apache.org/content/repositories/snapshots/org/apache/servicecomb/java-chassis-core/1.0.0-m1-SNAPSHOT/
+                https://repository.apache.org/content/repositories/snapshots
             </url>
             <snapshots>
                 <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
             </snapshots>
         </repository>
     </repositories>
