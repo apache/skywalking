@@ -16,12 +16,13 @@
  *
  */
 
-
-package org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser;
+package org.apache.skywalking.apm.plugin.jdbc.oracle.parser;
 
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser.AbstractURLParser;
+import org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser.URLLocation;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 import org.apache.skywalking.apm.util.StringUtil;
 
@@ -91,6 +92,10 @@ public class OracleURLParser extends AbstractURLParser {
         } else {
             return commonsURLParse();
         }
+    }
+
+    @Override public String getJDBCURLPrefix() {
+        return "jdbc:oracle";
     }
 
     private ConnectionInfo commonsURLParse() {

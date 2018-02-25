@@ -27,38 +27,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class URLParserTest {
     @Test
-    public void testParseMysqlJDBCURLWithHost() {
-        ConnectionInfo connectionInfo = new URLParser().parser("jdbc:mysql//primaryhost/test");
-        assertThat(connectionInfo.getDBType(), is("Mysql"));
-        assertThat(connectionInfo.getDatabaseName(), is("test"));
-        assertThat(connectionInfo.getDatabasePeer(), is("primaryhost:3306"));
-    }
-
-    @Test
-    public void testParseMysqlJDBCURLWithHostAndPort() {
-        ConnectionInfo connectionInfo = new URLParser().parser("jdbc:mysql//primaryhost:3307/test?profileSQL=true");
-        assertThat(connectionInfo.getDBType(), is("Mysql"));
-        assertThat(connectionInfo.getDatabaseName(), is("test"));
-        assertThat(connectionInfo.getDatabasePeer(), is("primaryhost:3307"));
-    }
-
-    @Test
-    public void testParseMysqlJDBCURLWithMultiHost() {
-        ConnectionInfo connectionInfo = new URLParser().parser("jdbc:mysql//primaryhost:3307,secondaryhost1,secondaryhost2/test?profileSQL=true");
-        assertThat(connectionInfo.getDBType(), is("Mysql"));
-        assertThat(connectionInfo.getDatabaseName(), is("test"));
-        assertThat(connectionInfo.getDatabasePeer(), is("primaryhost:3307,secondaryhost1:3306,secondaryhost2:3306,"));
-    }
-
-    @Test
-    public void testParseMysqlJDBCURLWithConnectorJs() {
-        ConnectionInfo connectionInfo = new URLParser().parser("jdbc:mysql:replication://master,slave1,slave2,slave3/test");
-        assertThat(connectionInfo.getDBType(), is("Mysql"));
-        assertThat(connectionInfo.getDatabaseName(), is("test"));
-        assertThat(connectionInfo.getDatabasePeer(), is("master:3306,slave1:3306,slave2:3306,slave3:3306,"));
-    }
-
-    @Test
     public void testParseOracleJDBCURLWithHost() {
         ConnectionInfo connectionInfo = new URLParser().parser("jdbc:oracle:thin:@localhost:orcl");
         assertThat(connectionInfo.getDBType(), is("Oracle"));
@@ -104,37 +72,5 @@ public class URLParserTest {
         assertThat(connectionInfo.getDBType(), is("Oracle"));
         assertThat(connectionInfo.getDatabaseName(), is("orcl"));
         assertThat(connectionInfo.getDatabasePeer(), is("myhost:1521"));
-    }
-
-    @Test
-    public void testParseH2JDBCURLWithEmbedded() {
-        ConnectionInfo connectionInfo = new URLParser().parser("jdbc:h2:file:/data/sample");
-        assertThat(connectionInfo.getDBType(), is("H2"));
-        assertThat(connectionInfo.getDatabaseName(), is("/data/sample"));
-        assertThat(connectionInfo.getDatabasePeer(), is("localhost:-1"));
-    }
-
-    @Test
-    public void testParseH2JDBCURLWithEmbeddedRunningInWindows() {
-        ConnectionInfo connectionInfo = new URLParser().parser("jdbc:h2:file:C:/data/sample");
-        assertThat(connectionInfo.getDBType(), is("H2"));
-        assertThat(connectionInfo.getDatabaseName(), is("C:/data/sample"));
-        assertThat(connectionInfo.getDatabasePeer(), is("localhost:-1"));
-    }
-
-    @Test
-    public void testParseH2JDBCURLWithMemoryMode() {
-        ConnectionInfo connectionInfo = new URLParser().parser("jdbc:h2:mem:test_mem");
-        assertThat(connectionInfo.getDBType(), is("H2"));
-        assertThat(connectionInfo.getDatabaseName(), is("test_mem"));
-        assertThat(connectionInfo.getDatabasePeer(), is("localhost:-1"));
-    }
-
-    @Test
-    public void testParseH2JDBCURL() {
-        ConnectionInfo connectionInfo = new URLParser().parser("jdbc:h2:tcp://localhost:8084/~/sample");
-        assertThat(connectionInfo.getDBType(), is("H2"));
-        assertThat(connectionInfo.getDatabaseName(), is("sample"));
-        assertThat(connectionInfo.getDatabasePeer(), is("localhost:8084"));
     }
 }

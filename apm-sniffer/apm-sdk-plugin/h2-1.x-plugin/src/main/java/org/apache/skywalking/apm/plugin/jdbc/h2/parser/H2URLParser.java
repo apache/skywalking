@@ -17,9 +17,11 @@
  */
 
 
-package org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser;
+package org.apache.skywalking.apm.plugin.jdbc.h2.parser;
 
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser.AbstractURLParser;
+import org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser.URLLocation;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 /**
@@ -53,6 +55,10 @@ public class H2URLParser extends AbstractURLParser {
 
     public H2URLParser(String url) {
         super(url);
+    }
+
+    public H2URLParser() {
+        this("");
     }
 
     @Override
@@ -90,6 +96,10 @@ public class H2URLParser extends AbstractURLParser {
         } else {
             return new ConnectionInfo(ComponentsDefine.H2, H2_DB_TYPE, hostAndPort[0], Integer.valueOf(hostAndPort[1]), fetchDatabaseNameFromURL());
         }
+    }
+
+    @Override public String getJDBCURLPrefix() {
+        return "jdbc:h2";
     }
 
     /**

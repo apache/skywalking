@@ -17,9 +17,11 @@
  */
 
 
-package org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser;
+package org.apache.skywalking.apm.plugin.jdbc.postgresql.parser;
 
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser.AbstractURLParser;
+import org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser.URLLocation;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 /**
@@ -36,6 +38,10 @@ public class PostgreSQLURLParser extends AbstractURLParser {
 
     private static final int DEFAULT_PORT = 5432;
     private static final String DB_TYPE = "PostgreSQL";
+
+    public PostgreSQLURLParser() {
+        this("");
+    }
 
     public PostgreSQLURLParser(String url) {
         super(url);
@@ -81,6 +87,10 @@ public class PostgreSQLURLParser extends AbstractURLParser {
                 return new ConnectionInfo(ComponentsDefine.POSTGRESQL, DB_TYPE, hostAndPort[0], DEFAULT_PORT, fetchDatabaseNameFromURL());
             }
         }
+    }
+
+    @Override public String getJDBCURLPrefix() {
+        return "jdbc:postgresql";
     }
 
 }

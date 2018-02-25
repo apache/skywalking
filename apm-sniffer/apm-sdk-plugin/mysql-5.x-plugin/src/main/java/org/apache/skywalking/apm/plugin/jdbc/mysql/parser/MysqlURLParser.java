@@ -16,10 +16,11 @@
  *
  */
 
-
-package org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser;
+package org.apache.skywalking.apm.plugin.jdbc.mysql.parser;
 
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser.AbstractURLParser;
+import org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser.URLLocation;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 /**
@@ -36,6 +37,10 @@ public class MysqlURLParser extends AbstractURLParser {
 
     private static final int DEFAULT_PORT = 3306;
     private static final String DB_TYPE = "Mysql";
+
+    public MysqlURLParser() {
+        this("");
+    }
 
     public MysqlURLParser(String url) {
         super(url);
@@ -81,6 +86,10 @@ public class MysqlURLParser extends AbstractURLParser {
                 return new ConnectionInfo(ComponentsDefine.MYSQL, DB_TYPE, hostAndPort[0], DEFAULT_PORT, fetchDatabaseNameFromURL());
             }
         }
+    }
+
+    @Override public String getJDBCURLPrefix() {
+        return "jdbc:mysql";
     }
 
 }
