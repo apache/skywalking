@@ -28,6 +28,13 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * {@link HystrixPluginsInstrumentation} represent that the hystrix plugin intercept the
+ * <code>getCommandExecutionHook</code> method in the {@link com.netflix.hystrix.strategy.HystrixPlugins} class class by
+ * using the {@link org.apache.skywalking.apm.plugin.hystrix.v1.HystrixCommandConstructorInterceptor} class.
+ *
+ * @author zhangxin
+ */
 public class HystrixPluginsInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.hystrix.v1.HystrixPluginsInterceptor";
