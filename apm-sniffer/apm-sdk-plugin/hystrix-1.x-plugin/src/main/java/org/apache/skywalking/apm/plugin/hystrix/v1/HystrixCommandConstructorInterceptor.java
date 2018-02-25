@@ -34,31 +34,27 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
  */
 public class HystrixCommandConstructorInterceptor implements InstanceConstructorInterceptor {
 
+    public static final String OPERATION_NAME_PREFIX = "Hystrix/";
+
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        String identifyKey = "";
+        String commandIdentify = "";
 
         if (HystrixCommand.class.isAssignableFrom(objInst.getClass())) {
             HystrixCommand hystrixCommand = (HystrixCommand)objInst;
-            identifyKey = hystrixCommand.getCommandKey().name();
+            commandIdentify = hystrixCommand.getCommandKey().name();
+        } else if (HystrixCollapser.class.isAssignableFrom(objInst.getClass())) {
+            HystrixCollapser hystrixCollapser = (HystrixCollapser)objInst;
+            commandIdentify = hystrixCollapser.getCollapserKey().name();
+        } else if (HystrixObservableCollapser.class.isAssignableFrom(objInst.getClass())) {
+            HystrixObservableCollapser hystrixObservableCollapser = (HystrixObservableCollapser)objInst;
+            commandIdentify = hystrixObservableCollapser.getCollapserKey().name();
+        } else if (HystrixObservableCommand.class.isAssignableFrom(objInst.getClass())) {
+            HystrixObservableCommand hystrixObservableCommand = (HystrixObservableCommand)objInst;
+            commandIdentify = hystrixObservableCommand.getCommandKey().name();
         }
 
-        if (HystrixCollapser.class.isAssignableFrom(objInst.getClass())) {
-            HystrixCollapser hystrixCommand = (HystrixCollapser)objInst;
-            identifyKey = hystrixCommand.getCollapserKey().name();
-        }
-
-        if (HystrixObservableCollapser.class.isAssignableFrom(objInst.getClass())) {
-            HystrixObservableCollapser hystrixCommand = (HystrixObservableCollapser)objInst;
-            identifyKey = hystrixCommand.getCollapserKey().name();
-        }
-
-        if (HystrixObservableCommand.class.isAssignableFrom(objInst.getClass())) {
-            HystrixObservableCommand hystrixCommand = (HystrixObservableCommand)objInst;
-            identifyKey = hystrixCommand.getCommandKey().name();
-        }
-
-        objInst.setSkyWalkingDynamicField(new EnhanceRequireObjectCache("Hystrix/" + identifyKey));
+        objInst.setSkyWalkingDynamicField(new EnhanceRequireObjectCache(OPERATION_NAME_PREFIX + commandIdentify));
     }
 
 }
