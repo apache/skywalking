@@ -18,13 +18,13 @@
 
 package org.apache.skywalking.apm.plugin.rocketMQ.v3;
 
-import com.alibaba.rocketmq.client.impl.CommunicationMode;
 import com.alibaba.rocketmq.common.message.Message;
 import com.alibaba.rocketmq.common.protocol.header.SendMessageRequestHeader;
 import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -59,10 +59,9 @@ public class MessageSendInterceptor implements InstanceMethodsAroundInterceptor 
         String namingServiceAddress = String.valueOf(objInst.getSkyWalkingDynamicField());
         AbstractSpan span = ContextManager.createExitSpan(buildOperationName(message.getTopic()), contextCarrier, namingServiceAddress);
         span.setComponent(ComponentsDefine.ROCKET_MQ);
-        span.setLayer(SpanLayer.MQ);
-        span.tag("brokerName", (String)allArguments[1]);
-        span.tag("tags", message.getTags());
-        span.tag("communication.mode", ((CommunicationMode)allArguments[5]).name());
+        Tags.MQ_BROKER.set(span, (String)allArguments[0]);
+        Tags.MQ_TOPIC.set(span, message.getTopic());
+        SpanLayer.asMQ(span);
 
         SendMessageRequestHeader requestHeader = (SendMessageRequestHeader)allArguments[3];
         StringBuilder properties = new StringBuilder(requestHeader.getProperties());
