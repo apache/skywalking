@@ -20,6 +20,12 @@ package org.apache.skywalking.apm.plugin.hystrix.v1;
 
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 
+/**
+ * {@link EnhanceRequireObjectCache} record the prefix operation name of span and {@link ContextSnapshot} object for
+ * tracing.
+ *
+ * @author zhang xin
+ */
 public class EnhanceRequireObjectCache {
     private final String operationNamePrefix;
     private ContextSnapshot contextSnapshot;

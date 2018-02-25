@@ -25,6 +25,13 @@ import com.netflix.hystrix.HystrixObservableCommand;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
+/**
+ * {@link HystrixCommandConstructorInterceptor} get <code>CommandKey</code> or <code>CollapserKey</code> as the
+ * operation name prefix of span when the constructor that the class hierarchy <code>com.netflix.hystrix.HystrixCommand</code>
+ * invoked.
+ *
+ * @author zhang xin
+ */
 public class HystrixCommandConstructorInterceptor implements InstanceConstructorInterceptor {
 
     @Override

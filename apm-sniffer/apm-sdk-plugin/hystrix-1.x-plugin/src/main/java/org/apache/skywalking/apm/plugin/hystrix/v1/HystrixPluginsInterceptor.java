@@ -18,17 +18,23 @@
 
 package org.apache.skywalking.apm.plugin.hystrix.v1;
 
+import com.netflix.hystrix.strategy.HystrixPlugins;
 import com.netflix.hystrix.strategy.executionhook.HystrixCommandExecutionHook;
 import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
+/**
+ * {@link HystrixPluginsInterceptor} wrapper the {@link HystrixCommandExecutionHook} object by using {@link
+ * SWExecutionHookWrapper} when the {@link HystrixPlugins#getCommandExecutionHook()} method invoked.
+ *
+ * @author zhang xin
+ */
 public class HystrixPluginsInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-
     }
 
     @Override

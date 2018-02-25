@@ -26,6 +26,11 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
+/**
+ * {@link SWExecutionHookWrapper} wrapper the HystrixCommandExecutionHook object for tracing.
+ *
+ * @author zhang xin
+ */
 public class SWExecutionHookWrapper extends HystrixCommandExecutionHook {
     private final HystrixCommandExecutionHook actual;
 
