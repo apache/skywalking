@@ -46,11 +46,8 @@ public class SWExecutionHookWrapper extends HystrixCommandExecutionHook {
         actual.onStart(commandInstance);
     }
 
-    /**
-     * execution method
-     */
-
-    @Override public <T> void onExecutionStart(HystrixInvokable<T> commandInstance) {
+    @Override
+    public <T> void onExecutionStart(HystrixInvokable<T> commandInstance) {
         // create a local span, and continued, The `execution method` running in other thread if the
         // hystrix strategy is `THREAD`.
         EnhancedInstance enhancedInstance = (EnhancedInstance)commandInstance;
@@ -66,22 +63,21 @@ public class SWExecutionHookWrapper extends HystrixCommandExecutionHook {
         enhanceRequireObjectCache.setContextSnapshot(ContextManager.capture());
     }
 
-    @Override public <T> Exception onExecutionError(HystrixInvokable<T> commandInstance, Exception e) {
+    @Override
+    public <T> Exception onExecutionError(HystrixInvokable<T> commandInstance, Exception e) {
         ContextManager.activeSpan().errorOccurred().log(e);
         ContextManager.stopSpan();
         return actual.onExecutionError(commandInstance, e);
     }
 
-    @Override public <T> void onExecutionSuccess(HystrixInvokable<T> commandInstance) {
+    @Override
+    public <T> void onExecutionSuccess(HystrixInvokable<T> commandInstance) {
         ContextManager.stopSpan();
         actual.onExecutionSuccess(commandInstance);
     }
 
-    /**
-     * Fallback
-     */
-
-    @Override public <T> void onFallbackStart(HystrixInvokable<T> commandInstance) {
+    @Override
+    public <T> void onFallbackStart(HystrixInvokable<T> commandInstance) {
         EnhancedInstance enhancedInstance = (EnhancedInstance)commandInstance;
         EnhanceRequireObjectCache enhanceRequireObjectCache = (EnhanceRequireObjectCache)enhancedInstance.getSkyWalkingDynamicField();
         ContextSnapshot snapshot = enhanceRequireObjectCache.getContextSnapshot();
@@ -93,13 +89,15 @@ public class SWExecutionHookWrapper extends HystrixCommandExecutionHook {
         actual.onFallbackStart(commandInstance);
     }
 
-    @Override public <T> Exception onFallbackError(HystrixInvokable<T> commandInstance, Exception e) {
+    @Override
+    public <T> Exception onFallbackError(HystrixInvokable<T> commandInstance, Exception e) {
         ContextManager.activeSpan().errorOccurred().log(e);
         ContextManager.stopSpan();
         return actual.onFallbackError(commandInstance, e);
     }
 
-    @Override public <T> void onFallbackSuccess(HystrixInvokable<T> commandInstance) {
+    @Override
+    public <T> void onFallbackSuccess(HystrixInvokable<T> commandInstance) {
         ContextManager.stopSpan();
         actual.onFallbackSuccess(commandInstance);
     }
