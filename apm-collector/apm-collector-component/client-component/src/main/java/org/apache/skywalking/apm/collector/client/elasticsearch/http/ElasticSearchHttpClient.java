@@ -57,7 +57,7 @@ public class ElasticSearchHttpClient implements Client {
 
     private final Logger logger = LoggerFactory.getLogger(ElasticSearchHttpClient.class);
 
-    private JestClient client ;
+    private JestClient client;
 
     private final String clusterName;
 
@@ -77,7 +77,7 @@ public class ElasticSearchHttpClient implements Client {
         this.password = password;
     }
 
-    private String makeServers(){
+    private String makeServers() {
         String schema = ssl ? "https" : "http";
         return schema + "://" + clusterNodes;
     }
@@ -104,7 +104,7 @@ public class ElasticSearchHttpClient implements Client {
 
     }
 
-    public <T extends JestResult> T execute(Action<T> search){
+    public <T extends JestResult> T execute(Action<T> search) {
         try {
             return client.execute(search);
         } catch (IOException e) {
@@ -113,7 +113,7 @@ public class ElasticSearchHttpClient implements Client {
         return null;
     }
     
-    public JestResult execute(MultiGet search){
+    public JestResult execute(MultiGet search) {
         try {
             return client.execute(search);
         } catch (IOException e) {
@@ -122,7 +122,7 @@ public class ElasticSearchHttpClient implements Client {
         return null;
     }
     
-    public JsonArray executeForJsonArray(Search search){
+    public JsonArray executeForJsonArray(Search search) {
         try {
             return client.execute(search).getJsonObject().getAsJsonObject("hits").getAsJsonArray("hits");
         } catch (IOException e) {
@@ -131,7 +131,7 @@ public class ElasticSearchHttpClient implements Client {
         return null;
     }
 
-    public boolean createIndex(String index ,String type , Settings settings,String mapping){
+    public boolean createIndex(String index,String type, Settings settings,String mapping) {
         try {
             client.execute(new CreateIndex.Builder(index).settings(settings.getAsMap()).build());
             PutMapping putMapping = new PutMapping.Builder(
@@ -148,7 +148,7 @@ public class ElasticSearchHttpClient implements Client {
         }
     }
 
-    public boolean createIndex(String index ,String type , Settings settings,XContentBuilder mapping){
+    public boolean createIndex(String index,String type, Settings settings,XContentBuilder mapping) {
         try {
            return  createIndex(index,type,settings,mapping.string());
         } catch (IOException e) {
@@ -157,7 +157,7 @@ public class ElasticSearchHttpClient implements Client {
         }
     }
     
-    public boolean deleteIndex(String indexName){
+    public boolean deleteIndex(String indexName) {
         try {
             JestResult result =  client.execute(new Delete.Builder("1")
                     .index("twitter")
@@ -207,7 +207,7 @@ public class ElasticSearchHttpClient implements Client {
     //        return client.prepareGet(indexName, "type", id);
     //    }
 
-    public DocumentResult prepareGet(String index, String id){
+    public DocumentResult prepareGet(String index, String id) {
         Get get = new Get.Builder(index, id).build();
         try {
             return client.execute(get);
@@ -298,7 +298,7 @@ public class ElasticSearchHttpClient implements Client {
         return false;
     }
     
-    public long batchDelete(String index , String query){
+    public long batchDelete(String index, String query) {
         try {
             JestResult result =  client.execute(new DeleteByQuery.Builder(query).addIndex(index).build());
             return result.getResponseCode();
