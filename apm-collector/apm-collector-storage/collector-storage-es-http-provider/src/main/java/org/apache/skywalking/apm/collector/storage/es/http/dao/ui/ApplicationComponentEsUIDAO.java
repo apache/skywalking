@@ -81,7 +81,7 @@ public class ApplicationComponentEsUIDAO extends EsHttpDAO implements IApplicati
 
         List<ApplicationComponent> applicationComponents = new LinkedList<>();
         for (Entry componentIdBucket : componentIdTerms.getBuckets()) {
-            int componentId =Integer.valueOf( componentIdBucket.getKeyAsString() );
+            int componentId = Integer.valueOf(componentIdBucket.getKeyAsString());
             buildApplicationComponents(componentIdBucket, componentId, applicationComponents);
         }
 
@@ -92,7 +92,7 @@ public class ApplicationComponentEsUIDAO extends EsHttpDAO implements IApplicati
         List<ApplicationComponent> applicationComponents) {
         TermsAggregation peerIdTerms = componentBucket.getTermsAggregation(ApplicationComponentTable.COLUMN_APPLICATION_ID);
         for (Entry peerIdBucket : peerIdTerms.getBuckets()) {
-            int applicationId = Integer.valueOf( peerIdBucket.getKeyAsString() );
+            int applicationId = Integer.valueOf(peerIdBucket.getKeyAsString());
 
             ApplicationComponent applicationComponent = new ApplicationComponent();
             applicationComponent.setComponentId(componentId);

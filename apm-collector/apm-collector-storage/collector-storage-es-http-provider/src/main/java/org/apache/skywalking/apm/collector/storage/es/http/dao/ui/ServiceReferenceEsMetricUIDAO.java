@@ -192,7 +192,7 @@ public class ServiceReferenceEsMetricUIDAO extends EsHttpDAO implements IService
         List<Call> nodes = new LinkedList<>();
         TermsAggregation frontServiceIdTerms = searchResponse.getAggregations().getTermsAggregation(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID);
         frontServiceIdTerms.getBuckets().forEach(frontServiceIdBucket -> {
-            int frontServiceId = Integer.parseInt(frontServiceIdBucket.getKeyAsString()) ;
+            int frontServiceId = Integer.parseInt(frontServiceIdBucket.getKeyAsString());
 
             TermsAggregation behindServiceIdTerms = frontServiceIdBucket.getTermsAggregation(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID);
             buildNodeByFrontServiceId(nodes, behindServiceIdTerms, frontServiceId);

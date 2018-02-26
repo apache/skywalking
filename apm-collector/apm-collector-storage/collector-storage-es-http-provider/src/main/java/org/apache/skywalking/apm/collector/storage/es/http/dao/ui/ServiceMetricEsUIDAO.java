@@ -149,7 +149,7 @@ public class ServiceMetricEsUIDAO extends EsHttpDAO implements IServiceMetricUID
         
         Search search = new Search.Builder(searchSourceBuilder.toString()).addIndex(tableName).build();
         
-        SearchResult searchResponse=   getClient().execute(search);
+        SearchResult searchResponse =   getClient().execute(search);
         
 //        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 

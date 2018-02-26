@@ -93,7 +93,7 @@ public class SegmentDurationEsUIDAO extends EsHttpDAO implements ISegmentDuratio
         
 //        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
         
-         SearchResult result= getClient().execute(search); 
+        SearchResult result = getClient().execute(search); 
 
         TraceBrief traceBrief = new TraceBrief();
         traceBrief.setTotal(result.getTotal().intValue());

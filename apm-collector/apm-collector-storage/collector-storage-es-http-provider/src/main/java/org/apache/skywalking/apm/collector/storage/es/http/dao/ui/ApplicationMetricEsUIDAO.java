@@ -103,7 +103,7 @@ public class ApplicationMetricEsUIDAO extends EsHttpDAO implements IApplicationM
         List<ApplicationTPS> applicationTPSs = new LinkedList<>();
         TermsAggregation serviceIdTerms = result.getAggregations().getTermsAggregation(ApplicationMetricTable.COLUMN_APPLICATION_ID);
         serviceIdTerms.getBuckets().forEach(serviceIdTerm -> {
-            int applicationId =  Integer.parseInt(serviceIdTerm.getKeyAsString()) ;
+            int applicationId =  Integer.parseInt(serviceIdTerm.getKeyAsString());
 
             ApplicationTPS serviceMetric = new ApplicationTPS();
             Double simpleValue = serviceIdTerm.getScriptedMetricAggregation(AVG_TPS).getScriptedMetric();

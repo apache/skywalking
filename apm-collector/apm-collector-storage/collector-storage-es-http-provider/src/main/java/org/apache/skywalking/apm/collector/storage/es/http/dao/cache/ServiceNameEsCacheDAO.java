@@ -68,7 +68,7 @@ public class ServiceNameEsCacheDAO extends EsHttpDAO implements IServiceNameCach
 //        searchRequestBuilder.setQuery(boolQuery);
 //        searchRequestBuilder.setSize(1);
         
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();;
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.size(1);
         searchSourceBuilder.query(boolQuery);
         

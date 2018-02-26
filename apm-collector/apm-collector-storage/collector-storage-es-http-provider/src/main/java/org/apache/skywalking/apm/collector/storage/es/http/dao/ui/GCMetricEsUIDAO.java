@@ -76,8 +76,8 @@ public class GCMetricEsUIDAO extends EsHttpDAO implements IGCMetricUIDAO {
             JsonObject itemResponseObj = itemResponse.getAsJsonObject();
             if (itemResponseObj.get("found").getAsBoolean()) {
                 JsonObject source = itemResponseObj.getAsJsonObject("_source");
-                long count = (source.get(GCMetricTable.COLUMN_COUNT).getAsLong());
-                long times = (source.get(GCMetricTable.COLUMN_TIMES)).getAsLong();
+                long count = source.get(GCMetricTable.COLUMN_COUNT).getAsLong();
+                long times = source.get(GCMetricTable.COLUMN_TIMES).getAsLong();
                 gcTrends.add((int)(count / times));
             } else {
                 gcTrends.add(0);

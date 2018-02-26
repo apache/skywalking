@@ -78,14 +78,14 @@ public class ApplicationMappingEsUIDAO extends EsHttpDAO implements IApplication
 
 //        Terms applicationIdTerms = searchResponse.getAggregations().get(ApplicationMappingTable.COLUMN_APPLICATION_ID);
         
-        TermsAggregation applicationIdTerms=  result.getAggregations().getTermsAggregation(ApplicationMappingTable.COLUMN_APPLICATION_ID);
+        TermsAggregation applicationIdTerms =  result.getAggregations().getTermsAggregation(ApplicationMappingTable.COLUMN_APPLICATION_ID);
 
         List<ApplicationMapping> applicationMappings = new LinkedList<>();
         for (Entry applicationIdBucket : applicationIdTerms.getBuckets()) {
             int applicationId =  Integer.parseInt(applicationIdBucket.getKeyAsString());
             TermsAggregation addressIdTerms = applicationIdBucket.getTermsAggregation(ApplicationMappingTable.COLUMN_MAPPING_APPLICATION_ID);
             for (Entry addressIdBucket : addressIdTerms.getBuckets()) {
-                int addressId = Integer.parseInt(addressIdBucket.getKeyAsString()) ;
+                int addressId = Integer.parseInt(addressIdBucket.getKeyAsString());
 
                 ApplicationMapping applicationMapping = new ApplicationMapping();
                 applicationMapping.setApplicationId(applicationId);

@@ -67,7 +67,7 @@ public class CpuMetricEsUIDAO extends EsHttpDAO implements ICpuMetricUIDAO {
             if (responseObj.get("found").getAsBoolean()) {
                 JsonObject source = responseObj.getAsJsonObject("_source");
                 double cpuUsed = (source.get(CpuMetricTable.COLUMN_USAGE_PERCENT)).getAsDouble();
-                long times = (source.get(CpuMetricTable.COLUMN_TIMES).getAsLong());
+                long times = source.get(CpuMetricTable.COLUMN_TIMES).getAsLong();
                 cpuTrends.add((int)((cpuUsed / times) * 100));
             } else {
                 cpuTrends.add(0);

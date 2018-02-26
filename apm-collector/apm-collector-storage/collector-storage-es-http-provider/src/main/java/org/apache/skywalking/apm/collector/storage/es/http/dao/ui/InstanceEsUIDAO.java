@@ -246,7 +246,7 @@ public class InstanceEsUIDAO extends EsHttpDAO implements IInstanceUIDAO {
             JsonObject searchHit = (JsonObject) o;
             JsonObject source = searchHit.getAsJsonObject("_source");
             AppServerInfo appServerInfo = new AppServerInfo();
-            appServerInfo.setId((source.get(InstanceTable.COLUMN_INSTANCE_ID)).getAsInt() );
+            appServerInfo.setId((source.get(InstanceTable.COLUMN_INSTANCE_ID)).getAsInt());
             appServerInfo.setOsInfo(source.get(InstanceTable.COLUMN_OS_INFO).getAsString());
             appServerInfos.add(appServerInfo);
         }

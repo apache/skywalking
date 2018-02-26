@@ -52,7 +52,7 @@ public class BatchEsHttpDAO extends EsHttpDAO implements IBatchDAO {
             
             BulkResult bulkResult = getClient().execute(bulk.build());
             
-            if(! bulkResult.isSucceeded()){
+            if (!bulkResult.isSucceeded()) {
                 logger.error(bulkResult.getErrorMessage());
             }
 

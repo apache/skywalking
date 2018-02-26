@@ -91,7 +91,7 @@ public class InstanceMetricEsUIDAO extends EsHttpDAO implements IInstanceMetricU
 
         String idOrCode = "(params." + InstanceMetricTable.COLUMN_TRANSACTION_CALLS + " - params." + InstanceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS + ")"
                 + " / "
-                + "( " + secondBetween + " )";
+                + "(" + secondBetween + ")";
         Script script = new Script(idOrCode);
         aggregationBuilder.subAggregation(PipelineAggregatorBuilders.bucketScript(AVG_TPS, bucketsPathsMap, script));
 
@@ -136,10 +136,10 @@ public class InstanceMetricEsUIDAO extends EsHttpDAO implements IInstanceMetricU
         
         
 
-        JestResult multiGetResponse =getClient().execute(multiGet.build());
+        JestResult multiGetResponse = getClient().execute(multiGet.build());
 
         JsonArray docs = multiGetResponse.getJsonObject().getAsJsonArray("docs");
-        for (int i = 0 ; i < docs.size() ; i ++) {
+        for (int i = 0; i < docs.size(); i++) {
             JsonObject docJson = docs.get(i).getAsJsonObject();
             if (docJson.get("found").getAsBoolean()) {
                 JsonObject source = docJson.getAsJsonObject("_source");

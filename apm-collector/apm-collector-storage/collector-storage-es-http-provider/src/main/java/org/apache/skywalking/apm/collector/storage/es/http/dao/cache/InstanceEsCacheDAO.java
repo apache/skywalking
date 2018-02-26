@@ -68,7 +68,7 @@ public class InstanceEsCacheDAO extends EsHttpDAO implements IInstanceCacheDAO {
         SearchResult result = client.execute(search);
 
         if (result.getTotal() > 0) {
-            JsonObject searchHit =result.getJsonObject().getAsJsonObject("hits").getAsJsonArray("hits").get(0).getAsJsonObject().getAsJsonObject("_source");
+            JsonObject searchHit = result.getJsonObject().getAsJsonObject("hits").getAsJsonArray("hits").get(0).getAsJsonObject().getAsJsonObject("_source");
             return searchHit.get(InstanceTable.COLUMN_INSTANCE_ID).getAsInt();
         }
         return 0;
@@ -97,7 +97,7 @@ public class InstanceEsCacheDAO extends EsHttpDAO implements IInstanceCacheDAO {
 
 //        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
         if (result.getTotal() > 0) {
-            JsonObject searchHit =result.getJsonObject().getAsJsonObject("hits").getAsJsonArray("hits").get(0).getAsJsonObject().getAsJsonObject("_source");
+            JsonObject searchHit = result.getJsonObject().getAsJsonObject("hits").getAsJsonArray("hits").get(0).getAsJsonObject().getAsJsonObject("_source");
             return searchHit.get(InstanceTable.COLUMN_INSTANCE_ID).getAsInt();
         }
         return 0;

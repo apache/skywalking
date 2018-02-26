@@ -150,7 +150,7 @@ public class ElasticSearchHttpClient implements Client {
 
     public boolean createIndex(String index,String type, Settings settings,XContentBuilder mapping) {
         try {
-           return  createIndex(index,type,settings,mapping.string());
+            return  createIndex(index,type,settings,mapping.string());
         } catch (IOException e) {
             e.printStackTrace();
             return false;

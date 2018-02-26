@@ -90,7 +90,7 @@ public class GlobalTraceEsUIDAO extends EsHttpDAO implements IGlobalTraceUIDAO {
         
 //        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
         
-       JsonArray result =  getClient().executeForJsonArray(search);
+        JsonArray result =  getClient().executeForJsonArray(search);
 
         List<String> segmentIds = new ArrayList<>();
 //        SearchHit[] searchHits = searchResponse.getHits().getHits();

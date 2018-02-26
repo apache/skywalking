@@ -76,7 +76,7 @@ public class SegmentDurationEsPersistenceDAO extends EsHttpDAO implements ISegme
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.rangeQuery(SegmentDurationTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
         
-        long deleted =getClient().batchDelete(SegmentDurationTable.TABLE, searchSourceBuilder.toString());
+        long deleted = getClient().batchDelete(SegmentDurationTable.TABLE, searchSourceBuilder.toString());
         logger.info("Delete {} rows history from {} index.", deleted, SegmentDurationTable.TABLE);
     }
 }
