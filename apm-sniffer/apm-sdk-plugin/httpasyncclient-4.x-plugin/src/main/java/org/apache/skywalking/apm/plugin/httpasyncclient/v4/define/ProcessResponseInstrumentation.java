@@ -28,12 +28,11 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link ProcessResponseInstrumentation} presents that skywalking intercept {@link
- * org.apache.http.nio.protocol.HttpAsyncRequestExecutor#processResponse,#connected} .
+ * {@link ProcessResponseInstrumentation} presents that skywalking intercept
+ * org.apache.http.nio.protocol.HttpAsyncRequestExecutor#processResponse and #connected
  *
  * @author liyuntao
  */
-
 public class ProcessResponseInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "org.apache.http.nio.protocol.HttpAsyncRequestExecutor";

@@ -27,17 +27,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
 /**
- * {@link XMemcachedConstructorWithComplexArgInterceptor} intercept constructor of 
- * {@link XMemcachedClient(MemcachedSessionLocator locator,BufferAllocator allocator, Configuration conf,
- * Map<SocketOption, Object> socketOptions, CommandFactory commandFactory, Transcoder transcoder,
- * Map<InetSocketAddress, InetSocketAddress> addressMap, List<MemcachedClientStateListener> stateListeners,
- * Map<InetSocketAddress, AuthInfo> map, int poolSize, long connectTimeout, String name, boolean failureMode)} or
- * {@link XMemcachedClient(MemcachedSessionLocator locator, BufferAllocator allocator, Configuration conf,
- * Map<SocketOption, Object> socketOptions, CommandFactory commandFactory, Transcoder transcoder,
- * Map<InetSocketAddress, InetSocketAddress> addressMap, int[] weights, List<MemcachedClientStateListener> stateListeners,
- * Map<InetSocketAddress, AuthInfo> infoMap, int poolSize, long connectTimeout, final String name, boolean failureMode)}.
- * For parameter addressMap, every k-v is a master standby mode.
- * 
  * @author IluckySi
  */
 public class XMemcachedConstructorWithComplexArgInterceptor implements InstanceConstructorInterceptor {

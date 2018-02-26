@@ -42,7 +42,7 @@ public abstract class AbstractClassEnhancePluginDefine {
      * @param builder byte-buddy's builder to manipulate target class's bytecode.
      * @param classLoader load the given transformClass
      * @return the new builder, or <code>null</code> if not be enhanced.
-     * @throws PluginException, when set builder failure.
+     * @throws PluginException when set builder failure.
      */
     public DynamicType.Builder<?> define(String transformClassName,
         DynamicType.Builder<?> builder, ClassLoader classLoader, EnhanceContext context) throws PluginException {

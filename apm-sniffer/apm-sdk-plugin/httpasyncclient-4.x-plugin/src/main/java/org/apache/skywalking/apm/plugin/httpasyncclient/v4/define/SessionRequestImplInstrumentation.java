@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.httpasyncclient.v4.define;
 
+import java.io.IOException;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
@@ -29,8 +30,8 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link SessionRequestImplInstrumentation} presents that skywalking intercepts {@link
- * org.apache.http.impl.nio.reactor.SessionRequestImpl#failed(final IOException exception)}
+ * {@link SessionRequestImplInstrumentation} presents that skywalking intercepts
+ * {@link org.apache.http.impl.nio.reactor.SessionRequestImpl#failed(IOException)} }
  *
  * @author liyuntao
  */
