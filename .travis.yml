@@ -9,5 +9,5 @@ before_install:
 
 install:
   - jdk_switcher use oraclejdk8
-  - mvn clean install --quiet jacoco:report coveralls:report
+  - mvn clean install -Papache-release --quiet jacoco:report coveralls:report
 
