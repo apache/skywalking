@@ -23,7 +23,7 @@
     <parent>
         <artifactId>apm-collector</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-alpha</version>
+        <version>5.0.0-alpha-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -223,7 +223,26 @@
                             <descriptors>
                                 <descriptor>src/main/assembly/assembly.xml</descriptor>
                             </descriptors>
-                            <outputDirectory>${project.basedir}/../../packages</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <copy file="${project.build.directory}/skywalking-collector-assembly.tar.gz"
+                                      tofile="${project.basedir}/../../packages/skywalking-collector.tar.gz" overwrite="true"/>
+                                <copy file="${project.build.directory}/skywalking-collector-assembly.zip"
+                                      tofile="${project.basedir}/../../packages/skywalking-collector.zip" overwrite="true"/>
+                            </tasks>
                         </configuration>
                     </execution>
                 </executions>
