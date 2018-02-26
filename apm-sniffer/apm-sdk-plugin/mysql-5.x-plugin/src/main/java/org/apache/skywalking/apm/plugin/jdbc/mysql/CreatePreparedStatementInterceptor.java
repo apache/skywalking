@@ -16,20 +16,16 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.mysql;
 
 import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 /**
- * {@link CreateStatementInterceptor} intercepts the {@link com.mysql.jdbc.ConnectionImpl#prepareStatement()} method in
- * the {@link com.mysql.jdbc.ConnectionImpl} class.
- *
  * @author zhangxin
  */
 public class CreatePreparedStatementInterceptor implements InstanceMethodsAroundInterceptor {

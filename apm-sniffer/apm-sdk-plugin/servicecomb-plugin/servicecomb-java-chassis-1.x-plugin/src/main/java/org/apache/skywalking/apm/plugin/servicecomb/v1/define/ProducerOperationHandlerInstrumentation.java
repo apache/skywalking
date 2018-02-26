@@ -29,9 +29,9 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link ProducerOperationHandlerInstrumentation} represents that skywalking intercept {@link
- * ProducerOperationHandler#handle(org.apache.servicecomb.core.Invocation, org.apache.servicecomb.swagger.invocation.AsyncResponse)}by
- * using {@link ProducerOperationHandlerInterceptor}
+ * {@link ProducerOperationHandlerInstrumentation} represents that skywalking intercept
+ * {@link org.apache.servicecomb.core.handler.impl.ProducerOperationHandler#handle(org.apache.servicecomb.core.Invocation, org.apache.servicecomb.swagger.invocation.AsyncResponse)}
+ * by using ProducerOperationHandlerInterceptor
  *
  * @author lytscu
  */
