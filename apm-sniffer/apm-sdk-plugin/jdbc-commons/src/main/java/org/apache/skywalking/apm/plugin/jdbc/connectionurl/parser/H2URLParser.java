@@ -24,16 +24,10 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 /**
  * {@link H2URLParser} presents that skywalking how to parse the connection url of H2 database.
- * {@link ConnectionInfo#host} will return localhost and  {@link ConnectionInfo#port} will return
- * -1 if H2 running with memory mode or file mode, or it will return the host and the port.
- * <p>
+ *
  * {@link H2URLParser} check the connection url if contains "file" or "mem". if yes. the database
  * name substring the connection url from the index after "file" index or the "mem" index to the
  * index of first charset ";".
- * <p>
- * The {@link ConnectionInfo#host} be set the string between charset "//" and the first charset "/" after
- * the charset "//", and {@link ConnectionInfo#databaseName} be set the string between the last index of "/" and
- * the first charset ";".
  *
  * @author zhangxin
  */
