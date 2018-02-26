@@ -31,7 +31,6 @@ public interface InstanceMethodsAroundInterceptor {
     /**
      * called before target method invocation.
      *
-     * @param method
      * @param result change this result, if you want to truncate the method.
      * @throws Throwable
      */

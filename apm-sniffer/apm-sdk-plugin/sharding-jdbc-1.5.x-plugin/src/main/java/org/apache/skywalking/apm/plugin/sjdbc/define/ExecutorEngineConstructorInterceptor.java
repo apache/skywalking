@@ -19,13 +19,13 @@
 
 package org.apache.skywalking.apm.plugin.sjdbc.define;
 
-import com.dangdang.ddframe.rdb.sharding.executor.ExecutorEngine;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.plugin.sjdbc.ExecuteEventListener;
 
 /**
- * {@link ExecutorEngineConstructorInterceptor} enhances {@link ExecutorEngine#}'s constructor, initializing {@link ExecuteEventListener}
+ * {@link ExecutorEngineConstructorInterceptor} enhances {@link com.dangdang.ddframe.rdb.sharding.executor.ExecutorEngine}'s constructor,
+ * initializing {@link ExecuteEventListener}
  * 
  * @author gaohongtao
  */

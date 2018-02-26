@@ -25,6 +25,12 @@
     <artifactId>apm</artifactId>
     <version>5.0.0-alpha</version>
 
+    <parent>
+        <groupId>org.apache</groupId>
+        <artifactId>apache</artifactId>
+        <version>19</version>
+    </parent>
+
     <developers>
         <developer>
             <name>Wu Sheng</name>

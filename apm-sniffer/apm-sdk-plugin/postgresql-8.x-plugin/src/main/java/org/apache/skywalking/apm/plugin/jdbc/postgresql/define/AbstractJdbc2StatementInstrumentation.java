@@ -21,9 +21,9 @@ package org.apache.skywalking.apm.plugin.jdbc.postgresql.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.plugin.jdbc.postgresql.StatementExecuteMethodsInterceptor;
 
@@ -34,8 +34,8 @@ import static org.apache.skywalking.apm.plugin.jdbc.postgresql.Variables.PG_PREP
 import static org.apache.skywalking.apm.plugin.jdbc.postgresql.Variables.PG_STATEMENT_EXECUTE_METHOD_INTERCEPTOR;
 
 /**
- * {@link AbstractJdbc2StatementInstrumentation} intercept the following methods that the class which extend {@link
- * org.postgresql.jdbc2.AbstractJdbc2Statement} by {@link StatementExecuteMethodsInterceptor}. <br/>
+ * {@link AbstractJdbc2StatementInstrumentation} intercept the following methods that the class which extend
+ * org.postgresql.jdbc2.AbstractJdbc2Statement by {@link StatementExecuteMethodsInterceptor}.
  * 1. the <code>execute</code> with non parameter
  * 2. the <code>execute</code> with one parameter
  * 3. the <code>executeBatch</code>
