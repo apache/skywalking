@@ -9,7 +9,11 @@ export default {
     notices: [],
     duration: {
       collapsed: true,
+      display: {
+        range: [],
+      },
     },
+    globalVariables: {},
   },
 
   effects: {

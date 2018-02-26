@@ -1,34 +1,27 @@
-import React, { PureComponent } from 'react';
-import G2 from '@antv/g2';
+import React, { Component } from 'react';
+import { Chart, Axis, Tooltip, Geom } from 'bizcharts';
 import Debounce from 'lodash-decorators/debounce';
 import Bind from 'lodash-decorators/bind';
-import equal from '../equal';
+import autoHeight from '../autoHeight';
 import styles from '../index.less';
 
-class Area extends PureComponent {
+@autoHeight()
+class Area extends Component {
   static defaultProps = {
     limitColor: 'rgb(255, 181, 102)',
     color: 'rgb(102, 181, 255)',
   };
+  state = {
+    autoHideXLabels: false,
+  };
+
   componentDidMount() {
-    this.renderChart(this.props.data);
-
     window.addEventListener('resize', this.resize);
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (!equal(this.props, nextProps)) {
-      const { data = [] } = nextProps;
-      this.renderChart(data);
-    }
+    this.resize();
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.resize);
-    if (this.chart) {
-      this.chart.destroy();
-    }
-    this.resize.cancel();
   }
 
   @Bind()
@@ -37,69 +30,81 @@ class Area extends PureComponent {
     if (!this.node) {
       return;
     }
-    const { data = [] } = this.props;
-    this.renderChart(data);
+    const canvasWidth = this.node.parentNode.clientWidth;
+    const { data = [], autoLabel = true } = this.props;
+    if (!autoLabel) {
+      return;
+    }
+    const minWidth = data.length * 30;
+    const { autoHideXLabels } = this.state;
+    if (canvasWidth <= minWidth) {
+      if (!autoHideXLabels) {
+        this.setState({
+          autoHideXLabels: true,
+        });
+      }
+    } else if (autoHideXLabels) {
+      this.setState({
+        autoHideXLabels: false,
+      });
+    }
   }
+
+  handleRoot = (n) => {
+    this.root = n;
+  };
 
   handleRef = (n) => {
     this.node = n;
-  }
+  };
 
-  renderChart(data) {
+  render() {
     const {
-      height = 0,
-      fit = true,
-      margin = [32, 60, 32, 60],
-      limitColor,
+      height,
+      title,
+      forceFit = true,
+      data,
       color,
+      limitColor,
     } = this.props;
 
-    if (!data || (data && data.length < 1)) {
-      return;
+    if (!data || data.length < 1) {
+      return (<span style={{ display: 'none' }} />);
     }
 
-    // clean
-    this.node.innerHTML = '';
+    const { autoHideXLabels } = this.state;
 
-    const chart = new G2.Chart({
-      container: this.node,
-      forceFit: fit,
-      height: height - 22,
-      plotCfg: {
-        margin,
-      },
-      legend: false,
-    });
-    chart.legend(false);
-    chart.axis('x', {
-      title: false,
-    });
-    chart.axis('y', {
-      title: false,
-    });
-    const dataConfig = {
+    const scale = {
       x: {
         type: 'cat',
         tickCount: 5,
       },
+      y: {
+        min: 0,
+      },
     };
-    const view = chart.createView();
-    view.source(data, dataConfig);
-    view.intervalStack().position('x*y').color('type', [limitColor, color])
-      .style({ fillOpacity: 1 });
-    chart.render();
-
-    this.chart = chart;
-  }
-
-  render() {
-    const { height, title } = this.props;
 
     return (
-      <div className={styles.chart} style={{ height }}>
-        <div>
-          { title && <h4>{title}</h4>}
-          <div ref={this.handleRef} />
+      <div className={styles.chart} style={{ height }} ref={this.handleRoot}>
+        <div ref={this.handleRef}>
+          {title && <h4 style={{ marginBottom: 20 }}>{title}</h4>}
+          <Chart
+            scale={scale}
+            height={title ? height - 41 : height}
+            forceFit={forceFit}
+            data={data}
+            padding="auto"
+          >
+            <Axis
+              name="x"
+              title={false}
+              label={autoHideXLabels ? false : {}}
+              tickLine={autoHideXLabels ? false : {}}
+            />
+            <Axis name="y" min={0} />
+            <Tooltip showTitle={false} />
+            <Geom type="intervalStack" position="x*y" color={['type', [color, limitColor]]} />
+          </Chart>
         </div>
       </div>
     );

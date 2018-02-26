@@ -98,14 +98,16 @@ export default class Server extends PureComponent {
               <ChartCard
                 title="Avg Response Time"
                 total={`${this.avg(getServerResponseTimeTrend.trendList)} ms`}
+                contentHeight={46}
               >
-                <MiniArea
-                  animate={false}
-                  color="#975FE4"
-                  height={46}
-                  data={getServerResponseTimeTrend.trendList
-                    .map((v, i) => { return { x: timeRangeArray[i], y: v }; })}
-                />
+                {getServerResponseTimeTrend.trendList.length > 0 ? (
+                  <MiniArea
+                    animate={false}
+                    color="#975FE4"
+                    data={getServerResponseTimeTrend.trendList
+                      .map((v, i) => { return { x: timeRangeArray[i], y: v }; })}
+                  />
+                ) : (<span style={{ display: 'none' }} />)}
               </ChartCard>
             </Col>
             <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 24 }}>
@@ -124,66 +126,58 @@ export default class Server extends PureComponent {
           </Row>
           <Row gutter={24}>
             <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginTop: 24 }}>
-              <Card
+              <ChartCard
                 title="CPU"
-                bordered={false}
-                bodyStyle={{ padding: 0 }}
+                contentHeight={250}
               >
                 <Line
-                  height={250}
                   data={getCPUTrend.cost
                     .map((v, i) => { return { x: timeRangeArray[i], y: v }; })}
                 />
-              </Card>
+              </ChartCard>
             </Col>
           </Row>
           <Row gutter={24}>
             <Col xs={24} sm={24} md={12} lg={12} xl={12} style={{ marginTop: 24 }}>
-              <Card
+              <ChartCard
                 title="Heap"
-                bordered={false}
-                bodyStyle={{ padding: 0 }}
+                contentHeight={250}
               >
                 <Area
-                  height={250}
                   data={getMemoryTrend.heap
                     .map((v, i) => ({ x: timeRangeArray[i], y: v, type: 'value' }))
                     .concat(getMemoryTrend.maxHeap
                     .map((v, i) => ({ x: timeRangeArray[i], y: v, type: 'limit ' })))}
                 />
-              </Card>
+              </ChartCard>
             </Col>
             <Col xs={24} sm={24} md={12} lg={12} xl={12} style={{ marginTop: 24 }}>
-              <Card
+              <ChartCard
                 title="No-Heap"
-                bordered={false}
-                bodyStyle={{ padding: 0 }}
+                contentHeight={250}
               >
                 <Area
-                  height={250}
                   data={getMemoryTrend.noheap
                     .map((v, i) => ({ x: timeRangeArray[i], y: v, type: 'value' }))
                     .concat(getMemoryTrend.maxNoheap
                     .map((v, i) => ({ x: timeRangeArray[i], y: v, type: 'limit ' })))}
                 />
-              </Card>
+              </ChartCard>
             </Col>
           </Row>
           <Row gutter={24}>
             <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginTop: 24 }}>
-              <Card
+              <ChartCard
                 title="GC"
-                bordered={false}
-                bodyStyle={{ padding: 0 }}
+                contentHeight={250}
               >
                 <StackBar
-                  height={250}
                   data={getGCTrend.oldGC
                     .map((v, i) => ({ x: timeRangeArray[i], y: v, type: 'oldGC' }))
                     .concat(getGCTrend.youngGC
                     .map((v, i) => ({ x: timeRangeArray[i], y: v, type: 'youngGC' })))}
                 />
-              </Card>
+              </ChartCard>
             </Col>
           </Row>
         </Panel>

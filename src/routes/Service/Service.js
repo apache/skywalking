@@ -85,11 +85,10 @@ export default class Service extends PureComponent {
               <ChartCard
                 title="Avg Throughout"
                 total={`${this.avg(getServiceTPSTrend.trendList)}`}
+                contentHeight={46}
               >
                 <MiniArea
-                  animate={false}
                   color="#975FE4"
-                  height={46}
                   data={getServiceTPSTrend.trendList
                     .map((v, i) => { return { x: timeRangeArray[i], y: v }; })}
                 />
@@ -99,10 +98,9 @@ export default class Service extends PureComponent {
               <ChartCard
                 title="Avg Response Time"
                 total={`${this.avg(getServiceResponseTimeTrend.trendList)} ms`}
+                contentHeight={46}
               >
                 <MiniArea
-                  animate={false}
-                  height={46}
                   data={getServiceResponseTimeTrend.trendList
                     .map((v, i) => { return { x: timeRangeArray[i], y: v }; })}
                 />
