@@ -34,9 +34,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * {@link ResinV3Interceptor} intercept method of{@link com.caucho.server.dispatch.ServletInvocation#service(javax.servlet.ServletRequest,
- * javax.servlet.ServletResponse)} record the resin host, port ,url.
- *
  * @author baiyang
  */
 public class ResinV3Interceptor implements InstanceMethodsAroundInterceptor {
