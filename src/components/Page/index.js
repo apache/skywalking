@@ -2,7 +2,7 @@ import Panel from './Panel';
 import Search from './Search';
 import Ranking from './Ranking';
 
-export default {
+export {
   Panel,
   Search,
   Ranking,

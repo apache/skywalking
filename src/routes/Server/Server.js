@@ -5,7 +5,7 @@ import {
   ChartCard, MiniArea, MiniBar, Line, Area, StackBar,
 } from '../../components/Charts';
 import DescriptionList from '../../components/DescriptionList';
-import { timeRange } from '../../utils/utils';
+import { timeRange } from '../../utils/time';
 import { Panel, Search } from '../../components/Page';
 
 const { Description } = DescriptionList;

@@ -4,7 +4,7 @@ import { Row, Col, Card } from 'antd';
 import {
   ChartCard, Pie, MiniArea, Field,
 } from '../../components/Charts';
-import { timeRange } from '../../utils/utils';
+import { timeRange } from '../../utils/time';
 import { Panel, Ranking } from '../../components/Page';
 
 @connect(state => ({

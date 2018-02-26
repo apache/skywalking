@@ -5,9 +5,9 @@ import Bind from 'lodash-decorators/bind';
 import equal from '../equal';
 import styles from '../index.less';
 
-class Area extends PureComponent {
+class Line extends PureComponent {
   static defaultProps = {
-    limitColor: 'rgb(255, 144, 24)',
+    borderColor: 'rgb(24, 144, 255)',
     color: 'rgb(24, 144, 255)',
   };
   componentDidMount() {
@@ -50,7 +50,7 @@ class Area extends PureComponent {
       height = 0,
       fit = true,
       margin = [32, 60, 32, 60],
-      limitColor,
+      borderColor,
       color,
     } = this.props;
 
@@ -90,7 +90,7 @@ class Area extends PureComponent {
     const dataConfig = {
       x: {
         type: 'cat',
-        tickCount: 3,
+        tickCount: 5,
         range: [0, 1],
       },
       y: {
@@ -98,18 +98,15 @@ class Area extends PureComponent {
       },
     };
     const view = chart.createView();
-    const offset = Math.floor(data.length / 2);
-    const xData = data.slice(0, offset);
-    const yData = data.slice(offset).map((v, i) => ({ ...v, y: v.y - xData[i].y }));
-    view.source(yData.concat(xData), dataConfig);
-    view.areaStack().position('x*y').color('type', [limitColor, color]).shape('smooth')
-      .style({ fillOpacity: 0.2 });
-    view.tooltip(false);
-    view.axis(false);
+    view.source(data, dataConfig);
+    view.line().position('x*y').color(borderColor).shape('smooth')
+      .size(2);
     const view2 = chart.createView();
     view2.source(data, dataConfig);
-    view2.line().position('x*y').color('type', [color, limitColor]).shape('smooth')
-      .size(2);
+    view2.area().position('x*y').color(color).shape('smooth')
+      .style({ fillOpacity: 0.2 });
+    view2.tooltip(false);
+    view2.axis(false);
     chart.render();
 
     this.chart = chart;
@@ -129,4 +126,4 @@ class Area extends PureComponent {
   }
 }
 
-export default Area;
+export default Line;

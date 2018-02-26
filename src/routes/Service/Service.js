@@ -4,7 +4,7 @@ import { Row, Col, Card, Form } from 'antd';
 import {
   ChartCard, MiniArea, MiniBar,
 } from '../../components/Charts';
-import { timeRange } from '../../utils/utils';
+import { timeRange } from '../../utils/time';
 import { ServiceTopology } from '../../components/Topology';
 import { Panel, Search } from '../../components/Page';
 

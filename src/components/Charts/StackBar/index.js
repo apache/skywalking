@@ -7,8 +7,8 @@ import styles from '../index.less';
 
 class Area extends PureComponent {
   static defaultProps = {
-    limitColor: 'rgb(255, 144, 24)',
-    color: 'rgb(24, 144, 255)',
+    limitColor: 'rgb(255, 181, 102)',
+    color: 'rgb(102, 181, 255)',
   };
   componentDidMount() {
     this.renderChart(this.props.data);
@@ -77,39 +77,16 @@ class Area extends PureComponent {
     chart.axis('y', {
       title: false,
     });
-    chart.tooltip({
-      crosshairs: {
-        type: 'line',
-      },
-      title: null,
-      map: {
-        name: 'x',
-        value: 'y',
-      },
-    });
     const dataConfig = {
       x: {
         type: 'cat',
-        tickCount: 3,
-        range: [0, 1],
-      },
-      y: {
-        min: 0,
+        tickCount: 5,
       },
     };
     const view = chart.createView();
-    const offset = Math.floor(data.length / 2);
-    const xData = data.slice(0, offset);
-    const yData = data.slice(offset).map((v, i) => ({ ...v, y: v.y - xData[i].y }));
-    view.source(yData.concat(xData), dataConfig);
-    view.areaStack().position('x*y').color('type', [limitColor, color]).shape('smooth')
-      .style({ fillOpacity: 0.2 });
-    view.tooltip(false);
-    view.axis(false);
-    const view2 = chart.createView();
-    view2.source(data, dataConfig);
-    view2.line().position('x*y').color('type', [color, limitColor]).shape('smooth')
-      .size(2);
+    view.source(data, dataConfig);
+    view.intervalStack().position('x*y').color('type', [limitColor, color])
+      .style({ fillOpacity: 1 });
     chart.render();
 
     this.chart = chart;
