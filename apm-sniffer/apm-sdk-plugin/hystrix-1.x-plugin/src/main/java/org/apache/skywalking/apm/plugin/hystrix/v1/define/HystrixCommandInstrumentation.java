@@ -26,6 +26,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.any;
+import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierarchyMatch;
 
 /**
@@ -55,7 +56,34 @@ public class HystrixCommandInstrumentation extends ClassInstanceMethodsEnhancePl
     }
 
     @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[0];
+        return new InstanceMethodsInterceptPoint[]{
+            new InstanceMethodsInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("run");
+                }
+
+                @Override public String getMethodsInterceptor() {
+                    return "org.apache.skywalking.apm.plugin.hystrix.v1.HystrixCommandRunInterceptor";
+                }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("getFallback");
+                }
+
+                @Override public String getMethodsInterceptor() {
+                    return "org.apache.skywalking.apm.plugin.hystrix.v1.HystrixCommandGetFallbackInterceptor";
+                }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
+                }
+            }
+        };
     }
 
     @Override protected ClassMatch enhanceClass() {
