@@ -30,11 +30,6 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link TomcatInstrumentation} presents that skywalking using class {@link org.apache.skywalking.apm.plugin.tomcat78x.TomcatInvokeInterceptor} to intercept
- * {@link org.apache.catalina.core.StandardWrapperValve#invoke} and using class {@link
- * org.apache.skywalking.apm.plugin.tomcat78x.TomcatExceptionInterceptor} to intercept {@link
- * org.apache.catalina.core.StandardWrapperValve#exception}.
- *
  * @author zhangxin
  */
 public class TomcatInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {

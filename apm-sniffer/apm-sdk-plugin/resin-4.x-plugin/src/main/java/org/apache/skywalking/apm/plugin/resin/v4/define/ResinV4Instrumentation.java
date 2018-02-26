@@ -31,8 +31,9 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link ResinV4Instrumentation} presents that skywalking intercepts {@link com.caucho.server.dispatch.ServletInvocation#service(javax.servlet.ServletRequest,
- * javax.servlet.ServletResponse)} by using {@link ResinV4Interceptor}.
+ * {@link ResinV4Instrumentation} presents that skywalking intercepts
+ * {@link com.caucho.server.dispatch.ServletInvocation#service(javax.servlet.ServletRequest,javax.servlet.ServletResponse)}
+ * by using {@link ResinV4Interceptor}.
  *
  * @author baiyang
  */

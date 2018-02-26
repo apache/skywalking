@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.plugin.servicecomb.v1.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
-import org.apache.servicecomb.core.handler.impl.TransportClientHandler;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
@@ -30,8 +29,9 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link TransportClientHandlerInstrumentation} represents that skywalking intercept {@link TransportClientHandler}by
- * using {@linkTransportClientHandlerInterceptor }
+ * {@link TransportClientHandlerInstrumentation} represents that skywalking intercept
+ * {@link org.apache.servicecomb.core.handler.impl.TransportClientHandler} by
+ * using linkTransportClientHandlerInterceptor
  *
  * @author lytscu
  */
