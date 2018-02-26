@@ -32,9 +32,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * {org.apache.skywalking.apm.plugin.servicecomb.ProducerOperationHandlerInterceptor} define how to enhance class {@link
- * ProducerOperationHandler#handle(io.servicecomb.core.Invocation, io.servicecomb.swagger.invocation.AsyncResponse)}.
- *
  * @author lytscu
  */
 public class ProducerOperationHandlerInterceptor implements InstanceMethodsAroundInterceptor {
