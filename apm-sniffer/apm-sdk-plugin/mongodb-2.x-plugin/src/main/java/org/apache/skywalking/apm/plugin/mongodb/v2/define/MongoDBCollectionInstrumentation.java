@@ -16,14 +16,13 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.mongodb.v2.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.any;
@@ -35,16 +34,16 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 /**
  * {@link MongoDBCollectionInstrumentation} define that the MongoDB Java Driver 2.13.x-2.14.x plugin intercepts the
  * following methods in the {@link com.mongodb.DBCollection}class:
- * 1. aggregate <br/>
- * 2. findAndModify <br/>
+ * 1. aggregate
+ * 2. findAndModify
  * 3. getCount
- * <br/>
- * 4. drop <br/>
- * 5. dropIndexes <br/>
- * 6. rename <br/>
- * 7. group <br/>
- * 8. distinct <br/>
- * 9. mapReduce <br/>
+ *
+ * 4. drop
+ * 5. dropIndexes
+ * 6. rename
+ * 7. group
+ * 8. distinct
+ * 9. mapReduce
  *
  * @author liyuntao
  */

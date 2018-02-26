@@ -27,9 +27,6 @@ import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 /**
- * {@link CreateStatementInterceptor} intercepts the {@link com.mysql.jdbc.ConnectionImpl#createStatement()} method in
- * the {@link com.mysql.jdbc.ConnectionImpl} class.
- *
  * @author zhangxin
  */
 public class CreateStatementInterceptor implements InstanceMethodsAroundInterceptor {
