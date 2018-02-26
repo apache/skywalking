@@ -38,8 +38,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * {@link MongoDBCollectionMethodInterceptor} intercepts  constructor of {@link com.mongodb.DBCollection}or {@link
- * com.mongodb.DBCollectionImpl} recording the ServerAddress and creating the exit span.
+ * {@link MongoDBCollectionMethodInterceptor} intercepts  constructor of {@link com.mongodb.DBCollection} or
+ * {@link com.mongodb.DBCollectionImpl} recording the ServerAddress and creating the exit span.
  *
  * @author liyuntao
  */
