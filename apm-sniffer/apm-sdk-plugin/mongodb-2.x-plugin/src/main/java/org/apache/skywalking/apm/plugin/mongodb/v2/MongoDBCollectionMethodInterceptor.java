@@ -38,9 +38,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * {@link MongoDBCollectionMethodInterceptor} intercepts  constructor of {@link com.mongodb.DBCollection} or
- * {@link com.mongodb.DBCollectionImpl} recording the ServerAddress and creating the exit span.
- *
  * @author liyuntao
  */
 
@@ -54,8 +51,8 @@ public class MongoDBCollectionMethodInterceptor implements InstanceMethodsAround
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
 
         String remotePeer = (String)objInst.getSkyWalkingDynamicField();
-        String opertaion = method.getName();
-        AbstractSpan span = ContextManager.createExitSpan(MONGO_DB_OP_PREFIX + opertaion, new ContextCarrier(), remotePeer);
+        String operation = method.getName();
+        AbstractSpan span = ContextManager.createExitSpan(MONGO_DB_OP_PREFIX + operation, new ContextCarrier(), remotePeer);
         span.setComponent(ComponentsDefine.MONGODB);
         Tags.DB_TYPE.set(span, DB_TYPE);
         SpanLayer.asDB(span);
