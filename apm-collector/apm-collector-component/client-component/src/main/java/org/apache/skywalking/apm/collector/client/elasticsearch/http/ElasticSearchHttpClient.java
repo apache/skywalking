@@ -301,7 +301,7 @@ public class ElasticSearchHttpClient implements Client {
     public long batchDelete(String index, String query) {
         try {
             JestResult result =  client.execute(new DeleteByQuery.Builder(query).addIndex(index).build());
-            return result.getResponseCode();
+            return result.getJsonObject().get("deleted").getAsLong();
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
