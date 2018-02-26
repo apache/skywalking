@@ -1,0 +1,6 @@
+lettuce-4.x=org.apache.skywalking.apm.plugin.lettuce.v4.define.CommandHandlerInstrumentation
+lettuce-4.x=org.apache.skywalking.apm.plugin.lettuce.v4.define.RedisClientInstrumentation
+lettuce-4.x=org.apache.skywalking.apm.plugin.lettuce.v4.define.RedisClusterClientInstrumentation
+lettuce-4.x=org.apache.skywalking.apm.plugin.lettuce.v4.define.StatefulRedisConnectionImplInstrumentation
+lettuce-4.x=org.apache.skywalking.apm.plugin.lettuce.v4.define.StatefulRedisClusterConnectionImplInstrumentation
+

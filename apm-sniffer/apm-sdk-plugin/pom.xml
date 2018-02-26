@@ -55,6 +55,7 @@
         <module>httpasyncclient-4.x-plugin</module>
         <module>kafka-v1-plugin</module>
         <module>servicecomb-plugin</module>
+        <module>lettuce-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
