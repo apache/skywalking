@@ -124,6 +124,9 @@ public class ApplicationMetricEsUIDAO extends EsDAO implements IApplicationMetri
         aggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_CALLS).field(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_CALLS));
         aggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationMetricTable.COLUMN_TRANSACTION_DURATION_SUM).field(ApplicationMetricTable.COLUMN_TRANSACTION_DURATION_SUM));
         aggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM).field(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM));
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationMetricTable.COLUMN_SATISFIED_COUNT).field(ApplicationMetricTable.COLUMN_SATISFIED_COUNT));
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationMetricTable.COLUMN_TOLERATING_COUNT).field(ApplicationMetricTable.COLUMN_TOLERATING_COUNT));
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationMetricTable.COLUMN_FRUSTRATED_COUNT).field(ApplicationMetricTable.COLUMN_FRUSTRATED_COUNT));
 
         searchRequestBuilder.addAggregation(aggregationBuilder);
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
@@ -137,6 +140,9 @@ public class ApplicationMetricEsUIDAO extends EsDAO implements IApplicationMetri
             Sum errorCalls = applicationIdTerm.getAggregations().get(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_CALLS);
             Sum durations = applicationIdTerm.getAggregations().get(ApplicationMetricTable.COLUMN_TRANSACTION_DURATION_SUM);
             Sum errorDurations = applicationIdTerm.getAggregations().get(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM);
+            Sum satisfiedCount = applicationIdTerm.getAggregations().get(ApplicationMetricTable.COLUMN_SATISFIED_COUNT);
+            Sum toleratingCount = applicationIdTerm.getAggregations().get(ApplicationMetricTable.COLUMN_TOLERATING_COUNT);
+            Sum frustratedCount = applicationIdTerm.getAggregations().get(ApplicationMetricTable.COLUMN_FRUSTRATED_COUNT);
 
             ApplicationMetric applicationMetric = new ApplicationMetric();
             applicationMetric.setId(applicationId);
@@ -144,6 +150,9 @@ public class ApplicationMetricEsUIDAO extends EsDAO implements IApplicationMetri
             applicationMetric.setErrorCalls((long)errorCalls.getValue());
             applicationMetric.setDurations((long)durations.getValue());
             applicationMetric.setErrorDurations((long)errorDurations.getValue());
+            applicationMetric.setSatisfiedCount((long)satisfiedCount.getValue());
+            applicationMetric.setToleratingCount((long)toleratingCount.getValue());
+            applicationMetric.setToleratingCount((long)frustratedCount.getValue());
             applicationMetrics.add(applicationMetric);
         });
         return applicationMetrics;

@@ -40,6 +40,9 @@ public interface IApplicationMetricUIDAO extends DAO {
         private long errorCalls;
         private long durations;
         private long errorDurations;
+        private long satisfiedCount;
+        private long toleratingCount;
+        private long frustratedCount;
 
         public void setId(int id) {
             this.id = id;
@@ -79,6 +82,30 @@ public interface IApplicationMetricUIDAO extends DAO {
 
         public long getErrorDurations() {
             return errorDurations;
+        }
+
+        public long getSatisfiedCount() {
+            return satisfiedCount;
+        }
+
+        public void setSatisfiedCount(long satisfiedCount) {
+            this.satisfiedCount = satisfiedCount;
+        }
+
+        public long getToleratingCount() {
+            return toleratingCount;
+        }
+
+        public void setToleratingCount(long toleratingCount) {
+            this.toleratingCount = toleratingCount;
+        }
+
+        public long getFrustratedCount() {
+            return frustratedCount;
+        }
+
+        public void setFrustratedCount(long frustratedCount) {
+            this.frustratedCount = frustratedCount;
         }
     }
 }

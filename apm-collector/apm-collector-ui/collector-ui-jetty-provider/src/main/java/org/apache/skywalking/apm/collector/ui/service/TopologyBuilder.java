@@ -38,6 +38,8 @@ import org.apache.skywalking.apm.collector.storage.ui.common.Call;
 import org.apache.skywalking.apm.collector.storage.ui.common.Node;
 import org.apache.skywalking.apm.collector.storage.ui.common.Topology;
 import org.apache.skywalking.apm.collector.storage.ui.common.VisualUserNode;
+import org.apache.skywalking.apm.collector.ui.utils.ApdexCalculator;
+import org.apache.skywalking.apm.collector.ui.utils.SLACalculator;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
@@ -70,10 +72,10 @@ class TopologyBuilder {
             applicationNode.setName(application.getApplicationCode());
             applicationNode.setType(components.getOrDefault(application.getApplicationId(), Const.UNKNOWN));
 
-            applicationNode.setSla(10);
+            applicationNode.setSla(SLACalculator.INSTANCE.calculate(applicationMetric.getErrorCalls(), applicationMetric.getCalls()));
             applicationNode.setCallsPerSec(100L);
             applicationNode.setAvgResponseTime((applicationMetric.getDurations() - applicationMetric.getErrorDurations()) / (applicationMetric.getCalls() - applicationMetric.getErrorCalls()));
-            applicationNode.setApdex(10);
+            applicationNode.setApdex(ApdexCalculator.INSTANCE.calculate(applicationMetric.getSatisfiedCount(), applicationMetric.getToleratingCount(), applicationMetric.getFrustratedCount()));
             applicationNode.setAlarm(false);
             applicationNode.setNumOfServer(1);
             applicationNode.setNumOfServerAlarm(1);
