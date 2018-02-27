@@ -16,25 +16,18 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.dubbo;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
-/**
- * {@link DubboInstrumentation} presents that skywalking intercepts {@link com.alibaba.dubbo.monitor.support.MonitorFilter#invoke(com.alibaba.dubbo.rpc.Invoker,
- * com.alibaba.dubbo.rpc.Invocation)} by using {@link DubboInterceptor}.
- *
- * @author zhangxin
- */
 public class DubboInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "com.alibaba.dubbo.monitor.support.MonitorFilter";

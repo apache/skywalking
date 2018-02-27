@@ -29,13 +29,6 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 import static org.apache.skywalking.apm.plugin.jdbc.oracle.Constants.STATEMENT_INTERCEPT_CLASS;
 
-/**
- * {@link OracleStatementInstrumentation} define that the oracle plugin intercept the <code>execute, executeQuery,
- * executeUpdate and executeLargeUpdate</code> method in {@link oracle.jdbc.driver.OracleStatement} class by
- * {@link org.apache.skywalking.apm.plugin.jdbc.oracle.StatementExecuteMethodsInterceptor}
- *
- * @author zhangxin
- */
 public class OracleStatementInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     public static final String ENHANCE_CLASS = "oracle.jdbc.driver.OracleStatement";

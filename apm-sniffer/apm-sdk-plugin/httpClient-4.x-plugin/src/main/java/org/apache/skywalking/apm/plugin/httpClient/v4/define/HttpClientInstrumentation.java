@@ -16,11 +16,10 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.httpClient.v4.define;
 
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 
 /**
  * @author zhangxin
