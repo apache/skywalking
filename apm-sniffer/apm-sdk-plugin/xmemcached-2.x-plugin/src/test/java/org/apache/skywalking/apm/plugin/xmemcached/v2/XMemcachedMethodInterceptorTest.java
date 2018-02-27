@@ -119,7 +119,7 @@ public class XMemcachedMethodInterceptorTest {
         List<KeyValuePair> tags = SpanHelper.getTags(span);
         assertThat(tags.get(0).getValue(), is("Memcached"));
         assertThat(tags.get(1).getValue(), is("set OperationKey"));
-        assertThat(SpanHelper.getLayer(span), CoreMatchers.is(SpanLayer.DB));
+        assertThat(SpanHelper.getLayer(span), CoreMatchers.is(SpanLayer.CACHE));
     }
 
     private Method getMockSetMethod() throws Exception {

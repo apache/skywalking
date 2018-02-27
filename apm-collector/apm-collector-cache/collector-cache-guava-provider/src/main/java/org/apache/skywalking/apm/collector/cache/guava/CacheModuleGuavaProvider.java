@@ -16,22 +16,23 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.cache.guava;
 
 import java.util.Properties;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.guava.service.ApplicationCacheGuavaService;
 import org.apache.skywalking.apm.collector.cache.guava.service.InstanceCacheGuavaService;
+import org.apache.skywalking.apm.collector.cache.guava.service.NetworkAddressCacheGuavaService;
 import org.apache.skywalking.apm.collector.cache.guava.service.ServiceIdCacheGuavaService;
 import org.apache.skywalking.apm.collector.cache.guava.service.ServiceNameCacheGuavaService;
-import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
-import org.apache.skywalking.apm.collector.cache.service.ServiceIdCacheService;
-import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
-import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
+import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
+import org.apache.skywalking.apm.collector.cache.service.NetworkAddressCacheService;
+import org.apache.skywalking.apm.collector.cache.service.ServiceIdCacheService;
 import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
 import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
+import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 
 /**
@@ -52,6 +53,7 @@ public class CacheModuleGuavaProvider extends ModuleProvider {
         this.registerServiceImplementation(InstanceCacheService.class, new InstanceCacheGuavaService(getManager()));
         this.registerServiceImplementation(ServiceIdCacheService.class, new ServiceIdCacheGuavaService(getManager()));
         this.registerServiceImplementation(ServiceNameCacheService.class, new ServiceNameCacheGuavaService(getManager()));
+        this.registerServiceImplementation(NetworkAddressCacheService.class, new NetworkAddressCacheGuavaService(getManager()));
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {

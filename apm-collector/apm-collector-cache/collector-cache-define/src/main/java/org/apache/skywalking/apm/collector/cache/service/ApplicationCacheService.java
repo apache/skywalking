@@ -16,16 +16,18 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.cache.service;
 
 import org.apache.skywalking.apm.collector.core.module.Service;
+import org.apache.skywalking.apm.collector.storage.table.register.Application;
 
 /**
  * @author peng-yongsheng
  */
 public interface ApplicationCacheService extends Service {
-    int get(String applicationCode);
+    int getApplicationIdByCode(String applicationCode);
 
-    String get(int applicationId);
+    Application getApplicationById(int applicationId);
+
+    int getApplicationIdByAddressId(int addressId);
 }

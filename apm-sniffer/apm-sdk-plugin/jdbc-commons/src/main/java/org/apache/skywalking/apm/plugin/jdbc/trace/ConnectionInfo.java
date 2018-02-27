@@ -23,7 +23,7 @@ import org.apache.skywalking.apm.network.trace.component.OfficialComponent;
 
 /**
  * {@link ConnectionInfo} stored the jdbc connection info, the connection info contains db type, host, port, database
- * name. The {@link #hosts} be null if {@link #host} is not null.
+ * name.
  *
  * @author zhangxin
  */

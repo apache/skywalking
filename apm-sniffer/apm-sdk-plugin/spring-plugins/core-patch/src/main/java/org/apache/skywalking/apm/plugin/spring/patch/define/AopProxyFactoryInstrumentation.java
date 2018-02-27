@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.patch.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -29,13 +28,6 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
-/**
- * {@link AopProxyFactoryInstrumentation} indicate that spring core patch plugin intercepts the {@link
- * org.springframework.aop.framework.DefaultAopProxyFactory#hasNoUserSuppliedProxyInterfaces} method by using {@link
- * org.apache.skywalking.apm.plugin.spring.patch.CreateAopProxyInterceptor} class.
- *
- * @author zhangxin
- */
 public class AopProxyFactoryInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "org.springframework.aop.framework.DefaultAopProxyFactory";

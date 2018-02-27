@@ -1,1 +1,3 @@
 okhttp-3.x=org.apache.skywalking.apm.plugin.okhttp.v3.define.RealCallInstrumentation
+okhttp-3.x=org.apache.skywalking.apm.plugin.okhttp.v3.define.CallbackInstrumentation
+okhttp-3.x=org.apache.skywalking.apm.plugin.okhttp.v3.define.AsyncCallInstrumentation

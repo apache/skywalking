@@ -16,17 +16,16 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.remote.service;
 
+import org.apache.skywalking.apm.collector.core.data.RemoteData;
 import org.apache.skywalking.apm.collector.core.module.Service;
-import org.apache.skywalking.apm.collector.core.data.Data;
 
 /**
  * @author peng-yongsheng
  */
 public interface RemoteSenderService extends Service {
-    Mode send(int graphId, int nodeId, Data data, Selector selector);
+    Mode send(int graphId, int nodeId, RemoteData remoteData, Selector selector);
 
     enum Mode {
         Remote, Local

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.es.base.define;
 
 import org.apache.skywalking.apm.collector.core.data.ColumnDefine;
@@ -30,6 +29,6 @@ public class ElasticSearchColumnDefine extends ColumnDefine {
     }
 
     public enum Type {
-        Binary, Boolean, Keyword, Long, Integer, Double, Text
+        Binary, Keyword, Long, Integer, Double, Text
     }
 }

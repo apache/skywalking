@@ -1,0 +1,39 @@
+type ServiceNode implements Node {
+    id: ID!
+    name: String!
+    type: String
+    # Success rate of all incoming requests.
+    # Max value is 10000.
+    sla: Int!
+    # The number of incoming calls
+    calls: Long!
+    # The number of services alerting
+    numOfServiceAlarm: Int!
+}
+
+type ServiceInfo {
+    id: ID!
+    name: String
+}
+
+type ServiceMetric {
+    id: ID!
+    name: String
+    # The unit is millisecond.
+    avgResponseTime: Int!
+    tps: Int!
+}
+
+type TraceItem {
+    time: String!
+    entry: String!
+    duration: Int!
+}
+
+extend type Query {
+    searchService(keyword: String!, topN: Int!): [ServiceInfo!]!
+    getServiceResponseTimeTrend(serviceId: ID!, duration: Duration!): ResponseTimeTrend
+    getServiceTPSTrend(serviceId: ID!, duration: Duration!): ThroughputTrend
+    getServiceSLATrend(serviceId: ID!, duration: Duration!): SLATrend
+    getServiceTopology(serviceId: ID!, duration: Duration!): Topology
+}

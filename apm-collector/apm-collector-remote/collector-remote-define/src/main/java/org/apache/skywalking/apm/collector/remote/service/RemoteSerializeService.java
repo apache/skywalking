@@ -16,14 +16,13 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.remote.service;
 
-import org.apache.skywalking.apm.collector.core.data.Data;
+import org.apache.skywalking.apm.collector.core.data.RemoteData;
 
 /**
  * @author peng-yongsheng
  */
 public interface RemoteSerializeService<Builder> {
-    Builder serialize(Data data);
+    Builder serialize(RemoteData data);
 }

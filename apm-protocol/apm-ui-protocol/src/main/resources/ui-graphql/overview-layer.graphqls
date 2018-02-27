@@ -1,0 +1,43 @@
+# Query the cluster brief based on the given duration
+type ClusterBrief {
+    numOfApplication: Int
+    numOfService: Int
+    numOfDatabase: Int
+    numOfCache: Int
+    numOfMQ: Int
+}
+
+# Query the trend of alarm rate based on the given duration
+type AlarmTrend {
+    numOfAlarmRate: [Int]!
+}
+
+# Query all conjectural applications based on the given duration
+# All applications here are not installed agent.
+type ConjecturalAppBrief {
+    apps: [ConjecturalApp!]!
+}
+
+# The basic info of the conjectural application,
+# includes the type and num of same type application
+type ConjecturalApp {
+    # The display name of the application
+    # e.g. MySQL, RocketMQ, Kafka, Nginx
+    name: String!
+    num: Int!
+}
+
+type ApplicationTPS {
+    applicationId: Int!
+    applicationCode: String
+    tps: Int!
+}
+
+extend type Query {
+    getClusterTopology(duration: Duration!): Topology
+    getClusterBrief(duration: Duration!): ClusterBrief
+    getAlarmTrend(duration: Duration!): AlarmTrend
+    getConjecturalApps(duration: Duration!): ConjecturalAppBrief
+    getTopNSlowService(duration: Duration!, topN: Int!): [ServiceMetric!]!
+    getTopNApplicationThroughput(duration: Duration!, topN: Int!): [ApplicationTPS!]!
+}

@@ -23,7 +23,7 @@
     <parent>
         <artifactId>apm-collector</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0-2018-preview</version>
+        <version>5.0.0-alpha-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -87,24 +87,49 @@
         <!-- agent gRPC provider -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>collector-agent-grpc-provider</artifactId>
+            <artifactId>agent-grpc-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- agent gRPC provider -->
         <!-- agent jetty provider -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>collector-agent-jetty-provider</artifactId>
+            <artifactId>agent-jetty-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- agent jetty provider -->
-        <!-- agent stream provider -->
+        <!-- analysis provider -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>collector-agent-stream-provider</artifactId>
+            <artifactId>segment-parser-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- agent stream provider -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>register-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>jvm-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>metric-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>alarm-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>baseline-computing-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- analysis provider -->
         <!-- ui provider -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
@@ -131,18 +156,6 @@
             <version>${project.version}</version>
         </dependency>
         <!-- remote provider -->
-        <!-- queue provider -->
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>collector-queue-datacarrier-provider</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>collector-queue-disruptor-provider</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <!-- queue provider -->
         <!-- cache provider -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
@@ -157,13 +170,13 @@
             <version>${project.version}</version>
         </dependency>
         <!-- configuration provider -->
-        <!-- alerting provider -->
+        <!-- alarm provider -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>collector-alerting-provider</artifactId>
+            <artifactId>alarm-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- alerting provider -->
+        <!-- alarm provider -->
     </dependencies>
 
     <build>
@@ -210,7 +223,26 @@
                             <descriptors>
                                 <descriptor>src/main/assembly/assembly.xml</descriptor>
                             </descriptors>
-                            <outputDirectory>${project.basedir}/../../packages</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <copy file="${project.build.directory}/skywalking-collector-assembly.tar.gz"
+                                      tofile="${project.basedir}/../../packages/skywalking-collector.tar.gz" overwrite="true"/>
+                                <copy file="${project.build.directory}/skywalking-collector-assembly.zip"
+                                      tofile="${project.basedir}/../../packages/skywalking-collector.zip" overwrite="true"/>
+                            </tasks>
                         </configuration>
                     </execution>
                 </executions>

@@ -25,12 +25,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
-import org.postgresql.jdbc.PgConnection;
 
 /**
- * {@link CreateStatementInterceptor} intercepts the {@link PgConnection#createStatement} method in
- * {@link org.postgresql.jdbc.PgConnection}, {@link org.postgresql.jdbc.PgConnection} or {@link org.postgresql.jdbc3.Jdbc3Connection} class.
- *
  * @author zhangxin
  */
 public class CreateStatementInterceptor implements InstanceMethodsAroundInterceptor {

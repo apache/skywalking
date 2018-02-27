@@ -21,7 +21,7 @@
     <parent>
         <artifactId>jetty-plugins</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0-2018-preview</version>
+        <version>5.0.0-alpha-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -35,7 +35,7 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-client</artifactId>
-            <version>9.0.0.v20130308</version>
+            <version>9.1.0.v20131115</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

@@ -71,7 +71,7 @@ public class ArgumentTypeNameMatch implements ElementMatcher<MethodDescription> 
 
     /**
      * The static method to create {@link ArgumentTypeNameMatch}
-     * This is a delegate method to follow byte-buddy {@link ElementMatcher<MethodDescription>}'s code style.
+     * This is a delegate method to follow byte-buddy {@link ElementMatcher}'s code style.
      *
      * @param index the index of arguments list.
      * @param argumentTypeName target argument type

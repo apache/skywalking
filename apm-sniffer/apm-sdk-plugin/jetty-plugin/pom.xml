@@ -24,13 +24,14 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sdk-plugin</artifactId>
-        <version>5.0-2018-preview</version>
+        <version>5.0.0-alpha-SNAPSHOT</version>
     </parent>
 
     <artifactId>jetty-plugins</artifactId>
     <modules>
         <module>jetty-client-9.x-plugin</module>
         <module>jetty-server-9.x-plugin</module>
+        <module>jetty-client-9.0-plugin</module>
     </modules>
     <packaging>pom</packaging>
 

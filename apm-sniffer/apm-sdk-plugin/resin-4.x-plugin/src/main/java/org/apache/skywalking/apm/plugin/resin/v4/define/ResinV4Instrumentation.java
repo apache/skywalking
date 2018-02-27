@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.resin.v4.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -25,17 +24,10 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.plugin.resin.v4.ResinV4Interceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * {@link ResinV4Instrumentation} presents that skywalking intercepts {@link com.caucho.server.dispatch.ServletInvocation#service(javax.servlet.ServletRequest,
- * javax.servlet.ServletResponse)} by using {@link ResinV4Interceptor}.
- *
- * @author baiyang
- */
 public class ResinV4Instrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "com.caucho.server.dispatch.ServletInvocation";
 

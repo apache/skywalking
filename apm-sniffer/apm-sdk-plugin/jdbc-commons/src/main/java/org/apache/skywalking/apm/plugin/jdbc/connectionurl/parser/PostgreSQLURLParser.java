@@ -24,11 +24,6 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 /**
  * {@link PostgreSQLURLParser} parse connection url of mysql.
- * <p>
- * The {@link ConnectionInfo#host} be set the string between charset "//" and the first
- * charset "/" after the charset "//", and {@link ConnectionInfo#databaseName} be set the
- * string between the last index of "/" and the first charset "?". but one more thing, the
- * {@link ConnectionInfo#hosts} be set if the host container multiple host.
  *
  * @author zhangxin
  */

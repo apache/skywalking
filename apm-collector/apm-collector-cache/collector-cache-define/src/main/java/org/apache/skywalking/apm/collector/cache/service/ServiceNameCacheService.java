@@ -16,16 +16,14 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.cache.service;
 
 import org.apache.skywalking.apm.collector.core.module.Service;
+import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
 
 /**
  * @author peng-yongsheng
  */
 public interface ServiceNameCacheService extends Service {
-    String get(int serviceId);
-
-    String getSplitServiceName(String serviceName);
+    ServiceName get(int serviceId);
 }

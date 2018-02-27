@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.h2.base.define;
 
 import org.apache.skywalking.apm.collector.core.data.ColumnDefine;
@@ -31,6 +30,6 @@ public class H2ColumnDefine extends ColumnDefine {
     }
 
     public enum Type {
-        Boolean, Varchar, Int, Bigint, BINARY, Double
+        Varchar, Int, Bigint, BINARY, Double
     }
 }
