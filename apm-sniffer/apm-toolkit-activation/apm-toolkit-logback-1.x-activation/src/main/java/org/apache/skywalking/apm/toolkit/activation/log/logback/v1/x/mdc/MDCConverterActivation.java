@@ -34,6 +34,10 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  */
 public class MDCConverterActivation extends ClassInstanceMethodsEnhancePluginDefine {
 
+    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.mdc.PrintMDCTraceIdInterceptor";
+    public static final String ENHANCE_CLASS = "org.apache.skywalking.apm.toolkit.log.logback.v1.x.mdc.LogbackMDCPatternConverter";
+    public static final String ENHANCE_METHOD = "convertTID";
+
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return null;
@@ -45,12 +49,12 @@ public class MDCConverterActivation extends ClassInstanceMethodsEnhancePluginDef
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("convertTID");
+                    return named(ENHANCE_METHOD);
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "PrintMDCTraceIdInterceptor";
+                    return INTERCEPT_CLASS;
                 }
 
                 @Override public boolean isOverrideArgs() {
@@ -62,6 +66,6 @@ public class MDCConverterActivation extends ClassInstanceMethodsEnhancePluginDef
 
     @Override
     protected ClassMatch enhanceClass() {
-        return NameMatch.byName("org.apache.skywalking.apm.toolkit.log.logback.v1.x.mdc.LogbackMDCPatternConverter");
+        return NameMatch.byName(ENHANCE_CLASS);
     }
 }

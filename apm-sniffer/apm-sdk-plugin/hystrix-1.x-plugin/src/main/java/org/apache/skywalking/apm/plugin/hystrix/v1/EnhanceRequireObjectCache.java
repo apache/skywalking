@@ -16,24 +16,33 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.httpClient.v4.define;
+package org.apache.skywalking.apm.plugin.hystrix.v1;
 
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 
 /**
- * @author zhangxin
+ * {@link EnhanceRequireObjectCache} record the prefix operation name of span and {@link ContextSnapshot} object for
+ * tracing.
+ *
+ * @author zhang xin
  */
-public abstract class HttpClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class EnhanceRequireObjectCache {
+    private final String operationNamePrefix;
+    private ContextSnapshot contextSnapshot;
 
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.httpClient.v4.HttpClientExecuteInterceptor";
-
-    @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return null;
+    public EnhanceRequireObjectCache(String prefix) {
+        operationNamePrefix = prefix;
     }
 
-    protected String getInstanceMethodsInterceptor() {
-        return INTERCEPT_CLASS;
+    public String getOperationNamePrefix() {
+        return operationNamePrefix;
+    }
+
+    public ContextSnapshot getContextSnapshot() {
+        return contextSnapshot;
+    }
+
+    public void setContextSnapshot(ContextSnapshot contextSnapshot) {
+        this.contextSnapshot = contextSnapshot;
     }
 }
