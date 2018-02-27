@@ -33,10 +33,10 @@ export default {
             'cost|60': ['@natural(0, 99)'],
           },
           getMemoryTrend: {
-            'heap|60': ['@natural(500, 900)'],
-            'maxHeap|60': [1000],
-            'noheap|60': ['@natural(100, 200)'],
-            'maxNoheap|60': [300],
+            'heap|61': ['@natural(500, 900)'],
+            'maxHeap|61': [1000],
+            'noheap|61': ['@natural(100, 200)'],
+            'maxNoheap|61': [300],
           },
           getGCTrend: {
             'youngGC|60': ['@natural(200, 300)'],

@@ -5,7 +5,7 @@ import {
   ChartCard, MiniArea, MiniBar, Line, Area, StackBar,
 } from '../../components/Charts';
 import DescriptionList from '../../components/DescriptionList';
-import { timeRange } from '../../utils/time';
+import { axis } from '../../utils/time';
 import { Panel, Search } from '../../components/Page';
 
 const { Description } = DescriptionList;
@@ -50,11 +50,11 @@ export default class Server extends PureComponent {
   avg = list => (list.length > 0 ?
     (list.reduce((acc, curr) => acc + curr) / list.length).toFixed(2) : 0)
   render() {
-    const { getFieldDecorator } = this.props.form;
-    const { variables: { values }, data } = this.props.server;
+    const { form, duration, server } = this.props;
+    const { getFieldDecorator } = form;
+    const { variables: { values }, data } = server;
     const { serverInfo, getServerResponseTimeTrend, getServerTPSTrend,
       getCPUTrend, getMemoryTrend, getGCTrend } = data;
-    const timeRangeArray = timeRange(this.props.duration);
     return (
       <div>
         <Form layout="inline">
@@ -104,8 +104,7 @@ export default class Server extends PureComponent {
                   <MiniArea
                     animate={false}
                     color="#975FE4"
-                    data={getServerResponseTimeTrend.trendList
-                      .map((v, i) => { return { x: timeRangeArray[i], y: v }; })}
+                    data={axis(duration, getServerResponseTimeTrend.trendList)}
                   />
                 ) : (<span style={{ display: 'none' }} />)}
               </ChartCard>
@@ -118,8 +117,7 @@ export default class Server extends PureComponent {
                 <MiniBar
                   animate={false}
                   height={46}
-                  data={getServerTPSTrend.trendList
-                    .map((v, i) => { return { x: timeRangeArray[i], y: v }; })}
+                  data={axis(duration, getServerTPSTrend.trendList)}
                 />
               </ChartCard>
             </Col>
@@ -128,11 +126,10 @@ export default class Server extends PureComponent {
             <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginTop: 24 }}>
               <ChartCard
                 title="CPU"
-                contentHeight={250}
+                contentHeight={150}
               >
                 <Line
-                  data={getCPUTrend.cost
-                    .map((v, i) => { return { x: timeRangeArray[i], y: v }; })}
+                  data={axis(duration, getCPUTrend.cost)}
                 />
               </ChartCard>
             </Col>
@@ -141,26 +138,22 @@ export default class Server extends PureComponent {
             <Col xs={24} sm={24} md={12} lg={12} xl={12} style={{ marginTop: 24 }}>
               <ChartCard
                 title="Heap"
-                contentHeight={250}
+                contentHeight={150}
               >
                 <Area
-                  data={getMemoryTrend.heap
-                    .map((v, i) => ({ x: timeRangeArray[i], y: v, type: 'value' }))
-                    .concat(getMemoryTrend.maxHeap
-                    .map((v, i) => ({ x: timeRangeArray[i], y: v, type: 'limit ' })))}
+                  data={axis(duration, getMemoryTrend.heap, ({ x, y }) => ({ x, y, type: 'value' }))
+                    .concat(axis(duration, getMemoryTrend.maxHeap, ({ x, y }) => ({ x, y, type: 'limit' })))}
                 />
               </ChartCard>
             </Col>
             <Col xs={24} sm={24} md={12} lg={12} xl={12} style={{ marginTop: 24 }}>
               <ChartCard
                 title="No-Heap"
-                contentHeight={250}
+                contentHeight={150}
               >
                 <Area
-                  data={getMemoryTrend.noheap
-                    .map((v, i) => ({ x: timeRangeArray[i], y: v, type: 'value' }))
-                    .concat(getMemoryTrend.maxNoheap
-                    .map((v, i) => ({ x: timeRangeArray[i], y: v, type: 'limit ' })))}
+                  data={axis(duration, getMemoryTrend.noheap, ({ x, y }) => ({ x, y, type: 'value' }))
+                  .concat(axis(duration, getMemoryTrend.maxNoheap, ({ x, y }) => ({ x, y, type: 'limit' })))}
                 />
               </ChartCard>
             </Col>
@@ -169,13 +162,11 @@ export default class Server extends PureComponent {
             <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginTop: 24 }}>
               <ChartCard
                 title="GC"
-                contentHeight={250}
+                contentHeight={150}
               >
                 <StackBar
-                  data={getGCTrend.oldGC
-                    .map((v, i) => ({ x: timeRangeArray[i], y: v, type: 'oldGC' }))
-                    .concat(getGCTrend.youngGC
-                    .map((v, i) => ({ x: timeRangeArray[i], y: v, type: 'youngGC' })))}
+                  data={axis(duration, getGCTrend.oldGC, ({ x, y }) => ({ x, y, type: 'oldGC' }))
+                  .concat(axis(duration, getGCTrend.youngGC, ({ x, y }) => ({ x, y, type: 'youngGC' })))}
                 />
               </ChartCard>
             </Col>

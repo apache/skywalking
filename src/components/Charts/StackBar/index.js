@@ -102,7 +102,7 @@ class Area extends Component {
               tickLine={autoHideXLabels ? false : {}}
             />
             <Axis name="y" min={0} />
-            <Tooltip showTitle={false} />
+            <Tooltip />
             <Geom type="intervalStack" position="x*y" color={['type', [color, limitColor]]} />
           </Chart>
         </div>

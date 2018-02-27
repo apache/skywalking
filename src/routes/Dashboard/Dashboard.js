@@ -4,7 +4,7 @@ import { Row, Col, Card } from 'antd';
 import {
   ChartCard, Pie, MiniArea, Field,
 } from '../../components/Charts';
-import { timeRange } from '../../utils/time';
+import { axis } from '../../utils/time';
 import { Panel, Ranking } from '../../components/Page';
 
 @connect(state => ({
@@ -21,16 +21,14 @@ export default class Dashboard extends PureComponent {
   }
   render() {
     const { data } = this.props.dashboard;
-    const visitData = [];
     const { numOfAlarmRate } = data.getAlarmTrend;
     const accuracy = 100;
+    let visitData = [];
     let avg = 0;
     let max = 0;
     let min = 0;
     if (numOfAlarmRate && numOfAlarmRate.length > 0) {
-      timeRange(this.props.duration).forEach((v, i) => {
-        visitData.push({ x: v, y: numOfAlarmRate[i] / accuracy });
-      });
+      visitData = axis(this.props.duration, numOfAlarmRate, ({ x, y }) => ({ x, y: y / accuracy }));
       avg = numOfAlarmRate.reduce((acc, curr) => acc + curr) / numOfAlarmRate.length / accuracy;
       max = numOfAlarmRate.reduce((acc, curr) => { return acc < curr ? curr : acc; }) / accuracy;
       min = numOfAlarmRate.reduce((acc, curr) => { return acc > curr ? curr : acc; }) / accuracy;
@@ -54,7 +52,7 @@ export default class Dashboard extends PureComponent {
           </Col>
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
-              title="Store"
+              title="DB & Cache"
               avatar={<img style={{ width: 48, height: 56 }} src="database.svg" alt="database" />}
               total={data.getClusterBrief.numOfDatabase
                 + data.getClusterBrief.numOfCache}
@@ -75,13 +73,13 @@ export default class Dashboard extends PureComponent {
               avatar={<img style={{ width: 56, height: 56 }} src="alert.svg" alt="app" />}
               total={`${avg.toFixed(2)}%`}
               footer={<div><Field label="Max" value={`${max}%`} /> <Field label="Min" value={`${min}%`} /></div>}
+              contentHeight={100}
             >
               <MiniArea
                 animate={false}
                 color="#D87093"
                 borderColor="#B22222"
                 line="true"
-                height={143}
                 data={visitData}
                 yAxis={{
                   formatter(val) {
@@ -92,12 +90,10 @@ export default class Dashboard extends PureComponent {
             </ChartCard>
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 24 }}>
-            <Card
-              bordered={false}
-              bodyStyle={{ padding: 0 }}
+            <ChartCard
+              contentHeight={200}
             >
               <Pie
-                animate={false}
                 hasLegend
                 title="Database"
                 subTitle="Total"
@@ -105,10 +101,8 @@ export default class Dashboard extends PureComponent {
                   .reduce((pre, now) => now.num + pre, 0)}
                 data={data.getConjecturalApps.apps
                   .map((v) => { return { x: v.name, y: v.num }; })}
-                height={300}
-                lineWidth={4}
               />
-            </Card>
+            </ChartCard>
           </Col>
         </Row>
         <Row gutter={24}>

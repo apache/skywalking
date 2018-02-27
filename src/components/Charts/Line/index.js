@@ -72,6 +72,7 @@ class Line extends Component {
     const scale = {
       x: {
         type: 'cat',
+        tickCount: 5,
       },
       y: {
         min: 0,

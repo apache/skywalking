@@ -5,7 +5,7 @@ export default {
     res.json(mockjs.mock(
       {
         data: {
-          'applicationCodes|20-50': [{ 'key|+1': 3, label: function() { return `app-${this.key}`; } }],  // eslint-disable-line
+          'applicationId|20-50': [{ 'key|+1': 3, label: function() { return `app-${this.key}`; } }], // eslint-disable-line
         },
       }
     ));

@@ -4,7 +4,7 @@ import { Row, Col, Card, Form } from 'antd';
 import {
   ChartCard, MiniArea, MiniBar,
 } from '../../components/Charts';
-import { timeRange } from '../../utils/time';
+import { axis } from '../../utils/time';
 import { ServiceTopology } from '../../components/Topology';
 import { Panel, Search } from '../../components/Page';
 
@@ -49,11 +49,11 @@ export default class Service extends PureComponent {
   avg = list => (list.length > 0 ?
     (list.reduce((acc, curr) => acc + curr) / list.length).toFixed(2) : 0)
   render() {
-    const { getFieldDecorator } = this.props.form;
-    const { variables: { values }, data } = this.props.service;
+    const { form, service, duration } = this.props;
+    const { getFieldDecorator } = form;
+    const { variables: { values }, data } = service;
     const { getServiceResponseTimeTrend, getServiceTPSTrend,
       getServiceSLATrend, getServiceTopology } = data;
-    const timeRangeArray = timeRange(this.props.duration);
     return (
       <div>
         <Form layout="inline">
@@ -89,8 +89,7 @@ export default class Service extends PureComponent {
               >
                 <MiniArea
                   color="#975FE4"
-                  data={getServiceTPSTrend.trendList
-                    .map((v, i) => { return { x: timeRangeArray[i], y: v }; })}
+                  data={axis(duration, getServiceTPSTrend.trendList)}
                 />
               </ChartCard>
             </Col>
@@ -101,8 +100,7 @@ export default class Service extends PureComponent {
                 contentHeight={46}
               >
                 <MiniArea
-                  data={getServiceResponseTimeTrend.trendList
-                    .map((v, i) => { return { x: timeRangeArray[i], y: v }; })}
+                  data={axis(duration, getServiceResponseTimeTrend.trendList)}
                 />
               </ChartCard>
             </Col>
@@ -114,8 +112,8 @@ export default class Service extends PureComponent {
                 <MiniBar
                   animate={false}
                   height={46}
-                  data={getServiceSLATrend.trendList
-                    .map((v, i) => { return { x: timeRangeArray[i], y: v / 100 }; })}
+                  data={axis(duration, getServiceSLATrend.trendList,
+                    ({ x, y }) => ({ x, y: y / 100 }))}
                 />
               </ChartCard>
             </Col>

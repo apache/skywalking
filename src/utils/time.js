@@ -1,5 +1,6 @@
-export function timeRange({ display }) {
-  return display.range;
+export function axis({ display }, data, tranformFunc) {
+  return display.range.map((v, i) =>
+    (tranformFunc ? tranformFunc({ x: v, y: data[i] }) : { x: v, y: data[i] }));
 }
 
 export function generateDuration({ from, to }) {
