@@ -24,20 +24,14 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.plugin.lettuce.v4.StatefulRedisConnectionImplInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * 1{@link StatefulRedisConnectionImplInstrumentation} defined that {@link StatefulRedisConnectionImplInterceptor}
- * intercept the constructor and  the method newStatefulRedisConnection in the class
- * <code>com.lambdaworks.redis.StatefulRedisConnectionImpl</code>.
- * <pre>
  *  1. Record the peer when  create the <code>com.lambdaworks.redis.StatefulRedisConnectionImpl</code> instance
  *  2.Create the exit span when the client invoke <code>dispatch</code> method
- * </pre>
  *
  * @author liyuntao
  */

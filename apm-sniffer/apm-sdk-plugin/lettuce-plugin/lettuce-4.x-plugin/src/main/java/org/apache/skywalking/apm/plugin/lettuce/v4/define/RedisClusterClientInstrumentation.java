@@ -24,20 +24,15 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.plugin.lettuce.v4.RedisClientInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * 1{@link RedisClusterClientInstrumentation} defined that {@link RedisClientInterceptor} intercept the constructor and
- * the method newStatefulRedisConnection in the class <code>com.lambdaworks.redis.RedisClient</code>.
- * <pre>
  *  1. Record the peer when  create the <code>com.lambdaworks.redis.RedisClient</code> instance
- *  2. Transfer the peer by <code>StatefulRedisClusterConnectionImpl<code> instance when
+ *  2. Transfer the peer by <code>StatefulRedisClusterConnectionImpl</code> instance when
  * invoke <code>com.lambdaworks.redis.cluster.RedisClusterClient#connectClusterImpl(com.lambdaworks.redis.codec.RedisCodec)</code>
- * </pre>
  *
  * @author liyuntao
  */

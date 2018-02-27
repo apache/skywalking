@@ -20,13 +20,9 @@
 package org.apache.skywalking.apm.plugin.httpClient.v4.define;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import org.apache.skywalking.apm.plugin.httpClient.v4.HttpClientExecuteInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 
 /**
- * {@link HttpClientInstrumentation} present that skywalking intercepts {@link HttpClientInstrumentation#enhanceClass()}
- * by using {@link HttpClientExecuteInterceptor}
- *
  * @author zhangxin
  */
 public abstract class HttpClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {

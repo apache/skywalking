@@ -24,15 +24,11 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.plugin.lettuce.v4.CommandHandlerInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.any;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link CommandHandlerInstrumentation} defined that {@link CommandHandlerInterceptor} intercept the  constructor in
- * the class <code>com.lambdaworks.redis.protocol.CommandHandler</code>.
- *
  * @author liyuntao
  */
 public class CommandHandlerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
