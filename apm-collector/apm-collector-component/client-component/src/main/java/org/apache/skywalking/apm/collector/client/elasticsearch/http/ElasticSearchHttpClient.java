@@ -20,9 +20,23 @@
 package org.apache.skywalking.apm.collector.client.elasticsearch.http;
 
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContextBuilder;
+import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.nio.conn.SchemeIOSessionStrategy;
+import org.apache.http.nio.conn.ssl.SSLIOSessionStrategy;
 import org.apache.skywalking.apm.collector.client.Client;
 import org.apache.skywalking.apm.collector.client.ClientException;
 import org.elasticsearch.common.settings.Settings;
@@ -84,7 +98,7 @@ public class ElasticSearchHttpClient implements Client {
 
     @Override public void initialize() throws ClientException {
         JestClientFactory factory = new JestClientFactory();
-        factory.setHttpClientConfig(new HttpClientConfig
+        HttpClientConfig.Builder builder = new HttpClientConfig
                 .Builder(makeServers())
                 .multiThreaded(true)
                 .discoveryFrequency(1, TimeUnit.MINUTES)
@@ -93,8 +107,34 @@ public class ElasticSearchHttpClient implements Client {
                 //Per default this implementation will create no more than 2 concurrent connections per given route
                 .defaultMaxTotalConnectionPerRoute(1)
                 // and no more 20 connections in total
-                .maxTotalConnection(10)
-                .build());
+                .maxTotalConnection(10);
+        if(ssl){
+            SSLContext sslContext = null;
+            try {
+                sslContext = new org.apache.http.ssl.SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
+                    public boolean isTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+                        return true;
+                    }
+                }).build();
+            } catch (KeyManagementException e) {
+                e.printStackTrace();
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            } catch (KeyStoreException e) {
+                e.printStackTrace();
+            }
+            
+            HostnameVerifier hostnameVerifier = NoopHostnameVerifier.INSTANCE;
+
+            SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
+            SchemeIOSessionStrategy httpsIOSessionStrategy = new SSLIOSessionStrategy(sslContext, hostnameVerifier);
+
+            builder.defaultSchemeForDiscoveredNodes("https") // required, otherwise uses http
+            .sslSocketFactory(sslSocketFactory) // this only affects sync calls
+            .httpsIOSessionStrategy(httpsIOSessionStrategy); // this only affects async calls
+        }
+        
+        factory.setHttpClientConfig(builder.build());
 
         client = factory.getObject();
 
