@@ -16,18 +16,17 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.h2.dao.register;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
-import org.apache.skywalking.apm.collector.storage.dao.register.IServiceNameRegisterDAO;
-import org.apache.skywalking.apm.collector.storage.table.register.ServiceNameTable;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
 import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
+import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
+import org.apache.skywalking.apm.collector.storage.dao.register.IServiceNameRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
+import org.apache.skywalking.apm.collector.storage.table.register.ServiceNameTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +60,7 @@ public class ServiceNameRegisterH2DAO extends H2DAO implements IServiceNameRegis
         source.put(ServiceNameTable.COLUMN_SERVICE_ID, serviceName.getServiceId());
         source.put(ServiceNameTable.COLUMN_APPLICATION_ID, serviceName.getApplicationId());
         source.put(ServiceNameTable.COLUMN_SERVICE_NAME, serviceName.getServiceName());
+        source.put(ServiceNameTable.COLUMN_SRC_SPAN_TYPE, serviceName.getSrcSpanType());
 
         String sql = SqlBuilder.buildBatchInsertSql(ServiceNameTable.TABLE, source.keySet());
         Object[] params = source.values().toArray(new Object[0]);
