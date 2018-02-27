@@ -15,6 +15,7 @@
             <groupId>biz.paluch.redis</groupId>
             <artifactId>lettuce</artifactId>
             <version>4.4.0.Final</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
