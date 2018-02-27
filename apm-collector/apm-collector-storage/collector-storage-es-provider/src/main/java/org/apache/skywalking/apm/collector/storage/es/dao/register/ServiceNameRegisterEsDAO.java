@@ -56,6 +56,8 @@ public class ServiceNameRegisterEsDAO extends EsDAO implements IServiceNameRegis
         source.put(ServiceNameTable.COLUMN_SERVICE_ID, serviceName.getServiceId());
         source.put(ServiceNameTable.COLUMN_APPLICATION_ID, serviceName.getApplicationId());
         source.put(ServiceNameTable.COLUMN_SERVICE_NAME, serviceName.getServiceName());
+        source.put(ServiceNameTable.COLUMN_SERVICE_NAME_KEYWORD, serviceName.getServiceName());
+        source.put(ServiceNameTable.COLUMN_SRC_SPAN_TYPE, serviceName.getSrcSpanType());
 
         IndexResponse response = client.prepareIndex(ServiceNameTable.TABLE, serviceName.getId()).setSource(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
         logger.debug("save service name register info, application getApplicationId: {}, service name: {}, status: {}", serviceName.getId(), serviceName.getServiceName(), response.status().name());
