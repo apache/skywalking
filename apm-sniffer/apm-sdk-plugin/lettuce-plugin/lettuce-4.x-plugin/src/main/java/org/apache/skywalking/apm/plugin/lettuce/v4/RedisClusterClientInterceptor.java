@@ -29,8 +29,12 @@ public class RedisClusterClientInterceptor implements InstanceMethodsAroundInter
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        Iterable<RedisURI> redisURI = (Iterable<RedisURI>)allArguments[1];
-        objInst.setSkyWalkingDynamicField(redisURI);
+        Iterable<RedisURI> redisURIs = (Iterable<RedisURI>)allArguments[1];
+        StringBuilder peers = new StringBuilder();
+        for (RedisURI redisURI : redisURIs) {
+            peers.append(redisURI.getHost() + ":" + redisURI.getPort() + ";");
+        }
+        objInst.setSkyWalkingDynamicField(peers.toString());
     }
 
     @Override
@@ -42,9 +46,9 @@ public class RedisClusterClientInterceptor implements InstanceMethodsAroundInter
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        Iterable<RedisURI> redisURI = (Iterable<RedisURI>)objInst.getSkyWalkingDynamicField();
+        String peers = (String)objInst.getSkyWalkingDynamicField();
         EnhancedInstance obj = (EnhancedInstance)ret;
-        obj.setSkyWalkingDynamicField(redisURI);
+        obj.setSkyWalkingDynamicField(peers);
         return obj;
     }
 

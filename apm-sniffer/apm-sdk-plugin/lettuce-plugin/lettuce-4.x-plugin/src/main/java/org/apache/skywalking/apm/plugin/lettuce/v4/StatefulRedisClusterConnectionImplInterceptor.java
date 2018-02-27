@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.lettuce.v4;
 
-import com.lambdaworks.redis.RedisURI;
 import com.lambdaworks.redis.protocol.RedisCommand;
 import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -36,9 +35,9 @@ public class StatefulRedisClusterConnectionImplInterceptor implements InstanceMe
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         RedisCommand command = (RedisCommand)allArguments[0];
         String comandType = String.valueOf(command.getType());
-        if (!"AUTH".equals(comandType)) {
-            Iterable<RedisURI> redisURIs = (Iterable<RedisURI>)objInst.getSkyWalkingDynamicField();
-            AbstractSpan span = ContextManager.createExitSpan("REDIS-Lettuce/" + comandType, redisURIs.toString());
+        if (checkIfNotIgnoreCommandType(comandType)) {
+            String peers = (String)objInst.getSkyWalkingDynamicField();
+            AbstractSpan span = ContextManager.createExitSpan("REDIS-Lettuce/" + comandType, peers);
             span.setComponent(ComponentsDefine.REDIS);
             Tags.DB_TYPE.set(span, "Redis");
             SpanLayer.asCache(span);
@@ -55,7 +54,7 @@ public class StatefulRedisClusterConnectionImplInterceptor implements InstanceMe
             AbstractSpan span = ContextManager.activeSpan();
             span.errorOccurred();
         }
-        if (!"AUTH".equals(comandType)) {
+        if (checkIfNotIgnoreCommandType(comandType)) {
             ContextManager.stopSpan();
         }
         return ret;
@@ -66,5 +65,15 @@ public class StatefulRedisClusterConnectionImplInterceptor implements InstanceMe
         AbstractSpan span = ContextManager.activeSpan();
         span.errorOccurred();
         span.log(t);
+    }
+
+    /**
+     * Check the comandtype ,ignore  "AUTH"  "COMMAND" .
+     */
+    private Boolean checkIfNotIgnoreCommandType(String comandType) {
+        if ("AUTH".equals(comandType) || "COMMAND".equals(comandType)) {
+            return false;
+        }
+        return true;
     }
 }

@@ -43,7 +43,7 @@ public class StatefulRedisConnectionImplInterceptor implements InstanceMethodsAr
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         RedisCommand command = (RedisCommand)allArguments[0];
         String comandType = String.valueOf(command.getType());
-        if (checkIgnoreCommandType(comandType)) {
+        if (checkIfNotIgnoreCommandType(comandType)) {
             String peer = String.valueOf(objInst.getSkyWalkingDynamicField());
             AbstractSpan span = ContextManager.createExitSpan("REDIS-Lettuce/" + comandType, peer);
             span.setComponent(ComponentsDefine.REDIS);
@@ -57,11 +57,14 @@ public class StatefulRedisConnectionImplInterceptor implements InstanceMethodsAr
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
         RedisCommand command = (RedisCommand)allArguments[0];
+        String comandType = String.valueOf(command.getType());
         if (null != command.getOutput().getError()) {
             AbstractSpan span = ContextManager.activeSpan();
             span.errorOccurred();
         }
-        ContextManager.stopSpan();
+        if (checkIfNotIgnoreCommandType(comandType)) {
+            ContextManager.stopSpan();
+        }
         return ret;
     }
 
@@ -75,7 +78,7 @@ public class StatefulRedisConnectionImplInterceptor implements InstanceMethodsAr
     /**
      * Check the comandtype ,ignore  "AUTH"  "CLIENT" "CLUSTER" .
      */
-    private Boolean checkIgnoreCommandType(String comandType) {
+    private Boolean checkIfNotIgnoreCommandType(String comandType) {
         if ("AUTH".equals(comandType) || "CLIENT".equals(comandType) || "CLUSTER".equals(comandType)) {
             return false;
         }
