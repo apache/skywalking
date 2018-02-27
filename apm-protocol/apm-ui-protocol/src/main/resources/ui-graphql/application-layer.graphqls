@@ -10,7 +10,7 @@ type ApplicationNode implements Node {
     # The number of incoming calls
     callsPerSec: Long!
     # Unit: millisecond
-    responseTimePerSec: Long!
+    avgResponseTime: Long!
     # ref: http://www.apdex.org/
     # Max value is 100
     # 2 Digits after floating point in UI, need to division by 100. 100 -> 1.00

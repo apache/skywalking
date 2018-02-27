@@ -117,7 +117,7 @@ public class ApplicationTopologyService {
 //            long calls = call.getCalls();
 //            long responseTimes = call.getResponseTimes();
 //            call.setCallsPerSec(calls / secondsBetween);
-//            call.setResponseTimePerSec(responseTimes / secondsBetween);
+//            call.setAvgResponseTime(responseTimes / secondsBetween);
 //        });
         return null;
     }

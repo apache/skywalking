@@ -62,8 +62,8 @@ class TopologyBuilder {
         calleeReferenceMetric = calleeReferenceMetricFilter(calleeReferenceMetric);
 
         List<Node> nodes = new LinkedList<>();
-        applicationMetrics.forEach(node -> {
-            int id = node.getId();
+        applicationMetrics.forEach(applicationMetric -> {
+            int id = applicationMetric.getId();
             Application application = applicationCacheService.getApplicationById(id);
             ApplicationNode applicationNode = new ApplicationNode();
             applicationNode.setId(id);
@@ -72,7 +72,7 @@ class TopologyBuilder {
 
             applicationNode.setSla(10);
             applicationNode.setCallsPerSec(100L);
-            applicationNode.setResponseTimePerSec(100L);
+            applicationNode.setAvgResponseTime((applicationMetric.getDurations() - applicationMetric.getErrorDurations()) / (applicationMetric.getCalls() - applicationMetric.getErrorCalls()));
             applicationNode.setApdex(10);
             applicationNode.setAlarm(false);
             applicationNode.setNumOfServer(1);
@@ -104,7 +104,7 @@ class TopologyBuilder {
             call.setAlert(true);
             call.setCallType(components.get(referenceMetric.getTarget()));
             call.setCallsPerSec(1);
-            call.setResponseTimePerSec(1);
+            call.setAvgResponseTime((referenceMetric.getDurations() - referenceMetric.getErrorDurations()) / (referenceMetric.getCalls() - referenceMetric.getErrorCalls()));
             calls.add(call);
         });
 
@@ -141,7 +141,7 @@ class TopologyBuilder {
                 call.setCallType(components.get(referenceMetric.getTarget()));
             }
             call.setCallsPerSec(1);
-            call.setResponseTimePerSec(1);
+            call.setAvgResponseTime((referenceMetric.getDurations() - referenceMetric.getErrorDurations()) / (referenceMetric.getCalls() - referenceMetric.getErrorCalls()));
             calls.add(call);
         });
 
