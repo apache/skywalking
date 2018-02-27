@@ -30,13 +30,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
-/**
- * {@link ResinV3Instrumentation} presents that skywalking intercepts
- * {@link com.caucho.server.dispatch.ServletInvocation#service(javax.servlet.ServletRequest,javax.servlet.ServletResponse)}
- * by using {@link ResinV3Interceptor}.
- *
- * @author baiyang
- */
 public class ResinV3Instrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "com.caucho.server.dispatch.ServletInvocation";

@@ -29,12 +29,6 @@ import org.apache.skywalking.apm.plugin.kafka.v1.CallbackInterceptor;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierarchyMatch;
 
-/**
- * {@link CallbackInstrumentation} defined that {@link CallbackInterceptor}
- * intercept the method onCompletion in the class <code>org.apache.kafka.clients.producer.Callback</code>.
- *
- * @author zhangxin
- */
 public class CallbackInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     public static final String ENHANCE_CLASS = "org.apache.kafka.clients.producer.Callback";

@@ -16,30 +16,20 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.motan.define;
 
 import com.weibo.api.motan.rpc.Request;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
-import org.apache.skywalking.apm.plugin.motan.MotanConsumerInterceptor;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
-/**
- * {@link MotanProviderInstrumentation} presents that skywalking will use
- * {@link MotanConsumerInterceptor} to intercept
- * all constructor of {@link com.weibo.api.motan.rpc.AbstractProvider} and
- * {@link com.weibo.api.motan.rpc.AbstractProvider#call(Request)}.
- *
- * @author zhangxin
- */
 public class MotanProviderInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     /**
