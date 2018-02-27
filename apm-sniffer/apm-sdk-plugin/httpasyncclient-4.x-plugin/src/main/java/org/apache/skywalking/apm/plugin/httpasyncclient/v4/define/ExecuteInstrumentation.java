@@ -31,7 +31,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link ExecuteInstrumentation} presents that skywalking intercepts {@link org.apache.http.impl.nio.client.CloseableHttpAsyncClient#execute}
+ * {@link ExecuteInstrumentation} presents that skywalking intercepts org.apache.http.impl.nio.client.CloseableHttpAsyncClient#execute
  *
  * @author liyuntao
  */

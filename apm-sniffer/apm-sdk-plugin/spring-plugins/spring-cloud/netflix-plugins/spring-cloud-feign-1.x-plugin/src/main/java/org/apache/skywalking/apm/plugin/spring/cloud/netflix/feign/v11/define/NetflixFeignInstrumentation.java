@@ -16,26 +16,18 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.cloud.netflix.feign.v11.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.plugin.feign.http.v9.DefaultHttpClientInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * {@link NetflixFeignInstrumentation} presents that skywalking intercepts {@link org.springframework.cloud.netflix.feign.ribbon.LoadBalancerFeignClient#execute(feign.Request,
- * feign.Request.Options)} by using {@link DefaultHttpClientInterceptor}.
- *
- * @author zhangxin
- */
 public class NetflixFeignInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     /**
      * Enhance class.

@@ -24,13 +24,12 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
-import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
+import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -46,13 +45,6 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
  */
 public class RealCallInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 
-    /**
-     * Intercept the {@link okhttp3.RealCall#RealCall(OkHttpClient, Request, boolean)}, then put the second argument of
-     * {@link okhttp3.Request} into {@link EnhancedInstance}.
-     *
-     * @param objInst a new added instance field
-     * @param allArguments constructor invocation context.
-     */
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         objInst.setSkyWalkingDynamicField(allArguments[1]);

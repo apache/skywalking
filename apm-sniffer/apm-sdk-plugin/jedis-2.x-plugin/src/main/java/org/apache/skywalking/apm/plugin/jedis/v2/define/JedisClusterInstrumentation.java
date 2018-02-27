@@ -16,34 +16,21 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jedis.v2.define;
 
 import java.util.Set;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.plugin.jedis.v2.JedisClusterConstructorWithHostAndPortArgInterceptor;
-import org.apache.skywalking.apm.plugin.jedis.v2.JedisClusterConstructorWithListHostAndPortArgInterceptor;
-import org.apache.skywalking.apm.plugin.jedis.v2.JedisMethodInterceptor;
 import org.apache.skywalking.apm.plugin.jedis.v2.RedisMethodMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * {@link JedisClusterInstrumentation} presents that skywalking intercepts all constructors and methods of {@link
- * redis.clients.jedis.JedisCluster}. {@link JedisClusterConstructorWithHostAndPortArgInterceptor}
- * intercepts all constructor with argument {@link redis.clients.jedis.HostAndPort} and the other constructor intercept
- * by class {@link JedisClusterConstructorWithListHostAndPortArgInterceptor}. {@link JedisMethodInterceptor} intercept
- * all methods of {@link redis.clients.jedis.JedisCluster}
- *
- * @author zhangxin
- */
 public class JedisClusterInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ARGUMENT_TYPE_NAME = "redis.clients.jedis.HostAndPort";
