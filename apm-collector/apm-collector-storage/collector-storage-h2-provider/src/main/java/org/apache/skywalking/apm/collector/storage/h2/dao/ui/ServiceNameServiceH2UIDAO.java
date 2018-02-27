@@ -29,6 +29,7 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceNameServiceUID
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceNameTable;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
+import org.apache.skywalking.apm.network.proto.SpanType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,9 +45,9 @@ public class ServiceNameServiceH2UIDAO extends H2DAO implements IServiceNameServ
     }
 
     @Override public int getCount() {
-        String dynamicSql = "select count({0}) as cnt from {1}";
-        String sql = SqlBuilder.buildSql(dynamicSql, ServiceNameTable.COLUMN_SERVICE_ID, ServiceNameTable.TABLE);
-        Object[] params = new Object[] {};
+        String dynamicSql = "select count({0}) as cnt from {1} where {2} = ?";
+        String sql = SqlBuilder.buildSql(dynamicSql, ServiceNameTable.COLUMN_SERVICE_ID, ServiceNameTable.TABLE, ServiceNameTable.COLUMN_SRC_SPAN_TYPE);
+        Object[] params = new Object[] {SpanType.Entry_VALUE};
 
         try (ResultSet rs = getClient().executeQuery(sql, params)) {
             if (rs.next()) {

@@ -36,10 +36,11 @@ public class ServiceName extends StreamData {
     private static final Column[] LONG_COLUMNS = {};
 
     private static final Column[] DOUBLE_COLUMNS = {};
-    
+
     private static final Column[] INTEGER_COLUMNS = {
         new Column(ServiceNameTable.COLUMN_APPLICATION_ID, new CoverOperation()),
         new Column(ServiceNameTable.COLUMN_SERVICE_ID, new CoverOperation()),
+        new Column(ServiceNameTable.COLUMN_SRC_SPAN_TYPE, new CoverOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};
@@ -86,5 +87,13 @@ public class ServiceName extends StreamData {
 
     public void setServiceId(int serviceId) {
         setDataInteger(1, serviceId);
+    }
+
+    public int getSrcSpanType() {
+        return getDataInteger(2);
+    }
+
+    public void setSrcSpanType(int srcSpanType) {
+        setDataInteger(2, srcSpanType);
     }
 }
