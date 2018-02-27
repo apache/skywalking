@@ -31,6 +31,8 @@ import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationComponentUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMappingUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationReferenceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Application;
 import org.apache.skywalking.apm.collector.storage.ui.application.ApplicationNode;
 import org.apache.skywalking.apm.collector.storage.ui.application.ConjecturalNode;
@@ -52,58 +54,92 @@ class TopologyBuilder {
     }
 
     Topology build(List<IApplicationComponentUIDAO.ApplicationComponent> applicationComponents,
-        List<IApplicationMappingUIDAO.ApplicationMapping> applicationMappings, List<Call> callerCalls,
-        List<Call> calleeCalls, long secondsBetween) {
+        List<IApplicationMappingUIDAO.ApplicationMapping> applicationMappings,
+        List<IApplicationMetricUIDAO.ApplicationMetric> applicationMetrics,
+        List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> callerReferenceMetric,
+        List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> calleeReferenceMetric, long secondsBetween) {
         Map<Integer, String> components = changeNodeComp2Map(applicationComponents);
-        Map<String, String> mappings = changeMapping2Map(applicationMappings);
+        Map<Integer, Integer> mappings = changeMapping2Map(applicationMappings);
 
-        List<Call> calls = buildCalls(callerCalls, calleeCalls);
-
-        Set<Integer> nodeIds = new HashSet<>();
-        calls.forEach(call -> {
-            String sourceName = applicationCacheService.getApplicationById(call.getSource()).getApplicationCode();
-            String targetName = applicationCacheService.getApplicationById(call.getTarget()).getApplicationCode();
-
-            call.setSourceName(sourceName);
-            call.setTargetName(targetName);
-
-            nodeIds.add(call.getSource());
-            nodeIds.add(call.getTarget());
-        });
+        calleeReferenceMetric = calleeReferenceMetricFilter(calleeReferenceMetric);
 
         List<Node> nodes = new LinkedList<>();
-        nodeIds.forEach(nodeId -> {
-            Application application = applicationCacheService.getApplicationById(nodeId);
-            if (BooleanUtils.valueToBoolean(application.getAddressId())) {
-                ConjecturalNode conjecturalNode = new ConjecturalNode();
-                conjecturalNode.setId(nodeId);
-                conjecturalNode.setName(application.getApplicationCode());
-                conjecturalNode.setType(components.getOrDefault(application.getApplicationId(), Const.UNKNOWN));
-                nodes.add(conjecturalNode);
-            } else {
-                if (nodeId == Const.NONE_APPLICATION_ID) {
-                    VisualUserNode node = new VisualUserNode();
-                    node.setId(nodeId);
-                    node.setName(Const.USER_CODE);
-                    node.setType(Const.USER_CODE.toUpperCase());
-                    nodes.add(node);
-                } else {
-                    ApplicationNode applicationNode = new ApplicationNode();
-                    applicationNode.setId(nodeId);
-                    applicationNode.setName(application.getApplicationCode());
-                    applicationNode.setType(components.getOrDefault(application.getApplicationId(), Const.UNKNOWN));
+        applicationMetrics.forEach(node -> {
+            int id = node.getId();
+            Application application = applicationCacheService.getApplicationById(id);
+            ApplicationNode applicationNode = new ApplicationNode();
+            applicationNode.setId(id);
+            applicationNode.setName(application.getApplicationCode());
+            applicationNode.setType(components.getOrDefault(application.getApplicationId(), Const.UNKNOWN));
 
-                    calleeCalls.forEach(call -> {
-                        if (call.getTarget() == nodeId) {
-                            call.setCallsPerSec(call.getCalls() / secondsBetween);
-                            call.setResponseTimePerSec(call.getResponseTimes() / secondsBetween);
-                        }
-                    });
-                    applicationNode.setCallsPerSec(100L);
-                    applicationNode.setResponseTimePerSec(100L);
-                    nodes.add(applicationNode);
-                }
+            applicationNode.setSla(10);
+            applicationNode.setCallsPerSec(100L);
+            applicationNode.setResponseTimePerSec(100L);
+            applicationNode.setApdex(10);
+            applicationNode.setAlarm(false);
+            applicationNode.setNumOfServer(1);
+            applicationNode.setNumOfServerAlarm(1);
+            applicationNode.setNumOfServiceAlarm(1);
+            nodes.add(applicationNode);
+        });
+
+        List<Call> calls = new LinkedList<>();
+        callerReferenceMetric.forEach(referenceMetric -> {
+            Application source = applicationCacheService.getApplicationById(referenceMetric.getSource());
+            Application target = applicationCacheService.getApplicationById(referenceMetric.getTarget());
+
+            if (BooleanUtils.valueToBoolean(target.getIsAddress()) && !mappings.containsKey(target.getApplicationId())) {
+                ConjecturalNode conjecturalNode = new ConjecturalNode();
+                conjecturalNode.setId(target.getApplicationId());
+                conjecturalNode.setName(target.getApplicationCode());
+                conjecturalNode.setType(components.getOrDefault(target.getApplicationId(), Const.UNKNOWN));
+                nodes.add(conjecturalNode);
             }
+
+            Call call = new Call();
+            call.setSource(source.getApplicationId());
+            call.setSourceName(source.getApplicationCode());
+
+            int actualTargetId = mappings.getOrDefault(target.getApplicationId(), target.getApplicationId());
+            call.setTarget(actualTargetId);
+            call.setTargetName(applicationCacheService.getApplicationById(actualTargetId).getApplicationCode());
+            call.setAlert(true);
+            call.setCallType("aaa");
+            call.setCallsPerSec(1);
+            call.setResponseTimePerSec(1);
+            calls.add(call);
+        });
+
+        calleeReferenceMetric.forEach(referenceMetric -> {
+            Application source = applicationCacheService.getApplicationById(referenceMetric.getSource());
+            Application target = applicationCacheService.getApplicationById(referenceMetric.getTarget());
+
+            if (source.getApplicationId() == Const.NONE_APPLICATION_ID) {
+                VisualUserNode visualUserNode = new VisualUserNode();
+                visualUserNode.setId(source.getApplicationId());
+                visualUserNode.setName(Const.USER_CODE);
+                visualUserNode.setType(Const.USER_CODE.toUpperCase());
+                nodes.add(visualUserNode);
+            }
+
+            if (BooleanUtils.valueToBoolean(source.getIsAddress())) {
+                ConjecturalNode conjecturalNode = new ConjecturalNode();
+                conjecturalNode.setId(source.getApplicationId());
+                conjecturalNode.setName(source.getApplicationCode());
+                conjecturalNode.setType(components.getOrDefault(source.getApplicationId(), Const.UNKNOWN));
+                nodes.add(conjecturalNode);
+            }
+
+            Call call = new Call();
+            call.setSource(source.getApplicationId());
+            call.setSourceName(source.getApplicationCode());
+            call.setTarget(target.getApplicationId());
+            call.setTargetName(target.getApplicationCode());
+            call.setAlert(true);
+            call.setCallType("aaa");
+            call.setCallsPerSec(1);
+            call.setResponseTimePerSec(1);
+            calls.add(call);
         });
 
         Topology topology = new Topology();
@@ -112,14 +148,24 @@ class TopologyBuilder {
         return topology;
     }
 
-    private Map<String, String> changeMapping2Map(
-        List<IApplicationMappingUIDAO.ApplicationMapping> applicationMappings) {
-        Map<String, String> mappings = new HashMap<>();
-        applicationMappings.forEach(applicationMapping -> {
-            String applicationCode = applicationCacheService.getApplicationById(applicationMapping.getApplicationId()).getApplicationCode();
-            String address = applicationCacheService.getApplicationById(applicationMapping.getMappingApplicationId()).getApplicationCode();
-            mappings.put(address, applicationCode);
+    private List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> calleeReferenceMetricFilter(
+        List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> calleeReferenceMetric) {
+        List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> filteredMetrics = new LinkedList<>();
+
+        calleeReferenceMetric.forEach(referenceMetric -> {
+            Application source = applicationCacheService.getApplicationById(referenceMetric.getSource());
+            if (BooleanUtils.valueToBoolean(source.getIsAddress()) || source.getApplicationId() == Const.NONE_APPLICATION_ID) {
+                filteredMetrics.add(referenceMetric);
+            }
         });
+
+        return filteredMetrics;
+    }
+
+    private Map<Integer, Integer> changeMapping2Map(
+        List<IApplicationMappingUIDAO.ApplicationMapping> applicationMappings) {
+        Map<Integer, Integer> mappings = new HashMap<>();
+        applicationMappings.forEach(applicationMapping -> mappings.put(applicationMapping.getMappingApplicationId(), applicationMapping.getApplicationId()));
         return mappings;
     }
 

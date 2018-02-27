@@ -50,7 +50,7 @@ public class ApplicationRegisterEsDAO extends EsDAO implements IApplicationRegis
     }
 
     @Override public void save(Application application) {
-        logger.debug("save application register info, application getId: {}, application code: {}", application.getId(), application.getApplicationCode());
+        logger.debug("save application register info, application getApplicationId: {}, application code: {}", application.getId(), application.getApplicationCode());
         ElasticSearchClient client = getClient();
         Map<String, Object> source = new HashMap<>();
         source.put(ApplicationTable.COLUMN_APPLICATION_CODE, application.getApplicationCode());
@@ -59,6 +59,6 @@ public class ApplicationRegisterEsDAO extends EsDAO implements IApplicationRegis
         source.put(ApplicationTable.COLUMN_IS_ADDRESS, application.getIsAddress());
 
         IndexResponse response = client.prepareIndex(ApplicationTable.TABLE, application.getId()).setSource(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
-        logger.debug("save application register info, application getId: {}, application code: {}, status: {}", application.getApplicationId(), application.getApplicationCode(), response.status().name());
+        logger.debug("save application register info, application getApplicationId: {}, application code: {}, status: {}", application.getApplicationId(), application.getApplicationCode(), response.status().name());
     }
 }
