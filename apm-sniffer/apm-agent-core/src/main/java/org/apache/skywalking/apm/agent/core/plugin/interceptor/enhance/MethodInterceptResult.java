@@ -16,13 +16,14 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance;
 
+import java.lang.reflect.Method;
+
 /**
- * This is a method return value manipulator. When a interceptor's method, such as {@link
- * InstanceMethodsAroundInterceptor#beforeMethod(org.apache.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext,
- * InstanceMethodInvokeContext, MethodInterceptResult)}, has this as a method argument, the interceptor can manipulate
+ * This is a method return value manipulator. When a interceptor's method, such as
+ * {@link InstanceMethodsAroundInterceptor#beforeMethod(EnhancedInstance, Method, Object[], Class[], MethodInterceptResult)} (org.apache.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext,
+ * has this as a method argument, the interceptor can manipulate
  * the method's return value. <p> The new value set to this object, by {@link MethodInterceptResult#defineReturnValue(Object)},
  * will override the origin return value.
  *

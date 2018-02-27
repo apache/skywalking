@@ -117,7 +117,7 @@ public class Config {
         /**
          * Log files directory. Default is blank string, means, use "system.out" to output logs.
          *
-         * @see {@link WriterFactory#getLogWriter()}
+         * Ref to {@link WriterFactory#getLogWriter()}
          */
         public static String DIR = "";
 
@@ -129,8 +129,6 @@ public class Config {
 
         /**
          * The log level. Default is debug.
-         *
-         * @see {@link LogLevel}
          */
         public static LogLevel LEVEL = LogLevel.DEBUG;
     }

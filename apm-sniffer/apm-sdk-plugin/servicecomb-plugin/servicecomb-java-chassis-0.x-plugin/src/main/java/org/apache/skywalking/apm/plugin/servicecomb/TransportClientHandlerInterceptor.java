@@ -33,9 +33,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * {@link TransportClientHandlerInterceptor} define how to enhance class {@link TransportClientHandler#handle(io.servicecomb.core.Invocation,
- * io.servicecomb.swagger.invocation.AsyncResponse)}.
- *
  * @author lytscu
  */
 public class TransportClientHandlerInterceptor implements InstanceMethodsAroundInterceptor {

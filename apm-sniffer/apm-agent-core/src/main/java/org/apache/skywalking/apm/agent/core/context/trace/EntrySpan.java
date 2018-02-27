@@ -29,7 +29,7 @@ import org.apache.skywalking.apm.network.trace.component.Component;
  *
  * But with the last <code>EntrySpan</code>'s tags and logs, which have more details about a service provider.
  *
- * Such as: Tomcat Embed -> Dubbox The <code>EntrySpan</code> represents the Dubbox span.
+ * Such as: Tomcat Embed - Dubbox The <code>EntrySpan</code> represents the Dubbox span.
  *
  * @author wusheng
  */

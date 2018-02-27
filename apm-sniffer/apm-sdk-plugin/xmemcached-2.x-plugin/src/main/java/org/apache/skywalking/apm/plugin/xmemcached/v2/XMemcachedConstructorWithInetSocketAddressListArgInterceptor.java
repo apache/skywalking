@@ -26,9 +26,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
 /**
- * {@link XMemcachedConstructorWithInetSocketAddressListArgInterceptor} intercept constructor of 
- * {@link XMemcachedClient(List<InetSocketAddress> addressList).
- * 
  * @author IluckySi
  */
 public class XMemcachedConstructorWithInetSocketAddressListArgInterceptor implements InstanceConstructorInterceptor {
