@@ -29,13 +29,6 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * {@link AbstractServerImplBuilderInstrumentation} present that the GRPC plugin intercept the method
- * <code>addService</code> in the {@link io.grpc.internal.AbstractServerImplBuilder} class by using the {@link
- * org.apache.skywalking.apm.plugin.grpc.v1.AbstractServerImplBuilderInterceptor} class.
- *
- * @author zhang xin
- */
 public class AbstractServerImplBuilderInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     public static final String ENHANCE_CLASS = "io.grpc.internal.AbstractServerImplBuilder";
