@@ -31,7 +31,6 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationReferenceM
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.ui.common.Topology;
-import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,22 +56,22 @@ public class ClusterTopologyService {
         this.applicationReferenceMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationReferenceMetricUIDAO.class);
     }
 
-    public Topology getClusterTopology(Step step, long startTime, long endTime) throws ParseException {
-        logger.debug("startTime: {}, endTime: {}", startTime, endTime);
-        List<IApplicationComponentUIDAO.ApplicationComponent> applicationComponents = applicationComponentUIDAO.load(step, startTime, endTime);
-        List<IApplicationMappingUIDAO.ApplicationMapping> applicationMappings = applicationMappingUIDAO.load(step, startTime, endTime);
+    public Topology getClusterTopology(Step step, long startTimeBucket, long endTimeBucket, long startSecondTimeBucket,
+        long endSecondTimeBucket) throws ParseException {
+        logger.debug("startTimeBucket: {}, endTimeBucket: {}, startSecondTimeBucket: {}, endSecondTimeBucket: {}", startTimeBucket, endTimeBucket, startSecondTimeBucket, endSecondTimeBucket);
+        List<IApplicationComponentUIDAO.ApplicationComponent> applicationComponents = applicationComponentUIDAO.load(step, startTimeBucket, endTimeBucket);
+        List<IApplicationMappingUIDAO.ApplicationMapping> applicationMappings = applicationMappingUIDAO.load(step, startTimeBucket, endTimeBucket);
 
         Map<Integer, String> components = new HashMap<>();
         applicationComponents.forEach(component -> components.put(component.getApplicationId(), ComponentsDefine.getInstance().getComponentName(component.getComponentId())));
 
-        List<IApplicationMetricUIDAO.ApplicationMetric> applicationMetrics = applicationMetricUIDAO.getApplications(step, startTime, endTime, MetricSource.Callee);
+        List<IApplicationMetricUIDAO.ApplicationMetric> applicationMetrics = applicationMetricUIDAO.getApplications(step, startTimeBucket, endTimeBucket, MetricSource.Callee);
 
-        List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> callerReferenceMetric = applicationReferenceMetricUIDAO.getReferences(step, startTime, endTime, MetricSource.Caller);
-        List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> calleeReferenceMetric = applicationReferenceMetricUIDAO.getReferences(step, startTime, endTime, MetricSource.Callee);
+        List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> callerReferenceMetric = applicationReferenceMetricUIDAO.getReferences(step, startTimeBucket, endTimeBucket, MetricSource.Caller);
+        List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> calleeReferenceMetric = applicationReferenceMetricUIDAO.getReferences(step, startTimeBucket, endTimeBucket, MetricSource.Callee);
 
         TopologyBuilder builder = new TopologyBuilder(moduleManager);
 
-        long secondsBetween = DurationUtils.INSTANCE.secondsBetween(step, startTime, endTime);
-        return builder.build(applicationComponents, applicationMappings, applicationMetrics, callerReferenceMetric, calleeReferenceMetric, secondsBetween);
+        return builder.build(applicationComponents, applicationMappings, applicationMetrics, callerReferenceMetric, calleeReferenceMetric, startSecondTimeBucket, endSecondTimeBucket);
     }
 }

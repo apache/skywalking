@@ -139,11 +139,12 @@ public class InstanceH2UIDAO extends H2DAO implements IInstanceUIDAO {
         return buildAppServerInfo(sql, params);
     }
 
-    @Override public List<AppServerInfo> getAllServer(int applicationId, long start, long end) {
-        logger.debug("get instances info, applicationId: {}, start: {}, end: {}", applicationId, start, end);
-        String dynamicSql = "select * from {0} where {1} = ? and {2} >= ? and {2} <= ? and {3} = ?";
-        String sql = SqlBuilder.buildSql(dynamicSql, InstanceTable.TABLE, InstanceTable.COLUMN_APPLICATION_ID, InstanceTable.COLUMN_HEARTBEAT_TIME, InstanceTable.COLUMN_IS_ADDRESS);
-        Object[] params = new Object[] {applicationId, start, end, BooleanUtils.FALSE};
+    @Override
+    public List<AppServerInfo> getAllServer(int applicationId, long startSecondTimeBucket, long endSecondTimeBucket) {
+        logger.debug("get instances info, applicationId: {}, startSecondTimeBucket: {}, endSecondTimeBucket: {}", applicationId, startSecondTimeBucket, endSecondTimeBucket);
+        String dynamicSql = "select * from {0} where {1} = ? and {2} >= ? and {2} <= ? and {3} >= ? and {4} = ?";
+        String sql = SqlBuilder.buildSql(dynamicSql, InstanceTable.TABLE, InstanceTable.COLUMN_APPLICATION_ID, InstanceTable.COLUMN_REGISTER_TIME, InstanceTable.COLUMN_HEARTBEAT_TIME, InstanceTable.COLUMN_IS_ADDRESS);
+        Object[] params = new Object[] {applicationId, startSecondTimeBucket, endSecondTimeBucket, startSecondTimeBucket, BooleanUtils.FALSE};
         return buildAppServerInfo(sql, params);
     }
 

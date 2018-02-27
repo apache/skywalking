@@ -48,16 +48,19 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 class TopologyBuilder {
 
     private final ApplicationCacheService applicationCacheService;
+    private final ServerService serverService;
 
     TopologyBuilder(ModuleManager moduleManager) {
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
+        this.serverService = new ServerService(moduleManager);
     }
 
     Topology build(List<IApplicationComponentUIDAO.ApplicationComponent> applicationComponents,
         List<IApplicationMappingUIDAO.ApplicationMapping> applicationMappings,
         List<IApplicationMetricUIDAO.ApplicationMetric> applicationMetrics,
         List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> callerReferenceMetric,
-        List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> calleeReferenceMetric, long secondsBetween) {
+        List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> calleeReferenceMetric,
+        long startSecondTimeBucket, long endSecondTimeBucket) {
         Map<Integer, String> components = changeNodeComp2Map(applicationComponents);
         Map<Integer, Integer> mappings = changeMapping2Map(applicationMappings);
 
@@ -65,10 +68,10 @@ class TopologyBuilder {
 
         List<Node> nodes = new LinkedList<>();
         applicationMetrics.forEach(applicationMetric -> {
-            int id = applicationMetric.getId();
-            Application application = applicationCacheService.getApplicationById(id);
+            int applicationId = applicationMetric.getId();
+            Application application = applicationCacheService.getApplicationById(applicationId);
             ApplicationNode applicationNode = new ApplicationNode();
-            applicationNode.setId(id);
+            applicationNode.setId(applicationId);
             applicationNode.setName(application.getApplicationCode());
             applicationNode.setType(components.getOrDefault(application.getApplicationId(), Const.UNKNOWN));
 
@@ -77,7 +80,7 @@ class TopologyBuilder {
             applicationNode.setAvgResponseTime((applicationMetric.getDurations() - applicationMetric.getErrorDurations()) / (applicationMetric.getCalls() - applicationMetric.getErrorCalls()));
             applicationNode.setApdex(ApdexCalculator.INSTANCE.calculate(applicationMetric.getSatisfiedCount(), applicationMetric.getToleratingCount(), applicationMetric.getFrustratedCount()));
             applicationNode.setAlarm(false);
-            applicationNode.setNumOfServer(1);
+            applicationNode.setNumOfServer(serverService.getAllServer(applicationId, startSecondTimeBucket, endSecondTimeBucket).size());
             applicationNode.setNumOfServerAlarm(1);
             applicationNode.setNumOfServiceAlarm(1);
             nodes.add(applicationNode);
