@@ -34,4 +34,5 @@ public class Const {
     public static final String EXCEPTION = "Exception";
     public static final String EMPTY_STRING = "";
     public static final String FILE_SUFFIX = "sw";
+    public static final int SPAN_TYPE_VIRTUAL = 9;
 }
