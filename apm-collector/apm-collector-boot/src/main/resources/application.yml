@@ -47,7 +47,7 @@ storage:
     cluster_name: xxzlsearch
     cluster_nodes: 10.126.126.75:29200
     index_shards_number: 2
-    ssl : true
+    ssl : false
     index_replicas_number: 0
     username : admin
     password : admin

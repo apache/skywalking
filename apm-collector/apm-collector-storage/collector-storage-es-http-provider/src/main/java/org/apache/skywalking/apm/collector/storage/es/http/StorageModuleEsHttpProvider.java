@@ -263,7 +263,7 @@ public class StorageModuleEsHttpProvider extends ModuleProvider {
         String clusterName = config.getProperty(CLUSTER_NAME);
         String userName =  config.getProperty(USERNAME);
         String password =  config.getProperty(PASSWORD);
-        Boolean ssl = (Boolean)config.get(SSL);
+        Boolean ssl = Boolean.valueOf(config.getProperty(SSL));
         String clusterNodes = config.getProperty(CLUSTER_NODES);
         elasticSearchHttpClient = new ElasticSearchHttpClient(clusterName, clusterNodes,ssl,userName,password);
 
