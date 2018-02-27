@@ -117,7 +117,7 @@ export default class Trace extends PureComponent {
               {getFieldDecorator('applicationId')(
                 <Select placeholder="No application" style={{ width: '100%' }}>
                   {options.applicationId && options.applicationId.map((app) => {
-                      return (<Option value={app.key}>{app.label}</Option>);
+                      return (<Option key={app.key} value={app.key}>{app.label}</Option>);
                     })}
                 </Select>
               )}
