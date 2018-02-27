@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.springframework.aop.framework.AdvisedSupport;
 
 /**
- * <code>CreateAopProxyInterceptor</code> check that the bean has been implement {@link EnhancedInstance}. <p/>
+ * <code>CreateAopProxyInterceptor</code> check that the bean has been implement {@link EnhancedInstance}.
  * if yes, true will be returned.
  *
  * @author zhang xin

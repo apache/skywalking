@@ -25,16 +25,12 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
-import org.apache.skywalking.apm.plugin.okhttp.v3.RealCallInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
 /**
- * {@link RealCallInstrumentation} presents that skywalking intercepts {@link okhttp3.RealCall#RealCall(OkHttpClient,
- * Request, boolean)}, {@link okhttp3.RealCall#execute()} by using {@link RealCallInterceptor}.
- *
  * @author peng-yongsheng
  */
 public class RealCallInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
