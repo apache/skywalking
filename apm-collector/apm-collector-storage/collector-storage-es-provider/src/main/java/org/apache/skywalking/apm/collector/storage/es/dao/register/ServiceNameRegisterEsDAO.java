@@ -50,7 +50,7 @@ public class ServiceNameRegisterEsDAO extends EsDAO implements IServiceNameRegis
     }
 
     @Override public void save(ServiceName serviceName) {
-        logger.debug("save service name register info, application getId: {}, service name: {}", serviceName.getId(), serviceName.getServiceName());
+        logger.debug("save service name register info, application getApplicationId: {}, service name: {}", serviceName.getId(), serviceName.getServiceName());
         ElasticSearchClient client = getClient();
         Map<String, Object> source = new HashMap<>();
         source.put(ServiceNameTable.COLUMN_SERVICE_ID, serviceName.getServiceId());
@@ -58,6 +58,6 @@ public class ServiceNameRegisterEsDAO extends EsDAO implements IServiceNameRegis
         source.put(ServiceNameTable.COLUMN_SERVICE_NAME, serviceName.getServiceName());
 
         IndexResponse response = client.prepareIndex(ServiceNameTable.TABLE, serviceName.getId()).setSource(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
-        logger.debug("save service name register info, application getId: {}, service name: {}, status: {}", serviceName.getId(), serviceName.getServiceName(), response.status().name());
+        logger.debug("save service name register info, application getApplicationId: {}, service name: {}, status: {}", serviceName.getId(), serviceName.getServiceName(), response.status().name());
     }
 }
