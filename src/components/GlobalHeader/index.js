@@ -54,10 +54,12 @@ export default class GlobalHeader extends PureComponent {
   }
   render() {
     const {
-      collapsed, fetchingNotices, isMobile, logo, selectedDuration,
-      onNoticeVisibleChange, onNoticeClear, onDurationToggle, onDurationReload,
+      collapsed, notices: { applicationAlarmList, serverAlarmList },
+      isMobile, logo, selectedDuration,
+      onDurationToggle, onDurationReload, onRedirect: redirect,
     } = this.props;
-    const noticeData = this.getNoticeData();
+    const applications = applicationAlarmList.items.map(_ => ({ ..._, datetime: _.startTime }));
+    const servers = serverAlarmList.items.map(_ => ({ ..._, datetime: _.startTime }));
     return (
       <Header className={styles.header}>
         {isMobile && (
@@ -84,32 +86,31 @@ export default class GlobalHeader extends PureComponent {
           />
           <NoticeIcon
             className={styles.action}
-            count={1}
+            count={applicationAlarmList.total + serverAlarmList.total}
             onItemClick={(item, tabProps) => {
-              console.log(item, tabProps); // eslint-disable-line
+              redirect({ pathname: '/alarm', state: { type: tabProps.title } });
             }}
-            onClear={onNoticeClear}
-            onPopupVisibleChange={onNoticeVisibleChange}
-            loading={fetchingNotices}
+            onClear={(tabTitle) => {
+              redirect({ pathname: '/alarm', state: { type: tabTitle } });
+            }}
+            loading={false}
             popupAlign={{ offset: [20, -16] }}
+            locale={{
+              emptyText: 'No alert',
+              clear: 'More ',
+            }}
           >
             <NoticeIcon.Tab
-              list={noticeData['通知']}
-              title="通知"
-              emptyText="你已查看所有通知"
+              list={applications}
+              title="Application"
+              emptyText="No alarm"
               emptyImage="https://gw.alipayobjects.com/zos/rmsportal/wAhyIChODzsoKIOBHcBk.svg"
             />
             <NoticeIcon.Tab
-              list={noticeData['消息']}
-              title="消息"
-              emptyText="您已读完所有消息"
-              emptyImage="https://gw.alipayobjects.com/zos/rmsportal/sAuJeJzSKbUmHfBQRzmZ.svg"
-            />
-            <NoticeIcon.Tab
-              list={noticeData['待办']}
-              title="待办"
-              emptyText="你已完成所有待办"
-              emptyImage="https://gw.alipayobjects.com/zos/rmsportal/HsIsxMZiWKrNUavQUXqx.svg"
+              list={servers}
+              title="Server"
+              emptyText="No alarm"
+              emptyImage="https://gw.alipayobjects.com/zos/rmsportal/wAhyIChODzsoKIOBHcBk.svg"
             />
           </NoticeIcon>
         </div>

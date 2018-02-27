@@ -1,7 +1,4 @@
 import mockjs from 'mockjs';
-import { getRule, postRule } from './mock/rule';
-import { imgMap } from './mock/utils';
-import { getNotices } from './mock/notices';
 import { delay } from 'roadhog-api-doc';
 import { getDashboard } from './mock/dashboard';
 import { getTopology } from './mock/topology';

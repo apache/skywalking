@@ -1,12 +1,42 @@
-import { queryNotices } from '../services/api';
+import { query } from '../services/graphql';
 import { generateDuration } from '../utils/time';
+
+const noticeQuery = `
+  query Notice($duration:Duration!){
+    applicationAlarmList: loadAlarmList(alarmType: APPLICATION, duration: $duration, paging: { pageNum: 1, pageSize: 5, needTotal: true }) {
+      items {
+        title
+        startTime
+        causeType
+      }
+      total
+    }
+    serverAlarmList: loadAlarmList(alarmType: SERVER, duration: $duration, paging: { pageNum: 1, pageSize: 5, needTotal: true }) {
+      items {
+        title
+        startTime
+        causeType
+      }
+      total
+    }
+  }
+`;
 
 export default {
   namespace: 'global',
 
   state: {
     collapsed: false,
-    notices: [],
+    notices: {
+      applicationAlarmList: {
+        items: [],
+        total: 0,
+      },
+      serverAlarmList: {
+        items: [],
+        total: 0,
+      },
+    },
     duration: {
       collapsed: true,
       display: {
@@ -17,26 +47,11 @@ export default {
   },
 
   effects: {
-    *fetchNotices(_, { call, put }) {
-      const data = yield call(queryNotices);
+    *fetchNotice({ payload: { variables } }, { call, put }) {
+      const response = yield call(query, 'notice', { query: noticeQuery, variables });
       yield put({
-        type: 'saveNotices',
-        payload: data,
-      });
-      yield put({
-        type: 'user/changeNotifyCount',
-        payload: data.length,
-      });
-    },
-    *clearNotices({ payload }, { put, select }) {
-      yield put({
-        type: 'saveClearedNotices',
-        payload,
-      });
-      const count = yield select(state => state.global.notices.length);
-      yield put({
-        type: 'user/changeNotifyCount',
-        payload: count,
+        type: 'saveNotice',
+        payload: response.data,
       });
     },
   },
@@ -85,16 +100,13 @@ export default {
         collapsed: payload,
       };
     },
-    saveNotices(state, { payload }) {
+    saveNotice(state, { payload }) {
       return {
         ...state,
-        notices: payload,
-      };
-    },
-    saveClearedNotices(state, { payload }) {
-      return {
-        ...state,
-        notices: state.notices.filter(item => item.type !== payload),
+        notices: {
+          ...state.notices,
+          ...payload,
+        },
       };
     },
   },

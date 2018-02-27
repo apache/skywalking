@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Layout, Icon, message } from 'antd';
+import { Layout, Icon } from 'antd';
 import DocumentTitle from 'react-document-title';
 import { connect } from 'dva';
 import { Route, Redirect, Switch, routerRedux } from 'dva/router';
@@ -84,6 +84,20 @@ class BasicLayout extends React.PureComponent {
       });
     });
   }
+  componentWillUpdate(nextProps) {
+    const { globalVariables: { duration } } = nextProps;
+    if (!duration || Object.keys(duration).length < 1) {
+      return;
+    }
+    const { globalVariables: { duration: preDuration } } = this.props;
+    if (duration === preDuration) {
+      return;
+    }
+    this.props.dispatch({
+      type: 'global/fetchNotice',
+      payload: { variables: { duration } },
+    });
+  }
   getPageTitle() {
     const { routerData, location } = this.props;
     const { pathname } = location;
@@ -138,13 +152,6 @@ class BasicLayout extends React.PureComponent {
       payload: collapsed,
     });
   }
-  handleNoticeClear = (type) => {
-    message.success(`清空了${type}`);
-    this.props.dispatch({
-      type: 'global/clearNotices',
-      payload: type,
-    });
-  }
   handleMenuClick = ({ key }) => {
     if (key === 'triggerError') {
       this.props.dispatch(routerRedux.push('/exception/trigger'));
@@ -162,6 +169,13 @@ class BasicLayout extends React.PureComponent {
         type: 'global/fetchNotices',
       });
     }
+  }
+  handleRedirect = (path) => {
+    const { history } = this.props;
+    if (history.location.pathname === path.pathname) {
+      return;
+    }
+    history.push(path);
   }
   render() {
     const {
@@ -196,6 +210,7 @@ class BasicLayout extends React.PureComponent {
             onNoticeVisibleChange={this.handleNoticeVisibleChange}
             onDurationToggle={this.handleDurationToggle}
             onDurationReload={this.handleDurationReload}
+            onRedirect={this.handleRedirect}
           />
           <DurationPanel
             selected={dSelected}
@@ -264,4 +279,5 @@ export default connect(({ global, loading }) => ({
   fetchingNotices: loading.effects['global/fetchNotices'],
   notices: global.notices,
   duration: global.duration,
+  globalVariables: global.globalVariables,
 }))(BasicLayout);

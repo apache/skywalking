@@ -81,7 +81,7 @@ export default generateModal({
       return history.listen(({ pathname, state }) => {
         if (pathname === '/alarm' && state) {
           dispatch({
-            type: 'alarm/saveVariables',
+            type: 'saveVariables',
             payload: { values: {
               alarmType: state.type.toUpperCase(),
             } },
