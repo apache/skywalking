@@ -29,13 +29,6 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * {@link AbstractStubInstrumentation} present that the GRPC plugin intercept the method <code>getChannel</code> in the
- * {@link io.grpc.stub.AbstractStub} class by using the {@link org.apache.skywalking.apm.plugin.grpc.v1.AbstractStubInterceptor}
- * class.
- *
- * @author zhang xin
- */
 public class AbstractStubInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.AbstractStubInterceptor";

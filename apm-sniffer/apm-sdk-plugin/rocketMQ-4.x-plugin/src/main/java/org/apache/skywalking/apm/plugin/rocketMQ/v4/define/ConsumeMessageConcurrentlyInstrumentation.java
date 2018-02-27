@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.rocketMQ.v4.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -29,13 +28,6 @@ import org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
-/**
- * {@link ConsumeMessageConcurrentlyInstrumentation} intercepts the {@link org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently#consumeMessage(java.util.List,
- * org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext)} method by using {@link
- * org.apache.skywalking.apm.plugin.rocketMQ.v4.MessageConcurrentlyConsumeInterceptor}.
- *
- * @author zhang xin
- */
 public class ConsumeMessageConcurrentlyInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently";
     private static final String CONSUMER_MESSAGE_METHOD = "consumeMessage";
