@@ -16,64 +16,38 @@
  *
  */
 
-
-package org.apache.skywalking.apm.toolkit.activation.log.log4j.v1.x;
+package org.apache.skywalking.apm.plugin.hystrix.v1.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * Active the toolkit class "TraceIdPatternConverter".
- * Should not dependency or import any class in "skywalking-toolkit-log4j-1.x" module.
- * Activation's classloader is diff from "TraceIdPatternConverter",
- * using direct will trigger classloader issue.
- *
- * @author wusheng
- */
-public class TraceIdPatternConverterActivation extends ClassInstanceMethodsEnhancePluginDefine {
+public class HystrixPluginsInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    public static final String ENHANCE_CLASS = "org.apache.skywalking.apm.toolkit.log.log4j.v1.x.TraceIdPatternConverter";
-    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.toolkit.activation.log.log4j.v1.x.PrintTraceIdInterceptor";
-    public static final String ENHANCE_METHOD = "convert";
+    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.hystrix.v1.HystrixPluginsInterceptor";
+    public static final String ENHANCE_METHOD = "getCommandExecutionHook";
+    public static final String ENHANCE_CLASS = "com.netflix.hystrix.strategy.HystrixPlugins";
 
-    /**
-     * @return the target class, which needs active.
-     */
-    @Override
-    protected ClassMatch enhanceClass() {
-        return byName(ENHANCE_CLASS);
-    }
-
-    /**
-     * @return null, no need to intercept constructor of enhance class.
-     */
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return null;
+        return new ConstructorInterceptPoint[0];
     }
 
-    /**
-     * @return the collection of {@link InstanceMethodsInterceptPoint}, represent the intercepted methods and their
-     * interceptors.
-     */
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(ENHANCE_METHOD);
                 }
 
-                @Override
-                public String getMethodsInterceptor() {
+                @Override public String getMethodsInterceptor() {
                     return INTERCEPT_CLASS;
                 }
 
@@ -82,5 +56,10 @@ public class TraceIdPatternConverterActivation extends ClassInstanceMethodsEnhan
                 }
             }
         };
+    }
+
+    @Override
+    protected ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS);
     }
 }

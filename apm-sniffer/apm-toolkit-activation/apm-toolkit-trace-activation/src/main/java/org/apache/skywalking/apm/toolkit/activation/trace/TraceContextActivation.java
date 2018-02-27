@@ -37,12 +37,17 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  * Created by xin on 2016/12/15.
  */
 public class TraceContextActivation extends ClassStaticMethodsEnhancePluginDefine {
+
+    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.toolkit.activation.trace.TraceContextInterceptor";
+    public static final String ENHANCE_CLASS = "org.apache.skywalking.apm.toolkit.trace.TraceContext";
+    public static final String ENHANCE_METHOD = "traceId";
+
     /**
      * @return the target class, which needs active.
      */
     @Override
     protected ClassMatch enhanceClass() {
-        return NameMatch.byName("TraceContext");
+        return NameMatch.byName(ENHANCE_CLASS);
     }
 
     /**
@@ -55,12 +60,12 @@ public class TraceContextActivation extends ClassStaticMethodsEnhancePluginDefin
             new StaticMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("traceId");
+                    return named(ENHANCE_METHOD);
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "TraceContextInterceptor";
+                    return INTERCEPT_CLASS;
                 }
 
                 @Override public boolean isOverrideArgs() {
