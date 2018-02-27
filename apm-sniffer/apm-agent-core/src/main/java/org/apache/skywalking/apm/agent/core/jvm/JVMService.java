@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.jvm;
 
 import io.grpc.ManagedChannel;
@@ -43,6 +42,7 @@ import org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus;
 import org.apache.skywalking.apm.network.proto.JVMMetric;
 import org.apache.skywalking.apm.network.proto.JVMMetrics;
 import org.apache.skywalking.apm.network.proto.JVMMetricsServiceGrpc;
+import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
 /**
  * The <code>JVMService</code> represents a timer,
@@ -57,6 +57,7 @@ public class JVMService implements BootService, Runnable {
     private volatile ScheduledFuture<?> collectMetricFuture;
     private volatile ScheduledFuture<?> sendMetricFuture;
     private Sender sender;
+
     @Override
     public void beforeBoot() throws Throwable {
         queue = new LinkedBlockingQueue(Config.Jvm.BUFFER_SIZE);
@@ -68,10 +69,19 @@ public class JVMService implements BootService, Runnable {
     public void boot() throws Throwable {
         collectMetricFuture = Executors
             .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("JVMService-produce"))
-            .scheduleAtFixedRate(this, 0, 1, TimeUnit.SECONDS);
+            .scheduleAtFixedRate(new RunnableWithExceptionProtection(this, new RunnableWithExceptionProtection.CallbackWhenException() {
+                @Override public void handle(Throwable t) {
+                    logger.error("JVMService produces metrics failure.", t);
+                }
+            }), 0, 1, TimeUnit.SECONDS);
         sendMetricFuture = Executors
             .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("JVMService-consume"))
-            .scheduleAtFixedRate(sender, 0, 1, TimeUnit.SECONDS);
+            .scheduleAtFixedRate(new RunnableWithExceptionProtection(sender, new RunnableWithExceptionProtection.CallbackWhenException() {
+                @Override public void handle(Throwable t) {
+                    logger.error("JVMService consumes and upload failure.", t);
+                }
+            }
+            ), 0, 1, TimeUnit.SECONDS);
     }
 
     @Override

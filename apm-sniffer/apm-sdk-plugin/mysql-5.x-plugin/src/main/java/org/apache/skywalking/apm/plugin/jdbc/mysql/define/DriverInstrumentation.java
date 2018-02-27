@@ -22,7 +22,7 @@ package org.apache.skywalking.apm.plugin.jdbc.mysql.define;
 import org.apache.skywalking.apm.plugin.jdbc.define.AbstractDriverInstrumentation;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
-import static org.apache.skywalking.apm.plugin.jdbc.mysql.define.MultiClassNameMatch.byMultiClassMatch;
+import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
 
 /**
  * {@link DriverInstrumentation} presents that skywalking intercepts {@link com.mysql.jdbc.Driver}.
@@ -32,6 +32,6 @@ import static org.apache.skywalking.apm.plugin.jdbc.mysql.define.MultiClassNameM
 public class DriverInstrumentation extends AbstractDriverInstrumentation {
     @Override
     protected ClassMatch enhanceClass() {
-        return byMultiClassMatch("com.mysql.jdbc.Driver", "com.mysql.cj.jdbc.Driver");
+        return byMultiClassMatch("com.mysql.jdbc.Driver", "com.mysql.cj.jdbc.Driver", "com.mysql.jdbc.NonRegisteringDriver");
     }
 }

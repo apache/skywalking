@@ -37,7 +37,7 @@ public class JedisMethodInterceptor implements InstanceMethodsAroundInterceptor 
         AbstractSpan span = ContextManager.createExitSpan("Jedis/" + method.getName(), peer);
         span.setComponent(ComponentsDefine.REDIS);
         Tags.DB_TYPE.set(span, "Redis");
-        SpanLayer.asDB(span);
+        SpanLayer.asCache(span);
 
         if (allArguments.length > 0 && allArguments[0] instanceof String) {
             Tags.DB_STATEMENT.set(span, method.getName() + " " + allArguments[0]);

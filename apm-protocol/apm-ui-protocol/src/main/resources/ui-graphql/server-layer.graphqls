@@ -1,0 +1,43 @@
+# The server info.
+# At here, `Server` represents a process in OS,
+# e.g.
+#   1. Spring boot application
+#   2. A Tomcat server instance
+type AppServerInfo {
+    id: ID!
+    name: String!
+    applicationId: Int!
+    applicationCode: String
+    tps: Int!
+    host: String
+    pid: Int
+    ipv4: [String!]!
+}
+
+type CPUTrend {
+    cost: [Int!]!
+}
+
+# The gc trend represents the numbers of Garbage Collector execution
+type GCTrend {
+    youngGC: [Int!]!
+    oldGC: [Int!]!
+}
+
+# The memory used and max limit in heap and noheap space.
+type MemoryTrend {
+    heap: [Int!]!
+    maxHeap: [Int!]!
+    noheap: [Int!]!
+    maxNoheap: [Int!]!
+}
+
+extend type Query {
+    searchServer(keyword: String!, duration: Duration!): [AppServerInfo!]!
+    getAllServer(applicationId: ID!, duration: Duration!): [AppServerInfo!]!
+    getServerResponseTimeTrend(serverId: ID!, duration: Duration!): ResponseTimeTrend
+    getServerTPSTrend(serverId: ID!, duration: Duration!): ThroughputTrend
+    getCPUTrend(serverId: ID!, duration: Duration!): CPUTrend
+    getGCTrend(serverId: ID!, duration: Duration!): GCTrend
+    getMemoryTrend(serverId: ID!, duration: Duration!): MemoryTrend
+}

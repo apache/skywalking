@@ -16,21 +16,17 @@
  *
  */
 
-
 package org.apache.skywalking.apm.commons.datacarrier;
 
-import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
-import org.apache.skywalking.apm.commons.datacarrier.partition.IDataPartitioner;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.BufferStrategy;
+import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.ConsumerPool;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
+import org.apache.skywalking.apm.commons.datacarrier.partition.IDataPartitioner;
 import org.apache.skywalking.apm.commons.datacarrier.partition.SimpleRollingPartitioner;
 
 /**
- * DataCarrier main class.
- * use this instance to set Producer/Consumer Model
- * <p>
- * Created by wusheng on 2016/10/25.
+ * DataCarrier main class. use this instance to set Producer/Consumer Model.
  */
 public class DataCarrier<T> {
     private final int bufferSize;
@@ -45,11 +41,10 @@ public class DataCarrier<T> {
     }
 
     /**
-     * set a new IDataPartitioner.
-     * It will cover the current one or default one.(Default is {@link SimpleRollingPartitioner)}
+     * set a new IDataPartitioner. It will cover the current one or default one.(Default is {@link SimpleRollingPartitioner}
      *
-     * @param dataPartitioner
-     * @return
+     * @param dataPartitioner to partition data into different channel by some rules.
+     * @return DataCarrier instance for chain
      */
     public DataCarrier setPartitioner(IDataPartitioner<T> dataPartitioner) {
         this.channels.setPartitioner(dataPartitioner);
@@ -57,14 +52,18 @@ public class DataCarrier<T> {
     }
 
     /**
-     * override the strategy at runtime.
-     * Notice, {@link Channels<T>} will override several channels one by one.
+     * override the strategy at runtime. Notice, {@link Channels} will override several channels one by one.
      *
      * @param strategy
      */
     public DataCarrier setBufferStrategy(BufferStrategy strategy) {
         this.channels.setStrategy(strategy);
         return this;
+    }
+
+    public BlockingDataCarrier<T> toBlockingDataCarrier() {
+        this.channels.setStrategy(BufferStrategy.BLOCKING);
+        return new BlockingDataCarrier<T>(this.channels);
     }
 
     /**
@@ -84,36 +83,57 @@ public class DataCarrier<T> {
     }
 
     /**
-     * set consumers to this Carrier.
-     * consumer begin to run when {@link DataCarrier<T>#produce(T)} begin to work.
+     * set consumers to this Carrier. consumer begin to run when {@link DataCarrier#produce} begin to work.
      *
      * @param consumerClass class of consumer
      * @param num number of consumer threads
      */
-    public DataCarrier consume(Class<? extends IConsumer<T>> consumerClass, int num) {
+    public DataCarrier consume(Class<? extends IConsumer<T>> consumerClass, int num, long consumeCycle) {
         if (consumerPool != null) {
             consumerPool.close();
         }
-        consumerPool = new ConsumerPool<T>(this.channels, consumerClass, num);
+        consumerPool = new ConsumerPool<T>(this.channels, consumerClass, num, consumeCycle);
         consumerPool.begin();
         return this;
     }
 
     /**
-     * set consumers to this Carrier.
-     * consumer begin to run when {@link DataCarrier<T>#produce(T)} begin to work.
+     * set consumers to this Carrier. consumer begin to run when {@link DataCarrier#produce} begin to work with 20
+     * millis consume cycle.
+     *
+     * @param consumerClass class of consumer
+     * @param num number of consumer threads
+     */
+    public DataCarrier consume(Class<? extends IConsumer<T>> consumerClass, int num) {
+        return this.consume(consumerClass, num, 20);
+    }
+
+    /**
+     * set consumers to this Carrier. consumer begin to run when {@link DataCarrier#produce} begin to work.
+     *
+     * @param consumer single instance of consumer, all consumer threads will all use this instance.
+     * @param num number of consumer threads
+     * @return
+     */
+    public DataCarrier consume(IConsumer<T> consumer, int num, long consumeCycle) {
+        if (consumerPool != null) {
+            consumerPool.close();
+        }
+        consumerPool = new ConsumerPool<T>(this.channels, consumer, num, consumeCycle);
+        consumerPool.begin();
+        return this;
+    }
+
+    /**
+     * set consumers to this Carrier. consumer begin to run when {@link DataCarrier#produce} begin to work with 20
+     * millis consume cycle.
      *
      * @param consumer single instance of consumer, all consumer threads will all use this instance.
      * @param num number of consumer threads
      * @return
      */
     public DataCarrier consume(IConsumer<T> consumer, int num) {
-        if (consumerPool != null) {
-            consumerPool.close();
-        }
-        consumerPool = new ConsumerPool<T>(this.channels, consumer, num);
-        consumerPool.begin();
-        return this;
+        return this.consume(consumer, num, 20);
     }
 
     /**

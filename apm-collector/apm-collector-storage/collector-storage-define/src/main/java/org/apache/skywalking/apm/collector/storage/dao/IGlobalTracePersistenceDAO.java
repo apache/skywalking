@@ -16,14 +16,13 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.dao;
 
-import org.apache.skywalking.apm.collector.core.data.Data;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.table.global.GlobalTrace;
 
 /**
  * @author peng-yongsheng
  */
-public interface IGlobalTracePersistenceDAO<Insert, Update, DataImpl extends Data> extends IPersistenceDAO<Insert, Update, DataImpl> {
+public interface IGlobalTracePersistenceDAO<INSERT, UPDATE, STREAM_DATA extends GlobalTrace> extends IPersistenceDAO<INSERT, UPDATE, STREAM_DATA> {
 }
