@@ -28,11 +28,6 @@ import org.apache.skywalking.apm.plugin.jdbc.JDBCDriverInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
-/**
- * JDBC plugin using {@link JDBCDriverInterceptor} to intercept the <code>connect</code> method of  all driver class.
- *
- * @author zhangxin
- */
 public abstract class AbstractDriverInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String DRIVER_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jdbc.JDBCDriverInterceptor";
