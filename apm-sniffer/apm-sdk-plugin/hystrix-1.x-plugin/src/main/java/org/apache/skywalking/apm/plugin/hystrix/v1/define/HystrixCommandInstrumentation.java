@@ -29,13 +29,6 @@ import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierarchyMatch;
 
-/**
- * {@link HystrixCommandInstrumentation} represent that the hystrix plugin intercept the constructor in the class that
- * hierarchy {@link com.netflix.hystrix.HystrixCommand} class by using the {@link org.apache.skywalking.apm.plugin.hystrix.v1.HystrixCommandConstructorInterceptor}
- * class.
- *
- * @author zhangxin
- */
 public class HystrixCommandInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.hystrix.v1.HystrixCommandConstructorInterceptor";
@@ -56,7 +49,7 @@ public class HystrixCommandInstrumentation extends ClassInstanceMethodsEnhancePl
     }
 
     @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("run");
