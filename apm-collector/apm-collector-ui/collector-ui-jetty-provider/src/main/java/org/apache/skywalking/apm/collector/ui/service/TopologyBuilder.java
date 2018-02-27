@@ -19,11 +19,9 @@
 package org.apache.skywalking.apm.collector.ui.service;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -104,7 +102,7 @@ class TopologyBuilder {
             call.setTarget(actualTargetId);
             call.setTargetName(applicationCacheService.getApplicationById(actualTargetId).getApplicationCode());
             call.setAlert(true);
-            call.setCallType("aaa");
+            call.setCallType(components.get(referenceMetric.getTarget()));
             call.setCallsPerSec(1);
             call.setResponseTimePerSec(1);
             calls.add(call);
@@ -136,7 +134,12 @@ class TopologyBuilder {
             call.setTarget(target.getApplicationId());
             call.setTargetName(target.getApplicationCode());
             call.setAlert(true);
-            call.setCallType("aaa");
+
+            if (source.getApplicationId() == Const.NONE_APPLICATION_ID) {
+                call.setCallType(Const.EMPTY_STRING);
+            } else {
+                call.setCallType(components.get(referenceMetric.getTarget()));
+            }
             call.setCallsPerSec(1);
             call.setResponseTimePerSec(1);
             calls.add(call);
@@ -177,25 +180,5 @@ class TopologyBuilder {
             components.put(applicationComponent.getApplicationId(), componentName);
         });
         return components;
-    }
-
-    private List<Call> buildCalls(List<Call> callerCalls, List<Call> calleeCalls) {
-        List<Call> calls = new LinkedList<>();
-
-        Set<String> distinctCalls = new HashSet<>();
-        callerCalls.forEach(callerCall -> {
-            distinctCalls.add(callerCall.getSource() + Const.ID_SPLIT + callerCall.getTarget());
-            calls.add(callerCall);
-        });
-
-        calleeCalls.forEach(calleeCall -> {
-            String call = calleeCall.getSource() + Const.ID_SPLIT + calleeCall.getTarget();
-            if (!distinctCalls.contains(call)) {
-                distinctCalls.add(call);
-                calls.add(calleeCall);
-            }
-        });
-
-        return calls;
     }
 }
