@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.collector.ui.service;
 
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -41,18 +42,24 @@ import org.apache.skywalking.apm.collector.storage.ui.common.VisualUserNode;
 import org.apache.skywalking.apm.collector.ui.utils.ApdexCalculator;
 import org.apache.skywalking.apm.collector.ui.utils.SLACalculator;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 class TopologyBuilder {
 
+    private final Logger logger = LoggerFactory.getLogger(TopologyBuilder.class);
+
     private final ApplicationCacheService applicationCacheService;
     private final ServerService serverService;
+    private final SecondBetweenService secondBetweenService;
 
     TopologyBuilder(ModuleManager moduleManager) {
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
         this.serverService = new ServerService(moduleManager);
+        this.secondBetweenService = new SecondBetweenService(moduleManager);
     }
 
     Topology build(List<IApplicationComponentUIDAO.ApplicationComponent> applicationComponents,
@@ -76,7 +83,11 @@ class TopologyBuilder {
             applicationNode.setType(components.getOrDefault(application.getApplicationId(), Const.UNKNOWN));
 
             applicationNode.setSla(SLACalculator.INSTANCE.calculate(applicationMetric.getErrorCalls(), applicationMetric.getCalls()));
-            applicationNode.setCallsPerSec(100L);
+            try {
+                applicationNode.setCallsPerSec(applicationMetric.getCalls() / secondBetweenService.calculate(applicationId, startSecondTimeBucket, endSecondTimeBucket));
+            } catch (ParseException e) {
+                logger.error(e.getMessage(), e);
+            }
             applicationNode.setAvgResponseTime((applicationMetric.getDurations() - applicationMetric.getErrorDurations()) / (applicationMetric.getCalls() - applicationMetric.getErrorCalls()));
             applicationNode.setApdex(ApdexCalculator.INSTANCE.calculate(applicationMetric.getSatisfiedCount(), applicationMetric.getToleratingCount(), applicationMetric.getFrustratedCount()));
             applicationNode.setAlarm(false);
@@ -108,7 +119,11 @@ class TopologyBuilder {
             call.setTargetName(applicationCacheService.getApplicationById(actualTargetId).getApplicationCode());
             call.setAlert(true);
             call.setCallType(components.get(referenceMetric.getTarget()));
-            call.setCallsPerSec(1);
+            try {
+                call.setCallsPerSec(referenceMetric.getCalls() / secondBetweenService.calculate(source.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket));
+            } catch (ParseException e) {
+                logger.error(e.getMessage(), e);
+            }
             call.setAvgResponseTime((referenceMetric.getDurations() - referenceMetric.getErrorDurations()) / (referenceMetric.getCalls() - referenceMetric.getErrorCalls()));
             calls.add(call);
         });
@@ -145,7 +160,11 @@ class TopologyBuilder {
             } else {
                 call.setCallType(components.get(referenceMetric.getTarget()));
             }
-            call.setCallsPerSec(1);
+            try {
+                call.setCallsPerSec(referenceMetric.getCalls() / secondBetweenService.calculate(target.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket));
+            } catch (ParseException e) {
+                logger.error(e.getMessage(), e);
+            }
             call.setAvgResponseTime((referenceMetric.getDurations() - referenceMetric.getErrorDurations()) / (referenceMetric.getCalls() - referenceMetric.getErrorCalls()));
             calls.add(call);
         });

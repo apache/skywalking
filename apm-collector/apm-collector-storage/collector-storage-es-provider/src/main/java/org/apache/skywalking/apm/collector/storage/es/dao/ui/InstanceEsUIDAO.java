@@ -171,7 +171,8 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         return buildAppServerInfo(searchHits);
     }
 
-    @Override public List<AppServerInfo> getAllServer(int applicationId, long startSecondTimeBucket, long endSecondTimeBucket) {
+    @Override
+    public List<AppServerInfo> getAllServer(int applicationId, long startSecondTimeBucket, long endSecondTimeBucket) {
         logger.debug("get instances info, applicationId: {}, start: {}, end: {}", applicationId, startSecondTimeBucket, endSecondTimeBucket);
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(InstanceTable.TABLE);
         searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
@@ -190,6 +191,46 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         SearchHit[] searchHits = searchResponse.getHits().getHits();
 
         return buildAppServerInfo(searchHits);
+    }
+
+    @Override public long getEarliestRegisterTime(int applicationId) {
+        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(InstanceTable.TABLE);
+        searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
+        searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
+        searchRequestBuilder.setSize(1);
+
+        searchRequestBuilder.setQuery(QueryBuilders.termQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationId));
+        searchRequestBuilder.addSort(SortBuilders.fieldSort(InstanceTable.COLUMN_REGISTER_TIME).sortMode(SortMode.MIN));
+
+        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
+
+        SearchHit[] searchHits = searchResponse.getHits().getHits();
+
+        if (searchHits.length > 0) {
+            return ((Number)searchHits[0].getSource().get(InstanceTable.COLUMN_REGISTER_TIME)).longValue();
+        }
+
+        return Long.MIN_VALUE;
+    }
+
+    @Override public long getLatestHeartBeatTime(int applicationId) {
+        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(InstanceTable.TABLE);
+        searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
+        searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
+        searchRequestBuilder.setSize(1);
+
+        searchRequestBuilder.setQuery(QueryBuilders.termQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationId));
+        searchRequestBuilder.addSort(SortBuilders.fieldSort(InstanceTable.COLUMN_HEARTBEAT_TIME).sortMode(SortMode.MAX));
+
+        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
+
+        SearchHit[] searchHits = searchResponse.getHits().getHits();
+
+        if (searchHits.length > 0) {
+            return ((Number)searchHits[0].getSource().get(InstanceTable.COLUMN_HEARTBEAT_TIME)).longValue();
+        }
+
+        return Long.MAX_VALUE;
     }
 
     private List<AppServerInfo> buildAppServerInfo(SearchHit[] searchHits) {
