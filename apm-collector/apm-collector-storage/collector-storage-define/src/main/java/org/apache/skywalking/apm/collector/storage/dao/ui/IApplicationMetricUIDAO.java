@@ -30,4 +30,55 @@ import org.apache.skywalking.apm.collector.storage.ui.overview.ApplicationTPS;
 public interface IApplicationMetricUIDAO extends DAO {
     List<ApplicationTPS> getTopNApplicationThroughput(Step step, long start, long end, long betweenSecond, int topN,
         MetricSource metricSource);
+
+    List<ApplicationMetric> getApplications(Step step, long startTimeBucket, long endTimeBucket,
+        MetricSource metricSource);
+
+    class ApplicationMetric {
+        private int id;
+        private long calls;
+        private long errorCalls;
+        private long durations;
+        private long errorDurations;
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public void setCalls(long calls) {
+            this.calls = calls;
+        }
+
+        public void setErrorCalls(long errorCalls) {
+            this.errorCalls = errorCalls;
+        }
+
+        public void setDurations(long durations) {
+            this.durations = durations;
+        }
+
+        public void setErrorDurations(long errorDurations) {
+            this.errorDurations = errorDurations;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public long getCalls() {
+            return calls;
+        }
+
+        public long getErrorCalls() {
+            return errorCalls;
+        }
+
+        public long getDurations() {
+            return durations;
+        }
+
+        public long getErrorDurations() {
+            return errorDurations;
+        }
+    }
 }

@@ -26,9 +26,9 @@ import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationComponentUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMappingUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationReferenceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
-import org.apache.skywalking.apm.collector.storage.ui.common.Call;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.ui.common.Topology;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
@@ -45,6 +45,7 @@ public class ClusterTopologyService {
 
     private final IApplicationComponentUIDAO applicationComponentUIDAO;
     private final IApplicationMappingUIDAO applicationMappingUIDAO;
+    private final IApplicationMetricUIDAO applicationMetricUIDAO;
     private final IApplicationReferenceMetricUIDAO applicationReferenceMetricUIDAO;
     private final ModuleManager moduleManager;
 
@@ -52,6 +53,7 @@ public class ClusterTopologyService {
         this.moduleManager = moduleManager;
         this.applicationComponentUIDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationComponentUIDAO.class);
         this.applicationMappingUIDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationMappingUIDAO.class);
+        this.applicationMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationMetricUIDAO.class);
         this.applicationReferenceMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationReferenceMetricUIDAO.class);
     }
 
@@ -63,24 +65,14 @@ public class ClusterTopologyService {
         Map<Integer, String> components = new HashMap<>();
         applicationComponents.forEach(component -> components.put(component.getApplicationId(), ComponentsDefine.getInstance().getComponentName(component.getComponentId())));
 
-        List<Call> callerCalls = applicationReferenceMetricUIDAO.getApplications(step, startTime, endTime, MetricSource.Caller);
-        callerCalls.forEach(callerCall -> callerCall.setCallType(components.get(callerCall.getTarget())));
+        List<IApplicationMetricUIDAO.ApplicationMetric> applicationMetrics = applicationMetricUIDAO.getApplications(step, startTime, endTime, MetricSource.Callee);
 
-        List<Call> calleeCalls = applicationReferenceMetricUIDAO.getApplications(step, startTime, endTime, MetricSource.Callee);
-
-        calleeCalls.forEach(calleeCall -> calleeCall.setCallType(components.get(calleeCall.getTarget())));
+        List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> callerReferenceMetric = applicationReferenceMetricUIDAO.getReferences(step, startTime, endTime, MetricSource.Caller);
+        List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> calleeReferenceMetric = applicationReferenceMetricUIDAO.getReferences(step, startTime, endTime, MetricSource.Callee);
 
         TopologyBuilder builder = new TopologyBuilder(moduleManager);
 
         long secondsBetween = DurationUtils.INSTANCE.secondsBetween(step, startTime, endTime);
-        Topology topology = builder.build(applicationComponents, applicationMappings, callerCalls, calleeCalls, secondsBetween);
-
-        topology.getCalls().forEach(call -> {
-            long calls = call.getCalls();
-            long responseTimes = call.getResponseTimes();
-            call.setCallsPerSec(calls / secondsBetween);
-            call.setResponseTimePerSec(responseTimes / secondsBetween);
-        });
-        return topology;
+        return builder.build(applicationComponents, applicationMappings, applicationMetrics, callerReferenceMetric, calleeReferenceMetric, secondsBetween);
     }
 }

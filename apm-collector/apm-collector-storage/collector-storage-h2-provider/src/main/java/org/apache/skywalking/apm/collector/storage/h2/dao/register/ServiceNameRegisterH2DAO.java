@@ -54,7 +54,7 @@ public class ServiceNameRegisterH2DAO extends H2DAO implements IServiceNameRegis
 
     @Override
     public void save(ServiceName serviceName) {
-        logger.debug("save service name register info, application getId: {}, service name: {}", serviceName.getId(), serviceName.getServiceName());
+        logger.debug("save service name register info, application getApplicationId: {}, service name: {}", serviceName.getId(), serviceName.getServiceName());
         H2Client client = getClient();
         Map<String, Object> source = new HashMap<>();
         source.put(ServiceNameTable.COLUMN_ID, serviceName.getId());

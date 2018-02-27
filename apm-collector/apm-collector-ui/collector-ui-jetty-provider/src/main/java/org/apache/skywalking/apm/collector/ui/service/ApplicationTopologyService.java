@@ -20,20 +20,15 @@ package org.apache.skywalking.apm.collector.ui.service;
 
 import java.text.ParseException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationComponentUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMappingUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationReferenceMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.table.MetricSource;
-import org.apache.skywalking.apm.collector.storage.ui.common.Call;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.ui.common.Topology;
-import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,64 +61,64 @@ public class ApplicationTopologyService {
         Map<Integer, String> components = new HashMap<>();
         applicationComponents.forEach(component -> components.put(component.getApplicationId(), ComponentsDefine.getInstance().getComponentName(component.getComponentId())));
 
-        List<Call> callerCalls = applicationReferenceMetricUIDAO.getFrontApplications(step, applicationId, startTime, endTime, MetricSource.Caller);
-        callerCalls.addAll(applicationReferenceMetricUIDAO.getBehindApplications(step, applicationId, startTime, endTime, MetricSource.Caller));
-
-        callerCalls.forEach(callerCall -> callerCall.setCallType(components.get(callerCall.getTarget())));
-
-        List<Call> calleeCalls = applicationReferenceMetricUIDAO.getFrontApplications(step, applicationId, startTime, endTime, MetricSource.Callee);
-        calleeCalls.addAll(applicationReferenceMetricUIDAO.getBehindApplications(step, applicationId, startTime, endTime, MetricSource.Callee));
-
-        calleeCalls.forEach(calleeCall -> calleeCall.setCallType(components.get(calleeCall.getTarget())));
-
-        Set<Integer> mappings = new HashSet<>();
-        applicationMappings.forEach(mapping -> {
-            if (applicationId == mapping.getApplicationId()) {
-                mappings.add(mapping.getMappingApplicationId());
-            }
-        });
-
-        mappings.forEach(mappingApplicationId -> {
-            List<Call> frontCallerApplications = applicationReferenceMetricUIDAO.getFrontApplications(step, mappingApplicationId, startTime, endTime, MetricSource.Caller);
-            frontCallerApplications.forEach(call -> {
-                call.setCallType(components.get(call.getTarget()));
-                call.setTarget(applicationId);
-                callerCalls.add(call);
-            });
-
-            List<Call> behindCallerApplications = applicationReferenceMetricUIDAO.getBehindApplications(step, mappingApplicationId, startTime, endTime, MetricSource.Caller);
-            behindCallerApplications.forEach(call -> {
-                call.setCallType(components.get(call.getTarget()));
-                call.setSource(applicationId);
-                callerCalls.add(call);
-            });
-
-            List<Call> frontCalleeApplications = applicationReferenceMetricUIDAO.getFrontApplications(step, mappingApplicationId, startTime, endTime, MetricSource.Callee);
-            frontCalleeApplications.forEach(call -> {
-                call.setCallType(components.get(call.getTarget()));
-                call.setTarget(applicationId);
-                calleeCalls.add(call);
-            });
-
-            List<Call> behindCalleeApplications = applicationReferenceMetricUIDAO.getBehindApplications(step, mappingApplicationId, startTime, endTime, MetricSource.Callee);
-            behindCalleeApplications.forEach(call -> {
-                call.setCallType(components.get(call.getTarget()));
-                call.setSource(applicationId);
-                calleeCalls.add(call);
-            });
-        });
+//        List<Call> callerCalls = applicationReferenceMetricUIDAO.getFrontApplications(step, applicationId, startTime, endTime, MetricSource.Caller);
+//        callerCalls.addAll(applicationReferenceMetricUIDAO.getBehindApplications(step, applicationId, startTime, endTime, MetricSource.Caller));
+//
+//        callerCalls.forEach(callerCall -> callerCall.setCallType(components.get(callerCall.getTarget())));
+//
+//        List<Call> calleeCalls = applicationReferenceMetricUIDAO.getFrontApplications(step, applicationId, startTime, endTime, MetricSource.Callee);
+//        calleeCalls.addAll(applicationReferenceMetricUIDAO.getBehindApplications(step, applicationId, startTime, endTime, MetricSource.Callee));
+//
+//        calleeCalls.forEach(calleeCall -> calleeCall.setCallType(components.get(calleeCall.getTarget())));
+//
+//        Set<Integer> mappings = new HashSet<>();
+//        applicationMappings.forEach(mapping -> {
+//            if (applicationId == mapping.getApplicationId()) {
+//                mappings.add(mapping.getMappingApplicationId());
+//            }
+//        });
+//
+//        mappings.forEach(mappingApplicationId -> {
+//            List<Call> frontCallerApplications = applicationReferenceMetricUIDAO.getFrontApplications(step, mappingApplicationId, startTime, endTime, MetricSource.Caller);
+//            frontCallerApplications.forEach(call -> {
+//                call.setCallType(components.get(call.getTarget()));
+//                call.setTarget(applicationId);
+//                callerCalls.add(call);
+//            });
+//
+//            List<Call> behindCallerApplications = applicationReferenceMetricUIDAO.getBehindApplications(step, mappingApplicationId, startTime, endTime, MetricSource.Caller);
+//            behindCallerApplications.forEach(call -> {
+//                call.setCallType(components.get(call.getTarget()));
+//                call.setSource(applicationId);
+//                callerCalls.add(call);
+//            });
+//
+//            List<Call> frontCalleeApplications = applicationReferenceMetricUIDAO.getFrontApplications(step, mappingApplicationId, startTime, endTime, MetricSource.Callee);
+//            frontCalleeApplications.forEach(call -> {
+//                call.setCallType(components.get(call.getTarget()));
+//                call.setTarget(applicationId);
+//                calleeCalls.add(call);
+//            });
+//
+//            List<Call> behindCalleeApplications = applicationReferenceMetricUIDAO.getBehindApplications(step, mappingApplicationId, startTime, endTime, MetricSource.Callee);
+//            behindCalleeApplications.forEach(call -> {
+//                call.setCallType(components.get(call.getTarget()));
+//                call.setSource(applicationId);
+//                calleeCalls.add(call);
+//            });
+//        });
 
         TopologyBuilder builder = new TopologyBuilder(moduleManager);
 
-        long secondsBetween = DurationUtils.INSTANCE.secondsBetween(step, startTime, endTime);
-        Topology topology = builder.build(applicationComponents, applicationMappings, callerCalls, calleeCalls, secondsBetween);
-
-        topology.getCalls().forEach(call -> {
-            long calls = call.getCalls();
-            long responseTimes = call.getResponseTimes();
-            call.setCallsPerSec(calls / secondsBetween);
-            call.setResponseTimePerSec(responseTimes / secondsBetween);
-        });
-        return topology;
+//        long secondsBetween = DurationUtils.INSTANCE.secondsBetween(step, startTime, endTime);
+//        Topology topology = builder.build(applicationComponents, applicationMappings, callerCalls, calleeCalls, secondsBetween);
+//
+//        topology.getCalls().forEach(call -> {
+//            long calls = call.getCalls();
+//            long responseTimes = call.getResponseTimes();
+//            call.setCallsPerSec(calls / secondsBetween);
+//            call.setResponseTimePerSec(responseTimes / secondsBetween);
+//        });
+        return null;
     }
 }

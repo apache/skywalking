@@ -25,76 +25,76 @@ import org.apache.skywalking.apm.collector.storage.ui.common.Node;
  */
 public class ApplicationNode extends Node {
 
-    private Float sla;
-    private Long callsPerSec;
-    private Long responseTimePerSec;
-    private Float apdex;
-    private Boolean isAlarm;
-    private Integer numOfServer;
-    private Integer numOfServerAlarm;
-    private Integer numOfServiceAlarm;
+    private int sla;
+    private long callsPerSec;
+    private long responseTimePerSec;
+    private int apdex;
+    private boolean isAlarm;
+    private int numOfServer;
+    private int numOfServerAlarm;
+    private int numOfServiceAlarm;
 
-    public Float getSla() {
+    public int getSla() {
         return sla;
     }
 
-    public void setSla(Float sla) {
+    public void setSla(int sla) {
         this.sla = sla;
     }
 
-    public Long getCallsPerSec() {
+    public long getCallsPerSec() {
         return callsPerSec;
     }
 
-    public void setCallsPerSec(Long callsPerSec) {
+    public void setCallsPerSec(long callsPerSec) {
         this.callsPerSec = callsPerSec;
     }
 
-    public Long getResponseTimePerSec() {
+    public long getResponseTimePerSec() {
         return responseTimePerSec;
     }
 
-    public void setResponseTimePerSec(Long responseTimePerSec) {
+    public void setResponseTimePerSec(long responseTimePerSec) {
         this.responseTimePerSec = responseTimePerSec;
     }
 
-    public Float getApdex() {
+    public int getApdex() {
         return apdex;
     }
 
-    public void setApdex(Float apdex) {
+    public void setApdex(int apdex) {
         this.apdex = apdex;
     }
 
-    public Boolean getAlarm() {
+    public boolean isAlarm() {
         return isAlarm;
     }
 
-    public void setAlarm(Boolean alarm) {
+    public void setAlarm(boolean alarm) {
         isAlarm = alarm;
     }
 
-    public Integer getNumOfServer() {
+    public int getNumOfServer() {
         return numOfServer;
     }
 
-    public void setNumOfServer(Integer numOfServer) {
+    public void setNumOfServer(int numOfServer) {
         this.numOfServer = numOfServer;
     }
 
-    public Integer getNumOfServerAlarm() {
+    public int getNumOfServerAlarm() {
         return numOfServerAlarm;
     }
 
-    public void setNumOfServerAlarm(Integer numOfServerAlarm) {
+    public void setNumOfServerAlarm(int numOfServerAlarm) {
         this.numOfServerAlarm = numOfServerAlarm;
     }
 
-    public Integer getNumOfServiceAlarm() {
+    public int getNumOfServiceAlarm() {
         return numOfServiceAlarm;
     }
 
-    public void setNumOfServiceAlarm(Integer numOfServiceAlarm) {
+    public void setNumOfServiceAlarm(int numOfServiceAlarm) {
         this.numOfServiceAlarm = numOfServiceAlarm;
     }
 }

@@ -89,8 +89,8 @@ public class OverViewLayerQuery implements Query {
     }
 
     public Topology getClusterTopology(Duration duration) throws ParseException {
-        long start = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart());
-        long end = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd());
+        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
         return getClusterTopologyService().getClusterTopology(duration.getStep(), start, end);
     }
