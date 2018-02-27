@@ -37,12 +37,17 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  * @author wusheng
  */
 public class Log4j2OutputAppenderActivation extends ClassStaticMethodsEnhancePluginDefine {
+
+    public static final String ENHANCE_CLASS = "org.apache.skywalking.apm.toolkit.log.log4j.v2.x.Log4j2OutputAppender";
+    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x.PrintTraceIdInterceptor";
+    public static final String ENHANCE_METHOD = "append";
+
     /**
      * @return the target class, which needs active.
      */
     @Override
     protected ClassMatch enhanceClass() {
-        return NameMatch.byName("org.apache.skywalking.apm.toolkit.log.log4j.v2.x.Log4j2OutputAppender");
+        return NameMatch.byName(ENHANCE_CLASS);
     }
 
     /**
@@ -55,12 +60,12 @@ public class Log4j2OutputAppenderActivation extends ClassStaticMethodsEnhancePlu
             new StaticMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("append");
+                    return named(ENHANCE_METHOD);
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "PrintTraceIdInterceptor";
+                    return INTERCEPT_CLASS;
                 }
 
                 @Override public boolean isOverrideArgs() {
