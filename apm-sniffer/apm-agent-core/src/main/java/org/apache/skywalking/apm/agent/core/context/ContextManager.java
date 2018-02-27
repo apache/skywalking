@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context;
 
 import org.apache.skywalking.apm.agent.core.boot.BootService;
@@ -34,8 +33,8 @@ import org.apache.skywalking.apm.util.StringUtil;
 /**
  * {@link ContextManager} controls the whole context of {@link TraceSegment}. Any {@link TraceSegment} relates to
  * single-thread, so this context use {@link ThreadLocal} to maintain the context, and make sure, since a {@link
- * TraceSegment} starts, all ChildOf spans are in the same context. <p> What is 'ChildOf'? {@see
- * https://github.com/opentracing/specification/blob/master/specification.md#references-between-spans}
+ * TraceSegment} starts, all ChildOf spans are in the same context. <p> What is 'ChildOf'?
+ * https://github.com/opentracing/specification/blob/master/specification.md#references-between-spans
  *
  * <p> Also, {@link ContextManager} delegates to all {@link AbstractTracerContext}'s major methods.
  *

@@ -31,8 +31,8 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
 /**
- * {@link ConnectionInstrumentation} intercepts the following methods that the class which extend {@link
- * com.mysql.jdbc.ConnectionImpl}. <br/>
+ * {@link ConnectionInstrumentation} intercepts the following methods that the class which extend
+ * com.mysql.jdbc.ConnectionImpl. 
  *
  * 1. Enhance <code>prepareStatement</code> by <code>org.apache.skywalking.apm.plugin.jdbc.define.JDBCPrepareStatementInterceptor</code>
  * 2. Enhance <code>prepareCall</code> by <code>org.apache.skywalking.apm.plugin.jdbc.define.JDBCPrepareCallInterceptor</code>

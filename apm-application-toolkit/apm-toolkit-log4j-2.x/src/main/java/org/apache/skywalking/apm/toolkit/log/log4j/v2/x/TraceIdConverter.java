@@ -27,7 +27,7 @@ import org.apache.logging.log4j.core.pattern.LogEventPatternConverter;
 /**
  * {@link TraceIdConverter} is a log4j2 plugin, by annotation as {@link Plugin}.
  * It convert the pattern key: traceId.
- * Use '%traceId' in log4j2's config: <PatternLayout pattern="%d [%traceId] %-5p %c{1}:%L - %m%n"/>,
+ * Use '%traceId' in log4j2's config.
  * '%traceId' will output as TID:xxxx
  * <p>
  * Created by wusheng on 2016/12/7.
