@@ -50,11 +50,14 @@ public class StatefulRedisClusterConnectionImplInterceptor implements InstanceMe
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
         RedisCommand command = (RedisCommand)allArguments[0];
+        String comandType = String.valueOf(command.getType());
         if (null != command.getOutput().getError()) {
             AbstractSpan span = ContextManager.activeSpan();
             span.errorOccurred();
         }
-        ContextManager.stopSpan();
+        if (!"AUTH".equals(comandType)) {
+            ContextManager.stopSpan();
+        }
         return ret;
     }
 
