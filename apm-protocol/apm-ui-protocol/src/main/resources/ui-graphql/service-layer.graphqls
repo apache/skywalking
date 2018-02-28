@@ -21,7 +21,7 @@ type ServiceMetric {
     name: String
     # The unit is millisecond.
     avgResponseTime: Int!
-    tps: Int!
+    callsPerSec: Int!
 }
 
 type TraceItem {

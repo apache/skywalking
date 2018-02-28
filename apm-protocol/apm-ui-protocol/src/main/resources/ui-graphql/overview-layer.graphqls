@@ -30,7 +30,7 @@ type ConjecturalApp {
 type ApplicationTPS {
     applicationId: Int!
     applicationCode: String
-    tps: Int!
+    callsPerSec: Int!
 }
 
 extend type Query {

@@ -24,7 +24,6 @@ import org.apache.skywalking.apm.collector.client.h2.H2Client;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationReferenceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
-import org.apache.skywalking.apm.collector.storage.ui.common.Call;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +41,8 @@ public class ApplicationReferenceMetricH2UIDAO extends H2DAO implements IApplica
         super(client);
     }
 
-    @Override public List<Call> getFrontApplications(Step step, int applicationId, long startTime, long endTime,
+    @Override public List<ApplicationReferenceMetric> getFrontApplications(Step step, int applicationId, long startTime,
+        long endTime,
         MetricSource metricSource) {
         H2Client client = getClient();
         JsonArray applicationReferenceMetricArray = new JsonArray();
@@ -74,12 +74,16 @@ public class ApplicationReferenceMetricH2UIDAO extends H2DAO implements IApplica
         return null;
     }
 
-    @Override public List<Call> getBehindApplications(Step step, int applicationId, long startTime, long endTime,
+    @Override
+    public List<ApplicationReferenceMetric> getBehindApplications(Step step, int applicationId, long startTime,
+        long endTime,
         MetricSource metricSource) {
         return null;
     }
 
-    @Override public List<Call> getApplications(Step step, long startTime, long endTime, MetricSource metricSource) {
+    @Override
+    public List<ApplicationReferenceMetric> getReferences(Step step, long startTime,
+        long endTime, MetricSource metricSource) {
         return null;
     }
 }

@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
@@ -37,6 +38,7 @@ import org.apache.skywalking.apm.collector.storage.ui.overview.ApplicationTPS;
 import org.apache.skywalking.apm.collector.storage.ui.overview.ConjecturalApp;
 import org.apache.skywalking.apm.collector.storage.ui.overview.ConjecturalAppBrief;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceMetric;
+import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 
 /**
  * @author peng-yongsheng
@@ -59,8 +61,15 @@ public class ApplicationService {
         this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
     }
 
-    public List<Application> getApplications(long startTime, long endTime, int... applicationIds) {
-        List<Application> applications = instanceDAO.getApplications(startTime, endTime, applicationIds);
+    public List<Application> getApplications(long startSecondTimeBucket, long endSecondTimeBucket,
+        int... applicationIds) {
+        List<Application> applications = instanceDAO.getApplications(startSecondTimeBucket, endSecondTimeBucket, applicationIds);
+
+        applications.forEach(application -> {
+            if (application.getId() == Const.NONE_APPLICATION_ID) {
+                applications.remove(application);
+            }
+        });
 
         applications.forEach(application -> {
             String applicationCode = applicationCacheService.getApplicationById(application.getId()).getApplicationCode();
@@ -75,15 +84,15 @@ public class ApplicationService {
         slowServices.forEach(slowService -> {
             slowService.setName(serviceNameCacheService.get(slowService.getId()).getServiceName());
             //TODO
-            slowService.setTps(1);
+            slowService.setCallsPerSec(1);
         });
         return slowServices;
     }
 
-    public List<ApplicationTPS> getTopNApplicationThroughput(Step step, long start, long end,
+    public List<ApplicationTPS> getTopNApplicationThroughput(Step step, long startTimeBucket, long endTimeBucket,
         int topN) throws ParseException {
-        //TODO
-        List<ApplicationTPS> applicationThroughput = applicationMetricUIDAO.getTopNApplicationThroughput(step, start, end, 1000, topN, MetricSource.Callee);
+        int secondsBetween = DurationUtils.INSTANCE.secondsBetween(step, startTimeBucket, endTimeBucket);
+        List<ApplicationTPS> applicationThroughput = applicationMetricUIDAO.getTopNApplicationThroughput(step, startTimeBucket, endTimeBucket, secondsBetween, topN, MetricSource.Callee);
         applicationThroughput.forEach(applicationTPS -> {
             String applicationCode = applicationCacheService.getApplicationById(applicationTPS.getApplicationId()).getApplicationCode();
             applicationTPS.setApplicationCode(applicationCode);
