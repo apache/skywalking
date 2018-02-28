@@ -61,6 +61,7 @@ public class ServerService {
     private final IMemoryMetricUIDAO memoryMetricUIDAO;
     private final InstanceCacheService instanceCacheService;
     private final ApplicationCacheService applicationCacheService;
+    private final SecondBetweenService secondBetweenService;
 
     public ServerService(ModuleManager moduleManager) {
         this.instanceUIDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceUIDAO.class);
@@ -70,6 +71,7 @@ public class ServerService {
         this.memoryMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IMemoryMetricUIDAO.class);
         this.instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
+        this.secondBetweenService = new SecondBetweenService(moduleManager);
     }
 
     public List<AppServerInfo> searchServer(String keyword, long start, long end) {
@@ -99,10 +101,11 @@ public class ServerService {
         return responseTimeTrend;
     }
 
-    public List<AppServerInfo> getServerThroughput(int applicationId, Step step, long start,
-        long end, Integer topN) throws ParseException {
-        //TODO
-        List<AppServerInfo> serverThroughput = instanceMetricUIDAO.getServerThroughput(applicationId, step, start, end, 1000, topN, MetricSource.Callee);
+    public List<AppServerInfo> getServerThroughput(int applicationId, Step step, long startTimeBucket,
+        long endTimeBucket, long startSecondTimeBucket, long endSecondTimeBucket, Integer topN) throws ParseException {
+        int secondBetween = secondBetweenService.calculate(applicationId, startSecondTimeBucket, endSecondTimeBucket);
+
+        List<AppServerInfo> serverThroughput = instanceMetricUIDAO.getServerThroughput(applicationId, step, startTimeBucket, endTimeBucket, secondBetween, topN, MetricSource.Callee);
         serverThroughput.forEach(appServerInfo -> {
             String applicationCode = applicationCacheService.getApplicationById(applicationId).getApplicationCode();
             appServerInfo.setApplicationCode(applicationCode);

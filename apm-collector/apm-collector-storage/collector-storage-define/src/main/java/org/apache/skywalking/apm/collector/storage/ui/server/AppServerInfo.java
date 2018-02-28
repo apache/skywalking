@@ -29,7 +29,7 @@ public class AppServerInfo {
     private String applicationCode;
     private String osInfo;
     private String name;
-    private int tps;
+    private int callsPerSec;
     private String host;
     private int pid;
     private List<String> ipv4;
@@ -74,12 +74,12 @@ public class AppServerInfo {
         this.name = name;
     }
 
-    public int getTps() {
-        return tps;
+    public int getCallsPerSec() {
+        return callsPerSec;
     }
 
-    public void setTps(int tps) {
-        this.tps = tps;
+    public void setCallsPerSec(int callsPerSec) {
+        this.callsPerSec = callsPerSec;
     }
 
     public String getHost() {
