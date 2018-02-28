@@ -28,8 +28,8 @@ import org.apache.skywalking.apm.collector.storage.ui.overview.ApplicationTPS;
  * @author peng-yongsheng
  */
 public interface IApplicationMetricUIDAO extends DAO {
-    List<ApplicationTPS> getTopNApplicationThroughput(Step step, long start, long end, long betweenSecond, int topN,
-        MetricSource metricSource);
+    List<ApplicationTPS> getTopNApplicationThroughput(Step step, long startTimeBucket, long endTimeBucket,
+        int betweenSecond, int topN, MetricSource metricSource);
 
     List<ApplicationMetric> getApplications(Step step, long startTimeBucket, long endTimeBucket,
         MetricSource metricSource);
