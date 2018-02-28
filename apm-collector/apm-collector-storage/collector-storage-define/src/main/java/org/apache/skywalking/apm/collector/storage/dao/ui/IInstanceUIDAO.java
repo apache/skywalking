@@ -36,7 +36,7 @@ public interface IInstanceUIDAO extends DAO {
 
     Instance getInstance(int instanceId);
 
-    List<AppServerInfo> searchServer(String keyword, long start, long end);
+    List<AppServerInfo> searchServer(String keyword, long startSecondTimeBucket, long endSecondTimeBucket);
 
     List<AppServerInfo> getAllServer(int applicationId, long startSecondTimeBucket, long endSecondTimeBucket);
 

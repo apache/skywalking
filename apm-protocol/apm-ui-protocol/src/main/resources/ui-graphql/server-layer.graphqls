@@ -8,7 +8,7 @@ type AppServerInfo {
     name: String!
     applicationId: Int!
     applicationCode: String
-    tps: Int!
+    callsPerSec: Int!
     host: String
     pid: Int
     ipv4: [String!]!
