@@ -37,6 +37,7 @@ import org.apache.skywalking.apm.collector.storage.ui.overview.ApplicationTPS;
 import org.apache.skywalking.apm.collector.storage.ui.overview.ConjecturalApp;
 import org.apache.skywalking.apm.collector.storage.ui.overview.ConjecturalAppBrief;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceMetric;
+import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 
 /**
  * @author peng-yongsheng
@@ -80,10 +81,10 @@ public class ApplicationService {
         return slowServices;
     }
 
-    public List<ApplicationTPS> getTopNApplicationThroughput(Step step, long start, long end,
+    public List<ApplicationTPS> getTopNApplicationThroughput(Step step, long startTimeBucket, long endTimeBucket,
         int topN) throws ParseException {
-        //TODO
-        List<ApplicationTPS> applicationThroughput = applicationMetricUIDAO.getTopNApplicationThroughput(step, start, end, 1000, topN, MetricSource.Callee);
+        int secondsBetween = DurationUtils.INSTANCE.secondsBetween(step, startTimeBucket, endTimeBucket);
+        List<ApplicationTPS> applicationThroughput = applicationMetricUIDAO.getTopNApplicationThroughput(step, startTimeBucket, endTimeBucket, secondsBetween, topN, MetricSource.Callee);
         applicationThroughput.forEach(applicationTPS -> {
             String applicationCode = applicationCacheService.getApplicationById(applicationTPS.getApplicationId()).getApplicationCode();
             applicationTPS.setApplicationCode(applicationCode);

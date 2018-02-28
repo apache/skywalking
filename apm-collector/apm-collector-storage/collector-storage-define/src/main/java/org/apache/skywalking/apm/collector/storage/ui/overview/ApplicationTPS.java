@@ -24,7 +24,7 @@ package org.apache.skywalking.apm.collector.storage.ui.overview;
 public class ApplicationTPS {
     private int applicationId;
     private String applicationCode;
-    private int tps;
+    private int callsPerSec;
 
     public int getApplicationId() {
         return applicationId;
@@ -42,11 +42,11 @@ public class ApplicationTPS {
         this.applicationCode = applicationCode;
     }
 
-    public int getTps() {
-        return tps;
+    public int getCallsPerSec() {
+        return callsPerSec;
     }
 
-    public void setTps(int tps) {
-        this.tps = tps;
+    public void setCallsPerSec(int callsPerSec) {
+        this.callsPerSec = callsPerSec;
     }
 }

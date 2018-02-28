@@ -157,9 +157,9 @@ public class OverViewLayerQuery implements Query {
 
     public List<ApplicationTPS> getTopNApplicationThroughput(Duration duration,
         int topN) throws ParseException {
-        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
-        return getApplicationService().getTopNApplicationThroughput(duration.getStep(), start, end, topN);
+        return getApplicationService().getTopNApplicationThroughput(duration.getStep(), startTimeBucket, endTimeBucket, topN);
     }
 }
