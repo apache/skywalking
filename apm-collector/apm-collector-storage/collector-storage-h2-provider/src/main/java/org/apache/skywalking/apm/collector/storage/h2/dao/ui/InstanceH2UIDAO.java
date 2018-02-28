@@ -88,7 +88,8 @@ public class InstanceH2UIDAO extends H2DAO implements IInstanceUIDAO {
     }
 
     @Override
-    public List<Application> getApplications(long startSecondTimeBucket, long endSecondTimeBucket, int... applicationIds) {
+    public List<Application> getApplications(long startSecondTimeBucket, long endSecondTimeBucket,
+        int... applicationIds) {
         H2Client client = getClient();
         List<Application> applications = new LinkedList<>();
         String sql = SqlBuilder.buildSql(GET_APPLICATIONS_SQL, InstanceTable.COLUMN_INSTANCE_ID,
@@ -131,20 +132,21 @@ public class InstanceH2UIDAO extends H2DAO implements IInstanceUIDAO {
         return null;
     }
 
-    @Override public List<AppServerInfo> searchServer(String keyword, long startSecondTimeBucket, long endSecondTimeBucket) {
+    @Override
+    public List<AppServerInfo> searchServer(String keyword, long startSecondTimeBucket, long endSecondTimeBucket) {
         logger.debug("get instances info, keyword: {}, start: {}, end: {}", keyword, startSecondTimeBucket, endSecondTimeBucket);
-        String dynamicSql = "select * from {0} where {1} like ? and {2} >= ? and {2} <= ? and {3} = ?";
-        String sql = SqlBuilder.buildSql(dynamicSql, InstanceTable.TABLE, InstanceTable.COLUMN_OS_INFO, InstanceTable.COLUMN_HEARTBEAT_TIME, InstanceTable.COLUMN_IS_ADDRESS);
-        Object[] params = new Object[] {keyword, startSecondTimeBucket, endSecondTimeBucket, BooleanUtils.FALSE};
+        String dynamicSql = "select * from {0} where {1} like ? and (({2} >= ? and {2} <= ?) or ({3} >= ? and {3} <= ?)) and {4} = ?";
+        String sql = SqlBuilder.buildSql(dynamicSql, InstanceTable.TABLE, InstanceTable.COLUMN_OS_INFO, InstanceTable.COLUMN_REGISTER_TIME, InstanceTable.COLUMN_HEARTBEAT_TIME, InstanceTable.COLUMN_IS_ADDRESS);
+        Object[] params = new Object[] {keyword, startSecondTimeBucket, endSecondTimeBucket, startSecondTimeBucket, endSecondTimeBucket, BooleanUtils.FALSE};
         return buildAppServerInfo(sql, params);
     }
 
     @Override
     public List<AppServerInfo> getAllServer(int applicationId, long startSecondTimeBucket, long endSecondTimeBucket) {
         logger.debug("get instances info, applicationId: {}, startSecondTimeBucket: {}, endSecondTimeBucket: {}", applicationId, startSecondTimeBucket, endSecondTimeBucket);
-        String dynamicSql = "select * from {0} where {1} = ? and {2} >= ? and {2} <= ? and {3} >= ? and {4} = ?";
+        String dynamicSql = "select * from {0} where {1} = ? and (({2} >= ? and {2} <= ?) or ({3} >= ? and {3} <= ?)) and {4} = ?";
         String sql = SqlBuilder.buildSql(dynamicSql, InstanceTable.TABLE, InstanceTable.COLUMN_APPLICATION_ID, InstanceTable.COLUMN_REGISTER_TIME, InstanceTable.COLUMN_HEARTBEAT_TIME, InstanceTable.COLUMN_IS_ADDRESS);
-        Object[] params = new Object[] {applicationId, startSecondTimeBucket, endSecondTimeBucket, startSecondTimeBucket, BooleanUtils.FALSE};
+        Object[] params = new Object[] {applicationId, startSecondTimeBucket, endSecondTimeBucket, startSecondTimeBucket, endSecondTimeBucket, BooleanUtils.FALSE};
         return buildAppServerInfo(sql, params);
     }
 

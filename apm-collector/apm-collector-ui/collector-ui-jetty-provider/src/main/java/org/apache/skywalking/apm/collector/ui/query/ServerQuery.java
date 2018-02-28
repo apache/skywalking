@@ -59,9 +59,9 @@ public class ServerQuery implements Query {
     }
 
     public List<AppServerInfo> getAllServer(int applicationId, Duration duration) throws ParseException {
-        long start = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart());
-        long end = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd());
-        return getServerService().getAllServer(applicationId, start, end);
+        long startSecondTimeBucket = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart());
+        long endSecondTimeBucket = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd());
+        return getServerService().getAllServer(applicationId, startSecondTimeBucket, endSecondTimeBucket);
     }
 
     public ResponseTimeTrend getServerResponseTimeTrend(int serverId, Duration duration) throws ParseException {
