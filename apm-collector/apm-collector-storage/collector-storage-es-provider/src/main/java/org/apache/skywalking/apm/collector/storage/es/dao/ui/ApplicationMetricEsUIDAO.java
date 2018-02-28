@@ -55,9 +55,8 @@ public class ApplicationMetricEsUIDAO extends EsDAO implements IApplicationMetri
     private static final String AVG_TPS = "avg_tps";
 
     @Override
-    public List<ApplicationTPS> getTopNApplicationThroughput(Step step, long start, long end, long betweenSecond,
-        int topN,
-        MetricSource metricSource) {
+    public List<ApplicationTPS> getTopNApplicationThroughput(Step step, long startTimeBucket, long endTimeBucket,
+        int betweenSecond, int topN, MetricSource metricSource) {
         String tableName = TimePyramidTableNameBuilder.build(step, ApplicationMetricTable.TABLE);
 
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
@@ -65,7 +64,7 @@ public class ApplicationMetricEsUIDAO extends EsDAO implements IApplicationMetri
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(ApplicationMetricTable.COLUMN_TIME_BUCKET).gte(start).lte(end));
+        boolQuery.must().add(QueryBuilders.rangeQuery(ApplicationMetricTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
         boolQuery.must().add(QueryBuilders.termQuery(ApplicationMetricTable.COLUMN_SOURCE_VALUE, metricSource.getValue()));
 
         searchRequestBuilder.setQuery(boolQuery);
@@ -97,7 +96,7 @@ public class ApplicationMetricEsUIDAO extends EsDAO implements IApplicationMetri
             InternalSimpleValue simpleValue = applicationIdTerm.getAggregations().get(AVG_TPS);
 
             applicationTPS.setApplicationId(applicationId);
-            applicationTPS.setTps((int)simpleValue.getValue());
+            applicationTPS.setCallsPerSec((int)simpleValue.getValue());
             applicationTPSs.add(applicationTPS);
         });
         return applicationTPSs;
