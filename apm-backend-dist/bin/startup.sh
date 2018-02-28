@@ -5,6 +5,6 @@ PRGDIR=`dirname "$PRG"`
 COLLECTOR_EXE=collectorService.sh
 WEBAPP_EXE=webappService.sh
 
-exec "$PRGDIR"/"$COLLECTOR_EXE" start
+"$PRGDIR"/"$COLLECTOR_EXE"
 
-exec "$PRGDIR"/"$WEBAPP_EXE" start
+"$PRGDIR"/"$WEBAPP_EXE"
