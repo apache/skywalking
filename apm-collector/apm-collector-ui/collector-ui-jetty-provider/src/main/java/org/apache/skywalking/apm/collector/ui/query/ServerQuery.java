@@ -71,26 +71,26 @@ public class ServerQuery implements Query {
     }
 
     public ThroughputTrend getServerTPSTrend(int serverId, Duration duration) throws ParseException {
-        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
-        return getServerService().getServerTPSTrend(serverId, duration.getStep(), start, end);
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        return getServerService().getServerTPSTrend(serverId, duration.getStep(), startTimeBucket, endTimeBucket);
     }
 
     public CPUTrend getCPUTrend(int serverId, Duration duration) throws ParseException {
-        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
-        return getServerService().getCPUTrend(serverId, duration.getStep(), start, end);
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        return getServerService().getCPUTrend(serverId, duration.getStep(), startTimeBucket, endTimeBucket);
     }
 
     public GCTrend getGCTrend(int serverId, Duration duration) throws ParseException {
-        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
-        return getServerService().getGCTrend(serverId, duration.getStep(), start, end);
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        return getServerService().getGCTrend(serverId, duration.getStep(), startTimeBucket, endTimeBucket);
     }
 
     public MemoryTrend getMemoryTrend(int serverId, Duration duration) throws ParseException {
-        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
-        return getServerService().getMemoryTrend(serverId, duration.getStep(), start, end);
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        return getServerService().getMemoryTrend(serverId, duration.getStep(), startTimeBucket, endTimeBucket);
     }
 }
