@@ -227,26 +227,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <copy file="${project.build.directory}/skywalking-collector-assembly.tar.gz"
-                                      tofile="${project.basedir}/../../packages/skywalking-collector.tar.gz" overwrite="true"/>
-                                <copy file="${project.build.directory}/skywalking-collector-assembly.zip"
-                                      tofile="${project.basedir}/../../packages/skywalking-collector.zip" overwrite="true"/>
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+
             <plugin>
                 <groupId>com.spotify</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
