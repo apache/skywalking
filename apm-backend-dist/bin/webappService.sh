@@ -2,7 +2,7 @@
 
 PRG="$0"
 PRGDIR=`dirname "$PRG"`
-[ -z "$WEBAPP_HOME" ] && $WEBAPP_HOME=`cd "$PRGDIR/.." >/dev/null; pwd`
+[ -z "$WEBAPP_HOME" ] && WEBAPP_HOME=`cd "$PRGDIR/.." >/dev/null; pwd`
 
 WEBAPP_LOG_DIR="${WEBAPP_HOME}/logs"
 JAVA_OPTS=" -Xms256M -Xmx512M"
