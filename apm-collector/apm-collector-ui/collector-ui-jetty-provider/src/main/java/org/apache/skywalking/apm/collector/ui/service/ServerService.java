@@ -92,10 +92,10 @@ public class ServerService {
         return serverInfos;
     }
 
-    public ResponseTimeTrend getServerResponseTimeTrend(int instanceId, Step step, long start,
-        long end) throws ParseException {
+    public ResponseTimeTrend getServerResponseTimeTrend(int instanceId, Step step, long startTimeBucket,
+        long endTimeBucket) throws ParseException {
         ResponseTimeTrend responseTimeTrend = new ResponseTimeTrend();
-        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
+        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTimeBucket, endTimeBucket);
         List<Integer> trends = instanceMetricUIDAO.getResponseTimeTrend(instanceId, step, durationPoints);
         responseTimeTrend.setTrendList(trends);
         return responseTimeTrend;
