@@ -87,10 +87,13 @@ public class ApplicationQuery implements Query {
 
     public List<ServiceMetric> getSlowService(int applicationId, Duration duration,
         Integer topN) throws ParseException {
-        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
-        return getApplicationService().getSlowService(applicationId, duration.getStep(), start, end, topN);
+        long startSecondTimeBucket = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart());
+        long endSecondTimeBucket = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd());
+
+        return getApplicationService().getSlowService(applicationId, duration.getStep(), startTimeBucket, endTimeBucket, startSecondTimeBucket, endSecondTimeBucket, topN);
     }
 
     public List<AppServerInfo> getServerThroughput(int applicationId, Duration duration,
