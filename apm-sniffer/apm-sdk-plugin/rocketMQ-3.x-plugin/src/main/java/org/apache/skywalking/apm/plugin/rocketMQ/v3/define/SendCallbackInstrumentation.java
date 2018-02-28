@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.plugin.rocketMQ.v3.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
-import org.apache.skywalking.apm.plugin.rocketMQ.v3.OnSuccessInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
@@ -32,7 +31,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.b
 
 /**
  * {@link SendCallbackInstrumentation} intercepts {@link com.alibaba.rocketmq.client.producer.SendCallback#onSuccess(com.alibaba.rocketmq.client.producer.SendResult sendResult)}
- * method by using {@link OnSuccessInterceptor} and also intercepts {@link
+ * method by using {@link org.apache.skywalking.apm.plugin.rocketMQ.v3.OnSuccessInterceptor} and also intercepts {@link
  * com.alibaba.rocketmq.client.producer.SendCallback#onException(Throwable)} by using {@link
  * org.apache.skywalking.apm.plugin.rocketMQ.v3.OnExceptionInterceptor}.
  *
