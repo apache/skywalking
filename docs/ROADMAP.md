@@ -28,6 +28,7 @@ Core features are separated into 3 groups: agent, collector and UI.
 
 ### UI
 - Whole new 5.0 UI. New topology; metrics of application, server and service; Trace query; Alarm. [WIP]
+- Merged into Collector as a module.
 - Support i18n.
 - More interactive UI for the DIG data from any domain. 
 - Plugin system for the 3rd extention of the UI.
@@ -51,4 +52,4 @@ Community features are reported from SkyWalking community or the core team hopes
 1. Mar. 2018, 5.0.0-alpha
 1. Apr. 2018, 5.0.0-beta
 1. May. 2018, 5.0.0-RC
-1. Jun. 2018， 5.0.0(GA)
+1. Jun. 2018, 5.0.0(GA)
