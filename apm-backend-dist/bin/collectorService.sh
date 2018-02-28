@@ -15,7 +15,7 @@ _RUNJAVA=${JAVA_HOME}/bin/java
 [ -z "$JAVA_HOME" ] && _RUNJAVA=java
 
 CLASSPATH="$COLLECTOR_HOME/config:$CLASSPATH"
-for i in "$COLLECTOR_HOME"/libs/*.jar
+for i in "$COLLECTOR_HOME"/collector-libs/*.jar
 do
     CLASSPATH="$i:$CLASSPATH"
 done
