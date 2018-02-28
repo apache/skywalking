@@ -58,11 +58,11 @@ public class StatefulRedisConnectionImplInterceptor implements InstanceMethodsAr
         Object ret) throws Throwable {
         RedisCommand command = (RedisCommand)allArguments[0];
         String comandType = String.valueOf(command.getType());
-        if (null != command.getOutput().getError()) {
-            AbstractSpan span = ContextManager.activeSpan();
-            span.errorOccurred();
-        }
         if (checkIfNotIgnoreCommandType(comandType)) {
+            if (null != command.getOutput().getError()) {
+                AbstractSpan span = ContextManager.activeSpan();
+                span.errorOccurred();
+            }
             ContextManager.stopSpan();
         }
         return ret;
