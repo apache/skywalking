@@ -60,9 +60,9 @@ public class ServiceNameServiceH2UIDAO extends H2DAO implements IServiceNameServ
     }
 
     @Override public List<ServiceInfo> searchService(String keyword, int topN) {
-        String dynamicSql = "select {0},{1} from {2} where {3} like ? limit ?";
-        String sql = SqlBuilder.buildSql(dynamicSql, ServiceNameTable.COLUMN_SERVICE_ID, ServiceNameTable.COLUMN_SERVICE_NAME, ServiceNameTable.TABLE, ServiceNameTable.COLUMN_SERVICE_NAME);
-        Object[] params = new Object[] {keyword, topN};
+        String dynamicSql = "select {0},{1} from {2} where {3} like ? and {4} = ? limit ?";
+        String sql = SqlBuilder.buildSql(dynamicSql, ServiceNameTable.COLUMN_SERVICE_ID, ServiceNameTable.COLUMN_SERVICE_NAME, ServiceNameTable.TABLE, ServiceNameTable.COLUMN_SERVICE_NAME, ServiceNameTable.COLUMN_SRC_SPAN_TYPE);
+        Object[] params = new Object[] {keyword, SpanType.Entry_VALUE, topN};
 
         List<ServiceInfo> serviceInfos = new LinkedList<>();
         try (ResultSet rs = getClient().executeQuery(sql, params)) {
