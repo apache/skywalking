@@ -33,14 +33,14 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
 /**
  * {@link MongoDBCollectionImplInstrumentation} define that the MongoDB Java Driver 2.13.x-2.14.x plugin intercepts the
- * following methods in the {@link com.mongodb.DBCollectionImpl}class:
- * 1. find <br/>
- * 2. insert <br/>
- * 3. insertImpl <br/>
- * 4. update <br/>
- * 5. updateImpl <br/>
- * 6. remove <br/>
- * 7. createIndex <br/>
+ * following methods in the com.mongodb.DBCollectionImpl class:
+ * 1. find 
+ * 2. insert 
+ * 3. insertImpl 
+ * 4. update 
+ * 5. updateImpl 
+ * 6. remove 
+ * 7. createIndex 
  *
  * @author liyuntao
  */

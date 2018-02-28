@@ -49,7 +49,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
  *
  * 4. The <code>SpanLogInterceptor</code>
  * interceptor enhance the <code>log</code> method that the first argument type is {@link Long} and the second
- * argument type is {@link Map<String,?>}
+ * argument type is {@link Map}
  *
  * 5. The <code>SpanSetOperationNameInterceptor</code>
  * interceptor enhance the <code>setOperationName</code> method

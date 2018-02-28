@@ -21,15 +21,12 @@ package org.apache.skywalking.apm.plugin.jdbc.postgresql;
 
 import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 /**
- * {@link CreateStatementInterceptor} intercepts the {@link org.postgresql.jdbc.PgConnection#prepareCall} method in
- * {@link org.postgresql.jdbc.PgConnection}, {@link org.postgresql.jdbc.PgConnection} or {@link org.postgresql.jdbc3.Jdbc3Connection} class.
- *
  * @author zhangxin
  */
 public class CreateCallableStatementInterceptor implements InstanceMethodsAroundInterceptor {
