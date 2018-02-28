@@ -16,13 +16,15 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.register.define.service;
-
-import org.apache.skywalking.apm.collector.core.module.Service;
+package org.apache.skywalking.apm.collector.ui.utils;
 
 /**
  * @author peng-yongsheng
  */
-public interface IServiceNameService extends Service {
-    int getOrCreate(int applicationId, int srcSpanType, String serviceName);
+public enum ApdexCalculator {
+    INSTANCE;
+
+    public int calculate(long satisfiedCount, long toleratingCount, long frustratedCount) {
+        return (int)(((satisfiedCount + toleratingCount / 2) * 100) / (satisfiedCount + toleratingCount + frustratedCount));
+    }
 }
