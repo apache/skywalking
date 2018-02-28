@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.collector.storage.h2.dao.ui;
 
-import com.google.gson.JsonArray;
 import java.util.List;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationReferenceMetricUIDAO;
@@ -41,49 +40,8 @@ public class ApplicationReferenceMetricH2UIDAO extends H2DAO implements IApplica
         super(client);
     }
 
-    @Override public List<ApplicationReferenceMetric> getFrontApplications(Step step, int applicationId, long startTime,
-        long endTime,
-        MetricSource metricSource) {
-        H2Client client = getClient();
-        JsonArray applicationReferenceMetricArray = new JsonArray();
-//        String sql = SqlBuilder.buildSql(APPLICATION_REFERENCE_SQL, ApplicationReferenceMetricTable.COLUMN_S1_LTE,
-//            ApplicationReferenceMetricTable.COLUMN_S3_LTE, ApplicationReferenceMetricTable.COLUMN_S5_LTE,
-//            ApplicationReferenceMetricTable.COLUMN_S5_GT, ApplicationReferenceMetricTable.COLUMN_SUMMARY,
-//            ApplicationReferenceMetricTable.COLUMN_ERROR, ApplicationReferenceMetricTable.TABLE, ApplicationReferenceMetricTable.COLUMN_TIME_BUCKET,
-//            ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID, ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID);
-//
-//        Object[] params = new Object[] {startTime, endTime};
-//        try (ResultSet rs = client.executeQuery(sql, params)) {
-//            while (rs.next()) {
-//                int frontApplicationId = rs.getInt(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID);
-//                int behindApplicationId = rs.getInt(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID);
-//                JsonObject nodeRefResSumObj = new JsonObject();
-//                nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID), frontApplicationId);
-//                nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID), behindApplicationId);
-//                nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_S1_LTE), rs.getDouble(ApplicationReferenceMetricTable.COLUMN_S1_LTE));
-//                nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_S3_LTE), rs.getDouble(ApplicationReferenceMetricTable.COLUMN_S3_LTE));
-//                nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_S5_LTE), rs.getDouble(ApplicationReferenceMetricTable.COLUMN_S5_LTE));
-//                nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_S5_GT), rs.getDouble(ApplicationReferenceMetricTable.COLUMN_S5_GT));
-//                nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_ERROR), rs.getDouble(ApplicationReferenceMetricTable.COLUMN_ERROR));
-//                nodeRefResSumObj.addProperty(ColumnNameUtils.INSTANCE.rename(ApplicationReferenceMetricTable.COLUMN_SUMMARY), rs.getDouble(ApplicationReferenceMetricTable.COLUMN_SUMMARY));
-//                nodeRefResSumArray.add(nodeRefResSumObj);
-//            }
-//        } catch (SQLException | H2ClientException e) {
-//            logger.error(e.getMessage(), e);
-//        }
-        return null;
-    }
-
-    @Override
-    public List<ApplicationReferenceMetric> getBehindApplications(Step step, int applicationId, long startTime,
-        long endTime,
-        MetricSource metricSource) {
-        return null;
-    }
-
-    @Override
-    public List<ApplicationReferenceMetric> getReferences(Step step, long startTime,
-        long endTime, MetricSource metricSource) {
+    @Override public List<ApplicationReferenceMetric> getReferences(Step step,
+        long startTimeBucket, long endTimeBucket, MetricSource metricSource, Integer... applicationIds) {
         return null;
     }
 }

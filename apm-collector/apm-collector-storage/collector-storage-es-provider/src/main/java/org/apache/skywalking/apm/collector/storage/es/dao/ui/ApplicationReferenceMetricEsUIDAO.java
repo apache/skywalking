@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.collector.storage.es.dao.ui;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationReferenceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
@@ -46,9 +47,8 @@ public class ApplicationReferenceMetricEsUIDAO extends EsDAO implements IApplica
         super(client);
     }
 
-    @Override public List<ApplicationReferenceMetric> getFrontApplications(Step step, int applicationId, long startTime,
-        long endTime,
-        MetricSource metricSource) {
+    @Override public List<ApplicationReferenceMetric> getReferences(Step step, long startTimeBucket, long endTimeBucket,
+        MetricSource metricSource, Integer... applicationIds) {
         String tableName = TimePyramidTableNameBuilder.build(step, ApplicationReferenceMetricTable.TABLE);
 
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
@@ -56,48 +56,20 @@ public class ApplicationReferenceMetricEsUIDAO extends EsDAO implements IApplica
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(ApplicationReferenceMetricTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
-        boolQuery.must().add(QueryBuilders.termQuery(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID, applicationId));
+        boolQuery.must().add(QueryBuilders.rangeQuery(ApplicationReferenceMetricTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
         boolQuery.must().add(QueryBuilders.termQuery(ApplicationReferenceMetricTable.COLUMN_SOURCE_VALUE, metricSource.getValue()));
 
-        searchRequestBuilder.setQuery(boolQuery);
-        searchRequestBuilder.setSize(0);
+        if (CollectionUtils.isNotEmpty(applicationIds)) {
+            BoolQueryBuilder applicationBoolQuery = QueryBuilders.boolQuery();
+            int[] ids = new int[applicationIds.length];
+            for (int i = 0; i < applicationIds.length; i++) {
+                ids[i] = applicationIds[i];
+            }
 
-        return buildMetrics(searchRequestBuilder);
-    }
-
-    @Override
-    public List<ApplicationReferenceMetric> getBehindApplications(Step step, int applicationId, long startTime,
-        long endTime,
-        MetricSource metricSource) {
-        String tableName = TimePyramidTableNameBuilder.build(step, ApplicationReferenceMetricTable.TABLE);
-
-        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
-        searchRequestBuilder.setTypes(ApplicationReferenceMetricTable.TABLE_TYPE);
-        searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-
-        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(ApplicationReferenceMetricTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
-        boolQuery.must().add(QueryBuilders.termQuery(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID, applicationId));
-        boolQuery.must().add(QueryBuilders.termQuery(ApplicationReferenceMetricTable.COLUMN_SOURCE_VALUE, metricSource.getValue()));
-
-        searchRequestBuilder.setQuery(boolQuery);
-        searchRequestBuilder.setSize(0);
-
-        return buildMetrics(searchRequestBuilder);
-    }
-
-    @Override public List<ApplicationReferenceMetric> getReferences(Step step, long startTime, long endTime,
-        MetricSource metricSource) {
-        String tableName = TimePyramidTableNameBuilder.build(step, ApplicationReferenceMetricTable.TABLE);
-
-        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
-        searchRequestBuilder.setTypes(ApplicationReferenceMetricTable.TABLE_TYPE);
-        searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-
-        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(ApplicationReferenceMetricTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
-        boolQuery.must().add(QueryBuilders.termQuery(ApplicationReferenceMetricTable.COLUMN_SOURCE_VALUE, metricSource.getValue()));
+            applicationBoolQuery.should().add(QueryBuilders.termsQuery(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID, ids));
+            applicationBoolQuery.should().add(QueryBuilders.termsQuery(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID, ids));
+            boolQuery.must().add(applicationBoolQuery);
+        }
 
         searchRequestBuilder.setQuery(boolQuery);
         searchRequestBuilder.setSize(0);
