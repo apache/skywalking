@@ -116,7 +116,7 @@ public class ServiceMetricH2UIDAO extends H2DAO implements IServiceMetricUIDAO {
         return null;
     }
 
-    @Override public List<ServiceMetric> getSlowService(int applicationId, Step step, long start, long end, Integer top,
+    @Override public List<ServiceMetric> getSlowService(int applicationId, Step step, long startTimeBucket, long endTimeBucket, Integer topN,
         MetricSource metricSource) {
         return null;
     }
