@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.table.register;
 
 import org.apache.skywalking.apm.collector.core.data.CommonTable;
@@ -27,6 +26,8 @@ import org.apache.skywalking.apm.collector.core.data.CommonTable;
 public class ServiceNameTable extends CommonTable {
     public static final String TABLE = "service_name";
     public static final String COLUMN_SERVICE_NAME = "service_name";
+    public static final String COLUMN_SERVICE_NAME_KEYWORD = "service_name_keyword";
+    public static final String COLUMN_SRC_SPAN_TYPE = "src_span_type";
     public static final String COLUMN_APPLICATION_ID = "application_id";
     public static final String COLUMN_SERVICE_ID = "service_id";
 }

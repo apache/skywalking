@@ -16,13 +16,15 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.register.define.service;
-
-import org.apache.skywalking.apm.collector.core.module.Service;
+package org.apache.skywalking.apm.collector.ui.utils;
 
 /**
  * @author peng-yongsheng
  */
-public interface IServiceNameService extends Service {
-    int getOrCreate(int applicationId, int srcSpanType, String serviceName);
+public enum SLACalculator {
+    INSTANCE;
+
+    public int calculate(long errorCalls, long calls) {
+        return (int)(((calls - errorCalls) * 100) / calls);
+    }
 }
