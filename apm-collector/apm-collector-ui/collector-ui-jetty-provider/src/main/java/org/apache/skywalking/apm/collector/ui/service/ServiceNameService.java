@@ -87,9 +87,9 @@ public class ServiceNameService {
         return responseTimeTrend;
     }
 
-    public SLATrend getServiceSLATrend(int serviceId, Step step, long start, long end) throws ParseException {
+    public SLATrend getServiceSLATrend(int serviceId, Step step, long startTimeBucket, long endTimeBucket) throws ParseException {
         SLATrend slaTrend = new SLATrend();
-        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
+        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTimeBucket, endTimeBucket);
         slaTrend.setTrendList(serviceMetricUIDAO.getServiceSLATrend(serviceId, step, durationPoints));
         return slaTrend;
     }
