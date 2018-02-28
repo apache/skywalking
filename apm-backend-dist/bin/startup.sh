@@ -7,4 +7,4 @@ WEBAPP_EXE=webappService.sh
 
 exec "$PRGDIR"/"$COLLECTOR_EXE" start
 
-exec "$PRGDIR"/"$COLLECTOR_EXE" start
+exec "$PRGDIR"/"$WEBAPP_EXE" start
