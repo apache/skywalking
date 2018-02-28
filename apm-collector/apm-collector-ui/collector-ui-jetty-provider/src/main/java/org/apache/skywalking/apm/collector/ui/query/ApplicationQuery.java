@@ -69,10 +69,10 @@ public class ApplicationQuery implements Query {
     }
 
     public List<Application> getAllApplication(Duration duration) throws ParseException {
-        long start = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart());
-        long end = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd());
+        long startSecondTimeBucket = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart());
+        long endSecondTimeBucket = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd());
 
-        return getApplicationService().getApplications(start, end);
+        return getApplicationService().getApplications(startSecondTimeBucket, endSecondTimeBucket);
     }
 
     public Topology getApplicationTopology(int applicationId, Duration duration) throws ParseException {
