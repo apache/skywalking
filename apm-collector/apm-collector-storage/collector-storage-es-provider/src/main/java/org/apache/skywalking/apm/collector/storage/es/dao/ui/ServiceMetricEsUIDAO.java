@@ -175,7 +175,9 @@ public class ServiceMetricEsUIDAO extends EsDAO implements IServiceMetricUIDAO {
         return nodes;
     }
 
-    @Override public List<ServiceMetric> getSlowService(int applicationId, Step step, long start, long end, Integer top,
+    @Override
+    public List<ServiceMetric> getSlowService(int applicationId, Step step, long startTimeBucket, long endTimeBucket,
+        Integer topN,
         MetricSource metricSource) {
         String tableName = TimePyramidTableNameBuilder.build(step, ServiceMetricTable.TABLE);
 
@@ -184,7 +186,7 @@ public class ServiceMetricEsUIDAO extends EsDAO implements IServiceMetricUIDAO {
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceMetricTable.COLUMN_TIME_BUCKET).gte(start).lte(end));
+        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceMetricTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
         if (applicationId != 0) {
             boolQuery.must().add(QueryBuilders.termQuery(ServiceMetricTable.COLUMN_APPLICATION_ID, applicationId));
         }
@@ -193,7 +195,7 @@ public class ServiceMetricEsUIDAO extends EsDAO implements IServiceMetricUIDAO {
         searchRequestBuilder.setQuery(boolQuery);
         searchRequestBuilder.setSize(0);
 
-        TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(ServiceMetricTable.COLUMN_SERVICE_ID).field(ServiceMetricTable.COLUMN_SERVICE_ID).size(top);
+        TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(ServiceMetricTable.COLUMN_SERVICE_ID).field(ServiceMetricTable.COLUMN_SERVICE_ID).size(topN);
         aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceMetricTable.COLUMN_TRANSACTION_CALLS).field(ServiceMetricTable.COLUMN_TRANSACTION_CALLS));
         aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS).field(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS));
         aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceMetricTable.COLUMN_TRANSACTION_DURATION_SUM).field(ServiceMetricTable.COLUMN_TRANSACTION_DURATION_SUM));
@@ -221,7 +223,9 @@ public class ServiceMetricEsUIDAO extends EsDAO implements IServiceMetricUIDAO {
 
             ServiceMetric serviceMetric = new ServiceMetric();
             InternalSimpleValue simpleValue = serviceIdTerm.getAggregations().get(AVG_DURATION);
+            Sum calls = serviceIdTerm.getAggregations().get(ServiceMetricTable.COLUMN_TRANSACTION_CALLS);
 
+            serviceMetric.setCalls((long)calls.getValue());
             serviceMetric.setId(serviceId);
             serviceMetric.setAvgResponseTime((int)simpleValue.getValue());
             serviceMetrics.add(serviceMetric);

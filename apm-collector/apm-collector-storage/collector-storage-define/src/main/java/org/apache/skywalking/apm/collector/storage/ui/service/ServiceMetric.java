@@ -24,8 +24,9 @@ package org.apache.skywalking.apm.collector.storage.ui.service;
 public class ServiceMetric {
     private int id;
     private String name;
+    private long calls;
     private int avgResponseTime;
-    private int tps;
+    private int callsPerSec;
 
     public int getId() {
         return id;
@@ -51,11 +52,19 @@ public class ServiceMetric {
         this.avgResponseTime = avgResponseTime;
     }
 
-    public int getTps() {
-        return tps;
+    public int getCallsPerSec() {
+        return callsPerSec;
     }
 
-    public void setTps(int tps) {
-        this.tps = tps;
+    public void setCallsPerSec(int callsPerSec) {
+        this.callsPerSec = callsPerSec;
+    }
+
+    public long getCalls() {
+        return calls;
+    }
+
+    public void setCalls(long calls) {
+        this.calls = calls;
     }
 }
