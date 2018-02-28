@@ -31,7 +31,7 @@ import static org.apache.skywalking.apm.plugin.jdbc.oracle.Constants.PREPARED_ST
 
 /**
  * {@link OraclePrepareStatementInstrumentation} define that the oracle plugin intercept the <code>execute,
- * executeQuery, executeUpdate and executeLargeUpdate</code> method in {@link oracle.jdbc.driver.OraclePreparedStatement}
+ * executeQuery, executeUpdate and executeLargeUpdate</code> method in  oracle.jdbc.driver.OraclePreparedStatement
  * class by ${@link org.apache.skywalking.apm.plugin.jdbc.oracle.StatementExecuteMethodsInterceptor}
  *
  * @author zhangxin
