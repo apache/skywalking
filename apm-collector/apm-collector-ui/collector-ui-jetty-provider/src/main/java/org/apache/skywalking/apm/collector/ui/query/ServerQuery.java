@@ -53,9 +53,9 @@ public class ServerQuery implements Query {
     }
 
     public List<AppServerInfo> searchServer(String keyword, Duration duration) throws ParseException {
-        long start = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart());
-        long end = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd());
-        return getServerService().searchServer(keyword, start, end);
+        long startSecondTimeBucket = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart());
+        long endSecondTimeBucket = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd());
+        return getServerService().searchServer(keyword, startSecondTimeBucket, endSecondTimeBucket);
     }
 
     public List<AppServerInfo> getAllServer(int applicationId, Duration duration) throws ParseException {

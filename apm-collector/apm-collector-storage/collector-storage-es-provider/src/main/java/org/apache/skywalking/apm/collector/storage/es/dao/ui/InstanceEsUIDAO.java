@@ -150,15 +150,15 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         return null;
     }
 
-    @Override public List<AppServerInfo> searchServer(String keyword, long start, long end) {
-        logger.debug("get instances info, keyword: {}, start: {}, end: {}", keyword, start, end);
+    @Override public List<AppServerInfo> searchServer(String keyword, long startSecondTimeBucket, long endSecondTimeBucket) {
+        logger.debug("get instances info, keyword: {}, start: {}, end: {}", keyword, startSecondTimeBucket, endSecondTimeBucket);
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(InstanceTable.TABLE);
         searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
         searchRequestBuilder.setSize(1000);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(start).lte(end));
+        boolQuery.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
         if (StringUtils.isNotEmpty(keyword)) {
             boolQuery.must().add(QueryBuilders.queryStringQuery(keyword));
         }
