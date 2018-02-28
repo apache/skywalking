@@ -66,21 +66,23 @@ public class ServiceNameService {
         return serviceNameServiceUIDAO.searchService(keyword, topN);
     }
 
-    public ThroughputTrend getServiceTPSTrend(int serviceId, Step step, long start, long end) throws ParseException {
+    public ThroughputTrend getServiceTPSTrend(int serviceId, Step step, long startTimeBucket,
+        long endTimeBucket, long startSecondTimeBucket, long endSecondTimeBucket) throws ParseException {
         ThroughputTrend throughputTrend = new ThroughputTrend();
-        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
+        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTimeBucket, endTimeBucket);
         List<Integer> callsTrends = serviceMetricUIDAO.getServiceTPSTrend(serviceId, step, durationPoints);
 
-        //TODO
-        callsTrends.forEach(calls -> throughputTrend.getTrendList().add(calls / 1000));
+        ServiceName serviceName = serviceNameCacheService.get(serviceId);
+        int secondBetween = secondBetweenService.calculate(serviceName.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket);
+        callsTrends.forEach(calls -> throughputTrend.getTrendList().add(calls / secondBetween));
 
         return throughputTrend;
     }
 
-    public ResponseTimeTrend getServiceResponseTimeTrend(int serviceId, Step step, long start,
-        long end) throws ParseException {
+    public ResponseTimeTrend getServiceResponseTimeTrend(int serviceId, Step step, long startTimeBucket,
+        long endTimeBucket) throws ParseException {
         ResponseTimeTrend responseTimeTrend = new ResponseTimeTrend();
-        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
+        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTimeBucket, endTimeBucket);
         responseTimeTrend.setTrendList(serviceMetricUIDAO.getServiceResponseTimeTrend(serviceId, step, durationPoints));
         return responseTimeTrend;
     }
