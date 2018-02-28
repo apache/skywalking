@@ -62,9 +62,13 @@ public class StatefulRedisClusterConnectionImplInterceptor implements InstanceMe
 
     @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        AbstractSpan span = ContextManager.activeSpan();
-        span.errorOccurred();
-        span.log(t);
+        RedisCommand command = (RedisCommand)allArguments[0];
+        String comandType = String.valueOf(command.getType());
+        if (checkIfNotIgnoreCommandType(comandType)) {
+            AbstractSpan span = ContextManager.activeSpan();
+            span.errorOccurred();
+            span.log(t);
+        }
     }
 
     /**

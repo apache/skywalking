@@ -80,8 +80,6 @@ public class StatefulRedisConnectionImplInterceptorTest {
     public void setUp() throws Exception {
 
         interceptor = new StatefulRedisConnectionImplInterceptor();
-
-        Config.Plugin.MongoDB.TRACE_PARAM = true;
         arguments = new Object[] {command, null, null, null};
         when(command.getType()).thenReturn(CommandType.SET);
         when(enhancedInstance.getSkyWalkingDynamicField()).thenReturn("127.0.0.1:9376");
@@ -99,7 +97,7 @@ public class StatefulRedisConnectionImplInterceptorTest {
         MatcherAssert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
-        assertMongoSpan(spans.get(0));
+        assertLettuceSpan(spans.get(0));
     }
 
     @Test
@@ -111,13 +109,13 @@ public class StatefulRedisConnectionImplInterceptorTest {
         MatcherAssert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
-        assertMongoSpan(spans.get(0));
+        assertLettuceSpan(spans.get(0));
         List<LogDataEntity> logDataEntities = SpanHelper.getLogs(spans.get(0));
         assertThat(logDataEntities.size(), is(1));
         SpanAssert.assertException(logDataEntities.get(0), RuntimeException.class);
     }
 
-    private void assertMongoSpan(AbstractTracingSpan span) {
+    private void assertLettuceSpan(AbstractTracingSpan span) {
         assertThat(span.getOperationName(), is("REDIS-Lettuce/SET"));
         assertThat(SpanHelper.getComponentId(span), is(7));
         List<KeyValuePair> tags = SpanHelper.getTags(span);
