@@ -8,7 +8,6 @@ env:
     - TEST_TYPE=lint
     - TEST_TYPE=build
     - TEST_TYPE=test-all
-    - TEST_TYPE=test-dist
 
 addons:
   apt:
@@ -29,7 +28,7 @@ script:
     elif [ "$TEST_TYPE" = test-all ]; then
       npm run test:all
     elif [ "$TEST_TYPE" = test-dist ]; then
-      npm run build
+      npm run site
       mv dist/* ./
       php -S localhost:8000 &
       DEBUG=* npm test .e2e.js
