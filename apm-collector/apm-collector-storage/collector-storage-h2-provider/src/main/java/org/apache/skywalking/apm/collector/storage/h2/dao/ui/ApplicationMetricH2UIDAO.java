@@ -44,4 +44,9 @@ public class ApplicationMetricH2UIDAO extends H2DAO implements IApplicationMetri
         int topN, MetricSource metricSource) {
         return null;
     }
+
+    @Override public List<ApplicationMetric> getApplications(Step step, long startTimeBucket,
+        long endTimeBucket, MetricSource metricSource) {
+        return null;
+    }
 }

@@ -44,6 +44,7 @@ public class ServiceNameDiscoveryServiceHandler extends JettyHandler {
 
     private static final String APPLICATION_ID = "ai";
     private static final String SERVICE_NAME = "sn";
+    private static final String SRC_SPAN_TYPE = "st";
     private static final String SERVICE_ID = "si";
     private static final String ELEMENT = "el";
 
@@ -66,8 +67,9 @@ public class ServiceNameDiscoveryServiceHandler extends JettyHandler {
             for (JsonElement service : services) {
                 int applicationId = service.getAsJsonObject().get(APPLICATION_ID).getAsInt();
                 String serviceName = service.getAsJsonObject().get(SERVICE_NAME).getAsString();
+                int srcSpanType = service.getAsJsonObject().get(SRC_SPAN_TYPE).getAsInt();
 
-                int serviceId = serviceNameService.getOrCreate(applicationId, serviceName);
+                int serviceId = serviceNameService.getOrCreate(applicationId, srcSpanType, serviceName);
                 if (serviceId != 0) {
                     JsonObject responseJson = new JsonObject();
                     responseJson.addProperty(SERVICE_ID, serviceId);

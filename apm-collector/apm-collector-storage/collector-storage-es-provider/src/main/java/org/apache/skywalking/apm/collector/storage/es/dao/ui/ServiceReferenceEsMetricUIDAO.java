@@ -177,8 +177,8 @@ public class ServiceReferenceEsMetricUIDAO extends EsDAO implements IServiceRefe
             Call call = new Call();
             call.setSource(frontServiceId);
             call.setTarget(behindServiceId);
-            call.setCalls((int)callsSum.getValue());
-            call.setResponseTimes((int)responseTimes.getValue());
+//            call.setCalls((int)callsSum.getValue());
+//            call.setResponseTimes((int)responseTimes.getValue());
             calls.add(call);
         });
     }
@@ -192,8 +192,8 @@ public class ServiceReferenceEsMetricUIDAO extends EsDAO implements IServiceRefe
             Call call = new Call();
             call.setTarget(behindServiceId);
             call.setSource(frontServiceId);
-            call.setCalls((int)callsSum.getValue());
-            call.setResponseTimes((int)responseTimes.getValue());
+//            call.setCalls((int)callsSum.getValue());
+//            call.setResponseTimes((int)responseTimes.getValue());
             calls.add(call);
         });
     }
