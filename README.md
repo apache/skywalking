@@ -1,94 +1,42 @@
 English | [简体中文](./README.zh-CN.md)
 
-# Ant Design Pro
+Apache SkyWalking Web UI
+===============
 
-[![](https://img.shields.io/travis/ant-design/ant-design-pro/master.svg?style=flat-square)](https://travis-ci.org/ant-design/ant-design-pro) [![Build status](https://ci.appveyor.com/api/projects/status/67fxu2by3ibvqtat/branch/master?svg=true)](https://ci.appveyor.com/project/afc163/ant-design-pro/branch/master)  [![Gitter](https://badges.gitter.im/ant-design/ant-design-pro.svg)](https://gitter.im/ant-design/ant-design-pro?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+<img src="https://skywalkingtest.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
 
-An out-of-box UI solution for enterprise applications as a React boilerplate.
+The web UI for [SkyWalking APM](https://github.com/apache/incubator-skywalking).
 
-![](https://gw.alipayobjects.com/zos/rmsportal/xEdBqwSzvoSapmnSnYjU.png)
+[![Build Status](https://travis-ci.org/apache/incubator-skywalking-ui.svg?branch=master)](https://travis-ci.org/apache/incubator-skywalking-ui)
 
-- Preview: http://preview.pro.ant.design
-- Home Page: http://pro.ant.design
-- Documentation: http://pro.ant.design/docs/getting-started
-- ChangeLog: http://pro.ant.design/docs/changelog
-- FAQ: http://pro.ant.design/docs/faq
+SkyWalking Web UI 5.0 is developing, **NOW!!**. Submit issue and [@hanahmily](https://github.com/hanahmily) if you want to proposal something. 
 
-## Translation Recruitment :loudspeaker:
+___
+_SkyWalking 3.0 documents:_
 
-We need your help: https://github.com/ant-design/ant-design-pro/issues/120
+This independent UI repository works since sky-walking 3.0.
 
-## Features
+1. Realtime Application Topological Graph
+1. Distributed Trace Query.
+1. Application Instances Overview.
+1. JVM Metric View of application instances.
+1. The relationship of services.
 
-- :gem: **Neat Design**: Follow [Ant Design specification](http://ant.design/)
-- :triangular_ruler: **Common Templates**: Typical templates for enterprise applications
-- :rocket: **State of The Art Development**: Newest development stack of React/dva/antd
-- :iphone: **Responsive**: Designed for varies of screen size
-- :art: **Themeing**: Customizable theme with simple config
-- :globe_with_meridians: **International**: Built-in i18n solution
-- :gear: **Best Practice**: Solid workflow make your code health
-- :1234: **Mock development**: Easy to use mock development solution
-- :white_check_mark: **UI Test**: Fly safely with unit test and e2e test
+Recommand browsers: Safari & Chrome
 
-## Templates
+#### QuickStart
+1. Requirement: Java 8+
+2. Download and startup
 
+```shell
+> curl -O https://github.com/wu-sheng/sky-walking-ui/releases/download/<project-version>/skywalking-web.tar.gz
+> tar -xvf skywalking-web.tar.gz
+> cd skywalking-web/bin
+> ./startup.sh
 ```
-- Dashboard
-  - Analytic
-  - Monitor
-  - Workspace
-- Form
-  - Basic Form
-  - Step Form
-  - Advanced From
-- List
-  - Standard Table
-  - Standard List
-  - Card List
-  - Search List (Project/Applications/Article)
-- Profile
-  - Simple Profile
-  - Advanced Profile
-- Result
-  - Success
-  - Failed
-- Exception
-  - 403
-  - 404
-  - 500
-- User
-  - Login
-  - Register
-  - Register Result
-```
+3. Configuring skywalking-ui
+* Set server listening port in `config/application.properties`
+* Set log in `config/log4j2.xml`
+* Set addresses of collector servers in `config/collector_config.properties`
 
-## Usage
-
-```bash
-$ git clone https://github.com/ant-design/ant-design-pro.git --depth=1
-$ cd ant-design-pro
-$ npm install
-$ npm start         # visit http://localhost:8000
-```
-
-Or you can use the command tool: [ant-design-pro-cli](https://github.com/ant-design/ant-design-pro-cli)
-
-```bash
-$ npm install ant-design-pro-cli -g
-$ mkdir pro-demo && cd pro-demo
-$ pro new
-```
-
-More instruction at [documentation](http://pro.ant.design/docs/getting-started).
-
-## Compatibility
-
-Modern browsers and IE11.
-
-## Contributing
-
-Any Contribution of following ways will be welcome:
-
-- Use Ant Design Pro in your daily work.
-- Submit [issue](http://github.com/ant-design/ant-design-pro/issues) to report bug or ask questions.
-- Propose [pull request](http://github.com/ant-design/ant-design-pro/pulls) to improve our code.
+4. open `http://127.0.0.1:8080/`
