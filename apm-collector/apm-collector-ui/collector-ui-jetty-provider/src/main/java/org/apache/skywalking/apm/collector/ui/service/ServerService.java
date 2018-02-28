@@ -74,8 +74,8 @@ public class ServerService {
         this.secondBetweenService = new SecondBetweenService(moduleManager);
     }
 
-    public List<AppServerInfo> searchServer(String keyword, long start, long end) {
-        List<AppServerInfo> serverInfos = instanceUIDAO.searchServer(keyword, start, end);
+    public List<AppServerInfo> searchServer(String keyword, long startSecondTimeBucket, long endSecondTimeBucket) {
+        List<AppServerInfo> serverInfos = instanceUIDAO.searchServer(keyword, startSecondTimeBucket, endSecondTimeBucket);
         serverInfos.forEach(serverInfo -> {
             if (serverInfo.getId() == Const.NONE_INSTANCE_ID) {
                 serverInfos.remove(serverInfo);
@@ -86,8 +86,8 @@ public class ServerService {
         return serverInfos;
     }
 
-    public List<AppServerInfo> getAllServer(int applicationId, long start, long end) {
-        List<AppServerInfo> serverInfos = instanceUIDAO.getAllServer(applicationId, start, end);
+    public List<AppServerInfo> getAllServer(int applicationId, long startSecondTimeBucket, long endSecondTimeBucket) {
+        List<AppServerInfo> serverInfos = instanceUIDAO.getAllServer(applicationId, startSecondTimeBucket, endSecondTimeBucket);
         buildAppServerInfo(serverInfos);
         return serverInfos;
     }
