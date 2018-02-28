@@ -131,11 +131,11 @@ public class InstanceH2UIDAO extends H2DAO implements IInstanceUIDAO {
         return null;
     }
 
-    @Override public List<AppServerInfo> searchServer(String keyword, long start, long end) {
-        logger.debug("get instances info, keyword: {}, start: {}, end: {}", keyword, start, end);
+    @Override public List<AppServerInfo> searchServer(String keyword, long startSecondTimeBucket, long endSecondTimeBucket) {
+        logger.debug("get instances info, keyword: {}, start: {}, end: {}", keyword, startSecondTimeBucket, endSecondTimeBucket);
         String dynamicSql = "select * from {0} where {1} like ? and {2} >= ? and {2} <= ? and {3} = ?";
         String sql = SqlBuilder.buildSql(dynamicSql, InstanceTable.TABLE, InstanceTable.COLUMN_OS_INFO, InstanceTable.COLUMN_HEARTBEAT_TIME, InstanceTable.COLUMN_IS_ADDRESS);
-        Object[] params = new Object[] {keyword, start, end, BooleanUtils.FALSE};
+        Object[] params = new Object[] {keyword, startSecondTimeBucket, endSecondTimeBucket, BooleanUtils.FALSE};
         return buildAppServerInfo(sql, params);
     }
 
