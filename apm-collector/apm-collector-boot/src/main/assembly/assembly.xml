@@ -22,8 +22,7 @@
     xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
     <id>assembly</id>
     <formats>
-        <format>zip</format>
-        <format>tar.gz</format>
+        <format>dir</format>
     </formats>
     <dependencySets>
         <dependencySet>
@@ -32,15 +31,6 @@
         </dependencySet>
     </dependencySets>
     <fileSets>
-        <fileSet>
-            <directory>${project.basedir}/bin</directory>
-            <outputDirectory>/bin</outputDirectory>
-            <includes>
-                <include>*.sh</include>
-                <include>*.bat</include>
-            </includes>
-            <fileMode>0755</fileMode>
-        </fileSet>
         <fileSet>
             <directory>src/main/resources</directory>
             <outputDirectory>/config</outputDirectory>

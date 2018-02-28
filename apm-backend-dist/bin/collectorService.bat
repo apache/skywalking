@@ -6,7 +6,7 @@ set COLLECTOR_HOME=%~dp0%..
 set COLLECTOR_OPTS="-Xms256M -Xmx512M -Dcollector.logDir=%COLLECTOR_HOME%\logs"
 
 set CLASSPATH=%COLLECTOR_HOME%\config;.;
-set CLASSPATH=%COLLECTOR_HOME%\libs\*;%CLASSPATH%
+set CLASSPATH=%COLLECTOR_HOME%\collector-libs\*;%CLASSPATH%
 
 if defined JAVA_HOME (
  set _EXECJAVA="%JAVA_HOME:"=%"\bin\java
