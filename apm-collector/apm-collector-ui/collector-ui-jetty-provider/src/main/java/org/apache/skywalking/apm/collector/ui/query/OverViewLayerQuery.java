@@ -21,9 +21,7 @@ package org.apache.skywalking.apm.collector.ui.query;
 import java.text.ParseException;
 import java.util.List;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
-import org.apache.skywalking.apm.collector.storage.ui.application.Application;
 import org.apache.skywalking.apm.collector.storage.ui.common.Duration;
 import org.apache.skywalking.apm.collector.storage.ui.common.Topology;
 import org.apache.skywalking.apm.collector.storage.ui.overview.AlarmTrend;
@@ -101,26 +99,11 @@ public class OverViewLayerQuery implements Query {
     }
 
     public ClusterBrief getClusterBrief(Duration duration) throws ParseException {
-        long start = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart());
-        long end = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd());
+        long startSecondTimeBucket = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart());
+        long endSecondTimeBucket = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd());
 
         ClusterBrief clusterBrief = new ClusterBrief();
-
-        List<Application> applications = getApplicationService().getApplications(start, end);
-
-        boolean containsUserApplication = false;
-        for (Application application : applications) {
-            if (application.getId() == Const.NONE_INSTANCE_ID) {
-                containsUserApplication = true;
-                break;
-            }
-        }
-
-        if (containsUserApplication) {
-            clusterBrief.setNumOfApplication(applications.size() - 1);
-        } else {
-            clusterBrief.setNumOfApplication(applications.size());
-        }
+        clusterBrief.setNumOfApplication(getApplicationService().getApplications(startSecondTimeBucket, endSecondTimeBucket).size());
         clusterBrief.setNumOfDatabase(getNetworkAddressService().getNumOfDatabase());
         clusterBrief.setNumOfCache(getNetworkAddressService().getNumOfCache());
         clusterBrief.setNumOfMQ(getNetworkAddressService().getNumOfMQ());
