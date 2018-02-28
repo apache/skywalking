@@ -87,8 +87,12 @@ public class ServiceQuery implements Query {
     }
 
     public Topology getServiceTopology(int serviceId, Duration duration) throws ParseException {
-        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
-        return getServiceTopologyService().getServiceTopology(duration.getStep(), serviceId, start, end);
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+
+        long startSecondTimeBucket = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart());
+        long endSecondTimeBucket = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd());
+
+        return getServiceTopologyService().getServiceTopology(duration.getStep(), serviceId, startTimeBucket, endTimeBucket, startSecondTimeBucket, endSecondTimeBucket);
     }
 }
