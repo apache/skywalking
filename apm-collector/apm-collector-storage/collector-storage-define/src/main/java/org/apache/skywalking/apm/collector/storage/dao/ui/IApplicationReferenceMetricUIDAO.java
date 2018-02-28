@@ -27,14 +27,9 @@ import org.apache.skywalking.apm.collector.storage.ui.common.Step;
  * @author peng-yongsheng
  */
 public interface IApplicationReferenceMetricUIDAO extends DAO {
-    List<ApplicationReferenceMetric> getFrontApplications(Step step, int applicationId, long startTime, long endTime,
-        MetricSource metricSource);
 
-    List<ApplicationReferenceMetric> getBehindApplications(Step step, int applicationId, long startTime, long endTime,
-        MetricSource metricSource);
-
-    List<ApplicationReferenceMetric> getReferences(Step step, long startTime, long endTime,
-        MetricSource metricSource);
+    List<ApplicationReferenceMetric> getReferences(Step step, long startTimeBucket, long endTimeBucket,
+        MetricSource metricSource, Integer... applicationIds);
 
     class ApplicationReferenceMetric {
         private int source;

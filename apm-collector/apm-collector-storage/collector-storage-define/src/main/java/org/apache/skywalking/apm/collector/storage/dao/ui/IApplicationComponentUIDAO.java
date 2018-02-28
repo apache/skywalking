@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.collector.storage.ui.common.Step;
  */
 public interface IApplicationComponentUIDAO extends DAO {
 
-    List<ApplicationComponent> load(Step step, long startTime, long endTime);
+    List<ApplicationComponent> load(Step step, long startTimeBucket, long endTimeBucket);
 
     class ApplicationComponent {
         private int componentId;
