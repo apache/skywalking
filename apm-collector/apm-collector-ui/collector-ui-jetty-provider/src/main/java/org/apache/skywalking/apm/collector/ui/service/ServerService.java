@@ -86,8 +86,8 @@ public class ServerService {
         return serverInfos;
     }
 
-    public List<AppServerInfo> getAllServer(int applicationId, long start, long end) {
-        List<AppServerInfo> serverInfos = instanceUIDAO.getAllServer(applicationId, start, end);
+    public List<AppServerInfo> getAllServer(int applicationId, long startSecondTimeBucket, long endSecondTimeBucket) {
+        List<AppServerInfo> serverInfos = instanceUIDAO.getAllServer(applicationId, startSecondTimeBucket, endSecondTimeBucket);
         buildAppServerInfo(serverInfos);
         return serverInfos;
     }
