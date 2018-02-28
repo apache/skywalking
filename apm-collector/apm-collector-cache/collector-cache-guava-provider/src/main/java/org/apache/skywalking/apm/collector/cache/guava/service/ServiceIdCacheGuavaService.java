@@ -16,15 +16,14 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.cache.guava.service;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.cache.service.ServiceIdCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.core.util.Const;
+import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.cache.IServiceNameCacheDAO;
 import org.slf4j.Logger;
@@ -53,18 +52,19 @@ public class ServiceIdCacheGuavaService implements ServiceIdCacheService {
         return this.serviceNameCacheDAO;
     }
 
-    public int get(int applicationId, String serviceName) {
+    @Override public int get(int applicationId, int srcSpanType, String serviceName) {
         int serviceId = 0;
+        String id = applicationId + Const.ID_SPLIT + srcSpanType + Const.ID_SPLIT + serviceName;
         try {
-            serviceId = serviceIdCache.get(applicationId + Const.ID_SPLIT + serviceName, () -> getServiceNameCacheDAO().getServiceId(applicationId, serviceName));
+            serviceId = serviceIdCache.get(id, () -> getServiceNameCacheDAO().getServiceId(applicationId, srcSpanType, serviceName));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
 
         if (serviceId == 0) {
-            serviceId = getServiceNameCacheDAO().getServiceId(applicationId, serviceName);
+            serviceId = getServiceNameCacheDAO().getServiceId(applicationId, srcSpanType, serviceName);
             if (serviceId != 0) {
-                serviceIdCache.put(applicationId + Const.ID_SPLIT + serviceName, serviceId);
+                serviceIdCache.put(id, serviceId);
             }
         }
         return serviceId;

@@ -52,7 +52,7 @@ public class InstanceRegisterEsDAO extends EsDAO implements IInstanceRegisterDAO
     }
 
     @Override public void save(Instance instance) {
-        logger.debug("save instance register info, application getId: {}, agentUUID: {}", instance.getApplicationId(), instance.getAgentUUID());
+        logger.debug("save instance register info, application getApplicationId: {}, agentUUID: {}", instance.getApplicationId(), instance.getAgentUUID());
         ElasticSearchClient client = getClient();
         Map<String, Object> source = new HashMap<>();
         source.put(InstanceTable.COLUMN_INSTANCE_ID, instance.getInstanceId());
@@ -65,7 +65,7 @@ public class InstanceRegisterEsDAO extends EsDAO implements IInstanceRegisterDAO
         source.put(InstanceTable.COLUMN_IS_ADDRESS, instance.getIsAddress());
 
         IndexResponse response = client.prepareIndex(InstanceTable.TABLE, instance.getId()).setSource(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
-        logger.debug("save instance register info, application getId: {}, agentUUID: {}, status: {}", instance.getApplicationId(), instance.getAgentUUID(), response.status().name());
+        logger.debug("save instance register info, application getApplicationId: {}, agentUUID: {}, status: {}", instance.getApplicationId(), instance.getAgentUUID(), response.status().name());
     }
 
     @Override public void updateHeartbeatTime(int instanceId, long heartbeatTime) {

@@ -75,7 +75,7 @@ public class ApplicationService {
         slowServices.forEach(slowService -> {
             slowService.setName(serviceNameCacheService.get(slowService.getId()).getServiceName());
             //TODO
-            slowService.setTps(1);
+            slowService.setCallsPerSec(1);
         });
         return slowServices;
     }
