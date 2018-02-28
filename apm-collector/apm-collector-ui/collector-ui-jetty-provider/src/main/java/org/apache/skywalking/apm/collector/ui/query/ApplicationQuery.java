@@ -76,10 +76,13 @@ public class ApplicationQuery implements Query {
     }
 
     public Topology getApplicationTopology(int applicationId, Duration duration) throws ParseException {
-        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
-        return getApplicationTopologyService().getApplicationTopology(duration.getStep(), applicationId, start, end);
+        long startSecondTimeBucket = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart());
+        long endSecondTimeBucket = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd());
+
+        return getApplicationTopologyService().getApplicationTopology(duration.getStep(), applicationId, startTimeBucket, endTimeBucket, startSecondTimeBucket, endSecondTimeBucket);
     }
 
     public List<ServiceMetric> getSlowService(int applicationId, Duration duration,

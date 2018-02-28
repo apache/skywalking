@@ -46,13 +46,13 @@ public class ApplicationComponentEsUIDAO extends EsDAO implements IApplicationCo
         super(client);
     }
 
-    @Override public List<ApplicationComponent> load(Step step, long startTime, long endTime) {
-        logger.debug("application component load, start time: {}, end time: {}", startTime, endTime);
+    @Override public List<ApplicationComponent> load(Step step, long startTimeBucket, long endTimeBucket) {
+        logger.debug("application component load, start time: {}, end time: {}", startTimeBucket, endTimeBucket);
         String tableName = TimePyramidTableNameBuilder.build(step, ApplicationComponentTable.TABLE);
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
         searchRequestBuilder.setTypes(ApplicationComponentTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-        searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(ApplicationComponentTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
+        searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(ApplicationComponentTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
         searchRequestBuilder.setSize(0);
 
         searchRequestBuilder.addAggregation(AggregationBuilders.terms(ApplicationComponentTable.COLUMN_COMPONENT_ID).field(ApplicationComponentTable.COLUMN_COMPONENT_ID).size(100)

@@ -46,13 +46,13 @@ public class ApplicationMappingEsUIDAO extends EsDAO implements IApplicationMapp
         super(client);
     }
 
-    @Override public List<ApplicationMapping> load(Step step, long startTime, long endTime) {
+    @Override public List<ApplicationMapping> load(Step step, long startTimeBucket, long endTimeBucket) {
         String tableName = TimePyramidTableNameBuilder.build(step, ApplicationMappingTable.TABLE);
 
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
         searchRequestBuilder.setTypes(ApplicationMappingTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-        searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(ApplicationMappingTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
+        searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(ApplicationMappingTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
         searchRequestBuilder.setSize(0);
 
         searchRequestBuilder.addAggregation(
