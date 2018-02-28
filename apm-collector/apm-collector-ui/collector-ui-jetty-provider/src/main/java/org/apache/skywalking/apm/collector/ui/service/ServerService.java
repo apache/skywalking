@@ -92,10 +92,10 @@ public class ServerService {
         return serverInfos;
     }
 
-    public ResponseTimeTrend getServerResponseTimeTrend(int instanceId, Step step, long start,
-        long end) throws ParseException {
+    public ResponseTimeTrend getServerResponseTimeTrend(int instanceId, Step step, long startTimeBucket,
+        long endTimeBucket) throws ParseException {
         ResponseTimeTrend responseTimeTrend = new ResponseTimeTrend();
-        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
+        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTimeBucket, endTimeBucket);
         List<Integer> trends = instanceMetricUIDAO.getResponseTimeTrend(instanceId, step, durationPoints);
         responseTimeTrend.setTrendList(trends);
         return responseTimeTrend;
@@ -117,25 +117,28 @@ public class ServerService {
         return serverThroughput;
     }
 
-    public ThroughputTrend getServerTPSTrend(int instanceId, Step step, long start, long end) throws ParseException {
+    public ThroughputTrend getServerTPSTrend(int instanceId, Step step, long startTimeBucket,
+        long endTimeBucket) throws ParseException {
         ThroughputTrend throughputTrend = new ThroughputTrend();
-        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
+        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTimeBucket, endTimeBucket);
         List<Integer> trends = instanceMetricUIDAO.getServerTPSTrend(instanceId, step, durationPoints);
         throughputTrend.setTrendList(trends);
         return throughputTrend;
     }
 
-    public CPUTrend getCPUTrend(int instanceId, Step step, long start, long end) throws ParseException {
+    public CPUTrend getCPUTrend(int instanceId, Step step, long startTimeBucket,
+        long endTimeBucket) throws ParseException {
         CPUTrend cpuTrend = new CPUTrend();
-        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
+        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTimeBucket, endTimeBucket);
         List<Integer> trends = cpuMetricUIDAO.getCPUTrend(instanceId, step, durationPoints);
         cpuTrend.setCost(trends);
         return cpuTrend;
     }
 
-    public GCTrend getGCTrend(int instanceId, Step step, long start, long end) throws ParseException {
+    public GCTrend getGCTrend(int instanceId, Step step, long startTimeBucket,
+        long endTimeBucket) throws ParseException {
         GCTrend gcTrend = new GCTrend();
-        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
+        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTimeBucket, endTimeBucket);
         List<Integer> youngGCTrend = gcMetricUIDAO.getYoungGCTrend(instanceId, step, durationPoints);
         gcTrend.setYoungGC(youngGCTrend);
         List<Integer> oldGCTrend = gcMetricUIDAO.getOldGCTrend(instanceId, step, durationPoints);
@@ -143,9 +146,9 @@ public class ServerService {
         return gcTrend;
     }
 
-    public MemoryTrend getMemoryTrend(int instanceId, Step step, long start, long end) throws ParseException {
+    public MemoryTrend getMemoryTrend(int instanceId, Step step, long startTimeBucket, long endTimeBucket) throws ParseException {
         MemoryTrend memoryTrend = new MemoryTrend();
-        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
+        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTimeBucket, endTimeBucket);
         IMemoryMetricUIDAO.Trend heapMemoryTrend = memoryMetricUIDAO.getHeapMemoryTrend(instanceId, step, durationPoints);
         memoryTrend.setHeap(heapMemoryTrend.getMetrics());
         memoryTrend.setMaxHeap(heapMemoryTrend.getMaxMetrics());
