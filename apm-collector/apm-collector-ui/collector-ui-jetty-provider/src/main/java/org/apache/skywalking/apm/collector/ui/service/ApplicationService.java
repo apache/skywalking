@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
@@ -60,8 +61,15 @@ public class ApplicationService {
         this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
     }
 
-    public List<Application> getApplications(long startTime, long endTime, int... applicationIds) {
-        List<Application> applications = instanceDAO.getApplications(startTime, endTime, applicationIds);
+    public List<Application> getApplications(long startSecondTimeBucket, long endSecondTimeBucket,
+        int... applicationIds) {
+        List<Application> applications = instanceDAO.getApplications(startSecondTimeBucket, endSecondTimeBucket, applicationIds);
+
+        applications.forEach(application -> {
+            if (application.getId() == Const.NONE_APPLICATION_ID) {
+                applications.remove(application);
+            }
+        });
 
         applications.forEach(application -> {
             String applicationCode = applicationCacheService.getApplicationById(application.getId()).getApplicationCode();
