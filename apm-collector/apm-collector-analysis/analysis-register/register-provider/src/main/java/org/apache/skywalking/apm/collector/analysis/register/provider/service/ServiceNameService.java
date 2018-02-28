@@ -59,14 +59,15 @@ public class ServiceNameService implements IServiceNameService {
         return serviceNameRegisterGraph;
     }
 
-    public int getOrCreate(int applicationId, String serviceName) {
-        int serviceId = getServiceIdCacheService().get(applicationId, serviceName);
+    @Override public int getOrCreate(int applicationId, int srcSpanType, String serviceName) {
+        int serviceId = getServiceIdCacheService().get(applicationId, srcSpanType, serviceName);
 
         if (serviceId == 0) {
             ServiceName service = new ServiceName();
             service.setId("0");
             service.setApplicationId(applicationId);
             service.setServiceName(serviceName);
+            service.setSrcSpanType(srcSpanType);
             service.setServiceId(0);
 
             getServiceNameRegisterGraph().start(service);

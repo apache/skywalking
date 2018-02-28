@@ -28,10 +28,8 @@ public class Call {
     private String targetName;
     private boolean isAlert;
     private String callType;
-    private long calls;
     private long callsPerSec;
-    private long responseTimes;
-    private long responseTimePerSec;
+    private long avgResponseTime;
 
     public int getSource() {
         return source;
@@ -81,14 +79,6 @@ public class Call {
         this.callType = callType;
     }
 
-    public long getCalls() {
-        return calls;
-    }
-
-    public void setCalls(long calls) {
-        this.calls = calls;
-    }
-
     public long getCallsPerSec() {
         return callsPerSec;
     }
@@ -97,19 +87,11 @@ public class Call {
         this.callsPerSec = callsPerSec;
     }
 
-    public long getResponseTimes() {
-        return responseTimes;
+    public long getAvgResponseTime() {
+        return avgResponseTime;
     }
 
-    public void setResponseTimes(long responseTimes) {
-        this.responseTimes = responseTimes;
-    }
-
-    public long getResponseTimePerSec() {
-        return responseTimePerSec;
-    }
-
-    public void setResponseTimePerSec(long responseTimePerSec) {
-        this.responseTimePerSec = responseTimePerSec;
+    public void setAvgResponseTime(long avgResponseTime) {
+        this.avgResponseTime = avgResponseTime;
     }
 }
