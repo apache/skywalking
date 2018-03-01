@@ -51,11 +51,19 @@ public class SegmentTopService {
             startSecondTimeBucket, endSecondTimeBucket, minDuration,
             maxDuration, operationName, traceId, applicationId, limit, from);
 
+        TraceBrief traceBrief;
         if (StringUtils.isNotEmpty(traceId)) {
             List<String> segmentIds = globalTraceUIDAO.getSegmentIds(traceId);
-            return segmentDurationUIDAO.loadTop(startSecondTimeBucket, endSecondTimeBucket, minDuration, maxDuration, operationName, applicationId, limit, from, segmentIds.toArray(new String[0]));
+            traceBrief = segmentDurationUIDAO.loadTop(startSecondTimeBucket, endSecondTimeBucket, minDuration, maxDuration, operationName, applicationId, limit, from, segmentIds.toArray(new String[0]));
         } else {
-            return segmentDurationUIDAO.loadTop(startSecondTimeBucket, endSecondTimeBucket, minDuration, maxDuration, operationName, applicationId, limit, from);
+            traceBrief = segmentDurationUIDAO.loadTop(startSecondTimeBucket, endSecondTimeBucket, minDuration, maxDuration, operationName, applicationId, limit, from);
         }
+
+        traceBrief.getTraces().forEach(trace -> {
+            List<String> traceIds = globalTraceUIDAO.getGlobalTraceId(trace.getSegmentId());
+            trace.getTraceIds().addAll(traceIds);
+        });
+
+        return traceBrief;
     }
 }
