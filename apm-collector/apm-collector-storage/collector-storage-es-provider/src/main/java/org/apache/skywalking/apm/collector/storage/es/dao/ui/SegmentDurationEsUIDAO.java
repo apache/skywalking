@@ -91,7 +91,7 @@ public class SegmentDurationEsUIDAO extends EsDAO implements ISegmentDurationUID
         for (SearchHit searchHit : searchResponse.getHits().getHits()) {
             BasicTrace basicTrace = new BasicTrace();
 
-            basicTrace.setTraceId((String)searchHit.getSource().get(SegmentDurationTable.COLUMN_TRACE_ID));
+            basicTrace.setSegmentId((String)searchHit.getSource().get(SegmentDurationTable.COLUMN_SEGMENT_ID));
             basicTrace.setStart(((Number)searchHit.getSource().get(SegmentDurationTable.COLUMN_START_TIME)).longValue());
             basicTrace.setOperationName((String)searchHit.getSource().get(SegmentDurationTable.COLUMN_SERVICE_NAME));
             basicTrace.setDuration(((Number)searchHit.getSource().get(SegmentDurationTable.COLUMN_DURATION)).intValue());
