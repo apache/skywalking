@@ -22,31 +22,31 @@ package org.apache.skywalking.apm.collector.storage.ui.common;
  * @author peng-yongsheng
  */
 public class Pagination {
-    private Integer pageNum;
-    private Integer pageSize;
-    private Boolean needTotal;
+    private int pageNum;
+    private int pageSize;
+    private boolean needTotal;
 
-    public Integer getPageNum() {
+    public int getPageNum() {
         return pageNum;
     }
 
-    public void setPageNum(Integer pageNum) {
+    public void setPageNum(int pageNum) {
         this.pageNum = pageNum;
     }
 
-    public Integer getPageSize() {
+    public int getPageSize() {
         return pageSize;
     }
 
-    public void setPageSize(Integer pageSize) {
+    public void setPageSize(int pageSize) {
         this.pageSize = pageSize;
     }
 
-    public Boolean getNeedTotal() {
+    public boolean isNeedTotal() {
         return needTotal;
     }
 
-    public void setNeedTotal(Boolean needTotal) {
+    public void setNeedTotal(boolean needTotal) {
         this.needTotal = needTotal;
     }
 }
