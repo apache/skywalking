@@ -57,12 +57,15 @@ public abstract class EsHttpDAO extends AbstractDAO<ElasticSearchHttpClient> {
         
         MaxAggregation agg = searchResponse.getAggregations().getMaxAggregation("agg");
 
-        int id = (int)agg.getMax().intValue();
-        if (id == Integer.MAX_VALUE || id == Integer.MIN_VALUE) {
-            return 0;
-        } else {
-            return id;
+        Double id = agg.getMax();
+        if (id != null) {
+            if (id == Integer.MAX_VALUE || id == Integer.MIN_VALUE) {
+                return 0;
+            } else {
+                return id.intValue();
+            }
         }
+        return 0;
     }
 
     protected final int getMinId(String indexName, String columnName) {
@@ -77,12 +80,15 @@ public abstract class EsHttpDAO extends AbstractDAO<ElasticSearchHttpClient> {
 
         SearchResult result  = client.execute(search);
         MinAggregation agg =  result.getAggregations().getMinAggregation("agg");
-
-        int id = agg.getMin().intValue();
-        if (id == Integer.MAX_VALUE || id == Integer.MIN_VALUE) {
+        Double id = agg.getMin();
+        Integer i = 0;
+        if (id != null) {
+            i =  id.intValue();
+        }
+        if (i == Integer.MAX_VALUE || i == Integer.MIN_VALUE) {
             return 0;
         } else {
-            return id;
+            return i;
         }
     }
 }

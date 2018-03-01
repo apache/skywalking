@@ -77,7 +77,7 @@ public class NetworkAddressEsCacheDAO extends EsHttpDAO implements INetworkAddre
             JsonArray array =  result.getJsonObject().getAsJsonObject("hits").getAsJsonArray("hits");
             for (Object x : array) {
                 JsonObject a = (JsonObject) x; 
-                return a.getAsJsonObject("_source").get("NetworkAddressTable.COLUMN_ADDRESS_ID").getAsInt();
+                return a.getAsJsonObject("_source").get(NetworkAddressTable.COLUMN_ADDRESS_ID).getAsInt();
             }
         }
 

@@ -38,7 +38,7 @@ storage:
   elasticsearch:
     cluster_name: elasticsearch
     cluster_transport_sniffer: true
-    cluster_nodes: 10.252.218.95:9300
+    cluster_nodes: 10.126.94.37:9300
     index_shards_number: 2
     index_replicas_number: 0
     ttl: 7

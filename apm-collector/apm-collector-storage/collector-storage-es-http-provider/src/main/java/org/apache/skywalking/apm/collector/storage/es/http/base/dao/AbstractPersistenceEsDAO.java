@@ -50,7 +50,7 @@ public abstract class AbstractPersistenceEsDAO<STREAM_DATA extends StreamData> e
 
     @Override public final STREAM_DATA get(String id) {
         DocumentResult result = getClient().prepareGet(tableName(), id);
-        if (result != null) {
+        if (result.isSucceeded()) {
             Map<String, Object> map = result.getSourceAsObject(Map.class);
             return esDataToStreamData(map);
         } else {

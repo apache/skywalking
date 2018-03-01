@@ -33,7 +33,6 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.nio.conn.SchemeIOSessionStrategy;
 import org.apache.http.nio.conn.ssl.SSLIOSessionStrategy;
@@ -108,7 +107,7 @@ public class ElasticSearchHttpClient implements Client {
                 .defaultMaxTotalConnectionPerRoute(1)
                 // and no more 20 connections in total
                 .maxTotalConnection(10);
-        if(ssl){
+        if (ssl) {
             SSLContext sslContext = null;
             try {
                 sslContext = new org.apache.http.ssl.SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
@@ -123,7 +122,7 @@ public class ElasticSearchHttpClient implements Client {
             } catch (KeyStoreException e) {
                 e.printStackTrace();
             }
-            
+
             HostnameVerifier hostnameVerifier = NoopHostnameVerifier.INSTANCE;
 
             SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
@@ -131,7 +130,7 @@ public class ElasticSearchHttpClient implements Client {
 
             builder.defaultSchemeForDiscoveredNodes("https") // required, otherwise uses http
             .sslSocketFactory(sslSocketFactory) // this only affects sync calls
-            .httpsIOSessionStrategy(httpsIOSessionStrategy); // this only affects async calls
+                .httpsIOSessionStrategy(httpsIOSessionStrategy); // this only affects async calls
         }
         
         factory.setHttpClientConfig(builder.build());
@@ -200,8 +199,7 @@ public class ElasticSearchHttpClient implements Client {
     public boolean deleteIndex(String indexName) {
         try {
             JestResult result =  client.execute(new Delete.Builder("1")
-                    .index("twitter")
-                    .type("tweet")
+                    .index(indexName)
                     .build());
             return result.isSucceeded();
         } catch (IOException e) {
@@ -306,7 +304,7 @@ public class ElasticSearchHttpClient implements Client {
 
     public boolean prepareUpdate(String index, String id,String content) {
         try {
-            JestResult result =  client.execute(new Update.Builder(content).index(index).id(id).build());
+            JestResult result =  client.execute(new Update.Builder(content).index(index).type("type").id(id).build());
             return result.isSucceeded();
         } catch (IOException e) {
             e.printStackTrace();
@@ -316,7 +314,7 @@ public class ElasticSearchHttpClient implements Client {
     
     public boolean prepareUpdate(String index, String id,Map<String, Object> content) {
         try {
-            JestResult result =  client.execute(new Update.Builder(content).index(index).id(id).build());
+            JestResult result =  client.execute(new Update.Builder(content).index(index).type("type").id(id).build());
             return result.isSucceeded();
         } catch (IOException e) {
             e.printStackTrace();
@@ -328,6 +326,7 @@ public class ElasticSearchHttpClient implements Client {
         JestResult result = null;
         try {
             result = client.execute(new Delete.Builder(id)
+                    .type("type")
                     .index(index)
                     .build());
             return result.isSucceeded();
