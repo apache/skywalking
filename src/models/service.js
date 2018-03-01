@@ -16,14 +16,9 @@ const dataQuery = `
         id
         name
         type
-        ... on ApplicationNode {
+        ... on ServiceNode {
           sla
-          callsPerSec
-          responseTimePerSec
-          apdex
-          isAlarm
-          numOfServer
-          numOfServerAlarm
+          calls
           numOfServiceAlarm
         }
       }
@@ -33,7 +28,7 @@ const dataQuery = `
         isAlert
         callType
         callsPerSec
-        responseTimePerSec
+        avgResponseTime
       }
     }
   }

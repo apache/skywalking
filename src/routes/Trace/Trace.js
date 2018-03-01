@@ -47,9 +47,6 @@ export default class Trace extends PureComponent {
     const filteredVariables = { ...variables };
     filteredVariables.queryDuration = filteredVariables.duration;
     delete filteredVariables.duration;
-    if (filteredVariables.applicationId && !Array.isArray(filteredVariables.applicationId)) {
-      filteredVariables.applicationId = [filteredVariables.applicationId];
-    }
     this.props.dispatch({
       type: 'trace/fetchData',
       payload: { variables: { condition: filteredVariables } },

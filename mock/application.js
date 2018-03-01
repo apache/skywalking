@@ -51,7 +51,7 @@ export default {
                   'isAlarm|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
-                  'responseTimePerSec|500-5000': 1,
+                  'avgResponseTime|500-5000': 1,
                 },
                 {
                   source: 1,
@@ -59,7 +59,7 @@ export default {
                   'isAlarm|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
-                  'responseTimePerSec|500-5000': 1,
+                  'avgResponseTime|500-5000': 1,
                 },
                 {
                   source: 1,
@@ -67,7 +67,7 @@ export default {
                   'isAlarm|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
-                  'responseTimePerSec|500-5000': 1,
+                  'avgResponseTime|500-5000': 1,
                 },
                 {
                   source: 1,
@@ -75,7 +75,7 @@ export default {
                   'isAlarm|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
-                  'responseTimePerSec|500-5000': 1,
+                  'avgResponseTime|500-5000': 1,
                 },
                 {
                   source: 1,
@@ -83,7 +83,7 @@ export default {
                   'isAlarm|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
-                  'responseTimePerSec|500-5000': 1,
+                  'avgResponseTime|500-5000': 1,
                 },
               ],
             });

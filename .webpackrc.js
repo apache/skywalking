@@ -17,7 +17,7 @@ const config = {
     "template": "./src/index.ejs"
   },
   "publicPath": "/",
-  "disableDynamicImport": true,
+  "disableDynamicImport": false,
   "hash": true
 }
 

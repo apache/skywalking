@@ -15,7 +15,7 @@ export default {
                   'callsPerSec|1000-2000': 1,
                   'sla|1-100.1-2': 1,
                   'apdex|0.2': 1,
-                  'responseTimePerSec|500-1000': 1,
+                  'avgResponseTime|500-1000': 1,
                   'isAlarm|1': true,
                   'numOfServer|1-100': 1,
                   'numOfServerAlarm|1-100': 1,
@@ -50,7 +50,7 @@ export default {
                   'isAlarm|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
-                  'responseTimePerSec|500-5000': 1,
+                  'avgResponseTime|500-5000': 1,
                 },
                 {
                   source: 1,
@@ -58,7 +58,7 @@ export default {
                   'isAlarm|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
-                  'responseTimePerSec|500-5000': 1,
+                  'avgResponseTime|500-5000': 1,
                 },
                 {
                   source: 1,
@@ -66,7 +66,7 @@ export default {
                   'isAlarm|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
-                  'responseTimePerSec|500-5000': 1,
+                  'avgResponseTime|500-5000': 1,
                 },
                 {
                   source: 1,
@@ -74,7 +74,7 @@ export default {
                   'isAlarm|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
-                  'responseTimePerSec|500-5000': 1,
+                  'avgResponseTime|500-5000': 1,
                 },
                 {
                   source: 2,
@@ -82,7 +82,7 @@ export default {
                   'isAlarm|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
-                  'responseTimePerSec|500-5000': 1,
+                  'avgResponseTime|500-5000': 1,
                 },
                 {
                   source: 2,
@@ -90,7 +90,7 @@ export default {
                   'isAlarm|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
-                  'responseTimePerSec|500-5000': 1,
+                  'avgResponseTime|500-5000': 1,
                 },
                 {
                   source: 2,
@@ -98,7 +98,7 @@ export default {
                   'isAlarm|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
-                  'responseTimePerSec|500-5000': 1,
+                  'avgResponseTime|500-5000': 1,
                 },
               ],
             });

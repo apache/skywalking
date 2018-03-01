@@ -38,7 +38,6 @@ export default {
                   'type|1': ['DUBBO', 'USER', 'SPRINGMVC'],
                   'calls|1000-2000': 1,
                   'sla|1-100.1-2': 1,
-                  'apdex|0.2': 1,
                   'numOfServiceAlarm|1-100': 1,
                 },
               ],
@@ -51,7 +50,6 @@ export default {
                   'type|1': ['DUBBO', 'tomcat', 'SPRINGMVC'],
                   'calls|1000-2000': 1,
                   'sla|1-100.1-2': 1,
-                  'apdex|0.2': 1,
                   'numOfServiceAlarm|1-100': 1,
                 },
               ],
@@ -72,14 +70,14 @@ export default {
               'isAlarm|1': true,
               'callType|1': ['rpc', 'http', 'dubbo'],
               'callsPerSec|100-2000': 1,
-              'responseTimePerSec|500-5000': 1,
+              'avgResponseTime|500-5000': 1,
             }))).concat(downNodes.nodes.map(node => (mockjs.mock({
               source: 1,
               target: node.id,
               'isAlarm|1': true,
               'callType|1': ['rpc', 'http', 'dubbo'],
               'callsPerSec|100-2000': 1,
-              'responseTimePerSec|500-5000': 1,
+              'avgResponseTime|500-5000': 1,
             }))));
             return {
               nodes,

@@ -27,7 +27,7 @@ const dataQuery = `
 
 const spanQuery = `query Spans($traceId: ID!) {
   queryTrace(traceId: $traceId) {
-    spnas {
+    spans {
       traceId
       segmentId
       spanId

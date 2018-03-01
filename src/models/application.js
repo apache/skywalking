@@ -29,7 +29,7 @@ const dataQuery = `
         ... on ApplicationNode {
           sla
           callsPerSec
-          responseTimePerSec
+          avgResponseTime
           apdex
           isAlarm
           numOfServer
@@ -43,7 +43,7 @@ const dataQuery = `
         isAlert
         callType
         callsPerSec
-        responseTimePerSec
+        avgResponseTime
       }
     }
   }
