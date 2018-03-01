@@ -25,6 +25,6 @@ import org.apache.skywalking.apm.collector.storage.ui.trace.TraceBrief;
  * @author peng-yongsheng
  */
 public interface ISegmentDurationUIDAO extends DAO {
-    TraceBrief loadTop(long startTime, long endTime, long minDuration, long maxDuration, String operationName,
-        int applicationId, String traceId, int limit, int from);
+    TraceBrief loadTop(long startSecondTimeBucket, long endSecondTimeBucket, long minDuration, long maxDuration,
+        String operationName, int applicationId, int limit, int from, String... segmentIds);
 }
