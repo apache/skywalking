@@ -21,7 +21,6 @@ package org.apache.skywalking.apm.collector.storage.dao.ui;
 import java.util.List;
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
-import org.apache.skywalking.apm.collector.storage.ui.common.Call;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 
 /**
@@ -29,15 +28,66 @@ import org.apache.skywalking.apm.collector.storage.ui.common.Step;
  */
 public interface IServiceReferenceMetricUIDAO extends DAO {
 
-    List<Call> getFrontServices(Step step, long startTime, long endTime,
+    List<ServiceReferenceMetric> getFrontServices(Step step, long startTimeBucket, long endTimeBucket,
         MetricSource metricSource, int behindServiceId);
 
-    List<Call> getBehindServices(Step step, long startTime, long endTime,
+    List<ServiceReferenceMetric> getBehindServices(Step step, long startTimeBucket, long endTimeBucket,
         MetricSource metricSource, int frontServiceId);
 
-    List<Call> getFrontServices(Step step, long startTime, long endTime,
-        MetricSource metricSource, List<Integer> behindServiceIds);
+    class ServiceReferenceMetric {
+        private int source;
+        private int target;
+        private long calls;
+        private long errorCalls;
+        private long durations;
+        private long errorDurations;
 
-    List<Call> getBehindServices(Step step, long startTime, long endTime,
-        MetricSource metricSource, List<Integer> frontServiceIds);
+        public int getSource() {
+            return source;
+        }
+
+        public void setSource(int source) {
+            this.source = source;
+        }
+
+        public int getTarget() {
+            return target;
+        }
+
+        public void setTarget(int target) {
+            this.target = target;
+        }
+
+        public long getCalls() {
+            return calls;
+        }
+
+        public void setCalls(long calls) {
+            this.calls = calls;
+        }
+
+        public long getErrorCalls() {
+            return errorCalls;
+        }
+
+        public void setErrorCalls(long errorCalls) {
+            this.errorCalls = errorCalls;
+        }
+
+        public long getDurations() {
+            return durations;
+        }
+
+        public void setDurations(long durations) {
+            this.durations = durations;
+        }
+
+        public long getErrorDurations() {
+            return errorDurations;
+        }
+
+        public void setErrorDurations(long errorDurations) {
+            this.errorDurations = errorDurations;
+        }
+    }
 }

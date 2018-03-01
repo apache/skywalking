@@ -30,9 +30,8 @@ import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
  */
 public interface IInstanceMetricUIDAO extends DAO {
 
-    List<AppServerInfo> getServerThroughput(int applicationId, Step step, long start, long end, long secondBetween,
-        int topN,
-        MetricSource metricSource);
+    List<AppServerInfo> getServerThroughput(int applicationId, Step step, long startTimeBucket, long endTimeBucket,
+        int secondBetween, int topN, MetricSource metricSource);
 
     List<Integer> getServerTPSTrend(int instanceId, Step step, List<DurationPoint> durationPoints);
 

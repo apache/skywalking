@@ -49,8 +49,8 @@ public class InstanceMetricH2UIDAO extends H2DAO implements IInstanceMetricUIDAO
         super(client);
     }
 
-    @Override public List<AppServerInfo> getServerThroughput(int applicationId, Step step, long start, long end,
-        long secondBetween, int topN, MetricSource metricSource) {
+    @Override public List<AppServerInfo> getServerThroughput(int applicationId, Step step, long startTimeBucket, long endTimeBucket,
+        int secondBetween, int topN, MetricSource metricSource) {
         return null;
     }
 

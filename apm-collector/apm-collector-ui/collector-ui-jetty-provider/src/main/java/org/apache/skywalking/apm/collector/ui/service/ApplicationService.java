@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
@@ -31,6 +32,7 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.INetworkAddressUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.table.register.ServerTypeDefine;
+import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
 import org.apache.skywalking.apm.collector.storage.ui.application.Application;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.ui.overview.ApplicationTPS;
@@ -38,11 +40,15 @@ import org.apache.skywalking.apm.collector.storage.ui.overview.ConjecturalApp;
 import org.apache.skywalking.apm.collector.storage.ui.overview.ConjecturalAppBrief;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceMetric;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class ApplicationService {
+
+    private final Logger logger = LoggerFactory.getLogger(ApplicationService.class);
 
     private final IInstanceUIDAO instanceDAO;
     private final IServiceMetricUIDAO serviceMetricUIDAO;
@@ -50,6 +56,7 @@ public class ApplicationService {
     private final INetworkAddressUIDAO networkAddressUIDAO;
     private final ApplicationCacheService applicationCacheService;
     private final ServiceNameCacheService serviceNameCacheService;
+    private final SecondBetweenService secondBetweenService;
 
     public ApplicationService(ModuleManager moduleManager) {
         this.instanceDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceUIDAO.class);
@@ -58,10 +65,18 @@ public class ApplicationService {
         this.networkAddressUIDAO = moduleManager.find(StorageModule.NAME).getService(INetworkAddressUIDAO.class);
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
         this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
+        this.secondBetweenService = new SecondBetweenService(moduleManager);
     }
 
-    public List<Application> getApplications(long startTime, long endTime, int... applicationIds) {
-        List<Application> applications = instanceDAO.getApplications(startTime, endTime, applicationIds);
+    public List<Application> getApplications(long startSecondTimeBucket, long endSecondTimeBucket,
+        int... applicationIds) {
+        List<Application> applications = instanceDAO.getApplications(startSecondTimeBucket, endSecondTimeBucket, applicationIds);
+
+        applications.forEach(application -> {
+            if (application.getId() == Const.NONE_APPLICATION_ID) {
+                applications.remove(application);
+            }
+        });
 
         applications.forEach(application -> {
             String applicationCode = applicationCacheService.getApplicationById(application.getId()).getApplicationCode();
@@ -70,13 +85,18 @@ public class ApplicationService {
         return applications;
     }
 
-    public List<ServiceMetric> getSlowService(int applicationId, Step step, long start, long end,
-        Integer top) throws ParseException {
-        List<ServiceMetric> slowServices = serviceMetricUIDAO.getSlowService(applicationId, step, start, end, top, MetricSource.Callee);
+    public List<ServiceMetric> getSlowService(int applicationId, Step step, long startTimeBucket, long endTimeBucket,
+        long startSecondTimeBucket, long endSecondTimeBucket, Integer topN) throws ParseException {
+        List<ServiceMetric> slowServices = serviceMetricUIDAO.getSlowService(applicationId, step, startTimeBucket, endTimeBucket, topN, MetricSource.Callee);
         slowServices.forEach(slowService -> {
-            slowService.setName(serviceNameCacheService.get(slowService.getId()).getServiceName());
-            //TODO
-            slowService.setCallsPerSec(1);
+            ServiceName serviceName = serviceNameCacheService.get(slowService.getId());
+
+            try {
+                slowService.setCallsPerSec((int)(slowService.getCalls() / secondBetweenService.calculate(serviceName.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket)));
+            } catch (ParseException e) {
+                logger.error(e.getMessage(), e);
+            }
+            slowService.setName(serviceName.getServiceName());
         });
         return slowServices;
     }

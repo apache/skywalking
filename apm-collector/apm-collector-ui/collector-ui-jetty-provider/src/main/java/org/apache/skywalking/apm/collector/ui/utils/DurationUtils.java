@@ -139,11 +139,11 @@ public enum DurationUtils {
         return dateTime;
     }
 
-    public List<DurationPoint> getDurationPoints(Step step, long start, long end) throws ParseException {
-        DateTime dateTime = parseToDateTime(step, start);
+    public List<DurationPoint> getDurationPoints(Step step, long startTimeBucket, long endTimeBucket) throws ParseException {
+        DateTime dateTime = parseToDateTime(step, startTimeBucket);
 
         List<DurationPoint> durations = new LinkedList<>();
-        durations.add(new DurationPoint(start, secondsBetween(step, dateTime)));
+        durations.add(new DurationPoint(startTimeBucket, secondsBetween(step, dateTime)));
 
         int i = 0;
         do {
@@ -176,10 +176,10 @@ public enum DurationUtils {
             }
             i++;
             if (i > 500) {
-                throw new UnexpectedException("Duration data error, step: " + step.name() + ", start: " + start + ", end: " + end);
+                throw new UnexpectedException("Duration data error, step: " + step.name() + ", start: " + startTimeBucket + ", end: " + endTimeBucket);
             }
         }
-        while (end != durations.get(durations.size() - 1).getPoint());
+        while (endTimeBucket != durations.get(durations.size() - 1).getPoint());
 
         return durations;
     }

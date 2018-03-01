@@ -97,14 +97,15 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         return heartBeatTime;
     }
 
-    @Override public List<Application> getApplications(long startTime, long endTime, int... applicationIds) {
-        logger.debug("application list get, start time: {}, end time: {}", startTime, endTime);
+    @Override public List<Application> getApplications(long startSecondTimeBucket, long endSecondTimeBucket,
+        int... applicationIds) {
+        logger.debug("application list get, start time: {}, end time: {}", startSecondTimeBucket, endSecondTimeBucket);
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(InstanceTable.TABLE);
         searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        boolQueryBuilder.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startTime));
+        boolQueryBuilder.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startSecondTimeBucket));
         boolQueryBuilder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, BooleanUtils.FALSE));
         if (applicationIds.length > 0) {
             boolQueryBuilder.must().add(QueryBuilders.termsQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationIds));
@@ -150,19 +151,26 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         return null;
     }
 
-    @Override public List<AppServerInfo> searchServer(String keyword, long start, long end) {
-        logger.debug("get instances info, keyword: {}, start: {}, end: {}", keyword, start, end);
+    @Override
+    public List<AppServerInfo> searchServer(String keyword, long startSecondTimeBucket, long endSecondTimeBucket) {
+        logger.debug("get instances info, keyword: {}, start: {}, end: {}", keyword, startSecondTimeBucket, endSecondTimeBucket);
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(InstanceTable.TABLE);
         searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
         searchRequestBuilder.setSize(1000);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(start).lte(end));
         if (StringUtils.isNotEmpty(keyword)) {
             boolQuery.must().add(QueryBuilders.queryStringQuery(keyword));
         }
         boolQuery.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, BooleanUtils.FALSE));
+
+        BoolQueryBuilder timeBoolQuery = QueryBuilders.boolQuery();
+        timeBoolQuery.should().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
+        timeBoolQuery.should().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
+
+        boolQuery.must().add(timeBoolQuery);
+
         searchRequestBuilder.setQuery(boolQuery);
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
@@ -180,11 +188,14 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         searchRequestBuilder.setSize(1000);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
-        boolQuery.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startSecondTimeBucket));
-
         boolQuery.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationId));
         boolQuery.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, BooleanUtils.FALSE));
+
+        BoolQueryBuilder timeBoolQuery = QueryBuilders.boolQuery();
+        timeBoolQuery.should().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
+        timeBoolQuery.should().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
+
+        boolQuery.must().add(timeBoolQuery);
         searchRequestBuilder.setQuery(boolQuery);
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
