@@ -14,11 +14,11 @@ const dataQuery = `
   query BasicTraces($condition: TraceQueryCondition) {
     queryBasicTraces(condition: $condition) {
       traces {
-        operationName
+        key: operationName
         duration
         start
         isError
-        traceId
+        traceIds
   }
       total
     }
@@ -82,16 +82,16 @@ export default generateModal({
       yield put({
         type: 'saveSpans',
         payload: response,
-        traceId: payload.variables.traceId,
+        key: payload.key,
       });
     },
   },
   reducers: {
     saveSpans(state, action) {
-      const { traceId } = action;
+      const { key } = action;
       const { queryTrace: { spans } } = action.payload.data;
       const { data: { queryBasicTraces: { traces } } } = state;
-      const trace = traces.find(t => t.traceId === traceId);
+      const trace = traces.find(t => t.key === key);
       trace.spans = spans;
       return {
         ...state,
