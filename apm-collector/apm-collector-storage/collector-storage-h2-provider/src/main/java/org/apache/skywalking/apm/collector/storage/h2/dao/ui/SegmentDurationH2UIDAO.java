@@ -101,9 +101,9 @@ public class SegmentDurationH2UIDAO extends H2DAO implements ISegmentDurationUID
         try (ResultSet rs = client.executeQuery(sql, p)) {
             while (rs.next()) {
                 BasicTrace basicTrace = new BasicTrace();
+                basicTrace.setSegmentId(rs.getString(SegmentDurationTable.COLUMN_SEGMENT_ID));
                 basicTrace.setDuration(rs.getInt(SegmentDurationTable.COLUMN_DURATION));
                 basicTrace.setStart(rs.getLong(SegmentDurationTable.COLUMN_START_TIME));
-                basicTrace.setTraceId(rs.getString(SegmentDurationTable.COLUMN_TRACE_ID));
                 basicTrace.setOperationName(rs.getString(SegmentDurationTable.COLUMN_SERVICE_NAME));
                 basicTrace.setError(BooleanUtils.valueToBoolean(rs.getInt(SegmentDurationTable.COLUMN_IS_ERROR)));
                 traceBrief.getTraces().add(basicTrace);
