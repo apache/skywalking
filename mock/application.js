@@ -15,7 +15,7 @@ export default {
       {
         data: {
           'getSlowService|10': [{ 'key|+1': 1, name: '@name', 'avgResponseTime|200-1000': 1 }],
-          'getServerThroughput|10': [{ 'key|+1': 1, name: '@name', 'tps|100-10000': 1 }],
+          'getServerThroughput|10': [{ 'key|+1': 1, name: '@name', 'callsPerSec|100-10000': 1 }],
           getApplicationTopology: () => {
             const application = mockjs.mock({
               nodes: [
@@ -51,7 +51,7 @@ export default {
                   'isAlarm|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
-                  'responseTimePerSec|500-5000': 1,
+                  'avgResponseTime|500-5000': 1,
                 },
                 {
                   source: 1,
@@ -59,7 +59,7 @@ export default {
                   'isAlarm|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
-                  'responseTimePerSec|500-5000': 1,
+                  'avgResponseTime|500-5000': 1,
                 },
                 {
                   source: 1,
@@ -67,7 +67,7 @@ export default {
                   'isAlarm|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
-                  'responseTimePerSec|500-5000': 1,
+                  'avgResponseTime|500-5000': 1,
                 },
                 {
                   source: 1,
@@ -75,7 +75,7 @@ export default {
                   'isAlarm|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
-                  'responseTimePerSec|500-5000': 1,
+                  'avgResponseTime|500-5000': 1,
                 },
                 {
                   source: 1,
@@ -83,7 +83,7 @@ export default {
                   'isAlarm|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
-                  'responseTimePerSec|500-5000': 1,
+                  'avgResponseTime|500-5000': 1,
                 },
               ],
             });

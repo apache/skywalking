@@ -110,7 +110,7 @@ export default class Application extends PureComponent {
                 bordered={false}
                 bodyStyle={{ padding: '0px 10px' }}
               >
-                <Ranking data={data.getServerThroughput} title="name" content="tps" unit="t/s" />
+                <Ranking data={data.getServerThroughput} title="name" content="callsPerSec" unit="t/s" />
               </Card>
             </Col>
           </Row>

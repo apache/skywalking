@@ -16,11 +16,11 @@ export default {
         data: {
           queryBasicTraces: {
             'traces|10': [{
-              operationName: '@url',
+              key: '@url',
               duration: '@natural(100, 1000)',
               start: '@datetime',
               'isError|1': true,
-              traceId: '@guid',
+              'traceIds|1-3': ['@guid'],
             }],
             total: '@natural(5, 50)',
           },

@@ -19,7 +19,7 @@ const dataQuery = `
     getServerThroughput(applicationId: $applicationId, duration: $duration, topN: 10) {
       key: id
       name
-      tps
+      callsPerSec
     }
     getApplicationTopology(applicationId: $applicationId, duration: $duration) {
       nodes {
@@ -29,7 +29,7 @@ const dataQuery = `
         ... on ApplicationNode {
           sla
           callsPerSec
-          responseTimePerSec
+          avgResponseTime
           apdex
           isAlarm
           numOfServer
@@ -43,7 +43,7 @@ const dataQuery = `
         isAlert
         callType
         callsPerSec
-        responseTimePerSec
+        avgResponseTime
       }
     }
   }

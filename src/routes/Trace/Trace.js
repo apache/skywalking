@@ -47,9 +47,6 @@ export default class Trace extends PureComponent {
     const filteredVariables = { ...variables };
     filteredVariables.queryDuration = filteredVariables.duration;
     delete filteredVariables.duration;
-    if (filteredVariables.applicationId && !Array.isArray(filteredVariables.applicationId)) {
-      filteredVariables.applicationId = [filteredVariables.applicationId];
-    }
     this.props.dispatch({
       type: 'trace/fetchData',
       payload: { variables: { condition: filteredVariables } },
@@ -99,11 +96,14 @@ export default class Trace extends PureComponent {
   }
   handleTableExpand = (expanded, record) => {
     const { dispatch } = this.props;
-    if (expanded && !record.spans) {
-      dispatch({
-        type: 'trace/fetchSpans',
-        payload: { variables: { traceId: record.traceId } },
-      });
+    if (expanded) {
+      const { traceIds = [] } = record;
+      if (traceIds.length > 0) {
+        dispatch({
+          type: 'trace/fetchSpans',
+          payload: { variables: { traceId: traceIds[0] }, key: record.key },
+        });
+      }
     }
   }
   renderForm() {

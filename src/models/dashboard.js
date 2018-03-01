@@ -45,7 +45,7 @@ export default generateModal({
       getTopNApplicationThroughput(duration: $duration, topN: 10) {
         key: applicationId
         applicationCode
-        tps
+        callsPerSec
       }
     }
   `,

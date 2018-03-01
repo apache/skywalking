@@ -10,7 +10,7 @@ class TraceTable extends PureComponent {
     const columns = [
       {
         title: 'OperationName',
-        dataIndex: 'operationName',
+        dataIndex: 'key',
       },
       {
         title: 'Duration',
@@ -33,15 +33,23 @@ class TraceTable extends PureComponent {
       },
       {
         title: 'GlobalTraceId',
-        dataIndex: 'traceId',
+        render: (text, record) => {
+          const { traceIds = [] } = record;
+          if (traceIds.length < 1) {
+            return 'Nan';
+          }
+          if (traceIds.length > 1) {
+            return `${traceIds[0]} ...`;
+          } else {
+            return traceIds[0];
+          }
+        },
       },
     ];
-
     return (
       <div className={styles.standardTable}>
         <Table
           loading={loading}
-          rowKey={record => record.traceId}
           dataSource={traces}
           columns={columns}
           pagination={pagination}

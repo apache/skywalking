@@ -111,7 +111,7 @@ export default class Server extends PureComponent {
             </Col>
             <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 24 }}>
               <ChartCard
-                title="Avg TPS"
+                title="Avg Calls Per Second"
                 total={`${this.avg(getServerTPSTrend.trendList)} ms`}
               >
                 <MiniBar

@@ -43,7 +43,7 @@ export default class ServiceTopology extends Base {
           'target-arrow-color': ele => (ele.data('isAlarm') ? 'red' : 'rgb(147, 198, 174)'),
           'line-color': ele => (ele.data('isAlarm') ? 'red' : 'rgb(147, 198, 174)'),
           width: 2,
-          label: ele => `${ele.data('callType')} \n ${ele.data('callsPerSec')} tps / ${ele.data('responseTimePerSec')} ms`,
+          label: ele => `${ele.data('callType')} \n ${ele.data('callsPerSec')} tps / ${ele.data('avgResponseTime')} ms`,
           'text-wrap': 'wrap',
           color: 'rgb(110, 112, 116)',
           'text-rotation': 'autorotate',
@@ -63,7 +63,7 @@ export default class ServiceTopology extends Base {
         tpl(data) {
           return `
           <div class="${styles.circle}">
-            <div class="node-percentage">${data.sla}%</div>
+            <div class="node-percentage">${data.sla / 100}%</div>
             <div>${data.calls} calls/s</div>
             <div>
               <img src="alert.png" class="${styles.logo}"/>
