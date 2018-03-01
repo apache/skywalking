@@ -121,7 +121,7 @@ export default class Dashboard extends PureComponent {
               bordered={false}
               bodyStyle={{ padding: '0px 10px' }}
             >
-              <Ranking data={data.getTopNApplicationThroughput} title="applicationCode" content="tps" unit="t/s" />
+              <Ranking data={data.getTopNApplicationThroughput} title="applicationCode" content="callsPerSec" unit="t/s" />
             </Card>
           </Col>
         </Row>
