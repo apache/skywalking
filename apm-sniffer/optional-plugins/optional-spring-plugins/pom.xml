@@ -30,7 +30,7 @@
 
     <artifactId>optional-spring-plugins</artifactId>
     <properties>
-        <plugin.dest.dir>${project.build.directory}/../../../../../packages/skywalking-agent/optional-plugins</plugin.dest.dir>
+        <plugin.dest.dir>${project.build.directory}/../../../../../skywalking-agent/optional-plugins</plugin.dest.dir>
     </properties>
 
     <modules>
