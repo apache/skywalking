@@ -47,6 +47,12 @@
             <directory>${project.basedir}/../apm-collector/apm-collector-boot/target/skywalking-collector-assembly/skywalking-collector/libs</directory>
             <outputDirectory>/collector-libs</outputDirectory>
         </fileSet>
+
+        <!-- Agent repackage into the dist -->
+        <fileSet>
+            <directory>${project.basedir}/../packages/skywalking-agent</directory>
+            <outputDirectory>/agent</outputDirectory>
+        </fileSet>
     </fileSets>
     <files>
         <file>
