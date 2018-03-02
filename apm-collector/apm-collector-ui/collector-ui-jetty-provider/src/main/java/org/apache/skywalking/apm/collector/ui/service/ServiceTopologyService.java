@@ -94,6 +94,7 @@ public class ServiceTopologyService {
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
             }
+            call.setAlert(false);
             calls.add(call);
         });
 
