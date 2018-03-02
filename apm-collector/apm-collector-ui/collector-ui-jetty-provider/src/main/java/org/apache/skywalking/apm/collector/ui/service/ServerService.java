@@ -163,9 +163,7 @@ public class ServerService {
 
     private void buildAppServerInfo(List<AppServerInfo> serverInfos) {
         serverInfos.forEach(serverInfo -> {
-            int applicationId = instanceCacheService.getApplicationId(serverInfo.getId());
-            serverInfo.setApplicationId(applicationId);
-            serverInfo.setApplicationCode(applicationCacheService.getApplicationById(applicationId).getApplicationCode());
+            serverInfo.setApplicationCode(applicationCacheService.getApplicationById(serverInfo.getApplicationId()).getApplicationCode());
             if (StringUtils.isNotEmpty(serverInfo.getOsInfo())) {
                 JsonObject osInfoJson = gson.fromJson(serverInfo.getOsInfo(), JsonObject.class);
                 if (osInfoJson.has("osName")) {
