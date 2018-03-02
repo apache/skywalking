@@ -19,7 +19,9 @@
 package org.apache.skywalking.apm.collector.ui.service;
 
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationAlarmListUIDAO;
@@ -31,6 +33,8 @@ import org.apache.skywalking.apm.collector.storage.ui.alarm.Alarm;
 import org.apache.skywalking.apm.collector.storage.ui.application.Application;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.ui.overview.AlarmTrend;
+import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
+import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,14 +77,21 @@ public class AlarmService {
         return serviceAlarmUIDAO.loadAlarmList(keyword, start, end, limit, from);
     }
 
-    public AlarmTrend getApplicationAlarmTrend(Step step, long startTimeBucket, long endTimeBucket, long start,
-        long end) throws ParseException {
-        List<Application> applications = instanceDAO.getApplications(start, end);
+    public AlarmTrend getApplicationAlarmTrend(Step step, long startTimeBucket, long endTimeBucket,
+        long startSecondTimeBucket,
+        long endSecondTimeBucket) throws ParseException {
+        List<Application> applications = instanceDAO.getApplications(startSecondTimeBucket, endSecondTimeBucket);
 
-        List<Integer> applicationNum = applicationAlarmListUIDAO.getAlarmedApplicationNum(step, startTimeBucket, endTimeBucket);
+        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTimeBucket, endTimeBucket);
+
+        List<IApplicationAlarmListUIDAO.AlarmTrend> alarmTrends = applicationAlarmListUIDAO.getAlarmedApplicationNum(step, startTimeBucket, endTimeBucket);
+
+        Map<Long, Integer> trendsMap = new HashMap<>();
+        alarmTrends.forEach(alarmTrend -> trendsMap.put(alarmTrend.getTimeBucket(), alarmTrend.getNumberOfApplication()));
+
         AlarmTrend alarmTrend = new AlarmTrend();
-        applicationNum.forEach(num -> {
-            alarmTrend.getNumOfAlarmRate().add((num * 10000) / (applications.size()));
+        durationPoints.forEach(durationPoint -> {
+            alarmTrend.getNumOfAlarmRate().add((trendsMap.getOrDefault(durationPoint.getPoint(), 0) * 10000) / (applications.size()));
         });
         return alarmTrend;
     }
