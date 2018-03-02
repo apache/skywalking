@@ -46,13 +46,14 @@ public class ApplicationAlarmEsUIDAO extends EsDAO implements IApplicationAlarmU
     }
 
     @Override
-    public Alarm loadAlarmList(String keyword, long start, long end, int limit, int from) throws ParseException {
+    public Alarm loadAlarmList(String keyword, long startTimeBucket, long endTimeBucket, int limit,
+        int from) throws ParseException {
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(ApplicationAlarmTable.TABLE);
         searchRequestBuilder.setTypes(ApplicationAlarmTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        boolQueryBuilder.must().add(QueryBuilders.rangeQuery(ApplicationAlarmTable.COLUMN_LAST_TIME_BUCKET).gte(start).lte(end));
+        boolQueryBuilder.must().add(QueryBuilders.rangeQuery(ApplicationAlarmTable.COLUMN_LAST_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
         if (StringUtils.isNotEmpty(keyword)) {
             boolQueryBuilder.must().add(QueryBuilders.matchQuery(ApplicationAlarmTable.COLUMN_ALARM_CONTENT, keyword));
         }
@@ -68,8 +69,7 @@ public class ApplicationAlarmEsUIDAO extends EsDAO implements IApplicationAlarmU
         alarm.setTotal((int)searchResponse.getHits().getTotalHits());
         for (SearchHit searchHit : searchHits) {
             AlarmItem alarmItem = new AlarmItem();
-            alarmItem.setId(searchHit.getId());
-            alarmItem.setTitle((String)searchHit.getSource().get(ApplicationAlarmTable.COLUMN_ALARM_CONTENT));
+            alarmItem.setId(((Number)searchHit.getSource().get(ApplicationAlarmTable.COLUMN_APPLICATION_ID)).intValue());
             alarmItem.setContent((String)searchHit.getSource().get(ApplicationAlarmTable.COLUMN_ALARM_CONTENT));
 
             long lastTimeBucket = ((Number)searchHit.getSource().get(ApplicationAlarmTable.COLUMN_LAST_TIME_BUCKET)).longValue();

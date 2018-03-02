@@ -146,7 +146,8 @@ public class ServerService {
         return gcTrend;
     }
 
-    public MemoryTrend getMemoryTrend(int instanceId, Step step, long startTimeBucket, long endTimeBucket) throws ParseException {
+    public MemoryTrend getMemoryTrend(int instanceId, Step step, long startTimeBucket,
+        long endTimeBucket) throws ParseException {
         MemoryTrend memoryTrend = new MemoryTrend();
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTimeBucket, endTimeBucket);
         IMemoryMetricUIDAO.Trend heapMemoryTrend = memoryMetricUIDAO.getHeapMemoryTrend(instanceId, step, durationPoints);

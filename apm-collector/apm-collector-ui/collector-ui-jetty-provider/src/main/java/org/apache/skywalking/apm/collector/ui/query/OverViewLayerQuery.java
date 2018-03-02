@@ -122,10 +122,10 @@ public class OverViewLayerQuery implements Query {
     }
 
     public ConjecturalAppBrief getConjecturalApps(Duration duration) throws ParseException {
-        long start = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart());
-        long end = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd());
+        long startSecondTimeBucket = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart());
+        long endSecondTimeBucket = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd());
 
-        return getApplicationService().getConjecturalApps(duration.getStep(), start, end);
+        return getApplicationService().getConjecturalApps(duration.getStep(), startSecondTimeBucket, endSecondTimeBucket);
     }
 
     public List<ServiceMetric> getTopNSlowService(Duration duration, int topN) throws ParseException {
