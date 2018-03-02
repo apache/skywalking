@@ -120,9 +120,9 @@
                                 <if>
                                     <equals arg1="${project.packaging}" arg2="jar"/>
                                     <then>
-                                        <mkdir dir="${project.build.directory}/../../../../packages/skywalking-agent/plugins"/>
+                                        <mkdir dir="${project.build.directory}/../../../../skywalking-agent/plugins"/>
                                         <copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar"
-                                              tofile="${project.build.directory}/../../../../packages/skywalking-agent/activations/${project.artifactId}-${project.version}.jar" overwrite="true"/>
+                                              tofile="${project.build.directory}/../../../../skywalking-agent/activations/${project.artifactId}-${project.version}.jar" overwrite="true"/>
                                     </then>
                                 </if>
 

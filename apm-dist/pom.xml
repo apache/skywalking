@@ -16,6 +16,11 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-agent-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>apm-collector-boot</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -63,9 +68,9 @@
                         <configuration>
                             <tasks>
                                 <copy file="${project.build.directory}/skywalking-backend.tar.gz"
-                                      tofile="${project.basedir}/../packages/skywalking-backend.tar.gz" overwrite="true"/>
+                                      tofile="${project.basedir}/../dist/skywalking-backend.tar.gz" overwrite="true"/>
                                 <copy file="${project.build.directory}/skywalking-backend.zip"
-                                      tofile="${project.basedir}/../packages/skywalking-backend.zip" overwrite="true"/>
+                                      tofile="${project.basedir}/../dist/skywalking-backend.zip" overwrite="true"/>
                             </tasks>
                         </configuration>
                     </execution>
