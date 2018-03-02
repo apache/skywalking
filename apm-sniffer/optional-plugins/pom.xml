@@ -33,7 +33,7 @@
         <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
         <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}</shade.net.bytebuddy.target>
 
-        <plugin.dest.dir>${project.build.directory}/../../../../packages/skywalking-agent/optional-plugins</plugin.dest.dir>
+        <plugin.dest.dir>${project.build.directory}/../../../../skywalking-agent/optional-plugins</plugin.dest.dir>
     </properties>
 
     <modules>
