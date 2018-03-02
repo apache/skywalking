@@ -19,7 +19,7 @@ export default class Search extends PureComponent {
     if (!value || value.length < 1) {
       return;
     }
-    const { url, query, variables = {} } = this.props;
+    const { url, query, variables = {}, transform } = this.props;
     this.lastFetchId += 1;
     const fetchId = this.lastFetchId;
     this.setState({ data: [], fetching: true });
@@ -37,7 +37,8 @@ export default class Search extends PureComponent {
         if (!body.data || fetchId !== this.lastFetchId) { // for fetch callback order
           return;
         }
-        this.setState({ data: body.data[Object.keys(body.data)[0]], fetching: false });
+        const list = body.data[Object.keys(body.data)[0]];
+        this.setState({ data: (transform ? list.map(transform) : list), fetching: false });
       });
   }
   handleSelect = (value) => {
@@ -50,7 +51,7 @@ export default class Search extends PureComponent {
     return (
       <Select
         showSearch
-        style={{ width: 400 }}
+        style={{ width: 600 }}
         placeholder={placeholder}
         notFoundContent={this.state.fetching ? <Spin size="small" /> : null}
         filterOption={false}

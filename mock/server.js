@@ -8,7 +8,7 @@ export default {
           'searchServer|5': [
             {
               'key|+1': 3,
-              label: function() { return `server-${this.key}`; }, // eslint-disable-line
+              name: function() { return `server-${this.key}`; }, // eslint-disable-line
               os: 'Mac-@name',
               host: 'WORKSAPCE-@name',
               pid: '@natural',
