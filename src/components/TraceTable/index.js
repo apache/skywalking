@@ -25,9 +25,9 @@ class TraceTable extends PureComponent {
         dataIndex: 'isError',
         render: (text, record) => {
           if (record.isError) {
-            return 'Success';
-          } else {
             return 'Error';
+          } else {
+            return 'Success';
           }
         },
       },
