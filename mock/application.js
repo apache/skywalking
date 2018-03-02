@@ -23,7 +23,7 @@ export default {
                   id: 1,
                   name: '@name',
                   'type|1': ['DUBBO', 'tomcat', 'SPRINGMVC'],
-                  'calls|1000-2000': 1,
+                  'callsPerSec|1000-2000': 1,
                   'sla|1-100.1-2': 1,
                   'apdex|0.2': 1,
                   'numOfServer|1-100': 1,
