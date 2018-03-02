@@ -32,7 +32,7 @@
     </dependencies>
 
     <build>
-        <finalName>skywalking-backend</finalName>
+        <finalName>skywalking-dist</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -67,10 +67,10 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <copy file="${project.build.directory}/skywalking-backend.tar.gz"
-                                      tofile="${project.basedir}/../dist/skywalking-backend.tar.gz" overwrite="true"/>
-                                <copy file="${project.build.directory}/skywalking-backend.zip"
-                                      tofile="${project.basedir}/../dist/skywalking-backend.zip" overwrite="true"/>
+                                <copy file="${project.build.directory}/skywalking-dist.tar.gz"
+                                      tofile="${project.basedir}/../dist/skywalking-dist.tar.gz" overwrite="true"/>
+                                <copy file="${project.build.directory}/skywalking-dist.zip"
+                                      tofile="${project.basedir}/../dist/skywalking-dist.zip" overwrite="true"/>
                             </tasks>
                         </configuration>
                     </execution>
