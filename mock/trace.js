@@ -16,9 +16,10 @@ export default {
         data: {
           queryBasicTraces: {
             'traces|10': [{
-              key: '@url',
+              key: '@id',
+              operationName: '@url',
               duration: '@natural(100, 1000)',
-              start: '@datetime',
+              start: new Date().getTime(),
               'isError|1': true,
               'traceIds|1-3': ['@guid'],
             }],
