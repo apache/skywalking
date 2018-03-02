@@ -66,7 +66,7 @@ public class SegmentDurationEsPersistenceDAO extends EsHttpDAO implements ISegme
         source.put(SegmentDurationTable.COLUMN_IS_ERROR, data.getIsError());
         source.put(SegmentDurationTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
         logger.debug("segment cost source: {}", source.toString());
-        return new Index.Builder(source).index(SegmentDurationTable.TABLE).id(data.getId()).build();
+        return new Index.Builder(source).index(SegmentDurationTable.TABLE).type(SegmentDurationTable.TABLE_TYPE).id(data.getId()).build();
     }
 
     @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {

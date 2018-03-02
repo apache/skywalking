@@ -62,7 +62,7 @@ public abstract class AbstractPersistenceEsDAO<STREAM_DATA extends StreamData> e
 
     @Override public final Index prepareBatchInsert(STREAM_DATA streamData) {
         Map<String, Object> source = esStreamDataToEsData(streamData);
-        return new Index.Builder(source).index(tableName()).id(streamData.getId()).build();
+        return new Index.Builder(source).index(tableName()).type("type").id(streamData.getId()).build();
     }
 
     @Override public final Update prepareBatchUpdate(STREAM_DATA streamData) {

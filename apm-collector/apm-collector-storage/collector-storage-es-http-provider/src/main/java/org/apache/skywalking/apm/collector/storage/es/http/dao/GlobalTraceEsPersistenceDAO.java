@@ -61,7 +61,7 @@ public class GlobalTraceEsPersistenceDAO extends EsHttpDAO implements IGlobalTra
         source.put(GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID, data.getGlobalTraceId());
         source.put(GlobalTraceTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
         logger.debug("global trace source: {}", source.toString());
-        return new Index.Builder(source).index(GlobalTraceTable.TABLE).id(data.getId()).build();
+        return new Index.Builder(source).index(GlobalTraceTable.TABLE).type(GlobalTraceTable.TABLE_TYPE).id(data.getId()).build();
     }
 
     @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {

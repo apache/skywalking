@@ -82,7 +82,7 @@ public class ServiceAlarmListEsPersistenceDAO extends EsHttpDAO implements IServ
 
         source.put(ServiceAlarmListTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
-        return new Index.Builder(source).index(ServiceAlarmListTable.TABLE).id(data.getId()).build();
+        return new Index.Builder(source).index(ServiceAlarmListTable.TABLE).type(ServiceAlarmListTable.TABLE_TYPE).id(data.getId()).build();
     }
 
     @Override public Update prepareBatchUpdate(ServiceAlarmList data) {

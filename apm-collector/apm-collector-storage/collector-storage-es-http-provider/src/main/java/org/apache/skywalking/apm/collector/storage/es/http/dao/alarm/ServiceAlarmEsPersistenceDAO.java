@@ -82,7 +82,7 @@ public class ServiceAlarmEsPersistenceDAO extends EsHttpDAO implements IServiceA
 
         source.put(ServiceAlarmTable.COLUMN_LAST_TIME_BUCKET, data.getLastTimeBucket());
 
-        return new Index.Builder(source).index(ServiceAlarmTable.TABLE).id(data.getId()).build();
+        return new Index.Builder(source).index(ServiceAlarmTable.TABLE).type(ServiceAlarmTable.TABLE_TYPE).id(data.getId()).build();
     }
 
     @Override public Update prepareBatchUpdate(ServiceAlarm data) {

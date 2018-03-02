@@ -78,7 +78,7 @@ public class ApplicationAlarmListEsPersistenceDAO extends EsHttpDAO implements I
 
         source.put(ApplicationAlarmListTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
-        return new Index.Builder(source).index(ApplicationAlarmListTable.TABLE).id(data.getId()).build();
+        return new Index.Builder(source).index(ApplicationAlarmListTable.TABLE).type(ApplicationAlarmListTable.TABLE_TYPE).id(data.getId()).build();
     }
 
     @Override public Update prepareBatchUpdate(ApplicationAlarmList data) {

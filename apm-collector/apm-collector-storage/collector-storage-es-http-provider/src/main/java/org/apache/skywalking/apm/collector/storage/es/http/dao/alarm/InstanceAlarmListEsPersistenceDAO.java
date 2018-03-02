@@ -80,7 +80,7 @@ public class InstanceAlarmListEsPersistenceDAO extends EsHttpDAO implements IIns
 
         source.put(InstanceAlarmListTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
-        return new Index.Builder(source).index(InstanceAlarmListTable.TABLE).id(data.getId()).build();
+        return new Index.Builder(source).index(InstanceAlarmListTable.TABLE).type(InstanceAlarmListTable.TABLE_TYPE).id(data.getId()).build();
     }
 
     @Override public Update prepareBatchUpdate(InstanceAlarmList data) {

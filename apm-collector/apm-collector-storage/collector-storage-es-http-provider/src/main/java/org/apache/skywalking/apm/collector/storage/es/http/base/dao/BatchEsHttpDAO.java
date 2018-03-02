@@ -48,6 +48,7 @@ public class BatchEsHttpDAO extends EsHttpDAO implements IBatchDAO {
         if (CollectionUtils.isNotEmpty(batchCollection)) {
             batchCollection.forEach(builder -> {
                 bulk.addAction((BulkableAction)builder);
+                logger.error(((BulkableAction)builder).toString());
             });
             
             BulkResult bulkResult = getClient().execute(bulk.build());

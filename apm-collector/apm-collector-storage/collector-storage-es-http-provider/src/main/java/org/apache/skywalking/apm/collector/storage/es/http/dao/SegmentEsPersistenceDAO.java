@@ -60,7 +60,7 @@ public class SegmentEsPersistenceDAO extends EsHttpDAO implements ISegmentPersis
         source.put(SegmentTable.COLUMN_DATA_BINARY, new String(Base64.getEncoder().encode(data.getDataBinary())));
         source.put(SegmentTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
         logger.debug("segment source: {}", source.toString());
-        return new Index.Builder(source).index(SegmentTable.TABLE).id(data.getId()).build();
+        return new Index.Builder(source).index(SegmentTable.TABLE).type(SegmentTable.TABLE_TYPE).id(data.getId()).build();
     }
 
     @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {

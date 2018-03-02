@@ -80,7 +80,7 @@ public class ApplicationReferenceAlarmEsPersistenceDAO extends EsHttpDAO impleme
 
         source.put(ApplicationReferenceAlarmTable.COLUMN_LAST_TIME_BUCKET, data.getLastTimeBucket());
 
-        return new Index.Builder(source).index(ApplicationReferenceAlarmTable.TABLE).id(data.getId()).build();
+        return new Index.Builder(source).index(ApplicationReferenceAlarmTable.TABLE).type(ApplicationReferenceAlarmTable.TABLE_TYPE).id(data.getId()).build();
     }
 
     @Override public Update prepareBatchUpdate(ApplicationReferenceAlarm data) {
