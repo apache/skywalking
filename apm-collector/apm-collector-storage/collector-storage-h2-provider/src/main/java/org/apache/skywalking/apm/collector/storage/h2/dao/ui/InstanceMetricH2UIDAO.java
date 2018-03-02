@@ -56,6 +56,8 @@ public class InstanceMetricH2UIDAO extends H2DAO implements IInstanceMetricUIDAO
     @Override public List<AppServerInfo> getServerThroughput(int applicationId, Step step, long startTimeBucket, long endTimeBucket,
         int secondBetween, int topN, MetricSource metricSource) {
         H2Client client = getClient();
+
+        
         String tableName = TimePyramidTableNameBuilder.build(step, InstanceMetricTable.TABLE);
         String sql = SqlBuilder.buildSql(GET_SERVER_THROUGHPUT_SQL,InstanceMetricTable.COLUMN_INSTANCE_ID,
                 InstanceMetricTable.COLUMN_TRANSACTION_CALLS,InstanceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS,tableName,
