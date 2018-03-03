@@ -35,7 +35,7 @@ public class ServerTypeDefineTestCase {
         for (Field field : fields) {
             if (field.getType().equals(OfficialComponent.class)) {
                 OfficialComponent component = (OfficialComponent)field.get(ComponentsDefine.getInstance());
-                ServerTypeDefine.getInstance().getServerTypeByComponentId(component.getId());
+                ServerTypeDefine.getInstance().getServerTypeId(component.getId());
             }
         }
     }
