@@ -16,23 +16,38 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.h2.dao.ui;
+package org.apache.skywalking.apm.collector.ui.utils;
 
-import org.apache.skywalking.apm.collector.client.h2.H2Client;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceAlarmUIDAO;
-import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
-import org.apache.skywalking.apm.collector.storage.ui.alarm.Alarm;
+import org.apache.skywalking.apm.collector.storage.ui.common.Pagination;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceAlarmH2UIDAO extends H2DAO implements IServiceAlarmUIDAO {
+public enum PaginationUtils {
+    INSTANCE;
 
-    public ServiceAlarmH2UIDAO(H2Client client) {
-        super(client);
+    public Page exchange(Pagination paging) {
+        int limit = paging.getPageSize();
+        int from = paging.getPageSize() * (paging.getPageNum() - 1);
+
+        return new Page(from, limit);
     }
 
-    @Override public Alarm loadAlarmList(String keyword, long startTimeBucket, long endTimeBucket, int limit, int from) {
-        return null;
+    public class Page {
+        private int from;
+        private int limit;
+
+        Page(int from, int limit) {
+            this.from = from;
+            this.limit = limit;
+        }
+
+        public int getFrom() {
+            return from;
+        }
+
+        public int getLimit() {
+            return limit;
+        }
     }
 }

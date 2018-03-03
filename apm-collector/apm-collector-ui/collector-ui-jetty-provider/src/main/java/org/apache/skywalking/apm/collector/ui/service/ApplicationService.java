@@ -112,7 +112,7 @@ public class ApplicationService {
         return applicationThroughput;
     }
 
-    public ConjecturalAppBrief getConjecturalApps(Step step, long start, long end) throws ParseException {
+    public ConjecturalAppBrief getConjecturalApps(Step step, long startSecondTimeBucket, long endSecondTimeBucket) throws ParseException {
         List<ConjecturalApp> conjecturalApps = networkAddressUIDAO.getConjecturalApps();
         conjecturalApps.forEach(conjecturalApp -> {
             String name = ServerTypeDefine.getInstance().getServerType(conjecturalApp.getId());

@@ -33,6 +33,7 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMappingUID
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationReferenceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Application;
+import org.apache.skywalking.apm.collector.storage.ui.alarm.Alarm;
 import org.apache.skywalking.apm.collector.storage.ui.application.ApplicationNode;
 import org.apache.skywalking.apm.collector.storage.ui.application.ConjecturalNode;
 import org.apache.skywalking.apm.collector.storage.ui.common.Call;
@@ -55,11 +56,13 @@ class TopologyBuilder {
     private final ApplicationCacheService applicationCacheService;
     private final ServerService serverService;
     private final SecondBetweenService secondBetweenService;
+    private final AlarmService alarmService;
 
     TopologyBuilder(ModuleManager moduleManager) {
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
         this.serverService = new ServerService(moduleManager);
         this.secondBetweenService = new SecondBetweenService(moduleManager);
+        this.alarmService = new AlarmService(moduleManager);
     }
 
     Topology build(List<IApplicationComponentUIDAO.ApplicationComponent> applicationComponents,
@@ -67,7 +70,7 @@ class TopologyBuilder {
         List<IApplicationMetricUIDAO.ApplicationMetric> applicationMetrics,
         List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> callerReferenceMetric,
         List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> calleeReferenceMetric,
-        long startSecondTimeBucket, long endSecondTimeBucket) {
+        long startTimeBucket, long endTimeBucket, long startSecondTimeBucket, long endSecondTimeBucket) {
         Map<Integer, String> components = changeNodeComp2Map(applicationComponents);
         Map<Integer, Integer> mappings = changeMapping2Map(applicationMappings);
 
@@ -91,9 +94,29 @@ class TopologyBuilder {
             applicationNode.setAvgResponseTime((applicationMetric.getDurations() - applicationMetric.getErrorDurations()) / (applicationMetric.getCalls() - applicationMetric.getErrorCalls()));
             applicationNode.setApdex(ApdexCalculator.INSTANCE.calculate(applicationMetric.getSatisfiedCount(), applicationMetric.getToleratingCount(), applicationMetric.getFrustratedCount()));
             applicationNode.setAlarm(false);
+            try {
+                Alarm alarm = alarmService.loadApplicationAlarmList(Const.EMPTY_STRING, startTimeBucket, endTimeBucket, 1, 0);
+                if (alarm.getItems().size() > 0) {
+                    applicationNode.setAlarm(true);
+                }
+            } catch (ParseException e) {
+                logger.error(e.getMessage(), e);
+            }
+
             applicationNode.setNumOfServer(serverService.getAllServer(applicationId, startSecondTimeBucket, endSecondTimeBucket).size());
-            applicationNode.setNumOfServerAlarm(1);
-            applicationNode.setNumOfServiceAlarm(1);
+            try {
+                Alarm alarm = alarmService.loadInstanceAlarmList(Const.EMPTY_STRING, startTimeBucket, endTimeBucket, 1000, 0);
+                applicationNode.setNumOfServerAlarm(alarm.getItems().size());
+            } catch (ParseException e) {
+                logger.error(e.getMessage(), e);
+            }
+
+            try {
+                Alarm alarm = alarmService.loadServiceAlarmList(Const.EMPTY_STRING, startTimeBucket, endTimeBucket, 1000, 0);
+                applicationNode.setNumOfServiceAlarm(alarm.getItems().size());
+            } catch (ParseException e) {
+                logger.error(e.getMessage(), e);
+            }
             nodes.add(applicationNode);
         });
 
@@ -117,7 +140,7 @@ class TopologyBuilder {
             int actualTargetId = mappings.getOrDefault(target.getApplicationId(), target.getApplicationId());
             call.setTarget(actualTargetId);
             call.setTargetName(applicationCacheService.getApplicationById(actualTargetId).getApplicationCode());
-            call.setAlert(true);
+            call.setAlert(false);
             call.setCallType(components.get(referenceMetric.getTarget()));
             try {
                 call.setCallsPerSec(referenceMetric.getCalls() / secondBetweenService.calculate(source.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket));
@@ -153,7 +176,7 @@ class TopologyBuilder {
             call.setSourceName(source.getApplicationCode());
             call.setTarget(target.getApplicationId());
             call.setTargetName(target.getApplicationCode());
-            call.setAlert(true);
+            call.setAlert(false);
 
             if (source.getApplicationId() == Const.NONE_APPLICATION_ID) {
                 call.setCallType(Const.EMPTY_STRING);

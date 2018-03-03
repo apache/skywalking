@@ -27,5 +27,26 @@ import org.apache.skywalking.apm.collector.storage.ui.common.Step;
  */
 public interface IApplicationAlarmListUIDAO extends DAO {
 
-    List<Integer> getAlarmedApplicationNum(Step step, long start, long end);
+    List<AlarmTrend> getAlarmedApplicationNum(Step step, long startTimeBucket, long endTimeBucket);
+
+    class AlarmTrend {
+        private long timeBucket;
+        private int numberOfApplication;
+
+        public long getTimeBucket() {
+            return timeBucket;
+        }
+
+        public void setTimeBucket(long timeBucket) {
+            this.timeBucket = timeBucket;
+        }
+
+        public int getNumberOfApplication() {
+            return numberOfApplication;
+        }
+
+        public void setNumberOfApplication(int numberOfApplication) {
+            this.numberOfApplication = numberOfApplication;
+        }
+    }
 }

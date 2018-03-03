@@ -16,23 +16,33 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.h2.dao.ui;
+package org.apache.skywalking.apm.collector.ui.utils;
 
-import org.apache.skywalking.apm.collector.client.h2.H2Client;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceAlarmUIDAO;
-import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
-import org.apache.skywalking.apm.collector.storage.ui.alarm.Alarm;
+import org.apache.skywalking.apm.collector.storage.ui.common.Pagination;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceAlarmH2UIDAO extends H2DAO implements IServiceAlarmUIDAO {
+public class PaginationUtilsTestCase {
 
-    public ServiceAlarmH2UIDAO(H2Client client) {
-        super(client);
-    }
+    @Test
+    public void test() {
+        Pagination pagination = new Pagination();
+        pagination.setPageSize(10);
+        pagination.setPageNum(1);
 
-    @Override public Alarm loadAlarmList(String keyword, long startTimeBucket, long endTimeBucket, int limit, int from) {
-        return null;
+        PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(pagination);
+        Assert.assertEquals(0, page.getFrom());
+        Assert.assertEquals(10, page.getLimit());
+
+        pagination = new Pagination();
+        pagination.setPageSize(10);
+        pagination.setPageNum(2);
+
+        page = PaginationUtils.INSTANCE.exchange(pagination);
+        Assert.assertEquals(10, page.getFrom());
+        Assert.assertEquals(10, page.getLimit());
     }
 }
