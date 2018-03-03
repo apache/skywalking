@@ -45,7 +45,7 @@ public class ApplicationComponentH2UIDAO extends H2DAO implements IApplicationCo
         super(client);
     }
 
-    @Override public List<ApplicationComponent> load(Step step, long startTime, long endTime) {
+    @Override public List<ApplicationComponent> load(Step step, long startTimeBucket, long endTimeBucket) {
         H2Client client = getClient();
 
         String tableName = TimePyramidTableNameBuilder.build(step, ApplicationComponentTable.TABLE);
@@ -54,7 +54,7 @@ public class ApplicationComponentH2UIDAO extends H2DAO implements IApplicationCo
         String sql = SqlBuilder.buildSql(AGGREGATE_COMPONENT_SQL, ApplicationComponentTable.COLUMN_COMPONENT_ID, ApplicationComponentTable.COLUMN_APPLICATION_ID,
             tableName, ApplicationComponentTable.COLUMN_TIME_BUCKET);
 
-        Object[] params = new Object[] {startTime, endTime};
+        Object[] params = new Object[] {startTimeBucket, endTimeBucket};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             while (rs.next()) {
                 int applicationId = rs.getInt(ApplicationComponentTable.COLUMN_APPLICATION_ID);

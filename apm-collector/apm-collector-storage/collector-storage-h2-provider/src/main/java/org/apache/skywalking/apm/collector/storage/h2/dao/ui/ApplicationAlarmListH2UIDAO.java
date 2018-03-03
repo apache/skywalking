@@ -33,7 +33,7 @@ public class ApplicationAlarmListH2UIDAO extends H2DAO implements IApplicationAl
         super(client);
     }
 
-    @Override public List<Integer> getAlarmedApplicationNum(Step step, long start, long end) {
+    @Override public List<AlarmTrend> getAlarmedApplicationNum(Step step, long startTimeBucket, long endTimeBucket) {
         return null;
     }
 }

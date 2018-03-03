@@ -19,8 +19,11 @@
 package org.apache.skywalking.apm.collector.ui.query;
 
 import java.text.ParseException;
+import org.apache.skywalking.apm.collector.core.UnexpectedException;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
+import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.storage.ui.trace.Trace;
 import org.apache.skywalking.apm.collector.storage.ui.trace.TraceBrief;
 import org.apache.skywalking.apm.collector.storage.ui.trace.TraceQueryCondition;
@@ -57,18 +60,27 @@ public class TraceQuery implements Query {
     }
 
     public TraceBrief queryBasicTraces(TraceQueryCondition condition) throws ParseException {
-        long start = DurationUtils.INSTANCE.durationToSecondTimeBucket(condition.getQueryDuration().getStep(), condition.getQueryDuration().getStart());
-        long end = DurationUtils.INSTANCE.durationToSecondTimeBucket(condition.getQueryDuration().getStep(), condition.getQueryDuration().getEnd());
+        long startSecondTimeBucket = 0;
+        long endSecondTimeBucket = 0;
+        String traceId = Const.EMPTY_STRING;
+
+        if (ObjectUtils.isNotEmpty(condition.getQueryDuration())) {
+            startSecondTimeBucket = DurationUtils.INSTANCE.durationToSecondTimeBucket(condition.getQueryDuration().getStep(), condition.getQueryDuration().getStart());
+            endSecondTimeBucket = DurationUtils.INSTANCE.durationToSecondTimeBucket(condition.getQueryDuration().getStep(), condition.getQueryDuration().getEnd());
+        } else if (StringUtils.isNotEmpty(condition.getTraceId())) {
+            traceId = condition.getTraceId();
+        } else {
+            throw new UnexpectedException("The condition must contains either queryDuration or traceId.");
+        }
 
         long minDuration = condition.getMinTraceDuration();
         long maxDuration = condition.getMaxTraceDuration();
         String operationName = condition.getOperationName();
-        String traceId = condition.getTraceId();
         int applicationId = condition.getApplicationId();
         int limit = condition.getPaging().getPageSize();
         int from = condition.getPaging().getPageSize() * condition.getPaging().getPageNum();
 
-        return getSegmentTopService().loadTop(start, end, minDuration, maxDuration, operationName, traceId, applicationId, limit, from);
+        return getSegmentTopService().loadTop(startSecondTimeBucket, endSecondTimeBucket, minDuration, maxDuration, operationName, traceId, applicationId, limit, from);
     }
 
     public Trace queryTrace(String traceId) {

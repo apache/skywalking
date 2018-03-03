@@ -42,7 +42,7 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker<Se
     private final IServiceNameRegisterDAO serviceNameRegisterDAO;
     private final ServiceIdCacheService serviceIdCacheService;
 
-    public ServiceNameRegisterSerialWorker(ModuleManager moduleManager) {
+    ServiceNameRegisterSerialWorker(ModuleManager moduleManager) {
         super(moduleManager);
         this.serviceNameRegisterDAO = getModuleManager().find(StorageModule.NAME).getService(IServiceNameRegisterDAO.class);
         this.serviceIdCacheService = getModuleManager().find(CacheModule.NAME).getService(ServiceIdCacheService.class);
@@ -54,7 +54,7 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker<Se
 
     @Override protected void onWork(ServiceName serviceName) throws WorkerException {
         logger.debug("register service name: {}, application id: {}", serviceName.getServiceName(), serviceName.getApplicationId());
-        int serviceId = serviceIdCacheService.get(serviceName.getApplicationId(), serviceName.getServiceName());
+        int serviceId = serviceIdCacheService.get(serviceName.getApplicationId(), serviceName.getSrcSpanType(), serviceName.getServiceName());
         if (serviceId == 0) {
             ServiceName newServiceName;
 
@@ -62,15 +62,17 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker<Se
             if (min == 0) {
                 ServiceName noneServiceName = new ServiceName();
                 noneServiceName.setId("1");
-                noneServiceName.setApplicationId(0);
+                noneServiceName.setApplicationId(Const.NONE_APPLICATION_ID);
                 noneServiceName.setServiceId(Const.NONE_SERVICE_ID);
                 noneServiceName.setServiceName(Const.NONE_SERVICE_NAME);
+                noneServiceName.setSrcSpanType(Const.SPAN_TYPE_VIRTUAL);
                 serviceNameRegisterDAO.save(noneServiceName);
 
                 newServiceName = new ServiceName();
                 newServiceName.setId("-1");
                 newServiceName.setApplicationId(serviceName.getApplicationId());
                 newServiceName.setServiceId(-1);
+                newServiceName.setSrcSpanType(serviceName.getSrcSpanType());
                 newServiceName.setServiceName(serviceName.getServiceName());
             } else {
                 int max = serviceNameRegisterDAO.getMaxServiceId();
@@ -80,6 +82,7 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker<Se
                 newServiceName.setId(String.valueOf(serviceId));
                 newServiceName.setApplicationId(serviceName.getApplicationId());
                 newServiceName.setServiceId(serviceId);
+                newServiceName.setSrcSpanType(serviceName.getSrcSpanType());
                 newServiceName.setServiceName(serviceName.getServiceName());
             }
             serviceNameRegisterDAO.save(newServiceName);
