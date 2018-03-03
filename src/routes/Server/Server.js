@@ -69,13 +69,14 @@ export default class Server extends PureComponent {
                   query SearchServer($keyword: String!, $duration: Duration!) {
                     searchServer(keyword: $keyword, duration: $duration) {
                       key: id
-                      label: name
+                      name
                       host
                       pid
                       ipv4
                     }
                   }
                 `}
+                transform={r => ({ ...r, label: `${r.pid}@${r.host}` })}
               />
             )}
           </FormItem>
@@ -87,7 +88,7 @@ export default class Server extends PureComponent {
         >
           <Card title="Info" style={{ marginTop: 24 }} bordered={false}>
             <DescriptionList>
-              <Description term="OS">{serverInfo.label}</Description>
+              <Description term="OS">{serverInfo.name}</Description>
               <Description term="Host Name">{serverInfo.host}</Description>
               <Description term="Process Id">{serverInfo.pid}</Description>
               <Description term="IPv4">{serverInfo.ipv4 ? serverInfo.ipv4.join() : ''}</Description>
@@ -142,18 +143,18 @@ export default class Server extends PureComponent {
               >
                 <Area
                   data={axis(duration, getMemoryTrend.heap, ({ x, y }) => ({ x, y, type: 'value' }))
-                    .concat(axis(duration, getMemoryTrend.maxHeap, ({ x, y }) => ({ x, y, type: 'limit' })))}
+                    .concat(axis(duration, getMemoryTrend.maxHeap, ({ x, y }) => ({ x, y, type: 'free' })))}
                 />
               </ChartCard>
             </Col>
             <Col xs={24} sm={24} md={12} lg={12} xl={12} style={{ marginTop: 24 }}>
               <ChartCard
-                title="No-Heap"
+                title="Non-Heap"
                 contentHeight={150}
               >
                 <Area
                   data={axis(duration, getMemoryTrend.noheap, ({ x, y }) => ({ x, y, type: 'value' }))
-                  .concat(axis(duration, getMemoryTrend.maxNoheap, ({ x, y }) => ({ x, y, type: 'limit' })))}
+                  .concat(axis(duration, getMemoryTrend.maxNoheap, ({ x, y }) => ({ x, y, type: 'free' })))}
                 />
               </ChartCard>
             </Col>
