@@ -28,46 +28,41 @@ public class ServerTypeDefine {
 
     private static ServerTypeDefine INSTANCE = new ServerTypeDefine();
 
+    private String[] serverTypeNames;
     private ServerType[] serverTypes;
-
-    private static final String HTTP = "http";
-    private static final String GRPC = "gRPC";
-    private static final String DUBBO = "dubbo";
-    private static final String MOTAN = "motan";
-    private static final String CLIENT = "client";
-    private static final String JDBC_DRIVER = "JDBC driver";
 
     private ServerTypeDefine() {
         this.serverTypes = new ServerType[30];
-        addServerType(new ServerType(ComponentsDefine.TOMCAT.getId(), Const.EMPTY_STRING));
-        addServerType(new ServerType(ComponentsDefine.HTTPCLIENT.getId(), Const.EMPTY_STRING));
-        addServerType(new ServerType(ComponentsDefine.DUBBO.getId(), DUBBO));
-        addServerType(new ServerType(ComponentsDefine.H2.getId(), JDBC_DRIVER));
-        addServerType(new ServerType(ComponentsDefine.MYSQL.getId(), JDBC_DRIVER));
-        addServerType(new ServerType(ComponentsDefine.ORACLE.getId(), JDBC_DRIVER));
-        addServerType(new ServerType(ComponentsDefine.REDIS.getId(), CLIENT));
-        addServerType(new ServerType(ComponentsDefine.MOTAN.getId(), MOTAN));
-        addServerType(new ServerType(ComponentsDefine.MONGODB.getId(), CLIENT));
-        addServerType(new ServerType(ComponentsDefine.RESIN.getId(), Const.EMPTY_STRING));
-        addServerType(new ServerType(ComponentsDefine.FEIGN.getId(), Const.EMPTY_STRING));
-        addServerType(new ServerType(ComponentsDefine.OKHTTP.getId(), Const.EMPTY_STRING));
-        addServerType(new ServerType(ComponentsDefine.SPRING_REST_TEMPLATE.getId(), Const.EMPTY_STRING));
-        addServerType(new ServerType(ComponentsDefine.SPRING_MVC_ANNOTATION.getId(), Const.EMPTY_STRING));
-        addServerType(new ServerType(ComponentsDefine.STRUTS2.getId(), Const.EMPTY_STRING));
-        addServerType(new ServerType(ComponentsDefine.NUTZ_MVC_ANNOTATION.getId(), Const.EMPTY_STRING));
-        addServerType(new ServerType(ComponentsDefine.NUTZ_HTTP.getId(), HTTP));
-        addServerType(new ServerType(ComponentsDefine.JETTY_CLIENT.getId(), HTTP));
-        addServerType(new ServerType(ComponentsDefine.JETTY_SERVER.getId(), Const.EMPTY_STRING));
-        addServerType(new ServerType(ComponentsDefine.MEMCACHED.getId(), CLIENT));
-        addServerType(new ServerType(ComponentsDefine.SHARDING_JDBC.getId(), JDBC_DRIVER));
-        addServerType(new ServerType(ComponentsDefine.POSTGRESQL.getId(), JDBC_DRIVER));
-        addServerType(new ServerType(ComponentsDefine.GRPC.getId(), GRPC));
-        addServerType(new ServerType(ComponentsDefine.ELASTIC_JOB.getId(), Const.EMPTY_STRING));
-        addServerType(new ServerType(ComponentsDefine.ROCKET_MQ.getId(), CLIENT));
-        addServerType(new ServerType(ComponentsDefine.HTTP_ASYNC_CLIENT.getId(), HTTP));
-        addServerType(new ServerType(ComponentsDefine.KAFKA.getId(), CLIENT));
-        addServerType(new ServerType(ComponentsDefine.SERVICECOMB.getId(), Const.EMPTY_STRING));
-        addServerType(new ServerType(ComponentsDefine.HYSTRIX.getId(), Const.EMPTY_STRING));
+        this.serverTypeNames = new String[11];
+        addServerType(new ServerType(ComponentsDefine.TOMCAT.getId(), Const.NONE, Const.EMPTY_STRING));
+        addServerType(new ServerType(ComponentsDefine.HTTPCLIENT.getId(), Const.NONE, Const.EMPTY_STRING));
+        addServerType(new ServerType(ComponentsDefine.DUBBO.getId(), Const.NONE, Const.EMPTY_STRING));
+        addServerType(new ServerType(ComponentsDefine.H2.getId(), 1, ComponentsDefine.H2.getName()));
+        addServerType(new ServerType(ComponentsDefine.MYSQL.getId(), 2, ComponentsDefine.MYSQL.getName()));
+        addServerType(new ServerType(ComponentsDefine.ORACLE.getId(), 3, ComponentsDefine.ORACLE.getName()));
+        addServerType(new ServerType(ComponentsDefine.REDIS.getId(), 4, ComponentsDefine.REDIS.getName()));
+        addServerType(new ServerType(ComponentsDefine.MOTAN.getId(), Const.NONE, Const.EMPTY_STRING));
+        addServerType(new ServerType(ComponentsDefine.MONGODB.getId(), 5, ComponentsDefine.MONGODB.getName()));
+        addServerType(new ServerType(ComponentsDefine.RESIN.getId(), Const.NONE, Const.EMPTY_STRING));
+        addServerType(new ServerType(ComponentsDefine.FEIGN.getId(), Const.NONE, Const.EMPTY_STRING));
+        addServerType(new ServerType(ComponentsDefine.OKHTTP.getId(), Const.NONE, Const.EMPTY_STRING));
+        addServerType(new ServerType(ComponentsDefine.SPRING_REST_TEMPLATE.getId(), Const.NONE, Const.EMPTY_STRING));
+        addServerType(new ServerType(ComponentsDefine.SPRING_MVC_ANNOTATION.getId(), Const.NONE, Const.EMPTY_STRING));
+        addServerType(new ServerType(ComponentsDefine.STRUTS2.getId(), Const.NONE, Const.EMPTY_STRING));
+        addServerType(new ServerType(ComponentsDefine.NUTZ_MVC_ANNOTATION.getId(), Const.NONE, Const.EMPTY_STRING));
+        addServerType(new ServerType(ComponentsDefine.NUTZ_HTTP.getId(), Const.NONE, Const.EMPTY_STRING));
+        addServerType(new ServerType(ComponentsDefine.JETTY_CLIENT.getId(), Const.NONE, Const.EMPTY_STRING));
+        addServerType(new ServerType(ComponentsDefine.JETTY_SERVER.getId(), Const.NONE, Const.EMPTY_STRING));
+        addServerType(new ServerType(ComponentsDefine.MEMCACHED.getId(), 6, ComponentsDefine.MEMCACHED.getName()));
+        addServerType(new ServerType(ComponentsDefine.SHARDING_JDBC.getId(), 7, ComponentsDefine.SHARDING_JDBC.getName()));
+        addServerType(new ServerType(ComponentsDefine.POSTGRESQL.getId(), 8, ComponentsDefine.POSTGRESQL.getName()));
+        addServerType(new ServerType(ComponentsDefine.GRPC.getId(), Const.NONE, Const.EMPTY_STRING));
+        addServerType(new ServerType(ComponentsDefine.ELASTIC_JOB.getId(), Const.NONE, Const.EMPTY_STRING));
+        addServerType(new ServerType(ComponentsDefine.ROCKET_MQ.getId(), 9, ComponentsDefine.ROCKET_MQ.getName()));
+        addServerType(new ServerType(ComponentsDefine.HTTP_ASYNC_CLIENT.getId(), Const.NONE, Const.EMPTY_STRING));
+        addServerType(new ServerType(ComponentsDefine.KAFKA.getId(), 10, ComponentsDefine.KAFKA.getName()));
+        addServerType(new ServerType(ComponentsDefine.SERVICECOMB.getId(), Const.NONE, ComponentsDefine.SERVICECOMB.getName()));
+        addServerType(new ServerType(ComponentsDefine.HYSTRIX.getId(), Const.NONE, ComponentsDefine.HYSTRIX.getName()));
     }
 
     public static ServerTypeDefine getInstance() {
@@ -75,14 +70,15 @@ public class ServerTypeDefine {
     }
 
     private void addServerType(ServerType serverType) {
-        serverTypes[serverType.getId()] = serverType;
+        serverTypeNames[serverType.getId()] = serverType.getName();
+        serverTypes[serverType.getComponentId()] = serverType;
     }
 
-    public ServerType getServerTypeByComponentId(int componentId) {
-        return serverTypes[componentId];
+    public int getServerTypeId(int componentId) {
+        return serverTypes[componentId].getId();
     }
 
-    public ServerType getServerType(int serverTypeId) {
-        return serverTypes[serverTypeId];
+    public String getServerType(int serverTypeId) {
+        return serverTypeNames[serverTypeId];
     }
 }

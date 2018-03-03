@@ -22,25 +22,25 @@ package org.apache.skywalking.apm.collector.storage.table.register;
  * @author peng-yongsheng
  */
 public class ServerType {
-    private int id;
     private int componentId;
+    private int id;
     private String name;
 
-    public ServerType(int id, String name) {
+    public ServerType(int componentId, int id, String name) {
+        this.componentId = componentId;
         this.id = id;
         this.name = name;
-        this.componentId = id;
     }
 
     public int getId() {
         return id;
     }
 
-    public int getComponentId() {
-        return componentId;
-    }
-
     public String getName() {
         return name;
+    }
+
+    public int getComponentId() {
+        return componentId;
     }
 }

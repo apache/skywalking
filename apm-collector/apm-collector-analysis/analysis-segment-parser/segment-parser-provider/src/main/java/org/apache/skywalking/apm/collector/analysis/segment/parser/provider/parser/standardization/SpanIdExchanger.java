@@ -65,7 +65,7 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
                 standardBuilder.setPeer(Const.EMPTY_STRING);
 
                 int spanLayer = standardBuilder.getSpanLayerValue();
-                int serverType = ServerTypeDefine.getInstance().getServerTypeByComponentId(standardBuilder.getComponentId()).getId();
+                int serverType = ServerTypeDefine.getInstance().getServerTypeId(standardBuilder.getComponentId());
                 networkAddressIDService.update(peerId, spanLayer, serverType);
             }
         }
