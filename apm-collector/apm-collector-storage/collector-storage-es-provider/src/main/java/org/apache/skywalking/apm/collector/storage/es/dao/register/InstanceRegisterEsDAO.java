@@ -57,6 +57,7 @@ public class InstanceRegisterEsDAO extends EsDAO implements IInstanceRegisterDAO
         Map<String, Object> source = new HashMap<>();
         source.put(InstanceTable.COLUMN_INSTANCE_ID, instance.getInstanceId());
         source.put(InstanceTable.COLUMN_APPLICATION_ID, instance.getApplicationId());
+        source.put(InstanceTable.COLUMN_APPLICATION_CODE, instance.getApplicationCode());
         source.put(InstanceTable.COLUMN_AGENT_UUID, instance.getAgentUUID());
         source.put(InstanceTable.COLUMN_REGISTER_TIME, TimeBucketUtils.INSTANCE.getSecondTimeBucket(instance.getRegisterTime()));
         source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, TimeBucketUtils.INSTANCE.getSecondTimeBucket(instance.getHeartBeatTime()));
