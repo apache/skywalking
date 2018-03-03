@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-backend-dist</artifactId>
+    <artifactId>apm-dist</artifactId>
     <packaging>pom</packaging>
 
 
