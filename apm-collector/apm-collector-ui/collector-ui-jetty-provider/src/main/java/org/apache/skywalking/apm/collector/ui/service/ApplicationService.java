@@ -40,6 +40,7 @@ import org.apache.skywalking.apm.collector.storage.ui.overview.ConjecturalApp;
 import org.apache.skywalking.apm.collector.storage.ui.overview.ConjecturalAppBrief;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceMetric;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
+import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,8 +118,8 @@ public class ApplicationService {
         long endSecondTimeBucket) throws ParseException {
         List<ConjecturalApp> conjecturalApps = networkAddressUIDAO.getConjecturalApps();
         conjecturalApps.forEach(conjecturalApp -> {
-            String name = ServerTypeDefine.getInstance().getServerType(conjecturalApp.getId());
-            conjecturalApp.setName(name);
+            int componentId = ServerTypeDefine.getInstance().getServerType(conjecturalApp.getId()).getComponentId();
+            conjecturalApp.setName(ComponentsDefine.getInstance().getComponentName(componentId));
         });
 
         ConjecturalAppBrief conjecturalAppBrief = new ConjecturalAppBrief();
