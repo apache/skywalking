@@ -31,6 +31,7 @@ import org.apache.skywalking.apm.collector.ui.graphql.Query;
 import org.apache.skywalking.apm.collector.ui.service.SegmentTopService;
 import org.apache.skywalking.apm.collector.ui.service.TraceStackService;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
+import org.apache.skywalking.apm.collector.ui.utils.PaginationUtils;
 
 /**
  * @author peng-yongsheng
@@ -77,10 +78,9 @@ public class TraceQuery implements Query {
         long maxDuration = condition.getMaxTraceDuration();
         String operationName = condition.getOperationName();
         int applicationId = condition.getApplicationId();
-        int limit = condition.getPaging().getPageSize();
-        int from = condition.getPaging().getPageSize() * condition.getPaging().getPageNum();
 
-        return getSegmentTopService().loadTop(startSecondTimeBucket, endSecondTimeBucket, minDuration, maxDuration, operationName, traceId, applicationId, limit, from);
+        PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
+        return getSegmentTopService().loadTop(startSecondTimeBucket, endSecondTimeBucket, minDuration, maxDuration, operationName, traceId, applicationId, page.getLimit(), page.getFrom());
     }
 
     public Trace queryTrace(String traceId) {
