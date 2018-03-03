@@ -10,3 +10,4 @@ target/
 packages/
 **/dependency-reduced-pom.xml
 /skywalking-agent/
+/dist/
