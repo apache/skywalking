@@ -15,6 +15,7 @@ import WaterWave from './WaterWave';
 import TagCloud from './TagCloud';
 import TimelineChart from './TimelineChart';
 import StackBar from './StackBar';
+import Sankey from './Sankey';
 
 const yuan = val => `&yen; ${numeral(val).format('0,0')}`;
 
@@ -35,4 +36,5 @@ export {
   Line,
   Area,
   StackBar,
+  Sankey,
 };

@@ -1,11 +1,10 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Card, Form } from 'antd';
+import { Row, Col, Form } from 'antd';
 import {
-  ChartCard, MiniArea, MiniBar,
+  ChartCard, MiniArea, MiniBar, Sankey,
 } from '../../components/Charts';
 import { axis } from '../../utils/time';
-import { ServiceTopology } from '../../components/Topology';
 import { Panel, Search } from '../../components/Page';
 
 const { Item: FormItem } = Form;
@@ -48,6 +47,40 @@ export default class Service extends PureComponent {
   }
   avg = list => (list.length > 0 ?
     (list.reduce((acc, curr) => acc + curr) / list.length).toFixed(2) : 0)
+  renderSankey = (data) => {
+    if (data.nodes.length < 2) {
+      return <span style={{ display: 'none' }} />;
+    }
+    const nodesMap = new Map();
+    data.nodes.forEach((_, i) => {
+      nodesMap.set(`${_.id}`, i);
+    });
+    const nData = {
+      nodes: data.nodes,
+      edges: data.calls.filter(_ => _.callsPerSec * _.avgResponseTime > 0).map(_ =>
+        ({ ..._, value: _.callsPerSec * _.avgResponseTime, source: nodesMap.get(`${_.source}`), target: nodesMap.get(`${_.target}`) })),
+    };
+    return (
+      <Row gutter={24}>
+        <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginTop: 24 }}>
+          <ChartCard
+            title="Dependency Map"
+            contentHeight={200}
+          >
+            <Sankey
+              data={nData}
+              edgeTooltip={['target*source*callsPerSec*avgResponseTime*isAlert', (target, source, callsPerSec, avgResponseTime) => {
+                return {
+                  name: `${source.name} to ${target.name} </span>`,
+                  value: `${callsPerSec} calls/s ${avgResponseTime}ms`,
+                };
+              }]}
+              edgeColor={['isAlert', isAlert => (isAlert ? '#DC143C' : '#bbb')]}
+            />
+          </ChartCard>
+        </Col>
+      </Row>);
+  }
   render() {
     const { form, service, duration } = this.props;
     const { getFieldDecorator } = form;
@@ -118,16 +151,7 @@ export default class Service extends PureComponent {
               </ChartCard>
             </Col>
           </Row>
-          <Row gutter={24}>
-            <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginTop: 24 }}>
-              <Card
-                bordered={false}
-                bodyStyle={{ padding: 0 }}
-              >
-                <ServiceTopology elements={getServiceTopology} layout={{ name: 'concentric', minNodeSpacing: 200 }} />
-              </Card>
-            </Col>
-          </Row>
+          {this.renderSankey(getServiceTopology)}
         </Panel>
       </div>
     );
