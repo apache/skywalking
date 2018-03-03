@@ -60,7 +60,7 @@ public class ApplicationTopologyService {
 
     public Topology getApplicationTopology(Step step, int applicationId, long startTimeBucket,
         long endTimeBucket, long startSecondTimeBucket, long endSecondTimeBucket) throws ParseException {
-        logger.debug("startTime: {}, endTime: {}", startTimeBucket, endTimeBucket);
+        logger.debug("startTimeBucket: {}, endTimeBucket: {}", startTimeBucket, endTimeBucket);
         List<IApplicationComponentUIDAO.ApplicationComponent> applicationComponents = applicationComponentUIDAO.load(step, startTimeBucket, endTimeBucket);
         List<IApplicationMappingUIDAO.ApplicationMapping> applicationMappings = applicationMappingUIDAO.load(step, startTimeBucket, endTimeBucket);
 
@@ -82,6 +82,6 @@ public class ApplicationTopologyService {
 
         TopologyBuilder builder = new TopologyBuilder(moduleManager);
 
-        return builder.build(applicationComponents, applicationMappings, applicationMetrics, callerReferenceMetric, calleeReferenceMetric, startSecondTimeBucket, endSecondTimeBucket);
+        return builder.build(applicationComponents, applicationMappings, applicationMetrics, callerReferenceMetric, calleeReferenceMetric, startTimeBucket, endTimeBucket, startSecondTimeBucket, endSecondTimeBucket);
     }
 }

@@ -49,6 +49,8 @@ public abstract class AlarmAssertWorker<INPUT extends StreamData & Metric, OUTPU
 
     protected abstract OUTPUT newAlarmObject(String id, INPUT inputMetric);
 
+    protected abstract void generateAlarmContent(OUTPUT alarm, double threshold);
+
     protected abstract Double calleeErrorRateThreshold();
 
     protected abstract Double callerErrorRateThreshold();
@@ -64,7 +66,7 @@ public abstract class AlarmAssertWorker<INPUT extends StreamData & Metric, OUTPU
                 alarm.setAlarmType(AlarmType.ERROR_RATE.getValue());
                 alarm.setLastTimeBucket(inputMetric.getTimeBucket());
                 alarm.setSourceValue(MetricSource.Callee.getValue());
-                alarm.setAlarmContent("");
+                generateAlarmContent(alarm, calleeErrorRateThreshold());
 
                 onNext(alarm);
             }
@@ -75,7 +77,7 @@ public abstract class AlarmAssertWorker<INPUT extends StreamData & Metric, OUTPU
                 alarm.setAlarmType(AlarmType.ERROR_RATE.getValue());
                 alarm.setLastTimeBucket(inputMetric.getTimeBucket());
                 alarm.setSourceValue(MetricSource.Caller.getValue());
-                alarm.setAlarmContent("");
+                generateAlarmContent(alarm, callerErrorRateThreshold());
 
                 onNext(alarm);
             }
@@ -100,7 +102,7 @@ public abstract class AlarmAssertWorker<INPUT extends StreamData & Metric, OUTPU
                 alarm.setAlarmType(AlarmType.SLOW_RTT.getValue());
                 alarm.setLastTimeBucket(inputMetric.getTimeBucket());
                 alarm.setSourceValue(MetricSource.Callee.getValue());
-                alarm.setAlarmContent("");
+                generateAlarmContent(alarm, calleeAverageResponseTimeThreshold());
 
                 onNext(alarm);
             }
@@ -111,7 +113,7 @@ public abstract class AlarmAssertWorker<INPUT extends StreamData & Metric, OUTPU
                 alarm.setAlarmType(AlarmType.SLOW_RTT.getValue());
                 alarm.setLastTimeBucket(inputMetric.getTimeBucket());
                 alarm.setSourceValue(MetricSource.Caller.getValue());
-                alarm.setAlarmContent("");
+                generateAlarmContent(alarm, callerAverageResponseTimeThreshold());
 
                 onNext(alarm);
             }

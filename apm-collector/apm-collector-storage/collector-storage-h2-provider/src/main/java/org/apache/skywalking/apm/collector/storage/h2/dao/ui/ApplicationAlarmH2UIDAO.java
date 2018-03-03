@@ -34,7 +34,7 @@ public class ApplicationAlarmH2UIDAO extends H2DAO implements IApplicationAlarmU
     }
 
     @Override
-    public Alarm loadAlarmList(String keyword, long start, long end, int limit, int from) throws ParseException {
+    public Alarm loadAlarmList(String keyword, long startTimeBucket, long endTimeBucket, int limit, int from) throws ParseException {
         return null;
     }
 }
