@@ -1,7 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+node_modules
+
 # roadhog-api-doc ignore
 /src/utils/request-temp.js
 _roadhog-api-doc
@@ -19,3 +20,4 @@ yarn-error.log
 *bak
 jsconfig.json
 .vscode
+
