@@ -32,6 +32,7 @@ public class Instance extends StreamData {
         new Column(InstanceTable.COLUMN_ID, new NonOperation()),
         new Column(InstanceTable.COLUMN_AGENT_UUID, new CoverOperation()),
         new Column(InstanceTable.COLUMN_OS_INFO, new CoverOperation()),
+        new Column(InstanceTable.COLUMN_APPLICATION_CODE, new CoverOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
@@ -116,6 +117,14 @@ public class Instance extends StreamData {
 
     public void setOsInfo(String osInfo) {
         setDataString(2, osInfo);
+    }
+
+    public String getApplicationCode() {
+        return getDataString(3);
+    }
+
+    public void setApplicationCode(String applicationCode) {
+        setDataString(3, applicationCode);
     }
 
     public int getAddressId() {

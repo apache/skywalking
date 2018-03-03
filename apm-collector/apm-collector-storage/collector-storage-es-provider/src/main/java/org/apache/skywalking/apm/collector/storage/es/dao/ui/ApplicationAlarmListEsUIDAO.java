@@ -42,12 +42,12 @@ public class ApplicationAlarmListEsUIDAO extends EsDAO implements IApplicationAl
         super(client);
     }
 
-    @Override public List<Integer> getAlarmedApplicationNum(Step step, long start, long end) {
+    @Override public List<AlarmTrend> getAlarmedApplicationNum(Step step, long startTimeBucket, long endTimeBucket) {
         String tableName = TimePyramidTableNameBuilder.build(step, ApplicationAlarmListTable.TABLE);
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
         searchRequestBuilder.setTypes(ApplicationAlarmListTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-        searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(ApplicationAlarmListTable.COLUMN_TIME_BUCKET).gte(start).lte(end));
+        searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(ApplicationAlarmListTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
         searchRequestBuilder.setSize(0);
 
         searchRequestBuilder.addAggregation(AggregationBuilders.terms(ApplicationAlarmListTable.COLUMN_TIME_BUCKET).field(ApplicationAlarmListTable.COLUMN_TIME_BUCKET).size(100)
@@ -57,13 +57,16 @@ public class ApplicationAlarmListEsUIDAO extends EsDAO implements IApplicationAl
 
         Terms timeBucketTerms = searchResponse.getAggregations().get(ApplicationAlarmListTable.COLUMN_TIME_BUCKET);
 
-        List<Integer> alarmApplicationNum = new LinkedList<>();
+        List<AlarmTrend> alarmTrends = new LinkedList<>();
         for (Terms.Bucket timeBucketBucket : timeBucketTerms.getBuckets()) {
             Terms applicationBucketTerms = timeBucketBucket.getAggregations().get(ApplicationAlarmListTable.COLUMN_APPLICATION_ID);
-            int num = applicationBucketTerms.getBuckets().size();
-            alarmApplicationNum.add(num);
+
+            AlarmTrend alarmTrend = new AlarmTrend();
+            alarmTrend.setNumberOfApplication(applicationBucketTerms.getBuckets().size());
+            alarmTrend.setTimeBucket(timeBucketBucket.getKeyAsNumber().longValue());
+            alarmTrends.add(alarmTrend);
         }
 
-        return alarmApplicationNum;
+        return alarmTrends;
     }
 }

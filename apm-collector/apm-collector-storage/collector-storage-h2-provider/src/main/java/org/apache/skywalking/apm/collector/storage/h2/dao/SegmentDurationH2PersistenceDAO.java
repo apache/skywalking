@@ -47,7 +47,7 @@ public class SegmentDurationH2PersistenceDAO extends H2DAO implements ISegmentDu
     }
 
     @Override public H2SqlEntity prepareBatchInsert(SegmentDuration data) {
-        logger.debug("segment cost prepareBatchInsert, getId: {}", data.getId());
+        logger.debug("segment cost prepareBatchInsert, getApplicationId: {}", data.getId());
         H2SqlEntity entity = new H2SqlEntity();
         Map<String, Object> source = new HashMap<>();
         source.put(SegmentDurationTable.COLUMN_ID, data.getId());

@@ -53,6 +53,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
+            <artifactId>collector-cache-define</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>analysis-worker-model</artifactId>
             <version>${project.version}</version>
         </dependency>

@@ -49,6 +49,7 @@
         <module>mysql-5.x-plugin</module>
         <module>h2-1.x-plugin</module>
         <module>postgresql-8.x-plugin</module>
+        <module>rocketMQ-3.x-plugin</module>
         <module>rocketMQ-4.x-plugin</module>
         <module>elastic-job-2.x-plugin</module>
         <module>mongodb-2.x-plugin</module>
@@ -68,7 +69,7 @@
         <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
         <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}</shade.net.bytebuddy.target>
 
-        <agent.package.dest.dir>${project.build.directory}${sdk.plugin.related.dir}/../../../../packages/skywalking-agent</agent.package.dest.dir>
+        <agent.package.dest.dir>${project.build.directory}${sdk.plugin.related.dir}/../../../../skywalking-agent</agent.package.dest.dir>
         <plugin.dest.dir>${agent.package.dest.dir}/plugins</plugin.dest.dir>
     </properties>
 

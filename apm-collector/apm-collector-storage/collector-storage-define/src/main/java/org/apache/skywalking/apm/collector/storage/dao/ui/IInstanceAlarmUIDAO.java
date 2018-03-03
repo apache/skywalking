@@ -27,5 +27,5 @@ import org.apache.skywalking.apm.collector.storage.ui.alarm.Alarm;
  */
 public interface IInstanceAlarmUIDAO extends DAO {
 
-    Alarm loadAlarmList(String keyword, long start, long end, int limit, int from) throws ParseException;
+    Alarm loadAlarmList(String keyword, long startTimeBucket, long endTimeBucket, int limit, int from) throws ParseException;
 }

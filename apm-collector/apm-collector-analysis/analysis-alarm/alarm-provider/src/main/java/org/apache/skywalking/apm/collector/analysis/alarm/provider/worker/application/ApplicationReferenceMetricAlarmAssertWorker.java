@@ -21,22 +21,29 @@ package org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.appli
 import org.apache.skywalking.apm.collector.analysis.alarm.define.graph.AlarmWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.AlarmAssertWorker;
 import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.AlarmAssertWorkerProvider;
+import org.apache.skywalking.apm.collector.cache.CacheModule;
+import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
 import org.apache.skywalking.apm.collector.configuration.service.IApplicationReferenceAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
+import org.apache.skywalking.apm.collector.storage.table.MetricSource;
+import org.apache.skywalking.apm.collector.storage.table.alarm.AlarmType;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationReferenceAlarm;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetric;
+import org.apache.skywalking.apm.collector.storage.table.register.Application;
 
 /**
  * @author peng-yongsheng
  */
 public class ApplicationReferenceMetricAlarmAssertWorker extends AlarmAssertWorker<ApplicationReferenceMetric, ApplicationReferenceAlarm> {
 
+    private final ApplicationCacheService applicationCacheService;
     private final IApplicationReferenceAlarmRuleConfig applicationReferenceAlarmRuleConfig;
 
     public ApplicationReferenceMetricAlarmAssertWorker(ModuleManager moduleManager) {
         super(moduleManager);
+        this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
         this.applicationReferenceAlarmRuleConfig = moduleManager.find(ConfigurationModule.NAME).getService(IApplicationReferenceAlarmRuleConfig.class);
     }
 
@@ -50,6 +57,21 @@ public class ApplicationReferenceMetricAlarmAssertWorker extends AlarmAssertWork
         applicationReferenceAlarm.setFrontApplicationId(inputMetric.getFrontApplicationId());
         applicationReferenceAlarm.setBehindApplicationId(inputMetric.getBehindApplicationId());
         return applicationReferenceAlarm;
+    }
+
+    @Override protected void generateAlarmContent(ApplicationReferenceAlarm alarm, double threshold) {
+        Application application = applicationCacheService.getApplicationById(alarm.getBehindApplicationId());
+
+        String clientOrServer = "server";
+        if (MetricSource.Caller.getValue() == alarm.getSourceValue()) {
+            clientOrServer = "client";
+        }
+
+        if (AlarmType.ERROR_RATE.getValue() == alarm.getAlarmType()) {
+            alarm.setAlarmContent("The success rate of " + application.getApplicationCode() + ", detected from " + clientOrServer + " side, is lower than " + threshold + " rate.");
+        } else if (AlarmType.SLOW_RTT.getValue() == alarm.getAlarmType()) {
+            alarm.setAlarmContent("Response time of " + application.getApplicationCode() + ", detected from " + clientOrServer + " side, is slower than " + threshold + " ms.");
+        }
     }
 
     @Override protected Double calleeErrorRateThreshold() {

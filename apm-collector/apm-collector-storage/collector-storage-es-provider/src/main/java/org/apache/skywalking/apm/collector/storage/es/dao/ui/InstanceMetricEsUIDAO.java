@@ -58,8 +58,8 @@ public class InstanceMetricEsUIDAO extends EsDAO implements IInstanceMetricUIDAO
         super(client);
     }
 
-    @Override public List<AppServerInfo> getServerThroughput(int applicationId, Step step, long start, long end,
-        long secondBetween, int topN, MetricSource metricSource) {
+    @Override public List<AppServerInfo> getServerThroughput(int applicationId, Step step, long startTimeBucket, long endTimeBucket,
+        int secondBetween, int topN, MetricSource metricSource) {
         String tableName = TimePyramidTableNameBuilder.build(step, InstanceMetricTable.TABLE);
 
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
@@ -67,7 +67,7 @@ public class InstanceMetricEsUIDAO extends EsDAO implements IInstanceMetricUIDAO
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(InstanceMetricTable.COLUMN_TIME_BUCKET).gte(start).lte(end));
+        boolQuery.must().add(QueryBuilders.rangeQuery(InstanceMetricTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
         if (applicationId != 0) {
             boolQuery.must().add(QueryBuilders.termQuery(InstanceMetricTable.COLUMN_APPLICATION_ID, applicationId));
         }
@@ -102,7 +102,7 @@ public class InstanceMetricEsUIDAO extends EsDAO implements IInstanceMetricUIDAO
             InternalSimpleValue simpleValue = serviceIdTerm.getAggregations().get(AVG_TPS);
 
             appServerInfo.setId(instanceId);
-            appServerInfo.setTps((int)simpleValue.getValue());
+            appServerInfo.setCallsPerSec((int)simpleValue.getValue());
             appServerInfos.add(appServerInfo);
         });
         return appServerInfos;

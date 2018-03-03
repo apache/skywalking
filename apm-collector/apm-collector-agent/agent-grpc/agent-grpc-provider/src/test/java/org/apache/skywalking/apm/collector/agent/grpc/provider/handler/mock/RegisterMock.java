@@ -34,6 +34,7 @@ import org.apache.skywalking.apm.network.proto.ServiceNameCollection;
 import org.apache.skywalking.apm.network.proto.ServiceNameDiscoveryServiceGrpc;
 import org.apache.skywalking.apm.network.proto.ServiceNameElement;
 import org.apache.skywalking.apm.network.proto.ServiceNameMappingCollection;
+import org.apache.skywalking.apm.network.proto.SpanType;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -95,6 +96,7 @@ class RegisterMock {
         ServiceNameElement.Builder serviceNameElement = ServiceNameElement.newBuilder();
         serviceNameElement.setApplicationId(applicationMapping.getApplication().getValue());
         serviceNameElement.setServiceName("org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()");
+        serviceNameElement.setSrcSpanType(SpanType.Exit);
         serviceNameCollection.addElements(serviceNameElement);
 
         registerServiceName(serviceNameCollection);
@@ -139,6 +141,7 @@ class RegisterMock {
         ServiceNameElement.Builder serviceNameElement = ServiceNameElement.newBuilder();
         serviceNameElement.setApplicationId(applicationMapping.getApplication().getValue());
         serviceNameElement.setServiceName("org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()");
+        serviceNameElement.setSrcSpanType(SpanType.Entry);
         serviceNameCollection.addElements(serviceNameElement);
 
         registerServiceName(serviceNameCollection);

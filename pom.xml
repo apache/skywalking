@@ -63,6 +63,8 @@
         <module>apm-application-toolkit</module>
         <module>apm-collector</module>
         <module>apm-protocol</module>
+        <module>apm-webapp</module>
+        <module>apm-dist</module>
     </modules>
     <packaging>pom</packaging>
 
