@@ -78,4 +78,5 @@ storage:
 
 3. Run `bin/startup.sh`
 
-- NOTICE: **In 5.0.0-alpha, startup.sh will start two processes, collector and UI, and UI uses 127.0.0.1:10800 as default.**
+- NOTICE: **In 5.0.0-alpha, startup.sh will start two processes, collector and UI, and UI uses 127.0.0.1:10800 as default.
+Recommend use http proxy to access UI in product, otherwise, access any UI.**
