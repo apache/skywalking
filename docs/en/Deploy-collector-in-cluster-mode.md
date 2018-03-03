@@ -25,7 +25,8 @@ thread_pool.bulk.queue_size: 1000
 1. Run `tar -xvf skywalking-collector.tar.gz`
 2. Config collector in cluster mode.
 
-Cluster mode depends on Zookeeper register and application discovery capabilities. So, you just need to adjust the IP config items in `config/application.yml`. Change IP and port configs of agent_server, agent_stream, ui, collector_inside, replace them to the real ip or hostname which you want to use for cluster.
+Cluster mode depends on Zookeeper register and application discovery capabilities. So, you just need to adjust the IP config items in `config/application.yml`. Change IP and port configs of naming, remote, agent_gRPC, agent_jetty and ui,
+replace them to the real ip or hostname which you want to use for cluster.
 
 - `config/application.yml`
 ```
