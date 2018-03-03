@@ -78,3 +78,6 @@ storage:
 
 
 3. 运行`bin/startup.sh`启动。windows用户为.bat文件。
+
+- **注意：startup.sh将会启动collector和UI两个进程，UI通过127.0.0.1:10800访问本地collector，无需额外配置。
+如需保证UI负载均衡，推荐使用类nginx的HTTP代理服务。**
