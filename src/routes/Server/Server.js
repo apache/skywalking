@@ -48,7 +48,7 @@ export default class Server extends PureComponent {
     });
   }
   avg = list => (list.length > 0 ?
-    (list.reduce((acc, curr) => acc + curr) / list.length).toFixed(2) : 0)
+    parseFloat((list.reduce((acc, curr) => acc + curr) / list.length).toFixed(2)) : 0)
   bytesToMB = list => list.map(_ => parseFloat((_ / (1024 ** 2)).toFixed(2)))
   render() {
     const { form, duration, server } = this.props;
