@@ -10,7 +10,7 @@
     * [OpenTracing中文版](https://github.com/opentracing-contrib/opentracing-specification-zh)
   * Application Toolkit，应用程序工具包
     * [概述](cn/Application-toolkit-CN.md)
-    * [OpenTracing Tracer](cn/skywalking-opentracing-CN.md)
+    * [OpenTracing Tracer](cn/Opentracing-CN.md)
     * 日志组件
       * [log4j组件](cn/Application-toolkit-log4j-1.x-CN.md)
       * [log4j2组件](cn/Application-toolkit-log4j-2.x-CN.md)

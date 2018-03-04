@@ -7,7 +7,6 @@
    </dependency>
 ```
 
-&nbsp;&nbsp;&nbsp;[ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/org.apache.skywalking.apm-toolkit-opentracing/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/org.apache.skywalking.apm-toolkit-opentracing/_latestVersion)
 
 * Use our OpenTracing tracer implementation
 ```java
