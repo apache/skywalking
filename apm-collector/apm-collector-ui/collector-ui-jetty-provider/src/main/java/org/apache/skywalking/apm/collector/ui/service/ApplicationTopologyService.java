@@ -82,6 +82,6 @@ public class ApplicationTopologyService {
 
         TopologyBuilder builder = new TopologyBuilder(moduleManager);
 
-        return builder.build(applicationComponents, applicationMappings, applicationMetrics, callerReferenceMetric, calleeReferenceMetric, startTimeBucket, endTimeBucket, startSecondTimeBucket, endSecondTimeBucket);
+        return builder.build(applicationComponents, applicationMappings, applicationMetrics, callerReferenceMetric, calleeReferenceMetric, step, startTimeBucket, endTimeBucket, startSecondTimeBucket, endSecondTimeBucket);
     }
 }

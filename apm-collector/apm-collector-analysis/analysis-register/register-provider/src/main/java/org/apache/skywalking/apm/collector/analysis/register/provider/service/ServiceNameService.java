@@ -74,4 +74,8 @@ public class ServiceNameService implements IServiceNameService {
         }
         return serviceId;
     }
+
+    @Override public int get(int applicationId, int srcSpanType, String serviceName) {
+        return getServiceIdCacheService().get(applicationId, srcSpanType, serviceName);
+    }
 }

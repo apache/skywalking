@@ -27,6 +27,7 @@ import org.apache.skywalking.apm.network.proto.UniqueId;
  * @author peng-yongsheng
  */
 public class ReferenceDecorator implements StandardBuilder {
+
     private boolean isOrigin = true;
     private StandardBuilder standardBuilder;
     private TraceSegmentReference referenceObject;

@@ -24,5 +24,8 @@ import org.apache.skywalking.apm.collector.core.module.Service;
  * @author peng-yongsheng
  */
 public interface IServiceNameService extends Service {
+
     int getOrCreate(int applicationId, int srcSpanType, String serviceName);
+
+    int get(int applicationId, int srcSpanType, String serviceName);
 }
