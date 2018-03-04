@@ -108,14 +108,14 @@ class TopologyBuilder {
 
             applicationNode.setNumOfServer(serverService.getAllServer(applicationId, startSecondTimeBucket, endSecondTimeBucket).size());
             try {
-                Alarm alarm = alarmService.loadInstanceAlarmList(Const.EMPTY_STRING, startTimeBucket, endTimeBucket, 1000, 0);
+                Alarm alarm = alarmService.loadInstanceAlarmList(Const.EMPTY_STRING, step, startTimeBucket, endTimeBucket, 1000, 0);
                 applicationNode.setNumOfServerAlarm(alarm.getItems().size());
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
             }
 
             try {
-                Alarm alarm = alarmService.loadServiceAlarmList(Const.EMPTY_STRING, startTimeBucket, endTimeBucket, 1000, 0);
+                Alarm alarm = alarmService.loadServiceAlarmList(Const.EMPTY_STRING, step, startTimeBucket, endTimeBucket, 1000, 0);
                 applicationNode.setNumOfServiceAlarm(alarm.getItems().size());
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
