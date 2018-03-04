@@ -47,7 +47,7 @@ export default {
                 {
                   source: 100,
                   target: 1,
-                  'isAlarm|1': true,
+                  'isAlert|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
                   'avgResponseTime|500-5000': 1,
@@ -55,7 +55,7 @@ export default {
                 {
                   source: 1,
                   target: 2,
-                  'isAlarm|1': true,
+                  'isAlert|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
                   'avgResponseTime|500-5000': 1,
@@ -63,7 +63,7 @@ export default {
                 {
                   source: 1,
                   target: 200,
-                  'isAlarm|1': true,
+                  'isAlert|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
                   'avgResponseTime|500-5000': 1,
@@ -71,7 +71,7 @@ export default {
                 {
                   source: 1,
                   target: 201,
-                  'isAlarm|1': true,
+                  'isAlert|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
                   'avgResponseTime|500-5000': 1,
@@ -79,7 +79,7 @@ export default {
                 {
                   source: 2,
                   target: 202,
-                  'isAlarm|1': true,
+                  'isAlert|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
                   'avgResponseTime|500-5000': 1,
@@ -87,7 +87,7 @@ export default {
                 {
                   source: 2,
                   target: 203,
-                  'isAlarm|1': true,
+                  'isAlert|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
                   'avgResponseTime|500-5000': 1,
@@ -95,7 +95,7 @@ export default {
                 {
                   source: 2,
                   target: 204,
-                  'isAlarm|1': true,
+                  'isAlert|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
                   'avgResponseTime|500-5000': 1,
