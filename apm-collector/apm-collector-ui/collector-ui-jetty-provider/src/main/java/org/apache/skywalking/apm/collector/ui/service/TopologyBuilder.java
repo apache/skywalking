@@ -20,9 +20,11 @@ package org.apache.skywalking.apm.collector.ui.service;
 
 import java.text.ParseException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -133,6 +135,17 @@ class TopologyBuilder {
                 nodes.add(conjecturalNode);
             }
 
+            Set<Integer> nodeIds = buildNodeIds(nodes);
+            if (!nodeIds.contains(source.getApplicationId())) {
+                ApplicationNode applicationNode = new ApplicationNode();
+                applicationNode.setId(source.getApplicationId());
+                applicationNode.setName(source.getApplicationCode());
+                applicationNode.setType(components.getOrDefault(source.getApplicationId(), Const.UNKNOWN));
+                applicationNode.setApdex(100);
+                applicationNode.setSla(100);
+                nodes.add(applicationNode);
+            }
+
             Call call = new Call();
             call.setSource(source.getApplicationId());
             call.setSourceName(source.getApplicationCode());
@@ -196,6 +209,12 @@ class TopologyBuilder {
         topology.setCalls(calls);
         topology.setNodes(nodes);
         return topology;
+    }
+
+    private Set<Integer> buildNodeIds(List<Node> nodes) {
+        Set<Integer> nodeIds = new HashSet<>();
+        nodes.forEach(node -> nodeIds.add(node.getId()));
+        return nodeIds;
     }
 
     private List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> calleeReferenceMetricFilter(
