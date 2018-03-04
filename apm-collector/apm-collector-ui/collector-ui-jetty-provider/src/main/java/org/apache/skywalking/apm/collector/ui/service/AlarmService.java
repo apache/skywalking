@@ -146,7 +146,11 @@ public class AlarmService {
 
         AlarmTrend alarmTrend = new AlarmTrend();
         durationPoints.forEach(durationPoint -> {
-            alarmTrend.getNumOfAlarmRate().add((trendsMap.getOrDefault(durationPoint.getPoint(), 0) * 10000) / (applications.size()));
+            if (applications.size() == 0) {
+                alarmTrend.getNumOfAlarmRate().add(0);
+            } else {
+                alarmTrend.getNumOfAlarmRate().add((trendsMap.getOrDefault(durationPoint.getPoint(), 0) * 10000) / (applications.size()));
+            }
         });
         return alarmTrend;
     }
