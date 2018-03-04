@@ -44,7 +44,7 @@ import io.searchbox.core.SearchResult;
 import io.searchbox.core.search.aggregation.TermsAggregation;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public class ApplicationMetricEsUIDAO extends EsHttpDAO implements IApplicationMetricUIDAO {
 

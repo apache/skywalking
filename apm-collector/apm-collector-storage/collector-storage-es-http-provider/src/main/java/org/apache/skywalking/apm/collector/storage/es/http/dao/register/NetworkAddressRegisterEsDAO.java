@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public class NetworkAddressRegisterEsDAO extends EsHttpDAO implements INetworkAddressRegisterDAO {
 

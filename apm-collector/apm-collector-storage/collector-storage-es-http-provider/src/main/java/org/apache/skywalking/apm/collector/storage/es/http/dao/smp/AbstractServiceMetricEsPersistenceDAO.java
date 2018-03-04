@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetric;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetricTable;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public abstract class AbstractServiceMetricEsPersistenceDAO extends AbstractPersistenceEsDAO<ServiceMetric> {
 

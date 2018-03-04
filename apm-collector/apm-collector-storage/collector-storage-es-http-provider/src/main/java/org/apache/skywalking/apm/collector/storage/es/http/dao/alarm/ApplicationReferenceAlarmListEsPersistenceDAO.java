@@ -39,7 +39,7 @@ import io.searchbox.core.Index;
 import io.searchbox.core.Update;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public class ApplicationReferenceAlarmListEsPersistenceDAO extends EsHttpDAO implements IApplicationReferenceAlarmListPersistenceDAO<Index, Update, ApplicationReferenceAlarmList> {
 
@@ -94,7 +94,11 @@ public class ApplicationReferenceAlarmListEsPersistenceDAO extends EsHttpDAO imp
 
         source.put(ApplicationReferenceAlarmListTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
-        return new Update.Builder(source).index(ApplicationReferenceAlarmListTable.TABLE).id(data.getId()).build();
+        
+        Map<String, Object> doc = new HashMap<>();
+        doc.put("doc", source);
+        
+        return new Update.Builder(doc).index(ApplicationReferenceAlarmListTable.TABLE).type(ApplicationReferenceAlarmListTable.TABLE_TYPE).id(data.getId()).build();
     }
 
     @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {

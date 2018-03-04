@@ -43,6 +43,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 
 import io.searchbox.action.Action;
@@ -111,16 +112,12 @@ public class ElasticSearchHttpClient implements Client {
             SSLContext sslContext = null;
             try {
                 sslContext = new org.apache.http.ssl.SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
-                    public boolean isTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
-                        return true;
-                    }
+                        public boolean isTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+                            return true;
+                        }
                 }).build();
-            } catch (KeyManagementException e) {
-                e.printStackTrace();
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            } catch (KeyStoreException e) {
-                e.printStackTrace();
+            } catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException e) {
+                logger.error("ssl error.");
             }
 
             HostnameVerifier hostnameVerifier = NoopHostnameVerifier.INSTANCE;
@@ -147,7 +144,7 @@ public class ElasticSearchHttpClient implements Client {
         try {
             return client.execute(search);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("action error ",e);
         }
         return null;
     }
@@ -156,7 +153,7 @@ public class ElasticSearchHttpClient implements Client {
         try {
             return client.execute(search);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("multiget error ",e);
         }
         return null;
     }
@@ -165,7 +162,7 @@ public class ElasticSearchHttpClient implements Client {
         try {
             return client.execute(search).getJsonObject().getAsJsonObject("hits").getAsJsonArray("hits");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("executeForJsonArray error ",e);
         }
         return null;
     }
@@ -181,19 +178,18 @@ public class ElasticSearchHttpClient implements Client {
             client.execute(putMapping);
             return true;
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return false;
+            logger.error("create index error.",e);
         }
+        return false;
     }
 
     public boolean createIndex(String index,String type, Settings settings,XContentBuilder mapping) {
         try {
             return  createIndex(index,type,settings,mapping.string());
         } catch (IOException e) {
-            e.printStackTrace();
-            return false;
+            logger.error("create index error.",e);
         }
+        return false;
     }
     
     public boolean deleteIndex(String indexName) {
@@ -203,85 +199,26 @@ public class ElasticSearchHttpClient implements Client {
                     .build());
             return result.isSucceeded();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("delete index error.",e);
         }
         return false;
     }
-    //
-    //    public boolean createIndex(String indexName, String indexType, Settings settings, XContentBuilder mappingBuilder) {
-    //        IndicesAdminClient adminClient = client.admin().indices();
-    //        CreateIndexResponse response = adminClient.prepareCreate(indexName).setSettings(settings).addMapping(indexType, mappingBuilder).get();
-    //        logger.info("create {} index with type of {} finished, isAcknowledged: {}", indexName, indexType, response.isAcknowledged());
-    //        return response.isShardsAcked();
-    //    }
-    //
-    //    public boolean deleteIndex(String indexName) {
-    //        IndicesAdminClient adminClient = client.admin().indices();
-    //        DeleteIndexResponse response = adminClient.prepareDelete(indexName).get();
-    //        logger.info("delete {} index finished, isAcknowledged: {}", indexName, response.isAcknowledged());
-    //        return response.isAcknowledged();
-    //    }
-    //
-    //    public boolean isExistsIndex(String indexName) {
-    //        IndicesAdminClient adminClient = client.admin().indices();
-    //        IndicesExistsResponse response = adminClient.prepareExists(indexName).get();
-    //        return response.isExists();
-    //    }
-    //
-    //    public SearchRequestBuilder prepareSearch(String indexName) {
-    //        return client.prepareSearch(indexName);
-    //    }
-    //
-    //    public IndexRequestBuilder prepareIndex(String indexName, String id) {
-    //        return client.prepareIndex(indexName, "type", id);
-    //    }
-    //
-    //    public UpdateRequestBuilder prepareUpdate(String indexName, String id) {
-    //        return client.prepareUpdate(indexName, "type", id);
-    //    }
-    //
-    //    public GetRequestBuilder prepareGet(String indexName, String id) {
-    //        return client.prepareGet(indexName, "type", id);
-    //    }
 
     public DocumentResult prepareGet(String index, String id) {
         Get get = new Get.Builder(index, id).build();
         try {
             return client.execute(get);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("get error.",e);
         }
         return null;
     }
-    //
-    //    public DeleteByQueryRequestBuilder prepareDelete() {
-    //        return DeleteByQueryAction.INSTANCE.newRequestBuilder(client);
-    //    }
-    //
-    //    public MultiGetRequestBuilder prepareMultiGet() {
-    //        return client.prepareMultiGet();
-    //    }
-    //
-    //    public BulkRequestBuilder prepareBulk() {
-    //        return client.prepareBulk();
-    //    }
-    //
-    //    public void update(UpdateRequest updateRequest) {
-    //        try {
-    //            client.update(updateRequest).get();
-    //        } catch (InterruptedException | ExecutionException e) {
-    //            logger.error(e.getMessage(), e);
-    //        }
-    //    }
 
     public boolean isExistsIndex(String name) {
         try {
             return client.execute(new IndicesExists.Builder(name).build()).isSucceeded();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("index exists query error.",e);
         }
         return false;
     }
@@ -297,27 +234,31 @@ public class ElasticSearchHttpClient implements Client {
             JestResult result =  client.execute(index);
             return result.isSucceeded();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("data index error.",e);
         }
         return false;
     }
 
     public boolean prepareUpdate(String index, String id,String content) {
         try {
-            JestResult result =  client.execute(new Update.Builder(content).index(index).type("type").id(id).build());
+            Map<String,Object> doc = Maps.newHashMap();
+            doc.put("doc", content);
+            JestResult result =  client.execute(new Update.Builder(doc).index(index).type("type").id(id).build());
             return result.isSucceeded();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("data update error.",e);
         }
         return false;
     }
     
     public boolean prepareUpdate(String index, String id,Map<String, Object> content) {
         try {
-            JestResult result =  client.execute(new Update.Builder(content).index(index).type("type").id(id).build());
+            Map<String,Object> doc = Maps.newHashMap();
+            doc.put("doc", content);
+            JestResult result =  client.execute(new Update.Builder(doc).index(index).type("type").id(id).build());
             return result.isSucceeded();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("data update error.",e);
         }
         return false;
     }
@@ -331,8 +272,7 @@ public class ElasticSearchHttpClient implements Client {
                     .build());
             return result.isSucceeded();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("index delete error.",e);
         }
         return false;
     }
@@ -342,8 +282,7 @@ public class ElasticSearchHttpClient implements Client {
             JestResult result =  client.execute(new DeleteByQuery.Builder(query).addIndex(index).build());
             return result.getJsonObject().get("deleted").getAsLong();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("deleteByQuery error.",e);
         }
         return 0;
     }

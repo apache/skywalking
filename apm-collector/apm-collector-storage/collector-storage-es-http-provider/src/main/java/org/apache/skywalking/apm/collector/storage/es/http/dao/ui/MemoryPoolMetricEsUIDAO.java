@@ -33,7 +33,7 @@ import io.searchbox.core.DocumentResult;
 import io.searchbox.core.MultiGet;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public class MemoryPoolMetricEsUIDAO extends EsHttpDAO implements IMemoryPoolMetricUIDAO {
 

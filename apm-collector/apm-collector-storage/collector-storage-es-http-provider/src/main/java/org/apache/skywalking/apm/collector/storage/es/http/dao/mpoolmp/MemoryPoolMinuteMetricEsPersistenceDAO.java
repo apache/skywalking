@@ -29,7 +29,7 @@ import io.searchbox.core.Index;
 import io.searchbox.core.Update;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public class MemoryPoolMinuteMetricEsPersistenceDAO extends AbstractMemoryPoolMetricEsPersistenceDAO implements IMemoryPoolMinuteMetricPersistenceDAO<Index, Update, MemoryPoolMetric> {
 

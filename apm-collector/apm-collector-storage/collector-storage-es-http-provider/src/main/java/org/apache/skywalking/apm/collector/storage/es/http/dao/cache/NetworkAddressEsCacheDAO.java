@@ -36,7 +36,7 @@ import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public class NetworkAddressEsCacheDAO extends EsHttpDAO implements INetworkAddressCacheDAO {
 

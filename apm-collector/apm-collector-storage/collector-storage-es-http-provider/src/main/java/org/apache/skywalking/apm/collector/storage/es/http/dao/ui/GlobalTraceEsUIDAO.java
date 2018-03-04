@@ -36,7 +36,7 @@ import com.google.gson.JsonElement;
 import io.searchbox.core.Search;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public class GlobalTraceEsUIDAO extends EsHttpDAO implements IGlobalTraceUIDAO {
 

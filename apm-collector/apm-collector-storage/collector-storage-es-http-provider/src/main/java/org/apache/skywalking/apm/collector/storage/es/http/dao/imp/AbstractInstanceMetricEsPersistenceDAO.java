@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetric
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetricTable;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public abstract class AbstractInstanceMetricEsPersistenceDAO extends AbstractPersistenceEsDAO<InstanceMetric> {
 
@@ -44,9 +44,9 @@ public abstract class AbstractInstanceMetricEsPersistenceDAO extends AbstractPer
 
         instanceMetric.setId((String)source.get(InstanceMetricTable.COLUMN_ID));
         instanceMetric.setMetricId((String)source.get(InstanceMetricTable.COLUMN_METRIC_ID));
-        instanceMetric.setApplicationId((Integer)source.get(InstanceMetricTable.COLUMN_APPLICATION_ID));
-        instanceMetric.setInstanceId((Integer)source.get(InstanceMetricTable.COLUMN_INSTANCE_ID));
-        instanceMetric.setSourceValue((Integer)source.get(InstanceMetricTable.COLUMN_SOURCE_VALUE));
+        instanceMetric.setApplicationId(((Number)source.get(InstanceMetricTable.COLUMN_APPLICATION_ID)).intValue());
+        instanceMetric.setInstanceId(((Number)source.get(InstanceMetricTable.COLUMN_INSTANCE_ID)).intValue());
+        instanceMetric.setSourceValue(((Number)source.get(InstanceMetricTable.COLUMN_SOURCE_VALUE)).intValue());
 
         instanceMetric.setTransactionCalls(((Number)source.get(InstanceMetricTable.COLUMN_TRANSACTION_CALLS)).longValue());
         instanceMetric.setTransactionErrorCalls(((Number)source.get(InstanceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS)).longValue());

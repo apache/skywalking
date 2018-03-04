@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetric;
 import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetricTable;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public abstract class AbstractMemoryMetricEsPersistenceDAO extends AbstractPersistenceEsDAO<MemoryMetric> {
 

@@ -31,7 +31,7 @@ import io.searchbox.core.Index;
 import io.searchbox.core.Update;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public class ApplicationComponentDayEsPersistenceDAO extends AbstractApplicationComponentEsPersistenceDAO implements IApplicationComponentDayPersistenceDAO<Index, Update, ApplicationComponent> {
 

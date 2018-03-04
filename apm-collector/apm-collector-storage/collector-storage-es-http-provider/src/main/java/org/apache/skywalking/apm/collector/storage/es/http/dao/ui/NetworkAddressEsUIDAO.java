@@ -29,7 +29,7 @@ import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public class NetworkAddressEsUIDAO extends EsHttpDAO implements INetworkAddressUIDAO {
 

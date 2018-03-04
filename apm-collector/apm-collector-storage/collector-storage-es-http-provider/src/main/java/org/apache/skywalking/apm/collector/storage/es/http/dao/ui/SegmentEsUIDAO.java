@@ -35,7 +35,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import io.searchbox.core.DocumentResult;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public class SegmentEsUIDAO extends EsHttpDAO implements ISegmentUIDAO {
 

@@ -30,6 +30,7 @@ import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
 
 import io.searchbox.core.DocumentResult;
@@ -37,7 +38,7 @@ import io.searchbox.core.Index;
 import io.searchbox.core.Update;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public class InstanceHeartBeatEsPersistenceDAO extends EsHttpDAO implements IInstanceHeartBeatPersistenceDAO<Index, Update, Instance> {
 
@@ -71,7 +72,10 @@ public class InstanceHeartBeatEsPersistenceDAO extends EsHttpDAO implements IIns
     @Override public Update prepareBatchUpdate(Instance data) {
         Map<String, Object> source = new HashMap<>();
         source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, data.getHeartBeatTime());
-        return new Update.Builder(source).index(InstanceTable.TABLE).id(data.getId()).build();
+        
+        Map<String,Object> doc = Maps.newHashMap();
+        doc.put("doc", source);
+        return new Update.Builder(doc).index(InstanceTable.TABLE).type(InstanceTable.TABLE_TYPE).id(data.getId()).build();
     }
 
     @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {

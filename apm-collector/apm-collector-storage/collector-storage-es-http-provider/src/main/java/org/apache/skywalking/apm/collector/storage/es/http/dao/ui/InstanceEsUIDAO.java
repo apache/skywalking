@@ -54,7 +54,7 @@ import io.searchbox.core.search.aggregation.TermsAggregation.Entry;
 import io.searchbox.core.search.aggregation.ValueCountAggregation;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public class InstanceEsUIDAO extends EsHttpDAO implements IInstanceUIDAO {
 

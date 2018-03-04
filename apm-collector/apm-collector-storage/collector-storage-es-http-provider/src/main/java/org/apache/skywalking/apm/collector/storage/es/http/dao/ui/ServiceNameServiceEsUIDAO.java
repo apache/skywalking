@@ -36,7 +36,7 @@ import com.google.gson.JsonObject;
 import io.searchbox.core.Search;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public class ServiceNameServiceEsUIDAO extends EsHttpDAO implements IServiceNameServiceUIDAO {
 

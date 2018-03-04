@@ -29,7 +29,7 @@ import io.searchbox.core.Index;
 import io.searchbox.core.Update;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public class GCMinuteMetricEsPersistenceDAO extends AbstractGCMetricEsPersistenceDAO implements IGCMinuteMetricPersistenceDAO<Index, Update, GCMetric> {
 

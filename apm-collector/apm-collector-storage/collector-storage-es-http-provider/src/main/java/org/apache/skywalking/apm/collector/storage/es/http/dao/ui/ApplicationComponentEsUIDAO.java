@@ -39,7 +39,7 @@ import io.searchbox.core.search.aggregation.TermsAggregation;
 import io.searchbox.core.search.aggregation.TermsAggregation.Entry;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public class ApplicationComponentEsUIDAO extends EsHttpDAO implements IApplicationComponentUIDAO {
 

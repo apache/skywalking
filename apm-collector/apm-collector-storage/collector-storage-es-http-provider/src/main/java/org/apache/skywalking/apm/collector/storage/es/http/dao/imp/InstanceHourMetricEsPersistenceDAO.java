@@ -29,7 +29,7 @@ import io.searchbox.core.Index;
 import io.searchbox.core.Update;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public class InstanceHourMetricEsPersistenceDAO extends AbstractInstanceMetricEsPersistenceDAO implements IInstanceHourMetricPersistenceDAO<Index, Update, InstanceMetric> {
 

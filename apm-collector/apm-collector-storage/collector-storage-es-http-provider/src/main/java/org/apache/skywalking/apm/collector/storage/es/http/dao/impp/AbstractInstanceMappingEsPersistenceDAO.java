@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMappin
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMappingTable;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public abstract class AbstractInstanceMappingEsPersistenceDAO extends AbstractPersistenceEsDAO<InstanceMapping> {
 

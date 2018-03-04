@@ -29,7 +29,7 @@ import io.searchbox.core.Index;
 import io.searchbox.core.Update;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public class ServiceReferenceMonthMetricEsPersistenceDAO extends AbstractServiceReferenceMetricEsPersistenceDAO implements IServiceReferenceMonthMetricPersistenceDAO<Index, Update, ServiceReferenceMetric> {
 

@@ -41,7 +41,7 @@ import io.searchbox.core.search.aggregation.SumAggregation;
 import io.searchbox.core.search.aggregation.TermsAggregation;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public class ServiceReferenceEsMetricUIDAO extends EsHttpDAO implements IServiceReferenceMetricUIDAO {
 

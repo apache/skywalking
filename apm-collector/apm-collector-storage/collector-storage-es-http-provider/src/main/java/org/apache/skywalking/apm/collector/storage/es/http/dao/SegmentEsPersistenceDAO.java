@@ -37,7 +37,7 @@ import io.searchbox.core.Index;
 import io.searchbox.core.Update;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public class SegmentEsPersistenceDAO extends EsHttpDAO implements ISegmentPersistenceDAO<Index, Update, Segment> {
 

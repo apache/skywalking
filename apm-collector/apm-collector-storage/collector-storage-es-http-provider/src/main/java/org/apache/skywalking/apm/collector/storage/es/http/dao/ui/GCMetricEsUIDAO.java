@@ -39,7 +39,7 @@ import io.searchbox.client.JestResult;
 import io.searchbox.core.MultiGet;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public class GCMetricEsUIDAO extends EsHttpDAO implements IGCMetricUIDAO {
 

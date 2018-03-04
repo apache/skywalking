@@ -29,7 +29,7 @@ import io.searchbox.core.Index;
 import io.searchbox.core.Update;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public class ApplicationMappingHourEsPersistenceDAO extends AbstractApplicationMappingEsPersistenceDAO implements IApplicationMappingHourPersistenceDAO<Index, Update, ApplicationMapping> {
 

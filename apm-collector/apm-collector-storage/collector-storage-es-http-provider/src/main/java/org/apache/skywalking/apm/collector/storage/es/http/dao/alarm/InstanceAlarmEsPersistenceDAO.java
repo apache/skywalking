@@ -39,7 +39,7 @@ import io.searchbox.core.Index;
 import io.searchbox.core.Update;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public class InstanceAlarmEsPersistenceDAO extends EsHttpDAO implements IInstanceAlarmPersistenceDAO<Index, Update, InstanceAlarm> {
 
@@ -93,8 +93,12 @@ public class InstanceAlarmEsPersistenceDAO extends EsHttpDAO implements IInstanc
         source.put(InstanceAlarmTable.COLUMN_ALARM_CONTENT, data.getAlarmContent());
 
         source.put(InstanceAlarmTable.COLUMN_LAST_TIME_BUCKET, data.getLastTimeBucket());
+        
+        Map<String, Object> doc = new HashMap<>();
+        doc.put("doc", source);
+        
 
-        return new Update.Builder(source).index(InstanceAlarmTable.TABLE).id(data.getId()).build();
+        return new Update.Builder(doc).index(InstanceAlarmTable.TABLE).type(InstanceAlarmTable.TABLE_TYPE).id(data.getId()).build();
     }
 
     @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {

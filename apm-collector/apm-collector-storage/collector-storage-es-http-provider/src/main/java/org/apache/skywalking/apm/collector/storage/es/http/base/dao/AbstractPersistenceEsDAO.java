@@ -29,12 +29,14 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Maps;
+
 import io.searchbox.core.DocumentResult;
 import io.searchbox.core.Index;
 import io.searchbox.core.Update;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public abstract class AbstractPersistenceEsDAO<STREAM_DATA extends StreamData> extends EsHttpDAO implements IPersistenceDAO<Index, Update, STREAM_DATA> {
 
@@ -67,7 +69,9 @@ public abstract class AbstractPersistenceEsDAO<STREAM_DATA extends StreamData> e
 
     @Override public final Update prepareBatchUpdate(STREAM_DATA streamData) {
         Map<String, Object> source = esStreamDataToEsData(streamData);
-        return new Update.Builder(source).index(tableName()).id(streamData.getId()).build();
+        Map<String,Object> doc = Maps.newHashMap();
+        doc.put("doc", source);
+        return new Update.Builder(doc).index(tableName()).type("type").id(streamData.getId()).build();
     }
 
     protected abstract String timeBucketColumnNameForDelete();

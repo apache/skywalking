@@ -31,7 +31,7 @@ import io.searchbox.core.Bulk;
 import io.searchbox.core.BulkResult;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public class BatchEsHttpDAO extends EsHttpDAO implements IBatchDAO {
 
@@ -41,6 +41,7 @@ public class BatchEsHttpDAO extends EsHttpDAO implements IBatchDAO {
         super(client);
     }
 
+    @SuppressWarnings("rawtypes")
     @Override public void batchPersistence(List<?> batchCollection) {
         Bulk.Builder bulk = new Bulk.Builder();
 
@@ -48,7 +49,6 @@ public class BatchEsHttpDAO extends EsHttpDAO implements IBatchDAO {
         if (CollectionUtils.isNotEmpty(batchCollection)) {
             batchCollection.forEach(builder -> {
                 bulk.addAction((BulkableAction)builder);
-                logger.error(((BulkableAction)builder).toString());
             });
             
             BulkResult bulkResult = getClient().execute(bulk.build());

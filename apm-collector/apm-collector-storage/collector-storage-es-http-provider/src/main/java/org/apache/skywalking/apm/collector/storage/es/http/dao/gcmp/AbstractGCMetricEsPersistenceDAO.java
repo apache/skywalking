@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetric;
 import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetricTable;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public abstract class AbstractGCMetricEsPersistenceDAO extends AbstractPersistenceEsDAO<GCMetric> {
 

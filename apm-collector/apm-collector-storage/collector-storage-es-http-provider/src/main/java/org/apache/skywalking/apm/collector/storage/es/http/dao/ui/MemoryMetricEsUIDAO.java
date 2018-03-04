@@ -38,7 +38,7 @@ import io.searchbox.client.JestResult;
 import io.searchbox.core.MultiGet;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public class MemoryMetricEsUIDAO extends EsHttpDAO implements IMemoryMetricUIDAO {
 

@@ -36,7 +36,7 @@ import io.searchbox.core.Index;
 import io.searchbox.core.Update;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public class SegmentDurationEsPersistenceDAO extends EsHttpDAO implements ISegmentDurationPersistenceDAO<Index, Update, SegmentDuration> {
 

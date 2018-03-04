@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.collector.storage.table.instance.InstanceRefere
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetricTable;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public abstract class AbstractInstanceReferenceMetricEsPersistenceDAO extends AbstractPersistenceEsDAO<InstanceReferenceMetric> {
 
@@ -44,11 +44,11 @@ public abstract class AbstractInstanceReferenceMetricEsPersistenceDAO extends Ab
         instanceReferenceMetric.setId((String)source.get(InstanceReferenceMetricTable.COLUMN_ID));
         instanceReferenceMetric.setMetricId((String)source.get(InstanceReferenceMetricTable.COLUMN_METRIC_ID));
 
-        instanceReferenceMetric.setFrontApplicationId((Integer)source.get(InstanceReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID));
-        instanceReferenceMetric.setBehindApplicationId((Integer)source.get(InstanceReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID));
-        instanceReferenceMetric.setFrontInstanceId((Integer)source.get(InstanceReferenceMetricTable.COLUMN_FRONT_INSTANCE_ID));
-        instanceReferenceMetric.setBehindInstanceId((Integer)source.get(InstanceReferenceMetricTable.COLUMN_BEHIND_INSTANCE_ID));
-        instanceReferenceMetric.setSourceValue((Integer)source.get(InstanceReferenceMetricTable.COLUMN_SOURCE_VALUE));
+        instanceReferenceMetric.setFrontApplicationId(((Number)source.get(InstanceReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID)).intValue());
+        instanceReferenceMetric.setBehindApplicationId(((Number)source.get(InstanceReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID)).intValue());
+        instanceReferenceMetric.setFrontInstanceId(((Number)source.get(InstanceReferenceMetricTable.COLUMN_FRONT_INSTANCE_ID)).intValue());
+        instanceReferenceMetric.setBehindInstanceId(((Number)source.get(InstanceReferenceMetricTable.COLUMN_BEHIND_INSTANCE_ID)).intValue());
+        instanceReferenceMetric.setSourceValue(((Number)source.get(InstanceReferenceMetricTable.COLUMN_SOURCE_VALUE)).intValue());
 
         instanceReferenceMetric.setTransactionCalls(((Number)source.get(InstanceReferenceMetricTable.COLUMN_TRANSACTION_CALLS)).longValue());
         instanceReferenceMetric.setTransactionErrorCalls(((Number)source.get(InstanceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS)).longValue());

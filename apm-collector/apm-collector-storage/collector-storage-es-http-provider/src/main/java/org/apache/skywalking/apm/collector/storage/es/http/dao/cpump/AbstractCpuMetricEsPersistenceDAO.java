@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.CpuMetric;
 import org.apache.skywalking.apm.collector.storage.table.jvm.CpuMetricTable;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public abstract class AbstractCpuMetricEsPersistenceDAO extends AbstractPersistenceEsDAO<CpuMetric> {
 

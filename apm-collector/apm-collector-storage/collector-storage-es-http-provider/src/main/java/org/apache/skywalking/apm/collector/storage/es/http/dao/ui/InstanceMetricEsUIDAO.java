@@ -53,7 +53,7 @@ import io.searchbox.core.search.aggregation.ScriptedMetricAggregation;
 import io.searchbox.core.search.aggregation.TermsAggregation;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public class InstanceMetricEsUIDAO extends EsHttpDAO implements IInstanceMetricUIDAO {
 

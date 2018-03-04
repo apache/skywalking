@@ -1,90 +1,90 @@
-org.apache.skywalking.apm.collector.storage.es.http.define.register.ApplicationEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.register.InstanceEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.register.ServiceNameEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.register.NetworkAddressEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.register.ApplicationEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.register.InstanceEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.register.ServiceNameEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.register.NetworkAddressEsHttpTableDefine
 
-org.apache.skywalking.apm.collector.storage.es.http.define.appcomp.ApplicationComponentMinuteEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.appcomp.ApplicationComponentHourEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.appcomp.ApplicationComponentDayEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.appcomp.ApplicationComponentMonthEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.appcomp.ApplicationComponentMinuteEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.appcomp.ApplicationComponentHourEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.appcomp.ApplicationComponentDayEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.appcomp.ApplicationComponentMonthEsHttpTableDefine
 
-org.apache.skywalking.apm.collector.storage.es.http.define.appmapping.ApplicationMappingMinuteEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.appmapping.ApplicationMappingHourEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.appmapping.ApplicationMappingDayEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.appmapping.ApplicationMappingMonthEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.appmapping.ApplicationMappingMinuteEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.appmapping.ApplicationMappingHourEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.appmapping.ApplicationMappingDayEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.appmapping.ApplicationMappingMonthEsHttpTableDefine
 
-org.apache.skywalking.apm.collector.storage.es.http.define.instmapping.InstanceMappingMinuteEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.instmapping.InstanceMappingHourEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.instmapping.InstanceMappingDayEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.instmapping.InstanceMappingMonthEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.instmapping.InstanceMappingMinuteEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.instmapping.InstanceMappingHourEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.instmapping.InstanceMappingDayEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.instmapping.InstanceMappingMonthEsHttpTableDefine
 
-org.apache.skywalking.apm.collector.storage.es.http.define.srmp.ServiceReferenceMinuteMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.srmp.ServiceReferenceHourMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.srmp.ServiceReferenceDayMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.srmp.ServiceReferenceMonthMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.srmp.ServiceReferenceMinuteMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.srmp.ServiceReferenceHourMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.srmp.ServiceReferenceDayMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.srmp.ServiceReferenceMonthMetricEsHttpTableDefine
 
-org.apache.skywalking.apm.collector.storage.es.http.define.smp.ServiceMinuteMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.smp.ServiceHourMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.smp.ServiceDayMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.smp.ServiceMonthMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.smp.ServiceMinuteMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.smp.ServiceHourMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.smp.ServiceDayMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.smp.ServiceMonthMetricEsHttpTableDefine
 
-org.apache.skywalking.apm.collector.storage.es.http.define.irmp.InstanceReferenceMinuteMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.irmp.InstanceReferenceHourMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.irmp.InstanceReferenceDayMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.irmp.InstanceReferenceMonthMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.irmp.InstanceReferenceMinuteMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.irmp.InstanceReferenceHourMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.irmp.InstanceReferenceDayMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.irmp.InstanceReferenceMonthMetricEsHttpTableDefine
 
-org.apache.skywalking.apm.collector.storage.es.http.define.imp.InstanceMinuteMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.imp.InstanceHourMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.imp.InstanceDayMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.imp.InstanceMonthMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.imp.InstanceMinuteMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.imp.InstanceHourMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.imp.InstanceDayMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.imp.InstanceMonthMetricEsHttpTableDefine
 
-org.apache.skywalking.apm.collector.storage.es.http.define.armp.ApplicationReferenceMinuteMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.armp.ApplicationReferenceHourMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.armp.ApplicationReferenceDayMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.armp.ApplicationReferenceMonthMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.armp.ApplicationReferenceMinuteMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.armp.ApplicationReferenceHourMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.armp.ApplicationReferenceDayMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.armp.ApplicationReferenceMonthMetricEsHttpTableDefine
 
-org.apache.skywalking.apm.collector.storage.es.http.define.amp.ApplicationMinuteMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.amp.ApplicationHourMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.amp.ApplicationDayMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.amp.ApplicationMonthMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.amp.ApplicationMinuteMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.amp.ApplicationHourMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.amp.ApplicationDayMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.amp.ApplicationMonthMetricEsHttpTableDefine
 
-org.apache.skywalking.apm.collector.storage.es.http.define.GlobalTraceEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.SegmentEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.SegmentDurationEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.GlobalTraceEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.SegmentEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.SegmentDurationEsHttpTableDefine
 
-org.apache.skywalking.apm.collector.storage.es.http.define.alarm.ApplicationAlarmEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.alarm.ApplicationAlarmListEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.alarm.ApplicationReferenceAlarmEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.alarm.ApplicationReferenceAlarmListEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.alarm.InstanceAlarmEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.alarm.InstanceAlarmListEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.alarm.InstanceReferenceAlarmEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.alarm.InstanceReferenceAlarmListEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.alarm.ServiceAlarmEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.alarm.ServiceAlarmListEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.alarm.ServiceReferenceAlarmEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.alarm.ServiceReferenceAlarmListEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.alarm.ApplicationAlarmEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.alarm.ApplicationAlarmListEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.alarm.ApplicationReferenceAlarmEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.alarm.ApplicationReferenceAlarmListEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.alarm.InstanceAlarmEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.alarm.InstanceAlarmListEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.alarm.InstanceReferenceAlarmEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.alarm.InstanceReferenceAlarmListEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.alarm.ServiceAlarmEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.alarm.ServiceAlarmListEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.alarm.ServiceReferenceAlarmEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.alarm.ServiceReferenceAlarmListEsHttpTableDefine
 
-org.apache.skywalking.apm.collector.storage.es.http.define.mpool.MemoryPoolSecondMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.mpool.MemoryPoolMinuteMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.mpool.MemoryPoolHourMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.mpool.MemoryPoolDayMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.mpool.MemoryPoolMonthMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.mpool.MemoryPoolSecondMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.mpool.MemoryPoolMinuteMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.mpool.MemoryPoolHourMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.mpool.MemoryPoolDayMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.mpool.MemoryPoolMonthMetricEsHttpTableDefine
 
-org.apache.skywalking.apm.collector.storage.es.http.define.memory.MemorySecondMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.memory.MemoryMinuteMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.memory.MemoryHourMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.memory.MemoryDayMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.memory.MemoryMonthMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.memory.MemorySecondMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.memory.MemoryMinuteMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.memory.MemoryHourMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.memory.MemoryDayMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.memory.MemoryMonthMetricEsHttpTableDefine
 
-org.apache.skywalking.apm.collector.storage.es.http.define.gc.GCSecondMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.gc.GCMinuteMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.gc.GCHourMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.gc.GCDayMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.gc.GCMonthMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.gc.GCSecondMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.gc.GCMinuteMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.gc.GCHourMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.gc.GCDayMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.gc.GCMonthMetricEsHttpTableDefine
 
-org.apache.skywalking.apm.collector.storage.es.http.define.cpu.CpuSecondMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.cpu.CpuMinuteMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.cpu.CpuHourMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.cpu.CpuDayMetricEsTableDefine
-org.apache.skywalking.apm.collector.storage.es.http.define.cpu.CpuMonthMetricEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.cpu.CpuSecondMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.cpu.CpuMinuteMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.cpu.CpuHourMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.cpu.CpuDayMetricEsHttpTableDefine
+org.apache.skywalking.apm.collector.storage.es.http.define.cpu.CpuMonthMetricEsHttpTableDefine

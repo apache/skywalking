@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.collector.storage.table.application.Application
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMappingTable;
 
 /**
- * @author peng-yongsheng
+ * @author cyberdak
  */
 public abstract class AbstractApplicationMappingEsPersistenceDAO extends AbstractPersistenceEsDAO<ApplicationMapping> {
 
