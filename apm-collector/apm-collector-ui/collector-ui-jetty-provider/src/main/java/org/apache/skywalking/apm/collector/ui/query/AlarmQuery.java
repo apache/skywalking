@@ -58,11 +58,11 @@ public class AlarmQuery implements Query {
 
         switch (alarmType) {
             case APPLICATION:
-                return getAlarmService().loadApplicationAlarmList(keyword, startTimeBucket, endTimeBucket, page.getLimit(), page.getFrom());
+                return getAlarmService().loadApplicationAlarmList(keyword, duration.getStep(), startTimeBucket, endTimeBucket, page.getLimit(), page.getFrom());
             case SERVER:
-                return getAlarmService().loadInstanceAlarmList(keyword, startTimeBucket, endTimeBucket, page.getLimit(), page.getFrom());
+                return getAlarmService().loadInstanceAlarmList(keyword, duration.getStep(), startTimeBucket, endTimeBucket, page.getLimit(), page.getFrom());
             case SERVICE:
-                return getAlarmService().loadServiceAlarmList(keyword, startTimeBucket, endTimeBucket, page.getLimit(), page.getFrom());
+                return getAlarmService().loadServiceAlarmList(keyword, duration.getStep(), startTimeBucket, endTimeBucket, page.getLimit(), page.getFrom());
             default:
                 return new Alarm();
         }

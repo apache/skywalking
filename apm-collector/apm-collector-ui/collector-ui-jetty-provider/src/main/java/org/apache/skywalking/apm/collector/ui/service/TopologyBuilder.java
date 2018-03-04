@@ -20,9 +20,11 @@ package org.apache.skywalking.apm.collector.ui.service;
 
 import java.text.ParseException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -38,6 +40,7 @@ import org.apache.skywalking.apm.collector.storage.ui.application.ApplicationNod
 import org.apache.skywalking.apm.collector.storage.ui.application.ConjecturalNode;
 import org.apache.skywalking.apm.collector.storage.ui.common.Call;
 import org.apache.skywalking.apm.collector.storage.ui.common.Node;
+import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.ui.common.Topology;
 import org.apache.skywalking.apm.collector.storage.ui.common.VisualUserNode;
 import org.apache.skywalking.apm.collector.ui.utils.ApdexCalculator;
@@ -70,7 +73,7 @@ class TopologyBuilder {
         List<IApplicationMetricUIDAO.ApplicationMetric> applicationMetrics,
         List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> callerReferenceMetric,
         List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> calleeReferenceMetric,
-        long startTimeBucket, long endTimeBucket, long startSecondTimeBucket, long endSecondTimeBucket) {
+        Step step, long startTimeBucket, long endTimeBucket, long startSecondTimeBucket, long endSecondTimeBucket) {
         Map<Integer, String> components = changeNodeComp2Map(applicationComponents);
         Map<Integer, Integer> mappings = changeMapping2Map(applicationMappings);
 
@@ -95,7 +98,7 @@ class TopologyBuilder {
             applicationNode.setApdex(ApdexCalculator.INSTANCE.calculate(applicationMetric.getSatisfiedCount(), applicationMetric.getToleratingCount(), applicationMetric.getFrustratedCount()));
             applicationNode.setAlarm(false);
             try {
-                Alarm alarm = alarmService.loadApplicationAlarmList(Const.EMPTY_STRING, startTimeBucket, endTimeBucket, 1, 0);
+                Alarm alarm = alarmService.loadApplicationAlarmList(Const.EMPTY_STRING, step, startTimeBucket, endTimeBucket, 1, 0);
                 if (alarm.getItems().size() > 0) {
                     applicationNode.setAlarm(true);
                 }
@@ -105,14 +108,14 @@ class TopologyBuilder {
 
             applicationNode.setNumOfServer(serverService.getAllServer(applicationId, startSecondTimeBucket, endSecondTimeBucket).size());
             try {
-                Alarm alarm = alarmService.loadInstanceAlarmList(Const.EMPTY_STRING, startTimeBucket, endTimeBucket, 1000, 0);
+                Alarm alarm = alarmService.loadInstanceAlarmList(Const.EMPTY_STRING, step, startTimeBucket, endTimeBucket, 1000, 0);
                 applicationNode.setNumOfServerAlarm(alarm.getItems().size());
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
             }
 
             try {
-                Alarm alarm = alarmService.loadServiceAlarmList(Const.EMPTY_STRING, startTimeBucket, endTimeBucket, 1000, 0);
+                Alarm alarm = alarmService.loadServiceAlarmList(Const.EMPTY_STRING, step, startTimeBucket, endTimeBucket, 1000, 0);
                 applicationNode.setNumOfServiceAlarm(alarm.getItems().size());
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
@@ -131,6 +134,17 @@ class TopologyBuilder {
                 conjecturalNode.setName(target.getApplicationCode());
                 conjecturalNode.setType(components.getOrDefault(target.getApplicationId(), Const.UNKNOWN));
                 nodes.add(conjecturalNode);
+            }
+
+            Set<Integer> nodeIds = buildNodeIds(nodes);
+            if (!nodeIds.contains(source.getApplicationId())) {
+                ApplicationNode applicationNode = new ApplicationNode();
+                applicationNode.setId(source.getApplicationId());
+                applicationNode.setName(source.getApplicationCode());
+                applicationNode.setType(components.getOrDefault(source.getApplicationId(), Const.UNKNOWN));
+                applicationNode.setApdex(100);
+                applicationNode.setSla(100);
+                nodes.add(applicationNode);
             }
 
             Call call = new Call();
@@ -196,6 +210,12 @@ class TopologyBuilder {
         topology.setCalls(calls);
         topology.setNodes(nodes);
         return topology;
+    }
+
+    private Set<Integer> buildNodeIds(List<Node> nodes) {
+        Set<Integer> nodeIds = new HashSet<>();
+        nodes.forEach(node -> nodeIds.add(node.getId()));
+        return nodeIds;
     }
 
     private List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> calleeReferenceMetricFilter(

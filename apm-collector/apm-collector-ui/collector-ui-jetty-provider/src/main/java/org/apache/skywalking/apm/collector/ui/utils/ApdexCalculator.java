@@ -25,6 +25,10 @@ public enum ApdexCalculator {
     INSTANCE;
 
     public int calculate(long satisfiedCount, long toleratingCount, long frustratedCount) {
-        return (int)(((satisfiedCount + toleratingCount / 2) * 100) / (satisfiedCount + toleratingCount + frustratedCount));
+        if (satisfiedCount + toleratingCount + frustratedCount == 0) {
+            return 100;
+        } else {
+            return (int)(((satisfiedCount + toleratingCount / 2) * 100) / (satisfiedCount + toleratingCount + frustratedCount));
+        }
     }
 }
