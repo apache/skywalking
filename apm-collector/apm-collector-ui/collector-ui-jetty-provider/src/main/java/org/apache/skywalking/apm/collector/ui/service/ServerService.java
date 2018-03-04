@@ -26,6 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
+import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
@@ -59,6 +60,7 @@ public class ServerService {
     private final IGCMetricUIDAO gcMetricUIDAO;
     private final IMemoryMetricUIDAO memoryMetricUIDAO;
     private final ApplicationCacheService applicationCacheService;
+    private final InstanceCacheService instanceCacheService;
     private final SecondBetweenService secondBetweenService;
 
     public ServerService(ModuleManager moduleManager) {
@@ -68,6 +70,7 @@ public class ServerService {
         this.gcMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IGCMetricUIDAO.class);
         this.memoryMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IMemoryMetricUIDAO.class);
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
+        this.instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
         this.secondBetweenService = new SecondBetweenService(moduleManager);
     }
 
@@ -105,7 +108,8 @@ public class ServerService {
 
         List<AppServerInfo> serverThroughput = instanceMetricUIDAO.getServerThroughput(applicationId, step, startTimeBucket, endTimeBucket, secondBetween, topN, MetricSource.Callee);
         serverThroughput.forEach(appServerInfo -> {
-            String applicationCode = applicationCacheService.getApplicationById(applicationId).getApplicationCode();
+            appServerInfo.setApplicationId(instanceCacheService.getApplicationId(appServerInfo.getId()));
+            String applicationCode = applicationCacheService.getApplicationById(appServerInfo.getApplicationId()).getApplicationCode();
             appServerInfo.setApplicationCode(applicationCode);
             Instance instance = instanceUIDAO.getInstance(appServerInfo.getId());
             appServerInfo.setOsInfo(instance.getOsInfo());
