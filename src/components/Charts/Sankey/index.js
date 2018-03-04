@@ -49,7 +49,7 @@ class Sankey extends Component {
         sync: true,
       },
     };
-    console.log(dv);
+    const ignoreNodes = dv.nodes.filter(_ => (_.y1 - _.y0) < 0.1).map(_ => _.name);
     return (
       <div className={styles.chart} style={{ height }} ref={this.handleRoot}>
         <div ref={this.handleRef}>
@@ -87,6 +87,9 @@ class Sankey extends Component {
                   }}
                   offset={0}
                   formatter={(val) => {
+                      if (ignoreNodes.findIndex(_ => _ === val) > -1) {
+                        return '';
+                      }
                       return `  ${val}`;
                     }
                   }
