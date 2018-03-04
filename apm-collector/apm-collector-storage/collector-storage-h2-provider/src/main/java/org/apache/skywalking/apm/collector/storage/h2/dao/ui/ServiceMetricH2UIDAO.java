@@ -80,6 +80,10 @@ public class ServiceMetricH2UIDAO extends H2DAO implements IServiceMetricUIDAO {
         return trends;
     }
 
+    @Override public List<Integer> getServiceTPSTrend(int serviceId, Step step, List<DurationPoint> durationPoints) {
+        return null;
+    }
+
     @Override public List<Integer> getServiceSLATrend(int serviceId, Step step, List<DurationPoint> durationPoints) {
         String tableName = TimePyramidTableNameBuilder.build(step, ServiceMetricTable.TABLE);
 
@@ -112,7 +116,7 @@ public class ServiceMetricH2UIDAO extends H2DAO implements IServiceMetricUIDAO {
         return null;
     }
 
-    @Override public List<ServiceMetric> getSlowService(int applicationId, Step step, long start, long end, Integer top,
+    @Override public List<ServiceMetric> getSlowService(int applicationId, Step step, long startTimeBucket, long endTimeBucket, Integer topN,
         MetricSource metricSource) {
         return null;
     }

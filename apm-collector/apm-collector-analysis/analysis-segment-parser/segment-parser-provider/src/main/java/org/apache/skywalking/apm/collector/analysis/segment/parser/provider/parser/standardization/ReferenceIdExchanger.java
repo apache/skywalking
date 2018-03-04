@@ -27,6 +27,7 @@ import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
+import org.apache.skywalking.apm.network.proto.SpanType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +58,7 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
 
     @Override public boolean exchange(ReferenceDecorator standardBuilder, int applicationId) {
         if (standardBuilder.getEntryServiceId() == 0 && StringUtils.isNotEmpty(standardBuilder.getEntryServiceName())) {
-            int entryServiceId = serviceNameService.getOrCreate(instanceCacheService.getApplicationId(standardBuilder.getEntryApplicationInstanceId()), standardBuilder.getEntryServiceName());
+            int entryServiceId = serviceNameService.getOrCreate(instanceCacheService.getApplicationId(standardBuilder.getEntryApplicationInstanceId()), SpanType.Entry_VALUE, standardBuilder.getEntryServiceName());
 
             if (entryServiceId == 0) {
                 if (logger.isDebugEnabled()) {
@@ -73,7 +74,7 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
         }
 
         if (standardBuilder.getParentServiceId() == 0 && StringUtils.isNotEmpty(standardBuilder.getParentServiceName())) {
-            int parentServiceId = serviceNameService.getOrCreate(instanceCacheService.getApplicationId(standardBuilder.getParentApplicationInstanceId()), standardBuilder.getParentServiceName());
+            int parentServiceId = serviceNameService.getOrCreate(instanceCacheService.getApplicationId(standardBuilder.getParentApplicationInstanceId()), SpanType.Entry_VALUE, standardBuilder.getParentServiceName());
 
             if (parentServiceId == 0) {
                 if (logger.isDebugEnabled()) {
@@ -89,7 +90,8 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
         }
 
         if (standardBuilder.getNetworkAddressId() == 0 && StringUtils.isNotEmpty(standardBuilder.getNetworkAddress())) {
-            int networkAddressId = networkAddressIDService.get(standardBuilder.getNetworkAddress());
+            int networkAddressId = networkAddressIDService.getOrCreate(standardBuilder.getNetworkAddress());
+
             if (networkAddressId == 0) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("network address: {} from application id: {} exchange failed", standardBuilder.getNetworkAddress(), applicationId);

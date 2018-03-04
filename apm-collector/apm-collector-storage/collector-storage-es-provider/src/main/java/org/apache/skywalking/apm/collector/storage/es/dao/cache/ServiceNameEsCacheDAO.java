@@ -56,14 +56,15 @@ public class ServiceNameEsCacheDAO extends EsDAO implements IServiceNameCacheDAO
         return null;
     }
 
-    @Override public int getServiceId(int applicationId, String serviceName) {
+    @Override public int getServiceId(int applicationId, int srcSpanType, String serviceName) {
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(ServiceNameTable.TABLE);
         searchRequestBuilder.setTypes(ServiceNameTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.matchQuery(ServiceNameTable.COLUMN_APPLICATION_ID, applicationId));
-        boolQuery.must().add(QueryBuilders.matchQuery(ServiceNameTable.COLUMN_SERVICE_NAME, serviceName));
+        boolQuery.must().add(QueryBuilders.termQuery(ServiceNameTable.COLUMN_APPLICATION_ID, applicationId));
+        boolQuery.must().add(QueryBuilders.termQuery(ServiceNameTable.COLUMN_SRC_SPAN_TYPE, srcSpanType));
+        boolQuery.must().add(QueryBuilders.termQuery(ServiceNameTable.COLUMN_SERVICE_NAME_KEYWORD, serviceName));
         searchRequestBuilder.setQuery(boolQuery);
         searchRequestBuilder.setSize(1);
 

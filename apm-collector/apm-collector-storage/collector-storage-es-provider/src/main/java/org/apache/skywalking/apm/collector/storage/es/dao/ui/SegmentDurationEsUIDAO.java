@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.collector.storage.es.dao.ui;
 import java.util.List;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
+import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentDurationUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
@@ -46,8 +47,8 @@ public class SegmentDurationEsUIDAO extends EsDAO implements ISegmentDurationUID
     }
 
     @Override
-    public TraceBrief loadTop(long startTime, long endTime, long minDuration, long maxDuration, String operationName,
-        int applicationId, String traceId, int limit, int from) {
+    public TraceBrief loadTop(long startSecondTimeBucket, long endSecondTimeBucket, long minDuration, long maxDuration,
+        String operationName, int applicationId, int limit, int from, String... segmentIds) {
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(SegmentDurationTable.TABLE);
         searchRequestBuilder.setTypes(SegmentDurationTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
@@ -55,7 +56,10 @@ public class SegmentDurationEsUIDAO extends EsDAO implements ISegmentDurationUID
         searchRequestBuilder.setQuery(boolQueryBuilder);
         List<QueryBuilder> mustQueryList = boolQueryBuilder.must();
 
-        mustQueryList.add(QueryBuilders.rangeQuery(SegmentDurationTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
+        if (startSecondTimeBucket != 0 && endSecondTimeBucket != 0) {
+            mustQueryList.add(QueryBuilders.rangeQuery(SegmentDurationTable.COLUMN_TIME_BUCKET).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
+        }
+
         if (minDuration != 0 || maxDuration != 0) {
             RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery(SegmentDurationTable.COLUMN_DURATION);
             if (minDuration != 0) {
@@ -69,8 +73,8 @@ public class SegmentDurationEsUIDAO extends EsDAO implements ISegmentDurationUID
         if (StringUtils.isNotEmpty(operationName)) {
             mustQueryList.add(QueryBuilders.matchQuery(SegmentDurationTable.COLUMN_SERVICE_NAME, operationName));
         }
-        if (StringUtils.isNotEmpty(traceId)) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentDurationTable.COLUMN_SEGMENT_ID, traceId));
+        if (CollectionUtils.isNotEmpty(segmentIds)) {
+            boolQueryBuilder.must().add(QueryBuilders.termsQuery(SegmentDurationTable.COLUMN_SEGMENT_ID, segmentIds));
         }
         if (applicationId != 0) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentDurationTable.COLUMN_APPLICATION_ID, applicationId));
@@ -87,7 +91,7 @@ public class SegmentDurationEsUIDAO extends EsDAO implements ISegmentDurationUID
         for (SearchHit searchHit : searchResponse.getHits().getHits()) {
             BasicTrace basicTrace = new BasicTrace();
 
-            basicTrace.setTraceId((String)searchHit.getSource().get(SegmentDurationTable.COLUMN_TRACE_ID));
+            basicTrace.setSegmentId((String)searchHit.getSource().get(SegmentDurationTable.COLUMN_SEGMENT_ID));
             basicTrace.setStart(((Number)searchHit.getSource().get(SegmentDurationTable.COLUMN_START_TIME)).longValue());
             basicTrace.setOperationName((String)searchHit.getSource().get(SegmentDurationTable.COLUMN_SERVICE_NAME));
             basicTrace.setDuration(((Number)searchHit.getSource().get(SegmentDurationTable.COLUMN_DURATION)).intValue());

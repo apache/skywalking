@@ -18,11 +18,25 @@
 
 package org.apache.skywalking.apm.collector.storage.ui.overview;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
  * @author peng-yongsheng
  */
 public class AlarmTrend {
-    public List<Integer> numOfAlarmRate;
+
+    private List<Integer> numOfAlarmRate;
+
+    public AlarmTrend() {
+        this.numOfAlarmRate = new LinkedList<>();
+    }
+
+    public List<Integer> getNumOfAlarmRate() {
+        return numOfAlarmRate;
+    }
+
+    public void setNumOfAlarmRate(List<Integer> numOfAlarmRate) {
+        this.numOfAlarmRate = numOfAlarmRate;
+    }
 }

@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.collector.storage.ui.alarm;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -26,6 +27,10 @@ import java.util.List;
 public class Alarm {
     private List<AlarmItem> items;
     private int total;
+
+    public Alarm() {
+        this.items = new LinkedList<>();
+    }
 
     public List<AlarmItem> getItems() {
         return items;

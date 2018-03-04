@@ -21,18 +21,70 @@ package org.apache.skywalking.apm.collector.storage.dao.ui;
 import java.util.List;
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
-import org.apache.skywalking.apm.collector.storage.ui.common.Call;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 
 /**
  * @author peng-yongsheng
  */
 public interface IApplicationReferenceMetricUIDAO extends DAO {
-    List<Call> getFrontApplications(Step step, int applicationId, long startTime, long endTime,
-        MetricSource metricSource);
 
-    List<Call> getBehindApplications(Step step, int applicationId, long startTime, long endTime,
-        MetricSource metricSource);
+    List<ApplicationReferenceMetric> getReferences(Step step, long startTimeBucket, long endTimeBucket,
+        MetricSource metricSource, Integer... applicationIds);
 
-    List<Call> getApplications(Step step, long startTime, long endTime, MetricSource metricSource);
+    class ApplicationReferenceMetric {
+        private int source;
+        private int target;
+        private long calls;
+        private long errorCalls;
+        private long durations;
+        private long errorDurations;
+
+        public int getSource() {
+            return source;
+        }
+
+        public void setSource(int source) {
+            this.source = source;
+        }
+
+        public int getTarget() {
+            return target;
+        }
+
+        public void setTarget(int target) {
+            this.target = target;
+        }
+
+        public long getCalls() {
+            return calls;
+        }
+
+        public void setCalls(long calls) {
+            this.calls = calls;
+        }
+
+        public long getErrorCalls() {
+            return errorCalls;
+        }
+
+        public void setErrorCalls(long errorCalls) {
+            this.errorCalls = errorCalls;
+        }
+
+        public long getDurations() {
+            return durations;
+        }
+
+        public void setDurations(long durations) {
+            this.durations = durations;
+        }
+
+        public long getErrorDurations() {
+            return errorDurations;
+        }
+
+        public void setErrorDurations(long errorDurations) {
+            this.errorDurations = errorDurations;
+        }
+    }
 }

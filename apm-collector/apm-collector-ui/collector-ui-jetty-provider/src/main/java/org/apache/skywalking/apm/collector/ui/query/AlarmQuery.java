@@ -18,23 +18,53 @@
 
 package org.apache.skywalking.apm.collector.ui.query;
 
-import org.apache.skywalking.apm.collector.ui.graphql.Query;
+import java.text.ParseException;
+import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.ui.alarm.Alarm;
 import org.apache.skywalking.apm.collector.storage.ui.alarm.AlarmType;
 import org.apache.skywalking.apm.collector.storage.ui.common.Duration;
 import org.apache.skywalking.apm.collector.storage.ui.common.Pagination;
-
-import java.util.Collections;
+import org.apache.skywalking.apm.collector.ui.graphql.Query;
+import org.apache.skywalking.apm.collector.ui.service.AlarmService;
+import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
+import org.apache.skywalking.apm.collector.ui.utils.PaginationUtils;
 
 /**
  * @author peng-yongsheng
  */
 public class AlarmQuery implements Query {
 
-    public Alarm loadAlarmList(String keyword, AlarmType alarmType, Duration duration, Pagination paging) {
-        Alarm alarm = new Alarm();
-        alarm.setTotal(0);
-        alarm.setItems(Collections.emptyList());
-        return alarm;
+    private final ModuleManager moduleManager;
+    private AlarmService alarmService;
+
+    public AlarmQuery(ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
+    }
+
+    private AlarmService getAlarmService() {
+        if (ObjectUtils.isEmpty(alarmService)) {
+            this.alarmService = new AlarmService(moduleManager);
+        }
+        return alarmService;
+    }
+
+    public Alarm loadAlarmList(String keyword, AlarmType alarmType, Duration duration,
+        Pagination paging) throws ParseException {
+        long startTimeBucket = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart()) / 100;
+        long endTimeBucket = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd()) / 100;
+
+        PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
+
+        switch (alarmType) {
+            case APPLICATION:
+                return getAlarmService().loadApplicationAlarmList(keyword, duration.getStep(), startTimeBucket, endTimeBucket, page.getLimit(), page.getFrom());
+            case SERVER:
+                return getAlarmService().loadInstanceAlarmList(keyword, duration.getStep(), startTimeBucket, endTimeBucket, page.getLimit(), page.getFrom());
+            case SERVICE:
+                return getAlarmService().loadServiceAlarmList(keyword, duration.getStep(), startTimeBucket, endTimeBucket, page.getLimit(), page.getFrom());
+            default:
+                return new Alarm();
+        }
     }
 }

@@ -47,16 +47,16 @@ public class SegmentDurationH2UIDAO extends H2DAO implements ISegmentDurationUID
     }
 
     @Override
-    public TraceBrief loadTop(long startTime, long endTime, long minDuration, long maxDuration, String operationName,
-        int applicationId, String traceId, int limit, int from) {
+    public TraceBrief loadTop(long startSecondTimeBucket, long endSecondTimeBucket, long minDuration, long maxDuration,
+        String operationName, int applicationId, int limit, int from, String... segmentIds) {
         H2Client client = getClient();
         String sql = "select * from {0} where {1} >= ? and {1} <= ?";
         List<Object> params = new ArrayList<>();
         List<Object> columns = new ArrayList<>();
         columns.add(SegmentDurationTable.TABLE);
         columns.add(SegmentDurationTable.COLUMN_TIME_BUCKET);
-        params.add(startTime);
-        params.add(endTime);
+        params.add(startSecondTimeBucket);
+        params.add(endSecondTimeBucket);
         int paramIndex = 1;
         if (minDuration != -1 || maxDuration != -1) {
             if (minDuration != -1) {
@@ -78,10 +78,10 @@ public class SegmentDurationH2UIDAO extends H2DAO implements ISegmentDurationUID
             params.add(operationName);
             columns.add(SegmentDurationTable.COLUMN_SERVICE_NAME);
         }
-        if (StringUtils.isNotEmpty(traceId)) {
+        if (StringUtils.isNotEmpty(segmentIds)) {
             paramIndex++;
             sql = sql + " and {" + paramIndex + "} = ?";
-            params.add(traceId);
+            params.add(segmentIds);
             columns.add(SegmentDurationTable.COLUMN_TRACE_ID);
         }
         if (applicationId != 0) {
@@ -101,9 +101,9 @@ public class SegmentDurationH2UIDAO extends H2DAO implements ISegmentDurationUID
         try (ResultSet rs = client.executeQuery(sql, p)) {
             while (rs.next()) {
                 BasicTrace basicTrace = new BasicTrace();
+                basicTrace.setSegmentId(rs.getString(SegmentDurationTable.COLUMN_SEGMENT_ID));
                 basicTrace.setDuration(rs.getInt(SegmentDurationTable.COLUMN_DURATION));
                 basicTrace.setStart(rs.getLong(SegmentDurationTable.COLUMN_START_TIME));
-                basicTrace.setTraceId(rs.getString(SegmentDurationTable.COLUMN_TRACE_ID));
                 basicTrace.setOperationName(rs.getString(SegmentDurationTable.COLUMN_SERVICE_NAME));
                 basicTrace.setError(BooleanUtils.valueToBoolean(rs.getInt(SegmentDurationTable.COLUMN_IS_ERROR)));
                 traceBrief.getTraces().add(basicTrace);

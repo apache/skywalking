@@ -49,6 +49,7 @@ public abstract class AbstractApplicationMappingH2PersistenceDAO extends Abstrac
 
     @Override protected final Map<String, Object> streamDataToH2Data(ApplicationMapping streamData) {
         Map<String, Object> source = new HashMap<>();
+        source.put(ApplicationMappingTable.COLUMN_ID, streamData.getId());
         source.put(ApplicationMappingTable.COLUMN_METRIC_ID, streamData.getMetricId());
 
         source.put(ApplicationMappingTable.COLUMN_APPLICATION_ID, streamData.getApplicationId());

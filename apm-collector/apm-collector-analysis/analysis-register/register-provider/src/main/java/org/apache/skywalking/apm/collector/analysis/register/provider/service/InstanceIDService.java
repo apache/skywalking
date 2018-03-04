@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.collector.analysis.register.provider.service;
 import org.apache.skywalking.apm.collector.analysis.register.define.graph.GraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IInstanceIDService;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
+import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
@@ -45,6 +46,7 @@ public class InstanceIDService implements IInstanceIDService {
     private InstanceCacheService instanceCacheService;
     private Graph<Instance> instanceRegisterGraph;
     private IInstanceRegisterDAO instanceRegisterDAO;
+    private ApplicationCacheService applicationCacheService;
 
     public InstanceIDService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
@@ -71,14 +73,22 @@ public class InstanceIDService implements IInstanceIDService {
         return instanceRegisterDAO;
     }
 
+    private ApplicationCacheService getApplicationCacheService() {
+        if (ObjectUtils.isEmpty(applicationCacheService)) {
+            this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
+        }
+        return applicationCacheService;
+    }
+
     @Override public int getOrCreateByAgentUUID(int applicationId, String agentUUID, long registerTime, String osInfo) {
-        logger.debug("get or create instance id by agent UUID, application id: {}, agentUUID: {}, registerTime: {}, osInfo: {}", applicationId, agentUUID, registerTime, osInfo);
+        logger.debug("get or getOrCreate instance id by agent UUID, application id: {}, agentUUID: {}, registerTime: {}, osInfo: {}", applicationId, agentUUID, registerTime, osInfo);
         int instanceId = getInstanceCacheService().getInstanceIdByAgentUUID(applicationId, agentUUID);
 
         if (instanceId == 0) {
             Instance instance = new Instance();
             instance.setId("0");
             instance.setApplicationId(applicationId);
+            instance.setApplicationCode(getApplicationCacheService().getApplicationById(applicationId).getApplicationCode());
             instance.setAgentUUID(agentUUID);
             instance.setRegisterTime(registerTime);
             instance.setHeartBeatTime(registerTime);
@@ -93,13 +103,14 @@ public class InstanceIDService implements IInstanceIDService {
     }
 
     @Override public int getOrCreateByAddressId(int applicationId, int addressId, long registerTime) {
-        logger.debug("get or create instance id by address id, application id: {}, address id: {}, registerTime: {}", applicationId, addressId, registerTime);
+        logger.debug("get or getOrCreate instance id by address id, application id: {}, address id: {}, registerTime: {}", applicationId, addressId, registerTime);
         int instanceId = getInstanceCacheService().getInstanceIdByAddressId(applicationId, addressId);
 
         if (instanceId == 0) {
             Instance instance = new Instance();
             instance.setId("0");
             instance.setApplicationId(applicationId);
+            instance.setApplicationCode(getApplicationCacheService().getApplicationById(applicationId).getApplicationCode());
             instance.setAgentUUID(Const.EMPTY_STRING);
             instance.setRegisterTime(registerTime);
             instance.setHeartBeatTime(registerTime);
@@ -118,6 +129,7 @@ public class InstanceIDService implements IInstanceIDService {
         Instance instance = new Instance();
         instance.setId(String.valueOf(instanceId));
         instance.setApplicationId(applicationId);
+        instance.setApplicationCode(getApplicationCacheService().getApplicationById(applicationId).getApplicationCode());
         instance.setAgentUUID("");
         instance.setRegisterTime(registerTime);
         instance.setHeartBeatTime(registerTime);

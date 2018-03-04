@@ -10,7 +10,7 @@ type BasicTrace {
    duration: Int!
    start: String!
    isError: Boolean
-   traceId: String
+   traceIds: [String!]!
 }
 
 # Represent the conditions used for query TraceBrief

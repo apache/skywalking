@@ -1,0 +1,2 @@
+servicecomb-0.x=org.apache.skywalking.apm.plugin.servicecomb.define.ProducerOperationHandlerInstrumentation
+servicecomb-0.x=org.apache.skywalking.apm.plugin.servicecomb.define.TransportClientHandlerInstrumentation

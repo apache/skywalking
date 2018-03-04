@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.collector.storage.ui.common;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -25,6 +26,10 @@ import java.util.List;
  */
 public class ThroughputTrend {
     private List<Integer> trendList;
+
+    public ThroughputTrend() {
+        this.trendList = new LinkedList<>();
+    }
 
     public List<Integer> getTrendList() {
         return trendList;

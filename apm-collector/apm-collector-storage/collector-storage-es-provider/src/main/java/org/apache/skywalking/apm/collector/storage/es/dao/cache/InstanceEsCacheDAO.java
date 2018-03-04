@@ -53,7 +53,7 @@ public class InstanceEsCacheDAO extends EsDAO implements IInstanceCacheDAO {
         ElasticSearchClient client = getClient();
 
         SearchRequestBuilder searchRequestBuilder = client.prepareSearch(InstanceTable.TABLE);
-        searchRequestBuilder.setTypes("type");
+        searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH);
         BoolQueryBuilder builder = QueryBuilders.boolQuery();
         builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationId));
@@ -74,7 +74,7 @@ public class InstanceEsCacheDAO extends EsDAO implements IInstanceCacheDAO {
         ElasticSearchClient client = getClient();
 
         SearchRequestBuilder searchRequestBuilder = client.prepareSearch(InstanceTable.TABLE);
-        searchRequestBuilder.setTypes("type");
+        searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH);
         BoolQueryBuilder builder = QueryBuilders.boolQuery();
         builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationId));

@@ -40,7 +40,6 @@ public abstract class AbstractCpuMetricEsPersistenceDAO extends AbstractPersiste
 
     @Override protected final CpuMetric esDataToStreamData(Map<String, Object> source) {
         CpuMetric cpuMetric = new CpuMetric();
-        cpuMetric.setId((String)source.get(CpuMetricTable.COLUMN_ID));
         cpuMetric.setMetricId((String)source.get(CpuMetricTable.COLUMN_METRIC_ID));
 
         cpuMetric.setInstanceId(((Number)source.get(CpuMetricTable.COLUMN_INSTANCE_ID)).intValue());
@@ -54,7 +53,6 @@ public abstract class AbstractCpuMetricEsPersistenceDAO extends AbstractPersiste
 
     @Override protected final Map<String, Object> esStreamDataToEsData(CpuMetric streamData) {
         Map<String, Object> source = new HashMap<>();
-        source.put(CpuMetricTable.COLUMN_ID, streamData.getId());
         source.put(CpuMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
 
         source.put(CpuMetricTable.COLUMN_INSTANCE_ID, streamData.getInstanceId());

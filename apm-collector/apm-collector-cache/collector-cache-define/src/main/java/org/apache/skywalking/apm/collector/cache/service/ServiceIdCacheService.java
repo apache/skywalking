@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.cache.service;
 
 import org.apache.skywalking.apm.collector.core.module.Service;
@@ -25,5 +24,5 @@ import org.apache.skywalking.apm.collector.core.module.Service;
  * @author peng-yongsheng
  */
 public interface ServiceIdCacheService extends Service {
-    int get(int applicationId, String serviceName);
+    int get(int applicationId, int srcSpanType, String serviceName);
 }

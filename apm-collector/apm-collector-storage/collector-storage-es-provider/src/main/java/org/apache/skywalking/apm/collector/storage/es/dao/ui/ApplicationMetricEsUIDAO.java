@@ -39,6 +39,7 @@ import org.elasticsearch.script.Script;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 import org.elasticsearch.search.aggregations.pipeline.InternalSimpleValue;
 import org.elasticsearch.search.aggregations.pipeline.PipelineAggregatorBuilders;
 
@@ -54,9 +55,8 @@ public class ApplicationMetricEsUIDAO extends EsDAO implements IApplicationMetri
     private static final String AVG_TPS = "avg_tps";
 
     @Override
-    public List<ApplicationTPS> getTopNApplicationThroughput(Step step, long start, long end, long betweenSecond,
-        int topN,
-        MetricSource metricSource) {
+    public List<ApplicationTPS> getTopNApplicationThroughput(Step step, long startTimeBucket, long endTimeBucket,
+        int betweenSecond, int topN, MetricSource metricSource) {
         String tableName = TimePyramidTableNameBuilder.build(step, ApplicationMetricTable.TABLE);
 
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
@@ -64,7 +64,7 @@ public class ApplicationMetricEsUIDAO extends EsDAO implements IApplicationMetri
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(ApplicationMetricTable.COLUMN_TIME_BUCKET).gte(start).lte(end));
+        boolQuery.must().add(QueryBuilders.rangeQuery(ApplicationMetricTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
         boolQuery.must().add(QueryBuilders.termQuery(ApplicationMetricTable.COLUMN_SOURCE_VALUE, metricSource.getValue()));
 
         searchRequestBuilder.setQuery(boolQuery);
@@ -88,17 +88,72 @@ public class ApplicationMetricEsUIDAO extends EsDAO implements IApplicationMetri
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
         List<ApplicationTPS> applicationTPSs = new LinkedList<>();
-        Terms serviceIdTerms = searchResponse.getAggregations().get(ApplicationMetricTable.COLUMN_APPLICATION_ID);
-        serviceIdTerms.getBuckets().forEach(serviceIdTerm -> {
-            int applicationId = serviceIdTerm.getKeyAsNumber().intValue();
+        Terms applicationIdTerms = searchResponse.getAggregations().get(ApplicationMetricTable.COLUMN_APPLICATION_ID);
+        applicationIdTerms.getBuckets().forEach(applicationIdTerm -> {
+            int applicationId = applicationIdTerm.getKeyAsNumber().intValue();
 
-            ApplicationTPS serviceMetric = new ApplicationTPS();
-            InternalSimpleValue simpleValue = serviceIdTerm.getAggregations().get(AVG_TPS);
+            ApplicationTPS applicationTPS = new ApplicationTPS();
+            InternalSimpleValue simpleValue = applicationIdTerm.getAggregations().get(AVG_TPS);
 
-            serviceMetric.setApplicationId(applicationId);
-            serviceMetric.setTps((int)simpleValue.getValue());
-            applicationTPSs.add(serviceMetric);
+            applicationTPS.setApplicationId(applicationId);
+            applicationTPS.setCallsPerSec((int)simpleValue.getValue());
+            applicationTPSs.add(applicationTPS);
         });
         return applicationTPSs;
+    }
+
+    @Override
+    public List<ApplicationMetric> getApplications(Step step, long startTimeBucket, long endTimeBucket,
+        MetricSource metricSource) {
+        String tableName = TimePyramidTableNameBuilder.build(step, ApplicationMetricTable.TABLE);
+
+        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
+        searchRequestBuilder.setTypes(ApplicationMetricTable.TABLE_TYPE);
+        searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
+
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+        boolQuery.must().add(QueryBuilders.rangeQuery(ApplicationMetricTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
+        boolQuery.must().add(QueryBuilders.termQuery(ApplicationMetricTable.COLUMN_SOURCE_VALUE, metricSource.getValue()));
+
+        searchRequestBuilder.setQuery(boolQuery);
+        searchRequestBuilder.setSize(0);
+
+        TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(ApplicationMetricTable.COLUMN_APPLICATION_ID).field(ApplicationMetricTable.COLUMN_APPLICATION_ID).size(100);
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationMetricTable.COLUMN_TRANSACTION_CALLS).field(ApplicationMetricTable.COLUMN_TRANSACTION_CALLS));
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_CALLS).field(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_CALLS));
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationMetricTable.COLUMN_TRANSACTION_DURATION_SUM).field(ApplicationMetricTable.COLUMN_TRANSACTION_DURATION_SUM));
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM).field(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM));
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationMetricTable.COLUMN_SATISFIED_COUNT).field(ApplicationMetricTable.COLUMN_SATISFIED_COUNT));
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationMetricTable.COLUMN_TOLERATING_COUNT).field(ApplicationMetricTable.COLUMN_TOLERATING_COUNT));
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationMetricTable.COLUMN_FRUSTRATED_COUNT).field(ApplicationMetricTable.COLUMN_FRUSTRATED_COUNT));
+
+        searchRequestBuilder.addAggregation(aggregationBuilder);
+        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
+
+        List<ApplicationMetric> applicationMetrics = new LinkedList<>();
+        Terms applicationIdTerms = searchResponse.getAggregations().get(ApplicationMetricTable.COLUMN_APPLICATION_ID);
+        applicationIdTerms.getBuckets().forEach(applicationIdTerm -> {
+            int applicationId = applicationIdTerm.getKeyAsNumber().intValue();
+
+            Sum calls = applicationIdTerm.getAggregations().get(ApplicationMetricTable.COLUMN_TRANSACTION_CALLS);
+            Sum errorCalls = applicationIdTerm.getAggregations().get(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_CALLS);
+            Sum durations = applicationIdTerm.getAggregations().get(ApplicationMetricTable.COLUMN_TRANSACTION_DURATION_SUM);
+            Sum errorDurations = applicationIdTerm.getAggregations().get(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM);
+            Sum satisfiedCount = applicationIdTerm.getAggregations().get(ApplicationMetricTable.COLUMN_SATISFIED_COUNT);
+            Sum toleratingCount = applicationIdTerm.getAggregations().get(ApplicationMetricTable.COLUMN_TOLERATING_COUNT);
+            Sum frustratedCount = applicationIdTerm.getAggregations().get(ApplicationMetricTable.COLUMN_FRUSTRATED_COUNT);
+
+            ApplicationMetric applicationMetric = new ApplicationMetric();
+            applicationMetric.setId(applicationId);
+            applicationMetric.setCalls((long)calls.getValue());
+            applicationMetric.setErrorCalls((long)errorCalls.getValue());
+            applicationMetric.setDurations((long)durations.getValue());
+            applicationMetric.setErrorDurations((long)errorDurations.getValue());
+            applicationMetric.setSatisfiedCount((long)satisfiedCount.getValue());
+            applicationMetric.setToleratingCount((long)toleratingCount.getValue());
+            applicationMetric.setToleratingCount((long)frustratedCount.getValue());
+            applicationMetrics.add(applicationMetric);
+        });
+        return applicationMetrics;
     }
 }

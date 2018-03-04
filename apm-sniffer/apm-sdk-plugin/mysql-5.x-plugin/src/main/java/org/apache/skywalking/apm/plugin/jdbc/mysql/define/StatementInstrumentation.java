@@ -30,17 +30,17 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
 
 /**
- * {@link StatementInstrumentation} intercepts the following methods in the {@link
- * com.mysql.jdbc.StatementImpl} and {@link com.mysql.cj.jdbc.StatementImpl}class.
- * 1. execute <br/>
- * 2. executeQuery <br/>
- * 3. executeUpdate <br/>
- * 4. executeLargeUpdate <br/>
- * 5. addBatch <br/>
- * 6. executeBatchInternal <br/>
- * 7. executeUpdateInternal <br/>
- * 8. executeQuery <br/>
- * 9. executeBatch <br/>
+ * {@link StatementInstrumentation} intercepts the following methods in the
+ * com.mysql.jdbc.StatementImpl and com.mysql.cj.jdbc.StatementImpl class.
+ * 1. execute
+ * 2. executeQuery
+ * 3. executeUpdate
+ * 4. executeLargeUpdate
+ * 5. addBatch
+ * 6. executeBatchInternal
+ * 7. executeUpdateInternal
+ * 8. executeQuery
+ * 9. executeBatch
  *
  * @author zhangxin
  */

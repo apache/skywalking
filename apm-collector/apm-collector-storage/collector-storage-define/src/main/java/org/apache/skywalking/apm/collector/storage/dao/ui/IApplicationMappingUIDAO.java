@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.collector.storage.ui.common.Step;
  * @author peng-yongsheng
  */
 public interface IApplicationMappingUIDAO extends DAO {
-    List<ApplicationMapping> load(Step step, long startTime, long endTime);
+    List<ApplicationMapping> load(Step step, long startTimeBucket, long endTimeBucket);
 
     class ApplicationMapping {
         private int applicationId;
