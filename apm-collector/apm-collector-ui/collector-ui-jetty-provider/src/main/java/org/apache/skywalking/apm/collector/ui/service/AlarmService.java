@@ -32,6 +32,7 @@ import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationAlarmListUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationAlarmUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMappingUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceAlarmUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceAlarmUIDAO;
@@ -56,6 +57,7 @@ public class AlarmService {
     private final Gson gson = new Gson();
     private final IInstanceUIDAO instanceDAO;
     private final IApplicationAlarmUIDAO applicationAlarmUIDAO;
+    private final IApplicationMappingUIDAO applicationMappingUIDAO;
     private final IInstanceAlarmUIDAO instanceAlarmUIDAO;
     private final IServiceAlarmUIDAO serviceAlarmUIDAO;
     private final IApplicationAlarmListUIDAO applicationAlarmListUIDAO;
@@ -67,6 +69,7 @@ public class AlarmService {
     public AlarmService(ModuleManager moduleManager) {
         this.instanceDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceUIDAO.class);
         this.applicationAlarmUIDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationAlarmUIDAO.class);
+        this.applicationMappingUIDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationMappingUIDAO.class);
         this.instanceAlarmUIDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceAlarmUIDAO.class);
         this.serviceAlarmUIDAO = moduleManager.find(StorageModule.NAME).getService(IServiceAlarmUIDAO.class);
         this.applicationAlarmListUIDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationAlarmListUIDAO.class);
@@ -74,12 +77,16 @@ public class AlarmService {
         this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
     }
 
-    public Alarm loadApplicationAlarmList(String keyword, long startTimeBucket, long endTimeBucket,
+    public Alarm loadApplicationAlarmList(String keyword, Step step, long startTimeBucket, long endTimeBucket,
         int limit, int from) throws ParseException {
         logger.debug("keyword: {}, startTimeBucket: {}, endTimeBucket: {}, limit: {}, from: {}", keyword, startTimeBucket, endTimeBucket, limit, from);
         Alarm alarm = applicationAlarmUIDAO.loadAlarmList(keyword, startTimeBucket, endTimeBucket, limit, from);
+        List<IApplicationMappingUIDAO.ApplicationMapping> applicationMappings = applicationMappingUIDAO.load(step, startTimeBucket, endTimeBucket);
+        Map<Integer, Integer> mappings = new HashMap<>();
+        applicationMappings.forEach(applicationMapping -> mappings.put(applicationMapping.getMappingApplicationId(), applicationMapping.getApplicationId()));
+
         alarm.getItems().forEach(item -> {
-            String applicationCode = applicationCacheService.getApplicationById(item.getId()).getApplicationCode();
+            String applicationCode = applicationCacheService.getApplicationById(mappings.getOrDefault(item.getId(), item.getId())).getApplicationCode();
             switch (item.getCauseType()) {
                 case SLOW_RESPONSE:
                     item.setTitle("Application " + applicationCode + RESPONSE_TIME_ALARM);
@@ -92,13 +99,18 @@ public class AlarmService {
         return alarm;
     }
 
-    public Alarm loadInstanceAlarmList(String keyword, long startTimeBucket, long endTimeBucket,
+    public Alarm loadInstanceAlarmList(String keyword, Step step, long startTimeBucket, long endTimeBucket,
         int limit, int from) throws ParseException {
         logger.debug("keyword: {}, startTimeBucket: {}, endTimeBucket: {}, limit: {}, from: {}", keyword, startTimeBucket, endTimeBucket, limit, from);
         Alarm alarm = instanceAlarmUIDAO.loadAlarmList(keyword, startTimeBucket, endTimeBucket, limit, from);
+
+        List<IApplicationMappingUIDAO.ApplicationMapping> applicationMappings = applicationMappingUIDAO.load(step, startTimeBucket, endTimeBucket);
+        Map<Integer, Integer> mappings = new HashMap<>();
+        applicationMappings.forEach(applicationMapping -> mappings.put(applicationMapping.getMappingApplicationId(), applicationMapping.getApplicationId()));
+
         alarm.getItems().forEach(item -> {
             Instance instance = instanceDAO.getInstance(item.getId());
-            String applicationCode = applicationCacheService.getApplicationById(instance.getApplicationId()).getApplicationCode();
+            String applicationCode = applicationCacheService.getApplicationById(mappings.getOrDefault(instance.getApplicationId(), instance.getApplicationId())).getApplicationCode();
             String serverName = buildServerName(instance.getOsInfo());
             switch (item.getCauseType()) {
                 case SLOW_RESPONSE:
@@ -113,13 +125,18 @@ public class AlarmService {
         return alarm;
     }
 
-    public Alarm loadServiceAlarmList(String keyword, long startTimeBucket, long endTimeBucket,
+    public Alarm loadServiceAlarmList(String keyword, Step step, long startTimeBucket, long endTimeBucket,
         int limit, int from) throws ParseException {
         logger.debug("keyword: {}, startTimeBucket: {}, endTimeBucket: {}, limit: {}, from: {}", keyword, startTimeBucket, endTimeBucket, limit, from);
         Alarm alarm = serviceAlarmUIDAO.loadAlarmList(keyword, startTimeBucket, endTimeBucket, limit, from);
+
+        List<IApplicationMappingUIDAO.ApplicationMapping> applicationMappings = applicationMappingUIDAO.load(step, startTimeBucket, endTimeBucket);
+        Map<Integer, Integer> mappings = new HashMap<>();
+        applicationMappings.forEach(applicationMapping -> mappings.put(applicationMapping.getMappingApplicationId(), applicationMapping.getApplicationId()));
+
         alarm.getItems().forEach(item -> {
             ServiceName serviceName = serviceNameCacheService.get(item.getId());
-            String applicationCode = applicationCacheService.getApplicationById(serviceName.getApplicationId()).getApplicationCode();
+            String applicationCode = applicationCacheService.getApplicationById(mappings.getOrDefault(serviceName.getApplicationId(), serviceName.getApplicationId())).getApplicationCode();
             switch (item.getCauseType()) {
                 case SLOW_RESPONSE:
                     item.setTitle("Service " + serviceName.getServiceName() + " of Application " + applicationCode + RESPONSE_TIME_ALARM);
