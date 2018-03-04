@@ -255,7 +255,7 @@ class TraceStack extends PureComponent {
         },
         {
           title: 'is error',
-          content: span.isError,
+          content: `${span.isError}`,
         },
       ];
       data = base.concat(span.tags.map(t => ({ title: t.key, content: t.value })));

@@ -46,6 +46,7 @@ export default {
                 peer: '@ip',
                 'tags|1-5': [{ key: 'db.type', value: 'aa' }],
                 'logs|2-10': [{ 'time|+1': 1516151345000, 'data|3-8': [{ key: 'db.type', value: 'aa' }] }],
+                'isError|1': true,
               },
               {
                 spanId: 2,
@@ -59,6 +60,7 @@ export default {
                 'component|1': ['MySQL', 'H2', 'Spring'],
                 peer: '@ip',
                 'tags|1-5': [{ key: 'db.type', value: 'aa' }],
+                'isError|1': true,
               },
               {
                 spanId: 3,
@@ -72,6 +74,7 @@ export default {
                 'component|1': ['MySQL', 'H2', 'Spring'],
                 peer: '@ip',
                 'tags|1-5': [{ key: 'db.type', value: 'aa' }],
+                'isError|1': true,
               },
               {
                 spanId: 4,
@@ -85,6 +88,7 @@ export default {
                 'component|1': ['MySQL', 'H2', 'Spring'],
                 peer: '@ip',
                 'tags|1-5': [{ key: 'db.type', value: 'aa' }],
+                'isError|1': true,
               },
               {
                 spanId: 5,
@@ -98,6 +102,7 @@ export default {
                 'component|1': ['RockerMQ'],
                 peer: '@ip',
                 'tags|1-5': [{ key: 'producer', value: 'tt' }],
+                'isError|1': true,
               },
               {
                 spanId: 6,
@@ -116,6 +121,7 @@ export default {
                     parentSegmentId: 1,
                   },
                 ],
+                'isError|1': true,
               },
               {
                 spanId: 6,
@@ -138,6 +144,7 @@ export default {
                     type: 'CROSS_THREAD',
                   },
                 ],
+                'isError|1': true,
               },
             ],
           },
