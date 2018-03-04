@@ -40,6 +40,7 @@ import org.apache.skywalking.apm.collector.storage.ui.application.ApplicationNod
 import org.apache.skywalking.apm.collector.storage.ui.application.ConjecturalNode;
 import org.apache.skywalking.apm.collector.storage.ui.common.Call;
 import org.apache.skywalking.apm.collector.storage.ui.common.Node;
+import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.ui.common.Topology;
 import org.apache.skywalking.apm.collector.storage.ui.common.VisualUserNode;
 import org.apache.skywalking.apm.collector.ui.utils.ApdexCalculator;
@@ -72,7 +73,7 @@ class TopologyBuilder {
         List<IApplicationMetricUIDAO.ApplicationMetric> applicationMetrics,
         List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> callerReferenceMetric,
         List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> calleeReferenceMetric,
-        long startTimeBucket, long endTimeBucket, long startSecondTimeBucket, long endSecondTimeBucket) {
+        Step step, long startTimeBucket, long endTimeBucket, long startSecondTimeBucket, long endSecondTimeBucket) {
         Map<Integer, String> components = changeNodeComp2Map(applicationComponents);
         Map<Integer, Integer> mappings = changeMapping2Map(applicationMappings);
 
@@ -97,7 +98,7 @@ class TopologyBuilder {
             applicationNode.setApdex(ApdexCalculator.INSTANCE.calculate(applicationMetric.getSatisfiedCount(), applicationMetric.getToleratingCount(), applicationMetric.getFrustratedCount()));
             applicationNode.setAlarm(false);
             try {
-                Alarm alarm = alarmService.loadApplicationAlarmList(Const.EMPTY_STRING, startTimeBucket, endTimeBucket, 1, 0);
+                Alarm alarm = alarmService.loadApplicationAlarmList(Const.EMPTY_STRING, step, startTimeBucket, endTimeBucket, 1, 0);
                 if (alarm.getItems().size() > 0) {
                     applicationNode.setAlarm(true);
                 }
