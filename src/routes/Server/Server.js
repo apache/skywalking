@@ -48,7 +48,8 @@ export default class Server extends PureComponent {
     });
   }
   avg = list => (list.length > 0 ?
-    (list.reduce((acc, curr) => acc + curr) / list.length).toFixed(2) : 0)
+    parseFloat((list.reduce((acc, curr) => acc + curr) / list.length).toFixed(2)) : 0)
+  bytesToMB = list => list.map(_ => parseFloat((_ / (1024 ** 2)).toFixed(2)))
   render() {
     const { form, duration, server } = this.props;
     const { getFieldDecorator } = form;
@@ -73,10 +74,11 @@ export default class Server extends PureComponent {
                       host
                       pid
                       ipv4
+                      applicationCode
                     }
                   }
                 `}
-                transform={r => ({ ...r, label: `${r.pid}@${r.host}` })}
+                transform={r => ({ ...r, label: `${r.pid}@${r.applicationCode}` })}
               />
             )}
           </FormItem>
@@ -142,8 +144,8 @@ export default class Server extends PureComponent {
                 contentHeight={150}
               >
                 <Area
-                  data={axis(duration, getMemoryTrend.heap, ({ x, y }) => ({ x, y, type: 'value' }))
-                    .concat(axis(duration, getMemoryTrend.maxHeap, ({ x, y }) => ({ x, y, type: 'free' })))}
+                  data={axis(duration, this.bytesToMB(getMemoryTrend.heap), ({ x, y }) => ({ x, y, type: 'value' }))
+                    .concat(axis(duration, this.bytesToMB(getMemoryTrend.maxHeap), ({ x, y }) => ({ x, y, type: 'free' })))}
                 />
               </ChartCard>
             </Col>
@@ -153,8 +155,8 @@ export default class Server extends PureComponent {
                 contentHeight={150}
               >
                 <Area
-                  data={axis(duration, getMemoryTrend.noheap, ({ x, y }) => ({ x, y, type: 'value' }))
-                  .concat(axis(duration, getMemoryTrend.maxNoheap, ({ x, y }) => ({ x, y, type: 'free' })))}
+                  data={axis(duration, this.bytesToMB(getMemoryTrend.noheap), ({ x, y }) => ({ x, y, type: 'value' }))
+                  .concat(axis(duration, this.bytesToMB(getMemoryTrend.maxNoheap), ({ x, y }) => ({ x, y, type: 'free' })))}
                 />
               </ChartCard>
             </Col>

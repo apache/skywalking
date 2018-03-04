@@ -57,8 +57,8 @@ export default class Service extends PureComponent {
     });
     const nData = {
       nodes: data.nodes,
-      edges: data.calls.filter(_ => _.callsPerSec * _.avgResponseTime > 0).map(_ =>
-        ({ ..._, value: _.callsPerSec * _.avgResponseTime, source: nodesMap.get(`${_.source}`), target: nodesMap.get(`${_.target}`) })),
+      edges: data.calls.map(_ =>
+        ({ ..._, value: (_.callsPerSec < 1 ? 1000 : _.callsPerSec * _.avgResponseTime), source: nodesMap.get(`${_.source}`), target: nodesMap.get(`${_.target}`) })),
     };
     return (
       <Row gutter={24}>
@@ -72,7 +72,7 @@ export default class Service extends PureComponent {
               edgeTooltip={['target*source*callsPerSec*avgResponseTime*isAlert', (target, source, callsPerSec, avgResponseTime) => {
                 return {
                   name: `${source.name} to ${target.name} </span>`,
-                  value: `${callsPerSec} calls/s ${avgResponseTime}ms`,
+                  value: `${callsPerSec < 1 ? '<1' : callsPerSec} calls/s ${avgResponseTime}ms`,
                 };
               }]}
               edgeColor={['isAlert', isAlert => (isAlert ? '#DC143C' : '#bbb')]}
