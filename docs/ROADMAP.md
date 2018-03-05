@@ -27,7 +27,6 @@ Core features are separated into 3 groups: agent, collector and UI.
 - Baseline calculation, to make the alarm more accuracy.
 
 ### UI
-- Whole new 5.0 UI. New topology; metrics of application, server and service; Trace query; Alarm. [WIP]
 - Merged into Collector as a module.
 - Support i18n.
 - More interactive UI for the DIG data from any domain. 
