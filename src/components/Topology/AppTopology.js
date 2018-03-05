@@ -68,8 +68,8 @@ export default class AppTopology extends Base {
             <div class="node-percentage">${data.sla}%</div>
             <div>${data.callsPerSec} calls/s</div>
             <div>
-              <img src="data.png" class="${styles.logo}"/>${data.numOfServer}
-              <img src="alert.png" class="${styles.logo}"/>
+              <img src="img/icon/data.png" class="${styles.logo}"/>${data.numOfServer}
+              <img src="img/icon/alert.png" class="${styles.logo}"/>
               <span class="${styles.alert}">${data.numOfServerAlarm}</span>
             </div>
             <div>${data.apdex} Apdex</div>
