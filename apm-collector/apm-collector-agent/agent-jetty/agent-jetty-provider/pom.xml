@@ -61,5 +61,15 @@
             <artifactId>segment-parser-define</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>jvm-define</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>metric-define</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
