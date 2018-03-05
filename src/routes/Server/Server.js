@@ -78,7 +78,7 @@ export default class Server extends PureComponent {
                     }
                   }
                 `}
-                transform={r => ({ ...r, label: `${r.pid}@${r.applicationCode}` })}
+                transform={r => ({ ...r, label: `${r.pid}@${r.host}:${r.applicationCode}` })}
               />
             )}
           </FormItem>
