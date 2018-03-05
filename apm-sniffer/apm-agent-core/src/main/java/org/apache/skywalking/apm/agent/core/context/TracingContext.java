@@ -248,21 +248,7 @@ public class TracingContext implements AbstractTracerContext {
         AbstractSpan entrySpan;
         final AbstractSpan parentSpan = peek();
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
-        if (parentSpan == null) {
-            entrySpan = (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
-                .findOnly(segment.getApplicationId(), operationName)
-                .doInCondition(new PossibleFound.FoundAndObtain() {
-                    @Override public Object doProcess(int operationId) {
-                        return new EntrySpan(spanIdGenerator++, parentSpanId, operationId);
-                    }
-                }, new PossibleFound.NotFoundAndObtain() {
-                    @Override public Object doProcess() {
-                        return new EntrySpan(spanIdGenerator++, parentSpanId, operationName);
-                    }
-                });
-            entrySpan.start();
-            return push(entrySpan);
-        } else if (parentSpan.isEntry()) {
+        if (parentSpan != null && parentSpan.isEntry()) {
             entrySpan = (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
                 .findOnly(segment.getApplicationId(), operationName)
                 .doInCondition(new PossibleFound.FoundAndObtain() {
@@ -276,7 +262,19 @@ public class TracingContext implements AbstractTracerContext {
                 });
             return entrySpan.start();
         } else {
-            throw new IllegalStateException("The Entry Span can't be the child of Non-Entry Span");
+            entrySpan = (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
+                .findOnly(segment.getApplicationId(), operationName)
+                .doInCondition(new PossibleFound.FoundAndObtain() {
+                    @Override public Object doProcess(int operationId) {
+                        return new EntrySpan(spanIdGenerator++, parentSpanId, operationId);
+                    }
+                }, new PossibleFound.NotFoundAndObtain() {
+                    @Override public Object doProcess() {
+                        return new EntrySpan(spanIdGenerator++, parentSpanId, operationName);
+                    }
+                });
+            entrySpan.start();
+            return push(entrySpan);
         }
     }
 
