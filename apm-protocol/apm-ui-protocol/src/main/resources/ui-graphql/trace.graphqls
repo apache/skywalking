@@ -6,6 +6,7 @@ type TraceBrief {
 
 # Trace basic info
 type BasicTrace {
+   segmentId: String!
    operationName: String!
    duration: Int!
    start: String!
