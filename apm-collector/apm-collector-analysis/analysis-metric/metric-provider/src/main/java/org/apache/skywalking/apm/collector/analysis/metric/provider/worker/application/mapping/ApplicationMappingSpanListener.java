@@ -34,6 +34,7 @@ import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMapping;
+import org.apache.skywalking.apm.network.proto.SpanLayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,18 +55,20 @@ public class ApplicationMappingSpanListener implements FirstSpanListener, EntryS
 
     @Override public void parseEntry(SpanDecorator spanDecorator, int applicationId, int instanceId, String segmentId) {
         logger.debug("application mapping listener parse reference");
-        if (spanDecorator.getRefsCount() > 0) {
-            for (int i = 0; i < spanDecorator.getRefsCount(); i++) {
-                ApplicationMapping applicationMapping = new ApplicationMapping();
-                applicationMapping.setApplicationId(applicationId);
+        if (!spanDecorator.getSpanLayer().equals(SpanLayer.MQ)) {
+            if (spanDecorator.getRefsCount() > 0) {
+                for (int i = 0; i < spanDecorator.getRefsCount(); i++) {
+                    ApplicationMapping applicationMapping = new ApplicationMapping();
+                    applicationMapping.setApplicationId(applicationId);
 
-                int addressId = spanDecorator.getRefs(i).getNetworkAddressId();
-                int mappingApplicationId = applicationCacheService.getApplicationIdByAddressId(addressId);
-                applicationMapping.setMappingApplicationId(mappingApplicationId);
+                    int addressId = spanDecorator.getRefs(i).getNetworkAddressId();
+                    int mappingApplicationId = applicationCacheService.getApplicationIdByAddressId(addressId);
+                    applicationMapping.setMappingApplicationId(mappingApplicationId);
 
-                String metricId = String.valueOf(applicationId) + Const.ID_SPLIT + String.valueOf(applicationMapping.getMappingApplicationId());
-                applicationMapping.setMetricId(metricId);
-                applicationMappings.add(applicationMapping);
+                    String metricId = String.valueOf(applicationId) + Const.ID_SPLIT + String.valueOf(applicationMapping.getMappingApplicationId());
+                    applicationMapping.setMetricId(metricId);
+                    applicationMappings.add(applicationMapping);
+                }
             }
         }
     }
