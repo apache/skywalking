@@ -29,8 +29,6 @@ import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
-import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.dao.register.IInstanceRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +43,6 @@ public class InstanceIDService implements IInstanceIDService {
     private final ModuleManager moduleManager;
     private InstanceCacheService instanceCacheService;
     private Graph<Instance> instanceRegisterGraph;
-    private IInstanceRegisterDAO instanceRegisterDAO;
     private ApplicationCacheService applicationCacheService;
 
     public InstanceIDService(ModuleManager moduleManager) {
@@ -64,13 +61,6 @@ public class InstanceIDService implements IInstanceIDService {
             this.instanceRegisterGraph = GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.INSTANCE_REGISTER_GRAPH_ID, Instance.class);
         }
         return instanceRegisterGraph;
-    }
-
-    private IInstanceRegisterDAO getInstanceRegisterDAO() {
-        if (ObjectUtils.isEmpty(instanceRegisterDAO)) {
-            instanceRegisterDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceRegisterDAO.class);
-        }
-        return instanceRegisterDAO;
     }
 
     private ApplicationCacheService getApplicationCacheService() {
@@ -122,20 +112,5 @@ public class InstanceIDService implements IInstanceIDService {
             getInstanceRegisterGraph().start(instance);
         }
         return instanceId;
-    }
-
-    @Override public void recover(int instanceId, int applicationId, long registerTime, String osInfo) {
-        logger.debug("instance recover, instance id: {}, application id: {}, register time: {}", instanceId, applicationId, registerTime);
-        Instance instance = new Instance();
-        instance.setId(String.valueOf(instanceId));
-        instance.setApplicationId(applicationId);
-        instance.setApplicationCode(getApplicationCacheService().getApplicationById(applicationId).getApplicationCode());
-        instance.setAgentUUID("");
-        instance.setRegisterTime(registerTime);
-        instance.setHeartBeatTime(registerTime);
-        instance.setInstanceId(instanceId);
-        instance.setOsInfo(osInfo);
-
-        getInstanceRegisterDAO().save(instance);
     }
 }
