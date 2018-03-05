@@ -72,11 +72,12 @@ public class ApplicationService {
         int... applicationIds) {
         List<Application> applications = instanceDAO.getApplications(startSecondTimeBucket, endSecondTimeBucket, applicationIds);
 
-        applications.forEach(application -> {
+        for (int i = applications.size() - 1; i >= 0; i--) {
+            Application application = applications.get(i);
             if (application.getId() == Const.NONE_APPLICATION_ID) {
-                applications.remove(application);
+                applications.remove(i);
             }
-        });
+        }
 
         applications.forEach(application -> {
             String applicationCode = applicationCacheService.getApplicationById(application.getId()).getApplicationCode();
@@ -112,11 +113,12 @@ public class ApplicationService {
         return applicationThroughput;
     }
 
-    public ConjecturalAppBrief getConjecturalApps(Step step, long start, long end) throws ParseException {
+    public ConjecturalAppBrief getConjecturalApps(Step step, long startSecondTimeBucket,
+        long endSecondTimeBucket) throws ParseException {
         List<ConjecturalApp> conjecturalApps = networkAddressUIDAO.getConjecturalApps();
         conjecturalApps.forEach(conjecturalApp -> {
-            String name = ServerTypeDefine.getInstance().getServerType(conjecturalApp.getId());
-            conjecturalApp.setName(name);
+            String serverType = ServerTypeDefine.getInstance().getServerType(conjecturalApp.getId());
+            conjecturalApp.setName(serverType);
         });
 
         ConjecturalAppBrief conjecturalAppBrief = new ConjecturalAppBrief();

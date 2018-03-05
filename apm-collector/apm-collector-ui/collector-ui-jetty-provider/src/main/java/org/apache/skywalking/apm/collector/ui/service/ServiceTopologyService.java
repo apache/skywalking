@@ -73,8 +73,8 @@ public class ServiceTopologyService {
         Map<Integer, String> components = new HashMap<>();
         applicationComponents.forEach(component -> components.put(component.getApplicationId(), ComponentsDefine.getInstance().getComponentName(component.getComponentId())));
 
-        List<IServiceReferenceMetricUIDAO.ServiceReferenceMetric> referenceMetrics = serviceReferenceMetricUIDAO.getFrontServices(step, startTimeBucket, endTimeBucket, MetricSource.Callee, serviceId);
-        referenceMetrics.addAll(serviceReferenceMetricUIDAO.getBehindServices(step, startTimeBucket, endTimeBucket, MetricSource.Caller, serviceId));
+        List<IServiceReferenceMetricUIDAO.ServiceReferenceMetric> referenceMetrics = serviceReferenceMetricUIDAO.getFrontServices(step, startTimeBucket, endTimeBucket, MetricSource.Caller, serviceId);
+        referenceMetrics.addAll(serviceReferenceMetricUIDAO.getBehindServices(step, startTimeBucket, endTimeBucket, MetricSource.Callee, serviceId));
 
         Set<Integer> nodeIds = new HashSet<>();
 
@@ -94,6 +94,7 @@ public class ServiceTopologyService {
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
             }
+            call.setAlert(false);
             calls.add(call);
         });
 

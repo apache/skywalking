@@ -21,26 +21,29 @@ package org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.servi
 import org.apache.skywalking.apm.collector.analysis.alarm.define.graph.AlarmWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.AlarmAssertWorker;
 import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.AlarmAssertWorkerProvider;
+import org.apache.skywalking.apm.collector.cache.CacheModule;
+import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
 import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
 import org.apache.skywalking.apm.collector.configuration.service.IServiceReferenceAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
+import org.apache.skywalking.apm.collector.storage.table.MetricSource;
+import org.apache.skywalking.apm.collector.storage.table.alarm.AlarmType;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ServiceReferenceAlarm;
+import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class ServiceReferenceMetricAlarmAssertWorker extends AlarmAssertWorker<ServiceReferenceMetric, ServiceReferenceAlarm> {
 
-    private final Logger logger = LoggerFactory.getLogger(ServiceReferenceMetricAlarmAssertWorker.class);
-
+    private final ServiceNameCacheService serviceNameCacheService;
     private final IServiceReferenceAlarmRuleConfig serviceReferenceAlarmRuleConfig;
 
-    public ServiceReferenceMetricAlarmAssertWorker(ModuleManager moduleManager) {
+    ServiceReferenceMetricAlarmAssertWorker(ModuleManager moduleManager) {
         super(moduleManager);
+        this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
         this.serviceReferenceAlarmRuleConfig = moduleManager.find(ConfigurationModule.NAME).getService(IServiceReferenceAlarmRuleConfig.class);
     }
 
@@ -58,6 +61,21 @@ public class ServiceReferenceMetricAlarmAssertWorker extends AlarmAssertWorker<S
         serviceReferenceAlarm.setFrontServiceId(inputMetric.getFrontServiceId());
         serviceReferenceAlarm.setBehindServiceId(inputMetric.getBehindServiceId());
         return serviceReferenceAlarm;
+    }
+
+    @Override protected void generateAlarmContent(ServiceReferenceAlarm alarm, double threshold) {
+        ServiceName serviceName = serviceNameCacheService.get(alarm.getBehindServiceId());
+
+        String clientOrServer = "server";
+        if (MetricSource.Caller.getValue() == alarm.getSourceValue()) {
+            clientOrServer = "client";
+        }
+
+        if (AlarmType.ERROR_RATE.getValue() == alarm.getAlarmType()) {
+            alarm.setAlarmContent("The success rate of " + serviceName.getServiceName() + ", detected from " + clientOrServer + " side, is lower than " + threshold + " rate.");
+        } else if (AlarmType.SLOW_RTT.getValue() == alarm.getAlarmType()) {
+            alarm.setAlarmContent("Response time of " + serviceName.getServiceName() + ", detected from " + clientOrServer + " side, is slower than " + threshold + " ms.");
+        }
     }
 
     @Override protected Double calleeErrorRateThreshold() {
