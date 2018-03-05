@@ -78,7 +78,7 @@ export default class Server extends PureComponent {
                     }
                   }
                 `}
-                transform={r => ({ ...r, label: `${r.pid}@${r.applicationCode}` })}
+                transform={r => ({ ...r, label: `${r.pid}@${r.host}:${r.applicationCode}` })}
               />
             )}
           </FormItem>
@@ -128,7 +128,7 @@ export default class Server extends PureComponent {
           <Row gutter={24}>
             <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginTop: 24 }}>
               <ChartCard
-                title="CPU"
+                title="CPU %"
                 contentHeight={150}
               >
                 <Line
@@ -140,7 +140,7 @@ export default class Server extends PureComponent {
           <Row gutter={24}>
             <Col xs={24} sm={24} md={12} lg={12} xl={12} style={{ marginTop: 24 }}>
               <ChartCard
-                title="Heap"
+                title="Heap MB"
                 contentHeight={150}
               >
                 <Area
@@ -151,7 +151,7 @@ export default class Server extends PureComponent {
             </Col>
             <Col xs={24} sm={24} md={12} lg={12} xl={12} style={{ marginTop: 24 }}>
               <ChartCard
-                title="Non-Heap"
+                title="Non-Heap MB"
                 contentHeight={150}
               >
                 <Area
@@ -164,7 +164,7 @@ export default class Server extends PureComponent {
           <Row gutter={24}>
             <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginTop: 24 }}>
               <ChartCard
-                title="GC"
+                title="GC ms"
                 contentHeight={150}
               >
                 <StackBar

@@ -14,7 +14,8 @@ const dataQuery = `
   query BasicTraces($condition: TraceQueryCondition) {
     queryBasicTraces(condition: $condition) {
       traces {
-        key: operationName
+        key: segmentId
+        operationName
         duration
         start
         isError
@@ -83,16 +84,19 @@ export default generateModal({
         type: 'saveSpans',
         payload: response,
         key: payload.key,
+        traceId: payload.variables.traceId,
       });
     },
   },
   reducers: {
     saveSpans(state, action) {
-      const { key } = action;
+      const { key, traceId } = action;
       const { queryTrace: { spans } } = action.payload.data;
       const { data: { queryBasicTraces: { traces } } } = state;
       const trace = traces.find(t => t.key === key);
-      trace.spans = spans;
+      const { spansContainer = {} } = trace;
+      spansContainer[traceId] = spans;
+      trace.spansContainer = spansContainer;
       return {
         ...state,
       };
