@@ -1,7 +1,17 @@
 {
   "name": "skywalking-ui",
   "version": "5.0.0-alpha",
-  "description": "A web interface of SkyWalking",
+  "description": "A web interface of Apache SkyWalking",
+  "homepage": "https://github.com/apache/incubator-skywalking-ui",
+  "bugs": {
+    "url" : "https://github.com/apache/incubator-skywalking-ui/issues",
+    "email" : "hanahmily@apache.org"
+  },
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Hongtao Gao",
+    "email": "hanahmily@apache.org"
+  },
   "private": true,
   "scripts": {
     "precommit": "npm run lint-staged",

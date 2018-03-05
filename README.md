@@ -1,42 +1,76 @@
-English | [简体中文](./README.zh-CN.md)
-
-Apache SkyWalking Web UI
+Apache SkyWalking UI
 ===============
 
 <img src="https://skywalkingtest.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
 
-The web UI for [SkyWalking APM](https://github.com/apache/incubator-skywalking).
+The UI for [Apache SkyWalking](https://github.com/apache/incubator-skywalking).
 
-[![Build Status](https://travis-ci.org/apache/incubator-skywalking-ui.svg?branch=master)](https://travis-ci.org/apache/incubator-skywalking-ui)
+[![Build Status][ci-img]][ci] 
+[![Join the chat][gitter-img]][gitter]
 
-SkyWalking Web UI 5.0 is developing, **NOW!!**. Submit issue and [@hanahmily](https://github.com/hanahmily) if you want to proposal something. 
+## Contributing
 
-___
-_SkyWalking 3.0 documents:_
+See [CONTRIBUTING](./CONTRIBUTING.md).
 
-This independent UI repository works since sky-walking 3.0.
+## Development
 
-1. Realtime Application Topological Graph
-1. Distributed Trace Query.
-1. Application Instances Overview.
-1. JVM Metric View of application instances.
-1. The relationship of services.
+The app was built with [dva framework](https://github.com/dvajs/dva).
 
-Recommand browsers: Safari & Chrome
+### Getting codes
 
-#### QuickStart
-1. Requirement: Java 8+
-2. Download and startup
+Fork, then clone the `incubator-skywalking-ui` repo and change directory into it.
 
-```shell
-> curl -O https://github.com/wu-sheng/sky-walking-ui/releases/download/<project-version>/skywalking-web.tar.gz
-> tar -xvf skywalking-web.tar.gz
-> cd skywalking-web/bin
-> ./startup.sh
 ```
-3. Configuring skywalking-ui
-* Set server listening port in `config/application.properties`
-* Set log in `config/log4j2.xml`
-* Set addresses of collector servers in `config/collector_config.properties`
+git clone https://github.com/apache/incubator-skywalking-ui.git
+cd incubator-skywalking-ui
+```
 
-4. open `http://127.0.0.1:8080/`
+Install dependencies via `npm`:
+
+```
+npm install
+```
+
+### Running the application
+
+#### Mock mode
+
+This mode is suitable for developing locally.
+
+```
+npm start
+```
+
+#### No-Mock mode 
+
+This mode is suitable for e2e test with backend collector.
+
+```
+npm run start:no-mock
+```
+
+The default collector query address is `http://localhost:12800`. You can change this address by editing `.webpack.js` file.
+
+#### Commands
+
+| Command                 | Description                                                 |
+| ----------------------- | ----------------------------------------------------------- |
+| `npm start`             | Starts development server with hot reloading and mock.      |
+| `npm run start:no-mock` | Starts development server to access collector               |
+| `npm test`              | Runs all the tests                                          |
+| `npm run lint`          | Lint the project (eslint, stylelint)                        |
+| `npm run build`         | Runs production build. Outputs files to `/dist`.            |
+
+## Build
+
+Running build will output all the static files to the `./dist` folder:
+
+```
+npm install
+npm run build
+```
+
+[ci-img]: https://travis-ci.org/apache/incubator-skywalking-ui.svg?branch=master
+[ci]: https://travis-ci.org/apache/incubator-skywalking-ui
+[gitter-img]: https://badges.gitter.im/openskywalking/Lobby.svg
+[gitter]: https://gitter.im/openskywalking/Lobby
