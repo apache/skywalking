@@ -70,7 +70,7 @@ export default class Dashboard extends PureComponent {
           <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 24 }}>
             <ChartCard
               title="Avg Application Alarm"
-              avatar={<img style={{ width: 56, height: 56 }} src="alert.svg" alt="app" />}
+              avatar={<img style={{ width: 56, height: 56 }} src="alert.png" alt="app" />}
               total={`${avg.toFixed(2)}%`}
               footer={<div><Field label="Max" value={`${max}%`} /> <Field label="Min" value={`${min}%`} /></div>}
               contentHeight={100}
