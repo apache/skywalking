@@ -23,7 +23,7 @@ export default {
                   id: 1,
                   name: '@name',
                   'type|1': ['DUBBO', 'tomcat', 'SPRINGMVC'],
-                  'calls|1000-2000': 1,
+                  'callsPerSec|1000-2000': 1,
                   'sla|1-100.1-2': 1,
                   'apdex|0.2': 1,
                   'numOfServer|1-100': 1,
@@ -48,7 +48,7 @@ export default {
                 {
                   source: 1,
                   target: 200,
-                  'isAlarm|1': true,
+                  'isAlert|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
                   'avgResponseTime|500-5000': 1,
@@ -56,7 +56,7 @@ export default {
                 {
                   source: 1,
                   target: 201,
-                  'isAlarm|1': true,
+                  'isAlert|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
                   'avgResponseTime|500-5000': 1,
@@ -64,7 +64,7 @@ export default {
                 {
                   source: 1,
                   target: 202,
-                  'isAlarm|1': true,
+                  'isAlert|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
                   'avgResponseTime|500-5000': 1,
@@ -72,7 +72,7 @@ export default {
                 {
                   source: 1,
                   target: 203,
-                  'isAlarm|1': true,
+                  'isAlert|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
                   'avgResponseTime|500-5000': 1,
@@ -80,7 +80,7 @@ export default {
                 {
                   source: 1,
                   target: 204,
-                  'isAlarm|1': true,
+                  'isAlert|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
                   'callsPerSec|100-2000': 1,
                   'avgResponseTime|500-5000': 1,

@@ -48,7 +48,8 @@ export default class Server extends PureComponent {
     });
   }
   avg = list => (list.length > 0 ?
-    (list.reduce((acc, curr) => acc + curr) / list.length).toFixed(2) : 0)
+    parseFloat((list.reduce((acc, curr) => acc + curr) / list.length).toFixed(2)) : 0)
+  bytesToMB = list => list.map(_ => parseFloat((_ / (1024 ** 2)).toFixed(2)))
   render() {
     const { form, duration, server } = this.props;
     const { getFieldDecorator } = form;
@@ -69,13 +70,15 @@ export default class Server extends PureComponent {
                   query SearchServer($keyword: String!, $duration: Duration!) {
                     searchServer(keyword: $keyword, duration: $duration) {
                       key: id
-                      label: name
+                      name
                       host
                       pid
                       ipv4
+                      applicationCode
                     }
                   }
                 `}
+                transform={r => ({ ...r, label: `${r.pid}@${r.applicationCode}` })}
               />
             )}
           </FormItem>
@@ -87,7 +90,7 @@ export default class Server extends PureComponent {
         >
           <Card title="Info" style={{ marginTop: 24 }} bordered={false}>
             <DescriptionList>
-              <Description term="OS">{serverInfo.label}</Description>
+              <Description term="OS">{serverInfo.name}</Description>
               <Description term="Host Name">{serverInfo.host}</Description>
               <Description term="Process Id">{serverInfo.pid}</Description>
               <Description term="IPv4">{serverInfo.ipv4 ? serverInfo.ipv4.join() : ''}</Description>
@@ -141,19 +144,19 @@ export default class Server extends PureComponent {
                 contentHeight={150}
               >
                 <Area
-                  data={axis(duration, getMemoryTrend.heap, ({ x, y }) => ({ x, y, type: 'value' }))
-                    .concat(axis(duration, getMemoryTrend.maxHeap, ({ x, y }) => ({ x, y, type: 'limit' })))}
+                  data={axis(duration, this.bytesToMB(getMemoryTrend.heap), ({ x, y }) => ({ x, y, type: 'value' }))
+                    .concat(axis(duration, this.bytesToMB(getMemoryTrend.maxHeap), ({ x, y }) => ({ x, y, type: 'free' })))}
                 />
               </ChartCard>
             </Col>
             <Col xs={24} sm={24} md={12} lg={12} xl={12} style={{ marginTop: 24 }}>
               <ChartCard
-                title="No-Heap"
+                title="Non-Heap"
                 contentHeight={150}
               >
                 <Area
-                  data={axis(duration, getMemoryTrend.noheap, ({ x, y }) => ({ x, y, type: 'value' }))
-                  .concat(axis(duration, getMemoryTrend.maxNoheap, ({ x, y }) => ({ x, y, type: 'limit' })))}
+                  data={axis(duration, this.bytesToMB(getMemoryTrend.noheap), ({ x, y }) => ({ x, y, type: 'value' }))
+                  .concat(axis(duration, this.bytesToMB(getMemoryTrend.maxNoheap), ({ x, y }) => ({ x, y, type: 'free' })))}
                 />
               </ChartCard>
             </Col>

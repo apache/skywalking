@@ -65,9 +65,9 @@ class TraceTable extends PureComponent {
         title: 'State',
         render: (text, record) => {
           if (record.isError) {
-            return <Badge status="success" text="Success" />;
-          } else {
             return <Badge status="error" text="Error" />;
+          } else {
+            return <Badge status="success" text="Success" />;
           }
         },
       },

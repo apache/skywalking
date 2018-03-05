@@ -34,7 +34,7 @@ export default {
               'nodes|1-5': [
                 {
                   'id|+1': 100,
-                  name: '@name',
+                  name: '@url',
                   'type|1': ['DUBBO', 'USER', 'SPRINGMVC'],
                   'calls|1000-2000': 1,
                   'sla|1-100.1-2': 1,
@@ -46,7 +46,7 @@ export default {
               nodes: [
                 {
                   'id|+1': 1,
-                  name: '@name',
+                  name: '@url',
                   'type|1': ['DUBBO', 'tomcat', 'SPRINGMVC'],
                   'calls|1000-2000': 1,
                   'sla|1-100.1-2': 1,
@@ -58,7 +58,7 @@ export default {
               'nodes|2-5': [
                 {
                   'id|+1': 200,
-                  name: '@name',
+                  name: '@url',
                   'type|1': ['Oracle', 'MYSQL', 'REDIS'],
                 },
               ],
@@ -67,16 +67,16 @@ export default {
             const calls = upNodes.nodes.map(node => (mockjs.mock({
               source: node.id,
               target: 1,
-              'isAlarm|1': true,
+              'isAlert|1': true,
               'callType|1': ['rpc', 'http', 'dubbo'],
-              'callsPerSec|100-2000': 1,
+              'callsPerSec|0-100': 1,
               'avgResponseTime|500-5000': 1,
             }))).concat(downNodes.nodes.map(node => (mockjs.mock({
               source: 1,
               target: node.id,
-              'isAlarm|1': true,
+              'isAlert|1': true,
               'callType|1': ['rpc', 'http', 'dubbo'],
-              'callsPerSec|100-2000': 1,
+              'callsPerSec|0-2000': 1,
               'avgResponseTime|500-5000': 1,
             }))));
             return {

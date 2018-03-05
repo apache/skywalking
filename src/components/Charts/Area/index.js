@@ -84,10 +84,10 @@ class Area extends Component {
         min: 0,
       },
     };
-
     const offset = Math.floor(data.length / 2);
     const xData = data.slice(0, offset);
-    const yData = data.slice(offset).map((v, i) => ({ ...v, y: v.y - xData[i].y }));
+    const yData = data.slice(offset).map((v, i) => ({ ...v,
+      y: ((v.y - xData[i].y) > 0 ? parseFloat(((v.y - xData[i].y).toFixed(2))) : 0) }));
     return (
       <div className={styles.chart} style={{ height }} ref={this.handleRoot}>
         <div ref={this.handleRef}>
@@ -106,7 +106,9 @@ class Area extends Component {
               tickLine={autoHideXLabels ? false : {}}
             />
             <Axis name="y" min={0} />
-            <Tooltip crosshairs={{ type: 'line' }} />
+            <Tooltip
+              crosshairs={{ type: 'line' }}
+            />
             <Geom type="areaStack" position="x*y" color={['type', [color, limitColor]]} />
             <Geom type="lineStack" position="x*y" size={2} color={['type', [color, limitColor]]} />
           </Chart>
