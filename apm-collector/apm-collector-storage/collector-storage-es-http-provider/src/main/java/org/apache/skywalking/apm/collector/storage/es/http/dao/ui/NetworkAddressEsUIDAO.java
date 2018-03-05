@@ -18,10 +18,13 @@
 
 package org.apache.skywalking.apm.collector.storage.es.http.dao.ui;
 
+import java.util.List;
+
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.storage.dao.ui.INetworkAddressUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddressTable;
+import org.apache.skywalking.apm.collector.storage.ui.overview.ConjecturalApp;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
@@ -55,5 +58,11 @@ public class NetworkAddressEsUIDAO extends EsHttpDAO implements INetworkAddressU
 
 //        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
         return result.getTotal().intValue();
+    }
+
+    @Override
+    public List<ConjecturalApp> getConjecturalApps() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

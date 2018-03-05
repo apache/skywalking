@@ -19,9 +19,9 @@
 package org.apache.skywalking.apm.collector.storage.es.http.dao.cache;
 
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
-import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.cache.INetworkAddressCacheDAO;
 import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
+import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddress;
 import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddressTable;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import io.searchbox.core.DocumentResult;
 import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
 
@@ -84,14 +83,16 @@ public class NetworkAddressEsCacheDAO extends EsHttpDAO implements INetworkAddre
         return 0;
     }
 
-    @Override public String getAddress(int addressId) {
-        logger.debug("get network address, address id: {}", addressId);
-        ElasticSearchHttpClient client = getClient();
-        DocumentResult getResponse = client.prepareGet(NetworkAddressTable.TABLE, String.valueOf(addressId));
+    @Override
+    public String getAddressById(int addressId) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-        if (getResponse.isSucceeded()) {
-            return getResponse.getSourceAsObject(JsonObject.class).get(NetworkAddressTable.COLUMN_NETWORK_ADDRESS).getAsString();
-        }
-        return Const.EMPTY_STRING;
+    //TODO
+    @Override
+    public NetworkAddress getAddress(int addressId) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

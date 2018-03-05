@@ -63,7 +63,7 @@ public class InstanceMetricEsUIDAO extends EsHttpDAO implements IInstanceMetricU
         super(client);
     }
 
-    @Override public List<AppServerInfo> getServerThroughput(int applicationId, Step step, long start, long end,
+    public List<AppServerInfo> getServerThroughput(int applicationId, Step step, long start, long end,
             long secondBetween, int topN, MetricSource metricSource) {
         String tableName = TimePyramidTableNameBuilder.build(step, InstanceMetricTable.TABLE);
 
@@ -114,7 +114,8 @@ public class InstanceMetricEsUIDAO extends EsHttpDAO implements IInstanceMetricU
             ScriptedMetricAggregation simpleValue = serviceIdTerm.getScriptedMetricAggregation(AVG_TPS);
 
             appServerInfo.setId(instanceId);
-            appServerInfo.setTps(simpleValue.getScriptedMetric().intValue());
+            // TODO 
+//            appServerInfo.setTps(simpleValue.getScriptedMetric().intValue());
             appServerInfos.add(appServerInfo);
         });
         return appServerInfos;
@@ -182,5 +183,13 @@ public class InstanceMetricEsUIDAO extends EsHttpDAO implements IInstanceMetricU
             }
         }
         return responseTimeTrends;
+    }
+
+    @Override
+    public List<AppServerInfo> getServerThroughput(int applicationId, Step step,
+            long startTimeBucket, long endTimeBucket, int secondBetween, int topN,
+            MetricSource metricSource) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

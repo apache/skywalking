@@ -57,7 +57,7 @@ public class ServiceNameEsCacheDAO extends EsHttpDAO implements IServiceNameCach
         return null;
     }
 
-    @Override public int getServiceId(int applicationId, String serviceName) {
+    public int getServiceId(int applicationId, String serviceName) {
 //        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(ServiceNameTable.TABLE);
 //        searchRequestBuilder.setTypes(ServiceNameTable.TABLE_TYPE);
 //        searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
@@ -81,6 +81,12 @@ public class ServiceNameEsCacheDAO extends EsHttpDAO implements IServiceNameCach
             JsonObject searchHit = result.getHits(JsonObject.class).get(0).source;
             return searchHit.get(ServiceNameTable.COLUMN_SERVICE_ID).getAsInt();
         }
+        return 0;
+    }
+
+    @Override
+    public int getServiceId(int applicationId, int srcSpanType, String serviceName) {
+        // TODO Auto-generated method stub
         return 0;
     }
 }

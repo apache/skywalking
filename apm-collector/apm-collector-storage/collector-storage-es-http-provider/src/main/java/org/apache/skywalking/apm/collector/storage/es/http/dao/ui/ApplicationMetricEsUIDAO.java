@@ -54,7 +54,6 @@ public class ApplicationMetricEsUIDAO extends EsHttpDAO implements IApplicationM
 
     private static final String AVG_TPS = "avg_tps";
 
-    @Override
     public List<ApplicationTPS> getTopNApplicationThroughput(Step step, long start, long end, long betweenSecond,
         int topN,
         MetricSource metricSource) {
@@ -109,9 +108,23 @@ public class ApplicationMetricEsUIDAO extends EsHttpDAO implements IApplicationM
             Double simpleValue = serviceIdTerm.getScriptedMetricAggregation(AVG_TPS).getScriptedMetric();
 
             serviceMetric.setApplicationId(applicationId);
-            serviceMetric.setTps(simpleValue.intValue());
+//            serviceMetric.setTps(simpleValue.intValue());
             applicationTPSs.add(serviceMetric);
         });
         return applicationTPSs;
+    }
+
+    @Override
+    public List<ApplicationTPS> getTopNApplicationThroughput(Step step, long startTimeBucket,
+            long endTimeBucket, int betweenSecond, int topN, MetricSource metricSource) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public List<ApplicationMetric> getApplications(Step step, long startTimeBucket,
+            long endTimeBucket, MetricSource metricSource) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

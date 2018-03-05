@@ -50,7 +50,6 @@ public class SegmentDurationEsUIDAO extends EsHttpDAO implements ISegmentDuratio
         super(client);
     }
 
-    @Override
     public TraceBrief loadTop(long startTime, long endTime, long minDuration, long maxDuration, String operationName,
         int applicationId, String traceId, int limit, int from) {
 //        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(SegmentDurationTable.TABLE);
@@ -105,7 +104,7 @@ public class SegmentDurationEsUIDAO extends EsHttpDAO implements ISegmentDuratio
 
             JsonObject source = searchHit.getAsJsonObject().getAsJsonObject("_source");
             
-            basicTrace.setTraceId(source.get(SegmentDurationTable.COLUMN_TRACE_ID).getAsString());
+//            basicTrace.setTraceId(source.get(SegmentDurationTable.COLUMN_TRACE_ID).getAsString());
             basicTrace.setStart((source.get(SegmentDurationTable.COLUMN_START_TIME)).getAsLong());
             basicTrace.setOperationName(source.get(SegmentDurationTable.COLUMN_SERVICE_NAME).getAsString());
             basicTrace.setDuration((source.get(SegmentDurationTable.COLUMN_DURATION)).getAsInt());
@@ -114,5 +113,13 @@ public class SegmentDurationEsUIDAO extends EsHttpDAO implements ISegmentDuratio
         }
 
         return traceBrief;
+    }
+
+    @Override
+    public TraceBrief loadTop(long startSecondTimeBucket, long endSecondTimeBucket,
+            long minDuration, long maxDuration, String operationName, int applicationId, int limit,
+            int from, String... segmentIds) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

@@ -252,4 +252,16 @@ public class InstanceEsUIDAO extends EsHttpDAO implements IInstanceUIDAO {
         }
         return appServerInfos;
     }
+
+    @Override
+    public long getEarliestRegisterTime(int applicationId) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public long getLatestHeartBeatTime(int applicationId) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 }

@@ -225,4 +225,11 @@ public class ServiceMetricEsUIDAO extends EsHttpDAO implements IServiceMetricUID
         });
         return serviceMetrics;
     }
+
+    @Override
+    public List<Integer> getServiceTPSTrend(int serviceId, Step step,
+            List<DurationPoint> durationPoints) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

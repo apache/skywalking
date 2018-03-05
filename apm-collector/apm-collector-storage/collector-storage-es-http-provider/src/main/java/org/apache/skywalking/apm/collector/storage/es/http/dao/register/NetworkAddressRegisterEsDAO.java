@@ -59,4 +59,10 @@ public class NetworkAddressRegisterEsDAO extends EsHttpDAO implements INetworkAd
         boolean response = client.prepareIndex(NetworkAddressTable.TABLE, networkAddress.getId(),source,true);
         logger.debug("save network address register info, address getId: {}, network address code: {}, status: {}", networkAddress.getAddressId(), networkAddress.getNetworkAddress(), response);
     }
+
+    @Override
+    public void update(String id, int spanLayer, int serverType) {
+        // TODO Auto-generated method stub
+        
+    }
 }
