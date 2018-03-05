@@ -53,7 +53,7 @@ export default class Dashboard extends PureComponent {
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
               title="DB & Cache"
-              avatar={<img style={{ width: 48, height: 56 }} src="database.svg" alt="database" />}
+              avatar={<img style={{ width: 64, height: 64 }} src="database.png" alt="database" />}
               total={data.getClusterBrief.numOfDatabase
                 + data.getClusterBrief.numOfCache}
             />
@@ -61,7 +61,7 @@ export default class Dashboard extends PureComponent {
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
               title="MQ"
-              avatar={<img style={{ width: 56, height: 56 }} src="redis.svg" alt="redis" />}
+              avatar={<img style={{ width: 56, height: 56 }} src="mq.png" alt="mq" />}
               total={data.getClusterBrief.numOfMQ}
             />
           </Col>
