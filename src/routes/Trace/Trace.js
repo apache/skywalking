@@ -94,17 +94,12 @@ export default class Trace extends PureComponent {
       },
     });
   }
-  handleTableExpand = (expanded, record) => {
+  handleTableExpand = (key, traceId) => {
     const { dispatch } = this.props;
-    if (expanded) {
-      const { traceIds = [] } = record;
-      if (traceIds.length > 0) {
-        dispatch({
-          type: 'trace/fetchSpans',
-          payload: { variables: { traceId: traceIds[0] }, key: record.key },
-        });
-      }
-    }
+    dispatch({
+      type: 'trace/fetchSpans',
+      payload: { variables: { traceId }, key },
+    });
   }
   renderForm() {
     const { getFieldDecorator } = this.props.form;

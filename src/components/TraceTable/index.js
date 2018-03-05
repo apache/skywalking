@@ -1,33 +1,73 @@
 import React, { PureComponent } from 'react';
-import { Table } from 'antd';
+import { Badge, Table, Collapse } from 'antd';
+import moment from 'moment';
 import TraceStack from '../../components/TraceStack';
 import styles from './index.less';
 
+const { Panel } = Collapse;
+
 class TraceTable extends PureComponent {
+  handleExtend = (expanded, record) => {
+    if (!expanded) {
+      return;
+    }
+    const { traceIds = [] } = record;
+    if (traceIds.length < 1) {
+      return;
+    }
+    if (traceIds.length === 1) {
+      this.props.onExpand(record.key, traceIds[0]);
+    }
+  }
+  renderExtend = (record) => {
+    const { spansContainer = {} } = record;
+    const keys = Object.keys(spansContainer);
+    const { traceIds = [] } = record;
+    const size = traceIds.length;
+    if (size < 1) {
+      return <span style={{ display: 'none' }} />;
+    } else if (size === 1) {
+      return (keys.length < 1) ? null : <TraceStack spans={spansContainer[keys[0]]} />;
+    }
+    return (
+      <Collapse
+        bordered={false}
+        onChange={(key) => { if (!spansContainer[key]) { this.props.onExpand(record.key, key); } }}
+      >
+        {traceIds.map((k) => {
+          return (
+            <Panel header={k} key={k} >
+              { spansContainer[k] ? (<TraceStack spans={spansContainer[k]} />) : null }
+            </Panel>
+          );
+          })}
+      </Collapse>);
+  }
   render() {
-    const { data: traces, pagination, loading, onExpand, onChange } = this.props;
+    const { data: traces, pagination, loading, onChange } = this.props;
 
     const columns = [
       {
         title: 'OperationName',
-        dataIndex: 'key',
+        dataIndex: 'operationName',
       },
       {
         title: 'Duration',
-        dataIndex: 'duration',
+        render: (text, record) => `${record.duration}ms`,
       },
       {
         title: 'StartTime',
-        dataIndex: 'start',
+        render: (text, record) => {
+          return moment(record.startTime).format('YYYY-MM-DD HH:mm:ss.SSS');
+        },
       },
       {
         title: 'State',
-        dataIndex: 'isError',
         render: (text, record) => {
           if (record.isError) {
-            return 'Error';
+            return <Badge status="error" text="Error" />;
           } else {
-            return 'Success';
+            return <Badge status="success" text="Success" />;
           }
         },
       },
@@ -54,8 +94,8 @@ class TraceTable extends PureComponent {
           columns={columns}
           pagination={pagination}
           onChange={onChange}
-          onExpand={onExpand}
-          expandedRowRender={record => (record.spans ? <TraceStack spans={record.spans} /> : null)}
+          onExpand={this.handleExtend}
+          expandedRowRender={this.renderExtend}
         />
       </div>
     );

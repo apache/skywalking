@@ -39,21 +39,21 @@ export default class Dashboard extends PureComponent {
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
               title="App"
-              avatar={<img style={{ width: 56, height: 56 }} src="app.svg" alt="app" />}
+              avatar={<img style={{ width: 56, height: 56 }} src="img/icon/app.svg" alt="app" />}
               total={data.getClusterBrief.numOfApplication}
             />
           </Col>
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
               title="Service"
-              avatar={<img style={{ width: 56, height: 56 }} src="service.svg" alt="service" />}
+              avatar={<img style={{ width: 56, height: 56 }} src="img/icon/service.svg" alt="service" />}
               total={data.getClusterBrief.numOfService}
             />
           </Col>
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
               title="DB & Cache"
-              avatar={<img style={{ width: 48, height: 56 }} src="database.svg" alt="database" />}
+              avatar={<img style={{ width: 64, height: 64 }} src="img/icon/database.png" alt="database" />}
               total={data.getClusterBrief.numOfDatabase
                 + data.getClusterBrief.numOfCache}
             />
@@ -61,7 +61,7 @@ export default class Dashboard extends PureComponent {
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
               title="MQ"
-              avatar={<img style={{ width: 56, height: 56 }} src="redis.svg" alt="redis" />}
+              avatar={<img style={{ width: 56, height: 56 }} src="img/icon/mq.png" alt="mq" />}
               total={data.getClusterBrief.numOfMQ}
             />
           </Col>
@@ -70,7 +70,7 @@ export default class Dashboard extends PureComponent {
           <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 24 }}>
             <ChartCard
               title="Avg Application Alarm"
-              avatar={<img style={{ width: 56, height: 56 }} src="alert.svg" alt="app" />}
+              avatar={<img style={{ width: 56, height: 56 }} src="img/icon/alert.png" alt="app" />}
               total={`${avg.toFixed(2)}%`}
               footer={<div><Field label="Max" value={`${max}%`} /> <Field label="Min" value={`${min}%`} /></div>}
               contentHeight={100}

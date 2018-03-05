@@ -66,7 +66,7 @@ export default class ServiceTopology extends Base {
             <div class="node-percentage">${data.sla / 100}%</div>
             <div>${data.calls} calls/s</div>
             <div>
-              <img src="alert.png" class="${styles.logo}"/>
+              <img src="img/icon/alert.png" class="${styles.logo}"/>
               <span class="${styles.alert}">${data.numOfServiceAlarm}</span>
             </div>
           </div>`;
