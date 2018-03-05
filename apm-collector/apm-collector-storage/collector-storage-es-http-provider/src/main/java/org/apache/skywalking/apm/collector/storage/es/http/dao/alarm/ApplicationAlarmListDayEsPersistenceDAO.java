@@ -24,7 +24,6 @@ import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListDayPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmList;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmListTable;
