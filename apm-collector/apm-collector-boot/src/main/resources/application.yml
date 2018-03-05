@@ -42,19 +42,19 @@ ui:
 #    index_shards_number: 2
 #    index_replicas_number: 0
 #    ttl: 7
-storage:
-  elasticsearch-http:
-    cluster_name: elasticsearch
-    cluster_nodes: 10.126.94.37:9200
-    index_shards_number: 2
-    ssl : false
-    index_replicas_number: 0
-    username : admin
-    password : admin
 #storage:
-#  h2:
-#    url: jdbc:h2:tcp://localhost/~/test
-#    user_name: sa
+#  elasticsearch-http:
+#    cluster_name: elasticsearch
+#    cluster_nodes: 10.126.94.37:9200
+#    index_shards_number: 2
+#    ssl : false
+#    index_replicas_number: 0
+#    username : admin
+#    password : admin
+storage:
+  h2:
+    url: jdbc:h2:tcp://localhost/~/test
+    user_name: sa
 configuration:
   default:
     application_apdex_threshold: 2000
