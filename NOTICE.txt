@@ -19,6 +19,10 @@ mockito: http://site.mockito.org/ , MIT
 QOS.ch (slf4j): https://www.slf4j.org/ , MIT
 powermock: https://github.com/powermock/powermock , Apache 2.0
 Eclipse (Jetty): https://www.eclipse.org/jetty/ , Apache 2.0 and Eclipse Public License 1.0
+SnakeYAML: http://www.snakeyaml.org , Apache 2.0
+Jedis: https://github.com/xetorthio/jedis , MIT
+Joda-Time: http://www.joda.org/joda-time/ , Apache 2.0
+GraphQL Java Tools: https://github.com/graphql-java/graphql-java-tools , MIT
 antd: https://github.com/ant-design/ant-design , MIT
 babel-runtime: https://github.com/babel/babel/tree/master/packages/babel-runtime , MIT
 bizcharts-plugin-slider: https://github.com/alibaba/BizCharts , MIT

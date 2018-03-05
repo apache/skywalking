@@ -71,7 +71,12 @@ public class MemoryMetricH2UIDAO extends H2DAO implements IMemoryMetricUIDAO {
                     long used = rs.getLong(MemoryMetricTable.COLUMN_USED);
                     long times = rs.getLong(MemoryMetricTable.COLUMN_TIMES);
                     trend.getMetrics().add((int)(used / times));
-                    trend.getMaxMetrics().add((int)(max / times));
+
+                    if (max < 0) {
+                        trend.getMaxMetrics().add((int)(used / times));
+                    } else {
+                        trend.getMaxMetrics().add((int)(max / times));
+                    }
                 } else {
                     trend.getMetrics().add(0);
                     trend.getMaxMetrics().add(0);

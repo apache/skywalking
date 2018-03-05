@@ -82,6 +82,20 @@ public class ApplicationTopologyService {
 
         TopologyBuilder builder = new TopologyBuilder(moduleManager);
 
-        return builder.build(applicationComponents, applicationMappings, applicationMetrics, callerReferenceMetric, calleeReferenceMetric, startTimeBucket, endTimeBucket, startSecondTimeBucket, endSecondTimeBucket);
+        Topology topology = builder.build(applicationComponents, applicationMappings, applicationMetrics, callerReferenceMetric, calleeReferenceMetric, step, startTimeBucket, endTimeBucket, startSecondTimeBucket, endSecondTimeBucket);
+
+        Set<Integer> nodeIds = new HashSet<>();
+        topology.getCalls().forEach(call -> {
+            nodeIds.add(call.getSource());
+            nodeIds.add(call.getTarget());
+        });
+
+        for (int i = topology.getNodes().size() - 1; i >= 0; i--) {
+            if (!nodeIds.contains(topology.getNodes().get(i).getId())) {
+                topology.getNodes().remove(i);
+            }
+        }
+
+        return topology;
     }
 }
