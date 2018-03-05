@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.apache.skywalking.apm.collector.client.elasticsearch.http.ElasticSearchHttpClient;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
+import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListDayPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.http.base.dao.EsHttpDAO;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmList;
@@ -41,11 +42,11 @@ import io.searchbox.core.Update;
 /**
  * @author cyberdak
  */
-public class ApplicationAlarmListEsPersistenceDAO extends EsHttpDAO implements IApplicationAlarmListPersistenceDAO<Index, Update, ApplicationAlarmList> {
+public class ApplicationAlarmListDayEsPersistenceDAO extends EsHttpDAO implements IApplicationAlarmListDayPersistenceDAO<Index, Update, ApplicationAlarmList> {
 
-    private final Logger logger = LoggerFactory.getLogger(ApplicationAlarmListEsPersistenceDAO.class);
+    private final Logger logger = LoggerFactory.getLogger(ApplicationAlarmListDayEsPersistenceDAO.class);
 
-    public ApplicationAlarmListEsPersistenceDAO(ElasticSearchHttpClient client) {
+    public ApplicationAlarmListDayEsPersistenceDAO(ElasticSearchHttpClient client) {
         super(client);
     }
 
