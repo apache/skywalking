@@ -19,9 +19,6 @@ mockito: http://site.mockito.org/ , MIT
 QOS.ch (slf4j): https://www.slf4j.org/ , MIT
 powermock: https://github.com/powermock/powermock , Apache 2.0
 Eclipse (Jetty): https://www.eclipse.org/jetty/ , Apache 2.0 and Eclipse Public License 1.0
-Apache:
-- Log4j 2: https://logging.apache.org/log4j/2.x/ , Apache 2.0
-- ZooKeeper: http://zookeeper.apache.org , Apache 2.0
 SnakeYAML: http://www.snakeyaml.org , Apache 2.0
 Jedis: https://github.com/xetorthio/jedis , MIT
 Joda-Time: http://www.joda.org/joda-time/ , Apache 2.0
