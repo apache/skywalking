@@ -28,6 +28,84 @@ import org.apache.skywalking.apm.collector.storage.ui.overview.ApplicationTPS;
  * @author peng-yongsheng
  */
 public interface IApplicationMetricUIDAO extends DAO {
-    List<ApplicationTPS> getTopNApplicationThroughput(Step step, long start, long end, long betweenSecond, int topN,
+    List<ApplicationTPS> getTopNApplicationThroughput(Step step, long startTimeBucket, long endTimeBucket,
+        int betweenSecond, int topN, MetricSource metricSource);
+
+    List<ApplicationMetric> getApplications(Step step, long startTimeBucket, long endTimeBucket,
         MetricSource metricSource);
+
+    class ApplicationMetric {
+        private int id;
+        private long calls;
+        private long errorCalls;
+        private long durations;
+        private long errorDurations;
+        private long satisfiedCount;
+        private long toleratingCount;
+        private long frustratedCount;
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public void setCalls(long calls) {
+            this.calls = calls;
+        }
+
+        public void setErrorCalls(long errorCalls) {
+            this.errorCalls = errorCalls;
+        }
+
+        public void setDurations(long durations) {
+            this.durations = durations;
+        }
+
+        public void setErrorDurations(long errorDurations) {
+            this.errorDurations = errorDurations;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public long getCalls() {
+            return calls;
+        }
+
+        public long getErrorCalls() {
+            return errorCalls;
+        }
+
+        public long getDurations() {
+            return durations;
+        }
+
+        public long getErrorDurations() {
+            return errorDurations;
+        }
+
+        public long getSatisfiedCount() {
+            return satisfiedCount;
+        }
+
+        public void setSatisfiedCount(long satisfiedCount) {
+            this.satisfiedCount = satisfiedCount;
+        }
+
+        public long getToleratingCount() {
+            return toleratingCount;
+        }
+
+        public void setToleratingCount(long toleratingCount) {
+            this.toleratingCount = toleratingCount;
+        }
+
+        public long getFrustratedCount() {
+            return frustratedCount;
+        }
+
+        public void setFrustratedCount(long frustratedCount) {
+            this.frustratedCount = frustratedCount;
+        }
+    }
 }

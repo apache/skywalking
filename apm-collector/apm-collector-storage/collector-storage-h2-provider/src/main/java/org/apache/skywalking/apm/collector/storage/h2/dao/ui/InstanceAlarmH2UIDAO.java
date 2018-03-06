@@ -32,7 +32,7 @@ public class InstanceAlarmH2UIDAO extends H2DAO implements IInstanceAlarmUIDAO {
         super(client);
     }
 
-    @Override public Alarm loadAlarmList(String keyword, long start, long end, int limit, int from) {
+    @Override public Alarm loadAlarmList(String keyword, long startTimeBucket, long endTimeBucket, int limit, int from) {
         return null;
     }
 }

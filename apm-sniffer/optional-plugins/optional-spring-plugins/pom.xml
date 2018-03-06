@@ -23,14 +23,14 @@
     <parent>
         <artifactId>optional-plugins</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-alpha</version>
+        <version>5.0.0-alpha-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
 
     <artifactId>optional-spring-plugins</artifactId>
     <properties>
-        <plugin.dest.dir>${project.build.directory}/../../../../../packages/skywalking-agent/optional-plugins</plugin.dest.dir>
+        <plugin.dest.dir>${project.build.directory}/../../../../../skywalking-agent/optional-plugins</plugin.dest.dir>
     </properties>
 
     <modules>

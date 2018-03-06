@@ -59,8 +59,9 @@ public class ServerService {
     private final ICpuMetricUIDAO cpuMetricUIDAO;
     private final IGCMetricUIDAO gcMetricUIDAO;
     private final IMemoryMetricUIDAO memoryMetricUIDAO;
-    private final InstanceCacheService instanceCacheService;
     private final ApplicationCacheService applicationCacheService;
+    private final InstanceCacheService instanceCacheService;
+    private final SecondBetweenService secondBetweenService;
 
     public ServerService(ModuleManager moduleManager) {
         this.instanceUIDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceUIDAO.class);
@@ -68,43 +69,47 @@ public class ServerService {
         this.cpuMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(ICpuMetricUIDAO.class);
         this.gcMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IGCMetricUIDAO.class);
         this.memoryMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IMemoryMetricUIDAO.class);
-        this.instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
+        this.instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
+        this.secondBetweenService = new SecondBetweenService(moduleManager);
     }
 
-    public List<AppServerInfo> searchServer(String keyword, long start, long end) {
-        List<AppServerInfo> serverInfos = instanceUIDAO.searchServer(keyword, start, end);
-        serverInfos.forEach(serverInfo -> {
-            if (serverInfo.getId() == Const.NONE_INSTANCE_ID) {
-                serverInfos.remove(serverInfo);
+    public List<AppServerInfo> searchServer(String keyword, long startSecondTimeBucket, long endSecondTimeBucket) {
+        List<AppServerInfo> serverInfos = instanceUIDAO.searchServer(keyword, startSecondTimeBucket, endSecondTimeBucket);
+
+        for (int i = serverInfos.size() - 1; i >= 0; i--) {
+            if (serverInfos.get(i).getId() == Const.NONE_INSTANCE_ID) {
+                serverInfos.remove(i);
             }
-        });
+        }
 
         buildAppServerInfo(serverInfos);
         return serverInfos;
     }
 
-    public List<AppServerInfo> getAllServer(int applicationId, long start, long end) {
-        List<AppServerInfo> serverInfos = instanceUIDAO.getAllServer(applicationId, start, end);
+    public List<AppServerInfo> getAllServer(int applicationId, long startSecondTimeBucket, long endSecondTimeBucket) {
+        List<AppServerInfo> serverInfos = instanceUIDAO.getAllServer(applicationId, startSecondTimeBucket, endSecondTimeBucket);
         buildAppServerInfo(serverInfos);
         return serverInfos;
     }
 
-    public ResponseTimeTrend getServerResponseTimeTrend(int instanceId, Step step, long start,
-        long end) throws ParseException {
+    public ResponseTimeTrend getServerResponseTimeTrend(int instanceId, Step step, long startTimeBucket,
+        long endTimeBucket) throws ParseException {
         ResponseTimeTrend responseTimeTrend = new ResponseTimeTrend();
-        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
+        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTimeBucket, endTimeBucket);
         List<Integer> trends = instanceMetricUIDAO.getResponseTimeTrend(instanceId, step, durationPoints);
         responseTimeTrend.setTrendList(trends);
         return responseTimeTrend;
     }
 
-    public List<AppServerInfo> getServerThroughput(int applicationId, Step step, long start,
-        long end, Integer topN) throws ParseException {
-        //TODO
-        List<AppServerInfo> serverThroughput = instanceMetricUIDAO.getServerThroughput(applicationId, step, start, end, 1000, topN, MetricSource.Callee);
+    public List<AppServerInfo> getServerThroughput(int applicationId, Step step, long startTimeBucket,
+        long endTimeBucket, long startSecondTimeBucket, long endSecondTimeBucket, Integer topN) throws ParseException {
+        int secondBetween = secondBetweenService.calculate(applicationId, startSecondTimeBucket, endSecondTimeBucket);
+
+        List<AppServerInfo> serverThroughput = instanceMetricUIDAO.getServerThroughput(applicationId, step, startTimeBucket, endTimeBucket, secondBetween, topN, MetricSource.Callee);
         serverThroughput.forEach(appServerInfo -> {
-            String applicationCode = applicationCacheService.getApplicationById(applicationId).getApplicationCode();
+            appServerInfo.setApplicationId(instanceCacheService.getApplicationId(appServerInfo.getId()));
+            String applicationCode = applicationCacheService.getApplicationById(appServerInfo.getApplicationId()).getApplicationCode();
             appServerInfo.setApplicationCode(applicationCode);
             Instance instance = instanceUIDAO.getInstance(appServerInfo.getId());
             appServerInfo.setOsInfo(instance.getOsInfo());
@@ -114,25 +119,28 @@ public class ServerService {
         return serverThroughput;
     }
 
-    public ThroughputTrend getServerTPSTrend(int instanceId, Step step, long start, long end) throws ParseException {
+    public ThroughputTrend getServerTPSTrend(int instanceId, Step step, long startTimeBucket,
+        long endTimeBucket) throws ParseException {
         ThroughputTrend throughputTrend = new ThroughputTrend();
-        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
+        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTimeBucket, endTimeBucket);
         List<Integer> trends = instanceMetricUIDAO.getServerTPSTrend(instanceId, step, durationPoints);
         throughputTrend.setTrendList(trends);
         return throughputTrend;
     }
 
-    public CPUTrend getCPUTrend(int instanceId, Step step, long start, long end) throws ParseException {
+    public CPUTrend getCPUTrend(int instanceId, Step step, long startTimeBucket,
+        long endTimeBucket) throws ParseException {
         CPUTrend cpuTrend = new CPUTrend();
-        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
+        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTimeBucket, endTimeBucket);
         List<Integer> trends = cpuMetricUIDAO.getCPUTrend(instanceId, step, durationPoints);
         cpuTrend.setCost(trends);
         return cpuTrend;
     }
 
-    public GCTrend getGCTrend(int instanceId, Step step, long start, long end) throws ParseException {
+    public GCTrend getGCTrend(int instanceId, Step step, long startTimeBucket,
+        long endTimeBucket) throws ParseException {
         GCTrend gcTrend = new GCTrend();
-        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
+        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTimeBucket, endTimeBucket);
         List<Integer> youngGCTrend = gcMetricUIDAO.getYoungGCTrend(instanceId, step, durationPoints);
         gcTrend.setYoungGC(youngGCTrend);
         List<Integer> oldGCTrend = gcMetricUIDAO.getOldGCTrend(instanceId, step, durationPoints);
@@ -140,9 +148,10 @@ public class ServerService {
         return gcTrend;
     }
 
-    public MemoryTrend getMemoryTrend(int instanceId, Step step, long start, long end) throws ParseException {
+    public MemoryTrend getMemoryTrend(int instanceId, Step step, long startTimeBucket,
+        long endTimeBucket) throws ParseException {
         MemoryTrend memoryTrend = new MemoryTrend();
-        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, start, end);
+        List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTimeBucket, endTimeBucket);
         IMemoryMetricUIDAO.Trend heapMemoryTrend = memoryMetricUIDAO.getHeapMemoryTrend(instanceId, step, durationPoints);
         memoryTrend.setHeap(heapMemoryTrend.getMetrics());
         memoryTrend.setMaxHeap(heapMemoryTrend.getMaxMetrics());
@@ -156,9 +165,9 @@ public class ServerService {
 
     private void buildAppServerInfo(List<AppServerInfo> serverInfos) {
         serverInfos.forEach(serverInfo -> {
-            int applicationId = instanceCacheService.getApplicationId(serverInfo.getId());
-            serverInfo.setApplicationId(applicationId);
-            serverInfo.setApplicationCode(applicationCacheService.getApplicationById(applicationId).getApplicationCode());
+            serverInfo.setApplicationCode(applicationCacheService.getApplicationById(serverInfo.getApplicationId()).getApplicationCode());
+            StringBuilder nameBuilder = new StringBuilder();
+            nameBuilder.append(serverInfo.getApplicationCode());
             if (StringUtils.isNotEmpty(serverInfo.getOsInfo())) {
                 JsonObject osInfoJson = gson.fromJson(serverInfo.getOsInfo(), JsonObject.class);
                 if (osInfoJson.has("osName")) {
@@ -175,10 +184,14 @@ public class ServerService {
                     JsonArray ipv4Array = osInfoJson.get("ipv4s").getAsJsonArray();
 
                     List<String> ipv4s = new LinkedList<>();
-                    ipv4Array.forEach(ipv4 -> ipv4s.add(ipv4.getAsString()));
+                    ipv4Array.forEach(ipv4 -> {
+                        ipv4s.add(ipv4.getAsString());
+                        nameBuilder.append(Const.ID_SPLIT).append(ipv4.getAsString());
+                    });
                     serverInfo.setIpv4(ipv4s);
                 }
             }
+            serverInfo.setName(nameBuilder.toString());
         });
     }
 }

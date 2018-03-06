@@ -97,14 +97,21 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         return heartBeatTime;
     }
 
-    @Override public List<Application> getApplications(long startTime, long endTime, int... applicationIds) {
-        logger.debug("application list get, start time: {}, end time: {}", startTime, endTime);
+    @Override public List<Application> getApplications(long startSecondTimeBucket, long endSecondTimeBucket,
+        int... applicationIds) {
+        logger.debug("application list get, start time: {}, end time: {}", startSecondTimeBucket, endSecondTimeBucket);
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(InstanceTable.TABLE);
         searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        boolQueryBuilder.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startTime));
+
+        BoolQueryBuilder timeBoolQuery = QueryBuilders.boolQuery();
+        timeBoolQuery.should().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
+        timeBoolQuery.should().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
+
+        boolQueryBuilder.must().add(timeBoolQuery);
+
         boolQueryBuilder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, BooleanUtils.FALSE));
         if (applicationIds.length > 0) {
             boolQueryBuilder.must().add(QueryBuilders.termsQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationIds));
@@ -150,19 +157,26 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         return null;
     }
 
-    @Override public List<AppServerInfo> searchServer(String keyword, long start, long end) {
-        logger.debug("get instances info, keyword: {}, start: {}, end: {}", keyword, start, end);
+    @Override
+    public List<AppServerInfo> searchServer(String keyword, long startSecondTimeBucket, long endSecondTimeBucket) {
+        logger.debug("get instances info, keyword: {}, start: {}, end: {}", keyword, startSecondTimeBucket, endSecondTimeBucket);
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(InstanceTable.TABLE);
         searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
         searchRequestBuilder.setSize(1000);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(start).lte(end));
         if (StringUtils.isNotEmpty(keyword)) {
             boolQuery.must().add(QueryBuilders.queryStringQuery(keyword));
         }
         boolQuery.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, BooleanUtils.FALSE));
+
+        BoolQueryBuilder timeBoolQuery = QueryBuilders.boolQuery();
+        timeBoolQuery.should().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
+        timeBoolQuery.should().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
+
+        boolQuery.must().add(timeBoolQuery);
+
         searchRequestBuilder.setQuery(boolQuery);
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
@@ -171,23 +185,69 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         return buildAppServerInfo(searchHits);
     }
 
-    @Override public List<AppServerInfo> getAllServer(int applicationId, long start, long end) {
-        logger.debug("get instances info, applicationId: {}, start: {}, end: {}", applicationId, start, end);
+    @Override
+    public List<AppServerInfo> getAllServer(int applicationId, long startSecondTimeBucket, long endSecondTimeBucket) {
+        logger.debug("get instances info, applicationId: {}, start: {}, end: {}", applicationId, startSecondTimeBucket, endSecondTimeBucket);
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(InstanceTable.TABLE);
         searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
         searchRequestBuilder.setSize(1000);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(start).lte(end));
         boolQuery.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationId));
         boolQuery.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, BooleanUtils.FALSE));
+
+        BoolQueryBuilder timeBoolQuery = QueryBuilders.boolQuery();
+        timeBoolQuery.should().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
+        timeBoolQuery.should().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
+
+        boolQuery.must().add(timeBoolQuery);
         searchRequestBuilder.setQuery(boolQuery);
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
         SearchHit[] searchHits = searchResponse.getHits().getHits();
 
         return buildAppServerInfo(searchHits);
+    }
+
+    @Override public long getEarliestRegisterTime(int applicationId) {
+        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(InstanceTable.TABLE);
+        searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
+        searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
+        searchRequestBuilder.setSize(1);
+
+        searchRequestBuilder.setQuery(QueryBuilders.termQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationId));
+        searchRequestBuilder.addSort(SortBuilders.fieldSort(InstanceTable.COLUMN_REGISTER_TIME).sortMode(SortMode.MIN));
+
+        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
+
+        SearchHit[] searchHits = searchResponse.getHits().getHits();
+
+        if (searchHits.length > 0) {
+            return ((Number)searchHits[0].getSource().get(InstanceTable.COLUMN_REGISTER_TIME)).longValue();
+        }
+
+        return Long.MIN_VALUE;
+    }
+
+    @Override public long getLatestHeartBeatTime(int applicationId) {
+        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(InstanceTable.TABLE);
+        searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
+        searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
+        searchRequestBuilder.setSize(1);
+
+        searchRequestBuilder.setQuery(QueryBuilders.termQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationId));
+        searchRequestBuilder.addSort(SortBuilders.fieldSort(InstanceTable.COLUMN_HEARTBEAT_TIME).sortMode(SortMode.MAX));
+
+        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
+
+        SearchHit[] searchHits = searchResponse.getHits().getHits();
+
+        if (searchHits.length > 0) {
+            return ((Number)searchHits[0].getSource().get(InstanceTable.COLUMN_HEARTBEAT_TIME)).longValue();
+        }
+
+        return Long.MAX_VALUE;
     }
 
     private List<AppServerInfo> buildAppServerInfo(SearchHit[] searchHits) {
@@ -195,6 +255,7 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         for (SearchHit searchHit : searchHits) {
             AppServerInfo appServerInfo = new AppServerInfo();
             appServerInfo.setId(((Number)searchHit.getSource().get(InstanceTable.COLUMN_INSTANCE_ID)).intValue());
+            appServerInfo.setApplicationId(((Number)searchHit.getSource().get(InstanceTable.COLUMN_APPLICATION_ID)).intValue());
             appServerInfo.setOsInfo((String)searchHit.getSource().get(InstanceTable.COLUMN_OS_INFO));
             appServerInfos.add(appServerInfo);
         }

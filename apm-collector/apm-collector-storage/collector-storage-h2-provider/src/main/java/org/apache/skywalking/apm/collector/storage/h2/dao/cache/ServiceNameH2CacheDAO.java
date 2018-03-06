@@ -38,7 +38,7 @@ public class ServiceNameH2CacheDAO extends H2DAO implements IServiceNameCacheDAO
     private final Logger logger = LoggerFactory.getLogger(ServiceNameH2CacheDAO.class);
 
     private static final String GET_SERVICE_NAME_SQL = "select {0},{1} from {2} where {3} = ?";
-    private static final String GET_SERVICE_ID_SQL = "select {0} from {1} where {2} = ? and {3} = ? limit 1";
+    private static final String GET_SERVICE_ID_SQL = "select {0} from {1} where {2} = ? and {3} = ? and {4} = ? limit 1";
 
     public ServiceNameH2CacheDAO(H2Client client) {
         super(client);
@@ -63,11 +63,12 @@ public class ServiceNameH2CacheDAO extends H2DAO implements IServiceNameCacheDAO
         return null;
     }
 
-    @Override public int getServiceId(int applicationId, String serviceName) {
+    @Override public int getServiceId(int applicationId, int srcSpanType, String serviceName) {
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_SERVICE_ID_SQL, ServiceNameTable.COLUMN_SERVICE_ID,
-            ServiceNameTable.TABLE, ServiceNameTable.COLUMN_APPLICATION_ID, ServiceNameTable.COLUMN_SERVICE_NAME);
-        Object[] params = new Object[] {applicationId, serviceName};
+        String sql = SqlBuilder.buildSql(GET_SERVICE_ID_SQL, ServiceNameTable.COLUMN_SERVICE_ID, ServiceNameTable.TABLE,
+            ServiceNameTable.COLUMN_APPLICATION_ID, ServiceNameTable.COLUMN_SRC_SPAN_TYPE, ServiceNameTable.COLUMN_SERVICE_NAME);
+
+        Object[] params = new Object[] {applicationId, srcSpanType, serviceName};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
                 return rs.getInt(ServiceNameTable.COLUMN_SERVICE_ID);

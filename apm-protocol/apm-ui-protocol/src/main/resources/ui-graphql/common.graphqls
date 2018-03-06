@@ -106,5 +106,5 @@ type Call {
     callType: String!
     callsPerSec: Long!
     # Unit: millisecond
-    responseTimePerSec: Long!
+    avgResponseTime: Long!
 }

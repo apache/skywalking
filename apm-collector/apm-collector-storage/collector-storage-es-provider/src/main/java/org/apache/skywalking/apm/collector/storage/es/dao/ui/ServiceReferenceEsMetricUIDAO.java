@@ -25,7 +25,6 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceReferenceMetri
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetricTable;
-import org.apache.skywalking.apm.collector.storage.ui.common.Call;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -47,7 +46,8 @@ public class ServiceReferenceEsMetricUIDAO extends EsDAO implements IServiceRefe
         super(client);
     }
 
-    @Override public List<Call> getFrontServices(Step step, long startTime, long endTime, MetricSource metricSource,
+    @Override public List<ServiceReferenceMetric> getFrontServices(Step step, long startTimeBucket, long endTimeBucket,
+        MetricSource metricSource,
         int behindServiceId) {
         String tableName = TimePyramidTableNameBuilder.build(step, ServiceReferenceMetricTable.TABLE);
 
@@ -56,7 +56,7 @@ public class ServiceReferenceEsMetricUIDAO extends EsDAO implements IServiceRefe
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
+        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
         boolQuery.must().add(QueryBuilders.termQuery(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, behindServiceId));
         boolQuery.must().add(QueryBuilders.termQuery(ServiceReferenceMetricTable.COLUMN_SOURCE_VALUE, metricSource.getValue()));
 
@@ -65,19 +65,22 @@ public class ServiceReferenceEsMetricUIDAO extends EsDAO implements IServiceRefe
 
         TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID).field(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID).size(100);
         aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS).field(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS));
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS).field(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS));
         aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM).field(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM));
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM).field(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM));
 
         searchRequestBuilder.addAggregation(aggregationBuilder);
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
-        List<Call> calls = new LinkedList<>();
+        List<ServiceReferenceMetric> referenceMetrics = new LinkedList<>();
         Terms frontServiceIdTerms = searchResponse.getAggregations().get(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID);
-        buildNodeByBehindServiceId(calls, frontServiceIdTerms, behindServiceId);
+        buildNodeByBehindServiceId(referenceMetrics, frontServiceIdTerms, behindServiceId);
 
-        return calls;
+        return referenceMetrics;
     }
 
-    @Override public List<Call> getBehindServices(Step step, long startTime, long endTime, MetricSource metricSource,
+    @Override public List<ServiceReferenceMetric> getBehindServices(Step step, long startTimeBucket, long endTimeBucket,
+        MetricSource metricSource,
         int frontServiceId) {
         String tableName = TimePyramidTableNameBuilder.build(step, ServiceReferenceMetricTable.TABLE);
 
@@ -86,7 +89,7 @@ public class ServiceReferenceEsMetricUIDAO extends EsDAO implements IServiceRefe
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
+        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
         boolQuery.must().add(QueryBuilders.termQuery(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, frontServiceId));
         boolQuery.must().add(QueryBuilders.termQuery(ServiceReferenceMetricTable.COLUMN_SOURCE_VALUE, metricSource.getValue()));
 
@@ -95,106 +98,59 @@ public class ServiceReferenceEsMetricUIDAO extends EsDAO implements IServiceRefe
 
         TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID).field(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID).size(100);
         aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS).field(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS));
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS).field(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS));
         aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM).field(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM));
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM).field(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM));
 
         searchRequestBuilder.addAggregation(aggregationBuilder);
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
-        List<Call> calls = new LinkedList<>();
+        List<ServiceReferenceMetric> referenceMetrics = new LinkedList<>();
         Terms behindServiceIdTerms = searchResponse.getAggregations().get(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID);
-        buildNodeByFrontServiceId(calls, behindServiceIdTerms, frontServiceId);
+        buildNodeByFrontServiceId(referenceMetrics, behindServiceIdTerms, frontServiceId);
 
-        return calls;
+        return referenceMetrics;
     }
 
-    @Override public List<Call> getFrontServices(Step step, long startTime, long endTime, MetricSource metricSource,
-        List<Integer> behindServiceIds) {
-        String tableName = TimePyramidTableNameBuilder.build(step, ServiceReferenceMetricTable.TABLE);
-
-        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
-        searchRequestBuilder.setTypes(ServiceReferenceMetricTable.TABLE_TYPE);
-        searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-
-        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
-        boolQuery.must().add(QueryBuilders.termsQuery(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, behindServiceIds));
-        boolQuery.must().add(QueryBuilders.termQuery(ServiceReferenceMetricTable.COLUMN_SOURCE_VALUE, metricSource.getValue()));
-
-        searchRequestBuilder.setQuery(boolQuery);
-        searchRequestBuilder.setSize(0);
-
-        return executeAggregation(searchRequestBuilder);
-    }
-
-    @Override public List<Call> getBehindServices(Step step, long startTime, long endTime, MetricSource metricSource,
-        List<Integer> frontServiceIds) {
-        String tableName = TimePyramidTableNameBuilder.build(step, ServiceReferenceMetricTable.TABLE);
-
-        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
-        searchRequestBuilder.setTypes(ServiceReferenceMetricTable.TABLE_TYPE);
-        searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-
-        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
-        boolQuery.must().add(QueryBuilders.termsQuery(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, frontServiceIds));
-        boolQuery.must().add(QueryBuilders.termQuery(ServiceReferenceMetricTable.COLUMN_SOURCE_VALUE, metricSource.getValue()));
-
-        searchRequestBuilder.setQuery(boolQuery);
-        searchRequestBuilder.setSize(0);
-
-        return executeAggregation(searchRequestBuilder);
-    }
-
-    private List<Call> executeAggregation(SearchRequestBuilder searchRequestBuilder) {
-        TermsAggregationBuilder frontAggregationBuilder = AggregationBuilders.terms(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID).field(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID).size(100);
-        TermsAggregationBuilder behindAggregationBuilder = AggregationBuilders.terms(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID).field(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID).size(100);
-        behindAggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS).field(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS));
-        behindAggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM).field(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM));
-        frontAggregationBuilder.subAggregation(behindAggregationBuilder);
-
-        searchRequestBuilder.addAggregation(frontAggregationBuilder);
-        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
-
-        List<Call> nodes = new LinkedList<>();
-        Terms frontServiceIdTerms = searchResponse.getAggregations().get(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID);
-        frontServiceIdTerms.getBuckets().forEach(frontServiceIdBucket -> {
-            int frontServiceId = frontServiceIdBucket.getKeyAsNumber().intValue();
-
-            Terms behindServiceIdTerms = frontServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID);
-            buildNodeByFrontServiceId(nodes, behindServiceIdTerms, frontServiceId);
-        });
-
-        return nodes;
-    }
-
-    private void buildNodeByFrontServiceId(List<Call> calls, Terms behindServiceIdTerms, int frontServiceId) {
+    private void buildNodeByFrontServiceId(List<ServiceReferenceMetric> referenceMetrics, Terms behindServiceIdTerms,
+        int frontServiceId) {
         behindServiceIdTerms.getBuckets().forEach(behindServiceIdBucket -> {
             int behindServiceId = behindServiceIdBucket.getKeyAsNumber().intValue();
 
             Sum callsSum = behindServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS);
-            Sum responseTimes = behindServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM);
+            Sum errorCallsSum = behindServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS);
+            Sum durationSum = behindServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM);
+            Sum errorDurationSum = behindServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM);
 
-            Call call = new Call();
-            call.setSource(frontServiceId);
-            call.setTarget(behindServiceId);
-            call.setCalls((int)callsSum.getValue());
-            call.setResponseTimes((int)responseTimes.getValue());
-            calls.add(call);
+            ServiceReferenceMetric referenceMetric = new ServiceReferenceMetric();
+            referenceMetric.setSource(frontServiceId);
+            referenceMetric.setTarget(behindServiceId);
+            referenceMetric.setCalls((long)callsSum.getValue());
+            referenceMetric.setErrorCalls((long)errorCallsSum.getValue());
+            referenceMetric.setDurations((long)durationSum.getValue());
+            referenceMetric.setErrorDurations((long)errorDurationSum.getValue());
+            referenceMetrics.add(referenceMetric);
         });
     }
 
-    private void buildNodeByBehindServiceId(List<Call> calls, Terms frontServiceIdTerms, int behindServiceId) {
+    private void buildNodeByBehindServiceId(List<ServiceReferenceMetric> referenceMetrics, Terms frontServiceIdTerms,
+        int behindServiceId) {
         frontServiceIdTerms.getBuckets().forEach(frontServiceIdBucket -> {
             int frontServiceId = frontServiceIdBucket.getKeyAsNumber().intValue();
-            Sum callsSum = frontServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS);
-            Sum responseTimes = frontServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM);
 
-            Call call = new Call();
-            call.setTarget(behindServiceId);
-            call.setSource(frontServiceId);
-            call.setCalls((int)callsSum.getValue());
-            call.setResponseTimes((int)responseTimes.getValue());
-            calls.add(call);
+            Sum callsSum = frontServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS);
+            Sum errorCallsSum = frontServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS);
+            Sum durationSum = frontServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM);
+            Sum errorDurationSum = frontServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM);
+
+            ServiceReferenceMetric referenceMetric = new ServiceReferenceMetric();
+            referenceMetric.setTarget(behindServiceId);
+            referenceMetric.setSource(frontServiceId);
+            referenceMetric.setCalls((long)callsSum.getValue());
+            referenceMetric.setErrorCalls((long)errorCallsSum.getValue());
+            referenceMetric.setDurations((long)durationSum.getValue());
+            referenceMetric.setErrorDurations((long)errorDurationSum.getValue());
+            referenceMetrics.add(referenceMetric);
         });
     }
 }

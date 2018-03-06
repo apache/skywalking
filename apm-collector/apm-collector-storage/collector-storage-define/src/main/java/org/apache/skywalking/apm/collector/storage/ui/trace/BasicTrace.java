@@ -18,15 +18,32 @@
 
 package org.apache.skywalking.apm.collector.storage.ui.trace;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * @author peng-yongsheng
  */
 public class BasicTrace {
+
+    private String segmentId;
     private String operationName;
     private int duration;
     private long start;
     private Boolean isError;
-    private String traceId;
+    private List<String> traceIds;
+
+    public String getSegmentId() {
+        return segmentId;
+    }
+
+    public void setSegmentId(String segmentId) {
+        this.segmentId = segmentId;
+    }
+
+    public BasicTrace() {
+        this.traceIds = new LinkedList<>();
+    }
 
     public String getOperationName() {
         return operationName;
@@ -60,11 +77,11 @@ public class BasicTrace {
         isError = error;
     }
 
-    public String getTraceId() {
-        return traceId;
+    public List<String> getTraceIds() {
+        return traceIds;
     }
 
-    public void setTraceId(String traceId) {
-        this.traceId = traceId;
+    public void setTraceIds(List<String> traceIds) {
+        this.traceIds = traceIds;
     }
 }

@@ -3,7 +3,6 @@
 
   * Getting Started
     * [Quick start](en/Quick-start.md)
-    * [Deploy docker image](en/Deploy-docker-image.md)
     * [Supported middlewares, frameworks and libraries](Supported-list.md)
       * [How to disable plugins?](en/How-to-disable-plugin.md)
   * Application Toolkit

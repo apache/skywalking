@@ -5,7 +5,7 @@
     <parent>
         <artifactId>apm-sdk-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-alpha</version>
+        <version>5.0.0-alpha-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -13,6 +13,11 @@
 
     <modules>
         <module>servicecomb-java-chassis-0.x-plugin</module>
+        <!-- TODO: remove this submodule because of SNAPSHOT dependency. -->
+        <!-- After Apache ServiceComb released, we will put it back -->
+        <!--
+        <module>servicecomb-java-chassis-1.x-plugin</module>
+        -->
     </modules>
     <packaging>pom</packaging>
 

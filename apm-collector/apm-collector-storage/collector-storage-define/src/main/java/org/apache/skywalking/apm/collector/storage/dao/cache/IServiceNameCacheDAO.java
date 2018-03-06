@@ -27,5 +27,5 @@ import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
 public interface IServiceNameCacheDAO extends DAO {
     ServiceName get(int serviceId);
 
-    int getServiceId(int applicationId, String serviceName);
+    int getServiceId(int applicationId, int srcSpanType, String serviceName);
 }
