@@ -12,9 +12,9 @@ If you are using SkyWalking in a low throughputs monitoring scenario, and don't 
 * [Releases](https://github.com/apache/incubator-skywalking/releases)
 
 ## Quick start
-You can simplely tar/unzip and startup if ports 10800, 11800, 12800 are free.
+You can simplely tar/unzip and startup if ports 8080, 10800, 11800, 12800 are free.
 
-- `tar -xvf skywalking-collector.tar.gz` in Linux, or unzip in windows.
+- `tar -xvf skywalking-dist.tar.gz` in Linux, or unzip in windows.
 - run `bin/startup.sh` or `bin/startup.bat`
 
 You should keep the `config/application.yml` as default.

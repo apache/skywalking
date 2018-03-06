@@ -39,6 +39,13 @@ public class PaginationUtilsTestCase {
 
         pagination = new Pagination();
         pagination.setPageSize(10);
+
+        page = PaginationUtils.INSTANCE.exchange(pagination);
+        Assert.assertEquals(0, page.getFrom());
+        Assert.assertEquals(10, page.getLimit());
+
+        pagination = new Pagination();
+        pagination.setPageSize(10);
         pagination.setPageNum(2);
 
         page = PaginationUtils.INSTANCE.exchange(pagination);

@@ -24,6 +24,7 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+    <!-- TODO: need to delete -->
     <repositories>
         <repository>
             <id>apache-servicecomb</id>

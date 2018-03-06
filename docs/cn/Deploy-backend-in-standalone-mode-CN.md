@@ -14,7 +14,7 @@
 ## Quick Start
 Collector单机模拟启动简单，提供和集群模式相同的功能，单机模式下除端口被占用的情况下，直接启动即可。
 
-## 部署collector
+## 部署后台服务
 1. 解压安装包`tar -xvf skywalking-collector.tar.gz`，windows用户可以选择zip包
 1. 运行`bin/startup.sh`启动。windows用户为.bat文件。
 

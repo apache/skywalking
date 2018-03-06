@@ -28,7 +28,7 @@ public enum PaginationUtils {
 
     public Page exchange(Pagination paging) {
         int limit = paging.getPageSize();
-        int from = paging.getPageSize() * (paging.getPageNum() - 1);
+        int from = paging.getPageSize() * ((paging.getPageNum() == 0 ? 1 : paging.getPageNum()) - 1);
 
         return new Page(from, limit);
     }
