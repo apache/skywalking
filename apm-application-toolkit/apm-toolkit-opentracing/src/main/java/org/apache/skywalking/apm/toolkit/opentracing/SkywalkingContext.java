@@ -30,7 +30,7 @@ import java.util.Map;
 public class SkywalkingContext implements SpanContext {
     public static final SkywalkingContext INSTANCE = new SkywalkingContext();
 
-    private SkywalkingContext() {
+    public SkywalkingContext() {
     }
 
     @Override

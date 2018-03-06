@@ -30,6 +30,7 @@ import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.toolkit.opentracing.SkywalkingContext;
 import org.apache.skywalking.apm.toolkit.opentracing.TextMapContext;
 
 public class SkywalkingTracerExtractInterceptor implements InstanceMethodsAroundInterceptor {
@@ -61,7 +62,7 @@ public class SkywalkingTracerExtractInterceptor implements InstanceMethodsAround
             }
             ContextManager.extract(contextCarrier);
         }
-        return new TextMapContext();
+        return new SkywalkingContext();
     }
 
     @Override
