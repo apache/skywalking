@@ -13,7 +13,11 @@
 
     <modules>
         <module>servicecomb-java-chassis-0.x-plugin</module>
+        <!-- TODO: remove this submodule because of SNAPSHOT dependency. -->
+        <!-- After Apache ServiceComb released, we will put it back -->
+        <!--
         <module>servicecomb-java-chassis-1.x-plugin</module>
+        -->
     </modules>
     <packaging>pom</packaging>
 

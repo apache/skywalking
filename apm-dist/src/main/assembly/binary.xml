@@ -53,6 +53,15 @@
             <directory>${project.basedir}/../skywalking-agent</directory>
             <outputDirectory>/agent</outputDirectory>
         </fileSet>
+
+        <fileSet>
+            <directory>${project.basedir}/../</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>NOTICE</include>
+                <include>LICENSE</include>
+            </includes>
+        </fileSet>
     </fileSets>
     <files>
         <file>
