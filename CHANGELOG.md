@@ -31,6 +31,7 @@
  - Support new GraphQL query protocol
  - Support alarm
  - Provide a prototype instrument for collector.
+ - Support node speculate in cluster and application topology. (Provider Node -> Consumer Node) -> (Provider Node -> MQ Server -> Consumer Node)
  
  #### UI Changes
  - New 5.0.0 UI!!!
