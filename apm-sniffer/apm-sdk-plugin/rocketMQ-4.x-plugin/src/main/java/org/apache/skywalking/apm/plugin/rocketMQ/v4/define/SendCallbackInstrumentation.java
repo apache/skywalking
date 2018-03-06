@@ -16,29 +16,19 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.rocketMQ.v4.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
-import org.apache.rocketmq.client.producer.SendResult;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierarchyMatch;
 
-/**
- * {@link SendCallbackInstrumentation} intercepts {@link org.apache.rocketmq.client.producer.SendCallback#onSuccess(SendResult)}
- * method by using {@link org.apache.skywalking.apm.plugin.rocketMQ.v4.OnSuccessInterceptor} and also intercepts {@link
- * org.apache.rocketmq.client.producer.SendCallback#onException(Throwable)} by using {@link
- * org.apache.skywalking.apm.plugin.rocketMQ.v4.OnExceptionInterceptor}.
- *
- * @author zhang xin
- */
 public class SendCallbackInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "org.apache.rocketmq.client.producer.SendCallback";

@@ -4,17 +4,17 @@ type ApplicationNode implements Node {
     name: String!
     type: String
     # Success rate of all incoming requests.
-    # Max value is 100.
-    # 2 Digits after floating point.
-    sla: Float!
+    # Max value is 10000.
+    # 2 Digits after floating point in UI, need to division by 100. 10000 -> 100.00
+    sla: Int!
     # The number of incoming calls
     callsPerSec: Long!
     # Unit: millisecond
-    responseTimePerSec: Int!
+    avgResponseTime: Long!
     # ref: http://www.apdex.org/
-    # Max value is 1
-    # 2 Digits after floating point.
-    apdex: Float!
+    # Max value is 100
+    # 2 Digits after floating point in UI, need to division by 100. 100 -> 1.00
+    apdex: Int!
     # Whether the application alerts?
     # Default value is false.
     isAlarm: Boolean!
@@ -33,10 +33,16 @@ type ConjecturalNode implements Node {
     type: String
 }
 
+type Application {
+    id: ID!
+    name: String!
+    # The number of servers in the application code
+    numOfServer: Int!
+}
 
 extend type Query {
-  getAllApplication(duration: Duration!): [ApplicationNode!]!
+  getAllApplication(duration: Duration!): [Application!]!
   getApplicationTopology(applicationId: ID!, duration: Duration!): Topology
-  getSlowService(applicationId: ID!, duration: Duration!, top: Int!): [ServiceInfo!]!
-  getServerThroughput(applicationId: ID!, duration: Duration!, top: Int!): [AppServerInfo!]!
+  getSlowService(applicationId: ID!, duration: Duration!, topN: Int!): [ServiceMetric!]!
+  getServerThroughput(applicationId: ID!, duration: Duration!, topN: Int!): [AppServerInfo!]!
 }

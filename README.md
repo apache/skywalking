@@ -4,7 +4,7 @@ Apache SkyWalking | [中文](README_ZH.md)
 <img src="https://skywalkingtest.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
 
 **SkyWalking**: APM (application performance monitor) tool for distributed systems, especially designed for 
-microservices, cloud native and container-based (Docker, K8s, Mesos) architectures.
+microservices, cloud native and container-based (Docker, Kubernetes, Mesos) architectures.
 Underlying technology is a distributed tracing system.
 
 [![GitHub stars](https://img.shields.io/github/stars/apache/incubator-skywalking.svg?style=for-the-badge&label=Stars&logo=github)](https://github.com/apache/incubator-skywalking)
@@ -22,7 +22,6 @@ Underlying technology is a distributed tracing system.
   * Use **@Trace** annotation for any methods you want to trace.
   * Integrate traceId into logs for log4j, log4j2 and logback.
 * Pure Java server implementation, provide RESTful and gRPC services. Compatibility with other language agents/SDKs. 
-* The UI released on [skywalking-ui](https://github.com/apache/incubator-skywalking-ui)
 
 # Document
 [![EN doc](https://img.shields.io/badge/document-English-blue.svg)](docs/README.md) [![cn doc](https://img.shields.io/badge/文档-中文版-blue.svg)](docs/README_ZH.md)

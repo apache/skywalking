@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.collector.analysis.alarm.provider.worker;
 
-import org.apache.skywalking.apm.collector.analysis.metric.define.MetricSource;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorker;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
@@ -26,6 +25,7 @@ import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.NumberFormatUtils;
 import org.apache.skywalking.apm.collector.storage.table.Metric;
+import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.table.alarm.Alarm;
 import org.apache.skywalking.apm.collector.storage.table.alarm.AlarmType;
 import org.slf4j.Logger;
@@ -49,6 +49,8 @@ public abstract class AlarmAssertWorker<INPUT extends StreamData & Metric, OUTPU
 
     protected abstract OUTPUT newAlarmObject(String id, INPUT inputMetric);
 
+    protected abstract void generateAlarmContent(OUTPUT alarm, double threshold);
+
     protected abstract Double calleeErrorRateThreshold();
 
     protected abstract Double callerErrorRateThreshold();
@@ -64,7 +66,7 @@ public abstract class AlarmAssertWorker<INPUT extends StreamData & Metric, OUTPU
                 alarm.setAlarmType(AlarmType.ERROR_RATE.getValue());
                 alarm.setLastTimeBucket(inputMetric.getTimeBucket());
                 alarm.setSourceValue(MetricSource.Callee.getValue());
-                alarm.setAlarmContent("");
+                generateAlarmContent(alarm, calleeErrorRateThreshold());
 
                 onNext(alarm);
             }
@@ -75,12 +77,12 @@ public abstract class AlarmAssertWorker<INPUT extends StreamData & Metric, OUTPU
                 alarm.setAlarmType(AlarmType.ERROR_RATE.getValue());
                 alarm.setLastTimeBucket(inputMetric.getTimeBucket());
                 alarm.setSourceValue(MetricSource.Caller.getValue());
-                alarm.setAlarmContent("");
+                generateAlarmContent(alarm, callerErrorRateThreshold());
 
                 onNext(alarm);
             }
         } else {
-            logger.error("Please check the metric source, the value must be {} or {}", MetricSource.Caller.getValue(), MetricSource.Callee.getValue());
+            logger.error("Please check the metric source, the value must be {} or {}, but {}", MetricSource.Caller.getValue(), MetricSource.Callee.getValue(), inputMetric.getSourceValue());
         }
     }
 
@@ -94,30 +96,29 @@ public abstract class AlarmAssertWorker<INPUT extends StreamData & Metric, OUTPU
         Double averageResponseTime = Double.valueOf(transactionSuccessDurationSum) / Double.valueOf(transactionSuccessCalls);
 
         if (inputMetric.getSourceValue().equals(MetricSource.Callee.getValue())) {
-
             if (averageResponseTime >= calleeAverageResponseTimeThreshold()) {
                 String id = String.valueOf(MetricSource.Callee.getValue()) + Const.ID_SPLIT + AlarmType.SLOW_RTT.getValue();
                 OUTPUT alarm = newAlarmObject(id, inputMetric);
                 alarm.setAlarmType(AlarmType.SLOW_RTT.getValue());
                 alarm.setLastTimeBucket(inputMetric.getTimeBucket());
                 alarm.setSourceValue(MetricSource.Callee.getValue());
-                alarm.setAlarmContent("");
+                generateAlarmContent(alarm, calleeAverageResponseTimeThreshold());
 
                 onNext(alarm);
-            } else if (inputMetric.getSourceValue().equals(MetricSource.Caller.getValue())) {
-                if (averageResponseTime >= callerAverageResponseTimeThreshold()) {
-                    String id = String.valueOf(MetricSource.Caller.getValue()) + Const.ID_SPLIT + AlarmType.SLOW_RTT.getValue();
-                    OUTPUT alarm = newAlarmObject(id, inputMetric);
-                    alarm.setAlarmType(AlarmType.SLOW_RTT.getValue());
-                    alarm.setLastTimeBucket(inputMetric.getTimeBucket());
-                    alarm.setSourceValue(MetricSource.Caller.getValue());
-                    alarm.setAlarmContent("");
-
-                    onNext(alarm);
-                }
-            } else {
-                logger.error("Please check the metric source, the value must be {} or {}", MetricSource.Caller.getValue(), MetricSource.Callee.getValue());
             }
+        } else if (inputMetric.getSourceValue().equals(MetricSource.Caller.getValue())) {
+            if (averageResponseTime >= callerAverageResponseTimeThreshold()) {
+                String id = String.valueOf(MetricSource.Caller.getValue()) + Const.ID_SPLIT + AlarmType.SLOW_RTT.getValue();
+                OUTPUT alarm = newAlarmObject(id, inputMetric);
+                alarm.setAlarmType(AlarmType.SLOW_RTT.getValue());
+                alarm.setLastTimeBucket(inputMetric.getTimeBucket());
+                alarm.setSourceValue(MetricSource.Caller.getValue());
+                generateAlarmContent(alarm, callerAverageResponseTimeThreshold());
+
+                onNext(alarm);
+            }
+        } else {
+            logger.error("Please check the metric source, the value must be {} or {}, but {}", MetricSource.Caller.getValue(), MetricSource.Callee.getValue(), inputMetric.getSourceValue());
         }
     }
 }

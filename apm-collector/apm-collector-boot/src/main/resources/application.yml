@@ -34,18 +34,18 @@ ui:
     host: localhost
     port: 12800
     context_path: /
-#storage:
-#  elasticsearch:
-#    cluster_name: CollectorDBCluster
-#    cluster_transport_sniffer: true
-#    cluster_nodes: localhost:9300
-#    index_shards_number: 2
-#    index_replicas_number: 0
-#    ttl: 7
 storage:
-  h2:
-    url: jdbc:h2:tcp://localhost/~/test
-    user_name: sa
+  elasticsearch:
+    cluster_name: CollectorDBCluster
+    cluster_transport_sniffer: true
+    cluster_nodes: localhost:9300
+    index_shards_number: 2
+    index_replicas_number: 0
+    ttl: 7
+#storage:
+#  h2:
+#    url: jdbc:h2:tcp://localhost/~/test
+#    user_name: sa
 configuration:
   default:
     application_apdex_threshold: 2000

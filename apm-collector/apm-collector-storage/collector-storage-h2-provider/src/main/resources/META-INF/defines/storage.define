@@ -43,7 +43,7 @@ org.apache.skywalking.apm.collector.storage.h2.define.instmapping.InstanceMappin
 org.apache.skywalking.apm.collector.storage.h2.define.instmapping.InstanceMappingMonthH2TableDefine
 
 org.apache.skywalking.apm.collector.storage.h2.define.GlobalTraceH2TableDefine
-org.apache.skywalking.apm.collector.storage.h2.define.SegmentCostH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.SegmentDurationH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.SegmentH2TableDefine
 
 org.apache.skywalking.apm.collector.storage.h2.define.amp.ApplicationMinuteMetricH2TableDefine
@@ -77,13 +77,20 @@ org.apache.skywalking.apm.collector.storage.h2.define.srmp.ServiceReferenceDayMe
 org.apache.skywalking.apm.collector.storage.h2.define.srmp.ServiceReferenceMonthMetricH2TableDefine
 
 org.apache.skywalking.apm.collector.storage.h2.define.alarm.ApplicationAlarmH2TableDefine
-org.apache.skywalking.apm.collector.storage.h2.define.alarm.ApplicationAlarmListH2TableDefine
+
+org.apache.skywalking.apm.collector.storage.h2.define.alarm.ApplicationAlarmListMinuteH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.alarm.ApplicationAlarmListHourH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.alarm.ApplicationAlarmListDayH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.alarm.ApplicationAlarmListMonthH2TableDefine
+
 org.apache.skywalking.apm.collector.storage.h2.define.alarm.ApplicationReferenceAlarmH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.alarm.ApplicationReferenceAlarmListH2TableDefine
+
 org.apache.skywalking.apm.collector.storage.h2.define.alarm.InstanceAlarmH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.alarm.InstanceAlarmListH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.alarm.InstanceReferenceAlarmH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.alarm.InstanceReferenceAlarmListH2TableDefine
+
 org.apache.skywalking.apm.collector.storage.h2.define.alarm.ServiceAlarmH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.alarm.ServiceAlarmListH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.alarm.ServiceReferenceAlarmH2TableDefine

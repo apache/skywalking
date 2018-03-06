@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.server.jetty;
 
 import com.google.gson.JsonElement;
@@ -33,35 +32,47 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.server.ServerHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public abstract class JettyHandler extends HttpServlet implements ServerHandler {
 
+    private final Logger logger = LoggerFactory.getLogger(JettyHandler.class);
+
     public abstract String pathSpec();
 
     @Override
-    protected final void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected final void doGet(HttpServletRequest req, HttpServletResponse resp) {
         try {
             reply(resp, doGet(req));
-        } catch (ArgumentsParseException e) {
-            replyError(resp, e.getMessage(), HttpServletResponse.SC_BAD_REQUEST);
+        } catch (ArgumentsParseException | IOException e) {
+            try {
+                replyError(resp, e.getMessage(), HttpServletResponse.SC_BAD_REQUEST);
+            } catch (IOException replyException) {
+                logger.error(replyException.getMessage(), e);
+            }
         }
     }
 
     protected abstract JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException;
 
     @Override
-    protected final void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected final void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try {
             reply(resp, doPost(req));
-        } catch (ArgumentsParseException e) {
-            replyError(resp, e.getMessage(), HttpServletResponse.SC_BAD_REQUEST);
+        } catch (ArgumentsParseException | IOException e) {
+            try {
+                replyError(resp, e.getMessage(), HttpServletResponse.SC_BAD_REQUEST);
+            } catch (IOException replyException) {
+                logger.error(replyException.getMessage(), e);
+            }
         }
     }
 
-    protected abstract JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException;
+    protected abstract JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException, IOException;
 
     @Override
     protected final void doHead(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -150,7 +161,7 @@ public abstract class JettyHandler extends HttpServlet implements ServerHandler 
     }
 
     private void reply(HttpServletResponse response, JsonElement resJson) throws IOException {
-        response.setContentType("text/json");
+        response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
 
@@ -163,7 +174,7 @@ public abstract class JettyHandler extends HttpServlet implements ServerHandler 
     }
 
     private void replyError(HttpServletResponse response, String errorMessage, int status) throws IOException {
-        response.setContentType("text/plain");
+        response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         response.setStatus(status);
         response.setHeader("error-message", errorMessage);

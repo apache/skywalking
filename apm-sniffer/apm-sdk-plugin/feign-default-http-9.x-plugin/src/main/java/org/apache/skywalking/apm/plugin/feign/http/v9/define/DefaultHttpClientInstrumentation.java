@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.feign.http.v9.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -25,19 +24,10 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.plugin.feign.http.v9.DefaultHttpClientInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * {@link DefaultHttpClientInstrumentation} presents that skywalking intercepts {@link
- * feign.Client.Default#execute(feign.Request, feign.Request.Options)} by using {@link DefaultHttpClientInterceptor}.
- * If feign did't run in default mode, the instrumentation depend on the http discovery implementation.
- * e.g. okhttp discovery implementation depend on okhttp-plugin.
- *
- * @author peng-yongsheng
- */
 public class DefaultHttpClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     /**

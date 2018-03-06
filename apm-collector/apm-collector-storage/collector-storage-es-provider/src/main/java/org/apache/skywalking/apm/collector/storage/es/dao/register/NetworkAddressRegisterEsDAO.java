@@ -50,13 +50,24 @@ public class NetworkAddressRegisterEsDAO extends EsDAO implements INetworkAddres
     }
 
     @Override public void save(NetworkAddress networkAddress) {
-        logger.debug("save network address register info, address getId: {}, network address code: {}", networkAddress.getId(), networkAddress.getNetworkAddress());
+        logger.debug("save network address register info, address getApplicationId: {}, network address code: {}", networkAddress.getId(), networkAddress.getNetworkAddress());
         ElasticSearchClient client = getClient();
         Map<String, Object> source = new HashMap<>();
         source.put(NetworkAddressTable.COLUMN_NETWORK_ADDRESS, networkAddress.getNetworkAddress());
         source.put(NetworkAddressTable.COLUMN_ADDRESS_ID, networkAddress.getAddressId());
+        source.put(NetworkAddressTable.COLUMN_SPAN_LAYER, networkAddress.getSpanLayer());
+        source.put(NetworkAddressTable.COLUMN_SERVER_TYPE, networkAddress.getServerType());
 
         IndexResponse response = client.prepareIndex(NetworkAddressTable.TABLE, networkAddress.getId()).setSource(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
-        logger.debug("save network address register info, address getId: {}, network address code: {}, status: {}", networkAddress.getAddressId(), networkAddress.getNetworkAddress(), response.status().name());
+        logger.debug("save network address register info, address getApplicationId: {}, network address code: {}, status: {}", networkAddress.getAddressId(), networkAddress.getNetworkAddress(), response.status().name());
+    }
+
+    @Override public void update(String id, int spanLayer, int serverType) {
+        ElasticSearchClient client = getClient();
+
+        Map<String, Object> source = new HashMap<>();
+        source.put(NetworkAddressTable.COLUMN_SPAN_LAYER, spanLayer);
+        source.put(NetworkAddressTable.COLUMN_SERVER_TYPE, serverType);
+        client.prepareUpdate(NetworkAddressTable.TABLE, id).setDoc(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
     }
 }

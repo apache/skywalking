@@ -49,7 +49,9 @@ public abstract class AbstractPersistenceEsDAO<STREAM_DATA extends StreamData> e
     @Override public final STREAM_DATA get(String id) {
         GetResponse getResponse = getClient().prepareGet(tableName(), id).get();
         if (getResponse.isExists()) {
-            return esDataToStreamData(getResponse.getSource());
+            STREAM_DATA streamData = esDataToStreamData(getResponse.getSource());
+            streamData.setId(id);
+            return streamData;
         } else {
             return null;
         }

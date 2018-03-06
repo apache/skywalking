@@ -23,7 +23,7 @@
     <parent>
         <artifactId>apm-collector-ui</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-alpha</version>
+        <version>5.0.0-alpha-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -34,6 +34,11 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>collector-ui-define</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>collector-ui-graphql</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -27,11 +27,17 @@ type ConjecturalApp {
     num: Int!
 }
 
+type ApplicationTPS {
+    applicationId: Int!
+    applicationCode: String
+    callsPerSec: Int!
+}
+
 extend type Query {
     getClusterTopology(duration: Duration!): Topology
     getClusterBrief(duration: Duration!): ClusterBrief
     getAlarmTrend(duration: Duration!): AlarmTrend
     getConjecturalApps(duration: Duration!): ConjecturalAppBrief
-    getTopNSlowService(duration: Duration!, topN: Int!): [ServiceInfo!]!
-    getTopNServerThroughput(duration: Duration!, topN: Int!): [AppServerInfo!]!
+    getTopNSlowService(duration: Duration!, topN: Int!): [ServiceMetric!]!
+    getTopNApplicationThroughput(duration: Duration!, topN: Int!): [ApplicationTPS!]!
 }

@@ -104,7 +104,7 @@ type Call {
     isAlert: Boolean
     # The protocol and tech stack used in this distributed call
     callType: String!
-    callsPerSec: Int!
+    callsPerSec: Long!
     # Unit: millisecond
-    responseTimePerSec: Int!
+    avgResponseTime: Long!
 }

@@ -22,10 +22,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
 import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
-import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.apache.skywalking.apm.collector.storage.dao.cache.IApplicationCacheDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
+import org.apache.skywalking.apm.collector.storage.table.register.Application;
 import org.apache.skywalking.apm.collector.storage.table.register.ApplicationTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,7 @@ public class ApplicationH2CacheDAO extends H2DAO implements IApplicationCacheDAO
     private final Logger logger = LoggerFactory.getLogger(ApplicationH2CacheDAO.class);
 
     private static final String GET_APPLICATION_ID_SQL = "select {0} from {1} where {2} = ? and {3} = ?";
-    private static final String GET_APPLICATION_CODE_SQL = "select {0} from {1} where {2} = ?";
+    private static final String GET_APPLICATION_SQL = "select {0},{1} from {2} where {3} = ?";
 
     public ApplicationH2CacheDAO(H2Client client) {
         super(client);
@@ -61,19 +61,23 @@ public class ApplicationH2CacheDAO extends H2DAO implements IApplicationCacheDAO
         return 0;
     }
 
-    @Override public String getApplicationCode(int applicationId) {
+    @Override public Application getApplication(int applicationId) {
         logger.debug("get application code, applicationId: {}", applicationId);
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_APPLICATION_CODE_SQL, ApplicationTable.COLUMN_APPLICATION_CODE, ApplicationTable.TABLE, ApplicationTable.COLUMN_APPLICATION_ID);
+        String sql = SqlBuilder.buildSql(GET_APPLICATION_SQL, ApplicationTable.COLUMN_APPLICATION_CODE, ApplicationTable.COLUMN_IS_ADDRESS, ApplicationTable.TABLE, ApplicationTable.COLUMN_APPLICATION_ID);
         Object[] params = new Object[] {applicationId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
-                return rs.getString(1);
+                Application application = new Application();
+                application.setApplicationId(applicationId);
+                application.setApplicationCode(rs.getString(1));
+                application.setIsAddress(rs.getInt(2));
+                return application;
             }
         } catch (SQLException | H2ClientException e) {
             logger.error(e.getMessage(), e);
         }
-        return Const.EMPTY_STRING;
+        return null;
     }
 
     @Override public int getApplicationIdByAddressId(int addressId) {

@@ -6,12 +6,12 @@
 type AppServerInfo {
     id: ID!
     name: String!
-    tps: Int!
-    os: String
+    applicationId: Int!
+    applicationCode: String
+    callsPerSec: Int!
     host: String
     pid: Int
-    ipv4: String
-    ipv6: String
+    ipv4: [String!]!
 }
 
 type CPUTrend {

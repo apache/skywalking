@@ -23,7 +23,7 @@
     <parent>
         <artifactId>apm-collector</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-alpha</version>
+        <version>5.0.0-alpha-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -31,6 +31,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>collector-ui-define</module>
+        <module>collector-ui-graphql</module>
         <module>collector-ui-jetty-provider</module>
     </modules>
 

@@ -33,20 +33,9 @@ import org.apache.skywalking.apm.collector.naming.service.NamingHandlerRegisterS
 import org.apache.skywalking.apm.collector.server.Server;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.ui.UIModule;
-import org.apache.skywalking.apm.collector.ui.jetty.handler.SegmentTopGetHandler;
-import org.apache.skywalking.apm.collector.ui.jetty.handler.SpanGetHandler;
-import org.apache.skywalking.apm.collector.ui.jetty.handler.TraceDagGetHandler;
-import org.apache.skywalking.apm.collector.ui.jetty.handler.TraceStackGetHandler;
-import org.apache.skywalking.apm.collector.ui.jetty.handler.application.ApplicationsGetHandler;
-import org.apache.skywalking.apm.collector.ui.jetty.handler.instancehealth.InstanceHealthGetHandler;
-import org.apache.skywalking.apm.collector.ui.jetty.handler.instancemetric.InstanceMetricGetOneTimeBucketHandler;
-import org.apache.skywalking.apm.collector.ui.jetty.handler.instancemetric.InstanceMetricGetRangeTimeBucketHandler;
-import org.apache.skywalking.apm.collector.ui.jetty.handler.instancemetric.InstanceOsInfoGetHandler;
+import org.apache.skywalking.apm.collector.ui.jetty.handler.GraphQLHandler;
 import org.apache.skywalking.apm.collector.ui.jetty.handler.naming.UIJettyNamingHandler;
 import org.apache.skywalking.apm.collector.ui.jetty.handler.naming.UIJettyNamingListener;
-import org.apache.skywalking.apm.collector.ui.jetty.handler.servicetree.ServiceTreeGetByIdHandler;
-import org.apache.skywalking.apm.collector.ui.jetty.handler.time.AllInstanceLastTimeGetHandler;
-import org.apache.skywalking.apm.collector.ui.jetty.handler.time.OneInstanceLastTimeGetHandler;
 
 /**
  * @author peng-yongsheng
@@ -98,17 +87,6 @@ public class UIModuleJettyProvider extends ModuleProvider {
     }
 
     private void addHandlers(Server jettyServer) {
-        jettyServer.addHandler(new ApplicationsGetHandler(getManager()));
-        jettyServer.addHandler(new InstanceHealthGetHandler(getManager()));
-        jettyServer.addHandler(new InstanceMetricGetOneTimeBucketHandler(getManager()));
-        jettyServer.addHandler(new InstanceMetricGetRangeTimeBucketHandler(getManager()));
-        jettyServer.addHandler(new InstanceOsInfoGetHandler(getManager()));
-        jettyServer.addHandler(new ServiceTreeGetByIdHandler(getManager()));
-        jettyServer.addHandler(new AllInstanceLastTimeGetHandler(getManager()));
-        jettyServer.addHandler(new OneInstanceLastTimeGetHandler(getManager()));
-        jettyServer.addHandler(new SegmentTopGetHandler(getManager()));
-        jettyServer.addHandler(new SpanGetHandler(getManager()));
-        jettyServer.addHandler(new TraceDagGetHandler(getManager()));
-        jettyServer.addHandler(new TraceStackGetHandler(getManager()));
+        jettyServer.addHandler(new GraphQLHandler(getManager()));
     }
 }

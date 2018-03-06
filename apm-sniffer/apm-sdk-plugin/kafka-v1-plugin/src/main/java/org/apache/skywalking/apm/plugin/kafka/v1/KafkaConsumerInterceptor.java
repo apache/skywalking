@@ -37,7 +37,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * @autor zhang xin
+ * @author  zhang xin
  */
 public class KafkaConsumerInterceptor implements InstanceMethodsAroundInterceptor {
 

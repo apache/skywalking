@@ -1,0 +1,53 @@
+Apache SkyWalking
+Copyright 2015-2018 The Apache Software Foundation
+
+This product includes software developed by The Apache Software
+Foundation (http://www.apache.org/).
+
+The binary distribution contains software developed by:
+
+raphw (byte-buddy): http://bytebuddy.net/ , Apache 2.0
+INRIA, France Telecom (asm): http://asm.ow2.org/ , [asmdex-license](http://asm.ow2.org/asmdex-license.html)
+Google:
+- grpc: https://grpc.io/ , Apache 2.0
+- guava: https://github.com/google/guava , Apache 2.0
+- gson: https://github.com/google/gson , Apache 2.0
+Elasticsearch BV (Elasticsearch): https://www.elastic.co/products/elasticsearch , Apache 2.0
+H2 Database: http://www.h2database.com/html/main.html , MPL 2.0 or EPL 1.0
+LMAX Ltd.(disruptor): https://github.com/LMAX-Exchange/disruptor , Apache 2.0
+mockito: http://site.mockito.org/ , MIT
+QOS.ch (slf4j): https://www.slf4j.org/ , MIT
+powermock: https://github.com/powermock/powermock , Apache 2.0
+Eclipse (Jetty): https://www.eclipse.org/jetty/ , Apache 2.0 and Eclipse Public License 1.0
+SnakeYAML: http://www.snakeyaml.org , Apache 2.0
+Jedis: https://github.com/xetorthio/jedis , MIT
+Joda-Time: http://www.joda.org/joda-time/ , Apache 2.0
+GraphQL Java Tools: https://github.com/graphql-java/graphql-java-tools , MIT
+antd: https://github.com/ant-design/ant-design , MIT
+babel-runtime: https://github.com/babel/babel/tree/master/packages/babel-runtime , MIT
+bizcharts-plugin-slider: https://github.com/alibaba/BizCharts , MIT
+bizcharts: https://github.com/alibaba/BizCharts , MIT
+classnames: https://github.com/JedWatson/classnames/raw/master/LICENSE , MIT
+cytoscape-cose-bilkent: https://github.com/cytoscape/cytoscape.js-cose-bilkent , MIT
+cytoscape-node-html-label: https://github.com/kaluginserg/cytoscape-node-html-label , MIT
+cytoscape: https://github.com/cytoscape/cytoscape.js , MIT
+d3: https://github.com/d3/d3 , MIT
+dva-loading: https://github.com/dvajs/dva , MIT
+dva: https://github.com/dvajs/dva , MIT
+enquire-js: https://github.com/jljsj/enquire-js , MIT
+fastclick: https://github.com/ftlabs/fastclick , MIT
+lodash-decorators: https://github.com/steelsojka/lodash-decorators , MIT
+lodash: https://github.com/lodash/lodash , MIT
+moment: https://github.com/moment/moment , MIT
+numeral: https://github.com/adamwdraper/Numeral-js , MIT
+omit.js: https://github.com/benjycui/omit.js , MIT
+path-to-regexp: https://github.com/pillarjs/path-to-regexp , MIT
+prop-types: https://github.com/facebook/prop-types , MIT
+qs: https://github.com/ljharb/qs , BSD-3-Clause
+rc-drawer-menu: https://github.com/ant-motion/drawer-menu , MIT
+react-container-query: https://github.com/d6u/react-container-query , MIT
+react-document-title: https://github.com/gaearon/react-document-title , MIT
+react-dom: https://github.com/facebook/react , MIT
+react-fittext: https://github.com/gianu/react-fittext , MIT
+react: https://github.com/facebook/react , MIT
+url-polyfill: https://github.com/lifaon74/url-polyfill , MIT

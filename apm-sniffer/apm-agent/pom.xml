@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>5.0.0-alpha</version>
+        <version>5.0.0-alpha-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-agent</artifactId>
@@ -108,13 +108,13 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <mkdir dir="${project.basedir}/../../packages/skywalking-agent"/>
+                                <mkdir dir="${project.basedir}/../../skywalking-agent"/>
                                 <copy file="${project.build.directory}/skywalking-agent.jar"
-                                      tofile="${project.basedir}/../../packages/skywalking-agent/skywalking-agent.jar" overwrite="true"/>
-                                <mkdir dir="${project.basedir}/../../packages/skywalking-agent/config"/>
-                                <mkdir dir="${project.basedir}/../../packages/skywalking-agent/logs"/>
+                                      tofile="${project.basedir}/../../skywalking-agent/skywalking-agent.jar" overwrite="true"/>
+                                <mkdir dir="${project.basedir}/../../skywalking-agent/config"/>
+                                <mkdir dir="${project.basedir}/../../skywalking-agent/logs"/>
                                 <copydir src="${project.basedir}/../config"
-                                         dest="${project.basedir}/../../packages/skywalking-agent/config" forceoverwrite="true"/>
+                                         dest="${project.basedir}/../../skywalking-agent/config" forceoverwrite="true"/>
                             </tasks>
                         </configuration>
                     </execution>
