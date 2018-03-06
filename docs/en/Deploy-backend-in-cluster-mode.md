@@ -1,6 +1,6 @@
 ## Required of third party softwares
 - JDK 6+（instruments application can run in jdk6）
-- JDK8  ( skywalking collector and skywalking webui )
+- JDK8  ( skywalking collector and skywalking ui )
 - Elasticsearch 5.2.2 or 5.3, cluster mode or not
 - Zookeeper 3.4.10
 
@@ -22,7 +22,7 @@ thread_pool.bulk.queue_size: 1000
 - Start Elasticsearch
 
 ### Deploy collector servers
-1. Run `tar -xvf skywalking-collector.tar.gz`
+1. Run `tar -xvf skywalking-dist.tar.gz`
 2. Config collector in cluster mode.
 
 Cluster mode depends on Zookeeper register and application discovery capabilities. So, you just need to adjust the IP config items in `config/application.yml`. Change IP and port configs of naming, remote, agent_gRPC, agent_jetty and ui,
@@ -75,8 +75,18 @@ storage:
     ttl: 7
 ```
 
+3. Run `bin/collectorService.sh`
 
-3. Run `bin/startup.sh`
+### Deploy UI servers
 
-- NOTICE: **In 5.0.0-alpha, startup.sh will start two processes, collector and UI, and UI uses 127.0.0.1:10800 as default.
-Recommend use http proxy to access UI in product, otherwise, access any UI.**
+1. Run `tar -xvf skywalking-dist.tar.gz`
+2. Config UI in cluster mode.
+
+The config items of UI is saved in `bin/webappService.sh` (`bin\webappService.bat` for windows).
+
+| Config                           | Description                                                                                          |
+|----------------------------------|------------------------------------------------------------------------------------------------------|
+| `server.port`                    | Port to listen on                                                                                    |
+| `collector.ribbon.listOfServers` | Address to access collector naming service.(Consist with `naming.jetty` in `config/application.yml`) |
+
+3. Run `bin/webappService.sh`

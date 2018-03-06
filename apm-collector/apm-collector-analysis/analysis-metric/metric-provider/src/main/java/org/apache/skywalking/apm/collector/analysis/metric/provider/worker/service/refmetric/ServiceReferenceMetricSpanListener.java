@@ -80,9 +80,8 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
                 serviceReferenceMetric.setFrontServiceId(reference.getParentServiceId());
 
                 if (spanDecorator.getSpanLayer().equals(SpanLayer.MQ)) {
-                    int peerId = spanDecorator.getPeerId();
-                    int applicationIdByPeerId = applicationCacheService.getApplicationIdByAddressId(peerId);
-                    int instanceIdByPeerId = instanceCacheService.getInstanceIdByAddressId(applicationIdByPeerId, peerId);
+                    int applicationIdByPeerId = applicationCacheService.getApplicationIdByAddressId(reference.getNetworkAddressId());
+                    int instanceIdByPeerId = instanceCacheService.getInstanceIdByAddressId(applicationIdByPeerId, reference.getNetworkAddressId());
                     serviceReferenceMetric.setFrontInstanceId(instanceIdByPeerId);
                     serviceReferenceMetric.setFrontApplicationId(applicationIdByPeerId);
                 } else {
