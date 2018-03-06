@@ -25,6 +25,10 @@ Core features are separated into 3 groups: agent, collector and UI.
 - Support server metrics of other languages, such as C#. Need adjust TDP(Trace Data Protocol)
 - Alarm notification. Default through mail.
 - Baseline calculation, to make the alarm more accuracy.
+- Performance optimization (Stream metric aggregate and query for UI)
+- Automated testing (Stream metric aggregate and query for UI)
+- Remote module add kafka provider
+- Cluster module add redis provider
 
 ### UI
 - Merged into Collector as a module.
