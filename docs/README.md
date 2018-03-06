@@ -21,6 +21,7 @@
     * [Plugin development guide](en/Plugin-Development-Guide.md)
     * Protocol
       * [Cross Process Propagation Headers Protocol, v1.0](en/Skywalking-Cross-Process-Propagation-Headers-Protocol-v1.md)
+  * [Roadmap](ROADMAP.md)
   * Resources provided by community
     * [Public speakings](https://github.com/OpenSkywalking/Community#public-speakings)
     * [Videos](https://github.com/OpenSkywalking/Community#videos)
