@@ -1,7 +1,7 @@
-# Usage scenario
+# Usage scenario（no provide in alpha version，planning provide in beta version）
 Default standalong mode collector means don't support cluster. It uses H2 as storage layer implementation, suggest that use only for preview, test, demonstration, low throughputs and small scale system.
 
-If you are using skywalking in a low throughputs monitoring scenario, and don't want to deploy cluster, at least, switch the storage implementation from H2 to  Elasticsearch.
+If you are using SkyWalking in a low throughputs monitoring scenario, and don't want to deploy cluster, at least, switch the storage implementation from H2 to Elasticsearch.
 
 **H2 storage implementation is not provided in 5.0.0-alpha, so you must deploy ElasticSearch before try to start backend**
 
