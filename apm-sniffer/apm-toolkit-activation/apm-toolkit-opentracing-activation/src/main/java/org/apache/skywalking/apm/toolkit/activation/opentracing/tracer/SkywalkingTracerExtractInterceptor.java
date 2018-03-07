@@ -21,19 +21,17 @@ package org.apache.skywalking.apm.toolkit.activation.opentracing.tracer;
 
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
+import org.apache.skywalking.apm.agent.core.context.CarrierItem;
+import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.toolkit.opentracing.SkywalkingContext;
 
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.context.CarrierItem;
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.toolkit.opentracing.SkywalkingContext;
-import org.apache.skywalking.apm.toolkit.opentracing.TextMapContext;
 
 public class SkywalkingTracerExtractInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
