@@ -94,6 +94,6 @@ UI的配置信息保存在 `bin/webappService.sh` 中 ( windows为`bin\webappSer
 | 配置项                            | 描述                                                                             |
 |----------------------------------|----------------------------------------------------------------------------------|
 | `server.port`                    | 监听端口                                                                          |
-| `collector.ribbon.listOfServers` | collector命名服务地址.(与 `config/application.yml` 中的`naming.jetty`配置保持相同 ) |
+| `collector.ribbon.listOfServers` | collector命名服务地址.(与 `config/application.yml` 中的`naming.jetty`配置保持相同 )，多个Collector地址以`,`分割 |
 
 3. 运行 `bin/webappService.sh`
