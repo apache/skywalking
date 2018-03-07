@@ -39,7 +39,7 @@ public class TimePyramidTableNameBuilder {
                 tableName = tableName + Const.ID_SPLIT + TimePyramid.Day.getName();
                 break;
             case HOUR:
-                tableName = tableName + Const.ID_SPLIT + TimePyramid.Day.getName();
+                tableName = tableName + Const.ID_SPLIT + TimePyramid.Hour.getName();
                 break;
             case MINUTE:
                 tableName = tableName + Const.ID_SPLIT + TimePyramid.Minute.getName();
