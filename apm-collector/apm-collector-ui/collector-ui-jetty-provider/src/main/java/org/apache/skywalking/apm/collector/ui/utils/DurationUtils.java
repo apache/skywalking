@@ -42,7 +42,7 @@ public enum DurationUtils {
         return Long.valueOf(dateStr);
     }
 
-    public long durationToSecondTimeBucket(Step step, String dateStr) throws ParseException {
+    public long startTimeDurationToSecondTimeBucket(Step step, String dateStr) throws ParseException {
         long secondTimeBucket = 0;
         switch (step) {
             case MONTH:
@@ -56,6 +56,28 @@ public enum DurationUtils {
                 break;
             case MINUTE:
                 secondTimeBucket = exchangeToTimeBucket(dateStr) * 100;
+                break;
+            case SECOND:
+                secondTimeBucket = exchangeToTimeBucket(dateStr);
+                break;
+        }
+        return secondTimeBucket;
+    }
+
+    public long endTimeDurationToSecondTimeBucket(Step step, String dateStr) throws ParseException {
+        long secondTimeBucket = 0;
+        switch (step) {
+            case MONTH:
+                secondTimeBucket = (((exchangeToTimeBucket(dateStr) * 100 + 99) * 100 + 99) * 100 + 99) * 100 + 99;
+                break;
+            case DAY:
+                secondTimeBucket = ((exchangeToTimeBucket(dateStr) * 100 + 99) * 100 + 99) * 100 + 99;
+                break;
+            case HOUR:
+                secondTimeBucket = (exchangeToTimeBucket(dateStr) * 100 + 99) * 100 + 99;
+                break;
+            case MINUTE:
+                secondTimeBucket = exchangeToTimeBucket(dateStr) * 100 + 99;
                 break;
             case SECOND:
                 secondTimeBucket = exchangeToTimeBucket(dateStr);
@@ -139,7 +161,8 @@ public enum DurationUtils {
         return dateTime;
     }
 
-    public List<DurationPoint> getDurationPoints(Step step, long startTimeBucket, long endTimeBucket) throws ParseException {
+    public List<DurationPoint> getDurationPoints(Step step, long startTimeBucket,
+        long endTimeBucket) throws ParseException {
         DateTime dateTime = parseToDateTime(step, startTimeBucket);
 
         List<DurationPoint> durations = new LinkedList<>();
