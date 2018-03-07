@@ -40,11 +40,8 @@ JSON数组，数组的每个元素，为一个有效的gRPC服务地址。
 ### 协议内容
 [gRPC service define](../..apm-protocol/apm-network/src/main/proto/ApplicationRegisterService.proto)
 
-- 首次调用时，applicationCode为客户端设置的应用名（显示在拓扑图和应用列表上的名字）。之后随着追踪过程，会上报此应用相关的周边服务的`ip:port`地址列表
-- KeyWithIntegerValue 返回，key为上报的applicationCode或ip:port地址，value为对应的id。applicationCode对应的返回id,在后续协议中，被称为applicationId。
-- 此服务按需调用，本地无法找到ip:port对应的id时，可异步发起调用。
-- 获取applicationId的操作是必选。后续追踪数据依赖此id
-- 获取ip:port对应的id是可选，使用id，会有效提高collector处理效率，降低网络消耗。
+- applicationCode为客户端设置的应用名.
+- applicationCode对应的返回id,在后续协议中，被称为applicationId。
 
 ## 应用实例发现服务
 ### 简介
