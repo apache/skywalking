@@ -91,6 +91,6 @@ The config items of UI is saved in `bin/webappService.sh` (`bin\webappService.ba
 | Config                           | Description                                                                                          |
 |----------------------------------|------------------------------------------------------------------------------------------------------|
 | `server.port`                    | Port to listen on                                                                                    |
-| `collector.ribbon.listOfServers` | Address to access collector naming service.(Consist with `naming.jetty` in `config/application.yml`) |
+| `collector.ribbon.listOfServers` | Address to access collector naming service.(Consist with `naming.jetty` in `config/application.yml`). Multiple collector addresses are split by ',' |
 
 3. Run `bin/webappService.sh`
