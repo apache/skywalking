@@ -68,8 +68,8 @@ public class TraceQuery implements Query {
         if (StringUtils.isNotEmpty(condition.getTraceId())) {
             traceId = condition.getTraceId();
         } else if (ObjectUtils.isNotEmpty(condition.getQueryDuration())) {
-            startSecondTimeBucket = DurationUtils.INSTANCE.durationToSecondTimeBucket(condition.getQueryDuration().getStep(), condition.getQueryDuration().getStart());
-            endSecondTimeBucket = DurationUtils.INSTANCE.durationToSecondTimeBucket(condition.getQueryDuration().getStep(), condition.getQueryDuration().getEnd());
+            startSecondTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(condition.getQueryDuration().getStep(), condition.getQueryDuration().getStart());
+            endSecondTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(condition.getQueryDuration().getStep(), condition.getQueryDuration().getEnd());
         } else {
             throw new UnexpectedException("The condition must contains either queryDuration or traceId.");
         }
