@@ -19,9 +19,11 @@
 package org.apache.skywalking.apm.collector.storage.table.application;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
+import org.apache.skywalking.apm.collector.core.data.RemoteData;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
 import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
+import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 
 /**
  * @author peng-yongsheng
@@ -88,5 +90,11 @@ public class ApplicationMapping extends StreamData {
 
     public void setTimeBucket(long timeBucket) {
         setDataLong(0, timeBucket);
+    }
+
+    public static class InstanceCreator implements RemoteDataRegisterService.RemoteDataInstanceCreator {
+        @Override public RemoteData createInstance() {
+            return new ApplicationMapping();
+        }
     }
 }

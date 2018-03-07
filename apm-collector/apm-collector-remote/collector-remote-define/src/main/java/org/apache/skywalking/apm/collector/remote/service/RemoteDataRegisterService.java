@@ -28,6 +28,6 @@ public interface RemoteDataRegisterService extends Service {
     void register(Class<? extends RemoteData> dataClass, RemoteDataInstanceCreator instanceCreator);
 
     interface RemoteDataInstanceCreator<REMOTE_DATA extends RemoteData> {
-        REMOTE_DATA createInstance(String id);
+        REMOTE_DATA createInstance();
     }
 }
