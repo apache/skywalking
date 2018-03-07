@@ -19,9 +19,11 @@
 package org.apache.skywalking.apm.collector.storage.table.register;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
+import org.apache.skywalking.apm.collector.core.data.RemoteData;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
 import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
+import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 
 /**
  * @author peng-yongsheng
@@ -96,5 +98,11 @@ public class NetworkAddress extends StreamData {
 
     public void setServerType(Integer serverType) {
         setDataInteger(2, serverType);
+    }
+
+    public static class InstanceCreator implements RemoteDataRegisterService.RemoteDataInstanceCreator {
+        @Override public RemoteData createInstance() {
+            return new NetworkAddress();
+        }
     }
 }

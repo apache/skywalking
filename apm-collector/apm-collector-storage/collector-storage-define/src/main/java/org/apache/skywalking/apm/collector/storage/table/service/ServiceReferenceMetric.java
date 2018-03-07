@@ -19,9 +19,11 @@
 package org.apache.skywalking.apm.collector.storage.table.service;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
+import org.apache.skywalking.apm.collector.core.data.RemoteData;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
 import org.apache.skywalking.apm.collector.core.data.operator.AddOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
+import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 import org.apache.skywalking.apm.collector.storage.table.Metric;
 
 /**
@@ -274,5 +276,11 @@ public class ServiceReferenceMetric extends StreamData implements Metric {
     @Override
     public void setMqTransactionErrorDurationSum(Long mqTransactionErrorDurationSum) {
         setDataLong(12, mqTransactionErrorDurationSum);
+    }
+
+    public static class InstanceCreator implements RemoteDataRegisterService.RemoteDataInstanceCreator {
+        @Override public RemoteData createInstance() {
+            return new ServiceReferenceMetric();
+        }
     }
 }

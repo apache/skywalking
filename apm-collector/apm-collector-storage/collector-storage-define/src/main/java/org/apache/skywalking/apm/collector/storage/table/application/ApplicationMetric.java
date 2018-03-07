@@ -19,9 +19,11 @@
 package org.apache.skywalking.apm.collector.storage.table.application;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
+import org.apache.skywalking.apm.collector.core.data.RemoteData;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
 import org.apache.skywalking.apm.collector.core.data.operator.AddOperation;
 import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
+import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 import org.apache.skywalking.apm.collector.storage.table.Metric;
 
 /**
@@ -253,5 +255,11 @@ public class ApplicationMetric extends StreamData implements Metric {
 
     public void setFrustratedCount(long frustratedCount) {
         setDataLong(15, frustratedCount);
+    }
+
+    public static class InstanceCreator implements RemoteDataRegisterService.RemoteDataInstanceCreator {
+        @Override public RemoteData createInstance() {
+            return new ApplicationMetric();
+        }
     }
 }
