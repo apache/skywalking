@@ -32,7 +32,11 @@ class TraceTable extends PureComponent {
     return (
       <Collapse
         bordered={false}
-        onChange={(key) => { if (!spansContainer[key]) { this.props.onExpand(record.key, key); } }}
+        onChange={(key) => {
+          if (key.length > 0 && !spansContainer[key]) {
+            this.props.onExpand(record.key, key[0]);
+          }
+        }}
       >
         {traceIds.map((k) => {
           return (
