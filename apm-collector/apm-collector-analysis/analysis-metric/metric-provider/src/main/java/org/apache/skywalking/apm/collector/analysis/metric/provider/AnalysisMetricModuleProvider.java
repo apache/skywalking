@@ -47,6 +47,17 @@ import org.apache.skywalking.apm.collector.analysis.worker.timer.PersistenceTime
 import org.apache.skywalking.apm.collector.core.module.Module;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.apache.skywalking.apm.collector.remote.RemoteModule;
+import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
+import org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponent;
+import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMapping;
+import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMetric;
+import org.apache.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetric;
+import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMapping;
+import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetric;
+import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetric;
+import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetric;
+import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
 
 /**
  * @author peng-yongsheng
@@ -73,6 +84,8 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
         WorkerCreateListener workerCreateListener = new WorkerCreateListener();
 
         graphCreate(workerCreateListener);
+
+        registerRemoteData();
 
         PersistenceTimer persistenceTimer = new PersistenceTimer(AnalysisMetricModule.NAME);
         persistenceTimer.start(getManager(), workerCreateListener.getPersistenceWorkers());
@@ -132,5 +145,18 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
 
         InstanceHeartBeatPersistenceGraph instanceHeartBeatPersistenceGraph = new InstanceHeartBeatPersistenceGraph(getManager(), workerCreateListener);
         instanceHeartBeatPersistenceGraph.create();
+    }
+
+    private void registerRemoteData() {
+        RemoteDataRegisterService remoteDataRegisterService = getManager().find(RemoteModule.NAME).getService(RemoteDataRegisterService.class);
+        remoteDataRegisterService.register(ApplicationComponent.class, new ApplicationComponent.InstanceCreator());
+        remoteDataRegisterService.register(ApplicationMapping.class, new ApplicationMapping.InstanceCreator());
+        remoteDataRegisterService.register(ApplicationMetric.class, new ApplicationMetric.InstanceCreator());
+        remoteDataRegisterService.register(ApplicationReferenceMetric.class, new ApplicationReferenceMetric.InstanceCreator());
+        remoteDataRegisterService.register(InstanceMapping.class, new InstanceMapping.InstanceCreator());
+        remoteDataRegisterService.register(InstanceMetric.class, new InstanceMetric.InstanceCreator());
+        remoteDataRegisterService.register(InstanceReferenceMetric.class, new InstanceReferenceMetric.InstanceCreator());
+        remoteDataRegisterService.register(ServiceMetric.class, new ServiceMetric.InstanceCreator());
+        remoteDataRegisterService.register(ServiceReferenceMetric.class, new ServiceReferenceMetric.InstanceCreator());
     }
 }
