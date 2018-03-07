@@ -99,7 +99,7 @@ class RegisterMock {
         serviceNameElement.setSrcSpanType(SpanType.Exit);
         serviceNameCollection.addElements(serviceNameElement);
 
-        registerServiceName(serviceNameCollection);
+//        registerServiceName(serviceNameCollection);
 
         heartBeatScheduled(instanceMapping.getApplicationInstanceId());
     }
@@ -144,7 +144,7 @@ class RegisterMock {
         serviceNameElement.setSrcSpanType(SpanType.Entry);
         serviceNameCollection.addElements(serviceNameElement);
 
-        registerServiceName(serviceNameCollection);
+//        registerServiceName(serviceNameCollection);
 
         heartBeatScheduled(instanceMapping.getApplicationInstanceId());
     }
