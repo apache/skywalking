@@ -37,7 +37,7 @@ public class NetflixFeignInstrumentation extends ClassInstanceMethodsEnhancePlug
     /**
      * Intercept class.
      */
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.spring.cloud.netflix.feign.v11.DefaultHttpClientInterceptor";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.feign.http.v9.DefaultHttpClientInterceptor";
 
     @Override protected ClassMatch enhanceClass() {
         return byName(ENHANCE_CLASS);
