@@ -21,10 +21,12 @@ const conf = {
   maxZoom: 1,
   boxSelectionEnabled: true,
   autounselectify: true,
+  wheelSensitivity: 0.2,
   layout: {
     name: 'cose-bilkent',
-    animate: true,
-    idealEdgeLength: 100,
+    animate: false,
+    idealEdgeLength: 200,
+    edgeElasticity: 0.1,
   },
 };
 

@@ -76,7 +76,7 @@ export function generateModal({ namespace, dataQuery, optionsQuery, defaultOptio
         Object.keys(allOptions).forEach((_) => {
           const thisOptions = allOptions[_];
           if (!values[_]) {
-            if (defaultOption[_]) {
+            if (defaultOption && defaultOption[_]) {
               defaultValues[_] = defaultOption[_].key;
               defaultLabels[_] = defaultOption[_].label;
               amendOptions[_] = [defaultOption[_], ...thisOptions];

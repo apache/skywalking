@@ -73,7 +73,7 @@ export default class GlobalHeader extends PureComponent {
   render() {
     const {
       collapsed, notices: { applicationAlarmList, serverAlarmList },
-      isMobile, logo, selectedDuration,
+      isMobile, logo, selectedDuration, fetching,
       onDurationToggle, onDurationReload, onRedirect: redirect,
     } = this.props;
     const applications = applicationAlarmList.items.map(_ => ({ ..._, datetime: _.startTime }));
@@ -97,6 +97,7 @@ export default class GlobalHeader extends PureComponent {
         />
         <div className={styles.right}>
           <DurationIcon
+            loading={fetching}
             className={styles.action}
             selectedDuration={selectedDuration}
             onToggle={onDurationToggle}
@@ -111,7 +112,7 @@ export default class GlobalHeader extends PureComponent {
             onClear={(tabTitle) => {
               redirect({ pathname: '/alarm', state: { type: tabTitle } });
             }}
-            loading={false}
+            loading={fetching}
             popupAlign={{ offset: [20, -16] }}
             locale={{
               emptyText: 'No alert',

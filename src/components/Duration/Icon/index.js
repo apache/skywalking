@@ -19,10 +19,34 @@
 import React, { PureComponent } from 'react';
 import { Icon } from 'antd';
 import moment from 'moment';
+import lodash from 'lodash';
 
 export default class DurationIcon extends PureComponent {
+  state = {
+    // noLoading: -1, loading: 1, loadingFinish: 0
+    innerLoading: -1,
+  }
+  handleToggle = () => {
+    const { loading, onToggle } = this.props;
+    if (loading) {
+      return;
+    }
+    onToggle();
+  }
+  renderLoad() {
+    const { loading, className, onReload } = this.props;
+    if (!loading && this.state.innerLoading < 1) {
+      this.state.innerLoading = -1;
+      return <span className={className} onClick={onReload}> <Icon type="reload" /> </span>;
+    }
+    if (this.state.innerLoading < 0) {
+      this.state.innerLoading = 1;
+      lodash.delay(() => this.setState({ innerLoading: 0 }), 1000);
+    }
+    return <span className={className}> <Icon type="loading" /> </span>;
+  }
   render() {
-    const { className, onToggle, onReload, selectedDuration = {
+    const { className, selectedDuration = {
       from() {
         return moment();
       },
@@ -36,12 +60,12 @@ export default class DurationIcon extends PureComponent {
       <span>
         <span
           className={className}
-          onClick={onToggle}
+          onClick={this.handleToggle}
         >
           {selectedDuration.label ? selectedDuration.label : `${selectedDuration.from().format(timeFormat)} ~ ${selectedDuration.to().format(timeFormat)}`}
           {selectedDuration.step > 0 ? ` Reloading every ${selectedDuration.step / 1000} seconds` : null }
         </span>
-        <span className={className} onClick={onReload}> <Icon type="reload" /> </span>
+        {this.renderLoad()}
       </span>
     );
   }

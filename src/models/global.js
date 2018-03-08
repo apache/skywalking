@@ -101,6 +101,9 @@ export default {
     },
     reloadDuration(state) {
       const { duration } = state;
+      if (!duration.collapsed) {
+        return state;
+      }
       const { selected } = duration;
       const value = generateDuration(selected);
       return {

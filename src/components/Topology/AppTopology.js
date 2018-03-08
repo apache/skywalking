@@ -60,9 +60,10 @@ export default class AppTopology extends Base {
           'curve-style': 'bezier',
           'control-point-step-size': 100,
           'target-arrow-shape': 'triangle',
+          'arrow-scale': 1.7,
           'target-arrow-color': ele => (ele.data('isAlert') ? 'rgb(204, 0, 51)' : 'rgb(147, 198, 174)'),
           'line-color': ele => (ele.data('isAlert') ? 'rgb(204, 0, 51)' : 'rgb(147, 198, 174)'),
-          width: 2,
+          width: 3,
           label: ele => `${ele.data('callType')} \n ${ele.data('callsPerSec')} tps / ${ele.data('avgResponseTime')} ms`,
           'text-wrap': 'wrap',
           color: 'rgb(110, 112, 116)',
@@ -84,13 +85,12 @@ export default class AppTopology extends Base {
           return `
           <div class="${styles.circle}">
             <div class="node-percentage">${data.sla}%</div>
-            <div>${data.callsPerSec} calls/s</div>
             <div>
               <img src="img/icon/data.png" class="${styles.logo}"/>${data.numOfServer}
               <img src="img/icon/alert.png" class="${styles.logo}"/>
               <span class="${styles.alert}">${data.numOfServerAlarm}</span>
             </div>
-            <div>${data.apdex} Apdex</div>
+            <div>${data.callsPerSec} calls/s</div>
           </div>`;
         },
       },

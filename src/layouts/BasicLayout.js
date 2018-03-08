@@ -25,6 +25,7 @@ import { Route, Redirect, Switch, routerRedux } from 'dva/router';
 import { ContainerQuery } from 'react-container-query';
 import classNames from 'classnames';
 import { enquireScreen } from 'enquire-js';
+import lodash from 'lodash';
 import GlobalHeader from '../components/GlobalHeader';
 import GlobalFooter from '../components/GlobalFooter';
 import SiderMenu from '../components/SiderMenu';
@@ -197,7 +198,7 @@ class BasicLayout extends React.PureComponent {
   }
   render() {
     const {
-      collapsed, fetchingNotices, notices, routerData, match, location,
+      collapsed, fetching, notices, routerData, match, location,
       duration: { selected: dSelected, collapsed: dCollapsed },
     } = this.props;
     const bashRedirect = this.getBashRedirect();
@@ -217,7 +218,7 @@ class BasicLayout extends React.PureComponent {
         <Layout>
           <GlobalHeader
             logo={logo}
-            fetchingNotices={fetchingNotices}
+            fetching={fetching}
             notices={notices}
             collapsed={collapsed}
             isMobile={this.state.isMobile}
@@ -294,7 +295,7 @@ class BasicLayout extends React.PureComponent {
 
 export default connect(({ global, loading }) => ({
   collapsed: global.collapsed,
-  fetchingNotices: loading.effects['global/fetchNotices'],
+  fetching: lodash.values(loading.models).findIndex(_ => _) > -1,
   notices: global.notices,
   duration: global.duration,
   globalVariables: global.globalVariables,

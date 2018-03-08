@@ -42,13 +42,18 @@ export default class Base extends Component {
     if (nextProps.elements === this.elements) {
       return;
     }
+    const nodes = this.cy.nodes();
+    const nextElements = this.transform(nextProps.elements);
+    this.cy.json({ elements: nextElements, style: this.getStyle() });
+    if (this.isSame(nodes, this.cy.nodes())) {
+      return;
+    }
     const { layout: layoutConfig = {
       name: 'cose-bilkent',
       animate: false,
       idealEdgeLength: 200,
       edgeElasticity: 0.1,
     } } = this.props;
-    this.cy.json({ elements: this.transform(nextProps.elements), style: this.getStyle() });
     const layout = this.cy.layout(layoutConfig);
     layout.pon('layoutstop').then(() => {
       this.cy.minZoom(this.cy.zoom() - 0.3);
@@ -63,6 +68,13 @@ export default class Base extends Component {
   }
   getCy() {
     return this.cy;
+  }
+  isSame = (nodes, nextNodes) => {
+    if (nodes.length !== nextNodes.length) {
+      return false;
+    }
+    const diff = nextNodes.diff(nodes);
+    return diff.left.length < 1 && diff.right.length < 1;
   }
   transform(elements) {
     if (!elements) {
