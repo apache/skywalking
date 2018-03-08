@@ -21,8 +21,8 @@ package org.apache.skywalking.apm.collector.storage.table.register;
 import org.apache.skywalking.apm.collector.core.data.Column;
 import org.apache.skywalking.apm.collector.core.data.RemoteData;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.CoverMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
 import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 
 /**
@@ -31,8 +31,8 @@ import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterServ
 public class Application extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(ApplicationTable.COLUMN_ID, new NonOperation()),
-        new Column(ApplicationTable.COLUMN_APPLICATION_CODE, new CoverOperation()),
+        new Column(ApplicationTable.COLUMN_ID, new NonMergeOperation()),
+        new Column(ApplicationTable.COLUMN_APPLICATION_CODE, new CoverMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {};
@@ -40,10 +40,10 @@ public class Application extends StreamData {
     private static final Column[] DOUBLE_COLUMNS = {};
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(ApplicationTable.COLUMN_APPLICATION_ID, new CoverOperation()),
-        new Column(ApplicationTable.COLUMN_LAYER, new CoverOperation()),
-        new Column(ApplicationTable.COLUMN_ADDRESS_ID, new CoverOperation()),
-        new Column(ApplicationTable.COLUMN_IS_ADDRESS, new CoverOperation()),
+        new Column(ApplicationTable.COLUMN_APPLICATION_ID, new CoverMergeOperation()),
+        new Column(ApplicationTable.COLUMN_LAYER, new CoverMergeOperation()),
+        new Column(ApplicationTable.COLUMN_ADDRESS_ID, new CoverMergeOperation()),
+        new Column(ApplicationTable.COLUMN_IS_ADDRESS, new CoverMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};

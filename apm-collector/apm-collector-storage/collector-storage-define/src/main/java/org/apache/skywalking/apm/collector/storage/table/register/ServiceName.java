@@ -21,8 +21,8 @@ package org.apache.skywalking.apm.collector.storage.table.register;
 import org.apache.skywalking.apm.collector.core.data.Column;
 import org.apache.skywalking.apm.collector.core.data.RemoteData;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.CoverMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
 import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 
 /**
@@ -31,8 +31,8 @@ import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterServ
 public class ServiceName extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(ServiceNameTable.COLUMN_ID, new NonOperation()),
-        new Column(ServiceNameTable.COLUMN_SERVICE_NAME, new CoverOperation()),
+        new Column(ServiceNameTable.COLUMN_ID, new NonMergeOperation()),
+        new Column(ServiceNameTable.COLUMN_SERVICE_NAME, new CoverMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {};
@@ -40,9 +40,9 @@ public class ServiceName extends StreamData {
     private static final Column[] DOUBLE_COLUMNS = {};
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(ServiceNameTable.COLUMN_APPLICATION_ID, new CoverOperation()),
-        new Column(ServiceNameTable.COLUMN_SERVICE_ID, new CoverOperation()),
-        new Column(ServiceNameTable.COLUMN_SRC_SPAN_TYPE, new CoverOperation()),
+        new Column(ServiceNameTable.COLUMN_APPLICATION_ID, new CoverMergeOperation()),
+        new Column(ServiceNameTable.COLUMN_SERVICE_ID, new CoverMergeOperation()),
+        new Column(ServiceNameTable.COLUMN_SRC_SPAN_TYPE, new CoverMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};
