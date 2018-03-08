@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.core.data;
 
 /**
@@ -24,18 +23,30 @@ package org.apache.skywalking.apm.collector.core.data;
  */
 public class Column {
     private final String name;
-    private final Operation operation;
+    private final MergeOperation mergeOperation;
+    private final FormulaOperation formulaOperation;
 
-    public Column(String name, Operation operation) {
+    public Column(String name, MergeOperation mergeOperation) {
         this.name = name;
-        this.operation = operation;
+        this.mergeOperation = mergeOperation;
+        this.formulaOperation = null;
+    }
+
+    public Column(String name, MergeOperation mergeOperation, FormulaOperation formulaOperation) {
+        this.name = name;
+        this.mergeOperation = mergeOperation;
+        this.formulaOperation = formulaOperation;
     }
 
     public String getName() {
         return name;
     }
 
-    public Operation getOperation() {
-        return operation;
+    MergeOperation getMergeOperation() {
+        return mergeOperation;
+    }
+
+    FormulaOperation getFormulaOperation() {
+        return formulaOperation;
     }
 }
