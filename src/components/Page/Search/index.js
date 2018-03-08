@@ -27,14 +27,18 @@ export default class Search extends PureComponent {
   constructor(props) {
     super(props);
     this.lastFetchId = 0;
+    this.originFetchServer = this.fetchServer;
     this.fetchServer = debounce(this.fetchServer, 800);
   }
   state = {
     data: [],
     fetching: false,
   }
-  fetchServer = (value) => {
-    if (!value || value.length < 1) {
+  componentDidMount() {
+    this.originFetchServer('', true);
+  }
+  fetchServer = (value, isSelectOne) => {
+    if (value === undefined) {
       return;
     }
     const { url, query, variables = {}, transform } = this.props;
@@ -57,6 +61,9 @@ export default class Search extends PureComponent {
         }
         const list = body.data[Object.keys(body.data)[0]];
         this.setState({ data: (transform ? list.map(transform) : list), fetching: false });
+        if (isSelectOne && this.state.data.length > 0) {
+          this.handleSelect(this.state.data[0]);
+        }
       });
   }
   handleSelect = (value) => {

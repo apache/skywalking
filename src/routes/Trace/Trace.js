@@ -124,33 +124,36 @@ export default class Trace extends PureComponent {
     const { trace: { variables: { options } } } = this.props;
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
-        <Row gutter={{ md: 8, lg: 8, xl: 8 }}>
-          <Col xl={4} sm={24}>
+        <Row gutter={{ md: 8, lg: 12, xl: 8 }}>
+          <Col xl={4} lg={12} sm={24}>
             <FormItem label="Application">
               {getFieldDecorator('applicationId')(
-                <Select placeholder="No application" style={{ width: '100%' }}>
+                <Select placeholder="All application" style={{ width: '100%' }}>
                   {options.applicationId && options.applicationId.map((app) => {
-                      return (<Option key={app.key} value={app.key}>{app.label}</Option>);
+                      return (
+                        <Option key={app.key ? app.key : -1} value={app.key}>
+                          {app.label}
+                        </Option>);
                     })}
                 </Select>
               )}
             </FormItem>
           </Col>
-          <Col xl={4} sm={24}>
+          <Col xl={4} lg={12} sm={24}>
             <FormItem label="TraceId">
               {getFieldDecorator('traceId')(
                 <Input placeholder="Input trace id" />
               )}
             </FormItem>
           </Col>
-          <Col xl={6} sm={24}>
+          <Col xl={6} lg={12} sm={24}>
             <FormItem label="OperationName">
               {getFieldDecorator('operationName')(
                 <Input placeholder="Input operation name" />
               )}
             </FormItem>
           </Col>
-          <Col xl={6} sm={24}>
+          <Col xl={6} lg={12} sm={24}>
             <FormItem label="DurationRange">
               {getFieldDecorator('minTraceDuration')(
                 <InputNumber style={{ width: '40%' }} />
@@ -160,7 +163,7 @@ export default class Trace extends PureComponent {
               )}
             </FormItem>
           </Col>
-          <Col xl={4} sm={24}>
+          <Col xl={4} lg={12} sm={24}>
             <span className={styles.submitButtons}>
               <Button type="primary" htmlType="submit">Search</Button>
             </span>

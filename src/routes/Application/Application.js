@@ -110,7 +110,7 @@ export default class Application extends PureComponent {
             bordered={false}
             bodyStyle={{ padding: 0, marginTop: 24 }}
           >
-            <AppTopology elements={data.getApplicationTopology} layout={{ name: 'concentric', minNodeSpacing: 200 }} />
+            <AppTopology elements={data.getApplicationTopology} layout={{ name: 'concentric', startAngle: Math.PI, minNodeSpacing: 250 }} />
           </Card>
           <Row gutter={24}>
             <Col {...middleColResponsiveProps}>

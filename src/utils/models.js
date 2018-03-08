@@ -18,7 +18,7 @@
 
 import { query as queryService } from '../services/graphql';
 
-export function generateModal({ namespace, dataQuery, optionsQuery, state = {},
+export function generateModal({ namespace, dataQuery, optionsQuery, defaultOption, state = {},
   effects = {}, reducers = {}, subscriptions = {} }) {
   return {
     namespace,
@@ -76,6 +76,12 @@ export function generateModal({ namespace, dataQuery, optionsQuery, state = {},
         Object.keys(allOptions).forEach((_) => {
           const thisOptions = allOptions[_];
           if (!values[_]) {
+            if (defaultOption[_]) {
+              defaultValues[_] = defaultOption[_].key;
+              defaultLabels[_] = defaultOption[_].label;
+              amendOptions[_] = [defaultOption[_], ...thisOptions];
+              return;
+            }
             if (thisOptions.length > 0) {
               defaultValues[_] = thisOptions[0].key;
               defaultLabels[_] = thisOptions[0].label;

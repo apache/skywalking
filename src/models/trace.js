@@ -94,6 +94,11 @@ export default generateModal({
     },
   },
   optionsQuery,
+  defaultOption: {
+    applicationId: {
+      label: 'All Application',
+    },
+  },
   dataQuery,
   effects: {
     *fetchSpans({ payload }, { call, put }) {

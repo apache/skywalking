@@ -87,8 +87,8 @@ export default {
               target: 1,
               'isAlert|1': true,
               'callType|1': ['rpc', 'http', 'dubbo'],
-              'callsPerSec|0-100': 1,
-              'avgResponseTime|500-5000': 1,
+              'callsPerSec|0-1000': 1,
+              'avgResponseTime|500-5000': 0,
             }))).concat(downNodes.nodes.map(node => (mockjs.mock({
               source: 1,
               target: node.id,

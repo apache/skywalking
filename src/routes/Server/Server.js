@@ -24,6 +24,7 @@ import {
 } from '../../components/Charts';
 import DescriptionList from '../../components/DescriptionList';
 import { axis } from '../../utils/time';
+import { avgTimeSeries } from '../../utils/utils';
 import { Panel, Search } from '../../components/Page';
 
 const { Description } = DescriptionList;
@@ -65,8 +66,6 @@ export default class Server extends PureComponent {
       payload: { variables },
     });
   }
-  avg = list => (list.length > 0 ?
-    parseFloat((list.reduce((acc, curr) => acc + curr) / list.length).toFixed(2)) : 0)
   bytesToMB = list => list.map(_ => parseFloat((_ / (1024 ** 2)).toFixed(2)))
   render() {
     const { form, duration, server } = this.props;
@@ -108,17 +107,18 @@ export default class Server extends PureComponent {
         >
           <Card title="Info" style={{ marginTop: 24 }} bordered={false}>
             <DescriptionList>
-              <Description term="OS">{serverInfo.name}</Description>
+              <Description term="Application Code">{serverInfo.applicationCode}</Description>
               <Description term="Host Name">{serverInfo.host}</Description>
-              <Description term="Process Id">{serverInfo.pid}</Description>
               <Description term="IPv4">{serverInfo.ipv4 ? serverInfo.ipv4.join() : ''}</Description>
+              <Description term="Process Id">{serverInfo.pid}</Description>
+              <Description term="OS">{serverInfo.name}</Description>
             </DescriptionList>
           </Card>
           <Row gutter={24}>
             <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 24 }}>
               <ChartCard
                 title="Avg Response Time"
-                total={`${this.avg(getServerResponseTimeTrend.trendList)} ms`}
+                total={`${avgTimeSeries(getServerResponseTimeTrend.trendList)} ms`}
                 contentHeight={46}
               >
                 {getServerResponseTimeTrend.trendList.length > 0 ? (
@@ -132,8 +132,8 @@ export default class Server extends PureComponent {
             </Col>
             <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 24 }}>
               <ChartCard
-                title="Avg Calls Per Second"
-                total={`${this.avg(getServerTPSTrend.trendList)} ms`}
+                title="Avg Throughput"
+                total={`${avgTimeSeries(getServerTPSTrend.trendList)}`}
               >
                 <MiniBar
                   animate={false}

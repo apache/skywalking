@@ -23,6 +23,7 @@ import {
   ChartCard, Pie, MiniArea, Field,
 } from '../../components/Charts';
 import { axis } from '../../utils/time';
+import { avgTimeSeries } from '../../utils/utils';
 import { Panel, Ranking } from '../../components/Page';
 
 @connect(state => ({
@@ -47,7 +48,7 @@ export default class Dashboard extends PureComponent {
     let min = 0;
     if (numOfAlarmRate && numOfAlarmRate.length > 0) {
       visitData = axis(this.props.duration, numOfAlarmRate, ({ x, y }) => ({ x, y: y / accuracy }));
-      avg = numOfAlarmRate.reduce((acc, curr) => acc + curr) / numOfAlarmRate.length / accuracy;
+      avg = avgTimeSeries(numOfAlarmRate) / accuracy;
       max = numOfAlarmRate.reduce((acc, curr) => { return acc < curr ? curr : acc; }) / accuracy;
       min = numOfAlarmRate.reduce((acc, curr) => { return acc > curr ? curr : acc; }) / accuracy;
     }

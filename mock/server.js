@@ -43,10 +43,10 @@ export default {
       {
         data: {
           getServerResponseTimeTrend: {
-            'trendList|60': ['@natural(100, 1000)'],
+            'trendList|60': ['@natural(0, 1000)'],
           },
           getServerTPSTrend: {
-            'trendList|60': ['@natural(500, 10000)'],
+            'trendList|60': ['@natural(0, 10000)'],
           },
           getCPUTrend: {
             'cost|60': ['@natural(0, 99)'],
