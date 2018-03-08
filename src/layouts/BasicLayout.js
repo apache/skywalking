@@ -264,7 +264,7 @@ class BasicLayout extends React.PureComponent {
           <GlobalFooter
             links={[{
               key: 'SkyWalking',
-              title: 'SkyWalking',
+              title: 'Apache SkyWalking',
               href: 'http://skywalking.io',
               blankTarget: true,
             }, {
@@ -275,7 +275,7 @@ class BasicLayout extends React.PureComponent {
             }]}
             copyright={
               <div>
-                Copyright <Icon type="copyright" /> 2018 SkyWalking
+                Copyright <Icon type="copyright" /> 2018 The Apache Software Foundation, Licensed under the Apache License, Version 2.0.
               </div>
             }
           />
