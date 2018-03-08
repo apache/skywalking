@@ -18,19 +18,19 @@
 
 package org.apache.skywalking.apm.collector.core.data.operator;
 
-import org.apache.skywalking.apm.collector.core.data.Operation;
+import org.apache.skywalking.apm.collector.core.data.MergeOperation;
 
 /**
  * @author peng-yongsheng
  */
-public class MaxOperation implements Operation {
+public class MinMergeOperation implements MergeOperation {
 
     @Override public String operate(String newValue, String oldValue) {
-        throw new UnsupportedOperationException("not support string maximum operation");
+        throw new UnsupportedOperationException("not support string minimum operation");
     }
 
     @Override public Long operate(Long newValue, Long oldValue) {
-        if (newValue >= oldValue) {
+        if (newValue <= oldValue) {
             return newValue;
         } else {
             return oldValue;
@@ -38,7 +38,7 @@ public class MaxOperation implements Operation {
     }
 
     @Override public Double operate(Double newValue, Double oldValue) {
-        if (newValue >= oldValue) {
+        if (newValue <= oldValue) {
             return newValue;
         } else {
             return oldValue;
@@ -46,18 +46,14 @@ public class MaxOperation implements Operation {
     }
 
     @Override public Integer operate(Integer newValue, Integer oldValue) {
-        if (newValue >= oldValue) {
+        if (newValue <= oldValue) {
             return newValue;
         } else {
             return oldValue;
         }
     }
 
-    @Override public Boolean operate(Boolean newValue, Boolean oldValue) {
-        throw new UnsupportedOperationException("not support boolean maximum operation");
-    }
-
     @Override public byte[] operate(byte[] newValue, byte[] oldValue) {
-        throw new UnsupportedOperationException("not support byte maximum operation");
+        throw new UnsupportedOperationException("not support byte minimum operation");
     }
 }

@@ -16,35 +16,11 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.core.data.operator;
-
-import org.apache.skywalking.apm.collector.core.data.Operation;
+package org.apache.skywalking.apm.collector.core.data;
 
 /**
  * @author peng-yongsheng
  */
-public class NonOperation implements Operation {
-    @Override public String operate(String newValue, String oldValue) {
-        return oldValue;
-    }
-
-    @Override public Long operate(Long newValue, Long oldValue) {
-        return oldValue;
-    }
-
-    @Override public Double operate(Double newValue, Double oldValue) {
-        return oldValue;
-    }
-
-    @Override public Integer operate(Integer newValue, Integer oldValue) {
-        return oldValue;
-    }
-
-    @Override public Boolean operate(Boolean newValue, Boolean oldValue) {
-        return oldValue;
-    }
-
-    @Override public byte[] operate(byte[] newValue, byte[] oldValue) {
-        return oldValue;
-    }
+public interface FormulaOperation<INPUT_DATA extends AbstractData, OUTPUT_DATA> extends Operation {
+    OUTPUT_DATA operate(INPUT_DATA data);
 }

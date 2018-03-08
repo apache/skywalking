@@ -18,34 +18,29 @@
 
 package org.apache.skywalking.apm.collector.core.data.operator;
 
-import org.apache.skywalking.apm.collector.core.data.Operation;
+import org.apache.skywalking.apm.collector.core.data.MergeOperation;
 
 /**
  * @author peng-yongsheng
  */
-public class AddOperation implements Operation {
-
+public class NonMergeOperation implements MergeOperation {
     @Override public String operate(String newValue, String oldValue) {
-        throw new UnsupportedOperationException("not support string addition operation");
+        return oldValue;
     }
 
     @Override public Long operate(Long newValue, Long oldValue) {
-        return newValue + oldValue;
+        return oldValue;
     }
 
     @Override public Double operate(Double newValue, Double oldValue) {
-        return newValue + oldValue;
+        return oldValue;
     }
 
     @Override public Integer operate(Integer newValue, Integer oldValue) {
-        return newValue + oldValue;
-    }
-
-    @Override public Boolean operate(Boolean newValue, Boolean oldValue) {
-        throw new UnsupportedOperationException("not support boolean addition operation");
+        return oldValue;
     }
 
     @Override public byte[] operate(byte[] newValue, byte[] oldValue) {
-        throw new UnsupportedOperationException("not support byte addition operation");
+        return oldValue;
     }
 }

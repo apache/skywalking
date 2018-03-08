@@ -16,37 +16,31 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.core.data;
+package org.apache.skywalking.apm.collector.core.data.operator;
+
+import org.apache.skywalking.apm.collector.core.data.MergeOperation;
 
 /**
  * @author peng-yongsheng
  */
-public class Column {
-    private final String name;
-    private final MergeOperation mergeOperation;
-    private final FormulaOperation formulaOperation;
-
-    public Column(String name, MergeOperation mergeOperation) {
-        this.name = name;
-        this.mergeOperation = mergeOperation;
-        this.formulaOperation = null;
+public class CoverMergeOperation implements MergeOperation {
+    @Override public String operate(String newValue, String oldValue) {
+        return newValue;
     }
 
-    public Column(String name, MergeOperation mergeOperation, FormulaOperation formulaOperation) {
-        this.name = name;
-        this.mergeOperation = mergeOperation;
-        this.formulaOperation = formulaOperation;
+    @Override public Long operate(Long newValue, Long oldValue) {
+        return newValue;
     }
 
-    public String getName() {
-        return name;
+    @Override public Double operate(Double newValue, Double oldValue) {
+        return newValue;
     }
 
-    MergeOperation getMergeOperation() {
-        return mergeOperation;
+    @Override public Integer operate(Integer newValue, Integer oldValue) {
+        return newValue;
     }
 
-    FormulaOperation getFormulaOperation() {
-        return formulaOperation;
+    @Override public byte[] operate(byte[] newValue, byte[] oldValue) {
+        return newValue;
     }
 }

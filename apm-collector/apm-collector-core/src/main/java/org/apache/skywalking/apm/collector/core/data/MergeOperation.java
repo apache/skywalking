@@ -16,35 +16,19 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.core.data.operator;
-
-import org.apache.skywalking.apm.collector.core.data.Operation;
+package org.apache.skywalking.apm.collector.core.data;
 
 /**
  * @author peng-yongsheng
  */
-public class CoverOperation implements Operation {
-    @Override public String operate(String newValue, String oldValue) {
-        return newValue;
-    }
+public interface MergeOperation extends Operation {
+    String operate(String newValue, String oldValue);
 
-    @Override public Long operate(Long newValue, Long oldValue) {
-        return newValue;
-    }
+    Long operate(Long newValue, Long oldValue);
 
-    @Override public Double operate(Double newValue, Double oldValue) {
-        return newValue;
-    }
+    Double operate(Double newValue, Double oldValue);
 
-    @Override public Integer operate(Integer newValue, Integer oldValue) {
-        return newValue;
-    }
+    Integer operate(Integer newValue, Integer oldValue);
 
-    @Override public Boolean operate(Boolean newValue, Boolean oldValue) {
-        return newValue;
-    }
-
-    @Override public byte[] operate(byte[] newValue, byte[] oldValue) {
-        return newValue;
-    }
+    byte[] operate(byte[] newValue, byte[] oldValue);
 }

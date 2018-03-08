@@ -20,8 +20,8 @@ package org.apache.skywalking.apm.collector.storage.table.alarm;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.CoverMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
 
 /**
  * @author peng-yongsheng
@@ -29,25 +29,25 @@ import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
 public class ServiceReferenceAlarmList extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(ServiceReferenceAlarmListTable.COLUMN_ID, new NonOperation()),
-        new Column(ServiceReferenceAlarmListTable.COLUMN_ALARM_CONTENT, new CoverOperation()),
+        new Column(ServiceReferenceAlarmListTable.COLUMN_ID, new NonMergeOperation()),
+        new Column(ServiceReferenceAlarmListTable.COLUMN_ALARM_CONTENT, new CoverMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(ServiceReferenceAlarmListTable.COLUMN_TIME_BUCKET, new NonOperation()),
+        new Column(ServiceReferenceAlarmListTable.COLUMN_TIME_BUCKET, new NonMergeOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {};
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(ServiceReferenceAlarmListTable.COLUMN_ALARM_TYPE, new NonOperation()),
-        new Column(ServiceReferenceAlarmListTable.COLUMN_SOURCE_VALUE, new NonOperation()),
-        new Column(ServiceReferenceAlarmListTable.COLUMN_FRONT_APPLICATION_ID, new NonOperation()),
-        new Column(ServiceReferenceAlarmListTable.COLUMN_BEHIND_APPLICATION_ID, new NonOperation()),
-        new Column(ServiceReferenceAlarmListTable.COLUMN_FRONT_INSTANCE_ID, new NonOperation()),
-        new Column(ServiceReferenceAlarmListTable.COLUMN_BEHIND_INSTANCE_ID, new NonOperation()),
-        new Column(ServiceReferenceAlarmListTable.COLUMN_FRONT_SERVICE_ID, new NonOperation()),
-        new Column(ServiceReferenceAlarmListTable.COLUMN_BEHIND_SERVICE_ID, new NonOperation()),
+        new Column(ServiceReferenceAlarmListTable.COLUMN_ALARM_TYPE, new NonMergeOperation()),
+        new Column(ServiceReferenceAlarmListTable.COLUMN_SOURCE_VALUE, new NonMergeOperation()),
+        new Column(ServiceReferenceAlarmListTable.COLUMN_FRONT_APPLICATION_ID, new NonMergeOperation()),
+        new Column(ServiceReferenceAlarmListTable.COLUMN_BEHIND_APPLICATION_ID, new NonMergeOperation()),
+        new Column(ServiceReferenceAlarmListTable.COLUMN_FRONT_INSTANCE_ID, new NonMergeOperation()),
+        new Column(ServiceReferenceAlarmListTable.COLUMN_BEHIND_INSTANCE_ID, new NonMergeOperation()),
+        new Column(ServiceReferenceAlarmListTable.COLUMN_FRONT_SERVICE_ID, new NonMergeOperation()),
+        new Column(ServiceReferenceAlarmListTable.COLUMN_BEHIND_SERVICE_ID, new NonMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};
