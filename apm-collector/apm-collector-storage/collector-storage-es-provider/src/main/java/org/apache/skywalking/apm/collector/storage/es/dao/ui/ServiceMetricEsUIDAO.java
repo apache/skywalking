@@ -97,14 +97,17 @@ public class ServiceMetricEsUIDAO extends EsDAO implements IServiceMetricUIDAO {
 
         List<Integer> trends = new LinkedList<>();
         MultiGetResponse multiGetResponse = prepareMultiGet.get();
+
+        int index = 0;
         for (MultiGetItemResponse response : multiGetResponse.getResponses()) {
             if (response.getResponse().isExists()) {
                 long calls = ((Number)response.getResponse().getSource().get(ServiceMetricTable.COLUMN_TRANSACTION_CALLS)).longValue();
-                long errorCalls = ((Number)response.getResponse().getSource().get(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS)).longValue();
-                trends.add((int)(calls - errorCalls));
+                long secondBetween = durationPoints.get(index).getSecondsBetween();
+                trends.add((int)(calls / secondBetween));
             } else {
                 trends.add(0);
             }
+            index++;
         }
         return trends;
     }
