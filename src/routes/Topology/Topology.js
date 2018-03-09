@@ -42,7 +42,7 @@ export default class Topology extends PureComponent {
     return (
       <Panel globalVariables={this.props.globalVariables} onChange={this.handleChange}>
         <ChartCard
-          title="Topolgy Map"
+          title="Topology Map"
         >
           <AppTopology
             height={this.props.graphHeight}

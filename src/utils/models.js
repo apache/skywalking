@@ -49,6 +49,9 @@ export function generateModal({ namespace, dataQuery, optionsQuery, defaultOptio
       *fetchData({ payload }, { call, put }) {
         const { variables, reducer = undefined } = payload;
         const response = yield call(queryService, namespace, { variables, query: dataQuery });
+        if (!response.data) {
+          return;
+        }
         if (reducer) {
           yield put({
             type: reducer,
@@ -75,23 +78,24 @@ export function generateModal({ namespace, dataQuery, optionsQuery, defaultOptio
         const defaultLabels = {};
         Object.keys(allOptions).forEach((_) => {
           const thisOptions = allOptions[_];
+          let newOptions = [...thisOptions];
+          if (defaultOption && defaultOption[_]) {
+            newOptions = [defaultOption[_], ...newOptions];
+          }
           if (!values[_]) {
             if (defaultOption && defaultOption[_]) {
               defaultValues[_] = defaultOption[_].key;
               defaultLabels[_] = defaultOption[_].label;
-              amendOptions[_] = [defaultOption[_], ...thisOptions];
-              return;
-            }
-            if (thisOptions.length > 0) {
+            } else if (thisOptions.length > 0) {
               defaultValues[_] = thisOptions[0].key;
               defaultLabels[_] = thisOptions[0].label;
             }
-            return;
           }
           const key = values[_];
           if (!thisOptions.find(o => o.key === key)) {
-            amendOptions[_] = [...thisOptions, { key, label: labels[_] }];
+            newOptions = [...newOptions, { key, label: labels[_] }];
           }
+          amendOptions[_] = newOptions;
         });
         variables.options = {
           ...options,

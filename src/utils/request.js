@@ -69,6 +69,17 @@ export default function request(url, options) {
       }
       return response.json();
     })
+    .then((json) => {
+      const { errors } = json;
+      if (errors) {
+        errors.forEach((_) => {
+          notification.error({
+            message: _.message,
+          });
+        });
+      }
+      return json;
+    })
     .catch((e) => {
       const { dispatch } = store;
       const status = e.name;

@@ -72,7 +72,7 @@ export default class Dashboard extends PureComponent {
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
               title="DB & Cache"
-              avatar={<img style={{ width: 64, height: 64 }} src="img/icon/database.png" alt="database" />}
+              avatar={<img style={{ width: 56, height: 56 }} src="img/icon/database.png" alt="database" />}
               total={data.getClusterBrief.numOfDatabase
                 + data.getClusterBrief.numOfCache}
             />

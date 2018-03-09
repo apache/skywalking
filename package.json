@@ -4,8 +4,8 @@
   "description": "A web interface of Apache SkyWalking",
   "homepage": "https://github.com/apache/incubator-skywalking-ui",
   "bugs": {
-    "url" : "https://github.com/apache/incubator-skywalking-ui/issues",
-    "email" : "hanahmily@apache.org"
+    "url": "https://github.com/apache/incubator-skywalking-ui/issues",
+    "email": "hanahmily@apache.org"
   },
   "license": "Apache-2.0",
   "author": {
@@ -44,7 +44,6 @@
     "dva": "^2.1.0",
     "dva-loading": "^1.0.4",
     "enquire-js": "^0.1.1",
-    "fastclick": "^1.0.6",
     "lodash": "^4.17.4",
     "lodash-decorators": "^4.4.1",
     "moment": "^2.19.1",

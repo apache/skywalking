@@ -25,7 +25,11 @@ import styles from './Trace.less';
 
 const { Option } = Select;
 const FormItem = Form.Item;
-
+const initPaging = {
+  pageNum: 1,
+  pageSize: 10,
+  needTotal: true,
+};
 
 @connect(state => ({
   trace: state.trace,
@@ -65,6 +69,9 @@ export default class Trace extends PureComponent {
     const filteredVariables = { ...variables };
     filteredVariables.queryDuration = filteredVariables.duration;
     delete filteredVariables.duration;
+    if (!filteredVariables.paging) {
+      filteredVariables.paging = initPaging;
+    }
     this.props.dispatch({
       type: 'trace/fetchData',
       payload: { variables: { condition: filteredVariables } },
@@ -84,11 +91,7 @@ export default class Trace extends PureComponent {
           values: {
             ...fieldsValue,
             queryDuration: duration,
-            paging: {
-              pageNum: 1,
-              pageSize: 10,
-              needTotal: true,
-            },
+            paging: initPaging,
           },
         },
       });
