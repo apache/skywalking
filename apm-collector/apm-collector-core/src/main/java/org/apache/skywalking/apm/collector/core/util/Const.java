@@ -35,4 +35,5 @@ public class Const {
     public static final String EMPTY_STRING = "";
     public static final String FILE_SUFFIX = "sw";
     public static final int SPAN_TYPE_VIRTUAL = 9;
+    public static final String DOMAIN_OPERATION_NAME = "{domain}";
 }
