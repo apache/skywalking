@@ -109,4 +109,40 @@ public class DurationUtilsTestCase {
     public void testGetDurationPointsErrorDuration() throws ParseException {
         DurationUtils.INSTANCE.getDurationPoints(Step.MONTH, 20171001, 20180301);
     }
+
+    @Test
+    public void testStartTimeDurationToSecondTimeBucket() throws ParseException {
+        long secondTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(Step.MONTH, "201710");
+        Assert.assertEquals(20171000000000L, secondTimeBucket);
+
+        secondTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(Step.DAY, "20171001");
+        Assert.assertEquals(20171001000000L, secondTimeBucket);
+
+        secondTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(Step.HOUR, "2017100108");
+        Assert.assertEquals(20171001080000L, secondTimeBucket);
+
+        secondTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(Step.MINUTE, "201710010805");
+        Assert.assertEquals(20171001080500L, secondTimeBucket);
+
+        secondTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(Step.SECOND, "20171001080501");
+        Assert.assertEquals(20171001080501L, secondTimeBucket);
+    }
+
+    @Test
+    public void testEndTimeDurationToSecondTimeBucket() throws ParseException {
+        long secondTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(Step.MONTH, "201710");
+        Assert.assertEquals(20171099999999L, secondTimeBucket);
+
+        secondTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(Step.DAY, "20171001");
+        Assert.assertEquals(20171001999999L, secondTimeBucket);
+
+        secondTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(Step.HOUR, "2017100108");
+        Assert.assertEquals(20171001089999L, secondTimeBucket);
+
+        secondTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(Step.MINUTE, "201710010805");
+        Assert.assertEquals(20171001080599L, secondTimeBucket);
+
+        secondTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(Step.SECOND, "20171001080501");
+        Assert.assertEquals(20171001080501L, secondTimeBucket);
+    }
 }

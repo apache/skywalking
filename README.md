@@ -32,24 +32,32 @@ Underlying technology is a distributed tracing system.
 # Code of conduct
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wusheng@apache.org.
 
+# Live Demo
+Coming soon
+- Host in China. [goto]
+- Host in HK. [goto]
+
 # Screenshots
+- Overview dashboard
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/Dashboard.png"/>
+
 - Discovery topological graph of application clusters automatically.
-<img src="https://skywalkingtest.github.io/page-resources/3.2.1/topological_graph_test_project.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/Topology.png"/>
 
-- Trace query.
-<img src="https://skywalkingtest.github.io/page-resources/3.2.1/trace_segment.png"/>
+- Application overview
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/Application.png"/>
 
-- Span detail.
-<img src="https://skywalkingtest.github.io/page-resources/3.2.1/span.png" />
+- Server metrics
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/server.png"/>
 
-- Instance Overview.
-<img src="https://skywalkingtest.github.io/page-resources/3.2.1/instance_health.png"/>
+- Service metrics
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/Service.png"/>
 
-- JVM Detail.
-<img src="https://skywalkingtest.github.io/page-resources/3.2/instance_graph.png"/>
+- Trace
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/trace.png"/>
 
-- Services Dependency Tree.
-<img src="https://skywalkingtest.github.io/page-resources/3.2.1/service_dependency_tree.png"/>
+- Alarm
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/application-alarm.png"/>
 
 # Test reports
 - Automatic integration test reports

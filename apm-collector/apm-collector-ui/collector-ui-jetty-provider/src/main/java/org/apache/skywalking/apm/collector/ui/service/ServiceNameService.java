@@ -67,15 +67,11 @@ public class ServiceNameService {
     }
 
     public ThroughputTrend getServiceTPSTrend(int serviceId, Step step, long startTimeBucket,
-        long endTimeBucket, long startSecondTimeBucket, long endSecondTimeBucket) throws ParseException {
+        long endTimeBucket) throws ParseException {
         ThroughputTrend throughputTrend = new ThroughputTrend();
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTimeBucket, endTimeBucket);
-        List<Integer> callsTrends = serviceMetricUIDAO.getServiceTPSTrend(serviceId, step, durationPoints);
-
-        ServiceName serviceName = serviceNameCacheService.get(serviceId);
-        int secondBetween = secondBetweenService.calculate(serviceName.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket);
-        callsTrends.forEach(calls -> throughputTrend.getTrendList().add(calls / secondBetween));
-
+        List<Integer> throughputTrends = serviceMetricUIDAO.getServiceTPSTrend(serviceId, step, durationPoints);
+        throughputTrend.setTrendList(throughputTrends);
         return throughputTrend;
     }
 
@@ -87,7 +83,8 @@ public class ServiceNameService {
         return responseTimeTrend;
     }
 
-    public SLATrend getServiceSLATrend(int serviceId, Step step, long startTimeBucket, long endTimeBucket) throws ParseException {
+    public SLATrend getServiceSLATrend(int serviceId, Step step, long startTimeBucket,
+        long endTimeBucket) throws ParseException {
         SLATrend slaTrend = new SLATrend();
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTimeBucket, endTimeBucket);
         slaTrend.setTrendList(serviceMetricUIDAO.getServiceSLATrend(serviceId, step, durationPoints));

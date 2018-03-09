@@ -18,15 +18,14 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao.ui;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
+import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMetricTable;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetricTable;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.ui.server.AppServerInfo;
@@ -40,26 +39,22 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.script.Script;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.pipeline.InternalSimpleValue;
-import org.elasticsearch.search.aggregations.pipeline.PipelineAggregatorBuilders;
+import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 
 /**
  * @author peng-yongsheng
  */
 public class InstanceMetricEsUIDAO extends EsDAO implements IInstanceMetricUIDAO {
 
-    private static final String AVG_TPS = "avg_tps";
-
     public InstanceMetricEsUIDAO(ElasticSearchClient client) {
         super(client);
     }
 
-    @Override public List<AppServerInfo> getServerThroughput(int applicationId, Step step, long startTimeBucket, long endTimeBucket,
-        int secondBetween, int topN, MetricSource metricSource) {
+    @Override public List<AppServerInfo> getServerThroughput(int applicationId, Step step, long startTimeBucket,
+        long endTimeBucket, int secondBetween, int topN, MetricSource metricSource) {
         String tableName = TimePyramidTableNameBuilder.build(step, InstanceMetricTable.TABLE);
 
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
@@ -76,36 +71,36 @@ public class InstanceMetricEsUIDAO extends EsDAO implements IInstanceMetricUIDAO
         searchRequestBuilder.setQuery(boolQuery);
         searchRequestBuilder.setSize(0);
 
-        TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(InstanceMetricTable.COLUMN_INSTANCE_ID).field(InstanceMetricTable.COLUMN_INSTANCE_ID).size(topN);
+        TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(InstanceMetricTable.COLUMN_INSTANCE_ID).field(InstanceMetricTable.COLUMN_INSTANCE_ID).size(2000);
         aggregationBuilder.subAggregation(AggregationBuilders.sum(InstanceMetricTable.COLUMN_TRANSACTION_CALLS).field(InstanceMetricTable.COLUMN_TRANSACTION_CALLS));
-        aggregationBuilder.subAggregation(AggregationBuilders.sum(InstanceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS).field(InstanceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS));
-
-        Map<String, String> bucketsPathsMap = new HashMap<>();
-        bucketsPathsMap.put(InstanceMetricTable.COLUMN_TRANSACTION_CALLS, InstanceMetricTable.COLUMN_TRANSACTION_CALLS);
-        bucketsPathsMap.put(InstanceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, InstanceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS);
-
-        String idOrCode = "(params." + InstanceMetricTable.COLUMN_TRANSACTION_CALLS + " - params." + InstanceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS + ")"
-            + " / "
-            + "( " + secondBetween + " )";
-        Script script = new Script(idOrCode);
-        aggregationBuilder.subAggregation(PipelineAggregatorBuilders.bucketScript(AVG_TPS, bucketsPathsMap, script));
 
         searchRequestBuilder.addAggregation(aggregationBuilder);
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
         List<AppServerInfo> appServerInfos = new LinkedList<>();
-        Terms serviceIdTerms = searchResponse.getAggregations().get(InstanceMetricTable.COLUMN_INSTANCE_ID);
-        serviceIdTerms.getBuckets().forEach(serviceIdTerm -> {
-            int instanceId = serviceIdTerm.getKeyAsNumber().intValue();
+        Terms instanceIdTerms = searchResponse.getAggregations().get(InstanceMetricTable.COLUMN_INSTANCE_ID);
+        instanceIdTerms.getBuckets().forEach(instanceIdTerm -> {
+            int instanceId = instanceIdTerm.getKeyAsNumber().intValue();
+            Sum callSum = instanceIdTerm.getAggregations().get(ApplicationMetricTable.COLUMN_TRANSACTION_CALLS);
+            long calls = (long)callSum.getValue();
+            int callsPerSec = (int)(secondBetween == 0 ? 0 : calls / secondBetween);
 
             AppServerInfo appServerInfo = new AppServerInfo();
-            InternalSimpleValue simpleValue = serviceIdTerm.getAggregations().get(AVG_TPS);
-
             appServerInfo.setId(instanceId);
-            appServerInfo.setCallsPerSec((int)simpleValue.getValue());
+            appServerInfo.setCallsPerSec(callsPerSec);
             appServerInfos.add(appServerInfo);
         });
-        return appServerInfos;
+
+        appServerInfos.sort((first, second) -> first.getCallsPerSec() > second.getCallsPerSec() ? -1 : 1);
+        if (appServerInfos.size() <= topN) {
+            return appServerInfos;
+        } else {
+            List<AppServerInfo> newCollection = new LinkedList<>();
+            for (int i = 0; i < topN; i++) {
+                newCollection.add(appServerInfos.get(i));
+            }
+            return newCollection;
+        }
     }
 
     @Override public List<Integer> getServerTPSTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {

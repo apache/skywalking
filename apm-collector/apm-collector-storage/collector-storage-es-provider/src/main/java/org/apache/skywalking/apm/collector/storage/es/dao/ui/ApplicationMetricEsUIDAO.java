@@ -18,10 +18,8 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao.ui;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
@@ -35,13 +33,10 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.script.Script;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
-import org.elasticsearch.search.aggregations.pipeline.InternalSimpleValue;
-import org.elasticsearch.search.aggregations.pipeline.PipelineAggregatorBuilders;
 
 /**
  * @author peng-yongsheng
@@ -51,8 +46,6 @@ public class ApplicationMetricEsUIDAO extends EsDAO implements IApplicationMetri
     public ApplicationMetricEsUIDAO(ElasticSearchClient client) {
         super(client);
     }
-
-    private static final String AVG_TPS = "avg_tps";
 
     @Override
     public List<ApplicationTPS> getTopNApplicationThroughput(Step step, long startTimeBucket, long endTimeBucket,
@@ -70,36 +63,37 @@ public class ApplicationMetricEsUIDAO extends EsDAO implements IApplicationMetri
         searchRequestBuilder.setQuery(boolQuery);
         searchRequestBuilder.setSize(0);
 
-        TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(ApplicationMetricTable.COLUMN_APPLICATION_ID).field(ApplicationMetricTable.COLUMN_APPLICATION_ID).size(topN);
+        TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(ApplicationMetricTable.COLUMN_APPLICATION_ID).field(ApplicationMetricTable.COLUMN_APPLICATION_ID).size(2000);
         aggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationMetricTable.COLUMN_TRANSACTION_CALLS).field(ApplicationMetricTable.COLUMN_TRANSACTION_CALLS));
-        aggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_CALLS).field(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_CALLS));
-
-        Map<String, String> bucketsPathsMap = new HashMap<>();
-        bucketsPathsMap.put(ApplicationMetricTable.COLUMN_TRANSACTION_CALLS, ApplicationMetricTable.COLUMN_TRANSACTION_CALLS);
-        bucketsPathsMap.put(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_CALLS);
-
-        String idOrCode = "(params." + ApplicationMetricTable.COLUMN_TRANSACTION_CALLS + " - params." + ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_CALLS + ")"
-            + " / "
-            + "(" + betweenSecond + ")";
-        Script script = new Script(idOrCode);
-        aggregationBuilder.subAggregation(PipelineAggregatorBuilders.bucketScript(AVG_TPS, bucketsPathsMap, script));
-
         searchRequestBuilder.addAggregation(aggregationBuilder);
+
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
         List<ApplicationTPS> applicationTPSs = new LinkedList<>();
         Terms applicationIdTerms = searchResponse.getAggregations().get(ApplicationMetricTable.COLUMN_APPLICATION_ID);
         applicationIdTerms.getBuckets().forEach(applicationIdTerm -> {
             int applicationId = applicationIdTerm.getKeyAsNumber().intValue();
+            Sum callSum = applicationIdTerm.getAggregations().get(ApplicationMetricTable.COLUMN_TRANSACTION_CALLS);
+            long calls = (long)callSum.getValue();
+            int callsPerSec = (int)(betweenSecond == 0 ? 0 : calls / betweenSecond);
 
             ApplicationTPS applicationTPS = new ApplicationTPS();
-            InternalSimpleValue simpleValue = applicationIdTerm.getAggregations().get(AVG_TPS);
-
             applicationTPS.setApplicationId(applicationId);
-            applicationTPS.setCallsPerSec((int)simpleValue.getValue());
+            applicationTPS.setCallsPerSec(callsPerSec);
             applicationTPSs.add(applicationTPS);
         });
-        return applicationTPSs;
+
+        applicationTPSs.sort((first, second) -> first.getCallsPerSec() > second.getCallsPerSec() ? -1 : 1);
+
+        if (applicationTPSs.size() <= topN) {
+            return applicationTPSs;
+        } else {
+            List<ApplicationTPS> newCollection = new LinkedList<>();
+            for (int i = 0; i < topN; i++) {
+                newCollection.add(applicationTPSs.get(i));
+            }
+            return newCollection;
+        }
     }
 
     @Override

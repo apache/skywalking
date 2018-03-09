@@ -20,8 +20,8 @@ package org.apache.skywalking.apm.collector.storage.table.global;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.CoverMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
 
 /**
  * @author peng-yongsheng
@@ -29,13 +29,13 @@ import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
 public class GlobalTrace extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(GlobalTraceTable.COLUMN_ID, new NonOperation()),
-        new Column(GlobalTraceTable.COLUMN_SEGMENT_ID, new CoverOperation()),
-        new Column(GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID, new CoverOperation()),
+        new Column(GlobalTraceTable.COLUMN_ID, new NonMergeOperation()),
+        new Column(GlobalTraceTable.COLUMN_SEGMENT_ID, new CoverMergeOperation()),
+        new Column(GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID, new CoverMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(GlobalTraceTable.COLUMN_TIME_BUCKET, new CoverOperation()),
+        new Column(GlobalTraceTable.COLUMN_TIME_BUCKET, new CoverMergeOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {};

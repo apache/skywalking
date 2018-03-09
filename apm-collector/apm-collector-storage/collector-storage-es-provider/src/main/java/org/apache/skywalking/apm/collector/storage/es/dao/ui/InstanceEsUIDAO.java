@@ -106,6 +106,7 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
 
+        //TODO second
         BoolQueryBuilder timeBoolQuery = QueryBuilders.boolQuery();
         timeBoolQuery.should().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
         timeBoolQuery.should().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
@@ -171,6 +172,7 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         }
         boolQuery.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, BooleanUtils.FALSE));
 
+        //TODO second
         BoolQueryBuilder timeBoolQuery = QueryBuilders.boolQuery();
         timeBoolQuery.should().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
         timeBoolQuery.should().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
@@ -197,6 +199,7 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         boolQuery.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationId));
         boolQuery.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, BooleanUtils.FALSE));
 
+        //TODO second
         BoolQueryBuilder timeBoolQuery = QueryBuilders.boolQuery();
         timeBoolQuery.should().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
         timeBoolQuery.should().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));

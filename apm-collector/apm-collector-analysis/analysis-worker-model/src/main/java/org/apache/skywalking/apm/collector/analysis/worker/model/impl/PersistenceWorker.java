@@ -102,7 +102,7 @@ public abstract class PersistenceWorker<INPUT_AND_OUTPUT extends StreamData> ext
             if (needMergeDBData()) {
                 INPUT_AND_OUTPUT dbData = persistenceDAO().get(id);
                 if (ObjectUtils.isNotEmpty(dbData)) {
-                    dbData.mergeData(data);
+                    dbData.mergeAndFormulaCalculateData(data);
                     try {
                         updateBatchCollection.add(persistenceDAO().prepareBatchUpdate(dbData));
                         onNext(dbData);
@@ -134,7 +134,7 @@ public abstract class PersistenceWorker<INPUT_AND_OUTPUT extends StreamData> ext
     private void aggregate(INPUT_AND_OUTPUT input) {
         dataCache.writing();
         if (dataCache.containsKey(input.getId())) {
-            dataCache.get(input.getId()).mergeData(input);
+            dataCache.get(input.getId()).mergeAndFormulaCalculateData(input);
         } else {
             dataCache.put(input.getId(), input);
         }

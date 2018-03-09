@@ -27,20 +27,20 @@ org.apache.skywalking.apm.collector.storage.h2.define.mpool.MemoryPoolHourMetric
 org.apache.skywalking.apm.collector.storage.h2.define.mpool.MemoryPoolDayMetricH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.mpool.MemoryPoolMonthMetricH2TableDefine
 
-org.apache.skywalking.apm.collector.storage.h2.define.appcomp.ApplicationComponentMinuteH2TableDefine
-org.apache.skywalking.apm.collector.storage.h2.define.appcomp.ApplicationComponentHourH2TableDefine
-org.apache.skywalking.apm.collector.storage.h2.define.appcomp.ApplicationComponentDayH2TableDefine
-org.apache.skywalking.apm.collector.storage.h2.define.appcomp.ApplicationComponentMonthH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.acp.ApplicationComponentMinuteH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.acp.ApplicationComponentHourH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.acp.ApplicationComponentDayH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.acp.ApplicationComponentMonthH2TableDefine
 
-org.apache.skywalking.apm.collector.storage.h2.define.appmapping.ApplicationMappingMinuteH2TableDefine
-org.apache.skywalking.apm.collector.storage.h2.define.appmapping.ApplicationMappingHourH2TableDefine
-org.apache.skywalking.apm.collector.storage.h2.define.appmapping.ApplicationMappingDayH2TableDefine
-org.apache.skywalking.apm.collector.storage.h2.define.appmapping.ApplicationMappingMonthH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.ampp.ApplicationMappingMinuteH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.ampp.ApplicationMappingHourH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.ampp.ApplicationMappingDayH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.ampp.ApplicationMappingMonthH2TableDefine
 
-org.apache.skywalking.apm.collector.storage.h2.define.instmapping.InstanceMappingMinuteH2TableDefine
-org.apache.skywalking.apm.collector.storage.h2.define.instmapping.InstanceMappingHourH2TableDefine
-org.apache.skywalking.apm.collector.storage.h2.define.instmapping.InstanceMappingDayH2TableDefine
-org.apache.skywalking.apm.collector.storage.h2.define.instmapping.InstanceMappingMonthH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.impp.InstanceMappingMinuteH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.impp.InstanceMappingHourH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.impp.InstanceMappingDayH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.impp.InstanceMappingMonthH2TableDefine
 
 org.apache.skywalking.apm.collector.storage.h2.define.GlobalTraceH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.SegmentDurationH2TableDefine

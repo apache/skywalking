@@ -34,24 +34,33 @@ Apache SkyWalking | [English](README.md)
 # code of conduct
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wusheng@apache.org.
 
+
+# Live Demo
+近期更新
+- 中国服务器. [前往]
+- 香港服务器. [前往]
+
 # Screenshots
-- 分布式系统拓扑图自动发现
-<img src="https://skywalkingtest.github.io/page-resources/3.2.1/topological_graph_test_project.png?forceUpdate=0"/>
+- 全局总揽
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/Dashboard.png"/>
 
-- 调用链查询
-<img src="https://skywalkingtest.github.io/page-resources/3.2.1/trace_segment.png"/>
+- 拓扑图自动发现
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/Topology.png"/>
 
-- Span信息查询
-<img src="https://skywalkingtest.github.io/page-resources/3.2.1/span.png" />
+- 应用视图
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/Application.png"/>
 
-- 实例全局视图
-<img src="https://skywalkingtest.github.io/page-resources/3.2.1/instance_health.png"/>
+- 应用服务器视图
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/server.png"/>
 
-- JVM明细信息
-<img src="https://skywalkingtest.github.io/page-resources/3.2/instance_graph.png"/>
+- 服务视图
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/Service.png"/>
 
-- 服务依赖树.
-<img src="https://skywalkingtest.github.io/page-resources/3.2.1/service_dependency_tree.png"/>
+- 调用链
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/trace.png"/>
+
+- 告警
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/application-alarm.png"/>
 
 
 # Test reports

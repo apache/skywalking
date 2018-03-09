@@ -80,7 +80,7 @@ public abstract class AggregationWorker<INPUT extends StreamData, OUTPUT extends
     private void aggregate(OUTPUT message) {
         dataCache.writing();
         if (dataCache.containsKey(message.getId())) {
-            dataCache.get(message.getId()).mergeData(message);
+            dataCache.get(message.getId()).mergeAndFormulaCalculateData(message);
         } else {
             dataCache.put(message.getId(), message);
         }
