@@ -106,10 +106,17 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
 
-        //TODO second
+        BoolQueryBuilder boolQuery1 = QueryBuilders.boolQuery();
+        boolQuery1.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(endSecondTimeBucket));
+        boolQuery1.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).lte(endSecondTimeBucket));
+
+        BoolQueryBuilder boolQuery2 = QueryBuilders.boolQuery();
+        boolQuery2.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).lte(endSecondTimeBucket));
+        boolQuery2.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startSecondTimeBucket));
+
         BoolQueryBuilder timeBoolQuery = QueryBuilders.boolQuery();
-        timeBoolQuery.should().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
-        timeBoolQuery.should().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
+        timeBoolQuery.should().add(boolQuery1);
+        timeBoolQuery.should().add(boolQuery2);
 
         boolQueryBuilder.must().add(timeBoolQuery);
 
@@ -172,9 +179,17 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         }
         boolQuery.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, BooleanUtils.FALSE));
 
+        BoolQueryBuilder boolQuery1 = QueryBuilders.boolQuery();
+        boolQuery1.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(endSecondTimeBucket));
+        boolQuery1.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).lte(endSecondTimeBucket));
+
+        BoolQueryBuilder boolQuery2 = QueryBuilders.boolQuery();
+        boolQuery2.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).lte(endSecondTimeBucket));
+        boolQuery2.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startSecondTimeBucket));
+
         BoolQueryBuilder timeBoolQuery = QueryBuilders.boolQuery();
-        timeBoolQuery.should().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
-        timeBoolQuery.should().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
+        timeBoolQuery.should().add(boolQuery1);
+        timeBoolQuery.should().add(boolQuery2);
 
         boolQuery.must().add(timeBoolQuery);
 
@@ -198,10 +213,17 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         boolQuery.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationId));
         boolQuery.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, BooleanUtils.FALSE));
 
-        //TODO second
+        BoolQueryBuilder boolQuery1 = QueryBuilders.boolQuery();
+        boolQuery1.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(endSecondTimeBucket));
+        boolQuery1.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).lte(endSecondTimeBucket));
+
+        BoolQueryBuilder boolQuery2 = QueryBuilders.boolQuery();
+        boolQuery2.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).lte(endSecondTimeBucket));
+        boolQuery2.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startSecondTimeBucket));
+
         BoolQueryBuilder timeBoolQuery = QueryBuilders.boolQuery();
-        timeBoolQuery.should().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
-        timeBoolQuery.should().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
+        timeBoolQuery.should().add(boolQuery1);
+        timeBoolQuery.should().add(boolQuery2);
 
         boolQuery.must().add(timeBoolQuery);
         searchRequestBuilder.setQuery(boolQuery);
