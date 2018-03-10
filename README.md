@@ -34,8 +34,8 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 
 # Live Demo
 Coming soon
-- Host in China. [goto]
-- Host in HK. [goto]
+- Host in China. [goto](http://49.4.12.44:8080/)
+- Host in HK. [goto](http://159.138.0.181:8080/)
 
 # Screenshots
 - Overview dashboard
