@@ -36,7 +36,6 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 
 
 # Live Demo
-近期更新
 - 中国服务器. [前往](http://49.4.12.44:8080/)
 - 香港服务器. [前往](http://159.138.0.181:8080/)
 
