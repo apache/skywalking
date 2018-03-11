@@ -249,14 +249,12 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     Jedis: https://github.com/xetorthio/jedis , MIT
     GraphQL Java Tools: https://github.com/graphql-java/graphql-java-tools , MIT
     antd: https://github.com/ant-design/ant-design , MIT
-    babel-runtime: https://github.com/babel/babel/tree/master/packages/babel-runtime , MIT
-    bizcharts-plugin-slider: https://github.com/alibaba/BizCharts , MIT
+    babel-runtime: https://github.com/babel/babel , MIT
     bizcharts: https://github.com/alibaba/BizCharts , MIT
     classnames: https://github.com/JedWatson/classnames/raw/master/LICENSE , MIT
     cytoscape-cose-bilkent: https://github.com/cytoscape/cytoscape.js-cose-bilkent , MIT
     cytoscape-node-html-label: https://github.com/kaluginserg/cytoscape-node-html-label , MIT
     cytoscape: https://github.com/cytoscape/cytoscape.js , MIT
-    d3: https://github.com/d3/d3 , MIT
     dva-loading: https://github.com/dvajs/dva , MIT
     dva: https://github.com/dvajs/dva , MIT
     enquire-js: https://github.com/jljsj/enquire-js , MIT
@@ -283,6 +281,7 @@ BSD-3 licenses
 The following components are provided under a BSD-3 license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
+    d3: https://github.com/d3/d3 , BSD-3-Clause
     qs: https://github.com/ljharb/qs , BSD-3-Clause
 
 ========================================================================
