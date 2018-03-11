@@ -33,7 +33,6 @@ Underlying technology is a distributed tracing system.
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wusheng@apache.org.
 
 # Live Demo
-Coming soon
 - Host in China. [goto](http://49.4.12.44:8080/)
 - Host in HK. [goto](http://159.138.0.181:8080/)
 
