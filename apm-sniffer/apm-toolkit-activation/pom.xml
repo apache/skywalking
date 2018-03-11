@@ -17,13 +17,11 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>apm-sniffer</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-alpha-SNAPSHOT</version>
+        <version>5.0.0-alpha</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
@@ -115,14 +113,12 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <taskdef resource="net/sf/antcontrib/antcontrib.properties"
-                                         classpathref="maven.runtime.classpath"/>
+                                <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.runtime.classpath" />
                                 <if>
-                                    <equals arg1="${project.packaging}" arg2="jar"/>
+                                    <equals arg1="${project.packaging}" arg2="jar" />
                                     <then>
-                                        <mkdir dir="${project.build.directory}/../../../../skywalking-agent/plugins"/>
-                                        <copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar"
-                                              tofile="${project.build.directory}/../../../../skywalking-agent/activations/${project.artifactId}-${project.version}.jar" overwrite="true"/>
+                                        <mkdir dir="${project.build.directory}/../../../../skywalking-agent/plugins" />
+                                        <copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar" tofile="${project.build.directory}/../../../../skywalking-agent/activations/${project.artifactId}-${project.version}.jar" overwrite="true" />
                                     </then>
                                 </if>
 

@@ -17,14 +17,13 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>5.0.0-alpha-SNAPSHOT</version>
+        <version>5.0.0-alpha</version>
     </parent>
 
     <artifactId>apm-sdk-plugin</artifactId>
@@ -65,7 +64,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sdk.plugin.related.dir></sdk.plugin.related.dir>
+        <sdk.plugin.related.dir />
         <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
         <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}</shade.net.bytebuddy.target>
 
@@ -155,17 +154,12 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <taskdef resource="net/sf/antcontrib/antcontrib.properties"
-                                         classpathref="maven.runtime.classpath"/>
+                                <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.runtime.classpath" />
                                 <if>
-                                    <equals arg1="${project.packaging}" arg2="jar"/>
+                                    <equals arg1="${project.packaging}" arg2="jar" />
                                     <then>
-                                        <mkdir
-                                            dir="${plugin.dest.dir}"/>
-                                        <copy
-                                            file="${project.build.directory}/${project.artifactId}-${project.version}.jar"
-                                            tofile="${plugin.dest.dir}/${project.artifactId}-${project.version}.jar"
-                                            overwrite="true"/>
+                                        <mkdir dir="${plugin.dest.dir}" />
+                                        <copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar" tofile="${plugin.dest.dir}/${project.artifactId}-${project.version}.jar" overwrite="true" />
                                     </then>
                                 </if>
 
