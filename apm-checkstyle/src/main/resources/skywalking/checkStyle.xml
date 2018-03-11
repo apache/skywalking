@@ -28,11 +28,6 @@
     <!--To configure the check to report on the first instance in each file-->
     <module name="FileTabCharacter"/>
 
-    <!-- header -->
-    <module name="Header">
-        <property name="headerFile" value="CHECKSTYLE_HEAD"/>
-    </module>
-
     <module name="RegexpSingleline">
         <property name="format" value="System\.out\.println"/>
         <property name="message" value="Prohibit invoking System.out.println in source code !"/>
