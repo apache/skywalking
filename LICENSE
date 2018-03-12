@@ -208,16 +208,6 @@ notices and license terms. Your use of the source code for the these
 subcomponents is subject to the terms and conditions of the following
 licenses.
 
-================================================================
-For org.ow2.asm:asm:jar:5.0.4
-================================================================
-
-This product bundles asm which is licensed under the
-France Telecom asm open source license.
-For details, see https://gitlab.ow2.org/asm/asm/blob/master/LICENSE.txt
-You can find a copy of the License at licenses/LICENSE-asm
-
-
 ========================================================================
 Apache 2.0 licenses
 ========================================================================
@@ -284,6 +274,7 @@ BSD-3 licenses
 The following components are provided under a BSD-3 license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
+    asm:https://gitlab.ow2.org , BSD-3-Clause
     d3: https://github.com/d3/d3 , BSD-3-Clause
     qs: https://github.com/ljharb/qs , BSD-3-Clause
 
