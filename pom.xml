@@ -150,6 +150,23 @@
                 <version>1.6.0</version>
                 <executions>
                     <execution>
+                        <id>git submodule update</id>
+                        <phase>initialize</phase>
+                        <inherited>false</inherited>
+                        <configuration>
+                            <executable>git</executable>
+                            <arguments>
+                                <argument>submodule</argument>
+                                <argument>update</argument>
+                                <argument>--init</argument>
+                                <argument>--recursive</argument>
+                            </arguments>
+                        </configuration>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                    <execution>
                         <id>install-jmxtools</id>
                         <inherited>false</inherited>
                         <phase>process-resources</phase>
