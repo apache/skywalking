@@ -1,7 +1,8 @@
+ Release Notes. 
  Changes by Version	
  ==================
  
- 5.0.0-alpha (2018-02-28)
+ 5.0.0-alpha
  ------------------
  
  #### Agent -> Collector protocol
