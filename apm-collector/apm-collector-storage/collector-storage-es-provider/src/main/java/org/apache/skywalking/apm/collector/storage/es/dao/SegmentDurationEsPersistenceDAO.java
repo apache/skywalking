@@ -53,7 +53,7 @@ public class SegmentDurationEsPersistenceDAO extends EsDAO implements ISegmentDu
     }
 
     @Override public IndexRequestBuilder prepareBatchInsert(SegmentDuration data) {
-        logger.debug("segment cost prepareBatchInsert, getId: {}", data.getId());
+        logger.debug("segment cost prepareBatchInsert, getApplicationId: {}", data.getId());
         Map<String, Object> source = new HashMap<>();
         source.put(SegmentDurationTable.COLUMN_SEGMENT_ID, data.getSegmentId());
         source.put(SegmentDurationTable.COLUMN_APPLICATION_ID, data.getApplicationId());

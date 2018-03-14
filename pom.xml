@@ -23,7 +23,13 @@
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>5.0.0-alpha</version>
+    <version>5.0.0-alpha-SNAPSHOT</version>
+
+    <parent>
+        <groupId>org.apache</groupId>
+        <artifactId>apache</artifactId>
+        <version>19</version>
+    </parent>
 
     <developers>
         <developer>
@@ -57,16 +63,48 @@
         <module>apm-application-toolkit</module>
         <module>apm-collector</module>
         <module>apm-protocol</module>
+        <module>apm-webapp</module>
+        <module>apm-dist</module>
+        <module>apm-checkstyle</module>
     </modules>
     <packaging>pom</packaging>
 
     <name>apm</name>
     <url>https://github.com/apache/incubator-skywalking</url>
 
+    <scm>
+        <url>https://github.com/apache/incubator-skywalking</url>
+        <connection>scm:git:https://github.com/apache/incubator-skywalking.git</connection>
+        <developerConnection>scm:git:https://github.com/apache/incubator-skywalking.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
     <issueManagement>
         <system>GitHub</system>
         <url>https://github.com/apache/incubator-skywalking/issues</url>
     </issueManagement>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <mailingLists>
+        <mailingList>
+            <name>SkyWalking Developer List</name>
+            <post>dev@skywalking.incubator.apache.org</post>
+            <subscribe>dev-subscribe@skywalking.incubator.apache.org</subscribe>
+            <unsubscribe>dev-unsubscribe@skywalking.incubator.apache.org</unsubscribe>
+        </mailingList>
+        <mailingList>
+            <name>SkyWalking Commits</name>
+            <post>commits@skywalking.incubator.apache.org</post>
+            <subscribe>commits-subscribe@skywalking.incubator.apache.org</subscribe>
+            <unsubscribe>commits-unsubscribe@skywalking.incubator.apache.org</unsubscribe>
+        </mailingList>
+    </mailingLists>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -74,6 +112,7 @@
         <scala.compiler.version>2.11.7</scala.compiler.version>
         <powermock.version>1.6.4</powermock.version>
         <docker.plugin.version>0.4.13</docker.plugin.version>
+        <checkstyle.version>6.18</checkstyle.version>
     </properties>
 
     <dependencies>
@@ -110,6 +149,23 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.6.0</version>
                 <executions>
+                    <execution>
+                        <id>git submodule update</id>
+                        <phase>initialize</phase>
+                        <inherited>false</inherited>
+                        <configuration>
+                            <executable>git</executable>
+                            <arguments>
+                                <argument>submodule</argument>
+                                <argument>update</argument>
+                                <argument>--init</argument>
+                                <argument>--recursive</argument>
+                            </arguments>
+                        </configuration>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
                     <execution>
                         <id>install-jmxtools</id>
                         <inherited>false</inherited>
@@ -245,22 +301,22 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>com.spotify</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <version>${docker.plugin.version}</version>
-                <configuration>
-                    <skipDocker>true</skipDocker>
-                </configuration>
-            </plugin>
-            <plugin>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>2.17</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.skywalking</groupId>
+                        <artifactId>apm-checkstyle</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
                 <executions>
                     <execution>
                         <id>validate</id>
                         <phase>validate</phase>
                         <configuration>
-                            <configLocation>checkStyle.xml</configLocation>
+                            <configLocation>skywalking/checkStyle.xml</configLocation>
+                            <headerLocation>skywalking/CHECKSTYLE_HEAD</headerLocation>
                             <encoding>UTF-8</encoding>
                             <consoleOutput>true</consoleOutput>
                             <includeTestSourceDirectory>true</includeTestSourceDirectory>
@@ -372,5 +428,5 @@
             </build>
         </profile>
     </profiles>
-    
+
 </project>

@@ -45,7 +45,7 @@ public class ApplicationMappingH2UIDAO extends H2DAO implements IApplicationMapp
         super(client);
     }
 
-    @Override public List<ApplicationMapping> load(Step step, long startTime, long endTime) {
+    @Override public List<ApplicationMapping> load(Step step, long startTimeBucket, long endTimeBucket) {
         String tableName = TimePyramidTableNameBuilder.build(step, ApplicationMappingTable.TABLE);
 
         H2Client client = getClient();
@@ -53,7 +53,7 @@ public class ApplicationMappingH2UIDAO extends H2DAO implements IApplicationMapp
             ApplicationMappingTable.COLUMN_MAPPING_APPLICATION_ID, tableName, ApplicationMappingTable.COLUMN_TIME_BUCKET);
 
         List<ApplicationMapping> applicationMappings = new LinkedList<>();
-        Object[] params = new Object[] {startTime, endTime};
+        Object[] params = new Object[] {startTimeBucket, endTimeBucket};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             while (rs.next()) {
                 int applicationId = rs.getInt(ApplicationMappingTable.COLUMN_APPLICATION_ID);

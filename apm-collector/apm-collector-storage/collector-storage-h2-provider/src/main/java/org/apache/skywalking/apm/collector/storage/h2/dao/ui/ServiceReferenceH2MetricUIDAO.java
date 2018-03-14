@@ -23,7 +23,6 @@ import org.apache.skywalking.apm.collector.client.h2.H2Client;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceReferenceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
-import org.apache.skywalking.apm.collector.storage.ui.common.Call;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 
 /**
@@ -35,23 +34,15 @@ public class ServiceReferenceH2MetricUIDAO extends H2DAO implements IServiceRefe
         super(client);
     }
 
-    @Override public List<Call> getFrontServices(Step step, long startTime, long endTime, MetricSource metricSource,
+    @Override public List<ServiceReferenceMetric> getFrontServices(Step step, long startTimeBucket, long endTimeBucket,
+        MetricSource metricSource,
         int behindServiceId) {
         return null;
     }
 
-    @Override public List<Call> getBehindServices(Step step, long startTime, long endTime, MetricSource metricSource,
+    @Override public List<ServiceReferenceMetric> getBehindServices(Step step, long startTimeBucket, long endTimeBucket,
+        MetricSource metricSource,
         int frontServiceId) {
-        return null;
-    }
-
-    @Override public List<Call> getFrontServices(Step step, long startTime, long endTime, MetricSource metricSource,
-        List<Integer> behindServiceIds) {
-        return null;
-    }
-
-    @Override public List<Call> getBehindServices(Step step, long startTime, long endTime, MetricSource metricSource,
-        List<Integer> frontServiceIds) {
         return null;
     }
 }

@@ -43,16 +43,19 @@ public abstract class AbstractServiceMetricH2TableDefine extends H2TableDefine {
         addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, H2ColumnDefine.Type.Bigint.name()));
         addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
         addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_TRANSACTION_AVERAGE_DURATION, H2ColumnDefine.Type.Bigint.name()));
 
         addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, H2ColumnDefine.Type.Bigint.name()));
         addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, H2ColumnDefine.Type.Bigint.name()));
         addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
         addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_AVERAGE_DURATION, H2ColumnDefine.Type.Bigint.name()));
 
         addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_MQ_TRANSACTION_CALLS, H2ColumnDefine.Type.Bigint.name()));
         addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, H2ColumnDefine.Type.Bigint.name()));
         addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
         addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_MQ_TRANSACTION_AVERAGE_DURATION, H2ColumnDefine.Type.Bigint.name()));
 
         addColumn(new H2ColumnDefine(ServiceMetricTable.COLUMN_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
     }

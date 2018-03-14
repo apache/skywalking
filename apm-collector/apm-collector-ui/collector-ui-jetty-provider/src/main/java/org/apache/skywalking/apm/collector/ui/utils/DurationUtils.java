@@ -42,7 +42,7 @@ public enum DurationUtils {
         return Long.valueOf(dateStr);
     }
 
-    public long durationToSecondTimeBucket(Step step, String dateStr) throws ParseException {
+    public long startTimeDurationToSecondTimeBucket(Step step, String dateStr) throws ParseException {
         long secondTimeBucket = 0;
         switch (step) {
             case MONTH:
@@ -64,36 +64,58 @@ public enum DurationUtils {
         return secondTimeBucket;
     }
 
-    public long secondsBetween(Step step, long start, long end) throws ParseException {
+    public long endTimeDurationToSecondTimeBucket(Step step, String dateStr) throws ParseException {
+        long secondTimeBucket = 0;
+        switch (step) {
+            case MONTH:
+                secondTimeBucket = (((exchangeToTimeBucket(dateStr) * 100 + 99) * 100 + 99) * 100 + 99) * 100 + 99;
+                break;
+            case DAY:
+                secondTimeBucket = ((exchangeToTimeBucket(dateStr) * 100 + 99) * 100 + 99) * 100 + 99;
+                break;
+            case HOUR:
+                secondTimeBucket = (exchangeToTimeBucket(dateStr) * 100 + 99) * 100 + 99;
+                break;
+            case MINUTE:
+                secondTimeBucket = exchangeToTimeBucket(dateStr) * 100 + 99;
+                break;
+            case SECOND:
+                secondTimeBucket = exchangeToTimeBucket(dateStr);
+                break;
+        }
+        return secondTimeBucket;
+    }
+
+    public int secondsBetween(Step step, long startTimeBucket, long endTimeBucket) throws ParseException {
         Date startDate = null;
         Date endDate = null;
         switch (step) {
             case MONTH:
-                startDate = new SimpleDateFormat("yyyyMM").parse(String.valueOf(start));
-                endDate = new SimpleDateFormat("yyyyMM").parse(String.valueOf(end));
+                startDate = new SimpleDateFormat("yyyyMM").parse(String.valueOf(startTimeBucket));
+                endDate = new SimpleDateFormat("yyyyMM").parse(String.valueOf(endTimeBucket));
                 break;
             case DAY:
-                startDate = new SimpleDateFormat("yyyyMMdd").parse(String.valueOf(start));
-                endDate = new SimpleDateFormat("yyyyMMdd").parse(String.valueOf(end));
+                startDate = new SimpleDateFormat("yyyyMMdd").parse(String.valueOf(startTimeBucket));
+                endDate = new SimpleDateFormat("yyyyMMdd").parse(String.valueOf(endTimeBucket));
                 break;
             case HOUR:
-                startDate = new SimpleDateFormat("yyyyMMddHH").parse(String.valueOf(start));
-                endDate = new SimpleDateFormat("yyyyMMddHH").parse(String.valueOf(end));
+                startDate = new SimpleDateFormat("yyyyMMddHH").parse(String.valueOf(startTimeBucket));
+                endDate = new SimpleDateFormat("yyyyMMddHH").parse(String.valueOf(endTimeBucket));
                 break;
             case MINUTE:
-                startDate = new SimpleDateFormat("yyyyMMddHHmm").parse(String.valueOf(start));
-                endDate = new SimpleDateFormat("yyyyMMddHHmm").parse(String.valueOf(end));
+                startDate = new SimpleDateFormat("yyyyMMddHHmm").parse(String.valueOf(startTimeBucket));
+                endDate = new SimpleDateFormat("yyyyMMddHHmm").parse(String.valueOf(endTimeBucket));
                 break;
             case SECOND:
-                startDate = new SimpleDateFormat("yyyyMMddHHmmss").parse(String.valueOf(start));
-                endDate = new SimpleDateFormat("yyyyMMddHHmmss").parse(String.valueOf(end));
+                startDate = new SimpleDateFormat("yyyyMMddHHmmss").parse(String.valueOf(startTimeBucket));
+                endDate = new SimpleDateFormat("yyyyMMddHHmmss").parse(String.valueOf(endTimeBucket));
                 break;
         }
 
         return Seconds.secondsBetween(new DateTime(startDate), new DateTime(endDate)).getSeconds();
     }
 
-    public long secondsBetween(Step step, DateTime dateTime) throws ParseException {
+    public int secondsBetween(Step step, DateTime dateTime) throws ParseException {
         switch (step) {
             case MONTH:
                 return dateTime.dayOfMonth().getMaximumValue() * 24 * 60 * 60;
@@ -139,11 +161,12 @@ public enum DurationUtils {
         return dateTime;
     }
 
-    public List<DurationPoint> getDurationPoints(Step step, long start, long end) throws ParseException {
-        DateTime dateTime = parseToDateTime(step, start);
+    public List<DurationPoint> getDurationPoints(Step step, long startTimeBucket,
+        long endTimeBucket) throws ParseException {
+        DateTime dateTime = parseToDateTime(step, startTimeBucket);
 
         List<DurationPoint> durations = new LinkedList<>();
-        durations.add(new DurationPoint(start, secondsBetween(step, dateTime)));
+        durations.add(new DurationPoint(startTimeBucket, secondsBetween(step, dateTime)));
 
         int i = 0;
         do {
@@ -176,10 +199,10 @@ public enum DurationUtils {
             }
             i++;
             if (i > 500) {
-                throw new UnexpectedException("Duration data error, step: " + step.name() + ", start: " + start + ", end: " + end);
+                throw new UnexpectedException("Duration data error, step: " + step.name() + ", start: " + startTimeBucket + ", end: " + endTimeBucket);
             }
         }
-        while (end != durations.get(durations.size() - 1).getPoint());
+        while (endTimeBucket != durations.get(durations.size() - 1).getPoint());
 
         return durations;
     }

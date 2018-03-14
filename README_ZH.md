@@ -3,7 +3,7 @@ Apache SkyWalking | [English](README.md)
 
 <img src="https://skywalkingtest.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
 
-**SkyWalking**: 针对分布式系统的APM（应用性能监控）系统，特别针对微服务、cloud native和容器化(Docker, K8s, Mesos)架构，
+**SkyWalking**: 针对分布式系统的APM（应用性能监控）系统，特别针对微服务、cloud native和容器化(Docker, Kubernetes, Mesos)架构，
 其核心是个分布式追踪系统。
 
 [![GitHub stars](https://img.shields.io/github/stars/apache/incubator-skywalking.svg?style=for-the-badge&label=Stars&logo=github)](https://github.com/apache/incubator-skywalking)
@@ -34,24 +34,32 @@ Apache SkyWalking | [English](README.md)
 # code of conduct
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wusheng@apache.org.
 
+
+# Live Demo
+- 中国服务器. [前往](http://49.4.12.44:8080/)
+- 香港服务器. [前往](http://159.138.0.181:8080/)
+
 # Screenshots
-- 分布式系统拓扑图自动发现
-<img src="https://skywalkingtest.github.io/page-resources/3.2.1/topological_graph_test_project.png?forceUpdate=0"/>
+- 全局总揽
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/Dashboard.png"/>
 
-- 调用链查询
-<img src="https://skywalkingtest.github.io/page-resources/3.2.1/trace_segment.png"/>
+- 拓扑图自动发现
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/Topology.png"/>
 
-- Span信息查询
-<img src="https://skywalkingtest.github.io/page-resources/3.2.1/span.png" />
+- 应用视图
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/Application.png"/>
 
-- 实例全局视图
-<img src="https://skywalkingtest.github.io/page-resources/3.2.1/instance_health.png"/>
+- 应用服务器视图
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/server.png"/>
 
-- JVM明细信息
-<img src="https://skywalkingtest.github.io/page-resources/3.2/instance_graph.png"/>
+- 服务视图
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/Service.png"/>
 
-- 服务依赖树.
-<img src="https://skywalkingtest.github.io/page-resources/3.2.1/service_dependency_tree.png"/>
+- 调用链
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/trace.png"/>
+
+- 告警
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/application-alarm.png"/>
 
 
 # Test reports

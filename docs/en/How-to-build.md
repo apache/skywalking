@@ -7,7 +7,7 @@ This document helps people to compile and build the project in your maven and ID
 1. `git submodule init`
 1. `git submodule update`
 1. Run `mvn clean package`
-1. All packages are in `/packages`, which includes `skywalking-agent` folder, and two collector files(.tar.gz for Linux and .zip for Windows)
+1. All packages are in `/dist`, which includes and two collector files(.tar.gz for Linux and .zip for Windows)
 
 ## Setup your IntelliJ IDEA
 1. Import the project as a maven project

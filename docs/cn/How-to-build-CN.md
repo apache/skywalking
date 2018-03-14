@@ -10,7 +10,7 @@
 1. `git submodule init`
 1. `git submodule update`
 1. 执行`mvn clean package`
-1. 生成包在`/packages`目录下，包括一个`skywalking-agent`的探针目录，以及两个collector包（.tar.gz是linux环境，.zip是windows环境）
+1. 生成包在`/dist`目录下，两个skywalking-dist包（.tar.gz是linux环境，.zip是windows环境）
 
 ### 在IntelliJ IDEA中编译工程
 上述步骤在命令行中，能够很好的编译工程，但导入到编译器中的工程依然会有一些报错，我们需要进行几步简单的操作。

@@ -26,6 +26,7 @@ import org.apache.skywalking.apm.collector.core.data.CommonTable;
 public class InstanceTable extends CommonTable {
     public static final String TABLE = "instance";
     public static final String COLUMN_APPLICATION_ID = "application_id";
+    public static final String COLUMN_APPLICATION_CODE = "application_code";
     public static final String COLUMN_AGENT_UUID = "agent_uuid";
     public static final String COLUMN_REGISTER_TIME = "register_time";
     public static final String COLUMN_INSTANCE_ID = "instance_id";

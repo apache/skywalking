@@ -21,13 +21,16 @@ package org.apache.skywalking.apm.collector.storage.es.dao.ui;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceNameServiceUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceNameTable;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
+import org.apache.skywalking.apm.network.proto.SpanType;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 
@@ -44,6 +47,7 @@ public class ServiceNameServiceEsUIDAO extends EsDAO implements IServiceNameServ
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(ServiceNameTable.TABLE);
         searchRequestBuilder.setTypes(ServiceNameTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
+        searchRequestBuilder.setQuery(QueryBuilders.termQuery(ServiceNameTable.COLUMN_SRC_SPAN_TYPE, SpanType.Entry_VALUE));
         searchRequestBuilder.setSize(0);
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
@@ -56,7 +60,14 @@ public class ServiceNameServiceEsUIDAO extends EsDAO implements IServiceNameServ
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
         searchRequestBuilder.setSize(topN);
 
-        searchRequestBuilder.setQuery(QueryBuilders.matchQuery(ServiceNameTable.COLUMN_SERVICE_NAME, keyword));
+        if (StringUtils.isNotEmpty(keyword)) {
+            BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+            boolQuery.must().add(QueryBuilders.matchQuery(ServiceNameTable.COLUMN_SERVICE_NAME, keyword));
+            boolQuery.must().add(QueryBuilders.termQuery(ServiceNameTable.COLUMN_SRC_SPAN_TYPE, SpanType.Entry_VALUE));
+            searchRequestBuilder.setQuery(boolQuery);
+        } else {
+            searchRequestBuilder.setQuery(QueryBuilders.termQuery(ServiceNameTable.COLUMN_SRC_SPAN_TYPE, SpanType.Entry_VALUE));
+        }
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
         SearchHit[] searchHits = searchResponse.getHits().getHits();

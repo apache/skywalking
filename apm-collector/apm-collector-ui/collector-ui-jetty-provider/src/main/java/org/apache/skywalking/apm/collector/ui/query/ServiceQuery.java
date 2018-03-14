@@ -65,27 +65,31 @@ public class ServiceQuery implements Query {
     }
 
     public ResponseTimeTrend getServiceResponseTimeTrend(int serviceId, Duration duration) throws ParseException {
-        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
-        return getServiceNameService().getServiceResponseTimeTrend(serviceId, duration.getStep(), start, end);
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        return getServiceNameService().getServiceResponseTimeTrend(serviceId, duration.getStep(), startTimeBucket, endTimeBucket);
     }
 
     public ThroughputTrend getServiceTPSTrend(int serviceId, Duration duration) throws ParseException {
-        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
-        return getServiceNameService().getServiceTPSTrend(serviceId, duration.getStep(), start, end);
+        return getServiceNameService().getServiceTPSTrend(serviceId, duration.getStep(), startTimeBucket, endTimeBucket);
     }
 
     public SLATrend getServiceSLATrend(int serviceId, Duration duration) throws ParseException {
-        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
-        return getServiceNameService().getServiceSLATrend(serviceId, duration.getStep(), start, end);
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        return getServiceNameService().getServiceSLATrend(serviceId, duration.getStep(), startTimeBucket, endTimeBucket);
     }
 
     public Topology getServiceTopology(int serviceId, Duration duration) throws ParseException {
-        long start = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long end = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
-        return getServiceTopologyService().getServiceTopology(duration.getStep(), serviceId, start, end);
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+
+        long startSecondTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(duration.getStep(), duration.getStart());
+        long endSecondTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(duration.getStep(), duration.getEnd());
+
+        return getServiceTopologyService().getServiceTopology(duration.getStep(), serviceId, startTimeBucket, endTimeBucket, startSecondTimeBucket, endSecondTimeBucket);
     }
 }

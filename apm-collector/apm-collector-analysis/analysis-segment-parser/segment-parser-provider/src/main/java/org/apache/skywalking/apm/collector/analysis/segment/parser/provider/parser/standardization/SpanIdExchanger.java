@@ -70,11 +70,12 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
             }
         }
 
-        if (standardBuilder.getOperationNameId() == 0 && StringUtils.isNotEmpty(standardBuilder.getOperationName())) {
-            int operationNameId = serviceNameService.getOrCreate(applicationId, standardBuilder.getOperationName());
+        if (standardBuilder.getOperationNameId() == 0) {
+            String operationName = StringUtils.isNotEmpty(standardBuilder.getOperationName()) ? standardBuilder.getOperationName() : Const.DOMAIN_OPERATION_NAME;
+            int operationNameId = serviceNameService.getOrCreate(applicationId, standardBuilder.getSpanTypeValue(), operationName);
 
             if (operationNameId == 0) {
-                logger.debug("service name: {} from application id: {} exchange failed", standardBuilder.getOperationName(), applicationId);
+                logger.debug("service name: {} from application id: {} exchange failed", operationName, applicationId);
                 return false;
             } else {
                 standardBuilder.toBuilder();

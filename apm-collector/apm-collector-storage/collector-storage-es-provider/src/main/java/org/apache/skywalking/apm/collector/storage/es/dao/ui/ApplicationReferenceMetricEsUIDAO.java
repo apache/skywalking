@@ -21,11 +21,11 @@ package org.apache.skywalking.apm.collector.storage.es.dao.ui;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationReferenceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetricTable;
-import org.apache.skywalking.apm.collector.storage.ui.common.Call;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -47,8 +47,8 @@ public class ApplicationReferenceMetricEsUIDAO extends EsDAO implements IApplica
         super(client);
     }
 
-    @Override public List<Call> getFrontApplications(Step step, int applicationId, long startTime, long endTime,
-        MetricSource metricSource) {
+    @Override public List<ApplicationReferenceMetric> getReferences(Step step, long startTimeBucket, long endTimeBucket,
+        MetricSource metricSource, Integer... applicationIds) {
         String tableName = TimePyramidTableNameBuilder.build(step, ApplicationReferenceMetricTable.TABLE);
 
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
@@ -56,122 +56,64 @@ public class ApplicationReferenceMetricEsUIDAO extends EsDAO implements IApplica
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(ApplicationReferenceMetricTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
-        boolQuery.must().add(QueryBuilders.termQuery(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID, applicationId));
+        boolQuery.must().add(QueryBuilders.rangeQuery(ApplicationReferenceMetricTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
         boolQuery.must().add(QueryBuilders.termQuery(ApplicationReferenceMetricTable.COLUMN_SOURCE_VALUE, metricSource.getValue()));
 
-        searchRequestBuilder.setQuery(boolQuery);
-        searchRequestBuilder.setSize(0);
+        if (CollectionUtils.isNotEmpty(applicationIds)) {
+            BoolQueryBuilder applicationBoolQuery = QueryBuilders.boolQuery();
+            int[] ids = new int[applicationIds.length];
+            for (int i = 0; i < applicationIds.length; i++) {
+                ids[i] = applicationIds[i];
+            }
 
-        TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID).field(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID).size(100);
-        aggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_CALLS).field(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_CALLS));
-        aggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM).field(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM));
-
-        searchRequestBuilder.addAggregation(aggregationBuilder);
-        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
-
-        List<Call> nodes = new LinkedList<>();
-        Terms frontApplicationIdTerms = searchResponse.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID);
-        for (Terms.Bucket frontApplicationIdBucket : frontApplicationIdTerms.getBuckets()) {
-            int frontApplicationId = frontApplicationIdBucket.getKeyAsNumber().intValue();
-            Sum calls = frontApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_CALLS);
-            Sum responseTimes = frontApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM);
-
-            Call call = new Call();
-            call.setSource(frontApplicationId);
-            call.setTarget(applicationId);
-            call.setCalls((int)calls.getValue());
-            call.setResponseTimes((int)responseTimes.getValue());
-            nodes.add(call);
+            applicationBoolQuery.should().add(QueryBuilders.termsQuery(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID, ids));
+            applicationBoolQuery.should().add(QueryBuilders.termsQuery(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID, ids));
+            boolQuery.must().add(applicationBoolQuery);
         }
 
-        return nodes;
-    }
-
-    @Override public List<Call> getBehindApplications(Step step, int applicationId, long startTime, long endTime,
-        MetricSource metricSource) {
-        String tableName = TimePyramidTableNameBuilder.build(step, ApplicationReferenceMetricTable.TABLE);
-
-        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
-        searchRequestBuilder.setTypes(ApplicationReferenceMetricTable.TABLE_TYPE);
-        searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-
-        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(ApplicationReferenceMetricTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
-        boolQuery.must().add(QueryBuilders.termQuery(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID, applicationId));
-        boolQuery.must().add(QueryBuilders.termQuery(ApplicationReferenceMetricTable.COLUMN_SOURCE_VALUE, metricSource.getValue()));
-
         searchRequestBuilder.setQuery(boolQuery);
         searchRequestBuilder.setSize(0);
 
-        TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID).field(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID).size(100);
-        aggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_CALLS).field(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_CALLS));
-        aggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM).field(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM));
-
-        searchRequestBuilder.addAggregation(aggregationBuilder);
-        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
-
-        List<Call> nodes = new LinkedList<>();
-        Terms behindApplicationIdTerms = searchResponse.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID);
-        for (Terms.Bucket behindApplicationIdBucket : behindApplicationIdTerms.getBuckets()) {
-            int behindApplicationId = behindApplicationIdBucket.getKeyAsNumber().intValue();
-            Sum calls = behindApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_CALLS);
-            Sum responseTimes = behindApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM);
-
-            Call call = new Call();
-            call.setTarget(behindApplicationId);
-            call.setSource(applicationId);
-            call.setCalls((int)calls.getValue());
-            call.setResponseTimes((int)responseTimes.getValue());
-            nodes.add(call);
-        }
-
-        return nodes;
+        return buildMetrics(searchRequestBuilder);
     }
 
-    @Override public List<Call> getApplications(Step step, long startTime, long endTime, MetricSource metricSource) {
-        String tableName = TimePyramidTableNameBuilder.build(step, ApplicationReferenceMetricTable.TABLE);
+    private List<ApplicationReferenceMetric> buildMetrics(SearchRequestBuilder searchRequestBuilder) {
+        TermsAggregationBuilder frontAggregationBuilder = AggregationBuilders.terms(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID).field(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID).size(100);
+        TermsAggregationBuilder behindAggregationBuilder = AggregationBuilders.terms(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID).field(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID).size(100);
+        frontAggregationBuilder.subAggregation(behindAggregationBuilder);
 
-        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
-        searchRequestBuilder.setTypes(ApplicationReferenceMetricTable.TABLE_TYPE);
-        searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
+        behindAggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_CALLS).field(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_CALLS));
+        behindAggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS).field(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS));
+        behindAggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM).field(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM));
+        behindAggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM).field(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM));
 
-        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(ApplicationReferenceMetricTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
-        boolQuery.must().add(QueryBuilders.termQuery(ApplicationReferenceMetricTable.COLUMN_SOURCE_VALUE, metricSource.getValue()));
-
-        searchRequestBuilder.setQuery(boolQuery);
-        searchRequestBuilder.setSize(0);
-
-        TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID).field(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID).size(100)
-            .subAggregation(AggregationBuilders.terms(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID).field(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID));
-        aggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_CALLS).field(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_CALLS));
-        aggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM).field(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM));
-
-        searchRequestBuilder.addAggregation(aggregationBuilder);
+        searchRequestBuilder.addAggregation(frontAggregationBuilder);
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
+        List<ApplicationReferenceMetric> referenceMetrics = new LinkedList<>();
+        Terms sourceApplicationIdTerms = searchResponse.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID);
+        for (Terms.Bucket sourceApplicationIdBucket : sourceApplicationIdTerms.getBuckets()) {
+            int sourceApplicationId = sourceApplicationIdBucket.getKeyAsNumber().intValue();
 
-        List<Call> nodes = new LinkedList<>();
-        Terms frontApplicationIdTerms = searchResponse.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID);
-        for (Terms.Bucket frontApplicationIdBucket : frontApplicationIdTerms.getBuckets()) {
-            int frontApplicationId = frontApplicationIdBucket.getKeyAsNumber().intValue();
+            Terms targetApplicationIdTerms = sourceApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID);
+            for (Terms.Bucket targetApplicationIdBucket : targetApplicationIdTerms.getBuckets()) {
+                int targetApplicationId = targetApplicationIdBucket.getKeyAsNumber().intValue();
 
-            Terms behindApplicationIdTerms = frontApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID);
-            for (Terms.Bucket behindApplicationIdBucket : behindApplicationIdTerms.getBuckets()) {
-                int behindApplicationId = behindApplicationIdBucket.getKeyAsNumber().intValue();
+                Sum calls = targetApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_CALLS);
+                Sum errorCalls = targetApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS);
+                Sum durations = targetApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM);
+                Sum errorDurations = targetApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM);
 
-                Sum calls = behindApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_CALLS);
-                Sum responseTimes = behindApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM);
-
-                Call call = new Call();
-                call.setResponseTimes((int)responseTimes.getValue());
-                call.setSource(frontApplicationId);
-                call.setTarget(behindApplicationId);
-                call.setCalls((int)calls.getValue());
-                nodes.add(call);
+                ApplicationReferenceMetric referenceMetric = new ApplicationReferenceMetric();
+                referenceMetric.setSource(sourceApplicationId);
+                referenceMetric.setTarget(targetApplicationId);
+                referenceMetric.setCalls((long)calls.getValue());
+                referenceMetric.setErrorCalls((long)errorCalls.getValue());
+                referenceMetric.setDurations((long)durations.getValue());
+                referenceMetric.setErrorDurations((long)errorDurations.getValue());
+                referenceMetrics.add(referenceMetric);
             }
         }
 
-        return nodes;
+        return referenceMetrics;
     }
 }

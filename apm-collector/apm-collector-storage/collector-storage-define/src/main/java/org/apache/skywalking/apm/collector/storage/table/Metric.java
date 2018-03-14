@@ -47,6 +47,10 @@ public interface Metric {
 
     void setTransactionErrorDurationSum(Long transactionErrorDurationSum);
 
+    Long getTransactionAverageDuration();
+
+    void setTransactionAverageDuration(Long transactionAverageDuration);
+
     Long getBusinessTransactionCalls();
 
     void setBusinessTransactionCalls(Long businessTransactionCalls);
@@ -63,6 +67,10 @@ public interface Metric {
 
     void setBusinessTransactionErrorDurationSum(Long businessTransactionErrorDurationSum);
 
+    Long getBusinessTransactionAverageDuration();
+
+    void setBusinessTransactionAverageDuration(Long businessTransactionAverageDuration);
+
     Long getMqTransactionCalls();
 
     void setMqTransactionCalls(Long mqTransactionCalls);
@@ -78,4 +86,8 @@ public interface Metric {
     Long getMqTransactionErrorDurationSum();
 
     void setMqTransactionErrorDurationSum(Long mqTransactionErrorDurationSum);
+
+    Long getMqTransactionAverageDuration();
+
+    void setMqTransactionAverageDuration(Long mqTransactionAverageDuration);
 }

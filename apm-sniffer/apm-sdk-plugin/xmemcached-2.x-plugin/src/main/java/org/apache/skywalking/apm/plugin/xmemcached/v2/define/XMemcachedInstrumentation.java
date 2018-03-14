@@ -36,15 +36,8 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
 /**
- * {@link MemcachedInstrumentation} presents that skywalking intercept all constructors and methods of
+ * {@link XMemcachedInstrumentation} presents that skywalking intercept all constructors and methods of
  * {@link net.rubyeye.xmemcached.XMemcachedClient}.
- * {@link XMemcachedConstructorWithHostPortArgInterceptor} intercepts the constructor with
- * ip and port arguments.
- * {@link XMemcachedConstructorWithInetSocketAddressArgInterceptor} intercepts the constructor with
- * argument {@link java.net.InetSocketAddress}.
- * {@link XMemcachedConstructorWithInetSocketAddressListArgInterceptor} intercepts the constructor with
- * argument {@link java.net.InetSocketAddress}.
- * {@link XMemcachedConstructorWithComplexArgInterceptor} intercepts the constructor with complex arguments.
  *
  * @author IluckySi
  */

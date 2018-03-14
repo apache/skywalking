@@ -74,6 +74,7 @@ public enum OperationNameDictionary {
                 ServiceNameElement serviceNameElement = ServiceNameElement.newBuilder()
                     .setApplicationId(operationNameKey.getApplicationId())
                     .setServiceName(operationNameKey.getOperationName())
+                    .setSrcSpanType(operationNameKey.getSpanType())
                     .build();
                 builder.addElements(serviceNameElement);
             }
@@ -122,9 +123,14 @@ public enum OperationNameDictionary {
 
             OperationNameKey key = (OperationNameKey)o;
 
-            if (applicationId != key.applicationId)
-                return false;
-            return operationName.equals(key.operationName);
+            boolean isApplicationMatch = false;
+            if (applicationId == key.applicationId) {
+                isApplicationMatch = true;
+            } else if (operationName.equals(key.operationName)) {
+                isApplicationMatch = true;
+            }
+            return isApplicationMatch && isEntry == key.isEntry
+                && isExit == key.isExit;
         }
 
         @Override public int hashCode() {
@@ -139,6 +145,16 @@ public enum OperationNameDictionary {
 
         boolean isExit() {
             return isExit;
+        }
+
+        SpanType getSpanType() {
+            if (isEntry) {
+                return SpanType.Entry;
+            } else if (isExit) {
+                return SpanType.Exit;
+            } else {
+                return SpanType.Local;
+            }
         }
     }
 }

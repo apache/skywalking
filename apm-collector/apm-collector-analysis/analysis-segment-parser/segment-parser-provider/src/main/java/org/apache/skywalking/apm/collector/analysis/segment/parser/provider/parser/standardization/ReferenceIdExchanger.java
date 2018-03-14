@@ -27,6 +27,7 @@ import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
+import org.apache.skywalking.apm.network.proto.SpanType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,13 +57,14 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
     }
 
     @Override public boolean exchange(ReferenceDecorator standardBuilder, int applicationId) {
-        if (standardBuilder.getEntryServiceId() == 0 && StringUtils.isNotEmpty(standardBuilder.getEntryServiceName())) {
-            int entryServiceId = serviceNameService.getOrCreate(instanceCacheService.getApplicationId(standardBuilder.getEntryApplicationInstanceId()), standardBuilder.getEntryServiceName());
+        if (standardBuilder.getEntryServiceId() == 0) {
+            String entryServiceName = StringUtils.isNotEmpty(standardBuilder.getEntryServiceName()) ? standardBuilder.getEntryServiceName() : Const.DOMAIN_OPERATION_NAME;
+            int entryServiceId = serviceNameService.getOrCreate(instanceCacheService.getApplicationId(standardBuilder.getEntryApplicationInstanceId()), SpanType.Entry_VALUE, entryServiceName);
 
             if (entryServiceId == 0) {
                 if (logger.isDebugEnabled()) {
                     int entryApplicationId = instanceCacheService.getApplicationId(standardBuilder.getEntryApplicationInstanceId());
-                    logger.debug("entry service name: {} from application id: {} exchange failed", standardBuilder.getEntryServiceName(), entryApplicationId);
+                    logger.debug("entry service name: {} from application id: {} exchange failed", entryServiceName, entryApplicationId);
                 }
                 return false;
             } else {
@@ -72,13 +74,14 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
             }
         }
 
-        if (standardBuilder.getParentServiceId() == 0 && StringUtils.isNotEmpty(standardBuilder.getParentServiceName())) {
-            int parentServiceId = serviceNameService.getOrCreate(instanceCacheService.getApplicationId(standardBuilder.getParentApplicationInstanceId()), standardBuilder.getParentServiceName());
+        if (standardBuilder.getParentServiceId() == 0) {
+            String parentServiceName = StringUtils.isNotEmpty(standardBuilder.getParentServiceName()) ? standardBuilder.getParentServiceName() : Const.DOMAIN_OPERATION_NAME;
+            int parentServiceId = serviceNameService.getOrCreate(instanceCacheService.getApplicationId(standardBuilder.getParentApplicationInstanceId()), SpanType.Entry_VALUE, parentServiceName);
 
             if (parentServiceId == 0) {
                 if (logger.isDebugEnabled()) {
                     int parentApplicationId = instanceCacheService.getApplicationId(standardBuilder.getParentApplicationInstanceId());
-                    logger.debug("parent service name: {} from application id: {} exchange failed", standardBuilder.getParentServiceName(), parentApplicationId);
+                    logger.debug("parent service name: {} from application id: {} exchange failed", parentServiceName, parentApplicationId);
                 }
                 return false;
             } else {

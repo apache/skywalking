@@ -23,7 +23,7 @@
     <parent>
         <artifactId>apm-application-toolkit</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-alpha</version>
+        <version>5.0.0-alpha-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -42,12 +42,5 @@
         </dependency>
     </dependencies>
 
-    <distributionManagement>
-        <repository>
-            <id>bintray-wu-sheng-sky-walking-repository</id>
-            <name>wu-sheng-sky-walking-repository</name>
-            <url>https://api.bintray.com/maven/wu-sheng/skywalking/org.apache.skywalking.apm-toolkit-opentracing/;publish=1
-            </url>
-        </repository>
-    </distributionManagement>
+
 </project>

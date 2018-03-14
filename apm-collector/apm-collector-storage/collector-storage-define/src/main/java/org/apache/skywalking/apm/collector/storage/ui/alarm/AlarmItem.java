@@ -22,18 +22,18 @@ package org.apache.skywalking.apm.collector.storage.ui.alarm;
  * @author peng-yongsheng
  */
 public class AlarmItem {
-    private String id;
+    private int id;
     private String title;
     private String content;
     private String startTime;
     private AlarmType alarmType;
     private CauseType causeType;
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
