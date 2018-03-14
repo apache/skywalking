@@ -16,21 +16,20 @@
  *
  */
 
-
-package org.apache.skywalking.apm.plugin.tomcat78x.define;
+package org.apache.skywalking.apm.plugin.tomcat6x.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * @author zhangxin
+ * @author liyuntao
  */
 public class TomcatInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -42,12 +41,12 @@ public class TomcatInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
     /**
      * The intercept class for "invoke" method in the class "org.apache.catalina.core.StandardWrapperValve"
      */
-    private static final String INVOKE_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.tomcat78x.TomcatInvokeInterceptor";
+    private static final String INVOKE_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.tomcat6x.TomcatInvokeInterceptor";
 
     /**
      * The intercept class for "exception" method in the class "org.apache.catalina.core.StandardWrapperValve"
      */
-    private static final String EXCEPTION_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.tomcat78x.TomcatExceptionInterceptor";
+    private static final String EXCEPTION_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.tomcat6x.TomcatExceptionInterceptor";
 
     @Override
     protected ClassMatch enhanceClass() {
@@ -93,13 +92,14 @@ public class TomcatInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
             }
         };
     }
+
     @Override
     protected String[] witnessClasses() {
         /**
-         * @see <code>javax.servlet.annotation.HandlesTypes<code/>
+         * @see <code>org.apache.AnnotationProcessor<code/>
          */
         return new String[] {
-            "javax.servlet.annotation.HandlesTypes"
+            "org.apache.AnnotationProcessor"
         };
     }
 }
