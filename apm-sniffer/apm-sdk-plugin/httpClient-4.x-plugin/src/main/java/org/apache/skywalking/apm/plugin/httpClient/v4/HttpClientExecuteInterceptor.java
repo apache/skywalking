@@ -24,6 +24,7 @@ import java.net.URL;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -77,13 +78,15 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         }
 
         HttpResponse response = (HttpResponse)ret;
-        int statusCode = response.getStatusLine().getStatusCode();
-        AbstractSpan span = ContextManager.activeSpan();
-        if (statusCode >= 400) {
-            span.errorOccurred();
-            Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
+        StatusLine responseStatusLine = response.getStatusLine();
+        if (responseStatusLine != null) {
+            int statusCode = responseStatusLine.getStatusCode();
+            AbstractSpan span = ContextManager.activeSpan();
+            if (statusCode >= 400) {
+                span.errorOccurred();
+                Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
+            }
         }
-
         ContextManager.stopSpan();
         return ret;
     }
