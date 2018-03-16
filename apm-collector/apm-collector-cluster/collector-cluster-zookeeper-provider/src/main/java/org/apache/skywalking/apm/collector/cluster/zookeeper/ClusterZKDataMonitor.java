@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.cluster.zookeeper;
 
 import java.util.HashSet;
@@ -25,11 +24,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.Watcher;
-import org.apache.zookeeper.ZooDefs;
-import org.apache.zookeeper.data.Stat;
 import org.apache.skywalking.apm.collector.client.Client;
 import org.apache.skywalking.apm.collector.client.ClientException;
 import org.apache.skywalking.apm.collector.client.zookeeper.ZookeeperClient;
@@ -40,6 +34,11 @@ import org.apache.skywalking.apm.collector.cluster.DataMonitor;
 import org.apache.skywalking.apm.collector.cluster.ModuleRegistration;
 import org.apache.skywalking.apm.collector.core.CollectorException;
 import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.ZooDefs;
+import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +53,7 @@ public class ClusterZKDataMonitor implements DataMonitor, Watcher {
 
     private Map<String, ClusterModuleListener> listeners;
     private Map<String, ModuleRegistration> registrations;
+    private String namespace;
 
     public ClusterZKDataMonitor() {
         listeners = new LinkedHashMap<>();
@@ -130,17 +130,17 @@ public class ClusterZKDataMonitor implements DataMonitor, Watcher {
     }
 
     @Override public void addListener(ClusterModuleListener listener) {
-        String path = BASE_CATALOG + listener.path();
+        String path = getBaseCatalog() + listener.path();
         logger.info("listener path: {}", path);
         listeners.put(path, listener);
     }
 
     @Override public void register(String path, ModuleRegistration registration) {
-        registrations.put(BASE_CATALOG + path, registration);
+        registrations.put(getBaseCatalog() + path, registration);
     }
 
     @Override public ClusterModuleListener getListener(String path) {
-        path = BASE_CATALOG + path;
+        path = getBaseCatalog() + path;
         return listeners.get(path);
     }
 
@@ -162,5 +162,13 @@ public class ClusterZKDataMonitor implements DataMonitor, Watcher {
         } else {
             client.setData(path, value.getBytes(), -1);
         }
+    }
+
+    @Override public String getBaseCatalog() {
+        return "/" + namespace + "/skywalking";
+    }
+
+    void setNamespace(String namespace) {
+        this.namespace = namespace;
     }
 }
