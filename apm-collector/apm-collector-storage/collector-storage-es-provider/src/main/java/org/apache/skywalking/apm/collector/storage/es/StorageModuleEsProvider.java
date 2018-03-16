@@ -20,11 +20,14 @@ package org.apache.skywalking.apm.collector.storage.es;
 
 import java.util.Properties;
 import java.util.UUID;
+
 import org.apache.skywalking.apm.collector.client.ClientException;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.cluster.ClusterModule;
 import org.apache.skywalking.apm.collector.cluster.service.ModuleListenerService;
 import org.apache.skywalking.apm.collector.cluster.service.ModuleRegisterService;
+import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
+import org.apache.skywalking.apm.collector.configuration.service.ICollectorConfig;
 import org.apache.skywalking.apm.collector.core.module.Module;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
@@ -241,6 +244,9 @@ import org.apache.skywalking.apm.collector.storage.es.dao.ui.ServiceAlarmEsUIDAO
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.ServiceMetricEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.ServiceNameServiceEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.ServiceReferenceEsMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.table.NamespaceHandler;
+import org.apache.skywalking.apm.collector.storage.table.TableNamespace;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -262,17 +268,20 @@ public class StorageModuleEsProvider extends ModuleProvider {
     private ElasticSearchClient elasticSearchClient;
     private DataTTLKeeperTimer deleteTimer;
 
-    @Override public String name() {
+    @Override
+    public String name() {
         return NAME;
     }
 
-    @Override public Class<? extends Module> module() {
+    @Override
+    public Class<? extends Module> module() {
         return StorageModule.class;
     }
 
-    @Override public void prepare(Properties config) throws ServiceNotProvidedException {
+    @Override
+    public void prepare(Properties config) throws ServiceNotProvidedException {
         String clusterName = config.getProperty(CLUSTER_NAME);
-        Boolean clusterTransportSniffer = (Boolean)config.get(CLUSTER_TRANSPORT_SNIFFER);
+        Boolean clusterTransportSniffer = (Boolean) config.get(CLUSTER_TRANSPORT_SNIFFER);
         String clusterNodes = config.getProperty(CLUSTER_NODES);
         elasticSearchClient = new ElasticSearchClient(clusterName, clusterTransportSniffer, clusterNodes);
 
@@ -284,9 +293,15 @@ public class StorageModuleEsProvider extends ModuleProvider {
         registerAlarmDAO();
     }
 
-    @Override public void start(Properties config) throws ServiceNotProvidedException {
-        Integer indexShardsNumber = (Integer)config.get(INDEX_SHARDS_NUMBER);
-        Integer indexReplicasNumber = (Integer)config.get(INDEX_REPLICAS_NUMBER);
+    @Override
+    public void start(Properties config) throws ServiceNotProvidedException {
+        String namespace = getManager().find(ConfigurationModule.NAME).getService(ICollectorConfig.class).getNamespace();
+        if (!StringUtil.isEmpty(namespace)) {
+            TableNamespace.INSTANCE.setHandler(() -> namespace + "_");
+        }
+
+        Integer indexShardsNumber = (Integer) config.get(INDEX_SHARDS_NUMBER);
+        Integer indexReplicasNumber = (Integer) config.get(INDEX_REPLICAS_NUMBER);
         try {
             elasticSearchClient.initialize();
 
@@ -304,16 +319,18 @@ public class StorageModuleEsProvider extends ModuleProvider {
         ModuleListenerService moduleListenerService = getManager().find(ClusterModule.NAME).getService(ModuleListenerService.class);
         moduleListenerService.addListener(namingListener);
 
-        Integer beforeDay = (Integer)config.getOrDefault(TIME_TO_LIVE_OF_DATA, 3);
+        Integer beforeDay = (Integer) config.getOrDefault(TIME_TO_LIVE_OF_DATA, 3);
         deleteTimer = new DataTTLKeeperTimer(getManager(), namingListener, uuId + 0, beforeDay);
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
+    @Override
+    public void notifyAfterCompleted() throws ServiceNotProvidedException {
         deleteTimer.start();
     }
 
-    @Override public String[] requiredModules() {
-        return new String[] {ClusterModule.NAME};
+    @Override
+    public String[] requiredModules() {
+        return new String[]{ClusterModule.NAME, ConfigurationModule.NAME};
     }
 
     private void registerCacheDAO() throws ServiceNotProvidedException {
