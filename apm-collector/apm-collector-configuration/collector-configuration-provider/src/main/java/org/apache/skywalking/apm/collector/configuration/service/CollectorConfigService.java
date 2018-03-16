@@ -16,27 +16,19 @@
  *
  */
 
-
-package org.apache.skywalking.apm.collector.cluster;
-
-import org.apache.skywalking.apm.collector.client.ClientException;
-import org.apache.skywalking.apm.collector.client.Client;
+package org.apache.skywalking.apm.collector.configuration.service;
 
 /**
- * @author peng-yongsheng
+ * @author wu-sheng
  */
-public interface DataMonitor {
-    void setClient(Client client);
+public class CollectorConfigService implements ICollectorConfig {
+    private String namespace;
 
-    void addListener(ClusterModuleListener listener) throws ClientException;
+    public CollectorConfigService(String namespace) {
+        this.namespace = namespace == null ? "" : namespace;
+    }
 
-    void register(String path, ModuleRegistration registration) throws ClientException;
-
-    ClusterModuleListener getListener(String path);
-
-    void createPath(String path) throws ClientException;
-
-    void setData(String path, String value) throws ClientException;
-
-    String getBaseCatalog();
+    @Override public String getNamespace() {
+        return namespace;
+    }
 }

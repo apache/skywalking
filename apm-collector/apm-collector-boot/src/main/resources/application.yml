@@ -1,7 +1,7 @@
-#cluster:
-#  zookeeper:
-#    hostPort: localhost:2181
-#    sessionTimeout: 100000
+cluster:
+  zookeeper:
+    hostPort: localhost:2181
+    sessionTimeout: 100000
 naming:
   jetty:
     host: localhost
@@ -48,6 +48,7 @@ storage:
 #    user_name: sa
 configuration:
   default:
+    namespace: user1
     application_apdex_threshold: 2000
     service_error_rate_threshold: 10.00
     service_average_response_time_threshold: 2000
