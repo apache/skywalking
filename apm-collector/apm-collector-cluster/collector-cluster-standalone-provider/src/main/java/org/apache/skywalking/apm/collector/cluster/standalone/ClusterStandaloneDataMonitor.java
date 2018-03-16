@@ -55,18 +55,18 @@ public class ClusterStandaloneDataMonitor implements DataMonitor {
 
     @Override
     public void addListener(ClusterModuleListener listener) {
-        String path = BASE_CATALOG + listener.path();
+        String path = getBaseCatalog() + listener.path();
         logger.info("listener path: {}", path);
         listeners.put(path, listener);
     }
 
     @Override public ClusterModuleListener getListener(String path) {
-        path = BASE_CATALOG + path;
+        path = getBaseCatalog() + path;
         return listeners.get(path);
     }
 
     @Override public void register(String path, ModuleRegistration registration) {
-        registrations.put(BASE_CATALOG + path, registration);
+        registrations.put(getBaseCatalog() + path, registration);
     }
 
     @Override public void createPath(String path) throws ClientException {
@@ -78,6 +78,10 @@ public class ClusterStandaloneDataMonitor implements DataMonitor {
             listeners.get(path).addAddress(value);
             listeners.get(path).serverJoinNotify(value);
         }
+    }
+
+    @Override public String getBaseCatalog() {
+        return "/skywalking";
     }
 
     public void start() throws CollectorException {
