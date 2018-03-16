@@ -33,7 +33,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * Fetch the serialized context data by using <code>javax.servlet.http.HttpServletRequest<code/>.
+ * Fetch the serialized context data by using <code>javax.servlet.http.HttpServletRequest</code>.
  */
 public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor {
 
