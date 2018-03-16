@@ -33,19 +33,8 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  */
 public class TomcatInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    /**
-     * Enhance class.
-     */
     private static final String ENHANCE_CLASS = "org.apache.catalina.core.StandardWrapperValve";
-
-    /**
-     * The intercept class for "invoke" method in the class "org.apache.catalina.core.StandardWrapperValve"
-     */
     private static final String INVOKE_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.tomcat6x.TomcatInvokeInterceptor";
-
-    /**
-     * The intercept class for "exception" method in the class "org.apache.catalina.core.StandardWrapperValve"
-     */
     private static final String EXCEPTION_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.tomcat6x.TomcatExceptionInterceptor";
 
     @Override
