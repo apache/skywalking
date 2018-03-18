@@ -61,6 +61,7 @@
             <includes>
                 <include>NOTICE</include>
                 <include>LICENSE</include>
+                <include>CHANGES</include>
             </includes>
         </fileSet>
 
