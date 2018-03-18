@@ -141,6 +141,11 @@ Keys to verify the Release Candidate :
 Guide to build the release from source :
 
  * https://github.com/apache/incubator-skywalking/blob/master/docs/en/How-to-build.md
+
+Voting will start now (xxxx date) and will remain open for at least 72 hours, Request all PPMC members to give their vote.
+[ ] +1 Release this package.
+[ ] +0 No opinion.
+[ ] -1 Do not release this package because....
 ```
 
 ## Vote Check
@@ -155,3 +160,5 @@ All PPMC members and committers should check these before vote +1.
 1. Build distribution from source code package (apache-skywalking-incubating-x.y.z.src.tar.gz)
 1. Apache RAT check.
 
+## Call for a vote in Apache IPMC
+Call a vote in `general@incubator.apache.org`
