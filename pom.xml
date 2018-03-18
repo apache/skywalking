@@ -320,7 +320,7 @@
 
     <profiles>
         <profile>
-            <id>asf-release</id>
+            <id>travis-ci-submodule</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
