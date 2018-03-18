@@ -1,5 +1,5 @@
 # Quick start
-1. Download `org.apache.skywalking.apm-dist` in maven central. Or find `skywalking-dist.tar.gz/.zip` in `dist` folder after `mvn clean package`.
+1. Download `apache-skywalking-apm-incubating-x.y.z.tar.gz` or `apache-skywalking-apm-incubating-x.y.z.zip`
 1. Deploy Backend
    - [Standalone Mode](Deploy-backend-in-standalone-mode.md)
    - [Cluster Mode](Deploy-backend-in-cluster-mode.md)
