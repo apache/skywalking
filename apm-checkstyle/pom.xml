@@ -27,7 +27,7 @@
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm-checkstyle</artifactId>
-    <version>5.0.0-alpha</version>
+    <version>5.0.0-beta-SNAPSHOT</version>
     <description>Module to hold Checkstyle for SkyWalking.</description>
 
     <build>
@@ -59,8 +59,4 @@
             </plugin>
         </plugins>
     </build>
-
-  <scm>
-    <tag>apm-5.0.0-alpha</tag>
-  </scm>
 </project>
