@@ -22,6 +22,7 @@
     * Protocol
       * [Cross Process Propagation Headers Protocol, v1.0](en/Skywalking-Cross-Process-Propagation-Headers-Protocol-v1.md)
       * [SkyWalking Trace Data Protocol](en/Trace-Data-Protocol.md)
+    * [Release Guide](en/How-to-release.md)
   * [Roadmap](ROADMAP.md)
   * Resources provided by community
     * [Public speakings](https://github.com/OpenSkywalking/Community#public-speakings)

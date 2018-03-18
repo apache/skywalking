@@ -1,5 +1,7 @@
 Apache SkyWalking release guide
 --------------------
+This documents guide every committer to release SkyWalking in Apache Way,
+and also help committers to check the release for vote.
 
 Ref: 
 * http://tiles.apache.org/framework/dev/release.html

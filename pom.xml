@@ -23,7 +23,7 @@
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>5.0.0-beta-SNAPSHOT</version>
+    <version>5.0.0-alpha-SNAPSHOT</version>
 
     <parent>
         <groupId>org.apache</groupId>
@@ -394,7 +394,7 @@
 
     <profiles>
         <profile>
-            <id>asf-release</id>
+            <id>travis-ci-submodule</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>

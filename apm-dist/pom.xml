@@ -22,7 +22,7 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-beta-SNAPSHOT</version>
+        <version>5.0.0-alpha-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -97,5 +97,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
