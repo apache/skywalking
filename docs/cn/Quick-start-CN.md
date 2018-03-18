@@ -1,5 +1,5 @@
 # 部署步骤
-1. 在Maven Central中下载 `org.apache.skywalking.apm-dist`. 或者本地编译程序，在`dist`目录中找到`skywalking-dist.tar.gz/.zip`.
+1. 下载`apache-skywalking-apm-incubating-x.y.z.tar.gz` 或 `apache-skywalking-apm-incubating-x.y.z.zip`
 1. 部署 Backend
    1. [单机模式](Deploy-backend-in-standalone-mode-CN.md)
    1. [集群模式](Deploy-backend-in-cluster-mode-CN.md)
