@@ -12,12 +12,12 @@ This document helps people to compile and build the project in your maven and se
 1. `git submodule init`
 1. `git submodule update`
 1. Run `mvn clean package`
-1. All packages are in `/dist`, which includes two collector files(.tar.gz for Linux and .zip for Windows).
+1. All packages are in `/dist`, which includes two files(.tar.gz for Linux and .zip for Windows).
 
 ### Build from Apache source codes
 1. Prepare JDK8 and maven3
 1. Run `mvn clean package`
-1. All packages are in `/dist`, which includes two collector files(.tar.gz for Linux and .zip for Windows).
+1. All packages are in `/dist`, which includes two files(.tar.gz for Linux and .zip for Windows).
 
 ## Setup your IntelliJ IDEA
 1. Import the project as a maven project
