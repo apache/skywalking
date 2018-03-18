@@ -17,7 +17,8 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.skywalking</groupId>
@@ -143,6 +144,79 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <version>0.12</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/target/**</exclude>
+                        <exclude>**/DISCLAIMER</exclude>
+                        <exclude>**/licenses/**</exclude>
+                        <exclude>**/codeStyle.xml</exclude>
+
+                        <!-- IDE files -->
+                        <exclude>**/*.iml</exclude>
+                        <exclude>**/.idea/**</exclude>
+                        <exclude>**/*.classpath</exclude>
+                        <exclude>**/.project</exclude>
+                        <exclude>**/.settings/**</exclude>
+                        <exclude>**/dependency-reduced-pom.xml</exclude>
+
+                        <!-- git files -->
+                        <exclude>**/.gitignore</exclude>
+                        <exclude>**/.gitmodules</exclude>
+                        <exclude>**/.git/**</exclude>
+
+                        <!-- CI files -->
+                        <exclude>**/.travis.yml</exclude>
+                        <exclude>**/ci-dependencies/**</exclude>
+
+                        <!-- GitHub files -->
+                        <exclude>**/.github/**</exclude>
+
+                        <!-- document files -->
+                        <exclude>**/*.md</exclude>
+                        <excldue>**/*.MD</excldue>
+                        <exclude>**/*.txt</exclude>
+                        <exclude>**/docs/**</exclude>
+
+                        <!--configuration file -->
+                        <exclude>**/*.yml</exclude>
+                        <exclude>**/*.config</exclude>
+
+                        <!--protocol file -->
+                        <exclude>**/*.graphqls</exclude>
+                        <exclude>**/*.proto</exclude>
+
+                        <!--Test Data-->
+                        <exclude>**/src/test/resources/**</exclude>
+                        <exclude>**/*.def</exclude>
+
+                        <!-- front end libary and generated files -->
+                        <exclude>**/skywalking-ui/node_modules/**</exclude>
+                        <exclude>**/skywalking-ui/node/**</exclude>
+                        <exclude>**/skywalking-ui/.localized</exclude>
+                        <exclude>**/skywalking-ui/.webpackrc.js</exclude>
+                        <exclude>**/skywalking-ui/mock/.gitkeep</exclude>
+                        <exclude>**/skywalking-ui/.ga</exclude>
+                        <exclude>**/skywalking-ui/.eslintrc</exclude>
+                        <exclude>**/skywalking-ui/.editorconfig</exclude>
+                        <exclude>**/skywalking-ui/.stylelintrc</exclude>
+                        <exclude>**/skywalking-ui/.roadhogrc.mock.js</exclude>
+                        <exclude>**/skywalking-ui/dist/**</exclude>
+                        <exclude>**/skywalking-ui/**</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
