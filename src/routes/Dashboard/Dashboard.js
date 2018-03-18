@@ -58,14 +58,14 @@ export default class Dashboard extends PureComponent {
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
               title="App"
-              avatar={<img style={{ width: 56, height: 56 }} src="img/icon/app.svg" alt="app" />}
+              avatar={<img style={{ width: 56, height: 56 }} src="img/icon/app.png" alt="app" />}
               total={data.getClusterBrief.numOfApplication}
             />
           </Col>
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
               title="Service"
-              avatar={<img style={{ width: 56, height: 56 }} src="img/icon/service.svg" alt="service" />}
+              avatar={<img style={{ width: 56, height: 56 }} src="img/icon/service.png" alt="service" />}
               total={data.getClusterBrief.numOfService}
             />
           </Col>

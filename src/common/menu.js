@@ -24,7 +24,7 @@ const menuData = [{
   path: 'dashboard',
 }, {
   name: 'Topology',
-  icon: 'iconfont icon-network',
+  icon: 'fork',
   path: 'topology',
 }, {
   name: 'Application',
@@ -32,7 +32,7 @@ const menuData = [{
   path: 'application',
 }, {
   name: 'Server',
-  icon: 'iconfont icon-server',
+  icon: 'database',
   path: 'server',
 }, {
   name: 'Service',
@@ -40,11 +40,11 @@ const menuData = [{
   path: 'service',
 }, {
   name: 'Trace',
-  icon: 'iconfont icon-icon-traces-search',
+  icon: 'exception',
   path: 'trace',
 }, {
   name: 'Alarm',
-  icon: 'iconfont icon-ALERT',
+  icon: 'bell',
   path: 'alarm',
 }];
 
