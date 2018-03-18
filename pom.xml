@@ -205,7 +205,10 @@
                         <exclude>**/skywalking-ui/.stylelintrc</exclude>
                         <exclude>**/skywalking-ui/.roadhogrc.mock.js</exclude>
                         <exclude>**/skywalking-ui/dist/**</exclude>
-                        <exclude>**/skywalking-ui/**</exclude>
+
+                        <!--web UI config JSON files -->
+                        <exclude>skywalking-ui/package.json</exclude>
+                        <exclude>skywalking-ui/package-lock.json</exclude>
                     </excludes>
                 </configuration>
                 <executions>
