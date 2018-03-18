@@ -17,7 +17,9 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.apache</groupId>
         <artifactId>apache</artifactId>
@@ -27,7 +29,7 @@
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm-checkstyle</artifactId>
-    <version>5.0.0-alpha</version>
+    <version>5.0.0-alpha-SNAPSHOT</version>
     <description>Module to hold Checkstyle for SkyWalking.</description>
 
     <build>
@@ -59,8 +61,4 @@
             </plugin>
         </plugins>
     </build>
-
-  <scm>
-    <tag>apm-5.0.0-alpha</tag>
-  </scm>
 </project>

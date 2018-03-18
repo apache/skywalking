@@ -17,12 +17,13 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>5.0.0-alpha</version>
+    <version>5.0.0-alpha-SNAPSHOT</version>
 
     <parent>
         <groupId>org.apache</groupId>
@@ -75,7 +76,7 @@
         <url>https://github.com/apache/incubator-skywalking</url>
         <connection>scm:git:https://github.com/apache/incubator-skywalking.git</connection>
         <developerConnection>scm:git:https://github.com/apache/incubator-skywalking.git</developerConnection>
-        <tag>apm-5.0.0-alpha</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <issueManagement>
