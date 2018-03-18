@@ -2,7 +2,7 @@
 This document helps people to compile and build the project in your maven and set your IDE.
 
 ## Build Project
-**Because we are using Git submodule, we recommend don't use `GitHub` tag or release page to download source codes for compiling.**.
+**Because we are using Git submodule, we recommend don't use `GitHub` tag or release page to download source codes for compiling.**
 
 ### Build from GitHub
 1. Prepare git, JDK8 and maven3
