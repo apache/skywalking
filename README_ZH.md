@@ -15,7 +15,7 @@ Apache SkyWalking | [English](README.md)
 
 
 * Java自动探针，**不需要修改应用程序源代码**
-  * 高性能探针，针对单实例5000tps的应用，在**全量采集的情况下**，只增加 **10%** 的CPU开销。
+  * 高性能探针.
   * [中间件，框架与类库支持列表](docs/Supported-list.md).
 * 手动探针
   * [使用OpenTracing手动探针API](http://opentracing.io/documentation/pages/supported-tracers)
@@ -36,7 +36,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 
 
 # Live Demo
-- 中国服务器. [前往](http://49.4.12.44:8080/)
+- 北京服务器. [前往](http://49.4.12.44:8080/)
 - 香港服务器. [前往](http://159.138.0.181:8080/)
 
 # Screenshots

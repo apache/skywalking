@@ -15,7 +15,7 @@ Underlying technology is a distributed tracing system.
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
 
 * Provide Java agent, **no need to CHANGE any application source code**.
-  * High performance agent. Only increase extra **10%** cpu cost in 5000+ tps application, even **when collect all traces**.
+  * High performance agent. 
   * [Supported middlewares, frameworks and libraries](docs/Supported-list.md).
 * Manual instrumentation
   * As an [OpenTracing supported tracer](http://opentracing.io/documentation/pages/supported-tracers)
@@ -33,7 +33,7 @@ Underlying technology is a distributed tracing system.
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wusheng@apache.org.
 
 # Live Demo
-- Host in China. [goto](http://49.4.12.44:8080/)
+- Host in Beijing. [goto](http://49.4.12.44:8080/)
 - Host in HK. [goto](http://159.138.0.181:8080/)
 
 # Screenshots
