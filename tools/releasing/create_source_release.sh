@@ -48,4 +48,4 @@ tar czf ${PRODUCT_NAME}-src.tgz ${PRODUCT_NAME}
 gpg --armor --detach-sig $PRODUCT_NAME-src.tgz
 
 md5 -r $PRODUCT_NAME-src.tgz > $PRODUCT_NAME-src.tgz.md5
-shasum -a 512 $PRODUCT_NAME-src.tgz > $PRODUCT_NAME-src.tgz.sha
+shasum -a 512 $PRODUCT_NAME-src.tgz > $PRODUCT_NAME-src.tgz.sha512
