@@ -67,7 +67,7 @@ with .asc, .sha512, .md5
 ## Upload to Apache svn
 1. Use ApacheId to login `https://dist.apache.org/repos/dist/dev/incubator/skywalking/`
 1. Create folder, named by release version
-1. Upload Source code and distribution package (apache-skywalking-incubating-x.y.z.src.tar.gz, apache-skywalking-incubating-x.y.z.tar.gz, apache-skywalking-incubating-x.y.z.zip) 
+1. Upload Source code and distribution package (apache-skywalking-incubating-x.y.z-src.tar.gz, apache-skywalking-incubating-x.y.z.tar.gz, apache-skywalking-incubating-x.y.z.zip) 
 `in svn.apache.org` with .asc, .sha512
 
 ## Make the internal announcements
