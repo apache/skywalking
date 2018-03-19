@@ -34,6 +34,7 @@ import org.apache.skywalking.apm.collector.cluster.DataMonitor;
 import org.apache.skywalking.apm.collector.cluster.ModuleRegistration;
 import org.apache.skywalking.apm.collector.core.CollectorException;
 import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -165,7 +166,11 @@ public class ClusterZKDataMonitor implements DataMonitor, Watcher {
     }
 
     @Override public String getBaseCatalog() {
-        return "/" + namespace + "/skywalking";
+        if (StringUtil.isEmpty(namespace)) {
+            return "/skywalking";
+        } else {
+            return "/" + namespace + "/skywalking";
+        }
     }
 
     void setNamespace(String namespace) {
