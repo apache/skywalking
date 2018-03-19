@@ -13,12 +13,12 @@
 1. 切换到tag `git checkout [tagname]` (可选，当需要编译发行版本时，请是切换到指定分支)
 1. `git submodule init`
 1. `git submodule update`
-1. 执行`mvn clean package -Dmaven.test.skip=true`
+1. 执行`mvn clean package  -DskipTests`
 1. 生成包在`/dist`目录下（.tar.gz是linux环境，.zip是windows环境）
 
 ### 从Apache源码镜像下载编译
 1. 准备环境: jdk8，Maven
-1. 执行`mvn clean package -Dmaven.test.skip=true`
+1. 执行`mvn clean package -DskipTests`
 1. 生成包在`/dist`目录下（.tar.gz是linux环境，.zip是windows环境）
 
 

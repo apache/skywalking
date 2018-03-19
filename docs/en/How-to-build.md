@@ -11,12 +11,12 @@ This document helps people to compile and build the project in your maven and se
 1. Switch to the tag by using `git checkout [tagname]` (Optional, switch if want to build a release from source codes)
 1. `git submodule init`
 1. `git submodule update`
-1. Run `mvn clean package -Dmaven.test.skip=true`
+1. Run `mvn clean package -DskipTests`
 1. All packages are in `/dist`.(.tar.gz for Linux and .zip for Windows).
 
 ### Build from Apache source codes
 1. Prepare JDK8 and maven3
-1. Run `mvn clean package -Dmaven.test.skip=true`
+1. Run `mvn clean package -DskipTests`
 1. All packages are in `/dist`.(.tar.gz for Linux and .zip for Windows).
 
 ## Setup your IntelliJ IDEA
