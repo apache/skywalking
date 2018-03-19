@@ -67,7 +67,7 @@ with .asc, .sha512, .md5
 1. Use ApacheId to login `https://dist.apache.org/repos/dist/dev/incubator/skywalking/`
 1. Create folder, named by release version
 1. Upload Source code and distribution package (apache-skywalking-incubating-x.y.z.src.tar.gz, apache-skywalking-incubating-x.y.z.tar.gz, apache-skywalking-incubating-x.y.z.zip) 
-`in svn.apache.org` with .asc, .sha512, .sha256
+`in svn.apache.org` with .asc, .sha512
 
 ## Make the internal announcements
 Send an announcement mail in dev mail list.
@@ -168,7 +168,7 @@ All PPMC members and committers should check these before vote +1.
 1. Features test.
 1. All artifacts in staging repository are published with .asc, .md5, *sha1 files
 1. Source code and distribution package (apache-skywalking-incubating-x.y.z.src.tar.gz, apache-skywalking-incubating-x.y.z.tar.gz, apache-skywalking-incubating-x.y.z.zip)
-`in svn.apache.org` with .asc, .sha512, .sha256
+`in svn.apache.org` with .asc, .sha512
 1. `LICENSE` and `NOTICE` are in Source code and distribution package.
 1. Check `shasum`
 1. Build distribution from source code package (apache-skywalking-incubating-x.y.z.src.tar.gz) by following this [doc](https://github.com/apache/incubator-skywalking/blob/master/docs/en/How-to-build.md#build-from-apache-source-codes).
