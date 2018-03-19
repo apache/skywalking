@@ -32,6 +32,11 @@ public class Config {
 
     public static class Agent {
         /**
+         * Namespace isolates headers in cross process propagation. The HEADER name will be `HeaderName:Namespace`.
+         */
+        public static String NAMESPACE = "";
+
+        /**
          * Application code is showed in sky-walking-ui. Suggestion: set an unique name for each application, one
          * application's nodes share the same code.
          */
