@@ -167,11 +167,11 @@ All PPMC members and committers should check these before vote +1.
 
 1. Features test.
 1. All artifacts in staging repository are published with .asc, .md5, *sha1 files
-1. Source code and distribution package (apache-skywalking-incubating-x.y.z.src.tar.gz, apache-skywalking-incubating-x.y.z.tar.gz, apache-skywalking-incubating-x.y.z.zip)
+1. Source code and distribution package (apache-skywalking-incubating-x.y.z-src.tar.gz, apache-skywalking-incubating-x.y.z.tar.gz, apache-skywalking-incubating-x.y.z.zip)
 `in svn.apache.org` with .asc, .sha512
 1. `LICENSE` and `NOTICE` are in Source code and distribution package.
 1. Check `shasum -c apache-skywalking-apm-incubating-x.y.z-src.tgz.sha512`
-1. Build distribution from source code package (apache-skywalking-incubating-x.y.z.src.tar.gz) by following this [doc](https://github.com/apache/incubator-skywalking/blob/master/docs/en/How-to-build.md#build-from-apache-source-codes).
+1. Build distribution from source code package (apache-skywalking-incubating-x.y.z-src.tar.gz) by following this [doc](https://github.com/apache/incubator-skywalking/blob/master/docs/en/How-to-build.md#build-from-apache-source-codes).
 1. Apache RAT check. Run `mvn apache-rat:check`.
 
 ## Call for a vote in Apache IPMC
