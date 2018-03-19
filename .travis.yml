@@ -9,6 +9,6 @@ before_install:
 
 install:
   - jdk_switcher use oraclejdk8
-  - mvn clean install --quiet jacoco:report coveralls:report
+  - mvn clean install -Ptravis-ci-submodule --quiet jacoco:report coveralls:report
   - mvn clean javadoc:javadoc -Dmaven.test.skip=true --quiet
 

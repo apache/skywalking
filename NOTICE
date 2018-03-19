@@ -1,4 +1,4 @@
-Apache SkyWaling
+Apache SkyWalking
 Copyright 2017-2018 The Apache Software Foundation
 
 This product includes software developed at
@@ -44,14 +44,6 @@ networking library, which can be obtained at:
   * LOCATION_IN_GRPC:
     * netty/third_party/netty
 
-========================================================================
-elasticsearch NOTICE
-========================================================================
-Elasticsearch
-Copyright 2009-2017 Elasticsearch
-
-This product includes software developed by The Apache Software
-Foundation (http://www.apache.org/).
 
 ==============================================================
  Jetty NOTICE
