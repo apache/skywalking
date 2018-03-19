@@ -41,7 +41,7 @@ mvn release:prepare -DautoVersionSubmodules=true
 
 ## Stage the release for a vote
 ```
-mvn release:perform -DskipTests
+mvn release:perform -DskipTests -Ptravis-ci-submodule
 ```
 The release will automatically be inserted into a temporary staging repository for you.
 
