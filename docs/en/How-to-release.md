@@ -1,10 +1,10 @@
 Apache SkyWalking release guide
 --------------------
-This documents guide every committer to release SkyWalking in Apache Way,
+This document guides every committer to release SkyWalking in Apache Way,
 and also help committers to check the release for vote.
 
 
-## SETUP YOUR DEVELOPMENT ENVIRONMENT
+## Setup your development environment
 Use the following block as a template and place it in ~/.m2/settings.xml
 
 ```
@@ -28,32 +28,47 @@ Use the following block as a template and place it in ~/.m2/settings.xml
 </settings>
 ```
 
-## TEST YOUR SETTINGS
+## Test your settings
 ```
 mvn clean install -Papache-release (this will build artifacts, sources and sign)
 ```
 
-## PREPARE THE RELEASE
+## Prepare the release
 ```
 mvn release:clean
-mvn release:prepare
+mvn release:prepare -DautoVersionSubmodules=true
 ```
 
-## STAGE THE RELEASE FOR A VOTE
+## Stage the release for a vote
 ```
-mvn release:perform
+mvn release:perform -DskipTests
 ```
 The release will automatically be inserted into a temporary staging repository for you.
 
-## Build the source code package
-TODO
+## Build and sign the source code package
+```shell
+switch to release version tag
+cd tools/releasing
+sh create_source_release.sh
+```
 
-## Sign the distribution and source code package
-TODO
+The `apache-skywalking-apm-incubating-x.y.z-src.tgz` should be found in `tools/releasing` folder,
+with .asc, .sha512, .md5
+
+## Find and download distribution in Apache Nexus Staging repositories
+1. Use ApacheId to login `https://repository.apache.org/`
+1. Go to `https://repository.apache.org/#stagingRepositories`
+1. Search `skywalking` and find your staging repository
+1. Close the repository and wait for all checks pass.
+1. Go to `{REPO_URL}/org/apache/skywalking/apache-skywalking-apm-incubating/x.y.z`
+1. Download `.tar.gz` and `.zip` with .asc and .sha1
+
 
 ## Upload to Apache svn
-TODO
-
+1. Use ApacheId to login `https://dist.apache.org/repos/dist/dev/incubator/skywalking/`
+1. Create folder, named by release version
+1. Upload Source code and distribution package (apache-skywalking-incubating-x.y.z-src.tar.gz, apache-skywalking-incubating-x.y.z.tar.gz, apache-skywalking-incubating-x.y.z.zip) 
+`in svn.apache.org` with .asc, .sha512
 
 ## Make the internal announcements
 Send an announcement mail in dev mail list.
@@ -101,8 +116,8 @@ within the next couple of days.
 ```
 
 ## Wait at least 48 hours for test responses
-Any PPMC, committer or contributor can test features and visualization this version, and feedback.
-PPMC will decide whether start a vote.
+Any PPMC, committer or contributor can test features for releasing, and feedback.
+Based on that, PPMC will decide whether start a vote.
 
 ## Call a vote in dev
 Call a vote in `dev@skywalking.apache.org`
@@ -153,12 +168,12 @@ All PPMC members and committers should check these before vote +1.
 
 1. Features test.
 1. All artifacts in staging repository are published with .asc, .md5, *sha1 files
-1. Source code and distribution package (apache-skywalking-incubating-x.y.z.src.tar.gz, apache-skywalking-incubating-x.y.z.tar.gz, apache-skywalking-incubating-x.y.z.zip)
-`in svn.apache.org` with .asc, .sha512, .sha256
+1. Source code and distribution package (apache-skywalking-incubating-x.y.z-src.tar.gz, apache-skywalking-incubating-x.y.z.tar.gz, apache-skywalking-incubating-x.y.z.zip)
+`in svn.apache.org` with .asc, .sha512
 1. `LICENSE` and `NOTICE` are in Source code and distribution package.
-1. Check `shasum`
-1. Build distribution from source code package (apache-skywalking-incubating-x.y.z.src.tar.gz)
-1. Apache RAT check.
+1. Check `shasum -c apache-skywalking-apm-incubating-x.y.z-src.tgz.sha512`
+1. Build distribution from source code package (apache-skywalking-incubating-x.y.z-src.tar.gz) by following this [doc](https://github.com/apache/incubator-skywalking/blob/master/docs/en/How-to-build.md#build-from-apache-source-codes).
+1. Apache RAT check. Run `mvn apache-rat:check`.
 
 ## Call for a vote in Apache IPMC
 Call a vote in `general@incubator.apache.org`
