@@ -1,6 +1,6 @@
- Release Notes. 
- Changes by Version	
+ Changes by Version
  ==================
+ Release Notes.
  
  5.0.0-alpha
  ------------------

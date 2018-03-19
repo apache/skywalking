@@ -144,27 +144,86 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <version>0.12</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/target/**</exclude>
+                        <exclude>**/DISCLAIMER</exclude>
+                        <exclude>**/licenses/**</exclude>
+                        <exclude>**/codeStyle.xml</exclude>
+
+                        <!-- IDE files -->
+                        <exclude>**/*.iml</exclude>
+                        <exclude>**/.idea/**</exclude>
+                        <exclude>**/*.classpath</exclude>
+                        <exclude>**/.project</exclude>
+                        <exclude>**/.settings/**</exclude>
+                        <exclude>**/dependency-reduced-pom.xml</exclude>
+
+                        <!-- git files -->
+                        <exclude>**/.gitignore</exclude>
+                        <exclude>**/.gitmodules</exclude>
+                        <exclude>**/.git/**</exclude>
+
+                        <!-- CI files -->
+                        <exclude>**/.travis.yml</exclude>
+                        <exclude>**/ci-dependencies/**</exclude>
+
+                        <!-- GitHub files -->
+                        <exclude>**/.github/**</exclude>
+
+                        <!-- document files -->
+                        <exclude>**/*.md</exclude>
+                        <excldue>**/*.MD</excldue>
+                        <exclude>**/*.txt</exclude>
+                        <exclude>**/docs/**</exclude>
+
+                        <!--configuration file -->
+                        <exclude>**/*.yml</exclude>
+                        <exclude>**/*.config</exclude>
+
+                        <!--protocol file -->
+                        <exclude>**/*.graphqls</exclude>
+                        <exclude>**/*.proto</exclude>
+
+                        <!--Test Data-->
+                        <exclude>**/src/test/resources/**</exclude>
+                        <exclude>**/*.def</exclude>
+
+                        <!-- front end libary and generated files -->
+                        <exclude>**/skywalking-ui/node_modules/**</exclude>
+                        <exclude>**/skywalking-ui/node/**</exclude>
+                        <exclude>**/skywalking-ui/.localized</exclude>
+                        <exclude>**/skywalking-ui/.webpackrc.js</exclude>
+                        <exclude>**/skywalking-ui/mock/.gitkeep</exclude>
+                        <exclude>**/skywalking-ui/.ga</exclude>
+                        <exclude>**/skywalking-ui/.eslintrc</exclude>
+                        <exclude>**/skywalking-ui/.editorconfig</exclude>
+                        <exclude>**/skywalking-ui/.stylelintrc</exclude>
+                        <exclude>**/skywalking-ui/.roadhogrc.mock.js</exclude>
+                        <exclude>**/skywalking-ui/dist/**</exclude>
+
+                        <!--web UI config JSON files -->
+                        <exclude>skywalking-ui/package.json</exclude>
+                        <exclude>skywalking-ui/package-lock.json</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.6.0</version>
                 <executions>
-                    <execution>
-                        <id>git submodule update</id>
-                        <phase>initialize</phase>
-                        <inherited>false</inherited>
-                        <configuration>
-                            <executable>git</executable>
-                            <arguments>
-                                <argument>submodule</argument>
-                                <argument>update</argument>
-                                <argument>--init</argument>
-                                <argument>--recursive</argument>
-                            </arguments>
-                        </configuration>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                    </execution>
                     <execution>
                         <id>install-jmxtools</id>
                         <inherited>false</inherited>
@@ -335,6 +394,40 @@
 
 
     <profiles>
+        <profile>
+            <id>travis-ci-submodule</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.6.0</version>
+                        <executions>
+                            <execution>
+                                <id>git submodule update</id>
+                                <phase>initialize</phase>
+                                <inherited>false</inherited>
+                                <configuration>
+                                    <executable>git</executable>
+                                    <arguments>
+                                        <argument>submodule</argument>
+                                        <argument>update</argument>
+                                        <argument>--init</argument>
+                                        <argument>--recursive</argument>
+                                    </arguments>
+                                </configuration>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <!-- ojdbc is not Apache license compatible, so it must be manually downloaded first -->
             <id>install-ojdbc</id>

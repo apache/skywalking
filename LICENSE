@@ -248,10 +248,10 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     cytoscape-cose-bilkent: https://github.com/cytoscape/cytoscape.js-cose-bilkent , MIT
     cytoscape-node-html-label: https://github.com/kaluginserg/cytoscape-node-html-label , MIT
     cytoscape: https://github.com/cytoscape/cytoscape.js , MIT
+    data-set: https://github.com/antvis/data-set/ , MIT
     dva-loading: https://github.com/dvajs/dva , MIT
     dva: https://github.com/dvajs/dva , MIT
     enquire-js: https://github.com/jljsj/enquire-js , MIT
-    fastclick: https://github.com/ftlabs/fastclick , MIT
     lodash-decorators: https://github.com/steelsojka/lodash-decorators , MIT
     lodash: https://github.com/lodash/lodash , MIT
     moment: https://github.com/moment/moment , MIT
