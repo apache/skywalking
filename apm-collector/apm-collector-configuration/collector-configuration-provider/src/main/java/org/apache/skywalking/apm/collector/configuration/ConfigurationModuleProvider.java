@@ -22,9 +22,11 @@ import java.util.Properties;
 import org.apache.skywalking.apm.collector.configuration.service.ApdexThresholdService;
 import org.apache.skywalking.apm.collector.configuration.service.ApplicationAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.configuration.service.ApplicationReferenceAlarmRuleConfig;
+import org.apache.skywalking.apm.collector.configuration.service.CollectorConfigService;
 import org.apache.skywalking.apm.collector.configuration.service.IApdexThresholdService;
 import org.apache.skywalking.apm.collector.configuration.service.IApplicationAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.configuration.service.IApplicationReferenceAlarmRuleConfig;
+import org.apache.skywalking.apm.collector.configuration.service.ICollectorConfig;
 import org.apache.skywalking.apm.collector.configuration.service.IInstanceAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.configuration.service.IInstanceReferenceAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.configuration.service.IServiceAlarmRuleConfig;
@@ -41,7 +43,7 @@ import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedExcepti
  * @author peng-yongsheng
  */
 public class ConfigurationModuleProvider extends ModuleProvider {
-
+    private static final String NAMESPACE = "namespace";
     private static final String APPLICATION_APDEX_THRESHOLD = "application_apdex_threshold";
     private static final String SERVICE_ERROR_RATE_THRESHOLD = "service_error_rate_threshold";
     private static final String SERVICE_AVERAGE_RESPONSE_TIME_THRESHOLD = "service_average_response_time_threshold";
@@ -59,6 +61,7 @@ public class ConfigurationModuleProvider extends ModuleProvider {
     }
 
     @Override public void prepare(Properties config) throws ServiceNotProvidedException {
+        String namespace = (String)config.getOrDefault(NAMESPACE, "");
         Integer applicationApdexThreshold = (Integer)config.getOrDefault(APPLICATION_APDEX_THRESHOLD, 2000);
         Double serviceErrorRateThreshold = (Double)config.getOrDefault(SERVICE_ERROR_RATE_THRESHOLD, 10.00);
         Integer serviceAverageResponseTimeThreshold = (Integer)config.getOrDefault(SERVICE_AVERAGE_RESPONSE_TIME_THRESHOLD, 2000);
@@ -67,6 +70,7 @@ public class ConfigurationModuleProvider extends ModuleProvider {
         Double applicationErrorRateThreshold = (Double)config.getOrDefault(APPLICATION_ERROR_RATE_THRESHOLD, 10.00);
         Integer applicationAverageResponseTimeThreshold = (Integer)config.getOrDefault(APPLICATION_AVERAGE_RESPONSE_TIME_THRESHOLD, 2000);
 
+        this.registerServiceImplementation(ICollectorConfig.class, new CollectorConfigService(namespace));
         this.registerServiceImplementation(IApdexThresholdService.class, new ApdexThresholdService(applicationApdexThreshold));
         this.registerServiceImplementation(IServiceAlarmRuleConfig.class, new ServiceAlarmRuleConfig(serviceErrorRateThreshold, serviceAverageResponseTimeThreshold));
         this.registerServiceImplementation(IInstanceAlarmRuleConfig.class, new InstanceAlarmRuleConfig(instanceErrorRateThreshold, instanceAverageResponseTimeThreshold));

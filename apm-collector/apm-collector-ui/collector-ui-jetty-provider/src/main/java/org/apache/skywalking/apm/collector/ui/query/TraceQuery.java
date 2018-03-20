@@ -31,6 +31,7 @@ import org.apache.skywalking.apm.collector.ui.graphql.Query;
 import org.apache.skywalking.apm.collector.ui.service.SegmentTopService;
 import org.apache.skywalking.apm.collector.ui.service.TraceStackService;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
+import org.apache.skywalking.apm.collector.ui.utils.PaginationUtils;
 
 /**
  * @author peng-yongsheng
@@ -64,11 +65,11 @@ public class TraceQuery implements Query {
         long endSecondTimeBucket = 0;
         String traceId = Const.EMPTY_STRING;
 
-        if (ObjectUtils.isNotEmpty(condition.getQueryDuration())) {
-            startSecondTimeBucket = DurationUtils.INSTANCE.durationToSecondTimeBucket(condition.getQueryDuration().getStep(), condition.getQueryDuration().getStart());
-            endSecondTimeBucket = DurationUtils.INSTANCE.durationToSecondTimeBucket(condition.getQueryDuration().getStep(), condition.getQueryDuration().getEnd());
-        } else if (StringUtils.isNotEmpty(condition.getTraceId())) {
+        if (StringUtils.isNotEmpty(condition.getTraceId())) {
             traceId = condition.getTraceId();
+        } else if (ObjectUtils.isNotEmpty(condition.getQueryDuration())) {
+            startSecondTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(condition.getQueryDuration().getStep(), condition.getQueryDuration().getStart());
+            endSecondTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(condition.getQueryDuration().getStep(), condition.getQueryDuration().getEnd());
         } else {
             throw new UnexpectedException("The condition must contains either queryDuration or traceId.");
         }
@@ -77,10 +78,9 @@ public class TraceQuery implements Query {
         long maxDuration = condition.getMaxTraceDuration();
         String operationName = condition.getOperationName();
         int applicationId = condition.getApplicationId();
-        int limit = condition.getPaging().getPageSize();
-        int from = condition.getPaging().getPageSize() * condition.getPaging().getPageNum();
 
-        return getSegmentTopService().loadTop(startSecondTimeBucket, endSecondTimeBucket, minDuration, maxDuration, operationName, traceId, applicationId, limit, from);
+        PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
+        return getSegmentTopService().loadTop(startSecondTimeBucket, endSecondTimeBucket, minDuration, maxDuration, operationName, traceId, applicationId, page.getLimit(), page.getFrom());
     }
 
     public Trace queryTrace(String traceId) {

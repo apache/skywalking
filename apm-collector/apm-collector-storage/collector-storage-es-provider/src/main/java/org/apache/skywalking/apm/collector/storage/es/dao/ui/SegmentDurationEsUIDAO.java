@@ -57,6 +57,7 @@ public class SegmentDurationEsUIDAO extends EsDAO implements ISegmentDurationUID
         List<QueryBuilder> mustQueryList = boolQueryBuilder.must();
 
         if (startSecondTimeBucket != 0 && endSecondTimeBucket != 0) {
+            //TODO second
             mustQueryList.add(QueryBuilders.rangeQuery(SegmentDurationTable.COLUMN_TIME_BUCKET).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
         }
 

@@ -105,7 +105,21 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        boolQueryBuilder.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startSecondTimeBucket));
+
+        BoolQueryBuilder boolQuery1 = QueryBuilders.boolQuery();
+        boolQuery1.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(endSecondTimeBucket));
+        boolQuery1.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).lte(endSecondTimeBucket));
+
+        BoolQueryBuilder boolQuery2 = QueryBuilders.boolQuery();
+        boolQuery2.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).lte(endSecondTimeBucket));
+        boolQuery2.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startSecondTimeBucket));
+
+        BoolQueryBuilder timeBoolQuery = QueryBuilders.boolQuery();
+        timeBoolQuery.should().add(boolQuery1);
+        timeBoolQuery.should().add(boolQuery2);
+
+        boolQueryBuilder.must().add(timeBoolQuery);
+
         boolQueryBuilder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, BooleanUtils.FALSE));
         if (applicationIds.length > 0) {
             boolQueryBuilder.must().add(QueryBuilders.termsQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationIds));
@@ -153,7 +167,7 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
 
     @Override
     public List<AppServerInfo> searchServer(String keyword, long startSecondTimeBucket, long endSecondTimeBucket) {
-        logger.debug("get instances info, keyword: {}, start: {}, end: {}", keyword, startSecondTimeBucket, endSecondTimeBucket);
+        logger.debug("get instances info, keyword: {}, startSecondTimeBucket: {}, endSecondTimeBucket: {}", keyword, startSecondTimeBucket, endSecondTimeBucket);
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(InstanceTable.TABLE);
         searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
@@ -165,9 +179,17 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         }
         boolQuery.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, BooleanUtils.FALSE));
 
+        BoolQueryBuilder boolQuery1 = QueryBuilders.boolQuery();
+        boolQuery1.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(endSecondTimeBucket));
+        boolQuery1.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).lte(endSecondTimeBucket));
+
+        BoolQueryBuilder boolQuery2 = QueryBuilders.boolQuery();
+        boolQuery2.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).lte(endSecondTimeBucket));
+        boolQuery2.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startSecondTimeBucket));
+
         BoolQueryBuilder timeBoolQuery = QueryBuilders.boolQuery();
-        timeBoolQuery.should().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
-        timeBoolQuery.should().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
+        timeBoolQuery.should().add(boolQuery1);
+        timeBoolQuery.should().add(boolQuery2);
 
         boolQuery.must().add(timeBoolQuery);
 
@@ -191,9 +213,17 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         boolQuery.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationId));
         boolQuery.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, BooleanUtils.FALSE));
 
+        BoolQueryBuilder boolQuery1 = QueryBuilders.boolQuery();
+        boolQuery1.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(endSecondTimeBucket));
+        boolQuery1.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).lte(endSecondTimeBucket));
+
+        BoolQueryBuilder boolQuery2 = QueryBuilders.boolQuery();
+        boolQuery2.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).lte(endSecondTimeBucket));
+        boolQuery2.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startSecondTimeBucket));
+
         BoolQueryBuilder timeBoolQuery = QueryBuilders.boolQuery();
-        timeBoolQuery.should().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
-        timeBoolQuery.should().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
+        timeBoolQuery.should().add(boolQuery1);
+        timeBoolQuery.should().add(boolQuery2);
 
         boolQuery.must().add(timeBoolQuery);
         searchRequestBuilder.setQuery(boolQuery);
@@ -249,6 +279,7 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         for (SearchHit searchHit : searchHits) {
             AppServerInfo appServerInfo = new AppServerInfo();
             appServerInfo.setId(((Number)searchHit.getSource().get(InstanceTable.COLUMN_INSTANCE_ID)).intValue());
+            appServerInfo.setApplicationId(((Number)searchHit.getSource().get(InstanceTable.COLUMN_APPLICATION_ID)).intValue());
             appServerInfo.setOsInfo((String)searchHit.getSource().get(InstanceTable.COLUMN_OS_INFO));
             appServerInfos.add(appServerInfo);
         }

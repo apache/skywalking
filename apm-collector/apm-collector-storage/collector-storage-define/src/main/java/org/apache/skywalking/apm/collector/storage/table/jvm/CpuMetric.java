@@ -20,9 +20,9 @@ package org.apache.skywalking.apm.collector.storage.table.jvm;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.data.operator.AddOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.AddMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.CoverMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
 
 /**
  * @author peng-yongsheng
@@ -30,21 +30,21 @@ import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
 public class CpuMetric extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(CpuMetricTable.COLUMN_ID, new NonOperation()),
-        new Column(CpuMetricTable.COLUMN_METRIC_ID, new NonOperation()),
+        new Column(CpuMetricTable.COLUMN_ID, new NonMergeOperation()),
+        new Column(CpuMetricTable.COLUMN_METRIC_ID, new NonMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(CpuMetricTable.COLUMN_TIMES, new AddOperation()),
-        new Column(CpuMetricTable.COLUMN_TIME_BUCKET, new CoverOperation()),
+        new Column(CpuMetricTable.COLUMN_TIMES, new AddMergeOperation()),
+        new Column(CpuMetricTable.COLUMN_TIME_BUCKET, new CoverMergeOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {
-        new Column(CpuMetricTable.COLUMN_USAGE_PERCENT, new AddOperation()),
+        new Column(CpuMetricTable.COLUMN_USAGE_PERCENT, new AddMergeOperation()),
     };
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(CpuMetricTable.COLUMN_INSTANCE_ID, new CoverOperation()),
+        new Column(CpuMetricTable.COLUMN_INSTANCE_ID, new CoverMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};

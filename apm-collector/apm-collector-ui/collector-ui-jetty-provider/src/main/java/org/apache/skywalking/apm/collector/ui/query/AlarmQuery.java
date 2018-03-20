@@ -28,6 +28,7 @@ import org.apache.skywalking.apm.collector.storage.ui.common.Pagination;
 import org.apache.skywalking.apm.collector.ui.graphql.Query;
 import org.apache.skywalking.apm.collector.ui.service.AlarmService;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
+import org.apache.skywalking.apm.collector.ui.utils.PaginationUtils;
 
 /**
  * @author peng-yongsheng
@@ -50,19 +51,18 @@ public class AlarmQuery implements Query {
 
     public Alarm loadAlarmList(String keyword, AlarmType alarmType, Duration duration,
         Pagination paging) throws ParseException {
-        long start = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart()) / 100;
-        long end = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd()) / 100;
+        long startTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(duration.getStep(), duration.getStart()) / 100;
+        long endTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(duration.getStep(), duration.getEnd()) / 100;
 
-        int limit = paging.getPageSize();
-        int from = paging.getPageSize() * paging.getPageNum();
+        PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
 
         switch (alarmType) {
             case APPLICATION:
-                return getAlarmService().loadApplicationAlarmList(keyword, start, end, limit, from);
+                return getAlarmService().loadApplicationAlarmList(keyword, duration.getStep(), startTimeBucket, endTimeBucket, page.getLimit(), page.getFrom());
             case SERVER:
-                return getAlarmService().loadInstanceAlarmList(keyword, start, end, limit, from);
+                return getAlarmService().loadInstanceAlarmList(keyword, duration.getStep(), startTimeBucket, endTimeBucket, page.getLimit(), page.getFrom());
             case SERVICE:
-                return getAlarmService().loadServiceAlarmList(keyword, start, end, limit, from);
+                return getAlarmService().loadServiceAlarmList(keyword, duration.getStep(), startTimeBucket, endTimeBucket, page.getLimit(), page.getFrom());
             default:
                 return new Alarm();
         }

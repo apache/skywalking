@@ -26,8 +26,6 @@ import org.apache.skywalking.apm.collector.client.Client;
  * @author peng-yongsheng
  */
 public interface DataMonitor {
-    String BASE_CATALOG = "/skywalking";
-
     void setClient(Client client);
 
     void addListener(ClusterModuleListener listener) throws ClientException;
@@ -39,4 +37,6 @@ public interface DataMonitor {
     void createPath(String path) throws ClientException;
 
     void setData(String path, String value) throws ClientException;
+
+    String getBaseCatalog();
 }

@@ -3,14 +3,13 @@
 
   * [项目简介](/README_ZH.md)
   * [快速入门](cn/Quick-start-CN.md)
-  * [部署Collector镜像](cn/Deploy-docker-image-CN.md)
   * [中间件，框架与类库支持列表](Supported-list.md)
     * [如何关闭特定插件](cn/How-to-disable-plugin-CN.md)
   * APM相关介绍资料
     * [OpenTracing中文版](https://github.com/opentracing-contrib/opentracing-specification-zh)
   * Application Toolkit，应用程序工具包
     * [概述](cn/Application-toolkit-CN.md)
-    * [OpenTracing Tracer](cn/skywalking-opentracing-CN.md)
+    * [OpenTracing Tracer](cn/Opentracing-CN.md)
     * 日志组件
       * [log4j组件](cn/Application-toolkit-log4j-1.x-CN.md)
       * [log4j2组件](cn/Application-toolkit-log4j-2.x-CN.md)
@@ -25,6 +24,7 @@
     * 交互协议
         * [Cross Process Propagation Headers Protocol, v1.0  跨进程追踪上下文传递协议](cn/Skywalking-Cross-Process-Propagation-Headers-Protocol-CN-v1.md)
         * [SkyWalking Trace Data Protocol 探针与Collector间网络协议](cn/Trace-Data-Protocol-CN.md)
+  * [Roadmap](ROADMAP.md)
   * 社区提供的共享资源
     * [公开演讲](https://github.com/OpenSkywalking/Community#public-speakings)
     * [视频](https://github.com/OpenSkywalking/Community#videos)

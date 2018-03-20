@@ -31,13 +31,16 @@ public abstract class CommonMetricTable extends CommonTable {
     public static final String COLUMN_TRANSACTION_ERROR_CALLS = "transaction_error_calls";
     public static final String COLUMN_TRANSACTION_DURATION_SUM = "transaction_duration_sum";
     public static final String COLUMN_TRANSACTION_ERROR_DURATION_SUM = "transaction_error_duration_sum";
+    public static final String COLUMN_TRANSACTION_AVERAGE_DURATION = "transaction_average_duration";
     public static final String COLUMN_BUSINESS_TRANSACTION_CALLS = "business_transaction_calls";
     public static final String COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS = "business_transaction_error_calls";
     public static final String COLUMN_BUSINESS_TRANSACTION_DURATION_SUM = "business_transaction_duration_sum";
     public static final String COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM = "business_transaction_error_duration_sum";
+    public static final String COLUMN_BUSINESS_TRANSACTION_AVERAGE_DURATION = "business_transaction_average_duration";
     public static final String COLUMN_MQ_TRANSACTION_CALLS = "mq_transaction_calls";
     public static final String COLUMN_MQ_TRANSACTION_ERROR_CALLS = "mq_transaction_error_calls";
     public static final String COLUMN_MQ_TRANSACTION_DURATION_SUM = "mq_transaction_duration_sum";
     public static final String COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM = "mq_transaction_error_duration_sum";
+    public static final String COLUMN_MQ_TRANSACTION_AVERAGE_DURATION = "mq_transaction_average_duration";
     public static final String COLUMN_SOURCE_VALUE = "source_value";
 }

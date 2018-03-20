@@ -59,8 +59,8 @@ public class ServerService {
     private final ICpuMetricUIDAO cpuMetricUIDAO;
     private final IGCMetricUIDAO gcMetricUIDAO;
     private final IMemoryMetricUIDAO memoryMetricUIDAO;
-    private final InstanceCacheService instanceCacheService;
     private final ApplicationCacheService applicationCacheService;
+    private final InstanceCacheService instanceCacheService;
     private final SecondBetweenService secondBetweenService;
 
     public ServerService(ModuleManager moduleManager) {
@@ -69,18 +69,19 @@ public class ServerService {
         this.cpuMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(ICpuMetricUIDAO.class);
         this.gcMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IGCMetricUIDAO.class);
         this.memoryMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IMemoryMetricUIDAO.class);
-        this.instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
+        this.instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
         this.secondBetweenService = new SecondBetweenService(moduleManager);
     }
 
     public List<AppServerInfo> searchServer(String keyword, long startSecondTimeBucket, long endSecondTimeBucket) {
         List<AppServerInfo> serverInfos = instanceUIDAO.searchServer(keyword, startSecondTimeBucket, endSecondTimeBucket);
-        serverInfos.forEach(serverInfo -> {
-            if (serverInfo.getId() == Const.NONE_INSTANCE_ID) {
-                serverInfos.remove(serverInfo);
+
+        for (int i = serverInfos.size() - 1; i >= 0; i--) {
+            if (serverInfos.get(i).getId() == Const.NONE_INSTANCE_ID) {
+                serverInfos.remove(i);
             }
-        });
+        }
 
         buildAppServerInfo(serverInfos);
         return serverInfos;
@@ -107,7 +108,8 @@ public class ServerService {
 
         List<AppServerInfo> serverThroughput = instanceMetricUIDAO.getServerThroughput(applicationId, step, startTimeBucket, endTimeBucket, secondBetween, topN, MetricSource.Callee);
         serverThroughput.forEach(appServerInfo -> {
-            String applicationCode = applicationCacheService.getApplicationById(applicationId).getApplicationCode();
+            appServerInfo.setApplicationId(instanceCacheService.getApplicationId(appServerInfo.getId()));
+            String applicationCode = applicationCacheService.getApplicationById(appServerInfo.getApplicationId()).getApplicationCode();
             appServerInfo.setApplicationCode(applicationCode);
             Instance instance = instanceUIDAO.getInstance(appServerInfo.getId());
             appServerInfo.setOsInfo(instance.getOsInfo());
@@ -146,7 +148,8 @@ public class ServerService {
         return gcTrend;
     }
 
-    public MemoryTrend getMemoryTrend(int instanceId, Step step, long startTimeBucket, long endTimeBucket) throws ParseException {
+    public MemoryTrend getMemoryTrend(int instanceId, Step step, long startTimeBucket,
+        long endTimeBucket) throws ParseException {
         MemoryTrend memoryTrend = new MemoryTrend();
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTimeBucket, endTimeBucket);
         IMemoryMetricUIDAO.Trend heapMemoryTrend = memoryMetricUIDAO.getHeapMemoryTrend(instanceId, step, durationPoints);
@@ -162,9 +165,9 @@ public class ServerService {
 
     private void buildAppServerInfo(List<AppServerInfo> serverInfos) {
         serverInfos.forEach(serverInfo -> {
-            int applicationId = instanceCacheService.getApplicationId(serverInfo.getId());
-            serverInfo.setApplicationId(applicationId);
-            serverInfo.setApplicationCode(applicationCacheService.getApplicationById(applicationId).getApplicationCode());
+            serverInfo.setApplicationCode(applicationCacheService.getApplicationById(serverInfo.getApplicationId()).getApplicationCode());
+            StringBuilder nameBuilder = new StringBuilder();
+            nameBuilder.append(serverInfo.getApplicationCode());
             if (StringUtils.isNotEmpty(serverInfo.getOsInfo())) {
                 JsonObject osInfoJson = gson.fromJson(serverInfo.getOsInfo(), JsonObject.class);
                 if (osInfoJson.has("osName")) {
@@ -181,10 +184,14 @@ public class ServerService {
                     JsonArray ipv4Array = osInfoJson.get("ipv4s").getAsJsonArray();
 
                     List<String> ipv4s = new LinkedList<>();
-                    ipv4Array.forEach(ipv4 -> ipv4s.add(ipv4.getAsString()));
+                    ipv4Array.forEach(ipv4 -> {
+                        ipv4s.add(ipv4.getAsString());
+                        nameBuilder.append(Const.ID_SPLIT).append(ipv4.getAsString());
+                    });
                     serverInfo.setIpv4(ipv4s);
                 }
             }
+            serverInfo.setName(nameBuilder.toString());
         });
     }
 }

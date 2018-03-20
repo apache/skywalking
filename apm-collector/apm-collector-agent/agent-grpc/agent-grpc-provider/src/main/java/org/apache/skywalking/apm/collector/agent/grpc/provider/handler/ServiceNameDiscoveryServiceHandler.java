@@ -54,7 +54,7 @@ public class ServiceNameDiscoveryServiceHandler extends ServiceNameDiscoveryServ
             int applicationId = serviceNameElement.getApplicationId();
             String serviceName = serviceNameElement.getServiceName();
             int srcSpanType = serviceNameElement.getSrcSpanTypeValue();
-            int serviceId = serviceNameService.getOrCreate(applicationId, srcSpanType, serviceName);
+            int serviceId = serviceNameService.get(applicationId, srcSpanType, serviceName);
 
             if (serviceId != 0) {
                 ServiceNameMappingElement.Builder mappingElement = ServiceNameMappingElement.newBuilder();

@@ -53,16 +53,19 @@ public abstract class AbstractServiceReferenceMetricH2PersistenceDAO extends Abs
         serviceReferenceMetric.setTransactionErrorCalls(resultSet.getLong(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS));
         serviceReferenceMetric.setTransactionDurationSum(resultSet.getLong(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM));
         serviceReferenceMetric.setTransactionErrorDurationSum(resultSet.getLong(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM));
+        serviceReferenceMetric.setTransactionAverageDuration(resultSet.getLong(ServiceReferenceMetricTable.COLUMN_TRANSACTION_AVERAGE_DURATION));
 
         serviceReferenceMetric.setBusinessTransactionCalls(resultSet.getLong(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS));
         serviceReferenceMetric.setBusinessTransactionErrorCalls(resultSet.getLong(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS));
         serviceReferenceMetric.setBusinessTransactionDurationSum(resultSet.getLong(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM));
         serviceReferenceMetric.setBusinessTransactionErrorDurationSum(resultSet.getLong(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM));
+        serviceReferenceMetric.setBusinessTransactionAverageDuration(resultSet.getLong(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_AVERAGE_DURATION));
 
         serviceReferenceMetric.setMqTransactionCalls(resultSet.getLong(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_CALLS));
         serviceReferenceMetric.setMqTransactionErrorCalls(resultSet.getLong(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS));
         serviceReferenceMetric.setMqTransactionDurationSum(resultSet.getLong(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM));
         serviceReferenceMetric.setMqTransactionErrorDurationSum(resultSet.getLong(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM));
+        serviceReferenceMetric.setMqTransactionAverageDuration(resultSet.getLong(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_AVERAGE_DURATION));
 
         serviceReferenceMetric.setTimeBucket(resultSet.getLong(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET));
         return serviceReferenceMetric;

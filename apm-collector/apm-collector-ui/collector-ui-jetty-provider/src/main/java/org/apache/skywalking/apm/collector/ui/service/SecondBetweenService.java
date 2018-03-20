@@ -53,6 +53,10 @@ class SecondBetweenService {
         Date startDate = new SimpleDateFormat("yyyyMMddHHmmss").parse(String.valueOf(startSecondTimeBucket));
         Date endDate = new SimpleDateFormat("yyyyMMddHHmmss").parse(String.valueOf(endSecondTimeBucket));
 
-        return Seconds.secondsBetween(new DateTime(startDate), new DateTime(endDate)).getSeconds();
+        int seconds = Seconds.secondsBetween(new DateTime(startDate), new DateTime(endDate)).getSeconds();
+        if (seconds == 0) {
+            seconds = 1;
+        }
+        return seconds;
     }
 }
