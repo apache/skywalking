@@ -50,7 +50,7 @@ import org.eclipse.jetty.util.StringUtil;
  */
 public class AgentModuleGRPCProvider extends ModuleProvider {
 
-    private static final String NAME = "gRPC";
+    public static final String NAME = "gRPC";
     private static final String HOST = "host";
     private static final String PORT = "port";
     private static final String SSL_CERT_CHAIN_FILEPATH = "ssl_cert_chain_file";
