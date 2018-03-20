@@ -19,6 +19,7 @@
 
 package org.apache.skywalking.apm.collector.grpc.manager.service;
 
+import java.io.File;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.server.Server;
 import org.apache.skywalking.apm.collector.server.ServerException;
@@ -45,6 +46,23 @@ public class GRPCManagerServiceImpl implements GRPCManagerService {
             return servers.get(id);
         } else {
             GRPCServer server = new GRPCServer(host, port);
+            try {
+                server.initialize();
+            } catch (ServerException e) {
+                logger.error(e.getMessage(), e);
+            }
+            servers.put(id, server);
+            return server;
+        }
+    }
+
+    @Override
+    public Server createIfAbsent(String host, int port, File certChainFile, File privateKeyFile) {
+        String id = host + String.valueOf(port);
+        if (servers.containsKey(id)) {
+            return servers.get(id);
+        } else {
+            GRPCServer server = new GRPCServer(host, port, certChainFile, privateKeyFile);
             try {
                 server.initialize();
             } catch (ServerException e) {
