@@ -131,7 +131,7 @@ This is a call for vote to release Apache SkyWalking (Incubating) version x.y.z.
 
 Release notes:
 
- * https://github.com/apache/incubator-skywalking/blob/master/CHANGES.md
+ * https://github.com/apache/incubator-skywalking/blob/x.y.z/CHANGES.md
 
 Release Candidate:
 
@@ -177,3 +177,52 @@ are in `https://dist.apache.org/repos/dist/dev/incubator/skywalking/x.y.z` with 
 
 ## Call for a vote in Apache IPMC
 Call a vote in `general@incubator.apache.org`
+
+```
+Mail title: [VOTE] Release Apache SkyWalking (incubating) version x.y.z
+
+Mail content:
+Hi All,
+This is a call for vote to release Apache SkyWalking (Incubating) version x.y.z.
+
+Vote Thread:
+
+ * From `list.apache.org`
+
+Result Thread:
+
+ * From the vote thread.
+
+Release notes:
+
+ * https://github.com/apache/incubator-skywalking/blob/x.y.z/CHANGES.md
+
+Release Candidate:
+
+ * https://dist.apache.org/repos/dist/dev/incubator/skywalking/xxxx
+
+Maven 2 staging repository:
+
+ * https://repository.apache.org/content/repositories/xxxx/org/apache/skywalking/
+
+Release Tag :
+
+ * (Git Tag)
+
+Release CommitID :
+
+ * (Git Commit ID)
+
+Keys to verify the Release Candidate :
+
+ * http://pgp.mit.edu:11371/pks/lookup?op=get&search=0x2EF5026E70A55777 corresponding to pengys@apache.org
+
+Guide to build the release from source :
+
+ * https://github.com/apache/incubator-skywalking/blob/master/docs/en/How-to-build.md
+
+Voting will start now (xxxx date) and will remain open for at least 72 hours, Request all PPMC members to give their vote.
+[ ] +1 Release this package.
+[ ] +0 No opinion.
+[ ] -1 Do not release this package because....
+```
