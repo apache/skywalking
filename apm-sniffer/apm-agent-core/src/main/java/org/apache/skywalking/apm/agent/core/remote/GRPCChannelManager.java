@@ -20,7 +20,6 @@
 package org.apache.skywalking.apm.agent.core.remote;
 
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.internal.DnsNameResolverProvider;
