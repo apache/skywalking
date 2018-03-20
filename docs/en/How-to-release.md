@@ -85,7 +85,7 @@ account if a quality vote is called for this build.
 
 Release notes:
 
- * https://github.com/apache/incubator-skywalking/blob/master/CHANGELOG.md
+ * https://github.com/apache/incubator-skywalking/blob/master/CHANGES.md
 
 Release Candidate:
 
@@ -131,7 +131,7 @@ This is a call for vote to release Apache SkyWalking (Incubating) version x.y.z.
 
 Release notes:
 
- * https://github.com/apache/incubator-skywalking/blob/master/CHANGELOG.md
+ * https://github.com/apache/incubator-skywalking/blob/master/CHANGES.md
 
 Release Candidate:
 
