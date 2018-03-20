@@ -145,9 +145,9 @@ public class InstanceMetricEsUIDAO extends EsDAO implements IInstanceMetricUIDAO
                 long durationSum = ((Number)response.getResponse().getSource().get(InstanceMetricTable.COLUMN_TRANSACTION_DURATION_SUM)).longValue();
                 long errorDurationSum = ((Number)response.getResponse().getSource().get(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM)).longValue();
                 long correctCallTimes = callTimes - errorCallTimes;
-                if（correctCallTimes != 0L）{
+                if (correctCallTimes != 0L) {
                     responseTimeTrends.add((int)((durationSum - errorDurationSum) / correctCallTimes));
-                }else{
+                } else {
                     responseTimeTrends.add(0);
                 }
             } else {
