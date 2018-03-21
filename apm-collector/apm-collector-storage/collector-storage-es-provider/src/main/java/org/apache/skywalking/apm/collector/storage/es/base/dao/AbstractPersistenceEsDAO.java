@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.apm.collector.storage.es.base.dao;
 
-import java.util.Map;
-
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
@@ -31,6 +29,8 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 /**
  * @author peng-yongsheng
@@ -80,8 +80,8 @@ public abstract class AbstractPersistenceEsDAO<STREAM_DATA extends StreamData> e
         long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
         long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
         BulkByScrollResponse response = getClient().prepareDelete(
-                QueryBuilders.rangeQuery(timeBucketColumnNameForDelete()).gte(startTimeBucket).lte(endTimeBucket)
-                , tableName())
+                QueryBuilders.rangeQuery(timeBucketColumnNameForDelete()).gte(startTimeBucket).lte(endTimeBucket),
+                tableName())
                 .get();
 
         long deleted = response.getDeleted();

@@ -30,7 +30,6 @@ import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.MultiGetRequestBuilder;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.common.Nullable;
@@ -46,10 +45,8 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
 /**
@@ -208,14 +205,6 @@ public class ElasticSearchClient implements Client {
 
     public BulkRequestBuilder prepareBulk() {
         return client.prepareBulk();
-    }
-
-    public void update(UpdateRequest updateRequest) {
-        try {
-            client.update(updateRequest).get();
-        } catch (InterruptedException | ExecutionException e) {
-            logger.error(e.getMessage(), e);
-        }
     }
 
     private String formatIndexName(String indexName) {
