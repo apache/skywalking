@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.collector.storage.es.dao.ui;
 
 import java.util.LinkedList;
 import java.util.List;
+
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IGCMetricUIDAO;
@@ -42,30 +43,34 @@ public class GCMetricEsUIDAO extends EsDAO implements IGCMetricUIDAO {
         super(client);
     }
 
-    @Override public List<Integer> getYoungGCTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
+    @Override
+    public List<Integer> getYoungGCTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
         return getGCTrend(instanceId, step, durationPoints, GCPhrase.NEW_VALUE);
     }
 
-    @Override public List<Integer> getOldGCTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
+    @Override
+    public List<Integer> getOldGCTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
         return getGCTrend(instanceId, step, durationPoints, GCPhrase.OLD_VALUE);
     }
 
     private List<Integer> getGCTrend(int instanceId, Step step, List<DurationPoint> durationPoints, int gcPhrase) {
         String tableName = TimePyramidTableNameBuilder.build(step, GCMetricTable.TABLE);
 
-        MultiGetRequestBuilder youngPrepareMultiGet = getClient().prepareMultiGet();
-        durationPoints.forEach(durationPoint -> {
-            String id = durationPoint.getPoint() + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + gcPhrase;
-            youngPrepareMultiGet.add(tableName, GCMetricTable.TABLE_TYPE, id);
+        MultiGetRequestBuilder youngPrepareMultiGet = getClient().prepareMultiGet(durationPoints, new ElasticSearchClient.MultiGetRowHandler<DurationPoint>() {
+            @Override
+            public void accept(DurationPoint durationPoint) {
+                String id = durationPoint.getPoint() + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + gcPhrase;
+                add(tableName, GCMetricTable.TABLE_TYPE, id);
+            }
         });
 
         List<Integer> gcTrends = new LinkedList<>();
         MultiGetResponse multiGetResponse = youngPrepareMultiGet.get();
         for (MultiGetItemResponse itemResponse : multiGetResponse.getResponses()) {
             if (itemResponse.getResponse().isExists()) {
-                long count = ((Number)itemResponse.getResponse().getSource().get(GCMetricTable.COLUMN_COUNT)).longValue();
-                long times = ((Number)itemResponse.getResponse().getSource().get(GCMetricTable.COLUMN_TIMES)).intValue();
-                gcTrends.add((int)(count / times));
+                long count = ((Number) itemResponse.getResponse().getSource().get(GCMetricTable.COLUMN_COUNT)).longValue();
+                long times = ((Number) itemResponse.getResponse().getSource().get(GCMetricTable.COLUMN_TIMES)).intValue();
+                gcTrends.add((int) (count / times));
             } else {
                 gcTrends.add(0);
             }
