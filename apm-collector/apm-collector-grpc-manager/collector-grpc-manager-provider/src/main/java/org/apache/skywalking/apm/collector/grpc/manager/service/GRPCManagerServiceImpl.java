@@ -19,12 +19,14 @@
 
 package org.apache.skywalking.apm.collector.grpc.manager.service;
 
-import java.util.Map;
 import org.apache.skywalking.apm.collector.server.Server;
 import org.apache.skywalking.apm.collector.server.ServerException;
 import org.apache.skywalking.apm.collector.server.grpc.GRPCServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.Map;
 
 /**
  * @author peng-yongsheng
@@ -39,19 +41,33 @@ public class GRPCManagerServiceImpl implements GRPCManagerService {
         this.servers = servers;
     }
 
-    @Override public Server createIfAbsent(String host, int port) {
+    @Override
+    public Server createIfAbsent(String host, int port) throws ServerCanNotBeCreatedException {
+        return createOrChooseServer(host, port, new GRPCServer(host, port));
+    }
+
+    @Override
+    public Server createIfAbsent(String host, int port, File certChainFile, File privateKeyFile) throws ServerCanNotBeCreatedException {
+        return createOrChooseServer(host, port, new GRPCServer(host, port, certChainFile, privateKeyFile));
+    }
+
+    private Server createOrChooseServer(String host, int port, GRPCServer newServer) throws ServerCanNotBeCreatedException {
         String id = host + String.valueOf(port);
-        if (servers.containsKey(id)) {
-            return servers.get(id);
+        GRPCServer existServer = servers.get(id);
+        if (existServer != null) {
+            if (existServer.isStatusEqual(newServer)) {
+                return existServer;
+            } else {
+                throw new ServerCanNotBeCreatedException("Can't create server with same port but different setting. SSL setting must equal too.");
+            }
         } else {
-            GRPCServer server = new GRPCServer(host, port);
             try {
-                server.initialize();
+                newServer.initialize();
             } catch (ServerException e) {
                 logger.error(e.getMessage(), e);
             }
-            servers.put(id, server);
-            return server;
+            servers.put(id, newServer);
+            return newServer;
         }
     }
 }
