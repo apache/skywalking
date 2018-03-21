@@ -20,6 +20,7 @@
 package org.apache.skywalking.apm.collector.server.jetty;
 
 import java.net.InetSocketAddress;
+import java.util.Objects;
 import javax.servlet.http.HttpServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -31,7 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author peng-yongsheng
+ * @author peng-yongsheng, wusheng
  */
 public class JettyServer implements Server {
 
@@ -73,6 +74,16 @@ public class JettyServer implements Server {
         servletContextHandler.addServlet(servletHolder, ((JettyHandler)handler).pathSpec());
     }
 
+    @Override
+    public boolean isSSLOpen() {
+        return false;
+    }
+
+    @Override
+    public boolean isStatusEqual(Server target) {
+        return equals(target);
+    }
+
     @Override public void start() throws ServerException {
         logger.info("start server, host: {}, port: {}", host, port);
         try {
@@ -83,5 +94,19 @@ public class JettyServer implements Server {
         } catch (Exception e) {
             throw new JettyServerException(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        JettyServer that = (JettyServer) o;
+        return port == that.port &&
+                Objects.equals(host, that.host);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(host, port);
     }
 }
