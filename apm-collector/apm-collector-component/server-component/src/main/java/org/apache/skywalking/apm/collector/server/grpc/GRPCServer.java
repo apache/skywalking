@@ -21,11 +21,6 @@ package org.apache.skywalking.apm.collector.server.grpc;
 
 import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NettyServerBuilder;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 import org.apache.skywalking.apm.collector.server.Server;
@@ -33,6 +28,11 @@ import org.apache.skywalking.apm.collector.server.ServerException;
 import org.apache.skywalking.apm.collector.server.ServerHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.Objects;
 
 /**
  * @author peng-yongsheng, wusheng
@@ -46,6 +46,8 @@ public class GRPCServer implements Server {
     private io.grpc.Server server;
     private NettyServerBuilder nettyServerBuilder;
     private SslContextBuilder sslContextBuilder;
+    private File certChainFile;
+    private File privateKeyFile;
 
     public GRPCServer(String host, int port) {
         this.host = host;
@@ -63,6 +65,8 @@ public class GRPCServer implements Server {
     public GRPCServer(String host, int port, File certChainFile, File privateKeyFile) {
         this.host = host;
         this.port = port;
+        this.certChainFile = certChainFile;
+        this.privateKeyFile = privateKeyFile;
         this.sslContextBuilder = SslContextBuilder.forServer(certChainFile,
                 privateKeyFile);
     }
@@ -102,5 +106,21 @@ public class GRPCServer implements Server {
     @Override
     public void addHandler(ServerHandler handler) {
         nettyServerBuilder.addService((io.grpc.BindableService) handler);
+    }
+
+    @Override
+    public boolean isSSLOpen() {
+        return sslContextBuilder == null;
+    }
+
+    @Override
+    public boolean isStatusEqual(Server target) {
+        if (this == target) return true;
+        if (target == null || getClass() != target.getClass()) return false;
+        GRPCServer that = (GRPCServer) target;
+        return port == that.port &&
+                Objects.equals(host, that.host) &&
+                Objects.equals(certChainFile, that.certChainFile) &&
+                Objects.equals(privateKeyFile, that.privateKeyFile);
     }
 }
