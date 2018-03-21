@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao.ui;
 
-import java.util.LinkedList;
-import java.util.List;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ICpuMetricUIDAO;
@@ -32,6 +30,9 @@ import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetRequestBuilder;
 import org.elasticsearch.action.get.MultiGetResponse;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * @author peng-yongsheng
  */
@@ -41,22 +42,26 @@ public class CpuMetricEsUIDAO extends EsDAO implements ICpuMetricUIDAO {
         super(client);
     }
 
-    @Override public List<Integer> getCPUTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
-        MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet();
+    @Override
+    public List<Integer> getCPUTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
         String tableName = TimePyramidTableNameBuilder.build(step, CpuMetricTable.TABLE);
 
-        durationPoints.forEach(durationPoint -> {
-            String id = durationPoint.getPoint() + Const.ID_SPLIT + instanceId;
-            prepareMultiGet.add(tableName, CpuMetricTable.TABLE_TYPE, id);
+        MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet(durationPoints, new ElasticSearchClient.MultiGetRowHandler<DurationPoint>() {
+            @Override
+            public void accept(DurationPoint durationPoint) {
+                String id = durationPoint.getPoint() + Const.ID_SPLIT + instanceId;
+                this.add(tableName, CpuMetricTable.TABLE_TYPE, id);
+            }
         });
+
 
         List<Integer> cpuTrends = new LinkedList<>();
         MultiGetResponse multiGetResponse = prepareMultiGet.get();
         for (MultiGetItemResponse response : multiGetResponse.getResponses()) {
             if (response.getResponse().isExists()) {
-                double cpuUsed = ((Number)response.getResponse().getSource().get(CpuMetricTable.COLUMN_USAGE_PERCENT)).doubleValue();
-                long times = ((Number)response.getResponse().getSource().get(CpuMetricTable.COLUMN_TIMES)).longValue();
-                cpuTrends.add((int)((cpuUsed / times) * 100));
+                double cpuUsed = ((Number) response.getResponse().getSource().get(CpuMetricTable.COLUMN_USAGE_PERCENT)).doubleValue();
+                long times = ((Number) response.getResponse().getSource().get(CpuMetricTable.COLUMN_TIMES)).longValue();
+                cpuTrends.add((int) ((cpuUsed / times) * 100));
             } else {
                 cpuTrends.add(0);
             }

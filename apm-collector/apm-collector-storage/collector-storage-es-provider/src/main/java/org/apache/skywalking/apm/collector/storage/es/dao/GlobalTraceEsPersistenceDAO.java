@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.collector.storage.es.dao;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.UnexpectedException;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
@@ -45,15 +46,18 @@ public class GlobalTraceEsPersistenceDAO extends EsDAO implements IGlobalTracePe
         super(client);
     }
 
-    @Override public GlobalTrace get(String id) {
+    @Override
+    public GlobalTrace get(String id) {
         throw new UnexpectedException("There is no need to merge stream data with database data.");
     }
 
-    @Override public UpdateRequestBuilder prepareBatchUpdate(GlobalTrace data) {
+    @Override
+    public UpdateRequestBuilder prepareBatchUpdate(GlobalTrace data) {
         throw new UnexpectedException("There is no need to merge stream data with database data.");
     }
 
-    @Override public IndexRequestBuilder prepareBatchInsert(GlobalTrace data) {
+    @Override
+    public IndexRequestBuilder prepareBatchInsert(GlobalTrace data) {
         Map<String, Object> source = new HashMap<>();
         source.put(GlobalTraceTable.COLUMN_SEGMENT_ID, data.getSegmentId());
         source.put(GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID, data.getGlobalTraceId());
@@ -62,13 +66,14 @@ public class GlobalTraceEsPersistenceDAO extends EsDAO implements IGlobalTracePe
         return getClient().prepareIndex(GlobalTraceTable.TABLE, data.getId()).setSource(source);
     }
 
-    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+    @Override
+    public void deleteHistory(Long startTimestamp, Long endTimestamp) {
         long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
         long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
-        BulkByScrollResponse response = getClient().prepareDelete()
-            .filter(QueryBuilders.rangeQuery(GlobalTraceTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket))
-            .source(GlobalTraceTable.TABLE)
-            .get();
+        BulkByScrollResponse response = getClient().prepareDelete(
+                QueryBuilders.rangeQuery(GlobalTraceTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket),
+                GlobalTraceTable.TABLE)
+                .get();
 
         long deleted = response.getDeleted();
         logger.info("Delete {} rows history from {} index.", deleted, GlobalTraceTable.TABLE);
