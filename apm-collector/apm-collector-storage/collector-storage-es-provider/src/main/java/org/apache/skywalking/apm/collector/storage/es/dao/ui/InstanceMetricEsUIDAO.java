@@ -148,11 +148,16 @@ public class InstanceMetricEsUIDAO extends EsDAO implements IInstanceMetricUIDAO
         MultiGetResponse multiGetResponse = prepareMultiGet.get();
         for (MultiGetItemResponse response : multiGetResponse.getResponses()) {
             if (response.getResponse().isExists()) {
-                long callTimes = ((Number) response.getResponse().getSource().get(InstanceMetricTable.COLUMN_TRANSACTION_CALLS)).longValue();
-                long errorCallTimes = ((Number) response.getResponse().getSource().get(InstanceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS)).longValue();
-                long durationSum = ((Number) response.getResponse().getSource().get(InstanceMetricTable.COLUMN_TRANSACTION_DURATION_SUM)).longValue();
-                long errorDurationSum = ((Number) response.getResponse().getSource().get(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM)).longValue();
-                responseTimeTrends.add((int) ((durationSum - errorDurationSum) / (callTimes - errorCallTimes)));
+                long callTimes = ((Number)response.getResponse().getSource().get(InstanceMetricTable.COLUMN_TRANSACTION_CALLS)).longValue();
+                long errorCallTimes = ((Number)response.getResponse().getSource().get(InstanceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS)).longValue();
+                long durationSum = ((Number)response.getResponse().getSource().get(InstanceMetricTable.COLUMN_TRANSACTION_DURATION_SUM)).longValue();
+                long errorDurationSum = ((Number)response.getResponse().getSource().get(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM)).longValue();
+                long correctCallTimes = callTimes - errorCallTimes;
+                if (correctCallTimes != 0L) {
+                    responseTimeTrends.add((int)((durationSum - errorDurationSum) / correctCallTimes));
+                } else {
+                    responseTimeTrends.add(0);
+                }
             } else {
                 responseTimeTrends.add(0);
             }
