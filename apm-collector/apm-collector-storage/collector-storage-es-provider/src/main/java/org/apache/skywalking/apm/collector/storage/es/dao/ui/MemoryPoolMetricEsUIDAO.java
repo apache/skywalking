@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.collector.storage.es.dao.ui;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.UnexpectedException;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IMemoryPoolMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
@@ -57,31 +58,6 @@ public class MemoryPoolMetricEsUIDAO extends EsDAO implements IMemoryPoolMetricU
     }
 
     @Override public JsonObject getMetric(int instanceId, long startTimeBucket, long endTimeBucket, int poolType) {
-        MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet();
-
-        long timeBucket = startTimeBucket;
-        do {
-//            timeBucket = TimeBucketUtils.INSTANCE.addSecondForSecondTimeBucket(TimeBucketUtils.TimeBucketType.SECOND, timeBucket, 1);
-            String id = timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + poolType;
-            prepareMultiGet.add(MemoryPoolMetricTable.TABLE, MemoryPoolMetricTable.TABLE_TYPE, id);
-        }
-        while (timeBucket <= endTimeBucket);
-
-        JsonObject metric = new JsonObject();
-        JsonArray usedMetric = new JsonArray();
-        MultiGetResponse multiGetResponse = prepareMultiGet.get();
-        for (MultiGetItemResponse response : multiGetResponse.getResponses()) {
-            if (response.getResponse().isExists()) {
-                metric.addProperty("max", ((Number)response.getResponse().getSource().get(MemoryPoolMetricTable.COLUMN_MAX)).longValue());
-                metric.addProperty("init", ((Number)response.getResponse().getSource().get(MemoryPoolMetricTable.COLUMN_INIT)).longValue());
-                usedMetric.add(((Number)response.getResponse().getSource().get(MemoryPoolMetricTable.COLUMN_USED)).longValue());
-            } else {
-                metric.addProperty("max", 0);
-                metric.addProperty("init", 0);
-                usedMetric.add(0);
-            }
-        }
-        metric.add("used", usedMetric);
-        return metric;
+        throw new UnexpectedException("Not implement method");
     }
 }

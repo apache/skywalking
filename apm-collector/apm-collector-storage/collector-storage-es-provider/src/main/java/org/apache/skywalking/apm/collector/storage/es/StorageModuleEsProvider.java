@@ -141,8 +141,6 @@ import org.apache.skywalking.apm.collector.storage.es.dao.srmp.ServiceReferenceH
 import org.apache.skywalking.apm.collector.storage.es.dao.srmp.ServiceReferenceMinuteMetricEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.srmp.ServiceReferenceMonthMetricEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.*;
-import org.apache.skywalking.apm.collector.storage.table.TableNamespace;
-import org.apache.skywalking.apm.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -182,7 +180,8 @@ public class StorageModuleEsProvider extends ModuleProvider {
         String clusterName = config.getProperty(CLUSTER_NAME);
         Boolean clusterTransportSniffer = (Boolean) config.get(CLUSTER_TRANSPORT_SNIFFER);
         String clusterNodes = config.getProperty(CLUSTER_NODES);
-        elasticSearchClient = new ElasticSearchClient(clusterName, clusterTransportSniffer, clusterNodes);
+        String namespace = getManager().find(ConfigurationModule.NAME).getService(ICollectorConfig.class).getNamespace();
+        elasticSearchClient = new ElasticSearchClient(namespace, clusterName, clusterTransportSniffer, clusterNodes);
 
         this.registerServiceImplementation(IBatchDAO.class, new BatchEsDAO(elasticSearchClient));
         registerCacheDAO();
@@ -194,11 +193,6 @@ public class StorageModuleEsProvider extends ModuleProvider {
 
     @Override
     public void start(Properties config) throws ServiceNotProvidedException {
-        String namespace = getManager().find(ConfigurationModule.NAME).getService(ICollectorConfig.class).getNamespace();
-        if (!StringUtil.isEmpty(namespace)) {
-            TableNamespace.INSTANCE.setHandler(() -> namespace + "_");
-        }
-
         Integer indexShardsNumber = (Integer) config.get(INDEX_SHARDS_NUMBER);
         Integer indexReplicasNumber = (Integer) config.get(INDEX_REPLICAS_NUMBER);
         try {
