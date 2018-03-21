@@ -37,3 +37,15 @@
 * resin-3.0.9.jar
 * resin-4.0.41.jar
 * ojdbc14-10.2.0.4.0.jar
+
+## FAQ
+### npm install超时失败
+如果在编译apm-webapp时碰到下载包失败问题，可以将apm-webapp中pom.xml中npm源地址修改为淘宝的源，在中国的访问速度可以大大提高.
+
+```
+<arguments>install --registry=https://registry.npmjs.org/</arguments>
+```
+修改为
+```
+<arguments>install --registry=https://registry.npm.taobao.org/</arguments>
+```
