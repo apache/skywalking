@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.collector.storage.es.dao;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentDurationPersistenceDAO;
@@ -44,15 +45,18 @@ public class SegmentDurationEsPersistenceDAO extends EsDAO implements ISegmentDu
         super(client);
     }
 
-    @Override public SegmentDuration get(String id) {
+    @Override
+    public SegmentDuration get(String id) {
         return null;
     }
 
-    @Override public UpdateRequestBuilder prepareBatchUpdate(SegmentDuration data) {
+    @Override
+    public UpdateRequestBuilder prepareBatchUpdate(SegmentDuration data) {
         return null;
     }
 
-    @Override public IndexRequestBuilder prepareBatchInsert(SegmentDuration data) {
+    @Override
+    public IndexRequestBuilder prepareBatchInsert(SegmentDuration data) {
         logger.debug("segment cost prepareBatchInsert, getApplicationId: {}", data.getId());
         Map<String, Object> source = new HashMap<>();
         source.put(SegmentDurationTable.COLUMN_SEGMENT_ID, data.getSegmentId());
@@ -67,13 +71,14 @@ public class SegmentDurationEsPersistenceDAO extends EsDAO implements ISegmentDu
         return getClient().prepareIndex(SegmentDurationTable.TABLE, data.getId()).setSource(source);
     }
 
-    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+    @Override
+    public void deleteHistory(Long startTimestamp, Long endTimestamp) {
         long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
         long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
-        BulkByScrollResponse response = getClient().prepareDelete()
-            .filter(QueryBuilders.rangeQuery(SegmentDurationTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket))
-            .source(SegmentDurationTable.TABLE)
-            .get();
+        BulkByScrollResponse response = getClient().prepareDelete(
+                QueryBuilders.rangeQuery(SegmentDurationTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket),
+                SegmentDurationTable.TABLE)
+                .get();
 
         long deleted = response.getDeleted();
         logger.info("Delete {} rows history from {} index.", deleted, SegmentDurationTable.TABLE);
