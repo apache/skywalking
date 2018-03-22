@@ -18,11 +18,6 @@
 
 package org.apache.skywalking.apm.agent.core.remote;
 
-import java.util.Arrays;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.conf.Config;
@@ -30,7 +25,11 @@ import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
-import org.apache.skywalking.apm.util.StringUtil;
+
+import java.util.Arrays;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The <code>CollectorDiscoveryService</code> is responsible for start {@link DiscoveryRestServiceClient}.
@@ -51,15 +50,17 @@ public class CollectorDiscoveryService implements BootService {
         DiscoveryRestServiceClient discoveryRestServiceClient = new DiscoveryRestServiceClient();
         if (discoveryRestServiceClient.hasNamingServer()) {
             discoveryRestServiceClient.run();
-            future = Executors.newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("CollectorDiscoveryService"))
-                    .scheduleAtFixedRate(new RunnableWithExceptionProtection(discoveryRestServiceClient,
-                                    new RunnableWithExceptionProtection.CallbackWhenException() {
-                                        @Override
-                                        public void handle(Throwable t) {
-                                            logger.error("unexpected exception.", t);
-                                        }
-                                    }), Config.Collector.DISCOVERY_CHECK_INTERVAL,
-                            Config.Collector.DISCOVERY_CHECK_INTERVAL, TimeUnit.SECONDS);
+            future = Executors.newSingleThreadScheduledExecutor(
+                    new DefaultNamedThreadFactory("CollectorDiscoveryService"))
+                    .scheduleAtFixedRate(new RunnableWithExceptionProtection(discoveryRestServiceClient, new RunnableWithExceptionProtection.CallbackWhenException() {
+                        @Override
+                        public void handle(Throwable t) {
+                            logger.error("unexpected exception.", t);
+                        }
+                    }),
+                            Config.Collector.DISCOVERY_CHECK_INTERVAL,
+                            Config.Collector.DISCOVERY_CHECK_INTERVAL,
+                            TimeUnit.SECONDS);
         } else {
             if (Config.Collector.DIRECT_SERVERS == null || Config.Collector.DIRECT_SERVERS.trim().length() == 0) {
                 logger.error("Collector server and direct server addresses are both not set.");
