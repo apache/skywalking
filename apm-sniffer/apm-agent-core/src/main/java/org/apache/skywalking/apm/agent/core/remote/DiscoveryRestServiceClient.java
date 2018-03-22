@@ -22,10 +22,6 @@ package org.apache.skywalking.apm.agent.core.remote;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -35,6 +31,11 @@ import org.apache.http.util.EntityUtils;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
 
 import static org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig.Collector.GRPC_SERVERS;
 
@@ -55,7 +56,7 @@ public class DiscoveryRestServiceClient implements Runnable {
 
     public DiscoveryRestServiceClient() {
         if (Config.Collector.SERVERS == null || Config.Collector.SERVERS.trim().length() == 0) {
-            logger.warn("Collector server not configured.");
+            logger.warn("Collector server not set.");
             return;
         }
 
@@ -64,7 +65,10 @@ public class DiscoveryRestServiceClient implements Runnable {
         if (serverList.length > 0) {
             selectedServer = r.nextInt(serverList.length);
         }
+    }
 
+    boolean hasNamingServer() {
+        return serverList != null && serverList.length > 0;
     }
 
     @Override
@@ -138,9 +142,9 @@ public class DiscoveryRestServiceClient implements Runnable {
         }
         HttpGet httpGet = new HttpGet("http://" + serverList[selectedServer] + Config.Collector.DISCOVERY_SERVICE_NAME);
         RequestConfig requestConfig = RequestConfig.custom()
-            .setConnectTimeout(HTTP_CONNECT_TIMEOUT)
-            .setConnectionRequestTimeout(HTTP_CONNECTION_REQUEST_TIMEOUT)
-            .setSocketTimeout(HTTP_SOCKET_TIMEOUT).build();
+                .setConnectTimeout(HTTP_CONNECT_TIMEOUT)
+                .setConnectionRequestTimeout(HTTP_CONNECTION_REQUEST_TIMEOUT)
+                .setSocketTimeout(HTTP_SOCKET_TIMEOUT).build();
         httpGet.setConfig(requestConfig);
         return httpGet;
     }
