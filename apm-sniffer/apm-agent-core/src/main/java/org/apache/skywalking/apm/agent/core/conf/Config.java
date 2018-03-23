@@ -80,10 +80,23 @@ public class Config {
          */
         public static long DISCOVERY_CHECK_INTERVAL = 60;
         /**
-         * Collector REST-Service address. e.g. SERVERS="127.0.0.1:8080"  for single collector node.
-         * SERVERS="10.2.45.126:8080,10.2.45.127:7600"  for multi collector nodes.
+         * Collector naming/jetty service addresses.
+         * Primary address setting.
+         *
+         * e.g.
+         * SERVERS="127.0.0.1:10800"  for single collector node.
+         * SERVERS="10.2.45.126:10800,10.2.45.127:10800"  for multi collector nodes.
          */
         public static String SERVERS = "";
+
+        /**
+         * Collector agent_gRPC/grpc service addresses.
+         * Secondary address setting, only effect when #SERVERS is empty.
+         *
+         * By using this, no discovery mechanism provided. The agent only uses these addresses to uplink data.
+         *
+         */
+        public static String DIRECT_SERVERS = "";
 
         /**
          * Collector service discovery REST service name
