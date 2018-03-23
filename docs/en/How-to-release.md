@@ -185,6 +185,18 @@ Mail content:
 Hi All,
 This is a call for vote to release Apache SkyWalking (Incubating) version x.y.z.
 
+The Apache SkyWalking community has tested, voted and approved the proposed
+release of Apache SkyWalking (Incubating) x.y.z
+
+We now kindly request the Incubator PMC members review and vote on this
+incubator release.
+
+Skywalking is an APM (application performance monitor), especially for microservice, Cloud Native and container-based architecture systems.
+Also known as a distributed tracing system.
+It provides an automatic way to instrument applications:
+no need to change any of the source code of the target application;
+and an collector with an very high efficiency streaming module.
+
 Vote Thread:
 
  * From `list.apache.org`
@@ -221,7 +233,7 @@ Guide to build the release from source :
 
  * https://github.com/apache/incubator-skywalking/blob/master/docs/en/How-to-build.md
 
-Voting will start now (xxxx date) and will remain open for at least 72 hours, Request all PPMC members to give their vote.
+Voting will start now (xxxx date) and will remain open for at least 72 hours, Request IPMC to give their vote.
 [ ] +1 Release this package.
 [ ] +0 No opinion.
 [ ] -1 Do not release this package because....
