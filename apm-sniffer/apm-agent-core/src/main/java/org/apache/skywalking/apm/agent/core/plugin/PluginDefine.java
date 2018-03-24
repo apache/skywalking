@@ -19,9 +19,6 @@
 
 package org.apache.skywalking.apm.agent.core.plugin;
 
-import org.apache.skywalking.apm.agent.core.plugin.exception.IllegalPluginDefineException;
-import org.apache.skywalking.apm.util.StringUtil;
-
 public class PluginDefine {
     /**
      * Plugin name.
@@ -38,18 +35,7 @@ public class PluginDefine {
         this.defineClass = defineClass;
     }
 
-    public static PluginDefine build(String define) throws IllegalPluginDefineException {
-        if (StringUtil.isEmpty(define)) {
-            throw new IllegalPluginDefineException(define);
-        }
-
-        String[] pluginDefine = define.split("=");
-        if (pluginDefine.length != 2) {
-            throw new IllegalPluginDefineException(define);
-        }
-
-        String pluginName = pluginDefine[0];
-        String defineClass = pluginDefine[1];
+    public static PluginDefine build(String pluginName, String defineClass) {
         return new PluginDefine(pluginName, defineClass);
     }
 

@@ -19,16 +19,15 @@
 
 package org.apache.skywalking.apm.agent.core.plugin;
 
-import org.apache.skywalking.apm.agent.core.plugin.exception.IllegalPluginDefineException;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 public enum PluginCfg {
     INSTANCE;
@@ -39,18 +38,13 @@ public enum PluginCfg {
 
     void load(InputStream input) throws IOException {
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-            String pluginDefine = null;
-            while ((pluginDefine = reader.readLine()) != null) {
-                try {
-                    if (pluginDefine == null || pluginDefine.trim().length() == 0) {
-                        continue;
-                    }
-                    PluginDefine plugin = PluginDefine.build(pluginDefine);
-                    pluginClassList.add(plugin);
-                } catch (IllegalPluginDefineException e) {
-                    logger.error(e, "Failed to format plugin({}) define.", pluginDefine);
-                }
+            Properties properties = new Properties();
+            properties.load(input);
+            for (Map.Entry<Object, Object> objectObjectEntry : properties.entrySet()) {
+                String pluginName = String.valueOf(objectObjectEntry.getKey());
+                String defineClass = String.valueOf(objectObjectEntry.getValue());
+                PluginDefine plugin = PluginDefine.build(pluginName, defineClass);
+                pluginClassList.add(plugin);
             }
         } finally {
             input.close();
