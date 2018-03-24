@@ -2,6 +2,7 @@ sudo: required
 
 language: java
 before_install:
+  - mkdir ci-dependencies
   - cd ci-dependencies
   - curl -O https://openskywalking.github.io/skywalking-ci-assist/jars/ojdbc14-10.2.0.4.0.jar
   - curl -O https://openskywalking.github.io/skywalking-ci-assist/jars/resin-4.0.41.jar

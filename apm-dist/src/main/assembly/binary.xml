@@ -59,8 +59,7 @@
             <directory>${project.basedir}/../</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
-                <include>NOTICE</include>
-                <include>LICENSE</include>
+                <include>DISCLAIMER</include>
                 <include>CHANGES</include>
             </includes>
         </fileSet>
@@ -68,11 +67,6 @@
         <fileSet>
             <directory>${project.basedir}/release-docs</directory>
             <outputDirectory>/</outputDirectory>
-        </fileSet>
-
-        <fileSet>
-            <directory>${project.basedir}/../licenses</directory>
-            <outputDirectory>/licenses</outputDirectory>
         </fileSet>
     </fileSets>
     <files>
