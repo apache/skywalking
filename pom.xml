@@ -162,6 +162,15 @@
                         <exclude>**/.settings/**</exclude>
                         <exclude>**/dependency-reduced-pom.xml</exclude>
 
+                        <!-- UI IDE configs -->
+                        <exclude>**/skywalking-ui/.editorconfig</exclude>
+                        <!-- UI Compiler configs -->
+                        <exclude>**/skywalking-ui/.webpackrc.js</exclude>
+                        <exclude>**/skywalking-ui/.roadhogrc.mock.js</exclude>
+                        <!-- UI style check files -->
+                        <exclude>**/skywalking-ui/.eslintrc</exclude>
+                        <exclude>**/skywalking-ui/.stylelintrc</exclude>
+
                         <!-- git files -->
                         <exclude>**/.gitignore</exclude>
                         <exclude>**/.gitmodules</exclude>
@@ -169,7 +178,6 @@
 
                         <!-- CI files -->
                         <exclude>**/.travis.yml</exclude>
-                        <exclude>**/ci-dependencies/**</exclude>
 
                         <!-- GitHub files -->
                         <exclude>**/.github/**</exclude>
@@ -180,32 +188,15 @@
                         <exclude>**/*.txt</exclude>
                         <exclude>**/docs/**</exclude>
 
-                        <!--configuration file -->
-                        <exclude>**/*.yml</exclude>
-                        <exclude>**/*.config</exclude>
-
-                        <!--protocol file -->
-                        <exclude>**/*.graphqls</exclude>
-                        <exclude>**/*.proto</exclude>
-
-                        <!--Test Data-->
-                        <exclude>**/src/test/resources/**</exclude>
-                        <exclude>**/*.def</exclude>
+                        <!-- Test cases data in JSON format -->
+                        <exclude>**/src/test/resources/json/*.json</exclude>
 
                         <!-- front end libary and generated files -->
                         <exclude>**/skywalking-ui/node_modules/**</exclude>
                         <exclude>**/skywalking-ui/node/**</exclude>
-                        <exclude>**/skywalking-ui/.localized</exclude>
-                        <exclude>**/skywalking-ui/.webpackrc.js</exclude>
-                        <exclude>**/skywalking-ui/mock/.gitkeep</exclude>
-                        <exclude>**/skywalking-ui/.ga</exclude>
-                        <exclude>**/skywalking-ui/.eslintrc</exclude>
-                        <exclude>**/skywalking-ui/.editorconfig</exclude>
-                        <exclude>**/skywalking-ui/.stylelintrc</exclude>
-                        <exclude>**/skywalking-ui/.roadhogrc.mock.js</exclude>
                         <exclude>**/skywalking-ui/dist/**</exclude>
 
-                        <!--web UI config JSON files -->
+                        <!-- web UI dependencies descriptions -->
                         <exclude>skywalking-ui/package.json</exclude>
                         <exclude>skywalking-ui/package-lock.json</exclude>
                     </excludes>
@@ -216,73 +207,6 @@
                         <goals>
                             <goal>check</goal>
                         </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
-                <executions>
-                    <execution>
-                        <id>install-jmxtools</id>
-                        <inherited>false</inherited>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>mvn</executable>
-                            <arguments>
-                                <argument>install:install-file</argument>
-                                <argument>-Dfile=jmxtools-1.2.1.jar</argument>
-                                <argument>-DgroupId=com.sun.jdmk</argument>
-                                <argument>-DartifactId=jmxtools</argument>
-                                <argument>-Dversion=1.2.1</argument>
-                                <argument>-Dpackaging=jar</argument>
-                            </arguments>
-                            <workingDirectory>${project.basedir}/ci-dependencies</workingDirectory>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>install-jmxri</id>
-                        <inherited>false</inherited>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>mvn</executable>
-                            <arguments>
-                                <argument>install:install-file</argument>
-                                <argument>-Dfile=jmxri-1.2.1.jar</argument>
-                                <argument>-DgroupId=com.sun.jmx</argument>
-                                <argument>-DartifactId=jmxri</argument>
-                                <argument>-Dversion=1.2.1</argument>
-                                <argument>-Dpackaging=jar</argument>
-                            </arguments>
-                            <workingDirectory>${project.basedir}/ci-dependencies</workingDirectory>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>install-dubbox</id>
-                        <inherited>false</inherited>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>mvn</executable>
-                            <arguments>
-                                <argument>install:install-file</argument>
-                                <argument>-Dfile=dubbox-2.8.4.jar</argument>
-                                <argument>-DgroupId=com.alibaba</argument>
-                                <argument>-DartifactId=dubbox</argument>
-                                <argument>-Dversion=2.8.4</argument>
-                                <argument>-Dpackaging=jar</argument>
-                            </arguments>
-                            <workingDirectory>${project.basedir}/ci-dependencies</workingDirectory>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
