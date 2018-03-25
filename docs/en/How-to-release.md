@@ -48,6 +48,7 @@ The release will automatically be inserted into a temporary staging repository f
 ## Build and sign the source code package
 ```shell
 switch to release version tag
+export RELEASE_VERSION=x.y.z (example: RELEASE_VERSION=5.0.0-alpha)
 cd tools/releasing
 sh create_source_release.sh
 ```
