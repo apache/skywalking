@@ -180,8 +180,7 @@ public class StorageModuleEsProvider extends ModuleProvider {
         String clusterName = config.getProperty(CLUSTER_NAME);
         Boolean clusterTransportSniffer = (Boolean) config.get(CLUSTER_TRANSPORT_SNIFFER);
         String clusterNodes = config.getProperty(CLUSTER_NODES);
-        String namespace = getManager().find(ConfigurationModule.NAME).getService(ICollectorConfig.class).getNamespace();
-        elasticSearchClient = new ElasticSearchClient(namespace, clusterName, clusterTransportSniffer, clusterNodes);
+        elasticSearchClient = new ElasticSearchClient(clusterName, clusterTransportSniffer, clusterNodes);
 
         this.registerServiceImplementation(IBatchDAO.class, new BatchEsDAO(elasticSearchClient));
         registerCacheDAO();
@@ -196,6 +195,9 @@ public class StorageModuleEsProvider extends ModuleProvider {
         Integer indexShardsNumber = (Integer) config.get(INDEX_SHARDS_NUMBER);
         Integer indexReplicasNumber = (Integer) config.get(INDEX_REPLICAS_NUMBER);
         try {
+            String namespace = getManager().find(ConfigurationModule.NAME).getService(ICollectorConfig.class).getNamespace();
+            elasticSearchClient.setNamespace(namespace);
+
             elasticSearchClient.initialize();
 
             ElasticSearchStorageInstaller installer = new ElasticSearchStorageInstaller(indexShardsNumber, indexReplicasNumber);
