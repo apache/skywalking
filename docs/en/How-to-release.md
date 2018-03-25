@@ -68,13 +68,13 @@ with .asc, .sha512, .md5
 ## Upload to Apache svn
 1. Use ApacheId to login `https://dist.apache.org/repos/dist/dev/incubator/skywalking/`
 1. Create folder, named by release version
-1. Upload Source code package `in svn.apache.org` with .asc, .sha512
+1. Upload Source code package to the folder with .asc, .sha512
     * Package name: apache-skywalking-incubating-x.y.z-src.tar.gz
     * See Section "Build and sign the source code package" for more details 
-1. Upload distribution package `in svn.apache.org` with .asc, .sha512
+1. Upload distribution package to the folder with .asc, .sha512
     * Package name: apache-skywalking-incubating-x.y.z.tar.gz, apache-skywalking-incubating-x.y.z.zip
     * See Section "Find and download distribution in Apache Nexus Staging repositories" for more details
-    * How to create .sha512 package: `shasum -a 512 file > file.sha512`
+    * Create .sha512 package: `shasum -a 512 file > file.sha512`
 1. Upload gpg public key, named KEY
 
 ## Make the internal announcements
