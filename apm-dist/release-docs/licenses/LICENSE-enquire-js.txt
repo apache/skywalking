@@ -1,1 +1,0 @@
-Only declare license at here: https://github.com/jljsj/enquire-js/blob/master/package.json#L15
