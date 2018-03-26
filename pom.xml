@@ -152,6 +152,7 @@
                         <exclude>**/target/**</exclude>
                         <exclude>**/DISCLAIMER</exclude>
                         <exclude>**/licenses/**</exclude>
+                        <exclude>**/ui-licenses/**</exclude>
                         <exclude>**/codeStyle.xml</exclude>
 
                         <!-- IDE files -->
