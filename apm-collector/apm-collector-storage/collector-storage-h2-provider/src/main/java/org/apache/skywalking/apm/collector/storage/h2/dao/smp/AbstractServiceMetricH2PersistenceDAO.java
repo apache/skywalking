@@ -50,16 +50,19 @@ public abstract class AbstractServiceMetricH2PersistenceDAO extends AbstractPers
         serviceMetric.setTransactionErrorCalls(resultSet.getLong(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS));
         serviceMetric.setTransactionDurationSum(resultSet.getLong(ServiceMetricTable.COLUMN_TRANSACTION_DURATION_SUM));
         serviceMetric.setTransactionErrorDurationSum(resultSet.getLong(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM));
+        serviceMetric.setTransactionAverageDuration(resultSet.getLong(ServiceMetricTable.COLUMN_TRANSACTION_AVERAGE_DURATION));
 
         serviceMetric.setBusinessTransactionCalls(resultSet.getLong(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS));
         serviceMetric.setBusinessTransactionErrorCalls(resultSet.getLong(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS));
         serviceMetric.setBusinessTransactionDurationSum(resultSet.getLong(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM));
         serviceMetric.setBusinessTransactionErrorDurationSum(resultSet.getLong(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM));
+        serviceMetric.setBusinessTransactionAverageDuration(resultSet.getLong(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_AVERAGE_DURATION));
 
         serviceMetric.setMqTransactionCalls(resultSet.getLong(ServiceMetricTable.COLUMN_MQ_TRANSACTION_CALLS));
         serviceMetric.setMqTransactionErrorCalls(resultSet.getLong(ServiceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS));
         serviceMetric.setMqTransactionDurationSum(resultSet.getLong(ServiceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM));
         serviceMetric.setMqTransactionErrorDurationSum(resultSet.getLong(ServiceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM));
+        serviceMetric.setMqTransactionAverageDuration(resultSet.getLong(ServiceMetricTable.COLUMN_MQ_TRANSACTION_AVERAGE_DURATION));
 
         serviceMetric.setTimeBucket(resultSet.getLong(ServiceMetricTable.COLUMN_TIME_BUCKET));
         return serviceMetric;
@@ -67,6 +70,7 @@ public abstract class AbstractServiceMetricH2PersistenceDAO extends AbstractPers
 
     @Override protected final Map<String, Object> streamDataToH2Data(ServiceMetric streamData) {
         Map<String, Object> source = new HashMap<>();
+        source.put(ServiceMetricTable.COLUMN_ID, streamData.getId());
         source.put(ServiceMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
 
         source.put(ServiceMetricTable.COLUMN_APPLICATION_ID, streamData.getApplicationId());

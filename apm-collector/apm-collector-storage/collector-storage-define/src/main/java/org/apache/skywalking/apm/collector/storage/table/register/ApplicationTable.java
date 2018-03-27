@@ -27,6 +27,7 @@ public class ApplicationTable extends CommonTable {
     public static final String TABLE = "application";
     public static final String COLUMN_APPLICATION_CODE = "application_code";
     public static final String COLUMN_APPLICATION_ID = "application_id";
+    public static final String COLUMN_LAYER = "layer";
     public static final String COLUMN_IS_ADDRESS = "is_address";
     public static final String COLUMN_ADDRESS_ID = "address_id";
 }

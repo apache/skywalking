@@ -59,7 +59,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     protected String componentName;
 
     /**
-     * Log is a concept from OpenTracing spec. <p> {@see https://github.com/opentracing/specification/blob/master/specification.md#log-structured-data}
+     * Log is a concept from OpenTracing spec. https://github.com/opentracing/specification/blob/master/specification.md#log-structured-data
      */
     protected List<LogDataEntity> logs;
 

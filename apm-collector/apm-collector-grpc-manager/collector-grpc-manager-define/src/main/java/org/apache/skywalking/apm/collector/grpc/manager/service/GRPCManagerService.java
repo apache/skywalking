@@ -22,9 +22,13 @@ package org.apache.skywalking.apm.collector.grpc.manager.service;
 import org.apache.skywalking.apm.collector.core.module.Service;
 import org.apache.skywalking.apm.collector.server.Server;
 
+import java.io.File;
+
 /**
- * @author peng-yongsheng
+ * @author peng-yongsheng, wusheng
  */
 public interface GRPCManagerService extends Service {
-    Server createIfAbsent(String host, int port);
+    Server createIfAbsent(String host, int port) throws ServerCanNotBeCreatedException;
+
+    Server createIfAbsent(String host, int port, File certChainFile, File privateKeyFile) throws ServerCanNotBeCreatedException;
 }

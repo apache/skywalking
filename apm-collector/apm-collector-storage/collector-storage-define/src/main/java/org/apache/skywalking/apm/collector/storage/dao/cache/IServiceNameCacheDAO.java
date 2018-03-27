@@ -19,12 +19,13 @@
 package org.apache.skywalking.apm.collector.storage.dao.cache;
 
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
+import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
 
 /**
  * @author peng-yongsheng
  */
 public interface IServiceNameCacheDAO extends DAO {
-    String getServiceName(int serviceId);
+    ServiceName get(int serviceId);
 
-    int getServiceId(int applicationId, String serviceName);
+    int getServiceId(int applicationId, int srcSpanType, String serviceName);
 }

@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.collector.storage.es.dao.alarm;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.alarm.IInstanceAlarmPersistenceDAO;
@@ -45,27 +46,29 @@ public class InstanceAlarmEsPersistenceDAO extends EsDAO implements IInstanceAla
         super(client);
     }
 
-    @Override public InstanceAlarm get(String id) {
+    @Override
+    public InstanceAlarm get(String id) {
         GetResponse getResponse = getClient().prepareGet(InstanceAlarmTable.TABLE, id).get();
         if (getResponse.isExists()) {
             InstanceAlarm instanceAlarm = new InstanceAlarm();
             instanceAlarm.setId(id);
             Map<String, Object> source = getResponse.getSource();
-            instanceAlarm.setApplicationId(((Number)source.get(InstanceAlarmTable.COLUMN_APPLICATION_ID)).intValue());
-            instanceAlarm.setInstanceId(((Number)source.get(InstanceAlarmTable.COLUMN_INSTANCE_ID)).intValue());
-            instanceAlarm.setSourceValue(((Number)source.get(InstanceAlarmTable.COLUMN_SOURCE_VALUE)).intValue());
+            instanceAlarm.setApplicationId(((Number) source.get(InstanceAlarmTable.COLUMN_APPLICATION_ID)).intValue());
+            instanceAlarm.setInstanceId(((Number) source.get(InstanceAlarmTable.COLUMN_INSTANCE_ID)).intValue());
+            instanceAlarm.setSourceValue(((Number) source.get(InstanceAlarmTable.COLUMN_SOURCE_VALUE)).intValue());
 
-            instanceAlarm.setAlarmType(((Number)source.get(InstanceAlarmTable.COLUMN_ALARM_TYPE)).intValue());
-            instanceAlarm.setAlarmContent((String)source.get(InstanceAlarmTable.COLUMN_ALARM_CONTENT));
+            instanceAlarm.setAlarmType(((Number) source.get(InstanceAlarmTable.COLUMN_ALARM_TYPE)).intValue());
+            instanceAlarm.setAlarmContent((String) source.get(InstanceAlarmTable.COLUMN_ALARM_CONTENT));
 
-            instanceAlarm.setLastTimeBucket(((Number)source.get(InstanceAlarmTable.COLUMN_LAST_TIME_BUCKET)).longValue());
+            instanceAlarm.setLastTimeBucket(((Number) source.get(InstanceAlarmTable.COLUMN_LAST_TIME_BUCKET)).longValue());
             return instanceAlarm;
         } else {
             return null;
         }
     }
 
-    @Override public IndexRequestBuilder prepareBatchInsert(InstanceAlarm data) {
+    @Override
+    public IndexRequestBuilder prepareBatchInsert(InstanceAlarm data) {
         Map<String, Object> source = new HashMap<>();
         source.put(InstanceAlarmTable.COLUMN_APPLICATION_ID, data.getApplicationId());
         source.put(InstanceAlarmTable.COLUMN_INSTANCE_ID, data.getInstanceId());
@@ -79,7 +82,8 @@ public class InstanceAlarmEsPersistenceDAO extends EsDAO implements IInstanceAla
         return getClient().prepareIndex(InstanceAlarmTable.TABLE, data.getId()).setSource(source);
     }
 
-    @Override public UpdateRequestBuilder prepareBatchUpdate(InstanceAlarm data) {
+    @Override
+    public UpdateRequestBuilder prepareBatchUpdate(InstanceAlarm data) {
         Map<String, Object> source = new HashMap<>();
         source.put(InstanceAlarmTable.COLUMN_APPLICATION_ID, data.getApplicationId());
         source.put(InstanceAlarmTable.COLUMN_INSTANCE_ID, data.getInstanceId());
@@ -93,13 +97,14 @@ public class InstanceAlarmEsPersistenceDAO extends EsDAO implements IInstanceAla
         return getClient().prepareUpdate(InstanceAlarmTable.TABLE, data.getId()).setDoc(source);
     }
 
-    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+    @Override
+    public void deleteHistory(Long startTimestamp, Long endTimestamp) {
         long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
         long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
-        BulkByScrollResponse response = getClient().prepareDelete()
-            .filter(QueryBuilders.rangeQuery(InstanceAlarmTable.COLUMN_LAST_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket))
-            .source(InstanceAlarmTable.TABLE)
-            .get();
+        BulkByScrollResponse response = getClient().prepareDelete(
+                QueryBuilders.rangeQuery(InstanceAlarmTable.COLUMN_LAST_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket),
+                InstanceAlarmTable.TABLE)
+                .get();
 
         long deleted = response.getDeleted();
         logger.info("Delete {} rows history from {} index.", deleted, InstanceAlarmTable.TABLE);

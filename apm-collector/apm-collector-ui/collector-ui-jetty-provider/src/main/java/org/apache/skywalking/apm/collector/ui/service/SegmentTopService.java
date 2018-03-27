@@ -16,22 +16,15 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.ui.service;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
-import org.apache.skywalking.apm.collector.storage.dao.IGlobalTraceUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ISegmentCostUIDAO;
-import org.apache.skywalking.apm.collector.storage.table.segment.SegmentCostTable;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.table.global.GlobalTraceTable;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IGlobalTraceUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentDurationUIDAO;
+import org.apache.skywalking.apm.collector.storage.ui.trace.TraceBrief;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,34 +35,35 @@ public class SegmentTopService {
 
     private final Logger logger = LoggerFactory.getLogger(SegmentTopService.class);
 
-    private final IGlobalTraceUIDAO globalTraceDAO;
-    private final ISegmentCostUIDAO segmentCostDAO;
+    private final ISegmentDurationUIDAO segmentDurationUIDAO;
+    private final IGlobalTraceUIDAO globalTraceUIDAO;
 
     public SegmentTopService(ModuleManager moduleManager) {
-        this.globalTraceDAO = moduleManager.find(StorageModule.NAME).getService(IGlobalTraceUIDAO.class);
-        this.segmentCostDAO = moduleManager.find(StorageModule.NAME).getService(ISegmentCostUIDAO.class);
+        this.segmentDurationUIDAO = moduleManager.find(StorageModule.NAME).getService(ISegmentDurationUIDAO.class);
+        this.globalTraceUIDAO = moduleManager.find(StorageModule.NAME).getService(IGlobalTraceUIDAO.class);
     }
 
-    public JsonObject loadTop(long startTime, long endTime, long minCost, long maxCost, String operationName,
-        String globalTraceId, ISegmentCostUIDAO.Error error, int applicationId, int limit, int from,
-        ISegmentCostUIDAO.Sort sort) {
-        logger.debug("startTime: {}, endTime: {}, minCost: {}, maxCost: {}, operationName: {}, globalTraceId: {}, error: {}, applicationId: {}, limit: {}, from: {}", startTime, endTime, minCost, maxCost, operationName, globalTraceId, error, applicationId, limit, from);
+    public TraceBrief loadTop(long startSecondTimeBucket, long endSecondTimeBucket, long minDuration, long maxDuration,
+        String operationName,
+        String traceId, int applicationId, int limit, int from) {
+        logger.debug("startSecondTimeBucket: {}, endSecondTimeBucket: {}, minDuration: {}, " +
+                "maxDuration: {}, operationName: {}, traceId: {}, applicationId: {}, limit: {}, from: {}",
+            startSecondTimeBucket, endSecondTimeBucket, minDuration,
+            maxDuration, operationName, traceId, applicationId, limit, from);
 
-        List<String> segmentIds = new LinkedList<>();
-        if (StringUtils.isNotEmpty(globalTraceId)) {
-            segmentIds = globalTraceDAO.getSegmentIds(globalTraceId);
+        TraceBrief traceBrief;
+        if (StringUtils.isNotEmpty(traceId)) {
+            List<String> segmentIds = globalTraceUIDAO.getSegmentIds(traceId);
+            traceBrief = segmentDurationUIDAO.loadTop(startSecondTimeBucket, endSecondTimeBucket, minDuration, maxDuration, operationName, applicationId, limit, from, segmentIds.toArray(new String[0]));
+        } else {
+            traceBrief = segmentDurationUIDAO.loadTop(startSecondTimeBucket, endSecondTimeBucket, minDuration, maxDuration, operationName, applicationId, limit, from);
         }
 
-        JsonObject loadTopJsonObj = segmentCostDAO.loadTop(startTime, endTime, minCost, maxCost, operationName, error, applicationId, segmentIds, limit, from, sort);
-        JsonArray loadTopJsonArray = loadTopJsonObj.get("data").getAsJsonArray();
-        for (JsonElement loadTopElement : loadTopJsonArray) {
-            JsonObject jsonObject = loadTopElement.getAsJsonObject();
-            String segmentId = jsonObject.get(SegmentCostTable.COLUMN_SEGMENT_ID).getAsString();
-            List<String> globalTraces = globalTraceDAO.getGlobalTraceId(segmentId);
-            if (CollectionUtils.isNotEmpty(globalTraces)) {
-                jsonObject.addProperty(GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID, globalTraces.get(0));
-            }
-        }
-        return loadTopJsonObj;
+        traceBrief.getTraces().forEach(trace -> {
+            List<String> traceIds = globalTraceUIDAO.getGlobalTraceId(trace.getSegmentId());
+            trace.getTraceIds().addAll(traceIds);
+        });
+
+        return traceBrief;
     }
 }

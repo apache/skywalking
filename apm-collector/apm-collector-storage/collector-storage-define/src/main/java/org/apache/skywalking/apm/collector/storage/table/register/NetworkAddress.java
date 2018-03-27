@@ -19,8 +19,11 @@
 package org.apache.skywalking.apm.collector.storage.table.register;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
+import org.apache.skywalking.apm.collector.core.data.RemoteData;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.CoverMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
+import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 
 /**
  * @author peng-yongsheng
@@ -28,8 +31,8 @@ import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
 public class NetworkAddress extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(NetworkAddressTable.COLUMN_ID, new NonOperation()),
-        new Column(NetworkAddressTable.COLUMN_NETWORK_ADDRESS, new NonOperation()),
+        new Column(NetworkAddressTable.COLUMN_ID, new NonMergeOperation()),
+        new Column(NetworkAddressTable.COLUMN_NETWORK_ADDRESS, new NonMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
@@ -38,7 +41,9 @@ public class NetworkAddress extends StreamData {
     private static final Column[] DOUBLE_COLUMNS = {};
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(NetworkAddressTable.COLUMN_ADDRESS_ID, new NonOperation()),
+        new Column(NetworkAddressTable.COLUMN_ADDRESS_ID, new NonMergeOperation()),
+        new Column(NetworkAddressTable.COLUMN_SPAN_LAYER, new CoverMergeOperation()),
+        new Column(NetworkAddressTable.COLUMN_SERVER_TYPE, new CoverMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};
@@ -77,5 +82,27 @@ public class NetworkAddress extends StreamData {
 
     public void setAddressId(Integer addressId) {
         setDataInteger(0, addressId);
+    }
+
+    public Integer getSpanLayer() {
+        return getDataInteger(1);
+    }
+
+    public void setSpanLayer(Integer spanLayer) {
+        setDataInteger(1, spanLayer);
+    }
+
+    public Integer getServerType() {
+        return getDataInteger(2);
+    }
+
+    public void setServerType(Integer serverType) {
+        setDataInteger(2, serverType);
+    }
+
+    public static class InstanceCreator implements RemoteDataRegisterService.RemoteDataInstanceCreator {
+        @Override public RemoteData createInstance() {
+            return new NetworkAddress();
+        }
     }
 }

@@ -35,8 +35,8 @@ import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.insta
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.mapping.InstanceMappingSpanListener;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.metric.InstanceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.refmetric.InstanceReferenceMetricGraph;
-import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.segment.SegmentCostGraph;
-import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.segment.SegmentCostSpanListener;
+import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.segment.SegmentDurationGraph;
+import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.segment.SegmentDurationSpanListener;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.metric.ServiceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.refmetric.ServiceReferenceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.refmetric.ServiceReferenceMetricSpanListener;
@@ -47,6 +47,17 @@ import org.apache.skywalking.apm.collector.analysis.worker.timer.PersistenceTime
 import org.apache.skywalking.apm.collector.core.module.Module;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.apache.skywalking.apm.collector.remote.RemoteModule;
+import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
+import org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponent;
+import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMapping;
+import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMetric;
+import org.apache.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetric;
+import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMapping;
+import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetric;
+import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetric;
+import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetric;
+import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
 
 /**
  * @author peng-yongsheng
@@ -74,6 +85,8 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
 
         graphCreate(workerCreateListener);
 
+        registerRemoteData();
+
         PersistenceTimer persistenceTimer = new PersistenceTimer(AnalysisMetricModule.NAME);
         persistenceTimer.start(getManager(), workerCreateListener.getPersistenceWorkers());
     }
@@ -93,7 +106,7 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
         segmentParserListenerRegister.register(new ApplicationMappingSpanListener.Factory());
         segmentParserListenerRegister.register(new InstanceMappingSpanListener.Factory());
         segmentParserListenerRegister.register(new GlobalTraceSpanListener.Factory());
-        segmentParserListenerRegister.register(new SegmentCostSpanListener.Factory());
+        segmentParserListenerRegister.register(new SegmentDurationSpanListener.Factory());
     }
 
     private void graphCreate(WorkerCreateListener workerCreateListener) {
@@ -127,10 +140,23 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
         GlobalTraceGraph globalTraceGraph = new GlobalTraceGraph(getManager(), workerCreateListener);
         globalTraceGraph.create();
 
-        SegmentCostGraph segmentCostGraph = new SegmentCostGraph(getManager(), workerCreateListener);
-        segmentCostGraph.create();
+        SegmentDurationGraph segmentDurationGraph = new SegmentDurationGraph(getManager(), workerCreateListener);
+        segmentDurationGraph.create();
 
         InstanceHeartBeatPersistenceGraph instanceHeartBeatPersistenceGraph = new InstanceHeartBeatPersistenceGraph(getManager(), workerCreateListener);
         instanceHeartBeatPersistenceGraph.create();
+    }
+
+    private void registerRemoteData() {
+        RemoteDataRegisterService remoteDataRegisterService = getManager().find(RemoteModule.NAME).getService(RemoteDataRegisterService.class);
+        remoteDataRegisterService.register(ApplicationComponent.class, new ApplicationComponent.InstanceCreator());
+        remoteDataRegisterService.register(ApplicationMapping.class, new ApplicationMapping.InstanceCreator());
+        remoteDataRegisterService.register(ApplicationMetric.class, new ApplicationMetric.InstanceCreator());
+        remoteDataRegisterService.register(ApplicationReferenceMetric.class, new ApplicationReferenceMetric.InstanceCreator());
+        remoteDataRegisterService.register(InstanceMapping.class, new InstanceMapping.InstanceCreator());
+        remoteDataRegisterService.register(InstanceMetric.class, new InstanceMetric.InstanceCreator());
+        remoteDataRegisterService.register(InstanceReferenceMetric.class, new InstanceReferenceMetric.InstanceCreator());
+        remoteDataRegisterService.register(ServiceMetric.class, new ServiceMetric.InstanceCreator());
+        remoteDataRegisterService.register(ServiceReferenceMetric.class, new ServiceReferenceMetric.InstanceCreator());
     }
 }

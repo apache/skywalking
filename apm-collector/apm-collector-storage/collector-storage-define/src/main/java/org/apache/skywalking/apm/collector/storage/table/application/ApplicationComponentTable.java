@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.table.application;
 
 import org.apache.skywalking.apm.collector.core.data.CommonTable;
@@ -27,5 +26,5 @@ import org.apache.skywalking.apm.collector.core.data.CommonTable;
 public class ApplicationComponentTable extends CommonTable {
     public static final String TABLE = "application_component";
     public static final String COLUMN_COMPONENT_ID = "component_id";
-    public static final String COLUMN_PEER_ID = "peer_id";
+    public static final String COLUMN_APPLICATION_ID = "application_id";
 }

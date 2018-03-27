@@ -43,7 +43,7 @@ public enum PluginCfg {
             String pluginDefine = null;
             while ((pluginDefine = reader.readLine()) != null) {
                 try {
-                    if (pluginDefine == null || pluginDefine.trim().length() == 0) {
+                    if (pluginDefine == null || pluginDefine.trim().length() == 0 || pluginDefine.startsWith("#")) {
                         continue;
                     }
                     PluginDefine plugin = PluginDefine.build(pluginDefine);

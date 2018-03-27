@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.serv
 
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.skywalking.apm.collector.analysis.metric.define.MetricSource;
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.ReferenceDecorator;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
@@ -38,6 +37,7 @@ import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
+import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
 import org.apache.skywalking.apm.network.proto.SpanLayer;
 import org.slf4j.Logger;
@@ -78,8 +78,16 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
                 ReferenceDecorator reference = spanDecorator.getRefs(i);
                 ServiceReferenceMetric serviceReferenceMetric = new ServiceReferenceMetric();
                 serviceReferenceMetric.setFrontServiceId(reference.getParentServiceId());
-                serviceReferenceMetric.setFrontInstanceId(reference.getParentApplicationInstanceId());
-                serviceReferenceMetric.setFrontApplicationId(instanceCacheService.getApplicationId(reference.getParentApplicationInstanceId()));
+
+                if (spanDecorator.getSpanLayer().equals(SpanLayer.MQ)) {
+                    int applicationIdByPeerId = applicationCacheService.getApplicationIdByAddressId(reference.getNetworkAddressId());
+                    int instanceIdByPeerId = instanceCacheService.getInstanceIdByAddressId(applicationIdByPeerId, reference.getNetworkAddressId());
+                    serviceReferenceMetric.setFrontInstanceId(instanceIdByPeerId);
+                    serviceReferenceMetric.setFrontApplicationId(applicationIdByPeerId);
+                } else {
+                    serviceReferenceMetric.setFrontInstanceId(reference.getParentApplicationInstanceId());
+                    serviceReferenceMetric.setFrontApplicationId(instanceCacheService.getApplicationId(reference.getParentApplicationInstanceId()));
+                }
                 serviceReferenceMetric.setBehindServiceId(spanDecorator.getOperationNameId());
                 serviceReferenceMetric.setBehindInstanceId(instanceId);
                 serviceReferenceMetric.setBehindApplicationId(applicationId);

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.conf;
 
 import java.io.File;
@@ -37,7 +36,6 @@ import org.apache.skywalking.apm.util.StringUtil;
  * The <code>SnifferConfigInitializer</code> initializes all configs in several way.
  *
  * @author wusheng
- * @see {@link #initialize()}, to learn more about how to initialzie.
  */
 public class SnifferConfigInitializer {
     private static final ILog logger = LogManager.getLogger(SnifferConfigInitializer.class);
@@ -75,8 +73,8 @@ public class SnifferConfigInitializer {
         if (StringUtil.isEmpty(Config.Agent.APPLICATION_CODE)) {
             throw new ExceptionInInitializerError("`agent.application_code` is missing.");
         }
-        if (StringUtil.isEmpty(Config.Collector.SERVERS)) {
-            throw new ExceptionInInitializerError("`collector.servers` is missing.");
+        if (StringUtil.isEmpty(Config.Collector.SERVERS) && StringUtil.isEmpty(Config.Collector.DIRECT_SERVERS)) {
+            throw new ExceptionInInitializerError("`collector.direct_servers` and `collector.servers` cannot be empty at the same time.");
         }
 
         IS_INIT_COMPLETED = true;

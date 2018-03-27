@@ -26,7 +26,6 @@ import org.apache.skywalking.apm.collector.analysis.metric.define.service.IInsta
 import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegisterModule;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IInstanceIDService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.server.grpc.GRPCHandler;
 import org.apache.skywalking.apm.network.proto.ApplicationInstance;
 import org.apache.skywalking.apm.network.proto.ApplicationInstanceHeartbeat;
@@ -55,8 +54,7 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
     @Override
     public void registerInstance(ApplicationInstance request,
         StreamObserver<ApplicationInstanceMapping> responseObserver) {
-        long timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(request.getRegisterTime());
-        int instanceId = instanceIDService.getOrCreateByAgentUUID(request.getApplicationId(), request.getAgentUUID(), timeBucket, buildOsInfo(request.getOsinfo()));
+        int instanceId = instanceIDService.getOrCreateByAgentUUID(request.getApplicationId(), request.getAgentUUID(), request.getRegisterTime(), buildOsInfo(request.getOsinfo()));
         ApplicationInstanceMapping.Builder builder = ApplicationInstanceMapping.newBuilder();
         builder.setApplicationId(request.getApplicationId());
         builder.setApplicationInstanceId(instanceId);
@@ -68,6 +66,8 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
         int instanceId = request.getApplicationInstanceId();
         long heartBeatTime = request.getHeartbeatTime();
         this.instanceHeartBeatService.heartBeat(instanceId, heartBeatTime);
+        responseObserver.onNext(Downstream.getDefaultInstance());
+        responseObserver.onCompleted();
     }
 
     private String buildOsInfo(OSInfo osinfo) {

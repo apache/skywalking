@@ -34,7 +34,14 @@ import org.apache.skywalking.apm.collector.core.module.Module;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.apache.skywalking.apm.collector.remote.RemoteModule;
+import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
+import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarm;
+import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmList;
+import org.apache.skywalking.apm.collector.storage.table.alarm.InstanceAlarm;
+import org.apache.skywalking.apm.collector.storage.table.alarm.InstanceAlarmList;
+import org.apache.skywalking.apm.collector.storage.table.alarm.ServiceAlarm;
+import org.apache.skywalking.apm.collector.storage.table.alarm.ServiceAlarmList;
 
 /**
  * @author peng-yongsheng
@@ -74,6 +81,8 @@ public class AnalysisAlarmModuleProvider extends ModuleProvider {
         ApplicationReferenceMetricAlarmGraph applicationReferenceMetricAlarmGraph = new ApplicationReferenceMetricAlarmGraph(getManager(), workerCreateListener);
         applicationReferenceMetricAlarmGraph.create();
 
+        registerRemoteData();
+
         PersistenceTimer persistenceTimer = new PersistenceTimer(AnalysisAlarmModule.NAME);
         persistenceTimer.start(getManager(), workerCreateListener.getPersistenceWorkers());
     }
@@ -84,5 +93,16 @@ public class AnalysisAlarmModuleProvider extends ModuleProvider {
 
     @Override public String[] requiredModules() {
         return new String[] {RemoteModule.NAME, AnalysisMetricModule.NAME, ConfigurationModule.NAME, StorageModule.NAME};
+    }
+
+    private void registerRemoteData() {
+        RemoteDataRegisterService remoteDataRegisterService = getManager().find(RemoteModule.NAME).getService(RemoteDataRegisterService.class);
+        remoteDataRegisterService.register(ApplicationAlarm.class, new ApplicationAlarm.InstanceCreator());
+        remoteDataRegisterService.register(ApplicationAlarmList.class, new ApplicationAlarmList.InstanceCreator());
+        remoteDataRegisterService.register(InstanceAlarm.class, new InstanceAlarm.InstanceCreator());
+        remoteDataRegisterService.register(InstanceAlarmList.class, new InstanceAlarmList.InstanceCreator());
+        remoteDataRegisterService.register(ServiceAlarm.class, new ServiceAlarm.InstanceCreator());
+        remoteDataRegisterService.register(ServiceAlarmList.class, new ServiceAlarmList.InstanceCreator());
+
     }
 }

@@ -48,16 +48,19 @@ public abstract class AbstractApplicationMetricH2PersistenceDAO extends Abstract
         applicationMetric.setTransactionErrorCalls(resultSet.getLong(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_CALLS));
         applicationMetric.setTransactionDurationSum(resultSet.getLong(ApplicationMetricTable.COLUMN_TRANSACTION_DURATION_SUM));
         applicationMetric.setTransactionErrorDurationSum(resultSet.getLong(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM));
+        applicationMetric.setTransactionAverageDuration(resultSet.getLong(ApplicationMetricTable.COLUMN_TRANSACTION_AVERAGE_DURATION));
 
         applicationMetric.setBusinessTransactionCalls(resultSet.getLong(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS));
         applicationMetric.setBusinessTransactionErrorCalls(resultSet.getLong(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS));
         applicationMetric.setBusinessTransactionDurationSum(resultSet.getLong(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM));
         applicationMetric.setBusinessTransactionErrorDurationSum(resultSet.getLong(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM));
+        applicationMetric.setBusinessTransactionAverageDuration(resultSet.getLong(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_AVERAGE_DURATION));
 
         applicationMetric.setMqTransactionCalls(resultSet.getLong(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_CALLS));
         applicationMetric.setMqTransactionErrorCalls(resultSet.getLong(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS));
         applicationMetric.setMqTransactionDurationSum(resultSet.getLong(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM));
         applicationMetric.setMqTransactionErrorDurationSum(resultSet.getLong(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM));
+        applicationMetric.setMqTransactionAverageDuration(resultSet.getLong(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_AVERAGE_DURATION));
 
         applicationMetric.setSatisfiedCount(resultSet.getLong(ApplicationMetricTable.COLUMN_SATISFIED_COUNT));
         applicationMetric.setToleratingCount(resultSet.getLong(ApplicationMetricTable.COLUMN_TOLERATING_COUNT));
@@ -69,6 +72,7 @@ public abstract class AbstractApplicationMetricH2PersistenceDAO extends Abstract
 
     @Override protected final Map<String, Object> streamDataToH2Data(ApplicationMetric streamData) {
         Map<String, Object> source = new HashMap<>();
+        source.put(ApplicationMetricTable.COLUMN_ID, streamData.getId());
         source.put(ApplicationMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
 
         source.put(ApplicationMetricTable.COLUMN_APPLICATION_ID, streamData.getApplicationId());

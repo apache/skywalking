@@ -16,22 +16,23 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.cluster.zookeeper;
 
 import java.util.Properties;
+import org.apache.skywalking.apm.collector.client.zookeeper.ZookeeperClient;
 import org.apache.skywalking.apm.collector.client.zookeeper.ZookeeperClientException;
 import org.apache.skywalking.apm.collector.cluster.ClusterModule;
+import org.apache.skywalking.apm.collector.cluster.service.ModuleListenerService;
 import org.apache.skywalking.apm.collector.cluster.service.ModuleRegisterService;
 import org.apache.skywalking.apm.collector.cluster.zookeeper.service.ZookeeperModuleListenerService;
 import org.apache.skywalking.apm.collector.cluster.zookeeper.service.ZookeeperModuleRegisterService;
+import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
+import org.apache.skywalking.apm.collector.configuration.service.ICollectorConfig;
 import org.apache.skywalking.apm.collector.core.CollectorException;
 import org.apache.skywalking.apm.collector.core.UnexpectedException;
+import org.apache.skywalking.apm.collector.core.module.Module;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
-import org.apache.skywalking.apm.collector.client.zookeeper.ZookeeperClient;
-import org.apache.skywalking.apm.collector.cluster.service.ModuleListenerService;
-import org.apache.skywalking.apm.collector.core.module.Module;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,6 +70,7 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
+        dataMonitor.setNamespace(getManager().find(ConfigurationModule.NAME).getService(ICollectorConfig.class).getNamespace());
         try {
             zookeeperClient.initialize();
         } catch (ZookeeperClientException e) {
@@ -85,7 +87,7 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[0];
+        return new String[] {ConfigurationModule.NAME};
     }
 
 }

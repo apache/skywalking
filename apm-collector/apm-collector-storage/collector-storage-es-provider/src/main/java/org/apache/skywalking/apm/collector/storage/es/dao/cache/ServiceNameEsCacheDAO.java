@@ -19,9 +19,9 @@
 package org.apache.skywalking.apm.collector.storage.es.dao.cache;
 
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.cache.IServiceNameCacheDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceNameTable;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
@@ -41,26 +41,30 @@ public class ServiceNameEsCacheDAO extends EsDAO implements IServiceNameCacheDAO
         super(client);
     }
 
-    @Override public String getServiceName(int serviceId) {
+    @Override public ServiceName get(int serviceId) {
         GetRequestBuilder getRequestBuilder = getClient().prepareGet(ServiceNameTable.TABLE, String.valueOf(serviceId));
 
         GetResponse getResponse = getRequestBuilder.get();
+
         if (getResponse.isExists()) {
-            String serviceName = (String)getResponse.getSource().get(ServiceNameTable.COLUMN_SERVICE_NAME);
-            int applicationId = ((Number)getResponse.getSource().get(ServiceNameTable.COLUMN_APPLICATION_ID)).intValue();
-            return applicationId + Const.ID_SPLIT + serviceName;
+            ServiceName serviceName = new ServiceName();
+            serviceName.setApplicationId(((Number)getResponse.getSource().get(ServiceNameTable.COLUMN_APPLICATION_ID)).intValue());
+            serviceName.setServiceId(serviceId);
+            serviceName.setServiceName((String)getResponse.getSource().get(ServiceNameTable.COLUMN_SERVICE_NAME));
+            return serviceName;
         }
-        return Const.EMPTY_STRING;
+        return null;
     }
 
-    @Override public int getServiceId(int applicationId, String serviceName) {
+    @Override public int getServiceId(int applicationId, int srcSpanType, String serviceName) {
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(ServiceNameTable.TABLE);
         searchRequestBuilder.setTypes(ServiceNameTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.matchQuery(ServiceNameTable.COLUMN_APPLICATION_ID, applicationId));
-        boolQuery.must().add(QueryBuilders.matchQuery(ServiceNameTable.COLUMN_SERVICE_NAME, serviceName));
+        boolQuery.must().add(QueryBuilders.termQuery(ServiceNameTable.COLUMN_APPLICATION_ID, applicationId));
+        boolQuery.must().add(QueryBuilders.termQuery(ServiceNameTable.COLUMN_SRC_SPAN_TYPE, srcSpanType));
+        boolQuery.must().add(QueryBuilders.termQuery(ServiceNameTable.COLUMN_SERVICE_NAME_KEYWORD, serviceName));
         searchRequestBuilder.setQuery(boolQuery);
         searchRequestBuilder.setSize(1);
 

@@ -41,7 +41,7 @@ public class NetworkAddressRegisterSerialWorker extends AbstractLocalAsyncWorker
     private final INetworkAddressRegisterDAO networkAddressRegisterDAO;
     private final NetworkAddressCacheService networkAddressCacheService;
 
-    public NetworkAddressRegisterSerialWorker(ModuleManager moduleManager) {
+    NetworkAddressRegisterSerialWorker(ModuleManager moduleManager) {
         super(moduleManager);
         this.networkAddressRegisterDAO = getModuleManager().find(StorageModule.NAME).getService(INetworkAddressRegisterDAO.class);
         this.networkAddressCacheService = getModuleManager().find(CacheModule.NAME).getService(NetworkAddressCacheService.class);
@@ -53,26 +53,32 @@ public class NetworkAddressRegisterSerialWorker extends AbstractLocalAsyncWorker
 
     @Override protected void onWork(NetworkAddress networkAddress) throws WorkerException {
         logger.debug("register network address, address: {}", networkAddress.getNetworkAddress());
-        int addressId = networkAddressCacheService.getAddressId(networkAddress.getNetworkAddress());
+        if (networkAddress.getAddressId() == 0) {
+            int addressId = networkAddressCacheService.getAddressId(networkAddress.getNetworkAddress());
 
-        if (addressId == 0) {
-            NetworkAddress newNetworkAddress;
-            int min = networkAddressRegisterDAO.getMinNetworkAddressId();
-            if (min == 0) {
-                newNetworkAddress = new NetworkAddress();
-                newNetworkAddress.setId("-1");
-                newNetworkAddress.setAddressId(-1);
-                newNetworkAddress.setNetworkAddress(networkAddress.getNetworkAddress());
-            } else {
-                int max = networkAddressRegisterDAO.getMaxNetworkAddressId();
-                addressId = IdAutoIncrement.INSTANCE.increment(min, max);
+            if (addressId == 0) {
+                NetworkAddress newNetworkAddress;
+                int min = networkAddressRegisterDAO.getMinNetworkAddressId();
+                if (min == 0) {
+                    newNetworkAddress = new NetworkAddress();
+                    newNetworkAddress.setId("-1");
+                    newNetworkAddress.setAddressId(-1);
+                    newNetworkAddress.setSpanLayer(networkAddress.getSpanLayer());
+                    newNetworkAddress.setNetworkAddress(networkAddress.getNetworkAddress());
+                } else {
+                    int max = networkAddressRegisterDAO.getMaxNetworkAddressId();
+                    addressId = IdAutoIncrement.INSTANCE.increment(min, max);
 
-                newNetworkAddress = new NetworkAddress();
-                newNetworkAddress.setId(String.valueOf(addressId));
-                newNetworkAddress.setAddressId(addressId);
-                newNetworkAddress.setNetworkAddress(networkAddress.getNetworkAddress());
+                    newNetworkAddress = new NetworkAddress();
+                    newNetworkAddress.setId(String.valueOf(addressId));
+                    newNetworkAddress.setAddressId(addressId);
+                    newNetworkAddress.setSpanLayer(networkAddress.getSpanLayer());
+                    newNetworkAddress.setNetworkAddress(networkAddress.getNetworkAddress());
+                }
+                networkAddressRegisterDAO.save(newNetworkAddress);
             }
-            networkAddressRegisterDAO.save(newNetworkAddress);
+        } else {
+            networkAddressRegisterDAO.update(networkAddress.getId(), networkAddress.getSpanLayer(), networkAddress.getServerType());
         }
     }
 

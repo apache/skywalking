@@ -32,7 +32,7 @@ public class ApplicationMappingCopy {
         newApplicationMapping.setTimeBucket(applicationMapping.getTimeBucket());
 
         newApplicationMapping.setApplicationId(applicationMapping.getApplicationId());
-        newApplicationMapping.setAddressId(applicationMapping.getAddressId());
+        newApplicationMapping.setMappingApplicationId(applicationMapping.getMappingApplicationId());
         return newApplicationMapping;
     }
 }
