@@ -17,13 +17,11 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>apm-application-toolkit</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-alpha</version>
+        <version>5.0.0-beta-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -59,13 +57,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <distributionManagement>
-        <repository>
-            <id>bintray-wu-sheng-sky-walking-repository</id>
-            <name>wu-sheng-sky-walking-repository</name>
-            <url>https://api.bintray.com/maven/wu-sheng/skywalking/org.apache.skywalking.apm-toolkit-log4j-1.x/;publish=1
-            </url>
-        </repository>
-    </distributionManagement>
 </project>

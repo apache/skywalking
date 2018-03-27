@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.httpClient.v4;
 
 import java.lang.reflect.Method;
@@ -25,13 +24,14 @@ import java.net.URL;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.context.CarrierItem;
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
@@ -48,7 +48,10 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         HttpRequest httpRequest = (HttpRequest)allArguments[1];
         final ContextCarrier contextCarrier = new ContextCarrier();
         AbstractSpan span = null;
-        String remotePeer = httpHost.getHostName() + ":" + httpHost.getPort();
+
+        String remotePeer = httpHost.getHostName() + ":" + (httpHost.getPort() > 0 ? httpHost.getPort() :
+            "https".equals(httpHost.getSchemeName().toLowerCase()) ? 443 : 80);
+
         try {
             URL url = new URL(httpRequest.getRequestLine().getUri());
             span = ContextManager.createExitSpan(url.getPath(), contextCarrier, remotePeer);
@@ -75,13 +78,15 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         }
 
         HttpResponse response = (HttpResponse)ret;
-        int statusCode = response.getStatusLine().getStatusCode();
-        AbstractSpan span = ContextManager.activeSpan();
-        if (statusCode >= 400) {
-            span.errorOccurred();
-            Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
+        StatusLine responseStatusLine = response.getStatusLine();
+        if (responseStatusLine != null) {
+            int statusCode = responseStatusLine.getStatusCode();
+            AbstractSpan span = ContextManager.activeSpan();
+            if (statusCode >= 400) {
+                span.errorOccurred();
+                Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
+            }
         }
-
         ContextManager.stopSpan();
         return ret;
     }

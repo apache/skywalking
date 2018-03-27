@@ -16,12 +16,10 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.oracle.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
-import org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
@@ -33,28 +31,23 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
 /**
- * {@link ConnectionInstrumentation} intercept the following methods that the class which extend {@link
- * oracle.jdbc.driver.PhysicalConnection}. <br/>
+ * {@link ConnectionInstrumentation} define that the oracle plugin intercept the following methods that the class which
+ * extend oracle.jdbc.driver.PhysicalConnection
+ * 
+ * 1. Enhance <code>prepareStatement</code> by <code>org.apache.skywalking.apm.plugin.jdbc.oracle.CreatePreparedStatementInterceptor</code>
+ * 2. Enhance <code>prepareCall</code> by <code>org.apache.skywalking.apm.plugin.jdbc.oracle.CreateCallableInterceptor</code>
+ * 3. Enhance <code>createStatement</code> by <code>org.apache.skywalking.apm.plugin.jdbc.oracle.CreateStatementInterceptor</code>
+ * 4. Enhance <code>commit, rollback, close, releaseSavepoint</code> by <code>org.apache.skywalking.apm.plugin.jdbc.define.ConnectionServiceMethodInterceptor</code>
  *
- * 1. Enhance <code>prepareStatement</code> by <code>org.apache.skywalking.apm.plugin.jdbc.define.JDBCPrepareStatementInterceptor</code>
- * 2. Enhance <code>prepareStatement</code> that the seconds argument type is <code>java.lang.String[]</code> by
- * <code>oracle.jdbc.driver.JDBCPrepareStatementWithArrayInterceptor</code>
- * 3.  Enhance <code>prepareStatement</code> that the seconds argument type is <code>int[]</code> by
- * <code>oracle.jdbc.driver.JDBCPrepareStatementWithArrayInterceptor</code>
- * 4. Enhance <code>prepareCall</code> by
- * <code>org.apache.skywalking.apm.plugin.jdbc.define.JDBCPrepareCallInterceptor</code>
- * 5. Enhance <code>createStatement</code>
- * by <code>org.apache.skywalking.apm.plugin.jdbc.define.JDBCStatementInterceptor</code>
- * 6. Enhance <code>commit, rollback, close, releaseSavepoint</code> by <code>org.apache.skywalking.apm.plugin.jdbc.define.ConnectionServiceMethodInterceptor</code>
  *
  * @author zhangxin
  */
 public class ConnectionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String PREPARE_STATEMENT_METHOD_WITH_ARRAY_INTERCEPTOR_CLASS = "oracle.jdbc.driver.JDBCPrepareStatementWithArrayInterceptor";
     public static final String ENHANCE_CLASS = "oracle.jdbc.driver.PhysicalConnection";
-    public static final String STRING_ARRAY_ARGUMENT_TYPE = "java.lang.String[]";
-    public static final String INT_ARRAY_ARGUMENT_TYPE = "int[]";
+    public static final String PREPARED_STATEMENT_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jdbc.oracle.CreatePreparedStatementInterceptor";
+    public static final String CALLABLE_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jdbc.oracle.CreateCallableInterceptor";
+    public static final String CREATE_STATEMENT_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jdbc.oracle.CreateStatementInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -64,37 +57,11 @@ public class ConnectionInstrumentation extends ClassInstanceMethodsEnhancePlugin
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(Constants.PREPARE_STATEMENT_METHOD_NAME).and(takesArguments(3));
+                    return named(Constants.PREPARE_STATEMENT_METHOD_NAME);
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return Constants.PREPARE_STATEMENT_INTERCEPT_CLASS;
-                }
-
-                @Override public boolean isOverrideArgs() {
-                    return false;
-                }
-            },
-            new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(Constants.PREPARE_STATEMENT_METHOD_NAME).and(ArgumentTypeNameMatch.takesArgumentWithType(1, STRING_ARRAY_ARGUMENT_TYPE));
-                }
-
-                @Override public String getMethodsInterceptor() {
-                    return PREPARE_STATEMENT_METHOD_WITH_ARRAY_INTERCEPTOR_CLASS;
-                }
-
-                @Override public boolean isOverrideArgs() {
-                    return false;
-                }
-            },
-            new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(Constants.PREPARE_STATEMENT_METHOD_NAME).and(ArgumentTypeNameMatch.takesArgumentWithType(1, INT_ARRAY_ARGUMENT_TYPE));
-                }
-
-                @Override public String getMethodsInterceptor() {
-                    return PREPARE_STATEMENT_METHOD_WITH_ARRAY_INTERCEPTOR_CLASS;
+                    return PREPARED_STATEMENT_INTERCEPT_CLASS;
                 }
 
                 @Override public boolean isOverrideArgs() {
@@ -107,7 +74,7 @@ public class ConnectionInstrumentation extends ClassInstanceMethodsEnhancePlugin
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return Constants.PREPARE_CALL_INTERCEPT_CLASS;
+                    return CALLABLE_INTERCEPT_CLASS;
                 }
 
                 @Override public boolean isOverrideArgs() {
@@ -120,7 +87,7 @@ public class ConnectionInstrumentation extends ClassInstanceMethodsEnhancePlugin
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return Constants.CREATE_STATEMENT_INTERCEPT_CLASS;
+                    return CREATE_STATEMENT_INTERCEPT_CLASS;
                 }
 
                 @Override public boolean isOverrideArgs() {

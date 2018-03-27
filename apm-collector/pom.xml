@@ -17,13 +17,11 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-alpha</version>
+        <version>5.0.0-beta-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -42,18 +40,18 @@
         <module>apm-collector-grpc-manager</module>
         <module>apm-collector-jetty-manager</module>
         <module>apm-collector-remote</module>
-        <module>apm-collector-stream</module>
-        <module>apm-collector-queue</module>
         <module>apm-collector-instrument</module>
-        <module>apm-collector-baseline</module>
-        <module>apm-collector-agent-grpc</module>
-        <module>apm-collector-agent-jetty</module>
-        <module>apm-collector-agent-stream</module>
-        <module>apm-collector-alerting</module>
         <module>apm-collector-configuration</module>
+        <module>apm-collector-agent</module>
+        <module>apm-collector-analysis</module>
     </modules>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>

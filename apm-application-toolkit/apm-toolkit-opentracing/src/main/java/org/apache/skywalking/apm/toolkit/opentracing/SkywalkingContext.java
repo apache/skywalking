@@ -20,6 +20,7 @@
 package org.apache.skywalking.apm.toolkit.opentracing;
 
 import io.opentracing.SpanContext;
+
 import java.util.Map;
 
 /**
@@ -30,7 +31,7 @@ import java.util.Map;
 public class SkywalkingContext implements SpanContext {
     public static final SkywalkingContext INSTANCE = new SkywalkingContext();
 
-    private SkywalkingContext() {
+    public SkywalkingContext() {
     }
 
     @Override

@@ -20,11 +20,11 @@
 package org.apache.skywalking.apm.agent.core.remote;
 
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.internal.DnsNameResolverProvider;
 import io.grpc.netty.NettyChannelBuilder;
+
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,12 +32,14 @@ import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
 /**
  * @author wusheng
@@ -59,8 +61,13 @@ public class GRPCChannelManager implements BootService, Runnable {
     @Override
     public void boot() throws Throwable {
         connectCheckFuture = Executors
-            .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("GRPCChannelManager"))
-            .scheduleAtFixedRate(this, 0, Config.Collector.GRPC_CHANNEL_CHECK_INTERVAL, TimeUnit.SECONDS);
+                .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("GRPCChannelManager"))
+                .scheduleAtFixedRate(new RunnableWithExceptionProtection(this, new RunnableWithExceptionProtection.CallbackWhenException() {
+                    @Override
+                    public void handle(Throwable t) {
+                        logger.error("unexpected exception.", t);
+                    }
+                }), 0, Config.Collector.GRPC_CHANNEL_CHECK_INTERVAL, TimeUnit.SECONDS);
     }
 
     @Override
@@ -87,11 +94,13 @@ public class GRPCChannelManager implements BootService, Runnable {
                     int index = Math.abs(random.nextInt()) % RemoteDownstreamConfig.Collector.GRPC_SERVERS.size();
                     server = RemoteDownstreamConfig.Collector.GRPC_SERVERS.get(index);
                     String[] ipAndPort = server.split(":");
-                    ManagedChannelBuilder<?> channelBuilder =
-                        NettyChannelBuilder.forAddress(ipAndPort[0], Integer.parseInt(ipAndPort[1]))
-                            .nameResolverFactory(new DnsNameResolverProvider())
-                            .maxInboundMessageSize(1024 * 1024 * 50)
-                            .usePlaintext(true);
+                    NettyChannelBuilder channelBuilder =
+                            new TLSChannelBuilder(
+                                    NettyChannelBuilder.forAddress(ipAndPort[0], Integer.parseInt(ipAndPort[1]))
+                                            .nameResolverFactory(new DnsNameResolverProvider())
+                                            .maxInboundMessageSize(1024 * 1024 * 50)
+                                            .usePlaintext(true)
+                            ).buildTLS();
                     managedChannel = channelBuilder.build();
                     if (!managedChannel.isShutdown() && !managedChannel.isTerminated()) {
                         reconnect = false;
@@ -141,13 +150,13 @@ public class GRPCChannelManager implements BootService, Runnable {
 
     private boolean isNetworkError(Throwable throwable) {
         if (throwable instanceof StatusRuntimeException) {
-            StatusRuntimeException statusRuntimeException = (StatusRuntimeException)throwable;
+            StatusRuntimeException statusRuntimeException = (StatusRuntimeException) throwable;
             return statusEquals(statusRuntimeException.getStatus(),
-                Status.UNAVAILABLE,
-                Status.PERMISSION_DENIED,
-                Status.UNAUTHENTICATED,
-                Status.RESOURCE_EXHAUSTED,
-                Status.UNKNOWN
+                    Status.UNAVAILABLE,
+                    Status.PERMISSION_DENIED,
+                    Status.UNAUTHENTICATED,
+                    Status.RESOURCE_EXHAUSTED,
+                    Status.UNKNOWN
             );
         }
         return false;

@@ -21,19 +21,19 @@ package org.apache.skywalking.apm.plugin.jdbc.postgresql.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
-import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
+import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
 
 /**
- * {@link ConnectionInstrumentation} intercept the following methods that the class which extend {@link
- * org.postgresql.jdbc.PgConnection}. <br/>
+ * {@link ConnectionInstrumentation} intercept the following methods that the class which extend
+ * {@link org.postgresql.jdbc.PgConnection}.
  *
  * 1. Enhance <code>prepareStatement</code> by <code>org.apache.skywalking.apm.plugin.jdbc.define.JDBCPrepareStatementInterceptor</code>
  * 2. Enhance <code>prepareStatement</code> that the seconds argument type is <code>java.lang.String[]</code> by
@@ -49,8 +49,11 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 public class ConnectionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String PREPARE_STATEMENT_METHOD_WITH_STRING_ARRAY_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.jdbc.postgresql.JDBCPrepareStatementWithStringArrayInterceptor";
-    public static final String ENHANCE_CLASS = "org.postgresql.jdbc.PgConnection";
+    public static final String PG_CONNECTION_ENHANCE_CLASS = "org.postgresql.jdbc.PgConnection";
     public static final String STRING_ARRAY_ARGUMENT_TYPE = "java.lang.String[]";
+    public static final String PG_JDBC42_CONNECTION_ENHANCE_CLASS = "org.postgresql.jdbc42.Jdbc42Connection";
+    public static final String PG_JDBC3_CONNECTION_ENHANCE_CLASS = "org.postgresql.jdbc3g.Jdbc3gConnection";
+    public static final String PG_JDBC4_CONNECTION_ENHANCE_CLASS = "org.postgresql.jdbc4.Jdbc4Connection";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -127,6 +130,6 @@ public class ConnectionInstrumentation extends ClassInstanceMethodsEnhancePlugin
     }
 
     @Override protected ClassMatch enhanceClass() {
-        return byName(ENHANCE_CLASS);
+        return byMultiClassMatch(PG_CONNECTION_ENHANCE_CLASS, PG_JDBC42_CONNECTION_ENHANCE_CLASS, PG_JDBC3_CONNECTION_ENHANCE_CLASS, PG_JDBC4_CONNECTION_ENHANCE_CLASS);
     }
 }

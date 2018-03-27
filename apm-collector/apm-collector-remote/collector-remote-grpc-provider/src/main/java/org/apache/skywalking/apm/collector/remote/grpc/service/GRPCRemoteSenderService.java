@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.remote.grpc.service;
 
 import java.util.ArrayList;
@@ -24,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.skywalking.apm.collector.cluster.ClusterModuleListener;
 import org.apache.skywalking.apm.collector.core.UnexpectedException;
-import org.apache.skywalking.apm.collector.core.data.Data;
+import org.apache.skywalking.apm.collector.core.data.RemoteData;
 import org.apache.skywalking.apm.collector.remote.RemoteModule;
 import org.apache.skywalking.apm.collector.remote.grpc.RemoteModuleGRPCProvider;
 import org.apache.skywalking.apm.collector.remote.grpc.service.selector.ForeverFirstSelector;
@@ -50,27 +49,27 @@ public class GRPCRemoteSenderService extends ClusterModuleListener implements Re
     private final int channelSize;
     private final int bufferSize;
 
-    @Override public Mode send(int graphId, int nodeId, Data data, Selector selector) {
+    @Override public Mode send(int graphId, int nodeId, RemoteData remoteData, Selector selector) {
         RemoteClient remoteClient;
         switch (selector) {
             case HashCode:
-                remoteClient = hashCodeSelector.select(remoteClients, data);
-                return sendToRemoteWhenNotSelf(remoteClient, graphId, nodeId, data);
+                remoteClient = hashCodeSelector.select(remoteClients, remoteData);
+                return sendToRemoteWhenNotSelf(remoteClient, graphId, nodeId, remoteData);
             case Rolling:
-                remoteClient = rollingSelector.select(remoteClients, data);
-                return sendToRemoteWhenNotSelf(remoteClient, graphId, nodeId, data);
+                remoteClient = rollingSelector.select(remoteClients, remoteData);
+                return sendToRemoteWhenNotSelf(remoteClient, graphId, nodeId, remoteData);
             case ForeverFirst:
-                remoteClient = foreverFirstSelector.select(remoteClients, data);
-                return sendToRemoteWhenNotSelf(remoteClient, graphId, nodeId, data);
+                remoteClient = foreverFirstSelector.select(remoteClients, remoteData);
+                return sendToRemoteWhenNotSelf(remoteClient, graphId, nodeId, remoteData);
         }
         throw new UnexpectedException("Selector not match, Just support hash, rolling, forever first selector.");
     }
 
-    private Mode sendToRemoteWhenNotSelf(RemoteClient remoteClient, int graphId, int nodeId, Data data) {
+    private Mode sendToRemoteWhenNotSelf(RemoteClient remoteClient, int graphId, int nodeId, RemoteData remoteData) {
         if (remoteClient.equals(selfAddress)) {
             return Mode.Local;
         } else {
-            remoteClient.push(graphId, nodeId, data);
+            remoteClient.push(graphId, nodeId, remoteData);
             return Mode.Remote;
         }
     }

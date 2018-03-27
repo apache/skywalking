@@ -16,20 +16,41 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.configuration;
 
 import java.util.Properties;
 import org.apache.skywalking.apm.collector.configuration.service.ApdexThresholdService;
+import org.apache.skywalking.apm.collector.configuration.service.ApplicationAlarmRuleConfig;
+import org.apache.skywalking.apm.collector.configuration.service.ApplicationReferenceAlarmRuleConfig;
+import org.apache.skywalking.apm.collector.configuration.service.CollectorConfigService;
+import org.apache.skywalking.apm.collector.configuration.service.IApdexThresholdService;
+import org.apache.skywalking.apm.collector.configuration.service.IApplicationAlarmRuleConfig;
+import org.apache.skywalking.apm.collector.configuration.service.IApplicationReferenceAlarmRuleConfig;
+import org.apache.skywalking.apm.collector.configuration.service.ICollectorConfig;
+import org.apache.skywalking.apm.collector.configuration.service.IInstanceAlarmRuleConfig;
+import org.apache.skywalking.apm.collector.configuration.service.IInstanceReferenceAlarmRuleConfig;
+import org.apache.skywalking.apm.collector.configuration.service.IServiceAlarmRuleConfig;
+import org.apache.skywalking.apm.collector.configuration.service.IServiceReferenceAlarmRuleConfig;
+import org.apache.skywalking.apm.collector.configuration.service.InstanceAlarmRuleConfig;
+import org.apache.skywalking.apm.collector.configuration.service.InstanceReferenceAlarmRuleConfig;
+import org.apache.skywalking.apm.collector.configuration.service.ServiceAlarmRuleConfig;
+import org.apache.skywalking.apm.collector.configuration.service.ServiceReferenceAlarmRuleConfig;
+import org.apache.skywalking.apm.collector.core.module.Module;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
-import org.apache.skywalking.apm.collector.configuration.service.IApdexThresholdService;
-import org.apache.skywalking.apm.collector.core.module.Module;
 
 /**
  * @author peng-yongsheng
  */
 public class ConfigurationModuleProvider extends ModuleProvider {
+    private static final String NAMESPACE = "namespace";
+    private static final String APPLICATION_APDEX_THRESHOLD = "application_apdex_threshold";
+    private static final String SERVICE_ERROR_RATE_THRESHOLD = "service_error_rate_threshold";
+    private static final String SERVICE_AVERAGE_RESPONSE_TIME_THRESHOLD = "service_average_response_time_threshold";
+    private static final String INSTANCE_ERROR_RATE_THRESHOLD = "instance_error_rate_threshold";
+    private static final String INSTANCE_AVERAGE_RESPONSE_TIME_THRESHOLD = "instance_average_response_time_threshold";
+    private static final String APPLICATION_ERROR_RATE_THRESHOLD = "application_error_rate_threshold";
+    private static final String APPLICATION_AVERAGE_RESPONSE_TIME_THRESHOLD = "application_average_response_time_threshold";
 
     @Override public String name() {
         return "default";
@@ -40,7 +61,23 @@ public class ConfigurationModuleProvider extends ModuleProvider {
     }
 
     @Override public void prepare(Properties config) throws ServiceNotProvidedException {
-        this.registerServiceImplementation(IApdexThresholdService.class, new ApdexThresholdService());
+        String namespace = (String)config.getOrDefault(NAMESPACE, "");
+        Integer applicationApdexThreshold = (Integer)config.getOrDefault(APPLICATION_APDEX_THRESHOLD, 2000);
+        Double serviceErrorRateThreshold = (Double)config.getOrDefault(SERVICE_ERROR_RATE_THRESHOLD, 10.00);
+        Integer serviceAverageResponseTimeThreshold = (Integer)config.getOrDefault(SERVICE_AVERAGE_RESPONSE_TIME_THRESHOLD, 2000);
+        Double instanceErrorRateThreshold = (Double)config.getOrDefault(INSTANCE_ERROR_RATE_THRESHOLD, 10.00);
+        Integer instanceAverageResponseTimeThreshold = (Integer)config.getOrDefault(INSTANCE_AVERAGE_RESPONSE_TIME_THRESHOLD, 2000);
+        Double applicationErrorRateThreshold = (Double)config.getOrDefault(APPLICATION_ERROR_RATE_THRESHOLD, 10.00);
+        Integer applicationAverageResponseTimeThreshold = (Integer)config.getOrDefault(APPLICATION_AVERAGE_RESPONSE_TIME_THRESHOLD, 2000);
+
+        this.registerServiceImplementation(ICollectorConfig.class, new CollectorConfigService(namespace));
+        this.registerServiceImplementation(IApdexThresholdService.class, new ApdexThresholdService(applicationApdexThreshold));
+        this.registerServiceImplementation(IServiceAlarmRuleConfig.class, new ServiceAlarmRuleConfig(serviceErrorRateThreshold, serviceAverageResponseTimeThreshold));
+        this.registerServiceImplementation(IInstanceAlarmRuleConfig.class, new InstanceAlarmRuleConfig(instanceErrorRateThreshold, instanceAverageResponseTimeThreshold));
+        this.registerServiceImplementation(IApplicationAlarmRuleConfig.class, new ApplicationAlarmRuleConfig(applicationErrorRateThreshold, applicationAverageResponseTimeThreshold));
+        this.registerServiceImplementation(IServiceReferenceAlarmRuleConfig.class, new ServiceReferenceAlarmRuleConfig(serviceErrorRateThreshold, serviceAverageResponseTimeThreshold));
+        this.registerServiceImplementation(IInstanceReferenceAlarmRuleConfig.class, new InstanceReferenceAlarmRuleConfig(instanceErrorRateThreshold, instanceAverageResponseTimeThreshold));
+        this.registerServiceImplementation(IApplicationReferenceAlarmRuleConfig.class, new ApplicationReferenceAlarmRuleConfig(applicationErrorRateThreshold, applicationAverageResponseTimeThreshold));
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {

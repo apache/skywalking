@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
 import java.util.HashMap;
@@ -47,14 +46,16 @@ public class InstanceHeartBeatEsPersistenceDAO extends EsDAO implements IInstanc
     @Override public Instance get(String id) {
         GetResponse getResponse = getClient().prepareGet(InstanceTable.TABLE, id).get();
         if (getResponse.isExists()) {
-            Instance instance = new Instance(id);
             Map<String, Object> source = getResponse.getSource();
-            instance.setInstanceId((Integer)source.get(InstanceTable.COLUMN_INSTANCE_ID));
-            instance.setHeartBeatTime((Long)source.get(InstanceTable.COLUMN_HEARTBEAT_TIME));
-            logger.debug("getId: {} is exists", id);
+
+            Instance instance = new Instance();
+            instance.setId(id);
+            instance.setInstanceId(((Number)source.get(InstanceTable.COLUMN_INSTANCE_ID)).intValue());
+            instance.setHeartBeatTime(((Number)source.get(InstanceTable.COLUMN_HEARTBEAT_TIME)).longValue());
+            logger.debug("getApplicationId: {} is exists", id);
             return instance;
         } else {
-            logger.debug("getId: {} is not exists", id);
+            logger.debug("getApplicationId: {} is not exists", id);
             return null;
         }
     }

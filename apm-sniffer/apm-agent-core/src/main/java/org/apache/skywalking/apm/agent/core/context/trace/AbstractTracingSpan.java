@@ -59,7 +59,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     protected String componentName;
 
     /**
-     * Log is a concept from OpenTracing spec. <p> {@see https://github.com/opentracing/specification/blob/master/specification.md#log-structured-data}
+     * Log is a concept from OpenTracing spec. https://github.com/opentracing/specification/blob/master/specification.md#log-structured-data
      */
     protected List<LogDataEntity> logs;
 
@@ -236,6 +236,12 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     @Override
     public AbstractTracingSpan setComponent(String componentName) {
         this.componentName = componentName;
+        return this;
+    }
+
+    @Override
+    public AbstractSpan start(long startTime) {
+        this.startTime = startTime;
         return this;
     }
 

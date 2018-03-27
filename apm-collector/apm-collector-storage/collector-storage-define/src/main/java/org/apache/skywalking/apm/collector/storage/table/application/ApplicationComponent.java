@@ -16,37 +16,56 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.table.application;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
-import org.apache.skywalking.apm.collector.core.data.Data;
-import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
+import org.apache.skywalking.apm.collector.core.data.RemoteData;
+import org.apache.skywalking.apm.collector.core.data.StreamData;
+import org.apache.skywalking.apm.collector.core.data.operator.CoverMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
+import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationComponent extends Data {
+public class ApplicationComponent extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(ApplicationComponentTable.COLUMN_ID, new NonOperation()),
+        new Column(ApplicationComponentTable.COLUMN_ID, new NonMergeOperation()),
+        new Column(ApplicationComponentTable.COLUMN_METRIC_ID, new NonMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(ApplicationComponentTable.COLUMN_TIME_BUCKET, new CoverOperation()),
-    };
-    private static final Column[] DOUBLE_COLUMNS = {};
-    private static final Column[] INTEGER_COLUMNS = {
-        new Column(ApplicationComponentTable.COLUMN_COMPONENT_ID, new CoverOperation()),
-        new Column(ApplicationComponentTable.COLUMN_PEER_ID, new CoverOperation()),
+        new Column(ApplicationComponentTable.COLUMN_TIME_BUCKET, new CoverMergeOperation()),
     };
 
-    private static final Column[] BOOLEAN_COLUMNS = {};
+    private static final Column[] DOUBLE_COLUMNS = {};
+
+    private static final Column[] INTEGER_COLUMNS = {
+        new Column(ApplicationComponentTable.COLUMN_COMPONENT_ID, new CoverMergeOperation()),
+        new Column(ApplicationComponentTable.COLUMN_APPLICATION_ID, new CoverMergeOperation()),
+    };
+
     private static final Column[] BYTE_COLUMNS = {};
 
-    public ApplicationComponent(String id) {
-        super(id, STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
+    public ApplicationComponent() {
+        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
+    }
+
+    @Override public String getId() {
+        return getDataString(0);
+    }
+
+    @Override public void setId(String id) {
+        setDataString(0, id);
+    }
+
+    @Override public String getMetricId() {
+        return getDataString(1);
+    }
+
+    @Override public void setMetricId(String metricId) {
+        setDataString(1, metricId);
     }
 
     public Long getTimeBucket() {
@@ -65,11 +84,17 @@ public class ApplicationComponent extends Data {
         setDataInteger(0, componentId);
     }
 
-    public Integer getPeerId() {
+    public Integer getApplicationId() {
         return getDataInteger(1);
     }
 
-    public void setPeerId(Integer peerId) {
-        setDataInteger(1, peerId);
+    public void setApplicationId(Integer applicationId) {
+        setDataInteger(1, applicationId);
+    }
+
+    public static class InstanceCreator implements RemoteDataRegisterService.RemoteDataInstanceCreator {
+        @Override public RemoteData createInstance() {
+            return new ApplicationComponent();
+        }
     }
 }

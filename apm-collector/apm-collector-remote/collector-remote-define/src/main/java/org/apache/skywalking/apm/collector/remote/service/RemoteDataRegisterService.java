@@ -16,19 +16,18 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.remote.service;
 
+import org.apache.skywalking.apm.collector.core.data.RemoteData;
 import org.apache.skywalking.apm.collector.core.module.Service;
-import org.apache.skywalking.apm.collector.core.data.Data;
 
 /**
  * @author peng-yongsheng
  */
 public interface RemoteDataRegisterService extends Service {
-    void register(Class<? extends Data> dataClass, RemoteDataInstanceCreator instanceCreator);
+    void register(Class<? extends RemoteData> dataClass, RemoteDataInstanceCreator instanceCreator);
 
-    interface RemoteDataInstanceCreator<RemoteData extends Data> {
-        RemoteData createInstance(String id);
+    interface RemoteDataInstanceCreator<REMOTE_DATA extends RemoteData> {
+        REMOTE_DATA createInstance();
     }
 }

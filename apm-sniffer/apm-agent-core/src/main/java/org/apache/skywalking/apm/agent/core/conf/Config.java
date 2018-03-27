@@ -32,6 +32,11 @@ public class Config {
 
     public static class Agent {
         /**
+         * Namespace isolates headers in cross process propagation. The HEADER name will be `HeaderName:Namespace`.
+         */
+        public static String NAMESPACE = "";
+
+        /**
          * Application code is showed in sky-walking-ui. Suggestion: set an unique name for each application, one
          * application's nodes share the same code.
          */
@@ -75,10 +80,23 @@ public class Config {
          */
         public static long DISCOVERY_CHECK_INTERVAL = 60;
         /**
-         * Collector REST-Service address. e.g. SERVERS="127.0.0.1:8080"  for single collector node.
-         * SERVERS="10.2.45.126:8080,10.2.45.127:7600"  for multi collector nodes.
+         * Collector naming/jetty service addresses.
+         * Primary address setting.
+         *
+         * e.g.
+         * SERVERS="127.0.0.1:10800"  for single collector node.
+         * SERVERS="10.2.45.126:10800,10.2.45.127:10800"  for multi collector nodes.
          */
         public static String SERVERS = "";
+
+        /**
+         * Collector agent_gRPC/grpc service addresses.
+         * Secondary address setting, only effect when #SERVERS is empty.
+         *
+         * By using this, no discovery mechanism provided. The agent only uses these addresses to uplink data.
+         *
+         */
+        public static String DIRECT_SERVERS = "";
 
         /**
          * Collector service discovery REST service name
@@ -117,7 +135,7 @@ public class Config {
         /**
          * Log files directory. Default is blank string, means, use "system.out" to output logs.
          *
-         * @see {@link WriterFactory#getLogWriter()}
+         * Ref to {@link WriterFactory#getLogWriter()}
          */
         public static String DIR = "";
 
@@ -129,8 +147,6 @@ public class Config {
 
         /**
          * The log level. Default is debug.
-         *
-         * @see {@link LogLevel}
          */
         public static LogLevel LEVEL = LogLevel.DEBUG;
     }

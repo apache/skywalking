@@ -16,22 +16,21 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jetty.v9.client;
 
 import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.eclipse.jetty.client.HttpRequest;
 import org.eclipse.jetty.http.HttpFields;
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
 public class SyncHttpRequestSendInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -42,7 +41,8 @@ public class SyncHttpRequestSendInterceptor implements InstanceMethodsAroundInte
         ContextCarrier contextCarrier = new ContextCarrier();
         AbstractSpan span = ContextManager.createExitSpan(request.getURI().getPath(), contextCarrier, request.getHost() + ":" + request.getPort());
         span.setComponent(ComponentsDefine.JETTY_CLIENT);
-        Tags.HTTP.METHOD.set(span, "GET");
+
+        Tags.HTTP.METHOD.set(span, getHttpMethod(request));
         Tags.URL.set(span, request.getURI().toString());
         SpanLayer.asHttp(span);
 
@@ -64,5 +64,15 @@ public class SyncHttpRequestSendInterceptor implements InstanceMethodsAroundInte
     @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
+    }
+
+    public String getHttpMethod(HttpRequest request) {
+        String method = request.getMethod();
+
+        if (method == null || method.length() == 0) {
+            method = "GET";
+        }
+
+        return method;
     }
 }

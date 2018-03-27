@@ -16,19 +16,16 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.remote.grpc.handler;
 
 import io.grpc.stub.StreamObserver;
-import org.apache.skywalking.apm.collector.core.data.Data;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.graph.Next;
-import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.remote.grpc.service.GRPCRemoteDeserializeService;
 import org.apache.skywalking.apm.collector.remote.grpc.proto.Empty;
 import org.apache.skywalking.apm.collector.remote.grpc.proto.RemoteCommonServiceGrpc;
 import org.apache.skywalking.apm.collector.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.apm.collector.remote.grpc.proto.RemoteMessage;
+import org.apache.skywalking.apm.collector.remote.grpc.service.GRPCRemoteDeserializeService;
 import org.apache.skywalking.apm.collector.remote.service.RemoteDataInstanceCreatorGetter;
 import org.apache.skywalking.apm.collector.remote.service.RemoteDataInstanceCreatorNotFoundException;
 import org.apache.skywalking.apm.collector.server.grpc.GRPCHandler;
@@ -60,7 +57,7 @@ public class RemoteCommonServiceHandler extends RemoteCommonServiceGrpc.RemoteCo
                 RemoteData remoteData = message.getRemoteData();
 
                 try {
-                    Data output = instanceCreatorGetter.getInstanceCreator(remoteDataId).createInstance(Const.EMPTY_STRING);
+                    org.apache.skywalking.apm.collector.core.data.RemoteData output = instanceCreatorGetter.getInstanceCreator(remoteDataId).createInstance();
                     service.deserialize(remoteData, output);
                     Next next = GraphManager.INSTANCE.findGraph(graphId).toFinder().findNext(nodeId);
                     next.execute(output);

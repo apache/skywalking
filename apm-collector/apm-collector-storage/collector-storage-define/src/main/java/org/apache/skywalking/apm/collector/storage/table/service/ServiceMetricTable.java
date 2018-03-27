@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.table.service;
 
 import org.apache.skywalking.apm.collector.storage.table.CommonMetricTable;
@@ -26,5 +25,4 @@ import org.apache.skywalking.apm.collector.storage.table.CommonMetricTable;
  */
 public class ServiceMetricTable extends CommonMetricTable {
     public static final String TABLE = "service_metric";
-    public static final String COLUMN_SERVICE_ID = "service_id";
 }

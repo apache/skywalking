@@ -16,17 +16,17 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.core.util;
 
 /**
  * @author peng-yongsheng
  */
 public class Const {
+    public static final int NONE = 0;
     public static final String ID_SPLIT = "_";
-    public static final int USER_ID = 1;
-    public static final int NONE_SERVICE_ID = 1;
+    public static final int NONE_APPLICATION_ID = 1;
     public static final int NONE_INSTANCE_ID = 1;
+    public static final int NONE_SERVICE_ID = 1;
     public static final String NONE_SERVICE_NAME = "None";
     public static final String USER_CODE = "User";
     public static final String SEGMENT_SPAN_SPLIT = "S";
@@ -34,4 +34,6 @@ public class Const {
     public static final String EXCEPTION = "Exception";
     public static final String EMPTY_STRING = "";
     public static final String FILE_SUFFIX = "sw";
+    public static final int SPAN_TYPE_VIRTUAL = 9;
+    public static final String DOMAIN_OPERATION_NAME = "{domain}";
 }

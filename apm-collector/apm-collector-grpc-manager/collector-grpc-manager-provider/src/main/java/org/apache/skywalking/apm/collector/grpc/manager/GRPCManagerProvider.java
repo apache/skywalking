@@ -42,7 +42,7 @@ public class GRPCManagerProvider extends ModuleProvider {
     private Map<String, GRPCServer> servers = new HashMap<>();
 
     @Override public String name() {
-        return "gRPC";
+        return "default";
     }
 
     @Override public Class<? extends Module> module() {

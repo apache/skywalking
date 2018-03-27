@@ -16,68 +16,92 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.table.service;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
-import org.apache.skywalking.apm.collector.core.data.Data;
-import org.apache.skywalking.apm.collector.core.data.operator.AddOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
+import org.apache.skywalking.apm.collector.core.data.FormulaOperation;
+import org.apache.skywalking.apm.collector.core.data.RemoteData;
+import org.apache.skywalking.apm.collector.core.data.StreamData;
+import org.apache.skywalking.apm.collector.core.data.operator.AddMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
+import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
+import org.apache.skywalking.apm.collector.storage.table.Metric;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceReferenceMetric extends Data {
+public class ServiceReferenceMetric extends StreamData implements Metric {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(ServiceReferenceMetricTable.COLUMN_ID, new NonOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_ID, new NonMergeOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_METRIC_ID, new NonMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET, new NonOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET, new NonMergeOperation()),
 
-        new Column(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_CALLS, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, new AddOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, new AddOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS, new AddMergeOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, new AddMergeOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new TransactionAverageDurationFormulaOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, new AddMergeOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, new AddMergeOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new BusinessTransactionAverageDurationFormulaOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_CALLS, new AddMergeOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, new AddMergeOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new MqTransactionAverageDurationFormulaOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {};
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(ServiceReferenceMetricTable.COLUMN_ENTRY_SERVICE_ID, new NonOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, new NonOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, new NonOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_SOURCE_VALUE, new NonMergeOperation()),
 
-        new Column(ServiceReferenceMetricTable.COLUMN_ENTRY_INSTANCE_ID, new NonOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_FRONT_INSTANCE_ID, new NonOperation()),
-        new Column(ServiceReferenceMetricTable.COLUMN_BEHIND_INSTANCE_ID, new NonOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, new NonMergeOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, new NonMergeOperation()),
 
-        new Column(ServiceReferenceMetricTable.COLUMN_SOURCE_VALUE, new NonOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_FRONT_INSTANCE_ID, new NonMergeOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_BEHIND_INSTANCE_ID, new NonMergeOperation()),
+
+        new Column(ServiceReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID, new NonMergeOperation()),
+        new Column(ServiceReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID, new NonMergeOperation()),
     };
-
-    private static final Column[] BOOLEAN_COLUMNS = {};
 
     private static final Column[] BYTE_COLUMNS = {};
 
-    public ServiceReferenceMetric(String id) {
-        super(id, STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
+    public ServiceReferenceMetric() {
+        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
     }
 
-    public Integer getEntryServiceId() {
+    @Override public String getId() {
+        return getDataString(0);
+    }
+
+    @Override public void setId(String id) {
+        setDataString(0, id);
+    }
+
+    @Override public String getMetricId() {
+        return getDataString(1);
+    }
+
+    @Override public void setMetricId(String metricId) {
+        setDataString(1, metricId);
+    }
+
+    @Override
+    public Integer getSourceValue() {
         return getDataInteger(0);
     }
 
-    public void setEntryServiceId(Integer entryServiceId) {
-        setDataInteger(0, entryServiceId);
+    @Override
+    public void setSourceValue(Integer sourceValue) {
+        setDataInteger(0, sourceValue);
     }
 
     public Integer getFrontServiceId() {
@@ -96,139 +120,216 @@ public class ServiceReferenceMetric extends Data {
         setDataInteger(2, behindServiceId);
     }
 
-    public Integer getEntryInstanceId() {
+    public Integer getFrontInstanceId() {
         return getDataInteger(3);
     }
 
-    public void setEntryInstanceId(Integer entryInstanceId) {
-        setDataInteger(3, entryInstanceId);
-    }
-
-    public Integer getFrontInstanceId() {
-        return getDataInteger(4);
-    }
-
     public void setFrontInstanceId(Integer frontInstanceId) {
-        setDataInteger(4, frontInstanceId);
+        setDataInteger(3, frontInstanceId);
     }
 
     public Integer getBehindInstanceId() {
-        return getDataInteger(5);
+        return getDataInteger(4);
     }
 
     public void setBehindInstanceId(Integer behindInstanceId) {
-        setDataInteger(5, behindInstanceId);
+        setDataInteger(4, behindInstanceId);
     }
 
-    public Integer getSourceValue() {
+    public Integer getFrontApplicationId() {
+        return getDataInteger(5);
+    }
+
+    public void setFrontApplicationId(Integer frontApplicationId) {
+        setDataInteger(5, frontApplicationId);
+    }
+
+    public Integer getBehindApplicationId() {
         return getDataInteger(6);
     }
 
-    public void setSourceValue(Integer sourceValue) {
-        setDataInteger(6, sourceValue);
+    public void setBehindApplicationId(Integer behindApplicationId) {
+        setDataInteger(6, behindApplicationId);
     }
 
+    @Override
     public Long getTimeBucket() {
         return getDataLong(0);
     }
 
+    @Override
     public void setTimeBucket(Long timeBucket) {
         setDataLong(0, timeBucket);
     }
 
+    @Override
     public Long getTransactionCalls() {
         return getDataLong(1);
     }
 
+    @Override
     public void setTransactionCalls(Long transactionCalls) {
         setDataLong(1, transactionCalls);
     }
 
+    @Override
     public Long getTransactionErrorCalls() {
         return getDataLong(2);
     }
 
+    @Override
     public void setTransactionErrorCalls(Long transactionErrorCalls) {
         setDataLong(2, transactionErrorCalls);
     }
 
+    @Override
     public Long getTransactionDurationSum() {
         return getDataLong(3);
     }
 
+    @Override
     public void setTransactionDurationSum(Long transactionDurationSum) {
         setDataLong(3, transactionDurationSum);
     }
 
+    @Override
     public Long getTransactionErrorDurationSum() {
         return getDataLong(4);
     }
 
+    @Override
     public void setTransactionErrorDurationSum(Long transactionErrorDurationSum) {
         setDataLong(4, transactionErrorDurationSum);
     }
 
-    public Long getBusinessTransactionCalls() {
+    @Override public Long getTransactionAverageDuration() {
         return getDataLong(5);
     }
 
-    public void setBusinessTransactionCalls(Long businessTransactionCalls) {
-        setDataLong(5, businessTransactionCalls);
+    @Override public void setTransactionAverageDuration(Long transactionAverageDuration) {
+        setDataLong(5, transactionAverageDuration);
     }
 
-    public Long getBusinessTransactionErrorCalls() {
+    @Override
+    public Long getBusinessTransactionCalls() {
         return getDataLong(6);
     }
 
-    public void setBusinessTransactionErrorCalls(Long businessTransactionErrorCalls) {
-        setDataLong(6, businessTransactionErrorCalls);
+    @Override
+    public void setBusinessTransactionCalls(Long businessTransactionCalls) {
+        setDataLong(6, businessTransactionCalls);
     }
 
-    public Long getBusinessTransactionDurationSum() {
+    @Override
+    public Long getBusinessTransactionErrorCalls() {
         return getDataLong(7);
     }
 
-    public void setBusinessTransactionDurationSum(Long businessTransactionDurationSum) {
-        setDataLong(7, businessTransactionDurationSum);
+    @Override
+    public void setBusinessTransactionErrorCalls(Long businessTransactionErrorCalls) {
+        setDataLong(7, businessTransactionErrorCalls);
     }
 
-    public Long getBusinessTransactionErrorDurationSum() {
+    @Override
+    public Long getBusinessTransactionDurationSum() {
         return getDataLong(8);
     }
 
-    public void setBusinessTransactionErrorDurationSum(Long businessTransactionErrorDurationSum) {
-        setDataLong(8, businessTransactionErrorDurationSum);
+    @Override
+    public void setBusinessTransactionDurationSum(Long businessTransactionDurationSum) {
+        setDataLong(8, businessTransactionDurationSum);
     }
 
-    public Long getMqTransactionCalls() {
+    @Override
+    public Long getBusinessTransactionErrorDurationSum() {
         return getDataLong(9);
     }
 
-    public void setMqTransactionCalls(Long mqTransactionCalls) {
-        setDataLong(9, mqTransactionCalls);
+    @Override
+    public void setBusinessTransactionErrorDurationSum(Long businessTransactionErrorDurationSum) {
+        setDataLong(9, businessTransactionErrorDurationSum);
     }
 
-    public Long getMqTransactionErrorCalls() {
+    @Override public Long getBusinessTransactionAverageDuration() {
         return getDataLong(10);
     }
 
-    public void setMqTransactionErrorCalls(Long mqTransactionErrorCalls) {
-        setDataLong(10, mqTransactionErrorCalls);
+    @Override public void setBusinessTransactionAverageDuration(Long businessTransactionAverageDuration) {
+        setDataLong(10, businessTransactionAverageDuration);
     }
 
-    public Long getMqTransactionDurationSum() {
+    @Override
+    public Long getMqTransactionCalls() {
         return getDataLong(11);
     }
 
-    public void setMqTransactionDurationSum(Long mqTransactionDurationSum) {
-        setDataLong(11, mqTransactionDurationSum);
+    @Override
+    public void setMqTransactionCalls(Long mqTransactionCalls) {
+        setDataLong(11, mqTransactionCalls);
     }
 
-    public Long getMqTransactionErrorDurationSum() {
+    @Override
+    public Long getMqTransactionErrorCalls() {
         return getDataLong(12);
     }
 
+    @Override
+    public void setMqTransactionErrorCalls(Long mqTransactionErrorCalls) {
+        setDataLong(12, mqTransactionErrorCalls);
+    }
+
+    @Override
+    public Long getMqTransactionDurationSum() {
+        return getDataLong(13);
+    }
+
+    @Override
+    public void setMqTransactionDurationSum(Long mqTransactionDurationSum) {
+        setDataLong(13, mqTransactionDurationSum);
+    }
+
+    @Override
+    public Long getMqTransactionErrorDurationSum() {
+        return getDataLong(14);
+    }
+
+    @Override
     public void setMqTransactionErrorDurationSum(Long mqTransactionErrorDurationSum) {
-        setDataLong(12, mqTransactionErrorDurationSum);
+        setDataLong(14, mqTransactionErrorDurationSum);
+    }
+
+    @Override public Long getMqTransactionAverageDuration() {
+        return getDataLong(15);
+    }
+
+    @Override public void setMqTransactionAverageDuration(Long mqTransactionAverageDuration) {
+        setDataLong(15, mqTransactionAverageDuration);
+    }
+
+    public static class InstanceCreator implements RemoteDataRegisterService.RemoteDataInstanceCreator {
+        @Override public RemoteData createInstance() {
+            return new ServiceReferenceMetric();
+        }
+    }
+
+    private static class TransactionAverageDurationFormulaOperation implements FormulaOperation<ServiceReferenceMetric, Long> {
+
+        @Override public Long operate(ServiceReferenceMetric data) {
+            return data.getTransactionCalls() == 0 ? 0 : data.getTransactionDurationSum() / data.getTransactionCalls();
+        }
+    }
+
+    private static class BusinessTransactionAverageDurationFormulaOperation implements FormulaOperation<ServiceReferenceMetric, Long> {
+
+        @Override public Long operate(ServiceReferenceMetric data) {
+            return data.getBusinessTransactionCalls() == 0 ? 0 : data.getBusinessTransactionDurationSum() / data.getBusinessTransactionCalls();
+        }
+    }
+
+    private static class MqTransactionAverageDurationFormulaOperation implements FormulaOperation<ServiceReferenceMetric, Long> {
+
+        @Override public Long operate(ServiceReferenceMetric data) {
+            return data.getMqTransactionCalls() == 0 ? 0 : data.getMqTransactionDurationSum() / data.getMqTransactionCalls();
+        }
     }
 }

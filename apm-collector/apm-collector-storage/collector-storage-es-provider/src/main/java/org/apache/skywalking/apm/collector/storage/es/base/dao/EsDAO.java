@@ -16,9 +16,10 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.es.base.dao;
 
+import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.storage.base.dao.AbstractDAO;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -26,8 +27,6 @@ import org.elasticsearch.search.aggregations.metrics.max.Max;
 import org.elasticsearch.search.aggregations.metrics.max.MaxAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.min.Min;
 import org.elasticsearch.search.aggregations.metrics.min.MinAggregationBuilder;
-import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.apm.collector.storage.base.dao.AbstractDAO;
 
 /**
  * @author peng-yongsheng
@@ -38,7 +37,7 @@ public abstract class EsDAO extends AbstractDAO<ElasticSearchClient> {
         super(client);
     }
 
-    public final int getMaxId(String indexName, String columnName) {
+    protected final int getMaxId(String indexName, String columnName) {
         ElasticSearchClient client = getClient();
         SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName);
         searchRequestBuilder.setTypes("type");
@@ -57,7 +56,7 @@ public abstract class EsDAO extends AbstractDAO<ElasticSearchClient> {
         }
     }
 
-    public final int getMinId(String indexName, String columnName) {
+    protected final int getMinId(String indexName, String columnName) {
         ElasticSearchClient client = getClient();
         SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName);
         searchRequestBuilder.setTypes("type");
