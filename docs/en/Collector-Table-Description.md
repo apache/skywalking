@@ -37,9 +37,10 @@ address_id | c9 | Integer | A foreign key reference by network_address table
 - Column `os_info` 
   - For example: {"osName":"MacOS X","hostName":"peng-yongsheng","processId":1000,"ipv4s":["10.0.0.1","10.0.0.2"]}
 - Column `heartbeat_time`
-  - Updated by agent heart beat
-  - Updated by JVM metric data
-  - Updated by trace segment data.
+  - Updated by agent heart beat [1]
+  - Updated by JVM metric data [2]
+  - Updated by trace segment data. [3]
+  - Priority: [1] > [2] > [3]
 
 ### NetworkAddress
 - Table name: network_address
