@@ -61,6 +61,6 @@
     </build>
 
   <scm>
-    <tag>apm-5.0.0-alpha</tag>
+    <tag>v5.0.0-alpha</tag>
   </scm>
 </project>

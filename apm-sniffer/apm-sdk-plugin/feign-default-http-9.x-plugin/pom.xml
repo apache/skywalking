@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sdk-plugin</artifactId>
-        <version>5.0.0-alpha-SNAPSHOT</version>
+        <version>5.0.0-alpha</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
