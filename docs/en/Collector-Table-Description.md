@@ -93,7 +93,7 @@ metric_id | c1 | Keyword | the value is `instance_id`
 instance_id | c2 | Integer | Owner instance id
 usage_percent | c3 | Double | Cpu usage percent, sums values aggregate by `time_bucket`
 times | c4 | Long | The records received times in this time bucket
-time_bucket | c5 | Long | [A formatted date](#Metric table time bucket)
+time_bucket | c5 | Long | [Date format](Collector-Table-Description.md#Metric-table-time-bucket)
 
 ### GCMetric
 - Table name: gc_metric_`TimeUnit`
@@ -104,9 +104,9 @@ Column Name | Short Name | Data Type | Description
 _id | _id | Keyword | primary key, es speciality, the value is `time_bucket`_`metric_id`
 metric_id | c1 | Keyword | the value is `instance_id`_`phrase`
 instance_id | c2 | Integer | Owner instance id
-phrase | c3 | Integer | [GCPhrase](org.apache.skywalking.apm.network.proto.GCPhrase)
+phrase | c3 | Integer | [GCPhrase](https://github.com/apache/incubator-skywalking-data-collect-protocol/blob/master/JVMMetricsService.proto#L80-L83)
 count | c3 | Long | Cpu usage percent, sums values aggregate by `time_bucket`
 times | c4 | Long | The records received times in this time bucket
-time_bucket | c5 | Long | [A formatted date](#Metric table time bucket)
+time_bucket | c5 | Long | [A formatted date](Collector-Table-Description.md#Metric-table-time-bucket)
 
 ## Table of Alarm metric related
