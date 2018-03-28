@@ -31,7 +31,7 @@ public class CallableOrRunnableInvokeInterceptor implements InstanceMethodsAroun
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        ContextManager.createLocalSpan("Thread/run");
+        ContextManager.createLocalSpan("Thread/" + objInst.getClass().getName() + "/" + method.getName());
         ContextSnapshot cachedObjects = (ContextSnapshot)objInst.getSkyWalkingDynamicField();
         ContextManager.continued(cachedObjects);
     }

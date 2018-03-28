@@ -24,7 +24,7 @@ import java.util.concurrent.Callable;
  */
 @TraceCrossThread
 public class CallableWrapper<V> implements Callable<V> {
-    Callable<V> callable;
+    final Callable<V> callable;
 
     public static <V> CallableWrapper of(Callable<V> r) {
         return new CallableWrapper<V>(r);
