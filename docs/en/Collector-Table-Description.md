@@ -105,8 +105,43 @@ _id | _id | Keyword | primary key, es speciality, the value is `time_bucket`_`me
 metric_id | c1 | Keyword | the value is `instance_id`_`phrase`
 instance_id | c2 | Integer | Owner instance id
 phrase | c3 | Integer | [GCPhrase](https://github.com/apache/incubator-skywalking-data-collect-protocol/blob/master/JVMMetricsService.proto#L80-L83)
-count | c3 | Long | Cpu usage percent, sums values aggregate by `time_bucket`
-times | c4 | Long | The records received times in this time bucket
-time_bucket | c5 | Long | [A formatted date](Collector-Table-Description.md#Metric-table-time-bucket)
+count | c4 | Long | GC count, sums values aggregate by `time_bucket`
+times | c5 | Long | The records received times in this time bucket
+time_bucket | c6 | Long | [A formatted date](Collector-Table-Description.md#Metric-table-time-bucket)
+
+### MemoryMetric
+- Table name: memory_metric_`TimeUnit`
+- TimeUnit contains second, minute, hour, day, month
+
+Column Name | Short Name | Data Type | Description
+----------- | ---------- | --------- | ---------
+_id | _id | Keyword | primary key, es speciality, the value is `time_bucket`_`metric_id`
+metric_id | c1 | Keyword | the value is `instance_id`_`is_heap`
+instance_id | c2 | Integer | Owner instance id
+is_heap | c3 | Integer | Is a boolean data. True(1), False(0)
+init | c4 | Long | Sums values aggregate by `time_bucket`
+max | c5 | Long | Sums values aggregate by `time_bucket`
+used | c6 | Long | Sums values aggregate by `time_bucket`
+committed | c7 | Long | Sums values aggregate by `time_bucket`
+times | c8 | Long | The records received times in this time bucket
+time_bucket | c9 | Long | [A formatted date](Collector-Table-Description.md#Metric-table-time-bucket)
+
+### MemoryPoolMetric
+- Table name: memory_pool_metric_`TimeUnit`
+- TimeUnit contains second, minute, hour, day, month
+
+Column Name | Short Name | Data Type | Description
+----------- | ---------- | --------- | ---------
+_id | _id | Keyword | primary key, es speciality, the value is `time_bucket`_`metric_id`
+metric_id | c1 | Keyword | the value is `instance_id`_`pool_type`
+instance_id | c2 | Integer | Owner instance id
+pool_type | c3 | Integer | Owner instance id
+init | c4 | Long | Sums values aggregate by `time_bucket`
+max | c5 | Long | Sums values aggregate by `time_bucket`
+used | c6 | Long | Sums values aggregate by `time_bucket`
+committed | c7 | Long | Sums values aggregate by `time_bucket`
+times | c8 | Long | The records received times in this time bucket
+time_bucket | c9 | Long | [A formatted date](Collector-Table-Description.md#Metric-table-time-bucket)
+
 
 ## Table of Alarm metric related
