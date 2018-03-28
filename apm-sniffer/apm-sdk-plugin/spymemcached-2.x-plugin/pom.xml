@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sdk-plugin</artifactId>
-        <version>5.0.0-alpha</version>
+        <version>5.0.0-alpha-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-spymemcached-2.x-plugin</artifactId>
