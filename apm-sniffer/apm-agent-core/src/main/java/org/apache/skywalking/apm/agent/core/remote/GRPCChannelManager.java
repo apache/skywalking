@@ -19,7 +19,6 @@
 package org.apache.skywalking.apm.agent.core.remote;
 
 import io.grpc.Channel;
-import io.grpc.ManagedChannel;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.internal.DnsNameResolverProvider;
@@ -46,8 +45,7 @@ import java.util.concurrent.TimeUnit;
 public class GRPCChannelManager implements BootService, Runnable {
     private static final ILog logger = LogManager.getLogger(GRPCChannelManager.class);
 
-    private volatile ManagedChannel managedChannel = null;
-    private volatile Channel publicChannelRef = null;
+    private volatile GRPCChannel managedChannel = null;
     private volatile ScheduledFuture<?> connectCheckFuture;
     private volatile boolean reconnect = true;
     private Random random = new Random();
@@ -101,8 +99,7 @@ public class GRPCChannelManager implements BootService, Runnable {
                                             .maxInboundMessageSize(1024 * 1024 * 50)
                                             .usePlaintext(true)
                             ).buildTLS();
-                    managedChannel = channelBuilder.build();
-                    publicChannelRef = AuthenticationActivator.build(managedChannel);
+                    managedChannel = new GRPCChannel(channelBuilder.build());
                     if (!managedChannel.isShutdown() && !managedChannel.isTerminated()) {
                         reconnect = false;
                         notify(GRPCChannelStatus.CONNECTED);
@@ -125,7 +122,7 @@ public class GRPCChannelManager implements BootService, Runnable {
     }
 
     public Channel getChannel() {
-        return managedChannel;
+        return managedChannel.getChannel();
     }
 
     /**
