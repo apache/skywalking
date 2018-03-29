@@ -1,0 +1,2 @@
+jdk-cross-thread=org.apache.skywalking.apm.plugin.jdk.thread.define.CallableOrRunnableInstrumentation
+
