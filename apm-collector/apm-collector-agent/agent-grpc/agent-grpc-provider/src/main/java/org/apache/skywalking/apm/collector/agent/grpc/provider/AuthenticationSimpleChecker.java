@@ -18,7 +18,13 @@
 
 package org.apache.skywalking.apm.collector.agent.grpc.provider;
 
-import io.grpc.*;
+import io.grpc.BindableService;
+import io.grpc.Metadata;
+import io.grpc.ServerCall;
+import io.grpc.ServerCallHandler;
+import io.grpc.ServerInterceptor;
+import io.grpc.ServerInterceptors;
+import io.grpc.Status;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.server.grpc.GRPCServer;
 
@@ -31,7 +37,7 @@ public enum AuthenticationSimpleChecker {
     INSTANCE;
 
     private static final Metadata.Key<String> AUTH_HEAD_HEADER_NAME =
-            Metadata.Key.of("Authentication", Metadata.ASCII_STRING_MARSHALLER);
+        Metadata.Key.of("Authentication", Metadata.ASCII_STRING_MARSHALLER);
 
     private String expectedToken = "";
 
@@ -40,13 +46,15 @@ public enum AuthenticationSimpleChecker {
             gRPCServer.addHandler(ServerInterceptors.intercept(targetService, new ServerInterceptor() {
                 @Override
                 public <REQ, RESP> ServerCall.Listener<REQ> interceptCall(ServerCall<REQ, RESP> serverCall,
-                                                                          Metadata metadata,
-                                                                          ServerCallHandler<REQ, RESP> next) {
+                    Metadata metadata,
+                    ServerCallHandler<REQ, RESP> next) {
                     String token = metadata.get(AUTH_HEAD_HEADER_NAME);
                     if (expectedToken.equals(token)) {
                         return next.startCall(serverCall, metadata);
                     } else {
-                        throw new RuntimeException("Invalid token. Access deny.");
+                        serverCall.close(Status.PERMISSION_DENIED, metadata);
+                        return new ServerCall.Listener() {
+                        };
                     }
 
                 }
