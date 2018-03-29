@@ -23,9 +23,9 @@ layer | c3 | Integer | Register by client or server side
 is_address | c4 | Integer | Is a boolean data. True(1), False(0)
 address_id | c5 | Integer | A foreign key reference by network_address table
 
-- Columen `is_address`
+- Column `is_address`
   - `false`. A real application, which has a custom `application_code`. At the same time, the `address_id` column value must to be 0. 
-  - `true`. A conjuction application based on IP address. `address_id` is registered in `network_address` table.
+  - `true`. A conjunction application based on IP address. `address_id` is registered in `network_address` table.
 
 ### Instance
 - Table name: instance
@@ -45,7 +45,7 @@ is_address | c8 | Integer | Is a boolean data. True(1), False(0)
 address_id | c9 | Integer | A foreign key reference by network_address table
 
 - Column `os_info` 
-  - For example: {"osName":"MacOS X","hostName":"peng-yongsheng","processId":1000,"ipv4s":["10.0.0.1","10.0.0.2"]}
+  - For example: {"osName":"MacOS X","hostName":peng-yongsheng","processId":1000,"ipv4s":["10.0.0.1","10.0.0.2"]}
 - Column `heartbeat_time`
   - Updated by agent heart beat [1]
   - Updated by JVM metric data [2]
@@ -80,11 +80,268 @@ src_span_type | c5 | Integer | Register from client or server side based on `src
 - See `src_span_type` in [protocol doc](Trace-Data-Protocol.md#network-address-register-service)
 
 ## Table of Trace Metric related
+### ApplicationComponent
+- Table name: application_component_`TimeDimension`
+- TimeDimension contains minute, hour, day, month
+- It is primarily used for the view of node type in application topology.
+
+Column Name | Short Name | Data Type | Description
+----------- | ---------- | --------- | ---------
+_id | _id | Keyword | primary key, es speciality, `time_bucket`_`metric_id`
+metric_id | c1 | Keyword | `application_id`_`component_id`
+component_id | c2 | Integer | [Component id](https://github.com/apache/incubator-skywalking/blob/master/apm-protocol/apm-network/src/main/java/org/apache/skywalking/apm/network/trace/component/ComponentsDefine.java)
+application_id | c3 | Integer | Owner application id
+time_bucket | tb | Long | [Date format](Collector-Table-Description.md#Metric-table-time-bucket)
+
+### ApplicationMapping
+- Table name: application_mapping_`TimeDimension`
+- TimeDimension contains minute, hour, day, month
+- For example: A application invoke B application, collector will generate two metrics:
+    * From the caller's trace data: A application -> B application's IP address (Topology will use this metric when B application is not monitored by agent)
+    * From the callee's trace data: A application -> B application (Topology will use this metric when B application is monitored by agent)
+
+Column Name | Short Name | Data Type | Description
+----------- | ---------- | --------- | ---------
+_id | _id | Keyword | primary key, es speciality, `time_bucket`_`metric_id`
+metric_id | c1 | Keyword | `application_id`_`mapping_application_id`
+application_id | c2 | Integer | Registered at server side.
+mapping_application_id | c3 | Integer | Registered at client side with the server's IP address.
+time_bucket | tb | Long | [Date format](Collector-Table-Description.md#Metric-table-time-bucket)
+
+### ApplicationMetric
+- Table name: application_metric_`TimeDimension`
+- TimeDimension contains minute, hour, day, month
+
+Column Name | Short Name | Data Type | Description
+----------- | ---------- | --------- | ---------
+_id | _id | Keyword | primary key, es speciality, `time_bucket`_`metric_id`
+metric_id | c1 | Keyword | `application_id`_`source_value`
+application_id | c2 | Integer | Owner application id
+source_value | c3 | Integer | Caller(0), Callee(1)
+transaction_calls | a1 | Long | The total number of calls, sums values aggregate by `time_bucket`
+transaction_error_calls | a2 | Long | The total number of error calls, sums values aggregate by `time_bucket`
+transaction_duration_sum | a3 | Long | The duration sum of all calls, sums values aggregate by `time_bucket`
+transaction_error_duration_sum | a4 | Long | The duration sum of error calls, sums values aggregate by `time_bucket`
+transaction_average_duration | a5 | Long | The average duration of all calls, used for order by this column in database.
+business_transaction_calls | b1 | Long | 
+business_transaction_error_calls | b2 | Long | 
+business_transaction_duration_sum | b3 | Long | 
+business_transaction_error_duration_sum | b4 | Long | 
+business_transaction_average_duration | b5 | Long | 
+mq_transaction_calls | m1 | Long | 
+mq_transaction_error_calls | m2 | Long | 
+mq_transaction_duration_sum | m3 | Long | 
+mq_transaction_error_duration_sum | m4 | Long | 
+mq_transaction_average_duration | m5 | Long | 
+satisfied_count | d1 | Long | [The formula](../../apm-collector/apm-collector-core/src/main/java/org/apache/skywalking/apm/collector/core/util/ApdexThresholdUtils.java)
+tolerating_count | d2 | Long | 
+frustrated_count | d3 | Long | 
+time_bucket | tb | Long | [Date format](Collector-Table-Description.md#Metric-table-time-bucket)
+
+### ApplicationReferenceMetric
+- Table name: application_reference_metric_`TimeDimension`
+- TimeDimension contains minute, hour, day, month
+
+Column Name | Short Name | Data Type | Description
+----------- | ---------- | --------- | ---------
+_id | _id | Keyword | primary key, es speciality, `time_bucket`_`metric_id`
+metric_id | c1 | Keyword | `front_application_id`_`behind_application_id`_`source_value`
+front_application_id | c2 | Integer | 
+behind_application_id | c3 | Integer | 
+source_value | c4 | Integer | Caller(0), Callee(1)
+transaction_calls | a1 | Long | The total number of calls, sums values aggregate by `time_bucket`
+transaction_error_calls | a2 | Long | The total number of error calls, sums values aggregate by `time_bucket`
+transaction_duration_sum | a3 | Long | The duration sum of all calls, sums values aggregate by `time_bucket`
+transaction_error_duration_sum | a4 | Long | The duration sum of error calls, sums values aggregate by `time_bucket`
+transaction_average_duration | a5 | Long | The average duration of all calls, used for order by this column in database.
+business_transaction_calls | b1 | Long | 
+business_transaction_error_calls | b2 | Long | 
+business_transaction_duration_sum | b3 | Long | 
+business_transaction_error_duration_sum | b4 | Long | 
+business_transaction_average_duration | b5 | Long | 
+mq_transaction_calls | m1 | Long | 
+mq_transaction_error_calls | m2 | Long | 
+mq_transaction_duration_sum | m3 | Long | 
+mq_transaction_error_duration_sum | m4 | Long | 
+mq_transaction_average_duration | m5 | Long | 
+satisfied_count | d1 | Long | [The formula](../../apm-collector/apm-collector-core/src/main/java/org/apache/skywalking/apm/collector/core/util/ApdexThresholdUtils.java)
+tolerating_count | d2 | Long | 
+frustrated_count | d3 | Long | 
+time_bucket | tb | Long | [Date format](Collector-Table-Description.md#Metric-table-time-bucket)
+
+### InstanceMapping
+- Table name: instance_mapping_`TimeDimension`
+- TimeDimension contains minute, hour, day, month
+
+Column Name | Short Name | Data Type | Description
+----------- | ---------- | --------- | ---------
+_id | _id | Keyword | primary key, es speciality, `time_bucket`_`metric_id`
+metric_id | c1 | Keyword | `instance_id`_`address_id`
+application_id | c2 | Integer | The `instance_id`'s owner application id.
+instance_id | c2 | Integer | Registered at server side.
+address_id | c3 | Integer | Registered at client side with the server's IP address.
+time_bucket | tb | Long | [Date format](Collector-Table-Description.md#Metric-table-time-bucket)
+
+### InstanceMetric
+- Table name: instance_metric_`TimeDimension`
+- TimeDimension contains minute, hour, day, month
+
+Column Name | Short Name | Data Type | Description
+----------- | ---------- | --------- | ---------
+_id | _id | Keyword | primary key, es speciality, `time_bucket`_`metric_id`
+metric_id | c1 | Keyword | `instance_id`_`source_value`
+application_id | c2 | Integer | 
+instance_id | c3 | Integer | 
+source_value | c4 | Integer | Caller(0), Callee(1)
+transaction_calls | a1 | Long | The total number of calls, sums values aggregate by `time_bucket`
+transaction_error_calls | a2 | Long | The total number of error calls, sums values aggregate by `time_bucket`
+transaction_duration_sum | a3 | Long | The duration sum of all calls, sums values aggregate by `time_bucket`
+transaction_error_duration_sum | a4 | Long | The duration sum of error calls, sums values aggregate by `time_bucket`
+transaction_average_duration | a5 | Long | The average duration of all calls, used for order by this column in database.
+business_transaction_calls | b1 | Long | 
+business_transaction_error_calls | b2 | Long | 
+business_transaction_duration_sum | b3 | Long | 
+business_transaction_error_duration_sum | b4 | Long | 
+business_transaction_average_duration | b5 | Long | 
+mq_transaction_calls | m1 | Long | 
+mq_transaction_error_calls | m2 | Long | 
+mq_transaction_duration_sum | m3 | Long | 
+mq_transaction_error_duration_sum | m4 | Long | 
+mq_transaction_average_duration | m5 | Long | 
+time_bucket | tb | Long | [Date format](Collector-Table-Description.md#Metric-table-time-bucket)
+
+### InstanceReferenceMetric
+- Table name: instance_reference_metric_`TimeDimension`
+- TimeDimension contains minute, hour, day, month
+
+Column Name | Short Name | Data Type | Description
+----------- | ---------- | --------- | ---------
+_id | _id | Keyword | primary key, es speciality, `time_bucket`_`metric_id`
+metric_id | c1 | Keyword | `front_instance_id`_`behind_instance_id`_`source_value`
+front_application_id | c2 | Integer | 
+behind_application_id | c3 | Integer | 
+front_instance_id | c4 | Integer | 
+behind_instance_id | c5 | Integer | 
+source_value | c6 | Integer | Caller(0), Callee(1)
+transaction_calls | a1 | Long | The total number of calls, sums values aggregate by `time_bucket`
+transaction_error_calls | a2 | Long | The total number of error calls, sums values aggregate by `time_bucket`
+transaction_duration_sum | a3 | Long | The duration sum of all calls, sums values aggregate by `time_bucket`
+transaction_error_duration_sum | a4 | Long | The duration sum of error calls, sums values aggregate by `time_bucket`
+transaction_average_duration | a5 | Long | The average duration of all calls, used for order by this column in database.
+business_transaction_calls | b1 | Long | 
+business_transaction_error_calls | b2 | Long | 
+business_transaction_duration_sum | b3 | Long | 
+business_transaction_error_duration_sum | b4 | Long | 
+business_transaction_average_duration | b5 | Long | 
+mq_transaction_calls | m1 | Long | 
+mq_transaction_error_calls | m2 | Long | 
+mq_transaction_duration_sum | m3 | Long | 
+mq_transaction_error_duration_sum | m4 | Long | 
+mq_transaction_average_duration | m5 | Long | 
+time_bucket | tb | Long | [Date format](Collector-Table-Description.md#Metric-table-time-bucket)
+
+### ServiceMetric
+- Table name: service_metric_`TimeDimension`
+- TimeDimension contains minute, hour, day, month
+
+Column Name | Short Name | Data Type | Description
+----------- | ---------- | --------- | ---------
+_id | _id | Keyword | primary key, es speciality, `time_bucket`_`metric_id`
+metric_id | c1 | Keyword | `service_id`_`source_value`
+application_id | c2 | Integer | 
+instance_id | c3 | Integer | 
+service_id | c4 | Integer | 
+source_value | c5 | Integer | Caller(0), Callee(1)
+transaction_calls | a1 | Long | The total number of calls, sums values aggregate by `time_bucket`
+transaction_error_calls | a2 | Long | The total number of error calls, sums values aggregate by `time_bucket`
+transaction_duration_sum | a3 | Long | The duration sum of all calls, sums values aggregate by `time_bucket`
+transaction_error_duration_sum | a4 | Long | The duration sum of error calls, sums values aggregate by `time_bucket`
+transaction_average_duration | a5 | Long | The average duration of all calls, used for order by this column in database.
+business_transaction_calls | b1 | Long | 
+business_transaction_error_calls | b2 | Long | 
+business_transaction_duration_sum | b3 | Long | 
+business_transaction_error_duration_sum | b4 | Long | 
+business_transaction_average_duration | b5 | Long | 
+mq_transaction_calls | m1 | Long | 
+mq_transaction_error_calls | m2 | Long | 
+mq_transaction_duration_sum | m3 | Long | 
+mq_transaction_error_duration_sum | m4 | Long | 
+mq_transaction_average_duration | m5 | Long | 
+time_bucket | tb | Long | [Date format](Collector-Table-Description.md#Metric-table-time-bucket)
+
+### ServiceReferenceMetric
+- Table name: service_reference_metric_`TimeDimension`
+- TimeDimension contains minute, hour, day, month
+
+Column Name | Short Name | Data Type | Description
+----------- | ---------- | --------- | ---------
+_id | _id | Keyword | primary key, es speciality, `time_bucket`_`metric_id`
+metric_id | c1 | Keyword | `front_service_id`_`behind_service_id`_`source_value`
+front_application_id | c2 | Integer | 
+front_instance_id | c3 | Integer | 
+front_service_id | c4 | Integer | 
+behind_application_id | c5 | Integer | 
+behind_instance_id | c6 | Integer | 
+behind_service_id | c7 | Integer | 
+source_value | c5 | Integer | Caller(0), Callee(1)
+transaction_calls | a1 | Long | The total number of calls, sums values aggregate by `time_bucket`
+transaction_error_calls | a2 | Long | The total number of error calls, sums values aggregate by `time_bucket`
+transaction_duration_sum | a3 | Long | The duration sum of all calls, sums values aggregate by `time_bucket`
+transaction_error_duration_sum | a4 | Long | The duration sum of error calls, sums values aggregate by `time_bucket`
+transaction_average_duration | a5 | Long | The average duration of all calls, used for order by this column in database.
+business_transaction_calls | b1 | Long | 
+business_transaction_error_calls | b2 | Long | 
+business_transaction_duration_sum | b3 | Long | 
+business_transaction_error_duration_sum | b4 | Long | 
+business_transaction_average_duration | b5 | Long | 
+mq_transaction_calls | m1 | Long | 
+mq_transaction_error_calls | m2 | Long | 
+mq_transaction_duration_sum | m3 | Long | 
+mq_transaction_error_duration_sum | m4 | Long | 
+mq_transaction_average_duration | m5 | Long | 
+time_bucket | tb | Long | [Date format](Collector-Table-Description.md#Metric-table-time-bucket)
+
+### GlobalTrace
+- Table name: global_trace
+- The relationship between trace id and segment id is many to many.
+
+Column Name | Short Name | Data Type | Description
+----------- | ---------- | --------- | ---------
+_id | _id | Keyword | primary key, es speciality, `global_trace_id`_`segment_id`
+segment_id | c1 | Keyword | 
+global_trace_id | c2 | Keyword | 
+time_bucket | tb | Long | Second date format, [Date format](Collector-Table-Description.md#Metric-table-time-bucket)
+
+### SegmentDuration
+- Table name: segment_duration
+- The relationship between trace id and segment id is many to many.
+
+Column Name | Short Name | Data Type | Description
+----------- | ---------- | --------- | ---------
+_id | _id | Keyword | primary key, es speciality, `global_trace_id`_`segment_id`
+segment_id | c1 | Keyword | 
+trace_id | c2 | Keyword | 
+application_id | c3 | Integer | Owner of the segment
+service_name | c4 | Text | The entry span's operation name in this segment
+duration | c5 | Long | The cost duration of this segment
+start_time | c6 | Long | 
+end_time | c7 | Long | 
+is_error | c8 | Long | Is a boolean data. True(1), False(0)
+time_bucket | tb | Long | Second date format, [Date format](Collector-Table-Description.md#Metric-table-time-bucket)
+
+### Segment
+- Table name: segment
+
+Column Name | Short Name | Data Type | Description
+----------- | ---------- | --------- | ---------
+_id | _id | Keyword | primary key, es speciality, the value same as `segment_id`
+data_binary | c2 | Binary | The protobuf segment binary encode by base64 scheme.
+time_bucket | tb | Long | Second date format, [Date format](Collector-Table-Description.md#Metric-table-time-bucket)
 
 ## Tables of JVM Metric related
 ### CpuMetric
-- Table name: cpu_metric_`TimeUnit`
-- TimeUnit contains second, minute, hour, day, month
+- Table name: cpu_metric_`TimeDimension`
+- TimeDimension contains second, minute, hour, day, month
 
 Column Name | Short Name | Data Type | Description
 ----------- | ---------- | --------- | ---------
@@ -93,11 +350,11 @@ metric_id | c1 | Keyword | the value is `instance_id`
 instance_id | c2 | Integer | Owner instance id
 usage_percent | c3 | Double | Cpu usage percent, sums values aggregate by `time_bucket`
 times | c4 | Long | The records received times in this time bucket
-time_bucket | c5 | Long | [Date format](Collector-Table-Description.md#Metric-table-time-bucket)
+time_bucket | tb | Long | [Date format](Collector-Table-Description.md#Metric-table-time-bucket)
 
 ### GCMetric
-- Table name: gc_metric_`TimeUnit`
-- TimeUnit contains second, minute, hour, day, month
+- Table name: gc_metric_`TimeDimension`
+- TimeDimension contains second, minute, hour, day, month
 
 Column Name | Short Name | Data Type | Description
 ----------- | ---------- | --------- | ---------
@@ -107,11 +364,11 @@ instance_id | c2 | Integer | Owner instance id
 phrase | c3 | Integer | [GCPhrase](https://github.com/apache/incubator-skywalking-data-collect-protocol/blob/master/JVMMetricsService.proto#L80-L83)
 count | c4 | Long | GC count, sums values aggregate by `time_bucket`
 times | c5 | Long | The records received times in this time bucket
-time_bucket | c6 | Long | [A formatted date](Collector-Table-Description.md#Metric-table-time-bucket)
+time_bucket | tb | Long | [A formatted date](Collector-Table-Description.md#Metric-table-time-bucket)
 
 ### MemoryMetric
-- Table name: memory_metric_`TimeUnit`
-- TimeUnit contains second, minute, hour, day, month
+- Table name: memory_metric_`TimeDimension`
+- TimeDimension contains second, minute, hour, day, month
 
 Column Name | Short Name | Data Type | Description
 ----------- | ---------- | --------- | ---------
@@ -124,11 +381,11 @@ max | c5 | Long | Sums values aggregate by `time_bucket`
 used | c6 | Long | Sums values aggregate by `time_bucket`
 committed | c7 | Long | Sums values aggregate by `time_bucket`
 times | c8 | Long | The records received times in this time bucket
-time_bucket | c9 | Long | [A formatted date](Collector-Table-Description.md#Metric-table-time-bucket)
+time_bucket | tb | Long | [A formatted date](Collector-Table-Description.md#Metric-table-time-bucket)
 
 ### MemoryPoolMetric
-- Table name: memory_pool_metric_`TimeUnit`
-- TimeUnit contains second, minute, hour, day, month
+- Table name: memory_pool_metric_`TimeDimension`
+- TimeDimension contains second, minute, hour, day, month
 
 Column Name | Short Name | Data Type | Description
 ----------- | ---------- | --------- | ---------
@@ -141,7 +398,175 @@ max | c5 | Long | Sums values aggregate by `time_bucket`
 used | c6 | Long | Sums values aggregate by `time_bucket`
 committed | c7 | Long | Sums values aggregate by `time_bucket`
 times | c8 | Long | The records received times in this time bucket
-time_bucket | c9 | Long | [A formatted date](Collector-Table-Description.md#Metric-table-time-bucket)
-
+time_bucket | tb | Long | [A formatted date](Collector-Table-Description.md#Metric-table-time-bucket)
 
 ## Table of Alarm metric related
+### ApplicationAlarm
+- Table name: application_alarm
+
+Column Name | Short Name | Data Type | Description
+----------- | ---------- | --------- | ---------
+_id | _id | Keyword | primary key, es speciality, the value is `source_value`_`alarm_type`_`application_id`
+application_id | c1 | Integer | Owner application id
+source_value | c2 | Integer | Caller(0), Callee(1)
+alarm_type | c3 | Integer | ERROR_RATE(0), SLOW_RTT(1)
+alarm_content | c4 | Text | 
+last_time_bucket | tb | Long | Second date format. [A formatted date](Collector-Table-Description.md#Metric-table-time-bucket)
+
+### ApplicationAlarmList
+- Table name: application_alarm_list
+- TimeDimension contains minute, hour, day, month
+
+Column Name | Short Name | Data Type | Description
+----------- | ---------- | --------- | ---------
+_id | _id | Keyword | primary key, es speciality, the value is `time_bucket`_`metric_id`
+metric_id | c1 | Keyword | `source_value`_`alarm_type`_`application_id`
+alarm_content | c2 | Text | 
+application_id | c3 | Integer | Owner application id
+source_value | c4 | Integer | Caller(0), Callee(1)
+alarm_type | c5 | Integer | ERROR_RATE(0), SLOW_RTT(1)
+time_bucket | tb | Long | [A formatted date](Collector-Table-Description.md#Metric-table-time-bucket)
+
+### ApplicationReferenceAlarm
+- Table name: application_reference_alarm
+
+Column Name | Short Name | Data Type | Description
+----------- | ---------- | --------- | ---------
+_id | _id | Keyword | primary key, es speciality, the value is `source_value`_`alarm_type`_`application_id`
+front_application_id | c1 | Integer | Owner application id
+behind_application_id | c2 | Integer | Owner application id
+source_value | c3 | Integer | Caller(0), Callee(1)
+alarm_type | c4 | Integer | ERROR_RATE(0), SLOW_RTT(1)
+alarm_content | c5 | Text | 
+last_time_bucket | tb | Long | Second date format. [A formatted date](Collector-Table-Description.md#Metric-table-time-bucket)
+
+### ApplicationReferenceAlarmList
+- Table name: application_reference_alarm
+
+Column Name | Short Name | Data Type | Description
+----------- | ---------- | --------- | ---------
+_id | _id | Keyword | primary key, es speciality, the value is `source_value`_`alarm_type`_`application_id`
+front_application_id | c1 | Integer | Owner application id
+behind_application_id | c2 | Integer | Owner application id
+source_value | c3 | Integer | Caller(0), Callee(1)
+alarm_type | c4 | Integer | ERROR_RATE(0), SLOW_RTT(1)
+alarm_content | c5 | Text | 
+time_bucket | tb | Long | Second date format. [A formatted date](Collector-Table-Description.md#Metric-table-time-bucket)
+
+### InstanceAlarm
+- Table name: application_alarm
+
+Column Name | Short Name | Data Type | Description
+----------- | ---------- | --------- | ---------
+_id | _id | Keyword | primary key, es speciality, the value is `source_value`_`alarm_type`_`instance_id`
+application_id | c1 | Integer | Owner application id
+instance_id | c2 | Integer | Owner instance id
+source_value | c3 | Integer | Caller(0), Callee(1)
+alarm_type | c4 | Integer | ERROR_RATE(0), SLOW_RTT(1)
+alarm_content | c5 | Text | 
+last_time_bucket | tb | Long | Second date format. [A formatted date](Collector-Table-Description.md#Metric-table-time-bucket)
+
+### InstanceAlarmList
+- Table name: instance_alarm_list
+
+Column Name | Short Name | Data Type | Description
+----------- | ---------- | --------- | ---------
+_id | _id | Keyword | primary key, es speciality, the value is `source_value`_`alarm_type`_`instance_id`
+application_id | c1 | Integer | Owner application id
+instance_id | c2 | Integer | Owner instance id
+source_value | c3 | Integer | Caller(0), Callee(1)
+alarm_type | c4 | Integer | ERROR_RATE(0), SLOW_RTT(1)
+alarm_content | c5 | Text | 
+time_bucket | tb | Long | Second date format. [A formatted date](Collector-Table-Description.md#Metric-table-time-bucket)
+
+### InstanceReferenceAlarm
+- Table name: instance_reference_alarm
+
+Column Name | Short Name | Data Type | Description
+----------- | ---------- | --------- | ---------
+_id | _id | Keyword | primary key, es speciality, the value is `source_value`_`alarm_type`_`instance_id`
+front_application_id | c1 | Integer | Owner application id
+front_instance_id | c2 | Integer | Owner instance id
+behind_application_id | c3 | Integer | Owner instance id
+behind_instance_id | c4 | Integer | Owner instance id
+source_value | c5 | Integer | Caller(0), Callee(1)
+alarm_type | c6 | Integer | ERROR_RATE(0), SLOW_RTT(1)
+alarm_content | c7 | Text | 
+last_time_bucket | tb | Long | Second date format. [A formatted date](Collector-Table-Description.md#Metric-table-time-bucket)
+
+### InstanceReferenceAlarmList
+- Table name: instance_reference_alarm_list
+
+Column Name | Short Name | Data Type | Description
+----------- | ---------- | --------- | ---------
+_id | _id | Keyword | primary key, es speciality, the value is `source_value`_`alarm_type`_`instance_id`
+front_application_id | c1 | Integer | Owner application id
+front_instance_id | c2 | Integer | Owner instance id
+behind_application_id | c3 | Integer | Owner instance id
+behind_instance_id | c4 | Integer | Owner instance id
+source_value | c5 | Integer | Caller(0), Callee(1)
+alarm_type | c6 | Integer | ERROR_RATE(0), SLOW_RTT(1)
+alarm_content | c7 | Text | 
+time_bucket | tb | Long | Second date format. [A formatted date](Collector-Table-Description.md#Metric-table-time-bucket)
+
+### ServiceAlarm
+- Table name: service_alarm
+
+Column Name | Short Name | Data Type | Description
+----------- | ---------- | --------- | ---------
+_id | _id | Keyword | primary key, es speciality, the value is `source_value`_`alarm_type`_`service_id`
+application_id | c1 | Integer | Owner application id
+instance_id | c2 | Integer | Owner instance id
+service_id | c3 | Integer | Owner service id
+source_value | c4 | Integer | Caller(0), Callee(1)
+alarm_type | c5 | Integer | ERROR_RATE(0), SLOW_RTT(1)
+alarm_content | c6 | Text | 
+last_time_bucket | tb | Long | Second date format. [A formatted date](Collector-Table-Description.md#Metric-table-time-bucket)
+
+### ServiceAlarmList
+- Table name: service_alarm_list
+
+Column Name | Short Name | Data Type | Description
+----------- | ---------- | --------- | ---------
+_id | _id | Keyword | primary key, es speciality, the value is `source_value`_`alarm_type`_`service_id`
+application_id | c1 | Integer | Owner application id
+instance_id | c2 | Integer | Owner instance id
+service_id | c3 | Integer | Owner instance id
+source_value | c4 | Integer | Caller(0), Callee(1)
+alarm_type | c5 | Integer | ERROR_RATE(0), SLOW_RTT(1)
+alarm_content | c6 | Text | 
+time_bucket | tb | Long | Second date format. [A formatted date](Collector-Table-Description.md#Metric-table-time-bucket)
+
+### ServiceReferenceAlarm
+- Table name: service_reference_alarm
+
+Column Name | Short Name | Data Type | Description
+----------- | ---------- | --------- | ---------
+_id | _id | Keyword | primary key, es speciality, the value is `source_value`_`alarm_type`_`service_id`
+front_application_id | c1 | Integer | Owner application id
+front_instance_id | c2 | Integer | Owner instance id
+front_service_id | c3 | Integer | Owner service id
+behind_application_id | c4 | Integer | Owner service id
+behind_instance_id | c5 | Integer | Owner service id
+behind_service_id | c6 | Integer | Owner service id
+source_value | c7 | Integer | Caller(0), Callee(1)
+alarm_type | c8 | Integer | ERROR_RATE(0), SLOW_RTT(1)
+alarm_content | c9 | Text | 
+last_time_bucket | tb | Long | Second date format. [A formatted date](Collector-Table-Description.md#Metric-table-time-bucket)
+
+### ServiceReferenceAlarmList
+- Table name: service_reference_alarm_list
+
+Column Name | Short Name | Data Type | Description
+----------- | ---------- | --------- | ---------
+_id | _id | Keyword | primary key, es speciality, the value is `time_bucket`_`source_value`_`alarm_type`_`service_id`
+front_application_id | c1 | Integer | Owner application id
+front_instance_id | c2 | Integer | Owner instance id
+front_service_id | c3 | Integer | Owner service id
+behind_application_id | c4 | Integer | Owner service id
+behind_instance_id | c5 | Integer | Owner service id
+behind_service_id | c6 | Integer | Owner service id
+source_value | c7 | Integer | Caller(0), Callee(1)
+alarm_type | c8 | Integer | ERROR_RATE(0), SLOW_RTT(1)
+alarm_content | c9 | Text | 
+time_bucket | tb | Long | Second date format. [A formatted date](Collector-Table-Description.md#Metric-table-time-bucket)
