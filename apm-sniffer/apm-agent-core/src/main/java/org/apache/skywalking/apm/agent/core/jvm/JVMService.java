@@ -149,7 +149,7 @@ public class JVMService implements BootService, Runnable {
         @Override
         public void statusChanged(GRPCChannelStatus status) {
             if (GRPCChannelStatus.CONNECTED.equals(status)) {
-                ManagedChannel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getManagedChannel();
+                ManagedChannel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getChannel();
                 stub = JVMMetricsServiceGrpc.newBlockingStub(channel);
             }
             this.status = status;

@@ -169,7 +169,7 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
     @Override
     public void statusChanged(GRPCChannelStatus status) {
         if (CONNECTED.equals(status)) {
-            ManagedChannel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getManagedChannel();
+            ManagedChannel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getChannel();
             serviceStub = TraceSegmentServiceGrpc.newStub(channel);
         }
         this.status = status;
