@@ -102,7 +102,7 @@ public class GRPCChannelManager implements BootService, Runnable {
                                             .usePlaintext(true)
                             ).buildTLS();
                     managedChannel = channelBuilder.build();
-                    publicChannelRef = AuthenticationFilter.build(managedChannel);
+                    publicChannelRef = AuthenticationActivator.build(managedChannel);
                     if (!managedChannel.isShutdown() && !managedChannel.isTerminated()) {
                         reconnect = false;
                         notify(GRPCChannelStatus.CONNECTED);

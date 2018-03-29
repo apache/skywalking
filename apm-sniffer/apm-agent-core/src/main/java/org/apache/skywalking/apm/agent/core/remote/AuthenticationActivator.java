@@ -23,11 +23,11 @@ import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.util.StringUtil;
 
 /**
- * Active authentication header by
+ * Active authentication header by Config.Agent.AUTHENTICATION
  *
  * @author wu-sheng
  */
-public class AuthenticationFilter implements ClientInterceptor {
+public class AuthenticationActivator {
     private static final Metadata.Key<String> AUTH_HEAD_HEADER_NAME =
             Metadata.Key.of("Authentication", Metadata.ASCII_STRING_MARSHALLER);
 
@@ -36,19 +36,19 @@ public class AuthenticationFilter implements ClientInterceptor {
             return originChannel;
         }
 
-        return ClientInterceptors.intercept(originChannel, new AuthenticationFilter());
-    }
-
-    @Override
-    public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> method,
-                                                               CallOptions options, Channel channel) {
-        return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(channel.newCall(method, options)) {
+        return ClientInterceptors.intercept(originChannel, new ClientInterceptor() {
             @Override
-            public void start(Listener<RespT> responseListener, Metadata headers) {
-                headers.put(AUTH_HEAD_HEADER_NAME, Config.Agent.AUTHENTICATION);
+            public <REQ, RESP> ClientCall<REQ, RESP> interceptCall(MethodDescriptor<REQ, RESP> method,
+                                                                   CallOptions options, Channel channel) {
+                return new ForwardingClientCall.SimpleForwardingClientCall<REQ, RESP>(channel.newCall(method, options)) {
+                    @Override
+                    public void start(Listener<RESP> responseListener, Metadata headers) {
+                        headers.put(AUTH_HEAD_HEADER_NAME, Config.Agent.AUTHENTICATION);
 
-                super.start(responseListener, headers);
+                        super.start(responseListener, headers);
+                    }
+                };
             }
-        };
+        });
     }
 }

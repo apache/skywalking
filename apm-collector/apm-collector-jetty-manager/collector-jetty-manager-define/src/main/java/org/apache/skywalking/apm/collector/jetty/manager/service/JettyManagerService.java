@@ -20,14 +20,14 @@
 package org.apache.skywalking.apm.collector.jetty.manager.service;
 
 import org.apache.skywalking.apm.collector.core.module.Service;
-import org.apache.skywalking.apm.collector.server.Server;
-import org.apache.skywalking.apm.collector.server.ServerHandler;
+import org.apache.skywalking.apm.collector.server.jetty.JettyHandler;
+import org.apache.skywalking.apm.collector.server.jetty.JettyServer;
 
 /**
  * @author peng-yongsheng
  */
 public interface JettyManagerService extends Service {
-    Server createIfAbsent(String host, int port, String contextPath);
+    JettyServer createIfAbsent(String host, int port, String contextPath);
 
-    void addHandler(String host, int port, ServerHandler serverHandler);
+    void addHandler(String host, int port, JettyHandler serverHandler);
 }
