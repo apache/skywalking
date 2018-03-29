@@ -34,6 +34,9 @@ agent_gRPC:
     #Set these two setting to open ssl
     #ssl_cert_chain_file: $path
     #ssl_private_key_file: $path
+
+    #Set your own token to active auth
+    #authentication: xxxxxx
 agent_jetty:
   jetty:
     host: localhost

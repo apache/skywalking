@@ -43,7 +43,7 @@ public class Config {
         public static String APPLICATION_CODE = "";
 
         /**
-         * Authentication is always used when backend authentication mechanism active.
+         * Authentication active is based on backend setting, see application.yml for more details.
          * For most scenarios, this needs backend extensions, only basic match auth provided in default implementation.
          */
         public static String AUTHENTICATION = "";
