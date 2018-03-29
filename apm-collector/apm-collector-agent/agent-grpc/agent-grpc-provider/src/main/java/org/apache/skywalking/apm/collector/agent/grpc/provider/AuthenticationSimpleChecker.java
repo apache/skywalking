@@ -36,9 +36,6 @@ import org.apache.skywalking.apm.collector.server.grpc.GRPCServer;
 public enum AuthenticationSimpleChecker {
     INSTANCE;
 
-    private static final Metadata.Key<String> AUTH_HEAD_HEADER_NAME =
-        Metadata.Key.of("Authentication", Metadata.ASCII_STRING_MARSHALLER);
-
     private String expectedToken = "";
 
     public void build(GRPCServer gRPCServer, BindableService targetService) {
@@ -48,7 +45,7 @@ public enum AuthenticationSimpleChecker {
                 public <REQ, RESP> ServerCall.Listener<REQ> interceptCall(ServerCall<REQ, RESP> serverCall,
                     Metadata metadata,
                     ServerCallHandler<REQ, RESP> next) {
-                    String token = metadata.get(AUTH_HEAD_HEADER_NAME);
+                    String token = metadata.get(Metadata.Key.of("Authentication", Metadata.ASCII_STRING_MARSHALLER));
                     if (expectedToken.equals(token)) {
                         return next.startCall(serverCall, metadata);
                     } else {
