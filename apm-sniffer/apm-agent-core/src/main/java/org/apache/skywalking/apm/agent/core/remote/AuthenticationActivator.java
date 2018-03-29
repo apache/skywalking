@@ -28,8 +28,6 @@ import org.apache.skywalking.apm.util.StringUtil;
  * @author wu-sheng
  */
 public class AuthenticationActivator {
-    private static final Metadata.Key<String> AUTH_HEAD_HEADER_NAME =
-            Metadata.Key.of("Authentication", Metadata.ASCII_STRING_MARSHALLER);
 
     public static Channel build(ManagedChannel originChannel) {
         if (StringUtil.isEmpty(Config.Agent.AUTHENTICATION)) {
@@ -43,7 +41,7 @@ public class AuthenticationActivator {
                 return new ForwardingClientCall.SimpleForwardingClientCall<REQ, RESP>(channel.newCall(method, options)) {
                     @Override
                     public void start(Listener<RESP> responseListener, Metadata headers) {
-                        headers.put(AUTH_HEAD_HEADER_NAME, Config.Agent.AUTHENTICATION);
+                        headers.put(Metadata.Key.of("Authentication", Metadata.ASCII_STRING_MARSHALLER), Config.Agent.AUTHENTICATION);
 
                         super.start(responseListener, headers);
                     }
