@@ -89,7 +89,7 @@ Column Name | Short Name | Data Type | Description
 ----------- | ---------- | --------- | ---------
 _id | _id | Keyword | primary key, es speciality, `time_bucket`_`metric_id`
 metric_id | c1 | Keyword | `application_id`_`component_id`
-component_id | c2 | Integer | [Component id](https://github.com/apache/incubator-skywalking/blob/master/apm-protocol/apm-network/src/main/java/org/apache/skywalking/apm/network/trace/component/ComponentsDefine.java)
+component_id | c2 | Integer | [Component id](../../apm-protocol/apm-network/src/main/java/org/apache/skywalking/apm/network/trace/component/ComponentsDefine.java)
 application_id | c3 | Integer | Owner application id
 time_bucket | tb | Long | [Date format](Collector-Table-Description.md#Metric-table-time-bucket)
 
