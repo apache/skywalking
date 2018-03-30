@@ -12,7 +12,7 @@ v1.1
 * 注册和数据上行服务同时支持gRPC和HTTP JSON服务
 
 #### gRPC协议定义文件
-[gRPC proto files](https://github.com/apache/incubator-skywalking-data-collect-protocol)
+[gRPC proto files](https://github.com/apache/incubator-skywalking-data-collect-protocol/tree/v1.1.1)
 
 ## Collector服务发现协议
 ### 简介
@@ -38,7 +38,7 @@ JSON数组，数组的每个元素，为一个有效的gRPC服务地址。
 此服务会在后续的传输过程中，有效降低网络带宽需求。
 
 ### 协议内容
-[gRPC service define](https://github.com/apache/incubator-skywalking-data-collect-protocol/blob/master/ApplicationRegisterService.proto)
+[gRPC service define](https://github.com/apache/incubator-skywalking-data-collect-protocol/blob/v1.1.1/ApplicationRegisterService.proto)
 
 - applicationCode为客户端设置的应用名.
 - applicationCode对应的返回id,在后续协议中，被称为applicationId。
@@ -51,14 +51,14 @@ JSON数组，数组的每个元素，为一个有效的gRPC服务地址。
 gRPC服务
 
 ### 实例注册服务
-[gRPC service define](https://github.com/apache/incubator-skywalking-data-collect-protocol/blob/master/DiscoveryService.proto#L29)
+[gRPC service define](https://github.com/apache/incubator-skywalking-data-collect-protocol/blob/v1.1.1/DiscoveryService.proto#L29)
 
 - agentUUID 由探针生成，需保持唯一性，推荐使用UUID算法。并在应用重启前保持不变
 - applicationId 由**应用注册服务**获取。
 - 服务端返回应用实例id，applicationInstanceId 。后续上报服务使用实例id标识。
 
 ### 实例心跳服务
-[gRPC service define](https://github.com/apache/incubator-skywalking-data-collect-protocol/blob/master/DiscoveryService.proto#L32)
+[gRPC service define](https://github.com/apache/incubator-skywalking-data-collect-protocol/blob/v1.1.1/DiscoveryService.proto#L32)
 
 - 心跳服务每分钟上报一次。
 - 如果一分钟内有segment数据上报，则可不必上报心跳。
@@ -68,7 +68,7 @@ gRPC服务
 服务名注册发现服务，是将应用内的服务名（operationName）替换为id的服务。
 
 ### 协议内容
-[gRPC service define](https://github.com/apache/incubator-skywalking-data-collect-protocol/blob/master/DiscoveryService.proto#L70)
+[gRPC service define](https://github.com/apache/incubator-skywalking-data-collect-protocol/blob/v1.1.1/DiscoveryService.proto#L70)
 
 - 可选服务，可有效降低网络消耗，推荐实现。注意，由于部分应用存在URI中夹带参数的情况，请注意限制探针内的缓存容量，防止内存溢出。
 - ServiceNameElement中，applicationId为当前applicationCode对应的id。serviceName一般为对应span的operationName
@@ -78,7 +78,7 @@ gRPC服务
 地址注册发现服务，是将远程调用（RPC、MQ、DB...）地址的（addresses）替换为id的服务。
 
 ### 协议内容
-[gRPC service define](https://github.com/apache/incubator-skywalking-data-collect-protocol/blob/master/NetworkAddressRegisterService.proto)
+[gRPC service define](https://github.com/apache/incubator-skywalking-data-collect-protocol/blob/v1.1.1/NetworkAddressRegisterService.proto)
 
 - 可选服务，可有效降低网络消耗，推荐实现。
 - NetworkAddresses中，addresses为被调方的地址（IP/HOST:PORT）多个地址使用逗号分隔
@@ -88,14 +88,14 @@ gRPC服务
 上报当前实例的JVM信息，每秒上报一次。
 
 ### 协议内容
-[gRPC service define](https://github.com/apache/incubator-skywalking-data-collect-protocol/blob/master/JVMMetricsService.proto)
+[gRPC service define](https://github.com/apache/incubator-skywalking-data-collect-protocol/blob/v1.1.1/JVMMetricsService.proto)
 
 ## TraceSegment上报服务
 ### 简介
 上报调用链信息
 
 ### 协议内容
-[gRPC service define](https://github.com/apache/incubator-skywalking-data-collect-protocol/blob/master/TraceSegmentService.proto)
+[gRPC service define](https://github.com/apache/incubator-skywalking-data-collect-protocol/blob/v1.1.1/TraceSegmentService.proto)
 
 - UniqueId为segment或者globalTraceId的数字表示。由3个long组成，1）applicationInstanceId，2）当前线程id，3）当前时间戳*10000 + seq(0-10000自循环)
 - Span的数据，请参考[插件开发规范](Plugin-Development-Guide-CN.md)
