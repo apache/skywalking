@@ -21,7 +21,7 @@
 #   2. A Tomcat server instance
 type AppServerInfo {
     id: ID!
-    name: String!
+    osName: String!
     applicationId: Int!
     applicationCode: String
     callsPerSec: Int!
