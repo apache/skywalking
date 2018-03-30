@@ -166,12 +166,10 @@ public class ServerService {
     private void buildAppServerInfo(List<AppServerInfo> serverInfos) {
         serverInfos.forEach(serverInfo -> {
             serverInfo.setApplicationCode(applicationCacheService.getApplicationById(serverInfo.getApplicationId()).getApplicationCode());
-            StringBuilder nameBuilder = new StringBuilder();
-            nameBuilder.append(serverInfo.getApplicationCode());
             if (StringUtils.isNotEmpty(serverInfo.getOsInfo())) {
                 JsonObject osInfoJson = gson.fromJson(serverInfo.getOsInfo(), JsonObject.class);
                 if (osInfoJson.has("osName")) {
-                    serverInfo.setName(osInfoJson.get("osName").getAsString());
+                    serverInfo.setOsName(osInfoJson.get("osName").getAsString());
                 }
                 if (osInfoJson.has("hostName")) {
                     serverInfo.setHost(osInfoJson.get("hostName").getAsString());
@@ -184,14 +182,10 @@ public class ServerService {
                     JsonArray ipv4Array = osInfoJson.get("ipv4s").getAsJsonArray();
 
                     List<String> ipv4s = new LinkedList<>();
-                    ipv4Array.forEach(ipv4 -> {
-                        ipv4s.add(ipv4.getAsString());
-                        nameBuilder.append(Const.ID_SPLIT).append(ipv4.getAsString());
-                    });
+                    ipv4Array.forEach(ipv4 -> ipv4s.add(ipv4.getAsString()));
                     serverInfo.setIpv4(ipv4s);
                 }
             }
-            serverInfo.setName(nameBuilder.toString());
         });
     }
 }
