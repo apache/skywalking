@@ -96,7 +96,7 @@ time_bucket | tb | Long | [Date format](Collector-Table-Description.md#Metric-ta
 ### ApplicationMapping
 - Table name: application_mapping_`TimeDimension`
 - TimeDimension contains minute, hour, day, month
-- For example: A application invoke B application, collector will generate two metrics:
+- For example: Application A calls Application B, collector generates the following two metrics::
     * From the caller's trace data: A application -> B application's IP address (Topology will use this metric when B application is not monitored by agent)
     * From the callee's trace data: A application -> B application (Topology will use this metric when B application is monitored by agent)
 
