@@ -18,28 +18,36 @@
 
 package org.apache.skywalking.apm.agent.core.remote;
 
-import io.grpc.*;
+import io.grpc.CallOptions;
+import io.grpc.Channel;
+import io.grpc.ClientCall;
+import io.grpc.ClientInterceptor;
+import io.grpc.ClientInterceptors;
+import io.grpc.ForwardingClientCall;
+import io.grpc.Metadata;
+import io.grpc.MethodDescriptor;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.util.StringUtil;
 
 /**
  * Active authentication header by Config.Agent.AUTHENTICATION
  *
- * @author wu-sheng
+ * @author wu-sheng, zhang xin
  */
-public class AuthenticationActivator {
+public class AuthenticationDecorator implements ChannelDecorator {
     private static final Metadata.Key<String> AUTH_HEAD_HEADER_NAME =
-            Metadata.Key.of("Authentication", Metadata.ASCII_STRING_MARSHALLER);
+        Metadata.Key.of("Authentication", Metadata.ASCII_STRING_MARSHALLER);
 
-    public static Channel build(ManagedChannel originChannel) {
+    @Override
+    public Channel build(Channel channel) {
         if (StringUtil.isEmpty(Config.Agent.AUTHENTICATION)) {
-            return originChannel;
+            return channel;
         }
 
-        return ClientInterceptors.intercept(originChannel, new ClientInterceptor() {
+        return ClientInterceptors.intercept(channel, new ClientInterceptor() {
             @Override
             public <REQ, RESP> ClientCall<REQ, RESP> interceptCall(MethodDescriptor<REQ, RESP> method,
-                                                                   CallOptions options, Channel channel) {
+                CallOptions options, Channel channel) {
                 return new ForwardingClientCall.SimpleForwardingClientCall<REQ, RESP>(channel.newCall(method, options)) {
                     @Override
                     public void start(Listener<RESP> responseListener, Metadata headers) {
