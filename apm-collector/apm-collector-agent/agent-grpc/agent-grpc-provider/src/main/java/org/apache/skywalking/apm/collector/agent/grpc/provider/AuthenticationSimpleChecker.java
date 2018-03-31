@@ -52,7 +52,7 @@ public enum AuthenticationSimpleChecker {
                     if (expectedToken.equals(token)) {
                         return next.startCall(serverCall, metadata);
                     } else {
-                        serverCall.close(Status.PERMISSION_DENIED, metadata);
+                        serverCall.close(Status.PERMISSION_DENIED, new Metadata());
                         return new ServerCall.Listener() {
                         };
                     }
