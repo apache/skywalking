@@ -61,7 +61,7 @@ public class InstanceHeartBeatEsPersistenceDAO extends EsDAO implements IInstanc
     }
 
     @Override public IndexRequestBuilder prepareBatchInsert(Instance data) {
-        throw new UnexpectedException("There is no need to merge stream data with database data.");
+        throw new UnexpectedException("Received an instance heart beat message under instance id= " + data.getId() + " , which doesn't exist.");
     }
 
     @Override public UpdateRequestBuilder prepareBatchUpdate(Instance data) {
