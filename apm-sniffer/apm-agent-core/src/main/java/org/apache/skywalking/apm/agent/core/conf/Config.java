@@ -43,6 +43,12 @@ public class Config {
         public static String APPLICATION_CODE = "";
 
         /**
+         * Authentication active is based on backend setting, see application.yml for more details.
+         * For most scenarios, this needs backend extensions, only basic match auth provided in default implementation.
+         */
+        public static String AUTHENTICATION = "";
+
+        /**
          * Negative or zero means off, by default. {@link #SAMPLE_N_PER_3_SECS} means sampling N {@link TraceSegment} in
          * 10 seconds tops.
          */

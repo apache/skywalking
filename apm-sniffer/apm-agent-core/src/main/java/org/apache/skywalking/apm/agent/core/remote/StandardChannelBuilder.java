@@ -16,19 +16,21 @@
  *
  */
 
+package org.apache.skywalking.apm.agent.core.remote;
 
-package org.apache.skywalking.apm.collector.grpc.manager.service;
-
-import org.apache.skywalking.apm.collector.core.module.Service;
-import org.apache.skywalking.apm.collector.server.grpc.GRPCServer;
-
-import java.io.File;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.internal.DnsNameResolverProvider;
 
 /**
- * @author peng-yongsheng, wusheng
+ * @author zhang xin
  */
-public interface GRPCManagerService extends Service {
-    GRPCServer createIfAbsent(String host, int port) throws ServerCanNotBeCreatedException;
+public class StandardChannelBuilder implements ChannelBuilder {
+    private final static int MAX_INBOUND_MESSAGE_SIZE = 1024 * 1024 * 50;
+    private final static boolean USE_PLAIN_TEXT = true;
 
-    GRPCServer createIfAbsent(String host, int port, File certChainFile, File privateKeyFile) throws ServerCanNotBeCreatedException;
+    @Override public ManagedChannelBuilder build(ManagedChannelBuilder managedChannelBuilder) throws Exception {
+        return managedChannelBuilder.nameResolverFactory(new DnsNameResolverProvider())
+            .maxInboundMessageSize(MAX_INBOUND_MESSAGE_SIZE)
+            .usePlaintext(USE_PLAIN_TEXT);
+    }
 }

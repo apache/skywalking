@@ -16,19 +16,13 @@
  *
  */
 
+package org.apache.skywalking.apm.agent.core.remote;
 
-package org.apache.skywalking.apm.collector.grpc.manager.service;
-
-import org.apache.skywalking.apm.collector.core.module.Service;
-import org.apache.skywalking.apm.collector.server.grpc.GRPCServer;
-
-import java.io.File;
+import io.grpc.Channel;
 
 /**
- * @author peng-yongsheng, wusheng
+ * @author zhang xin
  */
-public interface GRPCManagerService extends Service {
-    GRPCServer createIfAbsent(String host, int port) throws ServerCanNotBeCreatedException;
-
-    GRPCServer createIfAbsent(String host, int port, File certChainFile, File privateKeyFile) throws ServerCanNotBeCreatedException;
+public interface ChannelDecorator {
+    Channel build(Channel channel);
 }

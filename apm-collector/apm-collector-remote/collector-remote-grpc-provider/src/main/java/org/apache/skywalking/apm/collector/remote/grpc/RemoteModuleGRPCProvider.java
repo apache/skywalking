@@ -19,22 +19,23 @@
 
 package org.apache.skywalking.apm.collector.remote.grpc;
 
-import java.util.Properties;
 import org.apache.skywalking.apm.collector.cluster.ClusterModule;
+import org.apache.skywalking.apm.collector.cluster.service.ModuleListenerService;
 import org.apache.skywalking.apm.collector.cluster.service.ModuleRegisterService;
 import org.apache.skywalking.apm.collector.core.module.Module;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.apache.skywalking.apm.collector.grpc.manager.GRPCManagerModule;
+import org.apache.skywalking.apm.collector.grpc.manager.service.GRPCManagerService;
 import org.apache.skywalking.apm.collector.remote.RemoteModule;
 import org.apache.skywalking.apm.collector.remote.grpc.handler.RemoteCommonServiceHandler;
+import org.apache.skywalking.apm.collector.remote.grpc.service.GRPCRemoteSenderService;
 import org.apache.skywalking.apm.collector.remote.service.CommonRemoteDataRegisterService;
 import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 import org.apache.skywalking.apm.collector.remote.service.RemoteSenderService;
-import org.apache.skywalking.apm.collector.server.Server;
-import org.apache.skywalking.apm.collector.cluster.service.ModuleListenerService;
-import org.apache.skywalking.apm.collector.grpc.manager.service.GRPCManagerService;
-import org.apache.skywalking.apm.collector.remote.grpc.service.GRPCRemoteSenderService;
+import org.apache.skywalking.apm.collector.server.grpc.GRPCServer;
+
+import java.util.Properties;
 
 /**
  * @author peng-yongsheng
@@ -76,7 +77,7 @@ public class RemoteModuleGRPCProvider extends ModuleProvider {
         Integer port = (Integer)config.get(PORT);
 
         GRPCManagerService managerService = getManager().find(GRPCManagerModule.NAME).getService(GRPCManagerService.class);
-        Server gRPCServer = managerService.createIfAbsent(host, port);
+        GRPCServer gRPCServer = managerService.createIfAbsent(host, port);
         gRPCServer.addHandler(new RemoteCommonServiceHandler(remoteDataRegisterService));
 
         ModuleRegisterService moduleRegisterService = getManager().find(ClusterModule.NAME).getService(ModuleRegisterService.class);

@@ -22,42 +22,29 @@ import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
 import io.netty.handler.ssl.SslContextBuilder;
+import java.io.File;
+import javax.net.ssl.SSLException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
 import org.apache.skywalking.apm.agent.core.conf.Constants;
-
-import javax.net.ssl.SSLException;
-import java.io.File;
 
 /**
  * Detect the `/ca` folder in agent package, if `ca.crt` exists, start TLS (no mutual auth).
  *
  * @author wusheng
  */
-public class TLSChannelBuilder {
+public class TLSChannelBuilder implements ChannelBuilder<NettyChannelBuilder> {
     private static String CA_FILE_NAME = "ca" + Constants.PATH_SEPARATOR + "ca.crt";
 
-    private NettyChannelBuilder nettyChannelBuilder;
-
-    public TLSChannelBuilder(NettyChannelBuilder nettyChannelBuilder) {
-        this.nettyChannelBuilder = nettyChannelBuilder;
-    }
-
-    /**
-     * Build a TLS supported channel is necessary.
-     *
-     * @return chanel builder
-     * @throws AgentPackageNotFoundException
-     * @throws SSLException
-     */
-    NettyChannelBuilder buildTLS() throws AgentPackageNotFoundException, SSLException {
+    @Override public NettyChannelBuilder build(
+        NettyChannelBuilder managedChannelBuilder) throws AgentPackageNotFoundException, SSLException {
         File caFile = new File(AgentPackagePath.getPath(), CA_FILE_NAME);
         if (caFile.exists() && caFile.isFile()) {
             SslContextBuilder builder = GrpcSslContexts.forClient();
             builder.trustManager(caFile);
-            nettyChannelBuilder = nettyChannelBuilder.negotiationType(NegotiationType.TLS)
-                    .sslContext(builder.build());
+            managedChannelBuilder = managedChannelBuilder.negotiationType(NegotiationType.TLS)
+                .sslContext(builder.build());
         }
-        return nettyChannelBuilder;
+        return managedChannelBuilder;
     }
 }
