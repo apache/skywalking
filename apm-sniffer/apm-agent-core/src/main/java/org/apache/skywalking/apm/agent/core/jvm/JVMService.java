@@ -18,12 +18,7 @@
 
 package org.apache.skywalking.apm.agent.core.jvm;
 
-import io.grpc.ManagedChannel;
-import java.util.LinkedList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import io.grpc.Channel;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
@@ -43,6 +38,12 @@ import org.apache.skywalking.apm.network.proto.JVMMetric;
 import org.apache.skywalking.apm.network.proto.JVMMetrics;
 import org.apache.skywalking.apm.network.proto.JVMMetricsServiceGrpc;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
+
+import java.util.LinkedList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The <code>JVMService</code> represents a timer,
@@ -149,7 +150,7 @@ public class JVMService implements BootService, Runnable {
         @Override
         public void statusChanged(GRPCChannelStatus status) {
             if (GRPCChannelStatus.CONNECTED.equals(status)) {
-                ManagedChannel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getManagedChannel();
+                Channel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getChannel();
                 stub = JVMMetricsServiceGrpc.newBlockingStub(channel);
             }
             this.status = status;
