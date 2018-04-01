@@ -41,6 +41,7 @@ rsync -a ../../ \
   --exclude ".idea" --exclude "*.iml" --exclude ".DS_Store" --exclude "build-target" \
   --exclude "/docs/" --exclude "/dist/" --exclude "/tools/" --exclude "/skywalking-agent/" \
   --exclude "/skywalking-ui/dist/" --exclude "/skywalking-ui/node/" --exclude "/skywalking-ui/node_modules/" \
+  --exclude "dependency-reduced-pom.xml" \
   ${PRODUCT_NAME}
 
 tar czf ${PRODUCT_NAME}-src.tgz ${PRODUCT_NAME}
