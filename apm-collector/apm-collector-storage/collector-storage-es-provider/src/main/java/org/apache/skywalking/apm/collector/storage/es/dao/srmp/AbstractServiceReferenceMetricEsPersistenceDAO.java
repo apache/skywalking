@@ -40,7 +40,6 @@ public abstract class AbstractServiceReferenceMetricEsPersistenceDAO extends Abs
 
     @Override protected final ServiceReferenceMetric esDataToStreamData(Map<String, Object> source) {
         ServiceReferenceMetric serviceReferenceMetric = new ServiceReferenceMetric();
-        serviceReferenceMetric.setId((String)source.get(ServiceReferenceMetricTable.COLUMN_ID));
         serviceReferenceMetric.setMetricId((String)source.get(ServiceReferenceMetricTable.COLUMN_METRIC_ID));
 
         serviceReferenceMetric.setFrontApplicationId(((Number)source.get(ServiceReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID)).intValue());
@@ -55,16 +54,19 @@ public abstract class AbstractServiceReferenceMetricEsPersistenceDAO extends Abs
         serviceReferenceMetric.setTransactionErrorCalls(((Number)source.get(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS)).longValue());
         serviceReferenceMetric.setTransactionDurationSum(((Number)source.get(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM)).longValue());
         serviceReferenceMetric.setTransactionErrorDurationSum(((Number)source.get(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM)).longValue());
+        serviceReferenceMetric.setTransactionAverageDuration(((Number)source.get(ServiceReferenceMetricTable.COLUMN_TRANSACTION_AVERAGE_DURATION)).longValue());
 
         serviceReferenceMetric.setBusinessTransactionCalls(((Number)source.get(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS)).longValue());
         serviceReferenceMetric.setBusinessTransactionErrorCalls(((Number)source.get(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS)).longValue());
         serviceReferenceMetric.setBusinessTransactionDurationSum(((Number)source.get(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM)).longValue());
         serviceReferenceMetric.setBusinessTransactionErrorDurationSum(((Number)source.get(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM)).longValue());
+        serviceReferenceMetric.setBusinessTransactionAverageDuration(((Number)source.get(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_AVERAGE_DURATION)).longValue());
 
         serviceReferenceMetric.setMqTransactionCalls(((Number)source.get(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_CALLS)).longValue());
         serviceReferenceMetric.setMqTransactionErrorCalls(((Number)source.get(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS)).longValue());
         serviceReferenceMetric.setMqTransactionDurationSum(((Number)source.get(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM)).longValue());
         serviceReferenceMetric.setMqTransactionErrorDurationSum(((Number)source.get(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM)).longValue());
+        serviceReferenceMetric.setMqTransactionAverageDuration(((Number)source.get(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_AVERAGE_DURATION)).longValue());
 
         serviceReferenceMetric.setTimeBucket(((Number)source.get(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET)).longValue());
         return serviceReferenceMetric;
@@ -72,7 +74,6 @@ public abstract class AbstractServiceReferenceMetricEsPersistenceDAO extends Abs
 
     @Override protected final Map<String, Object> esStreamDataToEsData(ServiceReferenceMetric streamData) {
         Map<String, Object> source = new HashMap<>();
-        source.put(ServiceReferenceMetricTable.COLUMN_ID, streamData.getId());
         source.put(ServiceReferenceMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
 
         source.put(ServiceReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID, streamData.getFrontApplicationId());
@@ -87,16 +88,19 @@ public abstract class AbstractServiceReferenceMetricEsPersistenceDAO extends Abs
         source.put(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, streamData.getTransactionErrorCalls());
         source.put(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, streamData.getTransactionDurationSum());
         source.put(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, streamData.getTransactionErrorDurationSum());
+        source.put(ServiceReferenceMetricTable.COLUMN_TRANSACTION_AVERAGE_DURATION, streamData.getTransactionAverageDuration());
 
         source.put(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, streamData.getBusinessTransactionCalls());
         source.put(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, streamData.getBusinessTransactionErrorCalls());
         source.put(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, streamData.getBusinessTransactionDurationSum());
         source.put(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, streamData.getBusinessTransactionErrorDurationSum());
+        source.put(ServiceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_AVERAGE_DURATION, streamData.getBusinessTransactionAverageDuration());
 
         source.put(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_CALLS, streamData.getMqTransactionCalls());
         source.put(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, streamData.getMqTransactionErrorCalls());
         source.put(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, streamData.getMqTransactionDurationSum());
         source.put(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, streamData.getMqTransactionErrorDurationSum());
+        source.put(ServiceReferenceMetricTable.COLUMN_MQ_TRANSACTION_AVERAGE_DURATION, streamData.getMqTransactionAverageDuration());
 
         source.put(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
 

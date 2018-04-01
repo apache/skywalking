@@ -40,22 +40,20 @@ public abstract class AbstractApplicationComponentEsPersistenceDAO extends Abstr
 
     @Override protected final ApplicationComponent esDataToStreamData(Map<String, Object> source) {
         ApplicationComponent applicationComponent = new ApplicationComponent();
-        applicationComponent.setId((String)source.get(ApplicationComponentTable.COLUMN_ID));
         applicationComponent.setMetricId((String)source.get(ApplicationComponentTable.COLUMN_METRIC_ID));
 
         applicationComponent.setComponentId(((Number)source.get(ApplicationComponentTable.COLUMN_COMPONENT_ID)).intValue());
-        applicationComponent.setPeerId(((Number)source.get(ApplicationComponentTable.COLUMN_PEER_ID)).intValue());
+        applicationComponent.setApplicationId(((Number)source.get(ApplicationComponentTable.COLUMN_APPLICATION_ID)).intValue());
         applicationComponent.setTimeBucket(((Number)source.get(ApplicationComponentTable.COLUMN_TIME_BUCKET)).longValue());
         return applicationComponent;
     }
 
     @Override protected final Map<String, Object> esStreamDataToEsData(ApplicationComponent streamData) {
         Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationComponentTable.COLUMN_ID, streamData.getId());
         source.put(ApplicationComponentTable.COLUMN_METRIC_ID, streamData.getMetricId());
 
         source.put(ApplicationComponentTable.COLUMN_COMPONENT_ID, streamData.getComponentId());
-        source.put(ApplicationComponentTable.COLUMN_PEER_ID, streamData.getPeerId());
+        source.put(ApplicationComponentTable.COLUMN_APPLICATION_ID, streamData.getApplicationId());
         source.put(ApplicationComponentTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
 
         return source;

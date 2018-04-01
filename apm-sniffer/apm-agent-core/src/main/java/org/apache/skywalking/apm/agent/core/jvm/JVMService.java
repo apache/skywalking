@@ -16,15 +16,9 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.jvm;
 
-import io.grpc.ManagedChannel;
-import java.util.LinkedList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import io.grpc.Channel;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
@@ -43,6 +37,13 @@ import org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus;
 import org.apache.skywalking.apm.network.proto.JVMMetric;
 import org.apache.skywalking.apm.network.proto.JVMMetrics;
 import org.apache.skywalking.apm.network.proto.JVMMetricsServiceGrpc;
+import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
+
+import java.util.LinkedList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The <code>JVMService</code> represents a timer,
@@ -57,6 +58,7 @@ public class JVMService implements BootService, Runnable {
     private volatile ScheduledFuture<?> collectMetricFuture;
     private volatile ScheduledFuture<?> sendMetricFuture;
     private Sender sender;
+
     @Override
     public void beforeBoot() throws Throwable {
         queue = new LinkedBlockingQueue(Config.Jvm.BUFFER_SIZE);
@@ -68,10 +70,19 @@ public class JVMService implements BootService, Runnable {
     public void boot() throws Throwable {
         collectMetricFuture = Executors
             .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("JVMService-produce"))
-            .scheduleAtFixedRate(this, 0, 1, TimeUnit.SECONDS);
+            .scheduleAtFixedRate(new RunnableWithExceptionProtection(this, new RunnableWithExceptionProtection.CallbackWhenException() {
+                @Override public void handle(Throwable t) {
+                    logger.error("JVMService produces metrics failure.", t);
+                }
+            }), 0, 1, TimeUnit.SECONDS);
         sendMetricFuture = Executors
             .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("JVMService-consume"))
-            .scheduleAtFixedRate(sender, 0, 1, TimeUnit.SECONDS);
+            .scheduleAtFixedRate(new RunnableWithExceptionProtection(sender, new RunnableWithExceptionProtection.CallbackWhenException() {
+                @Override public void handle(Throwable t) {
+                    logger.error("JVMService consumes and upload failure.", t);
+                }
+            }
+            ), 0, 1, TimeUnit.SECONDS);
     }
 
     @Override
@@ -139,7 +150,7 @@ public class JVMService implements BootService, Runnable {
         @Override
         public void statusChanged(GRPCChannelStatus status) {
             if (GRPCChannelStatus.CONNECTED.equals(status)) {
-                ManagedChannel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getManagedChannel();
+                Channel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getChannel();
                 stub = JVMMetricsServiceGrpc.newBlockingStub(channel);
             }
             this.status = status;

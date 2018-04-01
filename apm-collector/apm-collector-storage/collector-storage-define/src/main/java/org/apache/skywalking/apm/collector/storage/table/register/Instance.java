@@ -19,9 +19,11 @@
 package org.apache.skywalking.apm.collector.storage.table.register;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
+import org.apache.skywalking.apm.collector.core.data.RemoteData;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.CoverMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
+import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 
 /**
  * @author peng-yongsheng
@@ -29,32 +31,30 @@ import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
 public class Instance extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(InstanceTable.COLUMN_ID, new NonOperation()),
-        new Column(InstanceTable.COLUMN_AGENT_UUID, new CoverOperation()),
-        new Column(InstanceTable.COLUMN_OS_INFO, new CoverOperation()),
+        new Column(InstanceTable.COLUMN_ID, new NonMergeOperation()),
+        new Column(InstanceTable.COLUMN_AGENT_UUID, new CoverMergeOperation()),
+        new Column(InstanceTable.COLUMN_OS_INFO, new CoverMergeOperation()),
+        new Column(InstanceTable.COLUMN_APPLICATION_CODE, new CoverMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(InstanceTable.COLUMN_REGISTER_TIME, new CoverOperation()),
-        new Column(InstanceTable.COLUMN_HEARTBEAT_TIME, new CoverOperation()),
+        new Column(InstanceTable.COLUMN_REGISTER_TIME, new CoverMergeOperation()),
+        new Column(InstanceTable.COLUMN_HEARTBEAT_TIME, new CoverMergeOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {};
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(InstanceTable.COLUMN_APPLICATION_ID, new CoverOperation()),
-        new Column(InstanceTable.COLUMN_INSTANCE_ID, new CoverOperation()),
-        new Column(InstanceTable.COLUMN_ADDRESS_ID, new CoverOperation()),
-    };
-
-    private static final Column[] BOOLEAN_COLUMNS = {
-        new Column(InstanceTable.COLUMN_IS_ADDRESS, new CoverOperation()),
+        new Column(InstanceTable.COLUMN_APPLICATION_ID, new CoverMergeOperation()),
+        new Column(InstanceTable.COLUMN_INSTANCE_ID, new CoverMergeOperation()),
+        new Column(InstanceTable.COLUMN_ADDRESS_ID, new CoverMergeOperation()),
+        new Column(InstanceTable.COLUMN_IS_ADDRESS, new CoverMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};
 
     public Instance() {
-        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
+        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
     }
 
     @Override public String getId() {
@@ -121,6 +121,14 @@ public class Instance extends StreamData {
         setDataString(2, osInfo);
     }
 
+    public String getApplicationCode() {
+        return getDataString(3);
+    }
+
+    public void setApplicationCode(String applicationCode) {
+        setDataString(3, applicationCode);
+    }
+
     public int getAddressId() {
         return getDataInteger(2);
     }
@@ -129,11 +137,17 @@ public class Instance extends StreamData {
         setDataInteger(2, addressId);
     }
 
-    public boolean getIsAddress() {
-        return getDataBoolean(0);
+    public int getIsAddress() {
+        return getDataInteger(3);
     }
 
-    public void setIsAddress(boolean isAddress) {
-        setDataBoolean(0, isAddress);
+    public void setIsAddress(int isAddress) {
+        setDataInteger(3, isAddress);
+    }
+
+    public static class InstanceCreator implements RemoteDataRegisterService.RemoteDataInstanceCreator {
+        @Override public RemoteData createInstance() {
+            return new Instance();
+        }
     }
 }

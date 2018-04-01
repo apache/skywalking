@@ -25,18 +25,20 @@ public enum IdAutoIncrement {
     INSTANCE;
 
     public int increment(int min, int max) {
-        int instanceId;
+        int id;
         if (min == max) {
-            instanceId = -1;
+            if (min == 0) {
+                id = -1;
+            } else {
+                id = 1;
+            }
         } else if (min + max == 0) {
-            instanceId = max + 1;
+            id = max + 1;
         } else if (min + max > 0) {
-            instanceId = min - 1;
-        } else if (max < 0) {
-            instanceId = 1;
+            id = min - 1;
         } else {
-            instanceId = max + 1;
+            id = max + 1;
         }
-        return instanceId;
+        return id;
     }
 }

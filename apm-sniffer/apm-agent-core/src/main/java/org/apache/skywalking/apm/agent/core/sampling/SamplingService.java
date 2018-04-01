@@ -30,13 +30,14 @@ import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
 /**
  * The <code>SamplingService</code> take charge of how to sample the {@link TraceSegment}. Every {@link TraceSegment}s
  * have been traced, but, considering CPU cost of serialization/deserialization, and network bandwidth, the agent do NOT
  * send all of them to collector, if SAMPLING is on.
  * <p>
- * By default, SAMPLING is on, and {@see {@link Config.Agent#SAMPLE_N_PER_3_SECS }}
+ * By default, SAMPLING is on, and  {@link Config.Agent#SAMPLE_N_PER_3_SECS }
  *
  * @author wusheng
  */
@@ -66,12 +67,16 @@ public class SamplingService implements BootService {
             this.resetSamplingFactor();
             ScheduledExecutorService service = Executors
                 .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("SamplingService"));
-            scheduledFuture = service.scheduleAtFixedRate(new Runnable() {
+            scheduledFuture = service.scheduleAtFixedRate(new RunnableWithExceptionProtection(new Runnable() {
                 @Override
                 public void run() {
                     resetSamplingFactor();
                 }
-            }, 0, 3, TimeUnit.SECONDS);
+            }, new RunnableWithExceptionProtection.CallbackWhenException() {
+                @Override public void handle(Throwable t) {
+                    logger.error("unexpected exception.", t);
+                }
+            }), 0, 3, TimeUnit.SECONDS);
             logger.debug("Agent sampling mechanism started. Sample {} traces in 10 seconds.", Config.Agent.SAMPLE_N_PER_3_SECS);
         }
     }

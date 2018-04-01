@@ -30,8 +30,6 @@ public interface Data {
 
     int getDataIntegersCount();
 
-    int getDataBooleansCount();
-
     int getDataBytesCount();
 
     void setDataString(int position, String value);
@@ -42,8 +40,6 @@ public interface Data {
 
     void setDataInteger(int position, Integer value);
 
-    void setDataBoolean(int position, Boolean value);
-
     void setDataBytes(int position, byte[] dataBytes);
 
     String getDataString(int position);
@@ -53,8 +49,6 @@ public interface Data {
     Double getDataDouble(int position);
 
     Integer getDataInteger(int position);
-
-    Boolean getDataBoolean(int position);
 
     byte[] getDataBytes(int position);
 }

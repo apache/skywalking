@@ -20,8 +20,8 @@ package org.apache.skywalking.apm.collector.storage.table.segment;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.CoverMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
 
 /**
  * @author peng-yongsheng
@@ -29,23 +29,24 @@ import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
 public class Segment extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(SegmentTable.COLUMN_ID, new NonOperation()),
+        new Column(SegmentTable.COLUMN_ID, new NonMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(SegmentTable.COLUMN_TIME_BUCKET, new NonOperation()),
+        new Column(SegmentTable.COLUMN_TIME_BUCKET, new NonMergeOperation()),
     };
+
     private static final Column[] DOUBLE_COLUMNS = {};
+
     private static final Column[] INTEGER_COLUMNS = {
     };
 
-    private static final Column[] BOOLEAN_COLUMNS = {};
     private static final Column[] BYTE_COLUMNS = {
-        new Column(SegmentTable.COLUMN_DATA_BINARY, new CoverOperation()),
+        new Column(SegmentTable.COLUMN_DATA_BINARY, new CoverMergeOperation()),
     };
 
     public Segment() {
-        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BOOLEAN_COLUMNS, BYTE_COLUMNS);
+        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
     }
 
     @Override public String getId() {

@@ -20,7 +20,7 @@
 package org.apache.skywalking.apm.collector.server;
 
 /**
- * @author peng-yongsheng
+ * @author peng-yongsheng, wusheng
  */
 public interface Server {
 
@@ -32,5 +32,7 @@ public interface Server {
 
     void start() throws ServerException;
 
-    void addHandler(ServerHandler handler);
+    boolean isSSLOpen();
+
+    boolean isStatusEqual(Server target);
 }

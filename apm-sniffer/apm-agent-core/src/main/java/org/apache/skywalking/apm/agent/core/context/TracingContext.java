@@ -94,8 +94,8 @@ public class TracingContext implements AbstractTracerContext {
      * Inject the context into the given carrier, only when the active span is an exit one.
      *
      * @param carrier to carry the context for crossing process.
-     * @throws IllegalStateException, if the active span isn't an exit one.
-     * @see {@link AbstractTracerContext#inject(ContextCarrier)}
+     * @throws IllegalStateException  if the active span isn't an exit one.
+     * Ref to {@link AbstractTracerContext#inject(ContextCarrier)}
      */
     @Override
     public void inject(ContextCarrier carrier) {
@@ -155,7 +155,7 @@ public class TracingContext implements AbstractTracerContext {
      * Extract the carrier to build the reference for the pre segment.
      *
      * @param carrier carried the context from a cross-process segment.
-     * @see {@link AbstractTracerContext#extract(ContextCarrier)}
+     * Ref to {@link AbstractTracerContext#extract(ContextCarrier)}
      */
     @Override
     public void extract(ContextCarrier carrier) {
@@ -172,7 +172,7 @@ public class TracingContext implements AbstractTracerContext {
      * Capture the snapshot of current context.
      *
      * @return the snapshot of context for cross-thread propagation
-     * @see {@link AbstractTracerContext#capture()}
+     * Ref to {@link AbstractTracerContext#capture()}
      */
     @Override
     public ContextSnapshot capture() {
@@ -214,7 +214,7 @@ public class TracingContext implements AbstractTracerContext {
      * Continue the context from the given snapshot of parent thread.
      *
      * @param snapshot from {@link #capture()} in the parent thread.
-     * @see {@link AbstractTracerContext#continued(ContextSnapshot)}
+     * Ref to {@link AbstractTracerContext#continued(ContextSnapshot)}
      */
     @Override
     public void continued(ContextSnapshot snapshot) {
@@ -237,7 +237,7 @@ public class TracingContext implements AbstractTracerContext {
      *
      * @param operationName most likely a service name
      * @return span instance.
-     * @see {@link EntrySpan}
+     * Ref to {@link EntrySpan}
      */
     @Override
     public AbstractSpan createEntrySpan(final String operationName) {
@@ -248,21 +248,7 @@ public class TracingContext implements AbstractTracerContext {
         AbstractSpan entrySpan;
         final AbstractSpan parentSpan = peek();
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
-        if (parentSpan == null) {
-            entrySpan = (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
-                .findOnly(segment.getApplicationId(), operationName)
-                .doInCondition(new PossibleFound.FoundAndObtain() {
-                    @Override public Object doProcess(int operationId) {
-                        return new EntrySpan(spanIdGenerator++, parentSpanId, operationId);
-                    }
-                }, new PossibleFound.NotFoundAndObtain() {
-                    @Override public Object doProcess() {
-                        return new EntrySpan(spanIdGenerator++, parentSpanId, operationName);
-                    }
-                });
-            entrySpan.start();
-            return push(entrySpan);
-        } else if (parentSpan.isEntry()) {
+        if (parentSpan != null && parentSpan.isEntry()) {
             entrySpan = (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
                 .findOnly(segment.getApplicationId(), operationName)
                 .doInCondition(new PossibleFound.FoundAndObtain() {
@@ -276,7 +262,19 @@ public class TracingContext implements AbstractTracerContext {
                 });
             return entrySpan.start();
         } else {
-            throw new IllegalStateException("The Entry Span can't be the child of Non-Entry Span");
+            entrySpan = (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
+                .findOnly(segment.getApplicationId(), operationName)
+                .doInCondition(new PossibleFound.FoundAndObtain() {
+                    @Override public Object doProcess(int operationId) {
+                        return new EntrySpan(spanIdGenerator++, parentSpanId, operationId);
+                    }
+                }, new PossibleFound.NotFoundAndObtain() {
+                    @Override public Object doProcess() {
+                        return new EntrySpan(spanIdGenerator++, parentSpanId, operationName);
+                    }
+                });
+            entrySpan.start();
+            return push(entrySpan);
         }
     }
 
@@ -285,7 +283,7 @@ public class TracingContext implements AbstractTracerContext {
      *
      * @param operationName most likely a local method signature, or business name.
      * @return the span represents a local logic block.
-     * @see {@link LocalSpan}
+     * Ref to {@link LocalSpan}
      */
     @Override
     public AbstractSpan createLocalSpan(final String operationName) {
@@ -296,7 +294,7 @@ public class TracingContext implements AbstractTracerContext {
         AbstractSpan parentSpan = peek();
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
         AbstractTracingSpan span = (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
-            .findOrPrepare4Register(segment.getApplicationId(), operationName)
+            .findOrPrepare4Register(segment.getApplicationId(), operationName, false, false)
             .doInCondition(new PossibleFound.FoundAndObtain() {
                 @Override
                 public Object doProcess(int operationId) {
@@ -318,7 +316,7 @@ public class TracingContext implements AbstractTracerContext {
      * @param operationName most likely a service name of remote
      * @param remotePeer the network id(ip:port, hostname:port or ip1:port1,ip2,port, etc.)
      * @return the span represent an exit point of this segment.
-     * @see {@link ExitSpan}
+     * @see  ExitSpan
      */
     @Override
     public AbstractSpan createExitSpan(final String operationName, final String remotePeer) {
@@ -443,7 +441,7 @@ public class TracingContext implements AbstractTracerContext {
 
     /**
      * The <code>ListenerManager</code> represents an event notify for every registered listener, which are notified
-     * when the <cdoe>TracingContext</cdoe> finished, and {@link #segment} is ready for further process.
+     * when the <code>TracingContext</code> finished, and {@link #segment} is ready for further process.
      */
     public static class ListenerManager {
         private static List<TracingContextListener> LISTENERS = new LinkedList<TracingContextListener>();

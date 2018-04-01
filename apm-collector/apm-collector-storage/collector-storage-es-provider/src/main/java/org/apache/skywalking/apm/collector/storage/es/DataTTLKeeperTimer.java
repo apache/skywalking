@@ -16,30 +16,34 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.es;
-
-import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.dao.*;
 
 import java.util.Calendar;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.storage.StorageModule;
+import org.apache.skywalking.apm.collector.storage.dao.IGlobalTracePersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ISegmentDurationPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ISegmentPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentMinutePersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ampp.IApplicationMappingMinutePersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.armp.IApplicationReferenceMinuteMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.cpump.ICpuSecondMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.gcmp.IGCSecondMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.cpu.ICpuSecondMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.gc.IGCSecondMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.imp.IInstanceMinuteMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.memorymp.IMemorySecondMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.mpoolmp.IMemoryPoolSecondMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.memory.IMemorySecondMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.mpool.IMemoryPoolSecondMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceMinuteMetricPersistenceDAO;
+import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class DataTTLKeeperTimer {
+    private final Logger logger = LoggerFactory.getLogger(StorageModuleEsProvider.class);
 
     private final ModuleManager moduleManager;
     private final StorageModuleEsNamingListener namingListener;
@@ -55,7 +59,9 @@ public class DataTTLKeeperTimer {
     }
 
     public void start() {
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::delete, 1, 8, TimeUnit.HOURS);
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
+            new RunnableWithExceptionProtection(this::delete,
+                t -> logger.error("Remove data in background failure.", t)), 1, 8, TimeUnit.HOURS);
     }
 
     private void delete() {
@@ -107,8 +113,8 @@ public class DataTTLKeeperTimer {
         IApplicationReferenceMinuteMetricPersistenceDAO applicationReferenceMetricPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationReferenceMinuteMetricPersistenceDAO.class);
         applicationReferenceMetricPersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
 
-        ISegmentCostPersistenceDAO segmentCostPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(ISegmentCostPersistenceDAO.class);
-        segmentCostPersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
+        ISegmentDurationPersistenceDAO segmentDurationPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(ISegmentDurationPersistenceDAO.class);
+        segmentDurationPersistenceDAO.deleteHistory(startTimestamp, endTimestamp);
 
         ISegmentPersistenceDAO segmentPersistenceDAO = moduleManager.find(StorageModule.NAME).getService(ISegmentPersistenceDAO.class);
         segmentPersistenceDAO.deleteHistory(startTimestamp, endTimestamp);

@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.instance;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.apache.skywalking.apm.collector.analysis.alarm.define.graph.AlarmWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.AlarmAssertWorker;
 import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.AlarmAssertWorkerProvider;
@@ -25,18 +27,26 @@ import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
 import org.apache.skywalking.apm.collector.configuration.service.IInstanceReferenceAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
+import org.apache.skywalking.apm.collector.storage.StorageModule;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
+import org.apache.skywalking.apm.collector.storage.table.MetricSource;
+import org.apache.skywalking.apm.collector.storage.table.alarm.AlarmType;
 import org.apache.skywalking.apm.collector.storage.table.alarm.InstanceReferenceAlarm;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetric;
+import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 
 /**
  * @author peng-yongsheng
  */
 public class InstanceReferenceMetricAlarmAssertWorker extends AlarmAssertWorker<InstanceReferenceMetric, InstanceReferenceAlarm> {
 
+    private Gson gson = new Gson();
+    private final IInstanceUIDAO instanceDAO;
     private final IInstanceReferenceAlarmRuleConfig instanceReferenceAlarmRuleConfig;
 
     public InstanceReferenceMetricAlarmAssertWorker(ModuleManager moduleManager) {
         super(moduleManager);
+        this.instanceDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceUIDAO.class);
         this.instanceReferenceAlarmRuleConfig = moduleManager.find(ConfigurationModule.NAME).getService(IInstanceReferenceAlarmRuleConfig.class);
     }
 
@@ -52,6 +62,26 @@ public class InstanceReferenceMetricAlarmAssertWorker extends AlarmAssertWorker<
         instanceReferenceAlarm.setFrontInstanceId(inputMetric.getFrontInstanceId());
         instanceReferenceAlarm.setBehindInstanceId(inputMetric.getBehindInstanceId());
         return instanceReferenceAlarm;
+    }
+
+    @Override protected void generateAlarmContent(InstanceReferenceAlarm alarm, double threshold) {
+        Instance instance = instanceDAO.getInstance(alarm.getBehindInstanceId());
+        JsonObject osInfo = gson.fromJson(instance.getOsInfo(), JsonObject.class);
+        String serverName = Const.UNKNOWN;
+        if (osInfo.has("hostName")) {
+            serverName = osInfo.get("hostName").getAsString();
+        }
+
+        String clientOrServer = "server";
+        if (MetricSource.Caller.getValue() == alarm.getSourceValue()) {
+            clientOrServer = "client";
+        }
+
+        if (AlarmType.ERROR_RATE.getValue() == alarm.getAlarmType()) {
+            alarm.setAlarmContent("The success rate of " + serverName + ", detected from " + clientOrServer + " side, is lower than " + threshold + ".");
+        } else if (AlarmType.SLOW_RTT.getValue() == alarm.getAlarmType()) {
+            alarm.setAlarmContent("Response time of " + serverName + ", detected from " + clientOrServer + " side, is slower than " + threshold + ".");
+        }
     }
 
     @Override protected Double calleeErrorRateThreshold() {

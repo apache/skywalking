@@ -18,11 +18,7 @@
 
 package org.apache.skywalking.apm.agent.core.remote;
 
-import io.grpc.ManagedChannel;
-import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import io.grpc.Channel;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
@@ -37,15 +33,13 @@ import org.apache.skywalking.apm.agent.core.dictionary.OperationNameDictionary;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.os.OSUtil;
-import org.apache.skywalking.apm.network.proto.Application;
-import org.apache.skywalking.apm.network.proto.ApplicationInstance;
-import org.apache.skywalking.apm.network.proto.ApplicationInstanceHeartbeat;
-import org.apache.skywalking.apm.network.proto.ApplicationInstanceMapping;
-import org.apache.skywalking.apm.network.proto.ApplicationMapping;
-import org.apache.skywalking.apm.network.proto.ApplicationRegisterServiceGrpc;
-import org.apache.skywalking.apm.network.proto.InstanceDiscoveryServiceGrpc;
-import org.apache.skywalking.apm.network.proto.NetworkAddressRegisterServiceGrpc;
-import org.apache.skywalking.apm.network.proto.ServiceNameDiscoveryServiceGrpc;
+import org.apache.skywalking.apm.network.proto.*;
+import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
+
+import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author wusheng
@@ -65,7 +59,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
     @Override
     public void statusChanged(GRPCChannelStatus status) {
         if (GRPCChannelStatus.CONNECTED.equals(status)) {
-            ManagedChannel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getManagedChannel();
+            Channel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getChannel();
             applicationRegisterServiceBlockingStub = ApplicationRegisterServiceGrpc.newBlockingStub(channel);
             instanceDiscoveryServiceBlockingStub = InstanceDiscoveryServiceGrpc.newBlockingStub(channel);
             serviceNameDiscoveryServiceBlockingStub = ServiceNameDiscoveryServiceGrpc.newBlockingStub(channel);
@@ -87,7 +81,11 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
     public void boot() throws Throwable {
         applicationRegisterFuture = Executors
             .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("AppAndServiceRegisterClient"))
-            .scheduleAtFixedRate(this, 0, Config.Collector.APP_AND_SERVICE_REGISTER_CHECK_INTERVAL, TimeUnit.SECONDS);
+            .scheduleAtFixedRate(new RunnableWithExceptionProtection(this, new RunnableWithExceptionProtection.CallbackWhenException() {
+                @Override public void handle(Throwable t) {
+                    logger.error("unexpected exception.", t);
+                }
+            }), 0, Config.Collector.APP_AND_SERVICE_REGISTER_CHECK_INTERVAL, TimeUnit.SECONDS);
     }
 
     @Override

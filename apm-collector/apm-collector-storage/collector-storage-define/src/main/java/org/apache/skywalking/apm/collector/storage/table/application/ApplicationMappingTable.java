@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.table.application;
 
 import org.apache.skywalking.apm.collector.core.data.CommonTable;
@@ -27,5 +26,5 @@ import org.apache.skywalking.apm.collector.core.data.CommonTable;
 public class ApplicationMappingTable extends CommonTable {
     public static final String TABLE = "application_mapping";
     public static final String COLUMN_APPLICATION_ID = "application_id";
-    public static final String COLUMN_ADDRESS_ID = "address_id";
+    public static final String COLUMN_MAPPING_APPLICATION_ID = "mapping_application_id";
 }

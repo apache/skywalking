@@ -19,9 +19,10 @@
 package org.apache.skywalking.apm.collector.storage.es.dao.cache;
 
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.apm.collector.core.util.Const;
+import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.storage.dao.cache.IApplicationCacheDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.table.register.Application;
 import org.apache.skywalking.apm.collector.storage.table.register.ApplicationTable;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
@@ -49,12 +50,12 @@ public class ApplicationEsCacheDAO extends EsDAO implements IApplicationCacheDAO
         ElasticSearchClient client = getClient();
 
         SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ApplicationTable.TABLE);
-        searchRequestBuilder.setTypes("type");
+        searchRequestBuilder.setTypes(ApplicationTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ApplicationTable.COLUMN_APPLICATION_CODE, applicationCode));
-        boolQueryBuilder.must().add(QueryBuilders.termQuery(ApplicationTable.COLUMN_IS_ADDRESS, false));
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(ApplicationTable.COLUMN_IS_ADDRESS, BooleanUtils.FALSE));
 
         searchRequestBuilder.setQuery(boolQueryBuilder);
         searchRequestBuilder.setSize(1);
@@ -67,28 +68,32 @@ public class ApplicationEsCacheDAO extends EsDAO implements IApplicationCacheDAO
         return 0;
     }
 
-    @Override public String getApplicationCode(int applicationId) {
+    @Override public Application getApplication(int applicationId) {
         logger.debug("get application code, applicationId: {}", applicationId);
         ElasticSearchClient client = getClient();
         GetRequestBuilder getRequestBuilder = client.prepareGet(ApplicationTable.TABLE, String.valueOf(applicationId));
 
         GetResponse getResponse = getRequestBuilder.get();
         if (getResponse.isExists()) {
-            return (String)getResponse.getSource().get(ApplicationTable.COLUMN_APPLICATION_CODE);
+            Application application = new Application();
+            application.setApplicationId(applicationId);
+            application.setApplicationCode((String)getResponse.getSource().get(ApplicationTable.COLUMN_APPLICATION_CODE));
+            application.setIsAddress(((Number)getResponse.getSource().get(ApplicationTable.COLUMN_IS_ADDRESS)).intValue());
+            return application;
         }
-        return Const.EMPTY_STRING;
+        return null;
     }
 
     @Override public int getApplicationIdByAddressId(int addressId) {
         ElasticSearchClient client = getClient();
 
         SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ApplicationTable.TABLE);
-        searchRequestBuilder.setTypes("type");
+        searchRequestBuilder.setTypes(ApplicationTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ApplicationTable.COLUMN_ADDRESS_ID, addressId));
-        boolQueryBuilder.must().add(QueryBuilders.termQuery(ApplicationTable.COLUMN_IS_ADDRESS, true));
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(ApplicationTable.COLUMN_IS_ADDRESS, BooleanUtils.TRUE));
 
         searchRequestBuilder.setQuery(boolQueryBuilder);
         searchRequestBuilder.setSize(1);

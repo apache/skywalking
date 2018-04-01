@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.core.module;
 
 import java.util.Arrays;
@@ -31,6 +30,7 @@ import java.util.ServiceLoader;
  * @author wu-sheng, peng-yongsheng
  */
 public class ModuleManager {
+    private boolean isInPrepareStage = true;
     private Map<String, Module> loadedModules = new HashMap<>();
 
     /**
@@ -60,6 +60,8 @@ public class ModuleManager {
                 }
             }
         }
+        // Finish prepare stage
+        isInPrepareStage = false;
 
         if (moduleList.size() > 0) {
             throw new ModuleNotFoundException(moduleList.toString() + " missing.");
@@ -76,9 +78,16 @@ public class ModuleManager {
     }
 
     public Module find(String moduleName) throws ModuleNotFoundRuntimeException {
+        assertPreparedStage();
         Module module = loadedModules.get(moduleName);
         if (module != null)
             return module;
         throw new ModuleNotFoundRuntimeException(moduleName + " missing.");
+    }
+
+    private void assertPreparedStage() {
+        if (isInPrepareStage) {
+            throw new AssertionError("Still in preparing stage.");
+        }
     }
 }

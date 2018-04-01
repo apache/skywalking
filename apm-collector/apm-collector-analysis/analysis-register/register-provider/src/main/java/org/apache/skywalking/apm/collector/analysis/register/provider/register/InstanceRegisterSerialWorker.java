@@ -25,6 +25,7 @@ import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerExce
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.register.IInstanceRegisterDAO;
@@ -54,7 +55,14 @@ public class InstanceRegisterSerialWorker extends AbstractLocalAsyncWorker<Insta
 
     @Override protected void onWork(Instance instance) throws WorkerException {
         logger.debug("register instance, application id: {}, agentUUID: {}", instance.getApplicationId(), instance.getAgentUUID());
-        int instanceId = instanceCacheService.getInstanceIdByAgentUUID(instance.getApplicationId(), instance.getAgentUUID());
+
+        int instanceId;
+        if (BooleanUtils.valueToBoolean(instance.getIsAddress())) {
+            instanceId = instanceCacheService.getInstanceIdByAddressId(instance.getApplicationId(), instance.getAddressId());
+        } else {
+            instanceId = instanceCacheService.getInstanceIdByAgentUUID(instance.getApplicationId(), instance.getAgentUUID());
+        }
+
         if (instanceId == 0) {
             Instance newInstance;
 
@@ -65,18 +73,20 @@ public class InstanceRegisterSerialWorker extends AbstractLocalAsyncWorker<Insta
                 userInstance.setId(String.valueOf(Const.NONE_INSTANCE_ID));
                 userInstance.setInstanceId(Const.NONE_INSTANCE_ID);
                 userInstance.setApplicationId(Const.NONE_APPLICATION_ID);
+                userInstance.setApplicationCode(Const.USER_CODE);
                 userInstance.setAgentUUID(Const.USER_CODE);
                 userInstance.setHeartBeatTime(System.currentTimeMillis());
                 userInstance.setOsInfo(Const.EMPTY_STRING);
                 userInstance.setRegisterTime(System.currentTimeMillis());
                 userInstance.setAddressId(Const.NONE);
-                userInstance.setIsAddress(false);
+                userInstance.setIsAddress(BooleanUtils.FALSE);
                 instanceRegisterDAO.save(userInstance);
 
                 newInstance = new Instance();
                 newInstance.setId("2");
                 newInstance.setInstanceId(2);
                 newInstance.setApplicationId(instance.getApplicationId());
+                newInstance.setApplicationCode(instance.getApplicationCode());
                 newInstance.setAgentUUID(instance.getAgentUUID());
                 newInstance.setHeartBeatTime(instance.getHeartBeatTime());
                 newInstance.setOsInfo(instance.getOsInfo());
@@ -88,6 +98,7 @@ public class InstanceRegisterSerialWorker extends AbstractLocalAsyncWorker<Insta
                 newInstance.setId(String.valueOf(max + 1));
                 newInstance.setInstanceId(max + 1);
                 newInstance.setApplicationId(instance.getApplicationId());
+                newInstance.setApplicationCode(instance.getApplicationCode());
                 newInstance.setAgentUUID(instance.getAgentUUID());
                 newInstance.setHeartBeatTime(instance.getHeartBeatTime());
                 newInstance.setOsInfo(instance.getOsInfo());
