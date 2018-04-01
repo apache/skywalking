@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.collector.ui.jetty;
 
-import java.util.Properties;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cluster.ClusterModule;
 import org.apache.skywalking.apm.collector.cluster.service.ModuleListenerService;
@@ -30,12 +29,14 @@ import org.apache.skywalking.apm.collector.jetty.manager.JettyManagerModule;
 import org.apache.skywalking.apm.collector.jetty.manager.service.JettyManagerService;
 import org.apache.skywalking.apm.collector.naming.NamingModule;
 import org.apache.skywalking.apm.collector.naming.service.NamingHandlerRegisterService;
-import org.apache.skywalking.apm.collector.server.Server;
+import org.apache.skywalking.apm.collector.server.jetty.JettyServer;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.ui.UIModule;
 import org.apache.skywalking.apm.collector.ui.jetty.handler.GraphQLHandler;
 import org.apache.skywalking.apm.collector.ui.jetty.handler.naming.UIJettyNamingHandler;
 import org.apache.skywalking.apm.collector.ui.jetty.handler.naming.UIJettyNamingListener;
+
+import java.util.Properties;
 
 /**
  * @author peng-yongsheng
@@ -74,7 +75,7 @@ public class UIModuleJettyProvider extends ModuleProvider {
         namingHandlerRegisterService.register(new UIJettyNamingHandler(namingListener));
 
         JettyManagerService managerService = getManager().find(JettyManagerModule.NAME).getService(JettyManagerService.class);
-        Server jettyServer = managerService.createIfAbsent(host, port, contextPath);
+        JettyServer jettyServer = managerService.createIfAbsent(host, port, contextPath);
         addHandlers(jettyServer);
     }
 
@@ -86,7 +87,7 @@ public class UIModuleJettyProvider extends ModuleProvider {
         return new String[] {ClusterModule.NAME, JettyManagerModule.NAME, NamingModule.NAME, CacheModule.NAME, StorageModule.NAME};
     }
 
-    private void addHandlers(Server jettyServer) {
+    private void addHandlers(JettyServer jettyServer) {
         jettyServer.addHandler(new GraphQLHandler(getManager()));
     }
 }

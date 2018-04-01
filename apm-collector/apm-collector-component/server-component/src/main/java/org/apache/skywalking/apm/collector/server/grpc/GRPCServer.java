@@ -19,13 +19,14 @@
 
 package org.apache.skywalking.apm.collector.server.grpc;
 
+import io.grpc.BindableService;
+import io.grpc.ServerServiceDefinition;
 import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NettyServerBuilder;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 import org.apache.skywalking.apm.collector.server.Server;
 import org.apache.skywalking.apm.collector.server.ServerException;
-import org.apache.skywalking.apm.collector.server.ServerHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,10 +104,14 @@ public class GRPCServer implements Server {
         }
     }
 
-    @Override
-    public void addHandler(ServerHandler handler) {
-        nettyServerBuilder.addService((io.grpc.BindableService) handler);
+    public void addHandler(BindableService handler) {
+        nettyServerBuilder.addService(handler);
     }
+
+    public void addHandler(ServerServiceDefinition definition) {
+        nettyServerBuilder.addService(definition);
+    }
+
 
     @Override
     public boolean isSSLOpen() {
