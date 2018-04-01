@@ -175,6 +175,14 @@
             <version>${project.version}</version>
         </dependency>
         <!-- alarm provider -->
+
+        <!-- instrument provided dependency -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-collector-instrument</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
