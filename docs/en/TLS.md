@@ -16,10 +16,10 @@ So we didn't support TLS in naming service of HTTP service.
 ## Supported version
 5.0.0-beta +
 
-## Mutual Auth
+## Authentication Mode
 Only support **no mutual auth**.
 - Use this [script](../../tools/TLS/tls_key_generate.sh) if you are not familiar with how to generate key files.
-- Find `ca.srt`, and use it at client side
+- Find `ca.crt`, and use it at client side
 - Find `server.crt` and `server.pem`. Use them at server side.
 
 ## Open and config TLS
