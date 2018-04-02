@@ -1,4 +1,7 @@
 # Direct uplink
+## Supported version
+5.0.0-beta +
+
 ## What is direct uplink?
 In default, SkyWalking agent uses naming service to find all collector addresses. Then connect to gRPC services.
 

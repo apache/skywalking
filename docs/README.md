@@ -6,9 +6,10 @@
     * [Supported middlewares, frameworks and libraries](Supported-list.md)
       * [How to disable plugins?](en/How-to-disable-plugin.md)
   * Advanced Features
-    * [Direct uplink and disable naming discovery](en/direct-uplink.md)
+    * [Direct uplink and disable naming discovery](en/Direct-uplink.md)
     * [Open TLS](en/TLS.md)
-    * Namespace Isolation
+    * [Namespace Isolation](en/Namespace.md)
+    * [Token Authentication]
   * Application Toolkit
     * [Overview](en/Applicaton-toolkit.md)
     * [OpenTracing Tracer](en/Opentracing.md)
