@@ -25,9 +25,9 @@ Only support **no mutual auth**.
 ## Open and config TLS
 
 ### Agent config
-- Place `ca.srt` into `/ca` folder in agent package. Notice, `/ca` is not created in distribution, please create it by yourself.
+- Place `ca.crt` into `/ca` folder in agent package. Notice, `/ca` is not created in distribution, please create it by yourself.
 
-Agent open TLS automatically after the `/ca/ca.srt` file detected.
+Agent open TLS automatically after the `/ca/ca.crt` file detected.
 
 ### Collector config
 Module `agent_gRPC/gRPC` supports TLS. And only this module for now.
