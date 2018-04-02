@@ -6,10 +6,11 @@
     * [Supported middlewares, frameworks and libraries](Supported-list.md)
       * [How to disable plugins?](en/How-to-disable-plugin.md)
   * Advanced Features
+    * [Override settings through System.properties or System.env](en/Setting-override.md)
     * [Direct uplink and disable naming discovery](en/Direct-uplink.md)
     * [Open TLS](en/TLS.md)
     * [Namespace Isolation](en/Namespace.md)
-    * [Token Authentication]
+    * [Token Authentication](en/Token-auth.md)
   * Application Toolkit
     * [Overview](en/Applicaton-toolkit.md)
     * [OpenTracing Tracer](en/Opentracing.md)
