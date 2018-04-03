@@ -279,7 +279,7 @@ enter your apache password
 
 ```
 2. Do release in nexus staging repo.
-3. Public download URL under `http://www.apache.org/dyn/closer.cgi/skywalking/x.y.z`. These are under Apache mirror system.
+3. Public download URL under `http://www.apache.org/dyn/closer.cgi/incubator/skywalking/x.y.z`. These are under Apache mirror system.
 4. Send ANNOUNCE mail to `general@incubator.apache.org`.
 ```
 Mail title: [ANNOUNCE] Release Apache SkyWalking (incubating) version x.y.z
