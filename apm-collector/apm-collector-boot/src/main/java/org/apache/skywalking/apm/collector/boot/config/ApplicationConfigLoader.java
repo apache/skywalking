@@ -109,10 +109,6 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
             overrideModuleSettings(configuration, prop.getKey().toString(), prop.getValue().toString(), true);
         }
 
-        Map<String, String> envs = System.getenv();
-        for (String envKey : envs.keySet()) {
-            overrideModuleSettings(configuration, envKey, envs.get(envKey), false);
-        }
     }
 
     private void overrideModuleSettings(ApplicationConfiguration configuration, String key, String value,
