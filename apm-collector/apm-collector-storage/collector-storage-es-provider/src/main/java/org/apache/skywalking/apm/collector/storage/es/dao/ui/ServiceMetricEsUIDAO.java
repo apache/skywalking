@@ -76,7 +76,11 @@ public class ServiceMetricEsUIDAO extends EsDAO implements IServiceMetricUIDAO {
                 long errorCalls = ((Number) response.getResponse().getSource().get(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS)).longValue();
                 long durationSum = ((Number) response.getResponse().getSource().get(ServiceMetricTable.COLUMN_TRANSACTION_DURATION_SUM)).longValue();
                 long errorDurationSum = ((Number) response.getResponse().getSource().get(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM)).longValue();
-                trends.add((int) ((durationSum - errorDurationSum) / (calls - errorCalls)));
+                if (calls == errorCalls) {
+                    trends.add(0);
+                } else {
+                    trends.add((int) ((durationSum - errorDurationSum) / (calls - errorCalls)));
+                }
             } else {
                 trends.add(0);
             }
