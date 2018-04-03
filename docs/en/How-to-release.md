@@ -199,11 +199,9 @@ release of Apache SkyWalking (Incubating) x.y.z
 We now kindly request the Incubator PMC members review and vote on this
 incubator release.
 
-Skywalking is an APM (application performance monitor), especially for microservice, Cloud Native and container-based architecture systems.
-Also known as a distributed tracing system.
-It provides an automatic way to instrument applications:
-no need to change any of the source code of the target application;
-and an collector with an very high efficiency streaming module.
+SkyWalking: APM (application performance monitor) tool for distributed systems, 
+especially designed for microservices, cloud native and container-based (Docker, Kubernetes, Mesos) architectures. 
+Underlying technology is a distributed tracing system.
 
 Vote Thread:
 
@@ -283,11 +281,9 @@ Hi all,
 
 Apache SkyWalking (incubating) Team is glad to announce the first release of Apache SkyWalking Incubating x.y.z.
 
-Skywalking is an APM (application performance monitor), especially for microservice, Cloud Native and container-based architecture systems.
-Also known as a distributed tracing system.
-It provides an automatic way to instrument applications:
-no need to change any of the source code of the target application;
-and an collector with an very high efficiency streaming module. 
+SkyWalking: APM (application performance monitor) tool for distributed systems, 
+especially designed for microservices, cloud native and container-based (Docker, Kubernetes, Mesos) architectures. 
+Underlying technology is a distributed tracing system.
 
 Download Links : http://www.apache.org/dyn/closer.cgi/skywalking/xxxx
 
