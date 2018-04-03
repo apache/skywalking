@@ -247,7 +247,7 @@ Voting will start now (xxxx date) and will remain open for at least 72 hours, Re
 
 ## Vote result mail
 Close the vote, if
-1. In 72 hours, you got the more than 3 (+1 binding), and more +1 than -1
+1. In 72 hours, you got the more than 3 (+1 binding), and no -1. Vote pass.
 1. Some reviewers found some serious mistakes in this release, the team decided to stop vote and prepare a new RC.
 
 Send a mail to `general@incubator.apache.org` about vote result and status.
