@@ -715,16 +715,6 @@ warning	3.0.0:	https://github.com/BerkeleyTrue/warning	BSD-3-Clause
 json-schema	0.2.3:	https://github.com/kriszyp/json-schema	AFLv2.1	or BSD	, declare license in package.json only.
 
 ========================================
-CC-BY-3.0 licenses
-========================================
-spdx-exceptions	2.1.0:	https://github.com/kemitchell/spdx-exceptions.json	CC-BY-3.0	, declare license in package.json only.
-
-========================================
-CC0-1.0 licenses
-========================================
-spdx-license-ids	3.0.0:	https://github.com/shinnn/spdx-license-ids	CC0-1.0	, declare license in package.json only.
-
-========================================
 ISC licenses
 ========================================
 fs.realpath	1.0.0:	https://github.com/isaacs/fs.realpath	ISC
