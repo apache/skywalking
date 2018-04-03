@@ -133,7 +133,23 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
             return;
         }
         Properties providerSettings = moduleConfiguration.getProviderConfiguration(providerName);
-        providerSettings.put(settingKey, value);
+        if (!providerSettings.containsKey(settingKey)) {
+            return;
+        }
+        Object originValue = providerSettings.get(settingKey);
+        Class<?> type = originValue.getClass();
+        if (type.equals(int.class) || type.equals(Integer.class))
+            providerSettings.put(settingKey, Integer.valueOf(value));
+        else if (type.equals(String.class))
+            providerSettings.put(settingKey, value);
+        else if (type.equals(long.class) || type.equals(Long.class))
+            providerSettings.put(settingKey, Long.valueOf(value));
+        else if (type.equals(boolean.class) || type.equals(Boolean.class)) {
+            providerSettings.put(settingKey, Boolean.valueOf(value));
+        } else {
+            return;
+        }
+
         logger.info("The setting has been override by key: {}, value: {}, in {} provider of {} module through {}",
             settingKey, value, providerName, moduleName, isSystemProperty ? "System.properties" : "System.envs");
     }
