@@ -269,7 +269,7 @@ I will procedd to publish the release and send ANNOUNCE.
 ```
 
 ## Publish release
-1. Move source codes tar balls and distributions to `https://dist.apache.org/repos/dist/release/skywalking/`.
+1. Move source codes tar balls and distributions to `https://dist.apache.org/repos/dist/release/incubator/skywalking/`.
 ```
 > export SVN_EDITOR=vim
 > svn mv https://dist.apache.org/repos/dist/dev/incubator/skywalking/5.0.0-alpha https://dist.apache.org/repos/dist/release/incubator/skywalking
