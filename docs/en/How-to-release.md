@@ -246,3 +246,71 @@ Voting will start now (xxxx date) and will remain open for at least 72 hours, Re
 [ ] +0 No opinion.
 [ ] -1 Do not release this package because....
 ```
+
+## Vote result mail
+Close the vote, if
+1. In 72 hours, you got the more than 3 (+1 binding), and more +1 than -1
+1. Some reviewers found some serious mistakes in this release, the team decided to stop vote and prepare a new RC.
+
+Send a mail to `general@incubator.apache.org` about vote result and status.
+```
+Mail title: [Result][VOTE] Release Apache SkyWalking (incubating) version x.y.z
+
+Mail content:
+Hi all,
+
+The vote for releasing Apache SkyWalking x.y.z (incubating) is closed, now.
+
+Vote result:
+x (+1 binding) (Names of voters)
+y -1.
+
+Thank you everyone for taking the time to review the release and help us. 
+
+I will procedd to publish the release and send ANNOUNCE.
+```
+
+## Publish release
+1. Move source codes tar balls and distributions to `https://dist.apache.org/repos/dist/release/skywalking/`
+1. Do release in nexus staging repo.
+1. Public download URL under `http://www.apache.org/dyn/closer.cgi/skywalking/x.y.z`. These are under Apache mirror system.
+1. Send ANNOUNCE mail to `general@incubator.apache.org`.
+```
+Mail title: [ANNOUNCE] Release Apache SkyWalking (incubating) version x.y.z
+
+Mail content:
+Hi all,
+
+Apache SkyWalking (incubating) Team is glad to announce the first release of Apache SkyWalking Incubating x.y.z.
+
+Skywalking is an APM (application performance monitor), especially for microservice, Cloud Native and container-based architecture systems.
+Also known as a distributed tracing system.
+It provides an automatic way to instrument applications:
+no need to change any of the source code of the target application;
+and an collector with an very high efficiency streaming module. 
+
+Download Links : http://www.apache.org/dyn/closer.cgi/skywalking/xxxx
+
+Release Notes : https://github.com/apache/incubator-skywalking/blob/x.y.z/CHANGES.md
+
+SkyWalking Resources:
+- Issue: https://github.com/apache/incubator-skywalking/issues
+- Mailing list: dev@skywalkiing.incubator.apache.org
+- Documents: https://github.com/apache/incubator-skywalking/blob/x.y.z/docs/README.md
+
+
+- Apache SkyWalking (incubating) Team
+
+=====
+*Disclaimer*
+
+Apache SkyWalking (incubating) is an effort undergoing incubation at The
+Apache Software Foundation (ASF), sponsored by the name of Apache
+Incubator PMC. Incubation is required of all newly accepted
+projects until a further review indicates that the
+infrastructure, communications, and decision making process have
+stabilized in a manner consistent with other successful ASF
+projects. While incubation status is not necessarily a reflection
+of the completeness or stability of the code, it does indicate
+that the project has yet to be fully endorsed by the ASF.
+```
