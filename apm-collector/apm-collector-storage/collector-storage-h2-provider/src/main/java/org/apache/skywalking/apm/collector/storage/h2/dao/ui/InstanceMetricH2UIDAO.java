@@ -93,7 +93,11 @@ public class InstanceMetricH2UIDAO extends H2DAO implements IInstanceMetricUIDAO
                     long errorCallTimes = rs.getLong(InstanceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS);
                     long durationSum = rs.getLong(InstanceMetricTable.COLUMN_TRANSACTION_DURATION_SUM);
                     long errorDurationSum = rs.getLong(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM);
-                    responseTimeTrends.add((int)((durationSum - errorDurationSum) / (callTimes - errorCallTimes)));
+                    if (callTimes == errorCallTimes) {
+                        responseTimeTrends.add((int) (durationSum / callTimes));
+                    } else {
+                        responseTimeTrends.add((int) ((durationSum - errorDurationSum) / (callTimes - errorCallTimes)));
+                    }
                 } else {
                     responseTimeTrends.add(0);
                 }

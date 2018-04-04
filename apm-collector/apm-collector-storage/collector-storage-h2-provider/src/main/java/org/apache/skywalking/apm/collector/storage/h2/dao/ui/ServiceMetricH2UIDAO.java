@@ -68,7 +68,11 @@ public class ServiceMetricH2UIDAO extends H2DAO implements IServiceMetricUIDAO {
                     long errorCalls = rs.getLong(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS);
                     long durationSum = rs.getLong(ServiceMetricTable.COLUMN_TRANSACTION_DURATION_SUM);
                     long errorDurationSum = rs.getLong(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM);
-                    trends.add((int)((durationSum - errorDurationSum) / (calls - errorCalls)));
+                    if (calls == errorCalls) {
+                        trends.add((int) (durationSum / calls));
+                    } else {
+                        trends.add((int) ((durationSum - errorDurationSum) / (calls - errorCalls)));
+                    }
                 } else {
                     trends.add(0);
                 }

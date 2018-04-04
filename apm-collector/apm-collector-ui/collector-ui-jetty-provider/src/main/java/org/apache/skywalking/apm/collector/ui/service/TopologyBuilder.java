@@ -215,7 +215,11 @@ class TopologyBuilder {
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
             }
-            call.setAvgResponseTime((referenceMetric.getDurations() - referenceMetric.getErrorDurations()) / (referenceMetric.getCalls() - referenceMetric.getErrorCalls()));
+            if (referenceMetric.getCalls() == referenceMetric.getErrorCalls()) {
+                call.setAvgResponseTime(referenceMetric.getDurations() / referenceMetric.getCalls());
+            } else {
+                call.setAvgResponseTime((referenceMetric.getDurations() - referenceMetric.getErrorDurations()) / (referenceMetric.getCalls() - referenceMetric.getErrorCalls()));
+            }
             calls.add(call);
         });
 
