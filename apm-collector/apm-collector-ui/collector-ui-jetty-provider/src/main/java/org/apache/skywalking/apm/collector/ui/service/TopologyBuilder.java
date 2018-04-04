@@ -97,7 +97,11 @@ class TopologyBuilder {
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
             }
-            applicationNode.setAvgResponseTime((applicationMetric.getDurations() - applicationMetric.getErrorDurations()) / (applicationMetric.getCalls() - applicationMetric.getErrorCalls()));
+            if (applicationMetric.getCalls() == applicationMetric.getErrorCalls()) {
+                applicationNode.setAvgResponseTime(applicationMetric.getDurations() / applicationMetric.getCalls());
+            } else {
+                applicationNode.setAvgResponseTime((applicationMetric.getDurations() - applicationMetric.getErrorDurations()) / (applicationMetric.getCalls() - applicationMetric.getErrorCalls()));
+            }
             applicationNode.setApdex(ApdexCalculator.INSTANCE.calculate(applicationMetric.getSatisfiedCount(), applicationMetric.getToleratingCount(), applicationMetric.getFrustratedCount()));
             applicationNode.setAlarm(false);
             try {
