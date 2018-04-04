@@ -87,7 +87,7 @@ public class ServiceTopologyService {
             call.setSource(referenceMetric.getSource());
             call.setTarget(referenceMetric.getTarget());
             if (referenceMetric.getCalls() == referenceMetric.getErrorCalls()) {
-                call.setAvgResponseTime(0);
+                call.setAvgResponseTime(referenceMetric.getDurations() / referenceMetric.getCalls());
             } else {
                 call.setAvgResponseTime((referenceMetric.getDurations() - referenceMetric.getErrorDurations()) / (referenceMetric.getCalls() - referenceMetric.getErrorCalls()));
             }
