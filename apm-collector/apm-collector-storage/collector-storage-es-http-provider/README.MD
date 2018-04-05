@@ -1,7 +1,7 @@
 # collector-storage-es-http-provider
 
 This is is a plugin to the Elasticsearch storage component, which uses
-HTTP by way of [Jest](https://github.com/searchbox-io/Jest). This currently supports 5.x version families.This module is copy from [collector-storage-es-provider](../apm-collector-storage/collector-storage-es-provider) and switch java api to rest client.
+HTTP by way of [Jest](https://github.com/searchbox-io/Jest). This currently supports 5.x version families.This module is copy from [collector-storage-es-provider](../collector-storage-es-provider) and switch java api to rest client.
 
 ### Config
 
