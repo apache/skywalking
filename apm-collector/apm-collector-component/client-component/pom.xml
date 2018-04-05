@@ -26,8 +26,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>client-component</artifactId>
-    <packaging>jar</packaging>
+
+	<artifactId>client-component</artifactId>
+	<packaging>jar</packaging>
+
 
     <dependencies>
         <dependency>
@@ -101,5 +103,10 @@
                 </exclusion>
             </exclusions>
         </dependency>
+      	<dependency>
+            <groupId>io.searchbox</groupId>
+            <artifactId>jest</artifactId>
+            <version>5.3.3</version>
+		    </dependency>
     </dependencies>
 </project>

@@ -31,6 +31,7 @@
     <modules>
         <module>collector-storage-define</module>
         <module>collector-storage-es-provider</module>
+        <module>collector-storage-es-http-provider</module>
         <module>collector-storage-h2-provider</module>
     </modules>
 
