@@ -21,15 +21,12 @@ HTTP by way of [Jest](https://github.com/searchbox-io/Jest). This currently supp
                   Defaults to "localhost:9200".
                   
                   Client can sniff other nodes cross elasticsearch,so you can only give one node. 
-    * `ES_TIMEOUT`: Controls the connect, read and write socket timeouts (in milliseconds) for
-                    Elasticsearch Api. Defaults to 10000 (10 seconds)
-    * `ES_INDEX`: The index prefix to use when generating daily index names. Defaults to zipkin.
-    * `ES_DATE_SEPARATOR`: The date separator to use when generating daily index names. Defaults to '-'.
     * `index_shards_number`: The number of shards to split the index into. Each shard and its replicas
                          are assigned to a machine in the cluster. Increasing the number of shards
                          and machines in the cluster will improve read and write performance. Number
                          of shards cannot be changed for existing indices, but new daily indices
                          will pick up changes to the setting. Defaults to 5.
+    * `index_replicas_number`: The number of shard's replicas. Replica can make index HA(high availability) in case a shard/node fails.  and scale out your search volume/throughput. Defaults to 1.
     * `ssl`: Https settings.Default to "false".When ssl set to true,the url to elasticsearch will change the schema to "https".
     * `username` and `password`: Elasticsearch basic authentication, which defaults to empty string.
                                        Use when X-Pack security (formerly Shield) is in place.
