@@ -1,7 +1,7 @@
 ## 所需的第三方软件
 - 被监控程序要求JDK6+
-- sky-walking server和webui要求JDK8+
-- Elasticsearch 5.3
+- SkyWalking collector和WebUI要求JDK8+
+- Elasticsearch 5.x
 - Zookeeper 3.4.10
 
 ## 下载发布版本
@@ -55,7 +55,11 @@ agent_jetty:
     host: localhost
     port: 12800
     context_path: /
-agent_stream:
+analysis_register:
+  default:
+analysis_jvm:
+  default:
+analysis_segment_parser:
   default:
     buffer_file_path: ../buffer/
     buffer_offset_max_file_size: 10M
@@ -79,5 +83,17 @@ storage:
 
 3. 运行`bin/startup.sh`启动。windows用户为.bat文件。
 
-- **注意：startup.sh将会启动collector和UI两个进程，UI通过127.0.0.1:10800访问本地collector，无需额外配置。
-如需保证UI负载均衡，推荐使用类nginx的HTTP代理服务。**
+
+### 部署UI
+
+1. 解压安装包 `tar -xvf skywalking-dist.tar.gz`，windows用户可以选择zip包
+2. 配置UI集群模式.
+
+UI的配置信息保存在 `bin/webappService.sh` 中 ( windows为`bin\webappService.bat`).
+
+| 配置项                            | 描述                                                                             |
+|----------------------------------|----------------------------------------------------------------------------------|
+| `server.port`                    | 监听端口                                                                          |
+| `collector.ribbon.listOfServers` | collector命名服务地址.(与 `config/application.yml` 中的`naming.jetty`配置保持相同 )，多个Collector地址以`,`分割 |
+
+3. 运行 `bin/webappService.sh`

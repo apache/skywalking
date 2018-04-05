@@ -19,9 +19,11 @@
 package org.apache.skywalking.apm.collector.storage.table.alarm;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
+import org.apache.skywalking.apm.collector.core.data.RemoteData;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.CoverMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
+import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 
 /**
  * @author peng-yongsheng
@@ -29,22 +31,22 @@ import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
 public class ServiceAlarmList extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(ServiceAlarmListTable.COLUMN_ID, new NonOperation()),
-        new Column(ServiceAlarmListTable.COLUMN_ALARM_CONTENT, new CoverOperation()),
+        new Column(ServiceAlarmListTable.COLUMN_ID, new NonMergeOperation()),
+        new Column(ServiceAlarmListTable.COLUMN_ALARM_CONTENT, new CoverMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(ServiceAlarmListTable.COLUMN_TIME_BUCKET, new NonOperation()),
+        new Column(ServiceAlarmListTable.COLUMN_TIME_BUCKET, new NonMergeOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {};
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(ServiceAlarmListTable.COLUMN_ALARM_TYPE, new NonOperation()),
-        new Column(ServiceAlarmListTable.COLUMN_SOURCE_VALUE, new NonOperation()),
-        new Column(ServiceAlarmListTable.COLUMN_APPLICATION_ID, new NonOperation()),
-        new Column(ServiceAlarmListTable.COLUMN_INSTANCE_ID, new NonOperation()),
-        new Column(ServiceAlarmListTable.COLUMN_SERVICE_ID, new NonOperation()),
+        new Column(ServiceAlarmListTable.COLUMN_ALARM_TYPE, new NonMergeOperation()),
+        new Column(ServiceAlarmListTable.COLUMN_SOURCE_VALUE, new NonMergeOperation()),
+        new Column(ServiceAlarmListTable.COLUMN_APPLICATION_ID, new NonMergeOperation()),
+        new Column(ServiceAlarmListTable.COLUMN_INSTANCE_ID, new NonMergeOperation()),
+        new Column(ServiceAlarmListTable.COLUMN_SERVICE_ID, new NonMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};
@@ -123,5 +125,11 @@ public class ServiceAlarmList extends StreamData {
 
     public void setAlarmContent(String alarmContent) {
         setDataString(1, alarmContent);
+    }
+
+    public static class InstanceCreator implements RemoteDataRegisterService.RemoteDataInstanceCreator {
+        @Override public RemoteData createInstance() {
+            return new ServiceAlarmList();
+        }
     }
 }

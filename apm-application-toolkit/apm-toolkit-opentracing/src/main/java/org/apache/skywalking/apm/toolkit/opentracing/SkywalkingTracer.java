@@ -43,7 +43,7 @@ public class SkywalkingTracer implements Tracer {
     @NeedSnifferActivation
     @Override
     public <C> SpanContext extract(Format<C> format, C carrier) {
-        return new TextMapContext();
+        return new SkywalkingContext();
     }
 
     @Override

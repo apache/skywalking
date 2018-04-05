@@ -18,13 +18,13 @@
 
 package org.apache.skywalking.apm.collector.storage.es;
 
-import java.util.Properties;
-import java.util.UUID;
 import org.apache.skywalking.apm.collector.client.ClientException;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.cluster.ClusterModule;
 import org.apache.skywalking.apm.collector.cluster.service.ModuleListenerService;
 import org.apache.skywalking.apm.collector.cluster.service.ModuleRegisterService;
+import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
+import org.apache.skywalking.apm.collector.configuration.service.ICollectorConfig;
 import org.apache.skywalking.apm.collector.core.module.Module;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
@@ -39,21 +39,7 @@ import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponent
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentHourPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentMinutePersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentMonthPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListDayPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListHourPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListMinutePersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListMonthPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationReferenceAlarmListPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationReferenceAlarmPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IInstanceAlarmListPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IInstanceAlarmPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IInstanceReferenceAlarmListPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IInstanceReferenceAlarmPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IServiceAlarmListPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IServiceAlarmPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IServiceReferenceAlarmListPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IServiceReferenceAlarmPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.alarm.*;
 import org.apache.skywalking.apm.collector.storage.dao.amp.IApplicationDayMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.amp.IApplicationHourMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.amp.IApplicationMinuteMetricPersistenceDAO;
@@ -70,16 +56,8 @@ import org.apache.skywalking.apm.collector.storage.dao.cache.IApplicationCacheDA
 import org.apache.skywalking.apm.collector.storage.dao.cache.IInstanceCacheDAO;
 import org.apache.skywalking.apm.collector.storage.dao.cache.INetworkAddressCacheDAO;
 import org.apache.skywalking.apm.collector.storage.dao.cache.IServiceNameCacheDAO;
-import org.apache.skywalking.apm.collector.storage.dao.cpump.ICpuDayMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.cpump.ICpuHourMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.cpump.ICpuMinuteMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.cpump.ICpuMonthMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.cpump.ICpuSecondMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.gcmp.IGCDayMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.gcmp.IGCHourMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.gcmp.IGCMinuteMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.gcmp.IGCMonthMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.gcmp.IGCSecondMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.cpu.*;
+import org.apache.skywalking.apm.collector.storage.dao.gc.*;
 import org.apache.skywalking.apm.collector.storage.dao.imp.IInstanceDayMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.imp.IInstanceHourMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.imp.IInstanceMinuteMetricPersistenceDAO;
@@ -92,16 +70,8 @@ import org.apache.skywalking.apm.collector.storage.dao.irmp.IInstanceReferenceDa
 import org.apache.skywalking.apm.collector.storage.dao.irmp.IInstanceReferenceHourMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.irmp.IInstanceReferenceMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.irmp.IInstanceReferenceMonthMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.memorymp.IMemoryDayMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.memorymp.IMemoryHourMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.memorymp.IMemoryMinuteMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.memorymp.IMemoryMonthMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.memorymp.IMemorySecondMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.mpoolmp.IMemoryPoolDayMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.mpoolmp.IMemoryPoolHourMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.mpoolmp.IMemoryPoolMinuteMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.mpoolmp.IMemoryPoolMonthMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.mpoolmp.IMemoryPoolSecondMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.memory.*;
+import org.apache.skywalking.apm.collector.storage.dao.mpool.*;
 import org.apache.skywalking.apm.collector.storage.dao.register.IApplicationRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.dao.register.IInstanceRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.dao.register.INetworkAddressRegisterDAO;
@@ -114,27 +84,7 @@ import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceDay
 import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceHourMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceMonthMetricPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationAlarmListUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationAlarmUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationComponentUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMappingUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationReferenceMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.ICpuMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IGCMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IGlobalTraceUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceAlarmUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IMemoryMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IMemoryPoolMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.INetworkAddressUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentDurationUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceAlarmUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceNameServiceUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceReferenceMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.*;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.BatchEsDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchStorageInstaller;
 import org.apache.skywalking.apm.collector.storage.es.dao.GlobalTraceEsPersistenceDAO;
@@ -145,21 +95,7 @@ import org.apache.skywalking.apm.collector.storage.es.dao.acp.ApplicationCompone
 import org.apache.skywalking.apm.collector.storage.es.dao.acp.ApplicationComponentHourEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.acp.ApplicationComponentMinuteEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.acp.ApplicationComponentMonthEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.alarm.ApplicationAlarmEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.alarm.ApplicationAlarmListEsDayPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.alarm.ApplicationAlarmListEsHourPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.alarm.ApplicationAlarmListEsMinutePersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.alarm.ApplicationAlarmListEsMonthPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.alarm.ApplicationReferenceAlarmEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.alarm.ApplicationReferenceAlarmListEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.alarm.InstanceAlarmEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.alarm.InstanceAlarmListEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.alarm.InstanceReferenceAlarmEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.alarm.InstanceReferenceAlarmListEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.alarm.ServiceAlarmEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.alarm.ServiceAlarmListEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.alarm.ServiceReferenceAlarmEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.alarm.ServiceReferenceAlarmListEsPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.alarm.*;
 import org.apache.skywalking.apm.collector.storage.es.dao.amp.ApplicationDayMetricEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.amp.ApplicationHourMetricEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.amp.ApplicationMinuteMetricEsPersistenceDAO;
@@ -176,16 +112,8 @@ import org.apache.skywalking.apm.collector.storage.es.dao.cache.ApplicationEsCac
 import org.apache.skywalking.apm.collector.storage.es.dao.cache.InstanceEsCacheDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.cache.NetworkAddressEsCacheDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.cache.ServiceNameEsCacheDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.cpump.CpuDayMetricEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.cpump.CpuHourMetricEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.cpump.CpuMinuteMetricEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.cpump.CpuMonthMetricEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.cpump.CpuSecondMetricEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.gcmp.GCDayMetricEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.gcmp.GCHourMetricEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.gcmp.GCMinuteMetricEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.gcmp.GCMonthMetricEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.gcmp.GCSecondMetricEsPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.cpu.*;
+import org.apache.skywalking.apm.collector.storage.es.dao.gc.*;
 import org.apache.skywalking.apm.collector.storage.es.dao.imp.InstanceDayMetricEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.imp.InstanceHourMetricEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.imp.InstanceMinuteMetricEsPersistenceDAO;
@@ -198,16 +126,8 @@ import org.apache.skywalking.apm.collector.storage.es.dao.irmp.InstanceReference
 import org.apache.skywalking.apm.collector.storage.es.dao.irmp.InstanceReferenceHourMetricEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.irmp.InstanceReferenceMinuteMetricEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.irmp.InstanceReferenceMonthMetricEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.memorymp.MemoryDayMetricEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.memorymp.MemoryHourMetricEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.memorymp.MemoryMinuteMetricEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.memorymp.MemoryMonthMetricEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.memorymp.MemorySecondMetricEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.mpoolmp.MemoryPoolDayMetricEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.mpoolmp.MemoryPoolHourMetricEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.mpoolmp.MemoryPoolMinuteMetricEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.mpoolmp.MemoryPoolMonthMetricEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.mpoolmp.MemoryPoolSecondMetricEsPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.memory.*;
+import org.apache.skywalking.apm.collector.storage.es.dao.mpool.*;
 import org.apache.skywalking.apm.collector.storage.es.dao.register.ApplicationRegisterEsDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.register.InstanceRegisterEsDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.register.NetworkAddressRegisterEsDAO;
@@ -220,29 +140,12 @@ import org.apache.skywalking.apm.collector.storage.es.dao.srmp.ServiceReferenceD
 import org.apache.skywalking.apm.collector.storage.es.dao.srmp.ServiceReferenceHourMetricEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.srmp.ServiceReferenceMinuteMetricEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.srmp.ServiceReferenceMonthMetricEsPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ui.ApplicationAlarmEsUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ui.ApplicationAlarmListEsUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ui.ApplicationComponentEsUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ui.ApplicationMappingEsUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ui.ApplicationMetricEsUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ui.ApplicationReferenceMetricEsUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ui.CpuMetricEsUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ui.GCMetricEsUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ui.GlobalTraceEsUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ui.InstanceAlarmEsUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ui.InstanceEsUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ui.InstanceMetricEsUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ui.MemoryMetricEsUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ui.MemoryPoolMetricEsUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ui.NetworkAddressEsUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ui.SegmentDurationEsUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ui.SegmentEsUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ui.ServiceAlarmEsUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ui.ServiceMetricEsUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ui.ServiceNameServiceEsUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ui.ServiceReferenceEsMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.ui.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Properties;
+import java.util.UUID;
 
 /**
  * @author peng-yongsheng
@@ -262,17 +165,20 @@ public class StorageModuleEsProvider extends ModuleProvider {
     private ElasticSearchClient elasticSearchClient;
     private DataTTLKeeperTimer deleteTimer;
 
-    @Override public String name() {
+    @Override
+    public String name() {
         return NAME;
     }
 
-    @Override public Class<? extends Module> module() {
+    @Override
+    public Class<? extends Module> module() {
         return StorageModule.class;
     }
 
-    @Override public void prepare(Properties config) throws ServiceNotProvidedException {
+    @Override
+    public void prepare(Properties config) throws ServiceNotProvidedException {
         String clusterName = config.getProperty(CLUSTER_NAME);
-        Boolean clusterTransportSniffer = (Boolean)config.get(CLUSTER_TRANSPORT_SNIFFER);
+        Boolean clusterTransportSniffer = (Boolean) config.get(CLUSTER_TRANSPORT_SNIFFER);
         String clusterNodes = config.getProperty(CLUSTER_NODES);
         elasticSearchClient = new ElasticSearchClient(clusterName, clusterTransportSniffer, clusterNodes);
 
@@ -284,10 +190,14 @@ public class StorageModuleEsProvider extends ModuleProvider {
         registerAlarmDAO();
     }
 
-    @Override public void start(Properties config) throws ServiceNotProvidedException {
-        Integer indexShardsNumber = (Integer)config.get(INDEX_SHARDS_NUMBER);
-        Integer indexReplicasNumber = (Integer)config.get(INDEX_REPLICAS_NUMBER);
+    @Override
+    public void start(Properties config) throws ServiceNotProvidedException {
+        Integer indexShardsNumber = (Integer) config.get(INDEX_SHARDS_NUMBER);
+        Integer indexReplicasNumber = (Integer) config.get(INDEX_REPLICAS_NUMBER);
         try {
+            String namespace = getManager().find(ConfigurationModule.NAME).getService(ICollectorConfig.class).getNamespace();
+            elasticSearchClient.setNamespace(namespace);
+
             elasticSearchClient.initialize();
 
             ElasticSearchStorageInstaller installer = new ElasticSearchStorageInstaller(indexShardsNumber, indexReplicasNumber);
@@ -304,16 +214,18 @@ public class StorageModuleEsProvider extends ModuleProvider {
         ModuleListenerService moduleListenerService = getManager().find(ClusterModule.NAME).getService(ModuleListenerService.class);
         moduleListenerService.addListener(namingListener);
 
-        Integer beforeDay = (Integer)config.getOrDefault(TIME_TO_LIVE_OF_DATA, 3);
+        Integer beforeDay = (Integer) config.getOrDefault(TIME_TO_LIVE_OF_DATA, 3);
         deleteTimer = new DataTTLKeeperTimer(getManager(), namingListener, uuId + 0, beforeDay);
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
+    @Override
+    public void notifyAfterCompleted() throws ServiceNotProvidedException {
         deleteTimer.start();
     }
 
-    @Override public String[] requiredModules() {
-        return new String[] {ClusterModule.NAME};
+    @Override
+    public String[] requiredModules() {
+        return new String[]{ClusterModule.NAME, ConfigurationModule.NAME};
     }
 
     private void registerCacheDAO() throws ServiceNotProvidedException {

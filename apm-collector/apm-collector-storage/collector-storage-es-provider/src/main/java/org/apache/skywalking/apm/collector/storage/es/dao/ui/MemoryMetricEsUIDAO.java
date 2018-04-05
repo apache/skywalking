@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao.ui;
 
-import java.util.List;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
@@ -32,6 +31,8 @@ import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetRequestBuilder;
 import org.elasticsearch.action.get.MultiGetResponse;
 
+import java.util.List;
+
 /**
  * @author peng-yongsheng
  */
@@ -41,38 +42,42 @@ public class MemoryMetricEsUIDAO extends EsDAO implements IMemoryMetricUIDAO {
         super(client);
     }
 
-    @Override public Trend getHeapMemoryTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
+    @Override
+    public Trend getHeapMemoryTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
         return getMemoryTrend(instanceId, step, durationPoints, true);
     }
 
-    @Override public Trend getNoHeapMemoryTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
+    @Override
+    public Trend getNoHeapMemoryTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
         return getMemoryTrend(instanceId, step, durationPoints, false);
     }
 
     private Trend getMemoryTrend(int instanceId, Step step, List<DurationPoint> durationPoints,
-        boolean isHeap) {
+                                 boolean isHeap) {
         String tableName = TimePyramidTableNameBuilder.build(step, MemoryMetricTable.TABLE);
-        MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet();
+        MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet(durationPoints, new ElasticSearchClient.MultiGetRowHandler<DurationPoint>() {
+            @Override
+            public void accept(DurationPoint durationPoint) {
+                String id = durationPoint.getPoint() + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + BooleanUtils.booleanToValue(isHeap);
+                add(tableName, MemoryMetricTable.TABLE_TYPE, id);
+            }
 
-        durationPoints.forEach(durationPoint -> {
-            String id = durationPoint.getPoint() + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + BooleanUtils.booleanToValue(isHeap);
-            prepareMultiGet.add(tableName, MemoryMetricTable.TABLE_TYPE, id);
         });
 
         Trend trend = new Trend();
         MultiGetResponse multiGetResponse = prepareMultiGet.get();
         for (MultiGetItemResponse response : multiGetResponse.getResponses()) {
             if (response.getResponse().isExists()) {
-                long max = ((Number)response.getResponse().getSource().get(MemoryMetricTable.COLUMN_MAX)).longValue();
-                long used = ((Number)response.getResponse().getSource().get(MemoryMetricTable.COLUMN_USED)).longValue();
-                long times = ((Number)response.getResponse().getSource().get(MemoryMetricTable.COLUMN_TIMES)).longValue();
+                long max = ((Number) response.getResponse().getSource().get(MemoryMetricTable.COLUMN_MAX)).longValue();
+                long used = ((Number) response.getResponse().getSource().get(MemoryMetricTable.COLUMN_USED)).longValue();
+                long times = ((Number) response.getResponse().getSource().get(MemoryMetricTable.COLUMN_TIMES)).longValue();
 
-                trend.getMetrics().add((int)(used / times));
+                trend.getMetrics().add((int) (used / times));
 
                 if (max < 0) {
-                    trend.getMaxMetrics().add((int)(used / times));
+                    trend.getMaxMetrics().add((int) (used / times));
                 } else {
-                    trend.getMaxMetrics().add((int)(max / times));
+                    trend.getMaxMetrics().add((int) (max / times));
                 }
             } else {
                 trend.getMetrics().add(0);

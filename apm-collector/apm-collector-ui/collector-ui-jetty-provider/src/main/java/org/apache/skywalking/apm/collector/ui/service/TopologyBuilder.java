@@ -77,6 +77,9 @@ class TopologyBuilder {
         Map<Integer, String> components = changeNodeComp2Map(applicationComponents);
         Map<Integer, Integer> mappings = changeMapping2Map(applicationMappings);
 
+        filterZeroSourceOrTargetReference(callerReferenceMetric);
+        filterZeroSourceOrTargetReference(calleeReferenceMetric);
+
         calleeReferenceMetric = calleeReferenceMetricFilter(calleeReferenceMetric);
 
         List<Node> nodes = new LinkedList<>();
@@ -94,7 +97,7 @@ class TopologyBuilder {
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
             }
-            applicationNode.setAvgResponseTime((applicationMetric.getDurations() - applicationMetric.getErrorDurations()) / (applicationMetric.getCalls() - applicationMetric.getErrorCalls()));
+            applicationNode.setAvgResponseTime(applicationMetric.getDurations() / applicationMetric.getCalls());
             applicationNode.setApdex(ApdexCalculator.INSTANCE.calculate(applicationMetric.getSatisfiedCount(), applicationMetric.getToleratingCount(), applicationMetric.getFrustratedCount()));
             applicationNode.setAlarm(false);
             try {
@@ -124,20 +127,24 @@ class TopologyBuilder {
         });
 
         List<Call> calls = new LinkedList<>();
+        Set<Integer> nodeIds = new HashSet<>();
         callerReferenceMetric.forEach(referenceMetric -> {
             Application source = applicationCacheService.getApplicationById(referenceMetric.getSource());
             Application target = applicationCacheService.getApplicationById(referenceMetric.getTarget());
 
             if (BooleanUtils.valueToBoolean(target.getIsAddress()) && !mappings.containsKey(target.getApplicationId())) {
-                ConjecturalNode conjecturalNode = new ConjecturalNode();
-                conjecturalNode.setId(target.getApplicationId());
-                conjecturalNode.setName(target.getApplicationCode());
-                conjecturalNode.setType(components.getOrDefault(target.getApplicationId(), Const.UNKNOWN));
-                nodes.add(conjecturalNode);
+                if (!nodeIds.contains(target.getApplicationId())) {
+                    ConjecturalNode conjecturalNode = new ConjecturalNode();
+                    conjecturalNode.setId(target.getApplicationId());
+                    conjecturalNode.setName(target.getApplicationCode());
+                    conjecturalNode.setType(components.getOrDefault(target.getApplicationId(), Const.UNKNOWN));
+                    nodes.add(conjecturalNode);
+                    nodeIds.add(target.getApplicationId());
+                }
             }
 
-            Set<Integer> nodeIds = buildNodeIds(nodes);
-            if (!nodeIds.contains(source.getApplicationId())) {
+            Set<Integer> applicationNodeIds = buildNodeIds(nodes);
+            if (!applicationNodeIds.contains(source.getApplicationId())) {
                 ApplicationNode applicationNode = new ApplicationNode();
                 applicationNode.setId(source.getApplicationId());
                 applicationNode.setName(source.getApplicationCode());
@@ -161,7 +168,7 @@ class TopologyBuilder {
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
             }
-            call.setAvgResponseTime((referenceMetric.getDurations() - referenceMetric.getErrorDurations()) / (referenceMetric.getCalls() - referenceMetric.getErrorCalls()));
+            call.setAvgResponseTime(referenceMetric.getDurations() / referenceMetric.getCalls());
             calls.add(call);
         });
 
@@ -170,19 +177,25 @@ class TopologyBuilder {
             Application target = applicationCacheService.getApplicationById(referenceMetric.getTarget());
 
             if (source.getApplicationId() == Const.NONE_APPLICATION_ID) {
-                VisualUserNode visualUserNode = new VisualUserNode();
-                visualUserNode.setId(source.getApplicationId());
-                visualUserNode.setName(Const.USER_CODE);
-                visualUserNode.setType(Const.USER_CODE.toUpperCase());
-                nodes.add(visualUserNode);
+                if (!nodeIds.contains(source.getApplicationId())) {
+                    VisualUserNode visualUserNode = new VisualUserNode();
+                    visualUserNode.setId(source.getApplicationId());
+                    visualUserNode.setName(Const.USER_CODE);
+                    visualUserNode.setType(Const.USER_CODE.toUpperCase());
+                    nodes.add(visualUserNode);
+                    nodeIds.add(source.getApplicationId());
+                }
             }
 
             if (BooleanUtils.valueToBoolean(source.getIsAddress())) {
-                ConjecturalNode conjecturalNode = new ConjecturalNode();
-                conjecturalNode.setId(source.getApplicationId());
-                conjecturalNode.setName(source.getApplicationCode());
-                conjecturalNode.setType(components.getOrDefault(source.getApplicationId(), Const.UNKNOWN));
-                nodes.add(conjecturalNode);
+                if (!nodeIds.contains(source.getApplicationId())) {
+                    ConjecturalNode conjecturalNode = new ConjecturalNode();
+                    conjecturalNode.setId(source.getApplicationId());
+                    conjecturalNode.setName(source.getApplicationCode());
+                    conjecturalNode.setType(components.getOrDefault(source.getApplicationId(), Const.UNKNOWN));
+                    nodeIds.add(source.getApplicationId());
+                    nodes.add(conjecturalNode);
+                }
             }
 
             Call call = new Call();
@@ -202,7 +215,7 @@ class TopologyBuilder {
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
             }
-            call.setAvgResponseTime((referenceMetric.getDurations() - referenceMetric.getErrorDurations()) / (referenceMetric.getCalls() - referenceMetric.getErrorCalls()));
+            call.setAvgResponseTime(referenceMetric.getDurations() / referenceMetric.getCalls());
             calls.add(call);
         });
 
@@ -247,5 +260,15 @@ class TopologyBuilder {
             components.put(applicationComponent.getApplicationId(), componentName);
         });
         return components;
+    }
+
+    private void filterZeroSourceOrTargetReference(
+        List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> referenceMetric) {
+        for (int i = referenceMetric.size() - 1; i >= 0; i--) {
+            IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric applicationReferenceMetric = referenceMetric.get(i);
+            if (applicationReferenceMetric.getSource() == 0 || applicationReferenceMetric.getTarget() == 0) {
+                referenceMetric.remove(i);
+            }
+        }
     }
 }

@@ -19,19 +19,19 @@
 
 package org.apache.skywalking.apm.collector.server.jetty;
 
-import java.net.InetSocketAddress;
-import javax.servlet.http.HttpServlet;
+import org.apache.skywalking.apm.collector.server.Server;
+import org.apache.skywalking.apm.collector.server.ServerException;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlet.ServletMapping;
-import org.apache.skywalking.apm.collector.server.Server;
-import org.apache.skywalking.apm.collector.server.ServerException;
-import org.apache.skywalking.apm.collector.server.ServerHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
+import java.util.Objects;
+
 /**
- * @author peng-yongsheng
+ * @author peng-yongsheng, wusheng
  */
 public class JettyServer implements Server {
 
@@ -49,15 +49,18 @@ public class JettyServer implements Server {
         this.contextPath = contextPath;
     }
 
-    @Override public String hostPort() {
+    @Override
+    public String hostPort() {
         return host + ":" + port;
     }
 
-    @Override public String serverClassify() {
+    @Override
+    public String serverClassify() {
         return "Jetty";
     }
 
-    @Override public void initialize() throws ServerException {
+    @Override
+    public void initialize() throws ServerException {
         server = new org.eclipse.jetty.server.Server(new InetSocketAddress(host, port));
 
         servletContextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
@@ -67,13 +70,24 @@ public class JettyServer implements Server {
         server.setHandler(servletContextHandler);
     }
 
-    @Override public void addHandler(ServerHandler handler) {
+    public void addHandler(JettyHandler handler) {
         ServletHolder servletHolder = new ServletHolder();
-        servletHolder.setServlet((HttpServlet)handler);
-        servletContextHandler.addServlet(servletHolder, ((JettyHandler)handler).pathSpec());
+        servletHolder.setServlet(handler);
+        servletContextHandler.addServlet(servletHolder, handler.pathSpec());
     }
 
-    @Override public void start() throws ServerException {
+    @Override
+    public boolean isSSLOpen() {
+        return false;
+    }
+
+    @Override
+    public boolean isStatusEqual(Server target) {
+        return equals(target);
+    }
+
+    @Override
+    public void start() throws ServerException {
         logger.info("start server, host: {}, port: {}", host, port);
         try {
             for (ServletMapping servletMapping : servletContextHandler.getServletHandler().getServletMappings()) {
@@ -83,5 +97,19 @@ public class JettyServer implements Server {
         } catch (Exception e) {
             throw new JettyServerException(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        JettyServer that = (JettyServer) o;
+        return port == that.port &&
+                Objects.equals(host, that.host);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(host, port);
     }
 }

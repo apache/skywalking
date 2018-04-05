@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.collector.storage.es.dao.alarm;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationReferenceAlarmListPersistenceDAO;
@@ -45,27 +46,29 @@ public class ApplicationReferenceAlarmListEsPersistenceDAO extends EsDAO impleme
         super(client);
     }
 
-    @Override public ApplicationReferenceAlarmList get(String id) {
+    @Override
+    public ApplicationReferenceAlarmList get(String id) {
         GetResponse getResponse = getClient().prepareGet(ApplicationReferenceAlarmListTable.TABLE, id).get();
         if (getResponse.isExists()) {
             ApplicationReferenceAlarmList applicationReferenceAlarmList = new ApplicationReferenceAlarmList();
             applicationReferenceAlarmList.setId(id);
             Map<String, Object> source = getResponse.getSource();
-            applicationReferenceAlarmList.setFrontApplicationId(((Number)source.get(ApplicationReferenceAlarmListTable.COLUMN_FRONT_APPLICATION_ID)).intValue());
-            applicationReferenceAlarmList.setBehindApplicationId(((Number)source.get(ApplicationReferenceAlarmListTable.COLUMN_BEHIND_APPLICATION_ID)).intValue());
-            applicationReferenceAlarmList.setSourceValue(((Number)source.get(ApplicationReferenceAlarmListTable.COLUMN_SOURCE_VALUE)).intValue());
+            applicationReferenceAlarmList.setFrontApplicationId(((Number) source.get(ApplicationReferenceAlarmListTable.COLUMN_FRONT_APPLICATION_ID)).intValue());
+            applicationReferenceAlarmList.setBehindApplicationId(((Number) source.get(ApplicationReferenceAlarmListTable.COLUMN_BEHIND_APPLICATION_ID)).intValue());
+            applicationReferenceAlarmList.setSourceValue(((Number) source.get(ApplicationReferenceAlarmListTable.COLUMN_SOURCE_VALUE)).intValue());
 
-            applicationReferenceAlarmList.setAlarmType(((Number)source.get(ApplicationReferenceAlarmListTable.COLUMN_ALARM_TYPE)).intValue());
-            applicationReferenceAlarmList.setAlarmContent((String)source.get(ApplicationReferenceAlarmListTable.COLUMN_ALARM_CONTENT));
+            applicationReferenceAlarmList.setAlarmType(((Number) source.get(ApplicationReferenceAlarmListTable.COLUMN_ALARM_TYPE)).intValue());
+            applicationReferenceAlarmList.setAlarmContent((String) source.get(ApplicationReferenceAlarmListTable.COLUMN_ALARM_CONTENT));
 
-            applicationReferenceAlarmList.setTimeBucket(((Number)source.get(ApplicationReferenceAlarmListTable.COLUMN_TIME_BUCKET)).longValue());
+            applicationReferenceAlarmList.setTimeBucket(((Number) source.get(ApplicationReferenceAlarmListTable.COLUMN_TIME_BUCKET)).longValue());
             return applicationReferenceAlarmList;
         } else {
             return null;
         }
     }
 
-    @Override public IndexRequestBuilder prepareBatchInsert(ApplicationReferenceAlarmList data) {
+    @Override
+    public IndexRequestBuilder prepareBatchInsert(ApplicationReferenceAlarmList data) {
         Map<String, Object> source = new HashMap<>();
         source.put(ApplicationReferenceAlarmListTable.COLUMN_FRONT_APPLICATION_ID, data.getFrontApplicationId());
         source.put(ApplicationReferenceAlarmListTable.COLUMN_BEHIND_APPLICATION_ID, data.getBehindApplicationId());
@@ -79,7 +82,8 @@ public class ApplicationReferenceAlarmListEsPersistenceDAO extends EsDAO impleme
         return getClient().prepareIndex(ApplicationReferenceAlarmListTable.TABLE, data.getId()).setSource(source);
     }
 
-    @Override public UpdateRequestBuilder prepareBatchUpdate(ApplicationReferenceAlarmList data) {
+    @Override
+    public UpdateRequestBuilder prepareBatchUpdate(ApplicationReferenceAlarmList data) {
         Map<String, Object> source = new HashMap<>();
         source.put(ApplicationReferenceAlarmListTable.COLUMN_FRONT_APPLICATION_ID, data.getFrontApplicationId());
         source.put(ApplicationReferenceAlarmListTable.COLUMN_BEHIND_APPLICATION_ID, data.getBehindApplicationId());
@@ -93,13 +97,14 @@ public class ApplicationReferenceAlarmListEsPersistenceDAO extends EsDAO impleme
         return getClient().prepareUpdate(ApplicationReferenceAlarmListTable.TABLE, data.getId()).setDoc(source);
     }
 
-    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+    @Override
+    public void deleteHistory(Long startTimestamp, Long endTimestamp) {
         long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
         long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
-        BulkByScrollResponse response = getClient().prepareDelete()
-            .filter(QueryBuilders.rangeQuery(ApplicationReferenceAlarmListTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket))
-            .source(ApplicationReferenceAlarmListTable.TABLE)
-            .get();
+        BulkByScrollResponse response = getClient().prepareDelete(
+                QueryBuilders.rangeQuery(ApplicationReferenceAlarmListTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket),
+                ApplicationReferenceAlarmListTable.TABLE)
+                .get();
 
         long deleted = response.getDeleted();
         logger.info("Delete {} rows history from {} index.", deleted, ApplicationReferenceAlarmListTable.TABLE);

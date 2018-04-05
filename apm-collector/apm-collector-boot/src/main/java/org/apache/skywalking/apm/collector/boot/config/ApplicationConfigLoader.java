@@ -16,11 +16,11 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.boot.config;
 
 import java.io.FileNotFoundException;
 import java.io.Reader;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.skywalking.apm.collector.core.module.ApplicationConfiguration;
@@ -30,7 +30,13 @@ import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
 /**
- * @author peng-yongsheng
+ * Initialize collector settings with following sources.
+ * Use application.yml as primary setting,
+ * and fix missing setting by default settings in application-default.yml.
+ *
+ * At last, override setting by system.properties and system.envs if the key matches moduleName.provideName.settingKey.
+ *
+ * @author peng-yongsheng, wusheng
  */
 public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfiguration> {
 
@@ -42,6 +48,7 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
         ApplicationConfiguration configuration = new ApplicationConfiguration();
         this.loadConfig(configuration);
         this.loadDefaultConfig(configuration);
+        this.overrideConfigBySystemEnv(configuration);
         return configuration;
     }
 
@@ -93,5 +100,57 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
         } catch (FileNotFoundException e) {
             throw new ConfigFileNotFoundException(e.getMessage(), e);
         }
+    }
+
+    private void overrideConfigBySystemEnv(ApplicationConfiguration configuration) {
+        Iterator<Map.Entry<Object, Object>> entryIterator = System.getProperties().entrySet().iterator();
+        while (entryIterator.hasNext()) {
+            Map.Entry<Object, Object> prop = entryIterator.next();
+            overrideModuleSettings(configuration, prop.getKey().toString(), prop.getValue().toString(), true);
+        }
+
+    }
+
+    private void overrideModuleSettings(ApplicationConfiguration configuration, String key, String value,
+        boolean isSystemProperty) {
+        int moduleAndConfigSeparator = key.indexOf('.');
+        if (moduleAndConfigSeparator <= 0) {
+            return;
+        }
+        String moduleName = key.substring(0, moduleAndConfigSeparator);
+        String providerSettingSubKey = key.substring(moduleAndConfigSeparator + 1);
+        ApplicationConfiguration.ModuleConfiguration moduleConfiguration = configuration.getModuleConfiguration(moduleName);
+        if (moduleConfiguration == null) {
+            return;
+        }
+        int providerAndConfigSeparator = providerSettingSubKey.indexOf('.');
+        if (providerAndConfigSeparator <= 0) {
+            return;
+        }
+        String providerName = providerSettingSubKey.substring(0, providerAndConfigSeparator);
+        String settingKey = providerSettingSubKey.substring(providerAndConfigSeparator + 1);
+        if (!moduleConfiguration.has(providerName)) {
+            return;
+        }
+        Properties providerSettings = moduleConfiguration.getProviderConfiguration(providerName);
+        if (!providerSettings.containsKey(settingKey)) {
+            return;
+        }
+        Object originValue = providerSettings.get(settingKey);
+        Class<?> type = originValue.getClass();
+        if (type.equals(int.class) || type.equals(Integer.class))
+            providerSettings.put(settingKey, Integer.valueOf(value));
+        else if (type.equals(String.class))
+            providerSettings.put(settingKey, value);
+        else if (type.equals(long.class) || type.equals(Long.class))
+            providerSettings.put(settingKey, Long.valueOf(value));
+        else if (type.equals(boolean.class) || type.equals(Boolean.class)) {
+            providerSettings.put(settingKey, Boolean.valueOf(value));
+        } else {
+            return;
+        }
+
+        logger.info("The setting has been override by key: {}, value: {}, in {} provider of {} module through {}",
+            settingKey, value, providerName, moduleName, isSystemProperty ? "System.properties" : "System.envs");
     }
 }

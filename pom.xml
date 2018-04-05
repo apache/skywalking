@@ -17,13 +17,12 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>5.0.0-alpha-SNAPSHOT</version>
+    <version>5.0.0-beta-SNAPSHOT</version>
 
     <parent>
         <groupId>org.apache</groupId>
@@ -65,16 +64,46 @@
         <module>apm-protocol</module>
         <module>apm-webapp</module>
         <module>apm-dist</module>
+        <module>apm-checkstyle</module>
     </modules>
     <packaging>pom</packaging>
 
     <name>apm</name>
     <url>https://github.com/apache/incubator-skywalking</url>
 
+    <scm>
+        <url>https://github.com/apache/incubator-skywalking</url>
+        <connection>scm:git:https://github.com/apache/incubator-skywalking.git</connection>
+        <developerConnection>scm:git:https://github.com/apache/incubator-skywalking.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
     <issueManagement>
         <system>GitHub</system>
         <url>https://github.com/apache/incubator-skywalking/issues</url>
     </issueManagement>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <mailingLists>
+        <mailingList>
+            <name>SkyWalking Developer List</name>
+            <post>dev@skywalking.incubator.apache.org</post>
+            <subscribe>dev-subscribe@skywalking.incubator.apache.org</subscribe>
+            <unsubscribe>dev-unsubscribe@skywalking.incubator.apache.org</unsubscribe>
+        </mailingList>
+        <mailingList>
+            <name>SkyWalking Commits</name>
+            <post>commits@skywalking.incubator.apache.org</post>
+            <subscribe>commits-subscribe@skywalking.incubator.apache.org</subscribe>
+            <unsubscribe>commits-unsubscribe@skywalking.incubator.apache.org</unsubscribe>
+        </mailingList>
+    </mailingLists>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -82,6 +111,7 @@
         <scala.compiler.version>2.11.7</scala.compiler.version>
         <powermock.version>1.6.4</powermock.version>
         <docker.plugin.version>0.4.13</docker.plugin.version>
+        <checkstyle.version>6.18</checkstyle.version>
     </properties>
 
     <dependencies>
@@ -114,69 +144,70 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <version>0.12</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/target/**</exclude>
+                        <exclude>**/DISCLAIMER</exclude>
+                        <exclude>**/licenses/**</exclude>
+                        <exclude>**/ui-licenses/**</exclude>
+                        <exclude>**/codeStyle.xml</exclude>
+
+                        <!-- IDE files -->
+                        <exclude>**/*.iml</exclude>
+                        <exclude>**/.idea/**</exclude>
+                        <exclude>**/*.classpath</exclude>
+                        <exclude>**/.project</exclude>
+                        <exclude>**/.settings/**</exclude>
+                        <exclude>**/dependency-reduced-pom.xml</exclude>
+
+                        <!-- UI IDE configs -->
+                        <exclude>**/skywalking-ui/.editorconfig</exclude>
+                        <!-- UI Compiler configs -->
+                        <exclude>**/skywalking-ui/.webpackrc.js</exclude>
+                        <exclude>**/skywalking-ui/.roadhogrc.mock.js</exclude>
+                        <!-- UI style check files -->
+                        <exclude>**/skywalking-ui/.eslintrc</exclude>
+                        <exclude>**/skywalking-ui/.stylelintrc</exclude>
+
+                        <!-- git files -->
+                        <exclude>**/.gitignore</exclude>
+                        <exclude>**/.gitmodules</exclude>
+                        <exclude>**/.git/**</exclude>
+
+                        <!-- CI files -->
+                        <exclude>**/.travis.yml</exclude>
+
+                        <!-- GitHub files -->
+                        <exclude>**/.github/**</exclude>
+
+                        <!-- document files -->
+                        <exclude>**/*.md</exclude>
+                        <excldue>**/*.MD</excldue>
+                        <exclude>**/*.txt</exclude>
+                        <exclude>**/docs/**</exclude>
+
+                        <!-- Test cases data in JSON format -->
+                        <exclude>**/src/test/resources/json/*.json</exclude>
+
+                        <!-- front end libary and generated files -->
+                        <exclude>**/skywalking-ui/node_modules/**</exclude>
+                        <exclude>**/skywalking-ui/node/**</exclude>
+                        <exclude>**/skywalking-ui/dist/**</exclude>
+
+                        <!-- web UI dependencies descriptions -->
+                        <exclude>skywalking-ui/package.json</exclude>
+                        <exclude>skywalking-ui/package-lock.json</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
-                        <id>install-jmxtools</id>
-                        <inherited>false</inherited>
-                        <phase>process-resources</phase>
+                        <phase>verify</phase>
                         <goals>
-                            <goal>exec</goal>
+                            <goal>check</goal>
                         </goals>
-                        <configuration>
-                            <executable>mvn</executable>
-                            <arguments>
-                                <argument>install:install-file</argument>
-                                <argument>-Dfile=jmxtools-1.2.1.jar</argument>
-                                <argument>-DgroupId=com.sun.jdmk</argument>
-                                <argument>-DartifactId=jmxtools</argument>
-                                <argument>-Dversion=1.2.1</argument>
-                                <argument>-Dpackaging=jar</argument>
-                            </arguments>
-                            <workingDirectory>${project.basedir}/ci-dependencies</workingDirectory>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>install-jmxri</id>
-                        <inherited>false</inherited>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>mvn</executable>
-                            <arguments>
-                                <argument>install:install-file</argument>
-                                <argument>-Dfile=jmxri-1.2.1.jar</argument>
-                                <argument>-DgroupId=com.sun.jmx</argument>
-                                <argument>-DartifactId=jmxri</argument>
-                                <argument>-Dversion=1.2.1</argument>
-                                <argument>-Dpackaging=jar</argument>
-                            </arguments>
-                            <workingDirectory>${project.basedir}/ci-dependencies</workingDirectory>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>install-dubbox</id>
-                        <inherited>false</inherited>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>mvn</executable>
-                            <arguments>
-                                <argument>install:install-file</argument>
-                                <argument>-Dfile=dubbox-2.8.4.jar</argument>
-                                <argument>-DgroupId=com.alibaba</argument>
-                                <argument>-DartifactId=dubbox</argument>
-                                <argument>-Dversion=2.8.4</argument>
-                                <argument>-Dpackaging=jar</argument>
-                            </arguments>
-                            <workingDirectory>${project.basedir}/ci-dependencies</workingDirectory>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -232,7 +263,6 @@
                 <artifactId>coveralls-maven-plugin</artifactId>
                 <version>4.1.0</version>
                 <configuration>
-                    <repoToken>xFwR2GqmxcMxV7tGEpW2NfwIrbCD4cQCS</repoToken>
                     <sourceDirectories>
                         <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
                     </sourceDirectories>
@@ -253,22 +283,22 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>com.spotify</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <version>${docker.plugin.version}</version>
-                <configuration>
-                    <skipDocker>true</skipDocker>
-                </configuration>
-            </plugin>
-            <plugin>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>2.17</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.skywalking</groupId>
+                        <artifactId>apm-checkstyle</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
                 <executions>
                     <execution>
                         <id>validate</id>
                         <phase>validate</phase>
                         <configuration>
-                            <configLocation>checkStyle.xml</configLocation>
+                            <configLocation>skywalking/checkStyle.xml</configLocation>
+                            <headerLocation>skywalking/CHECKSTYLE_HEAD</headerLocation>
                             <encoding>UTF-8</encoding>
                             <consoleOutput>true</consoleOutput>
                             <includeTestSourceDirectory>true</includeTestSourceDirectory>
@@ -289,6 +319,40 @@
 
 
     <profiles>
+        <profile>
+            <id>travis-ci-submodule</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.6.0</version>
+                        <executions>
+                            <execution>
+                                <id>git submodule update</id>
+                                <phase>initialize</phase>
+                                <inherited>false</inherited>
+                                <configuration>
+                                    <executable>git</executable>
+                                    <arguments>
+                                        <argument>submodule</argument>
+                                        <argument>update</argument>
+                                        <argument>--init</argument>
+                                        <argument>--recursive</argument>
+                                    </arguments>
+                                </configuration>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <!-- ojdbc is not Apache license compatible, so it must be manually downloaded first -->
             <id>install-ojdbc</id>
@@ -380,5 +444,5 @@
             </build>
         </profile>
     </profiles>
-    
+
 </project>

@@ -51,8 +51,8 @@ public class AlarmQuery implements Query {
 
     public Alarm loadAlarmList(String keyword, AlarmType alarmType, Duration duration,
         Pagination paging) throws ParseException {
-        long startTimeBucket = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getStart()) / 100;
-        long endTimeBucket = DurationUtils.INSTANCE.durationToSecondTimeBucket(duration.getStep(), duration.getEnd()) / 100;
+        long startTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(duration.getStep(), duration.getStart()) / 100;
+        long endTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(duration.getStep(), duration.getEnd()) / 100;
 
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
 

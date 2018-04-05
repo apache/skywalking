@@ -17,13 +17,12 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>apm-collector</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-alpha-SNAPSHOT</version>
+        <version>5.0.0-beta-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -39,7 +38,6 @@
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <version>1.18</version>
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
@@ -182,6 +180,14 @@
             <version>${project.version}</version>
         </dependency>
         <!-- alarm provider -->
+
+        <!-- instrument provided dependency -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-collector-instrument</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -231,27 +237,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>com.spotify</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <version>${docker.plugin.version}</version>
-                <configuration>
-                    <skipDocker>false</skipDocker>
-                    <imageName>${docker.image.name}</imageName>
-                    <imageTags>
-                        <imageTag>${docker.image.version}</imageTag>
-                    </imageTags>
-                    <dockerDirectory>${project.basedir}/docker</dockerDirectory>
-                    <resources>
-                        <resource>
-                            <targetPath>/</targetPath>
-                            <directory>${project.basedir}/../../packages</directory>
-                            <include>${build.finalName}.tar.gz</include>
-                        </resource>
-                    </resources>
-                </configuration>
             </plugin>
         </plugins>
     </build>

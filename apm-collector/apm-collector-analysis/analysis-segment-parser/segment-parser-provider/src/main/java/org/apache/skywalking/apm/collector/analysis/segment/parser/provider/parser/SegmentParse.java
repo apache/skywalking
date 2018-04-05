@@ -36,6 +36,7 @@ import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.pars
 import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.standardization.SegmentStandardization;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.standardization.SpanIdExchanger;
 import org.apache.skywalking.apm.collector.core.UnexpectedException;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -67,6 +68,7 @@ public class SegmentParse {
         this.spanListeners = new LinkedList<>();
     }
 
+    @GraphComputingMetric(name = "/segment/parse")
     public boolean parse(UpstreamSegment segment, ISegmentParseService.Source source) {
         createSpanListeners();
 
@@ -95,6 +97,7 @@ public class SegmentParse {
         return false;
     }
 
+    @GraphComputingMetric(name = "/segment/parse/preBuild")
     private boolean preBuild(List<UniqueId> traceIds, SegmentDecorator segmentDecorator) {
         StringBuilder segmentIdBuilder = new StringBuilder();
 
@@ -161,6 +164,7 @@ public class SegmentParse {
         return true;
     }
 
+    @GraphComputingMetric(name = "/segment/parse/buildSegment")
     private void buildSegment(String id, byte[] dataBinary) {
         Segment segment = new Segment();
         segment.setId(id);
@@ -170,6 +174,7 @@ public class SegmentParse {
         graph.start(segment);
     }
 
+    @GraphComputingMetric(name = "/segment/parse/bufferFile/write")
     private void writeToBufferFile(String id, UpstreamSegment upstreamSegment) {
         logger.debug("push to segment buffer write worker, id: {}", id);
         SegmentStandardization standardization = new SegmentStandardization(id);

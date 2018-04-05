@@ -73,8 +73,8 @@ public class ServiceTopologyService {
         Map<Integer, String> components = new HashMap<>();
         applicationComponents.forEach(component -> components.put(component.getApplicationId(), ComponentsDefine.getInstance().getComponentName(component.getComponentId())));
 
-        List<IServiceReferenceMetricUIDAO.ServiceReferenceMetric> referenceMetrics = serviceReferenceMetricUIDAO.getFrontServices(step, startTimeBucket, endTimeBucket, MetricSource.Caller, serviceId);
-        referenceMetrics.addAll(serviceReferenceMetricUIDAO.getBehindServices(step, startTimeBucket, endTimeBucket, MetricSource.Callee, serviceId));
+        List<IServiceReferenceMetricUIDAO.ServiceReferenceMetric> referenceMetrics = serviceReferenceMetricUIDAO.getFrontServices(step, startTimeBucket, endTimeBucket, MetricSource.Callee, serviceId);
+        referenceMetrics.addAll(serviceReferenceMetricUIDAO.getBehindServices(step, startTimeBucket, endTimeBucket, MetricSource.Caller, serviceId));
 
         Set<Integer> nodeIds = new HashSet<>();
 
@@ -86,7 +86,7 @@ public class ServiceTopologyService {
             Call call = new Call();
             call.setSource(referenceMetric.getSource());
             call.setTarget(referenceMetric.getTarget());
-            call.setAvgResponseTime((referenceMetric.getDurations() - referenceMetric.getErrorDurations()) / (referenceMetric.getCalls() - referenceMetric.getErrorCalls()));
+            call.setAvgResponseTime(referenceMetric.getDurations() / referenceMetric.getCalls());
             call.setCallType(components.getOrDefault(serviceNameCacheService.get(referenceMetric.getTarget()).getApplicationId(), Const.UNKNOWN));
             try {
                 int applicationId = serviceNameCacheService.get(referenceMetric.getTarget()).getApplicationId();

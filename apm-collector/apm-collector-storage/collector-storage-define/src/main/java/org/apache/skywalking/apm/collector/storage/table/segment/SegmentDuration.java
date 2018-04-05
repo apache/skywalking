@@ -20,8 +20,8 @@ package org.apache.skywalking.apm.collector.storage.table.segment;
 
 import org.apache.skywalking.apm.collector.core.data.Column;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.data.operator.CoverOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.CoverMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
 
 /**
  * @author peng-yongsheng
@@ -29,24 +29,24 @@ import org.apache.skywalking.apm.collector.core.data.operator.NonOperation;
 public class SegmentDuration extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(SegmentDurationTable.COLUMN_ID, new NonOperation()),
-        new Column(SegmentDurationTable.COLUMN_SEGMENT_ID, new CoverOperation()),
-        new Column(SegmentDurationTable.COLUMN_SERVICE_NAME, new CoverOperation()),
-        new Column(SegmentDurationTable.COLUMN_TRACE_ID, new CoverOperation()),
+        new Column(SegmentDurationTable.COLUMN_ID, new NonMergeOperation()),
+        new Column(SegmentDurationTable.COLUMN_SEGMENT_ID, new CoverMergeOperation()),
+        new Column(SegmentDurationTable.COLUMN_SERVICE_NAME, new CoverMergeOperation()),
+        new Column(SegmentDurationTable.COLUMN_TRACE_ID, new CoverMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(SegmentDurationTable.COLUMN_DURATION, new CoverOperation()),
-        new Column(SegmentDurationTable.COLUMN_START_TIME, new CoverOperation()),
-        new Column(SegmentDurationTable.COLUMN_END_TIME, new CoverOperation()),
-        new Column(SegmentDurationTable.COLUMN_TIME_BUCKET, new CoverOperation()),
+        new Column(SegmentDurationTable.COLUMN_DURATION, new CoverMergeOperation()),
+        new Column(SegmentDurationTable.COLUMN_START_TIME, new CoverMergeOperation()),
+        new Column(SegmentDurationTable.COLUMN_END_TIME, new CoverMergeOperation()),
+        new Column(SegmentDurationTable.COLUMN_TIME_BUCKET, new CoverMergeOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {};
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(SegmentDurationTable.COLUMN_APPLICATION_ID, new CoverOperation()),
-        new Column(SegmentDurationTable.COLUMN_IS_ERROR, new CoverOperation()),
+        new Column(SegmentDurationTable.COLUMN_APPLICATION_ID, new CoverMergeOperation()),
+        new Column(SegmentDurationTable.COLUMN_IS_ERROR, new CoverMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};

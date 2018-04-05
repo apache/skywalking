@@ -3,9 +3,14 @@
 
   * Getting Started
     * [Quick start](en/Quick-start.md)
-    * [Deploy docker image](en/Deploy-docker-image.md)
     * [Supported middlewares, frameworks and libraries](Supported-list.md)
       * [How to disable plugins?](en/How-to-disable-plugin.md)
+  * Advanced Features
+    * [Override settings through System.properties or System.env](en/Setting-override.md)
+    * [Direct uplink and disable naming discovery](en/Direct-uplink.md)
+    * [Open TLS](en/TLS.md)
+    * [Namespace Isolation](en/Namespace.md)
+    * [Token Authentication](en/Token-auth.md)
   * Application Toolkit
     * [Overview](en/Applicaton-toolkit.md)
     * [OpenTracing Tracer](en/Opentracing.md)
@@ -22,6 +27,9 @@
     * [Plugin development guide](en/Plugin-Development-Guide.md)
     * Protocol
       * [Cross Process Propagation Headers Protocol, v1.0](en/Skywalking-Cross-Process-Propagation-Headers-Protocol-v1.md)
+      * [SkyWalking Trace Data Protocol](en/Trace-Data-Protocol.md)
+    * [Release Guide](en/How-to-release.md)
+  * [Roadmap](ROADMAP.md)
   * Resources provided by community
     * [Public speakings](https://github.com/OpenSkywalking/Community#public-speakings)
     * [Videos](https://github.com/OpenSkywalking/Community#videos)

@@ -18,13 +18,8 @@
 
 package org.apache.skywalking.apm.collector.agent.jetty.provider;
 
-import java.util.Properties;
 import org.apache.skywalking.apm.collector.agent.jetty.define.AgentJettyModule;
-import org.apache.skywalking.apm.collector.agent.jetty.provider.handler.ApplicationRegisterServletHandler;
-import org.apache.skywalking.apm.collector.agent.jetty.provider.handler.InstanceDiscoveryServletHandler;
-import org.apache.skywalking.apm.collector.agent.jetty.provider.handler.NetworkAddressRegisterServletHandler;
-import org.apache.skywalking.apm.collector.agent.jetty.provider.handler.ServiceNameDiscoveryServiceHandler;
-import org.apache.skywalking.apm.collector.agent.jetty.provider.handler.TraceSegmentServletHandler;
+import org.apache.skywalking.apm.collector.agent.jetty.provider.handler.*;
 import org.apache.skywalking.apm.collector.agent.jetty.provider.handler.naming.AgentJettyNamingHandler;
 import org.apache.skywalking.apm.collector.agent.jetty.provider.handler.naming.AgentJettyNamingListener;
 import org.apache.skywalking.apm.collector.cluster.ClusterModule;
@@ -37,7 +32,9 @@ import org.apache.skywalking.apm.collector.jetty.manager.JettyManagerModule;
 import org.apache.skywalking.apm.collector.jetty.manager.service.JettyManagerService;
 import org.apache.skywalking.apm.collector.naming.NamingModule;
 import org.apache.skywalking.apm.collector.naming.service.NamingHandlerRegisterService;
-import org.apache.skywalking.apm.collector.server.Server;
+import org.apache.skywalking.apm.collector.server.jetty.JettyServer;
+
+import java.util.Properties;
 
 /**
  * @author peng-yongsheng
@@ -77,7 +74,7 @@ public class AgentModuleJettyProvider extends ModuleProvider {
         namingHandlerRegisterService.register(new AgentJettyNamingHandler(namingListener));
 
         JettyManagerService managerService = getManager().find(JettyManagerModule.NAME).getService(JettyManagerService.class);
-        Server jettyServer = managerService.createIfAbsent(host, port, contextPath);
+        JettyServer jettyServer = managerService.createIfAbsent(host, port, contextPath);
         addHandlers(jettyServer);
     }
 
@@ -89,7 +86,7 @@ public class AgentModuleJettyProvider extends ModuleProvider {
         return new String[] {ClusterModule.NAME, NamingModule.NAME, JettyManagerModule.NAME};
     }
 
-    private void addHandlers(Server jettyServer) {
+    private void addHandlers(JettyServer jettyServer) {
         jettyServer.addHandler(new TraceSegmentServletHandler(getManager()));
         jettyServer.addHandler(new ApplicationRegisterServletHandler(getManager()));
         jettyServer.addHandler(new InstanceDiscoveryServletHandler(getManager()));

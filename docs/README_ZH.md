@@ -3,7 +3,6 @@
 
   * [项目简介](/README_ZH.md)
   * [快速入门](cn/Quick-start-CN.md)
-  * [部署Collector镜像](cn/Deploy-docker-image-CN.md)
   * [中间件，框架与类库支持列表](Supported-list.md)
     * [如何关闭特定插件](cn/How-to-disable-plugin-CN.md)
   * APM相关介绍资料
@@ -25,6 +24,7 @@
     * 交互协议
         * [Cross Process Propagation Headers Protocol, v1.0  跨进程追踪上下文传递协议](cn/Skywalking-Cross-Process-Propagation-Headers-Protocol-CN-v1.md)
         * [SkyWalking Trace Data Protocol 探针与Collector间网络协议](cn/Trace-Data-Protocol-CN.md)
+  * [Roadmap](ROADMAP.md)
   * 社区提供的共享资源
     * [公开演讲](https://github.com/OpenSkywalking/Community#public-speakings)
     * [视频](https://github.com/OpenSkywalking/Community#videos)
