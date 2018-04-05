@@ -279,8 +279,9 @@ enter your apache password
 
 ```
 2. Do release in nexus staging repo.
-3. Public download URL under `http://www.apache.org/dyn/closer.cgi/incubator/skywalking/x.y.z`. These are under Apache mirror system.
-4. Send ANNOUNCE mail to `general@incubator.apache.org`.
+3. Public download URLs under `http://www.apache.org/dyn/closer.cgi/incubator/skywalking/x.y.z`.
+4. Public KEYS, sigs and sha512 URLs under `https://www.apache.org/dist/incubator/skywalking/xxxx`
+5. Send ANNOUNCE mail to `announce@incubator.apache.org`.
 ```
 Mail title: [ANNOUNCE] Release Apache SkyWalking (incubating) version x.y.z
 
@@ -293,9 +294,11 @@ SkyWalking: APM (application performance monitor) tool for distributed systems,
 especially designed for microservices, cloud native and container-based (Docker, Kubernetes, Mesos) architectures. 
 Underlying technology is a distributed tracing system.
 
-Download Links : http://www.apache.org/dyn/closer.cgi/skywalking/xxxx
+Download Links : http://skywalking.apache.org/downloads/
 
 Release Notes : https://github.com/apache/incubator-skywalking/blob/x.y.z/CHANGES.md
+
+Website: http://skywalking.apache.org/
 
 SkyWalking Resources:
 - Issue: https://github.com/apache/incubator-skywalking/issues
