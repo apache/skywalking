@@ -34,7 +34,7 @@ import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputing
 public class ServiceMetricTracing {
     private volatile ConcurrentHashMap<Method, ServiceMetric> metrics = new ConcurrentHashMap<>();
 
-    public ServiceMetricTracing() {
+    ServiceMetricTracing() {
     }
 
     @RuntimeType
@@ -50,23 +50,23 @@ public class ServiceMetricTracing {
             String metricName = annotation.name();
             synchronized (inst) {
                 MetricTree.MetricNode metricNode = MetricTree.INSTANCE.lookup(metricName);
-                ServiceMetric serviceMetric = metricNode.getMetric(method, allArguments);
+                ServiceMetric serviceMetric = metricNode.getMetric(method);
                 metrics.put(method, serviceMetric);
                 metric = serviceMetric;
             }
         }
         boolean occurError = false;
-        long startNano = System.nanoTime();
-        long endNano;
+        long startNanosecond = System.nanoTime();
+        long endNanosecond;
         try {
             return zuper.call();
         } catch (Throwable t) {
             occurError = true;
             throw t;
         } finally {
-            endNano = System.nanoTime();
+            endNanosecond = System.nanoTime();
 
-            metric.trace(endNano - startNano, occurError, allArguments);
+            metric.trace(endNanosecond - startNanosecond, occurError, allArguments);
         }
     }
 }

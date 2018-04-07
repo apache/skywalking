@@ -18,13 +18,13 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao.mpool;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
 import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetric;
 import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetricTable;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author peng-yongsheng
@@ -43,18 +43,18 @@ public abstract class AbstractMemoryPoolMetricEsPersistenceDAO extends AbstractP
     @Override
     protected final MemoryPoolMetric esDataToStreamData(Map<String, Object> source) {
         MemoryPoolMetric memoryPoolMetric = new MemoryPoolMetric();
-        memoryPoolMetric.setMetricId((String) source.get(MemoryPoolMetricTable.COLUMN_METRIC_ID));
+        memoryPoolMetric.setMetricId((String)source.get(MemoryPoolMetricTable.COLUMN_METRIC_ID));
 
-        memoryPoolMetric.setInstanceId(((Number) source.get(MemoryPoolMetricTable.COLUMN_INSTANCE_ID)).intValue());
-        memoryPoolMetric.setPoolType(((Number) source.get(MemoryPoolMetricTable.COLUMN_POOL_TYPE)).intValue());
+        memoryPoolMetric.setInstanceId(((Number)source.get(MemoryPoolMetricTable.COLUMN_INSTANCE_ID)).intValue());
+        memoryPoolMetric.setPoolType(((Number)source.get(MemoryPoolMetricTable.COLUMN_POOL_TYPE)).intValue());
 
-        memoryPoolMetric.setInit(((Number) source.get(MemoryPoolMetricTable.COLUMN_INIT)).longValue());
-        memoryPoolMetric.setMax(((Number) source.get(MemoryPoolMetricTable.COLUMN_MAX)).longValue());
-        memoryPoolMetric.setUsed(((Number) source.get(MemoryPoolMetricTable.COLUMN_USED)).longValue());
-        memoryPoolMetric.setCommitted(((Number) source.get(MemoryPoolMetricTable.COLUMN_COMMITTED)).longValue());
-        memoryPoolMetric.setTimes(((Number) source.get(MemoryPoolMetricTable.COLUMN_TIMES)).longValue());
+        memoryPoolMetric.setInit(((Number)source.get(MemoryPoolMetricTable.COLUMN_INIT)).longValue());
+        memoryPoolMetric.setMax(((Number)source.get(MemoryPoolMetricTable.COLUMN_MAX)).longValue());
+        memoryPoolMetric.setUsed(((Number)source.get(MemoryPoolMetricTable.COLUMN_USED)).longValue());
+        memoryPoolMetric.setCommitted(((Number)source.get(MemoryPoolMetricTable.COLUMN_COMMITTED)).longValue());
+        memoryPoolMetric.setTimes(((Number)source.get(MemoryPoolMetricTable.COLUMN_TIMES)).longValue());
 
-        memoryPoolMetric.setTimeBucket(((Number) source.get(MemoryPoolMetricTable.COLUMN_TIME_BUCKET)).longValue());
+        memoryPoolMetric.setTimeBucket(((Number)source.get(MemoryPoolMetricTable.COLUMN_TIME_BUCKET)).longValue());
         return memoryPoolMetric;
     }
 
@@ -73,5 +73,10 @@ public abstract class AbstractMemoryPoolMetricEsPersistenceDAO extends AbstractP
         source.put(MemoryPoolMetricTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
 
         return source;
+    }
+
+    @GraphComputingMetric(name = "/persistence/get/" + MemoryPoolMetricTable.TABLE)
+    @Override public final MemoryPoolMetric get(String id) {
+        return super.get(id);
     }
 }

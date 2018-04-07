@@ -19,43 +19,51 @@
 package org.apache.skywalking.apm.collector.instrument;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * @author wusheng
+ * @author wusheng, peng-yongsheng
  */
 public class ServiceMetric {
-    private String metricName;
     private ServiceMetricRecord winA;
     private ServiceMetricRecord winB;
-    private volatile boolean isUsingWinA;
+    private AtomicBoolean isUsingWinA;
     private volatile int detectedBatchIndex;
 
-    ServiceMetric(String metricName, int detectedBatchIndex) {
-        this.metricName = metricName;
+    ServiceMetric(int detectedBatchIndex) {
         winA = detectedBatchIndex > -1 ? new ServiceMetricBatchRecord() : new ServiceMetricRecord();
         winB = detectedBatchIndex > -1 ? new ServiceMetricBatchRecord() : new ServiceMetricRecord();
-        isUsingWinA = true;
+        isUsingWinA = new AtomicBoolean(true);
         this.detectedBatchIndex = detectedBatchIndex;
     }
 
-    public void trace(long nano, boolean occurException, Object[] allArguments) {
-        ServiceMetricRecord usingRecord = isUsingWinA ? winA : winB;
+    void trace(long nanoseconds, boolean occurException, Object[] allArguments) {
+        ServiceMetricRecord usingRecord = isUsingWinA.get() ? winA : winB;
         if (detectedBatchIndex > -1) {
             List listArgs = (List)allArguments[detectedBatchIndex];
-            ((ServiceMetricBatchRecord)usingRecord).add(nano, occurException, listArgs == null ? 0 : listArgs.size());
+            ((ServiceMetricBatchRecord)usingRecord).add(nanoseconds, occurException, listArgs == null ? 0 : listArgs.size());
         } else {
-            usingRecord.add(nano, occurException);
+            usingRecord.add(nanoseconds, occurException);
         }
     }
 
     void exchangeWindows() {
-        isUsingWinA = !isUsingWinA;
+        isUsingWinA.set(!isUsingWinA.get());
     }
 
-    public void toOutput(ReportWriter writer) {
-        /**
+    void clear() {
+        if (isUsingWinA.get()) {
+            winB.clear();
+        } else {
+            winA.clear();
+        }
+    }
+
+    void toOutput(ReportWriter writer) {
+
+        /*
          * If using A, then B is available and free to output.
          */
-        writer.writeMetric(isUsingWinA ? winB.toString() : winA.toString());
+        writer.writeMetric(isUsingWinA.get() ? winB.toString() : winA.toString());
     }
 }

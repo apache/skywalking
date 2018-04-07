@@ -26,13 +26,13 @@ import java.util.concurrent.atomic.AtomicLong;
 public class ServiceMetricBatchRecord extends ServiceMetricRecord {
     private AtomicLong batchRowSize;
 
-    public ServiceMetricBatchRecord() {
+    ServiceMetricBatchRecord() {
         super();
         batchRowSize = new AtomicLong(0);
     }
 
-    void add(long nano, boolean occurException, int rowSize) {
-        super.add(nano, occurException);
+    void add(long nanoseconds, boolean occurException, int rowSize) {
+        super.add(nanoseconds, occurException);
         batchRowSize.addAndGet(rowSize);
     }
 
@@ -43,9 +43,9 @@ public class ServiceMetricBatchRecord extends ServiceMetricRecord {
 
     @Override
     public String toString() {
-        if (counter.longValue() == 0) {
+        if (getMetricRecordCount() == 0) {
             return "Avg=N/A";
         }
-        return super.toString() + " Rows per call = " + (batchRowSize.get() / counter.get());
+        return super.toString() + " Rows per call = " + (batchRowSize.get() / getMetricRecordCount());
     }
 }

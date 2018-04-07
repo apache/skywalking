@@ -21,7 +21,6 @@ package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.appl
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractRemoteWorker;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractRemoteWorkerProvider;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.remote.service.RemoteSenderService;
 import org.apache.skywalking.apm.collector.remote.service.Selector;
@@ -32,7 +31,7 @@ import org.apache.skywalking.apm.collector.storage.table.application.Application
  */
 public class ApplicationMinuteMetricRemoteWorker extends AbstractRemoteWorker<ApplicationMetric, ApplicationMetric> {
 
-    public ApplicationMinuteMetricRemoteWorker(ModuleManager moduleManager) {
+    private ApplicationMinuteMetricRemoteWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -40,7 +39,7 @@ public class ApplicationMinuteMetricRemoteWorker extends AbstractRemoteWorker<Ap
         return MetricWorkerIdDefine.APPLICATION_MINUTE_METRIC_REMOTE_WORKER_ID;
     }
 
-    @Override protected void onWork(ApplicationMetric applicationMetric) throws WorkerException {
+    @Override protected void onWork(ApplicationMetric applicationMetric) {
         onNext(applicationMetric);
     }
 
