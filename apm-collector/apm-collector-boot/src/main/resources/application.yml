@@ -23,6 +23,9 @@ naming:
     host: localhost
     port: 10800
     context_path: /
+cache:
+#  guava:
+  caffeine:
 remote:
   gRPC:
     host: localhost
