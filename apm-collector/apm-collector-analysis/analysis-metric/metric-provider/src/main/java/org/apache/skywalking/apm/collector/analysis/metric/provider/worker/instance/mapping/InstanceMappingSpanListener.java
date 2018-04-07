@@ -64,7 +64,11 @@ public class InstanceMappingSpanListener implements FirstSpanListener, EntrySpan
     @Override
     public void parseFirst(SpanDecorator spanDecorator, int applicationId, int instanceId,
         String segmentId) {
-        timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
+        if (spanDecorator.getStartTimeMinuteTimeBucket() == 0) {
+            long startTimeMinuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
+            spanDecorator.setStartTimeMinuteTimeBucket(startTimeMinuteTimeBucket);
+        }
+        timeBucket = spanDecorator.getStartTimeMinuteTimeBucket();
     }
 
     @Override public void build() {

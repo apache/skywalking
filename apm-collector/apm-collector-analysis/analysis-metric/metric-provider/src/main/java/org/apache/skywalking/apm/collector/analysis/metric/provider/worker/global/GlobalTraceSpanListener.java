@@ -51,8 +51,13 @@ public class GlobalTraceSpanListener implements FirstSpanListener, GlobalTraceId
     @Override
     public void parseFirst(SpanDecorator spanDecorator, int applicationId, int instanceId,
         String segmentId) {
-        this.timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
         this.segmentId = segmentId;
+        
+        if (spanDecorator.getStartTimeMinuteTimeBucket() == 0) {
+            long startTimeMinuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
+            spanDecorator.setStartTimeMinuteTimeBucket(startTimeMinuteTimeBucket);
+        }
+        timeBucket = spanDecorator.getStartTimeMinuteTimeBucket();
     }
 
     @Override public void parseGlobalTraceId(UniqueId uniqueId) {
