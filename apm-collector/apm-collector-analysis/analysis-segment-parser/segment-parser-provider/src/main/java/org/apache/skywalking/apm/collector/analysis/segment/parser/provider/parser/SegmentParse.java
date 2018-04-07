@@ -74,7 +74,7 @@ public class SegmentParse {
 
         try {
             List<UniqueId> traceIds = segment.getGlobalTraceIdsList();
-            TraceSegmentObject segmentObject = TraceSegmentObject.parseFrom(segment.getSegment());
+            TraceSegmentObject segmentObject = parseBinarySegment(segment);
 
             SegmentDecorator segmentDecorator = new SegmentDecorator(segmentObject);
 
@@ -95,6 +95,11 @@ public class SegmentParse {
             logger.error(e.getMessage(), e);
         }
         return false;
+    }
+
+    @GraphComputingMetric(name = "/segment/parse/parseBinarySegment")
+    private TraceSegmentObject parseBinarySegment(UpstreamSegment segment) throws InvalidProtocolBufferException {
+        return TraceSegmentObject.parseFrom(segment.getSegment());
     }
 
     @GraphComputingMetric(name = "/segment/parse/preBuild")

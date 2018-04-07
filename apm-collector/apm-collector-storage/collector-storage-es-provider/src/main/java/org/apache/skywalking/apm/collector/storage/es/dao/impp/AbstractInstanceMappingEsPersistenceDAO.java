@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.collector.storage.es.dao.impp;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMapping;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMappingTable;
@@ -59,5 +60,10 @@ public abstract class AbstractInstanceMappingEsPersistenceDAO extends AbstractPe
         source.put(InstanceMappingTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
 
         return source;
+    }
+
+    @GraphComputingMetric(name = "/persistence/get/" + InstanceMappingTable.TABLE)
+    @Override public final InstanceMapping get(String id) {
+        return super.get(id);
     }
 }

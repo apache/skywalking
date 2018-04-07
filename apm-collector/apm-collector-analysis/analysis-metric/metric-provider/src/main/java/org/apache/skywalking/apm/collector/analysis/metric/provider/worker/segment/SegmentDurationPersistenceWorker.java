@@ -21,18 +21,20 @@ package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.segm
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentDurationPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.segment.SegmentDuration;
+import org.apache.skywalking.apm.collector.storage.table.segment.SegmentDurationTable;
 
 /**
  * @author peng-yongsheng
  */
 public class SegmentDurationPersistenceWorker extends PersistenceWorker<SegmentDuration> {
 
-    SegmentDurationPersistenceWorker(ModuleManager moduleManager) {
+    private SegmentDurationPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -63,5 +65,10 @@ public class SegmentDurationPersistenceWorker extends PersistenceWorker<SegmentD
         public int queueSize() {
             return 1024;
         }
+    }
+
+    @GraphComputingMetric(name = "/persistence/onWork/" + SegmentDurationTable.TABLE)
+    @Override protected void onWork(SegmentDuration input) {
+        super.onWork(input);
     }
 }

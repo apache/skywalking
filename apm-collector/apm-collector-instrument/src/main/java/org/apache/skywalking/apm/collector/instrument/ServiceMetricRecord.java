@@ -21,38 +21,42 @@ package org.apache.skywalking.apm.collector.instrument;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * @author wusheng
+ * @author wusheng, peng-yongsheng
  */
 public class ServiceMetricRecord {
-    private AtomicLong totalTimeNano;
-    protected AtomicLong counter;
+    private AtomicLong totalNanoseconds;
+    private AtomicLong counter;
     private AtomicLong errorCounter;
 
-    public ServiceMetricRecord() {
-        totalTimeNano = new AtomicLong(0);
+    ServiceMetricRecord() {
+        totalNanoseconds = new AtomicLong(0);
         counter = new AtomicLong(0);
         errorCounter = new AtomicLong(0);
     }
 
-    void add(long nano, boolean occurException) {
-        totalTimeNano.addAndGet(nano);
+    void add(long nanoseconds, boolean occurException) {
+        totalNanoseconds.addAndGet(nanoseconds);
         counter.incrementAndGet();
         if (occurException)
             errorCounter.incrementAndGet();
     }
 
     void clear() {
-        totalTimeNano.set(0);
+        totalNanoseconds.set(0);
         counter.set(0);
         errorCounter.set(0);
+    }
+
+    long getMetricRecordCount() {
+        return counter.get();
     }
 
     @Override public String toString() {
         if (counter.longValue() == 0) {
             return "Avg=N/A";
         }
-        return "Avg=" + (totalTimeNano.longValue() / counter.longValue()) + " (nano)" +
+        return "Avg=" + (totalNanoseconds.longValue() / counter.longValue()) + " (nanosecond)" +
             ", Success Rate=" + (counter.longValue() - errorCounter.longValue()) * 100 / counter.longValue() +
-            "%, Calls=" + counter.longValue();
+            "%, Calls=" + counter.longValue() + ", Total=" + totalNanoseconds.longValue() + " (nanosecond)";
     }
 }

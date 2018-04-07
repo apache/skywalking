@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.collector.storage.es.dao.smp;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetric;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetricTable;
@@ -99,5 +100,10 @@ public abstract class AbstractServiceMetricEsPersistenceDAO extends AbstractPers
         source.put(ServiceMetricTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
 
         return source;
+    }
+
+    @GraphComputingMetric(name = "/persistence/get/" + ServiceMetricTable.TABLE)
+    @Override public final ServiceMetric get(String id) {
+        return super.get(id);
     }
 }

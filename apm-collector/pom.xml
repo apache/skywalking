@@ -30,6 +30,7 @@
 
     <packaging>pom</packaging>
     <modules>
+        <module>apm-collector-instrument</module>
         <module>apm-collector-boot</module>
         <module>apm-collector-ui</module>
         <module>apm-collector-core</module>
@@ -41,7 +42,6 @@
         <module>apm-collector-grpc-manager</module>
         <module>apm-collector-jetty-manager</module>
         <module>apm-collector-remote</module>
-        <module>apm-collector-instrument</module>
         <module>apm-collector-configuration</module>
         <module>apm-collector-agent</module>
         <module>apm-collector-analysis</module>

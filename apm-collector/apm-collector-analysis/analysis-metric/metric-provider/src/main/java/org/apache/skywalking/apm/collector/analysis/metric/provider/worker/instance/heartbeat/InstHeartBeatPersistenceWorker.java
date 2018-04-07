@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.inst
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
@@ -32,7 +33,7 @@ import org.apache.skywalking.apm.collector.storage.table.register.Instance;
  */
 public class InstHeartBeatPersistenceWorker extends PersistenceWorker<Instance> {
 
-    public InstHeartBeatPersistenceWorker(ModuleManager moduleManager) {
+    private InstHeartBeatPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -63,5 +64,10 @@ public class InstHeartBeatPersistenceWorker extends PersistenceWorker<Instance> 
         public int queueSize() {
             return 1024;
         }
+    }
+
+    @GraphComputingMetric(name = "/persistence/onWork/instance/heartbeat")
+    @Override protected void onWork(Instance input) {
+        super.onWork(input);
     }
 }

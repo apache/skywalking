@@ -20,15 +20,18 @@ package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.appl
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.AggregationWorker;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
 import org.apache.skywalking.apm.collector.configuration.service.IApdexThresholdService;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.ApdexThresholdUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetric;
+import org.apache.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetricTable;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetric;
 
 /**
@@ -39,7 +42,7 @@ public class ApplicationReferenceMinuteMetricAggregationWorker extends Aggregati
     private final InstanceCacheService instanceCacheService;
     private final IApdexThresholdService apdexThresholdService;
 
-    public ApplicationReferenceMinuteMetricAggregationWorker(ModuleManager moduleManager) {
+    private ApplicationReferenceMinuteMetricAggregationWorker(ModuleManager moduleManager) {
         super(moduleManager);
         this.instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
         this.apdexThresholdService = moduleManager.find(ConfigurationModule.NAME).getService(IApdexThresholdService.class);
@@ -110,5 +113,10 @@ public class ApplicationReferenceMinuteMetricAggregationWorker extends Aggregati
         public int queueSize() {
             return 1024;
         }
+    }
+
+    @GraphComputingMetric(name = "/aggregate/onWork/" + ApplicationReferenceMetricTable.TABLE)
+    @Override protected void onWork(InstanceReferenceMetric message) throws WorkerException {
+        super.onWork(message);
     }
 }

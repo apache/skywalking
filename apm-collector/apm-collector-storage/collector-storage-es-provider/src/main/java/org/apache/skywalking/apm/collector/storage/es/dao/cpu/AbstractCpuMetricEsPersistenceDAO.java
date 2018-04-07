@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.collector.storage.es.dao.cpu;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
 import org.apache.skywalking.apm.collector.storage.table.jvm.CpuMetric;
 import org.apache.skywalking.apm.collector.storage.table.jvm.CpuMetricTable;
@@ -61,5 +62,10 @@ public abstract class AbstractCpuMetricEsPersistenceDAO extends AbstractPersiste
         source.put(CpuMetricTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
 
         return source;
+    }
+
+    @GraphComputingMetric(name = "/persistence/get/" + CpuMetricTable.TABLE)
+    @Override public final CpuMetric get(String id) {
+        return super.get(id);
     }
 }
