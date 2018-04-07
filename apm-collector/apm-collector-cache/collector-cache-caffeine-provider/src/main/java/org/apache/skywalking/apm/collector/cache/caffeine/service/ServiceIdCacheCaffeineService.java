@@ -16,10 +16,11 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.cache.guava.service;
+package org.apache.skywalking.apm.collector.cache.caffeine.service;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.collector.cache.service.ServiceIdCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
@@ -32,16 +33,16 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public class ServiceIdCacheGuavaService implements ServiceIdCacheService {
+public class ServiceIdCacheCaffeineService implements ServiceIdCacheService {
 
-    private final Logger logger = LoggerFactory.getLogger(ServiceIdCacheGuavaService.class);
+    private final Logger logger = LoggerFactory.getLogger(ServiceIdCacheCaffeineService.class);
 
-    private final Cache<String, Integer> serviceIdCache = CacheBuilder.newBuilder().maximumSize(10000).build();
+    private final Cache<String, Integer> serviceIdCache = Caffeine.newBuilder().expireAfterWrite(10, TimeUnit.SECONDS).initialCapacity(1000).maximumSize(10000).build();
 
     private final ModuleManager moduleManager;
     private IServiceNameCacheDAO serviceNameCacheDAO;
 
-    public ServiceIdCacheGuavaService(ModuleManager moduleManager) {
+    public ServiceIdCacheCaffeineService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
     }
 
@@ -56,7 +57,8 @@ public class ServiceIdCacheGuavaService implements ServiceIdCacheService {
         int serviceId = 0;
         String id = applicationId + Const.ID_SPLIT + srcSpanType + Const.ID_SPLIT + serviceName;
         try {
-            serviceId = serviceIdCache.get(id, () -> getServiceNameCacheDAO().getServiceId(applicationId, srcSpanType, serviceName));
+            Integer value = serviceIdCache.get(id, key -> getServiceNameCacheDAO().getServiceId(applicationId, srcSpanType, serviceName));
+            serviceId = value == null ? 0 : value;
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
