@@ -31,6 +31,7 @@ public class SpanDecorator implements StandardBuilder {
     private StandardBuilder standardBuilder;
     private SpanObject spanObject;
     private SpanObject.Builder spanBuilder;
+    private long startTimeMinuteTimeBucket = 0;
     private final ReferenceDecorator[] referenceDecorators;
 
     public SpanDecorator(SpanObject spanObject, StandardBuilder standardBuilder) {
@@ -92,6 +93,14 @@ public class SpanDecorator implements StandardBuilder {
         } else {
             return spanBuilder.getSpanLayerValue();
         }
+    }
+
+    public void setStartTimeMinuteTimeBucket(long startTimeMinuteTimeBucket) {
+        this.startTimeMinuteTimeBucket = startTimeMinuteTimeBucket;
+    }
+
+    public long getStartTimeMinuteTimeBucket() {
+        return startTimeMinuteTimeBucket;
     }
 
     public long getStartTime() {
