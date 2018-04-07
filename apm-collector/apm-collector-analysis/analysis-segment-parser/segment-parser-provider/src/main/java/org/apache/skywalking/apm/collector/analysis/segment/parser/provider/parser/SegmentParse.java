@@ -153,6 +153,7 @@ public class SegmentParse {
             if (spanDecorator.getSpanId() == 0) {
                 notifyFirstListener(spanDecorator, applicationId, applicationInstanceId, segmentId);
                 timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
+                spanDecorator.setStartTimeMinuteTimeBucket(timeBucket);
             }
 
             if (SpanType.Exit.equals(spanDecorator.getSpanType())) {
@@ -193,6 +194,7 @@ public class SegmentParse {
         spanListeners.forEach(SpanListener::build);
     }
 
+    @GraphComputingMetric(name = "/segment/parse/notifyExitListener")
     private void notifyExitListener(SpanDecorator spanDecorator, int applicationId, int applicationInstanceId,
         String segmentId) {
         for (SpanListener listener : spanListeners) {
@@ -202,6 +204,7 @@ public class SegmentParse {
         }
     }
 
+    @GraphComputingMetric(name = "/segment/parse/notifyEntryListener")
     private void notifyEntryListener(SpanDecorator spanDecorator, int applicationId, int applicationInstanceId,
         String segmentId) {
         for (SpanListener listener : spanListeners) {
@@ -211,6 +214,7 @@ public class SegmentParse {
         }
     }
 
+    @GraphComputingMetric(name = "/segment/parse/notifyLocalListener")
     private void notifyLocalListener(SpanDecorator spanDecorator, int applicationId, int applicationInstanceId,
         String segmentId) {
         for (SpanListener listener : spanListeners) {
@@ -220,6 +224,7 @@ public class SegmentParse {
         }
     }
 
+    @GraphComputingMetric(name = "/segment/parse/notifyFirstListener")
     private void notifyFirstListener(SpanDecorator spanDecorator, int applicationId, int applicationInstanceId,
         String segmentId) {
         for (SpanListener listener : spanListeners) {
@@ -229,6 +234,7 @@ public class SegmentParse {
         }
     }
 
+    @GraphComputingMetric(name = "/segment/parse/notifyGlobalsListener")
     private void notifyGlobalsListener(UniqueId uniqueId) {
         for (SpanListener listener : spanListeners) {
             if (listener instanceof GlobalTraceIdsListener) {
