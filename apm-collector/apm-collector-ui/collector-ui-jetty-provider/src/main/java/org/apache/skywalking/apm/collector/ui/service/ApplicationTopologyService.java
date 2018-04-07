@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ApplicationTopologyService {
 
-    private final Logger logger = LoggerFactory.getLogger(ApplicationTopologyService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationTopologyService.class);
 
     private final IApplicationComponentUIDAO applicationComponentUIDAO;
     private final IApplicationMappingUIDAO applicationMappingUIDAO;

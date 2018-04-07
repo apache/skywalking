@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.h2.dao;
 
 import java.util.HashMap;
@@ -36,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SegmentH2PersistenceDAO extends H2DAO implements ISegmentPersistenceDAO<H2SqlEntity, H2SqlEntity, Segment> {
 
-    private final Logger logger = LoggerFactory.getLogger(SegmentH2PersistenceDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(SegmentH2PersistenceDAO.class);
 
     public SegmentH2PersistenceDAO(H2Client client) {
         super(client);

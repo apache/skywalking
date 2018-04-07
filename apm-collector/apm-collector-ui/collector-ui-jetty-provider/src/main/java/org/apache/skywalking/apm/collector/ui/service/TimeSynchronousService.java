@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.ui.service;
 
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -30,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TimeSynchronousService {
 
-    private final Logger logger = LoggerFactory.getLogger(TimeSynchronousService.class);
+    private static final Logger logger = LoggerFactory.getLogger(TimeSynchronousService.class);
 
     private final IInstanceUIDAO instanceDAO;
 

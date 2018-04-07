@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsServiceImplBase implements GRPCHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(JVMMetricsServiceHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(JVMMetricsServiceHandler.class);
 
     private final ICpuMetricService cpuMetricService;
     private final IGCMetricService gcMetricService;

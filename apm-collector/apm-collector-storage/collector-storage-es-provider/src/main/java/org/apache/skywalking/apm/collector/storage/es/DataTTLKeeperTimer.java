@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * @author peng-yongsheng
  */
 public class DataTTLKeeperTimer {
-    private final Logger logger = LoggerFactory.getLogger(StorageModuleEsProvider.class);
+    private static final Logger logger = LoggerFactory.getLogger(StorageModuleEsProvider.class);
 
     private final ModuleManager moduleManager;
     private final StorageModuleEsNamingListener namingListener;

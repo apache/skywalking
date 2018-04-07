@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ApplicationRegisterServiceHandler extends ApplicationRegisterServiceGrpc.ApplicationRegisterServiceImplBase implements GRPCHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(ApplicationRegisterServiceHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationRegisterServiceHandler.class);
 
     private final IApplicationIDService applicationIDService;
 

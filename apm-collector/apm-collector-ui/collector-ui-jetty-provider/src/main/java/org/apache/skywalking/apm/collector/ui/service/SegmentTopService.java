@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SegmentTopService {
 
-    private final Logger logger = LoggerFactory.getLogger(SegmentTopService.class);
+    private static final Logger logger = LoggerFactory.getLogger(SegmentTopService.class);
 
     private final ISegmentDurationUIDAO segmentDurationUIDAO;
     private final IGlobalTraceUIDAO globalTraceUIDAO;

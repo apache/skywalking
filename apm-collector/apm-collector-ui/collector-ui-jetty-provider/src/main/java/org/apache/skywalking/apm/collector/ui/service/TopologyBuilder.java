@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
  */
 class TopologyBuilder {
 
-    private final Logger logger = LoggerFactory.getLogger(TopologyBuilder.class);
+    private static final Logger logger = LoggerFactory.getLogger(TopologyBuilder.class);
 
     private final ApplicationCacheService applicationCacheService;
     private final ServerService serverService;

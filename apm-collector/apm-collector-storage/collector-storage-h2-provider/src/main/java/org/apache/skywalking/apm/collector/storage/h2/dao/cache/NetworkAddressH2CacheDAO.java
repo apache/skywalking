@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NetworkAddressH2CacheDAO extends H2DAO implements INetworkAddressCacheDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(NetworkAddressH2CacheDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(NetworkAddressH2CacheDAO.class);
 
     private static final String GET_ADDRESS_ID_OR_CODE_SQL = "select {0} from {1} where {2} = ?";
 

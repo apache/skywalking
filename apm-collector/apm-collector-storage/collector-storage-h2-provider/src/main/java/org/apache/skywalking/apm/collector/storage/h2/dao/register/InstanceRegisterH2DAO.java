@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InstanceRegisterH2DAO extends H2DAO implements IInstanceRegisterDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(InstanceRegisterH2DAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(InstanceRegisterH2DAO.class);
 
     public InstanceRegisterH2DAO(H2Client client) {
         super(client);

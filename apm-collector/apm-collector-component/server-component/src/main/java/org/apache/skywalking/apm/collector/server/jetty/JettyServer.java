@@ -16,9 +16,10 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.server.jetty;
 
+import java.net.InetSocketAddress;
+import java.util.Objects;
 import org.apache.skywalking.apm.collector.server.Server;
 import org.apache.skywalking.apm.collector.server.ServerException;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -27,15 +28,12 @@ import org.eclipse.jetty.servlet.ServletMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
-import java.util.Objects;
-
 /**
  * @author peng-yongsheng, wusheng
  */
 public class JettyServer implements Server {
 
-    private final Logger logger = LoggerFactory.getLogger(JettyServer.class);
+    private static final Logger logger = LoggerFactory.getLogger(JettyServer.class);
 
     private final String host;
     private final int port;
@@ -101,11 +99,13 @@ public class JettyServer implements Server {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        JettyServer that = (JettyServer) o;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        JettyServer that = (JettyServer)o;
         return port == that.port &&
-                Objects.equals(host, that.host);
+            Objects.equals(host, that.host);
     }
 
     @Override

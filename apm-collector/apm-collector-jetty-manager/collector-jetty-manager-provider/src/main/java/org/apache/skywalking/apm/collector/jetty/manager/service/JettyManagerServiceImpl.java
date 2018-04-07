@@ -16,9 +16,9 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.jetty.manager.service;
 
+import java.util.Map;
 import org.apache.skywalking.apm.collector.core.UnexpectedException;
 import org.apache.skywalking.apm.collector.server.ServerException;
 import org.apache.skywalking.apm.collector.server.jetty.JettyHandler;
@@ -26,14 +26,12 @@ import org.apache.skywalking.apm.collector.server.jetty.JettyServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-
 /**
  * @author peng-yongsheng
  */
 public class JettyManagerServiceImpl implements JettyManagerService {
 
-    private final Logger logger = LoggerFactory.getLogger(JettyManagerServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(JettyManagerServiceImpl.class);
 
     private final Map<String, JettyServer> servers;
 

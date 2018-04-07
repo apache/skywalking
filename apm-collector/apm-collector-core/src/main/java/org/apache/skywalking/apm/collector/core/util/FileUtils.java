@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.core.util;
 
 import java.io.File;
@@ -32,7 +31,7 @@ import org.slf4j.LoggerFactory;
 public enum FileUtils {
     INSTANCE;
 
-    private final Logger logger = LoggerFactory.getLogger(FileUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
 
     public String readLastLine(File file) {
         RandomAccessFile randomAccessFile = null;

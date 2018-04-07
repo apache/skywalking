@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * @author wu-sheng
  */
 public class BootstrapFlow {
-    private final Logger logger = LoggerFactory.getLogger(BootstrapFlow.class);
+    private static final Logger logger = LoggerFactory.getLogger(BootstrapFlow.class);
 
     private Map<String, Module> loadedModules;
     private ApplicationConfiguration applicationConfiguration;

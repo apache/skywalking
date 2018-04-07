@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TraceSegmentServiceHandler extends TraceSegmentServiceGrpc.TraceSegmentServiceImplBase implements GRPCHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(TraceSegmentServiceHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(TraceSegmentServiceHandler.class);
 
     private final ISegmentParseService segmentParseService;
 

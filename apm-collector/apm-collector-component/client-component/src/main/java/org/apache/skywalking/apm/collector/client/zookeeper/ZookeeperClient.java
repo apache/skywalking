@@ -16,18 +16,17 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.client.zookeeper;
 
 import java.io.IOException;
 import java.util.List;
+import org.apache.skywalking.apm.collector.client.Client;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Stat;
-import org.apache.skywalking.apm.collector.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ZookeeperClient implements Client {
 
-    private final Logger logger = LoggerFactory.getLogger(ZookeeperClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(ZookeeperClient.class);
 
     private ZooKeeper zk;
 

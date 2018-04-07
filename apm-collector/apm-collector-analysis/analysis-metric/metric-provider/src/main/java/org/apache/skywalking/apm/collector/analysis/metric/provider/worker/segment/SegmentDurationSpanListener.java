@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.segment;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
@@ -30,6 +30,7 @@ import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listen
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListenerFactory;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -44,15 +45,15 @@ import org.slf4j.LoggerFactory;
  */
 public class SegmentDurationSpanListener implements EntrySpanListener, ExitSpanListener, LocalSpanListener, FirstSpanListener {
 
-    private final Logger logger = LoggerFactory.getLogger(SegmentDurationSpanListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(SegmentDurationSpanListener.class);
 
     private final List<SegmentDuration> segmentDurations;
     private final ServiceNameCacheService serviceNameCacheService;
     private boolean isError = false;
     private long timeBucket;
 
-    SegmentDurationSpanListener(ModuleManager moduleManager) {
-        this.segmentDurations = new ArrayList<>();
+    private SegmentDurationSpanListener(ModuleManager moduleManager) {
+        this.segmentDurations = new LinkedList<>();
         this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
     }
 
@@ -98,14 +99,16 @@ public class SegmentDurationSpanListener implements EntrySpanListener, ExitSpanL
     @Override public void build() {
         Graph<SegmentDuration> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.SEGMENT_DURATION_GRAPH_ID, SegmentDuration.class);
         logger.debug("segment cost listener build");
-        for (SegmentDuration segmentDuration : segmentDurations) {
+        segmentDurations.forEach(segmentDuration -> {
             segmentDuration.setIsError(BooleanUtils.booleanToValue(isError));
             segmentDuration.setTimeBucket(timeBucket);
             graph.start(segmentDuration);
-        }
+        });
     }
 
     public static class Factory implements SpanListenerFactory {
+
+        @GraphComputingMetric(name = "/segment/parse/createSpanListeners/segmentDurationSpanListener")
         @Override public SpanListener create(ModuleManager moduleManager) {
             return new SegmentDurationSpanListener(moduleManager);
         }

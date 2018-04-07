@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ElasticSearchClient implements Client {
 
-    private final Logger logger = LoggerFactory.getLogger(ElasticSearchClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(ElasticSearchClient.class);
 
     private org.elasticsearch.client.Client client;
 
@@ -75,16 +75,16 @@ public class ElasticSearchClient implements Client {
     @Override
     public void initialize() throws ClientException {
         Settings settings = Settings.builder()
-                .put("cluster.name", clusterName)
-                .put("client.transport.sniff", clusterTransportSniffer)
-                .build();
+            .put("cluster.name", clusterName)
+            .put("client.transport.sniff", clusterTransportSniffer)
+            .build();
 
         client = new PreBuiltTransportClient(settings);
 
         List<AddressPairs> pairsList = parseClusterNodes(clusterNodes);
         for (AddressPairs pairs : pairsList) {
             try {
-                ((PreBuiltTransportClient) client).addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(pairs.host), pairs.port));
+                ((PreBuiltTransportClient)client).addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(pairs.host), pairs.port));
             } catch (UnknownHostException e) {
                 throw new ElasticSearchClientException(e.getMessage(), e);
             }

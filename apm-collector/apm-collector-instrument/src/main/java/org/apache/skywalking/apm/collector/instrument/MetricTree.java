@@ -34,7 +34,8 @@ import org.slf4j.LoggerFactory;
  */
 public enum MetricTree implements Runnable {
     INSTANCE;
-    private final Logger logger = LoggerFactory.getLogger(MetricTree.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(MetricTree.class);
 
     private List<MetricNode> metrics = new LinkedList<>();
     private String lineSeparator = System.getProperty("line.separator");
