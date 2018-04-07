@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
 
-    private final Logger logger = LoggerFactory.getLogger(SpanIdExchanger.class);
+    private static final Logger logger = LoggerFactory.getLogger(SpanIdExchanger.class);
 
     private static SpanIdExchanger EXCHANGER;
     private final IServiceNameService serviceNameService;

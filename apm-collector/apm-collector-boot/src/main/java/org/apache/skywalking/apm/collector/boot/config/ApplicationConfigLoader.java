@@ -40,7 +40,7 @@ import org.yaml.snakeyaml.Yaml;
  */
 public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfiguration> {
 
-    private final Logger logger = LoggerFactory.getLogger(ApplicationConfigLoader.class);
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationConfigLoader.class);
 
     private final Yaml yaml = new Yaml();
 

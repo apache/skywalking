@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 public enum SegmentBufferReader {
     INSTANCE;
 
-    private final Logger logger = LoggerFactory.getLogger(SegmentBufferReader.class);
+    private static final Logger logger = LoggerFactory.getLogger(SegmentBufferReader.class);
     private InputStream inputStream;
     private ModuleManager moduleManager;
     private SegmentParserListenerManager listenerManager;

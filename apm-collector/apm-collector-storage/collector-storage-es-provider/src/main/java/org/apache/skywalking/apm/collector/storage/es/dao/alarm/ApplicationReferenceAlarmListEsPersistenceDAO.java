@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.collector.storage.es.dao.alarm;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationReferenceAlarmListPersistenceDAO;
@@ -40,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ApplicationReferenceAlarmListEsPersistenceDAO extends EsDAO implements IApplicationReferenceAlarmListPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, ApplicationReferenceAlarmList> {
 
-    private final Logger logger = LoggerFactory.getLogger(ApplicationReferenceAlarmListEsPersistenceDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationReferenceAlarmListEsPersistenceDAO.class);
 
     public ApplicationReferenceAlarmListEsPersistenceDAO(ElasticSearchClient client) {
         super(client);
@@ -53,14 +52,14 @@ public class ApplicationReferenceAlarmListEsPersistenceDAO extends EsDAO impleme
             ApplicationReferenceAlarmList applicationReferenceAlarmList = new ApplicationReferenceAlarmList();
             applicationReferenceAlarmList.setId(id);
             Map<String, Object> source = getResponse.getSource();
-            applicationReferenceAlarmList.setFrontApplicationId(((Number) source.get(ApplicationReferenceAlarmListTable.COLUMN_FRONT_APPLICATION_ID)).intValue());
-            applicationReferenceAlarmList.setBehindApplicationId(((Number) source.get(ApplicationReferenceAlarmListTable.COLUMN_BEHIND_APPLICATION_ID)).intValue());
-            applicationReferenceAlarmList.setSourceValue(((Number) source.get(ApplicationReferenceAlarmListTable.COLUMN_SOURCE_VALUE)).intValue());
+            applicationReferenceAlarmList.setFrontApplicationId(((Number)source.get(ApplicationReferenceAlarmListTable.COLUMN_FRONT_APPLICATION_ID)).intValue());
+            applicationReferenceAlarmList.setBehindApplicationId(((Number)source.get(ApplicationReferenceAlarmListTable.COLUMN_BEHIND_APPLICATION_ID)).intValue());
+            applicationReferenceAlarmList.setSourceValue(((Number)source.get(ApplicationReferenceAlarmListTable.COLUMN_SOURCE_VALUE)).intValue());
 
-            applicationReferenceAlarmList.setAlarmType(((Number) source.get(ApplicationReferenceAlarmListTable.COLUMN_ALARM_TYPE)).intValue());
-            applicationReferenceAlarmList.setAlarmContent((String) source.get(ApplicationReferenceAlarmListTable.COLUMN_ALARM_CONTENT));
+            applicationReferenceAlarmList.setAlarmType(((Number)source.get(ApplicationReferenceAlarmListTable.COLUMN_ALARM_TYPE)).intValue());
+            applicationReferenceAlarmList.setAlarmContent((String)source.get(ApplicationReferenceAlarmListTable.COLUMN_ALARM_CONTENT));
 
-            applicationReferenceAlarmList.setTimeBucket(((Number) source.get(ApplicationReferenceAlarmListTable.COLUMN_TIME_BUCKET)).longValue());
+            applicationReferenceAlarmList.setTimeBucket(((Number)source.get(ApplicationReferenceAlarmListTable.COLUMN_TIME_BUCKET)).longValue());
             return applicationReferenceAlarmList;
         } else {
             return null;
@@ -102,9 +101,9 @@ public class ApplicationReferenceAlarmListEsPersistenceDAO extends EsDAO impleme
         long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
         long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
         BulkByScrollResponse response = getClient().prepareDelete(
-                QueryBuilders.rangeQuery(ApplicationReferenceAlarmListTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket),
-                ApplicationReferenceAlarmListTable.TABLE)
-                .get();
+            QueryBuilders.rangeQuery(ApplicationReferenceAlarmListTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket),
+            ApplicationReferenceAlarmListTable.TABLE)
+            .get();
 
         long deleted = response.getDeleted();
         logger.info("Delete {} rows history from {} index.", deleted, ApplicationReferenceAlarmListTable.TABLE);

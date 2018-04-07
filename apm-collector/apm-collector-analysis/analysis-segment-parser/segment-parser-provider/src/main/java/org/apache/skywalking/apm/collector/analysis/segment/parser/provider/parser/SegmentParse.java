@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SegmentParse {
 
-    private final Logger logger = LoggerFactory.getLogger(SegmentParse.class);
+    private static final Logger logger = LoggerFactory.getLogger(SegmentParse.class);
 
     private final ModuleManager moduleManager;
     private List<SpanListener> spanListeners;
@@ -188,6 +188,7 @@ public class SegmentParse {
         graph.start(standardization);
     }
 
+    @GraphComputingMetric(name = "/segment/parse/notifyListenerToBuild")
     private void notifyListenerToBuild() {
         spanListeners.forEach(SpanListener::build);
     }
@@ -236,6 +237,7 @@ public class SegmentParse {
         }
     }
 
+    @GraphComputingMetric(name = "/segment/parse/createSpanListeners")
     private void createSpanListeners() {
         listenerManager.getSpanListenerFactories().forEach(spanListenerFactory -> spanListeners.add(spanListenerFactory.create(moduleManager)));
     }

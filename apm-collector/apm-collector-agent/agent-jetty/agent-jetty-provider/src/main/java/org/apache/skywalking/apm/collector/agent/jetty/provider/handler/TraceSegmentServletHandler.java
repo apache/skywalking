@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TraceSegmentServletHandler extends JettyHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(TraceSegmentServletHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(TraceSegmentServletHandler.class);
 
     private final ISegmentParseService segmentParseService;
 

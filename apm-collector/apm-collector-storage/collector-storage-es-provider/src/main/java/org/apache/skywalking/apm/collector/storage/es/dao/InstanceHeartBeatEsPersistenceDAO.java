@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InstanceHeartBeatEsPersistenceDAO extends EsDAO implements IInstanceHeartBeatPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, Instance> {
 
-    private final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatEsPersistenceDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatEsPersistenceDAO.class);
 
     public InstanceHeartBeatEsPersistenceDAO(ElasticSearchClient client) {
         super(client);

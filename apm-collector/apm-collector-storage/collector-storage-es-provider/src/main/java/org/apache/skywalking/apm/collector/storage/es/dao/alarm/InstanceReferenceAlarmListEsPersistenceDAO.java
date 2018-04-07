@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.collector.storage.es.dao.alarm;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.alarm.IInstanceReferenceAlarmListPersistenceDAO;
@@ -40,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InstanceReferenceAlarmListEsPersistenceDAO extends EsDAO implements IInstanceReferenceAlarmListPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, InstanceReferenceAlarmList> {
 
-    private final Logger logger = LoggerFactory.getLogger(InstanceReferenceAlarmListEsPersistenceDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(InstanceReferenceAlarmListEsPersistenceDAO.class);
 
     public InstanceReferenceAlarmListEsPersistenceDAO(ElasticSearchClient client) {
         super(client);
@@ -53,16 +52,16 @@ public class InstanceReferenceAlarmListEsPersistenceDAO extends EsDAO implements
             InstanceReferenceAlarmList serviceReferenceAlarmList = new InstanceReferenceAlarmList();
             serviceReferenceAlarmList.setId(id);
             Map<String, Object> source = getResponse.getSource();
-            serviceReferenceAlarmList.setFrontApplicationId(((Number) source.get(InstanceReferenceAlarmListTable.COLUMN_FRONT_APPLICATION_ID)).intValue());
-            serviceReferenceAlarmList.setBehindApplicationId(((Number) source.get(InstanceReferenceAlarmListTable.COLUMN_BEHIND_APPLICATION_ID)).intValue());
-            serviceReferenceAlarmList.setFrontInstanceId(((Number) source.get(InstanceReferenceAlarmListTable.COLUMN_FRONT_INSTANCE_ID)).intValue());
-            serviceReferenceAlarmList.setBehindInstanceId(((Number) source.get(InstanceReferenceAlarmListTable.COLUMN_BEHIND_INSTANCE_ID)).intValue());
-            serviceReferenceAlarmList.setSourceValue(((Number) source.get(InstanceReferenceAlarmListTable.COLUMN_SOURCE_VALUE)).intValue());
+            serviceReferenceAlarmList.setFrontApplicationId(((Number)source.get(InstanceReferenceAlarmListTable.COLUMN_FRONT_APPLICATION_ID)).intValue());
+            serviceReferenceAlarmList.setBehindApplicationId(((Number)source.get(InstanceReferenceAlarmListTable.COLUMN_BEHIND_APPLICATION_ID)).intValue());
+            serviceReferenceAlarmList.setFrontInstanceId(((Number)source.get(InstanceReferenceAlarmListTable.COLUMN_FRONT_INSTANCE_ID)).intValue());
+            serviceReferenceAlarmList.setBehindInstanceId(((Number)source.get(InstanceReferenceAlarmListTable.COLUMN_BEHIND_INSTANCE_ID)).intValue());
+            serviceReferenceAlarmList.setSourceValue(((Number)source.get(InstanceReferenceAlarmListTable.COLUMN_SOURCE_VALUE)).intValue());
 
-            serviceReferenceAlarmList.setAlarmType(((Number) source.get(InstanceReferenceAlarmListTable.COLUMN_ALARM_TYPE)).intValue());
-            serviceReferenceAlarmList.setAlarmContent((String) source.get(InstanceReferenceAlarmListTable.COLUMN_ALARM_CONTENT));
+            serviceReferenceAlarmList.setAlarmType(((Number)source.get(InstanceReferenceAlarmListTable.COLUMN_ALARM_TYPE)).intValue());
+            serviceReferenceAlarmList.setAlarmContent((String)source.get(InstanceReferenceAlarmListTable.COLUMN_ALARM_CONTENT));
 
-            serviceReferenceAlarmList.setTimeBucket(((Number) source.get(InstanceReferenceAlarmListTable.COLUMN_TIME_BUCKET)).longValue());
+            serviceReferenceAlarmList.setTimeBucket(((Number)source.get(InstanceReferenceAlarmListTable.COLUMN_TIME_BUCKET)).longValue());
             return serviceReferenceAlarmList;
         } else {
             return null;
@@ -108,9 +107,9 @@ public class InstanceReferenceAlarmListEsPersistenceDAO extends EsDAO implements
         long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
         long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
         BulkByScrollResponse response = getClient().prepareDelete(
-                QueryBuilders.rangeQuery(InstanceReferenceAlarmListTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket),
-                InstanceReferenceAlarmListTable.TABLE)
-                .get();
+            QueryBuilders.rangeQuery(InstanceReferenceAlarmListTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket),
+            InstanceReferenceAlarmListTable.TABLE)
+            .get();
 
         long deleted = response.getDeleted();
         logger.info("Delete {} rows history from {} index.", deleted, InstanceReferenceAlarmListTable.TABLE);

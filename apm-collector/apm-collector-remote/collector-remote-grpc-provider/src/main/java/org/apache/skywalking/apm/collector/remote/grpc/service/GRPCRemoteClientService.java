@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  */
 public class GRPCRemoteClientService implements RemoteClientService {
 
-    private final Logger logger = LoggerFactory.getLogger(GRPCRemoteClientService.class);
+    private static final Logger logger = LoggerFactory.getLogger(GRPCRemoteClientService.class);
 
     private final RemoteDataIDGetter remoteDataIDGetter;
 

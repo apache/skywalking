@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 public class GlobalTraceH2PersistenceDAO extends H2DAO implements IGlobalTracePersistenceDAO<H2SqlEntity, H2SqlEntity, GlobalTrace> {
 
-    private final Logger logger = LoggerFactory.getLogger(GlobalTraceH2PersistenceDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(GlobalTraceH2PersistenceDAO.class);
 
     public GlobalTraceH2PersistenceDAO(H2Client client) {
         super(client);

@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RemoteCommonServiceHandler extends RemoteCommonServiceGrpc.RemoteCommonServiceImplBase implements GRPCHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(RemoteCommonServiceHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(RemoteCommonServiceHandler.class);
 
     private final RemoteDataInstanceCreatorGetter instanceCreatorGetter;
     private final GRPCRemoteDeserializeService service;
