@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AlarmService {
 
-    private final Logger logger = LoggerFactory.getLogger(AlarmService.class);
+    private static final Logger logger = LoggerFactory.getLogger(AlarmService.class);
 
     private final Gson gson = new Gson();
     private final IInstanceUIDAO instanceDAO;

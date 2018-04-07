@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MemoryMetricH2UIDAO extends H2DAO implements IMemoryMetricUIDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(MemoryMetricH2UIDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(MemoryMetricH2UIDAO.class);
     private static final String GET_MEMORY_METRIC_SQL = "select * from {0} where {1} =?";
 
     public MemoryMetricH2UIDAO(H2Client client) {

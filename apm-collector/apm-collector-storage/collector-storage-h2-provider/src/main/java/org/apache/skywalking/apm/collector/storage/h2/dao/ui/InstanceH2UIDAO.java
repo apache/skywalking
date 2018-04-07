@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InstanceH2UIDAO extends H2DAO implements IInstanceUIDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(InstanceH2UIDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(InstanceH2UIDAO.class);
 
     public InstanceH2UIDAO(H2Client client) {
         super(client);

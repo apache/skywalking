@@ -34,13 +34,13 @@ import org.slf4j.LoggerFactory;
  */
 public class InstanceRegisterRemoteWorker extends AbstractRemoteWorker<Instance, Instance> {
 
-    private final Logger logger = LoggerFactory.getLogger(InstanceRegisterRemoteWorker.class);
+    private static final Logger logger = LoggerFactory.getLogger(InstanceRegisterRemoteWorker.class);
 
     @Override public int id() {
         return WorkerIdDefine.INSTANCE_REGISTER_REMOTE_WORKER;
     }
 
-    InstanceRegisterRemoteWorker(ModuleManager moduleManager) {
+    private InstanceRegisterRemoteWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 

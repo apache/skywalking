@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InstanceIDService implements IInstanceIDService {
 
-    private final Logger logger = LoggerFactory.getLogger(InstanceIDService.class);
+    private static final Logger logger = LoggerFactory.getLogger(InstanceIDService.class);
 
     private final ModuleManager moduleManager;
     private InstanceCacheService instanceCacheService;

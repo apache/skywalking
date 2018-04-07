@@ -245,7 +245,7 @@ import org.slf4j.LoggerFactory;
  */
 public class StorageModuleH2Provider extends ModuleProvider {
 
-    private final Logger logger = LoggerFactory.getLogger(StorageModuleH2Provider.class);
+    private static final Logger logger = LoggerFactory.getLogger(StorageModuleH2Provider.class);
 
     private static final String URL = "url";
     private static final String USER_NAME = "user_name";

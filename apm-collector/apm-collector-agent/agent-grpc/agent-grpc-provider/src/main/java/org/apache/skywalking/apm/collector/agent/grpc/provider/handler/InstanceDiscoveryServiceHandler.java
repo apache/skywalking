@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrpc.InstanceDiscoveryServiceImplBase implements GRPCHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(InstanceDiscoveryServiceHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(InstanceDiscoveryServiceHandler.class);
 
     private final IInstanceIDService instanceIDService;
     private final IInstanceHeartBeatService instanceHeartBeatService;

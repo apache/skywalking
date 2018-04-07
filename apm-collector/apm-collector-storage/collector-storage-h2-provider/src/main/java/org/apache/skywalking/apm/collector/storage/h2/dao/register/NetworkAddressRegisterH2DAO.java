@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NetworkAddressRegisterH2DAO extends H2DAO implements INetworkAddressRegisterDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(NetworkAddressRegisterH2DAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(NetworkAddressRegisterH2DAO.class);
 
     public NetworkAddressRegisterH2DAO(H2Client client) {
         super(client);

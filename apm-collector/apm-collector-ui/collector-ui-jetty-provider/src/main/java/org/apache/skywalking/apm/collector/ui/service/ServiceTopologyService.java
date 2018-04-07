@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ServiceTopologyService {
 
-    private final Logger logger = LoggerFactory.getLogger(ServiceTopologyService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceTopologyService.class);
 
     private final IApplicationComponentUIDAO applicationComponentUIDAO;
     private final IServiceMetricUIDAO serviceMetricUIDAO;

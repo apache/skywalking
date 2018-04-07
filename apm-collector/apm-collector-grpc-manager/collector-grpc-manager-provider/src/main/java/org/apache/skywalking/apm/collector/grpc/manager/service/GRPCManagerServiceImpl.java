@@ -16,23 +16,21 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.grpc.manager.service;
 
+import java.io.File;
+import java.util.Map;
 import org.apache.skywalking.apm.collector.server.ServerException;
 import org.apache.skywalking.apm.collector.server.grpc.GRPCServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.util.Map;
 
 /**
  * @author peng-yongsheng
  */
 public class GRPCManagerServiceImpl implements GRPCManagerService {
 
-    private final Logger logger = LoggerFactory.getLogger(GRPCManagerServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(GRPCManagerServiceImpl.class);
 
     private final Map<String, GRPCServer> servers;
 
@@ -46,11 +44,13 @@ public class GRPCManagerServiceImpl implements GRPCManagerService {
     }
 
     @Override
-    public GRPCServer createIfAbsent(String host, int port, File certChainFile, File privateKeyFile) throws ServerCanNotBeCreatedException {
+    public GRPCServer createIfAbsent(String host, int port, File certChainFile,
+        File privateKeyFile) throws ServerCanNotBeCreatedException {
         return createOrChooseServer(host, port, new GRPCServer(host, port, certChainFile, privateKeyFile));
     }
 
-    private GRPCServer createOrChooseServer(String host, int port, GRPCServer newServer) throws ServerCanNotBeCreatedException {
+    private GRPCServer createOrChooseServer(String host, int port,
+        GRPCServer newServer) throws ServerCanNotBeCreatedException {
         String id = host + String.valueOf(port);
         GRPCServer existServer = servers.get(id);
         if (existServer != null) {

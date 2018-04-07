@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
 
-    private final Logger logger = LoggerFactory.getLogger(ReferenceIdExchanger.class);
+    private static final Logger logger = LoggerFactory.getLogger(ReferenceIdExchanger.class);
 
     private static ReferenceIdExchanger EXCHANGER;
     private final IServiceNameService serviceNameService;

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.buffer;
 
 import java.io.File;
@@ -36,7 +35,7 @@ import org.slf4j.LoggerFactory;
 public enum SegmentBufferManager {
     INSTANCE;
 
-    private final Logger logger = LoggerFactory.getLogger(SegmentBufferManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(SegmentBufferManager.class);
 
     public static final String DATA_FILE_PREFIX = "data";
     private FileOutputStream outputStream;

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.naming.jetty.service;
 
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -33,7 +32,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NamingJettyHandlerRegisterService implements NamingHandlerRegisterService {
 
-    private final Logger logger = LoggerFactory.getLogger(NamingJettyHandlerRegisterService.class);
+    private static final Logger logger = LoggerFactory.getLogger(NamingJettyHandlerRegisterService.class);
 
     private final ModuleManager moduleManager;
     private final String host;

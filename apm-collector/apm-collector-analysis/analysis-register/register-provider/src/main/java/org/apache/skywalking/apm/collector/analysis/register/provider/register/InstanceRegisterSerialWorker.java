@@ -38,12 +38,12 @@ import org.slf4j.LoggerFactory;
  */
 public class InstanceRegisterSerialWorker extends AbstractLocalAsyncWorker<Instance, Instance> {
 
-    private final Logger logger = LoggerFactory.getLogger(InstanceRegisterSerialWorker.class);
+    private static final Logger logger = LoggerFactory.getLogger(InstanceRegisterSerialWorker.class);
 
     private final InstanceCacheService instanceCacheService;
     private final IInstanceRegisterDAO instanceRegisterDAO;
 
-    public InstanceRegisterSerialWorker(ModuleManager moduleManager) {
+    private InstanceRegisterSerialWorker(ModuleManager moduleManager) {
         super(moduleManager);
         this.instanceCacheService = getModuleManager().find(CacheModule.NAME).getService(InstanceCacheService.class);
         this.instanceRegisterDAO = getModuleManager().find(StorageModule.NAME).getService(IInstanceRegisterDAO.class);
