@@ -52,6 +52,7 @@
         <slf4j.version>1.7.25</slf4j.version>
         <log4j.version>2.9.0</log4j.version>
         <guava.version>19.0</guava.version>
+        <caffeine.version>2.6.2</caffeine.version>
         <snakeyaml.version>1.18</snakeyaml.version>
         <byte-buddy.version>1.7.8</byte-buddy.version>
         <graphql-java-tools.version>4.3.0</graphql-java-tools.version>
@@ -213,6 +214,11 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.ben-manes.caffeine</groupId>
+                <artifactId>caffeine</artifactId>
+                <version>${caffeine.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.yaml</groupId>

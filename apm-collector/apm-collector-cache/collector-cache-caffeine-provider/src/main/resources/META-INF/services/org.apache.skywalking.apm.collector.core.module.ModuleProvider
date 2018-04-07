@@ -16,4 +16,4 @@
 #
 #
 
-org.apache.skywalking.apm.collector.cache.guava.CacheModuleGuavaProvider
+org.apache.skywalking.apm.collector.cache.caffeine.CacheModuleCaffeineProvider

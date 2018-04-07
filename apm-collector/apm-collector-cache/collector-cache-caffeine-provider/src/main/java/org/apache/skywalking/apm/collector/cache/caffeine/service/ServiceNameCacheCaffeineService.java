@@ -16,32 +16,33 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.cache.guava.service;
+package org.apache.skywalking.apm.collector.cache.caffeine.service;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import org.apache.skywalking.apm.collector.cache.service.ServiceIdCacheService;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.cache.IServiceNameCacheDAO;
+import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceIdCacheGuavaService implements ServiceIdCacheService {
+public class ServiceNameCacheCaffeineService implements ServiceNameCacheService {
 
-    private final Logger logger = LoggerFactory.getLogger(ServiceIdCacheGuavaService.class);
+    private final Logger logger = LoggerFactory.getLogger(ServiceNameCacheCaffeineService.class);
 
-    private final Cache<String, Integer> serviceIdCache = CacheBuilder.newBuilder().maximumSize(10000).build();
+    private final Cache<Integer, ServiceName> serviceCache = Caffeine.newBuilder().expireAfterWrite(10, TimeUnit.SECONDS).initialCapacity(100).maximumSize(10000).build();
 
     private final ModuleManager moduleManager;
     private IServiceNameCacheDAO serviceNameCacheDAO;
 
-    public ServiceIdCacheGuavaService(ModuleManager moduleManager) {
+    public ServiceNameCacheCaffeineService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
     }
 
@@ -52,21 +53,21 @@ public class ServiceIdCacheGuavaService implements ServiceIdCacheService {
         return this.serviceNameCacheDAO;
     }
 
-    @Override public int get(int applicationId, int srcSpanType, String serviceName) {
-        int serviceId = 0;
-        String id = applicationId + Const.ID_SPLIT + srcSpanType + Const.ID_SPLIT + serviceName;
+    public ServiceName get(int serviceId) {
+        ServiceName serviceName = null;
         try {
-            serviceId = serviceIdCache.get(id, () -> getServiceNameCacheDAO().getServiceId(applicationId, srcSpanType, serviceName));
+            serviceName = serviceCache.get(serviceId, key -> getServiceNameCacheDAO().get(key));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
 
-        if (serviceId == 0) {
-            serviceId = getServiceNameCacheDAO().getServiceId(applicationId, srcSpanType, serviceName);
-            if (serviceId != 0) {
-                serviceIdCache.put(id, serviceId);
+        if (ObjectUtils.isEmpty(serviceName)) {
+            serviceName = getServiceNameCacheDAO().get(serviceId);
+            if (ObjectUtils.isNotEmpty(serviceName)) {
+                serviceCache.put(serviceId, serviceName);
             }
         }
-        return serviceId;
+
+        return serviceName;
     }
 }
