@@ -49,7 +49,7 @@ public class ApplicationMappingSpanListener implements FirstSpanListener, EntryS
     private List<ApplicationMapping> applicationMappings = new LinkedList<>();
     private long timeBucket;
 
-    ApplicationMappingSpanListener(ModuleManager moduleManager) {
+    private ApplicationMappingSpanListener(ModuleManager moduleManager) {
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
     }
 

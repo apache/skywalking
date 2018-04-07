@@ -20,10 +20,13 @@ package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.serv
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.AggregationWorker;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetric;
+import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetricTable;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
 
 /**
@@ -31,7 +34,7 @@ import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenc
  */
 public class ServiceMetricMinuteAggregationWorker extends AggregationWorker<ServiceReferenceMetric, ServiceMetric> {
 
-    public ServiceMetricMinuteAggregationWorker(ModuleManager moduleManager) {
+    private ServiceMetricMinuteAggregationWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -89,5 +92,10 @@ public class ServiceMetricMinuteAggregationWorker extends AggregationWorker<Serv
         @Override public int queueSize() {
             return 256;
         }
+    }
+
+    @GraphComputingMetric(name = "/aggregate/onWork/" + ServiceMetricTable.TABLE)
+    @Override protected void onWork(ServiceReferenceMetric message) throws WorkerException {
+        super.onWork(message);
     }
 }

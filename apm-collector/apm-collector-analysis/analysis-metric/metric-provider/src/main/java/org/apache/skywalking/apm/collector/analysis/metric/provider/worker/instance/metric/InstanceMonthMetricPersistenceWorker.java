@@ -21,18 +21,20 @@ package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.inst
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.imp.IInstanceMonthMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetric;
+import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetricTable;
 
 /**
  * @author peng-yongsheng
  */
 public class InstanceMonthMetricPersistenceWorker extends PersistenceWorker<InstanceMetric> {
 
-    public InstanceMonthMetricPersistenceWorker(ModuleManager moduleManager) {
+    private InstanceMonthMetricPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -63,5 +65,10 @@ public class InstanceMonthMetricPersistenceWorker extends PersistenceWorker<Inst
         public int queueSize() {
             return 1024;
         }
+    }
+
+    @GraphComputingMetric(name = "/persistence/onWork/" + InstanceMetricTable.TABLE + "/month")
+    @Override protected void onWork(InstanceMetric input) {
+        super.onWork(input);
     }
 }

@@ -45,7 +45,7 @@ public class ApplicationComponentSpanListener implements EntrySpanListener, Exit
     private List<ApplicationComponent> applicationComponents = new ArrayList<>();
     private long timeBucket;
 
-    ApplicationComponentSpanListener(ModuleManager moduleManager) {
+    private ApplicationComponentSpanListener(ModuleManager moduleManager) {
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
     }
 

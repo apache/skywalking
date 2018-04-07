@@ -21,18 +21,20 @@ package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.serv
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.smp.IServiceHourMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetric;
+import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetricTable;
 
 /**
  * @author peng-yongsheng
  */
 public class ServiceHourMetricPersistenceWorker extends PersistenceWorker<ServiceMetric> {
 
-    public ServiceHourMetricPersistenceWorker(ModuleManager moduleManager) {
+    private ServiceHourMetricPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -63,5 +65,10 @@ public class ServiceHourMetricPersistenceWorker extends PersistenceWorker<Servic
         public int queueSize() {
             return 1024;
         }
+    }
+
+    @GraphComputingMetric(name = "/persistence/onWork/" + ServiceMetricTable.TABLE + "/hour")
+    @Override protected void onWork(ServiceMetric input) {
+        super.onWork(input);
     }
 }

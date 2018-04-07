@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.UnexpectedException;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceHeartBeatPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
@@ -43,6 +44,7 @@ public class InstanceHeartBeatEsPersistenceDAO extends EsDAO implements IInstanc
         super(client);
     }
 
+    @GraphComputingMetric(name = "/persistence/get/" + InstanceTable.TABLE + "/heartbeat")
     @Override public Instance get(String id) {
         GetResponse getResponse = getClient().prepareGet(InstanceTable.TABLE, id).get();
         if (getResponse.isExists()) {

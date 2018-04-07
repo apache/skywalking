@@ -46,7 +46,7 @@ public abstract class AggregationWorker<INPUT extends StreamData, OUTPUT extends
         return (OUTPUT)message;
     }
 
-    @Override protected final void onWork(INPUT message) throws WorkerException {
+    @Override protected void onWork(INPUT message) throws WorkerException {
         OUTPUT output = transform(message);
 
         messageNum++;

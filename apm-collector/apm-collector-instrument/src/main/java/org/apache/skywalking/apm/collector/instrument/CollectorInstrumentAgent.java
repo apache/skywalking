@@ -41,12 +41,14 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  * so I will keep all class loader issue out of concern,
  * in order to keep the trace and monitor codes as simple as possible.
  *
- * @author wu-sheng
+ * @author wu-sheng, peng-yongsheng
  */
 public class CollectorInstrumentAgent {
     private final static Logger logger = LoggerFactory.getLogger(CollectorInstrumentAgent.class);
 
     public static void premain(String agentArgs, Instrumentation instrumentation) {
+        logger.info("Collector performance instrument agent startup");
+
         new AgentBuilder.Default().type(
             declaresMethod(isAnnotationedMatch())
         ).transform((builder, typeDescription, classLoader, module) -> {
@@ -57,19 +59,16 @@ public class CollectorInstrumentAgent {
         }).with(new AgentBuilder.Listener() {
             @Override
             public void onDiscovery(String typeName, ClassLoader classLoader, JavaModule module, boolean loaded) {
-
             }
 
             @Override
             public void onTransformation(TypeDescription typeDescription, ClassLoader classLoader, JavaModule module,
                 boolean loaded, DynamicType dynamicType) {
-
             }
 
             @Override
             public void onIgnored(TypeDescription typeDescription, ClassLoader classLoader, JavaModule module,
                 boolean loaded) {
-
             }
 
             @Override public void onError(String typeName, ClassLoader classLoader, JavaModule module, boolean loaded,
@@ -79,7 +78,6 @@ public class CollectorInstrumentAgent {
 
             @Override
             public void onComplete(String typeName, ClassLoader classLoader, JavaModule module, boolean loaded) {
-
             }
         }).installOn(instrumentation);
     }
