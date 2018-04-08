@@ -27,7 +27,5 @@ import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddress
 public interface INetworkAddressCacheDAO extends DAO {
     int getAddressId(String networkAddress);
 
-    String getAddressById(int addressId);
-
-    NetworkAddress getAddress(int addressId);
+    NetworkAddress getAddressById(int addressId);
 }

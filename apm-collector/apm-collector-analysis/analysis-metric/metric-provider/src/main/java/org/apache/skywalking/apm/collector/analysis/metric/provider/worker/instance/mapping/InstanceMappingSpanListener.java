@@ -46,6 +46,10 @@ public class InstanceMappingSpanListener implements FirstSpanListener, EntrySpan
     private List<InstanceMapping> instanceMappings = new LinkedList<>();
     private long timeBucket;
 
+    @Override public boolean containsPoint(Point point) {
+        return Point.First.equals(point) || Point.Entry.equals(point);
+    }
+
     @Override public void parseEntry(SpanDecorator spanDecorator, int applicationId, int instanceId, String segmentId) {
         logger.debug("instance mapping listener parse reference");
         if (spanDecorator.getRefsCount() > 0) {

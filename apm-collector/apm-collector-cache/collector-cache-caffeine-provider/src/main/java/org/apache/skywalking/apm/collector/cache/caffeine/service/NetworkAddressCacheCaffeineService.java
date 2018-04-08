@@ -23,7 +23,6 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.collector.cache.service.NetworkAddressCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
@@ -39,7 +38,7 @@ public class NetworkAddressCacheCaffeineService implements NetworkAddressCacheSe
 
     private final Logger logger = LoggerFactory.getLogger(NetworkAddressCacheCaffeineService.class);
 
-    private final Cache<String, Integer> addressCache = Caffeine.newBuilder().expireAfterWrite(10, TimeUnit.SECONDS).initialCapacity(100).maximumSize(5000).build();
+    private final Cache<String, Integer> addressCache = Caffeine.newBuilder().expireAfterWrite(10, TimeUnit.SECONDS).initialCapacity(1000).maximumSize(5000).build();
 
     private final ModuleManager moduleManager;
     private INetworkAddressCacheDAO networkAddressCacheDAO;
@@ -74,39 +73,22 @@ public class NetworkAddressCacheCaffeineService implements NetworkAddressCacheSe
         return addressId;
     }
 
-    private final Cache<Integer, String> idCache = Caffeine.newBuilder().expireAfterWrite(10, TimeUnit.SECONDS).initialCapacity(100).maximumSize(5000).build();
+    private final Cache<Integer, NetworkAddress> idCache = Caffeine.newBuilder().expireAfterWrite(10, TimeUnit.SECONDS).initialCapacity(1000).maximumSize(5000).build();
 
-    public String getAddress(int addressId) {
-        String networkAddress = Const.EMPTY_STRING;
+    public NetworkAddress getAddress(int addressId) {
+        NetworkAddress networkAddress = null;
         try {
             networkAddress = idCache.get(addressId, key -> getNetworkAddressCacheDAO().getAddressById(key));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
 
-        if (StringUtils.isEmpty(networkAddress)) {
+        if (ObjectUtils.isEmpty(networkAddress)) {
             networkAddress = getNetworkAddressCacheDAO().getAddressById(addressId);
             if (StringUtils.isNotEmpty(networkAddress)) {
                 idCache.put(addressId, networkAddress);
             }
         }
         return networkAddress;
-    }
-
-    private final Cache<Integer, NetworkAddress> addressObjCache = Caffeine.newBuilder().expireAfterWrite(10, TimeUnit.SECONDS).initialCapacity(100).maximumSize(5000).build();
-
-    @Override public boolean compare(int addressId, int spanLayer, int serverType) {
-        try {
-            NetworkAddress address = addressObjCache.get(addressId, key -> getNetworkAddressCacheDAO().getAddress(key));
-
-            if (ObjectUtils.isNotEmpty(address)) {
-                if (spanLayer != address.getSpanLayer() || serverType != address.getServerType()) {
-                    return false;
-                }
-            }
-        } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
-        }
-        return true;
     }
 }
