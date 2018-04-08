@@ -62,19 +62,7 @@ public class NetworkAddressEsCacheDAO extends EsDAO implements INetworkAddressCa
         return Const.NONE;
     }
 
-    @Override public String getAddressById(int addressId) {
-        logger.debug("get network address, address id: {}", addressId);
-        ElasticSearchClient client = getClient();
-        GetRequestBuilder getRequestBuilder = client.prepareGet(NetworkAddressTable.TABLE, String.valueOf(addressId));
-
-        GetResponse getResponse = getRequestBuilder.get();
-        if (getResponse.isExists()) {
-            return (String)getResponse.getSource().get(NetworkAddressTable.COLUMN_NETWORK_ADDRESS);
-        }
-        return Const.EMPTY_STRING;
-    }
-
-    @Override public NetworkAddress getAddress(int addressId) {
+    @Override public NetworkAddress getAddressById(int addressId) {
         ElasticSearchClient client = getClient();
         GetRequestBuilder getRequestBuilder = client.prepareGet(NetworkAddressTable.TABLE, String.valueOf(addressId));
 

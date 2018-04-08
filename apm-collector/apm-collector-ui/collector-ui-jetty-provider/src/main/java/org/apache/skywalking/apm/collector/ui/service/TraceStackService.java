@@ -88,23 +88,9 @@ public class TraceStackService {
                 });
             }
         }
-//        minStartTime(sortedSpans);
 
         trace.setSpans(sortedSpans);
         return trace;
-    }
-
-    private void minStartTime(List<Span> spans) {
-        long minStartTime = Long.MAX_VALUE;
-        for (Span span : spans) {
-            if (span.getStartTime() < minStartTime) {
-                minStartTime = span.getStartTime();
-            }
-        }
-
-        for (Span span : spans) {
-            span.setStartTime(span.getStartTime() - minStartTime);
-        }
     }
 
     private List<Span> buildSpanList(String traceId, String segmentId, int applicationId,
@@ -132,7 +118,7 @@ public class TraceStackService {
             if (spanObject.getPeerId() == 0) {
                 span.setPeer(spanObject.getPeer());
             } else {
-                span.setPeer(networkAddressCacheService.getAddress(spanObject.getPeerId()));
+                span.setPeer(networkAddressCacheService.getAddress(spanObject.getPeerId()).getNetworkAddress());
             }
 
             String operationName = spanObject.getOperationName();

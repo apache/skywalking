@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.collector.analysis.register.define.service.ISer
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.ReferenceDecorator;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
@@ -56,6 +57,7 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
         this.instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
     }
 
+    @GraphComputingMetric(name = "/segment/parse/exchange/referenceIdExchanger")
     @Override public boolean exchange(ReferenceDecorator standardBuilder, int applicationId) {
         if (standardBuilder.getEntryServiceId() == 0) {
             String entryServiceName = StringUtils.isNotEmpty(standardBuilder.getEntryServiceName()) ? standardBuilder.getEntryServiceName() : Const.DOMAIN_OPERATION_NAME;

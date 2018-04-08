@@ -152,6 +152,7 @@ class RegisterMock {
     private void registerServiceName(ServiceNameCollection.Builder serviceNameCollection) throws InterruptedException {
         ServiceNameMappingCollection serviceNameMappingCollection;
         do {
+            logger.debug("register service name: {}", serviceNameCollection.getElements(0).getServiceName());
             serviceNameMappingCollection = serviceNameDiscoveryServiceBlockingStub.discovery(serviceNameCollection.build());
             logger.debug("service name mapping collection size: {}", serviceNameMappingCollection.getElementsCount());
             if (serviceNameMappingCollection.getElementsCount() > 0) {

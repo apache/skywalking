@@ -36,40 +36,47 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 class ProviderMock {
 
     void mock(StreamObserver<UpstreamSegment> segmentStreamObserver, UniqueId.Builder globalTraceId,
-        UniqueId.Builder segmentId, UniqueId.Builder parentTraceSegmentId, long startTimestamp) {
+        UniqueId.Builder segmentId, UniqueId.Builder parentTraceSegmentId, long startTimestamp, boolean isPrepare) {
         UpstreamSegment.Builder upstreamSegment = UpstreamSegment.newBuilder();
         upstreamSegment.addGlobalTraceIds(globalTraceId);
-        upstreamSegment.setSegment(createSegment(startTimestamp, segmentId, parentTraceSegmentId));
+        upstreamSegment.setSegment(createSegment(startTimestamp, segmentId, parentTraceSegmentId, isPrepare));
 
         segmentStreamObserver.onNext(upstreamSegment.build());
     }
 
     private ByteString createSegment(long startTimestamp, UniqueId.Builder segmentId,
-        UniqueId.Builder parentTraceSegmentId) {
+        UniqueId.Builder parentTraceSegmentId, boolean isPrepare) {
         TraceSegmentObject.Builder segment = TraceSegmentObject.newBuilder();
         segment.setTraceSegmentId(segmentId);
         segment.setApplicationId(2);
         segment.setApplicationInstanceId(3);
-        segment.addSpans(createExitSpan(startTimestamp));
-        segment.addSpans(createEntrySpan(startTimestamp, parentTraceSegmentId));
+        segment.addSpans(createExitSpan(startTimestamp, isPrepare));
+        segment.addSpans(createEntrySpan(startTimestamp, parentTraceSegmentId, isPrepare));
 
         return segment.build().toByteString();
     }
 
-    private TraceSegmentReference.Builder createReference(UniqueId.Builder parentTraceSegmentId) {
+    private TraceSegmentReference.Builder createReference(UniqueId.Builder parentTraceSegmentId, boolean isPrepare) {
         TraceSegmentReference.Builder reference = TraceSegmentReference.newBuilder();
         reference.setParentTraceSegmentId(parentTraceSegmentId);
         reference.setParentApplicationInstanceId(2);
         reference.setParentSpanId(1);
-        reference.setParentServiceName("/dubbox-case/case/dubbox-rest");
-        reference.setNetworkAddress("172.25.0.4:20880");
         reference.setEntryApplicationInstanceId(2);
-        reference.setEntryServiceName("/dubbox-case/case/dubbox-rest");
         reference.setRefType(RefType.CrossProcess);
+
+        if (isPrepare) {
+            reference.setParentServiceName("/dubbox-case/case/dubbox-rest");
+            reference.setNetworkAddress("172.25.0.4:20880");
+            reference.setEntryServiceName("/dubbox-case/case/dubbox-rest");
+        } else {
+            reference.setParentServiceId(2);
+            reference.setNetworkAddressId(-1);
+            reference.setEntryServiceId(2);
+        }
         return reference;
     }
 
-    private SpanObject.Builder createExitSpan(long startTimestamp) {
+    private SpanObject.Builder createExitSpan(long startTimestamp, boolean isPrepare) {
         SpanObject.Builder span = SpanObject.newBuilder();
         span.setSpanId(1);
         span.setSpanType(SpanType.Exit);
@@ -78,13 +85,19 @@ class ProviderMock {
         span.setStartTime(startTimestamp + 510);
         span.setEndTime(startTimestamp + 1490);
         span.setComponentId(ComponentsDefine.MONGODB.getId());
-        span.setOperationName("mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]");
-        span.setPeer("localhost:27017");
         span.setIsError(false);
+
+        if (isPrepare) {
+            span.setOperationName("mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]");
+            span.setPeer("localhost:27017");
+        } else {
+            span.setOperationNameId(-2);
+            span.setPeerId(1);
+        }
         return span;
     }
 
-    private SpanObject.Builder createEntrySpan(long startTimestamp, UniqueId.Builder uniqueId) {
+    private SpanObject.Builder createEntrySpan(long startTimestamp, UniqueId.Builder uniqueId, boolean isPrepare) {
         SpanObject.Builder span = SpanObject.newBuilder();
         span.setSpanId(0);
         span.setSpanType(SpanType.Entry);
@@ -93,9 +106,14 @@ class ProviderMock {
         span.setStartTime(startTimestamp + 500);
         span.setEndTime(startTimestamp + 1500);
         span.setComponentId(ComponentsDefine.DUBBO.getId());
-        span.setOperationName("org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()");
         span.setIsError(false);
-        span.addRefs(createReference(uniqueId));
+        span.addRefs(createReference(uniqueId, isPrepare));
+
+        if (isPrepare) {
+            span.setOperationName("org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()");
+        } else {
+            span.setOperationNameId(3);
+        }
         return span;
     }
 }

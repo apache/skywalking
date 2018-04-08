@@ -151,9 +151,9 @@ public class SegmentParse {
             SpanDecorator spanDecorator = segmentDecorator.getSpans(i);
 
             if (spanDecorator.getSpanId() == 0) {
-                notifyFirstListener(spanDecorator, applicationId, applicationInstanceId, segmentId);
                 timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
                 spanDecorator.setStartTimeMinuteTimeBucket(timeBucket);
+                notifyFirstListener(spanDecorator, applicationId, applicationInstanceId, segmentId);
             }
 
             if (SpanType.Exit.equals(spanDecorator.getSpanType())) {
@@ -197,50 +197,50 @@ public class SegmentParse {
     @GraphComputingMetric(name = "/segment/parse/notifyExitListener")
     private void notifyExitListener(SpanDecorator spanDecorator, int applicationId, int applicationInstanceId,
         String segmentId) {
-        for (SpanListener listener : spanListeners) {
-            if (listener instanceof ExitSpanListener) {
+        spanListeners.forEach(listener -> {
+            if (listener.containsPoint(SpanListener.Point.Exit)) {
                 ((ExitSpanListener)listener).parseExit(spanDecorator, applicationId, applicationInstanceId, segmentId);
             }
-        }
+        });
     }
 
     @GraphComputingMetric(name = "/segment/parse/notifyEntryListener")
     private void notifyEntryListener(SpanDecorator spanDecorator, int applicationId, int applicationInstanceId,
         String segmentId) {
-        for (SpanListener listener : spanListeners) {
-            if (listener instanceof EntrySpanListener) {
+        spanListeners.forEach(listener -> {
+            if (listener.containsPoint(SpanListener.Point.Entry)) {
                 ((EntrySpanListener)listener).parseEntry(spanDecorator, applicationId, applicationInstanceId, segmentId);
             }
-        }
+        });
     }
 
     @GraphComputingMetric(name = "/segment/parse/notifyLocalListener")
     private void notifyLocalListener(SpanDecorator spanDecorator, int applicationId, int applicationInstanceId,
         String segmentId) {
-        for (SpanListener listener : spanListeners) {
-            if (listener instanceof LocalSpanListener) {
+        spanListeners.forEach(listener -> {
+            if (listener.containsPoint(SpanListener.Point.Local)) {
                 ((LocalSpanListener)listener).parseLocal(spanDecorator, applicationId, applicationInstanceId, segmentId);
             }
-        }
+        });
     }
 
     @GraphComputingMetric(name = "/segment/parse/notifyFirstListener")
     private void notifyFirstListener(SpanDecorator spanDecorator, int applicationId, int applicationInstanceId,
         String segmentId) {
-        for (SpanListener listener : spanListeners) {
-            if (listener instanceof FirstSpanListener) {
+        spanListeners.forEach(listener -> {
+            if (listener.containsPoint(SpanListener.Point.First)) {
                 ((FirstSpanListener)listener).parseFirst(spanDecorator, applicationId, applicationInstanceId, segmentId);
             }
-        }
+        });
     }
 
     @GraphComputingMetric(name = "/segment/parse/notifyGlobalsListener")
     private void notifyGlobalsListener(UniqueId uniqueId) {
-        for (SpanListener listener : spanListeners) {
-            if (listener instanceof GlobalTraceIdsListener) {
+        spanListeners.forEach(listener -> {
+            if (listener.containsPoint(SpanListener.Point.GlobalTraceIds)) {
                 ((GlobalTraceIdsListener)listener).parseGlobalTraceId(uniqueId);
             }
-        }
+        });
     }
 
     @GraphComputingMetric(name = "/segment/parse/createSpanListeners")
