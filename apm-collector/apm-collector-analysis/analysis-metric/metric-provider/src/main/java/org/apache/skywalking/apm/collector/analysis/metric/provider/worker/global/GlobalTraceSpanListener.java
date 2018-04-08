@@ -48,11 +48,15 @@ public class GlobalTraceSpanListener implements FirstSpanListener, GlobalTraceId
     private String segmentId;
     private long timeBucket;
 
+    @Override public boolean containsPoint(Point point) {
+        return Point.First.equals(point) || Point.GlobalTraceIds.equals(point);
+    }
+
     @Override
     public void parseFirst(SpanDecorator spanDecorator, int applicationId, int instanceId,
         String segmentId) {
         this.segmentId = segmentId;
-        
+
         if (spanDecorator.getStartTimeMinuteTimeBucket() == 0) {
             long startTimeMinuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
             spanDecorator.setStartTimeMinuteTimeBucket(startTimeMinuteTimeBucket);

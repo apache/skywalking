@@ -54,6 +54,10 @@ public class ApplicationMappingSpanListener implements FirstSpanListener, EntryS
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
     }
 
+    @Override public boolean containsPoint(Point point) {
+        return Point.First.equals(point) || Point.Entry.equals(point);
+    }
+
     @Override public void parseEntry(SpanDecorator spanDecorator, int applicationId, int instanceId, String segmentId) {
         logger.debug("application mapping listener parse reference");
         if (!spanDecorator.getSpanLayer().equals(SpanLayer.MQ)) {

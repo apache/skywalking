@@ -34,26 +34,26 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 class ConsumerMock {
 
     void mock(StreamObserver<UpstreamSegment> segmentStreamObserver, UniqueId.Builder globalTraceId,
-        UniqueId.Builder segmentId, long startTimestamp) {
+        UniqueId.Builder segmentId, long startTimestamp, boolean isPrepare) {
         UpstreamSegment.Builder upstreamSegment = UpstreamSegment.newBuilder();
         upstreamSegment.addGlobalTraceIds(globalTraceId);
-        upstreamSegment.setSegment(createSegment(startTimestamp, segmentId));
+        upstreamSegment.setSegment(createSegment(startTimestamp, segmentId, isPrepare));
 
         segmentStreamObserver.onNext(upstreamSegment.build());
     }
 
-    private ByteString createSegment(long startTimestamp, UniqueId.Builder segmentId) {
+    private ByteString createSegment(long startTimestamp, UniqueId.Builder segmentId, boolean isPrepare) {
         TraceSegmentObject.Builder segment = TraceSegmentObject.newBuilder();
         segment.setTraceSegmentId(segmentId);
         segment.setApplicationId(-1);
         segment.setApplicationInstanceId(2);
-        segment.addSpans(createExitSpan(startTimestamp));
-        segment.addSpans(createEntrySpan(startTimestamp));
+        segment.addSpans(createExitSpan(startTimestamp, isPrepare));
+        segment.addSpans(createEntrySpan(startTimestamp, isPrepare));
 
         return segment.build().toByteString();
     }
 
-    private SpanObject.Builder createExitSpan(long startTimestamp) {
+    private SpanObject.Builder createExitSpan(long startTimestamp, boolean isPrepare) {
         SpanObject.Builder span = SpanObject.newBuilder();
         span.setSpanId(1);
         span.setSpanType(SpanType.Exit);
@@ -62,13 +62,18 @@ class ConsumerMock {
         span.setStartTime(startTimestamp + 10);
         span.setEndTime(startTimestamp + 1990);
         span.setComponentId(ComponentsDefine.DUBBO.getId());
-        span.setOperationName("org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()");
-        span.setPeer("172.25.0.4:20880");
+        if (isPrepare) {
+            span.setPeer("172.25.0.4:20880");
+            span.setOperationName("org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()");
+        } else {
+            span.setOperationNameId(-1);
+            span.setPeerId(-1);
+        }
         span.setIsError(false);
         return span;
     }
 
-    private SpanObject.Builder createEntrySpan(long startTimestamp) {
+    private SpanObject.Builder createEntrySpan(long startTimestamp, boolean isPrepare) {
         SpanObject.Builder span = SpanObject.newBuilder();
         span.setSpanId(0);
         span.setSpanType(SpanType.Entry);
@@ -77,7 +82,11 @@ class ConsumerMock {
         span.setStartTime(startTimestamp);
         span.setEndTime(startTimestamp + 2000);
         span.setComponentId(ComponentsDefine.TOMCAT.getId());
-        span.setOperationName("/dubbox-case/case/dubbox-rest");
+        if (isPrepare) {
+            span.setOperationName("/dubbox-case/case/dubbox-rest");
+        } else {
+            span.setOperationNameId(2);
+        }
         span.setIsError(false);
         return span;
     }

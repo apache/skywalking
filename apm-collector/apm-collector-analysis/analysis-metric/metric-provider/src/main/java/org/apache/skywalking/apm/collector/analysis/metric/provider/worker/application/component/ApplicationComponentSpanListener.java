@@ -50,6 +50,10 @@ public class ApplicationComponentSpanListener implements EntrySpanListener, Exit
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
     }
 
+    @Override public boolean containsPoint(Point point) {
+        return Point.Entry.equals(point) || Point.Exit.equals(point) || Point.First.equals(point);
+    }
+
     @Override
     public void parseExit(SpanDecorator spanDecorator, int applicationId, int instanceId, String segmentId) {
         int applicationIdFromPeerId = applicationCacheService.getApplicationIdByAddressId(spanDecorator.getPeerId());

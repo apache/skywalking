@@ -65,6 +65,10 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
     }
 
+    @Override public boolean containsPoint(Point point) {
+        return Point.First.equals(point) || Point.Entry.equals(point) || Point.Exit.equals(point);
+    }
+
     @Override
     public void parseFirst(SpanDecorator spanDecorator, int applicationId, int instanceId,
         String segmentId) {

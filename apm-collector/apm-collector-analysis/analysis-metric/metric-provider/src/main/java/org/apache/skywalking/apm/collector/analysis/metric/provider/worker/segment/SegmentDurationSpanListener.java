@@ -57,6 +57,10 @@ public class SegmentDurationSpanListener implements EntrySpanListener, ExitSpanL
         this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
     }
 
+    @Override public boolean containsPoint(Point point) {
+        return Point.Entry.equals(point) || Point.Exit.equals(point) || Point.Local.equals(point) || Point.First.equals(point);
+    }
+
     @Override
     public void parseFirst(SpanDecorator spanDecorator, int applicationId, int instanceId,
         String segmentId) {

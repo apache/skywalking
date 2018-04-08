@@ -62,22 +62,7 @@ public class NetworkAddressH2CacheDAO extends H2DAO implements INetworkAddressCa
         return Const.NONE;
     }
 
-    @Override public String getAddressById(int addressId) {
-        logger.debug("get network address, address id: {}", addressId);
-        H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_ADDRESS_ID_OR_CODE_SQL, NetworkAddressTable.COLUMN_NETWORK_ADDRESS, NetworkAddressTable.TABLE, NetworkAddressTable.COLUMN_ADDRESS_ID);
-        Object[] params = new Object[] {addressId};
-        try (ResultSet rs = client.executeQuery(sql, params)) {
-            if (rs.next()) {
-                return rs.getString(1);
-            }
-        } catch (SQLException | H2ClientException e) {
-            logger.error(e.getMessage(), e);
-        }
-        return Const.EMPTY_STRING;
-    }
-
-    @Override public NetworkAddress getAddress(int addressId) {
+    @Override public NetworkAddress getAddressById(int addressId) {
         logger.debug("get network address, address id: {}", addressId);
         H2Client client = getClient();
 
