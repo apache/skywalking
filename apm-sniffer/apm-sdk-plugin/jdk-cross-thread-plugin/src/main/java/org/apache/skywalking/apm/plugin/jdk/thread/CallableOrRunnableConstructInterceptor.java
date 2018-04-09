@@ -17,6 +17,7 @@
  */
 package org.apache.skywalking.apm.plugin.jdk.thread;
 
+import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
@@ -27,8 +28,12 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 public class CallableOrRunnableConstructInterceptor implements InstanceConstructorInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        String operationName = "Thread/" + objInst.getClass().getName();
-        ContextManager.createLocalSpan(operationName);
+        if ("N/A".equals(ContextManager.getGlobalTraceId())) {
+            String operationName = "Thread/" + objInst.getClass().getName();
+            ContextCarrier contextCarrier = new ContextCarrier();
+            ContextManager.createEntrySpan(operationName, contextCarrier);
+        }
         objInst.setSkyWalkingDynamicField(ContextManager.capture());
     }
+
 }
