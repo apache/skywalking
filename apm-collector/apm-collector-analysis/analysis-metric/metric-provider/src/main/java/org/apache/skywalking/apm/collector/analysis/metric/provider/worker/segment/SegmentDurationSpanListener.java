@@ -64,11 +64,8 @@ public class SegmentDurationSpanListener implements EntrySpanListener, ExitSpanL
     @Override
     public void parseFirst(SpanDecorator spanDecorator, int applicationId, int instanceId,
         String segmentId) {
-        if (spanDecorator.getStartTimeMinuteTimeBucket() == 0) {
-            long startTimeMinuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
-            spanDecorator.setStartTimeMinuteTimeBucket(startTimeMinuteTimeBucket);
-        }
-        timeBucket = spanDecorator.getStartTimeMinuteTimeBucket();
+
+        timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(spanDecorator.getStartTime());
 
         SegmentDuration segmentDuration = new SegmentDuration();
         segmentDuration.setId(segmentId);
