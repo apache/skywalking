@@ -24,11 +24,12 @@ import java.util.List;
  * @author peng-yongsheng
  */
 public class AppServerInfo {
+
     private int id;
     private int applicationId;
     private String applicationCode;
     private String osInfo;
-    private String name;
+    private String osName;
     private int callsPerSec;
     private String host;
     private int pid;
@@ -66,12 +67,12 @@ public class AppServerInfo {
         this.osInfo = osInfo;
     }
 
-    public String getName() {
-        return name;
+    public String getOsName() {
+        return osName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setOsName(String osName) {
+        this.osName = osName;
     }
 
     public int getCallsPerSec() {

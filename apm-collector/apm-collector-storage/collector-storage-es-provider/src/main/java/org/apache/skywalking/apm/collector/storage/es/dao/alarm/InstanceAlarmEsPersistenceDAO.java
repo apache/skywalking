@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.collector.storage.es.dao.alarm;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.alarm.IInstanceAlarmPersistenceDAO;
@@ -40,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InstanceAlarmEsPersistenceDAO extends EsDAO implements IInstanceAlarmPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, InstanceAlarm> {
 
-    private final Logger logger = LoggerFactory.getLogger(InstanceAlarmEsPersistenceDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(InstanceAlarmEsPersistenceDAO.class);
 
     public InstanceAlarmEsPersistenceDAO(ElasticSearchClient client) {
         super(client);
@@ -53,14 +52,14 @@ public class InstanceAlarmEsPersistenceDAO extends EsDAO implements IInstanceAla
             InstanceAlarm instanceAlarm = new InstanceAlarm();
             instanceAlarm.setId(id);
             Map<String, Object> source = getResponse.getSource();
-            instanceAlarm.setApplicationId(((Number) source.get(InstanceAlarmTable.COLUMN_APPLICATION_ID)).intValue());
-            instanceAlarm.setInstanceId(((Number) source.get(InstanceAlarmTable.COLUMN_INSTANCE_ID)).intValue());
-            instanceAlarm.setSourceValue(((Number) source.get(InstanceAlarmTable.COLUMN_SOURCE_VALUE)).intValue());
+            instanceAlarm.setApplicationId(((Number)source.get(InstanceAlarmTable.COLUMN_APPLICATION_ID)).intValue());
+            instanceAlarm.setInstanceId(((Number)source.get(InstanceAlarmTable.COLUMN_INSTANCE_ID)).intValue());
+            instanceAlarm.setSourceValue(((Number)source.get(InstanceAlarmTable.COLUMN_SOURCE_VALUE)).intValue());
 
-            instanceAlarm.setAlarmType(((Number) source.get(InstanceAlarmTable.COLUMN_ALARM_TYPE)).intValue());
-            instanceAlarm.setAlarmContent((String) source.get(InstanceAlarmTable.COLUMN_ALARM_CONTENT));
+            instanceAlarm.setAlarmType(((Number)source.get(InstanceAlarmTable.COLUMN_ALARM_TYPE)).intValue());
+            instanceAlarm.setAlarmContent((String)source.get(InstanceAlarmTable.COLUMN_ALARM_CONTENT));
 
-            instanceAlarm.setLastTimeBucket(((Number) source.get(InstanceAlarmTable.COLUMN_LAST_TIME_BUCKET)).longValue());
+            instanceAlarm.setLastTimeBucket(((Number)source.get(InstanceAlarmTable.COLUMN_LAST_TIME_BUCKET)).longValue());
             return instanceAlarm;
         } else {
             return null;
@@ -102,9 +101,9 @@ public class InstanceAlarmEsPersistenceDAO extends EsDAO implements IInstanceAla
         long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
         long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
         BulkByScrollResponse response = getClient().prepareDelete(
-                QueryBuilders.rangeQuery(InstanceAlarmTable.COLUMN_LAST_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket),
-                InstanceAlarmTable.TABLE)
-                .get();
+            QueryBuilders.rangeQuery(InstanceAlarmTable.COLUMN_LAST_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket),
+            InstanceAlarmTable.TABLE)
+            .get();
 
         long deleted = response.getDeleted();
         logger.info("Delete {} rows history from {} index.", deleted, InstanceAlarmTable.TABLE);

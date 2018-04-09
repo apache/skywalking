@@ -5,7 +5,7 @@
   * [Spring Boot](https://github.com/spring-projects/spring-boot) Web 4.x
   * Spring MVC 3.x, 4.x with servlet 3.x
   * [Nutz Web Framework](https://github.com/nutzam/nutz)  1.x
-  * [Struts2 MVC](http://struts.apache.org/)  2.3.x -> 2.5.x 
+  * [Struts2 MVC](http://struts.apache.org/)  2.3.x -> 2.5.x
   * [Resin](http://www.caucho.com/resin-4.0/) 3 (Optional¹)
   * [Resin](http://www.caucho.com/resin-4.0/) 4 (Optional¹)
   * [Jetty Server](http://www.eclipse.org/jetty/) 9
@@ -28,7 +28,7 @@
   * [Dubbox](https://github.com/dangdangdotcom/dubbox) 2.8.4
   * [Motan](https://github.com/weibocom/motan) 0.2.x -> 1.1.0
   * [gRPC](https://github.com/grpc/grpc-java) 1.x
-  * [Apache ServiceComb Java Chassis](https://github.com/apache/incubator-servicecomb-java-chassis) 0.1 -> 0.5
+  * [Apache ServiceComb Java Chassis](https://github.com/apache/incubator-servicecomb-java-chassis) 0.1 -> 0.5,1.0.x
 * MQ
   * [RocketMQ](https://github.com/apache/rocketmq) 4.x
   * [Kafka](http://kafka.apache.org) 0.11.0.0 -> 1.0
@@ -40,7 +40,7 @@
     * [Spymemcached](https://github.com/couchbase/spymemcached) 2.x
     * [Xmemcached](https://github.com/killme2008/xmemcached) 2.x
 * Service Discovery
-  * [Netflix Eureka](https://github.com/Netflix/eureka) 
+  * [Netflix Eureka](https://github.com/Netflix/eureka)
 * Spring Ecosystem
   * Spring Bean annotations(@Bean, @Service, @Component, @Repository) 3.x and 4.x (Optional²)
   * Spring Core Async SuccessCallback/FailureCallback/ListenableFutureCallback 4.x

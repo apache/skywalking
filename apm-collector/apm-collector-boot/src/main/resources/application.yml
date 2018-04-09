@@ -23,6 +23,9 @@ naming:
     host: localhost
     port: 10800
     context_path: /
+cache:
+#  guava:
+  caffeine:
 remote:
   gRPC:
     host: localhost
@@ -34,6 +37,9 @@ agent_gRPC:
     #Set these two setting to open ssl
     #ssl_cert_chain_file: $path
     #ssl_private_key_file: $path
+
+    #Set your own token to active auth
+    #authentication: xxxxxx
 agent_jetty:
   jetty:
     host: localhost
@@ -67,6 +73,7 @@ storage:
 #    user_name: sa
 configuration:
   default:
+    # namespace: xxxxx
     application_apdex_threshold: 2000
     service_error_rate_threshold: 10.00
     service_average_response_time_threshold: 2000

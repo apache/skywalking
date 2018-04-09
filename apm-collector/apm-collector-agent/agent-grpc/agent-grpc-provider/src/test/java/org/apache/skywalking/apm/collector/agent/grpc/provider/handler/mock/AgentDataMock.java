@@ -36,14 +36,18 @@ public class AgentDataMock {
         RegisterMock registerMock = new RegisterMock();
         registerMock.mock(channel);
 
+        TraceSegmentMock segmentMock = new TraceSegmentMock();
+        segmentMock.mock(channel, new Long[] {System.currentTimeMillis()}, true);
+
+        Thread.sleep(30000);
+
         Long[] times = TimeBuilder.INSTANCE.generateTimes();
         logger.info("times size: {}", times.length);
 
-        TraceSegmentMock segmentMock = new TraceSegmentMock();
-        segmentMock.mock(channel, times);
+        segmentMock.mock(channel, times, false);
 
         JVMMetricMock jvmMetricMock = new JVMMetricMock();
-        jvmMetricMock.mock(channel, times);
+//        jvmMetricMock.mock(channel, times);
 
         Thread.sleep(60);
     }

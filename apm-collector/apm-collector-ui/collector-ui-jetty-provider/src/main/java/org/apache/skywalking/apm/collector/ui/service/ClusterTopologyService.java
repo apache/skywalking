@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ClusterTopologyService {
 
-    private final Logger logger = LoggerFactory.getLogger(ClusterTopologyService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClusterTopologyService.class);
 
     private final IApplicationComponentUIDAO applicationComponentUIDAO;
     private final IApplicationMappingUIDAO applicationMappingUIDAO;

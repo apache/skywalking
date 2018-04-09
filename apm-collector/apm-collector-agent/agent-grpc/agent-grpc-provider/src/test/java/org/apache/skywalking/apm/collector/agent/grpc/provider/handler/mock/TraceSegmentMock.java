@@ -34,7 +34,7 @@ class TraceSegmentMock {
 
     private static final Logger logger = LoggerFactory.getLogger(TraceSegmentMock.class);
 
-    void mock(ManagedChannel channel, Long[] times) {
+    void mock(ManagedChannel channel, Long[] times, boolean isPrepare) {
         TraceSegmentServiceGrpc.TraceSegmentServiceStub stub = TraceSegmentServiceGrpc.newStub(channel);
         StreamObserver<UpstreamSegment> segmentStreamObserver = stub.collect(new StreamObserver<Downstream>() {
             @Override public void onNext(Downstream downstream) {
@@ -54,14 +54,22 @@ class TraceSegmentMock {
 
             ConsumerMock consumerMock = new ConsumerMock();
             UniqueId.Builder consumerSegmentId = UniqueIdBuilder.INSTANCE.create();
-            consumerMock.mock(segmentStreamObserver, globalTraceId, consumerSegmentId, startTimestamp);
+            consumerMock.mock(segmentStreamObserver, globalTraceId, consumerSegmentId, startTimestamp, isPrepare);
 
             ProviderMock providerMock = new ProviderMock();
             UniqueId.Builder providerSegmentId = UniqueIdBuilder.INSTANCE.create();
-            providerMock.mock(segmentStreamObserver, globalTraceId, providerSegmentId, consumerSegmentId, startTimestamp);
+            providerMock.mock(segmentStreamObserver, globalTraceId, providerSegmentId, consumerSegmentId, startTimestamp, isPrepare);
 
-            if (i % 100 == 0) {
+            if (i % 1000 == 0) {
                 logger.info("sending segment number: {}", i);
+            }
+
+            if (i % 8000 == 0) {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    logger.error(e.getMessage(), e);
+                }
             }
         }
         logger.info("sending segment number: {}", times.length);

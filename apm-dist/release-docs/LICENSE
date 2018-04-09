@@ -286,6 +286,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     servo 0.10.1: https://github.com/Netflix/servo, Apache 2.0
     validation-api 1.1.0.Final: http://beanvalidation.org/licensing/, Apache 2.0
     zuul-core 1.3.0: https://github.com/Netflix/zuul, Apache 2.0
+    ben-manes caffeine 2.6.2: https://github.com/ben-manes/caffeine, Apache 2.0
 
 ========================================================================
 MIT licenses
@@ -713,16 +714,6 @@ tough-cookie	2.3.4:	https://github.com/salesforce/tough-cookie	BSD-3-Clause
 warning	2.1.0:	https://github.com/r3dm/warning	BSD-2-Clause
 warning	3.0.0:	https://github.com/BerkeleyTrue/warning	BSD-3-Clause
 json-schema	0.2.3:	https://github.com/kriszyp/json-schema	AFLv2.1	or BSD	, declare license in package.json only.
-
-========================================
-CC-BY-3.0 licenses
-========================================
-spdx-exceptions	2.1.0:	https://github.com/kemitchell/spdx-exceptions.json	CC-BY-3.0	, declare license in package.json only.
-
-========================================
-CC0-1.0 licenses
-========================================
-spdx-license-ids	3.0.0:	https://github.com/shinnn/spdx-license-ids	CC0-1.0	, declare license in package.json only.
 
 ========================================
 ISC licenses

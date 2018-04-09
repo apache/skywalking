@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CommonRemoteDataRegisterService implements RemoteDataRegisterService, RemoteDataIDGetter, RemoteDataInstanceCreatorGetter {
 
-    private final Logger logger = LoggerFactory.getLogger(CommonRemoteDataRegisterService.class);
+    private static final Logger logger = LoggerFactory.getLogger(CommonRemoteDataRegisterService.class);
 
     private Integer id;
     private final Map<Class<? extends RemoteData>, Integer> dataClassMapping;

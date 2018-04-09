@@ -22,6 +22,7 @@ import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegi
 import org.apache.skywalking.apm.collector.analysis.register.define.service.INetworkAddressIDService;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IServiceNameService;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
@@ -34,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
 
-    private final Logger logger = LoggerFactory.getLogger(SpanIdExchanger.class);
+    private static final Logger logger = LoggerFactory.getLogger(SpanIdExchanger.class);
 
     private static SpanIdExchanger EXCHANGER;
     private final IServiceNameService serviceNameService;
@@ -52,6 +53,7 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
         this.networkAddressIDService = moduleManager.find(AnalysisRegisterModule.NAME).getService(INetworkAddressIDService.class);
     }
 
+    @GraphComputingMetric(name = "/segment/parse/exchange/spanIdExchanger")
     @Override public boolean exchange(SpanDecorator standardBuilder, int applicationId) {
         if (standardBuilder.getPeerId() == 0 && StringUtils.isNotEmpty(standardBuilder.getPeer())) {
             int peerId = networkAddressIDService.getOrCreate(standardBuilder.getPeer());

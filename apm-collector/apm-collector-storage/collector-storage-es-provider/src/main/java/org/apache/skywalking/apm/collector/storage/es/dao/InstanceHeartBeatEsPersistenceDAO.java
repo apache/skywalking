@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.UnexpectedException;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceHeartBeatPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
@@ -37,12 +38,13 @@ import org.slf4j.LoggerFactory;
  */
 public class InstanceHeartBeatEsPersistenceDAO extends EsDAO implements IInstanceHeartBeatPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, Instance> {
 
-    private final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatEsPersistenceDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatEsPersistenceDAO.class);
 
     public InstanceHeartBeatEsPersistenceDAO(ElasticSearchClient client) {
         super(client);
     }
 
+    @GraphComputingMetric(name = "/persistence/get/" + InstanceTable.TABLE + "/heartbeat")
     @Override public Instance get(String id) {
         GetResponse getResponse = getClient().prepareGet(InstanceTable.TABLE, id).get();
         if (getResponse.isExists()) {
@@ -61,7 +63,7 @@ public class InstanceHeartBeatEsPersistenceDAO extends EsDAO implements IInstanc
     }
 
     @Override public IndexRequestBuilder prepareBatchInsert(Instance data) {
-        throw new UnexpectedException("There is no need to merge stream data with database data.");
+        throw new UnexpectedException("Received an instance heart beat message under instance id= " + data.getId() + " , which doesn't exist.");
     }
 
     @Override public UpdateRequestBuilder prepareBatchUpdate(Instance data) {

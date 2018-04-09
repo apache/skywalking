@@ -21,7 +21,6 @@ package org.apache.skywalking.apm.collector.storage.es.dao;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentPersistenceDAO;
@@ -40,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SegmentEsPersistenceDAO extends EsDAO implements ISegmentPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, Segment> {
 
-    private final Logger logger = LoggerFactory.getLogger(SegmentEsPersistenceDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(SegmentEsPersistenceDAO.class);
 
     public SegmentEsPersistenceDAO(ElasticSearchClient client) {
         super(client);
@@ -70,9 +69,9 @@ public class SegmentEsPersistenceDAO extends EsDAO implements ISegmentPersistenc
         long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
         long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
         BulkByScrollResponse response = getClient().prepareDelete(
-                QueryBuilders.rangeQuery(SegmentTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket),
-                SegmentTable.TABLE)
-                .get();
+            QueryBuilders.rangeQuery(SegmentTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket),
+            SegmentTable.TABLE)
+            .get();
 
         long deleted = response.getDeleted();
         logger.info("Delete {} rows history from {} index.", deleted, SegmentTable.TABLE);

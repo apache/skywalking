@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class JettyHandler extends HttpServlet implements ServerHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(JettyHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(JettyHandler.class);
 
     public abstract String pathSpec();
 

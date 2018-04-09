@@ -22,8 +22,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.data.DataCache;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
@@ -49,7 +49,7 @@ public abstract class PersistenceWorker<INPUT_AND_OUTPUT extends StreamData> ext
         this.batchDAO = moduleManager.find(StorageModule.NAME).getService(IBatchDAO.class);
     }
 
-    public final void flushAndSwitch() {
+    public void flushAndSwitch() {
         try {
             if (dataCache.trySwitchPointer()) {
                 dataCache.switchPointer();
@@ -59,7 +59,7 @@ public abstract class PersistenceWorker<INPUT_AND_OUTPUT extends StreamData> ext
         }
     }
 
-    @Override protected final void onWork(INPUT_AND_OUTPUT input) throws WorkerException {
+    @Override protected void onWork(INPUT_AND_OUTPUT input) {
         if (dataCache.currentCollectionSize() >= 5000) {
             try {
                 if (dataCache.trySwitchPointer()) {
@@ -75,7 +75,8 @@ public abstract class PersistenceWorker<INPUT_AND_OUTPUT extends StreamData> ext
         aggregate(input);
     }
 
-    public final List<?> buildBatchCollection() throws WorkerException {
+    @GraphComputingMetric(name = "/persistence/buildBatchCollection/")
+    public final List<?> buildBatchCollection() {
         List<?> batchCollection = new LinkedList<>();
         try {
             while (dataCache.getLast().isWriting()) {

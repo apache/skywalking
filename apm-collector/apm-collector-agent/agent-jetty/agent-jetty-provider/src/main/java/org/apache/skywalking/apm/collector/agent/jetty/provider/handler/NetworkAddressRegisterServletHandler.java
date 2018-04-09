@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NetworkAddressRegisterServletHandler extends JettyHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(NetworkAddressRegisterServletHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(NetworkAddressRegisterServletHandler.class);
 
     private final INetworkAddressIDService networkAddressIDService;
     private Gson gson = new Gson();
