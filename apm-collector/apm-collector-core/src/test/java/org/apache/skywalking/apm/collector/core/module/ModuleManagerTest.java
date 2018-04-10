@@ -27,7 +27,7 @@ import org.junit.Test;
  */
 public class ModuleManagerTest {
     @Test
-    public void testInit() throws ServiceNotProvidedException, ModuleNotFoundException, ProviderNotFoundException, DuplicateProviderException {
+    public void testInit() throws ServiceNotProvidedException, ModuleNotFoundException, ProviderNotFoundException, DuplicateProviderException, ModuleConfigException {
         ApplicationConfiguration configuration = new ApplicationConfiguration();
         configuration.addModule("Test").addProviderConfiguration("TestModule-Provider", null);
         configuration.addModule("BaseA").addProviderConfiguration("P-A", null);

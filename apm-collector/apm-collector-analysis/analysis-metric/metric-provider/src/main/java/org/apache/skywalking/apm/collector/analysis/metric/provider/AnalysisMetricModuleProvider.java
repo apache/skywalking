@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider;
 
-import java.util.Properties;
 import org.apache.skywalking.apm.collector.analysis.metric.define.AnalysisMetricModule;
 import org.apache.skywalking.apm.collector.analysis.metric.define.service.IInstanceHeartBeatService;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.service.InstanceHeartBeatService;
@@ -44,11 +43,15 @@ import org.apache.skywalking.apm.collector.analysis.segment.parser.define.Analys
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParserListenerRegister;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.analysis.worker.timer.PersistenceTimer;
+import org.apache.skywalking.apm.collector.cache.CacheModule;
+import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
 import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.apache.skywalking.apm.collector.remote.RemoteModule;
 import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
+import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponent;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMapping;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMetric;
@@ -65,6 +68,12 @@ import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenc
 public class AnalysisMetricModuleProvider extends ModuleProvider {
 
     public static final String NAME = "default";
+    private final AnalysisMetricModuleConfig config;
+
+    public AnalysisMetricModuleProvider() {
+        super();
+        this.config = new AnalysisMetricModuleConfig();
+    }
 
     @Override public String name() {
         return NAME;
@@ -74,11 +83,15 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
         return AnalysisMetricModule.class;
     }
 
-    @Override public void prepare(Properties config) throws ServiceNotProvidedException {
+    @Override public ModuleConfig createConfigBeanIfAbsent() {
+        return config;
+    }
+
+    @Override public void prepare() throws ServiceNotProvidedException {
         this.registerServiceImplementation(IInstanceHeartBeatService.class, new InstanceHeartBeatService());
     }
 
-    @Override public void start(Properties config) throws ServiceNotProvidedException {
+    @Override public void start() {
         segmentParserListenerRegister();
 
         WorkerCreateListener workerCreateListener = new WorkerCreateListener();
@@ -91,12 +104,11 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
         persistenceTimer.start(getManager(), workerCreateListener.getPersistenceWorkers());
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
-
+    @Override public void notifyAfterCompleted() {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {AnalysisSegmentParserModule.NAME};
+        return new String[] {AnalysisSegmentParserModule.NAME, ConfigurationModule.NAME, CacheModule.NAME, StorageModule.NAME};
     }
 
     private void segmentParserListenerRegister() {
