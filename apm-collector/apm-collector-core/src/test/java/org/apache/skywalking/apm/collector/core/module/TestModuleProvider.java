@@ -16,10 +16,7 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.core.module;
-
-import java.util.Properties;
 
 /**
  * @author wu-sheng
@@ -33,19 +30,23 @@ public class TestModuleProvider extends ModuleProvider {
         return TestModule.class;
     }
 
-    @Override public void prepare(Properties config) {
-
+    @Override public ModuleConfig createConfigBeanIfAbsent() {
+        return null;
     }
 
-    @Override public void start(Properties config) {
-
+    @Override public void prepare() {
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
+    @Override public void start() {
+    }
 
+    @Override public void notifyAfterCompleted() {
     }
 
     @Override public String[] requiredModules() {
         return new String[] {"BaseA", "BaseB"};
+    }
+
+    class Config {
     }
 }

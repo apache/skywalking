@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.collector.cluster.zookeeper;
 
-import java.util.Properties;
 import org.apache.skywalking.apm.collector.client.zookeeper.ZookeeperClient;
 import org.apache.skywalking.apm.collector.client.zookeeper.ZookeeperClientException;
 import org.apache.skywalking.apm.collector.cluster.ClusterModule;
@@ -31,6 +30,7 @@ import org.apache.skywalking.apm.collector.configuration.service.ICollectorConfi
 import org.apache.skywalking.apm.collector.core.CollectorException;
 import org.apache.skywalking.apm.collector.core.UnexpectedException;
 import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.slf4j.Logger;
@@ -43,11 +43,14 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
 
     private final Logger logger = LoggerFactory.getLogger(ClusterModuleZookeeperProvider.class);
 
-    private static final String HOST_PORT = "hostPort";
-    private static final String SESSION_TIMEOUT = "sessionTimeout";
-
+    private final ClusterModuleZKConfig config;
     private ZookeeperClient zookeeperClient;
     private ClusterZKDataMonitor dataMonitor;
+
+    public ClusterModuleZookeeperProvider() {
+        super();
+        this.config = new ClusterModuleZKConfig();
+    }
 
     @Override public String name() {
         return "zookeeper";
@@ -57,19 +60,20 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
         return ClusterModule.class;
     }
 
-    @Override public void prepare(Properties config) throws ServiceNotProvidedException {
-        dataMonitor = new ClusterZKDataMonitor();
+    @Override public ModuleConfig createConfigBeanIfAbsent() {
+        return config;
+    }
 
-        final String hostPort = config.getProperty(HOST_PORT);
-        final int sessionTimeout = (Integer)config.get(SESSION_TIMEOUT);
-        zookeeperClient = new ZookeeperClient(hostPort, sessionTimeout, dataMonitor);
+    @Override public void prepare() throws ServiceNotProvidedException {
+        dataMonitor = new ClusterZKDataMonitor();
+        zookeeperClient = new ZookeeperClient(config.getHostPort(), config.getSessionTimeout(), dataMonitor);
         dataMonitor.setClient(zookeeperClient);
 
         this.registerServiceImplementation(ModuleListenerService.class, new ZookeeperModuleListenerService(dataMonitor));
         this.registerServiceImplementation(ModuleRegisterService.class, new ZookeeperModuleRegisterService(dataMonitor));
     }
 
-    @Override public void start(Properties config) throws ServiceNotProvidedException {
+    @Override public void start() {
         dataMonitor.setNamespace(getManager().find(ConfigurationModule.NAME).getService(ICollectorConfig.class).getNamespace());
         try {
             zookeeperClient.initialize();
@@ -78,7 +82,7 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
         }
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
+    @Override public void notifyAfterCompleted() {
         try {
             dataMonitor.start();
         } catch (CollectorException e) {

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.client.h2;
 
 import java.sql.Connection;
@@ -25,8 +24,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import org.h2.util.IOUtils;
 import org.apache.skywalking.apm.collector.client.Client;
+import org.h2.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +67,7 @@ public class H2Client implements Client {
         IOUtils.closeSilently(conn);
     }
 
-    public Connection getConnection() throws H2ClientException {
+    public Connection getConnection() {
         return conn;
     }
 

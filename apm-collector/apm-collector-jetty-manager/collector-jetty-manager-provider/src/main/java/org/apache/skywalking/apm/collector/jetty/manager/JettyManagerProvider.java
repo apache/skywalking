@@ -20,8 +20,8 @@ package org.apache.skywalking.apm.collector.jetty.manager;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.apache.skywalking.apm.collector.jetty.manager.service.JettyManagerService;
@@ -38,7 +38,12 @@ public class JettyManagerProvider extends ModuleProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(JettyManagerProvider.class);
 
+    private final JettyManagerConfig jettyManagerConfig;
     private Map<String, JettyServer> servers = new HashMap<>();
+
+    public JettyManagerProvider() {
+        this.jettyManagerConfig = new JettyManagerConfig();
+    }
 
     @Override public String name() {
         return "default";
@@ -48,15 +53,18 @@ public class JettyManagerProvider extends ModuleProvider {
         return JettyManagerModule.class;
     }
 
-    @Override public void prepare(Properties config) throws ServiceNotProvidedException {
+    @Override public ModuleConfig createConfigBeanIfAbsent() {
+        return jettyManagerConfig;
+    }
+
+    @Override public void prepare() throws ServiceNotProvidedException {
         this.registerServiceImplementation(JettyManagerService.class, new JettyManagerServiceImpl(servers));
     }
 
-    @Override public void start(Properties config) throws ServiceNotProvidedException {
-
+    @Override public void start() {
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
+    @Override public void notifyAfterCompleted() {
         servers.values().forEach(server -> {
             try {
                 server.start();

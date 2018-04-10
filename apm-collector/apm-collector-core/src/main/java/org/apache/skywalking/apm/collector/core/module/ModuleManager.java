@@ -35,23 +35,19 @@ public class ModuleManager {
 
     /**
      * Init the given modules
-     *
-     * @param applicationConfiguration
      */
     public void init(
-        ApplicationConfiguration applicationConfiguration) throws ModuleNotFoundException, ProviderNotFoundException, ServiceNotProvidedException, CycleDependencyException {
+        ApplicationConfiguration applicationConfiguration) throws ModuleNotFoundException, ProviderNotFoundException, ServiceNotProvidedException, CycleDependencyException, ModuleConfigException {
         String[] moduleNames = applicationConfiguration.moduleList();
         ServiceLoader<Module> moduleServiceLoader = ServiceLoader.load(Module.class);
-        LinkedList<String> moduleList = new LinkedList(Arrays.asList(moduleNames));
+        LinkedList<String> moduleList = new LinkedList<>(Arrays.asList(moduleNames));
         for (Module module : moduleServiceLoader) {
             for (String moduleName : moduleNames) {
                 if (moduleName.equals(module.name())) {
                     Module newInstance;
                     try {
                         newInstance = module.getClass().newInstance();
-                    } catch (InstantiationException e) {
-                        throw new ModuleNotFoundException(e);
-                    } catch (IllegalAccessException e) {
+                    } catch (InstantiationException | IllegalAccessException e) {
                         throw new ModuleNotFoundException(e);
                     }
                     newInstance.prepare(this, applicationConfiguration.getModuleConfiguration(moduleName));
@@ -67,9 +63,9 @@ public class ModuleManager {
             throw new ModuleNotFoundException(moduleList.toString() + " missing.");
         }
 
-        BootstrapFlow bootstrapFlow = new BootstrapFlow(loadedModules, applicationConfiguration);
+        BootstrapFlow bootstrapFlow = new BootstrapFlow(loadedModules);
 
-        bootstrapFlow.start(this, applicationConfiguration);
+        bootstrapFlow.start(this);
         bootstrapFlow.notifyAfterCompleted();
     }
 
