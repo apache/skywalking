@@ -59,10 +59,21 @@ public class SkyWalkingAgent {
 
             pluginFinder = new PluginFinder(new PluginBootstrap().loadPlugins());
 
-            ServiceManager.INSTANCE.boot();
         } catch (Exception e) {
             logger.error(e, "Skywalking agent initialized failure. Shutting down.");
             return;
+        }
+
+        new AgentBuilder.Default()
+                .type(pluginFinder.buildMatch())
+                .transform(new Transformer(pluginFinder))
+                .with(new Listener())
+                .installOn(instrumentation);
+
+        try {
+            ServiceManager.INSTANCE.boot();
+        } catch (Exception e) {
+            logger.error(e, "Skywalking agent boot failure.");
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
@@ -70,61 +81,69 @@ public class SkyWalkingAgent {
                 ServiceManager.INSTANCE.shutdown();
             }
         }, "skywalking service shutdown thread"));
+    }
 
-        new AgentBuilder.Default().type(pluginFinder.buildMatch()).transform(new AgentBuilder.Transformer() {
-            @Override
-            public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription,
-                ClassLoader classLoader, JavaModule module) {
-                List<AbstractClassEnhancePluginDefine> pluginDefines = pluginFinder.find(typeDescription, classLoader);
-                if (pluginDefines.size() > 0) {
-                    DynamicType.Builder<?> newBuilder = builder;
-                    EnhanceContext context = new EnhanceContext();
-                    for (AbstractClassEnhancePluginDefine define : pluginDefines) {
-                        DynamicType.Builder<?> possibleNewBuilder = define.define(typeDescription.getTypeName(), newBuilder, classLoader, context);
-                        if (possibleNewBuilder != null) {
-                            newBuilder = possibleNewBuilder;
-                        }
-                    }
-                    if (context.isEnhanced()) {
-                        logger.debug("Finish the prepare stage for {}.", typeDescription.getName());
-                    }
+    private static class Transformer implements AgentBuilder.Transformer {
+        private PluginFinder pluginFinder;
 
-                    return newBuilder;
+        Transformer(PluginFinder pluginFinder) {
+            this.pluginFinder = pluginFinder;
+        }
+
+        @Override
+        public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription, ClassLoader classLoader, JavaModule module) {
+            List<AbstractClassEnhancePluginDefine> pluginDefines = pluginFinder.find(typeDescription, classLoader);
+            if (pluginDefines.size() > 0) {
+                DynamicType.Builder<?> newBuilder = builder;
+                EnhanceContext context = new EnhanceContext();
+                for (AbstractClassEnhancePluginDefine define : pluginDefines) {
+                    DynamicType.Builder<?> possibleNewBuilder = define.define(typeDescription.getTypeName(), newBuilder, classLoader, context);
+                    if (possibleNewBuilder != null) {
+                        newBuilder = possibleNewBuilder;
+                    }
+                }
+                if (context.isEnhanced()) {
+                    logger.debug("Finish the prepare stage for {}.", typeDescription.getName());
                 }
 
-                logger.debug("Matched class {}, but ignore by finding mechanism.", typeDescription.getTypeName());
-                return builder;
-            }
-        }).with(new AgentBuilder.Listener() {
-            @Override
-            public void onDiscovery(String typeName, ClassLoader classLoader, JavaModule module, boolean loaded) {
-
+                return newBuilder;
             }
 
-            @Override
-            public void onTransformation(TypeDescription typeDescription, ClassLoader classLoader, JavaModule module,
-                boolean loaded, DynamicType dynamicType) {
-                if (logger.isDebugEnable()) {
-                    logger.debug("On Transformation class {}.", typeDescription.getName());
-                }
+            logger.debug("Matched class {}, but ignore by finding mechanism.", typeDescription.getTypeName());
+            return builder;
+        }
+    }
 
-                InstrumentDebuggingClass.INSTANCE.log(typeDescription, dynamicType);
+    private static class Listener implements AgentBuilder.Listener {
+        @Override
+        public void onDiscovery(String typeName, ClassLoader classLoader, JavaModule module, boolean loaded) {
+
+        }
+
+        @Override
+        public void onTransformation(TypeDescription typeDescription, ClassLoader classLoader, JavaModule module,
+                                     boolean loaded, DynamicType dynamicType) {
+            if (logger.isDebugEnable()) {
+                logger.debug("On Transformation class {}.", typeDescription.getName());
             }
 
-            @Override
-            public void onIgnored(TypeDescription typeDescription, ClassLoader classLoader, JavaModule module,
-                boolean loaded) {
+            InstrumentDebuggingClass.INSTANCE.log(typeDescription, dynamicType);
+        }
 
-            }
+        @Override
+        public void onIgnored(TypeDescription typeDescription, ClassLoader classLoader, JavaModule module,
+                              boolean loaded) {
 
-            @Override public void onError(String typeName, ClassLoader classLoader, JavaModule module, boolean loaded,
-                Throwable throwable) {
-                logger.error("Enhance class " + typeName + " error.", throwable);
-            }
+        }
 
-            @Override
-            public void onComplete(String typeName, ClassLoader classLoader, JavaModule module, boolean loaded) {
-            }
-        }).installOn(instrumentation);
+        @Override
+        public void onError(String typeName, ClassLoader classLoader, JavaModule module, boolean loaded,
+                            Throwable throwable) {
+            logger.error("Enhance class " + typeName + " error.", throwable);
+        }
+
+        @Override
+        public void onComplete(String typeName, ClassLoader classLoader, JavaModule module, boolean loaded) {
+        }
     }
 }
