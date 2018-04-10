@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.collector.cache.caffeine;
 
-import java.util.Properties;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.caffeine.service.ApplicationCacheCaffeineService;
 import org.apache.skywalking.apm.collector.cache.caffeine.service.InstanceCacheCaffeineService;
@@ -31,6 +30,7 @@ import org.apache.skywalking.apm.collector.cache.service.NetworkAddressCacheServ
 import org.apache.skywalking.apm.collector.cache.service.ServiceIdCacheService;
 import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
 import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
@@ -40,6 +40,13 @@ import org.apache.skywalking.apm.collector.storage.StorageModule;
  */
 public class CacheModuleCaffeineProvider extends ModuleProvider {
 
+    private final CacheModuleCaffeineConfig config;
+
+    public CacheModuleCaffeineProvider() {
+        super();
+        this.config = new CacheModuleCaffeineConfig();
+    }
+
     @Override public String name() {
         return "caffeine";
     }
@@ -48,7 +55,11 @@ public class CacheModuleCaffeineProvider extends ModuleProvider {
         return CacheModule.class;
     }
 
-    @Override public void prepare(Properties config) throws ServiceNotProvidedException {
+    @Override public ModuleConfig createConfigBeanIfAbsent() {
+        return config;
+    }
+
+    @Override public void prepare() throws ServiceNotProvidedException {
         this.registerServiceImplementation(ApplicationCacheService.class, new ApplicationCacheCaffeineService(getManager()));
         this.registerServiceImplementation(InstanceCacheService.class, new InstanceCacheCaffeineService(getManager()));
         this.registerServiceImplementation(ServiceIdCacheService.class, new ServiceIdCacheCaffeineService(getManager()));
@@ -56,7 +67,7 @@ public class CacheModuleCaffeineProvider extends ModuleProvider {
         this.registerServiceImplementation(NetworkAddressCacheService.class, new NetworkAddressCacheCaffeineService(getManager()));
     }
 
-    @Override public void start(Properties config) {
+    @Override public void start() {
     }
 
     @Override public void notifyAfterCompleted() {

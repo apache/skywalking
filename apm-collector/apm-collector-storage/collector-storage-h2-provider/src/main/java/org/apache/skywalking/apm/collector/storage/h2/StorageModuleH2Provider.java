@@ -18,12 +18,13 @@
 
 package org.apache.skywalking.apm.collector.storage.h2;
 
-import java.util.Properties;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
 import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
 import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.apache.skywalking.apm.collector.remote.RemoteModule;
 import org.apache.skywalking.apm.collector.storage.StorageException;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IBatchDAO;
@@ -247,11 +248,12 @@ public class StorageModuleH2Provider extends ModuleProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(StorageModuleH2Provider.class);
 
-    private static final String URL = "url";
-    private static final String USER_NAME = "user_name";
-    private static final String PASSWORD = "password";
-
     private H2Client h2Client;
+    private final StorageModuleH2Config config;
+
+    public StorageModuleH2Provider() {
+        this.config = new StorageModuleH2Config();
+    }
 
     @Override public String name() {
         return "h2";
@@ -261,11 +263,12 @@ public class StorageModuleH2Provider extends ModuleProvider {
         return StorageModule.class;
     }
 
-    @Override public void prepare(Properties config) throws ServiceNotProvidedException {
-        String url = config.getProperty(URL);
-        String userName = config.getProperty(USER_NAME);
-        String password = config.getProperty(PASSWORD);
-        h2Client = new H2Client(url, userName, password);
+    @Override public ModuleConfig createConfigBeanIfAbsent() {
+        return config;
+    }
+
+    @Override public void prepare() throws ServiceNotProvidedException {
+        h2Client = new H2Client(config.getUrl(), config.getUserName(), config.getPassword());
 
         this.registerServiceImplementation(IBatchDAO.class, new BatchH2DAO(h2Client));
         registerCacheDAO();
@@ -275,7 +278,7 @@ public class StorageModuleH2Provider extends ModuleProvider {
         registerAlarmDAO();
     }
 
-    @Override public void start(Properties config) throws ServiceNotProvidedException {
+    @Override public void start() {
         try {
             h2Client.initialize();
 
@@ -286,12 +289,11 @@ public class StorageModuleH2Provider extends ModuleProvider {
         }
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
-
+    @Override public void notifyAfterCompleted() {
     }
 
     @Override public String[] requiredModules() {
-        return new String[0];
+        return new String[] {RemoteModule.NAME};
     }
 
     private void registerCacheDAO() throws ServiceNotProvidedException {

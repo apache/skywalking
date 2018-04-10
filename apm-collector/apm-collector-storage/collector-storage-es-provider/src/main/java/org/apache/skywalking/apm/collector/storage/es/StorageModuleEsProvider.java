@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.collector.storage.es;
 
-import java.util.Properties;
 import java.util.UUID;
 import org.apache.skywalking.apm.collector.client.ClientException;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
@@ -28,8 +27,10 @@ import org.apache.skywalking.apm.collector.cluster.service.ModuleRegisterService
 import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
 import org.apache.skywalking.apm.collector.configuration.service.ICollectorConfig;
 import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.apache.skywalking.apm.collector.remote.RemoteModule;
 import org.apache.skywalking.apm.collector.storage.StorageException;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IBatchDAO;
@@ -254,32 +255,29 @@ public class StorageModuleEsProvider extends ModuleProvider {
     private static final Logger logger = LoggerFactory.getLogger(StorageModuleEsProvider.class);
 
     static final String NAME = "elasticsearch";
-    private static final String CLUSTER_NAME = "cluster_name";
-    private static final String CLUSTER_TRANSPORT_SNIFFER = "cluster_transport_sniffer";
-    private static final String CLUSTER_NODES = "cluster_nodes";
-    private static final String INDEX_SHARDS_NUMBER = "index_shards_number";
-    private static final String INDEX_REPLICAS_NUMBER = "index_replicas_number";
-    private static final String TIME_TO_LIVE_OF_DATA = "ttl";
-
+    private final StorageModuleEsConfig config;
     private ElasticSearchClient elasticSearchClient;
     private DataTTLKeeperTimer deleteTimer;
 
-    @Override
-    public String name() {
+    public StorageModuleEsProvider() {
+        super();
+        this.config = new StorageModuleEsConfig();
+    }
+
+    @Override public String name() {
         return NAME;
     }
 
-    @Override
-    public Class<? extends Module> module() {
+    @Override public Class<? extends Module> module() {
         return StorageModule.class;
     }
 
-    @Override
-    public void prepare(Properties config) throws ServiceNotProvidedException {
-        String clusterName = config.getProperty(CLUSTER_NAME);
-        Boolean clusterTransportSniffer = (Boolean)config.get(CLUSTER_TRANSPORT_SNIFFER);
-        String clusterNodes = config.getProperty(CLUSTER_NODES);
-        elasticSearchClient = new ElasticSearchClient(clusterName, clusterTransportSniffer, clusterNodes);
+    @Override public ModuleConfig createConfigBeanIfAbsent() {
+        return config;
+    }
+
+    @Override public void prepare() throws ServiceNotProvidedException {
+        elasticSearchClient = new ElasticSearchClient(config.getClusterName(), config.getClusterTransportSniffer(), config.getClusterNodes());
 
         this.registerServiceImplementation(IBatchDAO.class, new BatchEsDAO(elasticSearchClient));
         registerCacheDAO();
@@ -290,16 +288,14 @@ public class StorageModuleEsProvider extends ModuleProvider {
     }
 
     @Override
-    public void start(Properties config) throws ServiceNotProvidedException {
-        Integer indexShardsNumber = (Integer)config.get(INDEX_SHARDS_NUMBER);
-        Integer indexReplicasNumber = (Integer)config.get(INDEX_REPLICAS_NUMBER);
+    public void start() {
         try {
             String namespace = getManager().find(ConfigurationModule.NAME).getService(ICollectorConfig.class).getNamespace();
             elasticSearchClient.setNamespace(namespace);
 
             elasticSearchClient.initialize();
 
-            ElasticSearchStorageInstaller installer = new ElasticSearchStorageInstaller(indexShardsNumber, indexReplicasNumber);
+            ElasticSearchStorageInstaller installer = new ElasticSearchStorageInstaller(config.getIndexShardsNumber(), config.getIndexReplicasNumber());
             installer.install(elasticSearchClient);
         } catch (ClientException | StorageException e) {
             logger.error(e.getMessage(), e);
@@ -313,18 +309,18 @@ public class StorageModuleEsProvider extends ModuleProvider {
         ModuleListenerService moduleListenerService = getManager().find(ClusterModule.NAME).getService(ModuleListenerService.class);
         moduleListenerService.addListener(namingListener);
 
-        Integer beforeDay = (Integer)config.getOrDefault(TIME_TO_LIVE_OF_DATA, 3);
+        Integer beforeDay = config.getTtl() == 0 ? 3 : config.getTtl();
         deleteTimer = new DataTTLKeeperTimer(getManager(), namingListener, uuId + 0, beforeDay);
     }
 
     @Override
-    public void notifyAfterCompleted() throws ServiceNotProvidedException {
+    public void notifyAfterCompleted() {
         deleteTimer.start();
     }
 
     @Override
     public String[] requiredModules() {
-        return new String[] {ClusterModule.NAME, ConfigurationModule.NAME};
+        return new String[] {ClusterModule.NAME, ConfigurationModule.NAME, RemoteModule.NAME};
     }
 
     private void registerCacheDAO() throws ServiceNotProvidedException {

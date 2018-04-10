@@ -16,14 +16,13 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.cluster.redis;
 
-import java.util.Properties;
 import org.apache.skywalking.apm.collector.cluster.ClusterModule;
 import org.apache.skywalking.apm.collector.cluster.redis.service.RedisModuleRegisterService;
 import org.apache.skywalking.apm.collector.cluster.service.ModuleRegisterService;
 import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 
@@ -31,6 +30,13 @@ import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedExcepti
  * @author peng-yongsheng
  */
 public class ClusterModuleRedisProvider extends ModuleProvider {
+
+    private final ClusterModuleRedisConfig config;
+
+    public ClusterModuleRedisProvider() {
+        super();
+        this.config = new ClusterModuleRedisConfig();
+    }
 
     @Override public String name() {
         return "redis";
@@ -40,16 +46,18 @@ public class ClusterModuleRedisProvider extends ModuleProvider {
         return ClusterModule.class;
     }
 
-    @Override public void prepare(Properties config) throws ServiceNotProvidedException {
+    @Override public ModuleConfig createConfigBeanIfAbsent() {
+        return config;
+    }
+
+    @Override public void prepare() throws ServiceNotProvidedException {
         this.registerServiceImplementation(ModuleRegisterService.class, new RedisModuleRegisterService());
     }
 
-    @Override public void start(Properties config) throws ServiceNotProvidedException {
-
+    @Override public void start() {
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
-
+    @Override public void notifyAfterCompleted() {
     }
 
     @Override public String[] requiredModules() {
