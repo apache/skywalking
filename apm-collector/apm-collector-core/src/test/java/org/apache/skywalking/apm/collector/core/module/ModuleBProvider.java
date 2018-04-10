@@ -50,6 +50,6 @@ public class ModuleBProvider extends ModuleProvider {
         return new String[0];
     }
 
-    class Config{
+    class Config {
     }
 }
