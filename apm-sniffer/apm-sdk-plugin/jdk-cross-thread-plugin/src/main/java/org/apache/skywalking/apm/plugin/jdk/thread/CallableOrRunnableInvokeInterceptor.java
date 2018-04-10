@@ -40,6 +40,8 @@ public class CallableOrRunnableInvokeInterceptor implements InstanceMethodsAroun
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
         ContextManager.stopSpan();
+        // clear ContextSnapshot
+        objInst.setSkyWalkingDynamicField(null);
         return ret;
     }
 
