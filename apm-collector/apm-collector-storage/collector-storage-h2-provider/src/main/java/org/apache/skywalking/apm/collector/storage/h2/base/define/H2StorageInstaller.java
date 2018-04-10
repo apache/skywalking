@@ -16,22 +16,20 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.h2.base.define;
-
-import org.apache.skywalking.apm.collector.client.Client;
-import org.apache.skywalking.apm.collector.client.h2.H2Client;
-import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
-import org.apache.skywalking.apm.collector.storage.StorageException;
-import org.apache.skywalking.apm.collector.storage.StorageInstallException;
-import org.apache.skywalking.apm.collector.storage.StorageInstaller;
-import org.apache.skywalking.apm.collector.core.data.TableDefine;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import org.apache.skywalking.apm.collector.client.Client;
+import org.apache.skywalking.apm.collector.client.h2.H2Client;
+import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
+import org.apache.skywalking.apm.collector.core.data.TableDefine;
+import org.apache.skywalking.apm.collector.storage.StorageException;
+import org.apache.skywalking.apm.collector.storage.StorageInstallException;
+import org.apache.skywalking.apm.collector.storage.StorageInstaller;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
@@ -58,7 +56,7 @@ public class H2StorageInstaller extends StorageInstaller {
             if (rs.next()) {
                 return true;
             }
-        } catch (SQLException | H2ClientException e) {
+        } catch (SQLException e) {
             throw new StorageInstallException(e.getMessage(), e);
         } finally {
             try {

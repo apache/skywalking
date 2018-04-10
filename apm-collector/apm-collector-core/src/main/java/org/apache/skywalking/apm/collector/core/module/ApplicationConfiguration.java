@@ -82,7 +82,7 @@ public class ApplicationConfiguration {
             this.properties = properties;
         }
 
-        public Properties getProperties() {
+        private Properties getProperties() {
             return properties;
         }
     }
