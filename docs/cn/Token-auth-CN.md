@@ -4,7 +4,6 @@
 
 ## 在使用了TLS 认证之后,为何还需要基于 Token 的认证?
 TLS 是保证传输层的安全,保证传输的网络是可信的.
-TLS is about transport security, which makes sure the network can be trusted. 
 基于 token 的认证是为了保证应用的监控数据是 **可信的**.
 
 ## Token 
