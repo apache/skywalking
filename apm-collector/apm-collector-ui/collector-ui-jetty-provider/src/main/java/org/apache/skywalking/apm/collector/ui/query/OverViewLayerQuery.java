@@ -18,10 +18,7 @@
 
 package org.apache.skywalking.apm.collector.ui.query;
 
-import java.text.ParseException;
-import java.util.List;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.ui.common.Duration;
 import org.apache.skywalking.apm.collector.storage.ui.common.Topology;
 import org.apache.skywalking.apm.collector.storage.ui.overview.AlarmTrend;
@@ -30,12 +27,13 @@ import org.apache.skywalking.apm.collector.storage.ui.overview.ClusterBrief;
 import org.apache.skywalking.apm.collector.storage.ui.overview.ConjecturalAppBrief;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceMetric;
 import org.apache.skywalking.apm.collector.ui.graphql.Query;
-import org.apache.skywalking.apm.collector.ui.service.AlarmService;
-import org.apache.skywalking.apm.collector.ui.service.ApplicationService;
-import org.apache.skywalking.apm.collector.ui.service.ClusterTopologyService;
-import org.apache.skywalking.apm.collector.ui.service.NetworkAddressService;
-import org.apache.skywalking.apm.collector.ui.service.ServiceNameService;
+import org.apache.skywalking.apm.collector.ui.service.*;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
+
+import java.text.ParseException;
+import java.util.List;
+
+import static java.util.Objects.isNull;
 
 /**
  * @author peng-yongsheng
@@ -54,35 +52,35 @@ public class OverViewLayerQuery implements Query {
     }
 
     private ClusterTopologyService getClusterTopologyService() {
-        if (ObjectUtils.isEmpty(clusterTopologyService)) {
+        if (isNull(clusterTopologyService)) {
             this.clusterTopologyService = new ClusterTopologyService(moduleManager);
         }
         return clusterTopologyService;
     }
 
     private ApplicationService getApplicationService() {
-        if (ObjectUtils.isEmpty(applicationService)) {
+        if (isNull(applicationService)) {
             this.applicationService = new ApplicationService(moduleManager);
         }
         return applicationService;
     }
 
     private NetworkAddressService getNetworkAddressService() {
-        if (ObjectUtils.isEmpty(networkAddressService)) {
+        if (isNull(networkAddressService)) {
             this.networkAddressService = new NetworkAddressService(moduleManager);
         }
         return networkAddressService;
     }
 
     private ServiceNameService getServiceNameService() {
-        if (ObjectUtils.isEmpty(serviceNameService)) {
+        if (isNull(serviceNameService)) {
             this.serviceNameService = new ServiceNameService(moduleManager);
         }
         return serviceNameService;
     }
 
     private AlarmService getAlarmService() {
-        if (ObjectUtils.isEmpty(alarmService)) {
+        if (isNull(alarmService)) {
             this.alarmService = new AlarmService(moduleManager);
         }
         return alarmService;

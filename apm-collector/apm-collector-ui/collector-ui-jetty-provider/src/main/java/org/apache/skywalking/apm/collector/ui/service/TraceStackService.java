@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.apm.collector.ui.service;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.apache.skywalking.apm.collector.cache.service.NetworkAddressCacheService;
@@ -28,21 +25,22 @@ import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IGlobalTraceUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentUIDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
-import org.apache.skywalking.apm.collector.storage.ui.trace.KeyValue;
-import org.apache.skywalking.apm.collector.storage.ui.trace.LogEntity;
-import org.apache.skywalking.apm.collector.storage.ui.trace.Ref;
-import org.apache.skywalking.apm.collector.storage.ui.trace.RefType;
-import org.apache.skywalking.apm.collector.storage.ui.trace.Span;
-import org.apache.skywalking.apm.collector.storage.ui.trace.Trace;
+import org.apache.skywalking.apm.collector.storage.ui.trace.*;
 import org.apache.skywalking.apm.network.proto.SpanObject;
 import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
 import org.apache.skywalking.apm.network.proto.UniqueId;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+
+import static java.util.Objects.nonNull;
 
 /**
  * @author peng-yongsheng
@@ -69,7 +67,7 @@ public class TraceStackService {
         if (CollectionUtils.isNotEmpty(segmentIds)) {
             for (String segmentId : segmentIds) {
                 TraceSegmentObject segment = segmentDAO.load(segmentId);
-                if (ObjectUtils.isNotEmpty(segment)) {
+                if (nonNull(segment)) {
                     trace.getSpans().addAll(buildSpanList(traceId, segmentId, segment.getApplicationId(), segment.getSpansList()));
                 }
             }
@@ -124,11 +122,7 @@ public class TraceStackService {
             String operationName = spanObject.getOperationName();
             if (spanObject.getOperationNameId() != 0) {
                 ServiceName serviceName = serviceNameCacheService.get(spanObject.getOperationNameId());
-                if (ObjectUtils.isNotEmpty(serviceName)) {
-                    operationName = serviceName.getServiceName();
-                } else {
-                    operationName = Const.EMPTY_STRING;
-                }
+                operationName = Optional.ofNullable(serviceName).orElse(Const.EMPTY_STRING);
             }
             span.setOperationName(operationName);
 
