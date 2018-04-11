@@ -122,7 +122,9 @@ public class TraceStackService {
             String operationName = spanObject.getOperationName();
             if (spanObject.getOperationNameId() != 0) {
                 ServiceName serviceName = serviceNameCacheService.get(spanObject.getOperationNameId());
-                operationName = Optional.ofNullable(serviceName).orElse(Const.EMPTY_STRING);
+                operationName = Optional.ofNullable(serviceName)
+                        .map(ServiceName::getServiceName)
+                        .orElse(Const.EMPTY_STRING);
             }
             span.setOperationName(operationName);
 
