@@ -61,7 +61,7 @@ public class NetworkAddressCacheCaffeineService implements NetworkAddressCacheSe
 
     public int getAddressId(String networkAddress) {
         return Optional.ofNullable(retrieveFromCache(addressCache, networkAddress,
-                () -> getNetworkAddressCacheDAO().getAddressId(networkAddress))).orElse(0);
+            () -> getNetworkAddressCacheDAO().getAddressId(networkAddress))).orElse(0);
     }
 
     public NetworkAddress getAddress(int addressId) {
@@ -69,7 +69,7 @@ public class NetworkAddressCacheCaffeineService implements NetworkAddressCacheSe
     }
 
 
-    private <K, V> V retrieveFromCache(Cache<K, V> cache, K key, Supplier<V> supplier){
+    private <K, V> V retrieveFromCache(Cache<K, V> cache, K key, Supplier<V> supplier) {
         V value = null;
         try {
             value = cache.get(key, (k) -> supplier.get());

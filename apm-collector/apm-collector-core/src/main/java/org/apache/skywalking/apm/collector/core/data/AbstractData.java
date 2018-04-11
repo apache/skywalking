@@ -150,7 +150,7 @@ public abstract class AbstractData {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T[] calculate(Column[] columns, IntFunction<T[]> arrayInitializer){
+    private <T> T[] calculate(Column[] columns, IntFunction<T[]> arrayInitializer) {
         return Arrays.stream(columns)
                 .filter(Objects::nonNull)
                 .map(t -> (T) t.getFormulaOperation().operate(this))
