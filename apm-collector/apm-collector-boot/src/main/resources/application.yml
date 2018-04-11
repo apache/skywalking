@@ -22,7 +22,7 @@ naming:
   jetty:
     host: localhost
     port: 10800
-    context_path: /
+    contextPath: /
 cache:
 #  guava:
   caffeine:
@@ -35,8 +35,8 @@ agent_gRPC:
     host: localhost
     port: 11800
     #Set these two setting to open ssl
-    #ssl_cert_chain_file: $path
-    #ssl_private_key_file: $path
+    #sslCertChainFile: $path
+    #sslPrivateKeyFile: $path
 
     #Set your own token to active auth
     #authentication: xxxxxx
@@ -44,40 +44,40 @@ agent_jetty:
   jetty:
     host: localhost
     port: 12800
-    context_path: /
+    contextPath: /
 analysis_register:
   default:
 analysis_jvm:
   default:
 analysis_segment_parser:
   default:
-    buffer_file_path: ../buffer/
-    buffer_offset_max_file_size: 10M
-    buffer_segment_max_file_size: 500M
+    bufferFilePath: ../buffer/
+    bufferOffsetMaxFileSize: 10M
+    bufferSegmentMaxFileSize: 500M
 ui:
   jetty:
     host: localhost
     port: 12800
-    context_path: /
+    contextPath: /
 storage:
   elasticsearch:
-    cluster_name: CollectorDBCluster
-    cluster_transport_sniffer: true
-    cluster_nodes: localhost:9300
-    index_shards_number: 2
-    index_replicas_number: 0
+    clusterName: CollectorDBCluster
+    clusterTransportSniffer: true
+    clusterNodes: localhost:9300
+    indexShardsNumber: 2
+    indexReplicasNumber: 0
     ttl: 7
 #storage:
 #  h2:
-#    url: jdbc:h2:tcp://localhost/~/test
-#    user_name: sa
+#    url: jdbc:h2:~/memorydb
+#    userName: sa
 configuration:
   default:
-    # namespace: xxxxx
-    application_apdex_threshold: 2000
-    service_error_rate_threshold: 10.00
-    service_average_response_time_threshold: 2000
-    instance_error_rate_threshold: 10.00
-    instance_average_response_time_threshold: 2000
-    application_error_rate_threshold: 10.00
-    application_average_response_time_threshold: 2000
+#     namespace: xxxxx
+    applicationApdexThreshold: 2000
+    serviceErrorRateThreshold: 10.00
+    serviceAverageResponseTimeThreshold: 2000
+    instanceErrorRateThreshold: 10.00
+    instanceAverageResponseTimeThreshold: 2000
+    applicationErrorRateThreshold: 10.00
+    applicationAverageResponseTimeThreshold: 2000

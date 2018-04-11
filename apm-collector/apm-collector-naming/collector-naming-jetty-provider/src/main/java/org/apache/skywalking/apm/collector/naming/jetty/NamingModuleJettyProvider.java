@@ -16,28 +16,30 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.naming.jetty;
 
-import java.util.Properties;
 import org.apache.skywalking.apm.collector.cluster.ClusterModule;
+import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
-import org.apache.skywalking.apm.collector.naming.NamingModule;
-import org.apache.skywalking.apm.collector.naming.service.NamingHandlerRegisterService;
-import org.apache.skywalking.apm.collector.core.module.Module;
 import org.apache.skywalking.apm.collector.jetty.manager.JettyManagerModule;
 import org.apache.skywalking.apm.collector.jetty.manager.service.JettyManagerService;
+import org.apache.skywalking.apm.collector.naming.NamingModule;
 import org.apache.skywalking.apm.collector.naming.jetty.service.NamingJettyHandlerRegisterService;
+import org.apache.skywalking.apm.collector.naming.service.NamingHandlerRegisterService;
 
 /**
  * @author peng-yongsheng
  */
 public class NamingModuleJettyProvider extends ModuleProvider {
 
-    private static final String HOST = "host";
-    private static final String PORT = "port";
-    private static final String CONTEXT_PATH = "context_path";
+    private final NamingModuleJettyConfig config;
+
+    public NamingModuleJettyProvider() {
+        super();
+        this.config = new NamingModuleJettyConfig();
+    }
 
     @Override public String name() {
         return "jetty";
@@ -47,22 +49,20 @@ public class NamingModuleJettyProvider extends ModuleProvider {
         return NamingModule.class;
     }
 
-    @Override public void prepare(Properties config) throws ServiceNotProvidedException {
-        final String host = config.getProperty(HOST);
-        final Integer port = (Integer)config.get(PORT);
-        this.registerServiceImplementation(NamingHandlerRegisterService.class, new NamingJettyHandlerRegisterService(host, port, getManager()));
+    @Override public ModuleConfig createConfigBeanIfAbsent() {
+        return config;
     }
 
-    @Override public void start(Properties config) throws ServiceNotProvidedException {
-        String host = config.getProperty(HOST);
-        Integer port = (Integer)config.get(PORT);
-        String contextPath = config.getProperty(CONTEXT_PATH);
+    @Override public void prepare() throws ServiceNotProvidedException {
+        this.registerServiceImplementation(NamingHandlerRegisterService.class, new NamingJettyHandlerRegisterService(config.getHost(), config.getPort(), getManager()));
+    }
 
+    @Override public void start() {
         JettyManagerService managerService = getManager().find(JettyManagerModule.NAME).getService(JettyManagerService.class);
-        managerService.createIfAbsent(host, port, contextPath);
+        managerService.createIfAbsent(config.getHost(), config.getPort(), config.getContextPath());
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
+    @Override public void notifyAfterCompleted() {
     }
 
     @Override public String[] requiredModules() {

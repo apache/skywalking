@@ -40,7 +40,7 @@ naming:
     jetty:
         host: localhost
         port: 10800
-        context_path: /
+        contextPath: /
 remote:
   gRPC:
     host: localhost
@@ -53,30 +53,40 @@ agent_jetty:
   jetty:
     host: localhost
     port: 12800
-    context_path: /
+    contextPath: /
 analysis_register:
   default:
 analysis_jvm:
   default:
 analysis_segment_parser:
   default:
-    buffer_file_path: ../buffer/
-    buffer_offset_max_file_size: 10M
-    buffer_segment_max_file_size: 500M
+    bufferFilePath: ../buffer/
+    bufferOffsetMaxFileSize: 10M
+    bufferSegmentMaxFileSize: 500M
 ui:
   jetty:
     host: localhost
     port: 12800
-    context_path: /
+    contextPath: /
 # Config Elasticsearch cluster connection info.
 storage:
   elasticsearch:
-    cluster_name: CollectorDBCluster
-    cluster_transport_sniffer: true
-    cluster_nodes: localhost:9300
-    index_shards_number: 2
-    index_replicas_number: 0
+    clusterName: CollectorDBCluster
+    clusterTransportSniffer: true
+    clusterNodes: localhost:9300
+    indexShardsNumber: 2
+    indexReplicasNumber: 0
     ttl: 7
+configuration:
+  default:
+#     namespace: xxxxx
+    applicationApdexThreshold: 2000
+    serviceErrorRateThreshold: 10.00
+    serviceAverageResponseTimeThreshold: 2000
+    instanceErrorRateThreshold: 10.00
+    instanceAverageResponseTimeThreshold: 2000
+    applicationErrorRateThreshold: 10.00
+    applicationAverageResponseTimeThreshold: 2000
 ```
 
 3. Run `bin/collectorService.sh`
