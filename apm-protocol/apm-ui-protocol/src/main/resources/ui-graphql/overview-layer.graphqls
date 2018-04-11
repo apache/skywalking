@@ -51,10 +51,18 @@ type ApplicationTPS {
 
 type Thermodynamic {
     # Each element in nodes represents a point in Thermodynamic Diagram
+    # And the element includes three values:
+    # 1) Time Bucket based on query duration
+    # 2) Response time index.
+    #    Response time = [responseTimeStep * index, responseTimeStep * (index+1))
+    #    The last element: [Response Time * index, MAX)
+    # 3) The number of calls in this response time duration.
+    #
     # Example:
     # [ [0, 0, 10], [0, 1, 43], ...]
     # These ^^^ two represent the left bottom element, and another element above it.
     nodes: [[Long]!]
+    responseTimeStep: Int!
 }
 
 extend type Query {
