@@ -16,12 +16,10 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.core.module;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * The <code>ModuleProvider</code> is an implementation of a {@link Module}.
@@ -61,23 +59,22 @@ public abstract class ModuleProvider {
     public abstract Class<? extends Module> module();
 
     /**
-     * In prepare stage, the module should initialize things which are irrelative other modules.
-     *
-     * @param config from `application.yml`
+     * @return ModuleConfig
      */
-    public abstract void prepare(Properties config) throws ServiceNotProvidedException;
+    public abstract ModuleConfig createConfigBeanIfAbsent();
+
+    /**
+     * In prepare stage, the module should initialize things which are irrelative other modules.
+     */
+    public abstract void prepare() throws ServiceNotProvidedException;
 
     /**
      * In start stage, the module has been ready for interop.
-     *
-     * @param config from `application.yml`
      */
-    public abstract void start(Properties config) throws ServiceNotProvidedException;
+    public abstract void start() throws ServiceNotProvidedException;
 
     /**
      * This callback executes after all modules start up successfully.
-     *
-     * @throws ServiceNotProvidedException
      */
     public abstract void notifyAfterCompleted() throws ServiceNotProvidedException;
 
@@ -88,9 +85,6 @@ public abstract class ModuleProvider {
 
     /**
      * Register a implementation for the service of this module provider.
-     *
-     * @param serviceType
-     * @param service
      */
     protected final void registerServiceImplementation(Class<? extends Service> serviceType,
         Service service) throws ServiceNotProvidedException {
@@ -122,7 +116,8 @@ public abstract class ModuleProvider {
         }
     }
 
-    <T extends Service> T getService(Class<T> serviceType) throws ServiceNotProvidedException {
+    @SuppressWarnings("unchecked") <T extends Service> T getService(
+        Class<T> serviceType) throws ServiceNotProvidedException {
         Service serviceImpl = services.get(serviceType);
         if (serviceImpl != null) {
             return (T)serviceImpl;

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.core.module;
 
 public class ServiceNotProvidedException extends Exception {
