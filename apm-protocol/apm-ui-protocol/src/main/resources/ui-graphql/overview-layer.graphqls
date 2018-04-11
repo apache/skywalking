@@ -61,7 +61,7 @@ type Thermodynamic {
     # Example:
     # [ [0, 0, 10], [0, 1, 43], ...]
     # These ^^^ two represent the left bottom element, and another element above it.
-    nodes: [[Long]!]
+    nodes: [[Long]!]!
     responseTimeStep: Int!
 }
 
