@@ -5,7 +5,7 @@
 ## What is direct uplink?
 In default, SkyWalking agent uses naming service to find all collector addresses. Then connect to gRPC services.
 
-In **direct updalink**, mean no naming service available or don't work well, set the gRPC addresses in agent directly. 
+In **direct uplink**, mean no naming service available or don't work well, set the gRPC addresses in agent directly. 
 The agent uses theses addresses to connect gRPC services.
 
 ## Why need this?
