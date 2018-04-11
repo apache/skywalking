@@ -8,7 +8,7 @@
   * 高级特性
     * [通过系统启动参数进行覆盖配置](cn/Setting-override-CN.md)
     * [服务直连(Direct uplink)及禁用名称服务(naming service)](cn/Direct-uplink-CN.md)
-    * [Open TLS](cn/TLS-CN.md)
+    * [开启TLS](cn/TLS-CN.md)
     * [命名空间隔离](cn/Namespace-CN.md)
     * [基于Token认证](cn/Token-auth-CN.md)
   * APM相关介绍资料
