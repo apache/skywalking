@@ -17,7 +17,6 @@
  */
 package org.apache.skywalking.apm.plugin.jdk.thread;
 
-import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
@@ -28,12 +27,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 public class CallableOrRunnableConstructInterceptor implements InstanceConstructorInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        // EntrySpan is used for simple main test , such as main method call redis by new thread
-        if ("N/A".equals(ContextManager.getGlobalTraceId())) {
-            String operationName = "Thread/" + objInst.getClass().getName();
-            ContextCarrier contextCarrier = new ContextCarrier();
-            ContextManager.createEntrySpan(operationName, contextCarrier);
-        }
         objInst.setSkyWalkingDynamicField(ContextManager.capture());
     }
 
