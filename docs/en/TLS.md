@@ -8,7 +8,7 @@ at the same time, the SkyWalking backend is in another region (VPC).
 > Because of that, security requirement is very obvious.
 
 ## Requirement
-Enable **direct uplink**, by following this [document](direct-uplink.md).
+Enable **direct uplink**, by following this [document](Direct-uplink.md).
 
 Because of uplink through internet, with security concern, the naming mechanism didn't fit. 
 So we didn't support TLS in naming service of HTTP service.
