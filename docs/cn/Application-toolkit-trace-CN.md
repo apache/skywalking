@@ -16,4 +16,4 @@ modelAndView.addObject("traceId", TraceContext.traceId());
 ```
 _示例代码，仅供参考_
 
-* 对任何需要追踪的方法，使用@Trace标注，则此方法会被加入到追踪链中。
+* 对任何需要追踪的方法，使用 `@Trace` 标注，则此方法会被加入到追踪链中。
