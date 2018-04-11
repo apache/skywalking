@@ -65,25 +65,26 @@ public class InstanceCacheCaffeineService implements InstanceCacheService {
 
     @Override public int getApplicationId(int instanceId) {
         return   ofNullable(retrieveFromCache(applicationIdCache,  instanceId,
-                () -> getInstanceCacheDAO().getApplicationId(instanceId))).orElse(0);
+            () -> getInstanceCacheDAO().getApplicationId(instanceId))).orElse(0);
     }
 
     @Override public int getInstanceIdByAgentUUID(int applicationId, String agentUUID) {
         String cacheKey = applicationId + Const.ID_SPLIT + agentUUID;
 
         return  ofNullable(retrieveFromCache(agentUUIDCache, cacheKey,
-                () -> getInstanceCacheDAO().getInstanceIdByAgentUUID(applicationId, agentUUID))).orElse(0);
+            () -> getInstanceCacheDAO().getInstanceIdByAgentUUID(applicationId, agentUUID))).orElse(0);
     }
 
     @Override public int getInstanceIdByAddressId(int applicationId, int addressId) {
         String cacheKey = applicationId + Const.ID_SPLIT + addressId;
 
         return  ofNullable(retrieveFromCache(addressIdCache, cacheKey,
-                () -> getInstanceCacheDAO().getInstanceIdByAddressId(applicationId, addressId))).orElse(0);
+            () -> getInstanceCacheDAO().getInstanceIdByAddressId(applicationId, addressId))).orElse(0);
     }
 
 
-    private <K, V> V retrieveFromCache(Cache<K, V> cache, K key, Supplier<V> supplier){
+
+    private <K, V> V retrieveFromCache(Cache<K, V> cache, K key, Supplier<V> supplier) {
         V value = null;
         try {
             value = cache.get(key, (any) -> supplier.get());

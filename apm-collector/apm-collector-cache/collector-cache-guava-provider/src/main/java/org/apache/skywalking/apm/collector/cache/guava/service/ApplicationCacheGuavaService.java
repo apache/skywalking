@@ -61,7 +61,7 @@ public class ApplicationCacheGuavaService implements ApplicationCacheService {
 
     @Override public int getApplicationIdByCode(String applicationCode) {
         return ofNullable(retrieveFromCache(codeCache, applicationCode,
-                () -> getApplicationCacheDAO().getApplicationIdByCode(applicationCode))).orElse(0);
+            () -> getApplicationCacheDAO().getApplicationIdByCode(applicationCode))).orElse(0);
     }
 
 
@@ -72,11 +72,11 @@ public class ApplicationCacheGuavaService implements ApplicationCacheService {
 
     @Override public int getApplicationIdByAddressId(int addressId) {
         return ofNullable(retrieveFromCache(addressIdCache, addressId,
-                () -> getApplicationCacheDAO().getApplicationIdByAddressId(addressId))).orElse(0);
+            () -> getApplicationCacheDAO().getApplicationIdByAddressId(addressId))).orElse(0);
     }
 
 
-    private <K, V> V retrieveFromCache(Cache<K, V> cache, K key, Supplier<V> supplier){
+    private <K, V> V retrieveFromCache(Cache<K, V> cache, K key, Supplier<V> supplier) {
         V value = null;
         try {
             value = cache.get(key, supplier::get);
