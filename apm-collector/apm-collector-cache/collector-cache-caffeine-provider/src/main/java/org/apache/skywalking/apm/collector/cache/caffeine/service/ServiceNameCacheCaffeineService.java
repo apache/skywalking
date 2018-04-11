@@ -20,15 +20,18 @@ package org.apache.skywalking.apm.collector.cache.caffeine.service;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.cache.IServiceNameCacheDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.TimeUnit;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * @author peng-yongsheng
@@ -47,7 +50,7 @@ public class ServiceNameCacheCaffeineService implements ServiceNameCacheService 
     }
 
     private IServiceNameCacheDAO getServiceNameCacheDAO() {
-        if (ObjectUtils.isEmpty(serviceNameCacheDAO)) {
+        if (isNull(serviceNameCacheDAO)) {
             this.serviceNameCacheDAO = moduleManager.find(StorageModule.NAME).getService(IServiceNameCacheDAO.class);
         }
         return this.serviceNameCacheDAO;
@@ -61,9 +64,9 @@ public class ServiceNameCacheCaffeineService implements ServiceNameCacheService 
             logger.error(e.getMessage(), e);
         }
 
-        if (ObjectUtils.isEmpty(serviceName)) {
+        if (isNull(serviceName)) {
             serviceName = getServiceNameCacheDAO().get(serviceId);
-            if (ObjectUtils.isNotEmpty(serviceName)) {
+            if (nonNull(serviceName)) {
                 serviceCache.put(serviceId, serviceName);
             }
         }
