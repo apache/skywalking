@@ -68,8 +68,8 @@ public class GCMetricEsUIDAO extends EsDAO implements IGCMetricUIDAO {
         MultiGetResponse multiGetResponse = youngPrepareMultiGet.get();
         for (MultiGetItemResponse itemResponse : multiGetResponse.getResponses()) {
             if (itemResponse.getResponse().isExists()) {
-                long count = ((Number) itemResponse.getResponse().getSource().get(GCMetricTable.COLUMN_COUNT)).longValue();
-                long times = ((Number) itemResponse.getResponse().getSource().get(GCMetricTable.COLUMN_TIMES)).intValue();
+                long count = ((Number) itemResponse.getResponse().getSource().get(GCMetricTable.COUNT.getName())).longValue();
+                long times = ((Number) itemResponse.getResponse().getSource().get(GCMetricTable.TIMES.getName())).intValue();
                 gcTrends.add((int) (count / times));
             } else {
                 gcTrends.add(0);

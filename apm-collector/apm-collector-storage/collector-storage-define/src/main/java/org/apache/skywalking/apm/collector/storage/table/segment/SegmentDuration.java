@@ -29,24 +29,24 @@ import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
 public class SegmentDuration extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(SegmentDurationTable.COLUMN_ID, new NonMergeOperation()),
-        new Column(SegmentDurationTable.COLUMN_SEGMENT_ID, new CoverMergeOperation()),
-        new Column(SegmentDurationTable.COLUMN_SERVICE_NAME, new CoverMergeOperation()),
-        new Column(SegmentDurationTable.COLUMN_TRACE_ID, new CoverMergeOperation()),
+        new Column(SegmentDurationTable.ID, new NonMergeOperation()),
+        new Column(SegmentDurationTable.SEGMENT_ID, new CoverMergeOperation()),
+        new Column(SegmentDurationTable.SERVICE_NAME, new CoverMergeOperation()),
+        new Column(SegmentDurationTable.TRACE_ID, new CoverMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(SegmentDurationTable.COLUMN_DURATION, new CoverMergeOperation()),
-        new Column(SegmentDurationTable.COLUMN_START_TIME, new CoverMergeOperation()),
-        new Column(SegmentDurationTable.COLUMN_END_TIME, new CoverMergeOperation()),
-        new Column(SegmentDurationTable.COLUMN_TIME_BUCKET, new CoverMergeOperation()),
+        new Column(SegmentDurationTable.DURATION, new CoverMergeOperation()),
+        new Column(SegmentDurationTable.START_TIME, new CoverMergeOperation()),
+        new Column(SegmentDurationTable.END_TIME, new CoverMergeOperation()),
+        new Column(SegmentDurationTable.TIME_BUCKET, new CoverMergeOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {};
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(SegmentDurationTable.COLUMN_APPLICATION_ID, new CoverMergeOperation()),
-        new Column(SegmentDurationTable.COLUMN_IS_ERROR, new CoverMergeOperation()),
+        new Column(SegmentDurationTable.APPLICATION_ID, new CoverMergeOperation()),
+        new Column(SegmentDurationTable.IS_ERROR, new CoverMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};

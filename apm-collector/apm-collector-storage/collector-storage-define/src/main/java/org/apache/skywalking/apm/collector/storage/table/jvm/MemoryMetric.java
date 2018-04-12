@@ -32,25 +32,25 @@ import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
 public class MemoryMetric extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(MemoryMetricTable.COLUMN_ID, new NonMergeOperation()),
-        new Column(MemoryMetricTable.COLUMN_METRIC_ID, new NonMergeOperation()),
+        new Column(MemoryMetricTable.ID, new NonMergeOperation()),
+        new Column(MemoryMetricTable.METRIC_ID, new NonMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(MemoryMetricTable.COLUMN_INIT, new MinMergeOperation()),
-        new Column(MemoryMetricTable.COLUMN_MAX, new MaxMergeOperation()),
-        new Column(MemoryMetricTable.COLUMN_USED, new AddMergeOperation()),
-        new Column(MemoryMetricTable.COLUMN_COMMITTED, new AddMergeOperation()),
-        new Column(MemoryMetricTable.COLUMN_TIMES, new AddMergeOperation()),
-        new Column(MemoryMetricTable.COLUMN_TIME_BUCKET, new NonMergeOperation()),
+        new Column(MemoryMetricTable.INIT, new MinMergeOperation()),
+        new Column(MemoryMetricTable.MAX, new MaxMergeOperation()),
+        new Column(MemoryMetricTable.USED, new AddMergeOperation()),
+        new Column(MemoryMetricTable.COMMITTED, new AddMergeOperation()),
+        new Column(MemoryMetricTable.TIMES, new AddMergeOperation()),
+        new Column(MemoryMetricTable.TIME_BUCKET, new NonMergeOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {
     };
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(MemoryMetricTable.COLUMN_INSTANCE_ID, new CoverMergeOperation()),
-        new Column(MemoryMetricTable.COLUMN_IS_HEAP, new CoverMergeOperation()),
+        new Column(MemoryMetricTable.INSTANCE_ID, new CoverMergeOperation()),
+        new Column(MemoryMetricTable.IS_HEAP, new CoverMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};

@@ -36,74 +36,74 @@ public abstract class AbstractApplicationReferenceMetricEsPersistenceDAO extends
     }
 
     @Override protected final String timeBucketColumnNameForDelete() {
-        return ApplicationReferenceMetricTable.COLUMN_TIME_BUCKET;
+        return ApplicationReferenceMetricTable.TIME_BUCKET.getName();
     }
 
     @Override protected final ApplicationReferenceMetric esDataToStreamData(Map<String, Object> source) {
         ApplicationReferenceMetric applicationReferenceMetric = new ApplicationReferenceMetric();
-        applicationReferenceMetric.setMetricId((String)source.get(ApplicationReferenceMetricTable.COLUMN_METRIC_ID));
+        applicationReferenceMetric.setMetricId((String)source.get(ApplicationReferenceMetricTable.METRIC_ID.getName()));
 
-        applicationReferenceMetric.setFrontApplicationId(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID)).intValue());
-        applicationReferenceMetric.setBehindApplicationId(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID)).intValue());
-        applicationReferenceMetric.setSourceValue(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_SOURCE_VALUE)).intValue());
+        applicationReferenceMetric.setFrontApplicationId(((Number)source.get(ApplicationReferenceMetricTable.FRONT_APPLICATION_ID.getName())).intValue());
+        applicationReferenceMetric.setBehindApplicationId(((Number)source.get(ApplicationReferenceMetricTable.BEHIND_APPLICATION_ID.getName())).intValue());
+        applicationReferenceMetric.setSourceValue(((Number)source.get(ApplicationReferenceMetricTable.SOURCE_VALUE.getName())).intValue());
 
-        applicationReferenceMetric.setTransactionCalls(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_CALLS)).longValue());
-        applicationReferenceMetric.setTransactionErrorCalls(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS)).longValue());
-        applicationReferenceMetric.setTransactionDurationSum(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM)).longValue());
-        applicationReferenceMetric.setTransactionErrorDurationSum(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM)).longValue());
-        applicationReferenceMetric.setTransactionAverageDuration(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_AVERAGE_DURATION)).longValue());
+        applicationReferenceMetric.setTransactionCalls(((Number)source.get(ApplicationReferenceMetricTable.TRANSACTION_CALLS.getName())).longValue());
+        applicationReferenceMetric.setTransactionErrorCalls(((Number)source.get(ApplicationReferenceMetricTable.TRANSACTION_ERROR_CALLS.getName())).longValue());
+        applicationReferenceMetric.setTransactionDurationSum(((Number)source.get(ApplicationReferenceMetricTable.TRANSACTION_DURATION_SUM.getName())).longValue());
+        applicationReferenceMetric.setTransactionErrorDurationSum(((Number)source.get(ApplicationReferenceMetricTable.TRANSACTION_ERROR_DURATION_SUM.getName())).longValue());
+        applicationReferenceMetric.setTransactionAverageDuration(((Number)source.get(ApplicationReferenceMetricTable.TRANSACTION_AVERAGE_DURATION.getName())).longValue());
 
-        applicationReferenceMetric.setBusinessTransactionCalls(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS)).longValue());
-        applicationReferenceMetric.setBusinessTransactionErrorCalls(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS)).longValue());
-        applicationReferenceMetric.setBusinessTransactionDurationSum(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM)).longValue());
-        applicationReferenceMetric.setBusinessTransactionErrorDurationSum(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM)).longValue());
-        applicationReferenceMetric.setBusinessTransactionAverageDuration(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_AVERAGE_DURATION)).longValue());
+        applicationReferenceMetric.setBusinessTransactionCalls(((Number)source.get(ApplicationReferenceMetricTable.BUSINESS_TRANSACTION_CALLS.getName())).longValue());
+        applicationReferenceMetric.setBusinessTransactionErrorCalls(((Number)source.get(ApplicationReferenceMetricTable.BUSINESS_TRANSACTION_ERROR_CALLS.getName())).longValue());
+        applicationReferenceMetric.setBusinessTransactionDurationSum(((Number)source.get(ApplicationReferenceMetricTable.BUSINESS_TRANSACTION_DURATION_SUM.getName())).longValue());
+        applicationReferenceMetric.setBusinessTransactionErrorDurationSum(((Number)source.get(ApplicationReferenceMetricTable.BUSINESS_TRANSACTION_ERROR_DURATION_SUM.getName())).longValue());
+        applicationReferenceMetric.setBusinessTransactionAverageDuration(((Number)source.get(ApplicationReferenceMetricTable.BUSINESS_TRANSACTION_AVERAGE_DURATION.getName())).longValue());
 
-        applicationReferenceMetric.setMqTransactionCalls(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_MQ_TRANSACTION_CALLS)).longValue());
-        applicationReferenceMetric.setMqTransactionErrorCalls(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS)).longValue());
-        applicationReferenceMetric.setMqTransactionDurationSum(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM)).longValue());
-        applicationReferenceMetric.setMqTransactionErrorDurationSum(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM)).longValue());
-        applicationReferenceMetric.setMqTransactionAverageDuration(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_MQ_TRANSACTION_AVERAGE_DURATION)).longValue());
+        applicationReferenceMetric.setMqTransactionCalls(((Number)source.get(ApplicationReferenceMetricTable.MQ_TRANSACTION_CALLS.getName())).longValue());
+        applicationReferenceMetric.setMqTransactionErrorCalls(((Number)source.get(ApplicationReferenceMetricTable.MQ_TRANSACTION_ERROR_CALLS.getName())).longValue());
+        applicationReferenceMetric.setMqTransactionDurationSum(((Number)source.get(ApplicationReferenceMetricTable.MQ_TRANSACTION_DURATION_SUM.getName())).longValue());
+        applicationReferenceMetric.setMqTransactionErrorDurationSum(((Number)source.get(ApplicationReferenceMetricTable.MQ_TRANSACTION_ERROR_DURATION_SUM.getName())).longValue());
+        applicationReferenceMetric.setMqTransactionAverageDuration(((Number)source.get(ApplicationReferenceMetricTable.MQ_TRANSACTION_AVERAGE_DURATION.getName())).longValue());
 
-        applicationReferenceMetric.setSatisfiedCount(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_SATISFIED_COUNT)).longValue());
-        applicationReferenceMetric.setToleratingCount(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_TOLERATING_COUNT)).longValue());
-        applicationReferenceMetric.setFrustratedCount(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_FRUSTRATED_COUNT)).longValue());
+        applicationReferenceMetric.setSatisfiedCount(((Number)source.get(ApplicationReferenceMetricTable.SATISFIED_COUNT.getName())).longValue());
+        applicationReferenceMetric.setToleratingCount(((Number)source.get(ApplicationReferenceMetricTable.TOLERATING_COUNT.getName())).longValue());
+        applicationReferenceMetric.setFrustratedCount(((Number)source.get(ApplicationReferenceMetricTable.FRUSTRATED_COUNT.getName())).longValue());
 
-        applicationReferenceMetric.setTimeBucket(((Number)source.get(ApplicationReferenceMetricTable.COLUMN_TIME_BUCKET)).longValue());
+        applicationReferenceMetric.setTimeBucket(((Number)source.get(ApplicationReferenceMetricTable.TIME_BUCKET.getName())).longValue());
         return applicationReferenceMetric;
     }
 
     @Override protected final Map<String, Object> esStreamDataToEsData(ApplicationReferenceMetric streamData) {
         Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationReferenceMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
+        source.put(ApplicationReferenceMetricTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID, streamData.getFrontApplicationId());
-        source.put(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID, streamData.getBehindApplicationId());
-        source.put(ApplicationReferenceMetricTable.COLUMN_SOURCE_VALUE, streamData.getSourceValue());
+        source.put(ApplicationReferenceMetricTable.FRONT_APPLICATION_ID.getName(), streamData.getFrontApplicationId());
+        source.put(ApplicationReferenceMetricTable.BEHIND_APPLICATION_ID.getName(), streamData.getBehindApplicationId());
+        source.put(ApplicationReferenceMetricTable.SOURCE_VALUE.getName(), streamData.getSourceValue());
 
-        source.put(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_CALLS, streamData.getTransactionCalls());
-        source.put(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, streamData.getTransactionErrorCalls());
-        source.put(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, streamData.getTransactionDurationSum());
-        source.put(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, streamData.getTransactionErrorDurationSum());
-        source.put(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_AVERAGE_DURATION, streamData.getTransactionAverageDuration());
+        source.put(ApplicationReferenceMetricTable.TRANSACTION_CALLS.getName(), streamData.getTransactionCalls());
+        source.put(ApplicationReferenceMetricTable.TRANSACTION_ERROR_CALLS.getName(), streamData.getTransactionErrorCalls());
+        source.put(ApplicationReferenceMetricTable.TRANSACTION_DURATION_SUM.getName(), streamData.getTransactionDurationSum());
+        source.put(ApplicationReferenceMetricTable.TRANSACTION_ERROR_DURATION_SUM.getName(), streamData.getTransactionErrorDurationSum());
+        source.put(ApplicationReferenceMetricTable.TRANSACTION_AVERAGE_DURATION.getName(), streamData.getTransactionAverageDuration());
 
-        source.put(ApplicationReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, streamData.getBusinessTransactionCalls());
-        source.put(ApplicationReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, streamData.getBusinessTransactionErrorCalls());
-        source.put(ApplicationReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, streamData.getBusinessTransactionDurationSum());
-        source.put(ApplicationReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, streamData.getBusinessTransactionErrorDurationSum());
-        source.put(ApplicationReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_AVERAGE_DURATION, streamData.getBusinessTransactionAverageDuration());
+        source.put(ApplicationReferenceMetricTable.BUSINESS_TRANSACTION_CALLS.getName(), streamData.getBusinessTransactionCalls());
+        source.put(ApplicationReferenceMetricTable.BUSINESS_TRANSACTION_ERROR_CALLS.getName(), streamData.getBusinessTransactionErrorCalls());
+        source.put(ApplicationReferenceMetricTable.BUSINESS_TRANSACTION_DURATION_SUM.getName(), streamData.getBusinessTransactionDurationSum());
+        source.put(ApplicationReferenceMetricTable.BUSINESS_TRANSACTION_ERROR_DURATION_SUM.getName(), streamData.getBusinessTransactionErrorDurationSum());
+        source.put(ApplicationReferenceMetricTable.BUSINESS_TRANSACTION_AVERAGE_DURATION.getName(), streamData.getBusinessTransactionAverageDuration());
 
-        source.put(ApplicationReferenceMetricTable.COLUMN_MQ_TRANSACTION_CALLS, streamData.getMqTransactionCalls());
-        source.put(ApplicationReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, streamData.getMqTransactionErrorCalls());
-        source.put(ApplicationReferenceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, streamData.getMqTransactionDurationSum());
-        source.put(ApplicationReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, streamData.getMqTransactionErrorDurationSum());
-        source.put(ApplicationReferenceMetricTable.COLUMN_MQ_TRANSACTION_AVERAGE_DURATION, streamData.getMqTransactionAverageDuration());
+        source.put(ApplicationReferenceMetricTable.MQ_TRANSACTION_CALLS.getName(), streamData.getMqTransactionCalls());
+        source.put(ApplicationReferenceMetricTable.MQ_TRANSACTION_ERROR_CALLS.getName(), streamData.getMqTransactionErrorCalls());
+        source.put(ApplicationReferenceMetricTable.MQ_TRANSACTION_DURATION_SUM.getName(), streamData.getMqTransactionDurationSum());
+        source.put(ApplicationReferenceMetricTable.MQ_TRANSACTION_ERROR_DURATION_SUM.getName(), streamData.getMqTransactionErrorDurationSum());
+        source.put(ApplicationReferenceMetricTable.MQ_TRANSACTION_AVERAGE_DURATION.getName(), streamData.getMqTransactionAverageDuration());
 
-        source.put(ApplicationReferenceMetricTable.COLUMN_SATISFIED_COUNT, streamData.getSatisfiedCount());
-        source.put(ApplicationReferenceMetricTable.COLUMN_TOLERATING_COUNT, streamData.getToleratingCount());
-        source.put(ApplicationReferenceMetricTable.COLUMN_FRUSTRATED_COUNT, streamData.getFrustratedCount());
+        source.put(ApplicationReferenceMetricTable.SATISFIED_COUNT.getName(), streamData.getSatisfiedCount());
+        source.put(ApplicationReferenceMetricTable.TOLERATING_COUNT.getName(), streamData.getToleratingCount());
+        source.put(ApplicationReferenceMetricTable.FRUSTRATED_COUNT.getName(), streamData.getFrustratedCount());
 
-        source.put(ApplicationReferenceMetricTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
+        source.put(ApplicationReferenceMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
 
         return source;
     }

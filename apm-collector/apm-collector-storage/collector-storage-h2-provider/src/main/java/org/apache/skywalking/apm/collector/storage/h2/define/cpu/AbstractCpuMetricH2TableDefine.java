@@ -32,11 +32,11 @@ public abstract class AbstractCpuMetricH2TableDefine extends H2TableDefine {
     }
 
     @Override public final void initialize() {
-        addColumn(new H2ColumnDefine(CpuMetricTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(CpuMetricTable.COLUMN_METRIC_ID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(CpuMetricTable.COLUMN_INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(CpuMetricTable.COLUMN_USAGE_PERCENT, H2ColumnDefine.Type.Double.name()));
-        addColumn(new H2ColumnDefine(CpuMetricTable.COLUMN_TIMES, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(CpuMetricTable.COLUMN_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(CpuMetricTable.ID, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(CpuMetricTable.METRIC_ID, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(CpuMetricTable.INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(CpuMetricTable.USAGE_PERCENT, H2ColumnDefine.Type.Double.name()));
+        addColumn(new H2ColumnDefine(CpuMetricTable.TIMES, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(CpuMetricTable.TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
     }
 }

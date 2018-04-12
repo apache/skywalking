@@ -26,7 +26,7 @@ public enum AlarmType {
 
     private final int value;
 
-    private AlarmType(int value) {
+    AlarmType(int value) {
         this.value = value;
     }
 

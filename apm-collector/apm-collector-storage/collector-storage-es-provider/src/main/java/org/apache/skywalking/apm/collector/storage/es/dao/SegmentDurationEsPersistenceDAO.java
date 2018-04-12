@@ -59,14 +59,14 @@ public class SegmentDurationEsPersistenceDAO extends EsDAO implements ISegmentDu
     public IndexRequestBuilder prepareBatchInsert(SegmentDuration data) {
         logger.debug("segment cost prepareBatchInsert, getApplicationId: {}", data.getId());
         Map<String, Object> source = new HashMap<>();
-        source.put(SegmentDurationTable.COLUMN_SEGMENT_ID, data.getSegmentId());
-        source.put(SegmentDurationTable.COLUMN_APPLICATION_ID, data.getApplicationId());
-        source.put(SegmentDurationTable.COLUMN_SERVICE_NAME, data.getServiceName());
-        source.put(SegmentDurationTable.COLUMN_DURATION, data.getDuration());
-        source.put(SegmentDurationTable.COLUMN_START_TIME, data.getStartTime());
-        source.put(SegmentDurationTable.COLUMN_END_TIME, data.getEndTime());
-        source.put(SegmentDurationTable.COLUMN_IS_ERROR, data.getIsError());
-        source.put(SegmentDurationTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
+        source.put(SegmentDurationTable.SEGMENT_ID.getName(), data.getSegmentId());
+        source.put(SegmentDurationTable.APPLICATION_ID.getName(), data.getApplicationId());
+        source.put(SegmentDurationTable.SERVICE_NAME.getName(), data.getServiceName());
+        source.put(SegmentDurationTable.DURATION.getName(), data.getDuration());
+        source.put(SegmentDurationTable.START_TIME.getName(), data.getStartTime());
+        source.put(SegmentDurationTable.END_TIME.getName(), data.getEndTime());
+        source.put(SegmentDurationTable.IS_ERROR.getName(), data.getIsError());
+        source.put(SegmentDurationTable.TIME_BUCKET.getName(), data.getTimeBucket());
         logger.debug("segment cost source: {}", source.toString());
         return getClient().prepareIndex(SegmentDurationTable.TABLE, data.getId()).setSource(source);
     }
@@ -76,7 +76,7 @@ public class SegmentDurationEsPersistenceDAO extends EsDAO implements ISegmentDu
         long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
         long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
         BulkByScrollResponse response = getClient().prepareDelete(
-                QueryBuilders.rangeQuery(SegmentDurationTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket),
+                QueryBuilders.rangeQuery(SegmentDurationTable.TIME_BUCKET.getName()).gte(startTimeBucket).lte(endTimeBucket),
                 SegmentDurationTable.TABLE)
                 .get();
 

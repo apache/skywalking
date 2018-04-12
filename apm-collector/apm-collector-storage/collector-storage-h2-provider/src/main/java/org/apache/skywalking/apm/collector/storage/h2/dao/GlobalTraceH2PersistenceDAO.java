@@ -55,7 +55,7 @@ public class GlobalTraceH2PersistenceDAO extends H2DAO implements IGlobalTracePe
         H2SqlEntity entity = new H2SqlEntity();
         source.put(GlobalTraceTable.COLUMN_ID, data.getId());
         source.put(GlobalTraceTable.COLUMN_SEGMENT_ID, data.getSegmentId());
-        source.put(GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID, data.getGlobalTraceId());
+        source.put(GlobalTraceTable.COLUMN_TRACE_ID, data.getGlobalTraceId());
         source.put(GlobalTraceTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
         logger.debug("global trace source: {}", source.toString());
 

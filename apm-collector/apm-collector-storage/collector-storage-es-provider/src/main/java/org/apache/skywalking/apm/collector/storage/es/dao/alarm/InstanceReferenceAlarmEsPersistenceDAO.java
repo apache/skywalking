@@ -53,16 +53,16 @@ public class InstanceReferenceAlarmEsPersistenceDAO extends EsDAO implements IIn
             InstanceReferenceAlarm instanceReferenceAlarm = new InstanceReferenceAlarm();
             instanceReferenceAlarm.setId(id);
             Map<String, Object> source = getResponse.getSource();
-            instanceReferenceAlarm.setFrontApplicationId(((Number) source.get(InstanceReferenceAlarmTable.COLUMN_FRONT_APPLICATION_ID)).intValue());
-            instanceReferenceAlarm.setBehindApplicationId(((Number) source.get(InstanceReferenceAlarmTable.COLUMN_BEHIND_APPLICATION_ID)).intValue());
-            instanceReferenceAlarm.setFrontInstanceId(((Number) source.get(InstanceReferenceAlarmTable.COLUMN_FRONT_INSTANCE_ID)).intValue());
-            instanceReferenceAlarm.setBehindInstanceId(((Number) source.get(InstanceReferenceAlarmTable.COLUMN_BEHIND_INSTANCE_ID)).intValue());
-            instanceReferenceAlarm.setSourceValue(((Number) source.get(InstanceReferenceAlarmTable.COLUMN_SOURCE_VALUE)).intValue());
+            instanceReferenceAlarm.setFrontApplicationId(((Number) source.get(InstanceReferenceAlarmTable.FRONT_APPLICATION_ID.getName())).intValue());
+            instanceReferenceAlarm.setBehindApplicationId(((Number) source.get(InstanceReferenceAlarmTable.BEHIND_APPLICATION_ID.getName())).intValue());
+            instanceReferenceAlarm.setFrontInstanceId(((Number) source.get(InstanceReferenceAlarmTable.FRONT_INSTANCE_ID.getName())).intValue());
+            instanceReferenceAlarm.setBehindInstanceId(((Number) source.get(InstanceReferenceAlarmTable.BEHIND_INSTANCE_ID.getName())).intValue());
+            instanceReferenceAlarm.setSourceValue(((Number) source.get(InstanceReferenceAlarmTable.SOURCE_VALUE.getName())).intValue());
 
-            instanceReferenceAlarm.setAlarmType(((Number) source.get(InstanceReferenceAlarmTable.COLUMN_ALARM_TYPE)).intValue());
-            instanceReferenceAlarm.setAlarmContent((String) source.get(InstanceReferenceAlarmTable.COLUMN_ALARM_CONTENT));
+            instanceReferenceAlarm.setAlarmType(((Number) source.get(InstanceReferenceAlarmTable.ALARM_TYPE.getName())).intValue());
+            instanceReferenceAlarm.setAlarmContent((String) source.get(InstanceReferenceAlarmTable.ALARM_CONTENT.getName()));
 
-            instanceReferenceAlarm.setLastTimeBucket(((Number) source.get(InstanceReferenceAlarmTable.COLUMN_LAST_TIME_BUCKET)).longValue());
+            instanceReferenceAlarm.setLastTimeBucket(((Number) source.get(InstanceReferenceAlarmTable.LAST_TIME_BUCKET.getName())).longValue());
             return instanceReferenceAlarm;
         } else {
             return null;
@@ -72,16 +72,16 @@ public class InstanceReferenceAlarmEsPersistenceDAO extends EsDAO implements IIn
     @Override
     public IndexRequestBuilder prepareBatchInsert(InstanceReferenceAlarm data) {
         Map<String, Object> source = new HashMap<>();
-        source.put(InstanceReferenceAlarmTable.COLUMN_FRONT_APPLICATION_ID, data.getFrontApplicationId());
-        source.put(InstanceReferenceAlarmTable.COLUMN_BEHIND_APPLICATION_ID, data.getBehindApplicationId());
-        source.put(InstanceReferenceAlarmTable.COLUMN_FRONT_INSTANCE_ID, data.getFrontInstanceId());
-        source.put(InstanceReferenceAlarmTable.COLUMN_BEHIND_INSTANCE_ID, data.getBehindInstanceId());
-        source.put(InstanceReferenceAlarmTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
+        source.put(InstanceReferenceAlarmTable.FRONT_APPLICATION_ID.getName(), data.getFrontApplicationId());
+        source.put(InstanceReferenceAlarmTable.BEHIND_APPLICATION_ID.getName(), data.getBehindApplicationId());
+        source.put(InstanceReferenceAlarmTable.FRONT_INSTANCE_ID.getName(), data.getFrontInstanceId());
+        source.put(InstanceReferenceAlarmTable.BEHIND_INSTANCE_ID.getName(), data.getBehindInstanceId());
+        source.put(InstanceReferenceAlarmTable.SOURCE_VALUE.getName(), data.getSourceValue());
 
-        source.put(InstanceReferenceAlarmTable.COLUMN_ALARM_TYPE, data.getAlarmType());
-        source.put(InstanceReferenceAlarmTable.COLUMN_ALARM_CONTENT, data.getAlarmContent());
+        source.put(InstanceReferenceAlarmTable.ALARM_TYPE.getName(), data.getAlarmType());
+        source.put(InstanceReferenceAlarmTable.ALARM_CONTENT.getName(), data.getAlarmContent());
 
-        source.put(InstanceReferenceAlarmTable.COLUMN_LAST_TIME_BUCKET, data.getLastTimeBucket());
+        source.put(InstanceReferenceAlarmTable.LAST_TIME_BUCKET.getName(), data.getLastTimeBucket());
 
         return getClient().prepareIndex(InstanceReferenceAlarmTable.TABLE, data.getId()).setSource(source);
     }
@@ -89,16 +89,16 @@ public class InstanceReferenceAlarmEsPersistenceDAO extends EsDAO implements IIn
     @Override
     public UpdateRequestBuilder prepareBatchUpdate(InstanceReferenceAlarm data) {
         Map<String, Object> source = new HashMap<>();
-        source.put(InstanceReferenceAlarmTable.COLUMN_FRONT_APPLICATION_ID, data.getFrontApplicationId());
-        source.put(InstanceReferenceAlarmTable.COLUMN_BEHIND_APPLICATION_ID, data.getBehindApplicationId());
-        source.put(InstanceReferenceAlarmTable.COLUMN_FRONT_INSTANCE_ID, data.getFrontInstanceId());
-        source.put(InstanceReferenceAlarmTable.COLUMN_BEHIND_INSTANCE_ID, data.getBehindInstanceId());
-        source.put(InstanceReferenceAlarmTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
+        source.put(InstanceReferenceAlarmTable.FRONT_APPLICATION_ID.getName(), data.getFrontApplicationId());
+        source.put(InstanceReferenceAlarmTable.BEHIND_APPLICATION_ID.getName(), data.getBehindApplicationId());
+        source.put(InstanceReferenceAlarmTable.FRONT_INSTANCE_ID.getName(), data.getFrontInstanceId());
+        source.put(InstanceReferenceAlarmTable.BEHIND_INSTANCE_ID.getName(), data.getBehindInstanceId());
+        source.put(InstanceReferenceAlarmTable.SOURCE_VALUE.getName(), data.getSourceValue());
 
-        source.put(InstanceReferenceAlarmTable.COLUMN_ALARM_TYPE, data.getAlarmType());
-        source.put(InstanceReferenceAlarmTable.COLUMN_ALARM_CONTENT, data.getAlarmContent());
+        source.put(InstanceReferenceAlarmTable.ALARM_TYPE.getName(), data.getAlarmType());
+        source.put(InstanceReferenceAlarmTable.ALARM_CONTENT.getName(), data.getAlarmContent());
 
-        source.put(InstanceReferenceAlarmTable.COLUMN_LAST_TIME_BUCKET, data.getLastTimeBucket());
+        source.put(InstanceReferenceAlarmTable.LAST_TIME_BUCKET.getName(), data.getLastTimeBucket());
 
         return getClient().prepareUpdate(InstanceReferenceAlarmTable.TABLE, data.getId()).setDoc(source);
     }
@@ -108,7 +108,7 @@ public class InstanceReferenceAlarmEsPersistenceDAO extends EsDAO implements IIn
         long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
         long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
         BulkByScrollResponse response = getClient().prepareDelete(
-                QueryBuilders.rangeQuery(InstanceReferenceAlarmTable.COLUMN_LAST_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket),
+                QueryBuilders.rangeQuery(InstanceReferenceAlarmTable.LAST_TIME_BUCKET.getName()).gte(startTimeBucket).lte(endTimeBucket),
                 InstanceReferenceAlarmTable.TABLE)
                 .get();
 

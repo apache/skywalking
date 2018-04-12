@@ -60,7 +60,7 @@ public class NetworkAddressRegisterH2DAO extends H2DAO implements INetworkAddres
         source.put(NetworkAddressTable.COLUMN_ID, networkAddress.getId());
         source.put(NetworkAddressTable.COLUMN_NETWORK_ADDRESS, networkAddress.getNetworkAddress());
         source.put(NetworkAddressTable.COLUMN_ADDRESS_ID, networkAddress.getAddressId());
-        source.put(NetworkAddressTable.COLUMN_SPAN_LAYER, networkAddress.getSpanLayer());
+        source.put(NetworkAddressTable.COLUMN_SPAN_LAYER, networkAddress.getSrcSpanLayer());
         source.put(NetworkAddressTable.COLUMN_SERVER_TYPE, networkAddress.getServerType());
 
         String sql = SqlBuilder.buildBatchInsertSql(NetworkAddressTable.TABLE, source.keySet());

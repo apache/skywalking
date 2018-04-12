@@ -31,8 +31,8 @@ import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterServ
 public class ServiceName extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(ServiceNameTable.COLUMN_ID, new NonMergeOperation()),
-        new Column(ServiceNameTable.COLUMN_SERVICE_NAME, new CoverMergeOperation()),
+        new Column(ServiceNameTable.ID, new NonMergeOperation()),
+        new Column(ServiceNameTable.SERVICE_NAME, new CoverMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {};
@@ -40,9 +40,9 @@ public class ServiceName extends StreamData {
     private static final Column[] DOUBLE_COLUMNS = {};
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(ServiceNameTable.COLUMN_APPLICATION_ID, new CoverMergeOperation()),
-        new Column(ServiceNameTable.COLUMN_SERVICE_ID, new CoverMergeOperation()),
-        new Column(ServiceNameTable.COLUMN_SRC_SPAN_TYPE, new CoverMergeOperation()),
+        new Column(ServiceNameTable.APPLICATION_ID, new CoverMergeOperation()),
+        new Column(ServiceNameTable.SERVICE_ID, new CoverMergeOperation()),
+        new Column(ServiceNameTable.SRC_SPAN_TYPE, new CoverMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};

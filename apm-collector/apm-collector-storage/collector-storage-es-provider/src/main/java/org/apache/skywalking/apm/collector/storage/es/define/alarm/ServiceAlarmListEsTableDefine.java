@@ -36,15 +36,15 @@ public class ServiceAlarmListEsTableDefine extends ElasticSearchTableDefine {
     }
 
     @Override public void initialize() {
-        addColumn(new ElasticSearchColumnDefine(ServiceAlarmListTable.COLUMN_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(ServiceAlarmListTable.COLUMN_INSTANCE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(ServiceAlarmListTable.COLUMN_SERVICE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceAlarmListTable.APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceAlarmListTable.INSTANCE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceAlarmListTable.SERVICE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
 
-        addColumn(new ElasticSearchColumnDefine(ServiceAlarmListTable.COLUMN_SOURCE_VALUE, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(ServiceAlarmListTable.COLUMN_ALARM_TYPE, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceAlarmListTable.SOURCE_VALUE, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceAlarmListTable.ALARM_TYPE, ElasticSearchColumnDefine.Type.Integer.name()));
 
-        addColumn(new ElasticSearchColumnDefine(ServiceAlarmListTable.COLUMN_ALARM_CONTENT, ElasticSearchColumnDefine.Type.Text.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceAlarmListTable.ALARM_CONTENT, ElasticSearchColumnDefine.Type.Text.name()));
 
-        addColumn(new ElasticSearchColumnDefine(ServiceAlarmListTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceAlarmListTable.TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
     }
 }

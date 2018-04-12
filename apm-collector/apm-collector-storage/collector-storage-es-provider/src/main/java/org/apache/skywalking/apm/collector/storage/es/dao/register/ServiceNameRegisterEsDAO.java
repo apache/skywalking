@@ -42,22 +42,22 @@ public class ServiceNameRegisterEsDAO extends EsDAO implements IServiceNameRegis
     }
 
     @Override public int getMaxServiceId() {
-        return getMaxId(ServiceNameTable.TABLE, ServiceNameTable.COLUMN_SERVICE_ID);
+        return getMaxId(ServiceNameTable.TABLE, ServiceNameTable.SERVICE_ID.getName());
     }
 
     @Override public int getMinServiceId() {
-        return getMinId(ServiceNameTable.TABLE, ServiceNameTable.COLUMN_SERVICE_ID);
+        return getMinId(ServiceNameTable.TABLE, ServiceNameTable.SERVICE_ID.getName());
     }
 
     @Override public void save(ServiceName serviceName) {
         logger.debug("save service name register info, application getApplicationId: {}, service name: {}", serviceName.getId(), serviceName.getServiceName());
         ElasticSearchClient client = getClient();
         Map<String, Object> source = new HashMap<>();
-        source.put(ServiceNameTable.COLUMN_SERVICE_ID, serviceName.getServiceId());
-        source.put(ServiceNameTable.COLUMN_APPLICATION_ID, serviceName.getApplicationId());
-        source.put(ServiceNameTable.COLUMN_SERVICE_NAME, serviceName.getServiceName());
-        source.put(ServiceNameTable.COLUMN_SERVICE_NAME_KEYWORD, serviceName.getServiceName());
-        source.put(ServiceNameTable.COLUMN_SRC_SPAN_TYPE, serviceName.getSrcSpanType());
+        source.put(ServiceNameTable.SERVICE_ID.getName(), serviceName.getServiceId());
+        source.put(ServiceNameTable.APPLICATION_ID.getName(), serviceName.getApplicationId());
+        source.put(ServiceNameTable.SERVICE_NAME.getName(), serviceName.getServiceName());
+        source.put(ServiceNameTable.SERVICE_NAME_KEYWORD.getName(), serviceName.getServiceName());
+        source.put(ServiceNameTable.SRC_SPAN_TYPE.getName(), serviceName.getSrcSpanType());
 
         IndexResponse response = client.prepareIndex(ServiceNameTable.TABLE, serviceName.getId()).setSource(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
         logger.debug("save service name register info, application getApplicationId: {}, service name: {}, status: {}", serviceName.getId(), serviceName.getServiceName(), response.status().name());

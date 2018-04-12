@@ -36,30 +36,30 @@ public abstract class AbstractCpuMetricEsPersistenceDAO extends AbstractPersiste
     }
 
     @Override protected final String timeBucketColumnNameForDelete() {
-        return CpuMetricTable.COLUMN_TIME_BUCKET;
+        return CpuMetricTable.TIME_BUCKET.getName();
     }
 
     @Override protected final CpuMetric esDataToStreamData(Map<String, Object> source) {
         CpuMetric cpuMetric = new CpuMetric();
-        cpuMetric.setMetricId((String)source.get(CpuMetricTable.COLUMN_METRIC_ID));
+        cpuMetric.setMetricId((String)source.get(CpuMetricTable.METRIC_ID.getName()));
 
-        cpuMetric.setInstanceId(((Number)source.get(CpuMetricTable.COLUMN_INSTANCE_ID)).intValue());
+        cpuMetric.setInstanceId(((Number)source.get(CpuMetricTable.INSTANCE_ID.getName())).intValue());
 
-        cpuMetric.setUsagePercent(((Number)source.get(CpuMetricTable.COLUMN_USAGE_PERCENT)).doubleValue());
-        cpuMetric.setTimes(((Number)source.get(CpuMetricTable.COLUMN_TIMES)).longValue());
-        cpuMetric.setTimeBucket(((Number)source.get(CpuMetricTable.COLUMN_TIME_BUCKET)).longValue());
+        cpuMetric.setUsagePercent(((Number)source.get(CpuMetricTable.USAGE_PERCENT.getName())).doubleValue());
+        cpuMetric.setTimes(((Number)source.get(CpuMetricTable.TIMES.getName())).longValue());
+        cpuMetric.setTimeBucket(((Number)source.get(CpuMetricTable.TIME_BUCKET.getName())).longValue());
 
         return cpuMetric;
     }
 
     @Override protected final Map<String, Object> esStreamDataToEsData(CpuMetric streamData) {
         Map<String, Object> source = new HashMap<>();
-        source.put(CpuMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
+        source.put(CpuMetricTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(CpuMetricTable.COLUMN_INSTANCE_ID, streamData.getInstanceId());
-        source.put(CpuMetricTable.COLUMN_USAGE_PERCENT, streamData.getUsagePercent());
-        source.put(CpuMetricTable.COLUMN_TIMES, streamData.getTimes());
-        source.put(CpuMetricTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
+        source.put(CpuMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId());
+        source.put(CpuMetricTable.USAGE_PERCENT.getName(), streamData.getUsagePercent());
+        source.put(CpuMetricTable.TIMES.getName(), streamData.getTimes());
+        source.put(CpuMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
 
         return source;
     }

@@ -21,94 +21,61 @@ package org.apache.skywalking.apm.collector.storage.es.dao.alarm;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.dao.alarm.IServiceAlarmListPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ServiceAlarmList;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ServiceAlarmListTable;
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.reindex.BulkByScrollResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceAlarmListEsPersistenceDAO extends EsDAO implements IServiceAlarmListPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, ServiceAlarmList> {
-
-    private static final Logger logger = LoggerFactory.getLogger(ServiceAlarmListEsPersistenceDAO.class);
+public class ServiceAlarmListEsPersistenceDAO extends AbstractPersistenceEsDAO<ServiceAlarmList> implements IServiceAlarmListPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, ServiceAlarmList> {
 
     public ServiceAlarmListEsPersistenceDAO(ElasticSearchClient client) {
         super(client);
     }
 
-    @Override
-    public ServiceAlarmList get(String id) {
-        GetResponse getResponse = getClient().prepareGet(ServiceAlarmListTable.TABLE, id).get();
-        if (getResponse.isExists()) {
-            ServiceAlarmList serviceAlarmList = new ServiceAlarmList();
-            serviceAlarmList.setId(id);
-            Map<String, Object> source = getResponse.getSource();
-            serviceAlarmList.setApplicationId(((Number)source.get(ServiceAlarmListTable.COLUMN_APPLICATION_ID)).intValue());
-            serviceAlarmList.setInstanceId(((Number)source.get(ServiceAlarmListTable.COLUMN_INSTANCE_ID)).intValue());
-            serviceAlarmList.setServiceId(((Number)source.get(ServiceAlarmListTable.COLUMN_SERVICE_ID)).intValue());
-            serviceAlarmList.setSourceValue(((Number)source.get(ServiceAlarmListTable.COLUMN_SOURCE_VALUE)).intValue());
-
-            serviceAlarmList.setAlarmType(((Number)source.get(ServiceAlarmListTable.COLUMN_ALARM_TYPE)).intValue());
-            serviceAlarmList.setAlarmContent((String)source.get(ServiceAlarmListTable.COLUMN_ALARM_CONTENT));
-
-            serviceAlarmList.setTimeBucket(((Number)source.get(ServiceAlarmListTable.COLUMN_TIME_BUCKET)).longValue());
-            return serviceAlarmList;
-        } else {
-            return null;
-        }
+    @Override protected String tableName() {
+        return ServiceAlarmListTable.TABLE;
     }
 
-    @Override
-    public IndexRequestBuilder prepareBatchInsert(ServiceAlarmList data) {
+    @Override protected ServiceAlarmList esDataToStreamData(Map<String, Object> source) {
+        ServiceAlarmList serviceAlarmList = new ServiceAlarmList();
+        serviceAlarmList.setApplicationId(((Number)source.get(ServiceAlarmListTable.APPLICATION_ID.getName())).intValue());
+        serviceAlarmList.setInstanceId(((Number)source.get(ServiceAlarmListTable.INSTANCE_ID.getName())).intValue());
+        serviceAlarmList.setServiceId(((Number)source.get(ServiceAlarmListTable.SERVICE_ID.getName())).intValue());
+        serviceAlarmList.setSourceValue(((Number)source.get(ServiceAlarmListTable.SOURCE_VALUE.getName())).intValue());
+
+        serviceAlarmList.setAlarmType(((Number)source.get(ServiceAlarmListTable.ALARM_TYPE.getName())).intValue());
+        serviceAlarmList.setAlarmContent((String)source.get(ServiceAlarmListTable.ALARM_CONTENT.getName()));
+
+        serviceAlarmList.setTimeBucket(((Number)source.get(ServiceAlarmListTable.TIME_BUCKET.getName())).longValue());
+        return serviceAlarmList;
+    }
+
+    @Override protected Map<String, Object> esStreamDataToEsData(ServiceAlarmList streamData) {
         Map<String, Object> source = new HashMap<>();
-        source.put(ServiceAlarmListTable.COLUMN_APPLICATION_ID, data.getApplicationId());
-        source.put(ServiceAlarmListTable.COLUMN_INSTANCE_ID, data.getInstanceId());
-        source.put(ServiceAlarmListTable.COLUMN_SERVICE_ID, data.getServiceId());
-        source.put(ServiceAlarmListTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
+        source.put(ServiceAlarmListTable.APPLICATION_ID.getName(), streamData.getApplicationId());
+        source.put(ServiceAlarmListTable.INSTANCE_ID.getName(), streamData.getInstanceId());
+        source.put(ServiceAlarmListTable.SERVICE_ID.getName(), streamData.getServiceId());
+        source.put(ServiceAlarmListTable.SOURCE_VALUE.getName(), streamData.getSourceValue());
 
-        source.put(ServiceAlarmListTable.COLUMN_ALARM_TYPE, data.getAlarmType());
-        source.put(ServiceAlarmListTable.COLUMN_ALARM_CONTENT, data.getAlarmContent());
+        source.put(ServiceAlarmListTable.ALARM_TYPE.getName(), streamData.getAlarmType());
+        source.put(ServiceAlarmListTable.ALARM_CONTENT.getName(), streamData.getAlarmContent());
 
-        source.put(ServiceAlarmListTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
-
-        return getClient().prepareIndex(ServiceAlarmListTable.TABLE, data.getId()).setSource(source);
+        source.put(ServiceAlarmListTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
+        return source;
     }
 
-    @Override
-    public UpdateRequestBuilder prepareBatchUpdate(ServiceAlarmList data) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(ServiceAlarmListTable.COLUMN_APPLICATION_ID, data.getApplicationId());
-        source.put(ServiceAlarmListTable.COLUMN_INSTANCE_ID, data.getInstanceId());
-        source.put(ServiceAlarmListTable.COLUMN_SERVICE_ID, data.getServiceId());
-        source.put(ServiceAlarmListTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
-
-        source.put(ServiceAlarmListTable.COLUMN_ALARM_TYPE, data.getAlarmType());
-        source.put(ServiceAlarmListTable.COLUMN_ALARM_CONTENT, data.getAlarmContent());
-
-        source.put(ServiceAlarmListTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
-
-        return getClient().prepareUpdate(ServiceAlarmListTable.TABLE, data.getId()).setDoc(source);
+    @Override protected String timeBucketColumnNameForDelete() {
+        return ServiceAlarmListTable.TIME_BUCKET.getName();
     }
 
-    @Override
-    public void deleteHistory(Long startTimestamp, Long endTimestamp) {
-        long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
-        long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
-        BulkByScrollResponse response = getClient().prepareDelete(
-            QueryBuilders.rangeQuery(ServiceAlarmListTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket),
-            ServiceAlarmListTable.TABLE)
-            .get();
-
-        long deleted = response.getDeleted();
-        logger.info("Delete {} rows history from {} index.", deleted, ServiceAlarmListTable.TABLE);
+    @GraphComputingMetric(name = "/persistence/get/" + ServiceAlarmListTable.TABLE)
+    @Override public ServiceAlarmList get(String id) {
+        return super.get(id);
     }
 }

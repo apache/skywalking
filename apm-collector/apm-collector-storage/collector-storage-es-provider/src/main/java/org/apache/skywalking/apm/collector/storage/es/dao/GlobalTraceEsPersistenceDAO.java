@@ -59,9 +59,9 @@ public class GlobalTraceEsPersistenceDAO extends EsDAO implements IGlobalTracePe
     @Override
     public IndexRequestBuilder prepareBatchInsert(GlobalTrace data) {
         Map<String, Object> source = new HashMap<>();
-        source.put(GlobalTraceTable.COLUMN_SEGMENT_ID, data.getSegmentId());
-        source.put(GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID, data.getGlobalTraceId());
-        source.put(GlobalTraceTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
+        source.put(GlobalTraceTable.SEGMENT_ID.getName(), data.getSegmentId());
+        source.put(GlobalTraceTable.TRACE_ID.getName(), data.getGlobalTraceId());
+        source.put(GlobalTraceTable.TIME_BUCKET.getName(), data.getTimeBucket());
         logger.debug("global trace source: {}", source.toString());
         return getClient().prepareIndex(GlobalTraceTable.TABLE, data.getId()).setSource(source);
     }
@@ -71,7 +71,7 @@ public class GlobalTraceEsPersistenceDAO extends EsDAO implements IGlobalTracePe
         long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
         long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
         BulkByScrollResponse response = getClient().prepareDelete(
-                QueryBuilders.rangeQuery(GlobalTraceTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket),
+                QueryBuilders.rangeQuery(GlobalTraceTable.TIME_BUCKET.getName()).gte(startTimeBucket).lte(endTimeBucket),
                 GlobalTraceTable.TABLE)
                 .get();
 

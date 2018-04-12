@@ -44,31 +44,31 @@ public class ApplicationReferenceAlarmListH2PersistenceDAO extends AbstractPersi
 
     @Override protected ApplicationReferenceAlarmList h2DataToStreamData(ResultSet resultSet) throws SQLException {
         ApplicationReferenceAlarmList applicationReferenceAlarmList = new ApplicationReferenceAlarmList();
-        applicationReferenceAlarmList.setId(resultSet.getString(ApplicationReferenceAlarmListTable.COLUMN_ID));
-        applicationReferenceAlarmList.setSourceValue(resultSet.getInt(ApplicationReferenceAlarmListTable.COLUMN_SOURCE_VALUE));
+        applicationReferenceAlarmList.setId(resultSet.getString(ApplicationReferenceAlarmListTable.ID.getName()));
+        applicationReferenceAlarmList.setSourceValue(resultSet.getInt(ApplicationReferenceAlarmListTable.SOURCE_VALUE.getName()));
 
-        applicationReferenceAlarmList.setAlarmType(resultSet.getInt(ApplicationReferenceAlarmListTable.COLUMN_ALARM_TYPE));
+        applicationReferenceAlarmList.setAlarmType(resultSet.getInt(ApplicationReferenceAlarmListTable.ALARM_TYPE.getName()));
 
-        applicationReferenceAlarmList.setFrontApplicationId(resultSet.getInt(ApplicationReferenceAlarmListTable.COLUMN_FRONT_APPLICATION_ID));
-        applicationReferenceAlarmList.setBehindApplicationId(resultSet.getInt(ApplicationReferenceAlarmListTable.COLUMN_BEHIND_APPLICATION_ID));
+        applicationReferenceAlarmList.setFrontApplicationId(resultSet.getInt(ApplicationReferenceAlarmListTable.FRONT_APPLICATION_ID.getName()));
+        applicationReferenceAlarmList.setBehindApplicationId(resultSet.getInt(ApplicationReferenceAlarmListTable.BEHIND_APPLICATION_ID.getName()));
 
-        applicationReferenceAlarmList.setTimeBucket(resultSet.getLong(ApplicationReferenceAlarmListTable.COLUMN_TIME_BUCKET));
-        applicationReferenceAlarmList.setAlarmContent(resultSet.getString(ApplicationReferenceAlarmListTable.COLUMN_ALARM_CONTENT));
+        applicationReferenceAlarmList.setTimeBucket(resultSet.getLong(ApplicationReferenceAlarmListTable.TIME_BUCKET.getName()));
+        applicationReferenceAlarmList.setAlarmContent(resultSet.getString(ApplicationReferenceAlarmListTable.ALARM_CONTENT.getName()));
 
         return applicationReferenceAlarmList;
     }
 
     @Override protected Map<String, Object> streamDataToH2Data(ApplicationReferenceAlarmList streamData) {
         Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationReferenceAlarmListTable.COLUMN_SOURCE_VALUE, streamData.getSourceValue());
+        source.put(ApplicationReferenceAlarmListTable.SOURCE_VALUE.getName(), streamData.getSourceValue());
 
-        source.put(ApplicationReferenceAlarmListTable.COLUMN_ALARM_TYPE, streamData.getAlarmType());
+        source.put(ApplicationReferenceAlarmListTable.ALARM_TYPE.getName(), streamData.getAlarmType());
 
-        source.put(ApplicationReferenceAlarmListTable.COLUMN_FRONT_APPLICATION_ID, streamData.getFrontApplicationId());
-        source.put(ApplicationReferenceAlarmListTable.COLUMN_BEHIND_APPLICATION_ID, streamData.getBehindApplicationId());
+        source.put(ApplicationReferenceAlarmListTable.FRONT_APPLICATION_ID.getName(), streamData.getFrontApplicationId());
+        source.put(ApplicationReferenceAlarmListTable.BEHIND_APPLICATION_ID.getName(), streamData.getBehindApplicationId());
 
-        source.put(ApplicationReferenceAlarmListTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
-        source.put(ApplicationReferenceAlarmListTable.COLUMN_ALARM_CONTENT, streamData.getAlarmContent());
+        source.put(ApplicationReferenceAlarmListTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
+        source.put(ApplicationReferenceAlarmListTable.ALARM_CONTENT.getName(), streamData.getAlarmContent());
 
         return source;
     }

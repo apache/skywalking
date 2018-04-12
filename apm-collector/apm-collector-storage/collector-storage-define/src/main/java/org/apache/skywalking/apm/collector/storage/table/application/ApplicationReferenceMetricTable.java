@@ -18,16 +18,12 @@
 
 package org.apache.skywalking.apm.collector.storage.table.application;
 
-import org.apache.skywalking.apm.collector.storage.table.CommonMetricTable;
+import org.apache.skywalking.apm.collector.storage.table.MetricColumns;
+import org.apache.skywalking.apm.collector.storage.table.ReferenceColumns;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationReferenceMetricTable extends CommonMetricTable {
-    public static final String TABLE = "application_reference_metric";
-    public static final String COLUMN_FRONT_APPLICATION_ID = "front_application_id";
-    public static final String COLUMN_BEHIND_APPLICATION_ID = "behind_application_id";
-    public static final String COLUMN_SATISFIED_COUNT = "satisfied_count";
-    public static final String COLUMN_TOLERATING_COUNT = "tolerating_count";
-    public static final String COLUMN_FRUSTRATED_COUNT = "frustrated_count";
+public interface ApplicationReferenceMetricTable extends MetricColumns, ReferenceColumns {
+    String TABLE = "application_reference_metric";
 }

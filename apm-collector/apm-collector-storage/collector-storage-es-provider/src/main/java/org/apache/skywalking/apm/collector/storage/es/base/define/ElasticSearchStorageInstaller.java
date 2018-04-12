@@ -95,13 +95,13 @@ public class ElasticSearchStorageInstaller extends StorageInstaller {
 
             if (ElasticSearchColumnDefine.Type.Text.name().toLowerCase().equals(elasticSearchColumnDefine.getType().toLowerCase())) {
                 mappingBuilder
-                    .startObject(elasticSearchColumnDefine.getName())
+                    .startObject(elasticSearchColumnDefine.getFullName())
                     .field("type", elasticSearchColumnDefine.getType().toLowerCase())
                     .field("analyzer", "collector_analyzer")
                     .endObject();
             } else {
                 mappingBuilder
-                    .startObject(elasticSearchColumnDefine.getName())
+                    .startObject(elasticSearchColumnDefine.getFullName())
                     .field("type", elasticSearchColumnDefine.getType().toLowerCase())
                     .endObject();
             }

@@ -16,16 +16,17 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.table.global;
 
+import org.apache.skywalking.apm.collector.core.data.ColumnName;
 import org.apache.skywalking.apm.collector.core.data.CommonTable;
+import org.apache.skywalking.apm.collector.storage.table.segment.SegmentTable;
 
 /**
  * @author peng-yongsheng
  */
-public class GlobalTraceTable extends CommonTable {
-    public static final String TABLE = "global_trace";
-    public static final String COLUMN_SEGMENT_ID = "segment_id";
-    public static final String COLUMN_GLOBAL_TRACE_ID = "global_trace_id";
+public interface GlobalTraceTable extends CommonTable, SegmentTable {
+    String TABLE = "global_trace";
+
+    ColumnName TRACE_ID = new ColumnName("trace_id", "ti");
 }

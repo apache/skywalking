@@ -59,8 +59,8 @@ public class CpuMetricEsUIDAO extends EsDAO implements ICpuMetricUIDAO {
         MultiGetResponse multiGetResponse = prepareMultiGet.get();
         for (MultiGetItemResponse response : multiGetResponse.getResponses()) {
             if (response.getResponse().isExists()) {
-                double cpuUsed = ((Number) response.getResponse().getSource().get(CpuMetricTable.COLUMN_USAGE_PERCENT)).doubleValue();
-                long times = ((Number) response.getResponse().getSource().get(CpuMetricTable.COLUMN_TIMES)).longValue();
+                double cpuUsed = ((Number) response.getResponse().getSource().get(CpuMetricTable.USAGE_PERCENT.getName())).doubleValue();
+                long times = ((Number) response.getResponse().getSource().get(CpuMetricTable.TIMES.getName())).longValue();
                 cpuTrends.add((int) ((cpuUsed / times) * 100));
             } else {
                 cpuTrends.add(0);

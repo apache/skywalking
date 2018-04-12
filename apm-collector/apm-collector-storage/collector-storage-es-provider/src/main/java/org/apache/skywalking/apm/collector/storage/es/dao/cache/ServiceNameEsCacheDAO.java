@@ -48,9 +48,9 @@ public class ServiceNameEsCacheDAO extends EsDAO implements IServiceNameCacheDAO
 
         if (getResponse.isExists()) {
             ServiceName serviceName = new ServiceName();
-            serviceName.setApplicationId(((Number)getResponse.getSource().get(ServiceNameTable.COLUMN_APPLICATION_ID)).intValue());
+            serviceName.setApplicationId(((Number)getResponse.getSource().get(ServiceNameTable.APPLICATION_ID.getName())).intValue());
             serviceName.setServiceId(serviceId);
-            serviceName.setServiceName((String)getResponse.getSource().get(ServiceNameTable.COLUMN_SERVICE_NAME));
+            serviceName.setServiceName((String)getResponse.getSource().get(ServiceNameTable.SERVICE_NAME.getName()));
             return serviceName;
         }
         return null;
@@ -62,16 +62,16 @@ public class ServiceNameEsCacheDAO extends EsDAO implements IServiceNameCacheDAO
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.termQuery(ServiceNameTable.COLUMN_APPLICATION_ID, applicationId));
-        boolQuery.must().add(QueryBuilders.termQuery(ServiceNameTable.COLUMN_SRC_SPAN_TYPE, srcSpanType));
-        boolQuery.must().add(QueryBuilders.termQuery(ServiceNameTable.COLUMN_SERVICE_NAME_KEYWORD, serviceName));
+        boolQuery.must().add(QueryBuilders.termQuery(ServiceNameTable.APPLICATION_ID.getName(), applicationId));
+        boolQuery.must().add(QueryBuilders.termQuery(ServiceNameTable.SRC_SPAN_TYPE.getName(), srcSpanType));
+        boolQuery.must().add(QueryBuilders.termQuery(ServiceNameTable.SERVICE_NAME_KEYWORD.getName(), serviceName));
         searchRequestBuilder.setQuery(boolQuery);
         searchRequestBuilder.setSize(1);
 
         SearchResponse searchResponse = searchRequestBuilder.get();
         if (searchResponse.getHits().totalHits > 0) {
             SearchHit searchHit = searchResponse.getHits().iterator().next();
-            return (int)searchHit.getSource().get(ServiceNameTable.COLUMN_SERVICE_ID);
+            return (int)searchHit.getSource().get(ServiceNameTable.SERVICE_ID.getName());
         }
         return 0;
     }

@@ -42,21 +42,21 @@ public class NetworkAddressRegisterEsDAO extends EsDAO implements INetworkAddres
     }
 
     @Override public int getMaxNetworkAddressId() {
-        return getMaxId(NetworkAddressTable.TABLE, NetworkAddressTable.COLUMN_ADDRESS_ID);
+        return getMaxId(NetworkAddressTable.TABLE, NetworkAddressTable.ADDRESS_ID.getName());
     }
 
     @Override public int getMinNetworkAddressId() {
-        return getMinId(NetworkAddressTable.TABLE, NetworkAddressTable.COLUMN_ADDRESS_ID);
+        return getMinId(NetworkAddressTable.TABLE, NetworkAddressTable.ADDRESS_ID.getName());
     }
 
     @Override public void save(NetworkAddress networkAddress) {
         logger.debug("save network address register info, address getApplicationId: {}, network address code: {}", networkAddress.getId(), networkAddress.getNetworkAddress());
         ElasticSearchClient client = getClient();
         Map<String, Object> source = new HashMap<>();
-        source.put(NetworkAddressTable.COLUMN_NETWORK_ADDRESS, networkAddress.getNetworkAddress());
-        source.put(NetworkAddressTable.COLUMN_ADDRESS_ID, networkAddress.getAddressId());
-        source.put(NetworkAddressTable.COLUMN_SPAN_LAYER, networkAddress.getSpanLayer());
-        source.put(NetworkAddressTable.COLUMN_SERVER_TYPE, networkAddress.getServerType());
+        source.put(NetworkAddressTable.NETWORK_ADDRESS.getName(), networkAddress.getNetworkAddress());
+        source.put(NetworkAddressTable.ADDRESS_ID.getName(), networkAddress.getAddressId());
+        source.put(NetworkAddressTable.SRC_SPAN_LAYER.getName(), networkAddress.getSrcSpanLayer());
+        source.put(NetworkAddressTable.SERVER_TYPE.getName(), networkAddress.getServerType());
 
         IndexResponse response = client.prepareIndex(NetworkAddressTable.TABLE, networkAddress.getId()).setSource(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
         logger.debug("save network address register info, address getApplicationId: {}, network address code: {}, status: {}", networkAddress.getAddressId(), networkAddress.getNetworkAddress(), response.status().name());
@@ -66,8 +66,8 @@ public class NetworkAddressRegisterEsDAO extends EsDAO implements INetworkAddres
         ElasticSearchClient client = getClient();
 
         Map<String, Object> source = new HashMap<>();
-        source.put(NetworkAddressTable.COLUMN_SPAN_LAYER, spanLayer);
-        source.put(NetworkAddressTable.COLUMN_SERVER_TYPE, serverType);
+        source.put(NetworkAddressTable.SRC_SPAN_LAYER.getName(), spanLayer);
+        source.put(NetworkAddressTable.SERVER_TYPE.getName(), serverType);
         client.prepareUpdate(NetworkAddressTable.TABLE, id).setDoc(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
     }
 }
