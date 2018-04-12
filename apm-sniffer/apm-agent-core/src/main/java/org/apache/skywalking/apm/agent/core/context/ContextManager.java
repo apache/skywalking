@@ -204,4 +204,5 @@ public class ContextManager implements TracingContextListener, BootService, Igno
     public static boolean isActive() {
         return CONTEXT.get() != null;
     }
+
 }
