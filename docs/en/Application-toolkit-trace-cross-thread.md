@@ -32,9 +32,5 @@
 ```
 _Sample codes only_
 
-##trace cross thread plugin description
-* when parent thread's traceContext not exists,before calling first child thread will generate a LocalSpan, calling every other child thread will generate a LocalSpan
-* when parent thread's traceContext exists, calling any child thread will generate  LocalSpan
-
 
 
