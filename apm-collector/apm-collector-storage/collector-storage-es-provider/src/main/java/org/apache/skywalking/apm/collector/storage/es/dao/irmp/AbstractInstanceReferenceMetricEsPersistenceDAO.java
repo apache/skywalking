@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
+import org.apache.skywalking.apm.collector.storage.es.MetricTransformUtil;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetric;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetricTable;
@@ -47,27 +48,9 @@ public abstract class AbstractInstanceReferenceMetricEsPersistenceDAO extends Ab
         instanceReferenceMetric.setBehindApplicationId((Integer)source.get(InstanceReferenceMetricTable.BEHIND_APPLICATION_ID.getName()));
         instanceReferenceMetric.setFrontInstanceId((Integer)source.get(InstanceReferenceMetricTable.FRONT_INSTANCE_ID.getName()));
         instanceReferenceMetric.setBehindInstanceId((Integer)source.get(InstanceReferenceMetricTable.BEHIND_INSTANCE_ID.getName()));
-        instanceReferenceMetric.setSourceValue((Integer)source.get(InstanceReferenceMetricTable.SOURCE_VALUE.getName()));
 
-        instanceReferenceMetric.setTransactionCalls(((Number)source.get(InstanceReferenceMetricTable.TRANSACTION_CALLS.getName())).longValue());
-        instanceReferenceMetric.setTransactionErrorCalls(((Number)source.get(InstanceReferenceMetricTable.TRANSACTION_ERROR_CALLS.getName())).longValue());
-        instanceReferenceMetric.setTransactionDurationSum(((Number)source.get(InstanceReferenceMetricTable.TRANSACTION_DURATION_SUM.getName())).longValue());
-        instanceReferenceMetric.setTransactionErrorDurationSum(((Number)source.get(InstanceReferenceMetricTable.TRANSACTION_ERROR_DURATION_SUM.getName())).longValue());
-        instanceReferenceMetric.setTransactionAverageDuration(((Number)source.get(InstanceReferenceMetricTable.TRANSACTION_AVERAGE_DURATION.getName())).longValue());
+        MetricTransformUtil.INSTANCE.esDataToStreamData(source, instanceReferenceMetric);
 
-        instanceReferenceMetric.setBusinessTransactionCalls(((Number)source.get(InstanceReferenceMetricTable.BUSINESS_TRANSACTION_CALLS.getName())).longValue());
-        instanceReferenceMetric.setBusinessTransactionErrorCalls(((Number)source.get(InstanceReferenceMetricTable.BUSINESS_TRANSACTION_ERROR_CALLS.getName())).longValue());
-        instanceReferenceMetric.setBusinessTransactionDurationSum(((Number)source.get(InstanceReferenceMetricTable.BUSINESS_TRANSACTION_DURATION_SUM.getName())).longValue());
-        instanceReferenceMetric.setBusinessTransactionErrorDurationSum(((Number)source.get(InstanceReferenceMetricTable.BUSINESS_TRANSACTION_ERROR_DURATION_SUM.getName())).longValue());
-        instanceReferenceMetric.setBusinessTransactionAverageDuration(((Number)source.get(InstanceReferenceMetricTable.BUSINESS_TRANSACTION_AVERAGE_DURATION.getName())).longValue());
-
-        instanceReferenceMetric.setMqTransactionCalls(((Number)source.get(InstanceReferenceMetricTable.MQ_TRANSACTION_CALLS.getName())).longValue());
-        instanceReferenceMetric.setMqTransactionErrorCalls(((Number)source.get(InstanceReferenceMetricTable.MQ_TRANSACTION_ERROR_CALLS.getName())).longValue());
-        instanceReferenceMetric.setMqTransactionDurationSum(((Number)source.get(InstanceReferenceMetricTable.MQ_TRANSACTION_DURATION_SUM.getName())).longValue());
-        instanceReferenceMetric.setMqTransactionErrorDurationSum(((Number)source.get(InstanceReferenceMetricTable.MQ_TRANSACTION_ERROR_DURATION_SUM.getName())).longValue());
-        instanceReferenceMetric.setMqTransactionAverageDuration(((Number)source.get(InstanceReferenceMetricTable.MQ_TRANSACTION_AVERAGE_DURATION.getName())).longValue());
-
-        instanceReferenceMetric.setTimeBucket(((Number)source.get(InstanceReferenceMetricTable.TIME_BUCKET.getName())).longValue());
         return instanceReferenceMetric;
     }
 
@@ -79,27 +62,8 @@ public abstract class AbstractInstanceReferenceMetricEsPersistenceDAO extends Ab
         source.put(InstanceReferenceMetricTable.BEHIND_APPLICATION_ID.getName(), streamData.getBehindApplicationId());
         source.put(InstanceReferenceMetricTable.FRONT_INSTANCE_ID.getName(), streamData.getFrontInstanceId());
         source.put(InstanceReferenceMetricTable.BEHIND_INSTANCE_ID.getName(), streamData.getBehindInstanceId());
-        source.put(InstanceReferenceMetricTable.SOURCE_VALUE.getName(), streamData.getSourceValue());
 
-        source.put(InstanceReferenceMetricTable.TRANSACTION_CALLS.getName(), streamData.getTransactionCalls());
-        source.put(InstanceReferenceMetricTable.TRANSACTION_ERROR_CALLS.getName(), streamData.getTransactionErrorCalls());
-        source.put(InstanceReferenceMetricTable.TRANSACTION_DURATION_SUM.getName(), streamData.getTransactionDurationSum());
-        source.put(InstanceReferenceMetricTable.TRANSACTION_ERROR_DURATION_SUM.getName(), streamData.getTransactionErrorDurationSum());
-        source.put(InstanceReferenceMetricTable.TRANSACTION_AVERAGE_DURATION.getName(), streamData.getTransactionAverageDuration());
-
-        source.put(InstanceReferenceMetricTable.BUSINESS_TRANSACTION_CALLS.getName(), streamData.getBusinessTransactionCalls());
-        source.put(InstanceReferenceMetricTable.BUSINESS_TRANSACTION_ERROR_CALLS.getName(), streamData.getBusinessTransactionErrorCalls());
-        source.put(InstanceReferenceMetricTable.BUSINESS_TRANSACTION_DURATION_SUM.getName(), streamData.getBusinessTransactionDurationSum());
-        source.put(InstanceReferenceMetricTable.BUSINESS_TRANSACTION_ERROR_DURATION_SUM.getName(), streamData.getBusinessTransactionErrorDurationSum());
-        source.put(InstanceReferenceMetricTable.BUSINESS_TRANSACTION_AVERAGE_DURATION.getName(), streamData.getBusinessTransactionAverageDuration());
-
-        source.put(InstanceReferenceMetricTable.MQ_TRANSACTION_CALLS.getName(), streamData.getMqTransactionCalls());
-        source.put(InstanceReferenceMetricTable.MQ_TRANSACTION_ERROR_CALLS.getName(), streamData.getMqTransactionErrorCalls());
-        source.put(InstanceReferenceMetricTable.MQ_TRANSACTION_DURATION_SUM.getName(), streamData.getMqTransactionDurationSum());
-        source.put(InstanceReferenceMetricTable.MQ_TRANSACTION_ERROR_DURATION_SUM.getName(), streamData.getMqTransactionErrorDurationSum());
-        source.put(InstanceReferenceMetricTable.MQ_TRANSACTION_AVERAGE_DURATION.getName(), streamData.getMqTransactionAverageDuration());
-
-        source.put(InstanceReferenceMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
+        MetricTransformUtil.INSTANCE.esStreamDataToEsData(streamData, source);
 
         return source;
     }

@@ -29,15 +29,20 @@ public enum MetricTransformUtil {
     INSTANCE;
 
     public void esDataToStreamData(Map<String, Object> source, Metric target) {
+        target.setSourceValue(((Number)source.get(MetricColumns.SOURCE_VALUE.getName())).intValue());
+        target.setTimeBucket(((Number)source.get(MetricColumns.TIME_BUCKET.getName())).longValue());
+
         target.setTransactionCalls(((Number)source.get(MetricColumns.TRANSACTION_CALLS.getName())).longValue());
         target.setTransactionErrorCalls(((Number)source.get(MetricColumns.TRANSACTION_ERROR_CALLS.getName())).longValue());
         target.setTransactionDurationSum(((Number)source.get(MetricColumns.TRANSACTION_DURATION_SUM.getName())).longValue());
         target.setTransactionErrorDurationSum(((Number)source.get(MetricColumns.TRANSACTION_ERROR_DURATION_SUM.getName())).longValue());
+        target.setTransactionAverageDuration(((Number)source.get(MetricColumns.TRANSACTION_AVERAGE_DURATION.getName())).longValue());
 
         target.setBusinessTransactionCalls(((Number)source.get(MetricColumns.BUSINESS_TRANSACTION_CALLS.getName())).longValue());
         target.setBusinessTransactionErrorCalls(((Number)source.get(MetricColumns.BUSINESS_TRANSACTION_ERROR_CALLS.getName())).longValue());
         target.setBusinessTransactionDurationSum(((Number)source.get(MetricColumns.BUSINESS_TRANSACTION_DURATION_SUM.getName())).longValue());
         target.setBusinessTransactionErrorDurationSum(((Number)source.get(MetricColumns.BUSINESS_TRANSACTION_ERROR_DURATION_SUM.getName())).longValue());
+        target.setBusinessTransactionAverageDuration(((Number)source.get(MetricColumns.BUSINESS_TRANSACTION_AVERAGE_DURATION.getName())).longValue());
 
         target.setMqTransactionCalls(((Number)source.get(MetricColumns.MQ_TRANSACTION_CALLS.getName())).longValue());
         target.setMqTransactionErrorCalls(((Number)source.get(MetricColumns.MQ_TRANSACTION_ERROR_CALLS.getName())).longValue());
@@ -47,19 +52,25 @@ public enum MetricTransformUtil {
     }
 
     public void esStreamDataToEsData(Metric source, Map<String, Object> target) {
+        target.put(MetricColumns.TIME_BUCKET.getName(), source.getTimeBucket());
+        target.put(MetricColumns.SOURCE_VALUE.getName(), source.getSourceValue());
+
         target.put(MetricColumns.TRANSACTION_CALLS.getName(), source.getTransactionCalls());
         target.put(MetricColumns.TRANSACTION_ERROR_CALLS.getName(), source.getTransactionErrorCalls());
         target.put(MetricColumns.TRANSACTION_DURATION_SUM.getName(), source.getTransactionDurationSum());
         target.put(MetricColumns.TRANSACTION_ERROR_DURATION_SUM.getName(), source.getTransactionErrorDurationSum());
+        target.put(MetricColumns.TRANSACTION_AVERAGE_DURATION.getName(), source.getTransactionAverageDuration());
 
         target.put(MetricColumns.BUSINESS_TRANSACTION_CALLS.getName(), source.getBusinessTransactionCalls());
         target.put(MetricColumns.BUSINESS_TRANSACTION_ERROR_CALLS.getName(), source.getBusinessTransactionErrorCalls());
         target.put(MetricColumns.BUSINESS_TRANSACTION_DURATION_SUM.getName(), source.getBusinessTransactionDurationSum());
         target.put(MetricColumns.BUSINESS_TRANSACTION_ERROR_DURATION_SUM.getName(), source.getBusinessTransactionErrorDurationSum());
+        target.put(MetricColumns.BUSINESS_TRANSACTION_AVERAGE_DURATION.getName(), source.getBusinessTransactionAverageDuration());
 
         target.put(MetricColumns.MQ_TRANSACTION_CALLS.getName(), source.getMqTransactionCalls());
         target.put(MetricColumns.MQ_TRANSACTION_ERROR_CALLS.getName(), source.getMqTransactionErrorCalls());
         target.put(MetricColumns.MQ_TRANSACTION_DURATION_SUM.getName(), source.getMqTransactionDurationSum());
         target.put(MetricColumns.MQ_TRANSACTION_ERROR_DURATION_SUM.getName(), source.getMqTransactionErrorDurationSum());
+        target.put(MetricColumns.MQ_TRANSACTION_AVERAGE_DURATION.getName(), source.getMqTransactionAverageDuration());
     }
 }

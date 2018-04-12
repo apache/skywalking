@@ -36,8 +36,8 @@ public class GlobalTraceEsTableDefine extends ElasticSearchTableDefine {
     }
 
     @Override public void initialize() {
-        addColumn(new ElasticSearchColumnDefine(GlobalTraceTable.COLUMN_SEGMENT_ID, GlobalTraceTable.COLUMN_SEGMENT_ID_SHORT_NAME, ElasticSearchColumnDefine.Type.Keyword.name()));
-        addColumn(new ElasticSearchColumnDefine(GlobalTraceTable.COLUMN_TRACE_ID, GlobalTraceTable.COLUMN_TRACE_ID_SHORT_NAME, ElasticSearchColumnDefine.Type.Keyword.name()));
-        addColumn(new ElasticSearchColumnDefine(GlobalTraceTable.COLUMN_TIME_BUCKET, GlobalTraceTable.COLUMN_TIME_BUCKET_SHORT_NAME, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(GlobalTraceTable.SEGMENT_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
+        addColumn(new ElasticSearchColumnDefine(GlobalTraceTable.TRACE_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
+        addColumn(new ElasticSearchColumnDefine(GlobalTraceTable.TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
     }
 }

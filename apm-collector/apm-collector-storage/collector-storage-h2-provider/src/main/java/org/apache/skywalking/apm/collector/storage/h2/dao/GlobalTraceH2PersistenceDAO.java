@@ -53,10 +53,10 @@ public class GlobalTraceH2PersistenceDAO extends H2DAO implements IGlobalTracePe
     @Override public H2SqlEntity prepareBatchInsert(GlobalTrace data) {
         Map<String, Object> source = new HashMap<>();
         H2SqlEntity entity = new H2SqlEntity();
-        source.put(GlobalTraceTable.COLUMN_ID, data.getId());
-        source.put(GlobalTraceTable.COLUMN_SEGMENT_ID, data.getSegmentId());
-        source.put(GlobalTraceTable.COLUMN_TRACE_ID, data.getGlobalTraceId());
-        source.put(GlobalTraceTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
+        source.put(GlobalTraceTable.ID.getName(), data.getId());
+        source.put(GlobalTraceTable.SEGMENT_ID.getName(), data.getSegmentId());
+        source.put(GlobalTraceTable.TRACE_ID.getName(), data.getGlobalTraceId());
+        source.put(GlobalTraceTable.TIME_BUCKET.getName(), data.getTimeBucket());
         logger.debug("global trace source: {}", source.toString());
 
         String sql = SqlBuilder.buildBatchInsertSql(GlobalTraceTable.TABLE, source.keySet());

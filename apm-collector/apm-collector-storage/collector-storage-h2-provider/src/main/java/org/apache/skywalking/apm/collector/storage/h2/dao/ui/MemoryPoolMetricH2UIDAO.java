@@ -49,14 +49,14 @@ public class MemoryPoolMetricH2UIDAO extends H2DAO implements IMemoryPoolMetricU
     @Override public JsonObject getMetric(int instanceId, long timeBucket, int poolType) {
         H2Client client = getClient();
         String id = timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + poolType;
-        String sql = SqlBuilder.buildSql(GET_MEMORY_POOL_METRIC_SQL, MemoryPoolMetricTable.TABLE, MemoryPoolMetricTable.COLUMN_ID);
+        String sql = SqlBuilder.buildSql(GET_MEMORY_POOL_METRIC_SQL, MemoryPoolMetricTable.TABLE, MemoryPoolMetricTable.ID.getName());
         Object[] params = new Object[] {id};
         JsonObject metric = new JsonObject();
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
-                metric.addProperty("max", rs.getInt(MemoryPoolMetricTable.COLUMN_MAX));
-                metric.addProperty("init", rs.getInt(MemoryPoolMetricTable.COLUMN_INIT));
-                metric.addProperty("used", rs.getInt(MemoryPoolMetricTable.COLUMN_USED));
+                metric.addProperty("max", rs.getInt(MemoryPoolMetricTable.MAX.getName()));
+                metric.addProperty("init", rs.getInt(MemoryPoolMetricTable.INIT.getName()));
+                metric.addProperty("used", rs.getInt(MemoryPoolMetricTable.USED.getName()));
             } else {
                 metric.addProperty("max", 0);
                 metric.addProperty("init", 0);
@@ -70,7 +70,7 @@ public class MemoryPoolMetricH2UIDAO extends H2DAO implements IMemoryPoolMetricU
 
     @Override public JsonObject getMetric(int instanceId, long startTimeBucket, long endTimeBucket, int poolType) {
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_MEMORY_POOL_METRIC_SQL, MemoryPoolMetricTable.TABLE, MemoryPoolMetricTable.COLUMN_ID);
+        String sql = SqlBuilder.buildSql(GET_MEMORY_POOL_METRIC_SQL, MemoryPoolMetricTable.TABLE, MemoryPoolMetricTable.ID.getName());
         List<String> idList = new ArrayList<>();
         long timeBucket = startTimeBucket;
         do {
@@ -86,9 +86,9 @@ public class MemoryPoolMetricH2UIDAO extends H2DAO implements IMemoryPoolMetricU
         idList.forEach(id -> {
             try (ResultSet rs = client.executeQuery(sql, new String[] {id})) {
                 if (rs.next()) {
-                    metric.addProperty("max", rs.getLong(MemoryPoolMetricTable.COLUMN_MAX));
-                    metric.addProperty("init", rs.getLong(MemoryPoolMetricTable.COLUMN_INIT));
-                    usedMetric.add(rs.getLong(MemoryPoolMetricTable.COLUMN_USED));
+                    metric.addProperty("max", rs.getLong(MemoryPoolMetricTable.MAX.getName()));
+                    metric.addProperty("init", rs.getLong(MemoryPoolMetricTable.INIT.getName()));
+                    usedMetric.add(rs.getLong(MemoryPoolMetricTable.USED.getName()));
                 } else {
                     metric.addProperty("max", 0);
                     metric.addProperty("init", 0);

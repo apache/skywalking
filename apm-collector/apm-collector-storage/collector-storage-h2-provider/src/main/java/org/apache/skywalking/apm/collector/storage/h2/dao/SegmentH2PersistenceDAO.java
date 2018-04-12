@@ -48,9 +48,9 @@ public class SegmentH2PersistenceDAO extends H2DAO implements ISegmentPersistenc
     @Override public H2SqlEntity prepareBatchInsert(Segment data) {
         Map<String, Object> source = new HashMap<>();
         H2SqlEntity entity = new H2SqlEntity();
-        source.put(SegmentTable.COLUMN_ID, data.getId());
-        source.put(SegmentTable.COLUMN_DATA_BINARY, data.getDataBinary());
-        source.put(SegmentTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
+        source.put(SegmentTable.ID.getName(), data.getId());
+        source.put(SegmentTable.DATA_BINARY.getName(), data.getDataBinary());
+        source.put(SegmentTable.TIME_BUCKET.getName(), data.getTimeBucket());
         logger.debug("segment source: {}", source.toString());
 
         String sql = SqlBuilder.buildBatchInsertSql(SegmentTable.TABLE, source.keySet());

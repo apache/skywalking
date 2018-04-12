@@ -43,12 +43,12 @@ public class ApplicationRegisterH2DAO extends H2DAO implements IApplicationRegis
 
     @Override
     public int getMaxApplicationId() {
-        return getMaxId(ApplicationTable.TABLE, ApplicationTable.COLUMN_APPLICATION_ID);
+        return getMaxId(ApplicationTable.TABLE, ApplicationTable.APPLICATION_ID.getName());
     }
 
     @Override
     public int getMinApplicationId() {
-        return getMinId(ApplicationTable.TABLE, ApplicationTable.COLUMN_APPLICATION_ID);
+        return getMinId(ApplicationTable.TABLE, ApplicationTable.APPLICATION_ID.getName());
     }
 
     @Override
@@ -56,11 +56,11 @@ public class ApplicationRegisterH2DAO extends H2DAO implements IApplicationRegis
         H2Client client = getClient();
 
         Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationTable.COLUMN_ID, application.getId());
-        source.put(ApplicationTable.COLUMN_APPLICATION_CODE, application.getApplicationCode());
-        source.put(ApplicationTable.COLUMN_APPLICATION_ID, application.getApplicationId());
-        source.put(ApplicationTable.COLUMN_ADDRESS_ID, application.getAddressId());
-        source.put(ApplicationTable.COLUMN_IS_ADDRESS, application.getIsAddress());
+        source.put(ApplicationTable.ID.getName(), application.getId());
+        source.put(ApplicationTable.APPLICATION_CODE.getName(), application.getApplicationCode());
+        source.put(ApplicationTable.APPLICATION_ID.getName(), application.getApplicationId());
+        source.put(ApplicationTable.ADDRESS_ID.getName(), application.getAddressId());
+        source.put(ApplicationTable.IS_ADDRESS.getName(), application.getIsAddress());
 
         String sql = SqlBuilder.buildBatchInsertSql(ApplicationTable.TABLE, source.keySet());
         Object[] params = source.values().toArray(new Object[0]);

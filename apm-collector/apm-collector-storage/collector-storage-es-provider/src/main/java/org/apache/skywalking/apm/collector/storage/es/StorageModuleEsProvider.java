@@ -130,7 +130,6 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceAlarmUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IMemoryMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IMemoryPoolMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.INetworkAddressUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentDurationUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentUIDAO;
@@ -236,7 +235,6 @@ import org.apache.skywalking.apm.collector.storage.es.dao.ui.InstanceAlarmEsUIDA
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.InstanceEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.InstanceMetricEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.MemoryMetricEsUIDAO;
-import org.apache.skywalking.apm.collector.storage.es.dao.ui.MemoryPoolMetricEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.NetworkAddressEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.SegmentDurationEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.SegmentEsUIDAO;
@@ -424,7 +422,6 @@ public class StorageModuleEsProvider extends ModuleProvider {
         this.registerServiceImplementation(ICpuMetricUIDAO.class, new CpuMetricEsUIDAO(elasticSearchClient));
         this.registerServiceImplementation(IGCMetricUIDAO.class, new GCMetricEsUIDAO(elasticSearchClient));
         this.registerServiceImplementation(IMemoryMetricUIDAO.class, new MemoryMetricEsUIDAO(elasticSearchClient));
-        this.registerServiceImplementation(IMemoryPoolMetricUIDAO.class, new MemoryPoolMetricEsUIDAO(elasticSearchClient));
 
         this.registerServiceImplementation(IGlobalTraceUIDAO.class, new GlobalTraceEsUIDAO(elasticSearchClient));
         this.registerServiceImplementation(IInstanceMetricUIDAO.class, new InstanceMetricEsUIDAO(elasticSearchClient));

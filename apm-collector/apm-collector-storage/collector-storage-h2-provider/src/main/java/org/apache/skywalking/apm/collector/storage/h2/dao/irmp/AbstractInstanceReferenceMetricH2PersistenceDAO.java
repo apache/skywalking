@@ -39,55 +39,30 @@ public abstract class AbstractInstanceReferenceMetricH2PersistenceDAO extends Ab
 
     @Override protected final InstanceReferenceMetric h2DataToStreamData(ResultSet resultSet) throws SQLException {
         InstanceReferenceMetric instanceReferenceMetric = new InstanceReferenceMetric();
-        instanceReferenceMetric.setId(resultSet.getString(InstanceReferenceMetricTable.ID));
-        instanceReferenceMetric.setMetricId(resultSet.getString(InstanceReferenceMetricTable.METRIC_ID));
+        instanceReferenceMetric.setId(resultSet.getString(InstanceReferenceMetricTable.ID.getName()));
+        instanceReferenceMetric.setMetricId(resultSet.getString(InstanceReferenceMetricTable.METRIC_ID.getName()));
 
-        instanceReferenceMetric.setFrontApplicationId(resultSet.getInt(InstanceReferenceMetricTable.FRONT_APPLICATION_ID));
-        instanceReferenceMetric.setBehindApplicationId(resultSet.getInt(InstanceReferenceMetricTable.BEHIND_APPLICATION_ID));
-        instanceReferenceMetric.setFrontInstanceId(resultSet.getInt(InstanceReferenceMetricTable.FRONT_INSTANCE_ID));
-        instanceReferenceMetric.setBehindInstanceId(resultSet.getInt(InstanceReferenceMetricTable.BEHIND_INSTANCE_ID));
-        instanceReferenceMetric.setSourceValue(resultSet.getInt(InstanceReferenceMetricTable.SOURCE_VALUE));
+        instanceReferenceMetric.setFrontApplicationId(resultSet.getInt(InstanceReferenceMetricTable.FRONT_APPLICATION_ID.getName()));
+        instanceReferenceMetric.setBehindApplicationId(resultSet.getInt(InstanceReferenceMetricTable.BEHIND_APPLICATION_ID.getName()));
+        instanceReferenceMetric.setFrontInstanceId(resultSet.getInt(InstanceReferenceMetricTable.FRONT_INSTANCE_ID.getName()));
+        instanceReferenceMetric.setBehindInstanceId(resultSet.getInt(InstanceReferenceMetricTable.BEHIND_INSTANCE_ID.getName()));
 
         MetricTransformUtil.INSTANCE.h2DataToStreamData(resultSet, instanceReferenceMetric);
 
-        instanceReferenceMetric.setTransactionAverageDuration(resultSet.getLong(InstanceReferenceMetricTable.TRANSACTION_AVERAGE_DURATION));
-        instanceReferenceMetric.setBusinessTransactionAverageDuration(resultSet.getLong(InstanceReferenceMetricTable.BUSINESS_TRANSACTION_AVERAGE_DURATION));
-        instanceReferenceMetric.setMqTransactionAverageDuration(resultSet.getLong(InstanceReferenceMetricTable.MQ_TRANSACTION_AVERAGE_DURATION));
-
-        instanceReferenceMetric.setTimeBucket(resultSet.getLong(InstanceReferenceMetricTable.TIME_BUCKET));
         return instanceReferenceMetric;
     }
 
     @Override protected final Map<String, Object> streamDataToH2Data(InstanceReferenceMetric streamData) {
         Map<String, Object> source = new HashMap<>();
-        source.put(InstanceReferenceMetricTable.ID, streamData.getId());
-        source.put(InstanceReferenceMetricTable.METRIC_ID, streamData.getMetricId());
+        source.put(InstanceReferenceMetricTable.ID.getName(), streamData.getId());
+        source.put(InstanceReferenceMetricTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(InstanceReferenceMetricTable.FRONT_APPLICATION_ID, streamData.getFrontApplicationId());
-        source.put(InstanceReferenceMetricTable.BEHIND_APPLICATION_ID, streamData.getBehindApplicationId());
-        source.put(InstanceReferenceMetricTable.FRONT_INSTANCE_ID, streamData.getFrontInstanceId());
-        source.put(InstanceReferenceMetricTable.BEHIND_INSTANCE_ID, streamData.getBehindInstanceId());
-        source.put(InstanceReferenceMetricTable.SOURCE_VALUE, streamData.getSourceValue());
+        source.put(InstanceReferenceMetricTable.FRONT_APPLICATION_ID.getName(), streamData.getFrontApplicationId());
+        source.put(InstanceReferenceMetricTable.BEHIND_APPLICATION_ID.getName(), streamData.getBehindApplicationId());
+        source.put(InstanceReferenceMetricTable.FRONT_INSTANCE_ID.getName(), streamData.getFrontInstanceId());
+        source.put(InstanceReferenceMetricTable.BEHIND_INSTANCE_ID.getName(), streamData.getBehindInstanceId());
 
-        source.put(InstanceReferenceMetricTable.TRANSACTION_CALLS, streamData.getTransactionCalls());
-        source.put(InstanceReferenceMetricTable.TRANSACTION_ERROR_CALLS, streamData.getTransactionErrorCalls());
-        source.put(InstanceReferenceMetricTable.TRANSACTION_DURATION_SUM, streamData.getTransactionDurationSum());
-        source.put(InstanceReferenceMetricTable.TRANSACTION_ERROR_DURATION_SUM, streamData.getTransactionErrorDurationSum());
-        source.put(InstanceReferenceMetricTable.TRANSACTION_AVERAGE_DURATION, streamData.getTransactionAverageDuration());
-
-        source.put(InstanceReferenceMetricTable.BUSINESS_TRANSACTION_CALLS, streamData.getBusinessTransactionCalls());
-        source.put(InstanceReferenceMetricTable.BUSINESS_TRANSACTION_ERROR_CALLS, streamData.getBusinessTransactionErrorCalls());
-        source.put(InstanceReferenceMetricTable.BUSINESS_TRANSACTION_DURATION_SUM, streamData.getBusinessTransactionDurationSum());
-        source.put(InstanceReferenceMetricTable.BUSINESS_TRANSACTION_ERROR_DURATION_SUM, streamData.getBusinessTransactionErrorDurationSum());
-        source.put(InstanceReferenceMetricTable.BUSINESS_TRANSACTION_AVERAGE_DURATION, streamData.getBusinessTransactionAverageDuration());
-
-        source.put(InstanceReferenceMetricTable.MQ_TRANSACTION_CALLS, streamData.getMqTransactionCalls());
-        source.put(InstanceReferenceMetricTable.MQ_TRANSACTION_ERROR_CALLS, streamData.getMqTransactionErrorCalls());
-        source.put(InstanceReferenceMetricTable.MQ_TRANSACTION_DURATION_SUM, streamData.getMqTransactionDurationSum());
-        source.put(InstanceReferenceMetricTable.MQ_TRANSACTION_ERROR_DURATION_SUM, streamData.getMqTransactionErrorDurationSum());
-        source.put(InstanceReferenceMetricTable.MQ_TRANSACTION_AVERAGE_DURATION, streamData.getMqTransactionAverageDuration());
-
-        source.put(InstanceReferenceMetricTable.TIME_BUCKET, streamData.getTimeBucket());
+        MetricTransformUtil.INSTANCE.streamDataToH2Data(streamData, source);
 
         return source;
     }

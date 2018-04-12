@@ -45,18 +45,12 @@ public abstract class AbstractApplicationMetricEsPersistenceDAO extends Abstract
         applicationMetric.setMetricId((String)source.get(ApplicationMetricTable.METRIC_ID.getName()));
 
         applicationMetric.setApplicationId(((Number)source.get(ApplicationMetricTable.APPLICATION_ID.getName())).intValue());
-        applicationMetric.setSourceValue(((Number)source.get(ApplicationMetricTable.SOURCE_VALUE.getName())).intValue());
 
         MetricTransformUtil.INSTANCE.esDataToStreamData(source, applicationMetric);
-
-        applicationMetric.setTransactionAverageDuration(((Number)source.get(ApplicationMetricTable.TRANSACTION_AVERAGE_DURATION.getName())).longValue());
-        applicationMetric.setBusinessTransactionAverageDuration(((Number)source.get(ApplicationMetricTable.BUSINESS_TRANSACTION_AVERAGE_DURATION.getName())).longValue());
-        applicationMetric.setMqTransactionAverageDuration(((Number)source.get(ApplicationMetricTable.MQ_TRANSACTION_AVERAGE_DURATION.getName())).longValue());
 
         applicationMetric.setSatisfiedCount(((Number)source.get(ApplicationMetricTable.SATISFIED_COUNT.getName())).longValue());
         applicationMetric.setToleratingCount(((Number)source.get(ApplicationMetricTable.TOLERATING_COUNT.getName())).longValue());
         applicationMetric.setFrustratedCount(((Number)source.get(ApplicationMetricTable.FRUSTRATED_COUNT.getName())).longValue());
-        applicationMetric.setTimeBucket(((Number)source.get(ApplicationMetricTable.TIME_BUCKET.getName())).longValue());
 
         return applicationMetric;
     }
@@ -66,18 +60,12 @@ public abstract class AbstractApplicationMetricEsPersistenceDAO extends Abstract
         source.put(ApplicationMetricTable.METRIC_ID.getName(), streamData.getMetricId());
 
         source.put(ApplicationMetricTable.APPLICATION_ID.getName(), streamData.getApplicationId());
-        source.put(ApplicationMetricTable.SOURCE_VALUE.getName(), streamData.getSourceValue());
 
         MetricTransformUtil.INSTANCE.esStreamDataToEsData(streamData, source);
-
-        source.put(ApplicationMetricTable.TRANSACTION_AVERAGE_DURATION.getName(), streamData.getTransactionAverageDuration());
-        source.put(ApplicationMetricTable.BUSINESS_TRANSACTION_AVERAGE_DURATION.getName(), streamData.getBusinessTransactionAverageDuration());
-        source.put(ApplicationMetricTable.MQ_TRANSACTION_AVERAGE_DURATION.getName(), streamData.getMqTransactionAverageDuration());
 
         source.put(ApplicationMetricTable.SATISFIED_COUNT.getName(), streamData.getSatisfiedCount());
         source.put(ApplicationMetricTable.TOLERATING_COUNT.getName(), streamData.getToleratingCount());
         source.put(ApplicationMetricTable.FRUSTRATED_COUNT.getName(), streamData.getFrustratedCount());
-        source.put(ApplicationMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
 
         return source;
     }

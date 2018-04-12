@@ -54,7 +54,7 @@ public class SegmentDurationH2UIDAO extends H2DAO implements ISegmentDurationUID
         List<Object> params = new ArrayList<>();
         List<Object> columns = new ArrayList<>();
         columns.add(SegmentDurationTable.TABLE);
-        columns.add(SegmentDurationTable.COLUMN_TIME_BUCKET);
+        columns.add(SegmentDurationTable.TIME_BUCKET.getName());
         params.add(startSecondTimeBucket);
         params.add(endSecondTimeBucket);
         int paramIndex = 1;
@@ -63,32 +63,32 @@ public class SegmentDurationH2UIDAO extends H2DAO implements ISegmentDurationUID
                 paramIndex++;
                 sql = sql + " and {" + paramIndex + "} >= ?";
                 params.add(minDuration);
-                columns.add(SegmentDurationTable.COLUMN_DURATION);
+                columns.add(SegmentDurationTable.DURATION.getName());
             }
             if (maxDuration != -1) {
                 paramIndex++;
                 sql = sql + " and {" + paramIndex + "} <= ?";
                 params.add(maxDuration);
-                columns.add(SegmentDurationTable.COLUMN_DURATION);
+                columns.add(SegmentDurationTable.DURATION.getName());
             }
         }
         if (StringUtils.isNotEmpty(operationName)) {
             paramIndex++;
             sql = sql + " and {" + paramIndex + "} = ?";
             params.add(operationName);
-            columns.add(SegmentDurationTable.COLUMN_SERVICE_NAME);
+            columns.add(SegmentDurationTable.SERVICE_NAME.getName());
         }
         if (StringUtils.isNotEmpty(segmentIds)) {
             paramIndex++;
             sql = sql + " and {" + paramIndex + "} = ?";
             params.add(segmentIds);
-            columns.add(SegmentDurationTable.COLUMN_TRACE_ID);
+            columns.add(SegmentDurationTable.TRACE_ID.getName());
         }
         if (applicationId != 0) {
             paramIndex++;
             sql = sql + " and {" + paramIndex + "} = ?";
             params.add(applicationId);
-            columns.add(SegmentDurationTable.COLUMN_APPLICATION_ID);
+            columns.add(SegmentDurationTable.APPLICATION_ID.getName());
         }
 
         sql = sql + " limit " + from + "," + limit;
@@ -101,11 +101,11 @@ public class SegmentDurationH2UIDAO extends H2DAO implements ISegmentDurationUID
         try (ResultSet rs = client.executeQuery(sql, p)) {
             while (rs.next()) {
                 BasicTrace basicTrace = new BasicTrace();
-                basicTrace.setSegmentId(rs.getString(SegmentDurationTable.COLUMN_SEGMENT_ID));
-                basicTrace.setDuration(rs.getInt(SegmentDurationTable.COLUMN_DURATION));
-                basicTrace.setStart(rs.getLong(SegmentDurationTable.COLUMN_START_TIME));
-                basicTrace.setOperationName(rs.getString(SegmentDurationTable.COLUMN_SERVICE_NAME));
-                basicTrace.setError(BooleanUtils.valueToBoolean(rs.getInt(SegmentDurationTable.COLUMN_IS_ERROR)));
+                basicTrace.setSegmentId(rs.getString(SegmentDurationTable.SEGMENT_ID.getName()));
+                basicTrace.setDuration(rs.getInt(SegmentDurationTable.DURATION.getName()));
+                basicTrace.setStart(rs.getLong(SegmentDurationTable.START_TIME.getName()));
+                basicTrace.setOperationName(rs.getString(SegmentDurationTable.SERVICE_NAME.getName()));
+                basicTrace.setError(BooleanUtils.valueToBoolean(rs.getInt(SegmentDurationTable.IS_ERROR.getName())));
                 traceBrief.getTraces().add(basicTrace);
                 cnt++;
             }

@@ -45,12 +45,12 @@ public class SegmentH2UIDAO extends H2DAO implements ISegmentUIDAO {
 
     @Override public TraceSegmentObject load(String segmentId) {
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_SEGMENT_SQL, SegmentTable.COLUMN_DATA_BINARY,
-            SegmentTable.TABLE, SegmentTable.COLUMN_ID);
+        String sql = SqlBuilder.buildSql(GET_SEGMENT_SQL, SegmentTable.DATA_BINARY.getName(),
+            SegmentTable.TABLE, SegmentTable.ID.getName());
         Object[] params = new Object[] {segmentId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
-                byte[] dataBinary = rs.getBytes(SegmentTable.COLUMN_DATA_BINARY);
+                byte[] dataBinary = rs.getBytes(SegmentTable.DATA_BINARY.getName());
                 try {
                     return TraceSegmentObject.parseFrom(dataBinary);
                 } catch (InvalidProtocolBufferException e) {
