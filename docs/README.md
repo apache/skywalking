@@ -21,7 +21,7 @@
       * [log4j2](en/Application-toolkit-log4j-2.x.md)
       * [logback](en/Application-toolkit-logback-1.x.md)
     * [Trace](en/Application-toolkit-trace.md)
-    * [TraceCrossThread](en/Application-toolkit-trace-cross-thread.md)
+    * [Propagate Context across Thread](en/Application-toolkit-trace-cross-thread.md)
   * Testing
     * [Plugin Test](https://github.com/SkywalkingTest/agent-integration-test-report)
     * [Java Agent Performance Test](https://skywalkingtest.github.io/Agent-Benchmarks/)
