@@ -22,12 +22,17 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.cache.IApplicationCacheDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.function.Supplier;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static java.util.Optional.ofNullable;
 
 /**
  * @author peng-yongsheng
@@ -37,6 +42,8 @@ public class ApplicationCacheGuavaService implements ApplicationCacheService {
     private final Logger logger = LoggerFactory.getLogger(ApplicationCacheGuavaService.class);
 
     private final Cache<String, Integer> codeCache = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(1000).build();
+    private final Cache<Integer, Application> applicationCache = CacheBuilder.newBuilder().maximumSize(1000).build();
+    private final Cache<Integer, Integer> addressIdCache = CacheBuilder.newBuilder().maximumSize(1000).build();
 
     private final ModuleManager moduleManager;
     private IApplicationCacheDAO applicationCacheDAO;
@@ -46,64 +53,43 @@ public class ApplicationCacheGuavaService implements ApplicationCacheService {
     }
 
     private IApplicationCacheDAO getApplicationCacheDAO() {
-        if (ObjectUtils.isEmpty(applicationCacheDAO)) {
+        if (isNull(applicationCacheDAO)) {
             this.applicationCacheDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationCacheDAO.class);
         }
         return this.applicationCacheDAO;
     }
 
     @Override public int getApplicationIdByCode(String applicationCode) {
-        int applicationId = 0;
-        try {
-            applicationId = codeCache.get(applicationCode, () -> getApplicationCacheDAO().getApplicationIdByCode(applicationCode));
-        } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
-        }
-
-        if (applicationId == 0) {
-            applicationId = getApplicationCacheDAO().getApplicationIdByCode(applicationCode);
-            if (applicationId != 0) {
-                codeCache.put(applicationCode, applicationId);
-            }
-        }
-        return applicationId;
+        return ofNullable(retrieveFromCache(codeCache, applicationCode,
+            () -> getApplicationCacheDAO().getApplicationIdByCode(applicationCode))).orElse(0);
     }
 
-    private final Cache<Integer, Application> applicationCache = CacheBuilder.newBuilder().maximumSize(1000).build();
 
     @Override public Application getApplicationById(int applicationId) {
-        Application application = null;
-        try {
-            application = applicationCache.get(applicationId, () -> getApplicationCacheDAO().getApplication(applicationId));
-        } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
-        }
-
-        if (ObjectUtils.isEmpty(application)) {
-            application = getApplicationCacheDAO().getApplication(applicationId);
-            if (ObjectUtils.isNotEmpty(application)) {
-                applicationCache.put(applicationId, application);
-            }
-        }
-        return application;
+        return retrieveFromCache(applicationCache, applicationId, () -> getApplicationCacheDAO().getApplication(applicationId));
     }
 
-    private final Cache<Integer, Integer> addressIdCache = CacheBuilder.newBuilder().maximumSize(1000).build();
 
     @Override public int getApplicationIdByAddressId(int addressId) {
-        int applicationId = 0;
+        return ofNullable(retrieveFromCache(addressIdCache, addressId,
+            () -> getApplicationCacheDAO().getApplicationIdByAddressId(addressId))).orElse(0);
+    }
+
+
+    private <K, V> V retrieveFromCache(Cache<K, V> cache, K key, Supplier<V> supplier) {
+        V value = null;
         try {
-            applicationId = addressIdCache.get(addressId, () -> getApplicationCacheDAO().getApplicationIdByAddressId(addressId));
+            value = cache.get(key, supplier::get);
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
 
-        if (applicationId == 0) {
-            applicationId = getApplicationCacheDAO().getApplicationIdByAddressId(addressId);
-            if (applicationId != 0) {
-                addressIdCache.put(addressId, applicationId);
+        if (isNull(value)) {
+            value = supplier.get();
+            if (nonNull(value)) {
+                cache.put(key, value);
             }
         }
-        return applicationId;
+        return value;
     }
 }
