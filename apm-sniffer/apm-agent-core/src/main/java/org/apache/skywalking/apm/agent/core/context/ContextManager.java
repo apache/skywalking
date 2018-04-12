@@ -200,4 +200,9 @@ public class ContextManager implements TracingContextListener, BootService, Igno
     public void afterFinished(IgnoredTracerContext traceSegment) {
         CONTEXT.remove();
     }
+
+    public static boolean isActive() {
+        return CONTEXT.get() != null;
+    }
+
 }
