@@ -58,14 +58,14 @@ public class ElasticSearchClient implements Client {
 
     private final String clusterName;
 
-    private final Boolean clusterTransportSniffer;
+    private final boolean clusterTransportSniffer;
 
     private final String clusterNodes;
 
     private boolean ready = false;
     private String namespace;
 
-    public ElasticSearchClient(String clusterName, Boolean clusterTransportSniffer,
+    public ElasticSearchClient(String clusterName, boolean clusterTransportSniffer,
         String clusterNodes) {
         this.clusterName = clusterName;
         this.clusterTransportSniffer = clusterTransportSniffer;
@@ -218,9 +218,7 @@ public class ElasticSearchClient implements Client {
         rowHandler.setPrepareMultiGet(prepareMultiGet);
         rowHandler.setNamespace(namespace);
 
-        rows.forEach(row -> {
-            rowHandler.accept(row);
-        });
+        rows.forEach(row -> rowHandler.accept(row));
 
         return rowHandler.getPrepareMultiGet();
     }
@@ -229,11 +227,11 @@ public class ElasticSearchClient implements Client {
         private MultiGetRequestBuilder prepareMultiGet;
         private String namespace;
 
-        public void setPrepareMultiGet(MultiGetRequestBuilder prepareMultiGet) {
+        void setPrepareMultiGet(MultiGetRequestBuilder prepareMultiGet) {
             this.prepareMultiGet = prepareMultiGet;
         }
 
-        public void setNamespace(String namespace) {
+        void setNamespace(String namespace) {
             this.namespace = namespace;
         }
 

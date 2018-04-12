@@ -11,6 +11,8 @@
     * [Open TLS](en/TLS.md)
     * [Namespace Isolation](en/Namespace.md)
     * [Token Authentication](en/Token-auth.md)
+  * Incubating Features
+    * Abstract
   * Application Toolkit
     * [Overview](en/Applicaton-toolkit.md)
     * [OpenTracing Tracer](en/Opentracing.md)
@@ -38,4 +40,5 @@
     * [Why only traces in UI?](cn/FAQ/Why-have-traces-no-others.md)
     * [Too many GRPC logs in the console](cn/FAQ/Too-many-gRPC-logs.md)
     * [The trace doesn't continue in kafka consumer side](en/FAQ/kafka-plugin.md)
-
+    * [Agent or collector version upgrade](en/FAQ/Upgrade.md)
+    

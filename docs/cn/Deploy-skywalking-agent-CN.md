@@ -67,7 +67,7 @@ logging.level=DEBUG
 - 配置除了通过`/config/agent.config`文件外，可以通过环境变量和VM参数（-D）来进行设置
   - 参数的key = `skywalking.` + `agent.config`文件中的key
   - 优先级：系统环境变量 > VM参数（-D） > `/config/agent.config`中的配置
-- Log默认使用文件输出，输出到`/log`目录中
+- Log默认使用文件输出，输出到`/logs`目录中
 
 # Tomcat配置探针FAQ
 - Tomcat 7

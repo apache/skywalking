@@ -19,6 +19,7 @@
 
 package org.apache.skywalking.apm.collector.core.module;
 
+import java.util.Properties;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -27,11 +28,11 @@ import org.junit.Test;
  */
 public class ModuleManagerTest {
     @Test
-    public void testInit() throws ServiceNotProvidedException, ModuleNotFoundException, ProviderNotFoundException, DuplicateProviderException {
+    public void testInit() throws ServiceNotProvidedException, ModuleNotFoundException, ProviderNotFoundException, DuplicateProviderException, ModuleConfigException {
         ApplicationConfiguration configuration = new ApplicationConfiguration();
-        configuration.addModule("Test").addProviderConfiguration("TestModule-Provider", null);
-        configuration.addModule("BaseA").addProviderConfiguration("P-A", null);
-        configuration.addModule("BaseB").addProviderConfiguration("P-B", null);
+        configuration.addModule("Test").addProviderConfiguration("TestModule-Provider", new Properties());
+        configuration.addModule("BaseA").addProviderConfiguration("P-A", new Properties());
+        configuration.addModule("BaseB").addProviderConfiguration("P-B", new Properties());
 
         ModuleManager manager = new ModuleManager();
         manager.init(configuration);

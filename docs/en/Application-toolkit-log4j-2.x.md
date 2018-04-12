@@ -15,4 +15,4 @@
       </Console>
    </Appenders>
 ```
-* When you use `-javaagent` to active the sky-waking tracer, log4j2 will output **traceId**, if it existed. If the tracer is inactive, the output will be `TID: N/A`.
+* When you use `-javaagent` to active the sky-walking tracer, log4j2 will output **traceId**, if it existed. If the tracer is inactive, the output will be `TID: N/A`.
