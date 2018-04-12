@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 public class CallableOrRunnableConstructInterceptor implements InstanceConstructorInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        if ("N/A".equals(ContextManager.getGlobalTraceId())) {
+        if (!ContextManager.isActive()) {
             String operationName = "Thread/" + objInst.getClass().getName();
             ContextManager.createLocalSpan(operationName);
         }
