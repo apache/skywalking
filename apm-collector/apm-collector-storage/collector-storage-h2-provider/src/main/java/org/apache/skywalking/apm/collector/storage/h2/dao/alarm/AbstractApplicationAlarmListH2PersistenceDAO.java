@@ -53,18 +53,18 @@ public abstract class AbstractApplicationAlarmListH2PersistenceDAO extends Abstr
     }
 
     @Override protected final Map<String, Object> streamDataToH2Data(ApplicationAlarmList streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationAlarmListTable.ID.getName(), streamData.getId());
-        source.put(ApplicationAlarmListTable.METRIC_ID.getName(), streamData.getMetricId());
-        source.put(ApplicationAlarmListTable.SOURCE_VALUE.getName(), streamData.getSourceValue());
+        Map<String, Object> target = new HashMap<>();
+        target.put(ApplicationAlarmListTable.ID.getName(), streamData.getId());
+        target.put(ApplicationAlarmListTable.METRIC_ID.getName(), streamData.getMetricId());
+        target.put(ApplicationAlarmListTable.SOURCE_VALUE.getName(), streamData.getSourceValue());
 
-        source.put(ApplicationAlarmListTable.ALARM_TYPE.getName(), streamData.getAlarmType());
+        target.put(ApplicationAlarmListTable.ALARM_TYPE.getName(), streamData.getAlarmType());
 
-        source.put(ApplicationAlarmListTable.APPLICATION_ID.getName(), streamData.getApplicationId());
+        target.put(ApplicationAlarmListTable.APPLICATION_ID.getName(), streamData.getApplicationId());
 
-        source.put(ApplicationAlarmListTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
-        source.put(ApplicationAlarmListTable.ALARM_CONTENT.getName(), streamData.getAlarmContent());
+        target.put(ApplicationAlarmListTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
+        target.put(ApplicationAlarmListTable.ALARM_CONTENT.getName(), streamData.getAlarmContent());
 
-        return source;
+        return target;
     }
 }

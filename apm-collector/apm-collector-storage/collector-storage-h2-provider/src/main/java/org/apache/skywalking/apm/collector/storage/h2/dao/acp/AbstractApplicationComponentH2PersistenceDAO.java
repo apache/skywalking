@@ -48,14 +48,14 @@ public abstract class AbstractApplicationComponentH2PersistenceDAO extends Abstr
     }
 
     @Override protected final Map<String, Object> streamDataToH2Data(ApplicationComponent streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationComponentTable.ID.getName(), streamData.getId());
-        source.put(ApplicationComponentTable.METRIC_ID.getName(), streamData.getMetricId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(ApplicationComponentTable.ID.getName(), streamData.getId());
+        target.put(ApplicationComponentTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(ApplicationComponentTable.COMPONENT_ID.getName(), streamData.getComponentId());
-        source.put(ApplicationComponentTable.APPLICATION_ID.getName(), streamData.getApplicationId());
-        source.put(ApplicationComponentTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
+        target.put(ApplicationComponentTable.COMPONENT_ID.getName(), streamData.getComponentId());
+        target.put(ApplicationComponentTable.APPLICATION_ID.getName(), streamData.getApplicationId());
+        target.put(ApplicationComponentTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
 
-        return source;
+        return target;
     }
 }

@@ -53,16 +53,16 @@ public abstract class AbstractApplicationAlarmListEsPersistenceDAO extends Abstr
     }
 
     @Override protected final Map<String, Object> esStreamDataToEsData(ApplicationAlarmList streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationAlarmListTable.METRIC_ID.getName(), streamData.getMetricId());
-        source.put(ApplicationAlarmListTable.APPLICATION_ID.getName(), streamData.getApplicationId());
-        source.put(ApplicationAlarmListTable.SOURCE_VALUE.getName(), streamData.getSourceValue());
+        Map<String, Object> target = new HashMap<>();
+        target.put(ApplicationAlarmListTable.METRIC_ID.getName(), streamData.getMetricId());
+        target.put(ApplicationAlarmListTable.APPLICATION_ID.getName(), streamData.getApplicationId());
+        target.put(ApplicationAlarmListTable.SOURCE_VALUE.getName(), streamData.getSourceValue());
 
-        source.put(ApplicationAlarmListTable.ALARM_TYPE.getName(), streamData.getAlarmType());
-        source.put(ApplicationAlarmListTable.ALARM_CONTENT.getName(), streamData.getAlarmContent());
+        target.put(ApplicationAlarmListTable.ALARM_TYPE.getName(), streamData.getAlarmType());
+        target.put(ApplicationAlarmListTable.ALARM_CONTENT.getName(), streamData.getAlarmContent());
 
-        source.put(ApplicationAlarmListTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
-        return source;
+        target.put(ApplicationAlarmListTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
+        return target;
     }
 
     @GraphComputingMetric(name = "/persistence/get/" + ApplicationAlarmListTable.TABLE)

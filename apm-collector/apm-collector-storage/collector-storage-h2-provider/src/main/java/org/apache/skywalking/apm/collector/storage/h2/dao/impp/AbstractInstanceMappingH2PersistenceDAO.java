@@ -49,15 +49,15 @@ public abstract class AbstractInstanceMappingH2PersistenceDAO extends AbstractPe
     }
 
     @Override protected final Map<String, Object> streamDataToH2Data(InstanceMapping streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(InstanceMappingTable.ID.getName(), streamData.getId());
-        source.put(InstanceMappingTable.METRIC_ID.getName(), streamData.getMetricId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(InstanceMappingTable.ID.getName(), streamData.getId());
+        target.put(InstanceMappingTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(InstanceMappingTable.APPLICATION_ID.getName(), streamData.getApplicationId());
-        source.put(InstanceMappingTable.INSTANCE_ID.getName(), streamData.getInstanceId());
-        source.put(InstanceMappingTable.ADDRESS_ID.getName(), streamData.getAddressId());
-        source.put(InstanceMappingTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
+        target.put(InstanceMappingTable.APPLICATION_ID.getName(), streamData.getApplicationId());
+        target.put(InstanceMappingTable.INSTANCE_ID.getName(), streamData.getInstanceId());
+        target.put(InstanceMappingTable.ADDRESS_ID.getName(), streamData.getAddressId());
+        target.put(InstanceMappingTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
 
-        return source;
+        return target;
     }
 }

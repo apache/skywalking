@@ -51,15 +51,15 @@ public abstract class AbstractCpuMetricH2PersistenceDAO extends AbstractPersiste
     }
 
     @Override protected final Map<String, Object> streamDataToH2Data(CpuMetric streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(CpuMetricTable.ID.getName(), streamData.getId());
-        source.put(CpuMetricTable.METRIC_ID.getName(), streamData.getMetricId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(CpuMetricTable.ID.getName(), streamData.getId());
+        target.put(CpuMetricTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(CpuMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId());
-        source.put(CpuMetricTable.USAGE_PERCENT.getName(), streamData.getUsagePercent());
-        source.put(CpuMetricTable.TIMES.getName(), streamData.getTimes());
-        source.put(CpuMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
+        target.put(CpuMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId());
+        target.put(CpuMetricTable.USAGE_PERCENT.getName(), streamData.getUsagePercent());
+        target.put(CpuMetricTable.TIMES.getName(), streamData.getTimes());
+        target.put(CpuMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
 
-        return source;
+        return target;
     }
 }

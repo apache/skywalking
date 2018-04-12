@@ -73,11 +73,11 @@ public class InstanceHeartBeatH2PersistenceDAO extends H2DAO implements IInstanc
 
     @Override public H2SqlEntity prepareBatchUpdate(Instance data) {
         H2SqlEntity entity = new H2SqlEntity();
-        Map<String, Object> source = new HashMap<>();
-        source.put(InstanceTable.HEARTBEAT_TIME.getName(), data.getHeartBeatTime());
-        String sql = SqlBuilder.buildBatchUpdateSql(InstanceTable.TABLE, source.keySet(), InstanceTable.INSTANCE_ID.getName());
+        Map<String, Object> target = new HashMap<>();
+        target.put(InstanceTable.HEARTBEAT_TIME.getName(), data.getHeartBeatTime());
+        String sql = SqlBuilder.buildBatchUpdateSql(InstanceTable.TABLE, target.keySet(), InstanceTable.INSTANCE_ID.getName());
         entity.setSql(sql);
-        List<Object> params = new ArrayList<>(source.values());
+        List<Object> params = new ArrayList<>(target.values());
         params.add(data.getId());
         entity.setParams(params.toArray(new Object[0]));
         return entity;

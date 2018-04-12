@@ -50,14 +50,14 @@ public abstract class AbstractApplicationComponentEsPersistenceDAO extends Abstr
     }
 
     @Override protected final Map<String, Object> esStreamDataToEsData(ApplicationComponent streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationComponentTable.METRIC_ID.getName(), streamData.getMetricId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(ApplicationComponentTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(ApplicationComponentTable.COMPONENT_ID.getName(), streamData.getComponentId());
-        source.put(ApplicationComponentTable.APPLICATION_ID.getName(), streamData.getApplicationId());
-        source.put(ApplicationComponentTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
+        target.put(ApplicationComponentTable.COMPONENT_ID.getName(), streamData.getComponentId());
+        target.put(ApplicationComponentTable.APPLICATION_ID.getName(), streamData.getApplicationId());
+        target.put(ApplicationComponentTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
 
-        return source;
+        return target;
     }
 
     @GraphComputingMetric(name = "/persistence/get/" + ApplicationComponentTable.TABLE)

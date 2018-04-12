@@ -55,15 +55,15 @@ public class ServiceNameRegisterH2DAO extends H2DAO implements IServiceNameRegis
     public void save(ServiceName serviceName) {
         logger.debug("save service name register info, application getApplicationId: {}, service name: {}", serviceName.getId(), serviceName.getServiceName());
         H2Client client = getClient();
-        Map<String, Object> source = new HashMap<>();
-        source.put(ServiceNameTable.ID.getName(), serviceName.getId());
-        source.put(ServiceNameTable.SERVICE_ID.getName(), serviceName.getServiceId());
-        source.put(ServiceNameTable.APPLICATION_ID.getName(), serviceName.getApplicationId());
-        source.put(ServiceNameTable.SERVICE_NAME.getName(), serviceName.getServiceName());
-        source.put(ServiceNameTable.SRC_SPAN_TYPE.getName(), serviceName.getSrcSpanType());
+        Map<String, Object> target = new HashMap<>();
+        target.put(ServiceNameTable.ID.getName(), serviceName.getId());
+        target.put(ServiceNameTable.SERVICE_ID.getName(), serviceName.getServiceId());
+        target.put(ServiceNameTable.APPLICATION_ID.getName(), serviceName.getApplicationId());
+        target.put(ServiceNameTable.SERVICE_NAME.getName(), serviceName.getServiceName());
+        target.put(ServiceNameTable.SRC_SPAN_TYPE.getName(), serviceName.getSrcSpanType());
 
-        String sql = SqlBuilder.buildBatchInsertSql(ServiceNameTable.TABLE, source.keySet());
-        Object[] params = source.values().toArray(new Object[0]);
+        String sql = SqlBuilder.buildBatchInsertSql(ServiceNameTable.TABLE, target.keySet());
+        Object[] params = target.values().toArray(new Object[0]);
         try {
             client.execute(sql, params);
         } catch (H2ClientException e) {

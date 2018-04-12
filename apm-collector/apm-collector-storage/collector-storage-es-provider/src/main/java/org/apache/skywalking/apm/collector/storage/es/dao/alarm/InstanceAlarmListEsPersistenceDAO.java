@@ -56,16 +56,16 @@ public class InstanceAlarmListEsPersistenceDAO extends AbstractPersistenceEsDAO<
     }
 
     @Override protected Map<String, Object> esStreamDataToEsData(InstanceAlarmList streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(InstanceAlarmListTable.APPLICATION_ID.getName(), streamData.getApplicationId());
-        source.put(InstanceAlarmListTable.INSTANCE_ID.getName(), streamData.getInstanceId());
-        source.put(InstanceAlarmListTable.SOURCE_VALUE.getName(), streamData.getSourceValue());
+        Map<String, Object> target = new HashMap<>();
+        target.put(InstanceAlarmListTable.APPLICATION_ID.getName(), streamData.getApplicationId());
+        target.put(InstanceAlarmListTable.INSTANCE_ID.getName(), streamData.getInstanceId());
+        target.put(InstanceAlarmListTable.SOURCE_VALUE.getName(), streamData.getSourceValue());
 
-        source.put(InstanceAlarmListTable.ALARM_TYPE.getName(), streamData.getAlarmType());
-        source.put(InstanceAlarmListTable.ALARM_CONTENT.getName(), streamData.getAlarmContent());
+        target.put(InstanceAlarmListTable.ALARM_TYPE.getName(), streamData.getAlarmType());
+        target.put(InstanceAlarmListTable.ALARM_CONTENT.getName(), streamData.getAlarmContent());
 
-        source.put(InstanceAlarmListTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
-        return source;
+        target.put(InstanceAlarmListTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
+        return target;
     }
 
     @Override protected String timeBucketColumnNameForDelete() {

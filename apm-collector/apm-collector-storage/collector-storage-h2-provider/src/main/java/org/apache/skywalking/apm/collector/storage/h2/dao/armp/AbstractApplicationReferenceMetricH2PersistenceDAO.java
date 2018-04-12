@@ -55,19 +55,19 @@ public abstract class AbstractApplicationReferenceMetricH2PersistenceDAO extends
     }
 
     @Override protected final Map<String, Object> streamDataToH2Data(ApplicationReferenceMetric streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationReferenceMetricTable.ID.getName(), streamData.getId());
-        source.put(ApplicationReferenceMetricTable.METRIC_ID.getName(), streamData.getMetricId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(ApplicationReferenceMetricTable.ID.getName(), streamData.getId());
+        target.put(ApplicationReferenceMetricTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(ApplicationReferenceMetricTable.FRONT_APPLICATION_ID.getName(), streamData.getFrontApplicationId());
-        source.put(ApplicationReferenceMetricTable.BEHIND_APPLICATION_ID.getName(), streamData.getBehindApplicationId());
+        target.put(ApplicationReferenceMetricTable.FRONT_APPLICATION_ID.getName(), streamData.getFrontApplicationId());
+        target.put(ApplicationReferenceMetricTable.BEHIND_APPLICATION_ID.getName(), streamData.getBehindApplicationId());
 
-        MetricTransformUtil.INSTANCE.streamDataToH2Data(streamData, source);
+        MetricTransformUtil.INSTANCE.streamDataToH2Data(streamData, target);
 
-        source.put(ApplicationReferenceMetricTable.SATISFIED_COUNT.getName(), streamData.getSatisfiedCount());
-        source.put(ApplicationReferenceMetricTable.TOLERATING_COUNT.getName(), streamData.getToleratingCount());
-        source.put(ApplicationReferenceMetricTable.FRUSTRATED_COUNT.getName(), streamData.getFrustratedCount());
+        target.put(ApplicationReferenceMetricTable.SATISFIED_COUNT.getName(), streamData.getSatisfiedCount());
+        target.put(ApplicationReferenceMetricTable.TOLERATING_COUNT.getName(), streamData.getToleratingCount());
+        target.put(ApplicationReferenceMetricTable.FRUSTRATED_COUNT.getName(), streamData.getFrustratedCount());
 
-        return source;
+        return target;
     }
 }

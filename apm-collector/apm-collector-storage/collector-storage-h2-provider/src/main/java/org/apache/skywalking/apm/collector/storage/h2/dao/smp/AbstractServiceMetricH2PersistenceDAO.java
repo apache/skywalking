@@ -52,16 +52,16 @@ public abstract class AbstractServiceMetricH2PersistenceDAO extends AbstractPers
     }
 
     @Override protected final Map<String, Object> streamDataToH2Data(ServiceMetric streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(ServiceMetricTable.ID.getName(), streamData.getId());
-        source.put(ServiceMetricTable.METRIC_ID.getName(), streamData.getMetricId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(ServiceMetricTable.ID.getName(), streamData.getId());
+        target.put(ServiceMetricTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(ServiceMetricTable.APPLICATION_ID.getName(), streamData.getApplicationId());
-        source.put(ServiceMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId());
-        source.put(ServiceMetricTable.SERVICE_ID.getName(), streamData.getServiceId());
+        target.put(ServiceMetricTable.APPLICATION_ID.getName(), streamData.getApplicationId());
+        target.put(ServiceMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId());
+        target.put(ServiceMetricTable.SERVICE_ID.getName(), streamData.getServiceId());
 
-        MetricTransformUtil.INSTANCE.streamDataToH2Data(streamData, source);
+        MetricTransformUtil.INSTANCE.streamDataToH2Data(streamData, target);
 
-        return source;
+        return target;
     }
 }

@@ -55,15 +55,15 @@ public class ApplicationRegisterH2DAO extends H2DAO implements IApplicationRegis
     public void save(Application application) {
         H2Client client = getClient();
 
-        Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationTable.ID.getName(), application.getId());
-        source.put(ApplicationTable.APPLICATION_CODE.getName(), application.getApplicationCode());
-        source.put(ApplicationTable.APPLICATION_ID.getName(), application.getApplicationId());
-        source.put(ApplicationTable.ADDRESS_ID.getName(), application.getAddressId());
-        source.put(ApplicationTable.IS_ADDRESS.getName(), application.getIsAddress());
+        Map<String, Object> target = new HashMap<>();
+        target.put(ApplicationTable.ID.getName(), application.getId());
+        target.put(ApplicationTable.APPLICATION_CODE.getName(), application.getApplicationCode());
+        target.put(ApplicationTable.APPLICATION_ID.getName(), application.getApplicationId());
+        target.put(ApplicationTable.ADDRESS_ID.getName(), application.getAddressId());
+        target.put(ApplicationTable.IS_ADDRESS.getName(), application.getIsAddress());
 
-        String sql = SqlBuilder.buildBatchInsertSql(ApplicationTable.TABLE, source.keySet());
-        Object[] params = source.values().toArray(new Object[0]);
+        String sql = SqlBuilder.buildBatchInsertSql(ApplicationTable.TABLE, target.keySet());
+        Object[] params = target.values().toArray(new Object[0]);
         try {
             client.execute(sql, params);
         } catch (H2ClientException e) {

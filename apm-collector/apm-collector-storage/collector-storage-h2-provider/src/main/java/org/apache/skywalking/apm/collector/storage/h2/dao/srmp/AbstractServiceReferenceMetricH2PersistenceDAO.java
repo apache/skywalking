@@ -55,19 +55,19 @@ public abstract class AbstractServiceReferenceMetricH2PersistenceDAO extends Abs
     }
 
     @Override protected final Map<String, Object> streamDataToH2Data(ServiceReferenceMetric streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(ServiceReferenceMetricTable.ID.getName(), streamData.getId());
-        source.put(ServiceReferenceMetricTable.METRIC_ID.getName(), streamData.getMetricId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(ServiceReferenceMetricTable.ID.getName(), streamData.getId());
+        target.put(ServiceReferenceMetricTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(ServiceReferenceMetricTable.FRONT_APPLICATION_ID.getName(), streamData.getFrontApplicationId());
-        source.put(ServiceReferenceMetricTable.BEHIND_APPLICATION_ID.getName(), streamData.getBehindApplicationId());
-        source.put(ServiceReferenceMetricTable.FRONT_INSTANCE_ID.getName(), streamData.getFrontInstanceId());
-        source.put(ServiceReferenceMetricTable.BEHIND_INSTANCE_ID.getName(), streamData.getBehindInstanceId());
-        source.put(ServiceReferenceMetricTable.FRONT_SERVICE_ID.getName(), streamData.getFrontServiceId());
-        source.put(ServiceReferenceMetricTable.BEHIND_SERVICE_ID.getName(), streamData.getBehindServiceId());
+        target.put(ServiceReferenceMetricTable.FRONT_APPLICATION_ID.getName(), streamData.getFrontApplicationId());
+        target.put(ServiceReferenceMetricTable.BEHIND_APPLICATION_ID.getName(), streamData.getBehindApplicationId());
+        target.put(ServiceReferenceMetricTable.FRONT_INSTANCE_ID.getName(), streamData.getFrontInstanceId());
+        target.put(ServiceReferenceMetricTable.BEHIND_INSTANCE_ID.getName(), streamData.getBehindInstanceId());
+        target.put(ServiceReferenceMetricTable.FRONT_SERVICE_ID.getName(), streamData.getFrontServiceId());
+        target.put(ServiceReferenceMetricTable.BEHIND_SERVICE_ID.getName(), streamData.getBehindServiceId());
 
-        MetricTransformUtil.INSTANCE.streamDataToH2Data(streamData, source);
+        MetricTransformUtil.INSTANCE.streamDataToH2Data(streamData, target);
 
-        return source;
+        return target;
     }
 }

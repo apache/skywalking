@@ -55,17 +55,17 @@ public abstract class AbstractInstanceReferenceMetricEsPersistenceDAO extends Ab
     }
 
     @Override protected final Map<String, Object> esStreamDataToEsData(InstanceReferenceMetric streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(InstanceReferenceMetricTable.METRIC_ID.getName(), streamData.getMetricId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(InstanceReferenceMetricTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(InstanceReferenceMetricTable.FRONT_APPLICATION_ID.getName(), streamData.getFrontApplicationId());
-        source.put(InstanceReferenceMetricTable.BEHIND_APPLICATION_ID.getName(), streamData.getBehindApplicationId());
-        source.put(InstanceReferenceMetricTable.FRONT_INSTANCE_ID.getName(), streamData.getFrontInstanceId());
-        source.put(InstanceReferenceMetricTable.BEHIND_INSTANCE_ID.getName(), streamData.getBehindInstanceId());
+        target.put(InstanceReferenceMetricTable.FRONT_APPLICATION_ID.getName(), streamData.getFrontApplicationId());
+        target.put(InstanceReferenceMetricTable.BEHIND_APPLICATION_ID.getName(), streamData.getBehindApplicationId());
+        target.put(InstanceReferenceMetricTable.FRONT_INSTANCE_ID.getName(), streamData.getFrontInstanceId());
+        target.put(InstanceReferenceMetricTable.BEHIND_INSTANCE_ID.getName(), streamData.getBehindInstanceId());
 
-        MetricTransformUtil.INSTANCE.esStreamDataToEsData(streamData, source);
+        MetricTransformUtil.INSTANCE.esStreamDataToEsData(streamData, target);
 
-        return source;
+        return target;
     }
 
     @GraphComputingMetric(name = "/persistence/get/" + InstanceReferenceMetricTable.TABLE)

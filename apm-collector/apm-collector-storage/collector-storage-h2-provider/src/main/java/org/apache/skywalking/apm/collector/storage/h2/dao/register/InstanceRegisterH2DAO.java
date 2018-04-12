@@ -54,20 +54,20 @@ public class InstanceRegisterH2DAO extends H2DAO implements IInstanceRegisterDAO
 
     @Override public void save(Instance instance) {
         H2Client client = getClient();
-        Map<String, Object> source = new HashMap<>();
-        source.put(InstanceTable.ID.getName(), instance.getId());
-        source.put(InstanceTable.INSTANCE_ID.getName(), instance.getInstanceId());
-        source.put(InstanceTable.APPLICATION_ID.getName(), instance.getApplicationId());
-        source.put(InstanceTable.APPLICATION_CODE.getName(), instance.getApplicationCode());
-        source.put(InstanceTable.AGENT_UUID.getName(), instance.getAgentUUID());
-        source.put(InstanceTable.REGISTER_TIME.getName(), TimeBucketUtils.INSTANCE.getSecondTimeBucket(instance.getRegisterTime()));
-        source.put(InstanceTable.HEARTBEAT_TIME.getName(), TimeBucketUtils.INSTANCE.getSecondTimeBucket(instance.getHeartBeatTime()));
-        source.put(InstanceTable.OS_INFO.getName(), instance.getOsInfo());
-        source.put(InstanceTable.ADDRESS_ID.getName(), instance.getAddressId());
-        source.put(InstanceTable.IS_ADDRESS.getName(), instance.getIsAddress());
+        Map<String, Object> target = new HashMap<>();
+        target.put(InstanceTable.ID.getName(), instance.getId());
+        target.put(InstanceTable.INSTANCE_ID.getName(), instance.getInstanceId());
+        target.put(InstanceTable.APPLICATION_ID.getName(), instance.getApplicationId());
+        target.put(InstanceTable.APPLICATION_CODE.getName(), instance.getApplicationCode());
+        target.put(InstanceTable.AGENT_UUID.getName(), instance.getAgentUUID());
+        target.put(InstanceTable.REGISTER_TIME.getName(), TimeBucketUtils.INSTANCE.getSecondTimeBucket(instance.getRegisterTime()));
+        target.put(InstanceTable.HEARTBEAT_TIME.getName(), TimeBucketUtils.INSTANCE.getSecondTimeBucket(instance.getHeartBeatTime()));
+        target.put(InstanceTable.OS_INFO.getName(), instance.getOsInfo());
+        target.put(InstanceTable.ADDRESS_ID.getName(), instance.getAddressId());
+        target.put(InstanceTable.IS_ADDRESS.getName(), instance.getIsAddress());
 
-        String sql = SqlBuilder.buildBatchInsertSql(InstanceTable.TABLE, source.keySet());
-        Object[] params = source.values().toArray(new Object[0]);
+        String sql = SqlBuilder.buildBatchInsertSql(InstanceTable.TABLE, target.keySet());
+        Object[] params = target.values().toArray(new Object[0]);
         try {
             client.execute(sql, params);
         } catch (H2ClientException e) {

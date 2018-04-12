@@ -52,13 +52,13 @@ public class ApplicationRegisterEsDAO extends EsDAO implements IApplicationRegis
     @Override public void save(Application application) {
         logger.debug("save application register info, application getApplicationId: {}, application code: {}", application.getId(), application.getApplicationCode());
         ElasticSearchClient client = getClient();
-        Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationTable.APPLICATION_CODE.getName(), application.getApplicationCode());
-        source.put(ApplicationTable.APPLICATION_ID.getName(), application.getApplicationId());
-        source.put(ApplicationTable.ADDRESS_ID.getName(), application.getAddressId());
-        source.put(ApplicationTable.IS_ADDRESS.getName(), application.getIsAddress());
+        Map<String, Object> target = new HashMap<>();
+        target.put(ApplicationTable.APPLICATION_CODE.getName(), application.getApplicationCode());
+        target.put(ApplicationTable.APPLICATION_ID.getName(), application.getApplicationId());
+        target.put(ApplicationTable.ADDRESS_ID.getName(), application.getAddressId());
+        target.put(ApplicationTable.IS_ADDRESS.getName(), application.getIsAddress());
 
-        IndexResponse response = client.prepareIndex(ApplicationTable.TABLE, application.getId()).setSource(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
+        IndexResponse response = client.prepareIndex(ApplicationTable.TABLE, application.getId()).setSource(target).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
         logger.debug("save application register info, application getApplicationId: {}, application code: {}, status: {}", application.getApplicationId(), application.getApplicationCode(), response.status().name());
     }
 }

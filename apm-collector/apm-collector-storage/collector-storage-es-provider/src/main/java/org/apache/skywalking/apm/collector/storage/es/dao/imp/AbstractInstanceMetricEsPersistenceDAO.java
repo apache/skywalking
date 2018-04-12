@@ -53,14 +53,14 @@ public abstract class AbstractInstanceMetricEsPersistenceDAO extends AbstractPer
     }
 
     @Override protected final Map<String, Object> esStreamDataToEsData(InstanceMetric streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(InstanceMetricTable.METRIC_ID.getName(), streamData.getMetricId());
-        source.put(InstanceMetricTable.APPLICATION_ID.getName(), streamData.getApplicationId());
-        source.put(InstanceMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(InstanceMetricTable.METRIC_ID.getName(), streamData.getMetricId());
+        target.put(InstanceMetricTable.APPLICATION_ID.getName(), streamData.getApplicationId());
+        target.put(InstanceMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId());
 
-        MetricTransformUtil.INSTANCE.esStreamDataToEsData(streamData, source);
+        MetricTransformUtil.INSTANCE.esStreamDataToEsData(streamData, target);
 
-        return source;
+        return target;
     }
 
     @GraphComputingMetric(name = "/persistence/get/" + InstanceMetricTable.TABLE)

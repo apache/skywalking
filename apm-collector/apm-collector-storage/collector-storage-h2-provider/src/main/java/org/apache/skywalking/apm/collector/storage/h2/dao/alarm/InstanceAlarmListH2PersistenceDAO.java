@@ -59,17 +59,17 @@ public class InstanceAlarmListH2PersistenceDAO extends AbstractPersistenceH2DAO<
     }
 
     @Override protected Map<String, Object> streamDataToH2Data(InstanceAlarmList streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(InstanceAlarmListTable.SOURCE_VALUE.getName(), streamData.getSourceValue());
+        Map<String, Object> target = new HashMap<>();
+        target.put(InstanceAlarmListTable.SOURCE_VALUE.getName(), streamData.getSourceValue());
 
-        source.put(InstanceAlarmListTable.ALARM_TYPE.getName(), streamData.getAlarmType());
+        target.put(InstanceAlarmListTable.ALARM_TYPE.getName(), streamData.getAlarmType());
 
-        source.put(InstanceAlarmListTable.APPLICATION_ID.getName(), streamData.getApplicationId());
-        source.put(InstanceAlarmListTable.INSTANCE_ID.getName(), streamData.getInstanceId());
+        target.put(InstanceAlarmListTable.APPLICATION_ID.getName(), streamData.getApplicationId());
+        target.put(InstanceAlarmListTable.INSTANCE_ID.getName(), streamData.getInstanceId());
 
-        source.put(InstanceAlarmListTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
-        source.put(InstanceAlarmListTable.ALARM_CONTENT.getName(), streamData.getAlarmContent());
+        target.put(InstanceAlarmListTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
+        target.put(InstanceAlarmListTable.ALARM_CONTENT.getName(), streamData.getAlarmContent());
 
-        return source;
+        return target;
     }
 }

@@ -58,12 +58,12 @@ public class GlobalTraceEsPersistenceDAO extends EsDAO implements IGlobalTracePe
 
     @Override
     public IndexRequestBuilder prepareBatchInsert(GlobalTrace data) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(GlobalTraceTable.SEGMENT_ID.getName(), data.getSegmentId());
-        source.put(GlobalTraceTable.TRACE_ID.getName(), data.getGlobalTraceId());
-        source.put(GlobalTraceTable.TIME_BUCKET.getName(), data.getTimeBucket());
-        logger.debug("global trace source: {}", source.toString());
-        return getClient().prepareIndex(GlobalTraceTable.TABLE, data.getId()).setSource(source);
+        Map<String, Object> target = new HashMap<>();
+        target.put(GlobalTraceTable.SEGMENT_ID.getName(), data.getSegmentId());
+        target.put(GlobalTraceTable.TRACE_ID.getName(), data.getGlobalTraceId());
+        target.put(GlobalTraceTable.TIME_BUCKET.getName(), data.getTimeBucket());
+        logger.debug("global trace source: {}", target.toString());
+        return getClient().prepareIndex(GlobalTraceTable.TABLE, data.getId()).setSource(target);
     }
 
     @Override

@@ -57,18 +57,18 @@ public class InstanceRegisterEsDAO extends EsDAO implements IInstanceRegisterDAO
     public void save(Instance instance) {
         logger.debug("save instance register info, application getApplicationId: {}, agentUUID: {}", instance.getApplicationId(), instance.getAgentUUID());
         ElasticSearchClient client = getClient();
-        Map<String, Object> source = new HashMap<>();
-        source.put(InstanceTable.INSTANCE_ID.getName(), instance.getInstanceId());
-        source.put(InstanceTable.APPLICATION_ID.getName(), instance.getApplicationId());
-        source.put(InstanceTable.APPLICATION_CODE.getName(), instance.getApplicationCode());
-        source.put(InstanceTable.AGENT_UUID.getName(), instance.getAgentUUID());
-        source.put(InstanceTable.REGISTER_TIME.getName(), TimeBucketUtils.INSTANCE.getSecondTimeBucket(instance.getRegisterTime()));
-        source.put(InstanceTable.HEARTBEAT_TIME.getName(), TimeBucketUtils.INSTANCE.getSecondTimeBucket(instance.getHeartBeatTime()));
-        source.put(InstanceTable.OS_INFO.getName(), instance.getOsInfo());
-        source.put(InstanceTable.ADDRESS_ID.getName(), instance.getAddressId());
-        source.put(InstanceTable.IS_ADDRESS.getName(), instance.getIsAddress());
+        Map<String, Object> target = new HashMap<>();
+        target.put(InstanceTable.INSTANCE_ID.getName(), instance.getInstanceId());
+        target.put(InstanceTable.APPLICATION_ID.getName(), instance.getApplicationId());
+        target.put(InstanceTable.APPLICATION_CODE.getName(), instance.getApplicationCode());
+        target.put(InstanceTable.AGENT_UUID.getName(), instance.getAgentUUID());
+        target.put(InstanceTable.REGISTER_TIME.getName(), TimeBucketUtils.INSTANCE.getSecondTimeBucket(instance.getRegisterTime()));
+        target.put(InstanceTable.HEARTBEAT_TIME.getName(), TimeBucketUtils.INSTANCE.getSecondTimeBucket(instance.getHeartBeatTime()));
+        target.put(InstanceTable.OS_INFO.getName(), instance.getOsInfo());
+        target.put(InstanceTable.ADDRESS_ID.getName(), instance.getAddressId());
+        target.put(InstanceTable.IS_ADDRESS.getName(), instance.getIsAddress());
 
-        IndexResponse response = client.prepareIndex(InstanceTable.TABLE, instance.getId()).setSource(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
+        IndexResponse response = client.prepareIndex(InstanceTable.TABLE, instance.getId()).setSource(target).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
         logger.debug("save instance register info, application getApplicationId: {}, agentUUID: {}, status: {}", instance.getApplicationId(), instance.getAgentUUID(), response.status().name());
     }
 
@@ -76,9 +76,9 @@ public class InstanceRegisterEsDAO extends EsDAO implements IInstanceRegisterDAO
     public void updateHeartbeatTime(int instanceId, long heartbeatTime) {
         UpdateRequestBuilder updateRequestBuilder = getClient().prepareUpdate(InstanceTable.TABLE, String.valueOf(instanceId));
         updateRequestBuilder.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
-        Map<String, Object> source = new HashMap<>();
-        source.put(InstanceTable.HEARTBEAT_TIME.getName(), TimeBucketUtils.INSTANCE.getSecondTimeBucket(heartbeatTime));
-        updateRequestBuilder.setDoc(source);
+        Map<String, Object> target = new HashMap<>();
+        target.put(InstanceTable.HEARTBEAT_TIME.getName(), TimeBucketUtils.INSTANCE.getSecondTimeBucket(heartbeatTime));
+        updateRequestBuilder.setDoc(target);
 
         updateRequestBuilder.get();
     }

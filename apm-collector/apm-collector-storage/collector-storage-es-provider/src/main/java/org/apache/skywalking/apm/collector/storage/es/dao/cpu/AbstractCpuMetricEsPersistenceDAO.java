@@ -53,15 +53,15 @@ public abstract class AbstractCpuMetricEsPersistenceDAO extends AbstractPersiste
     }
 
     @Override protected final Map<String, Object> esStreamDataToEsData(CpuMetric streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(CpuMetricTable.METRIC_ID.getName(), streamData.getMetricId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(CpuMetricTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(CpuMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId());
-        source.put(CpuMetricTable.USAGE_PERCENT.getName(), streamData.getUsagePercent());
-        source.put(CpuMetricTable.TIMES.getName(), streamData.getTimes());
-        source.put(CpuMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
+        target.put(CpuMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId());
+        target.put(CpuMetricTable.USAGE_PERCENT.getName(), streamData.getUsagePercent());
+        target.put(CpuMetricTable.TIMES.getName(), streamData.getTimes());
+        target.put(CpuMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
 
-        return source;
+        return target;
     }
 
     @GraphComputingMetric(name = "/persistence/get/" + CpuMetricTable.TABLE)

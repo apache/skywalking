@@ -52,14 +52,14 @@ public class ServiceNameRegisterEsDAO extends EsDAO implements IServiceNameRegis
     @Override public void save(ServiceName serviceName) {
         logger.debug("save service name register info, application getApplicationId: {}, service name: {}", serviceName.getId(), serviceName.getServiceName());
         ElasticSearchClient client = getClient();
-        Map<String, Object> source = new HashMap<>();
-        source.put(ServiceNameTable.SERVICE_ID.getName(), serviceName.getServiceId());
-        source.put(ServiceNameTable.APPLICATION_ID.getName(), serviceName.getApplicationId());
-        source.put(ServiceNameTable.SERVICE_NAME.getName(), serviceName.getServiceName());
-        source.put(ServiceNameTable.SERVICE_NAME_KEYWORD.getName(), serviceName.getServiceName());
-        source.put(ServiceNameTable.SRC_SPAN_TYPE.getName(), serviceName.getSrcSpanType());
+        Map<String, Object> target = new HashMap<>();
+        target.put(ServiceNameTable.SERVICE_ID.getName(), serviceName.getServiceId());
+        target.put(ServiceNameTable.APPLICATION_ID.getName(), serviceName.getApplicationId());
+        target.put(ServiceNameTable.SERVICE_NAME.getName(), serviceName.getServiceName());
+        target.put(ServiceNameTable.SERVICE_NAME_KEYWORD.getName(), serviceName.getServiceName());
+        target.put(ServiceNameTable.SRC_SPAN_TYPE.getName(), serviceName.getSrcSpanType());
 
-        IndexResponse response = client.prepareIndex(ServiceNameTable.TABLE, serviceName.getId()).setSource(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
+        IndexResponse response = client.prepareIndex(ServiceNameTable.TABLE, serviceName.getId()).setSource(target).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
         logger.debug("save service name register info, application getApplicationId: {}, service name: {}, status: {}", serviceName.getId(), serviceName.getServiceName(), response.status().name());
     }
 }

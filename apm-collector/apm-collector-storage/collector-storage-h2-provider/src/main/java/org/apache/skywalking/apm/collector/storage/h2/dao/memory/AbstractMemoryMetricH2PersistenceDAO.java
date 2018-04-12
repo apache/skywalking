@@ -55,19 +55,19 @@ public abstract class AbstractMemoryMetricH2PersistenceDAO extends AbstractPersi
     }
 
     @Override protected final Map<String, Object> streamDataToH2Data(MemoryMetric streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(MemoryMetricTable.ID.getName(), streamData.getId());
-        source.put(MemoryMetricTable.METRIC_ID.getName(), streamData.getMetricId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(MemoryMetricTable.ID.getName(), streamData.getId());
+        target.put(MemoryMetricTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(MemoryMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId());
-        source.put(MemoryMetricTable.IS_HEAP.getName(), streamData.getIsHeap());
-        source.put(MemoryMetricTable.INIT.getName(), streamData.getInit());
-        source.put(MemoryMetricTable.MAX.getName(), streamData.getMax());
-        source.put(MemoryMetricTable.USED.getName(), streamData.getUsed());
-        source.put(MemoryMetricTable.COMMITTED.getName(), streamData.getCommitted());
-        source.put(MemoryMetricTable.TIMES.getName(), streamData.getTimes());
-        source.put(MemoryMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
+        target.put(MemoryMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId());
+        target.put(MemoryMetricTable.IS_HEAP.getName(), streamData.getIsHeap());
+        target.put(MemoryMetricTable.INIT.getName(), streamData.getInit());
+        target.put(MemoryMetricTable.MAX.getName(), streamData.getMax());
+        target.put(MemoryMetricTable.USED.getName(), streamData.getUsed());
+        target.put(MemoryMetricTable.COMMITTED.getName(), streamData.getCommitted());
+        target.put(MemoryMetricTable.TIMES.getName(), streamData.getTimes());
+        target.put(MemoryMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
 
-        return source;
+        return target;
     }
 }

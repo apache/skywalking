@@ -55,19 +55,19 @@ public abstract class AbstractMemoryPoolMetricH2PersistenceDAO extends AbstractP
     }
 
     @Override protected final Map<String, Object> streamDataToH2Data(MemoryPoolMetric streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(MemoryPoolMetricTable.ID.getName(), streamData.getId());
-        source.put(MemoryPoolMetricTable.METRIC_ID.getName(), streamData.getMetricId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(MemoryPoolMetricTable.ID.getName(), streamData.getId());
+        target.put(MemoryPoolMetricTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(MemoryPoolMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId());
-        source.put(MemoryPoolMetricTable.POOL_TYPE.getName(), streamData.getPoolType());
-        source.put(MemoryPoolMetricTable.INIT.getName(), streamData.getInit());
-        source.put(MemoryPoolMetricTable.MAX.getName(), streamData.getMax());
-        source.put(MemoryPoolMetricTable.USED.getName(), streamData.getUsed());
-        source.put(MemoryPoolMetricTable.COMMITTED.getName(), streamData.getCommitted());
-        source.put(MemoryPoolMetricTable.TIMES.getName(), streamData.getTimes());
-        source.put(MemoryPoolMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
+        target.put(MemoryPoolMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId());
+        target.put(MemoryPoolMetricTable.POOL_TYPE.getName(), streamData.getPoolType());
+        target.put(MemoryPoolMetricTable.INIT.getName(), streamData.getInit());
+        target.put(MemoryPoolMetricTable.MAX.getName(), streamData.getMax());
+        target.put(MemoryPoolMetricTable.USED.getName(), streamData.getUsed());
+        target.put(MemoryPoolMetricTable.COMMITTED.getName(), streamData.getCommitted());
+        target.put(MemoryPoolMetricTable.TIMES.getName(), streamData.getTimes());
+        target.put(MemoryPoolMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
 
-        return source;
+        return target;
     }
 }

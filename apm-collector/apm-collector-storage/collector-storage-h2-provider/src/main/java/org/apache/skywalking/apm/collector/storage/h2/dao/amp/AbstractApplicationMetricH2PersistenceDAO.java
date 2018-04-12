@@ -54,18 +54,18 @@ public abstract class AbstractApplicationMetricH2PersistenceDAO extends Abstract
     }
 
     @Override protected final Map<String, Object> streamDataToH2Data(ApplicationMetric streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationMetricTable.ID.getName(), streamData.getId());
-        source.put(ApplicationMetricTable.METRIC_ID.getName(), streamData.getMetricId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(ApplicationMetricTable.ID.getName(), streamData.getId());
+        target.put(ApplicationMetricTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(ApplicationMetricTable.APPLICATION_ID.getName(), streamData.getApplicationId());
+        target.put(ApplicationMetricTable.APPLICATION_ID.getName(), streamData.getApplicationId());
 
-        MetricTransformUtil.INSTANCE.streamDataToH2Data(streamData, source);
+        MetricTransformUtil.INSTANCE.streamDataToH2Data(streamData, target);
 
-        source.put(ApplicationMetricTable.SATISFIED_COUNT.getName(), streamData.getSatisfiedCount());
-        source.put(ApplicationMetricTable.TOLERATING_COUNT.getName(), streamData.getToleratingCount());
-        source.put(ApplicationMetricTable.FRUSTRATED_COUNT.getName(), streamData.getFrustratedCount());
+        target.put(ApplicationMetricTable.SATISFIED_COUNT.getName(), streamData.getSatisfiedCount());
+        target.put(ApplicationMetricTable.TOLERATING_COUNT.getName(), streamData.getToleratingCount());
+        target.put(ApplicationMetricTable.FRUSTRATED_COUNT.getName(), streamData.getFrustratedCount());
 
-        return source;
+        return target;
     }
 }

@@ -58,17 +58,17 @@ public class SegmentDurationEsPersistenceDAO extends EsDAO implements ISegmentDu
     @Override
     public IndexRequestBuilder prepareBatchInsert(SegmentDuration data) {
         logger.debug("segment cost prepareBatchInsert, getApplicationId: {}", data.getId());
-        Map<String, Object> source = new HashMap<>();
-        source.put(SegmentDurationTable.SEGMENT_ID.getName(), data.getSegmentId());
-        source.put(SegmentDurationTable.APPLICATION_ID.getName(), data.getApplicationId());
-        source.put(SegmentDurationTable.SERVICE_NAME.getName(), data.getServiceName());
-        source.put(SegmentDurationTable.DURATION.getName(), data.getDuration());
-        source.put(SegmentDurationTable.START_TIME.getName(), data.getStartTime());
-        source.put(SegmentDurationTable.END_TIME.getName(), data.getEndTime());
-        source.put(SegmentDurationTable.IS_ERROR.getName(), data.getIsError());
-        source.put(SegmentDurationTable.TIME_BUCKET.getName(), data.getTimeBucket());
-        logger.debug("segment cost source: {}", source.toString());
-        return getClient().prepareIndex(SegmentDurationTable.TABLE, data.getId()).setSource(source);
+        Map<String, Object> target = new HashMap<>();
+        target.put(SegmentDurationTable.SEGMENT_ID.getName(), data.getSegmentId());
+        target.put(SegmentDurationTable.APPLICATION_ID.getName(), data.getApplicationId());
+        target.put(SegmentDurationTable.SERVICE_NAME.getName(), data.getServiceName());
+        target.put(SegmentDurationTable.DURATION.getName(), data.getDuration());
+        target.put(SegmentDurationTable.START_TIME.getName(), data.getStartTime());
+        target.put(SegmentDurationTable.END_TIME.getName(), data.getEndTime());
+        target.put(SegmentDurationTable.IS_ERROR.getName(), data.getIsError());
+        target.put(SegmentDurationTable.TIME_BUCKET.getName(), data.getTimeBucket());
+        logger.debug("segment cost source: {}", target.toString());
+        return getClient().prepareIndex(SegmentDurationTable.TABLE, data.getId()).setSource(target);
     }
 
     @Override

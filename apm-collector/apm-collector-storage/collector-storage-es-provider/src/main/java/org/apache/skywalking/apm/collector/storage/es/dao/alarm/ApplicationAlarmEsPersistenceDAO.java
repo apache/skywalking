@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.collector.storage.es.dao.alarm;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarm;
@@ -54,18 +55,23 @@ public class ApplicationAlarmEsPersistenceDAO extends AbstractPersistenceEsDAO<A
     }
 
     @Override protected Map<String, Object> esStreamDataToEsData(ApplicationAlarm streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationAlarmTable.APPLICATION_ID.getName(), streamData.getApplicationId());
-        source.put(ApplicationAlarmTable.SOURCE_VALUE.getName(), streamData.getSourceValue());
+        Map<String, Object> target = new HashMap<>();
+        target.put(ApplicationAlarmTable.APPLICATION_ID.getName(), streamData.getApplicationId());
+        target.put(ApplicationAlarmTable.SOURCE_VALUE.getName(), streamData.getSourceValue());
 
-        source.put(ApplicationAlarmTable.ALARM_TYPE.getName(), streamData.getAlarmType());
-        source.put(ApplicationAlarmTable.ALARM_CONTENT.getName(), streamData.getAlarmContent());
+        target.put(ApplicationAlarmTable.ALARM_TYPE.getName(), streamData.getAlarmType());
+        target.put(ApplicationAlarmTable.ALARM_CONTENT.getName(), streamData.getAlarmContent());
 
-        source.put(ApplicationAlarmTable.LAST_TIME_BUCKET.getName(), streamData.getLastTimeBucket());
-        return source;
+        target.put(ApplicationAlarmTable.LAST_TIME_BUCKET.getName(), streamData.getLastTimeBucket());
+        return target;
     }
 
     @Override protected String timeBucketColumnNameForDelete() {
         return ApplicationAlarmTable.LAST_TIME_BUCKET.getName();
+    }
+
+    @GraphComputingMetric(name = "/persistence/get/" + ApplicationAlarmTable.TABLE)
+    @Override public ApplicationAlarm get(String id) {
+        return super.get(id);
     }
 }

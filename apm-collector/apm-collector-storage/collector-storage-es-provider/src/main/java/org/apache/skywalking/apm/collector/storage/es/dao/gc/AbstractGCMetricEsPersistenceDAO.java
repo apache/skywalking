@@ -55,16 +55,16 @@ public abstract class AbstractGCMetricEsPersistenceDAO extends AbstractPersisten
     }
 
     @Override protected final Map<String, Object> esStreamDataToEsData(GCMetric streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(GCMetricTable.METRIC_ID.getName(), streamData.getMetricId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(GCMetricTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(GCMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId());
-        source.put(GCMetricTable.PHRASE.getName(), streamData.getPhrase());
-        source.put(GCMetricTable.COUNT.getName(), streamData.getCount());
-        source.put(GCMetricTable.TIMES.getName(), streamData.getTimes());
-        source.put(GCMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
+        target.put(GCMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId());
+        target.put(GCMetricTable.PHRASE.getName(), streamData.getPhrase());
+        target.put(GCMetricTable.COUNT.getName(), streamData.getCount());
+        target.put(GCMetricTable.TIMES.getName(), streamData.getTimes());
+        target.put(GCMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
 
-        return source;
+        return target;
     }
 
     @GraphComputingMetric(name = "/persistence/get/" + GCMetricTable.TABLE)
