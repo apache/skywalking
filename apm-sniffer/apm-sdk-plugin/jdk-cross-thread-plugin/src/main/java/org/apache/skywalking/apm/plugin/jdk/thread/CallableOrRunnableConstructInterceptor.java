@@ -27,11 +27,9 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 public class CallableOrRunnableConstructInterceptor implements InstanceConstructorInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        if (!ContextManager.isActive()) {
-            String operationName = "Thread/" + objInst.getClass().getName();
-            ContextManager.createLocalSpan(operationName);
+        if (ContextManager.isActive()) {
+            objInst.setSkyWalkingDynamicField(ContextManager.capture());
         }
-        objInst.setSkyWalkingDynamicField(ContextManager.capture());
     }
 
 }

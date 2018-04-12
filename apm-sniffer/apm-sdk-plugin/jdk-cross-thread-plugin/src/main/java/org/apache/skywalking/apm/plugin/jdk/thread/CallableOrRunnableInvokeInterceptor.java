@@ -33,7 +33,9 @@ public class CallableOrRunnableInvokeInterceptor implements InstanceMethodsAroun
         MethodInterceptResult result) throws Throwable {
         ContextManager.createLocalSpan("Thread/" + objInst.getClass().getName() + "/" + method.getName());
         ContextSnapshot cachedObjects = (ContextSnapshot)objInst.getSkyWalkingDynamicField();
-        ContextManager.continued(cachedObjects);
+        if (cachedObjects != null) {
+            ContextManager.continued(cachedObjects);
+        }
     }
 
     @Override

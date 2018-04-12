@@ -92,7 +92,7 @@ public class CallableOrRunnableInterceptorTest {
     @Test
     public void testOnConstructor() {
         constructorInterceptor.onConstruct(enhancedInstance, null);
-        Assert.assertTrue(enhancedInstance.getSkyWalkingDynamicField() instanceof ContextSnapshot);
+        Assert.assertNull(enhancedInstance.getSkyWalkingDynamicField());
     }
 
     @Test
