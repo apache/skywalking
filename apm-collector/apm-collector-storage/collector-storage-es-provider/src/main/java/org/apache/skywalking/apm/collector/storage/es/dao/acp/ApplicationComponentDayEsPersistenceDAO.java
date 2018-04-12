@@ -26,15 +26,11 @@ import org.apache.skywalking.apm.collector.storage.table.application.Application
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponentTable;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class ApplicationComponentDayEsPersistenceDAO extends AbstractApplicationComponentEsPersistenceDAO implements IApplicationComponentDayPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, ApplicationComponent> {
-
-    private final Logger logger = LoggerFactory.getLogger(ApplicationComponentDayEsPersistenceDAO.class);
 
     public ApplicationComponentDayEsPersistenceDAO(ElasticSearchClient client) {
         super(client);

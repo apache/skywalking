@@ -16,19 +16,18 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.cluster.standalone;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.apache.skywalking.apm.collector.client.Client;
 import org.apache.skywalking.apm.collector.client.ClientException;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
 import org.apache.skywalking.apm.collector.cluster.ClusterModuleListener;
 import org.apache.skywalking.apm.collector.cluster.DataMonitor;
-import org.apache.skywalking.apm.collector.core.CollectorException;
-import org.apache.skywalking.apm.collector.client.Client;
 import org.apache.skywalking.apm.collector.cluster.ModuleRegistration;
+import org.apache.skywalking.apm.collector.core.CollectorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,14 +36,14 @@ import org.slf4j.LoggerFactory;
  */
 public class ClusterStandaloneDataMonitor implements DataMonitor {
 
-    private final Logger logger = LoggerFactory.getLogger(ClusterStandaloneDataMonitor.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClusterStandaloneDataMonitor.class);
 
     private H2Client client;
 
     private Map<String, ClusterModuleListener> listeners;
     private Map<String, ModuleRegistration> registrations;
 
-    public ClusterStandaloneDataMonitor() {
+    ClusterStandaloneDataMonitor() {
         listeners = new LinkedHashMap<>();
         registrations = new LinkedHashMap<>();
     }

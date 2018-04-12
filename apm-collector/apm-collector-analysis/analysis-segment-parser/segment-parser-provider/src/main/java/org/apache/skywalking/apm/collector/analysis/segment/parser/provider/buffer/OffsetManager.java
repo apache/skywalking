@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 public enum OffsetManager {
     INSTANCE;
 
-    private final Logger logger = LoggerFactory.getLogger(OffsetManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(OffsetManager.class);
 
     private static final String OFFSET_FILE_PREFIX = "offset";
     private File offsetFile;

@@ -75,7 +75,7 @@ public class BlockingCallClientInterceptor extends ForwardingClientCall.SimpleFo
 
         @Override public void onClose(Status status, Metadata trailers) {
             delegate().onClose(status, trailers);
-            if (status.isOk()) {
+            if (!status.isOk()) {
                 AbstractSpan activeSpan = ContextManager.activeSpan();
                 activeSpan.errorOccurred().log(status.getCause());
                 Tags.STATUS_CODE.set(activeSpan, status.getCode().name());

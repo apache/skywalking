@@ -5,6 +5,14 @@
     * [Quick start](en/Quick-start.md)
     * [Supported middlewares, frameworks and libraries](Supported-list.md)
       * [How to disable plugins?](en/How-to-disable-plugin.md)
+  * Advanced Features
+    * [Override settings through System.properties or System.env](en/Setting-override.md)
+    * [Direct uplink and disable naming discovery](en/Direct-uplink.md)
+    * [Open TLS](en/TLS.md)
+    * [Namespace Isolation](en/Namespace.md)
+    * [Token Authentication](en/Token-auth.md)
+  * Incubating Features
+    * Abstract
   * Application Toolkit
     * [Overview](en/Applicaton-toolkit.md)
     * [OpenTracing Tracer](en/Opentracing.md)
@@ -32,4 +40,5 @@
     * [Why only traces in UI?](cn/FAQ/Why-have-traces-no-others.md)
     * [Too many GRPC logs in the console](cn/FAQ/Too-many-gRPC-logs.md)
     * [The trace doesn't continue in kafka consumer side](en/FAQ/kafka-plugin.md)
-
+    * [Agent or collector version upgrade](en/FAQ/Upgrade.md)
+    

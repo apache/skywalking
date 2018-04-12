@@ -34,9 +34,9 @@ import org.slf4j.LoggerFactory;
  */
 public class NetworkAddressRegisterRemoteWorker extends AbstractRemoteWorker<NetworkAddress, NetworkAddress> {
 
-    private final Logger logger = LoggerFactory.getLogger(NetworkAddressRegisterRemoteWorker.class);
+    private static final Logger logger = LoggerFactory.getLogger(NetworkAddressRegisterRemoteWorker.class);
 
-    public NetworkAddressRegisterRemoteWorker(ModuleManager moduleManager) {
+    private NetworkAddressRegisterRemoteWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 

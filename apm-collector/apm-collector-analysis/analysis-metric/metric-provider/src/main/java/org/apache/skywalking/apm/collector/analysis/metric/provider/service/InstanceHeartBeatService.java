@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InstanceHeartBeatService implements IInstanceHeartBeatService {
 
-    private final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatService.class);
+    private static final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatService.class);
 
     private Graph<Instance> heartBeatGraph;
 

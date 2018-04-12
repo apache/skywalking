@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.component;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
@@ -29,6 +29,7 @@ import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listen
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListenerFactory;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -42,11 +43,15 @@ import org.apache.skywalking.apm.collector.storage.table.application.Application
 public class ApplicationComponentSpanListener implements EntrySpanListener, ExitSpanListener, FirstSpanListener {
 
     private final ApplicationCacheService applicationCacheService;
-    private List<ApplicationComponent> applicationComponents = new ArrayList<>();
+    private List<ApplicationComponent> applicationComponents = new LinkedList<>();
     private long timeBucket;
 
-    ApplicationComponentSpanListener(ModuleManager moduleManager) {
+    private ApplicationComponentSpanListener(ModuleManager moduleManager) {
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
+    }
+
+    @Override public boolean containsPoint(Point point) {
+        return Point.Entry.equals(point) || Point.Exit.equals(point) || Point.First.equals(point);
     }
 
     @Override
@@ -76,7 +81,11 @@ public class ApplicationComponentSpanListener implements EntrySpanListener, Exit
     @Override
     public void parseFirst(SpanDecorator spanDecorator, int applicationId, int instanceId,
         String segmentId) {
-        timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
+        if (spanDecorator.getStartTimeMinuteTimeBucket() == 0) {
+            long startTimeMinuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
+            spanDecorator.setStartTimeMinuteTimeBucket(startTimeMinuteTimeBucket);
+        }
+        timeBucket = spanDecorator.getStartTimeMinuteTimeBucket();
     }
 
     @Override public void build() {
@@ -90,6 +99,8 @@ public class ApplicationComponentSpanListener implements EntrySpanListener, Exit
     }
 
     public static class Factory implements SpanListenerFactory {
+
+        @GraphComputingMetric(name = "/segment/parse/createSpanListeners/applicationComponentSpanListener")
         @Override public SpanListener create(ModuleManager moduleManager) {
             return new ApplicationComponentSpanListener(moduleManager);
         }

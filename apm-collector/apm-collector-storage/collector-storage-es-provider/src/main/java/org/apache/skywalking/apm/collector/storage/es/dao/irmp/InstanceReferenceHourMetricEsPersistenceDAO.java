@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InstanceReferenceHourMetricEsPersistenceDAO extends AbstractInstanceReferenceMetricEsPersistenceDAO implements IInstanceReferenceHourMetricPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, InstanceReferenceMetric> {
 
-    private final Logger logger = LoggerFactory.getLogger(InstanceReferenceHourMetricEsPersistenceDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(InstanceReferenceHourMetricEsPersistenceDAO.class);
 
     public InstanceReferenceHourMetricEsPersistenceDAO(ElasticSearchClient client) {
         super(client);

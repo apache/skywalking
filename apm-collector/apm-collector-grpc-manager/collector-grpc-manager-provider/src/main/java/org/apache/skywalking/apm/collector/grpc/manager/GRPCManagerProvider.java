@@ -16,19 +16,18 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.grpc.manager;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
-import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
-import org.apache.skywalking.apm.collector.server.grpc.GRPCServer;
 import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
+import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.apache.skywalking.apm.collector.grpc.manager.service.GRPCManagerService;
 import org.apache.skywalking.apm.collector.grpc.manager.service.GRPCManagerServiceImpl;
 import org.apache.skywalking.apm.collector.server.ServerException;
+import org.apache.skywalking.apm.collector.server.grpc.GRPCServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,9 +36,15 @@ import org.slf4j.LoggerFactory;
  */
 public class GRPCManagerProvider extends ModuleProvider {
 
-    private final Logger logger = LoggerFactory.getLogger(GRPCManagerProvider.class);
+    private static final Logger logger = LoggerFactory.getLogger(GRPCManagerProvider.class);
 
+    private final GRPCManagerConfig config;
     private Map<String, GRPCServer> servers = new HashMap<>();
+
+    public GRPCManagerProvider() {
+        super();
+        this.config = new GRPCManagerConfig();
+    }
 
     @Override public String name() {
         return "default";
@@ -49,15 +54,18 @@ public class GRPCManagerProvider extends ModuleProvider {
         return GRPCManagerModule.class;
     }
 
-    @Override public void prepare(Properties config) throws ServiceNotProvidedException {
+    @Override public ModuleConfig createConfigBeanIfAbsent() {
+        return config;
+    }
+
+    @Override public void prepare() throws ServiceNotProvidedException {
         this.registerServiceImplementation(GRPCManagerService.class, new GRPCManagerServiceImpl(servers));
     }
 
-    @Override public void start(Properties config) throws ServiceNotProvidedException {
-
+    @Override public void start() {
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
+    @Override public void notifyAfterCompleted() {
         servers.values().forEach(server -> {
             try {
                 server.start();

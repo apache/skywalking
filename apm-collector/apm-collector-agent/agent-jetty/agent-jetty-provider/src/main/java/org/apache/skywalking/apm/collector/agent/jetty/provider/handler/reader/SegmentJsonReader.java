@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.agent.jetty.provider.handler.reader;
 
 import com.google.gson.stream.JsonReader;
@@ -30,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SegmentJsonReader implements StreamJsonReader<TraceSegmentObject.Builder> {
 
-    private final Logger logger = LoggerFactory.getLogger(SegmentJsonReader.class);
+    private static final Logger logger = LoggerFactory.getLogger(SegmentJsonReader.class);
 
     private UniqueIdJsonReader uniqueIdJsonReader = new UniqueIdJsonReader();
     private SpanJsonReader spanJsonReader = new SpanJsonReader();

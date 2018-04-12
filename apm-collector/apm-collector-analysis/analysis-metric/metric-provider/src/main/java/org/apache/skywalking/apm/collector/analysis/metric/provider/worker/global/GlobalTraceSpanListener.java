@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
@@ -26,6 +26,7 @@ import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listen
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.GlobalTraceIdsListener;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListener;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListenerFactory;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -41,17 +42,26 @@ import org.slf4j.LoggerFactory;
  */
 public class GlobalTraceSpanListener implements FirstSpanListener, GlobalTraceIdsListener {
 
-    private final Logger logger = LoggerFactory.getLogger(GlobalTraceSpanListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(GlobalTraceSpanListener.class);
 
-    private List<String> globalTraceIds = new ArrayList<>();
+    private List<String> globalTraceIds = new LinkedList<>();
     private String segmentId;
     private long timeBucket;
+
+    @Override public boolean containsPoint(Point point) {
+        return Point.First.equals(point) || Point.GlobalTraceIds.equals(point);
+    }
 
     @Override
     public void parseFirst(SpanDecorator spanDecorator, int applicationId, int instanceId,
         String segmentId) {
-        this.timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
         this.segmentId = segmentId;
+
+        if (spanDecorator.getStartTimeMinuteTimeBucket() == 0) {
+            long startTimeMinuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
+            spanDecorator.setStartTimeMinuteTimeBucket(startTimeMinuteTimeBucket);
+        }
+        timeBucket = spanDecorator.getStartTimeMinuteTimeBucket();
     }
 
     @Override public void parseGlobalTraceId(UniqueId uniqueId) {
@@ -81,6 +91,8 @@ public class GlobalTraceSpanListener implements FirstSpanListener, GlobalTraceId
     }
 
     public static class Factory implements SpanListenerFactory {
+
+        @GraphComputingMetric(name = "/segment/parse/createSpanListeners/globalTraceSpanListener")
         @Override public SpanListener create(ModuleManager moduleManager) {
             return new GlobalTraceSpanListener();
         }

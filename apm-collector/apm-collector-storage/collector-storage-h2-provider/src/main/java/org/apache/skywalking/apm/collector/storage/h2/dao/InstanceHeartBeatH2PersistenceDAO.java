@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InstanceHeartBeatH2PersistenceDAO extends H2DAO implements IInstanceHeartBeatPersistenceDAO<H2SqlEntity, H2SqlEntity, Instance> {
 
-    private final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatH2PersistenceDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatH2PersistenceDAO.class);
 
     public InstanceHeartBeatH2PersistenceDAO(H2Client client) {
         super(client);

@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MemoryPoolMetricH2UIDAO extends H2DAO implements IMemoryPoolMetricUIDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(MemoryPoolMetricH2UIDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(MemoryPoolMetricH2UIDAO.class);
     private static final String GET_MEMORY_POOL_METRIC_SQL = "select * from {0} where {1} = ?";
 
     public MemoryPoolMetricH2UIDAO(H2Client client) {

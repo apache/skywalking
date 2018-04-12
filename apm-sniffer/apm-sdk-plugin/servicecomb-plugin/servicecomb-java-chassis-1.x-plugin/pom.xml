@@ -38,23 +38,10 @@
         <dependency>
             <groupId>org.apache.servicecomb</groupId>
             <artifactId>java-chassis-core</artifactId>
-            <version>1.0.0-m1-SNAPSHOT</version>
+            <version>1.0.0-m1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
-    <!-- TODO: need to delete -->
-    <repositories>
-        <repository>
-            <id>apache-servicecomb</id>
-            <url>
-                https://repository.apache.org/content/repositories/snapshots
-            </url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-        </repository>
-    </repositories>
     <build>
         <plugins>
             <plugin>

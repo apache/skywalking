@@ -52,20 +52,20 @@ import org.slf4j.LoggerFactory;
  */
 public class ElasticSearchClient implements Client {
 
-    private final Logger logger = LoggerFactory.getLogger(ElasticSearchClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(ElasticSearchClient.class);
 
     private org.elasticsearch.client.Client client;
 
     private final String clusterName;
 
-    private final Boolean clusterTransportSniffer;
+    private final boolean clusterTransportSniffer;
 
     private final String clusterNodes;
 
     private boolean ready = false;
     private String namespace;
 
-    public ElasticSearchClient(String clusterName, Boolean clusterTransportSniffer,
+    public ElasticSearchClient(String clusterName, boolean clusterTransportSniffer,
         String clusterNodes) {
         this.clusterName = clusterName;
         this.clusterTransportSniffer = clusterTransportSniffer;
@@ -75,16 +75,16 @@ public class ElasticSearchClient implements Client {
     @Override
     public void initialize() throws ClientException {
         Settings settings = Settings.builder()
-                .put("cluster.name", clusterName)
-                .put("client.transport.sniff", clusterTransportSniffer)
-                .build();
+            .put("cluster.name", clusterName)
+            .put("client.transport.sniff", clusterTransportSniffer)
+            .build();
 
         client = new PreBuiltTransportClient(settings);
 
         List<AddressPairs> pairsList = parseClusterNodes(clusterNodes);
         for (AddressPairs pairs : pairsList) {
             try {
-                ((PreBuiltTransportClient) client).addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(pairs.host), pairs.port));
+                ((PreBuiltTransportClient)client).addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(pairs.host), pairs.port));
             } catch (UnknownHostException e) {
                 throw new ElasticSearchClientException(e.getMessage(), e);
             }
@@ -218,9 +218,7 @@ public class ElasticSearchClient implements Client {
         rowHandler.setPrepareMultiGet(prepareMultiGet);
         rowHandler.setNamespace(namespace);
 
-        rows.forEach(row -> {
-            rowHandler.accept(row);
-        });
+        rows.forEach(row -> rowHandler.accept(row));
 
         return rowHandler.getPrepareMultiGet();
     }
@@ -229,11 +227,11 @@ public class ElasticSearchClient implements Client {
         private MultiGetRequestBuilder prepareMultiGet;
         private String namespace;
 
-        public void setPrepareMultiGet(MultiGetRequestBuilder prepareMultiGet) {
+        void setPrepareMultiGet(MultiGetRequestBuilder prepareMultiGet) {
             this.prepareMultiGet = prepareMultiGet;
         }
 
-        public void setNamespace(String namespace) {
+        void setNamespace(String namespace) {
             this.namespace = namespace;
         }
 

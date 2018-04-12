@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ServiceNameDiscoveryServiceHandler extends JettyHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(ServiceNameDiscoveryServiceHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceNameDiscoveryServiceHandler.class);
 
     private final IServiceNameService serviceNameService;
     private final Gson gson = new Gson();

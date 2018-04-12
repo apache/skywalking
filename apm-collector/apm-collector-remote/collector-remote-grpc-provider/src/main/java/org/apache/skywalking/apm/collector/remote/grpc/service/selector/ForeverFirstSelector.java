@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ForeverFirstSelector implements RemoteClientSelector {
 
-    private final Logger logger = LoggerFactory.getLogger(ForeverFirstSelector.class);
+    private static final Logger logger = LoggerFactory.getLogger(ForeverFirstSelector.class);
 
     @Override public RemoteClient select(List<RemoteClient> clients, RemoteData remoteData) {
         logger.debug("clients size: {}", clients.size());

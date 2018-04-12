@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ApplicationService {
 
-    private final Logger logger = LoggerFactory.getLogger(ApplicationService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationService.class);
 
     private final IInstanceUIDAO instanceDAO;
     private final IServiceMetricUIDAO serviceMetricUIDAO;

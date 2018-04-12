@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ServiceTopologyService {
 
-    private final Logger logger = LoggerFactory.getLogger(ServiceTopologyService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceTopologyService.class);
 
     private final IApplicationComponentUIDAO applicationComponentUIDAO;
     private final IServiceMetricUIDAO serviceMetricUIDAO;
@@ -86,7 +86,7 @@ public class ServiceTopologyService {
             Call call = new Call();
             call.setSource(referenceMetric.getSource());
             call.setTarget(referenceMetric.getTarget());
-            call.setAvgResponseTime((referenceMetric.getDurations() - referenceMetric.getErrorDurations()) / (referenceMetric.getCalls() - referenceMetric.getErrorCalls()));
+            call.setAvgResponseTime(referenceMetric.getDurations() / referenceMetric.getCalls());
             call.setCallType(components.getOrDefault(serviceNameCacheService.get(referenceMetric.getTarget()).getApplicationId(), Const.UNKNOWN));
             try {
                 int applicationId = serviceNameCacheService.get(referenceMetric.getTarget()).getApplicationId();

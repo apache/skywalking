@@ -62,7 +62,7 @@ import org.slf4j.LoggerFactory;
  */
 public class GraphQLHandler extends JettyHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(GraphQLHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(GraphQLHandler.class);
 
     private final Gson gson = new Gson();
     private final GraphQL graphQL;

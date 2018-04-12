@@ -16,30 +16,29 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.server.grpc;
 
+import io.grpc.BindableService;
+import io.grpc.ServerServiceDefinition;
 import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NettyServerBuilder;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
-import org.apache.skywalking.apm.collector.server.Server;
-import org.apache.skywalking.apm.collector.server.ServerException;
-import org.apache.skywalking.apm.collector.server.ServerHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Objects;
+import org.apache.skywalking.apm.collector.server.Server;
+import org.apache.skywalking.apm.collector.server.ServerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng, wusheng
  */
 public class GRPCServer implements Server {
 
-    private final Logger logger = LoggerFactory.getLogger(GRPCServer.class);
+    private static final Logger logger = LoggerFactory.getLogger(GRPCServer.class);
 
     private final String host;
     private final int port;
@@ -59,7 +58,7 @@ public class GRPCServer implements Server {
      *
      * @param host
      * @param port
-     * @param certChainFile  `server.crt` file
+     * @param certChainFile `server.crt` file
      * @param privateKeyFile `server.pem` file
      */
     public GRPCServer(String host, int port, File certChainFile, File privateKeyFile) {
@@ -68,7 +67,7 @@ public class GRPCServer implements Server {
         this.certChainFile = certChainFile;
         this.privateKeyFile = privateKeyFile;
         this.sslContextBuilder = SslContextBuilder.forServer(certChainFile,
-                privateKeyFile);
+            privateKeyFile);
     }
 
     @Override
@@ -93,8 +92,8 @@ public class GRPCServer implements Server {
         try {
             if (sslContextBuilder != null) {
                 nettyServerBuilder = nettyServerBuilder.sslContext(
-                        GrpcSslContexts.configure(sslContextBuilder,
-                                SslProvider.OPENSSL).build());
+                    GrpcSslContexts.configure(sslContextBuilder,
+                        SslProvider.OPENSSL).build());
             }
             server = nettyServerBuilder.build();
             server.start();
@@ -103,9 +102,12 @@ public class GRPCServer implements Server {
         }
     }
 
-    @Override
-    public void addHandler(ServerHandler handler) {
-        nettyServerBuilder.addService((io.grpc.BindableService) handler);
+    public void addHandler(BindableService handler) {
+        nettyServerBuilder.addService(handler);
+    }
+
+    public void addHandler(ServerServiceDefinition definition) {
+        nettyServerBuilder.addService(definition);
     }
 
     @Override
@@ -115,12 +117,14 @@ public class GRPCServer implements Server {
 
     @Override
     public boolean isStatusEqual(Server target) {
-        if (this == target) return true;
-        if (target == null || getClass() != target.getClass()) return false;
-        GRPCServer that = (GRPCServer) target;
+        if (this == target)
+            return true;
+        if (target == null || getClass() != target.getClass())
+            return false;
+        GRPCServer that = (GRPCServer)target;
         return port == that.port &&
-                Objects.equals(host, that.host) &&
-                Objects.equals(certChainFile, that.certChainFile) &&
-                Objects.equals(privateKeyFile, that.privateKeyFile);
+            Objects.equals(host, that.host) &&
+            Objects.equals(certChainFile, that.certChainFile) &&
+            Objects.equals(privateKeyFile, that.privateKeyFile);
     }
 }

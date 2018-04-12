@@ -21,18 +21,20 @@ package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.appl
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.armp.IApplicationReferenceMonthMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetric;
+import org.apache.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetricTable;
 
 /**
  * @author peng-yongsheng
  */
 public class ApplicationReferenceMonthMetricPersistenceWorker extends PersistenceWorker<ApplicationReferenceMetric> {
 
-    public ApplicationReferenceMonthMetricPersistenceWorker(ModuleManager moduleManager) {
+    private ApplicationReferenceMonthMetricPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -63,5 +65,10 @@ public class ApplicationReferenceMonthMetricPersistenceWorker extends Persistenc
         public int queueSize() {
             return 1024;
         }
+    }
+
+    @GraphComputingMetric(name = "/persistence/onWork/" + ApplicationReferenceMetricTable.TABLE + "/month")
+    @Override protected void onWork(ApplicationReferenceMetric input) {
+        super.onWork(input);
     }
 }

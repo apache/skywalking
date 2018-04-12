@@ -26,11 +26,8 @@ New agent package looks like this：
 - Start your application。
 
 # Advanced features
-- All plugins are in `/plugin` folder. The plugin jar is active when it is in there. Remove the plugin jar, it disabled.
-- Besides set config through `/config/agent.config`, you can use System.Env and System.Properties(-D) to set config.
-  - Key of env and properties = `skywalking.` + key in `agent.config` file
-  - Priority: System.Env > System.Properties(-D) > `/config/agent.config`
-- The default logging output folder is `/log`.
+- All plugins are in `/plugins` folder. The plugin jar is active when it is in there. Remove the plugin jar, it disabled.
+- The default logging output folder is `/logs`.
 
 # Deploy agent in Tomcat FAQ
 - Tomcat 7

@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.collector.storage.es.dao.alarm;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.alarm.IServiceAlarmListPersistenceDAO;
@@ -40,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ServiceAlarmListEsPersistenceDAO extends EsDAO implements IServiceAlarmListPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, ServiceAlarmList> {
 
-    private final Logger logger = LoggerFactory.getLogger(ServiceAlarmListEsPersistenceDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceAlarmListEsPersistenceDAO.class);
 
     public ServiceAlarmListEsPersistenceDAO(ElasticSearchClient client) {
         super(client);
@@ -53,15 +52,15 @@ public class ServiceAlarmListEsPersistenceDAO extends EsDAO implements IServiceA
             ServiceAlarmList serviceAlarmList = new ServiceAlarmList();
             serviceAlarmList.setId(id);
             Map<String, Object> source = getResponse.getSource();
-            serviceAlarmList.setApplicationId(((Number) source.get(ServiceAlarmListTable.COLUMN_APPLICATION_ID)).intValue());
-            serviceAlarmList.setInstanceId(((Number) source.get(ServiceAlarmListTable.COLUMN_INSTANCE_ID)).intValue());
-            serviceAlarmList.setServiceId(((Number) source.get(ServiceAlarmListTable.COLUMN_SERVICE_ID)).intValue());
-            serviceAlarmList.setSourceValue(((Number) source.get(ServiceAlarmListTable.COLUMN_SOURCE_VALUE)).intValue());
+            serviceAlarmList.setApplicationId(((Number)source.get(ServiceAlarmListTable.COLUMN_APPLICATION_ID)).intValue());
+            serviceAlarmList.setInstanceId(((Number)source.get(ServiceAlarmListTable.COLUMN_INSTANCE_ID)).intValue());
+            serviceAlarmList.setServiceId(((Number)source.get(ServiceAlarmListTable.COLUMN_SERVICE_ID)).intValue());
+            serviceAlarmList.setSourceValue(((Number)source.get(ServiceAlarmListTable.COLUMN_SOURCE_VALUE)).intValue());
 
-            serviceAlarmList.setAlarmType(((Number) source.get(ServiceAlarmListTable.COLUMN_ALARM_TYPE)).intValue());
-            serviceAlarmList.setAlarmContent((String) source.get(ServiceAlarmListTable.COLUMN_ALARM_CONTENT));
+            serviceAlarmList.setAlarmType(((Number)source.get(ServiceAlarmListTable.COLUMN_ALARM_TYPE)).intValue());
+            serviceAlarmList.setAlarmContent((String)source.get(ServiceAlarmListTable.COLUMN_ALARM_CONTENT));
 
-            serviceAlarmList.setTimeBucket(((Number) source.get(ServiceAlarmListTable.COLUMN_TIME_BUCKET)).longValue());
+            serviceAlarmList.setTimeBucket(((Number)source.get(ServiceAlarmListTable.COLUMN_TIME_BUCKET)).longValue());
             return serviceAlarmList;
         } else {
             return null;
@@ -105,9 +104,9 @@ public class ServiceAlarmListEsPersistenceDAO extends EsDAO implements IServiceA
         long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
         long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
         BulkByScrollResponse response = getClient().prepareDelete(
-                QueryBuilders.rangeQuery(ServiceAlarmListTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket),
-                ServiceAlarmListTable.TABLE)
-                .get();
+            QueryBuilders.rangeQuery(ServiceAlarmListTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket),
+            ServiceAlarmListTable.TABLE)
+            .get();
 
         long deleted = response.getDeleted();
         logger.info("Delete {} rows history from {} index.", deleted, ServiceAlarmListTable.TABLE);

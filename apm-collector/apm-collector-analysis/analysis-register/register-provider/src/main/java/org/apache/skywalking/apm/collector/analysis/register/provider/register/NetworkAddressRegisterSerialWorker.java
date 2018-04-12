@@ -36,12 +36,12 @@ import org.slf4j.LoggerFactory;
  */
 public class NetworkAddressRegisterSerialWorker extends AbstractLocalAsyncWorker<NetworkAddress, NetworkAddress> {
 
-    private final Logger logger = LoggerFactory.getLogger(NetworkAddressRegisterSerialWorker.class);
+    private static final Logger logger = LoggerFactory.getLogger(NetworkAddressRegisterSerialWorker.class);
 
     private final INetworkAddressRegisterDAO networkAddressRegisterDAO;
     private final NetworkAddressCacheService networkAddressCacheService;
 
-    NetworkAddressRegisterSerialWorker(ModuleManager moduleManager) {
+    private NetworkAddressRegisterSerialWorker(ModuleManager moduleManager) {
         super(moduleManager);
         this.networkAddressRegisterDAO = getModuleManager().find(StorageModule.NAME).getService(INetworkAddressRegisterDAO.class);
         this.networkAddressCacheService = getModuleManager().find(CacheModule.NAME).getService(NetworkAddressCacheService.class);

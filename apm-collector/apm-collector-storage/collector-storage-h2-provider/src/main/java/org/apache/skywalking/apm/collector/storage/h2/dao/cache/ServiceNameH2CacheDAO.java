@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ServiceNameH2CacheDAO extends H2DAO implements IServiceNameCacheDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(ServiceNameH2CacheDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceNameH2CacheDAO.class);
 
     private static final String GET_SERVICE_NAME_SQL = "select {0},{1} from {2} where {3} = ?";
     private static final String GET_SERVICE_ID_SQL = "select {0} from {1} where {2} = ? and {3} = ? and {4} = ? limit 1";

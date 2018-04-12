@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListenerFactory;
 
@@ -30,14 +30,14 @@ public class SegmentParserListenerManager {
     private List<SpanListenerFactory> spanListenerFactories;
 
     public SegmentParserListenerManager() {
-        this.spanListenerFactories = new ArrayList<>();
+        this.spanListenerFactories = new LinkedList<>();
     }
 
     public void add(SpanListenerFactory spanListenerFactory) {
         spanListenerFactories.add(spanListenerFactory);
     }
 
-    public List<SpanListenerFactory> getSpanListenerFactories() {
+    List<SpanListenerFactory> getSpanListenerFactories() {
         return spanListenerFactories;
     }
 }

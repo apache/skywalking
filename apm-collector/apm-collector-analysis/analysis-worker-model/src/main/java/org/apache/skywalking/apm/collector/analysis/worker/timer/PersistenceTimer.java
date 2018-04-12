@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
@@ -55,19 +54,16 @@ public class PersistenceTimer {
                 t -> logger.error("Extract data and save failure.", t)), 1, timeInterval, TimeUnit.SECONDS);
     }
 
+    @SuppressWarnings("unchecked")
     private void extractDataAndSave(IBatchDAO batchDAO, List<PersistenceWorker> persistenceWorkers) {
         try {
             List batchAllCollection = new ArrayList<>();
             persistenceWorkers.forEach((PersistenceWorker worker) -> {
                 logger.debug("extract {} worker data and save", worker.getClass().getName());
-                try {
-                    worker.flushAndSwitch();
-                    List<?> batchCollection = worker.buildBatchCollection();
-                    logger.debug("extract {} worker data size: {}", worker.getClass().getName(), batchCollection.size());
-                    batchAllCollection.addAll(batchCollection);
-                } catch (WorkerException e) {
-                    logger.error(e.getMessage(), e);
-                }
+                worker.flushAndSwitch();
+                List<?> batchCollection = worker.buildBatchCollection();
+                logger.debug("extract {} worker data size: {}", worker.getClass().getName(), batchCollection.size());
+                batchAllCollection.addAll(batchCollection);
             });
 
             batchDAO.batchPersistence(batchAllCollection);

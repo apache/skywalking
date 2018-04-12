@@ -28,6 +28,7 @@ import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listen
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListenerFactory;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -43,14 +44,18 @@ import org.slf4j.LoggerFactory;
  */
 public class ApplicationMappingSpanListener implements FirstSpanListener, EntrySpanListener {
 
-    private final Logger logger = LoggerFactory.getLogger(ApplicationMappingSpanListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationMappingSpanListener.class);
 
     private final ApplicationCacheService applicationCacheService;
     private List<ApplicationMapping> applicationMappings = new LinkedList<>();
     private long timeBucket;
 
-    ApplicationMappingSpanListener(ModuleManager moduleManager) {
+    private ApplicationMappingSpanListener(ModuleManager moduleManager) {
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
+    }
+
+    @Override public boolean containsPoint(Point point) {
+        return Point.First.equals(point) || Point.Entry.equals(point);
     }
 
     @Override public void parseEntry(SpanDecorator spanDecorator, int applicationId, int instanceId, String segmentId) {
@@ -76,7 +81,11 @@ public class ApplicationMappingSpanListener implements FirstSpanListener, EntryS
     @Override
     public void parseFirst(SpanDecorator spanDecorator, int applicationId, int instanceId,
         String segmentId) {
-        timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
+        if (spanDecorator.getStartTimeMinuteTimeBucket() == 0) {
+            long startTimeMinuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
+            spanDecorator.setStartTimeMinuteTimeBucket(startTimeMinuteTimeBucket);
+        }
+        timeBucket = spanDecorator.getStartTimeMinuteTimeBucket();
     }
 
     @Override public void build() {
@@ -91,6 +100,8 @@ public class ApplicationMappingSpanListener implements FirstSpanListener, EntryS
     }
 
     public static class Factory implements SpanListenerFactory {
+
+        @GraphComputingMetric(name = "/segment/parse/createSpanListeners/applicationMappingSpanListener")
         @Override public SpanListener create(ModuleManager moduleManager) {
             return new ApplicationMappingSpanListener(moduleManager);
         }
