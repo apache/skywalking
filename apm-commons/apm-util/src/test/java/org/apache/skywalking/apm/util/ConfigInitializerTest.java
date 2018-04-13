@@ -19,13 +19,12 @@
 
 package org.apache.skywalking.apm.util;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Created by wusheng on 2017/2/27.
@@ -51,7 +50,7 @@ public class ConfigInitializerTest {
         Assert.assertArrayEquals(new String[]{}, TestPropertiesObject.Level1Object.LIST_EMPTY_ATTR.toArray());
         Assert.assertEquals(TestColorEnum.RED, TestPropertiesObject.Level1Object.Level2Object.ENUM_ATTR);
         //make sure that when descs is empty,toString() work right;
-        Assert.assertEquals(new ConfigDesc().toString(),"");
+        Assert.assertEquals(new ConfigDesc().toString(), "");
     }
 
     @Test

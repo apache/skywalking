@@ -19,10 +19,10 @@
 
 package org.apache.skywalking.apm.agent.core.conf;
 
-import org.junit.AfterClass;
-import org.junit.Test;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
+import org.junit.AfterClass;
+import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -30,7 +30,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class SnifferConfigInitializerTest {
 
     @Test
-    public void testLoadConfigFromJavaAgentDir() throws AgentPackageNotFoundException, ConfigNotFoundException {
+    public void testLoadConfigFromJavaAgentDir() throws AgentPackageNotFoundException, ConfigNotFoundException, NoSuchFieldException, IllegalAccessException {
         System.setProperty("skywalking.agent.application_code", "testApp");
         System.setProperty("skywalking.collector.servers", "127.0.0.1:8090");
         System.setProperty("skywalking.logging.level", "info");
