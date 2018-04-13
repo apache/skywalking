@@ -27,7 +27,6 @@ import org.junit.Test;
  * target code may not implement yet
  *
  * @author lican
- * @date 2018/4/13
  */
 public class ConfigQueryTest {
 

@@ -34,7 +34,6 @@ import java.text.ParseException;
 
 /**
  * @author lican
- * @date 2018/4/13
  */
 public class TraceQueryTest {
 

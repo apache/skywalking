@@ -25,7 +25,6 @@ import org.junit.Test;
  * this class may not be implemented ,so just test if it's null
  * if update the class ,please update the testcase
  * @author lican
- * @date 2018/4/13
  */
 public class ConfigMutationTest {
 

@@ -5,7 +5,6 @@ import org.junit.Test;
 
 /**
  * @author lican
- * @date 2018/4/13
  */
 public class SLACalculatorTest {
 
