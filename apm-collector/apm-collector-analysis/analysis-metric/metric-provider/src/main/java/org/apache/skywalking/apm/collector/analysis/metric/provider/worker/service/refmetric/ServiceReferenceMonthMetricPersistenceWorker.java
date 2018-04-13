@@ -73,7 +73,7 @@ public class ServiceReferenceMonthMetricPersistenceWorker extends PersistenceWor
     }
 
     @GraphComputingMetric(name = "/persistence/flushAndSwitch/" + ServiceReferenceMetricTable.TABLE + "/month")
-    @Override public void flushAndSwitch() {
-        super.flushAndSwitch();
+    @Override public boolean flushAndSwitch() {
+        return super.flushAndSwitch();
     }
 }

@@ -32,7 +32,7 @@ public class GlobalTraceEsTableDefine extends ElasticSearchTableDefine {
     }
 
     @Override public int refreshInterval() {
-        return 5;
+        return 3;
     }
 
     @Override public void initialize() {

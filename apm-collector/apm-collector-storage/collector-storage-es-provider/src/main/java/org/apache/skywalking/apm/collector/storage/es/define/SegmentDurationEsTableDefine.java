@@ -32,7 +32,7 @@ public class SegmentDurationEsTableDefine extends ElasticSearchTableDefine {
     }
 
     @Override public int refreshInterval() {
-        return 5;
+        return 3;
     }
 
     @Override public void initialize() {
