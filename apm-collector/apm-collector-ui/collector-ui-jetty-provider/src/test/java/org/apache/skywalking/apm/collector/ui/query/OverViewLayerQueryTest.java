@@ -44,8 +44,12 @@ public class OverViewLayerQueryTest {
 
     @Test
     public void getClusterTopology() throws ParseException {
-        Mockito.when(clusterTopologyService.getClusterTopology(Mockito.anyObject(),
-                Mockito.anyLong(), Mockito.anyLong(), Mockito.anyLong(), Mockito.anyLong())).then(invocation -> {
+        Mockito.when(
+                clusterTopologyService.getClusterTopology(
+                        Mockito.anyObject(),
+                        Mockito.anyLong(), Mockito.anyLong(), Mockito.anyLong(),
+                        Mockito.anyLong())
+        ).then(invocation -> {
             Object[] arguments = invocation.getArguments();
             Assert.assertEquals(201701L, arguments[1]);
             Assert.assertEquals(201702L, arguments[2]);
@@ -83,10 +87,12 @@ public class OverViewLayerQueryTest {
 
     @Test
     public void getAlarmTrend() throws ParseException {
-        Mockito.when(alarmService.getApplicationAlarmTrend(
-                Mockito.anyObject(),
-                Mockito.anyLong(), Mockito.anyLong(),
-                Mockito.anyLong(), Mockito.anyLong())).then(invocation -> {
+        Mockito.when(
+                alarmService.getApplicationAlarmTrend(
+                        Mockito.anyObject(),
+                        Mockito.anyLong(), Mockito.anyLong(),
+                        Mockito.anyLong(), Mockito.anyLong())
+        ).then(invocation -> {
             Object[] arguments = invocation.getArguments();
             Assert.assertEquals(201701L, arguments[1]);
             Assert.assertEquals(201702L, arguments[2]);
@@ -103,9 +109,11 @@ public class OverViewLayerQueryTest {
 
     @Test
     public void getConjecturalApps() throws ParseException {
-        Mockito.when(applicationService.getConjecturalApps(
-                Mockito.anyObject(),
-                Mockito.anyLong(), Mockito.anyLong())).then(invocation -> {
+        Mockito.when(
+                applicationService.getConjecturalApps(
+                        Mockito.anyObject(),
+                        Mockito.anyLong(), Mockito.anyLong())
+        ).then(invocation -> {
             Object[] arguments = invocation.getArguments();
             Assert.assertEquals(20170100000000L, arguments[1]);
             Assert.assertEquals(20170299999999L, arguments[2]);

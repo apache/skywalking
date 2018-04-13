@@ -203,10 +203,12 @@ public class ApplicationQueryTestCase {
         ApplicationTopologyService applicationTopologyService = Mockito.mock(ApplicationTopologyService.class);
         Whitebox.setInternalState(query, "applicationTopologyService", applicationTopologyService);
 
-        Mockito.when(applicationTopologyService.getApplicationTopology(
-                Mockito.anyObject(), Mockito.anyInt(),
-                Mockito.anyLong(), Mockito.anyLong(),
-                Mockito.anyLong(), Mockito.anyLong())).then(invocation -> {
+        Mockito.when(
+                applicationTopologyService.getApplicationTopology(
+                        Mockito.anyObject(), Mockito.anyInt(),
+                        Mockito.anyLong(), Mockito.anyLong(),
+                        Mockito.anyLong(), Mockito.anyLong())
+        ).then(invocation -> {
             Object[] arguments = invocation.getArguments();
             Assert.assertEquals(201701L, arguments[2]);
             Assert.assertEquals(201703L, arguments[3]);

@@ -21,7 +21,7 @@ public class ServerQueryTest {
     private ServerQuery serverQuery;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         serverQuery = new ServerQuery(null);
         serverService = Mockito.mock(ServerService.class);
         Whitebox.setInternalState(serverQuery, "serverService", serverService);
@@ -30,8 +30,7 @@ public class ServerQueryTest {
     @Test
     public void searchServer() throws ParseException {
 
-        Mockito.when(serverService.searchServer(Mockito.anyString(),
-                Mockito.anyLong(), Mockito.anyLong())).then(invocation -> {
+        Mockito.when(serverService.searchServer(Mockito.anyString(), Mockito.anyLong(), Mockito.anyLong())).then(invocation -> {
             Object[] arguments = invocation.getArguments();
             Assert.assertEquals(20170100000000L, arguments[1]);
             Assert.assertEquals(20170299999999L, arguments[2]);
@@ -47,8 +46,7 @@ public class ServerQueryTest {
 
     @Test
     public void getAllServer() throws ParseException {
-        Mockito.when(serverService.getAllServer(Mockito.anyInt(),
-                Mockito.anyLong(), Mockito.anyLong())).then(invocation -> {
+        Mockito.when(serverService.getAllServer(Mockito.anyInt(), Mockito.anyLong(), Mockito.anyLong())).then(invocation -> {
             Object[] arguments = invocation.getArguments();
             Assert.assertEquals(20170100000000L, arguments[1]);
             Assert.assertEquals(20170299999999L, arguments[2]);
@@ -64,8 +62,7 @@ public class ServerQueryTest {
 
     @Test
     public void getServerResponseTimeTrend() throws ParseException {
-        Mockito.when(serverService.getServerResponseTimeTrend(Mockito.anyInt(), Mockito.anyObject(),
-                Mockito.anyLong(), Mockito.anyLong())).then(invocation -> {
+        Mockito.when(serverService.getServerResponseTimeTrend(Mockito.anyInt(), Mockito.anyObject(), Mockito.anyLong(), Mockito.anyLong())).then(invocation -> {
             Object[] arguments = invocation.getArguments();
             Assert.assertEquals(201701L, arguments[2]);
             Assert.assertEquals(201702L, arguments[3]);
@@ -81,8 +78,7 @@ public class ServerQueryTest {
 
     @Test
     public void getServerTPSTrend() throws ParseException {
-        Mockito.when(serverService.getServerTPSTrend(Mockito.anyInt(), Mockito.anyObject(),
-                Mockito.anyLong(), Mockito.anyLong())).then(invocation -> {
+        Mockito.when(serverService.getServerTPSTrend(Mockito.anyInt(), Mockito.anyObject(), Mockito.anyLong(), Mockito.anyLong())).then(invocation -> {
             Object[] arguments = invocation.getArguments();
             Assert.assertEquals(201701L, arguments[2]);
             Assert.assertEquals(201702L, arguments[3]);
@@ -98,8 +94,7 @@ public class ServerQueryTest {
 
     @Test
     public void getCPUTrend() throws ParseException {
-        Mockito.when(serverService.getCPUTrend(Mockito.anyInt(), Mockito.anyObject(),
-                Mockito.anyLong(), Mockito.anyLong())).then(invocation -> {
+        Mockito.when(serverService.getCPUTrend(Mockito.anyInt(), Mockito.anyObject(), Mockito.anyLong(), Mockito.anyLong())).then(invocation -> {
             Object[] arguments = invocation.getArguments();
             Assert.assertEquals(201701L, arguments[2]);
             Assert.assertEquals(201702L, arguments[3]);
@@ -115,8 +110,7 @@ public class ServerQueryTest {
 
     @Test
     public void getGCTrend() throws ParseException {
-        Mockito.when(serverService.getGCTrend(Mockito.anyInt(), Mockito.anyObject(),
-                Mockito.anyLong(), Mockito.anyLong())).then(invocation -> {
+        Mockito.when(serverService.getGCTrend(Mockito.anyInt(), Mockito.anyObject(), Mockito.anyLong(), Mockito.anyLong())).then(invocation -> {
             Object[] arguments = invocation.getArguments();
             Assert.assertEquals(201701L, arguments[2]);
             Assert.assertEquals(201702L, arguments[3]);
@@ -132,8 +126,7 @@ public class ServerQueryTest {
 
     @Test
     public void getMemoryTrend() throws ParseException {
-        Mockito.when(serverService.getMemoryTrend(Mockito.anyInt(), Mockito.anyObject(),
-                Mockito.anyLong(), Mockito.anyLong())).then(invocation -> {
+        Mockito.when(serverService.getMemoryTrend(Mockito.anyInt(), Mockito.anyObject(), Mockito.anyLong(), Mockito.anyLong())).then(invocation -> {
             Object[] arguments = invocation.getArguments();
             Assert.assertEquals(201701L, arguments[2]);
             Assert.assertEquals(201702L, arguments[3]);
