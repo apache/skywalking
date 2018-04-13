@@ -11,6 +11,8 @@
     * [Open TLS](en/TLS.md)
     * [Namespace Isolation](en/Namespace.md)
     * [Token Authentication](en/Token-auth.md)
+  * Incubating Features
+    * Abstract
   * Application Toolkit
     * [Overview](en/Applicaton-toolkit.md)
     * [OpenTracing Tracer](en/Opentracing.md)
@@ -19,6 +21,7 @@
       * [log4j2](en/Application-toolkit-log4j-2.x.md)
       * [logback](en/Application-toolkit-logback-1.x.md)
     * [Trace](en/Application-toolkit-trace.md)
+    * [Propagate Context across Thread](en/Application-toolkit-trace-cross-thread.md)
   * Testing
     * [Plugin Test](https://github.com/SkywalkingTest/agent-integration-test-report)
     * [Java Agent Performance Test](https://skywalkingtest.github.io/Agent-Benchmarks/)
