@@ -293,7 +293,7 @@ public class StorageModuleEsProvider extends ModuleProvider {
 
             elasticSearchClient.initialize();
 
-            ElasticSearchStorageInstaller installer = new ElasticSearchStorageInstaller(config.getIndexShardsNumber(), config.getIndexReplicasNumber());
+            ElasticSearchStorageInstaller installer = new ElasticSearchStorageInstaller(config.getIndexShardsNumber(), config.getIndexReplicasNumber(), config.isHighPerformanceMode());
             installer.install(elasticSearchClient);
         } catch (ClientException | StorageException e) {
             logger.error(e.getMessage(), e);

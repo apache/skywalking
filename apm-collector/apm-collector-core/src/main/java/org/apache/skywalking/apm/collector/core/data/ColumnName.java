@@ -24,15 +24,18 @@ package org.apache.skywalking.apm.collector.core.data;
 public class ColumnName {
     private final String fullName;
     private final String shortName;
-    private final Boolean useShortName;
+    private boolean useShortName = false;
 
     public ColumnName(String fullName, String shortName) {
         this.fullName = fullName;
         this.shortName = shortName;
-        this.useShortName = false;
     }
 
     public String getName() {
         return useShortName ? shortName : fullName;
+    }
+
+    public void useShortName() {
+        this.useShortName = true;
     }
 }
