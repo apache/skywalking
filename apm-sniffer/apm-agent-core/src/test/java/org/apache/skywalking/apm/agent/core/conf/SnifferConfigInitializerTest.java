@@ -30,7 +30,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class SnifferConfigInitializerTest {
 
     @Test
-    public void testLoadConfigFromJavaAgentDir() throws AgentPackageNotFoundException, ConfigNotFoundException, NoSuchFieldException, IllegalAccessException {
+    public void testLoadConfigFromJavaAgentDir() throws AgentPackageNotFoundException, ConfigNotFoundException {
         System.setProperty("skywalking.agent.application_code", "testApp");
         System.setProperty("skywalking.collector.servers", "127.0.0.1:8090");
         System.setProperty("skywalking.logging.level", "info");
