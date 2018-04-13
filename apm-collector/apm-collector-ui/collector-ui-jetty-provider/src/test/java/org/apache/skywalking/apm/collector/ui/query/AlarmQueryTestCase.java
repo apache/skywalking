@@ -31,7 +31,7 @@ import org.mockito.internal.util.reflection.Whitebox;
 import java.text.ParseException;
 
 /**
- * @author peng-yongsheng
+ * @author lican
  */
 public class AlarmQueryTestCase {
 
