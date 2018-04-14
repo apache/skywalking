@@ -24,7 +24,7 @@ HTTP GET
 
 ### 协议内容
 - 请求
-GET操作：http://collectorIp:port/agent/grpc 。 其中`/agent/grpc`是默认值，如需修改，需要参考collector相关配置。
+GET操作：http://collectorIp:port/agent/gRPC 。 其中`/agent/gRPC`是默认值，如需修改，需要参考collector相关配置。
 
 - 返回
 JSON数组，数组的每个元素，为一个有效的gRPC服务地址。
