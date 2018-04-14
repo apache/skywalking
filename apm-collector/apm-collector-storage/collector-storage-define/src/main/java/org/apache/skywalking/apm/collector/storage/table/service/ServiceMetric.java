@@ -33,37 +33,37 @@ import org.apache.skywalking.apm.collector.storage.table.Metric;
 public class ServiceMetric extends StreamData implements Metric {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(ServiceMetricTable.COLUMN_ID, new NonMergeOperation()),
-        new Column(ServiceMetricTable.COLUMN_METRIC_ID, new NonMergeOperation()),
+        new Column(ServiceMetricTable.ID, new NonMergeOperation()),
+        new Column(ServiceMetricTable.METRIC_ID, new NonMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(ServiceMetricTable.COLUMN_TIME_BUCKET, new NonMergeOperation()),
+        new Column(ServiceMetricTable.TIME_BUCKET, new NonMergeOperation()),
 
-        new Column(ServiceMetricTable.COLUMN_TRANSACTION_CALLS, new AddMergeOperation()),
-        new Column(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
-        new Column(ServiceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, new AddMergeOperation()),
-        new Column(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
-        new Column(ServiceMetricTable.COLUMN_TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new TransactionAverageDurationFormulaOperation()),
-        new Column(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, new AddMergeOperation()),
-        new Column(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
-        new Column(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, new AddMergeOperation()),
-        new Column(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
-        new Column(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new BusinessTransactionAverageDurationFormulaOperation()),
-        new Column(ServiceMetricTable.COLUMN_MQ_TRANSACTION_CALLS, new AddMergeOperation()),
-        new Column(ServiceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
-        new Column(ServiceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, new AddMergeOperation()),
-        new Column(ServiceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
-        new Column(ServiceMetricTable.COLUMN_MQ_TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new MqTransactionAverageDurationFormulaOperation()),
+        new Column(ServiceMetricTable.TRANSACTION_CALLS, new AddMergeOperation()),
+        new Column(ServiceMetricTable.TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
+        new Column(ServiceMetricTable.TRANSACTION_DURATION_SUM, new AddMergeOperation()),
+        new Column(ServiceMetricTable.TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
+        new Column(ServiceMetricTable.TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new TransactionAverageDurationFormulaOperation()),
+        new Column(ServiceMetricTable.BUSINESS_TRANSACTION_CALLS, new AddMergeOperation()),
+        new Column(ServiceMetricTable.BUSINESS_TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
+        new Column(ServiceMetricTable.BUSINESS_TRANSACTION_DURATION_SUM, new AddMergeOperation()),
+        new Column(ServiceMetricTable.BUSINESS_TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
+        new Column(ServiceMetricTable.BUSINESS_TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new BusinessTransactionAverageDurationFormulaOperation()),
+        new Column(ServiceMetricTable.MQ_TRANSACTION_CALLS, new AddMergeOperation()),
+        new Column(ServiceMetricTable.MQ_TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
+        new Column(ServiceMetricTable.MQ_TRANSACTION_DURATION_SUM, new AddMergeOperation()),
+        new Column(ServiceMetricTable.MQ_TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
+        new Column(ServiceMetricTable.MQ_TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new MqTransactionAverageDurationFormulaOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {};
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(ServiceMetricTable.COLUMN_SOURCE_VALUE, new NonMergeOperation()),
-        new Column(ServiceMetricTable.COLUMN_APPLICATION_ID, new NonMergeOperation()),
-        new Column(ServiceMetricTable.COLUMN_INSTANCE_ID, new NonMergeOperation()),
-        new Column(ServiceMetricTable.COLUMN_SERVICE_ID, new NonMergeOperation()),
+        new Column(ServiceMetricTable.SOURCE_VALUE, new NonMergeOperation()),
+        new Column(ServiceMetricTable.APPLICATION_ID, new NonMergeOperation()),
+        new Column(ServiceMetricTable.INSTANCE_ID, new NonMergeOperation()),
+        new Column(ServiceMetricTable.SERVICE_ID, new NonMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};

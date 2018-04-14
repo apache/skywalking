@@ -33,37 +33,37 @@ import org.apache.skywalking.apm.collector.storage.table.Metric;
 public class ApplicationMetric extends StreamData implements Metric {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(ApplicationMetricTable.COLUMN_ID, new NonMergeOperation()),
-        new Column(ApplicationMetricTable.COLUMN_METRIC_ID, new NonMergeOperation()),
+        new Column(ApplicationMetricTable.ID, new NonMergeOperation()),
+        new Column(ApplicationMetricTable.METRIC_ID, new NonMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(ApplicationMetricTable.COLUMN_TIME_BUCKET, new NonMergeOperation()),
+        new Column(ApplicationMetricTable.TIME_BUCKET, new NonMergeOperation()),
 
-        new Column(ApplicationMetricTable.COLUMN_TRANSACTION_CALLS, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.COLUMN_TRANSACTION_DURATION_SUM, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.COLUMN_TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new TransactionAverageDurationFormulaOperation()),
-        new Column(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new BusinessTransactionAverageDurationFormulaOperation()),
-        new Column(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_CALLS, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new MqTransactionAverageDurationFormulaOperation()),
-        new Column(ApplicationMetricTable.COLUMN_SATISFIED_COUNT, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.COLUMN_TOLERATING_COUNT, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.COLUMN_FRUSTRATED_COUNT, new AddMergeOperation()),
+        new Column(ApplicationMetricTable.TRANSACTION_CALLS, new AddMergeOperation()),
+        new Column(ApplicationMetricTable.TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
+        new Column(ApplicationMetricTable.TRANSACTION_DURATION_SUM, new AddMergeOperation()),
+        new Column(ApplicationMetricTable.TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
+        new Column(ApplicationMetricTable.TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new TransactionAverageDurationFormulaOperation()),
+        new Column(ApplicationMetricTable.BUSINESS_TRANSACTION_CALLS, new AddMergeOperation()),
+        new Column(ApplicationMetricTable.BUSINESS_TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
+        new Column(ApplicationMetricTable.BUSINESS_TRANSACTION_DURATION_SUM, new AddMergeOperation()),
+        new Column(ApplicationMetricTable.BUSINESS_TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
+        new Column(ApplicationMetricTable.BUSINESS_TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new BusinessTransactionAverageDurationFormulaOperation()),
+        new Column(ApplicationMetricTable.MQ_TRANSACTION_CALLS, new AddMergeOperation()),
+        new Column(ApplicationMetricTable.MQ_TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
+        new Column(ApplicationMetricTable.MQ_TRANSACTION_DURATION_SUM, new AddMergeOperation()),
+        new Column(ApplicationMetricTable.MQ_TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
+        new Column(ApplicationMetricTable.MQ_TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new MqTransactionAverageDurationFormulaOperation()),
+        new Column(ApplicationMetricTable.SATISFIED_COUNT, new AddMergeOperation()),
+        new Column(ApplicationMetricTable.TOLERATING_COUNT, new AddMergeOperation()),
+        new Column(ApplicationMetricTable.FRUSTRATED_COUNT, new AddMergeOperation()),
     };
     private static final Column[] DOUBLE_COLUMNS = {};
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(ApplicationMetricTable.COLUMN_SOURCE_VALUE, new NonMergeOperation()),
-        new Column(ApplicationMetricTable.COLUMN_APPLICATION_ID, new NonMergeOperation()),
+        new Column(ApplicationMetricTable.SOURCE_VALUE, new NonMergeOperation()),
+        new Column(ApplicationMetricTable.APPLICATION_ID, new NonMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};

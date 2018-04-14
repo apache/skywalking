@@ -58,11 +58,11 @@ public class SegmentDurationEsUIDAO extends EsDAO implements ISegmentDurationUID
 
         if (startSecondTimeBucket != 0 && endSecondTimeBucket != 0) {
             //TODO second
-            mustQueryList.add(QueryBuilders.rangeQuery(SegmentDurationTable.COLUMN_TIME_BUCKET).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
+            mustQueryList.add(QueryBuilders.rangeQuery(SegmentDurationTable.TIME_BUCKET.getName()).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
         }
 
         if (minDuration != 0 || maxDuration != 0) {
-            RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery(SegmentDurationTable.COLUMN_DURATION);
+            RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery(SegmentDurationTable.DURATION.getName());
             if (minDuration != 0) {
                 rangeQueryBuilder.gte(minDuration);
             }
@@ -72,13 +72,13 @@ public class SegmentDurationEsUIDAO extends EsDAO implements ISegmentDurationUID
             boolQueryBuilder.must().add(rangeQueryBuilder);
         }
         if (StringUtils.isNotEmpty(operationName)) {
-            mustQueryList.add(QueryBuilders.matchQuery(SegmentDurationTable.COLUMN_SERVICE_NAME, operationName));
+            mustQueryList.add(QueryBuilders.matchQuery(SegmentDurationTable.SERVICE_NAME.getName(), operationName));
         }
         if (CollectionUtils.isNotEmpty(segmentIds)) {
-            boolQueryBuilder.must().add(QueryBuilders.termsQuery(SegmentDurationTable.COLUMN_SEGMENT_ID, segmentIds));
+            boolQueryBuilder.must().add(QueryBuilders.termsQuery(SegmentDurationTable.SEGMENT_ID.getName(), segmentIds));
         }
         if (applicationId != 0) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentDurationTable.COLUMN_APPLICATION_ID, applicationId));
+            boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentDurationTable.APPLICATION_ID.getName(), applicationId));
         }
 
         searchRequestBuilder.setSize(limit);
@@ -92,11 +92,11 @@ public class SegmentDurationEsUIDAO extends EsDAO implements ISegmentDurationUID
         for (SearchHit searchHit : searchResponse.getHits().getHits()) {
             BasicTrace basicTrace = new BasicTrace();
 
-            basicTrace.setSegmentId((String)searchHit.getSource().get(SegmentDurationTable.COLUMN_SEGMENT_ID));
-            basicTrace.setStart(((Number)searchHit.getSource().get(SegmentDurationTable.COLUMN_START_TIME)).longValue());
-            basicTrace.setOperationName((String)searchHit.getSource().get(SegmentDurationTable.COLUMN_SERVICE_NAME));
-            basicTrace.setDuration(((Number)searchHit.getSource().get(SegmentDurationTable.COLUMN_DURATION)).intValue());
-            basicTrace.setError(BooleanUtils.valueToBoolean(((Number)searchHit.getSource().get(SegmentDurationTable.COLUMN_IS_ERROR)).intValue()));
+            basicTrace.setSegmentId((String)searchHit.getSource().get(SegmentDurationTable.SEGMENT_ID.getName()));
+            basicTrace.setStart(((Number)searchHit.getSource().get(SegmentDurationTable.START_TIME.getName())).longValue());
+            basicTrace.setOperationName((String)searchHit.getSource().get(SegmentDurationTable.SERVICE_NAME.getName()));
+            basicTrace.setDuration(((Number)searchHit.getSource().get(SegmentDurationTable.DURATION.getName())).intValue());
+            basicTrace.setError(BooleanUtils.valueToBoolean(((Number)searchHit.getSource().get(SegmentDurationTable.IS_ERROR.getName())).intValue()));
             traceBrief.getTraces().add(basicTrace);
         }
 

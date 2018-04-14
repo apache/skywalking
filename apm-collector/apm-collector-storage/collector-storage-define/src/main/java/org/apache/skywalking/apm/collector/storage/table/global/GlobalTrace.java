@@ -29,13 +29,13 @@ import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
 public class GlobalTrace extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(GlobalTraceTable.COLUMN_ID, new NonMergeOperation()),
-        new Column(GlobalTraceTable.COLUMN_SEGMENT_ID, new CoverMergeOperation()),
-        new Column(GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID, new CoverMergeOperation()),
+        new Column(GlobalTraceTable.ID, new NonMergeOperation()),
+        new Column(GlobalTraceTable.SEGMENT_ID, new CoverMergeOperation()),
+        new Column(GlobalTraceTable.TRACE_ID, new CoverMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(GlobalTraceTable.COLUMN_TIME_BUCKET, new CoverMergeOperation()),
+        new Column(GlobalTraceTable.TIME_BUCKET, new CoverMergeOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {};

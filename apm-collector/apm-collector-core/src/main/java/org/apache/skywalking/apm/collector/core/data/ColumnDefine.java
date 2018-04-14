@@ -16,26 +16,25 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.core.data;
 
 /**
  * @author peng-yongsheng
  */
 public abstract class ColumnDefine {
-    private final String name;
+    private final ColumnName columnName;
     private final String type;
 
-    public ColumnDefine(String name, String type) {
-        this.name = name;
+    public ColumnDefine(ColumnName columnName, String type) {
+        this.columnName = columnName;
         this.type = type;
     }
 
-    public final String getName() {
-        return name;
+    public final ColumnName getColumnName() {
+        return columnName;
     }
 
-    public String getType() {
+    public final String getType() {
         return type;
     }
 }

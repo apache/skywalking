@@ -31,24 +31,24 @@ import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterServ
 public class Instance extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(InstanceTable.COLUMN_ID, new NonMergeOperation()),
-        new Column(InstanceTable.COLUMN_AGENT_UUID, new CoverMergeOperation()),
-        new Column(InstanceTable.COLUMN_OS_INFO, new CoverMergeOperation()),
-        new Column(InstanceTable.COLUMN_APPLICATION_CODE, new CoverMergeOperation()),
+        new Column(InstanceTable.ID, new NonMergeOperation()),
+        new Column(InstanceTable.AGENT_UUID, new CoverMergeOperation()),
+        new Column(InstanceTable.OS_INFO, new CoverMergeOperation()),
+        new Column(InstanceTable.APPLICATION_CODE, new CoverMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(InstanceTable.COLUMN_REGISTER_TIME, new CoverMergeOperation()),
-        new Column(InstanceTable.COLUMN_HEARTBEAT_TIME, new CoverMergeOperation()),
+        new Column(InstanceTable.REGISTER_TIME, new CoverMergeOperation()),
+        new Column(InstanceTable.HEARTBEAT_TIME, new CoverMergeOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {};
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(InstanceTable.COLUMN_APPLICATION_ID, new CoverMergeOperation()),
-        new Column(InstanceTable.COLUMN_INSTANCE_ID, new CoverMergeOperation()),
-        new Column(InstanceTable.COLUMN_ADDRESS_ID, new CoverMergeOperation()),
-        new Column(InstanceTable.COLUMN_IS_ADDRESS, new CoverMergeOperation()),
+        new Column(InstanceTable.APPLICATION_ID, new CoverMergeOperation()),
+        new Column(InstanceTable.INSTANCE_ID, new CoverMergeOperation()),
+        new Column(InstanceTable.ADDRESS_ID, new CoverMergeOperation()),
+        new Column(InstanceTable.IS_ADDRESS, new CoverMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};

@@ -43,7 +43,7 @@ public class InstanceEsCacheDAO extends EsDAO implements IInstanceCacheDAO {
     @Override public int getApplicationId(int instanceId) {
         GetResponse response = getClient().prepareGet(InstanceTable.TABLE, String.valueOf(instanceId)).get();
         if (response.isExists()) {
-            return (int)response.getSource().get(InstanceTable.COLUMN_APPLICATION_ID);
+            return (int)response.getSource().get(InstanceTable.APPLICATION_ID.getName());
         } else {
             return 0;
         }
@@ -56,16 +56,16 @@ public class InstanceEsCacheDAO extends EsDAO implements IInstanceCacheDAO {
         searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH);
         BoolQueryBuilder builder = QueryBuilders.boolQuery();
-        builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationId));
-        builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_AGENT_UUID, agentUUID));
-        builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, BooleanUtils.FALSE));
+        builder.must().add(QueryBuilders.termQuery(InstanceTable.APPLICATION_ID.getName(), applicationId));
+        builder.must().add(QueryBuilders.termQuery(InstanceTable.AGENT_UUID.getName(), agentUUID));
+        builder.must().add(QueryBuilders.termQuery(InstanceTable.IS_ADDRESS.getName(), BooleanUtils.FALSE));
         searchRequestBuilder.setQuery(builder);
         searchRequestBuilder.setSize(1);
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
         if (searchResponse.getHits().totalHits > 0) {
             SearchHit searchHit = searchResponse.getHits().iterator().next();
-            return (int)searchHit.getSource().get(InstanceTable.COLUMN_INSTANCE_ID);
+            return (int)searchHit.getSource().get(InstanceTable.INSTANCE_ID.getName());
         }
         return 0;
     }
@@ -77,16 +77,16 @@ public class InstanceEsCacheDAO extends EsDAO implements IInstanceCacheDAO {
         searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH);
         BoolQueryBuilder builder = QueryBuilders.boolQuery();
-        builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationId));
-        builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_ADDRESS_ID, addressId));
-        builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_IS_ADDRESS, BooleanUtils.TRUE));
+        builder.must().add(QueryBuilders.termQuery(InstanceTable.APPLICATION_ID.getName(), applicationId));
+        builder.must().add(QueryBuilders.termQuery(InstanceTable.ADDRESS_ID.getName(), addressId));
+        builder.must().add(QueryBuilders.termQuery(InstanceTable.IS_ADDRESS.getName(), BooleanUtils.TRUE));
         searchRequestBuilder.setQuery(builder);
         searchRequestBuilder.setSize(1);
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
         if (searchResponse.getHits().totalHits > 0) {
             SearchHit searchHit = searchResponse.getHits().iterator().next();
-            return (int)searchHit.getSource().get(InstanceTable.COLUMN_INSTANCE_ID);
+            return (int)searchHit.getSource().get(InstanceTable.INSTANCE_ID.getName());
         }
         return 0;
     }

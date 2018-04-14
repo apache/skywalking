@@ -44,7 +44,7 @@ public class NetworkAddressH2UIDAO extends H2DAO implements INetworkAddressUIDAO
 
     @Override public int getNumOfSpanLayer(int spanLayer) {
         String dynamicSql = "select count({0}) as cnt from {1} where {2} = ?";
-        String sql = SqlBuilder.buildSql(dynamicSql, NetworkAddressTable.COLUMN_NETWORK_ADDRESS, NetworkAddressTable.TABLE, NetworkAddressTable.COLUMN_SPAN_LAYER);
+        String sql = SqlBuilder.buildSql(dynamicSql, NetworkAddressTable.NETWORK_ADDRESS.getName(), NetworkAddressTable.TABLE, NetworkAddressTable.SRC_SPAN_LAYER.getName());
         Object[] params = new Object[] {spanLayer};
 
         try (ResultSet rs = getClient().executeQuery(sql, params)) {

@@ -18,19 +18,22 @@
 
 package org.apache.skywalking.apm.collector.storage.table.segment;
 
+import org.apache.skywalking.apm.collector.core.data.ColumnName;
 import org.apache.skywalking.apm.collector.core.data.CommonTable;
+import org.apache.skywalking.apm.collector.storage.table.global.GlobalTraceTable;
+import org.apache.skywalking.apm.collector.storage.table.register.ServiceNameTable;
 
 /**
  * @author peng-yongsheng
  */
-public class SegmentDurationTable extends CommonTable {
-    public static final String TABLE = "segment_duration";
-    public static final String COLUMN_SEGMENT_ID = "segment_id";
-    public static final String COLUMN_TRACE_ID = "trace_id";
-    public static final String COLUMN_APPLICATION_ID = "application_id";
-    public static final String COLUMN_START_TIME = "start_time";
-    public static final String COLUMN_END_TIME = "end_time";
-    public static final String COLUMN_SERVICE_NAME = "service_name";
-    public static final String COLUMN_DURATION = "duration";
-    public static final String COLUMN_IS_ERROR = "is_error";
+public interface SegmentDurationTable extends CommonTable, SegmentTable, ServiceNameTable, GlobalTraceTable {
+    String TABLE = "segment_duration";
+
+    ColumnName START_TIME = new ColumnName("start_time", "dst");
+
+    ColumnName END_TIME = new ColumnName("end_time", "det");
+
+    ColumnName DURATION = new ColumnName("duration", "ddt");
+
+    ColumnName IS_ERROR = new ColumnName("is_error", "die");
 }

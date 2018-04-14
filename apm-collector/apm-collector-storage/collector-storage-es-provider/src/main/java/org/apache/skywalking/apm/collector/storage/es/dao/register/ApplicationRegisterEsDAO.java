@@ -42,23 +42,23 @@ public class ApplicationRegisterEsDAO extends EsDAO implements IApplicationRegis
     }
 
     @Override public int getMaxApplicationId() {
-        return getMaxId(ApplicationTable.TABLE, ApplicationTable.COLUMN_APPLICATION_ID);
+        return getMaxId(ApplicationTable.TABLE, ApplicationTable.APPLICATION_ID.getName());
     }
 
     @Override public int getMinApplicationId() {
-        return getMinId(ApplicationTable.TABLE, ApplicationTable.COLUMN_APPLICATION_ID);
+        return getMinId(ApplicationTable.TABLE, ApplicationTable.APPLICATION_ID.getName());
     }
 
     @Override public void save(Application application) {
         logger.debug("save application register info, application getApplicationId: {}, application code: {}", application.getId(), application.getApplicationCode());
         ElasticSearchClient client = getClient();
-        Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationTable.COLUMN_APPLICATION_CODE, application.getApplicationCode());
-        source.put(ApplicationTable.COLUMN_APPLICATION_ID, application.getApplicationId());
-        source.put(ApplicationTable.COLUMN_ADDRESS_ID, application.getAddressId());
-        source.put(ApplicationTable.COLUMN_IS_ADDRESS, application.getIsAddress());
+        Map<String, Object> target = new HashMap<>();
+        target.put(ApplicationTable.APPLICATION_CODE.getName(), application.getApplicationCode());
+        target.put(ApplicationTable.APPLICATION_ID.getName(), application.getApplicationId());
+        target.put(ApplicationTable.ADDRESS_ID.getName(), application.getAddressId());
+        target.put(ApplicationTable.IS_ADDRESS.getName(), application.getIsAddress());
 
-        IndexResponse response = client.prepareIndex(ApplicationTable.TABLE, application.getId()).setSource(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
+        IndexResponse response = client.prepareIndex(ApplicationTable.TABLE, application.getId()).setSource(target).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
         logger.debug("save application register info, application getApplicationId: {}, application code: {}, status: {}", application.getApplicationId(), application.getApplicationCode(), response.status().name());
     }
 }

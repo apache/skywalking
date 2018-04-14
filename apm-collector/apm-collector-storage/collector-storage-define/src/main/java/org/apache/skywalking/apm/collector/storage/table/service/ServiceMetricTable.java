@@ -18,11 +18,13 @@
 
 package org.apache.skywalking.apm.collector.storage.table.service;
 
-import org.apache.skywalking.apm.collector.storage.table.CommonMetricTable;
+import org.apache.skywalking.apm.collector.storage.table.MetricColumns;
+import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
+import org.apache.skywalking.apm.collector.storage.table.register.ServiceNameTable;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceMetricTable extends CommonMetricTable {
-    public static final String TABLE = "service_metric";
+public interface ServiceMetricTable extends MetricColumns, ServiceNameTable, InstanceTable {
+    String TABLE = "service_metric";
 }

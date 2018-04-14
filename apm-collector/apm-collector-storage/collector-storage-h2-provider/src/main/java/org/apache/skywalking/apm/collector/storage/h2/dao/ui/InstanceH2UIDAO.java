@@ -57,7 +57,7 @@ public class InstanceH2UIDAO extends H2DAO implements IInstanceUIDAO {
         H2Client client = getClient();
         long fiveMinuteBefore = System.currentTimeMillis() - 5 * 60 * 1000;
         fiveMinuteBefore = TimeBucketUtils.INSTANCE.getSecondTimeBucket(fiveMinuteBefore);
-        String sql = SqlBuilder.buildSql(GET_LAST_HEARTBEAT_TIME_SQL, InstanceTable.COLUMN_HEARTBEAT_TIME, InstanceTable.TABLE, InstanceTable.COLUMN_HEARTBEAT_TIME);
+        String sql = SqlBuilder.buildSql(GET_LAST_HEARTBEAT_TIME_SQL, InstanceTable.HEARTBEAT_TIME.getName(), InstanceTable.TABLE, InstanceTable.HEARTBEAT_TIME.getName());
         Object[] params = new Object[] {fiveMinuteBefore};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
@@ -74,8 +74,8 @@ public class InstanceH2UIDAO extends H2DAO implements IInstanceUIDAO {
         H2Client client = getClient();
         long fiveMinuteBefore = System.currentTimeMillis() - 5 * 60 * 1000;
         fiveMinuteBefore = TimeBucketUtils.INSTANCE.getSecondTimeBucket(fiveMinuteBefore);
-        String sql = SqlBuilder.buildSql(GET_INST_LAST_HEARTBEAT_TIME_SQL, InstanceTable.COLUMN_HEARTBEAT_TIME, InstanceTable.TABLE,
-            InstanceTable.COLUMN_HEARTBEAT_TIME, InstanceTable.COLUMN_INSTANCE_ID);
+        String sql = SqlBuilder.buildSql(GET_INST_LAST_HEARTBEAT_TIME_SQL, InstanceTable.HEARTBEAT_TIME.getName(), InstanceTable.TABLE,
+            InstanceTable.HEARTBEAT_TIME.getName(), InstanceTable.INSTANCE_ID.getName());
         Object[] params = new Object[] {fiveMinuteBefore, applicationInstanceId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
@@ -92,12 +92,12 @@ public class InstanceH2UIDAO extends H2DAO implements IInstanceUIDAO {
         int... applicationIds) {
         H2Client client = getClient();
         List<Application> applications = new LinkedList<>();
-        String sql = SqlBuilder.buildSql(GET_APPLICATIONS_SQL, InstanceTable.COLUMN_INSTANCE_ID,
-            InstanceTable.TABLE, InstanceTable.COLUMN_HEARTBEAT_TIME, InstanceTable.COLUMN_APPLICATION_ID);
+        String sql = SqlBuilder.buildSql(GET_APPLICATIONS_SQL, InstanceTable.INSTANCE_ID.getName(),
+            InstanceTable.TABLE, InstanceTable.HEARTBEAT_TIME.getName(), InstanceTable.APPLICATION_ID.getName());
         Object[] params = new Object[] {startSecondTimeBucket};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             while (rs.next()) {
-                Integer applicationId = rs.getInt(InstanceTable.COLUMN_APPLICATION_ID);
+                Integer applicationId = rs.getInt(InstanceTable.APPLICATION_ID.getName());
                 logger.debug("applicationId: {}", applicationId);
                 Application application = new Application();
                 application.setId(applicationId);
@@ -113,17 +113,17 @@ public class InstanceH2UIDAO extends H2DAO implements IInstanceUIDAO {
     @Override
     public Instance getInstance(int instanceId) {
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_INSTANCE_SQL, InstanceTable.TABLE, InstanceTable.COLUMN_INSTANCE_ID);
+        String sql = SqlBuilder.buildSql(GET_INSTANCE_SQL, InstanceTable.TABLE, InstanceTable.INSTANCE_ID.getName());
         Object[] params = new Object[] {instanceId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
                 Instance instance = new Instance();
-                instance.setId(rs.getString(InstanceTable.COLUMN_ID));
-                instance.setApplicationId(rs.getInt(InstanceTable.COLUMN_APPLICATION_ID));
-                instance.setAgentUUID(rs.getString(InstanceTable.COLUMN_AGENT_UUID));
-                instance.setRegisterTime(rs.getLong(InstanceTable.COLUMN_REGISTER_TIME));
-                instance.setHeartBeatTime(rs.getLong(InstanceTable.COLUMN_HEARTBEAT_TIME));
-                instance.setOsInfo(rs.getString(InstanceTable.COLUMN_OS_INFO));
+                instance.setId(rs.getString(InstanceTable.ID.getName()));
+                instance.setApplicationId(rs.getInt(InstanceTable.APPLICATION_ID.getName()));
+                instance.setAgentUUID(rs.getString(InstanceTable.AGENT_UUID.getName()));
+                instance.setRegisterTime(rs.getLong(InstanceTable.REGISTER_TIME.getName()));
+                instance.setHeartBeatTime(rs.getLong(InstanceTable.HEARTBEAT_TIME.getName()));
+                instance.setOsInfo(rs.getString(InstanceTable.OS_INFO.getName()));
                 return instance;
             }
         } catch (SQLException | H2ClientException e) {
@@ -136,7 +136,7 @@ public class InstanceH2UIDAO extends H2DAO implements IInstanceUIDAO {
     public List<AppServerInfo> searchServer(String keyword, long startSecondTimeBucket, long endSecondTimeBucket) {
         logger.debug("get instances info, keyword: {}, start: {}, end: {}", keyword, startSecondTimeBucket, endSecondTimeBucket);
         String dynamicSql = "select * from {0} where {1} like ? and (({2} >= ? and {2} <= ?) or ({3} >= ? and {3} <= ?)) and {4} = ?";
-        String sql = SqlBuilder.buildSql(dynamicSql, InstanceTable.TABLE, InstanceTable.COLUMN_OS_INFO, InstanceTable.COLUMN_REGISTER_TIME, InstanceTable.COLUMN_HEARTBEAT_TIME, InstanceTable.COLUMN_IS_ADDRESS);
+        String sql = SqlBuilder.buildSql(dynamicSql, InstanceTable.TABLE, InstanceTable.OS_INFO.getName(), InstanceTable.REGISTER_TIME.getName(), InstanceTable.HEARTBEAT_TIME.getName(), InstanceTable.IS_ADDRESS.getName());
         Object[] params = new Object[] {keyword, startSecondTimeBucket, endSecondTimeBucket, startSecondTimeBucket, endSecondTimeBucket, BooleanUtils.FALSE};
         return buildAppServerInfo(sql, params);
     }
@@ -145,7 +145,7 @@ public class InstanceH2UIDAO extends H2DAO implements IInstanceUIDAO {
     public List<AppServerInfo> getAllServer(int applicationId, long startSecondTimeBucket, long endSecondTimeBucket) {
         logger.debug("get instances info, applicationId: {}, startSecondTimeBucket: {}, endSecondTimeBucket: {}", applicationId, startSecondTimeBucket, endSecondTimeBucket);
         String dynamicSql = "select * from {0} where {1} = ? and (({2} >= ? and {2} <= ?) or ({3} >= ? and {3} <= ?)) and {4} = ?";
-        String sql = SqlBuilder.buildSql(dynamicSql, InstanceTable.TABLE, InstanceTable.COLUMN_APPLICATION_ID, InstanceTable.COLUMN_REGISTER_TIME, InstanceTable.COLUMN_HEARTBEAT_TIME, InstanceTable.COLUMN_IS_ADDRESS);
+        String sql = SqlBuilder.buildSql(dynamicSql, InstanceTable.TABLE, InstanceTable.APPLICATION_ID.getName(), InstanceTable.REGISTER_TIME.getName(), InstanceTable.HEARTBEAT_TIME.getName(), InstanceTable.IS_ADDRESS.getName());
         Object[] params = new Object[] {applicationId, startSecondTimeBucket, endSecondTimeBucket, startSecondTimeBucket, endSecondTimeBucket, BooleanUtils.FALSE};
         return buildAppServerInfo(sql, params);
     }
@@ -157,8 +157,8 @@ public class InstanceH2UIDAO extends H2DAO implements IInstanceUIDAO {
         try (ResultSet rs = client.executeQuery(sql, params)) {
             while (rs.next()) {
                 AppServerInfo appServerInfo = new AppServerInfo();
-                appServerInfo.setId(rs.getInt(InstanceTable.COLUMN_INSTANCE_ID));
-                appServerInfo.setOsInfo(rs.getString(InstanceTable.COLUMN_OS_INFO));
+                appServerInfo.setId(rs.getInt(InstanceTable.INSTANCE_ID.getName()));
+                appServerInfo.setOsInfo(rs.getString(InstanceTable.OS_INFO.getName()));
                 appServerInfos.add(appServerInfo);
             }
         } catch (SQLException | H2ClientException e) {

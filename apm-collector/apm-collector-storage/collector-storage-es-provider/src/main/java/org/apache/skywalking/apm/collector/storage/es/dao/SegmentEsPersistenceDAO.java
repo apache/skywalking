@@ -57,11 +57,11 @@ public class SegmentEsPersistenceDAO extends EsDAO implements ISegmentPersistenc
 
     @Override
     public IndexRequestBuilder prepareBatchInsert(Segment data) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(SegmentTable.COLUMN_DATA_BINARY, new String(Base64.getEncoder().encode(data.getDataBinary())));
-        source.put(SegmentTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
-        logger.debug("segment source: {}", source.toString());
-        return getClient().prepareIndex(SegmentTable.TABLE, data.getId()).setSource(source);
+        Map<String, Object> target = new HashMap<>();
+        target.put(SegmentTable.DATA_BINARY.getName(), new String(Base64.getEncoder().encode(data.getDataBinary())));
+        target.put(SegmentTable.TIME_BUCKET.getName(), data.getTimeBucket());
+        logger.debug("segment source: {}", target.toString());
+        return getClient().prepareIndex(SegmentTable.TABLE, data.getId()).setSource(target);
     }
 
     @Override
@@ -69,7 +69,7 @@ public class SegmentEsPersistenceDAO extends EsDAO implements ISegmentPersistenc
         long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
         long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
         BulkByScrollResponse response = getClient().prepareDelete(
-            QueryBuilders.rangeQuery(SegmentTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket),
+            QueryBuilders.rangeQuery(SegmentTable.TIME_BUCKET.getName()).gte(startTimeBucket).lte(endTimeBucket),
             SegmentTable.TABLE)
             .get();
 
