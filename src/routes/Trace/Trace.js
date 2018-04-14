@@ -127,8 +127,8 @@ export default class Trace extends PureComponent {
     const { trace: { variables: { options } } } = this.props;
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
-        <Row gutter={{ md: 8, lg: 12, xl: 8 }}>
-          <Col xl={4} lg={12} sm={24}>
+        <Row gutter={{ md: 8, lg: 12, xl: 24 }}>
+          <Col xl={8} lg={24} sm={24}>
             <FormItem label="Application">
               {getFieldDecorator('applicationId')(
                 <Select placeholder="All application" style={{ width: '100%' }}>
@@ -142,27 +142,31 @@ export default class Trace extends PureComponent {
               )}
             </FormItem>
           </Col>
-          <Col xl={4} lg={12} sm={24}>
-            <FormItem label="TraceId">
-              {getFieldDecorator('traceId')(
-                <Input placeholder="Input trace id" />
-              )}
-            </FormItem>
-          </Col>
-          <Col xl={6} lg={12} sm={24}>
+          <Col xl={16} lg={24} sm={24}>
             <FormItem label="OperationName">
               {getFieldDecorator('operationName')(
-                <Input placeholder="Input operation name" />
+                <Input placeholder="eg Kafka/Trace-topic-1/Consumer" />
+              )}
+            </FormItem>
+          </Col>
+          <Col xl={8} lg={24} sm={24}>
+            <FormItem label="TraceId">
+              {getFieldDecorator('traceId')(
+                <Input placeholder="eg 3.84.15204769998380001" />
               )}
             </FormItem>
           </Col>
           <Col xl={6} lg={12} sm={24}>
-            <FormItem label="DurationRange">
+            <FormItem label="Min Duration">
               {getFieldDecorator('minTraceDuration')(
-                <InputNumber style={{ width: '40%' }} />
-              )}~
+                <InputNumber placeholder="eg 100,500" style={{ width: 150 }} />
+              )}
+            </FormItem>
+          </Col>
+          <Col xl={6} lg={12} sm={24}>
+            <FormItem label="Max Duration">
               {getFieldDecorator('maxTraceDuration')(
-                <InputNumber style={{ width: '40%' }} />
+                <InputNumber placeholder="eg 5000" style={{ width: 150 }} />
               )}
             </FormItem>
           </Col>
