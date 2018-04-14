@@ -27,16 +27,16 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.CpuMetricTable;
  */
 public abstract class AbstractCpuMetricEsTableDefine extends ElasticSearchTableDefine {
 
-    public AbstractCpuMetricEsTableDefine(String name) {
+    AbstractCpuMetricEsTableDefine(String name) {
         super(name);
     }
 
     @Override public final void initialize() {
-        addColumn(new ElasticSearchColumnDefine(CpuMetricTable.COLUMN_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
-        addColumn(new ElasticSearchColumnDefine(CpuMetricTable.COLUMN_METRIC_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
-        addColumn(new ElasticSearchColumnDefine(CpuMetricTable.COLUMN_INSTANCE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(CpuMetricTable.COLUMN_USAGE_PERCENT, ElasticSearchColumnDefine.Type.Double.name()));
-        addColumn(new ElasticSearchColumnDefine(CpuMetricTable.COLUMN_TIMES, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(CpuMetricTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(CpuMetricTable.ID, ElasticSearchColumnDefine.Type.Keyword.name()));
+        addColumn(new ElasticSearchColumnDefine(CpuMetricTable.METRIC_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
+        addColumn(new ElasticSearchColumnDefine(CpuMetricTable.INSTANCE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(CpuMetricTable.USAGE_PERCENT, ElasticSearchColumnDefine.Type.Double.name()));
+        addColumn(new ElasticSearchColumnDefine(CpuMetricTable.TIMES, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(CpuMetricTable.TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
     }
 }

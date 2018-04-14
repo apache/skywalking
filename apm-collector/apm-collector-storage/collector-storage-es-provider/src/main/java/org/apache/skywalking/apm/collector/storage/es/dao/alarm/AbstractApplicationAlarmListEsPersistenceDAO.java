@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.collector.storage.es.dao.alarm;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmList;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmListTable;
@@ -35,32 +36,37 @@ public abstract class AbstractApplicationAlarmListEsPersistenceDAO extends Abstr
     }
 
     @Override protected final String timeBucketColumnNameForDelete() {
-        return ApplicationAlarmListTable.COLUMN_TIME_BUCKET;
+        return ApplicationAlarmListTable.TIME_BUCKET.getName();
     }
 
     @Override protected final ApplicationAlarmList esDataToStreamData(Map<String, Object> source) {
         ApplicationAlarmList applicationAlarmList = new ApplicationAlarmList();
-        applicationAlarmList.setMetricId((String)source.get(ApplicationAlarmListTable.COLUMN_METRIC_ID));
-        applicationAlarmList.setApplicationId(((Number)source.get(ApplicationAlarmListTable.COLUMN_APPLICATION_ID)).intValue());
-        applicationAlarmList.setSourceValue(((Number)source.get(ApplicationAlarmListTable.COLUMN_SOURCE_VALUE)).intValue());
+        applicationAlarmList.setMetricId((String)source.get(ApplicationAlarmListTable.METRIC_ID.getName()));
+        applicationAlarmList.setApplicationId(((Number)source.get(ApplicationAlarmListTable.APPLICATION_ID.getName())).intValue());
+        applicationAlarmList.setSourceValue(((Number)source.get(ApplicationAlarmListTable.SOURCE_VALUE.getName())).intValue());
 
-        applicationAlarmList.setAlarmType(((Number)source.get(ApplicationAlarmListTable.COLUMN_ALARM_TYPE)).intValue());
-        applicationAlarmList.setAlarmContent((String)source.get(ApplicationAlarmListTable.COLUMN_ALARM_CONTENT));
+        applicationAlarmList.setAlarmType(((Number)source.get(ApplicationAlarmListTable.ALARM_TYPE.getName())).intValue());
+        applicationAlarmList.setAlarmContent((String)source.get(ApplicationAlarmListTable.ALARM_CONTENT.getName()));
 
-        applicationAlarmList.setTimeBucket(((Number)source.get(ApplicationAlarmListTable.COLUMN_TIME_BUCKET)).longValue());
+        applicationAlarmList.setTimeBucket(((Number)source.get(ApplicationAlarmListTable.TIME_BUCKET.getName())).longValue());
         return applicationAlarmList;
     }
 
     @Override protected final Map<String, Object> esStreamDataToEsData(ApplicationAlarmList streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationAlarmListTable.COLUMN_METRIC_ID, streamData.getMetricId());
-        source.put(ApplicationAlarmListTable.COLUMN_APPLICATION_ID, streamData.getApplicationId());
-        source.put(ApplicationAlarmListTable.COLUMN_SOURCE_VALUE, streamData.getSourceValue());
+        Map<String, Object> target = new HashMap<>();
+        target.put(ApplicationAlarmListTable.METRIC_ID.getName(), streamData.getMetricId());
+        target.put(ApplicationAlarmListTable.APPLICATION_ID.getName(), streamData.getApplicationId());
+        target.put(ApplicationAlarmListTable.SOURCE_VALUE.getName(), streamData.getSourceValue());
 
-        source.put(ApplicationAlarmListTable.COLUMN_ALARM_TYPE, streamData.getAlarmType());
-        source.put(ApplicationAlarmListTable.COLUMN_ALARM_CONTENT, streamData.getAlarmContent());
+        target.put(ApplicationAlarmListTable.ALARM_TYPE.getName(), streamData.getAlarmType());
+        target.put(ApplicationAlarmListTable.ALARM_CONTENT.getName(), streamData.getAlarmContent());
 
-        source.put(ApplicationAlarmListTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
-        return source;
+        target.put(ApplicationAlarmListTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
+        return target;
+    }
+
+    @GraphComputingMetric(name = "/persistence/get/" + ApplicationAlarmListTable.TABLE)
+    @Override public final ApplicationAlarmList get(String id) {
+        return super.get(id);
     }
 }

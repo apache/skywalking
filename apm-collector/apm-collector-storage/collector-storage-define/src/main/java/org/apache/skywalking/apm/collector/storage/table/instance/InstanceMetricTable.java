@@ -16,16 +16,14 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.table.instance;
 
-import org.apache.skywalking.apm.collector.storage.table.CommonMetricTable;
+import org.apache.skywalking.apm.collector.storage.table.MetricColumns;
+import org.apache.skywalking.apm.collector.storage.table.register.RegisterColumns;
 
 /**
  * @author peng-yongsheng
  */
-public class InstanceMetricTable extends CommonMetricTable {
-    public static final String TABLE = "instance_metric";
-    public static final String COLUMN_APPLICATION_ID = "application_id";
-    public static final String COLUMN_INSTANCE_ID = "instance_id";
+public interface InstanceMetricTable extends MetricColumns, RegisterColumns {
+    String TABLE = "instance_metric";
 }

@@ -46,7 +46,7 @@ public class ServiceNameServiceH2UIDAO extends H2DAO implements IServiceNameServ
 
     @Override public int getCount() {
         String dynamicSql = "select count({0}) as cnt from {1} where {2} = ?";
-        String sql = SqlBuilder.buildSql(dynamicSql, ServiceNameTable.COLUMN_SERVICE_ID, ServiceNameTable.TABLE, ServiceNameTable.COLUMN_SRC_SPAN_TYPE);
+        String sql = SqlBuilder.buildSql(dynamicSql, ServiceNameTable.SERVICE_ID.getName(), ServiceNameTable.TABLE, ServiceNameTable.SRC_SPAN_TYPE.getName());
         Object[] params = new Object[] {SpanType.Entry_VALUE};
 
         try (ResultSet rs = getClient().executeQuery(sql, params)) {
@@ -61,15 +61,15 @@ public class ServiceNameServiceH2UIDAO extends H2DAO implements IServiceNameServ
 
     @Override public List<ServiceInfo> searchService(String keyword, int topN) {
         String dynamicSql = "select {0},{1} from {2} where {3} like ? and {4} = ? limit ?";
-        String sql = SqlBuilder.buildSql(dynamicSql, ServiceNameTable.COLUMN_SERVICE_ID, ServiceNameTable.COLUMN_SERVICE_NAME, ServiceNameTable.TABLE, ServiceNameTable.COLUMN_SERVICE_NAME, ServiceNameTable.COLUMN_SRC_SPAN_TYPE);
+        String sql = SqlBuilder.buildSql(dynamicSql, ServiceNameTable.SERVICE_ID.getName(), ServiceNameTable.SERVICE_NAME.getName(), ServiceNameTable.TABLE, ServiceNameTable.SERVICE_NAME.getName(), ServiceNameTable.SRC_SPAN_TYPE.getName());
         Object[] params = new Object[] {keyword, SpanType.Entry_VALUE, topN};
 
         List<ServiceInfo> serviceInfos = new LinkedList<>();
         try (ResultSet rs = getClient().executeQuery(sql, params)) {
             while (rs.next()) {
                 ServiceInfo serviceInfo = new ServiceInfo();
-                serviceInfo.setId(rs.getInt(ServiceNameTable.COLUMN_SERVICE_ID));
-                serviceInfo.setName(rs.getString(ServiceNameTable.COLUMN_SERVICE_NAME));
+                serviceInfo.setId(rs.getInt(ServiceNameTable.SERVICE_ID.getName()));
+                serviceInfo.setName(rs.getString(ServiceNameTable.SERVICE_NAME.getName()));
                 serviceInfos.add(serviceInfo);
             }
         } catch (SQLException | H2ClientException e) {

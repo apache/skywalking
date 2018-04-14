@@ -24,15 +24,12 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationReferenceM
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng, clevertension
  */
 public class ApplicationReferenceMetricH2UIDAO extends H2DAO implements IApplicationReferenceMetricUIDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(ApplicationReferenceMetricH2UIDAO.class);
     private static final String APPLICATION_REFERENCE_SQL = "select {8}, {9}, sum({0}) as {0}, sum({1}) as {1}, sum({2}) as {2}, " +
         "sum({3}) as {3}, sum({4}) as {4}, sum({5}) as {5} from {6} where {7} >= ? and {7} <= ? group by {8}, {9} limit 100";
 

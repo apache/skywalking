@@ -32,25 +32,25 @@ import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
 public class MemoryPoolMetric extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(MemoryPoolMetricTable.COLUMN_ID, new NonMergeOperation()),
-        new Column(MemoryPoolMetricTable.COLUMN_METRIC_ID, new NonMergeOperation()),
+        new Column(MemoryPoolMetricTable.ID, new NonMergeOperation()),
+        new Column(MemoryPoolMetricTable.METRIC_ID, new NonMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(MemoryPoolMetricTable.COLUMN_INIT, new MinMergeOperation()),
-        new Column(MemoryPoolMetricTable.COLUMN_MAX, new MaxMergeOperation()),
-        new Column(MemoryPoolMetricTable.COLUMN_USED, new AddMergeOperation()),
-        new Column(MemoryPoolMetricTable.COLUMN_COMMITTED, new AddMergeOperation()),
-        new Column(MemoryPoolMetricTable.COLUMN_TIMES, new AddMergeOperation()),
-        new Column(MemoryPoolMetricTable.COLUMN_TIME_BUCKET, new NonMergeOperation()),
+        new Column(MemoryPoolMetricTable.INIT, new MinMergeOperation()),
+        new Column(MemoryPoolMetricTable.MAX, new MaxMergeOperation()),
+        new Column(MemoryPoolMetricTable.USED, new AddMergeOperation()),
+        new Column(MemoryPoolMetricTable.COMMITTED, new AddMergeOperation()),
+        new Column(MemoryPoolMetricTable.TIMES, new AddMergeOperation()),
+        new Column(MemoryPoolMetricTable.TIME_BUCKET, new NonMergeOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {
     };
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(MemoryPoolMetricTable.COLUMN_INSTANCE_ID, new NonMergeOperation()),
-        new Column(MemoryPoolMetricTable.COLUMN_POOL_TYPE, new CoverMergeOperation()),
+        new Column(MemoryPoolMetricTable.INSTANCE_ID, new NonMergeOperation()),
+        new Column(MemoryPoolMetricTable.POOL_TYPE, new CoverMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};

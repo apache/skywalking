@@ -18,16 +18,12 @@
 
 package org.apache.skywalking.apm.collector.storage.table.alarm;
 
-import org.apache.skywalking.apm.collector.storage.table.CommonMetricTable;
+import org.apache.skywalking.apm.collector.storage.table.ReferenceColumns;
+import org.apache.skywalking.apm.collector.storage.table.register.RegisterColumns;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationReferenceAlarmTable extends CommonMetricTable {
-    public static final String TABLE = "application_reference_alarm";
-    public static final String COLUMN_FRONT_APPLICATION_ID = "front_application_id";
-    public static final String COLUMN_BEHIND_APPLICATION_ID = "behind_application_id";
-    public static final String COLUMN_ALARM_TYPE = "alarm_type";
-    public static final String COLUMN_LAST_TIME_BUCKET = "last_time_bucket";
-    public static final String COLUMN_ALARM_CONTENT = "alarm_content";
+public interface ApplicationReferenceAlarmTable extends ReferenceColumns, RegisterColumns, AlarmColumns {
+    String TABLE = "application_reference_alarm";
 }

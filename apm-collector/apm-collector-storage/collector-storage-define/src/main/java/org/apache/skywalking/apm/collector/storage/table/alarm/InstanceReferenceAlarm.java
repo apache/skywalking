@@ -29,23 +29,23 @@ import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
 public class InstanceReferenceAlarm extends StreamData implements Alarm {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(InstanceReferenceAlarmTable.COLUMN_ID, new NonMergeOperation()),
-        new Column(InstanceReferenceAlarmTable.COLUMN_ALARM_CONTENT, new CoverMergeOperation()),
+        new Column(InstanceReferenceAlarmTable.ID, new NonMergeOperation()),
+        new Column(InstanceReferenceAlarmTable.ALARM_CONTENT, new CoverMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(InstanceReferenceAlarmTable.COLUMN_LAST_TIME_BUCKET, new CoverMergeOperation()),
+        new Column(InstanceReferenceAlarmTable.LAST_TIME_BUCKET, new CoverMergeOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {};
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(InstanceReferenceAlarmTable.COLUMN_ALARM_TYPE, new NonMergeOperation()),
-        new Column(InstanceReferenceAlarmTable.COLUMN_SOURCE_VALUE, new NonMergeOperation()),
-        new Column(InstanceReferenceAlarmTable.COLUMN_FRONT_APPLICATION_ID, new NonMergeOperation()),
-        new Column(InstanceReferenceAlarmTable.COLUMN_BEHIND_APPLICATION_ID, new NonMergeOperation()),
-        new Column(InstanceReferenceAlarmTable.COLUMN_FRONT_INSTANCE_ID, new NonMergeOperation()),
-        new Column(InstanceReferenceAlarmTable.COLUMN_BEHIND_INSTANCE_ID, new NonMergeOperation()),
+        new Column(InstanceReferenceAlarmTable.ALARM_TYPE, new NonMergeOperation()),
+        new Column(InstanceReferenceAlarmTable.SOURCE_VALUE, new NonMergeOperation()),
+        new Column(InstanceReferenceAlarmTable.FRONT_APPLICATION_ID, new NonMergeOperation()),
+        new Column(InstanceReferenceAlarmTable.BEHIND_APPLICATION_ID, new NonMergeOperation()),
+        new Column(InstanceReferenceAlarmTable.FRONT_INSTANCE_ID, new NonMergeOperation()),
+        new Column(InstanceReferenceAlarmTable.BEHIND_INSTANCE_ID, new NonMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};

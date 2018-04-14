@@ -118,7 +118,6 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceAlarmUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IMemoryMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IMemoryPoolMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.INetworkAddressUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentDurationUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentUIDAO;
@@ -250,7 +249,6 @@ public class StorageModule extends Module {
         classes.add(ICpuMetricUIDAO.class);
         classes.add(IGCMetricUIDAO.class);
         classes.add(IMemoryMetricUIDAO.class);
-        classes.add(IMemoryPoolMetricUIDAO.class);
 
         classes.add(IGlobalTraceUIDAO.class);
         classes.add(IInstanceMetricUIDAO.class);
