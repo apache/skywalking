@@ -22,7 +22,7 @@ acquire the list periodically.
 
 ### HTTP GET
 - Input
-GET：http://collectorIp:port/agent/grpc 
+GET：http://collectorIp:port/agent/gRPC 
 
 - Output
 JSON Array. Each element in the array ia a valid gRPC service address.
