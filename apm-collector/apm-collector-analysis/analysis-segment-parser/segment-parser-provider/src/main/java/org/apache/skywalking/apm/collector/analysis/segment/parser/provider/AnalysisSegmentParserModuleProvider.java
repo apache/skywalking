@@ -78,8 +78,7 @@ public class AnalysisSegmentParserModuleProvider extends ModuleProvider {
 
         graphCreate(workerCreateListener);
 
-        PersistenceTimer persistenceTimer = new PersistenceTimer(AnalysisSegmentParserModule.NAME);
-        persistenceTimer.start(getManager(), workerCreateListener.getPersistenceWorkers());
+        PersistenceTimer.INSTANCE.start(getManager(), workerCreateListener.getPersistenceWorkers());
 
         SegmentBufferReader.INSTANCE.setSegmentParserListenerManager(listenerManager);
     }

@@ -51,17 +51,17 @@ public class GlobalTraceH2PersistenceDAO extends H2DAO implements IGlobalTracePe
     }
 
     @Override public H2SqlEntity prepareBatchInsert(GlobalTrace data) {
-        Map<String, Object> source = new HashMap<>();
+        Map<String, Object> target = new HashMap<>();
         H2SqlEntity entity = new H2SqlEntity();
-        source.put(GlobalTraceTable.COLUMN_ID, data.getId());
-        source.put(GlobalTraceTable.COLUMN_SEGMENT_ID, data.getSegmentId());
-        source.put(GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID, data.getGlobalTraceId());
-        source.put(GlobalTraceTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
-        logger.debug("global trace source: {}", source.toString());
+        target.put(GlobalTraceTable.ID.getName(), data.getId());
+        target.put(GlobalTraceTable.SEGMENT_ID.getName(), data.getSegmentId());
+        target.put(GlobalTraceTable.TRACE_ID.getName(), data.getGlobalTraceId());
+        target.put(GlobalTraceTable.TIME_BUCKET.getName(), data.getTimeBucket());
+        logger.debug("global trace source: {}", target.toString());
 
-        String sql = SqlBuilder.buildBatchInsertSql(GlobalTraceTable.TABLE, source.keySet());
+        String sql = SqlBuilder.buildBatchInsertSql(GlobalTraceTable.TABLE, target.keySet());
         entity.setSql(sql);
-        entity.setParams(source.values().toArray(new Object[0]));
+        entity.setParams(target.values().toArray(new Object[0]));
         return entity;
     }
 

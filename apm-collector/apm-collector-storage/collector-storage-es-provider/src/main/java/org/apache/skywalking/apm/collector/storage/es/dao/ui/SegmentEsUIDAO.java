@@ -45,7 +45,7 @@ public class SegmentEsUIDAO extends EsDAO implements ISegmentUIDAO {
     @Override public TraceSegmentObject load(String segmentId) {
         GetResponse response = getClient().prepareGet(SegmentTable.TABLE, segmentId).get();
         Map<String, Object> source = response.getSource();
-        String dataBinaryBase64 = (String)source.get(SegmentTable.COLUMN_DATA_BINARY);
+        String dataBinaryBase64 = (String)source.get(SegmentTable.DATA_BINARY.getName());
         if (StringUtils.isNotEmpty(dataBinaryBase64)) {
             byte[] dataBinary = Base64.getDecoder().decode(dataBinaryBase64);
             try {

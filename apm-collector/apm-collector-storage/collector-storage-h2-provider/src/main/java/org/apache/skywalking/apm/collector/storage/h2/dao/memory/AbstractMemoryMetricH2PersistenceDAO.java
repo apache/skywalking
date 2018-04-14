@@ -32,42 +32,42 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetricTable;
  */
 public abstract class AbstractMemoryMetricH2PersistenceDAO extends AbstractPersistenceH2DAO<MemoryMetric> {
 
-    public AbstractMemoryMetricH2PersistenceDAO(H2Client client) {
+    AbstractMemoryMetricH2PersistenceDAO(H2Client client) {
         super(client);
     }
 
     @Override protected final MemoryMetric h2DataToStreamData(ResultSet resultSet) throws SQLException {
         MemoryMetric memoryMetric = new MemoryMetric();
-        memoryMetric.setId(resultSet.getString(MemoryMetricTable.COLUMN_ID));
-        memoryMetric.setMetricId(resultSet.getString(MemoryMetricTable.COLUMN_METRIC_ID));
+        memoryMetric.setId(resultSet.getString(MemoryMetricTable.ID.getName()));
+        memoryMetric.setMetricId(resultSet.getString(MemoryMetricTable.METRIC_ID.getName()));
 
-        memoryMetric.setInstanceId(resultSet.getInt(MemoryMetricTable.COLUMN_INSTANCE_ID));
-        memoryMetric.setIsHeap(resultSet.getInt(MemoryMetricTable.COLUMN_IS_HEAP));
+        memoryMetric.setInstanceId(resultSet.getInt(MemoryMetricTable.INSTANCE_ID.getName()));
+        memoryMetric.setIsHeap(resultSet.getInt(MemoryMetricTable.IS_HEAP.getName()));
 
-        memoryMetric.setInit(resultSet.getLong(MemoryMetricTable.COLUMN_INIT));
-        memoryMetric.setMax(resultSet.getLong(MemoryMetricTable.COLUMN_MAX));
-        memoryMetric.setUsed(resultSet.getLong(MemoryMetricTable.COLUMN_USED));
-        memoryMetric.setCommitted(resultSet.getLong(MemoryMetricTable.COLUMN_COMMITTED));
-        memoryMetric.setTimes(resultSet.getLong(MemoryMetricTable.COLUMN_TIMES));
+        memoryMetric.setInit(resultSet.getLong(MemoryMetricTable.INIT.getName()));
+        memoryMetric.setMax(resultSet.getLong(MemoryMetricTable.MAX.getName()));
+        memoryMetric.setUsed(resultSet.getLong(MemoryMetricTable.USED.getName()));
+        memoryMetric.setCommitted(resultSet.getLong(MemoryMetricTable.COMMITTED.getName()));
+        memoryMetric.setTimes(resultSet.getLong(MemoryMetricTable.TIMES.getName()));
 
-        memoryMetric.setTimeBucket(resultSet.getLong(MemoryMetricTable.COLUMN_TIME_BUCKET));
+        memoryMetric.setTimeBucket(resultSet.getLong(MemoryMetricTable.TIME_BUCKET.getName()));
         return memoryMetric;
     }
 
     @Override protected final Map<String, Object> streamDataToH2Data(MemoryMetric streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(MemoryMetricTable.COLUMN_ID, streamData.getId());
-        source.put(MemoryMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(MemoryMetricTable.ID.getName(), streamData.getId());
+        target.put(MemoryMetricTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(MemoryMetricTable.COLUMN_INSTANCE_ID, streamData.getInstanceId());
-        source.put(MemoryMetricTable.COLUMN_IS_HEAP, streamData.getIsHeap());
-        source.put(MemoryMetricTable.COLUMN_INIT, streamData.getInit());
-        source.put(MemoryMetricTable.COLUMN_MAX, streamData.getMax());
-        source.put(MemoryMetricTable.COLUMN_USED, streamData.getUsed());
-        source.put(MemoryMetricTable.COLUMN_COMMITTED, streamData.getCommitted());
-        source.put(MemoryMetricTable.COLUMN_TIMES, streamData.getTimes());
-        source.put(MemoryMetricTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
+        target.put(MemoryMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId());
+        target.put(MemoryMetricTable.IS_HEAP.getName(), streamData.getIsHeap());
+        target.put(MemoryMetricTable.INIT.getName(), streamData.getInit());
+        target.put(MemoryMetricTable.MAX.getName(), streamData.getMax());
+        target.put(MemoryMetricTable.USED.getName(), streamData.getUsed());
+        target.put(MemoryMetricTable.COMMITTED.getName(), streamData.getCommitted());
+        target.put(MemoryMetricTable.TIMES.getName(), streamData.getTimes());
+        target.put(MemoryMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
 
-        return source;
+        return target;
     }
 }

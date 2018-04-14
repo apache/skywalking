@@ -44,27 +44,27 @@ public class NetworkAddressRegisterH2DAO extends H2DAO implements INetworkAddres
 
     @Override
     public int getMaxNetworkAddressId() {
-        return getMaxId(NetworkAddressTable.TABLE, NetworkAddressTable.COLUMN_ADDRESS_ID);
+        return getMaxId(NetworkAddressTable.TABLE, NetworkAddressTable.ADDRESS_ID.getName());
     }
 
     @Override
     public int getMinNetworkAddressId() {
-        return getMinId(NetworkAddressTable.TABLE, NetworkAddressTable.COLUMN_ADDRESS_ID);
+        return getMinId(NetworkAddressTable.TABLE, NetworkAddressTable.ADDRESS_ID.getName());
     }
 
     @Override
     public void save(NetworkAddress networkAddress) {
         H2Client client = getClient();
 
-        Map<String, Object> source = new HashMap<>();
-        source.put(NetworkAddressTable.COLUMN_ID, networkAddress.getId());
-        source.put(NetworkAddressTable.COLUMN_NETWORK_ADDRESS, networkAddress.getNetworkAddress());
-        source.put(NetworkAddressTable.COLUMN_ADDRESS_ID, networkAddress.getAddressId());
-        source.put(NetworkAddressTable.COLUMN_SPAN_LAYER, networkAddress.getSpanLayer());
-        source.put(NetworkAddressTable.COLUMN_SERVER_TYPE, networkAddress.getServerType());
+        Map<String, Object> target = new HashMap<>();
+        target.put(NetworkAddressTable.ID.getName(), networkAddress.getId());
+        target.put(NetworkAddressTable.NETWORK_ADDRESS.getName(), networkAddress.getNetworkAddress());
+        target.put(NetworkAddressTable.ADDRESS_ID.getName(), networkAddress.getAddressId());
+        target.put(NetworkAddressTable.SRC_SPAN_LAYER.getName(), networkAddress.getSrcSpanLayer());
+        target.put(NetworkAddressTable.SERVER_TYPE.getName(), networkAddress.getServerType());
 
-        String sql = SqlBuilder.buildBatchInsertSql(NetworkAddressTable.TABLE, source.keySet());
-        Object[] params = source.values().toArray(new Object[0]);
+        String sql = SqlBuilder.buildBatchInsertSql(NetworkAddressTable.TABLE, target.keySet());
+        Object[] params = target.values().toArray(new Object[0]);
         try {
             client.execute(sql, params);
         } catch (H2ClientException e) {
@@ -76,10 +76,10 @@ public class NetworkAddressRegisterH2DAO extends H2DAO implements INetworkAddres
         H2Client client = getClient();
 
         Map<String, Object> source = new HashMap<>();
-        source.put(NetworkAddressTable.COLUMN_SPAN_LAYER, spanLayer);
-        source.put(NetworkAddressTable.COLUMN_SERVER_TYPE, serverType);
+        source.put(NetworkAddressTable.SRC_SPAN_LAYER.getName(), spanLayer);
+        source.put(NetworkAddressTable.SERVER_TYPE.getName(), serverType);
 
-        String sql = SqlBuilder.buildBatchUpdateSql(InstanceTable.TABLE, source.keySet(), InstanceTable.COLUMN_INSTANCE_ID);
+        String sql = SqlBuilder.buildBatchUpdateSql(InstanceTable.TABLE, source.keySet(), InstanceTable.INSTANCE_ID.getName());
         Object[] params = source.values().toArray(new Object[] {id});
 
         try {

@@ -66,6 +66,7 @@ storage:
     clusterNodes: localhost:9300
     indexShardsNumber: 2
     indexReplicasNumber: 0
+    highPerformanceMode: true
     ttl: 7
 #storage:
 #  h2:

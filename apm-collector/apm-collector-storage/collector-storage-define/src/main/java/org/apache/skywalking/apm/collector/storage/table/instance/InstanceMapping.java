@@ -31,20 +31,20 @@ import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterServ
 public class InstanceMapping extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(InstanceMappingTable.COLUMN_ID, new NonMergeOperation()),
-        new Column(InstanceMappingTable.COLUMN_METRIC_ID, new NonMergeOperation()),
+        new Column(InstanceMappingTable.ID, new NonMergeOperation()),
+        new Column(InstanceMappingTable.METRIC_ID, new NonMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(InstanceMappingTable.COLUMN_TIME_BUCKET, new CoverMergeOperation()),
+        new Column(InstanceMappingTable.TIME_BUCKET, new CoverMergeOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {};
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(InstanceMappingTable.COLUMN_APPLICATION_ID, new CoverMergeOperation()),
-        new Column(InstanceMappingTable.COLUMN_INSTANCE_ID, new CoverMergeOperation()),
-        new Column(InstanceMappingTable.COLUMN_ADDRESS_ID, new CoverMergeOperation()),
+        new Column(InstanceMappingTable.APPLICATION_ID, new CoverMergeOperation()),
+        new Column(InstanceMappingTable.INSTANCE_ID, new CoverMergeOperation()),
+        new Column(InstanceMappingTable.ADDRESS_ID, new CoverMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};

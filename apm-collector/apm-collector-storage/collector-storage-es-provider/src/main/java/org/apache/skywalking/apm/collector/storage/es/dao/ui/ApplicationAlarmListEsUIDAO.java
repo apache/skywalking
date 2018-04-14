@@ -47,19 +47,19 @@ public class ApplicationAlarmListEsUIDAO extends EsDAO implements IApplicationAl
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
         searchRequestBuilder.setTypes(ApplicationAlarmListTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-        searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(ApplicationAlarmListTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
+        searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(ApplicationAlarmListTable.TIME_BUCKET.getName()).gte(startTimeBucket).lte(endTimeBucket));
         searchRequestBuilder.setSize(0);
 
-        searchRequestBuilder.addAggregation(AggregationBuilders.terms(ApplicationAlarmListTable.COLUMN_TIME_BUCKET).field(ApplicationAlarmListTable.COLUMN_TIME_BUCKET).size(100)
-            .subAggregation(AggregationBuilders.terms(ApplicationAlarmListTable.COLUMN_APPLICATION_ID).field(ApplicationAlarmListTable.COLUMN_APPLICATION_ID).size(100)));
+        searchRequestBuilder.addAggregation(AggregationBuilders.terms(ApplicationAlarmListTable.TIME_BUCKET.getName()).field(ApplicationAlarmListTable.TIME_BUCKET.getName()).size(100)
+            .subAggregation(AggregationBuilders.terms(ApplicationAlarmListTable.APPLICATION_ID.getName()).field(ApplicationAlarmListTable.APPLICATION_ID.getName()).size(100)));
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
-        Terms timeBucketTerms = searchResponse.getAggregations().get(ApplicationAlarmListTable.COLUMN_TIME_BUCKET);
+        Terms timeBucketTerms = searchResponse.getAggregations().get(ApplicationAlarmListTable.TIME_BUCKET.getName());
 
         List<AlarmTrend> alarmTrends = new LinkedList<>();
         for (Terms.Bucket timeBucketBucket : timeBucketTerms.getBuckets()) {
-            Terms applicationBucketTerms = timeBucketBucket.getAggregations().get(ApplicationAlarmListTable.COLUMN_APPLICATION_ID);
+            Terms applicationBucketTerms = timeBucketBucket.getAggregations().get(ApplicationAlarmListTable.APPLICATION_ID.getName());
 
             AlarmTrend alarmTrend = new AlarmTrend();
             alarmTrend.setNumberOfApplication(applicationBucketTerms.getBuckets().size());

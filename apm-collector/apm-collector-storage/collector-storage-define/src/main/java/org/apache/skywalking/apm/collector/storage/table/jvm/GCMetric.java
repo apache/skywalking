@@ -30,22 +30,22 @@ import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
 public class GCMetric extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(GCMetricTable.COLUMN_ID, new NonMergeOperation()),
-        new Column(GCMetricTable.COLUMN_METRIC_ID, new NonMergeOperation()),
+        new Column(GCMetricTable.ID, new NonMergeOperation()),
+        new Column(GCMetricTable.METRIC_ID, new NonMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(GCMetricTable.COLUMN_COUNT, new AddMergeOperation()),
-        new Column(GCMetricTable.COLUMN_TIMES, new AddMergeOperation()),
-        new Column(GCMetricTable.COLUMN_TIME_BUCKET, new CoverMergeOperation()),
+        new Column(GCMetricTable.COUNT, new AddMergeOperation()),
+        new Column(GCMetricTable.TIMES, new AddMergeOperation()),
+        new Column(GCMetricTable.TIME_BUCKET, new CoverMergeOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {
     };
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(GCMetricTable.COLUMN_INSTANCE_ID, new CoverMergeOperation()),
-        new Column(GCMetricTable.COLUMN_PHRASE, new CoverMergeOperation()),
+        new Column(GCMetricTable.INSTANCE_ID, new CoverMergeOperation()),
+        new Column(GCMetricTable.PHRASE, new CoverMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};

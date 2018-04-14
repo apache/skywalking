@@ -52,20 +52,20 @@ public class ApplicationMappingEsUIDAO extends EsDAO implements IApplicationMapp
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
         searchRequestBuilder.setTypes(ApplicationMappingTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-        searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(ApplicationMappingTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
+        searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(ApplicationMappingTable.TIME_BUCKET.getName()).gte(startTimeBucket).lte(endTimeBucket));
         searchRequestBuilder.setSize(0);
 
         searchRequestBuilder.addAggregation(
-            AggregationBuilders.terms(ApplicationMappingTable.COLUMN_APPLICATION_ID).field(ApplicationMappingTable.COLUMN_APPLICATION_ID).size(100)
-                .subAggregation(AggregationBuilders.terms(ApplicationMappingTable.COLUMN_MAPPING_APPLICATION_ID).field(ApplicationMappingTable.COLUMN_MAPPING_APPLICATION_ID).size(100)));
+            AggregationBuilders.terms(ApplicationMappingTable.APPLICATION_ID.getName()).field(ApplicationMappingTable.APPLICATION_ID.getName()).size(100)
+                .subAggregation(AggregationBuilders.terms(ApplicationMappingTable.MAPPING_APPLICATION_ID.getName()).field(ApplicationMappingTable.MAPPING_APPLICATION_ID.getName()).size(100)));
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
-        Terms applicationIdTerms = searchResponse.getAggregations().get(ApplicationMappingTable.COLUMN_APPLICATION_ID);
+        Terms applicationIdTerms = searchResponse.getAggregations().get(ApplicationMappingTable.APPLICATION_ID.getName());
 
         List<ApplicationMapping> applicationMappings = new LinkedList<>();
         for (Terms.Bucket applicationIdBucket : applicationIdTerms.getBuckets()) {
             int applicationId = applicationIdBucket.getKeyAsNumber().intValue();
-            Terms addressIdTerms = applicationIdBucket.getAggregations().get(ApplicationMappingTable.COLUMN_MAPPING_APPLICATION_ID);
+            Terms addressIdTerms = applicationIdBucket.getAggregations().get(ApplicationMappingTable.MAPPING_APPLICATION_ID.getName());
             for (Terms.Bucket addressIdBucket : addressIdTerms.getBuckets()) {
                 int addressId = addressIdBucket.getKeyAsNumber().intValue();
 

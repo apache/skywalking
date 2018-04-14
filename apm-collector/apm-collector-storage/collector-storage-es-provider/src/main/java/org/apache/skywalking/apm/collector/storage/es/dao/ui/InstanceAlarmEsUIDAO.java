@@ -53,9 +53,9 @@ public class InstanceAlarmEsUIDAO extends EsDAO implements IInstanceAlarmUIDAO {
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        boolQueryBuilder.must().add(QueryBuilders.rangeQuery(InstanceAlarmTable.COLUMN_LAST_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
+        boolQueryBuilder.must().add(QueryBuilders.rangeQuery(InstanceAlarmTable.LAST_TIME_BUCKET.getName()).gte(startTimeBucket).lte(endTimeBucket));
         if (StringUtils.isNotEmpty(keyword)) {
-            boolQueryBuilder.must().add(QueryBuilders.matchQuery(InstanceAlarmTable.COLUMN_ALARM_CONTENT, keyword));
+            boolQueryBuilder.must().add(QueryBuilders.matchQuery(InstanceAlarmTable.ALARM_CONTENT.getName(), keyword));
         }
 
         searchRequestBuilder.setQuery(boolQueryBuilder);
@@ -69,15 +69,15 @@ public class InstanceAlarmEsUIDAO extends EsDAO implements IInstanceAlarmUIDAO {
         alarm.setTotal((int)searchResponse.getHits().getTotalHits());
         for (SearchHit searchHit : searchHits) {
             AlarmItem alarmItem = new AlarmItem();
-            alarmItem.setId(((Number)searchHit.getSource().get(InstanceAlarmTable.COLUMN_INSTANCE_ID)).intValue());
-            alarmItem.setTitle((String)searchHit.getSource().get(InstanceAlarmTable.COLUMN_ALARM_CONTENT));
-            alarmItem.setContent((String)searchHit.getSource().get(InstanceAlarmTable.COLUMN_ALARM_CONTENT));
+            alarmItem.setId(((Number)searchHit.getSource().get(InstanceAlarmTable.INSTANCE_ID.getName())).intValue());
+            alarmItem.setTitle((String)searchHit.getSource().get(InstanceAlarmTable.ALARM_CONTENT.getName()));
+            alarmItem.setContent((String)searchHit.getSource().get(InstanceAlarmTable.ALARM_CONTENT.getName()));
 
-            long lastTimeBucket = ((Number)searchHit.getSource().get(InstanceAlarmTable.COLUMN_LAST_TIME_BUCKET)).longValue();
+            long lastTimeBucket = ((Number)searchHit.getSource().get(InstanceAlarmTable.LAST_TIME_BUCKET.getName())).longValue();
             alarmItem.setStartTime(TimeBucketUtils.INSTANCE.formatMinuteTimeBucket(lastTimeBucket));
             alarmItem.setAlarmType(AlarmType.SERVER);
 
-            int alarmType = ((Number)searchHit.getSource().get(InstanceAlarmTable.COLUMN_ALARM_TYPE)).intValue();
+            int alarmType = ((Number)searchHit.getSource().get(InstanceAlarmTable.ALARM_TYPE.getName())).intValue();
             if (org.apache.skywalking.apm.collector.storage.table.alarm.AlarmType.SLOW_RTT.getValue() == alarmType) {
                 alarmItem.setCauseType(CauseType.SLOW_RESPONSE);
             } else if (org.apache.skywalking.apm.collector.storage.table.alarm.AlarmType.ERROR_RATE.getValue() == alarmType) {

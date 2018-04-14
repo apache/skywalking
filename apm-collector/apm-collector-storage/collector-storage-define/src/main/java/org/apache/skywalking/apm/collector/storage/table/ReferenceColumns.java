@@ -16,16 +16,23 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.dao.ui;
+package org.apache.skywalking.apm.collector.storage.table;
 
-import com.google.gson.JsonObject;
-import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
+import org.apache.skywalking.apm.collector.core.data.ColumnName;
 
 /**
  * @author peng-yongsheng
  */
-public interface IMemoryPoolMetricUIDAO extends DAO {
-    JsonObject getMetric(int instanceId, long timeBucket, int poolType);
+public interface ReferenceColumns {
+    ColumnName FRONT_APPLICATION_ID = new ColumnName("front_application_id", "fai");
 
-    JsonObject getMetric(int instanceId, long startTimeBucket, long endTimeBucket, int poolType);
+    ColumnName BEHIND_APPLICATION_ID = new ColumnName("behind_application_id", "bai");
+
+    ColumnName FRONT_INSTANCE_ID = new ColumnName("front_instance_id", "fii");
+
+    ColumnName BEHIND_INSTANCE_ID = new ColumnName("behind_instance_id", "bii");
+
+    ColumnName FRONT_SERVICE_ID = new ColumnName("front_service_id", "fsi");
+
+    ColumnName BEHIND_SERVICE_ID = new ColumnName("behind_service_id", "bsi");
 }

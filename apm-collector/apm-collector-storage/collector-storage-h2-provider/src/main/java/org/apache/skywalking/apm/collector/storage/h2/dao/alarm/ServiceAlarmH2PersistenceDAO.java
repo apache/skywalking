@@ -44,34 +44,34 @@ public class ServiceAlarmH2PersistenceDAO extends AbstractPersistenceH2DAO<Servi
 
     @Override protected ServiceAlarm h2DataToStreamData(ResultSet resultSet) throws SQLException {
         ServiceAlarm serviceAlarm = new ServiceAlarm();
-        serviceAlarm.setId(resultSet.getString(ServiceAlarmTable.COLUMN_ID));
-        serviceAlarm.setSourceValue(resultSet.getInt(ServiceAlarmTable.COLUMN_SOURCE_VALUE));
+        serviceAlarm.setId(resultSet.getString(ServiceAlarmTable.ID.getName()));
+        serviceAlarm.setSourceValue(resultSet.getInt(ServiceAlarmTable.SOURCE_VALUE.getName()));
 
-        serviceAlarm.setAlarmType(resultSet.getInt(ServiceAlarmTable.COLUMN_ALARM_TYPE));
+        serviceAlarm.setAlarmType(resultSet.getInt(ServiceAlarmTable.ALARM_TYPE.getName()));
 
-        serviceAlarm.setApplicationId(resultSet.getInt(ServiceAlarmTable.COLUMN_APPLICATION_ID));
-        serviceAlarm.setInstanceId(resultSet.getInt(ServiceAlarmTable.COLUMN_INSTANCE_ID));
-        serviceAlarm.setServiceId(resultSet.getInt(ServiceAlarmTable.COLUMN_SERVICE_ID));
+        serviceAlarm.setApplicationId(resultSet.getInt(ServiceAlarmTable.APPLICATION_ID.getName()));
+        serviceAlarm.setInstanceId(resultSet.getInt(ServiceAlarmTable.INSTANCE_ID.getName()));
+        serviceAlarm.setServiceId(resultSet.getInt(ServiceAlarmTable.SERVICE_ID.getName()));
 
-        serviceAlarm.setLastTimeBucket(resultSet.getLong(ServiceAlarmTable.COLUMN_LAST_TIME_BUCKET));
-        serviceAlarm.setAlarmContent(resultSet.getString(ServiceAlarmTable.COLUMN_ALARM_CONTENT));
+        serviceAlarm.setLastTimeBucket(resultSet.getLong(ServiceAlarmTable.LAST_TIME_BUCKET.getName()));
+        serviceAlarm.setAlarmContent(resultSet.getString(ServiceAlarmTable.ALARM_CONTENT.getName()));
 
         return serviceAlarm;
     }
 
     @Override protected Map<String, Object> streamDataToH2Data(ServiceAlarm streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(ServiceAlarmTable.COLUMN_SOURCE_VALUE, streamData.getSourceValue());
+        Map<String, Object> target = new HashMap<>();
+        target.put(ServiceAlarmTable.SOURCE_VALUE.getName(), streamData.getSourceValue());
 
-        source.put(ServiceAlarmTable.COLUMN_ALARM_TYPE, streamData.getAlarmType());
+        target.put(ServiceAlarmTable.ALARM_TYPE.getName(), streamData.getAlarmType());
 
-        source.put(ServiceAlarmTable.COLUMN_APPLICATION_ID, streamData.getApplicationId());
-        source.put(ServiceAlarmTable.COLUMN_INSTANCE_ID, streamData.getInstanceId());
-        source.put(ServiceAlarmTable.COLUMN_SERVICE_ID, streamData.getServiceId());
+        target.put(ServiceAlarmTable.APPLICATION_ID.getName(), streamData.getApplicationId());
+        target.put(ServiceAlarmTable.INSTANCE_ID.getName(), streamData.getInstanceId());
+        target.put(ServiceAlarmTable.SERVICE_ID.getName(), streamData.getServiceId());
 
-        source.put(ServiceAlarmTable.COLUMN_LAST_TIME_BUCKET, streamData.getLastTimeBucket());
-        source.put(ServiceAlarmTable.COLUMN_ALARM_CONTENT, streamData.getAlarmContent());
+        target.put(ServiceAlarmTable.LAST_TIME_BUCKET.getName(), streamData.getLastTimeBucket());
+        target.put(ServiceAlarmTable.ALARM_CONTENT.getName(), streamData.getAlarmContent());
 
-        return source;
+        return target;
     }
 }

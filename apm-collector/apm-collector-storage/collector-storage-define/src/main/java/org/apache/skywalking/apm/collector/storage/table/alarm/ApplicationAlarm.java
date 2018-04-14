@@ -31,20 +31,20 @@ import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterServ
 public class ApplicationAlarm extends StreamData implements Alarm {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(ApplicationAlarmTable.COLUMN_ID, new NonMergeOperation()),
-        new Column(ApplicationAlarmTable.COLUMN_ALARM_CONTENT, new CoverMergeOperation()),
+        new Column(ApplicationAlarmTable.ID, new NonMergeOperation()),
+        new Column(ApplicationAlarmTable.ALARM_CONTENT, new CoverMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(ApplicationAlarmTable.COLUMN_LAST_TIME_BUCKET, new CoverMergeOperation()),
+        new Column(ApplicationAlarmTable.LAST_TIME_BUCKET, new CoverMergeOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {};
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(ApplicationAlarmTable.COLUMN_ALARM_TYPE, new NonMergeOperation()),
-        new Column(ApplicationAlarmTable.COLUMN_SOURCE_VALUE, new NonMergeOperation()),
-        new Column(ApplicationAlarmTable.COLUMN_APPLICATION_ID, new NonMergeOperation()),
+        new Column(ApplicationAlarmTable.ALARM_TYPE, new NonMergeOperation()),
+        new Column(ApplicationAlarmTable.SOURCE_VALUE, new NonMergeOperation()),
+        new Column(ApplicationAlarmTable.APPLICATION_ID, new NonMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};

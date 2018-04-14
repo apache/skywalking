@@ -47,11 +47,11 @@ public class InstanceH2CacheDAO extends H2DAO implements IInstanceCacheDAO {
     @Override public int getApplicationId(int instanceId) {
         logger.info("get the application id by instance id = {}", instanceId);
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_APPLICATION_ID_SQL, InstanceTable.COLUMN_APPLICATION_ID, InstanceTable.TABLE, InstanceTable.COLUMN_INSTANCE_ID);
+        String sql = SqlBuilder.buildSql(GET_APPLICATION_ID_SQL, InstanceTable.APPLICATION_ID.getName(), InstanceTable.TABLE, InstanceTable.INSTANCE_ID.getName());
         Object[] params = new Object[] {instanceId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
-                return rs.getInt(InstanceTable.COLUMN_APPLICATION_ID);
+                return rs.getInt(InstanceTable.APPLICATION_ID.getName());
             }
         } catch (SQLException | H2ClientException e) {
             logger.error(e.getMessage(), e);
@@ -62,12 +62,12 @@ public class InstanceH2CacheDAO extends H2DAO implements IInstanceCacheDAO {
     @Override public int getInstanceIdByAgentUUID(int applicationId, String agentUUID) {
         logger.info("get the instance id by application id = {}, agentUUID = {}", applicationId, agentUUID);
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_INSTANCE_ID_SQL, InstanceTable.COLUMN_INSTANCE_ID, InstanceTable.TABLE, InstanceTable.COLUMN_APPLICATION_ID,
-            InstanceTable.COLUMN_AGENT_UUID, InstanceTable.COLUMN_IS_ADDRESS);
+        String sql = SqlBuilder.buildSql(GET_INSTANCE_ID_SQL, InstanceTable.INSTANCE_ID.getName(), InstanceTable.TABLE, InstanceTable.APPLICATION_ID.getName(),
+            InstanceTable.AGENT_UUID.getName(), InstanceTable.IS_ADDRESS.getName());
         Object[] params = new Object[] {applicationId, agentUUID, BooleanUtils.FALSE};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
-                return rs.getInt(InstanceTable.COLUMN_INSTANCE_ID);
+                return rs.getInt(InstanceTable.INSTANCE_ID.getName());
             }
         } catch (SQLException | H2ClientException e) {
             logger.error(e.getMessage(), e);
@@ -78,12 +78,12 @@ public class InstanceH2CacheDAO extends H2DAO implements IInstanceCacheDAO {
     @Override public int getInstanceIdByAddressId(int applicationId, int addressId) {
         logger.info("get the instance id by application id = {}, address id = {}", applicationId, addressId);
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_INSTANCE_ID_SQL, InstanceTable.COLUMN_INSTANCE_ID, InstanceTable.TABLE, InstanceTable.COLUMN_APPLICATION_ID,
-            InstanceTable.COLUMN_ADDRESS_ID, InstanceTable.COLUMN_IS_ADDRESS);
+        String sql = SqlBuilder.buildSql(GET_INSTANCE_ID_SQL, InstanceTable.INSTANCE_ID.getName(), InstanceTable.TABLE, InstanceTable.APPLICATION_ID.getName(),
+            InstanceTable.ADDRESS_ID.getName(), InstanceTable.IS_ADDRESS.getName());
         Object[] params = new Object[] {applicationId, addressId, BooleanUtils.TRUE};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
-                return rs.getInt(InstanceTable.COLUMN_INSTANCE_ID);
+                return rs.getInt(InstanceTable.INSTANCE_ID.getName());
             }
         } catch (SQLException | H2ClientException e) {
             logger.error(e.getMessage(), e);

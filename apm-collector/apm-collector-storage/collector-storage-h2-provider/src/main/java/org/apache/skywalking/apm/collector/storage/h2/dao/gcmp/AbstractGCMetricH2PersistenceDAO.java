@@ -32,37 +32,37 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetricTable;
  */
 public abstract class AbstractGCMetricH2PersistenceDAO extends AbstractPersistenceH2DAO<GCMetric> {
 
-    public AbstractGCMetricH2PersistenceDAO(H2Client client) {
+    AbstractGCMetricH2PersistenceDAO(H2Client client) {
         super(client);
     }
 
     @Override protected final GCMetric h2DataToStreamData(ResultSet resultSet) throws SQLException {
         GCMetric gcMetric = new GCMetric();
-        gcMetric.setId(resultSet.getString(GCMetricTable.COLUMN_ID));
-        gcMetric.setMetricId(resultSet.getString(GCMetricTable.COLUMN_METRIC_ID));
+        gcMetric.setId(resultSet.getString(GCMetricTable.ID.getName()));
+        gcMetric.setMetricId(resultSet.getString(GCMetricTable.METRIC_ID.getName()));
 
-        gcMetric.setInstanceId(resultSet.getInt(GCMetricTable.COLUMN_INSTANCE_ID));
-        gcMetric.setPhrase(resultSet.getInt(GCMetricTable.COLUMN_PHRASE));
+        gcMetric.setInstanceId(resultSet.getInt(GCMetricTable.INSTANCE_ID.getName()));
+        gcMetric.setPhrase(resultSet.getInt(GCMetricTable.PHRASE.getName()));
 
-        gcMetric.setCount(resultSet.getLong(GCMetricTable.COLUMN_COUNT));
-        gcMetric.setTimes(resultSet.getLong(GCMetricTable.COLUMN_TIMES));
+        gcMetric.setCount(resultSet.getLong(GCMetricTable.COUNT.getName()));
+        gcMetric.setTimes(resultSet.getLong(GCMetricTable.TIMES.getName()));
 
-        gcMetric.setTimeBucket(resultSet.getLong(GCMetricTable.COLUMN_TIME_BUCKET));
+        gcMetric.setTimeBucket(resultSet.getLong(GCMetricTable.TIME_BUCKET.getName()));
 
         return gcMetric;
     }
 
     @Override protected final Map<String, Object> streamDataToH2Data(GCMetric streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(GCMetricTable.COLUMN_ID, streamData.getId());
-        source.put(GCMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(GCMetricTable.ID.getName(), streamData.getId());
+        target.put(GCMetricTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(GCMetricTable.COLUMN_INSTANCE_ID, streamData.getInstanceId());
-        source.put(GCMetricTable.COLUMN_PHRASE, streamData.getPhrase());
-        source.put(GCMetricTable.COLUMN_COUNT, streamData.getCount());
-        source.put(GCMetricTable.COLUMN_TIMES, streamData.getTimes());
-        source.put(GCMetricTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
+        target.put(GCMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId());
+        target.put(GCMetricTable.PHRASE.getName(), streamData.getPhrase());
+        target.put(GCMetricTable.COUNT.getName(), streamData.getCount());
+        target.put(GCMetricTable.TIMES.getName(), streamData.getTimes());
+        target.put(GCMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
 
-        return source;
+        return target;
     }
 }
