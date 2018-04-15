@@ -35,7 +35,7 @@ export default {
           queryBasicTraces: {
             'traces|10': [{
               key: '@id',
-              operationName: '@url',
+              operationName: '@url(200)',
               duration: '@natural(100, 1000)',
               start: new Date().getTime(),
               'isError|1': true,

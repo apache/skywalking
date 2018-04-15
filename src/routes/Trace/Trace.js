@@ -19,7 +19,7 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Row, Col, Form, Input, Select, Button, Card, InputNumber } from 'antd';
-import TraceTable from '../../components/TraceTable';
+import TraceList from '../../components/Trace/TraceList';
 import { Panel } from '../../components/Page';
 import styles from './Trace.less';
 
@@ -192,12 +192,9 @@ export default class Trace extends PureComponent {
             globalVariables={this.props.globalVariables}
             onChange={this.handleChange}
           >
-            <TraceTable
+            <TraceList
               loading={loading}
               data={queryBasicTraces.traces}
-              pagination={{ ...values.paging, total: queryBasicTraces.total }}
-              onChange={this.handleTableChange}
-              onExpand={this.handleTableExpand}
             />
           </Panel>
         </div>
