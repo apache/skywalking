@@ -17,25 +17,39 @@
 
 package org.apache.skywalking.apm.collector.ui.service;
 
+import org.apache.skywalking.apm.collector.core.module.MockModule;
+import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
  * @author lican
  */
 public class TimeSynchronousServiceTest {
 
+    private TimeSynchronousService timeSynchronousService;
+
     @Before
     public void setUp() throws Exception {
+        ModuleManager moduleManager = mock(ModuleManager.class);
+        when(moduleManager.find(anyString())).then(invocation -> new MockModule());
+        timeSynchronousService = new TimeSynchronousService(moduleManager);
     }
 
     @Test
     public void allInstanceLastTime() {
+        Long aLong = timeSynchronousService.allInstanceLastTime();
+        Assert.assertEquals((long) aLong, 0L);
     }
 
     @Test
     public void instanceLastTime() {
+        Long aLong = timeSynchronousService.instanceLastTime(-1);
+        Assert.assertEquals((long) aLong, 0L);
     }
 }
