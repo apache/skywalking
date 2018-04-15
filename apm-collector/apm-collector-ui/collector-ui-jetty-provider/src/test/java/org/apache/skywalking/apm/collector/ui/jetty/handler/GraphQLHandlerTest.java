@@ -57,9 +57,9 @@ public class GraphQLHandlerTest {
 
     @Before
     public void setUp() {
-        //test if the construct is well?
+        //test if the constructor is well
         graphQLHandler = new GraphQLHandler(null);
-        //stub
+        //stub graphQL
         graphQL = Mockito.mock(GraphQL.class);
         Whitebox.setInternalState(graphQLHandler, "graphQL", graphQL);
     }
@@ -73,9 +73,7 @@ public class GraphQLHandlerTest {
     public void doGet() throws ArgumentsParseException {
         HttpServletRequest req = mock(HttpServletRequest.class);
         when(req.getParameter(anyString())).then(invocation -> mockParams);
-        when(graphQL.execute((ExecutionInput) anyObject())).then(invocation -> {
-            return new ExecutionResultImpl(stringStringMap, null, Collections.emptyMap());
-        });
+        when(graphQL.execute((ExecutionInput) anyObject())).then(invocation -> new ExecutionResultImpl(stringStringMap, null, Collections.emptyMap()));
         JsonElement jsonElement = graphQLHandler.doGet(req);
         Assert.assertNotNull(((JsonObject) jsonElement).get(DATA));
     }

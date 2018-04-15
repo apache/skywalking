@@ -17,29 +17,49 @@
 
 package org.apache.skywalking.apm.collector.ui.jetty.handler.naming;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import org.apache.skywalking.apm.collector.server.jetty.ArgumentsParseException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import javax.servlet.http.HttpServletRequest;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * @author lican
  */
 public class UIJettyNamingHandlerTest {
 
+    private UIJettyNamingHandler uiJettyNamingHandler;
+
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
+        UIJettyNamingListener uiJettyNamingListener = new UIJettyNamingListener();
+        uiJettyNamingListener.addAddress("127.0.0.1:10800");
+        uiJettyNamingHandler = new UIJettyNamingHandler(uiJettyNamingListener);
     }
 
     @Test
     public void pathSpec() {
+        Assert.assertEquals(uiJettyNamingHandler.pathSpec(), "/ui/jetty");
     }
 
     @Test
-    public void doGet() {
+    public void doGet() throws ArgumentsParseException {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        JsonElement jsonElement = uiJettyNamingHandler.doGet(request);
+        Assert.assertTrue(jsonElement instanceof JsonArray);
+        Assert.assertTrue(((JsonArray) jsonElement).size() > 0);
+
     }
 
-    @Test
-    public void doPost() {
+    @Test(expected = UnsupportedOperationException.class)
+    public void doPost() throws ArgumentsParseException {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        uiJettyNamingHandler.doPost(request);
+
     }
 }

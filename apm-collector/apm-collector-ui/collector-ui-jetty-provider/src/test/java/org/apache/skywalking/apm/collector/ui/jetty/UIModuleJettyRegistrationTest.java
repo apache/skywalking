@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.apm.collector.ui.jetty.handler.naming;
+package org.apache.skywalking.apm.collector.ui.jetty;
 
+import org.apache.skywalking.apm.collector.cluster.ModuleRegistration;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,27 +25,19 @@ import org.junit.Test;
 /**
  * @author lican
  */
-public class UIJettyNamingListenerTest {
+public class UIModuleJettyRegistrationTest {
 
-    private UIJettyNamingListener uiJettyNamingListener;
+    private UIModuleJettyRegistration uiModuleJettyRegistration;
 
     @Before
     public void setUp() throws Exception {
-        uiJettyNamingListener = new UIJettyNamingListener();
+        uiModuleJettyRegistration = new UIModuleJettyRegistration("127.0.0.1", 8080, "/");
     }
 
     @Test
-    public void path() {
-        Assert.assertEquals("/ui/jetty", uiJettyNamingListener.path());
-    }
+    public void buildValue() {
+        ModuleRegistration.Value value = uiModuleJettyRegistration.buildValue();
+        Assert.assertEquals(value.getHostPort(), "127.0.0.1:8080");
 
-    @Test
-    public void serverJoinNotify() {
-        uiJettyNamingListener.serverJoinNotify(null);
-    }
-
-    @Test
-    public void serverQuitNotify() {
-        uiJettyNamingListener.serverQuitNotify(null);
     }
 }

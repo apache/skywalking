@@ -15,52 +15,65 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.apm.collector.ui.service;
+package org.apache.skywalking.apm.collector.ui.jetty;
 
 import org.apache.skywalking.apm.collector.core.module.MockModule;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.storage.dao.ui.INetworkAddressUIDAO;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
  * @author lican
  */
-public class NetworkAddressServiceTest {
-
-    private INetworkAddressUIDAO networkAddressUIDAO;
-    private NetworkAddressService networkAddressService;
+public class UIModuleJettyProviderTest {
+    private UIModuleJettyProvider uiModuleJettyProvider;
 
     @Before
-    public void setUp() throws Exception {
-        ModuleManager moduleManager = mock(ModuleManager.class);
+    public void setUp() {
+        uiModuleJettyProvider = new UIModuleJettyProvider();
+        ModuleManager moduleManager = Mockito.mock(ModuleManager.class);
+        Whitebox.setInternalState(uiModuleJettyProvider, "manager", moduleManager);
         when(moduleManager.find(anyString())).then(invocation -> new MockModule());
-        networkAddressService = new NetworkAddressService(moduleManager);
-        networkAddressUIDAO = mock(INetworkAddressUIDAO.class);
-        Whitebox.setInternalState(networkAddressService, "networkAddressUIDAO", networkAddressUIDAO);
     }
 
     @Test
-    public void getNumOfDatabase() {
-        int numOfDatabase = networkAddressService.getNumOfDatabase();
-        Assert.assertEquals(numOfDatabase, 0);
+    public void name() {
+        Assert.assertEquals(uiModuleJettyProvider.name(), "jetty");
     }
 
     @Test
-    public void getNumOfCache() {
-        int numOfCache = networkAddressService.getNumOfCache();
-        Assert.assertEquals(numOfCache, 0);
+    public void module() {
+        Assert.assertNotNull(uiModuleJettyProvider.module());
     }
 
     @Test
-    public void getNumOfMQ() {
-        int numOfMQ = networkAddressService.getNumOfMQ();
-        Assert.assertEquals(numOfMQ, 0);
+    public void createConfigBeanIfAbsent() {
+        Assert.assertNotNull(uiModuleJettyProvider.createConfigBeanIfAbsent());
+    }
+
+    @Test
+    public void prepare() {
+        uiModuleJettyProvider.prepare();
+    }
+
+    @Test
+    public void start() {
+        uiModuleJettyProvider.start();
+    }
+
+    @Test
+    public void notifyAfterCompleted() {
+        uiModuleJettyProvider.notifyAfterCompleted();
+    }
+
+    @Test
+    public void requiredModules() {
+        Assert.assertTrue(uiModuleJettyProvider.requiredModules().length > 0);
     }
 }
