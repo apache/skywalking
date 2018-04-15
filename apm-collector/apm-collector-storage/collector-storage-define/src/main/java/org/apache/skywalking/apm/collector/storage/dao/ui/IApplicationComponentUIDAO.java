@@ -23,10 +23,20 @@ import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 
 /**
+ * Interface to be implemented for execute database query operation
+ * from {@link org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponentTable#TABLE}.
+ *
  * @author peng-yongsheng
+ * @see org.apache.skywalking.apm.collector.storage.StorageModule
  */
 public interface IApplicationComponentUIDAO extends DAO {
 
+    /**
+     * @param step
+     * @param startTimeBucket start time format pattern is "yyyyMMddHHmm"
+     * @param endTimeBucket start time format pattern is "yyyyMMddHHmm"
+     * @return
+     */
     List<ApplicationComponent> load(Step step, long startTimeBucket, long endTimeBucket);
 
     class ApplicationComponent {

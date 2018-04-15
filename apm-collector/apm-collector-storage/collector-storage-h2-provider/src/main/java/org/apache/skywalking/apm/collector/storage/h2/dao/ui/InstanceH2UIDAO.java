@@ -25,7 +25,6 @@ import java.util.List;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
 import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
 import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
@@ -47,45 +46,8 @@ public class InstanceH2UIDAO extends H2DAO implements IInstanceUIDAO {
         super(client);
     }
 
-    private static final String GET_LAST_HEARTBEAT_TIME_SQL = "select {0} from {1} where {2} > ? limit 1";
-    private static final String GET_INST_LAST_HEARTBEAT_TIME_SQL = "select {0} from {1} where {2} > ? and {3} = ? limit 1";
     private static final String GET_INSTANCE_SQL = "select * from {0} where {1} = ?";
     private static final String GET_APPLICATIONS_SQL = "select {3}, count({0}) as cnt from {1} where {2} >= ? group by {3} limit 100";
-
-    @Override
-    public Long lastHeartBeatTime() {
-        H2Client client = getClient();
-        long fiveMinuteBefore = System.currentTimeMillis() - 5 * 60 * 1000;
-        fiveMinuteBefore = TimeBucketUtils.INSTANCE.getSecondTimeBucket(fiveMinuteBefore);
-        String sql = SqlBuilder.buildSql(GET_LAST_HEARTBEAT_TIME_SQL, InstanceTable.HEARTBEAT_TIME.getName(), InstanceTable.TABLE, InstanceTable.HEARTBEAT_TIME.getName());
-        Object[] params = new Object[] {fiveMinuteBefore};
-        try (ResultSet rs = client.executeQuery(sql, params)) {
-            if (rs.next()) {
-                return rs.getLong(1);
-            }
-        } catch (SQLException | H2ClientException e) {
-            logger.error(e.getMessage(), e);
-        }
-        return 0L;
-    }
-
-    @Override
-    public Long instanceLastHeartBeatTime(long applicationInstanceId) {
-        H2Client client = getClient();
-        long fiveMinuteBefore = System.currentTimeMillis() - 5 * 60 * 1000;
-        fiveMinuteBefore = TimeBucketUtils.INSTANCE.getSecondTimeBucket(fiveMinuteBefore);
-        String sql = SqlBuilder.buildSql(GET_INST_LAST_HEARTBEAT_TIME_SQL, InstanceTable.HEARTBEAT_TIME.getName(), InstanceTable.TABLE,
-            InstanceTable.HEARTBEAT_TIME.getName(), InstanceTable.INSTANCE_ID.getName());
-        Object[] params = new Object[] {fiveMinuteBefore, applicationInstanceId};
-        try (ResultSet rs = client.executeQuery(sql, params)) {
-            if (rs.next()) {
-                return rs.getLong(1);
-            }
-        } catch (SQLException | H2ClientException e) {
-            logger.error(e.getMessage(), e);
-        }
-        return 0L;
-    }
 
     @Override
     public List<Application> getApplications(long startSecondTimeBucket, long endSecondTimeBucket,

@@ -22,8 +22,21 @@ import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
 import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
 
 /**
+ * Interface to be implemented for execute database query operation
+ * from {@link org.apache.skywalking.apm.collector.storage.table.segment.SegmentTable}.
+ *
  * @author peng-yongsheng
+ * @see org.apache.skywalking.apm.collector.storage.table.segment.SegmentTable
+ * @see org.apache.skywalking.apm.collector.storage.StorageModule
  */
 public interface ISegmentUIDAO extends DAO {
+
+    /**
+     * <p>SQL as: select DATA_BINARY from SEGMENT where SEGMENT_ID = ${segmentId},
+     *
+     * @param segmentId argument to bind to the query
+     * @return detail of segment which deserialize into proto buffer object,
+     * {@link TraceSegmentObject#parseFrom(byte[])}
+     */
     TraceSegmentObject load(String segmentId);
 }
