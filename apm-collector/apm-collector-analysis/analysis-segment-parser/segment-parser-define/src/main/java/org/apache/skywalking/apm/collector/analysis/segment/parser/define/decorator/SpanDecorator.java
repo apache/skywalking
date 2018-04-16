@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator;
 
+import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
+import org.apache.skywalking.apm.collector.configuration.service.IComponentLibraryCatalogService;
+import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.network.proto.SpanLayer;
 import org.apache.skywalking.apm.network.proto.SpanObject;
@@ -33,18 +36,21 @@ public class SpanDecorator implements StandardBuilder {
     private SpanObject.Builder spanBuilder;
     private long startTimeMinuteTimeBucket = 0;
     private final ReferenceDecorator[] referenceDecorators;
+    private final IComponentLibraryCatalogService componentLibraryCatalogService;
 
-    public SpanDecorator(SpanObject spanObject, StandardBuilder standardBuilder) {
+    public SpanDecorator(SpanObject spanObject, StandardBuilder standardBuilder, ModuleManager moduleManager) {
         this.spanObject = spanObject;
         this.standardBuilder = standardBuilder;
         this.referenceDecorators = new ReferenceDecorator[spanObject.getRefsCount()];
+        this.componentLibraryCatalogService = moduleManager.find(ConfigurationModule.NAME).getService(IComponentLibraryCatalogService.class);
     }
 
-    public SpanDecorator(SpanObject.Builder spanBuilder, StandardBuilder standardBuilder) {
+    public SpanDecorator(SpanObject.Builder spanBuilder, StandardBuilder standardBuilder, ModuleManager moduleManager) {
         this.spanBuilder = spanBuilder;
         this.standardBuilder = standardBuilder;
         this.isOrigin = false;
         this.referenceDecorators = new ReferenceDecorator[spanBuilder.getRefsCount()];
+        this.componentLibraryCatalogService = moduleManager.find(ConfigurationModule.NAME).getService(IComponentLibraryCatalogService.class);
     }
 
     public int getSpanId() {
@@ -120,11 +126,17 @@ public class SpanDecorator implements StandardBuilder {
     }
 
     public int getComponentId() {
+        int componentId = 0;
         if (isOrigin) {
-            return spanObject.getComponentId();
+            componentId = spanObject.getComponentId();
         } else {
-            return spanBuilder.getComponentId();
+            componentId = spanBuilder.getComponentId();
         }
+
+        if(componentId == 0){
+            componentId = componentLibraryCatalogService.getComponentId(getComponent());
+        }
+        return componentId;
     }
 
     public String getComponent() {
