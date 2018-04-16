@@ -23,6 +23,8 @@ import java.util.List;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
+import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
+import org.apache.skywalking.apm.collector.configuration.service.IComponentLibraryCatalogService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
@@ -31,7 +33,6 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.INetworkAddressUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
-import org.apache.skywalking.apm.collector.storage.table.register.ServerTypeDefine;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
 import org.apache.skywalking.apm.collector.storage.ui.application.Application;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
@@ -57,6 +58,7 @@ public class ApplicationService {
     private final ApplicationCacheService applicationCacheService;
     private final ServiceNameCacheService serviceNameCacheService;
     private final SecondBetweenService secondBetweenService;
+    private final IComponentLibraryCatalogService componentLibraryCatalogService;
 
     public ApplicationService(ModuleManager moduleManager) {
         this.instanceDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceUIDAO.class);
@@ -65,6 +67,7 @@ public class ApplicationService {
         this.networkAddressUIDAO = moduleManager.find(StorageModule.NAME).getService(INetworkAddressUIDAO.class);
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
         this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
+        this.componentLibraryCatalogService = moduleManager.find(ConfigurationModule.NAME).getService(IComponentLibraryCatalogService.class);
         this.secondBetweenService = new SecondBetweenService(moduleManager);
     }
 
@@ -117,7 +120,7 @@ public class ApplicationService {
         long endSecondTimeBucket) throws ParseException {
         List<ConjecturalApp> conjecturalApps = networkAddressUIDAO.getConjecturalApps();
         conjecturalApps.forEach(conjecturalApp -> {
-            String serverType = ServerTypeDefine.getInstance().getServerType(conjecturalApp.getId());
+            String serverType = componentLibraryCatalogService.getServerName(conjecturalApp.getId());
             conjecturalApp.setName(serverType);
         });
 

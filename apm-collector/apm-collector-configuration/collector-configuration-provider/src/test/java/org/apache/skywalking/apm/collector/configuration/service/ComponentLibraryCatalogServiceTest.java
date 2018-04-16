@@ -16,31 +16,21 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.table.register;
+package org.apache.skywalking.apm.collector.configuration.service;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public class ServerType {
-    private int componentId;
-    private int id;
-    private String name;
-
-    public ServerType(int componentId, int id, String name) {
-        this.componentId = componentId;
-        this.id = id;
-        this.name = name;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int getComponentId() {
-        return componentId;
+public class ComponentLibraryCatalogServiceTest {
+    @Test
+    public void testInitAndSettings() {
+        ComponentLibraryCatalogService service = new ComponentLibraryCatalogService();
+        Assert.assertEquals(1, service.getComponentId("Tomcat"));
+        Assert.assertEquals(7, service.getServerIdBasedOnComponent(30));
+        Assert.assertEquals(21, service.getServerIdBasedOnComponent(21));
+        Assert.assertEquals("Jedis", service.getServerName(30));
     }
 }

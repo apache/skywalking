@@ -16,27 +16,13 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.table.register;
-
-import java.lang.reflect.Field;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.network.trace.component.OfficialComponent;
-import org.junit.Test;
+package org.apache.skywalking.apm.collector.configuration.service;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public class ServerTypeDefineTestCase {
-
-    @Test
-    public void check() throws IllegalAccessException {
-        Field[] fields = ComponentsDefine.class.getDeclaredFields();
-
-        for (Field field : fields) {
-            if (field.getType().equals(OfficialComponent.class)) {
-                OfficialComponent component = (OfficialComponent)field.get(ComponentsDefine.getInstance());
-                ServerTypeDefine.getInstance().getServerTypeId(component.getId());
-            }
-        }
+public class InitialComponentCatalogException extends RuntimeException {
+    public InitialComponentCatalogException(String message) {
+        super(message);
     }
 }

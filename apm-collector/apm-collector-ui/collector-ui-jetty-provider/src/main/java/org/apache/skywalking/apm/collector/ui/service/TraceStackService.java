@@ -25,6 +25,8 @@ import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.apache.skywalking.apm.collector.cache.service.NetworkAddressCacheService;
 import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
+import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
+import org.apache.skywalking.apm.collector.configuration.service.IComponentLibraryCatalogService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
@@ -42,7 +44,6 @@ import org.apache.skywalking.apm.collector.storage.ui.trace.Trace;
 import org.apache.skywalking.apm.network.proto.SpanObject;
 import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
 import org.apache.skywalking.apm.network.proto.UniqueId;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
  * @author peng-yongsheng
@@ -54,6 +55,7 @@ public class TraceStackService {
     private final ApplicationCacheService applicationCacheService;
     private final ServiceNameCacheService serviceNameCacheService;
     private final NetworkAddressCacheService networkAddressCacheService;
+    private final IComponentLibraryCatalogService componentLibraryCatalogService;
 
     public TraceStackService(ModuleManager moduleManager) {
         this.globalTraceDAO = moduleManager.find(StorageModule.NAME).getService(IGlobalTraceUIDAO.class);
@@ -61,6 +63,7 @@ public class TraceStackService {
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
         this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
         this.networkAddressCacheService = moduleManager.find(CacheModule.NAME).getService(NetworkAddressCacheService.class);
+        this.componentLibraryCatalogService = moduleManager.find(ConfigurationModule.NAME).getService(IComponentLibraryCatalogService.class);
     }
 
     public Trace load(String traceId) {
@@ -138,7 +141,7 @@ public class TraceStackService {
             if (spanObject.getComponentId() == 0) {
                 span.setComponent(spanObject.getComponent());
             } else {
-                span.setComponent(ComponentsDefine.getInstance().getComponentName(spanObject.getComponentId()));
+                span.setComponent(this.componentLibraryCatalogService.getComponentName(spanObject.getComponentId()));
             }
 
             spanObject.getRefsList().forEach(reference -> {
