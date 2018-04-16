@@ -133,7 +133,7 @@ public class SpanDecorator implements StandardBuilder {
             componentId = spanBuilder.getComponentId();
         }
 
-        if(componentId == 0){
+        if (componentId == 0) {
             componentId = componentLibraryCatalogService.getComponentId(getComponent());
         }
         return componentId;
