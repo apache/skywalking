@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.apm.collector.ui.service;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
@@ -39,10 +37,10 @@ import org.apache.skywalking.apm.collector.storage.ui.trace.Ref;
 import org.apache.skywalking.apm.collector.storage.ui.trace.RefType;
 import org.apache.skywalking.apm.collector.storage.ui.trace.Segment;
 import org.apache.skywalking.apm.collector.storage.ui.trace.SegmentBrief;
+import org.apache.skywalking.apm.collector.storage.ui.trace.SegmentRef;
 import org.apache.skywalking.apm.collector.storage.ui.trace.Span;
 import org.apache.skywalking.apm.collector.storage.ui.trace.Trace;
 import org.apache.skywalking.apm.network.proto.SpanLayer;
-import org.apache.skywalking.apm.network.proto.SpanObject;
 import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
 import org.apache.skywalking.apm.network.proto.UniqueId;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
@@ -83,6 +81,8 @@ public class TraceStackService {
                     SegmentBrief brief = new SegmentBrief();
                     segment.setBrief(brief);
 
+                    DurationAssist durationAssist = new DurationAssist();
+
                     segObj.getSpansList().forEach(spanObject -> {
                         Span span = new Span();
                         span.setTraceId(traceId);
@@ -91,23 +91,33 @@ public class TraceStackService {
                         span.setStartTime(spanObject.getStartTime());
                         span.setEndTime(spanObject.getEndTime());
                         long duration = span.getEndTime() - span.getStartTime();
+                        durationAssist.setStartTime(span.getStartTime());
+                        durationAssist.setEndTime(span.getEndTime());
                         span.setError(spanObject.getIsError());
+                        if(span.getError()){
+                            segment.setError(true);
+                        }
                         SpanLayer layer = spanObject.getSpanLayer();
-                        switch (layer){
+                        switch (layer) {
                             case MQ:
                                 brief.getMq().addOnce(duration);
+                                durationAssist.addExcluded(duration);
                                 break;
                             case Http:
                                 brief.getHttp().addOnce(duration);
+                                durationAssist.addExcluded(duration);
                                 break;
                             case Cache:
                                 brief.getCache().addOnce(duration);
+                                durationAssist.addExcluded(duration);
                                 break;
                             case Database:
                                 brief.getDb().addOnce(duration);
+                                durationAssist.addExcluded(duration);
                                 break;
                             case RPCFramework:
                                 brief.getRpc().addOnce(duration);
+                                durationAssist.addExcluded(duration);
                                 break;
                         }
                         span.setLayer(layer.name());
@@ -140,12 +150,19 @@ public class TraceStackService {
                             Ref ref = new Ref();
                             ref.setTraceId(traceId);
 
+                            SegmentRef segmentRef = new SegmentRef();
+                            segmentRef.setSourceSegment(segmentId);
+                            trace.addRefs(segmentRef);
+
                             switch (reference.getRefType()) {
                                 case CrossThread:
                                     ref.setType(RefType.CROSS_THREAD);
+                                    segmentRef.setCallType("Cross Thread");
                                     break;
                                 case CrossProcess:
                                     ref.setType(RefType.CROSS_PROCESS);
+
+                                    segmentRef.setCallType("");
                                     break;
                             }
                             ref.setParentSpanId(reference.getParentSpanId());
@@ -160,6 +177,7 @@ public class TraceStackService {
                                 }
                             }
                             ref.setParentSegmentId(segmentIdBuilder.toString());
+                            segmentRef.setTargetSegment(ref.getParentSegmentId());
 
                             span.getRefs().add(ref);
                         });
@@ -188,11 +206,39 @@ public class TraceStackService {
                         segment.addSpan(span);
                     });
 
+                    segment.setDuration(durationAssist.getDuration());
+
                     trace.addSegment(segment);
                 }
             }
         }
 
         return trace;
+    }
+
+    private class DurationAssist {
+        private long startTime = 0;
+        private long endTime = 0;
+        private long excluded = 0;
+
+        private void setStartTime(long startTime) {
+            if (startTime < this.startTime) {
+                this.startTime = startTime;
+            }
+        }
+
+        private void setEndTime(long endTime) {
+            if (endTime > this.endTime) {
+                this.endTime = endTime;
+            }
+        }
+
+        private void addExcluded(long excluded) {
+            this.excluded += excluded;
+        }
+
+        private long getDuration() {
+            return this.endTime - this.startTime - this.excluded;
+        }
     }
 }

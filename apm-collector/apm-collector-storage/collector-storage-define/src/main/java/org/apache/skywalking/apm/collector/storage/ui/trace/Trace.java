@@ -27,9 +27,11 @@ import java.util.List;
 public class Trace {
 
     private List<Segment> segments;
+    private List<SegmentRef> refs;
 
     public Trace() {
         this.segments = new LinkedList<>();
+        this.refs = new LinkedList<>();
     }
 
     public List<Segment> getSegments() {
@@ -42,5 +44,9 @@ public class Trace {
 
     public void addSegment(Segment segment){
         this.segments.add(segment);
+    }
+
+    public void addRefs(SegmentRef ref){
+        this.refs.add(ref);
     }
 }
