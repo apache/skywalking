@@ -22,10 +22,12 @@ import org.apache.skywalking.apm.collector.configuration.service.ApdexThresholdS
 import org.apache.skywalking.apm.collector.configuration.service.ApplicationAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.configuration.service.ApplicationReferenceAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.configuration.service.CollectorConfigService;
+import org.apache.skywalking.apm.collector.configuration.service.ComponentLibraryCatalogService;
 import org.apache.skywalking.apm.collector.configuration.service.IApdexThresholdService;
 import org.apache.skywalking.apm.collector.configuration.service.IApplicationAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.configuration.service.IApplicationReferenceAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.configuration.service.ICollectorConfig;
+import org.apache.skywalking.apm.collector.configuration.service.IComponentLibraryCatalogService;
 import org.apache.skywalking.apm.collector.configuration.service.IInstanceAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.configuration.service.IInstanceReferenceAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.configuration.service.IServiceAlarmRuleConfig;
@@ -76,6 +78,7 @@ public class ConfigurationModuleProvider extends ModuleProvider {
         Integer applicationAverageResponseTimeThreshold = config.getApplicationAverageResponseTimeThreshold() == 0 ? 2000 : config.getApplicationAverageResponseTimeThreshold();
 
         this.registerServiceImplementation(ICollectorConfig.class, new CollectorConfigService(namespace));
+        this.registerServiceImplementation(IComponentLibraryCatalogService.class, new ComponentLibraryCatalogService());
         this.registerServiceImplementation(IApdexThresholdService.class, new ApdexThresholdService(applicationApdexThreshold));
         this.registerServiceImplementation(IServiceAlarmRuleConfig.class, new ServiceAlarmRuleConfig(serviceErrorRateThreshold, serviceAverageResponseTimeThreshold));
         this.registerServiceImplementation(IInstanceAlarmRuleConfig.class, new InstanceAlarmRuleConfig(instanceErrorRateThreshold, instanceAverageResponseTimeThreshold));
