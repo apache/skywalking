@@ -26,6 +26,7 @@ import java.util.List;
  */
 public class Segment {
     private String segmentId;
+    private String applicationCode;
     private String name;
     private SegmentBrief brief;
     private List<Span> spans;
@@ -43,6 +44,14 @@ public class Segment {
 
     public void setSpans(List<Span> spans) {
         this.spans = spans;
+    }
+
+    public String getApplicationCode() {
+        return applicationCode;
+    }
+
+    public void setApplicationCode(String applicationCode) {
+        this.applicationCode = applicationCode;
     }
 
     public String getSegmentId() {
@@ -83,5 +92,9 @@ public class Segment {
 
     public void setDuration(long duration) {
         this.duration = duration;
+    }
+
+    public void addSpan(Span span){
+        this.spans.add(span);
     }
 }

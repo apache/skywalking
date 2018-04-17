@@ -60,6 +60,7 @@ type Trace {
 
 type Segment {
   segmentId: ID!
+  applicationCode: ID!
   name: String!
   brief: SegmentBrief!
   spans: [Span!]!
@@ -90,11 +91,9 @@ type SegmentRef {
 
 type Span {
   traceId: ID!
-  segmentId: ID!
   spanId: Int!
   parentSpanId: Int!
   refs: [Ref!]!
-  applicationCode: String!
   startTime: Long!
   endTime: Long!
   operationName: String

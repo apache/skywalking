@@ -32,4 +32,15 @@ public class Trace {
         this.segments = new LinkedList<>();
     }
 
+    public List<Segment> getSegments() {
+        return segments;
+    }
+
+    public void setSegments(List<Segment> segments) {
+        this.segments = segments;
+    }
+
+    public void addSegment(Segment segment){
+        this.segments.add(segment);
+    }
 }

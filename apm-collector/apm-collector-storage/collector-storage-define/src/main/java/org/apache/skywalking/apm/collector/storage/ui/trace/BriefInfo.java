@@ -25,6 +25,15 @@ public class BriefInfo {
     private int count;
     private long duration;
 
+    public BriefInfo() {
+        this.count = 0;
+        this.duration = 0;
+    }
+
+    public void addOnce(long duration) {
+        this.duration += duration;
+    }
+
     public int getCount() {
         return count;
     }
