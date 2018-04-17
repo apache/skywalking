@@ -38,7 +38,7 @@ const dataQuery = `
         start
         isError
         traceIds
-  }
+      }
       total
     }
   }
@@ -86,11 +86,7 @@ export default generateModal({
   state: {
     queryBasicTraces: {
       traces: [],
-      pagination: {
-        current: 1,
-        pageSize: 10,
-        total: 0,
-      },
+      total: 0,
     },
   },
   optionsQuery,

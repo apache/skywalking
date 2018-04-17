@@ -40,11 +40,11 @@ class TraceList extends PureComponent {
         </div>
       </div>);
   }
-  renderDescription = (startTime, traceIds) => {
+  renderDescription = (start, traceIds) => {
     return (
       <div>
-        {traceIds.map((id) => { return <Tag>{id}</Tag>; })}
-        <span className={styles.startTime}>{moment(startTime).format('YYYY-MM-DD HH:mm:ss.SSS')}</span>
+        {traceIds.map((id) => { return <Tag key={id}>{id}</Tag>; })}
+        <span className={styles.startTime}>{moment(parseInt(start, 10)).format('YYYY-MM-DD HH:mm:ss.SSS')}</span>
       </div>
     );
   }
@@ -72,7 +72,7 @@ class TraceList extends PureComponent {
               />}
               title={this.renderOperationName(item.operationName, item.duration,
                 item.isError, maxDuration)}
-              description={this.renderDescription(item.startTime, item.traceIds)}
+              description={this.renderDescription(item.start, item.traceIds)}
             />
           </List.Item>
         )}

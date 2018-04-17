@@ -29,19 +29,24 @@ export default {
     ));
   },
   getTrace(req, res) {
+    let offset = 0;
     res.json(mockjs.mock(
       {
         data: {
           queryBasicTraces: {
-            'traces|10': [{
+            'traces|20': [{
               key: '@id',
               operationName: '@url(200)',
-              duration: '@natural(100, 1000)',
-              start: new Date().getTime(),
+              duration: '@natural(100, 5000)',
+              start: function() { // eslint-disable-line
+                offset = offset + 3600000; // eslint-disable-line
+                const now = new Date().getTime(); // eslint-disable-line
+                return `${now + offset}`;
+              },// eslint-disable-line
               'isError|1': true,
               'traceIds|1-3': ['@guid'],
             }],
-            total: '@natural(5, 50)',
+            total: '@natural(20, 1000)',
           },
         },
       }
