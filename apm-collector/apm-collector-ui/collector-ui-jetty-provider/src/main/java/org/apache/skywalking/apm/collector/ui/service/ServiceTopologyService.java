@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
+import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
+import org.apache.skywalking.apm.collector.configuration.service.IComponentLibraryCatalogService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
@@ -40,7 +42,6 @@ import org.apache.skywalking.apm.collector.storage.ui.common.Node;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.ui.common.Topology;
 import org.apache.skywalking.apm.collector.storage.ui.common.VisualUserNode;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +57,7 @@ public class ServiceTopologyService {
     private final IServiceReferenceMetricUIDAO serviceReferenceMetricUIDAO;
     private final ServiceNameCacheService serviceNameCacheService;
     private final SecondBetweenService secondBetweenService;
+    private final IComponentLibraryCatalogService componentLibraryCatalogService;
 
     public ServiceTopologyService(ModuleManager moduleManager) {
         this.serviceMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IServiceMetricUIDAO.class);
@@ -63,6 +65,7 @@ public class ServiceTopologyService {
         this.applicationComponentUIDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationComponentUIDAO.class);
         this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
         this.secondBetweenService = new SecondBetweenService(moduleManager);
+        this.componentLibraryCatalogService = moduleManager.find(ConfigurationModule.NAME).getService(IComponentLibraryCatalogService.class);
     }
 
     public Topology getServiceTopology(Step step, int serviceId, long startTimeBucket,
@@ -71,7 +74,7 @@ public class ServiceTopologyService {
         List<IApplicationComponentUIDAO.ApplicationComponent> applicationComponents = applicationComponentUIDAO.load(step, startTimeBucket, endTimeBucket);
 
         Map<Integer, String> components = new HashMap<>();
-        applicationComponents.forEach(component -> components.put(component.getApplicationId(), ComponentsDefine.getInstance().getComponentName(component.getComponentId())));
+        applicationComponents.forEach(component -> components.put(component.getApplicationId(), this.componentLibraryCatalogService.getComponentName(component.getComponentId())));
 
         List<IServiceReferenceMetricUIDAO.ServiceReferenceMetric> referenceMetrics = serviceReferenceMetricUIDAO.getFrontServices(step, startTimeBucket, endTimeBucket, MetricSource.Callee, serviceId);
         referenceMetrics.addAll(serviceReferenceMetricUIDAO.getBehindServices(step, startTimeBucket, endTimeBucket, MetricSource.Caller, serviceId));
