@@ -44,6 +44,7 @@ public class CollectorBootStartUp {
             manager.init(applicationConfiguration);
         } catch (ConfigFileNotFoundException | ModuleNotFoundException | ProviderNotFoundException | ServiceNotProvidedException | ModuleConfigException e) {
             logger.error(e.getMessage(), e);
+            System.exit(1);
         }
     }
 }
