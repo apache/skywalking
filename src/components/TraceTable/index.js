@@ -80,7 +80,7 @@ class TraceTable extends PureComponent {
       {
         title: 'StartTime',
         render: (text, record) => {
-          return moment(record.startTime).format('YYYY-MM-DD HH:mm:ss.SSS');
+          return moment(parseInt(record.start, 10)).format('YYYY-MM-DD HH:mm:ss.SSS');
         },
       },
       {

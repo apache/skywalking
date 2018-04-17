@@ -33,8 +33,11 @@ const getIcon = (icon) => {
   if (typeof icon === 'string' && icon.indexOf('http') === 0) {
     return <img src={icon} alt="icon" className={styles.icon} />;
   }
+  if (typeof icon === 'string' && icon.indexOf('/img') === 0) {
+    return <img src={icon} alt="icon" className={styles.icon} />;
+  }
   if (typeof icon === 'string') {
-    return (icon.indexOf('iconfont') > -1) ? <i className={icon} /> : <Icon type={icon} />;
+    return <Icon type={icon} />;
   }
   return icon;
 };

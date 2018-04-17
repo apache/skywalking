@@ -36,7 +36,7 @@ const dataQuery = `
     }
     getServerThroughput(applicationId: $applicationId, duration: $duration, topN: 10) {
       key: id
-      name
+      osName
       callsPerSec
     }
     getApplicationTopology(applicationId: $applicationId, duration: $duration) {
