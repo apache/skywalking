@@ -18,18 +18,26 @@
 
 package org.apache.skywalking.apm.collector.storage.ui.trace;
 
-import java.util.LinkedList;
-import java.util.List;
-
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public class Trace {
+public class BriefInfo {
+    private int count;
+    private long duration;
 
-    private List<Segment> segments;
-
-    public Trace() {
-        this.segments = new LinkedList<>();
+    public int getCount() {
+        return count;
     }
 
+    public void setCount(int count) {
+        this.count = count;
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
 }
