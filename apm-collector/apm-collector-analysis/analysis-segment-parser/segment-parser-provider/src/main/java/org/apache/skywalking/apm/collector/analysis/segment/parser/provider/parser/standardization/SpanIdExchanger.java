@@ -58,6 +58,19 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
 
     @GraphComputingMetric(name = "/segment/parse/exchange/spanIdExchanger")
     @Override public boolean exchange(SpanDecorator standardBuilder, int applicationId) {
+        if (standardBuilder.getComponentId() == 0 && StringUtils.isNotEmpty(standardBuilder.getComponent())) {
+            int componentId = componentLibraryCatalogService.getComponentId(standardBuilder.getComponent());
+
+            if (componentId == 0) {
+                logger.debug("component: {} in application: {} exchange failed", standardBuilder.getComponent(), applicationId);
+                return false;
+            } else {
+                standardBuilder.toBuilder();
+                standardBuilder.setComponentId(componentId);
+                standardBuilder.setComponent(Const.EMPTY_STRING);
+            }
+        }
+
         if (standardBuilder.getPeerId() == 0 && StringUtils.isNotEmpty(standardBuilder.getPeer())) {
             int peerId = networkAddressIDService.getOrCreate(standardBuilder.getPeer());
 
