@@ -97,7 +97,7 @@ public class TraceStackService {
                         durationAssist.setStartTime(span.getStartTime());
                         durationAssist.setEndTime(span.getEndTime());
                         span.setError(spanObject.getIsError());
-                        if(span.getError()){
+                        if (span.getError()) {
                             segment.setError(true);
                         }
                         SpanLayer layer = spanObject.getSpanLayer();

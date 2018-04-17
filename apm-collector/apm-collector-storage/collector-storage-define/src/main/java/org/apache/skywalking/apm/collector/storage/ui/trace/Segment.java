@@ -94,11 +94,11 @@ public class Segment {
         this.duration = duration;
     }
 
-    public void excludeDuration(long duration){
+    public void excludeDuration(long duration) {
         this.duration -= duration;
     }
 
-    public void addSpan(Span span){
+    public void addSpan(Span span) {
         this.spans.add(span);
     }
 }

@@ -42,11 +42,11 @@ public class Trace {
         this.segments = segments;
     }
 
-    public void addSegment(Segment segment){
+    public void addSegment(Segment segment) {
         this.segments.add(segment);
     }
 
-    public void addRefs(SegmentRef ref){
+    public void addRefs(SegmentRef ref) {
         this.refs.add(ref);
     }
 }
