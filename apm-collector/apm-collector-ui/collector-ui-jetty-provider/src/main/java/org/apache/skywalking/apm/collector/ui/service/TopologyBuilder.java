@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
+import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
+import org.apache.skywalking.apm.collector.configuration.service.IComponentLibraryCatalogService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
@@ -45,7 +47,6 @@ import org.apache.skywalking.apm.collector.storage.ui.common.Topology;
 import org.apache.skywalking.apm.collector.storage.ui.common.VisualUserNode;
 import org.apache.skywalking.apm.collector.ui.utils.ApdexCalculator;
 import org.apache.skywalking.apm.collector.ui.utils.SLACalculator;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,12 +61,14 @@ class TopologyBuilder {
     private final ServerService serverService;
     private final SecondBetweenService secondBetweenService;
     private final AlarmService alarmService;
+    private final IComponentLibraryCatalogService componentLibraryCatalogService;
 
     TopologyBuilder(ModuleManager moduleManager) {
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
         this.serverService = new ServerService(moduleManager);
         this.secondBetweenService = new SecondBetweenService(moduleManager);
         this.alarmService = new AlarmService(moduleManager);
+        this.componentLibraryCatalogService = moduleManager.find(ConfigurationModule.NAME).getService(IComponentLibraryCatalogService.class);
     }
 
     Topology build(List<IApplicationComponentUIDAO.ApplicationComponent> applicationComponents,
@@ -256,7 +259,7 @@ class TopologyBuilder {
         List<IApplicationComponentUIDAO.ApplicationComponent> applicationComponents) {
         Map<Integer, String> components = new HashMap<>();
         applicationComponents.forEach(applicationComponent -> {
-            String componentName = ComponentsDefine.getInstance().getComponentName(applicationComponent.getComponentId());
+            String componentName = this.componentLibraryCatalogService.getComponentName(applicationComponent.getComponentId());
             components.put(applicationComponent.getApplicationId(), componentName);
         });
         return components;
