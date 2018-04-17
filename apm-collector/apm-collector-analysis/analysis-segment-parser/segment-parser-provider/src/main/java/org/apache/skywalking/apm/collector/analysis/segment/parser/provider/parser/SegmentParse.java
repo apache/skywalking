@@ -125,7 +125,7 @@ public class SegmentParse {
 
         int entrySpanCount = 0;
         for (int i = 0; i < segmentDecorator.getSpansCount(); i++) {
-            SpanDecorator spanDecorator = segmentDecorator.getSpans(i, moduleManager);
+            SpanDecorator spanDecorator = segmentDecorator.getSpans(i);
 
             if (!SpanIdExchanger.getInstance(moduleManager).exchange(spanDecorator, applicationId)) {
                 return false;
@@ -148,7 +148,7 @@ public class SegmentParse {
         }
 
         for (int i = 0; i < segmentDecorator.getSpansCount(); i++) {
-            SpanDecorator spanDecorator = segmentDecorator.getSpans(i, moduleManager);
+            SpanDecorator spanDecorator = segmentDecorator.getSpans(i);
 
             if (spanDecorator.getSpanId() == 0) {
                 timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
