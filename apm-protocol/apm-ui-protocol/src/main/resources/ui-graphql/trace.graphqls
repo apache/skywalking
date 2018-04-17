@@ -52,8 +52,41 @@ enum QueryOrder {
 
 # The trace represents a distributed trace, includes all segments and spans.
 type Trace {
-  spans: [Span!]!
+  segments: [Segment!]!
+  # Segment IDs in refs may not exist in #segments list, because MQ batch process trace segments didn't share the same ID.
+  # UI should add visual node for non-exist segment.
+  refs: [SegmentRef!]!
 }
+
+type Segment {
+  segmentId: ID!
+  name: String!
+  brief: SegmentBrief!
+  spans: [Span!]!
+  isError: Boolean
+  # Unit: milliseconds
+  duration: Long!
+}
+
+type SegmentBrief {
+  http: BriefInfo!
+  rpc: BriefInfo!
+  mq: BriefInfo!
+  db: BriefInfo!
+  cache: BriefInfo!
+}
+
+type BriefInfo {
+  count: Int!
+  duration: Long!
+}
+
+type SegmentRef {
+  sourceSegment: ID!
+  targetSegment: ID!
+  callType: String!
+}
+
 
 type Span {
   traceId: ID!
