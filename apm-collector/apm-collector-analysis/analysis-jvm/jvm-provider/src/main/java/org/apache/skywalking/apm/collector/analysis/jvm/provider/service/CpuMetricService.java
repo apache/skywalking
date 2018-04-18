@@ -23,10 +23,11 @@ import org.apache.skywalking.apm.collector.analysis.jvm.define.service.ICpuMetri
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.table.jvm.CpuMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.Objects.isNull;
 
 /**
  * @author peng-yongsheng
@@ -38,7 +39,7 @@ public class CpuMetricService implements ICpuMetricService {
     private Graph<CpuMetric> cpuMetricGraph;
 
     private Graph<CpuMetric> getCpuMetricGraph() {
-        if (ObjectUtils.isEmpty(cpuMetricGraph)) {
+        if (isNull(cpuMetricGraph)) {
             cpuMetricGraph = GraphManager.INSTANCE.findGraph(GraphIdDefine.CPU_METRIC_PERSISTENCE_GRAPH_ID, CpuMetric.class);
         }
         return cpuMetricGraph;
