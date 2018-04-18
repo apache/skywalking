@@ -70,6 +70,11 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 - 性能测试报告
   - [Java探针测试报告](https://skywalkingtest.github.io/Agent-Benchmarks/)
 
+# Users
+<img src="https://skywalkingtest.github.io/page-resources/users/users-2018-04-18.png"/>
+
+[报告新的用户案例](https://github.com/apache/incubator-skywalking/issues/443)
+
 # Contact Us
 * 直接提交Issue
 * [Gitter](https://gitter.im/openskywalking/Lobby)
