@@ -13,30 +13,31 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.skywalking.apm.collector.storage.table.register;
+package org.apache.skywalking.apm.collector.ui.jetty;
 
-import java.lang.reflect.Field;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.network.trace.component.OfficialComponent;
+import org.apache.skywalking.apm.collector.cluster.ModuleRegistration;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
- * @author peng-yongsheng
+ * @author lican
  */
-public class ServerTypeDefineTestCase {
+public class UIModuleJettyRegistrationTest {
+
+    private UIModuleJettyRegistration uiModuleJettyRegistration;
+
+    @Before
+    public void setUp() throws Exception {
+        uiModuleJettyRegistration = new UIModuleJettyRegistration("127.0.0.1", 8080, "/");
+    }
 
     @Test
-    public void check() throws IllegalAccessException {
-        Field[] fields = ComponentsDefine.class.getDeclaredFields();
+    public void buildValue() {
+        ModuleRegistration.Value value = uiModuleJettyRegistration.buildValue();
+        Assert.assertEquals(value.getHostPort(), "127.0.0.1:8080");
 
-        for (Field field : fields) {
-            if (field.getType().equals(OfficialComponent.class)) {
-                OfficialComponent component = (OfficialComponent)field.get(ComponentsDefine.getInstance());
-                ServerTypeDefine.getInstance().getServerTypeId(component.getId());
-            }
-        }
     }
 }

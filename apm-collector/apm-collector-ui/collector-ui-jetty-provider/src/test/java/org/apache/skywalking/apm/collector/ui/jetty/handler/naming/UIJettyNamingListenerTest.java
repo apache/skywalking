@@ -13,34 +13,38 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.skywalking.apm.collector.storage.table.register;
+package org.apache.skywalking.apm.collector.ui.jetty.handler.naming;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
- * @author peng-yongsheng
+ * @author lican
  */
-public class ServerType {
-    private int componentId;
-    private int id;
-    private String name;
+public class UIJettyNamingListenerTest {
 
-    public ServerType(int componentId, int id, String name) {
-        this.componentId = componentId;
-        this.id = id;
-        this.name = name;
+    private UIJettyNamingListener uiJettyNamingListener;
+
+    @Before
+    public void setUp() throws Exception {
+        uiJettyNamingListener = new UIJettyNamingListener();
     }
 
-    public int getId() {
-        return id;
+    @Test
+    public void path() {
+        Assert.assertEquals("/ui/jetty", uiJettyNamingListener.path());
     }
 
-    public String getName() {
-        return name;
+    @Test
+    public void serverJoinNotify() {
+        uiJettyNamingListener.serverJoinNotify(null);
     }
 
-    public int getComponentId() {
-        return componentId;
+    @Test
+    public void serverQuitNotify() {
+        uiJettyNamingListener.serverQuitNotify(null);
     }
 }
