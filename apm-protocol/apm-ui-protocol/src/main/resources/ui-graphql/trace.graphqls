@@ -99,7 +99,6 @@ type SegmentRef {
 
 
 type Span {
-  traceId: ID!
   spanId: Int!
   parentSpanId: Int!
   refs: [Ref!]!

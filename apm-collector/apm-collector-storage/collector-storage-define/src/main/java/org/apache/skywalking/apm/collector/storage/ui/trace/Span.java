@@ -25,7 +25,6 @@ import java.util.List;
  * @author peng-yongsheng
  */
 public class Span {
-    private String traceId;
     private int spanId;
     private int parentSpanId;
     private List<Ref> refs;
@@ -44,14 +43,6 @@ public class Span {
         this.refs = new LinkedList<>();
         this.tags = new LinkedList<>();
         this.logs = new LinkedList<>();
-    }
-
-    public String getTraceId() {
-        return traceId;
-    }
-
-    public void setTraceId(String traceId) {
-        this.traceId = traceId;
     }
 
     public int getSpanId() {

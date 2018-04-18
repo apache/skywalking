@@ -90,7 +90,6 @@ public class TraceStackService {
 
                     segObj.getSpansList().forEach(spanObject -> {
                         Span span = new Span();
-                        span.setTraceId(traceId);
                         span.setSpanId(spanObject.getSpanId());
                         span.setParentSpanId(spanObject.getParentSpanId());
                         span.setStartTime(spanObject.getStartTime());
