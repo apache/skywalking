@@ -18,9 +18,7 @@
 
 package org.apache.skywalking.apm.collector.ui.query;
 
-import java.text.ParseException;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.ui.alarm.Alarm;
 import org.apache.skywalking.apm.collector.storage.ui.alarm.AlarmType;
 import org.apache.skywalking.apm.collector.storage.ui.common.Duration;
@@ -29,6 +27,9 @@ import org.apache.skywalking.apm.collector.ui.graphql.Query;
 import org.apache.skywalking.apm.collector.ui.service.AlarmService;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 import org.apache.skywalking.apm.collector.ui.utils.PaginationUtils;
+
+import java.text.ParseException;
+import java.util.Objects;
 
 /**
  * @author peng-yongsheng
@@ -43,7 +44,7 @@ public class AlarmQuery implements Query {
     }
 
     private AlarmService getAlarmService() {
-        if (ObjectUtils.isEmpty(alarmService)) {
+        if (Objects.isNull(alarmService)) {
             this.alarmService = new AlarmService(moduleManager);
         }
         return alarmService;

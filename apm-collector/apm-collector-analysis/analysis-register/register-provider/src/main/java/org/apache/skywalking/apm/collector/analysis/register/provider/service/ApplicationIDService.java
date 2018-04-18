@@ -28,8 +28,9 @@ import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.table.register.Application;
+
+import java.util.Objects;
 
 /**
  * @author peng-yongsheng
@@ -46,21 +47,21 @@ public class ApplicationIDService implements IApplicationIDService {
     }
 
     private Graph<Application> getApplicationRegisterGraph() {
-        if (ObjectUtils.isEmpty(applicationRegisterGraph)) {
+        if (Objects.isNull(applicationRegisterGraph)) {
             this.applicationRegisterGraph = GraphManager.INSTANCE.findGraph(GraphIdDefine.APPLICATION_REGISTER_GRAPH_ID, Application.class);
         }
         return this.applicationRegisterGraph;
     }
 
     private ApplicationCacheService getApplicationCacheService() {
-        if (ObjectUtils.isEmpty(applicationCacheService)) {
+        if (Objects.isNull(applicationCacheService)) {
             this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
         }
         return applicationCacheService;
     }
 
     private NetworkAddressCacheService getNetworkAddressCacheService() {
-        if (ObjectUtils.isEmpty(networkAddressCacheService)) {
+        if (Objects.isNull(networkAddressCacheService)) {
             this.networkAddressCacheService = moduleManager.find(CacheModule.NAME).getService(NetworkAddressCacheService.class);
         }
         return networkAddressCacheService;
