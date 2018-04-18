@@ -32,42 +32,42 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetricTab
  */
 public abstract class AbstractMemoryPoolMetricH2PersistenceDAO extends AbstractPersistenceH2DAO<MemoryPoolMetric> {
 
-    public AbstractMemoryPoolMetricH2PersistenceDAO(H2Client client) {
+    AbstractMemoryPoolMetricH2PersistenceDAO(H2Client client) {
         super(client);
     }
 
     @Override protected final MemoryPoolMetric h2DataToStreamData(ResultSet resultSet) throws SQLException {
         MemoryPoolMetric memoryPoolMetric = new MemoryPoolMetric();
-        memoryPoolMetric.setId(resultSet.getString(MemoryPoolMetricTable.COLUMN_ID));
-        memoryPoolMetric.setMetricId(resultSet.getString(MemoryPoolMetricTable.COLUMN_METRIC_ID));
+        memoryPoolMetric.setId(resultSet.getString(MemoryPoolMetricTable.ID.getName()));
+        memoryPoolMetric.setMetricId(resultSet.getString(MemoryPoolMetricTable.METRIC_ID.getName()));
 
-        memoryPoolMetric.setInstanceId(resultSet.getInt(MemoryPoolMetricTable.COLUMN_INSTANCE_ID));
-        memoryPoolMetric.setPoolType(resultSet.getInt(MemoryPoolMetricTable.COLUMN_POOL_TYPE));
+        memoryPoolMetric.setInstanceId(resultSet.getInt(MemoryPoolMetricTable.INSTANCE_ID.getName()));
+        memoryPoolMetric.setPoolType(resultSet.getInt(MemoryPoolMetricTable.POOL_TYPE.getName()));
 
-        memoryPoolMetric.setInit(resultSet.getLong(MemoryPoolMetricTable.COLUMN_INIT));
-        memoryPoolMetric.setMax(resultSet.getLong(MemoryPoolMetricTable.COLUMN_MAX));
-        memoryPoolMetric.setUsed(resultSet.getLong(MemoryPoolMetricTable.COLUMN_USED));
-        memoryPoolMetric.setCommitted(resultSet.getLong(MemoryPoolMetricTable.COLUMN_COMMITTED));
-        memoryPoolMetric.setTimes(resultSet.getLong(MemoryPoolMetricTable.COLUMN_TIMES));
+        memoryPoolMetric.setInit(resultSet.getLong(MemoryPoolMetricTable.INIT.getName()));
+        memoryPoolMetric.setMax(resultSet.getLong(MemoryPoolMetricTable.MAX.getName()));
+        memoryPoolMetric.setUsed(resultSet.getLong(MemoryPoolMetricTable.USED.getName()));
+        memoryPoolMetric.setCommitted(resultSet.getLong(MemoryPoolMetricTable.COMMITTED.getName()));
+        memoryPoolMetric.setTimes(resultSet.getLong(MemoryPoolMetricTable.TIMES.getName()));
 
-        memoryPoolMetric.setTimeBucket(resultSet.getLong(MemoryPoolMetricTable.COLUMN_TIME_BUCKET));
+        memoryPoolMetric.setTimeBucket(resultSet.getLong(MemoryPoolMetricTable.TIME_BUCKET.getName()));
         return memoryPoolMetric;
     }
 
     @Override protected final Map<String, Object> streamDataToH2Data(MemoryPoolMetric streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(MemoryPoolMetricTable.COLUMN_ID, streamData.getId());
-        source.put(MemoryPoolMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(MemoryPoolMetricTable.ID.getName(), streamData.getId());
+        target.put(MemoryPoolMetricTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(MemoryPoolMetricTable.COLUMN_INSTANCE_ID, streamData.getInstanceId());
-        source.put(MemoryPoolMetricTable.COLUMN_POOL_TYPE, streamData.getPoolType());
-        source.put(MemoryPoolMetricTable.COLUMN_INIT, streamData.getInit());
-        source.put(MemoryPoolMetricTable.COLUMN_MAX, streamData.getMax());
-        source.put(MemoryPoolMetricTable.COLUMN_USED, streamData.getUsed());
-        source.put(MemoryPoolMetricTable.COLUMN_COMMITTED, streamData.getCommitted());
-        source.put(MemoryPoolMetricTable.COLUMN_TIMES, streamData.getTimes());
-        source.put(MemoryPoolMetricTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
+        target.put(MemoryPoolMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId());
+        target.put(MemoryPoolMetricTable.POOL_TYPE.getName(), streamData.getPoolType());
+        target.put(MemoryPoolMetricTable.INIT.getName(), streamData.getInit());
+        target.put(MemoryPoolMetricTable.MAX.getName(), streamData.getMax());
+        target.put(MemoryPoolMetricTable.USED.getName(), streamData.getUsed());
+        target.put(MemoryPoolMetricTable.COMMITTED.getName(), streamData.getCommitted());
+        target.put(MemoryPoolMetricTable.TIMES.getName(), streamData.getTimes());
+        target.put(MemoryPoolMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
 
-        return source;
+        return target;
     }
 }

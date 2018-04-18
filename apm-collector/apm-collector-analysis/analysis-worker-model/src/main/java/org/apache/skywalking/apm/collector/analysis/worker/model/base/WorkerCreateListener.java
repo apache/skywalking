@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.collector.analysis.worker.model.base;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
 
@@ -30,7 +30,7 @@ public class WorkerCreateListener {
     private final List<PersistenceWorker> persistenceWorkers;
 
     public WorkerCreateListener() {
-        this.persistenceWorkers = new ArrayList<>();
+        this.persistenceWorkers = new LinkedList<>();
     }
 
     void addWorker(AbstractWorker worker) {

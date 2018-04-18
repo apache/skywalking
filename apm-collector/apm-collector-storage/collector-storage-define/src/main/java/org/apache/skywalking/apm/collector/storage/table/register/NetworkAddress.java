@@ -31,8 +31,8 @@ import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterServ
 public class NetworkAddress extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(NetworkAddressTable.COLUMN_ID, new NonMergeOperation()),
-        new Column(NetworkAddressTable.COLUMN_NETWORK_ADDRESS, new NonMergeOperation()),
+        new Column(NetworkAddressTable.ID, new NonMergeOperation()),
+        new Column(NetworkAddressTable.NETWORK_ADDRESS, new NonMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
@@ -41,9 +41,9 @@ public class NetworkAddress extends StreamData {
     private static final Column[] DOUBLE_COLUMNS = {};
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(NetworkAddressTable.COLUMN_ADDRESS_ID, new NonMergeOperation()),
-        new Column(NetworkAddressTable.COLUMN_SPAN_LAYER, new CoverMergeOperation()),
-        new Column(NetworkAddressTable.COLUMN_SERVER_TYPE, new CoverMergeOperation()),
+        new Column(NetworkAddressTable.ADDRESS_ID, new NonMergeOperation()),
+        new Column(NetworkAddressTable.SRC_SPAN_LAYER, new CoverMergeOperation()),
+        new Column(NetworkAddressTable.SERVER_TYPE, new CoverMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};
@@ -84,12 +84,12 @@ public class NetworkAddress extends StreamData {
         setDataInteger(0, addressId);
     }
 
-    public Integer getSpanLayer() {
+    public Integer getSrcSpanLayer() {
         return getDataInteger(1);
     }
 
-    public void setSpanLayer(Integer spanLayer) {
-        setDataInteger(1, spanLayer);
+    public void setSrcSpanLayer(Integer srcSpanLayer) {
+        setDataInteger(1, srcSpanLayer);
     }
 
     public Integer getServerType() {

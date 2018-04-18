@@ -27,20 +27,20 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetricTab
  */
 public abstract class AbstractMemoryPoolMetricH2TableDefine extends H2TableDefine {
 
-    public AbstractMemoryPoolMetricH2TableDefine(String name) {
+    AbstractMemoryPoolMetricH2TableDefine(String name) {
         super(name);
     }
 
     @Override public final void initialize() {
-        addColumn(new H2ColumnDefine(MemoryPoolMetricTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(MemoryPoolMetricTable.COLUMN_METRIC_ID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(MemoryPoolMetricTable.COLUMN_INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(MemoryPoolMetricTable.COLUMN_POOL_TYPE, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(MemoryPoolMetricTable.COLUMN_INIT, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(MemoryPoolMetricTable.COLUMN_MAX, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(MemoryPoolMetricTable.COLUMN_USED, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(MemoryPoolMetricTable.COLUMN_COMMITTED, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(MemoryPoolMetricTable.COLUMN_TIMES, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(MemoryPoolMetricTable.COLUMN_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(MemoryPoolMetricTable.ID, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(MemoryPoolMetricTable.METRIC_ID, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(MemoryPoolMetricTable.INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(MemoryPoolMetricTable.POOL_TYPE, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(MemoryPoolMetricTable.INIT, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(MemoryPoolMetricTable.MAX, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(MemoryPoolMetricTable.USED, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(MemoryPoolMetricTable.COMMITTED, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(MemoryPoolMetricTable.TIMES, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(MemoryPoolMetricTable.TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
     }
 }

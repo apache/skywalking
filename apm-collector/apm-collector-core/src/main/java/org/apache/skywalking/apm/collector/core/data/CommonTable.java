@@ -21,9 +21,16 @@ package org.apache.skywalking.apm.collector.core.data;
 /**
  * @author peng-yongsheng
  */
-public abstract class CommonTable {
-    public static final String TABLE_TYPE = "type";
-    public static final String COLUMN_ID = "id";
-    public static final String COLUMN_METRIC_ID = "metric_id";
-    public static final String COLUMN_TIME_BUCKET = "time_bucket";
+public interface CommonTable {
+    String TABLE_TYPE = "type";
+
+    ColumnName ID = new ColumnName("id", "id");
+
+    ColumnName METRIC_ID = new ColumnName("metric_id", "mi");
+
+    ColumnName TIME_BUCKET = new ColumnName("time_bucket", "tb");
+
+    ColumnName SOURCE_VALUE = new ColumnName("source_value", "sv");
+
+    ColumnName TIMES = new ColumnName("times", "t");
 }

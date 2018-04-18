@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
+import org.apache.skywalking.apm.collector.storage.h2.MetricTransformUtil;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.AbstractPersistenceH2DAO;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMetric;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMetricTable;
@@ -32,72 +33,39 @@ import org.apache.skywalking.apm.collector.storage.table.application.Application
  */
 public abstract class AbstractApplicationMetricH2PersistenceDAO extends AbstractPersistenceH2DAO<ApplicationMetric> {
 
-    public AbstractApplicationMetricH2PersistenceDAO(H2Client client) {
+    AbstractApplicationMetricH2PersistenceDAO(H2Client client) {
         super(client);
     }
 
     @Override protected final ApplicationMetric h2DataToStreamData(ResultSet resultSet) throws SQLException {
         ApplicationMetric applicationMetric = new ApplicationMetric();
-        applicationMetric.setId(resultSet.getString(ApplicationMetricTable.COLUMN_ID));
-        applicationMetric.setMetricId(resultSet.getString(ApplicationMetricTable.COLUMN_METRIC_ID));
+        applicationMetric.setId(resultSet.getString(ApplicationMetricTable.ID.getName()));
+        applicationMetric.setMetricId(resultSet.getString(ApplicationMetricTable.METRIC_ID.getName()));
 
-        applicationMetric.setApplicationId(resultSet.getInt(ApplicationMetricTable.COLUMN_APPLICATION_ID));
-        applicationMetric.setSourceValue(resultSet.getInt(ApplicationMetricTable.COLUMN_SOURCE_VALUE));
+        applicationMetric.setApplicationId(resultSet.getInt(ApplicationMetricTable.APPLICATION_ID.getName()));
 
-        applicationMetric.setTransactionCalls(resultSet.getLong(ApplicationMetricTable.COLUMN_TRANSACTION_CALLS));
-        applicationMetric.setTransactionErrorCalls(resultSet.getLong(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_CALLS));
-        applicationMetric.setTransactionDurationSum(resultSet.getLong(ApplicationMetricTable.COLUMN_TRANSACTION_DURATION_SUM));
-        applicationMetric.setTransactionErrorDurationSum(resultSet.getLong(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM));
-        applicationMetric.setTransactionAverageDuration(resultSet.getLong(ApplicationMetricTable.COLUMN_TRANSACTION_AVERAGE_DURATION));
+        MetricTransformUtil.INSTANCE.h2DataToStreamData(resultSet, applicationMetric);
 
-        applicationMetric.setBusinessTransactionCalls(resultSet.getLong(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS));
-        applicationMetric.setBusinessTransactionErrorCalls(resultSet.getLong(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS));
-        applicationMetric.setBusinessTransactionDurationSum(resultSet.getLong(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM));
-        applicationMetric.setBusinessTransactionErrorDurationSum(resultSet.getLong(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM));
-        applicationMetric.setBusinessTransactionAverageDuration(resultSet.getLong(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_AVERAGE_DURATION));
-
-        applicationMetric.setMqTransactionCalls(resultSet.getLong(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_CALLS));
-        applicationMetric.setMqTransactionErrorCalls(resultSet.getLong(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS));
-        applicationMetric.setMqTransactionDurationSum(resultSet.getLong(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM));
-        applicationMetric.setMqTransactionErrorDurationSum(resultSet.getLong(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM));
-        applicationMetric.setMqTransactionAverageDuration(resultSet.getLong(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_AVERAGE_DURATION));
-
-        applicationMetric.setSatisfiedCount(resultSet.getLong(ApplicationMetricTable.COLUMN_SATISFIED_COUNT));
-        applicationMetric.setToleratingCount(resultSet.getLong(ApplicationMetricTable.COLUMN_TOLERATING_COUNT));
-        applicationMetric.setFrustratedCount(resultSet.getLong(ApplicationMetricTable.COLUMN_FRUSTRATED_COUNT));
-        applicationMetric.setTimeBucket(resultSet.getLong(ApplicationMetricTable.COLUMN_TIME_BUCKET));
+        applicationMetric.setSatisfiedCount(resultSet.getLong(ApplicationMetricTable.SATISFIED_COUNT.getName()));
+        applicationMetric.setToleratingCount(resultSet.getLong(ApplicationMetricTable.TOLERATING_COUNT.getName()));
+        applicationMetric.setFrustratedCount(resultSet.getLong(ApplicationMetricTable.FRUSTRATED_COUNT.getName()));
 
         return applicationMetric;
     }
 
     @Override protected final Map<String, Object> streamDataToH2Data(ApplicationMetric streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationMetricTable.COLUMN_ID, streamData.getId());
-        source.put(ApplicationMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(ApplicationMetricTable.ID.getName(), streamData.getId());
+        target.put(ApplicationMetricTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(ApplicationMetricTable.COLUMN_APPLICATION_ID, streamData.getApplicationId());
-        source.put(ApplicationMetricTable.COLUMN_SOURCE_VALUE, streamData.getSourceValue());
+        target.put(ApplicationMetricTable.APPLICATION_ID.getName(), streamData.getApplicationId());
 
-        source.put(ApplicationMetricTable.COLUMN_TRANSACTION_CALLS, streamData.getTransactionCalls());
-        source.put(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, streamData.getTransactionErrorCalls());
-        source.put(ApplicationMetricTable.COLUMN_TRANSACTION_DURATION_SUM, streamData.getTransactionDurationSum());
-        source.put(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, streamData.getTransactionErrorDurationSum());
+        MetricTransformUtil.INSTANCE.streamDataToH2Data(streamData, target);
 
-        source.put(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, streamData.getBusinessTransactionCalls());
-        source.put(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, streamData.getBusinessTransactionErrorCalls());
-        source.put(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, streamData.getBusinessTransactionDurationSum());
-        source.put(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, streamData.getBusinessTransactionErrorDurationSum());
+        target.put(ApplicationMetricTable.SATISFIED_COUNT.getName(), streamData.getSatisfiedCount());
+        target.put(ApplicationMetricTable.TOLERATING_COUNT.getName(), streamData.getToleratingCount());
+        target.put(ApplicationMetricTable.FRUSTRATED_COUNT.getName(), streamData.getFrustratedCount());
 
-        source.put(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_CALLS, streamData.getMqTransactionCalls());
-        source.put(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, streamData.getMqTransactionErrorCalls());
-        source.put(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, streamData.getMqTransactionDurationSum());
-        source.put(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, streamData.getMqTransactionErrorDurationSum());
-
-        source.put(ApplicationMetricTable.COLUMN_SATISFIED_COUNT, streamData.getSatisfiedCount());
-        source.put(ApplicationMetricTable.COLUMN_TOLERATING_COUNT, streamData.getToleratingCount());
-        source.put(ApplicationMetricTable.COLUMN_FRUSTRATED_COUNT, streamData.getFrustratedCount());
-        source.put(ApplicationMetricTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
-
-        return source;
+        return target;
     }
 }

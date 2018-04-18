@@ -47,7 +47,7 @@ public class ServiceNameServiceEsUIDAO extends EsDAO implements IServiceNameServ
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(ServiceNameTable.TABLE);
         searchRequestBuilder.setTypes(ServiceNameTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-        searchRequestBuilder.setQuery(QueryBuilders.termQuery(ServiceNameTable.COLUMN_SRC_SPAN_TYPE, SpanType.Entry_VALUE));
+        searchRequestBuilder.setQuery(QueryBuilders.termQuery(ServiceNameTable.SRC_SPAN_TYPE.getName(), SpanType.Entry_VALUE));
         searchRequestBuilder.setSize(0);
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
@@ -62,11 +62,11 @@ public class ServiceNameServiceEsUIDAO extends EsDAO implements IServiceNameServ
 
         if (StringUtils.isNotEmpty(keyword)) {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-            boolQuery.must().add(QueryBuilders.matchQuery(ServiceNameTable.COLUMN_SERVICE_NAME, keyword));
-            boolQuery.must().add(QueryBuilders.termQuery(ServiceNameTable.COLUMN_SRC_SPAN_TYPE, SpanType.Entry_VALUE));
+            boolQuery.must().add(QueryBuilders.matchQuery(ServiceNameTable.SERVICE_NAME.getName(), keyword));
+            boolQuery.must().add(QueryBuilders.termQuery(ServiceNameTable.SRC_SPAN_TYPE.getName(), SpanType.Entry_VALUE));
             searchRequestBuilder.setQuery(boolQuery);
         } else {
-            searchRequestBuilder.setQuery(QueryBuilders.termQuery(ServiceNameTable.COLUMN_SRC_SPAN_TYPE, SpanType.Entry_VALUE));
+            searchRequestBuilder.setQuery(QueryBuilders.termQuery(ServiceNameTable.SRC_SPAN_TYPE.getName(), SpanType.Entry_VALUE));
         }
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
@@ -75,8 +75,8 @@ public class ServiceNameServiceEsUIDAO extends EsDAO implements IServiceNameServ
         List<ServiceInfo> serviceInfos = new LinkedList<>();
         for (SearchHit searchHit : searchHits) {
             ServiceInfo serviceInfo = new ServiceInfo();
-            serviceInfo.setId(((Number)searchHit.getSource().get(ServiceNameTable.COLUMN_SERVICE_ID)).intValue());
-            serviceInfo.setName((String)searchHit.getSource().get(ServiceNameTable.COLUMN_SERVICE_NAME));
+            serviceInfo.setId(((Number)searchHit.getSource().get(ServiceNameTable.SERVICE_ID.getName())).intValue());
+            serviceInfo.setName((String)searchHit.getSource().get(ServiceNameTable.SERVICE_NAME.getName()));
             serviceInfos.add(serviceInfo);
         }
         return serviceInfos;

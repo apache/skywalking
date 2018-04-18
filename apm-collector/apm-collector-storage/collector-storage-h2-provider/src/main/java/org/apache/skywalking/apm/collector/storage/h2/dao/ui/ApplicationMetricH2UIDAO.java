@@ -25,15 +25,11 @@ import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.ui.overview.ApplicationTPS;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class ApplicationMetricH2UIDAO extends H2DAO implements IApplicationMetricUIDAO {
-
-    private final Logger logger = LoggerFactory.getLogger(ApplicationMetricH2UIDAO.class);
 
     public ApplicationMetricH2UIDAO(H2Client client) {
         super(client);

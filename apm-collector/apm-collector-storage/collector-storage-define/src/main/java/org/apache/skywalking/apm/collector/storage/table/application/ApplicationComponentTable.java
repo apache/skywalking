@@ -18,13 +18,15 @@
 
 package org.apache.skywalking.apm.collector.storage.table.application;
 
+import org.apache.skywalking.apm.collector.core.data.ColumnName;
 import org.apache.skywalking.apm.collector.core.data.CommonTable;
+import org.apache.skywalking.apm.collector.storage.table.register.RegisterColumns;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationComponentTable extends CommonTable {
-    public static final String TABLE = "application_component";
-    public static final String COLUMN_COMPONENT_ID = "component_id";
-    public static final String COLUMN_APPLICATION_ID = "application_id";
+public interface ApplicationComponentTable extends RegisterColumns, CommonTable {
+    String TABLE = "application_component";
+
+    ColumnName COMPONENT_ID = new ColumnName("component_id", "ci");
 }

@@ -85,8 +85,7 @@ public class AnalysisRegisterModuleProvider extends ModuleProvider {
 
         registerRemoteData();
 
-        PersistenceTimer persistenceTimer = new PersistenceTimer(AnalysisRegisterModule.NAME);
-        persistenceTimer.start(getManager(), workerCreateListener.getPersistenceWorkers());
+        PersistenceTimer.INSTANCE.start(getManager(), workerCreateListener.getPersistenceWorkers());
     }
 
     @Override public void notifyAfterCompleted() {

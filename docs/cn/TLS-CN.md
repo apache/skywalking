@@ -2,7 +2,7 @@
 在通过Internet传输数据时，传输层安全（TLS）是一种非常常见的安全方式
 用户可能会在一些场景下遇到这样的情形:
 
->被监控(部署探针)的应用中部署在同一个私有云(VPC)区域当中,与此同时, SkyWalking 的服务端部署在另一个私有云(VPC)区域中
+> 被监控(部署探针)的应用中部署在同一个私有云(VPC)区域当中,与此同时, SkyWalking 的服务端部署在另一个私有云(VPC)区域中
 > 
 > 在这种情况下,就非常有必要做一些传输安全认证.
 
@@ -16,7 +16,7 @@
 
 ## 认证模式
 仅仅支持 **非双向认证**.
-- 如果你比较熟悉如何生存 key 文件,可以使用 [脚本](../../tools/TLS/tls_key_generate.sh) .
+- 如果你比较熟悉如何生成 key 文件,可以使用 [脚本](../../tools/TLS/tls_key_generate.sh) .
 - 在客户端使用 `ca.crt`文件
 - 在服务端使用 `server.crt` 和 `server.pem`. 
 
@@ -35,7 +35,6 @@
 - `ssl_private_key_file` 配置为 `server.pem`的绝对路径.
 
 ## 避免端口共享
-在大多数情况下,
 在大多数情况下，我们建议在`agent_gRPC / gRPC`和`remote / gRPC`模块中共享所有gRPC服务的端口。
 但是，当你在`agent_gRPC / gRPC`模块中打开TLS时不要这样做，原因就是无论是否开始TLS,你都无法监听端口。
 解决方案, 换一个端口 `remote/gRPC/port`.

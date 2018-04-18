@@ -60,15 +60,15 @@ public class GCMetricH2UIDAO extends H2DAO implements IGCMetricUIDAO {
         String tableName = TimePyramidTableNameBuilder.build(step, GCMetricTable.TABLE);
 
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_GC_METRIC_SQL, tableName, GCMetricTable.COLUMN_ID);
+        String sql = SqlBuilder.buildSql(GET_GC_METRIC_SQL, tableName, GCMetricTable.ID.getName());
 
         List<Integer> gcTrends = new LinkedList<>();
         durationPoints.forEach(durationPoint -> {
             String id = durationPoint.getPoint() + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + gcPhrase;
             try (ResultSet rs = client.executeQuery(sql, new String[] {id})) {
                 if (rs.next()) {
-                    long count = rs.getLong(GCMetricTable.COLUMN_COUNT);
-                    long times = rs.getLong(GCMetricTable.COLUMN_TIMES);
+                    long count = rs.getLong(GCMetricTable.COUNT.getName());
+                    long times = rs.getLong(GCMetricTable.TIMES.getName());
                     gcTrends.add((int)(count / times));
                 } else {
                     gcTrends.add(0);

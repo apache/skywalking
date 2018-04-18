@@ -18,17 +18,11 @@
 
 package org.apache.skywalking.apm.collector.storage.table.alarm;
 
-import org.apache.skywalking.apm.collector.storage.table.CommonMetricTable;
+import org.apache.skywalking.apm.collector.storage.table.ReferenceColumns;
 
 /**
  * @author peng-yongsheng
  */
-public class InstanceReferenceAlarmListTable extends CommonMetricTable {
-    public static final String TABLE = "instance_reference_alarm_list";
-    public static final String COLUMN_FRONT_INSTANCE_ID = "front_instance_id";
-    public static final String COLUMN_BEHIND_INSTANCE_ID = "behind_instance_id";
-    public static final String COLUMN_FRONT_APPLICATION_ID = "front_application_id";
-    public static final String COLUMN_BEHIND_APPLICATION_ID = "behind_application_id";
-    public static final String COLUMN_ALARM_TYPE = "alarm_type";
-    public static final String COLUMN_ALARM_CONTENT = "alarm_content";
+public interface InstanceReferenceAlarmListTable extends ReferenceColumns, AlarmColumns {
+    String TABLE = "instance_reference_alarm_list";
 }

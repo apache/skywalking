@@ -32,11 +32,11 @@ public abstract class AbstractInstanceMappingH2TableDefine extends H2TableDefine
     }
 
     @Override public final void initialize() {
-        addColumn(new H2ColumnDefine(InstanceMappingTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(InstanceMappingTable.COLUMN_METRIC_ID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(InstanceMappingTable.COLUMN_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(InstanceMappingTable.COLUMN_INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(InstanceMappingTable.COLUMN_ADDRESS_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(InstanceMappingTable.COLUMN_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(InstanceMappingTable.ID, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(InstanceMappingTable.METRIC_ID, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(InstanceMappingTable.APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(InstanceMappingTable.INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(InstanceMappingTable.ADDRESS_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(InstanceMappingTable.TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
     }
 }

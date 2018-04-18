@@ -49,7 +49,7 @@ public class CpuMetricH2UIDAO extends H2DAO implements ICpuMetricUIDAO {
     @Override public List<Integer> getCPUTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
         H2Client client = getClient();
         String tableName = TimePyramidTableNameBuilder.build(step, CpuMetricTable.TABLE);
-        String sql = SqlBuilder.buildSql(GET_CPU_METRIC_SQL, tableName, CpuMetricTable.COLUMN_ID);
+        String sql = SqlBuilder.buildSql(GET_CPU_METRIC_SQL, tableName, CpuMetricTable.ID.getName());
 
         List<Integer> cpuTrends = new LinkedList<>();
         durationPoints.forEach(durationPoint -> {
@@ -57,8 +57,8 @@ public class CpuMetricH2UIDAO extends H2DAO implements ICpuMetricUIDAO {
 
             try (ResultSet rs = client.executeQuery(sql, new String[] {id})) {
                 if (rs.next()) {
-                    double cpuUsed = rs.getDouble(CpuMetricTable.COLUMN_USAGE_PERCENT);
-                    long times = rs.getLong(CpuMetricTable.COLUMN_TIMES);
+                    double cpuUsed = rs.getDouble(CpuMetricTable.USAGE_PERCENT.getName());
+                    long times = rs.getLong(CpuMetricTable.TIMES.getName());
                     cpuTrends.add((int)((cpuUsed / times) * 100));
                 } else {
                     cpuTrends.add(0);

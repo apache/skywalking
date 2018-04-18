@@ -51,14 +51,14 @@ public class ApplicationComponentH2UIDAO extends H2DAO implements IApplicationCo
         String tableName = TimePyramidTableNameBuilder.build(step, ApplicationComponentTable.TABLE);
 
         List<ApplicationComponent> applicationComponents = new LinkedList<>();
-        String sql = SqlBuilder.buildSql(AGGREGATE_COMPONENT_SQL, ApplicationComponentTable.COLUMN_COMPONENT_ID, ApplicationComponentTable.COLUMN_APPLICATION_ID,
-            tableName, ApplicationComponentTable.COLUMN_TIME_BUCKET);
+        String sql = SqlBuilder.buildSql(AGGREGATE_COMPONENT_SQL, ApplicationComponentTable.COMPONENT_ID.getName(), ApplicationComponentTable.APPLICATION_ID.getName(),
+            tableName, ApplicationComponentTable.TIME_BUCKET.getName());
 
         Object[] params = new Object[] {startTimeBucket, endTimeBucket};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             while (rs.next()) {
-                int applicationId = rs.getInt(ApplicationComponentTable.COLUMN_APPLICATION_ID);
-                int componentId = rs.getInt(ApplicationComponentTable.COLUMN_COMPONENT_ID);
+                int applicationId = rs.getInt(ApplicationComponentTable.APPLICATION_ID.getName());
+                int componentId = rs.getInt(ApplicationComponentTable.COMPONENT_ID.getName());
 
                 ApplicationComponent applicationComponent = new ApplicationComponent();
                 applicationComponent.setComponentId(componentId);

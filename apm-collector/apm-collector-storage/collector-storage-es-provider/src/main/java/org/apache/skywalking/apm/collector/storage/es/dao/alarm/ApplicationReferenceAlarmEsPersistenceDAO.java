@@ -20,93 +20,60 @@ package org.apache.skywalking.apm.collector.storage.es.dao.alarm;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationReferenceAlarmPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
+import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationReferenceAlarm;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationReferenceAlarmTable;
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.reindex.BulkByScrollResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationReferenceAlarmEsPersistenceDAO extends EsDAO implements IApplicationReferenceAlarmPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, ApplicationReferenceAlarm> {
-
-    private final Logger logger = LoggerFactory.getLogger(ApplicationReferenceAlarmEsPersistenceDAO.class);
+public class ApplicationReferenceAlarmEsPersistenceDAO extends AbstractPersistenceEsDAO<ApplicationReferenceAlarm> implements IApplicationReferenceAlarmPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, ApplicationReferenceAlarm> {
 
     public ApplicationReferenceAlarmEsPersistenceDAO(ElasticSearchClient client) {
         super(client);
     }
 
-    @Override
-    public ApplicationReferenceAlarm get(String id) {
-        GetResponse getResponse = getClient().prepareGet(ApplicationReferenceAlarmTable.TABLE, id).get();
-        if (getResponse.isExists()) {
-            ApplicationReferenceAlarm applicationReferenceAlarm = new ApplicationReferenceAlarm();
-            applicationReferenceAlarm.setId(id);
-            Map<String, Object> source = getResponse.getSource();
-            applicationReferenceAlarm.setFrontApplicationId(((Number) source.get(ApplicationReferenceAlarmTable.COLUMN_FRONT_APPLICATION_ID)).intValue());
-            applicationReferenceAlarm.setBehindApplicationId(((Number) source.get(ApplicationReferenceAlarmTable.COLUMN_BEHIND_APPLICATION_ID)).intValue());
-            applicationReferenceAlarm.setSourceValue(((Number) source.get(ApplicationReferenceAlarmTable.COLUMN_SOURCE_VALUE)).intValue());
-
-            applicationReferenceAlarm.setAlarmType(((Number) source.get(ApplicationReferenceAlarmTable.COLUMN_ALARM_TYPE)).intValue());
-            applicationReferenceAlarm.setAlarmContent((String) source.get(ApplicationReferenceAlarmTable.COLUMN_ALARM_CONTENT));
-
-            applicationReferenceAlarm.setLastTimeBucket(((Number) source.get(ApplicationReferenceAlarmTable.COLUMN_LAST_TIME_BUCKET)).longValue());
-            return applicationReferenceAlarm;
-        } else {
-            return null;
-        }
+    @Override protected String tableName() {
+        return ApplicationReferenceAlarmTable.TABLE;
     }
 
-    @Override
-    public IndexRequestBuilder prepareBatchInsert(ApplicationReferenceAlarm data) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationReferenceAlarmTable.COLUMN_FRONT_APPLICATION_ID, data.getFrontApplicationId());
-        source.put(ApplicationReferenceAlarmTable.COLUMN_BEHIND_APPLICATION_ID, data.getBehindApplicationId());
-        source.put(ApplicationReferenceAlarmTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
+    @Override protected ApplicationReferenceAlarm esDataToStreamData(Map<String, Object> source) {
+        ApplicationReferenceAlarm applicationReferenceAlarm = new ApplicationReferenceAlarm();
+        applicationReferenceAlarm.setFrontApplicationId(((Number)source.get(ApplicationReferenceAlarmTable.FRONT_APPLICATION_ID.getName())).intValue());
+        applicationReferenceAlarm.setBehindApplicationId(((Number)source.get(ApplicationReferenceAlarmTable.BEHIND_APPLICATION_ID.getName())).intValue());
+        applicationReferenceAlarm.setSourceValue(((Number)source.get(ApplicationReferenceAlarmTable.SOURCE_VALUE.getName())).intValue());
 
-        source.put(ApplicationReferenceAlarmTable.COLUMN_ALARM_TYPE, data.getAlarmType());
-        source.put(ApplicationReferenceAlarmTable.COLUMN_ALARM_CONTENT, data.getAlarmContent());
+        applicationReferenceAlarm.setAlarmType(((Number)source.get(ApplicationReferenceAlarmTable.ALARM_TYPE.getName())).intValue());
+        applicationReferenceAlarm.setAlarmContent((String)source.get(ApplicationReferenceAlarmTable.ALARM_CONTENT.getName()));
 
-        source.put(ApplicationReferenceAlarmTable.COLUMN_LAST_TIME_BUCKET, data.getLastTimeBucket());
-
-        return getClient().prepareIndex(ApplicationReferenceAlarmTable.TABLE, data.getId()).setSource(source);
+        applicationReferenceAlarm.setLastTimeBucket(((Number)source.get(ApplicationReferenceAlarmTable.LAST_TIME_BUCKET.getName())).longValue());
+        return applicationReferenceAlarm;
     }
 
-    @Override
-    public UpdateRequestBuilder prepareBatchUpdate(ApplicationReferenceAlarm data) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationReferenceAlarmTable.COLUMN_FRONT_APPLICATION_ID, data.getFrontApplicationId());
-        source.put(ApplicationReferenceAlarmTable.COLUMN_BEHIND_APPLICATION_ID, data.getBehindApplicationId());
-        source.put(ApplicationReferenceAlarmTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
+    @Override protected Map<String, Object> esStreamDataToEsData(ApplicationReferenceAlarm streamData) {
+        Map<String, Object> target = new HashMap<>();
+        target.put(ApplicationReferenceAlarmTable.FRONT_APPLICATION_ID.getName(), streamData.getFrontApplicationId());
+        target.put(ApplicationReferenceAlarmTable.BEHIND_APPLICATION_ID.getName(), streamData.getBehindApplicationId());
+        target.put(ApplicationReferenceAlarmTable.SOURCE_VALUE.getName(), streamData.getSourceValue());
 
-        source.put(ApplicationReferenceAlarmTable.COLUMN_ALARM_TYPE, data.getAlarmType());
-        source.put(ApplicationReferenceAlarmTable.COLUMN_ALARM_CONTENT, data.getAlarmContent());
+        target.put(ApplicationReferenceAlarmTable.ALARM_TYPE.getName(), streamData.getAlarmType());
+        target.put(ApplicationReferenceAlarmTable.ALARM_CONTENT.getName(), streamData.getAlarmContent());
 
-        source.put(ApplicationReferenceAlarmTable.COLUMN_LAST_TIME_BUCKET, data.getLastTimeBucket());
-
-        return getClient().prepareUpdate(ApplicationReferenceAlarmTable.TABLE, data.getId()).setDoc(source);
+        target.put(ApplicationReferenceAlarmTable.LAST_TIME_BUCKET.getName(), streamData.getLastTimeBucket());
+        return target;
     }
 
-    @Override
-    public void deleteHistory(Long startTimestamp, Long endTimestamp) {
-        long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
-        long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
-        BulkByScrollResponse response = getClient().prepareDelete(
-                QueryBuilders.rangeQuery(ApplicationReferenceAlarmTable.COLUMN_LAST_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket),
-                ApplicationReferenceAlarmTable.TABLE)
-                .get();
+    @Override protected String timeBucketColumnNameForDelete() {
+        return ApplicationReferenceAlarmTable.LAST_TIME_BUCKET.getName();
+    }
 
-        long deleted = response.getDeleted();
-        logger.info("Delete {} rows history from {} index.", deleted, ApplicationReferenceAlarmTable.TABLE);
+    @GraphComputingMetric(name = "/persistence/get/" + ApplicationReferenceAlarmTable.TABLE)
+    @Override public final ApplicationReferenceAlarm get(String id) {
+        return super.get(id);
     }
 }

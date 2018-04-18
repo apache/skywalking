@@ -32,32 +32,32 @@ import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMappin
  */
 public abstract class AbstractInstanceMappingH2PersistenceDAO extends AbstractPersistenceH2DAO<InstanceMapping> {
 
-    public AbstractInstanceMappingH2PersistenceDAO(H2Client client) {
+    AbstractInstanceMappingH2PersistenceDAO(H2Client client) {
         super(client);
     }
 
     @Override protected final InstanceMapping h2DataToStreamData(ResultSet resultSet) throws SQLException {
         InstanceMapping instanceMapping = new InstanceMapping();
-        instanceMapping.setId(resultSet.getString(InstanceMappingTable.COLUMN_ID));
-        instanceMapping.setMetricId(resultSet.getString(InstanceMappingTable.COLUMN_METRIC_ID));
+        instanceMapping.setId(resultSet.getString(InstanceMappingTable.ID.getName()));
+        instanceMapping.setMetricId(resultSet.getString(InstanceMappingTable.METRIC_ID.getName()));
 
-        instanceMapping.setApplicationId(resultSet.getInt(InstanceMappingTable.COLUMN_APPLICATION_ID));
-        instanceMapping.setInstanceId(resultSet.getInt(InstanceMappingTable.COLUMN_INSTANCE_ID));
-        instanceMapping.setAddressId(resultSet.getInt(InstanceMappingTable.COLUMN_ADDRESS_ID));
-        instanceMapping.setTimeBucket(resultSet.getLong(InstanceMappingTable.COLUMN_TIME_BUCKET));
+        instanceMapping.setApplicationId(resultSet.getInt(InstanceMappingTable.APPLICATION_ID.getName()));
+        instanceMapping.setInstanceId(resultSet.getInt(InstanceMappingTable.INSTANCE_ID.getName()));
+        instanceMapping.setAddressId(resultSet.getInt(InstanceMappingTable.ADDRESS_ID.getName()));
+        instanceMapping.setTimeBucket(resultSet.getLong(InstanceMappingTable.TIME_BUCKET.getName()));
         return instanceMapping;
     }
 
     @Override protected final Map<String, Object> streamDataToH2Data(InstanceMapping streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(InstanceMappingTable.COLUMN_ID, streamData.getId());
-        source.put(InstanceMappingTable.COLUMN_METRIC_ID, streamData.getMetricId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(InstanceMappingTable.ID.getName(), streamData.getId());
+        target.put(InstanceMappingTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(InstanceMappingTable.COLUMN_APPLICATION_ID, streamData.getApplicationId());
-        source.put(InstanceMappingTable.COLUMN_INSTANCE_ID, streamData.getInstanceId());
-        source.put(InstanceMappingTable.COLUMN_ADDRESS_ID, streamData.getAddressId());
-        source.put(InstanceMappingTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
+        target.put(InstanceMappingTable.APPLICATION_ID.getName(), streamData.getApplicationId());
+        target.put(InstanceMappingTable.INSTANCE_ID.getName(), streamData.getInstanceId());
+        target.put(InstanceMappingTable.ADDRESS_ID.getName(), streamData.getAddressId());
+        target.put(InstanceMappingTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
 
-        return source;
+        return target;
     }
 }
