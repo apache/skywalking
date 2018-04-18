@@ -18,7 +18,11 @@
 
 package org.apache.skywalking.apm.collector.core.data;
 
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.function.IntFunction;
+
+import static java.util.Optional.ofNullable;
 
 /**
  * @author peng-yongsheng
@@ -94,33 +98,15 @@ public abstract class AbstractData {
     }
 
     public final Long getDataLong(int position) {
-        if (position + 1 > dataLongs.length) {
-            throw new IndexOutOfBoundsException();
-        } else if (dataLongs[position] == null) {
-            return 0L;
-        } else {
-            return dataLongs[position];
-        }
+        return ofNullable(dataLongs[position]).orElse(0L);
     }
 
     public final Double getDataDouble(int position) {
-        if (position + 1 > dataDoubles.length) {
-            throw new IndexOutOfBoundsException();
-        } else if (dataDoubles[position] == null) {
-            return 0D;
-        } else {
-            return dataDoubles[position];
-        }
+        return ofNullable(dataDoubles[position]).orElse(0D);
     }
 
     public final Integer getDataInteger(int position) {
-        if (position + 1 > dataIntegers.length) {
-            throw new IndexOutOfBoundsException();
-        } else if (dataIntegers[position] == null) {
-            return 0;
-        } else {
-            return dataIntegers[position];
-        }
+        return ofNullable(dataIntegers[position]).orElse(0);
     }
 
     public final byte[] getDataBytes(int position) {
@@ -157,31 +143,21 @@ public abstract class AbstractData {
 
     @SuppressWarnings("unchecked")
     private void calculateFormula() {
-        for (int i = 0; i < stringColumns.length; i++) {
-            if (ObjectUtils.isNotEmpty(stringColumns[i].getFormulaOperation())) {
-                String stringData = (String)stringColumns[i].getFormulaOperation().operate(this);
-                this.dataStrings[i] = stringData;
-            }
-        }
-        for (int i = 0; i < longColumns.length; i++) {
-            if (ObjectUtils.isNotEmpty(longColumns[i].getFormulaOperation())) {
-                Long longData = (Long)longColumns[i].getFormulaOperation().operate(this);
-                this.dataLongs[i] = longData;
-            }
-        }
-        for (int i = 0; i < doubleColumns.length; i++) {
-            if (ObjectUtils.isNotEmpty(doubleColumns[i].getFormulaOperation())) {
-                Double doubleData = (Double)doubleColumns[i].getFormulaOperation().operate(this);
-                this.dataDoubles[i] = doubleData;
-            }
-        }
-        for (int i = 0; i < integerColumns.length; i++) {
-            if (ObjectUtils.isNotEmpty(integerColumns[i].getFormulaOperation())) {
-                Integer integerData = (Integer)integerColumns[i].getFormulaOperation().operate(this);
-                this.dataIntegers[i] = integerData;
-            }
-        }
+        this.dataStrings = calculate(stringColumns, String[]::new);
+        this.dataLongs = calculate(stringColumns, Long[]::new);
+        this.dataDoubles = calculate(stringColumns, Double[]::new);
+        this.dataIntegers = calculate(stringColumns, Integer[]::new);
     }
+
+    @SuppressWarnings("unchecked")
+    private <T> T[] calculate(Column[] columns, IntFunction<T[]> arrayInitializer) {
+        return Arrays.stream(columns)
+                .filter(Objects::nonNull)
+                .map(t -> (T) t.getFormulaOperation().operate(this))
+                .toArray(arrayInitializer);
+
+    }
+
 
     @Override public final String toString() {
         StringBuilder dataStr = new StringBuilder();

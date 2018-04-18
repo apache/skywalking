@@ -18,10 +18,7 @@
 
 package org.apache.skywalking.apm.collector.ui.query;
 
-import java.text.ParseException;
-import java.util.List;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.ui.common.Duration;
 import org.apache.skywalking.apm.collector.storage.ui.common.ResponseTimeTrend;
 import org.apache.skywalking.apm.collector.storage.ui.common.ThroughputTrend;
@@ -32,6 +29,10 @@ import org.apache.skywalking.apm.collector.storage.ui.server.MemoryTrend;
 import org.apache.skywalking.apm.collector.ui.graphql.Query;
 import org.apache.skywalking.apm.collector.ui.service.ServerService;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
+
+import java.text.ParseException;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author peng-yongsheng
@@ -46,7 +47,7 @@ public class ServerQuery implements Query {
     }
 
     private ServerService getServerService() {
-        if (ObjectUtils.isEmpty(serverService)) {
+        if (Objects.isNull(serverService)) {
             this.serverService = new ServerService(moduleManager);
         }
         return serverService;
