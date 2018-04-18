@@ -29,21 +29,21 @@ import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
 public class ApplicationReferenceAlarm extends StreamData implements Alarm {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(ApplicationReferenceAlarmTable.COLUMN_ID, new NonMergeOperation()),
-        new Column(ApplicationReferenceAlarmTable.COLUMN_ALARM_CONTENT, new CoverMergeOperation()),
+        new Column(ApplicationReferenceAlarmTable.ID, new NonMergeOperation()),
+        new Column(ApplicationReferenceAlarmTable.ALARM_CONTENT, new CoverMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(ApplicationReferenceAlarmTable.COLUMN_LAST_TIME_BUCKET, new CoverMergeOperation()),
+        new Column(ApplicationReferenceAlarmTable.LAST_TIME_BUCKET, new CoverMergeOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {};
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(ApplicationReferenceAlarmTable.COLUMN_ALARM_TYPE, new NonMergeOperation()),
-        new Column(ApplicationReferenceAlarmTable.COLUMN_SOURCE_VALUE, new NonMergeOperation()),
-        new Column(ApplicationReferenceAlarmTable.COLUMN_FRONT_APPLICATION_ID, new NonMergeOperation()),
-        new Column(ApplicationReferenceAlarmTable.COLUMN_BEHIND_APPLICATION_ID, new NonMergeOperation()),
+        new Column(ApplicationReferenceAlarmTable.ALARM_TYPE, new NonMergeOperation()),
+        new Column(ApplicationReferenceAlarmTable.SOURCE_VALUE, new NonMergeOperation()),
+        new Column(ApplicationReferenceAlarmTable.FRONT_APPLICATION_ID, new NonMergeOperation()),
+        new Column(ApplicationReferenceAlarmTable.BEHIND_APPLICATION_ID, new NonMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};

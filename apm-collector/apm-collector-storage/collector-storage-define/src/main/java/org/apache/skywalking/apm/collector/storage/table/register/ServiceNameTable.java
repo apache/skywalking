@@ -18,16 +18,18 @@
 
 package org.apache.skywalking.apm.collector.storage.table.register;
 
+import org.apache.skywalking.apm.collector.core.data.ColumnName;
 import org.apache.skywalking.apm.collector.core.data.CommonTable;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceNameTable extends CommonTable {
-    public static final String TABLE = "service_name";
-    public static final String COLUMN_SERVICE_NAME = "service_name";
-    public static final String COLUMN_SERVICE_NAME_KEYWORD = "service_name_keyword";
-    public static final String COLUMN_SRC_SPAN_TYPE = "src_span_type";
-    public static final String COLUMN_APPLICATION_ID = "application_id";
-    public static final String COLUMN_SERVICE_ID = "service_id";
+public interface ServiceNameTable extends CommonTable, RegisterColumns {
+    String TABLE = "service_name";
+
+    ColumnName SERVICE_NAME = new ColumnName("service_name", "sn");
+
+    ColumnName SERVICE_NAME_KEYWORD = new ColumnName("service_name_keyword", "snk");
+
+    ColumnName SRC_SPAN_TYPE = new ColumnName("src_span_type", "sst");
 }

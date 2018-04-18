@@ -60,16 +60,16 @@ public class MemoryMetricH2UIDAO extends H2DAO implements IMemoryMetricUIDAO {
         String tableName = TimePyramidTableNameBuilder.build(step, MemoryMetricTable.TABLE);
 
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_MEMORY_METRIC_SQL, tableName, MemoryMetricTable.COLUMN_ID);
+        String sql = SqlBuilder.buildSql(GET_MEMORY_METRIC_SQL, tableName, MemoryMetricTable.ID.getName());
 
         Trend trend = new Trend();
         durationPoints.forEach(durationPoint -> {
             String id = durationPoint.getPoint() + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + BooleanUtils.booleanToValue(isHeap);
             try (ResultSet rs = client.executeQuery(sql, new String[] {id})) {
                 if (rs.next()) {
-                    long max = rs.getLong(MemoryMetricTable.COLUMN_MAX);
-                    long used = rs.getLong(MemoryMetricTable.COLUMN_USED);
-                    long times = rs.getLong(MemoryMetricTable.COLUMN_TIMES);
+                    long max = rs.getLong(MemoryMetricTable.MAX.getName());
+                    long used = rs.getLong(MemoryMetricTable.USED.getName());
+                    long times = rs.getLong(MemoryMetricTable.TIMES.getName());
                     trend.getMetrics().add((int)(used / times));
 
                     if (max < 0) {

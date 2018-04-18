@@ -18,15 +18,18 @@
 
 package org.apache.skywalking.apm.collector.storage.table.register;
 
+import org.apache.skywalking.apm.collector.core.data.ColumnName;
 import org.apache.skywalking.apm.collector.core.data.CommonTable;
 
 /**
  * @author peng-yongsheng
  */
-public class NetworkAddressTable extends CommonTable {
-    public static final String TABLE = "network_address";
-    public static final String COLUMN_NETWORK_ADDRESS = "network_address";
-    public static final String COLUMN_SPAN_LAYER = "span_layer";
-    public static final String COLUMN_SERVER_TYPE = "server_type";
-    public static final String COLUMN_ADDRESS_ID = "address_id";
+public interface NetworkAddressTable extends CommonTable, RegisterColumns {
+    String TABLE = "network_address";
+
+    ColumnName NETWORK_ADDRESS = new ColumnName("network_address", "na");
+
+    ColumnName SRC_SPAN_LAYER = new ColumnName("src_span_layer", "ssl");
+
+    ColumnName SERVER_TYPE = new ColumnName("server_type", "st");
 }

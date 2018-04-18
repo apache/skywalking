@@ -22,11 +22,12 @@ import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegi
 import org.apache.skywalking.apm.collector.analysis.register.define.service.INetworkAddressIDService;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IServiceNameService;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
+import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
+import org.apache.skywalking.apm.collector.configuration.service.IComponentLibraryCatalogService;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
-import org.apache.skywalking.apm.collector.storage.table.register.ServerTypeDefine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +41,7 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
     private static SpanIdExchanger EXCHANGER;
     private final IServiceNameService serviceNameService;
     private final INetworkAddressIDService networkAddressIDService;
+    private final IComponentLibraryCatalogService componentLibraryCatalogService;
 
     public static SpanIdExchanger getInstance(ModuleManager moduleManager) {
         if (EXCHANGER == null) {
@@ -51,10 +53,24 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
     private SpanIdExchanger(ModuleManager moduleManager) {
         this.serviceNameService = moduleManager.find(AnalysisRegisterModule.NAME).getService(IServiceNameService.class);
         this.networkAddressIDService = moduleManager.find(AnalysisRegisterModule.NAME).getService(INetworkAddressIDService.class);
+        this.componentLibraryCatalogService = moduleManager.find(ConfigurationModule.NAME).getService(IComponentLibraryCatalogService.class);
     }
 
     @GraphComputingMetric(name = "/segment/parse/exchange/spanIdExchanger")
     @Override public boolean exchange(SpanDecorator standardBuilder, int applicationId) {
+        if (standardBuilder.getComponentId() == 0 && StringUtils.isNotEmpty(standardBuilder.getComponent())) {
+            int componentId = componentLibraryCatalogService.getComponentId(standardBuilder.getComponent());
+
+            if (componentId == 0) {
+                logger.debug("component: {} in application: {} exchange failed", standardBuilder.getComponent(), applicationId);
+                return false;
+            } else {
+                standardBuilder.toBuilder();
+                standardBuilder.setComponentId(componentId);
+                standardBuilder.setComponent(Const.EMPTY_STRING);
+            }
+        }
+
         if (standardBuilder.getPeerId() == 0 && StringUtils.isNotEmpty(standardBuilder.getPeer())) {
             int peerId = networkAddressIDService.getOrCreate(standardBuilder.getPeer());
 
@@ -67,7 +83,7 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
                 standardBuilder.setPeer(Const.EMPTY_STRING);
 
                 int spanLayer = standardBuilder.getSpanLayerValue();
-                int serverType = ServerTypeDefine.getInstance().getServerTypeId(standardBuilder.getComponentId());
+                int serverType = componentLibraryCatalogService.getServerIdBasedOnComponent(standardBuilder.getComponentId());
                 networkAddressIDService.update(peerId, spanLayer, serverType);
             }
         }

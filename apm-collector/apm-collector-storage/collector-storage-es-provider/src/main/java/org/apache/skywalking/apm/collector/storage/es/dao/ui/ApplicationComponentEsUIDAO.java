@@ -52,15 +52,15 @@ public class ApplicationComponentEsUIDAO extends EsDAO implements IApplicationCo
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
         searchRequestBuilder.setTypes(ApplicationComponentTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-        searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(ApplicationComponentTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
+        searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(ApplicationComponentTable.TIME_BUCKET.getName()).gte(startTimeBucket).lte(endTimeBucket));
         searchRequestBuilder.setSize(0);
 
-        searchRequestBuilder.addAggregation(AggregationBuilders.terms(ApplicationComponentTable.COLUMN_COMPONENT_ID).field(ApplicationComponentTable.COLUMN_COMPONENT_ID).size(100)
-            .subAggregation(AggregationBuilders.terms(ApplicationComponentTable.COLUMN_APPLICATION_ID).field(ApplicationComponentTable.COLUMN_APPLICATION_ID).size(100)));
+        searchRequestBuilder.addAggregation(AggregationBuilders.terms(ApplicationComponentTable.COMPONENT_ID.getName()).field(ApplicationComponentTable.COMPONENT_ID.getName()).size(100)
+            .subAggregation(AggregationBuilders.terms(ApplicationComponentTable.APPLICATION_ID.getName()).field(ApplicationComponentTable.APPLICATION_ID.getName()).size(100)));
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
-        Terms componentIdTerms = searchResponse.getAggregations().get(ApplicationComponentTable.COLUMN_COMPONENT_ID);
+        Terms componentIdTerms = searchResponse.getAggregations().get(ApplicationComponentTable.COMPONENT_ID.getName());
 
         List<ApplicationComponent> applicationComponents = new LinkedList<>();
         for (Terms.Bucket componentIdBucket : componentIdTerms.getBuckets()) {
@@ -73,7 +73,7 @@ public class ApplicationComponentEsUIDAO extends EsDAO implements IApplicationCo
 
     private void buildApplicationComponents(Terms.Bucket componentBucket, int componentId,
         List<ApplicationComponent> applicationComponents) {
-        Terms peerIdTerms = componentBucket.getAggregations().get(ApplicationComponentTable.COLUMN_APPLICATION_ID);
+        Terms peerIdTerms = componentBucket.getAggregations().get(ApplicationComponentTable.APPLICATION_ID.getName());
         for (Terms.Bucket peerIdBucket : peerIdTerms.getBuckets()) {
             int applicationId = peerIdBucket.getKeyAsNumber().intValue();
 

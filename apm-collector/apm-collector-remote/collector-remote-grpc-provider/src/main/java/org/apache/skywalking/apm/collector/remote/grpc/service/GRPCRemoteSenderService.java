@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.collector.remote.grpc.service;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.cluster.ClusterModuleListener;
 import org.apache.skywalking.apm.collector.core.UnexpectedException;
@@ -91,7 +92,7 @@ public class GRPCRemoteSenderService extends ClusterModuleListener implements Re
     }
 
     @Override public synchronized void serverJoinNotify(String serverAddress) {
-        List<RemoteClient> newRemoteClients = new ArrayList<>();
+        List<RemoteClient> newRemoteClients = new LinkedList<>();
         newRemoteClients.addAll(remoteClients);
 
         String host = serverAddress.split(":")[0];
@@ -105,7 +106,7 @@ public class GRPCRemoteSenderService extends ClusterModuleListener implements Re
     }
 
     @Override public synchronized void serverQuitNotify(String serverAddress) {
-        List<RemoteClient> newRemoteClients = new ArrayList<>();
+        List<RemoteClient> newRemoteClients = new LinkedList<>();
         newRemoteClients.addAll(remoteClients);
 
         for (int i = newRemoteClients.size() - 1; i >= 0; i--) {

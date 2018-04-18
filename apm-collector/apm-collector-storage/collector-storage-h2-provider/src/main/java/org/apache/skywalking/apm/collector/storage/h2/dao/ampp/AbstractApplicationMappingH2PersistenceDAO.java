@@ -38,24 +38,24 @@ public abstract class AbstractApplicationMappingH2PersistenceDAO extends Abstrac
 
     @Override protected final ApplicationMapping h2DataToStreamData(ResultSet resultSet) throws SQLException {
         ApplicationMapping applicationMapping = new ApplicationMapping();
-        applicationMapping.setId(resultSet.getString(ApplicationMappingTable.COLUMN_ID));
-        applicationMapping.setMetricId(resultSet.getString(ApplicationMappingTable.COLUMN_METRIC_ID));
+        applicationMapping.setId(resultSet.getString(ApplicationMappingTable.ID.getName()));
+        applicationMapping.setMetricId(resultSet.getString(ApplicationMappingTable.METRIC_ID.getName()));
 
-        applicationMapping.setApplicationId(resultSet.getInt(ApplicationMappingTable.COLUMN_APPLICATION_ID));
-        applicationMapping.setMappingApplicationId(resultSet.getInt(ApplicationMappingTable.COLUMN_MAPPING_APPLICATION_ID));
-        applicationMapping.setTimeBucket(resultSet.getLong(ApplicationMappingTable.COLUMN_TIME_BUCKET));
+        applicationMapping.setApplicationId(resultSet.getInt(ApplicationMappingTable.APPLICATION_ID.getName()));
+        applicationMapping.setMappingApplicationId(resultSet.getInt(ApplicationMappingTable.MAPPING_APPLICATION_ID.getName()));
+        applicationMapping.setTimeBucket(resultSet.getLong(ApplicationMappingTable.TIME_BUCKET.getName()));
         return applicationMapping;
     }
 
     @Override protected final Map<String, Object> streamDataToH2Data(ApplicationMapping streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationMappingTable.COLUMN_ID, streamData.getId());
-        source.put(ApplicationMappingTable.COLUMN_METRIC_ID, streamData.getMetricId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(ApplicationMappingTable.ID.getName(), streamData.getId());
+        target.put(ApplicationMappingTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(ApplicationMappingTable.COLUMN_APPLICATION_ID, streamData.getApplicationId());
-        source.put(ApplicationMappingTable.COLUMN_MAPPING_APPLICATION_ID, streamData.getMappingApplicationId());
-        source.put(ApplicationMappingTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
+        target.put(ApplicationMappingTable.APPLICATION_ID.getName(), streamData.getApplicationId());
+        target.put(ApplicationMappingTable.MAPPING_APPLICATION_ID.getName(), streamData.getMappingApplicationId());
+        target.put(ApplicationMappingTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
 
-        return source;
+        return target;
     }
 }

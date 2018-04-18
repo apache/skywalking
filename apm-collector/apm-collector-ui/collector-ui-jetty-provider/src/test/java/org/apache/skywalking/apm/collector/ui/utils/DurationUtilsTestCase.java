@@ -18,13 +18,14 @@
 
 package org.apache.skywalking.apm.collector.ui.utils;
 
-import java.text.ParseException;
-import java.util.List;
 import org.apache.skywalking.apm.collector.core.UnexpectedException;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.text.ParseException;
+import java.util.List;
 
 /**
  * @author peng-yongsheng
@@ -144,5 +145,24 @@ public class DurationUtilsTestCase {
 
         secondTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(Step.SECOND, "20171001080501");
         Assert.assertEquals(20171001080501L, secondTimeBucket);
+    }
+
+    @Test
+    public void testSecondsBetween() throws ParseException {
+        int secondsBetweenMonth = DurationUtils.INSTANCE.secondsBetween(Step.MONTH, 201804L, 201805L);
+        Assert.assertEquals(secondsBetweenMonth, 30 * 24 * 3600);
+
+        int secondsBetweenDay = DurationUtils.INSTANCE.secondsBetween(Step.DAY, 20180401L, 20180402L);
+        Assert.assertEquals(secondsBetweenDay, 24 * 3600);
+
+        int secondsBetweenHour = DurationUtils.INSTANCE.secondsBetween(Step.HOUR, 2018040101L, 2018040102L);
+        Assert.assertEquals(secondsBetweenHour, 3600);
+
+        int secondsBetweenMinute = DurationUtils.INSTANCE.secondsBetween(Step.MINUTE, 201804010100L, 201804010101L);
+        Assert.assertEquals(secondsBetweenMinute, 60);
+
+        int secondsBetweenSecond = DurationUtils.INSTANCE.secondsBetween(Step.SECOND, 20180401010000L, 20180401010001L);
+        Assert.assertEquals(secondsBetweenSecond, 1);
+
     }
 }

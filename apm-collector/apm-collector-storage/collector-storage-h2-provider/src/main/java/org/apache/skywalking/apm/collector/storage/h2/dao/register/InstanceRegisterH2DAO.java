@@ -45,29 +45,29 @@ public class InstanceRegisterH2DAO extends H2DAO implements IInstanceRegisterDAO
     private static final String UPDATE_HEARTBEAT_TIME_SQL = "update {0} set {1} = ? where {2} = ?";
 
     @Override public int getMaxInstanceId() {
-        return getMaxId(InstanceTable.TABLE, InstanceTable.COLUMN_INSTANCE_ID);
+        return getMaxId(InstanceTable.TABLE, InstanceTable.INSTANCE_ID.getName());
     }
 
     @Override public int getMinInstanceId() {
-        return getMinId(InstanceTable.TABLE, InstanceTable.COLUMN_INSTANCE_ID);
+        return getMinId(InstanceTable.TABLE, InstanceTable.INSTANCE_ID.getName());
     }
 
     @Override public void save(Instance instance) {
         H2Client client = getClient();
-        Map<String, Object> source = new HashMap<>();
-        source.put(InstanceTable.COLUMN_ID, instance.getId());
-        source.put(InstanceTable.COLUMN_INSTANCE_ID, instance.getInstanceId());
-        source.put(InstanceTable.COLUMN_APPLICATION_ID, instance.getApplicationId());
-        source.put(InstanceTable.COLUMN_APPLICATION_CODE, instance.getApplicationCode());
-        source.put(InstanceTable.COLUMN_AGENT_UUID, instance.getAgentUUID());
-        source.put(InstanceTable.COLUMN_REGISTER_TIME, TimeBucketUtils.INSTANCE.getSecondTimeBucket(instance.getRegisterTime()));
-        source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, TimeBucketUtils.INSTANCE.getSecondTimeBucket(instance.getHeartBeatTime()));
-        source.put(InstanceTable.COLUMN_OS_INFO, instance.getOsInfo());
-        source.put(InstanceTable.COLUMN_ADDRESS_ID, instance.getAddressId());
-        source.put(InstanceTable.COLUMN_IS_ADDRESS, instance.getIsAddress());
+        Map<String, Object> target = new HashMap<>();
+        target.put(InstanceTable.ID.getName(), instance.getId());
+        target.put(InstanceTable.INSTANCE_ID.getName(), instance.getInstanceId());
+        target.put(InstanceTable.APPLICATION_ID.getName(), instance.getApplicationId());
+        target.put(InstanceTable.APPLICATION_CODE.getName(), instance.getApplicationCode());
+        target.put(InstanceTable.AGENT_UUID.getName(), instance.getAgentUUID());
+        target.put(InstanceTable.REGISTER_TIME.getName(), TimeBucketUtils.INSTANCE.getSecondTimeBucket(instance.getRegisterTime()));
+        target.put(InstanceTable.HEARTBEAT_TIME.getName(), TimeBucketUtils.INSTANCE.getSecondTimeBucket(instance.getHeartBeatTime()));
+        target.put(InstanceTable.OS_INFO.getName(), instance.getOsInfo());
+        target.put(InstanceTable.ADDRESS_ID.getName(), instance.getAddressId());
+        target.put(InstanceTable.IS_ADDRESS.getName(), instance.getIsAddress());
 
-        String sql = SqlBuilder.buildBatchInsertSql(InstanceTable.TABLE, source.keySet());
-        Object[] params = source.values().toArray(new Object[0]);
+        String sql = SqlBuilder.buildBatchInsertSql(InstanceTable.TABLE, target.keySet());
+        Object[] params = target.values().toArray(new Object[0]);
         try {
             client.execute(sql, params);
         } catch (H2ClientException e) {
@@ -77,8 +77,8 @@ public class InstanceRegisterH2DAO extends H2DAO implements IInstanceRegisterDAO
 
     @Override public void updateHeartbeatTime(int instanceId, long heartbeatTime) {
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(UPDATE_HEARTBEAT_TIME_SQL, InstanceTable.TABLE, InstanceTable.COLUMN_HEARTBEAT_TIME,
-            InstanceTable.COLUMN_ID);
+        String sql = SqlBuilder.buildSql(UPDATE_HEARTBEAT_TIME_SQL, InstanceTable.TABLE, InstanceTable.HEARTBEAT_TIME.getName(),
+            InstanceTable.ID.getName());
         Object[] params = new Object[] {TimeBucketUtils.INSTANCE.getSecondTimeBucket(heartbeatTime), instanceId};
         try {
             client.execute(sql, params);

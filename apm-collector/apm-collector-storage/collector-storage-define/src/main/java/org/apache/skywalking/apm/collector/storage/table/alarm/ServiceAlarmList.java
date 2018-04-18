@@ -31,22 +31,22 @@ import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterServ
 public class ServiceAlarmList extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(ServiceAlarmListTable.COLUMN_ID, new NonMergeOperation()),
-        new Column(ServiceAlarmListTable.COLUMN_ALARM_CONTENT, new CoverMergeOperation()),
+        new Column(ServiceAlarmListTable.ID, new NonMergeOperation()),
+        new Column(ServiceAlarmListTable.ALARM_CONTENT, new CoverMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(ServiceAlarmListTable.COLUMN_TIME_BUCKET, new NonMergeOperation()),
+        new Column(ServiceAlarmListTable.TIME_BUCKET, new NonMergeOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {};
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(ServiceAlarmListTable.COLUMN_ALARM_TYPE, new NonMergeOperation()),
-        new Column(ServiceAlarmListTable.COLUMN_SOURCE_VALUE, new NonMergeOperation()),
-        new Column(ServiceAlarmListTable.COLUMN_APPLICATION_ID, new NonMergeOperation()),
-        new Column(ServiceAlarmListTable.COLUMN_INSTANCE_ID, new NonMergeOperation()),
-        new Column(ServiceAlarmListTable.COLUMN_SERVICE_ID, new NonMergeOperation()),
+        new Column(ServiceAlarmListTable.ALARM_TYPE, new NonMergeOperation()),
+        new Column(ServiceAlarmListTable.SOURCE_VALUE, new NonMergeOperation()),
+        new Column(ServiceAlarmListTable.APPLICATION_ID, new NonMergeOperation()),
+        new Column(ServiceAlarmListTable.INSTANCE_ID, new NonMergeOperation()),
+        new Column(ServiceAlarmListTable.SERVICE_ID, new NonMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};

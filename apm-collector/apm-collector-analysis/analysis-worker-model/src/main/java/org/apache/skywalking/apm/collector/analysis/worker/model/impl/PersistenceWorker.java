@@ -50,18 +50,20 @@ public abstract class PersistenceWorker<INPUT_AND_OUTPUT extends StreamData> ext
         this.batchDAO = moduleManager.find(StorageModule.NAME).getService(IBatchDAO.class);
     }
 
-    public void flushAndSwitch() {
+    public boolean flushAndSwitch() {
+        boolean isSwitch;
         try {
-            if (dataCache.trySwitchPointer()) {
+            if (isSwitch = dataCache.trySwitchPointer()) {
                 dataCache.switchPointer();
             }
         } finally {
             dataCache.trySwitchPointerFinally();
         }
+        return isSwitch;
     }
 
     @Override protected void onWork(INPUT_AND_OUTPUT input) {
-        if (dataCache.currentCollectionSize() >= 5000) {
+        if (dataCache.currentCollectionSize() >= 520000) {
             try {
                 if (dataCache.trySwitchPointer()) {
                     dataCache.switchPointer();

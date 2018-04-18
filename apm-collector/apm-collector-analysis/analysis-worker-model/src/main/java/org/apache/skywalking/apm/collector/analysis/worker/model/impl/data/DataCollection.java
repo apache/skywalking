@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.apm.collector.analysis.worker.model.impl.data;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import org.apache.skywalking.apm.collector.core.cache.Collection;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
 
@@ -32,7 +32,7 @@ public class DataCollection<STREAM_DATA extends StreamData> implements Collectio
     private volatile boolean reading;
 
     DataCollection() {
-        this.data = new ConcurrentHashMap<>();
+        this.data = new LinkedHashMap<>();
         this.writing = false;
         this.reading = false;
     }

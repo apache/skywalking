@@ -46,15 +46,15 @@ public class ServiceNameH2CacheDAO extends H2DAO implements IServiceNameCacheDAO
 
     @Override public ServiceName get(int serviceId) {
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_SERVICE_NAME_SQL, ServiceNameTable.COLUMN_APPLICATION_ID, ServiceNameTable.COLUMN_SERVICE_NAME,
-            ServiceNameTable.TABLE, ServiceNameTable.COLUMN_SERVICE_ID);
+        String sql = SqlBuilder.buildSql(GET_SERVICE_NAME_SQL, ServiceNameTable.APPLICATION_ID.getName(), ServiceNameTable.SERVICE_NAME.getName(),
+            ServiceNameTable.TABLE, ServiceNameTable.SERVICE_ID.getName());
         Object[] params = new Object[] {serviceId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
                 ServiceName serviceName = new ServiceName();
                 serviceName.setServiceId(serviceId);
-                serviceName.setApplicationId(rs.getInt(ServiceNameTable.COLUMN_APPLICATION_ID));
-                serviceName.setServiceName(rs.getString(ServiceNameTable.COLUMN_SERVICE_NAME));
+                serviceName.setApplicationId(rs.getInt(ServiceNameTable.APPLICATION_ID.getName()));
+                serviceName.setServiceName(rs.getString(ServiceNameTable.SERVICE_NAME.getName()));
                 return serviceName;
             }
         } catch (SQLException | H2ClientException e) {
@@ -65,13 +65,13 @@ public class ServiceNameH2CacheDAO extends H2DAO implements IServiceNameCacheDAO
 
     @Override public int getServiceId(int applicationId, int srcSpanType, String serviceName) {
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_SERVICE_ID_SQL, ServiceNameTable.COLUMN_SERVICE_ID, ServiceNameTable.TABLE,
-            ServiceNameTable.COLUMN_APPLICATION_ID, ServiceNameTable.COLUMN_SRC_SPAN_TYPE, ServiceNameTable.COLUMN_SERVICE_NAME);
+        String sql = SqlBuilder.buildSql(GET_SERVICE_ID_SQL, ServiceNameTable.SERVICE_ID.getName(), ServiceNameTable.TABLE,
+            ServiceNameTable.APPLICATION_ID.getName(), ServiceNameTable.SRC_SPAN_TYPE.getName(), ServiceNameTable.SERVICE_NAME.getName());
 
         Object[] params = new Object[] {applicationId, srcSpanType, serviceName};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
-                return rs.getInt(ServiceNameTable.COLUMN_SERVICE_ID);
+                return rs.getInt(ServiceNameTable.SERVICE_ID.getName());
             }
         } catch (SQLException | H2ClientException e) {
             logger.error(e.getMessage(), e);

@@ -42,32 +42,32 @@ public class NetworkAddressRegisterEsDAO extends EsDAO implements INetworkAddres
     }
 
     @Override public int getMaxNetworkAddressId() {
-        return getMaxId(NetworkAddressTable.TABLE, NetworkAddressTable.COLUMN_ADDRESS_ID);
+        return getMaxId(NetworkAddressTable.TABLE, NetworkAddressTable.ADDRESS_ID.getName());
     }
 
     @Override public int getMinNetworkAddressId() {
-        return getMinId(NetworkAddressTable.TABLE, NetworkAddressTable.COLUMN_ADDRESS_ID);
+        return getMinId(NetworkAddressTable.TABLE, NetworkAddressTable.ADDRESS_ID.getName());
     }
 
     @Override public void save(NetworkAddress networkAddress) {
         logger.debug("save network address register info, address getApplicationId: {}, network address code: {}", networkAddress.getId(), networkAddress.getNetworkAddress());
         ElasticSearchClient client = getClient();
-        Map<String, Object> source = new HashMap<>();
-        source.put(NetworkAddressTable.COLUMN_NETWORK_ADDRESS, networkAddress.getNetworkAddress());
-        source.put(NetworkAddressTable.COLUMN_ADDRESS_ID, networkAddress.getAddressId());
-        source.put(NetworkAddressTable.COLUMN_SPAN_LAYER, networkAddress.getSpanLayer());
-        source.put(NetworkAddressTable.COLUMN_SERVER_TYPE, networkAddress.getServerType());
+        Map<String, Object> target = new HashMap<>();
+        target.put(NetworkAddressTable.NETWORK_ADDRESS.getName(), networkAddress.getNetworkAddress());
+        target.put(NetworkAddressTable.ADDRESS_ID.getName(), networkAddress.getAddressId());
+        target.put(NetworkAddressTable.SRC_SPAN_LAYER.getName(), networkAddress.getSrcSpanLayer());
+        target.put(NetworkAddressTable.SERVER_TYPE.getName(), networkAddress.getServerType());
 
-        IndexResponse response = client.prepareIndex(NetworkAddressTable.TABLE, networkAddress.getId()).setSource(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
+        IndexResponse response = client.prepareIndex(NetworkAddressTable.TABLE, networkAddress.getId()).setSource(target).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
         logger.debug("save network address register info, address getApplicationId: {}, network address code: {}, status: {}", networkAddress.getAddressId(), networkAddress.getNetworkAddress(), response.status().name());
     }
 
     @Override public void update(String id, int spanLayer, int serverType) {
         ElasticSearchClient client = getClient();
 
-        Map<String, Object> source = new HashMap<>();
-        source.put(NetworkAddressTable.COLUMN_SPAN_LAYER, spanLayer);
-        source.put(NetworkAddressTable.COLUMN_SERVER_TYPE, serverType);
-        client.prepareUpdate(NetworkAddressTable.TABLE, id).setDoc(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
+        Map<String, Object> target = new HashMap<>();
+        target.put(NetworkAddressTable.SRC_SPAN_LAYER.getName(), spanLayer);
+        target.put(NetworkAddressTable.SERVER_TYPE.getName(), serverType);
+        client.prepareUpdate(NetworkAddressTable.TABLE, id).setDoc(target).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
     }
 }
