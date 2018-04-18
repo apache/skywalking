@@ -21,6 +21,7 @@
       * [log4j2组件](cn/Application-toolkit-log4j-2.x-CN.md)
       * [logback组件](cn/Application-toolkit-logback-1.x-CN.md)
     * [Trace](cn/Application-toolkit-trace-CN.md)
+    * [调用链跨线程传递](cn/Application-toolkit-trace-cross-thread-CN.md) 
   * 测试用例
     * [插件测试](https://github.com/SkywalkingTest/agent-integration-test-report)
     * [Java 探针性能测试](https://skywalkingtest.github.io/Agent-Benchmarks/README_zh.html)

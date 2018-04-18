@@ -93,7 +93,7 @@ public class NetworkAddressIDService implements INetworkAddressIDService {
             NetworkAddress newNetworkAddress = new NetworkAddress();
             newNetworkAddress.setId(String.valueOf(Const.NONE));
             newNetworkAddress.setNetworkAddress(networkAddress);
-            newNetworkAddress.setSpanLayer(Const.NONE);
+            newNetworkAddress.setSrcSpanLayer(Const.NONE);
             newNetworkAddress.setServerType(Const.NONE);
             newNetworkAddress.setAddressId(Const.NONE);
 
@@ -111,7 +111,7 @@ public class NetworkAddressIDService implements INetworkAddressIDService {
         if (!this.compare(addressId, spanLayer, serverType)) {
             NetworkAddress newNetworkAddress = new NetworkAddress();
             newNetworkAddress.setId(String.valueOf(addressId));
-            newNetworkAddress.setSpanLayer(spanLayer);
+            newNetworkAddress.setSrcSpanLayer(spanLayer);
             newNetworkAddress.setServerType(serverType);
             newNetworkAddress.setAddressId(addressId);
 
@@ -121,8 +121,7 @@ public class NetworkAddressIDService implements INetworkAddressIDService {
 
     private boolean compare(int addressId, int spanLayer, int serverType) {
         NetworkAddress networkAddress = networkAddressCacheService.getAddress(addressId);
-
-        return isNull(networkAddress) || spanLayer == networkAddress.getSpanLayer() && serverType == networkAddress.getServerType();
+        return isNull(networkAddress) || spanLayer == networkAddress.getSrcSpanLayer() && serverType == networkAddress.getServerType();
 
     }
 }

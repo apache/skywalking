@@ -52,8 +52,8 @@ public class InstanceHeartBeatEsPersistenceDAO extends EsDAO implements IInstanc
 
             Instance instance = new Instance();
             instance.setId(id);
-            instance.setInstanceId(((Number)source.get(InstanceTable.COLUMN_INSTANCE_ID)).intValue());
-            instance.setHeartBeatTime(((Number)source.get(InstanceTable.COLUMN_HEARTBEAT_TIME)).longValue());
+            instance.setInstanceId(((Number)source.get(InstanceTable.INSTANCE_ID.getName())).intValue());
+            instance.setHeartBeatTime(((Number)source.get(InstanceTable.HEARTBEAT_TIME.getName())).longValue());
             logger.debug("getApplicationId: {} is exists", id);
             return instance;
         } else {
@@ -68,7 +68,7 @@ public class InstanceHeartBeatEsPersistenceDAO extends EsDAO implements IInstanc
 
     @Override public UpdateRequestBuilder prepareBatchUpdate(Instance data) {
         Map<String, Object> source = new HashMap<>();
-        source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, data.getHeartBeatTime());
+        source.put(InstanceTable.HEARTBEAT_TIME.getName(), data.getHeartBeatTime());
         return getClient().prepareUpdate(InstanceTable.TABLE, data.getId()).setDoc(source);
     }
 

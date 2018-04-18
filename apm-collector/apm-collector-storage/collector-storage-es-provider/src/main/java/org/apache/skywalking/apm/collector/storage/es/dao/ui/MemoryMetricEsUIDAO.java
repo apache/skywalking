@@ -68,9 +68,9 @@ public class MemoryMetricEsUIDAO extends EsDAO implements IMemoryMetricUIDAO {
         MultiGetResponse multiGetResponse = prepareMultiGet.get();
         for (MultiGetItemResponse response : multiGetResponse.getResponses()) {
             if (response.getResponse().isExists()) {
-                long max = ((Number) response.getResponse().getSource().get(MemoryMetricTable.COLUMN_MAX)).longValue();
-                long used = ((Number) response.getResponse().getSource().get(MemoryMetricTable.COLUMN_USED)).longValue();
-                long times = ((Number) response.getResponse().getSource().get(MemoryMetricTable.COLUMN_TIMES)).longValue();
+                long max = ((Number) response.getResponse().getSource().get(MemoryMetricTable.MAX.getName())).longValue();
+                long used = ((Number) response.getResponse().getSource().get(MemoryMetricTable.USED.getName())).longValue();
+                long times = ((Number) response.getResponse().getSource().get(MemoryMetricTable.TIMES.getName())).longValue();
 
                 trend.getMetrics().add((int) (used / times));
 

@@ -77,8 +77,7 @@ public class AnalysisJVMModuleProvider extends ModuleProvider {
 
         graphCreate(workerCreateListener);
 
-        PersistenceTimer persistenceTimer = new PersistenceTimer(AnalysisJVMModule.NAME);
-        persistenceTimer.start(getManager(), workerCreateListener.getPersistenceWorkers());
+        PersistenceTimer.INSTANCE.start(getManager(), workerCreateListener.getPersistenceWorkers());
     }
 
     @Override public void notifyAfterCompleted() {

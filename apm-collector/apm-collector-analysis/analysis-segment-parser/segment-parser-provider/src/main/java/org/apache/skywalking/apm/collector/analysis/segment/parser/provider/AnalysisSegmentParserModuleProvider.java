@@ -32,6 +32,7 @@ import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.serv
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.analysis.worker.timer.PersistenceTimer;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
+import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
 import org.apache.skywalking.apm.collector.core.module.Module;
 import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
@@ -78,8 +79,7 @@ public class AnalysisSegmentParserModuleProvider extends ModuleProvider {
 
         graphCreate(workerCreateListener);
 
-        PersistenceTimer persistenceTimer = new PersistenceTimer(AnalysisSegmentParserModule.NAME);
-        persistenceTimer.start(getManager(), workerCreateListener.getPersistenceWorkers());
+        PersistenceTimer.INSTANCE.start(getManager(), workerCreateListener.getPersistenceWorkers());
 
         SegmentBufferReader.INSTANCE.setSegmentParserListenerManager(listenerManager);
     }
@@ -88,7 +88,7 @@ public class AnalysisSegmentParserModuleProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {StorageModule.NAME, AnalysisRegisterModule.NAME, CacheModule.NAME};
+        return new String[] {ConfigurationModule.NAME, StorageModule.NAME, AnalysisRegisterModule.NAME, CacheModule.NAME};
     }
 
     private void graphCreate(WorkerCreateListener workerCreateListener) {

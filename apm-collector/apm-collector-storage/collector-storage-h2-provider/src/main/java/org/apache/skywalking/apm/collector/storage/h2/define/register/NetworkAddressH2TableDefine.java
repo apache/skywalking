@@ -32,10 +32,10 @@ public class NetworkAddressH2TableDefine extends H2TableDefine {
     }
 
     @Override public void initialize() {
-        addColumn(new H2ColumnDefine(NetworkAddressTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(NetworkAddressTable.COLUMN_NETWORK_ADDRESS, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(NetworkAddressTable.COLUMN_SPAN_LAYER, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(NetworkAddressTable.COLUMN_SERVER_TYPE, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(NetworkAddressTable.COLUMN_ADDRESS_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(NetworkAddressTable.ID, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(NetworkAddressTable.NETWORK_ADDRESS, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(NetworkAddressTable.SRC_SPAN_LAYER, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(NetworkAddressTable.SERVER_TYPE, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(NetworkAddressTable.ADDRESS_ID, H2ColumnDefine.Type.Int.name()));
     }
 }

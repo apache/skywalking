@@ -36,30 +36,30 @@ public abstract class AbstractInstanceMappingEsPersistenceDAO extends AbstractPe
     }
 
     @Override protected final String timeBucketColumnNameForDelete() {
-        return InstanceMappingTable.COLUMN_TIME_BUCKET;
+        return InstanceMappingTable.TIME_BUCKET.getName();
     }
 
     @Override protected final InstanceMapping esDataToStreamData(Map<String, Object> source) {
         InstanceMapping instanceMapping = new InstanceMapping();
-        instanceMapping.setMetricId((String)source.get(InstanceMappingTable.COLUMN_METRIC_ID));
+        instanceMapping.setMetricId((String)source.get(InstanceMappingTable.METRIC_ID.getName()));
 
-        instanceMapping.setApplicationId(((Number)source.get(InstanceMappingTable.COLUMN_APPLICATION_ID)).intValue());
-        instanceMapping.setInstanceId(((Number)source.get(InstanceMappingTable.COLUMN_INSTANCE_ID)).intValue());
-        instanceMapping.setAddressId(((Number)source.get(InstanceMappingTable.COLUMN_ADDRESS_ID)).intValue());
-        instanceMapping.setTimeBucket(((Number)source.get(InstanceMappingTable.COLUMN_TIME_BUCKET)).longValue());
+        instanceMapping.setApplicationId(((Number)source.get(InstanceMappingTable.APPLICATION_ID.getName())).intValue());
+        instanceMapping.setInstanceId(((Number)source.get(InstanceMappingTable.INSTANCE_ID.getName())).intValue());
+        instanceMapping.setAddressId(((Number)source.get(InstanceMappingTable.ADDRESS_ID.getName())).intValue());
+        instanceMapping.setTimeBucket(((Number)source.get(InstanceMappingTable.TIME_BUCKET.getName())).longValue());
         return instanceMapping;
     }
 
     @Override protected final Map<String, Object> esStreamDataToEsData(InstanceMapping streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(InstanceMappingTable.COLUMN_METRIC_ID, streamData.getMetricId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(InstanceMappingTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(InstanceMappingTable.COLUMN_APPLICATION_ID, streamData.getApplicationId());
-        source.put(InstanceMappingTable.COLUMN_INSTANCE_ID, streamData.getInstanceId());
-        source.put(InstanceMappingTable.COLUMN_ADDRESS_ID, streamData.getAddressId());
-        source.put(InstanceMappingTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
+        target.put(InstanceMappingTable.APPLICATION_ID.getName(), streamData.getApplicationId());
+        target.put(InstanceMappingTable.INSTANCE_ID.getName(), streamData.getInstanceId());
+        target.put(InstanceMappingTable.ADDRESS_ID.getName(), streamData.getAddressId());
+        target.put(InstanceMappingTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
 
-        return source;
+        return target;
     }
 
     @GraphComputingMetric(name = "/persistence/get/" + InstanceMappingTable.TABLE)

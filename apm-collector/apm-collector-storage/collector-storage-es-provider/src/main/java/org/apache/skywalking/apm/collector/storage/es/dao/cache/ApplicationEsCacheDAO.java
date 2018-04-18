@@ -54,8 +54,8 @@ public class ApplicationEsCacheDAO extends EsDAO implements IApplicationCacheDAO
         searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        boolQueryBuilder.must().add(QueryBuilders.termQuery(ApplicationTable.COLUMN_APPLICATION_CODE, applicationCode));
-        boolQueryBuilder.must().add(QueryBuilders.termQuery(ApplicationTable.COLUMN_IS_ADDRESS, BooleanUtils.FALSE));
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(ApplicationTable.APPLICATION_CODE.getName(), applicationCode));
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(ApplicationTable.IS_ADDRESS.getName(), BooleanUtils.FALSE));
 
         searchRequestBuilder.setQuery(boolQueryBuilder);
         searchRequestBuilder.setSize(1);
@@ -63,7 +63,7 @@ public class ApplicationEsCacheDAO extends EsDAO implements IApplicationCacheDAO
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
         if (searchResponse.getHits().totalHits > 0) {
             SearchHit searchHit = searchResponse.getHits().iterator().next();
-            return (int)searchHit.getSource().get(ApplicationTable.COLUMN_APPLICATION_ID);
+            return (int)searchHit.getSource().get(ApplicationTable.APPLICATION_ID.getName());
         }
         return 0;
     }
@@ -77,8 +77,8 @@ public class ApplicationEsCacheDAO extends EsDAO implements IApplicationCacheDAO
         if (getResponse.isExists()) {
             Application application = new Application();
             application.setApplicationId(applicationId);
-            application.setApplicationCode((String)getResponse.getSource().get(ApplicationTable.COLUMN_APPLICATION_CODE));
-            application.setIsAddress(((Number)getResponse.getSource().get(ApplicationTable.COLUMN_IS_ADDRESS)).intValue());
+            application.setApplicationCode((String)getResponse.getSource().get(ApplicationTable.APPLICATION_CODE.getName()));
+            application.setIsAddress(((Number)getResponse.getSource().get(ApplicationTable.IS_ADDRESS.getName())).intValue());
             return application;
         }
         return null;
@@ -92,8 +92,8 @@ public class ApplicationEsCacheDAO extends EsDAO implements IApplicationCacheDAO
         searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        boolQueryBuilder.must().add(QueryBuilders.termQuery(ApplicationTable.COLUMN_ADDRESS_ID, addressId));
-        boolQueryBuilder.must().add(QueryBuilders.termQuery(ApplicationTable.COLUMN_IS_ADDRESS, BooleanUtils.TRUE));
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(ApplicationTable.ADDRESS_ID.getName(), addressId));
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(ApplicationTable.IS_ADDRESS.getName(), BooleanUtils.TRUE));
 
         searchRequestBuilder.setQuery(boolQueryBuilder);
         searchRequestBuilder.setSize(1);
@@ -101,7 +101,7 @@ public class ApplicationEsCacheDAO extends EsDAO implements IApplicationCacheDAO
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
         if (searchResponse.getHits().totalHits > 0) {
             SearchHit searchHit = searchResponse.getHits().iterator().next();
-            return (int)searchHit.getSource().get(ApplicationTable.COLUMN_APPLICATION_ID);
+            return (int)searchHit.getSource().get(ApplicationTable.APPLICATION_ID.getName());
         }
         return 0;
     }

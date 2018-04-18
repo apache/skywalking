@@ -128,12 +128,26 @@ public class SpanDecorator implements StandardBuilder {
         }
     }
 
+    public void setComponentId(int value) {
+        if (isOrigin) {
+            toBuilder();
+        }
+        spanBuilder.setComponentId(value);
+    }
+
     public String getComponent() {
         if (isOrigin) {
             return spanObject.getComponent();
         } else {
             return spanBuilder.getComponent();
         }
+    }
+
+    public void setComponent(String value) {
+        if (isOrigin) {
+            toBuilder();
+        }
+        spanBuilder.setComponent(value);
     }
 
     public int getPeerId() {

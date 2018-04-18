@@ -73,7 +73,7 @@ public class ServiceReferenceMinuteMetricPersistenceWorker extends PersistenceWo
     }
 
     @GraphComputingMetric(name = "/persistence/flushAndSwitch/" + ServiceReferenceMetricTable.TABLE + "/minute")
-    @Override public void flushAndSwitch() {
-        super.flushAndSwitch();
+    @Override public boolean flushAndSwitch() {
+        return super.flushAndSwitch();
     }
 }

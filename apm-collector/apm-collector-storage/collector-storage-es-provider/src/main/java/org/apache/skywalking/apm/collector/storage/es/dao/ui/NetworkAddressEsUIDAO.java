@@ -47,7 +47,7 @@ public class NetworkAddressEsUIDAO extends EsDAO implements INetworkAddressUIDAO
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(NetworkAddressTable.TABLE);
         searchRequestBuilder.setTypes(NetworkAddressTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-        searchRequestBuilder.setQuery(QueryBuilders.termQuery(NetworkAddressTable.COLUMN_SPAN_LAYER, spanLayer));
+        searchRequestBuilder.setQuery(QueryBuilders.termQuery(NetworkAddressTable.SRC_SPAN_LAYER.getName(), spanLayer));
         searchRequestBuilder.setSize(0);
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
@@ -60,16 +60,16 @@ public class NetworkAddressEsUIDAO extends EsDAO implements INetworkAddressUIDAO
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         int[] spanLayers = new int[] {SpanLayer.Database_VALUE, SpanLayer.Cache_VALUE, SpanLayer.MQ_VALUE};
-        searchRequestBuilder.setQuery(QueryBuilders.termsQuery(NetworkAddressTable.COLUMN_SPAN_LAYER, spanLayers));
+        searchRequestBuilder.setQuery(QueryBuilders.termsQuery(NetworkAddressTable.SRC_SPAN_LAYER.getName(), spanLayers));
         searchRequestBuilder.setSize(0);
 
-        TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(NetworkAddressTable.COLUMN_SERVER_TYPE).field(NetworkAddressTable.COLUMN_SERVER_TYPE).size(100);
+        TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(NetworkAddressTable.SERVER_TYPE.getName()).field(NetworkAddressTable.SERVER_TYPE.getName()).size(100);
 
         searchRequestBuilder.addAggregation(aggregationBuilder);
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
         List<ConjecturalApp> conjecturalApps = new LinkedList<>();
-        Terms serverTypeTerms = searchResponse.getAggregations().get(NetworkAddressTable.COLUMN_SERVER_TYPE);
+        Terms serverTypeTerms = searchResponse.getAggregations().get(NetworkAddressTable.SERVER_TYPE.getName());
         serverTypeTerms.getBuckets().forEach(serverTypeTerm -> {
             int serverType = serverTypeTerm.getKeyAsNumber().intValue();
 

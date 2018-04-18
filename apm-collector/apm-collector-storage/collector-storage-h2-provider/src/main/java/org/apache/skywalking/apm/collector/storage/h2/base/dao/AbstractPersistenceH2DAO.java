@@ -51,7 +51,7 @@ public abstract class AbstractPersistenceH2DAO<STREAM_DATA extends StreamData> e
     protected abstract String tableName();
 
     @Override public final STREAM_DATA get(String id) {
-        String sql = SqlBuilder.buildSql(GET_SQL, tableName(), CommonTable.COLUMN_ID);
+        String sql = SqlBuilder.buildSql(GET_SQL, tableName(), CommonTable.ID.getName());
 
         Object[] params = new Object[] {id};
         try (ResultSet resultSet = getClient().executeQuery(sql, params)) {
@@ -68,7 +68,7 @@ public abstract class AbstractPersistenceH2DAO<STREAM_DATA extends StreamData> e
 
     @Override public final H2SqlEntity prepareBatchInsert(STREAM_DATA streamData) {
         Map<String, Object> source = streamDataToH2Data(streamData);
-        source.put(CommonTable.COLUMN_ID, streamData.getId());
+        source.put(CommonTable.ID.getName(), streamData.getId());
 
         H2SqlEntity entity = new H2SqlEntity();
 
@@ -82,7 +82,7 @@ public abstract class AbstractPersistenceH2DAO<STREAM_DATA extends StreamData> e
         Map<String, Object> source = streamDataToH2Data(streamData);
 
         H2SqlEntity entity = new H2SqlEntity();
-        String sql = SqlBuilder.buildBatchUpdateSql(tableName(), source.keySet(), CommonTable.COLUMN_ID);
+        String sql = SqlBuilder.buildBatchUpdateSql(tableName(), source.keySet(), CommonTable.ID.getName());
         entity.setSql(sql);
         List<Object> values = new ArrayList<>(source.values());
         values.add(streamData.getId());

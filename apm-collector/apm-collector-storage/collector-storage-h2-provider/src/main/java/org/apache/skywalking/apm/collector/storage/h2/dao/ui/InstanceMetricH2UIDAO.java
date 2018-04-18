@@ -58,14 +58,14 @@ public class InstanceMetricH2UIDAO extends H2DAO implements IInstanceMetricUIDAO
         H2Client client = getClient();
         String tableName = TimePyramidTableNameBuilder.build(step, InstanceMetricTable.TABLE);
 
-        String sql = SqlBuilder.buildSql(GET_TPS_METRIC_SQL, tableName, InstanceMetricTable.COLUMN_ID);
+        String sql = SqlBuilder.buildSql(GET_TPS_METRIC_SQL, tableName, InstanceMetricTable.ID.getName());
 
         List<Integer> throughputTrend = new LinkedList<>();
         durationPoints.forEach(durationPoint -> {
             String id = durationPoint.getPoint() + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + MetricSource.Callee.getValue();
             try (ResultSet rs = client.executeQuery(sql, new Object[] {id})) {
                 if (rs.next()) {
-                    long callTimes = rs.getLong(InstanceMetricTable.COLUMN_TRANSACTION_CALLS);
+                    long callTimes = rs.getLong(InstanceMetricTable.TRANSACTION_CALLS.getName());
                     throughputTrend.add((int)(callTimes / durationPoint.getSecondsBetween()));
                 } else {
                     throughputTrend.add(0);
@@ -82,15 +82,15 @@ public class InstanceMetricH2UIDAO extends H2DAO implements IInstanceMetricUIDAO
         H2Client client = getClient();
 
         String tableName = TimePyramidTableNameBuilder.build(step, InstanceMetricTable.TABLE);
-        String sql = SqlBuilder.buildSql(GET_TPS_METRIC_SQL, tableName, InstanceMetricTable.COLUMN_ID);
+        String sql = SqlBuilder.buildSql(GET_TPS_METRIC_SQL, tableName, InstanceMetricTable.ID.getName());
 
         List<Integer> responseTimeTrends = new LinkedList<>();
         durationPoints.forEach(durationPoint -> {
             String id = durationPoint.getPoint() + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + MetricSource.Callee.getValue();
             try (ResultSet rs = client.executeQuery(sql, new Object[] {id})) {
                 if (rs.next()) {
-                    long callTimes = rs.getLong(InstanceMetricTable.COLUMN_TRANSACTION_CALLS);
-                    long durationSum = rs.getLong(InstanceMetricTable.COLUMN_TRANSACTION_DURATION_SUM);
+                    long callTimes = rs.getLong(InstanceMetricTable.TRANSACTION_CALLS.getName());
+                    long durationSum = rs.getLong(InstanceMetricTable.TRANSACTION_DURATION_SUM.getName());
                     responseTimeTrends.add((int) (durationSum / callTimes));
                 } else {
                     responseTimeTrends.add(0);

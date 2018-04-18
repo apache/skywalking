@@ -19,14 +19,15 @@
 package org.apache.skywalking.apm.collector.storage.h2.base.define;
 
 import org.apache.skywalking.apm.collector.core.data.ColumnDefine;
+import org.apache.skywalking.apm.collector.core.data.ColumnName;
 
 /**
  * @author peng-yongsheng
  */
 public class H2ColumnDefine extends ColumnDefine {
 
-    public H2ColumnDefine(String name, String type) {
-        super(name, type);
+    public H2ColumnDefine(ColumnName columnName, String type) {
+        super(columnName, type);
     }
 
     public enum Type {

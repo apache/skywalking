@@ -32,8 +32,8 @@ public class SegmentH2TableDefine extends H2TableDefine {
     }
 
     @Override public void initialize() {
-        addColumn(new H2ColumnDefine(SegmentTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(SegmentTable.COLUMN_DATA_BINARY, H2ColumnDefine.Type.BINARY.name()));
-        addColumn(new H2ColumnDefine(SegmentTable.COLUMN_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(SegmentTable.ID, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(SegmentTable.DATA_BINARY, H2ColumnDefine.Type.BINARY.name()));
+        addColumn(new H2ColumnDefine(SegmentTable.TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
     }
 }

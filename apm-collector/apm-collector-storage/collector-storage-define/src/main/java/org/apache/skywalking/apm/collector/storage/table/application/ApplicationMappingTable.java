@@ -18,13 +18,15 @@
 
 package org.apache.skywalking.apm.collector.storage.table.application;
 
+import org.apache.skywalking.apm.collector.core.data.ColumnName;
 import org.apache.skywalking.apm.collector.core.data.CommonTable;
+import org.apache.skywalking.apm.collector.storage.table.register.RegisterColumns;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationMappingTable extends CommonTable {
-    public static final String TABLE = "application_mapping";
-    public static final String COLUMN_APPLICATION_ID = "application_id";
-    public static final String COLUMN_MAPPING_APPLICATION_ID = "mapping_application_id";
+public interface ApplicationMappingTable extends RegisterColumns, CommonTable {
+    String TABLE = "application_mapping";
+
+    ColumnName MAPPING_APPLICATION_ID = new ColumnName("mapping_application_id", "mai");
 }

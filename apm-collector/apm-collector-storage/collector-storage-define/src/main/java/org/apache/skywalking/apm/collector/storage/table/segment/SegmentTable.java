@@ -16,15 +16,18 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.table.segment;
 
+import org.apache.skywalking.apm.collector.core.data.ColumnName;
 import org.apache.skywalking.apm.collector.core.data.CommonTable;
 
 /**
  * @author peng-yongsheng
  */
-public class SegmentTable extends CommonTable {
-    public static final String TABLE = "segment";
-    public static final String COLUMN_DATA_BINARY = "data_binary";
+public interface SegmentTable extends CommonTable {
+    String TABLE = "segment";
+
+    ColumnName DATA_BINARY = new ColumnName("data_binary", "sdb");
+
+    ColumnName SEGMENT_ID = new ColumnName("segment_id", "sgi");
 }

@@ -36,14 +36,14 @@ public class InstanceAlarmEsTableDefine extends ElasticSearchTableDefine {
     }
 
     @Override public void initialize() {
-        addColumn(new ElasticSearchColumnDefine(InstanceAlarmTable.COLUMN_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(InstanceAlarmTable.COLUMN_INSTANCE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceAlarmTable.APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceAlarmTable.INSTANCE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
 
-        addColumn(new ElasticSearchColumnDefine(InstanceAlarmTable.COLUMN_SOURCE_VALUE, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(InstanceAlarmTable.COLUMN_ALARM_TYPE, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceAlarmTable.SOURCE_VALUE, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceAlarmTable.ALARM_TYPE, ElasticSearchColumnDefine.Type.Integer.name()));
 
-        addColumn(new ElasticSearchColumnDefine(InstanceAlarmTable.COLUMN_ALARM_CONTENT, ElasticSearchColumnDefine.Type.Text.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceAlarmTable.ALARM_CONTENT, ElasticSearchColumnDefine.Type.Text.name()));
 
-        addColumn(new ElasticSearchColumnDefine(InstanceAlarmTable.COLUMN_LAST_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceAlarmTable.LAST_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
     }
 }
