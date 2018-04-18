@@ -18,14 +18,87 @@
 
 package org.apache.skywalking.apm.collector.storage.ui.trace;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
  * @author peng-yongsheng
  */
 public class Segment {
-    private int segmentId;
-    private String appName;
-    private Boolean isSizeLimited;
+    private String segmentId;
+    private String applicationCode;
+    private String name;
+    private SegmentBrief brief;
     private List<Span> spans;
+    private boolean isError = false;
+    private long duration;
+
+    public Segment() {
+        this.brief = new SegmentBrief();
+        this.spans = new LinkedList<>();
+    }
+
+    public List<Span> getSpans() {
+        return spans;
+    }
+
+    public void setSpans(List<Span> spans) {
+        this.spans = spans;
+    }
+
+    public String getApplicationCode() {
+        return applicationCode;
+    }
+
+    public void setApplicationCode(String applicationCode) {
+        this.applicationCode = applicationCode;
+    }
+
+    public String getSegmentId() {
+        return segmentId;
+    }
+
+    public void setSegmentId(String segmentId) {
+        this.segmentId = segmentId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public SegmentBrief getBrief() {
+        return brief;
+    }
+
+    public void setBrief(SegmentBrief brief) {
+        this.brief = brief;
+    }
+
+    public boolean isError() {
+        return isError;
+    }
+
+    public void setError(boolean error) {
+        isError = error;
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
+
+    public void excludeDuration(long duration) {
+        this.duration -= duration;
+    }
+
+    public void addSpan(Span span) {
+        this.spans.add(span);
+    }
 }

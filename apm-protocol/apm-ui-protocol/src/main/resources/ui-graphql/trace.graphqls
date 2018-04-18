@@ -52,16 +52,56 @@ enum QueryOrder {
 
 # The trace represents a distributed trace, includes all segments and spans.
 type Trace {
-  spans: [Span!]!
+  segments: [Segment!]!
+  # Segment IDs in refs may not exist in #segments list, because MQ batch process trace segments didn't share the same ID.
+  # UI should add visual node for non-exist segment.
+  refs: [SegmentRef!]!
 }
 
-type Span {
-  traceId: ID!
+type Segment {
   segmentId: ID!
+  applicationCode: ID!
+  # The segment name, which should be named by Entry span operation name, or the first span operation name when no Entry span
+  name: String!
+  # Brief includes all outside service info, also could be understood as a brief of all Exit spans.
+  brief: SegmentBrief!
+  spans: [Span!]!
+  # True if exist an error in the all spans
+  isError: Boolean
+  # The real duration of this segment, exclude all outside services' duration.
+  # Unit: milliseconds
+  duration: Long!
+}
+
+type SegmentBrief {
+  http: BriefInfo!
+  rpc: BriefInfo!
+  mq: BriefInfo!
+  db: BriefInfo!
+  cache: BriefInfo!
+}
+
+# Brief info includes metrics of the certain layer type
+type BriefInfo {
+  # The number of this layer calls
+  count: Int!
+  # The duration of all calls in this layer.
+  duration: Long!
+}
+
+type SegmentRef {
+  sourceSegment: ID!
+  targetSegment: ID!
+  # Layer type of this across process segment call.
+  # Or `Cross Thread`.
+  callType: String!
+}
+
+
+type Span {
   spanId: Int!
   parentSpanId: Int!
   refs: [Ref!]!
-  applicationCode: String!
   startTime: Long!
   endTime: Long!
   operationName: String

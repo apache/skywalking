@@ -25,12 +25,9 @@ import java.util.List;
  * @author peng-yongsheng
  */
 public class Span {
-    private String traceId;
-    private String segmentId;
     private int spanId;
     private int parentSpanId;
     private List<Ref> refs;
-    private String applicationCode;
     private long startTime;
     private long endTime;
     private String operationName;
@@ -41,30 +38,11 @@ public class Span {
     private String layer;
     private List<KeyValue> tags;
     private List<LogEntity> logs;
-    private boolean isRoot;
-    private String segmentSpanId;
-    private String segmentParentSpanId;
 
     public Span() {
         this.refs = new LinkedList<>();
         this.tags = new LinkedList<>();
         this.logs = new LinkedList<>();
-    }
-
-    public String getTraceId() {
-        return traceId;
-    }
-
-    public void setTraceId(String traceId) {
-        this.traceId = traceId;
-    }
-
-    public String getSegmentId() {
-        return segmentId;
-    }
-
-    public void setSegmentId(String segmentId) {
-        this.segmentId = segmentId;
     }
 
     public int getSpanId() {
@@ -89,14 +67,6 @@ public class Span {
 
     public void setRefs(List<Ref> refs) {
         this.refs = refs;
-    }
-
-    public String getApplicationCode() {
-        return applicationCode;
-    }
-
-    public void setApplicationCode(String applicationCode) {
-        this.applicationCode = applicationCode;
     }
 
     public long getStartTime() {
@@ -177,29 +147,5 @@ public class Span {
 
     public void setLogs(List<LogEntity> logs) {
         this.logs = logs;
-    }
-
-    public boolean isRoot() {
-        return isRoot;
-    }
-
-    public void setRoot(boolean root) {
-        isRoot = root;
-    }
-
-    public String getSegmentParentSpanId() {
-        return segmentParentSpanId;
-    }
-
-    public void setSegmentParentSpanId(String segmentParentSpanId) {
-        this.segmentParentSpanId = segmentParentSpanId;
-    }
-
-    public String getSegmentSpanId() {
-        return segmentSpanId;
-    }
-
-    public void setSegmentSpanId(String segmentSpanId) {
-        this.segmentSpanId = segmentSpanId;
     }
 }

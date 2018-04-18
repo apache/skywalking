@@ -18,35 +18,39 @@
 
 package org.apache.skywalking.apm.collector.storage.ui.trace;
 
-import java.util.LinkedList;
-import java.util.List;
-
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public class Trace {
+public class SegmentRef {
+    private String sourceSegment;
+    private String targetSegment;
+    private String callType;
 
-    private List<Segment> segments;
-    private List<SegmentRef> refs;
-
-    public Trace() {
-        this.segments = new LinkedList<>();
-        this.refs = new LinkedList<>();
+    public SegmentRef() {
+        callType = "";
     }
 
-    public List<Segment> getSegments() {
-        return segments;
+    public String getSourceSegment() {
+        return sourceSegment;
     }
 
-    public void setSegments(List<Segment> segments) {
-        this.segments = segments;
+    public void setSourceSegment(String sourceSegment) {
+        this.sourceSegment = sourceSegment;
     }
 
-    public void addSegment(Segment segment) {
-        this.segments.add(segment);
+    public String getTargetSegment() {
+        return targetSegment;
     }
 
-    public void addRefs(SegmentRef ref) {
-        this.refs.add(ref);
+    public void setTargetSegment(String targetSegment) {
+        this.targetSegment = targetSegment;
+    }
+
+    public String getCallType() {
+        return callType;
+    }
+
+    public void setCallType(String callType) {
+        this.callType = callType;
     }
 }

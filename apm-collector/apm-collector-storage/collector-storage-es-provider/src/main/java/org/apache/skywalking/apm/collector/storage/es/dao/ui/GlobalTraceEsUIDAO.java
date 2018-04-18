@@ -67,7 +67,7 @@ public class GlobalTraceEsUIDAO extends EsDAO implements IGlobalTraceUIDAO {
         searchRequestBuilder.setTypes(GlobalTraceTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
         searchRequestBuilder.setQuery(QueryBuilders.termQuery(GlobalTraceTable.TRACE_ID.getName(), globalTraceId));
-        searchRequestBuilder.setSize(10);
+        searchRequestBuilder.setSize(50);
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
