@@ -23,10 +23,32 @@ import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
 import org.apache.skywalking.apm.collector.storage.ui.overview.ConjecturalApp;
 
 /**
+ * Interface to be implemented for execute database query operation
+ * from {@link org.apache.skywalking.apm.collector.storage.table.register.NetworkAddressTable#TABLE}.
+ *
  * @author peng-yongsheng
+ * @see org.apache.skywalking.apm.collector.storage.table.register.NetworkAddressTable
+ * @see org.apache.skywalking.apm.collector.storage.StorageModule
  */
 public interface INetworkAddressUIDAO extends DAO {
-    int getNumOfSpanLayer(int spanLayer);
 
+    /**
+     * <p>SQL as: select count(NETWORK_ADDRESS) from network_address
+     * where SRC_SPAN_LAYER = ${srcSpanLayer}
+     *
+     * @param srcSpanLayer the source layer of this network address register from
+     * @return count of network address register from the given source span layer
+     */
+    int getNumOfSpanLayer(int srcSpanLayer);
+
+    /**
+     * Returns the conjectural applications and the application count in every server type.
+     *
+     * <p>SQL as: select SERVER_TYPE, count(SERVER_TYPE) from network_address
+     * where SRC_SPAN_LAYER in (SpanLayer.Database_VALUE, SpanLayer.Cache_VALUE, SpanLayer.MQ_VALUE)
+     * group by SERVER_TYPE
+     *
+     * @return not nullable result list
+     */
     List<ConjecturalApp> getConjecturalApps();
 }

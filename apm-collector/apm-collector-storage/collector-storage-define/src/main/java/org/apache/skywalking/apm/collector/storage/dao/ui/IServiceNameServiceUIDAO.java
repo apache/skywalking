@@ -23,10 +23,35 @@ import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
 
 /**
+ * Interface to be implemented for execute database query operation
+ * from {@link org.apache.skywalking.apm.collector.storage.table.register.ServiceNameTable#TABLE}.
+ *
  * @author peng-yongsheng
+ * @see org.apache.skywalking.apm.collector.storage.table.register.ServiceNameTable
+ * @see org.apache.skywalking.apm.collector.storage.StorageModule
  */
 public interface IServiceNameServiceUIDAO extends DAO {
+
+    /**
+     * Returns count of service name which register by entry span.
+     *
+     * <p>SQL as: select count(SERVICE_NAME) from SERVICE_NAME
+     * where SRC_SPAN_TYPE = SpanType.Entry_VALUE
+     *
+     * @return count of service names
+     */
     int getCount();
 
+    /**
+     * <p>SQL as: select SERVICE_ID, SERVICE_NAME from SERVICE_NAME
+     * where SRC_SPAN_TYPE = SpanType.Entry_VALUE
+     * and SERVICE_NAME like '%{keyword}%'
+     *
+     * <p> Note: keyword might not given
+     *
+     * @param keyword fuzzy query condition
+     * @param topN how many rows should return
+     * @return not nullable result list
+     */
     List<ServiceInfo> searchService(String keyword, int topN);
 }
