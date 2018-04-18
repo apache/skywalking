@@ -29,6 +29,7 @@ import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
+import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IGlobalTraceUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentUIDAO;
@@ -43,6 +44,7 @@ import org.apache.skywalking.apm.collector.storage.ui.trace.SegmentRef;
 import org.apache.skywalking.apm.collector.storage.ui.trace.Span;
 import org.apache.skywalking.apm.collector.storage.ui.trace.Trace;
 import org.apache.skywalking.apm.network.proto.SpanLayer;
+import org.apache.skywalking.apm.network.proto.SpanType;
 import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
 import org.apache.skywalking.apm.network.proto.UniqueId;
 
@@ -100,6 +102,7 @@ public class TraceStackService {
                         if (span.getError()) {
                             segment.setError(true);
                         }
+
                         SpanLayer layer = spanObject.getSpanLayer();
                         switch (layer) {
                             case MQ:
@@ -142,6 +145,9 @@ public class TraceStackService {
                             }
                         }
                         span.setOperationName(operationName);
+                        if (SpanType.Entry.equals(spanObject.getSpanType())) {
+                            segment.setName(span.getOperationName());
+                        }
 
                         if (spanObject.getComponentId() == 0) {
                             span.setComponent(spanObject.getComponent());
@@ -205,6 +211,11 @@ public class TraceStackService {
 
                             span.getLogs().add(logEntity);
                         });
+
+                        if (span.getSpanId() == 0 && StringUtils.isEmpty(segment.getName())) {
+                            // If there is no entry span, use the first span operation as segment name.
+                            segment.setName(span.getOperationName());
+                        }
 
                         segment.addSpan(span);
                     });
