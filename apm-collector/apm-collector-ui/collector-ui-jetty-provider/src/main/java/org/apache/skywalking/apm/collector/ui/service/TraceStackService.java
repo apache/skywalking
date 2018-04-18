@@ -212,13 +212,18 @@ public class TraceStackService {
                             span.getLogs().add(logEntity);
                         });
 
-                        if (span.getSpanId() == 0 && StringUtils.isEmpty(segment.getName())) {
-                            // If there is no entry span, use the first span operation as segment name.
-                            segment.setName(span.getOperationName());
-                        }
-
                         segment.addSpan(span);
                     });
+
+                    // If there is no entry span, use the first span operation as segment name.
+                    if (StringUtils.isEmpty(segment.getName())) {
+                        segment.getSpans().forEach(span -> {
+                            if (span.getSpanId() == 0) {
+                                segment.setName(span.getOperationName());
+                            }
+
+                        });
+                    }
 
                     segment.setDuration(durationAssist.getDuration());
 
