@@ -121,8 +121,10 @@ public class NetworkAddressIDService implements INetworkAddressIDService {
 
     private boolean compare(int addressId, int spanLayer, int serverType) {
         NetworkAddress networkAddress = networkAddressCacheService.getAddress(addressId);
+        
         if (isNull(networkAddress)) {
             return spanLayer == networkAddress.getSrcSpanLayer() && serverType == networkAddress.getServerType();
         }
+        return true;
     }
 }
