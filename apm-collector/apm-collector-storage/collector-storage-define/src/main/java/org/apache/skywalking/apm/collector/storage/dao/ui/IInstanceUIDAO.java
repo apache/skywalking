@@ -39,9 +39,9 @@ public interface IInstanceUIDAO extends DAO {
      * Returns applications by query operation with given arguments.
      * <p>SQL as: select APPLICATION_ID, count(APPLICATION_ID) from INSTANCE
      * where IS_ADDRESS = {@link BooleanUtils#FALSE} and
-     * (( HEARTBEAT_TIME >= ${endSecondTimeBucket} and REGISTER_TIME <= ${endSecondTimeBucket})
+     * (( HEARTBEAT_TIME gte ${endSecondTimeBucket} and REGISTER_TIME lte ${endSecondTimeBucket})
      * or
-     * (REGISTER_TIME <= ${endSecondTimeBucket} and HEARTBEAT_TIME >= ${startSecondTimeBucket}))
+     * (REGISTER_TIME lte ${endSecondTimeBucket} and HEARTBEAT_TIME gte ${startSecondTimeBucket}))
      * and APPLICATION_ID in (${applicationIds})
      * group by APPLICATION_ID
      * <p>Note: ${applicationIds} may not be given
@@ -66,9 +66,9 @@ public interface IInstanceUIDAO extends DAO {
      * Returns the detail of instances by given arguments.
      * <p>SQL as: select * from INSTANCE
      * where IS_ADDRESS = {@link BooleanUtils#FALSE} and
-     * (( HEARTBEAT_TIME >= ${endSecondTimeBucket} and REGISTER_TIME <= ${endSecondTimeBucket})
+     * (( HEARTBEAT_TIME gte ${endSecondTimeBucket} and REGISTER_TIME lte ${endSecondTimeBucket})
      * or
-     * (REGISTER_TIME <= ${endSecondTimeBucket} and HEARTBEAT_TIME >= ${startSecondTimeBucket}))
+     * (REGISTER_TIME lte ${endSecondTimeBucket} and HEARTBEAT_TIME gte ${startSecondTimeBucket}))
      * and OS_INFO like '%${keyword}%'
      * <p>Note: ${keyword} may not be given
      *
@@ -83,9 +83,9 @@ public interface IInstanceUIDAO extends DAO {
      * Returns the detail of instances by given arguments.
      * <p>SQL as: select * from INSTANCE where
      * where IS_ADDRESS = {@link BooleanUtils#FALSE} and
-     * (( HEARTBEAT_TIME >= ${endSecondTimeBucket} and REGISTER_TIME <= ${endSecondTimeBucket})
+     * (( HEARTBEAT_TIME gte ${endSecondTimeBucket} and REGISTER_TIME lte ${endSecondTimeBucket})
      * or
-     * (REGISTER_TIME <= ${endSecondTimeBucket} and HEARTBEAT_TIME >= ${startSecondTimeBucket}))
+     * (REGISTER_TIME lte ${endSecondTimeBucket} and HEARTBEAT_TIME gte ${startSecondTimeBucket}))
      * and APPLICATION_ID = ${applicationId}
      *
      * @param applicationId owner of instances

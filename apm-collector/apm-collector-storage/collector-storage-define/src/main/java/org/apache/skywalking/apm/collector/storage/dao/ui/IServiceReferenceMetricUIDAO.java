@@ -40,7 +40,7 @@ public interface IServiceReferenceMetricUIDAO extends DAO {
      * <p>SQL as: select FRONT_SERVICE_ID, sum(TRANSACTION_CALLS), sum(TRANSACTION_ERROR_CALLS),
      * sum(TRANSACTION_DURATION_SUM), sum(TRANSACTION_ERROR_DURATION_SUM)
      * from SERVICE_REFERENCE_METRIC
-     * where TIME_BUCKET >= ${startTimeBucket} and TIME_BUCKET <= ${endTimeBucket}
+     * where TIME_BUCKET gte ${startTimeBucket} and TIME_BUCKET lte ${endTimeBucket}
      * and SOURCE_VALUE = ${metricSource}
      * and BEHIND_SERVICE_ID = ${behindServiceId}
      * group by FRONT_SERVICE_ID
@@ -65,7 +65,7 @@ public interface IServiceReferenceMetricUIDAO extends DAO {
      * <p>SQL as: select FRONT_SERVICE_ID, sum(TRANSACTION_CALLS), sum(TRANSACTION_ERROR_CALLS),
      * sum(TRANSACTION_DURATION_SUM), sum(TRANSACTION_ERROR_DURATION_SUM)
      * from SERVICE_REFERENCE_METRIC
-     * where TIME_BUCKET >= ${startTimeBucket} and TIME_BUCKET <= ${endTimeBucket}
+     * where TIME_BUCKET gte ${startTimeBucket} and TIME_BUCKET lte ${endTimeBucket}
      * and SOURCE_VALUE = ${metricSource}
      * and BEHIND_SERVICE_ID = ${frontServiceId}
      * group by BEHIND_SERVICE_ID

@@ -40,7 +40,7 @@ public interface IApplicationMappingUIDAO extends DAO {
      * which aggregated from server side or client side.
      *
      * <p>SQL as: select APPLICATION_ID, MAPPING_APPLICATION_ID from APPLICATION_MAPPING
-     * where TIME_BUCKET >= ${startTimeBucket} and TIME_BUCKET <= ${endTimeBucket}
+     * where TIME_BUCKET gte ${startTimeBucket} and TIME_BUCKET lte ${endTimeBucket}
      * group by APPLICATION_ID, MAPPING_APPLICATION_ID
      * <p>Use {@link org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder#build(Step, String)}
      * to generate table name which mixed with step name.

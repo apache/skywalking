@@ -40,7 +40,7 @@ public interface IApplicationMetricUIDAO extends DAO {
      *
      * <p>SQL as: select APPLICATION_ID, sum(TRANSACTION_CALLS) / betweenSecond as tps
      * from APPLICATION_METRIC
-     * where TIME_BUCKET >= ${startTimeBucket} and TIME_BUCKET <= ${endTimeBucket}
+     * where TIME_BUCKET gte ${startTimeBucket} and TIME_BUCKET lte ${endTimeBucket}
      * and SOURCE_VALUE = ${metricSource}
      * group by APPLICATION_ID
      * order by tps desc
@@ -68,7 +68,7 @@ public interface IApplicationMetricUIDAO extends DAO {
      * sum(TRANSACTION_DURATION_SUM), sum(TRANSACTION_ERROR_DURATION_SUM),
      * sum(SATISFIED_COUNT), sum(TOLERATING_COUNT), sum(FRUSTRATED_COUNT)
      * from APPLICATION_METRIC
-     * where TIME_BUCKET >= ${startTimeBucket} and TIME_BUCKET <= ${endTimeBucket}
+     * where TIME_BUCKET gte ${startTimeBucket} and TIME_BUCKET lte ${endTimeBucket}
      * and SOURCE_VALUE = ${metricSource}
      * group by APPLICATION_ID
      * <p>Use {@link org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder#build(Step, String)}

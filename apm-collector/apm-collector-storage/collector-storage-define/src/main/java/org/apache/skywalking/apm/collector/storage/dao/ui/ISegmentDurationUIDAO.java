@@ -34,8 +34,8 @@ public interface ISegmentDurationUIDAO extends DAO {
     /**
      * <p>SQL as: select SEGMENT_ID, START_TIME, SERVICE_NAME, DURATION, IS_ERROR
      * from SEGMENT_DURATION
-     * where TIME_BUCKET >= ${startSecondTimeBucket} and TIME_BUCKET <= ${endSecondTimeBucket}
-     * and DURATION >= ${minDuration} and DURATION <= ${maxDuration}
+     * where TIME_BUCKET gte ${startSecondTimeBucket} and TIME_BUCKET lte ${endSecondTimeBucket}
+     * and DURATION gte ${minDuration} and DURATION lte ${maxDuration}
      * and SERVICE_NAME like '%${operationName}%'
      * and SEGMENT_ID in (${segmentIds})
      * and APPLICATION_ID = ${applicationId}

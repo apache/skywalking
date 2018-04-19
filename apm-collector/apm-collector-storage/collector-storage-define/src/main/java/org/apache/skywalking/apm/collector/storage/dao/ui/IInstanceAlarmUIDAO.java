@@ -33,7 +33,7 @@ public interface IInstanceAlarmUIDAO extends DAO {
 
     /**
      * <p>SQL as: select INSTANCE_ID, ALARM_CONTENT, LAST_TIME_BUCKET, ALARM_TYPE from INSTANCE_ALARM
-     * where LAST_TIME_BUCKET >= ${startTimeBucket} and LAST_TIME_BUCKET <= ${endTimeBucket}
+     * where LAST_TIME_BUCKET gte ${startTimeBucket} and LAST_TIME_BUCKET lte ${endTimeBucket}
      * and ALARM_CONTENT like '%{keyword}%'
      * <p>Note: keyword maybe not given
      *
