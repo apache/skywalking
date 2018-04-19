@@ -20,15 +20,18 @@ package org.apache.skywalking.apm.collector.cache.caffeine.service;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.cache.IApplicationCacheDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.TimeUnit;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * @author peng-yongsheng
@@ -47,7 +50,7 @@ public class ApplicationCacheCaffeineService implements ApplicationCacheService 
     }
 
     private IApplicationCacheDAO getApplicationCacheDAO() {
-        if (ObjectUtils.isEmpty(applicationCacheDAO)) {
+        if (isNull(applicationCacheDAO)) {
             this.applicationCacheDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationCacheDAO.class);
         }
         return this.applicationCacheDAO;
@@ -81,9 +84,9 @@ public class ApplicationCacheCaffeineService implements ApplicationCacheService 
             logger.error(e.getMessage(), e);
         }
 
-        if (ObjectUtils.isEmpty(application)) {
+        if (isNull(application)) {
             application = getApplicationCacheDAO().getApplication(applicationId);
-            if (ObjectUtils.isNotEmpty(application)) {
+            if (nonNull(application)) {
                 applicationCache.put(applicationId, application);
             }
         }
