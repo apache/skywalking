@@ -23,10 +23,11 @@ import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IMemoryPo
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.Objects.isNull;
 
 /**
  * @author peng-yongsheng
@@ -38,7 +39,7 @@ public class MemoryPoolMetricService implements IMemoryPoolMetricService {
     private Graph<MemoryPoolMetric> memoryPoolMetricGraph;
 
     private Graph<MemoryPoolMetric> getMemoryPoolMetricGraph() {
-        if (ObjectUtils.isEmpty(memoryPoolMetricGraph)) {
+        if (isNull(memoryPoolMetricGraph)) {
             this.memoryPoolMetricGraph = GraphManager.INSTANCE.findGraph(GraphIdDefine.MEMORY_POOL_METRIC_PERSISTENCE_GRAPH_ID, MemoryPoolMetric.class);
         }
         return memoryPoolMetricGraph;

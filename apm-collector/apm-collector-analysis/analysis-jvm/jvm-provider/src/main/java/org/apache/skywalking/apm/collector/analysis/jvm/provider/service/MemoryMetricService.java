@@ -24,10 +24,11 @@ import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.Objects.isNull;
 
 /**
  * @author peng-yongsheng
@@ -39,7 +40,7 @@ public class MemoryMetricService implements IMemoryMetricService {
     private Graph<MemoryMetric> memoryMetricGraph;
 
     private Graph<MemoryMetric> getMemoryMetricGraph() {
-        if (ObjectUtils.isEmpty(memoryMetricGraph)) {
+        if (isNull(memoryMetricGraph)) {
             this.memoryMetricGraph = GraphManager.INSTANCE.findGraph(GraphIdDefine.MEMORY_METRIC_PERSISTENCE_GRAPH_ID, MemoryMetric.class);
         }
         return memoryMetricGraph;
