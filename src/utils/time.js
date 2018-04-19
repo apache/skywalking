@@ -51,3 +51,10 @@ function getMeasureList() {
   return [createTimeMeasure('months', 'MONTH', 'YYYY-MM'), createTimeMeasure('days', 'DAY', 'YYYY-MM-DD'),
     createTimeMeasure('hours', 'HOUR', 'YYYY-MM-DD HH', 'YYYY-MM-DD HH:00:00'), createTimeMeasure('minutes', 'MINUTE', 'YYYY-MM-DD HHmm', 'HH:mm:00')];
 }
+
+export function formatDuration(durationMs) {
+  if (parseInt(durationMs, 10) >= 1000) {
+    return `${parseInt(durationMs, 10) / 1000} s`;
+  }
+  return `${durationMs} ms`;
+}

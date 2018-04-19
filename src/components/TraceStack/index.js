@@ -20,31 +20,18 @@ import React, { PureComponent } from 'react';
 import { Tag, Modal, List, Tabs } from 'antd';
 import * as d3 from 'd3';
 import moment from 'moment';
+import { formatDuration } from '../../utils/time';
 import styles from './index.less';
 
 const { TabPane } = Tabs;
 
 const colors = [
-  '#F2C2CE',
-  '#A7D8F0',
-  '#FADDA2',
-  '#8691C5',
-  '#E8DB62',
-  '#BDC8E7',
-  '#F2A7A8',
-  '#F5E586',
-  '#91C3ED',
-  '#96B87F',
-  '#EE8D87',
-  '#BDDCAB',
-  '#68B9C7',
-  '#93DAD6',
-  '#EEBE84',
-  '#83B085',
-  '#8CCCD2',
-  '#C5DFE8',
-  '#F2B75B',
-  '#C8DC60',
+  '#1890FF',
+  '#F04864',
+  '#2FC25B',
+  '#FACC14',
+  '#13C2C2',
+  '#8543E0',
 ];
 const height = 36;
 const margin = 10;
@@ -62,7 +49,15 @@ class TraceStack extends PureComponent {
   }
   componentWillMount() {
     const { spans } = this.props;
-    spans.forEach(this.buildNode);
+    let colorIndex = 0;
+    spans.forEach((span) => {
+      const { colorMap } = this.state;
+      if (!colorMap[span.applicationCode]) {
+        colorMap[span.applicationCode] = colors[colorIndex];
+        colorIndex = (colorIndex < colors.length - 1) ? (colorIndex + 1) : 0;
+      }
+      this.buildNode(span);
+    });
     const { nodes } = this.state;
     const minStartTimeNode = nodes.reduce((acc, n) => (acc.startTime > n.startTime ? n : acc));
     this.state.nodes = nodes.map(n =>
@@ -74,8 +69,8 @@ class TraceStack extends PureComponent {
     this.displayData();
     window.addEventListener('resize', this.resize);
   }
-  buildNode = (span, index) => {
-    const { nodes, colorMap, idMap } = this.state;
+  buildNode = (span) => {
+    const { nodes, idMap } = this.state;
     const node = {};
     node.applicationCode = span.applicationCode;
     node.startTime = span.startTime;
@@ -93,10 +88,6 @@ class TraceStack extends PureComponent {
     node.tags = span.tags;
     node.logs = span.logs;
     nodes.push(node);
-
-    if (!colorMap[span.applicationCode]) {
-      colorMap[span.applicationCode] = colors[index];
-    }
     idMap[node.spanSegId] = nodes.length - 1;
   }
   id = (...seg) => seg.join();
@@ -129,10 +120,11 @@ class TraceStack extends PureComponent {
       .attr('style', 'overflow: visible');
 
     const xScale = d3.scaleLinear()
-      .domain([0, percentScale * (10 ** (bits - 2))])
+      .domain([0, d3.max(dataSet)])
       .range([0, width]);
 
-    const axis = d3.axisTop(xScale).ticks(20);
+    const axis = d3.axisTop(xScale).ticks(4).tickSize([(height * nodes.length) + 40])
+      .tickFormat(formatDuration);
 
     svg.append('g')
       .attr('class', styles.axis)
@@ -157,22 +149,27 @@ class TraceStack extends PureComponent {
 
       const beginY = index * height;
       positionMap[spanSegId] = { x: beginX, y: beginY };
+      const container = bar.append('rect').attr('spanSegId', spanSegId).attr('x', -5).attr('y', beginY - 5)
+        .attr('width', width + 10)
+        .attr('height', (height - margin) + 10)
+        .attr('class', styles.backgroudHide)
+        .on('mouseover', () => { container.attr('class', styles.backgroud); })
+        .on('mouseout', () => { container.attr('class', styles.backgroudHide); })
+        .on('click', () => { this.showSpanModal(node); });
 
       bar.append('rect').attr('x', beginX).attr('y', beginY).attr('width', rectWith)
         .attr('height', height - margin)
+        .on('mouseover', () => { container.attr('class', styles.backgroud); })
+        .on('mouseout', () => { container.attr('class', styles.backgroudHide); })
         .style('fill', colorMap[applicationCode]);
-
-      bar.append('rect').attr('spanSegId', spanSegId).attr('x', 0).attr('y', beginY)
-        .attr('width', width)
-        .attr('height', height - margin)
-        .style('opacity', '0')
-        .on('click', () => { this.showSpanModal(node); });
 
       bar.append('text')
         .attr('x', beginX + 5)
         .attr('y', (index * height) + (height / 2))
         .attr('class', styles.rectText)
-        .text(content);
+        .on('mouseover', () => { container.attr('class', styles.backgroud); })
+        .on('mouseout', () => { container.attr('class', styles.backgroudHide); })
+        .text(`${content}  ${formatDuration(duration)}`);
       if (index > 0 && positionMap[parentSpanSegId]) {
         const parentX = positionMap[parentSpanSegId].x;
         const parentY = positionMap[parentSpanSegId].y;
@@ -181,15 +178,15 @@ class TraceStack extends PureComponent {
         const arrowMarker = defs.append('marker')
           .attr('id', 'arrow')
           .attr('markerUnits', 'strokeWidth')
-          .attr('markerWidth', 12)
-          .attr('markerHeight', 12)
-          .attr('viewBox', '0 0 12 12')
-          .attr('refX', 6)
-          .attr('refY', 6)
+          .attr('markerWidth', 5)
+          .attr('markerHeight', 5)
+          .attr('viewBox', '-5 -5 10 10')
+          .attr('refX', 0)
+          .attr('refY', 0)
           .attr('orient', 'auto');
         arrowMarker.append('path')
-          .attr('d', 'M2,2 L10,6 L2,10 L6,6 L2,2')
-          .attr('fill', '#333');
+          .attr('d', 'M 0,0 m -5,-5 L 5,0 L -5,5 Z')
+          .attr('fill', '#8543e0').attr('opacity', 0.8);
 
         const parentLeftBottomX = parentX;
         const parentLeftBottomY = (Number(parentY) + Number(height)) - Number(margin);
@@ -205,7 +202,7 @@ class TraceStack extends PureComponent {
             .attr('y2', selfMiddleY);
 
           svgContainer.append('line').attr('x1', parentLeftBottomX - offX).attr('y1', selfMiddleY).attr('class', styles.connlines)
-            .attr('x2', selfMiddleX)
+            .attr('x2', selfMiddleX - 5)
             .attr('y2', selfMiddleY)
             .attr('marker-end', 'url(#arrow)');
         } else {
@@ -214,7 +211,7 @@ class TraceStack extends PureComponent {
             .attr('y2', selfMiddleY);
 
           svgContainer.append('line').attr('x1', parentLeftBottomX).attr('y1', selfMiddleY).attr('class', styles.connlines)
-            .attr('x2', selfMiddleX)
+            .attr('x2', selfMiddleX - 5)
             .attr('y2', selfMiddleY)
             .attr('marker-end', 'url(#arrow)');
         }
@@ -235,6 +232,9 @@ class TraceStack extends PureComponent {
     });
   }
   resize = () => {
+    if (!this.axis) {
+      return;
+    }
     this.state.width = this.axis.parentNode.clientWidth - 50;
     if (!this.axis || this.state.width <= 0) {
       return;
@@ -317,8 +317,8 @@ class TraceStack extends PureComponent {
         <div style={{ paddingBottom: 10 }}>
           { legendButtons }
         </div>
-        <div ref={(el) => { this.axis = el; }} />
         <div className={styles.duration} ref={(el) => { this.duration = el; }} />
+        <div ref={(el) => { this.axis = el; }} />
         <Modal
           title="Span Info"
           visible={this.state.visible}

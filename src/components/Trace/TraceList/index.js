@@ -17,7 +17,7 @@
 
 
 import React, { PureComponent } from 'react';
-import { List, Avatar, Tag } from 'antd';
+import { List, Avatar, Button } from 'antd';
 import moment from 'moment';
 import styles from './index.less';
 
@@ -41,9 +41,10 @@ class TraceList extends PureComponent {
       </div>);
   }
   renderDescription = (start, traceIds) => {
+    const { onClickTraceTag } = this.props;
     return (
       <div>
-        {traceIds.map((id) => { return <Tag key={id}>{id}</Tag>; })}
+        {traceIds.map((id) => { return <Button key={id} size="small" onClick={() => onClickTraceTag(id)}>{id}</Button>; })}
         <span className={styles.startTime}>{moment(parseInt(start, 10)).format('YYYY-MM-DD HH:mm:ss.SSS')}</span>
       </div>
     );

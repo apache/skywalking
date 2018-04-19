@@ -93,7 +93,7 @@ export default {
                 applicationCode: 'yy',
                 startTime: 1516151349312,
                 endTime: 1516151350728,
-                operationName: '/sql/qq',
+                operationName: '/sql/qq/xxxxxxxfdfdfdfdf().xxxxx/jjjjjj',
                 'type|1': ['Local', 'Entry', 'Exit'],
                 'component|1': ['MySQL', 'H2', 'Spring'],
                 peer: '@ip',

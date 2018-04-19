@@ -88,6 +88,10 @@ export default generateModal({
       traces: [],
       total: 0,
     },
+    queryTrace: {
+      spans: [],
+    },
+    showTimeline: false,
   },
   optionsQuery,
   defaultOption: {
@@ -102,22 +106,31 @@ export default generateModal({
       yield put({
         type: 'saveSpans',
         payload: response,
-        key: payload.key,
         traceId: payload.variables.traceId,
       });
     },
   },
   reducers: {
-    saveSpans(state, action) {
-      const { key, traceId } = action;
-      const { queryTrace: { spans } } = action.payload.data;
-      const { data: { queryBasicTraces: { traces } } } = state;
-      const trace = traces.find(t => t.key === key);
-      const { spansContainer = {} } = trace;
-      spansContainer[traceId] = spans;
-      trace.spansContainer = spansContainer;
+    saveSpans(state, { payload, traceId }) {
+      const { data } = state;
       return {
         ...state,
+        data: {
+          ...data,
+          queryTrace: payload.data.queryTrace,
+          currentTraceId: traceId,
+          showTimeline: true,
+        },
+      };
+    },
+    hideTimeline(state) {
+      const { data } = state;
+      return {
+        ...state,
+        data: {
+          ...data,
+          showTimeline: false,
+        },
       };
     },
   },
