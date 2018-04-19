@@ -16,7 +16,7 @@
  */
 
 import React, { PureComponent } from 'react';
-import { Card, Badge, Row, Col } from 'antd';
+import { Card, Badge, Row, Col, Tag } from 'antd';
 import { formatDuration } from '../../utils/time';
 import TraceStack from '../../components/TraceStack';
 
@@ -41,7 +41,7 @@ export default class TraceTimeLine extends PureComponent {
         {
           items.map((_) => {
             return (
-              <Col>
+              <Col key={_.name}>
                 <span>{_.name}</span>
                 <Badge count={_.count} style={{ backgroundColor: '#1890FF', marginLeft: 5 }} />
               </Col>
@@ -72,8 +72,8 @@ export default class TraceTimeLine extends PureComponent {
           ])
         }
       >
+        <Tag style={{ marginBottom: 20 }}>{currentTraceId}</Tag>
         <TraceStack spans={spans} />
-        <span>Trace Id: {currentTraceId}</span>
       </Card>
     );
   }

@@ -17,13 +17,15 @@
 
 
 import React, { PureComponent } from 'react';
-import { Tag, Modal, List, Tabs } from 'antd';
+import { Tag, List, Tabs, Card, Row, Col, Badge } from 'antd';
 import * as d3 from 'd3';
 import moment from 'moment';
 import { formatDuration } from '../../utils/time';
+import DescriptionList from '../../components/DescriptionList';
 import styles from './index.less';
 
 const { TabPane } = Tabs;
+const { Description } = DescriptionList;
 
 const colors = [
   '#1890FF',
@@ -169,7 +171,7 @@ class TraceStack extends PureComponent {
         .attr('class', styles.rectText)
         .on('mouseover', () => { container.attr('class', styles.backgroud); })
         .on('mouseout', () => { container.attr('class', styles.backgroudHide); })
-        .text(`${content}  ${formatDuration(duration)}`);
+        .text(`${content} ${formatDuration(duration)}`);
       if (index > 0 && positionMap[parentSpanSegId]) {
         const parentX = positionMap[parentSpanSegId].x;
         const parentY = positionMap[parentSpanSegId].y;
@@ -218,12 +220,6 @@ class TraceStack extends PureComponent {
       }
     });
   }
-  handleCancel = () => {
-    this.setState({
-      ...this.state,
-      visible: false,
-    });
-  }
   showSpanModal = (span) => {
     this.setState({
       ...this.state,
@@ -244,6 +240,22 @@ class TraceStack extends PureComponent {
     this.drawAxis();
     this.displayData();
   }
+  renderTitle = (items) => {
+    return (
+      <Row type="flex" justify="start" gutter={15}>
+        {
+          items.map((_) => {
+            return (
+              <Col key={_.name}>
+                <span>{_.name}</span>
+                <Badge count={_.count} style={{ backgroundColor: '#1890FF', marginLeft: 5 }} />
+              </Col>
+            );
+          })
+        }
+      </Row>
+    );
+  }
   render() {
     const { colorMap, span = {} } = this.state;
     const legendButtons = Object.keys(colorMap).map(key =>
@@ -251,14 +263,6 @@ class TraceStack extends PureComponent {
     let data;
     if (span.content) {
       const base = [
-        {
-          title: 'operation name',
-          content: span.content,
-        },
-        {
-          title: 'duration',
-          content: `${moment(span.startTime).format(timeFormat)} - ${moment(span.endTime).format(timeFormat)}`,
-        },
         {
           title: 'span type',
           content: span.type,
@@ -278,38 +282,33 @@ class TraceStack extends PureComponent {
       ];
       data = base.concat(span.tags.map(t => ({ title: t.key, content: t.value })));
     }
-    const logs = span.logs ? span.logs.map(l => (
-      <TabPane tab={moment(l.time).format('mm:ss.SSS')} key={l.time}>
+    const logs = span.logs ? (
+      <TabPane tab="Logs" key={2}>
         <List
           itemLayout="horizontal"
-          dataSource={l.data}
-          renderItem={item => (
+          dataSource={span.logs}
+          renderItem={log => (
             <List.Item>
               <List.Item.Meta
                 size="small"
-                title={item.key}
-                description={item.value}
+                title={moment(log.time).format('mm:ss.SSS')}
+                description={
+                  <DescriptionList layout="vertical">
+                    {log.data.map(_ =>
+                      <Description key={_.key} term={_.key}>{_.value}</Description>)}
+                  </DescriptionList>
+                }
               />
             </List.Item>
           )}
         />
       </TabPane>
-    )) : null;
-    const relatedTraces = span.parentSpanSegId ? null : (
+    ) : null;
+    const relatedTraces = (span.parentSpanSegId || !span.refs) ? null : (
       <TabPane tab="Related Trace" key={3}>
-        <List
-          itemLayout="horizontal"
-          dataSource={span.refs}
-          renderItem={item => (
-            <List.Item>
-              <List.Item.Meta
-                size="small"
-                title={item.type}
-                description={item.traceId}
-              />
-            </List.Item>
-          )}
-        />
+        <DescriptionList layout="vertical">
+          {span.refs.map(_ => <Description key={_.type} term={_.type}>{_.traceId}</Description>)}
+        </DescriptionList>
       </TabPane>
     );
     return (
@@ -319,31 +318,34 @@ class TraceStack extends PureComponent {
         </div>
         <div className={styles.duration} ref={(el) => { this.duration = el; }} />
         <div ref={(el) => { this.axis = el; }} />
-        <Modal
-          title="Span Info"
-          visible={this.state.visible}
-          onCancel={this.handleCancel}
-          footer={null}
-        >
-          <Tabs defaultActiveKey="1" tabPosition="left">
-            <TabPane tab="Tags" key="1">
-              <List
-                itemLayout="horizontal"
-                dataSource={data}
-                renderItem={item => (
-                  <List.Item>
-                    <List.Item.Meta
-                      title={item.title}
-                      description={item.content}
-                    />
-                  </List.Item>
-                )}
-              />
-            </TabPane>
-            {logs}
-            {relatedTraces}
-          </Tabs>
-        </Modal>
+        
+        {data ? (
+          <Card
+            type="inner"
+            title={span.content}
+          >
+            {this.renderTitle([
+              {
+                name: 'Start Time',
+                count: `${moment(span.startTime).format(timeFormat)}`,
+              },
+              {
+                name: 'Duration',
+                count: `${formatDuration(span.duration)}`,
+              },
+            ])}
+            <Tabs defaultActiveKey="1">
+              <TabPane tab="Tags" key="1">
+                <DescriptionList layout="vertical">
+                  {data.map(_ =>
+                    <Description key={_.title} term={_.title}>{_.content}</Description>)}
+                </DescriptionList>
+              </TabPane>
+              {logs}
+              {relatedTraces}
+            </Tabs>
+          </Card>
+        ) : null}
       </div>
     );
   }
