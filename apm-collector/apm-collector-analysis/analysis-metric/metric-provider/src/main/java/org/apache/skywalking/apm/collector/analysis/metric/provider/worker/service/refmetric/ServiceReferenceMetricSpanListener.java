@@ -18,16 +18,10 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.refmetric;
 
-import java.util.LinkedList;
-import java.util.List;
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.ReferenceDecorator;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.EntrySpanListener;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.ExitSpanListener;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.FirstSpanListener;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListener;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListenerFactory;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.*;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
@@ -36,13 +30,17 @@ import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
 import org.apache.skywalking.apm.network.proto.SpanLayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import static java.util.Objects.nonNull;
 
 /**
  * @author peng-yongsheng
@@ -181,7 +179,7 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
         });
 
         exitReferenceMetric.forEach(serviceReferenceMetric -> {
-            if (ObjectUtils.isNotEmpty(entrySpanDecorator)) {
+            if (nonNull(entrySpanDecorator)) {
                 serviceReferenceMetric.setFrontServiceId(entrySpanDecorator.getOperationNameId());
             } else {
                 serviceReferenceMetric.setFrontServiceId(Const.NONE_SERVICE_ID);

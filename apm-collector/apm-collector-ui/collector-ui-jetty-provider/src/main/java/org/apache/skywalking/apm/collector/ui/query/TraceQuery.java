@@ -18,11 +18,9 @@
 
 package org.apache.skywalking.apm.collector.ui.query;
 
-import java.text.ParseException;
 import org.apache.skywalking.apm.collector.core.UnexpectedException;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.storage.ui.trace.Trace;
 import org.apache.skywalking.apm.collector.storage.ui.trace.TraceBrief;
@@ -32,6 +30,11 @@ import org.apache.skywalking.apm.collector.ui.service.SegmentTopService;
 import org.apache.skywalking.apm.collector.ui.service.TraceStackService;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 import org.apache.skywalking.apm.collector.ui.utils.PaginationUtils;
+
+import java.text.ParseException;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * @author peng-yongsheng
@@ -47,14 +50,14 @@ public class TraceQuery implements Query {
     }
 
     private SegmentTopService getSegmentTopService() {
-        if (ObjectUtils.isEmpty(segmentTopService)) {
+        if (isNull(segmentTopService)) {
             this.segmentTopService = new SegmentTopService(moduleManager);
         }
         return segmentTopService;
     }
 
     private TraceStackService getTraceStackService() {
-        if (ObjectUtils.isEmpty(traceStackService)) {
+        if (isNull(traceStackService)) {
             this.traceStackService = new TraceStackService(moduleManager);
         }
         return traceStackService;
@@ -67,7 +70,7 @@ public class TraceQuery implements Query {
 
         if (StringUtils.isNotEmpty(condition.getTraceId())) {
             traceId = condition.getTraceId();
-        } else if (ObjectUtils.isNotEmpty(condition.getQueryDuration())) {
+        } else if (nonNull(condition.getQueryDuration())) {
             startSecondTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(condition.getQueryDuration().getStep(), condition.getQueryDuration().getStart());
             endSecondTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(condition.getQueryDuration().getStep(), condition.getQueryDuration().getEnd());
         } else {
