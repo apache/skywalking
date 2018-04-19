@@ -49,10 +49,6 @@
   * [Elastic Job](https://github.com/elasticjob/elastic-job) 2.x
 * OpenTracing community supported
 
-* .NET Core community supported
-  * [ASP.NET Core](https://github.com/aspnet/Mvc) 2.x
-  * [HttpClientFactory](https://github.com/aspnet/HttpClientFactory) 2.x
-
 ¹Required dependencies for these components must be first manually downloaded before being built, due to license incompatibilities. For this reason these components are not by default included in the SkyWalking releases.
 
 ²These plugins affect the performance or must be used under some conditions, from experiences. So only released in `/optional-plugins`, copy to `/plugins` in order to make them work.
