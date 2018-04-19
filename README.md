@@ -31,6 +31,9 @@ Underlying technology is a distributed tracing system.
 # 5.x Architecture
 <img src="https://skywalkingtest.github.io/page-resources/5.0/architecture.png"/>
 
+# Community Agents/SDKs
+- [.NET Core](https://github.com/OpenSkywalking/skywalking-netcore)
+
 # Code of conduct
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wusheng@apache.org.
 
