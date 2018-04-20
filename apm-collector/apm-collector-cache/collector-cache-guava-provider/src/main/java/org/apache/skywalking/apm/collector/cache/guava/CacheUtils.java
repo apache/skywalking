@@ -29,6 +29,9 @@ import java.util.function.Supplier;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+/**
+ * @author nikitap492
+ */
 public class CacheUtils {
     private static final Logger logger = LoggerFactory.getLogger(CacheUtils.class);
 
