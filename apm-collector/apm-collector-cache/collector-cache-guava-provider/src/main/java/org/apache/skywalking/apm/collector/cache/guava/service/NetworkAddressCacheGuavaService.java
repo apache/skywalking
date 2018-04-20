@@ -20,24 +20,21 @@ package org.apache.skywalking.apm.collector.cache.guava.service;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import org.apache.skywalking.apm.collector.cache.guava.CacheUtils;
 import org.apache.skywalking.apm.collector.cache.service.NetworkAddressCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
-import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.cache.INetworkAddressCacheDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddress;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class NetworkAddressCacheGuavaService implements NetworkAddressCacheService {
 
-    private final Logger logger = LoggerFactory.getLogger(NetworkAddressCacheGuavaService.class);
-
     private final Cache<String, Integer> addressCache = CacheBuilder.newBuilder().initialCapacity(1000).maximumSize(5000).build();
+    private final Cache<Integer, NetworkAddress> idCache = CacheBuilder.newBuilder().initialCapacity(1000).maximumSize(5000).build();
 
     private final ModuleManager moduleManager;
     private INetworkAddressCacheDAO networkAddressCacheDAO;
@@ -54,39 +51,12 @@ public class NetworkAddressCacheGuavaService implements NetworkAddressCacheServi
     }
 
     public int getAddressId(String networkAddress) {
-        int addressId = 0;
-        try {
-            addressId = addressCache.get(networkAddress, () -> getNetworkAddressCacheDAO().getAddressId(networkAddress));
-
-            if (addressId == 0) {
-                addressId = getNetworkAddressCacheDAO().getAddressId(networkAddress);
-                if (addressId != 0) {
-                    addressCache.put(networkAddress, addressId);
-                }
-            }
-        } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
-        }
-
-        return addressId;
+        return CacheUtils.retrieveOrElse(addressCache, networkAddress,
+            () -> getNetworkAddressCacheDAO().getAddressId(networkAddress), 0);
     }
 
-    private final Cache<Integer, NetworkAddress> idCache = CacheBuilder.newBuilder().initialCapacity(1000).maximumSize(5000).build();
 
     public NetworkAddress getAddress(int addressId) {
-        NetworkAddress networkAddress = null;
-        try {
-            networkAddress = idCache.get(addressId, () -> getNetworkAddressCacheDAO().getAddressById(addressId));
-        } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
-        }
-
-        if (ObjectUtils.isEmpty(networkAddress)) {
-            networkAddress = getNetworkAddressCacheDAO().getAddressById(addressId);
-            if (StringUtils.isNotEmpty(networkAddress)) {
-                idCache.put(addressId, networkAddress);
-            }
-        }
-        return networkAddress;
+        return CacheUtils.retrieve(idCache, addressId, () -> getNetworkAddressCacheDAO().getAddressById(addressId));
     }
 }

@@ -20,21 +20,18 @@ package org.apache.skywalking.apm.collector.cache.guava.service;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import org.apache.skywalking.apm.collector.cache.guava.CacheUtils;
 import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.cache.IServiceNameCacheDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class ServiceNameCacheGuavaService implements ServiceNameCacheService {
-
-    private final Logger logger = LoggerFactory.getLogger(ServiceNameCacheGuavaService.class);
 
     private final Cache<Integer, ServiceName> serviceCache = CacheBuilder.newBuilder().maximumSize(10000).build();
 
@@ -52,21 +49,9 @@ public class ServiceNameCacheGuavaService implements ServiceNameCacheService {
         return this.serviceNameCacheDAO;
     }
 
+
+
     public ServiceName get(int serviceId) {
-        ServiceName serviceName = null;
-        try {
-            serviceName = serviceCache.get(serviceId, () -> getServiceNameCacheDAO().get(serviceId));
-        } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
-        }
-
-        if (ObjectUtils.isEmpty(serviceName)) {
-            serviceName = getServiceNameCacheDAO().get(serviceId);
-            if (ObjectUtils.isNotEmpty(serviceName)) {
-                serviceCache.put(serviceId, serviceName);
-            }
-        }
-
-        return serviceName;
+        return CacheUtils.retrieve(serviceCache, serviceId, () -> getServiceNameCacheDAO().get(serviceId));
     }
 }
