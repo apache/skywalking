@@ -20,13 +20,12 @@ package org.apache.skywalking.apm.collector.cache.guava.service;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import org.apache.skywalking.apm.collector.cache.guava.CacheUtils;
 import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.cache.IInstanceCacheDAO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static java.util.Objects.isNull;
 
@@ -34,8 +33,6 @@ import static java.util.Objects.isNull;
  * @author peng-yongsheng
  */
 public class InstanceCacheGuavaService implements InstanceCacheService {
-
-    private final Logger logger = LoggerFactory.getLogger(InstanceCacheGuavaService.class);
 
     private final Cache<Integer, Integer> applicationIdCache = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(5000).build();
 
@@ -58,57 +55,19 @@ public class InstanceCacheGuavaService implements InstanceCacheService {
     }
 
     @Override public int getApplicationId(int instanceId) {
-        int applicationId = 0;
-        try {
-            applicationId = applicationIdCache.get(instanceId, () -> getInstanceCacheDAO().getApplicationId(instanceId));
-        } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
-        }
-
-        if (applicationId == 0) {
-            applicationId = getInstanceCacheDAO().getApplicationId(instanceId);
-            if (applicationId != 0) {
-                applicationIdCache.put(instanceId, applicationId);
-            }
-        }
-        return applicationId;
+        return CacheUtils.retrieveOrElse(applicationIdCache, instanceId,
+            () -> getInstanceCacheDAO().getApplicationId(instanceId), 0);
     }
 
     @Override public int getInstanceIdByAgentUUID(int applicationId, String agentUUID) {
         String key = applicationId + Const.ID_SPLIT + agentUUID;
-
-        int instanceId = 0;
-        try {
-            instanceId = agentUUIDCache.get(key, () -> getInstanceCacheDAO().getInstanceIdByAgentUUID(applicationId, agentUUID));
-        } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
-        }
-
-        if (instanceId == 0) {
-            instanceId = getInstanceCacheDAO().getInstanceIdByAgentUUID(applicationId, agentUUID);
-            if (applicationId != 0) {
-                agentUUIDCache.put(key, instanceId);
-            }
-        }
-        return instanceId;
+        return CacheUtils.retrieveOrElse(agentUUIDCache, key,
+            () -> getInstanceCacheDAO().getInstanceIdByAgentUUID(applicationId, agentUUID), 0);
     }
 
     @Override public int getInstanceIdByAddressId(int applicationId, int addressId) {
         String key = applicationId + Const.ID_SPLIT + addressId;
-
-        int instanceId = 0;
-        try {
-            instanceId = addressIdCache.get(key, () -> getInstanceCacheDAO().getInstanceIdByAddressId(applicationId, addressId));
-        } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
-        }
-
-        if (instanceId == 0) {
-            instanceId = getInstanceCacheDAO().getInstanceIdByAddressId(applicationId, addressId);
-            if (applicationId != 0) {
-                addressIdCache.put(key, instanceId);
-            }
-        }
-        return instanceId;
+        return CacheUtils.retrieveOrElse(addressIdCache, key,
+            () -> getInstanceCacheDAO().getInstanceIdByAddressId(applicationId, addressId), 0);
     }
 }
