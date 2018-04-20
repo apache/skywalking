@@ -155,22 +155,24 @@ class TraceStack extends PureComponent {
         .attr('width', width + 10)
         .attr('height', (height - margin) + 10)
         .attr('class', styles.backgroudHide)
-        .on('mouseover', () => { container.attr('class', styles.backgroud); })
-        .on('mouseout', () => { container.attr('class', styles.backgroudHide); })
+        .on('mouseover', () => { this.selectTimeline(container, true); })
+        .on('mouseout', () => { this.selectTimeline(container, false); })
         .on('click', () => { this.showSpanModal(node); });
 
       bar.append('rect').attr('x', beginX).attr('y', beginY).attr('width', rectWith)
         .attr('height', height - margin)
-        .on('mouseover', () => { container.attr('class', styles.backgroud); })
-        .on('mouseout', () => { container.attr('class', styles.backgroudHide); })
+        .on('mouseover', () => { this.selectTimeline(container, true); })
+        .on('mouseout', () => { this.selectTimeline(container, false); })
+        .on('click', () => { this.showSpanModal(node); })
         .style('fill', colorMap[applicationCode]);
 
       bar.append('text')
         .attr('x', beginX + 5)
         .attr('y', (index * height) + (height / 2))
         .attr('class', styles.rectText)
-        .on('mouseover', () => { container.attr('class', styles.backgroud); })
-        .on('mouseout', () => { container.attr('class', styles.backgroudHide); })
+        .on('mouseover', () => { this.selectTimeline(container, true); })
+        .on('mouseout', () => { this.selectTimeline(container, false); })
+        .on('click', () => { this.showSpanModal(node); })
         .text(`${content} ${formatDuration(duration)}`);
       if (index > 0 && positionMap[parentSpanSegId]) {
         const parentX = positionMap[parentSpanSegId].x;
@@ -196,29 +198,47 @@ class TraceStack extends PureComponent {
         const selfMiddleY = beginY + ((height - margin) / 2);
         if ((beginX - parentX) < 10) {
           svgContainer.append('line').attr('x1', parentLeftBottomX - offX).attr('y1', parentLeftBottomY - offY).attr('class', styles.connlines)
+            .on('mouseover', () => { this.selectTimeline(container, true); })
+            .on('mouseout', () => { this.selectTimeline(container, false); })
+            .on('click', () => { this.showSpanModal(node); })
             .attr('x2', parentLeftBottomX)
             .attr('y2', parentLeftBottomY - offY);
 
           svgContainer.append('line').attr('x1', parentLeftBottomX - offX).attr('y1', parentLeftBottomY - offY).attr('class', styles.connlines)
+            .on('mouseover', () => { this.selectTimeline(container, true); })
+            .on('mouseout', () => { this.selectTimeline(container, false); })
+            .on('click', () => { this.showSpanModal(node); })
             .attr('x2', parentLeftBottomX - offX)
             .attr('y2', selfMiddleY);
 
           svgContainer.append('line').attr('x1', parentLeftBottomX - offX).attr('y1', selfMiddleY).attr('class', styles.connlines)
+            .on('mouseover', () => { this.selectTimeline(container, true); })
+            .on('mouseout', () => { this.selectTimeline(container, false); })
+            .on('click', () => { this.showSpanModal(node); })
             .attr('x2', selfMiddleX - 5)
             .attr('y2', selfMiddleY)
             .attr('marker-end', 'url(#arrow)');
         } else {
           svgContainer.append('line').attr('x1', parentLeftBottomX).attr('y1', parentLeftBottomY).attr('class', styles.connlines)
+            .on('mouseover', () => { this.selectTimeline(container, true); })
+            .on('mouseout', () => { this.selectTimeline(container, false); })
+            .on('click', () => { this.showSpanModal(node); })
             .attr('x2', parentLeftBottomX)
             .attr('y2', selfMiddleY);
 
           svgContainer.append('line').attr('x1', parentLeftBottomX).attr('y1', selfMiddleY).attr('class', styles.connlines)
+            .on('mouseover', () => { this.selectTimeline(container, true); })
+            .on('mouseout', () => { this.selectTimeline(container, false); })
+            .on('click', () => { this.showSpanModal(node); })
             .attr('x2', selfMiddleX - 5)
             .attr('y2', selfMiddleY)
             .attr('marker-end', 'url(#arrow)');
         }
       }
     });
+  }
+  selectTimeline = (container, isOver) => {
+    container.attr('class', isOver ? styles.backgroud : styles.backgroudHide);
   }
   showSpanModal = (span) => {
     this.setState({
