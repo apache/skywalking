@@ -17,8 +17,11 @@
 
 import React, { PureComponent } from 'react';
 import { Card, Badge, Row, Col, Tag } from 'antd';
+import moment from 'moment';
 import { formatDuration } from '../../utils/time';
 import TraceStack from '../../components/TraceStack';
+
+const timeFormat = 'YYYY-MM-DD HH:mm:ss';
 
 export default class TraceTimeLine extends PureComponent {
   getTotalDuration = (spans) => {
@@ -33,6 +36,15 @@ export default class TraceTimeLine extends PureComponent {
       }
     });
     return formatDuration(maxEndTime - minStartTime);
+  }
+  getStartTime = (spans) => {
+    let minStartTime = 0;
+    spans.forEach((span) => {
+      if (minStartTime < 1 || minStartTime > span.startTime) {
+        minStartTime = span.startTime;
+      }
+    });
+    return moment(minStartTime).format(timeFormat);
   }
 
   renderTitle = (items) => {
@@ -61,6 +73,10 @@ export default class TraceTimeLine extends PureComponent {
       <Card
         title={
           this.renderTitle([
+            {
+              name: 'Start Time',
+              count: this.getStartTime(spans),
+            },
             {
               name: 'Total Duration',
               count: this.getTotalDuration(spans),

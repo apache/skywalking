@@ -151,16 +151,17 @@ class TraceStack extends PureComponent {
 
       const beginY = index * height;
       positionMap[spanSegId] = { x: beginX, y: beginY };
+      const rectHeight = height - margin;
       const container = bar.append('rect').attr('spanSegId', spanSegId).attr('x', -5).attr('y', beginY - 5)
         .attr('width', width + 10)
-        .attr('height', (height - margin) + 10)
+        .attr('height', rectHeight + 10)
         .attr('class', styles.backgroudHide)
         .on('mouseover', () => { this.selectTimeline(container, true); })
         .on('mouseout', () => { this.selectTimeline(container, false); })
         .on('click', () => { this.showSpanModal(node); });
 
       bar.append('rect').attr('x', beginX).attr('y', beginY).attr('width', rectWith)
-        .attr('height', height - margin)
+        .attr('height', rectHeight)
         .on('mouseover', () => { this.selectTimeline(container, true); })
         .on('mouseout', () => { this.selectTimeline(container, false); })
         .on('click', () => { this.showSpanModal(node); })
@@ -174,6 +175,14 @@ class TraceStack extends PureComponent {
         .on('mouseout', () => { this.selectTimeline(container, false); })
         .on('click', () => { this.showSpanModal(node); })
         .text(`${content} ${formatDuration(duration)}`);
+      if (node.isError) {
+        bar.append('svg:image')
+          .attr('xlink:href', 'img/icon/error.png')
+          .attr('x', width + (rectHeight / 2))
+          .attr('y', beginY)
+          .attr('width', rectHeight)
+          .attr('height', rectHeight);
+      }
       if (index > 0 && positionMap[parentSpanSegId]) {
         const parentX = positionMap[parentSpanSegId].x;
         const parentY = positionMap[parentSpanSegId].y;
@@ -338,7 +347,6 @@ class TraceStack extends PureComponent {
         </div>
         <div className={styles.duration} ref={(el) => { this.duration = el; }} />
         <div ref={(el) => { this.axis = el; }} />
-        
         {data ? (
           <Card
             type="inner"
