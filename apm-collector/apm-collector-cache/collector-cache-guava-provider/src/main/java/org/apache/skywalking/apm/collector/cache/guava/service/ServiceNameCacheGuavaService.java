@@ -28,7 +28,6 @@ import org.apache.skywalking.apm.collector.storage.dao.cache.IServiceNameCacheDA
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
 
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 /**
  * @author peng-yongsheng
