@@ -1,10 +1,10 @@
 * Dependency the toolkit, such as using maven or gradle
 ```xml
-   <dependency>
-      <groupId>org.apache.skywalking</groupId>
-      <artifactId>skywalking-toolkit-logback-1.x</artifactId>
-      <version>{project.release.version}</version>
-   </dependency>
+    <dependency>
+         <groupId>org.apache.skywalking</groupId>
+         <artifactId>apm-toolkit-logback-1.x</artifactId>
+         <version>{project.release.version}</version>
+     </dependency>
 ```
 
 * set `%tid` in `Pattern` section of logback.xml
