@@ -11,6 +11,8 @@
     * [Open TLS](en/TLS.md)
     * [Namespace Isolation](en/Namespace.md)
     * [Token Authentication](en/Token-auth.md)
+  * Incubating Features
+    * Abstract
   * Application Toolkit
     * [Overview](en/Applicaton-toolkit.md)
     * [OpenTracing Tracer](en/Opentracing.md)
@@ -19,6 +21,7 @@
       * [log4j2](en/Application-toolkit-log4j-2.x.md)
       * [logback](en/Application-toolkit-logback-1.x.md)
     * [Trace](en/Application-toolkit-trace.md)
+    * [Propagate Context across Thread](en/Application-toolkit-trace-cross-thread.md)
   * Testing
     * [Plugin Test](https://github.com/SkywalkingTest/agent-integration-test-report)
     * [Java Agent Performance Test](https://skywalkingtest.github.io/Agent-Benchmarks/)
@@ -35,8 +38,8 @@
     * [Videos](https://github.com/OpenSkywalking/Community#videos)
     * [Articles](https://github.com/OpenSkywalking/Community#articles)
   * FAQ
-    * [Why only traces in UI?](cn/FAQ/Why-have-traces-no-others.md)
-    * [Too many GRPC logs in the console](cn/FAQ/Too-many-gRPC-logs.md)
+    * [Why only traces in UI?](en/FAQ/Why-have-traces-no-others.md)
+    * [Too many GRPC logs in the console](en/FAQ/Too-many-gRPC-logs.md)
     * [The trace doesn't continue in kafka consumer side](en/FAQ/kafka-plugin.md)
     * [Agent or collector version upgrade](en/FAQ/Upgrade.md)
     

@@ -32,16 +32,16 @@ public class ServiceAlarmListH2TableDefine extends H2TableDefine {
     }
 
     @Override public void initialize() {
-        addColumn(new H2ColumnDefine(ServiceAlarmListTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(ServiceAlarmListTable.COLUMN_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(ServiceAlarmListTable.COLUMN_INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(ServiceAlarmListTable.COLUMN_SERVICE_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ServiceAlarmListTable.ID, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(ServiceAlarmListTable.APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ServiceAlarmListTable.INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ServiceAlarmListTable.SERVICE_ID, H2ColumnDefine.Type.Int.name()));
 
-        addColumn(new H2ColumnDefine(ServiceAlarmListTable.COLUMN_SOURCE_VALUE, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(ServiceAlarmListTable.COLUMN_ALARM_TYPE, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ServiceAlarmListTable.SOURCE_VALUE, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ServiceAlarmListTable.ALARM_TYPE, H2ColumnDefine.Type.Int.name()));
 
-        addColumn(new H2ColumnDefine(ServiceAlarmListTable.COLUMN_ALARM_CONTENT, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(ServiceAlarmListTable.ALARM_CONTENT, H2ColumnDefine.Type.Varchar.name()));
 
-        addColumn(new H2ColumnDefine(ServiceAlarmListTable.COLUMN_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceAlarmListTable.TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
     }
 }

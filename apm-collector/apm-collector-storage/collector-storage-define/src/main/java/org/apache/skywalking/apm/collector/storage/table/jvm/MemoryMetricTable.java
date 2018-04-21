@@ -18,18 +18,22 @@
 
 package org.apache.skywalking.apm.collector.storage.table.jvm;
 
-import org.apache.skywalking.apm.collector.core.data.CommonTable;
+import org.apache.skywalking.apm.collector.core.data.ColumnName;
+import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
 
 /**
  * @author peng-yongsheng
  */
-public class MemoryMetricTable extends CommonTable {
-    public static final String TABLE = "memory_metric";
-    public static final String COLUMN_INSTANCE_ID = "instance_id";
-    public static final String COLUMN_IS_HEAP = "is_heap";
-    public static final String COLUMN_INIT = "init";
-    public static final String COLUMN_MAX = "max";
-    public static final String COLUMN_USED = "used";
-    public static final String COLUMN_COMMITTED = "committed";
-    public static final String COLUMN_TIMES = "times";
+public interface MemoryMetricTable extends InstanceTable {
+    String TABLE = "memory_metric";
+
+    ColumnName IS_HEAP = new ColumnName("is_heap", "ih");
+
+    ColumnName INIT = new ColumnName("init", "init");
+
+    ColumnName MAX = new ColumnName("max", "max");
+
+    ColumnName USED = new ColumnName("used", "used");
+
+    ColumnName COMMITTED = new ColumnName("committed", "cd");
 }

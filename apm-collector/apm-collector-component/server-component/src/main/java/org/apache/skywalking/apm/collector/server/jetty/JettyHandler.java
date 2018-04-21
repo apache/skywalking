@@ -19,21 +19,19 @@
 package org.apache.skywalking.apm.collector.server.jetty;
 
 import com.google.gson.JsonElement;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Enumeration;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.server.ServerHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Enumeration;
+
+import static java.util.Objects.nonNull;
 
 /**
  * @author peng-yongsheng
@@ -166,7 +164,7 @@ public abstract class JettyHandler extends HttpServlet implements ServerHandler 
         response.setStatus(HttpServletResponse.SC_OK);
 
         PrintWriter out = response.getWriter();
-        if (ObjectUtils.isNotEmpty(resJson)) {
+        if (nonNull(resJson)) {
             out.print(resJson);
         }
         out.flush();

@@ -27,37 +27,37 @@ import org.apache.skywalking.apm.collector.storage.table.instance.InstanceRefere
  */
 public abstract class AbstractInstanceReferenceMetricEsTableDefine extends ElasticSearchTableDefine {
 
-    public AbstractInstanceReferenceMetricEsTableDefine(String name) {
+    AbstractInstanceReferenceMetricEsTableDefine(String name) {
         super(name);
     }
 
     @Override public final void initialize() {
-        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.COLUMN_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
-        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.COLUMN_METRIC_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
-        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.COLUMN_FRONT_INSTANCE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.COLUMN_BEHIND_INSTANCE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.COLUMN_SOURCE_VALUE, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.ID, ElasticSearchColumnDefine.Type.Keyword.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.METRIC_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.FRONT_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.FRONT_INSTANCE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.BEHIND_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.BEHIND_INSTANCE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.SOURCE_VALUE, ElasticSearchColumnDefine.Type.Integer.name()));
 
-        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.COLUMN_TRANSACTION_CALLS, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.COLUMN_TRANSACTION_AVERAGE_DURATION, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.TRANSACTION_CALLS, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.TRANSACTION_ERROR_CALLS, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.TRANSACTION_DURATION_SUM, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.TRANSACTION_ERROR_DURATION_SUM, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.TRANSACTION_AVERAGE_DURATION, ElasticSearchColumnDefine.Type.Long.name()));
 
-        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.COLUMN_BUSINESS_TRANSACTION_AVERAGE_DURATION, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.BUSINESS_TRANSACTION_CALLS, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.BUSINESS_TRANSACTION_ERROR_CALLS, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.BUSINESS_TRANSACTION_DURATION_SUM, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.BUSINESS_TRANSACTION_ERROR_DURATION_SUM, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.BUSINESS_TRANSACTION_AVERAGE_DURATION, ElasticSearchColumnDefine.Type.Long.name()));
 
-        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.COLUMN_MQ_TRANSACTION_CALLS, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.COLUMN_MQ_TRANSACTION_AVERAGE_DURATION, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.MQ_TRANSACTION_CALLS, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.MQ_TRANSACTION_ERROR_CALLS, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.MQ_TRANSACTION_DURATION_SUM, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.MQ_TRANSACTION_ERROR_DURATION_SUM, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.MQ_TRANSACTION_AVERAGE_DURATION, ElasticSearchColumnDefine.Type.Long.name()));
 
-        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceReferenceMetricTable.TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
     }
 }

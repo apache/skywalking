@@ -56,24 +56,24 @@ public class ServiceReferenceEsMetricUIDAO extends EsDAO implements IServiceRefe
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
-        boolQuery.must().add(QueryBuilders.termQuery(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID, behindServiceId));
-        boolQuery.must().add(QueryBuilders.termQuery(ServiceReferenceMetricTable.COLUMN_SOURCE_VALUE, metricSource.getValue()));
+        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceReferenceMetricTable.TIME_BUCKET.getName()).gte(startTimeBucket).lte(endTimeBucket));
+        boolQuery.must().add(QueryBuilders.termQuery(ServiceReferenceMetricTable.BEHIND_SERVICE_ID.getName(), behindServiceId));
+        boolQuery.must().add(QueryBuilders.termQuery(ServiceReferenceMetricTable.SOURCE_VALUE.getName(), metricSource.getValue()));
 
         searchRequestBuilder.setQuery(boolQuery);
         searchRequestBuilder.setSize(0);
 
-        TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID).field(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID).size(100);
-        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS).field(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS));
-        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS).field(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS));
-        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM).field(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM));
-        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM).field(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM));
+        TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(ServiceReferenceMetricTable.FRONT_SERVICE_ID.getName()).field(ServiceReferenceMetricTable.FRONT_SERVICE_ID.getName()).size(100);
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.TRANSACTION_CALLS.getName()).field(ServiceReferenceMetricTable.TRANSACTION_CALLS.getName()));
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.TRANSACTION_ERROR_CALLS.getName()).field(ServiceReferenceMetricTable.TRANSACTION_ERROR_CALLS.getName()));
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.TRANSACTION_DURATION_SUM.getName()).field(ServiceReferenceMetricTable.TRANSACTION_DURATION_SUM.getName()));
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.TRANSACTION_ERROR_DURATION_SUM.getName()).field(ServiceReferenceMetricTable.TRANSACTION_ERROR_DURATION_SUM.getName()));
 
         searchRequestBuilder.addAggregation(aggregationBuilder);
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
         List<ServiceReferenceMetric> referenceMetrics = new LinkedList<>();
-        Terms frontServiceIdTerms = searchResponse.getAggregations().get(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID);
+        Terms frontServiceIdTerms = searchResponse.getAggregations().get(ServiceReferenceMetricTable.FRONT_SERVICE_ID.getName());
         buildNodeByBehindServiceId(referenceMetrics, frontServiceIdTerms, behindServiceId);
 
         return referenceMetrics;
@@ -89,24 +89,24 @@ public class ServiceReferenceEsMetricUIDAO extends EsDAO implements IServiceRefe
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceReferenceMetricTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
-        boolQuery.must().add(QueryBuilders.termQuery(ServiceReferenceMetricTable.COLUMN_FRONT_SERVICE_ID, frontServiceId));
-        boolQuery.must().add(QueryBuilders.termQuery(ServiceReferenceMetricTable.COLUMN_SOURCE_VALUE, metricSource.getValue()));
+        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceReferenceMetricTable.TIME_BUCKET.getName()).gte(startTimeBucket).lte(endTimeBucket));
+        boolQuery.must().add(QueryBuilders.termQuery(ServiceReferenceMetricTable.FRONT_SERVICE_ID.getName(), frontServiceId));
+        boolQuery.must().add(QueryBuilders.termQuery(ServiceReferenceMetricTable.SOURCE_VALUE.getName(), metricSource.getValue()));
 
         searchRequestBuilder.setQuery(boolQuery);
         searchRequestBuilder.setSize(0);
 
-        TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID).field(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID).size(100);
-        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS).field(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS));
-        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS).field(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS));
-        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM).field(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM));
-        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM).field(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM));
+        TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(ServiceReferenceMetricTable.BEHIND_SERVICE_ID.getName()).field(ServiceReferenceMetricTable.BEHIND_SERVICE_ID.getName()).size(100);
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.TRANSACTION_CALLS.getName()).field(ServiceReferenceMetricTable.TRANSACTION_CALLS.getName()));
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.TRANSACTION_ERROR_CALLS.getName()).field(ServiceReferenceMetricTable.TRANSACTION_ERROR_CALLS.getName()));
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.TRANSACTION_DURATION_SUM.getName()).field(ServiceReferenceMetricTable.TRANSACTION_DURATION_SUM.getName()));
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceReferenceMetricTable.TRANSACTION_ERROR_DURATION_SUM.getName()).field(ServiceReferenceMetricTable.TRANSACTION_ERROR_DURATION_SUM.getName()));
 
         searchRequestBuilder.addAggregation(aggregationBuilder);
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
         List<ServiceReferenceMetric> referenceMetrics = new LinkedList<>();
-        Terms behindServiceIdTerms = searchResponse.getAggregations().get(ServiceReferenceMetricTable.COLUMN_BEHIND_SERVICE_ID);
+        Terms behindServiceIdTerms = searchResponse.getAggregations().get(ServiceReferenceMetricTable.BEHIND_SERVICE_ID.getName());
         buildNodeByFrontServiceId(referenceMetrics, behindServiceIdTerms, frontServiceId);
 
         return referenceMetrics;
@@ -117,10 +117,10 @@ public class ServiceReferenceEsMetricUIDAO extends EsDAO implements IServiceRefe
         behindServiceIdTerms.getBuckets().forEach(behindServiceIdBucket -> {
             int behindServiceId = behindServiceIdBucket.getKeyAsNumber().intValue();
 
-            Sum callsSum = behindServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS);
-            Sum errorCallsSum = behindServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS);
-            Sum durationSum = behindServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM);
-            Sum errorDurationSum = behindServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM);
+            Sum callsSum = behindServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.TRANSACTION_CALLS.getName());
+            Sum errorCallsSum = behindServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.TRANSACTION_ERROR_CALLS.getName());
+            Sum durationSum = behindServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.TRANSACTION_DURATION_SUM.getName());
+            Sum errorDurationSum = behindServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.TRANSACTION_ERROR_DURATION_SUM.getName());
 
             ServiceReferenceMetric referenceMetric = new ServiceReferenceMetric();
             referenceMetric.setSource(frontServiceId);
@@ -138,10 +138,10 @@ public class ServiceReferenceEsMetricUIDAO extends EsDAO implements IServiceRefe
         frontServiceIdTerms.getBuckets().forEach(frontServiceIdBucket -> {
             int frontServiceId = frontServiceIdBucket.getKeyAsNumber().intValue();
 
-            Sum callsSum = frontServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_TRANSACTION_CALLS);
-            Sum errorCallsSum = frontServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS);
-            Sum durationSum = frontServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM);
-            Sum errorDurationSum = frontServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM);
+            Sum callsSum = frontServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.TRANSACTION_CALLS.getName());
+            Sum errorCallsSum = frontServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.TRANSACTION_ERROR_CALLS.getName());
+            Sum durationSum = frontServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.TRANSACTION_DURATION_SUM.getName());
+            Sum errorDurationSum = frontServiceIdBucket.getAggregations().get(ServiceReferenceMetricTable.TRANSACTION_ERROR_DURATION_SUM.getName());
 
             ServiceReferenceMetric referenceMetric = new ServiceReferenceMetric();
             referenceMetric.setTarget(behindServiceId);

@@ -56,7 +56,7 @@ public class ServiceMetricH2UIDAO extends H2DAO implements IServiceMetricUIDAO {
 
         H2Client client = getClient();
         String dynamicSql = "select * from {0} where {1} = ?";
-        String sql = SqlBuilder.buildSql(dynamicSql, tableName, ServiceMetricTable.COLUMN_ID);
+        String sql = SqlBuilder.buildSql(dynamicSql, tableName, ServiceMetricTable.ID.getName());
 
         List<Integer> trends = new LinkedList<>();
         durationPoints.forEach(durationPoint -> {
@@ -64,8 +64,8 @@ public class ServiceMetricH2UIDAO extends H2DAO implements IServiceMetricUIDAO {
 
             try (ResultSet rs = client.executeQuery(sql, new String[] {id})) {
                 if (rs.next()) {
-                    long calls = rs.getLong(ServiceMetricTable.COLUMN_TRANSACTION_CALLS);
-                    long durationSum = rs.getLong(ServiceMetricTable.COLUMN_TRANSACTION_DURATION_SUM);
+                    long calls = rs.getLong(ServiceMetricTable.TRANSACTION_CALLS.getName());
+                    long durationSum = rs.getLong(ServiceMetricTable.TRANSACTION_DURATION_SUM.getName());
                     trends.add((int) (durationSum / calls));
                 } else {
                     trends.add(0);
@@ -87,7 +87,7 @@ public class ServiceMetricH2UIDAO extends H2DAO implements IServiceMetricUIDAO {
 
         H2Client client = getClient();
         String dynamicSql = "select * from {0} where {1} = ?";
-        String sql = SqlBuilder.buildSql(dynamicSql, tableName, ServiceMetricTable.COLUMN_ID);
+        String sql = SqlBuilder.buildSql(dynamicSql, tableName, ServiceMetricTable.ID);
 
         List<Integer> trends = new LinkedList<>();
         durationPoints.forEach(durationPoint -> {
@@ -95,8 +95,8 @@ public class ServiceMetricH2UIDAO extends H2DAO implements IServiceMetricUIDAO {
 
             try (ResultSet rs = client.executeQuery(sql, new String[] {id})) {
                 if (rs.next()) {
-                    long calls = rs.getLong(ServiceMetricTable.COLUMN_TRANSACTION_CALLS);
-                    long errorCalls = rs.getLong(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS);
+                    long calls = rs.getLong(ServiceMetricTable.TRANSACTION_CALLS.getName());
+                    long errorCalls = rs.getLong(ServiceMetricTable.TRANSACTION_ERROR_CALLS.getName());
                     trends.add((int)(((calls - errorCalls) / calls)) * 10000);
                 } else {
                     trends.add(10000);
@@ -109,7 +109,7 @@ public class ServiceMetricH2UIDAO extends H2DAO implements IServiceMetricUIDAO {
         return trends;
     }
 
-    @Override public List<Node> getServicesMetric(Step step, long startTime, long endTime, MetricSource metricSource,
+    @Override public List<Node> getServicesMetric(Step step, long startTimeBucket, long endTimeBucket, MetricSource metricSource,
         Collection<Integer> serviceIds) {
         return null;
     }

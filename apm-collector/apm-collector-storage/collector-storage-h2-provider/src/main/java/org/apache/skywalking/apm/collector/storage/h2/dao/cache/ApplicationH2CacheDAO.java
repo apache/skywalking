@@ -48,7 +48,7 @@ public class ApplicationH2CacheDAO extends H2DAO implements IApplicationCacheDAO
     public int getApplicationIdByCode(String applicationCode) {
         logger.info("get the application id with application code = {}", applicationCode);
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_APPLICATION_ID_SQL, ApplicationTable.COLUMN_APPLICATION_ID, ApplicationTable.TABLE, ApplicationTable.COLUMN_APPLICATION_CODE, ApplicationTable.COLUMN_IS_ADDRESS);
+        String sql = SqlBuilder.buildSql(GET_APPLICATION_ID_SQL, ApplicationTable.APPLICATION_ID.getName(), ApplicationTable.TABLE, ApplicationTable.APPLICATION_CODE.getName(), ApplicationTable.IS_ADDRESS.getName());
 
         Object[] params = new Object[] {applicationCode, false};
         try (ResultSet rs = client.executeQuery(sql, params)) {
@@ -64,7 +64,7 @@ public class ApplicationH2CacheDAO extends H2DAO implements IApplicationCacheDAO
     @Override public Application getApplication(int applicationId) {
         logger.debug("get application code, applicationId: {}", applicationId);
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_APPLICATION_SQL, ApplicationTable.COLUMN_APPLICATION_CODE, ApplicationTable.COLUMN_IS_ADDRESS, ApplicationTable.TABLE, ApplicationTable.COLUMN_APPLICATION_ID);
+        String sql = SqlBuilder.buildSql(GET_APPLICATION_SQL, ApplicationTable.APPLICATION_CODE.getName(), ApplicationTable.IS_ADDRESS.getName(), ApplicationTable.TABLE, ApplicationTable.APPLICATION_ID.getName());
         Object[] params = new Object[] {applicationId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
@@ -83,7 +83,7 @@ public class ApplicationH2CacheDAO extends H2DAO implements IApplicationCacheDAO
     @Override public int getApplicationIdByAddressId(int addressId) {
         logger.info("get the application id with address id = {}", addressId);
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_APPLICATION_ID_SQL, ApplicationTable.COLUMN_APPLICATION_ID, ApplicationTable.TABLE, ApplicationTable.COLUMN_ADDRESS_ID, ApplicationTable.COLUMN_IS_ADDRESS);
+        String sql = SqlBuilder.buildSql(GET_APPLICATION_ID_SQL, ApplicationTable.APPLICATION_ID.getName(), ApplicationTable.TABLE, ApplicationTable.ADDRESS_ID.getName(), ApplicationTable.IS_ADDRESS.getName());
 
         Object[] params = new Object[] {addressId, true};
         try (ResultSet rs = client.executeQuery(sql, params)) {

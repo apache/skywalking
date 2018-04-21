@@ -32,18 +32,18 @@ public class SegmentDurationEsTableDefine extends ElasticSearchTableDefine {
     }
 
     @Override public int refreshInterval() {
-        return 5;
+        return 3;
     }
 
     @Override public void initialize() {
-        addColumn(new ElasticSearchColumnDefine(SegmentDurationTable.COLUMN_SEGMENT_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
-        addColumn(new ElasticSearchColumnDefine(SegmentDurationTable.COLUMN_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(SegmentDurationTable.COLUMN_SERVICE_NAME, ElasticSearchColumnDefine.Type.Text.name()));
-        addColumn(new ElasticSearchColumnDefine(SegmentDurationTable.COLUMN_TRACE_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
-        addColumn(new ElasticSearchColumnDefine(SegmentDurationTable.COLUMN_DURATION, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(SegmentDurationTable.COLUMN_START_TIME, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(SegmentDurationTable.COLUMN_END_TIME, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(SegmentDurationTable.COLUMN_IS_ERROR, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(SegmentDurationTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(SegmentDurationTable.SEGMENT_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
+        addColumn(new ElasticSearchColumnDefine(SegmentDurationTable.APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(SegmentDurationTable.SERVICE_NAME, ElasticSearchColumnDefine.Type.Text.name()));
+        addColumn(new ElasticSearchColumnDefine(SegmentDurationTable.TRACE_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
+        addColumn(new ElasticSearchColumnDefine(SegmentDurationTable.DURATION, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(SegmentDurationTable.START_TIME, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(SegmentDurationTable.END_TIME, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(SegmentDurationTable.IS_ERROR, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(SegmentDurationTable.TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
     }
 }

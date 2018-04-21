@@ -49,7 +49,7 @@ public class NetworkAddressH2CacheDAO extends H2DAO implements INetworkAddressCa
         logger.info("get the address id with network address = {}", networkAddress);
         H2Client client = getClient();
 
-        String sql = SqlBuilder.buildSql(GET_ADDRESS_ID_OR_CODE_SQL, NetworkAddressTable.COLUMN_ADDRESS_ID, NetworkAddressTable.TABLE, NetworkAddressTable.COLUMN_NETWORK_ADDRESS);
+        String sql = SqlBuilder.buildSql(GET_ADDRESS_ID_OR_CODE_SQL, NetworkAddressTable.ADDRESS_ID.getName(), NetworkAddressTable.TABLE, NetworkAddressTable.NETWORK_ADDRESS.getName());
 
         Object[] params = new Object[] {networkAddress};
         try (ResultSet rs = client.executeQuery(sql, params)) {
@@ -67,16 +67,16 @@ public class NetworkAddressH2CacheDAO extends H2DAO implements INetworkAddressCa
         H2Client client = getClient();
 
         String dynamicSql = "select * from {0} where {1} = ?";
-        String sql = SqlBuilder.buildSql(dynamicSql, NetworkAddressTable.TABLE, NetworkAddressTable.COLUMN_ADDRESS_ID);
+        String sql = SqlBuilder.buildSql(dynamicSql, NetworkAddressTable.TABLE, NetworkAddressTable.ADDRESS_ID.getName());
         Object[] params = new Object[] {addressId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
                 NetworkAddress networkAddress = new NetworkAddress();
-                networkAddress.setId(rs.getString(NetworkAddressTable.COLUMN_ID));
-                networkAddress.setAddressId(rs.getInt(NetworkAddressTable.COLUMN_ADDRESS_ID));
-                networkAddress.setNetworkAddress(rs.getString(NetworkAddressTable.COLUMN_NETWORK_ADDRESS));
-                networkAddress.setSpanLayer(rs.getInt(NetworkAddressTable.COLUMN_SPAN_LAYER));
-                networkAddress.setServerType(rs.getInt(NetworkAddressTable.COLUMN_SERVER_TYPE));
+                networkAddress.setId(rs.getString(NetworkAddressTable.ID.getName()));
+                networkAddress.setAddressId(rs.getInt(NetworkAddressTable.ADDRESS_ID.getName()));
+                networkAddress.setNetworkAddress(rs.getString(NetworkAddressTable.NETWORK_ADDRESS.getName()));
+                networkAddress.setSrcSpanLayer(rs.getInt(NetworkAddressTable.SRC_SPAN_LAYER.getName()));
+                networkAddress.setServerType(rs.getInt(NetworkAddressTable.SERVER_TYPE.getName()));
                 return networkAddress;
             }
         } catch (SQLException | H2ClientException e) {

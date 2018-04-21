@@ -18,10 +18,11 @@
 
 package org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator;
 
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.network.proto.SpanLayer;
 import org.apache.skywalking.apm.network.proto.SpanObject;
 import org.apache.skywalking.apm.network.proto.SpanType;
+
+import static java.util.Objects.isNull;
 
 /**
  * @author peng-yongsheng
@@ -127,12 +128,26 @@ public class SpanDecorator implements StandardBuilder {
         }
     }
 
+    public void setComponentId(int value) {
+        if (isOrigin) {
+            toBuilder();
+        }
+        spanBuilder.setComponentId(value);
+    }
+
     public String getComponent() {
         if (isOrigin) {
             return spanObject.getComponent();
         } else {
             return spanBuilder.getComponent();
         }
+    }
+
+    public void setComponent(String value) {
+        if (isOrigin) {
+            toBuilder();
+        }
+        spanBuilder.setComponent(value);
     }
 
     public int getPeerId() {
@@ -212,7 +227,7 @@ public class SpanDecorator implements StandardBuilder {
     }
 
     public ReferenceDecorator getRefs(int index) {
-        if (ObjectUtils.isEmpty(referenceDecorators[index])) {
+        if (isNull(referenceDecorators[index])) {
             if (isOrigin) {
                 referenceDecorators[index] = new ReferenceDecorator(spanObject.getRefs(index), this);
             } else {

@@ -56,8 +56,8 @@ public class ApplicationReferenceMetricEsUIDAO extends EsDAO implements IApplica
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(ApplicationReferenceMetricTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
-        boolQuery.must().add(QueryBuilders.termQuery(ApplicationReferenceMetricTable.COLUMN_SOURCE_VALUE, metricSource.getValue()));
+        boolQuery.must().add(QueryBuilders.rangeQuery(ApplicationReferenceMetricTable.TIME_BUCKET.getName()).gte(startTimeBucket).lte(endTimeBucket));
+        boolQuery.must().add(QueryBuilders.termQuery(ApplicationReferenceMetricTable.SOURCE_VALUE.getName(), metricSource.getValue()));
 
         if (CollectionUtils.isNotEmpty(applicationIds)) {
             BoolQueryBuilder applicationBoolQuery = QueryBuilders.boolQuery();
@@ -66,8 +66,8 @@ public class ApplicationReferenceMetricEsUIDAO extends EsDAO implements IApplica
                 ids[i] = applicationIds[i];
             }
 
-            applicationBoolQuery.should().add(QueryBuilders.termsQuery(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID, ids));
-            applicationBoolQuery.should().add(QueryBuilders.termsQuery(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID, ids));
+            applicationBoolQuery.should().add(QueryBuilders.termsQuery(ApplicationReferenceMetricTable.FRONT_APPLICATION_ID.getName(), ids));
+            applicationBoolQuery.should().add(QueryBuilders.termsQuery(ApplicationReferenceMetricTable.BEHIND_APPLICATION_ID.getName(), ids));
             boolQuery.must().add(applicationBoolQuery);
         }
 
@@ -78,30 +78,30 @@ public class ApplicationReferenceMetricEsUIDAO extends EsDAO implements IApplica
     }
 
     private List<ApplicationReferenceMetric> buildMetrics(SearchRequestBuilder searchRequestBuilder) {
-        TermsAggregationBuilder frontAggregationBuilder = AggregationBuilders.terms(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID).field(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID).size(100);
-        TermsAggregationBuilder behindAggregationBuilder = AggregationBuilders.terms(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID).field(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID).size(100);
+        TermsAggregationBuilder frontAggregationBuilder = AggregationBuilders.terms(ApplicationReferenceMetricTable.FRONT_APPLICATION_ID.getName()).field(ApplicationReferenceMetricTable.FRONT_APPLICATION_ID.getName()).size(100);
+        TermsAggregationBuilder behindAggregationBuilder = AggregationBuilders.terms(ApplicationReferenceMetricTable.BEHIND_APPLICATION_ID.getName()).field(ApplicationReferenceMetricTable.BEHIND_APPLICATION_ID.getName()).size(100);
         frontAggregationBuilder.subAggregation(behindAggregationBuilder);
 
-        behindAggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_CALLS).field(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_CALLS));
-        behindAggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS).field(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS));
-        behindAggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM).field(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM));
-        behindAggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM).field(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM));
+        behindAggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.TRANSACTION_CALLS.getName()).field(ApplicationReferenceMetricTable.TRANSACTION_CALLS.getName()));
+        behindAggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.TRANSACTION_ERROR_CALLS.getName()).field(ApplicationReferenceMetricTable.TRANSACTION_ERROR_CALLS.getName()));
+        behindAggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.TRANSACTION_DURATION_SUM.getName()).field(ApplicationReferenceMetricTable.TRANSACTION_DURATION_SUM.getName()));
+        behindAggregationBuilder.subAggregation(AggregationBuilders.sum(ApplicationReferenceMetricTable.TRANSACTION_ERROR_DURATION_SUM.getName()).field(ApplicationReferenceMetricTable.TRANSACTION_ERROR_DURATION_SUM.getName()));
 
         searchRequestBuilder.addAggregation(frontAggregationBuilder);
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
         List<ApplicationReferenceMetric> referenceMetrics = new LinkedList<>();
-        Terms sourceApplicationIdTerms = searchResponse.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_FRONT_APPLICATION_ID);
+        Terms sourceApplicationIdTerms = searchResponse.getAggregations().get(ApplicationReferenceMetricTable.FRONT_APPLICATION_ID.getName());
         for (Terms.Bucket sourceApplicationIdBucket : sourceApplicationIdTerms.getBuckets()) {
             int sourceApplicationId = sourceApplicationIdBucket.getKeyAsNumber().intValue();
 
-            Terms targetApplicationIdTerms = sourceApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_BEHIND_APPLICATION_ID);
+            Terms targetApplicationIdTerms = sourceApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.BEHIND_APPLICATION_ID.getName());
             for (Terms.Bucket targetApplicationIdBucket : targetApplicationIdTerms.getBuckets()) {
                 int targetApplicationId = targetApplicationIdBucket.getKeyAsNumber().intValue();
 
-                Sum calls = targetApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_CALLS);
-                Sum errorCalls = targetApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS);
-                Sum durations = targetApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_DURATION_SUM);
-                Sum errorDurations = targetApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM);
+                Sum calls = targetApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.TRANSACTION_CALLS.getName());
+                Sum errorCalls = targetApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.TRANSACTION_ERROR_CALLS.getName());
+                Sum durations = targetApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.TRANSACTION_DURATION_SUM.getName());
+                Sum errorDurations = targetApplicationIdBucket.getAggregations().get(ApplicationReferenceMetricTable.TRANSACTION_ERROR_DURATION_SUM.getName());
 
                 ApplicationReferenceMetric referenceMetric = new ApplicationReferenceMetric();
                 referenceMetric.setSource(sourceApplicationId);

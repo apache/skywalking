@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.collector.core.data;
 
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
+import static java.util.Objects.nonNull;
 
 /**
  * @author peng-yongsheng
@@ -158,25 +158,25 @@ public abstract class AbstractData {
     @SuppressWarnings("unchecked")
     private void calculateFormula() {
         for (int i = 0; i < stringColumns.length; i++) {
-            if (ObjectUtils.isNotEmpty(stringColumns[i].getFormulaOperation())) {
+            if (nonNull(stringColumns[i].getFormulaOperation())) {
                 String stringData = (String)stringColumns[i].getFormulaOperation().operate(this);
                 this.dataStrings[i] = stringData;
             }
         }
         for (int i = 0; i < longColumns.length; i++) {
-            if (ObjectUtils.isNotEmpty(longColumns[i].getFormulaOperation())) {
+            if (nonNull(longColumns[i].getFormulaOperation())) {
                 Long longData = (Long)longColumns[i].getFormulaOperation().operate(this);
                 this.dataLongs[i] = longData;
             }
         }
         for (int i = 0; i < doubleColumns.length; i++) {
-            if (ObjectUtils.isNotEmpty(doubleColumns[i].getFormulaOperation())) {
+            if (nonNull(doubleColumns[i].getFormulaOperation())) {
                 Double doubleData = (Double)doubleColumns[i].getFormulaOperation().operate(this);
                 this.dataDoubles[i] = doubleData;
             }
         }
         for (int i = 0; i < integerColumns.length; i++) {
-            if (ObjectUtils.isNotEmpty(integerColumns[i].getFormulaOperation())) {
+            if (nonNull(integerColumns[i].getFormulaOperation())) {
                 Integer integerData = (Integer)integerColumns[i].getFormulaOperation().operate(this);
                 this.dataIntegers[i] = integerData;
             }

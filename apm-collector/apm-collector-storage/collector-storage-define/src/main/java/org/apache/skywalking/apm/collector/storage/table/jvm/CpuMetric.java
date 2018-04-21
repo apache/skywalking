@@ -30,21 +30,21 @@ import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
 public class CpuMetric extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(CpuMetricTable.COLUMN_ID, new NonMergeOperation()),
-        new Column(CpuMetricTable.COLUMN_METRIC_ID, new NonMergeOperation()),
+        new Column(CpuMetricTable.ID, new NonMergeOperation()),
+        new Column(CpuMetricTable.METRIC_ID, new NonMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(CpuMetricTable.COLUMN_TIMES, new AddMergeOperation()),
-        new Column(CpuMetricTable.COLUMN_TIME_BUCKET, new CoverMergeOperation()),
+        new Column(CpuMetricTable.TIMES, new AddMergeOperation()),
+        new Column(CpuMetricTable.TIME_BUCKET, new CoverMergeOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {
-        new Column(CpuMetricTable.COLUMN_USAGE_PERCENT, new AddMergeOperation()),
+        new Column(CpuMetricTable.USAGE_PERCENT, new AddMergeOperation()),
     };
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(CpuMetricTable.COLUMN_INSTANCE_ID, new CoverMergeOperation()),
+        new Column(CpuMetricTable.INSTANCE_ID, new CoverMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};

@@ -24,6 +24,8 @@ Underlying technology is a distributed tracing system.
   * Use **@Trace** annotation for any methods you want to trace.
   * Integrate traceId into logs for log4j, log4j2 and logback.
 * Pure Java server implementation, provide RESTful and gRPC services. Compatibility with other language agents/SDKs. 
+* Community Agents/SDKs
+  * [.NET Core](https://github.com/OpenSkywalking/skywalking-netcore)
 
 # Document
 [![EN doc](https://img.shields.io/badge/document-English-blue.svg)](docs/README.md) [![cn doc](https://img.shields.io/badge/文档-中文版-blue.svg)](docs/README_ZH.md)
@@ -70,6 +72,11 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 * Submit an issue
 * [Gitter](https://gitter.im/openskywalking/Lobby)
 * QQ Group: 392443393
+
+# Users
+<img src="https://skywalkingtest.github.io/page-resources/users/users-2018-04-18.png"/>
+
+[Submit new user case to us.](https://github.com/apache/incubator-skywalking/issues/443)
 
 # License
 [Apache 2.0 License.](/LICENSE)

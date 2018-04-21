@@ -25,31 +25,40 @@ import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchCli
  */
 class StorageModuleEsConfig extends ElasticSearchClientConfig {
 
-    private Integer indexShardsNumber;
-    private Integer indexReplicasNumber;
-    private Integer ttl;
+    private int indexShardsNumber;
+    private int indexReplicasNumber;
+    private int ttl;
+    private boolean highPerformanceMode;
 
-    Integer getIndexShardsNumber() {
+    int getIndexShardsNumber() {
         return indexShardsNumber;
     }
 
-    void setIndexShardsNumber(Integer indexShardsNumber) {
+    void setIndexShardsNumber(int indexShardsNumber) {
         this.indexShardsNumber = indexShardsNumber;
     }
 
-    Integer getIndexReplicasNumber() {
+    int getIndexReplicasNumber() {
         return indexReplicasNumber;
     }
 
-    void setIndexReplicasNumber(Integer indexReplicasNumber) {
+    void setIndexReplicasNumber(int indexReplicasNumber) {
         this.indexReplicasNumber = indexReplicasNumber;
     }
 
-    Integer getTtl() {
+    int getTtl() {
         return ttl;
     }
 
-    void setTtl(Integer ttl) {
+    void setTtl(int ttl) {
         this.ttl = ttl;
+    }
+
+    boolean isHighPerformanceMode() {
+        return highPerformanceMode;
+    }
+
+    void setHighPerformanceMode(boolean highPerformanceMode) {
+        this.highPerformanceMode = highPerformanceMode;
     }
 }

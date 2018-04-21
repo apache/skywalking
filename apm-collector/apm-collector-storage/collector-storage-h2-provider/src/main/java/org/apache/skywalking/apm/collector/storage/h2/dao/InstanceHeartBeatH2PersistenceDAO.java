@@ -51,14 +51,14 @@ public class InstanceHeartBeatH2PersistenceDAO extends H2DAO implements IInstanc
 
     @Override public Instance get(String id) {
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_INSTANCE_HEARTBEAT_SQL, InstanceTable.TABLE, InstanceTable.COLUMN_INSTANCE_ID);
+        String sql = SqlBuilder.buildSql(GET_INSTANCE_HEARTBEAT_SQL, InstanceTable.TABLE, InstanceTable.INSTANCE_ID.getName());
         Object[] params = new Object[] {id};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
                 Instance instance = new Instance();
                 instance.setId(id);
-                instance.setInstanceId(rs.getInt(InstanceTable.COLUMN_INSTANCE_ID));
-                instance.setHeartBeatTime(rs.getLong(InstanceTable.COLUMN_HEARTBEAT_TIME));
+                instance.setInstanceId(rs.getInt(InstanceTable.INSTANCE_ID.getName()));
+                instance.setHeartBeatTime(rs.getLong(InstanceTable.HEARTBEAT_TIME.getName()));
                 return instance;
             }
         } catch (SQLException | H2ClientException e) {
@@ -73,11 +73,11 @@ public class InstanceHeartBeatH2PersistenceDAO extends H2DAO implements IInstanc
 
     @Override public H2SqlEntity prepareBatchUpdate(Instance data) {
         H2SqlEntity entity = new H2SqlEntity();
-        Map<String, Object> source = new HashMap<>();
-        source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, data.getHeartBeatTime());
-        String sql = SqlBuilder.buildBatchUpdateSql(InstanceTable.TABLE, source.keySet(), InstanceTable.COLUMN_INSTANCE_ID);
+        Map<String, Object> target = new HashMap<>();
+        target.put(InstanceTable.HEARTBEAT_TIME.getName(), data.getHeartBeatTime());
+        String sql = SqlBuilder.buildBatchUpdateSql(InstanceTable.TABLE, target.keySet(), InstanceTable.INSTANCE_ID.getName());
         entity.setSql(sql);
-        List<Object> params = new ArrayList<>(source.values());
+        List<Object> params = new ArrayList<>(target.values());
         params.add(data.getId());
         entity.setParams(params.toArray(new Object[0]));
         return entity;

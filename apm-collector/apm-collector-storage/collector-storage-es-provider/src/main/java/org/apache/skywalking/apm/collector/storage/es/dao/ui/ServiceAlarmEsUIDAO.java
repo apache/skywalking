@@ -53,9 +53,9 @@ public class ServiceAlarmEsUIDAO extends EsDAO implements IServiceAlarmUIDAO {
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        boolQueryBuilder.must().add(QueryBuilders.rangeQuery(ServiceAlarmTable.COLUMN_LAST_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
+        boolQueryBuilder.must().add(QueryBuilders.rangeQuery(ServiceAlarmTable.LAST_TIME_BUCKET.getName()).gte(startTimeBucket).lte(endTimeBucket));
         if (StringUtils.isNotEmpty(keyword)) {
-            boolQueryBuilder.must().add(QueryBuilders.matchQuery(ServiceAlarmTable.COLUMN_ALARM_CONTENT, keyword));
+            boolQueryBuilder.must().add(QueryBuilders.matchQuery(ServiceAlarmTable.ALARM_CONTENT.getName(), keyword));
         }
 
         searchRequestBuilder.setQuery(boolQueryBuilder);
@@ -69,15 +69,15 @@ public class ServiceAlarmEsUIDAO extends EsDAO implements IServiceAlarmUIDAO {
         alarm.setTotal((int)searchResponse.getHits().getTotalHits());
         for (SearchHit searchHit : searchHits) {
             AlarmItem alarmItem = new AlarmItem();
-            alarmItem.setId(((Number)searchHit.getSource().get(ServiceAlarmTable.COLUMN_SERVICE_ID)).intValue());
-            alarmItem.setTitle((String)searchHit.getSource().get(ServiceAlarmTable.COLUMN_ALARM_CONTENT));
-            alarmItem.setContent((String)searchHit.getSource().get(ServiceAlarmTable.COLUMN_ALARM_CONTENT));
+            alarmItem.setId(((Number)searchHit.getSource().get(ServiceAlarmTable.SERVICE_ID.getName())).intValue());
+            alarmItem.setTitle((String)searchHit.getSource().get(ServiceAlarmTable.ALARM_CONTENT.getName()));
+            alarmItem.setContent((String)searchHit.getSource().get(ServiceAlarmTable.ALARM_CONTENT.getName()));
 
-            long lastTimeBucket = ((Number)searchHit.getSource().get(ServiceAlarmTable.COLUMN_LAST_TIME_BUCKET)).longValue();
+            long lastTimeBucket = ((Number)searchHit.getSource().get(ServiceAlarmTable.LAST_TIME_BUCKET.getName())).longValue();
             alarmItem.setStartTime(TimeBucketUtils.INSTANCE.formatMinuteTimeBucket(lastTimeBucket));
             alarmItem.setAlarmType(AlarmType.SERVICE);
 
-            int alarmType = ((Number)searchHit.getSource().get(ServiceAlarmTable.COLUMN_ALARM_TYPE)).intValue();
+            int alarmType = ((Number)searchHit.getSource().get(ServiceAlarmTable.ALARM_TYPE.getName())).intValue();
             if (org.apache.skywalking.apm.collector.storage.table.alarm.AlarmType.SLOW_RTT.getValue() == alarmType) {
                 alarmItem.setCauseType(CauseType.SLOW_RESPONSE);
             } else if (org.apache.skywalking.apm.collector.storage.table.alarm.AlarmType.ERROR_RATE.getValue() == alarmType) {

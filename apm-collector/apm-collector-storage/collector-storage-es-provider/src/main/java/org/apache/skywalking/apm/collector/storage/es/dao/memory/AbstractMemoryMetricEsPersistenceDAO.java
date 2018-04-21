@@ -36,40 +36,40 @@ public abstract class AbstractMemoryMetricEsPersistenceDAO extends AbstractPersi
     }
 
     @Override protected final String timeBucketColumnNameForDelete() {
-        return MemoryMetricTable.COLUMN_TIME_BUCKET;
+        return MemoryMetricTable.TIME_BUCKET.getName();
     }
 
     @Override protected final MemoryMetric esDataToStreamData(Map<String, Object> source) {
         MemoryMetric memoryMetric = new MemoryMetric();
-        memoryMetric.setMetricId((String)source.get(MemoryMetricTable.COLUMN_METRIC_ID));
+        memoryMetric.setMetricId((String)source.get(MemoryMetricTable.METRIC_ID.getName()));
 
-        memoryMetric.setInstanceId(((Number)source.get(MemoryMetricTable.COLUMN_INSTANCE_ID)).intValue());
-        memoryMetric.setIsHeap(((Number)source.get(MemoryMetricTable.COLUMN_IS_HEAP)).intValue());
+        memoryMetric.setInstanceId(((Number)source.get(MemoryMetricTable.INSTANCE_ID.getName())).intValue());
+        memoryMetric.setIsHeap(((Number)source.get(MemoryMetricTable.IS_HEAP.getName())).intValue());
 
-        memoryMetric.setInit(((Number)source.get(MemoryMetricTable.COLUMN_INIT)).longValue());
-        memoryMetric.setMax(((Number)source.get(MemoryMetricTable.COLUMN_MAX)).longValue());
-        memoryMetric.setUsed(((Number)source.get(MemoryMetricTable.COLUMN_USED)).longValue());
-        memoryMetric.setCommitted(((Number)source.get(MemoryMetricTable.COLUMN_COMMITTED)).longValue());
-        memoryMetric.setTimes(((Number)source.get(MemoryMetricTable.COLUMN_TIMES)).longValue());
+        memoryMetric.setInit(((Number)source.get(MemoryMetricTable.INIT.getName())).longValue());
+        memoryMetric.setMax(((Number)source.get(MemoryMetricTable.MAX.getName())).longValue());
+        memoryMetric.setUsed(((Number)source.get(MemoryMetricTable.USED.getName())).longValue());
+        memoryMetric.setCommitted(((Number)source.get(MemoryMetricTable.COMMITTED.getName())).longValue());
+        memoryMetric.setTimes(((Number)source.get(MemoryMetricTable.TIMES.getName())).longValue());
 
-        memoryMetric.setTimeBucket(((Number)source.get(MemoryMetricTable.COLUMN_TIME_BUCKET)).longValue());
+        memoryMetric.setTimeBucket(((Number)source.get(MemoryMetricTable.TIME_BUCKET.getName())).longValue());
         return memoryMetric;
     }
 
     @Override protected final Map<String, Object> esStreamDataToEsData(MemoryMetric streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(MemoryMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(MemoryMetricTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(MemoryMetricTable.COLUMN_INSTANCE_ID, streamData.getInstanceId());
-        source.put(MemoryMetricTable.COLUMN_IS_HEAP, streamData.getIsHeap());
-        source.put(MemoryMetricTable.COLUMN_INIT, streamData.getInit());
-        source.put(MemoryMetricTable.COLUMN_MAX, streamData.getMax());
-        source.put(MemoryMetricTable.COLUMN_USED, streamData.getUsed());
-        source.put(MemoryMetricTable.COLUMN_COMMITTED, streamData.getCommitted());
-        source.put(MemoryMetricTable.COLUMN_TIMES, streamData.getTimes());
-        source.put(MemoryMetricTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
+        target.put(MemoryMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId());
+        target.put(MemoryMetricTable.IS_HEAP.getName(), streamData.getIsHeap());
+        target.put(MemoryMetricTable.INIT.getName(), streamData.getInit());
+        target.put(MemoryMetricTable.MAX.getName(), streamData.getMax());
+        target.put(MemoryMetricTable.USED.getName(), streamData.getUsed());
+        target.put(MemoryMetricTable.COMMITTED.getName(), streamData.getCommitted());
+        target.put(MemoryMetricTable.TIMES.getName(), streamData.getTimes());
+        target.put(MemoryMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
 
-        return source;
+        return target;
     }
 
     @GraphComputingMetric(name = "/persistence/get/" + MemoryMetricTable.TABLE)

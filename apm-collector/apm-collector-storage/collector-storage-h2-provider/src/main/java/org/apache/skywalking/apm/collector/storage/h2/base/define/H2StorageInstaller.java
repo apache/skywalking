@@ -90,9 +90,9 @@ public class H2StorageInstaller extends StorageInstaller {
         h2TableDefine.getColumnDefines().forEach(columnDefine -> {
             H2ColumnDefine h2ColumnDefine = (H2ColumnDefine)columnDefine;
             if (h2ColumnDefine.getType().equals(H2ColumnDefine.Type.Varchar.name())) {
-                sqlBuilder.append(h2ColumnDefine.getName()).append(" ").append(h2ColumnDefine.getType()).append("(255),");
+                sqlBuilder.append(h2ColumnDefine.getColumnName()).append(" ").append(h2ColumnDefine.getType()).append("(255),");
             } else {
-                sqlBuilder.append(h2ColumnDefine.getName()).append(" ").append(h2ColumnDefine.getType()).append(",");
+                sqlBuilder.append(h2ColumnDefine.getColumnName()).append(" ").append(h2ColumnDefine.getType()).append(",");
             }
         });
         //remove last comma

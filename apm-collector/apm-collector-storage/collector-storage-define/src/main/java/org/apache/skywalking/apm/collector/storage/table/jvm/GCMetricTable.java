@@ -18,15 +18,16 @@
 
 package org.apache.skywalking.apm.collector.storage.table.jvm;
 
-import org.apache.skywalking.apm.collector.core.data.CommonTable;
+import org.apache.skywalking.apm.collector.core.data.ColumnName;
+import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
 
 /**
  * @author peng-yongsheng
  */
-public class GCMetricTable extends CommonTable {
-    public static final String TABLE = "gc_metric";
-    public static final String COLUMN_INSTANCE_ID = "instance_id";
-    public static final String COLUMN_PHRASE = "phrase";
-    public static final String COLUMN_COUNT = "count";
-    public static final String COLUMN_TIMES = "times";
+public interface GCMetricTable extends InstanceTable {
+    String TABLE = "gc_metric";
+
+    ColumnName PHRASE = new ColumnName("phrase", "p");
+
+    ColumnName COUNT = new ColumnName("count", "c");
 }

@@ -41,10 +41,13 @@ public class ElasticSearchStorageInstaller extends StorageInstaller {
 
     private final int indexShardsNumber;
     private final int indexReplicasNumber;
+    private final boolean isHighPerformanceMode;
 
-    public ElasticSearchStorageInstaller(int indexShardsNumber, int indexReplicasNumber) {
+    public ElasticSearchStorageInstaller(int indexShardsNumber, int indexReplicasNumber,
+        boolean isHighPerformanceMode) {
         this.indexShardsNumber = indexShardsNumber;
         this.indexReplicasNumber = indexReplicasNumber;
+        this.isHighPerformanceMode = isHighPerformanceMode;
     }
 
     @Override protected void defineFilter(List<TableDefine> tableDefines) {
@@ -59,6 +62,7 @@ public class ElasticSearchStorageInstaller extends StorageInstaller {
     @Override protected boolean createTable(Client client, TableDefine tableDefine) {
         ElasticSearchClient esClient = (ElasticSearchClient)client;
         ElasticSearchTableDefine esTableDefine = (ElasticSearchTableDefine)tableDefine;
+
         // mapping
         XContentBuilder mappingBuilder = null;
 
@@ -92,16 +96,19 @@ public class ElasticSearchStorageInstaller extends StorageInstaller {
 
         for (ColumnDefine columnDefine : tableDefine.getColumnDefines()) {
             ElasticSearchColumnDefine elasticSearchColumnDefine = (ElasticSearchColumnDefine)columnDefine;
+            if (isHighPerformanceMode) {
+                elasticSearchColumnDefine.getColumnName().useShortName();
+            }
 
             if (ElasticSearchColumnDefine.Type.Text.name().toLowerCase().equals(elasticSearchColumnDefine.getType().toLowerCase())) {
                 mappingBuilder
-                    .startObject(elasticSearchColumnDefine.getName())
+                    .startObject(elasticSearchColumnDefine.getColumnName().getName())
                     .field("type", elasticSearchColumnDefine.getType().toLowerCase())
                     .field("analyzer", "collector_analyzer")
                     .endObject();
             } else {
                 mappingBuilder
-                    .startObject(elasticSearchColumnDefine.getName())
+                    .startObject(elasticSearchColumnDefine.getColumnName().getName())
                     .field("type", elasticSearchColumnDefine.getType().toLowerCase())
                     .endObject();
             }
