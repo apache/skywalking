@@ -23,10 +23,29 @@ import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 
 /**
+ * Interface to be implemented for execute database query operation
+ * from {@link org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponentTable#TABLE}.
+ *
  * @author peng-yongsheng
+ * @see org.apache.skywalking.apm.collector.storage.StorageModule
  */
 public interface IApplicationComponentUIDAO extends DAO {
 
+    /**
+     * Returns application components that collected between start time bucket
+     * and end time bucket.
+     *
+     * <p>SQL as: select COMPONENT_ID, APPLICATION_ID from APPLICATION_COMPONENT
+     * where TIME_BUCKET ge ${startTimeBucket} and TIME_BUCKET le ${endTimeBucket}
+     * group by COMPONENT_ID, APPLICATION_ID
+     * <p>Use {@link org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder#build(Step, String)}
+     * to generate table name which mixed with step name.
+     *
+     * @param step the step which represent time formats
+     * @param startTimeBucket start time bucket
+     * @param endTimeBucket end time bucket
+     * @return not nullable result list
+     */
     List<ApplicationComponent> load(Step step, long startTimeBucket, long endTimeBucket);
 
     class ApplicationComponent {

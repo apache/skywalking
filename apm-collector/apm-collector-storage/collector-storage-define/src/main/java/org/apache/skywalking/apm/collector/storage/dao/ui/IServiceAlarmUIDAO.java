@@ -23,9 +23,28 @@ import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
 import org.apache.skywalking.apm.collector.storage.ui.alarm.Alarm;
 
 /**
+ * Interface to be implemented for execute database query operation
+ * from {@link org.apache.skywalking.apm.collector.storage.table.alarm.ServiceAlarmTable#TABLE}.
+ *
  * @author peng-yongsheng
+ * @see org.apache.skywalking.apm.collector.storage.StorageModule
  */
 public interface IServiceAlarmUIDAO extends DAO {
 
-    Alarm loadAlarmList(String keyword, long startTimeBucket, long endTimeBucket, int limit, int from) throws ParseException;
+    /**
+     * <p>SQL as: select SERVICE_ID, ALARM_CONTENT, LAST_TIME_BUCKET, ALARM_TYPE from SERVICE_ALARM
+     * where LAST_TIME_BUCKET ge ${startTimeBucket} and LAST_TIME_BUCKET le ${endTimeBucket}
+     * and ALARM_CONTENT like '%{keyword}%'
+     * <p>Note: keyword maybe not given
+     *
+     * @param keyword fuzzy query
+     * @param startTimeBucket start time bucket
+     * @param endTimeBucket end time bucket
+     * @param limit limits the number of rows returned by the query
+     * @param from specified how many rows to skip
+     * @return service alarm items
+     * @throws ParseException alarm time parse exception
+     */
+    Alarm loadAlarmList(String keyword, long startTimeBucket, long endTimeBucket, int limit,
+        int from) throws ParseException;
 }
