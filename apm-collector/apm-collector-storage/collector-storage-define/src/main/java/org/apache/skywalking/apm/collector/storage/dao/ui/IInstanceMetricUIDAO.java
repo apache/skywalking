@@ -41,7 +41,7 @@ public interface IInstanceMetricUIDAO extends DAO {
      *
      * <p>SQL as: select APPLICATION_ID, sum(TRANSACTION_CALLS) / ${secondBetween} as tps
      * from INSTANCE_METRIC
-     * where TIME_BUCKET gte ${startTimeBucket} and TIME_BUCKET lte ${endTimeBucket}
+     * where TIME_BUCKET ge ${startTimeBucket} and TIME_BUCKET le ${endTimeBucket}
      * and SOURCE_VALUE = ${metricSource}
      * and APPLICATION_ID = ${applicationId}
      * group by INSTANCE_ID

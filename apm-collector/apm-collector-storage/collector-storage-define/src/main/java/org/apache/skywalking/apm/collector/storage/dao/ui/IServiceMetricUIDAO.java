@@ -94,7 +94,7 @@ public interface IServiceMetricUIDAO extends DAO {
     /**
      * <p>SQL as: select SERVICE_ID, sum(TRANSACTION_CALLS), sum(TRANSACTION_ERROR_CALLS)
      * from SERVICE_METRIC
-     * where TIME_BUCKET gte ${startTimeBucket} and TIME_BUCKET lte ${endTimeBucket}
+     * where TIME_BUCKET ge ${startTimeBucket} and TIME_BUCKET le ${endTimeBucket}
      * and SOURCE_VALUE = ${metricSource} and SERVICE_ID in (${serviceIds})
      * group by SERVICE_ID
      *
@@ -119,7 +119,7 @@ public interface IServiceMetricUIDAO extends DAO {
      *
      * <p>SQL as: select SERVICE_ID, TRANSACTION_CALLS, TRANSACTION_AVERAGE_DURATION
      * from SERVICE_METRIC where ID in (${durationPoints})
-     * where TIME_BUCKET gte ${startTimeBucket} and TIME_BUCKET lte ${endTimeBucket}
+     * where TIME_BUCKET ge ${startTimeBucket} and TIME_BUCKET le ${endTimeBucket}
      * and SOURCE_VALUE = ${metricSource}
      * and APPLICATION_ID = ${applicationId}
      * order by TRANSACTION_AVERAGE_DURATION desc

@@ -33,7 +33,7 @@ public interface IApplicationAlarmListUIDAO extends DAO {
 
     /**
      * <p>SQL as: select TIME_BUCKET, APPLICATION_ID, count(APPLICATION_ID) from APPLICATION_ALARM_LIST
-     * where TIME_BUCKET gte ${startTimeBucket} and TIME_BUCKET lte ${endTimeBucket}
+     * where TIME_BUCKET ge ${startTimeBucket} and TIME_BUCKET le ${endTimeBucket}
      * group by TIME_BUCKET, APPLICATION_ID
      *
      * <p>Use {@link org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder#build(Step, String)}

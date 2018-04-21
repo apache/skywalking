@@ -36,7 +36,7 @@ public interface IApplicationComponentUIDAO extends DAO {
      * and end time bucket.
      *
      * <p>SQL as: select COMPONENT_ID, APPLICATION_ID from APPLICATION_COMPONENT
-     * where TIME_BUCKET gte ${startTimeBucket} and TIME_BUCKET lte ${endTimeBucket}
+     * where TIME_BUCKET ge ${startTimeBucket} and TIME_BUCKET le ${endTimeBucket}
      * group by COMPONENT_ID, APPLICATION_ID
      * <p>Use {@link org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder#build(Step, String)}
      * to generate table name which mixed with step name.

@@ -40,7 +40,7 @@ public interface IApplicationReferenceMetricUIDAO extends DAO {
      * <p>SQL as: select FRONT_APPLICATION_ID, BEHIND_APPLICATION_ID,
      * sum(TRANSACTION_CALLS), sum(TRANSACTION_ERROR_CALLS), sum(TRANSACTION_DURATION_SUM), sum(TRANSACTION_ERROR_DURATION_SUM)
      * from APPLICATION_REFERENCE_METRIC
-     * where TIME_BUCKET gte ${startTimeBucket} and TIME_BUCKET lte ${endTimeBucket}
+     * where TIME_BUCKET ge ${startTimeBucket} and TIME_BUCKET le ${endTimeBucket}
      * and SOURCE_VALUE = ${metricSource}
      * and ( FRONT_APPLICATION_ID in (${applicationIds}) or BEHIND_APPLICATION_ID in (${applicationIds}) )
      * group by FRONT_APPLICATION_ID, BEHIND_APPLICATION_ID
