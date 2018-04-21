@@ -109,7 +109,7 @@ public class ServiceMetricH2UIDAO extends H2DAO implements IServiceMetricUIDAO {
         return trends;
     }
 
-    @Override public List<Node> getServicesMetric(Step step, long startTime, long endTime, MetricSource metricSource,
+    @Override public List<Node> getServicesMetric(Step step, long startTimeBucket, long endTimeBucket, MetricSource metricSource,
         Collection<Integer> serviceIds) {
         return null;
     }

@@ -20,11 +20,19 @@ package org.apache.skywalking.apm.collector.ui.service;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.apache.skywalking.apm.collector.core.module.MockModule;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.storage.dao.ui.*;
+import org.apache.skywalking.apm.collector.storage.dao.ui.ICpuMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IGCMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IMemoryMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Application;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 import org.apache.skywalking.apm.collector.storage.ui.common.Duration;
@@ -42,12 +50,10 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
@@ -70,7 +76,6 @@ public class ServerServiceTest {
     private long endSecondTimeBucket;
     private long startTimeBucket;
     private long endTimeBucket;
-
 
     @Before
     public void setUp() throws Exception {
@@ -192,14 +197,14 @@ public class ServerServiceTest {
     public void getMemoryTrend() throws ParseException {
         when(memoryMetricUIDAO.getHeapMemoryTrend(anyInt(), anyObject(), anyObject())).then(invocation -> {
             IMemoryMetricUIDAO.Trend trend = new IMemoryMetricUIDAO.Trend();
-            trend.setMaxMetrics(Collections.singletonList(1));
-            trend.setMetrics(Collections.singletonList(2));
+            trend.getMaxMetrics().addAll(Collections.singletonList(1));
+            trend.getMetrics().addAll(Collections.singletonList(2));
             return trend;
         });
         when(memoryMetricUIDAO.getNoHeapMemoryTrend(anyInt(), anyObject(), anyObject())).then(invocation -> {
             IMemoryMetricUIDAO.Trend trend = new IMemoryMetricUIDAO.Trend();
-            trend.setMaxMetrics(Collections.singletonList(1));
-            trend.setMetrics(Collections.singletonList(2));
+            trend.getMaxMetrics().addAll(Collections.singletonList(1));
+            trend.getMetrics().addAll(Collections.singletonList(2));
             return trend;
         });
         MemoryTrend memoryTrend = serverService.getMemoryTrend(1, duration.getStep(), startTimeBucket, endTimeBucket);

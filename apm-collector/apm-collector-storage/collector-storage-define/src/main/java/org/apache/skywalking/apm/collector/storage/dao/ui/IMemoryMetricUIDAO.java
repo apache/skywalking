@@ -21,15 +21,64 @@ package org.apache.skywalking.apm.collector.storage.dao.ui;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
+import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetricTable;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 
 /**
+ * Interface to be implemented for execute database query operation
+ * from {@link MemoryMetricTable#TABLE}.
+ *
  * @author peng-yongsheng
+ * @see org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetricTable
+ * @see org.apache.skywalking.apm.collector.storage.StorageModule
  */
 public interface IMemoryMetricUIDAO extends DAO {
+
+    /**
+     * Heap memory Trend describes the trend of Memory in the given duration, which
+     * represents by the DurationPoint list in the `step` Unit.
+     * <p>SQL as: select MAX, USED, TIMES from MEMORY_METRIC where ID in (durationPoints),
+     * rule of ID generation is "${durationPoint}_${instanceId}_${isHeap}".
+     * {@link org.apache.skywalking.apm.collector.core.util.BooleanUtils#TRUE}
+     * <p>The average usage percent formula is "MAX / TIMES" and "USED / TIMES"
+     * <p>Every element in return list must match DurationPoint list, which also means that,
+     * the two list must be in same size, and index match.
+     * <p>If some element of the return list can't be found, the implementor must set 0 as
+     * default value.
+     * <p>Use {@link org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder#build(Step, String)}
+     * to generate table name which mixed with step name.
+     *
+     * @param instanceId the owner id of this memory metrics
+     * @param step the step which represent time formats
+     * @param durationPoints the time points in the time span
+     * @return every duration points average heap memory max and usage percent metrics.
+     * @see org.apache.skywalking.apm.collector.storage.ui.common.Step
+     * @see org.apache.skywalking.apm.collector.core.util.BooleanUtils
+     */
     Trend getHeapMemoryTrend(int instanceId, Step step, List<DurationPoint> durationPoints);
 
+    /**
+     * Non heap memory Trend describes the trend of Memory in the given duration, which
+     * represents by the DurationPoint list in the `step` Unit.
+     * <p>SQL as: select MAX, USED, TIMES from MEMORY_METRIC where ID in (durationPoints),
+     * rule of ID generation is "${durationPoint}_${instanceId}_${isHeap}".
+     * {@link org.apache.skywalking.apm.collector.core.util.BooleanUtils#FALSE}
+     * <p>The average usage percent formula is "MAX / TIMES" and "USED / TIMES"
+     * <p>Every element in return list must match DurationPoint list, which also means that,
+     * the two list must be in same size, and index match.
+     * <p>If some element of the return list can't be found, the implementor must set 0 as
+     * default value.
+     * <p>Use {@link org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder#build(Step, String)}
+     * to generate table name which mixed with step name.
+     *
+     * @param instanceId the owner id of this memory metrics
+     * @param step the step which represent time formats
+     * @param durationPoints the time points in the time span
+     * @return every duration points average non heap memory max and usage percent metrics.
+     * @see org.apache.skywalking.apm.collector.storage.ui.common.Step
+     * @see org.apache.skywalking.apm.collector.core.util.BooleanUtils
+     */
     Trend getNoHeapMemoryTrend(int instanceId, Step step, List<DurationPoint> durationPoints);
 
     class Trend {
@@ -45,16 +94,8 @@ public interface IMemoryMetricUIDAO extends DAO {
             return metrics;
         }
 
-        public void setMetrics(List<Integer> metrics) {
-            this.metrics = metrics;
-        }
-
         public List<Integer> getMaxMetrics() {
             return maxMetrics;
-        }
-
-        public void setMaxMetrics(List<Integer> maxMetrics) {
-            this.maxMetrics = maxMetrics;
         }
     }
 }

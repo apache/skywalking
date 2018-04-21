@@ -23,9 +23,33 @@ import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 
 /**
+ * Interface to be implemented for execute database query operation
+ * from {@link org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponentTable#TABLE}.
+ *
  * @author peng-yongsheng
+ * @see org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponentTable
+ * @see org.apache.skywalking.apm.collector.storage.StorageModule
  */
 public interface IApplicationMappingUIDAO extends DAO {
+
+    /**
+     * Returns application mapping data that collected between start time bucket
+     * and end time bucket. The application id was registered from server side,
+     * mapping application id was register from client side. So, this returned
+     * collection can be use to distinguished the application reference metrics
+     * which aggregated from server side or client side.
+     *
+     * <p>SQL as: select APPLICATION_ID, MAPPING_APPLICATION_ID from APPLICATION_MAPPING
+     * where TIME_BUCKET ge ${startTimeBucket} and TIME_BUCKET le ${endTimeBucket}
+     * group by APPLICATION_ID, MAPPING_APPLICATION_ID
+     * <p>Use {@link org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder#build(Step, String)}
+     * to generate table name which mixed with step name.
+     *
+     * @param step the step which represent time formats
+     * @param startTimeBucket start time bucket
+     * @param endTimeBucket end time bucket
+     * @return not nullable result list
+     */
     List<ApplicationMapping> load(Step step, long startTimeBucket, long endTimeBucket);
 
     class ApplicationMapping {
