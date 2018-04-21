@@ -20,14 +20,63 @@ package org.apache.skywalking.apm.collector.storage.dao.ui;
 
 import java.util.List;
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
+import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetricTable;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 
 /**
+ * Interface to be implemented for execute database query operation
+ * from {@link GCMetricTable#TABLE}.
+ *
  * @author peng-yongsheng
+ * @see org.apache.skywalking.apm.collector.storage.table.jvm.GCMetricTable
+ * @see org.apache.skywalking.apm.collector.storage.StorageModule
  */
 public interface IGCMetricUIDAO extends DAO {
+
+    /**
+     * Young GC Trend describes the trend of young generation garbage collection in the given
+     * duration, which represents by the DurationPoint list in the `step` Unit.
+     * <p>SQL as: select COUNT, TIMES from GC_METRIC where ID in (durationPoints), rule of
+     * ID generation is "${durationPoint}_${instanceId}_${gcPhrase}",
+     * {@link org.apache.skywalking.apm.network.proto.GCPhrase#NEW_VALUE}
+     * <p>The average young generation GC count percent formula is "COUNT / TIMES".
+     * <p>Every element in return list must match DurationPoint list, which also means that,
+     * the two list must be in same size, and index match.
+     * <p>If some element of the return list can't be found, the implementor must set 0 as
+     * default value.
+     * <p>Use {@link org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder#build(Step, String)}
+     * to generate table name which mixed with step name.
+     *
+     * @param instanceId the owner id of this GC metrics
+     * @param step the step which represent time formats
+     * @param durationPoints the time points in the time span
+     * @return every duration points average young generation GC count percent metrics.
+     * @see org.apache.skywalking.apm.collector.storage.ui.common.Step
+     * @see org.apache.skywalking.apm.network.proto.GCPhrase
+     */
     List<Integer> getYoungGCTrend(int instanceId, Step step, List<DurationPoint> durationPoints);
 
+    /**
+     * Old GC Trend describes the trend of old generation garbage collection in the given
+     * duration, which represents by the DurationPoint list in the `step` Unit.
+     * <p>SQL as: select COUNT, TIMES from GC_METRIC where ID in (durationPoints), rule of
+     * ID generation is "${durationPoint}_${instanceId}_${gcPhrase}",
+     * {@link org.apache.skywalking.apm.network.proto.GCPhrase#OLD_VALUE}
+     * <p>The average old generation GC count percent formula is "COUNT / TIMES".
+     * <p>Every element in return list must match DurationPoint list, which also means that,
+     * the two list must be in same size, and index match.
+     * <p>If some element of the return list can't be found, the implementor must set 0 as
+     * default value.
+     * <p>Use {@link org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder#build(Step, String)}
+     * to generate table name which mixed with step name.
+     *
+     * @param instanceId the owner id of this GC metrics
+     * @param step the step which represent time formats
+     * @param durationPoints the time points in the time span
+     * @return every duration points average old generation GC count percent metrics.
+     * @see org.apache.skywalking.apm.collector.storage.ui.common.Step
+     * @see org.apache.skywalking.apm.network.proto.GCPhrase
+     */
     List<Integer> getOldGCTrend(int instanceId, Step step, List<DurationPoint> durationPoints);
 }

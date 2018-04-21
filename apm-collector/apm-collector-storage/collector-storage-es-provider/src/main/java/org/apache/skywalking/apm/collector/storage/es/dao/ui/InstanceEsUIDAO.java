@@ -23,7 +23,6 @@ import java.util.List;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
@@ -35,10 +34,8 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.index.query.AbstractQueryBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -57,44 +54,6 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
 
     public InstanceEsUIDAO(ElasticSearchClient client) {
         super(client);
-    }
-
-    @Override public Long lastHeartBeatTime() {
-        long fiveMinuteBefore = System.currentTimeMillis() - 5 * 60 * 1000;
-        fiveMinuteBefore = TimeBucketUtils.INSTANCE.getSecondTimeBucket(fiveMinuteBefore);
-        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery(InstanceTable.HEARTBEAT_TIME.getName()).gt(fiveMinuteBefore);
-        return heartBeatTime(rangeQueryBuilder);
-    }
-
-    @Override public Long instanceLastHeartBeatTime(long applicationInstanceId) {
-        long fiveMinuteBefore = System.currentTimeMillis() - 5 * 60 * 1000;
-        fiveMinuteBefore = TimeBucketUtils.INSTANCE.getSecondTimeBucket(fiveMinuteBefore);
-
-        BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
-        boolQueryBuilder.must(QueryBuilders.rangeQuery(InstanceTable.HEARTBEAT_TIME.getName()).gt(fiveMinuteBefore));
-        boolQueryBuilder.must(QueryBuilders.termQuery(InstanceTable.INSTANCE_ID.getName(), applicationInstanceId));
-        return heartBeatTime(boolQueryBuilder);
-    }
-
-    private Long heartBeatTime(AbstractQueryBuilder queryBuilder) {
-        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(InstanceTable.TABLE);
-        searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
-        searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-        searchRequestBuilder.setQuery(queryBuilder);
-        searchRequestBuilder.setSize(1);
-        searchRequestBuilder.setFetchSource(InstanceTable.HEARTBEAT_TIME.getName(), null);
-        searchRequestBuilder.addSort(SortBuilders.fieldSort(InstanceTable.HEARTBEAT_TIME.getName()).sortMode(SortMode.MAX));
-
-        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
-        SearchHit[] searchHits = searchResponse.getHits().getHits();
-
-        Long heartBeatTime = 0L;
-        for (SearchHit searchHit : searchHits) {
-            heartBeatTime = (Long)searchHit.getSource().get(InstanceTable.HEARTBEAT_TIME.getName());
-            logger.debug("heartBeatTime: {}", heartBeatTime);
-            heartBeatTime = heartBeatTime - 5;
-        }
-        return heartBeatTime;
     }
 
     @Override public List<Application> getApplications(long startSecondTimeBucket, long endSecondTimeBucket,
