@@ -24,13 +24,62 @@ import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 
 /**
+ * Interface to be implemented for execute database query operation
+ * from {@link org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetricTable#TABLE}.
+ *
  * @author peng-yongsheng
+ * @see org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetricTable
+ * @see org.apache.skywalking.apm.collector.storage.StorageModule
  */
 public interface IServiceReferenceMetricUIDAO extends DAO {
 
+    /**
+     * Returns the service reference metrics which call the given service id
+     * that collected between start time bucket and end time bucket.
+     *
+     * <p>SQL as: select FRONT_SERVICE_ID, sum(TRANSACTION_CALLS), sum(TRANSACTION_ERROR_CALLS),
+     * sum(TRANSACTION_DURATION_SUM), sum(TRANSACTION_ERROR_DURATION_SUM)
+     * from SERVICE_REFERENCE_METRIC
+     * where TIME_BUCKET ge ${startTimeBucket} and TIME_BUCKET le ${endTimeBucket}
+     * and SOURCE_VALUE = ${metricSource}
+     * and BEHIND_SERVICE_ID = ${behindServiceId}
+     * group by FRONT_SERVICE_ID
+     *
+     * <p>Use {@link org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder#build(Step, String)}
+     * to generate table name which mixed with step name.
+     *
+     * @param step the step which represent time formats
+     * @param startTimeBucket start time bucket
+     * @param endTimeBucket end time bucket
+     * @param metricSource source of this metric, server side or client side
+     * @param behindServiceId the callee service id
+     * @return not nullable result list
+     */
     List<ServiceReferenceMetric> getFrontServices(Step step, long startTimeBucket, long endTimeBucket,
         MetricSource metricSource, int behindServiceId);
 
+    /**
+     * Returns the service reference metrics which call from the given service id
+     * that collected between start time bucket and end time bucket.
+     *
+     * <p>SQL as: select FRONT_SERVICE_ID, sum(TRANSACTION_CALLS), sum(TRANSACTION_ERROR_CALLS),
+     * sum(TRANSACTION_DURATION_SUM), sum(TRANSACTION_ERROR_DURATION_SUM)
+     * from SERVICE_REFERENCE_METRIC
+     * where TIME_BUCKET ge ${startTimeBucket} and TIME_BUCKET le ${endTimeBucket}
+     * and SOURCE_VALUE = ${metricSource}
+     * and BEHIND_SERVICE_ID = ${frontServiceId}
+     * group by BEHIND_SERVICE_ID
+     *
+     * <p>Use {@link org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder#build(Step, String)}
+     * to generate table name which mixed with step name.
+     *
+     * @param step the step which represent time formats
+     * @param startTimeBucket start time bucket
+     * @param endTimeBucket end time bucket
+     * @param metricSource source of this metric, server side or client side
+     * @param frontServiceId the caller service id
+     * @return not nullable result list
+     */
     List<ServiceReferenceMetric> getBehindServices(Step step, long startTimeBucket, long endTimeBucket,
         MetricSource metricSource, int frontServiceId);
 

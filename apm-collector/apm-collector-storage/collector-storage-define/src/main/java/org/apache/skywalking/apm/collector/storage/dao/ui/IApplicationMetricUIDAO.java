@@ -25,12 +25,61 @@ import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.ui.overview.ApplicationTPS;
 
 /**
+ * Interface to be implemented for execute database query operation
+ * from {@link org.apache.skywalking.apm.collector.storage.table.application.ApplicationMetricTable#TABLE}.
+ *
  * @author peng-yongsheng
+ * @see org.apache.skywalking.apm.collector.storage.table.application.ApplicationMetricTable
+ * @see org.apache.skywalking.apm.collector.storage.StorageModule
  */
 public interface IApplicationMetricUIDAO extends DAO {
+
+    /**
+     * Returns the top n application throughput between start time bucket
+     * and end time bucket.
+     *
+     * <p>SQL as: select APPLICATION_ID, sum(TRANSACTION_CALLS) / betweenSecond as tps
+     * from APPLICATION_METRIC
+     * where TIME_BUCKET ge ${startTimeBucket} and TIME_BUCKET le ${endTimeBucket}
+     * and SOURCE_VALUE = ${metricSource}
+     * group by APPLICATION_ID
+     * order by tps desc
+     * <p>Use {@link org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder#build(Step, String)}
+     * to generate table name which mixed with step name.
+     * <p>Note: SQL should be "select APPLICATION_ID, 0 as tps" when betweenSecond
+     * equal 0.
+     *
+     * @param step the step which represent time formats
+     * @param startTimeBucket start time bucket
+     * @param endTimeBucket end time bucket
+     * @param betweenSecond the seconds between start time bucket and end time bucket
+     * @param topN how many rows should return
+     * @param metricSource source of this metric, server side or client side
+     * @return not nullable result list
+     */
     List<ApplicationTPS> getTopNApplicationThroughput(Step step, long startTimeBucket, long endTimeBucket,
         int betweenSecond, int topN, MetricSource metricSource);
 
+    /**
+     * Returns aggregated application metrics that collected between start time bucket
+     * and end time bucket.
+     *
+     * <p>SQL as: select APPLICATION_ID, sum(TRANSACTION_CALLS), sum(TRANSACTION_ERROR_CALLS),
+     * sum(TRANSACTION_DURATION_SUM), sum(TRANSACTION_ERROR_DURATION_SUM),
+     * sum(SATISFIED_COUNT), sum(TOLERATING_COUNT), sum(FRUSTRATED_COUNT)
+     * from APPLICATION_METRIC
+     * where TIME_BUCKET ge ${startTimeBucket} and TIME_BUCKET le ${endTimeBucket}
+     * and SOURCE_VALUE = ${metricSource}
+     * group by APPLICATION_ID
+     * <p>Use {@link org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder#build(Step, String)}
+     * to generate table name which mixed with step name.
+     *
+     * @param step the step which represent time formats
+     * @param startTimeBucket start time bucket
+     * @param endTimeBucket end time bucket
+     * @param metricSource source of this metric, server side or client side
+     * @return not nullable result list
+     */
     List<ApplicationMetric> getApplications(Step step, long startTimeBucket, long endTimeBucket,
         MetricSource metricSource);
 

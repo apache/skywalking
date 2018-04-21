@@ -43,11 +43,11 @@ public class NetworkAddressEsUIDAO extends EsDAO implements INetworkAddressUIDAO
         super(client);
     }
 
-    @Override public int getNumOfSpanLayer(int spanLayer) {
+    @Override public int getNumOfSpanLayer(int srcSpanLayer) {
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(NetworkAddressTable.TABLE);
         searchRequestBuilder.setTypes(NetworkAddressTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-        searchRequestBuilder.setQuery(QueryBuilders.termQuery(NetworkAddressTable.SRC_SPAN_LAYER.getName(), spanLayer));
+        searchRequestBuilder.setQuery(QueryBuilders.termQuery(NetworkAddressTable.SRC_SPAN_LAYER.getName(), srcSpanLayer));
         searchRequestBuilder.setSize(0);
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();

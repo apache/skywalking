@@ -139,7 +139,7 @@ public class ServiceMetricEsUIDAO extends EsDAO implements IServiceMetricUIDAO {
     }
 
     @Override
-    public List<Node> getServicesMetric(Step step, long startTime, long endTime, MetricSource metricSource,
+    public List<Node> getServicesMetric(Step step, long startTimeBucket, long endTimeBucket, MetricSource metricSource,
         Collection<Integer> serviceIds) {
         String tableName = TimePyramidTableNameBuilder.build(step, ServiceMetricTable.TABLE);
 
@@ -148,7 +148,7 @@ public class ServiceMetricEsUIDAO extends EsDAO implements IServiceMetricUIDAO {
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceMetricTable.TIME_BUCKET.getName()).gte(startTime).lte(endTime));
+        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceMetricTable.TIME_BUCKET.getName()).gte(startTimeBucket).lte(endTimeBucket));
         boolQuery.must().add(QueryBuilders.termsQuery(ServiceMetricTable.SERVICE_ID.getName(), serviceIds));
         boolQuery.must().add(QueryBuilders.termQuery(ServiceMetricTable.SOURCE_VALUE.getName(), metricSource.getValue()));
 
