@@ -32,6 +32,8 @@ import static org.junit.Assert.assertEquals;
 public class CacheUtilsUnitTest {
 
     private Cache<Integer, String> testCache = CacheBuilder.newBuilder().maximumSize(10).build();
+    
+    private Cache<String, Integer> stringCache = CacheBuilder.newBuilder().maximumSize(10).build();
 
     @Before
     public void init() {
@@ -53,5 +55,27 @@ public class CacheUtilsUnitTest {
     public void retrieveOrElse() {
         String value = CacheUtils.retrieveOrElse(testCache, 12, () -> null, "twelve");
         assertEquals(value, "twelve");
+    }
+    
+    @Test
+    public void retrieveWhenFirstTimeNotFound() {
+        ApplicationDAO dao = new ApplicationDAO();
+
+        Integer value = CacheUtils.retrieveOrElse(stringCache, "test", dao::getIdByCode, 0);
+        assertEquals(value.intValue(), 0);
+
+        dao.id = 10;
+
+        value = CacheUtils.retrieveOrElse(stringCache, "test", dao::getIdByCode, 0);
+        assertEquals(value.intValue(), 10);
+    }
+
+    class ApplicationDAO {
+
+        private int id = 0;
+
+        int getIdByCode() {
+            return id;
+        }
     }
 }
