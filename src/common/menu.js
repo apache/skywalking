@@ -31,10 +31,6 @@ const menuData = [{
   icon: 'appstore',
   path: 'application',
 }, {
-  name: 'Server',
-  icon: 'database',
-  path: 'server',
-}, {
   name: 'Service',
   icon: 'api',
   path: 'service',

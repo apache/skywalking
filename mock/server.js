@@ -26,12 +26,10 @@ export default {
           'searchServer|5': [
             {
               'key|+1': 3,
-              name: function() { return `server-${this.key}`; }, // eslint-disable-line
               os: 'Mac-@name',
               host: 'WORKSAPCE-@name',
               pid: '@natural(4, 20)',
               'ipv4|1-3': ['@ip'],
-              applicationCode: 'Frontend',
             },
           ],
         },
