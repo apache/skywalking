@@ -65,13 +65,22 @@ public class ElasticSearchClient implements Client {
 
     private final String clusterNodes;
 
-    private String namespace;
+    private final String namespace;
 
     public ElasticSearchClient(String clusterName, boolean clusterTransportSniffer,
         String clusterNodes) {
         this.clusterName = clusterName;
         this.clusterTransportSniffer = clusterTransportSniffer;
         this.clusterNodes = clusterNodes;
+        this.namespace = Const.EMPTY_STRING;
+    }
+
+    public ElasticSearchClient(String clusterName, boolean clusterTransportSniffer,
+        String clusterNodes, String namespace) {
+        this.clusterName = clusterName;
+        this.clusterTransportSniffer = clusterTransportSniffer;
+        this.clusterNodes = clusterNodes;
+        this.namespace = namespace;
     }
 
     @Override
@@ -109,10 +118,6 @@ public class ElasticSearchClient implements Client {
         }
 
         return pairsList;
-    }
-
-    public void setNamespace(String namespace) {
-        this.namespace = namespace;
     }
 
     class AddressPairs {
