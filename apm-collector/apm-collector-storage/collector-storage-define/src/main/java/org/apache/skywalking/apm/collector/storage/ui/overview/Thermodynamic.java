@@ -26,18 +26,18 @@ import java.util.List;
  */
 public class Thermodynamic {
 
-    private List<Long> nodes;
+    private List<List<Long>> nodes;
     private int responseTimeStep;
 
     public Thermodynamic() {
         this.nodes = new LinkedList<>();
     }
 
-    public List<Long> getNodes() {
+    public List<List<Long>> getNodes() {
         return nodes;
     }
 
-    public void setNodes(List<Long> nodes) {
+    public void setNodes(List<List<Long>> nodes) {
         this.nodes = nodes;
     }
 
