@@ -85,7 +85,7 @@ class ProviderMock {
         span.setStartTime(startTimestamp + 510);
         span.setEndTime(startTimestamp + 1490);
         span.setComponentId(ComponentsDefine.MONGODB.getId());
-        span.setIsError(false);
+        span.setIsError(true);
 
         if (isPrepare) {
             span.setOperationName("mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]");

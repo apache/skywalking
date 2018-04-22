@@ -61,6 +61,12 @@ org.apache.skywalking.apm.collector.storage.h2.define.impp.InstanceMappingDayH2T
 org.apache.skywalking.apm.collector.storage.h2.define.impp.InstanceMappingMonthH2TableDefine
 
 org.apache.skywalking.apm.collector.storage.h2.define.GlobalTraceH2TableDefine
+
+org.apache.skywalking.apm.collector.storage.h2.define.rtd.ResponseTimeDistributionMinuteH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.rtd.ResponseTimeDistributionHourH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.rtd.ResponseTimeDistributionDayH2TableDefine
+org.apache.skywalking.apm.collector.storage.h2.define.rtd.ResponseTimeDistributionMonthH2TableDefine
+
 org.apache.skywalking.apm.collector.storage.h2.define.SegmentDurationH2TableDefine
 org.apache.skywalking.apm.collector.storage.h2.define.SegmentH2TableDefine
 
