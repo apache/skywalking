@@ -139,6 +139,9 @@ CAP:
 StackExchange.Redis:
   id: 3005
   languages: C#
+SqlServer:
+  id: 3006
+  languages: C#
 
 
 
