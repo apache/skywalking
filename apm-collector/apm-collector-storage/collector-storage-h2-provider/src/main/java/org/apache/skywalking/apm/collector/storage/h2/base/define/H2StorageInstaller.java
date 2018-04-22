@@ -38,6 +38,10 @@ public class H2StorageInstaller extends StorageInstaller {
 
     private final Logger logger = LoggerFactory.getLogger(H2StorageInstaller.class);
 
+    public H2StorageInstaller(boolean isHighPerformanceMode) {
+        super(isHighPerformanceMode);
+    }
+
     @Override protected void defineFilter(List<TableDefine> tableDefines) {
         int size = tableDefines.size();
         for (int i = size - 1; i >= 0; i--) {
@@ -70,17 +74,20 @@ public class H2StorageInstaller extends StorageInstaller {
         return false;
     }
 
-    @Override protected boolean deleteTable(Client client, TableDefine tableDefine) throws StorageException {
+    @Override protected void columnCheck(Client client, TableDefine tableDefine) throws StorageException {
+
+    }
+
+    @Override protected void deleteTable(Client client, TableDefine tableDefine) throws StorageException {
         H2Client h2Client = (H2Client)client;
         try {
             h2Client.execute("drop table if exists " + tableDefine.getName());
-            return true;
         } catch (H2ClientException e) {
             throw new StorageInstallException(e.getMessage(), e);
         }
     }
 
-    @Override protected boolean createTable(Client client, TableDefine tableDefine) throws StorageException {
+    @Override protected void createTable(Client client, TableDefine tableDefine) throws StorageException {
         H2Client h2Client = (H2Client)client;
         H2TableDefine h2TableDefine = (H2TableDefine)tableDefine;
 
@@ -104,6 +111,5 @@ public class H2StorageInstaller extends StorageInstaller {
         } catch (H2ClientException e) {
             throw new StorageInstallException(e.getMessage(), e);
         }
-        return true;
     }
 }
