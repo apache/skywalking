@@ -35,7 +35,7 @@ Tomcat:
   languages: Java
 HttpClient:
   id: 2
-  languages: Java
+  languages: Java,C#
 Dubbo:
   id: 3
   languages: Java
@@ -122,9 +122,30 @@ Jedis:
   languages: Java
 
 
+# .NET/.NET Core components
+AspNetCore:
+  id: 1001
+  languages: C#
+EntityFrameworkCore:
+  id: 1002
+  languages: C#
+SqlClient:
+  id: 1003
+  languages: C#
+CAP:
+  id: 1004
+  languages: C#
+StackExchange.Redis:
+  id: 1005
+  languages: C#
+
+
+
 # Component Server mapping defines the server display names of some components
 # e.g.
 # Jedis is a client library in Java for Redis server
 Component-Server-Mappings:
   Jedis: Redis
+  StackExchange.Redis: Redis
+  SqlClient: SqlServer
 
