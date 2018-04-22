@@ -106,3 +106,11 @@ const reg = /(((^https?:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-
 export function isUrl(path) {
   return reg.test(path);
 }
+
+export function getServerId(serverInfo) {
+  let { host } = serverInfo;
+  if (serverInfo.ipv4 && serverInfo.ipv4.length > 0) {
+    [host] = serverInfo.ipv4;
+  }
+  return `${serverInfo.pid}@${host}`;
+}

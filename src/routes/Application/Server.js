@@ -36,91 +36,94 @@ export default class Server extends PureComponent {
       getCPUTrend, getMemoryTrend, getGCTrend } = data;
     return (
       <div>
-        <Card title="Info" style={{ marginTop: 24 }} bordered={false}>
-          <DescriptionList>
-            <Description term="Application Code">{serverInfo.applicationCode}</Description>
-            <Description term="Host Name">{serverInfo.host}</Description>
-            <Description term="IPv4">{serverInfo.ipv4 ? serverInfo.ipv4.join() : ''}</Description>
-            <Description term="Process Id">{serverInfo.pid}</Description>
-            <Description term="OS">{serverInfo.osName}</Description>
-          </DescriptionList>
-        </Card>
-        <Row gutter={24}>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 24 }}>
-            <ChartCard
-              title="Avg Response Time"
-              total={`${avgTimeSeries(getServerResponseTimeTrend.trendList)} ms`}
-              contentHeight={46}
-            >
-              {getServerResponseTimeTrend.trendList.length > 0 ? (
-                <MiniArea
-                  animate={false}
-                  color="#975FE4"
-                  data={axis(duration, getServerResponseTimeTrend.trendList)}
-                />
-              ) : (<span style={{ display: 'none' }} />)}
-            </ChartCard>
+        <Row gutter={8}>
+          <Col xs={24} sm={24} md={24} lg={6} xl={6} style={{ marginTop: 8 }}>
+            <Card style={{ marginTop: 8 }} bordered={false}>
+              <DescriptionList col={1} layout="vertical" >
+                <Description term="Host">{serverInfo.host}</Description>
+                <Description term="IPv4">{serverInfo.ipv4 ? serverInfo.ipv4.join() : ''}</Description>
+                <Description term="Pid">{serverInfo.pid}</Description>
+                <Description term="OS">{serverInfo.osName}</Description>
+              </DescriptionList>
+            </Card>
           </Col>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 24 }}>
-            <ChartCard
-              title="Avg Throughput"
-              total={`${avgTimeSeries(getServerTPSTrend.trendList)}`}
-            >
-              <MiniBar
-                animate={false}
-                height={46}
-                data={axis(duration, getServerTPSTrend.trendList)}
-              />
-            </ChartCard>
-          </Col>
-        </Row>
-        <Row gutter={24}>
-          <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginTop: 24 }}>
-            <ChartCard
-              title="CPU %"
-              contentHeight={150}
-            >
-              <Line
-                data={axis(duration, getCPUTrend.cost)}
-              />
-            </ChartCard>
-          </Col>
-        </Row>
-        <Row gutter={24}>
-          <Col xs={24} sm={24} md={12} lg={12} xl={12} style={{ marginTop: 24 }}>
-            <ChartCard
-              title="Heap MB"
-              contentHeight={150}
-            >
-              <Area
-                data={axis(duration, this.bytesToMB(getMemoryTrend.heap), ({ x, y }) => ({ x, y, type: 'value' }))
-                  .concat(axis(duration, this.bytesToMB(getMemoryTrend.maxHeap), ({ x, y }) => ({ x, y, type: 'free' })))}
-              />
-            </ChartCard>
-          </Col>
-          <Col xs={24} sm={24} md={12} lg={12} xl={12} style={{ marginTop: 24 }}>
-            <ChartCard
-              title="Non-Heap MB"
-              contentHeight={150}
-            >
-              <Area
-                data={axis(duration, this.bytesToMB(getMemoryTrend.noheap), ({ x, y }) => ({ x, y, type: 'value' }))
-                .concat(axis(duration, this.bytesToMB(getMemoryTrend.maxNoheap), ({ x, y }) => ({ x, y, type: 'free' })))}
-              />
-            </ChartCard>
-          </Col>
-        </Row>
-        <Row gutter={24}>
-          <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginTop: 24 }}>
-            <ChartCard
-              title="GC ms"
-              contentHeight={150}
-            >
-              <StackBar
-                data={axis(duration, getGCTrend.oldGC, ({ x, y }) => ({ x, y, type: 'oldGC' }))
-                .concat(axis(duration, getGCTrend.youngGC, ({ x, y }) => ({ x, y, type: 'youngGC' })))}
-              />
-            </ChartCard>
+          <Col xs={24} sm={24} md={24} lg={18} xl={18} style={{ marginTop: 8 }}>
+            <Row gutter={8}>
+              <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
+                <ChartCard
+                  title="Avg Throughput"
+                  total={`${avgTimeSeries(getServerTPSTrend.trendList)}`}
+                  contentHeight={46}
+                >
+                  <MiniBar
+                    color="#975FE4"
+                    data={axis(duration, getServerTPSTrend.trendList)}
+                  />
+                </ChartCard>
+              </Col>
+              <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
+                <ChartCard
+                  title="Avg Response Time"
+                  total={`${avgTimeSeries(getServerResponseTimeTrend.trendList)} ms`}
+                  contentHeight={46}
+                >
+                  {getServerResponseTimeTrend.trendList.length > 0 ? (
+                    <MiniArea
+                      data={axis(duration, getServerResponseTimeTrend.trendList)}
+                    />
+                  ) : (<span style={{ display: 'none' }} />)}
+                </ChartCard>
+              </Col>
+            </Row>
+            <Row gutter={8}>
+              <Col span={24} style={{ marginTop: 8 }}>
+                <ChartCard
+                  title="CPU %"
+                  contentHeight={150}
+                >
+                  <Line
+                    data={axis(duration, getCPUTrend.cost)}
+                  />
+                </ChartCard>
+              </Col>
+            </Row>
+            <Row gutter={8}>
+              <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
+                <ChartCard
+                  title="Heap MB"
+                  contentHeight={150}
+                >
+                  <Area
+                    data={axis(duration, this.bytesToMB(getMemoryTrend.heap), ({ x, y }) => ({ x, y, type: 'value' }))
+                      .concat(axis(duration, this.bytesToMB(getMemoryTrend.maxHeap), ({ x, y }) => ({ x, y, type: 'free' })))}
+                  />
+                </ChartCard>
+              </Col>
+              <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
+                <ChartCard
+                  title="Non-Heap MB"
+                  contentHeight={150}
+                >
+                  <Area
+                    data={axis(duration, this.bytesToMB(getMemoryTrend.noheap), ({ x, y }) => ({ x, y, type: 'value' }))
+                    .concat(axis(duration, this.bytesToMB(getMemoryTrend.maxNoheap), ({ x, y }) => ({ x, y, type: 'free' })))}
+                  />
+                </ChartCard>
+              </Col>
+            </Row>
+            <Row gutter={8}>
+              <Col span={24} style={{ marginTop: 8 }}>
+                <ChartCard
+                  title="GC ms"
+                  contentHeight={150}
+                >
+                  <StackBar
+                    data={axis(duration, getGCTrend.oldGC, ({ x, y }) => ({ x, y, type: 'oldGC' }))
+                    .concat(axis(duration, getGCTrend.youngGC, ({ x, y }) => ({ x, y, type: 'youngGC' })))}
+                  />
+                </ChartCard>
+              </Col>
+            </Row>
           </Col>
         </Row>
       </div>

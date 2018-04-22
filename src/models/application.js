@@ -32,8 +32,8 @@ const dataQuery = `
   query Application($applicationId: ID!, $duration: Duration!) {
     getSlowService(applicationId: $applicationId, duration: $duration, topN: 10) {
       key: id
-      name
-      avgResponseTime
+      label: name
+      value: avgResponseTime
     }
     getServerThroughput(applicationId: $applicationId, duration: $duration, topN: 999999) {
       key: id
@@ -152,6 +152,15 @@ export default generateModal({
           ...data,
           serverInfo,
           ...payload,
+        },
+      };
+    },
+    showServer(preState) {
+      const { data } = preState;
+      return {
+        ...preState,
+        data: {
+          ...data,
           showServer: true,
         },
       };

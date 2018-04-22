@@ -36,16 +36,16 @@ class RankList extends PureComponent {
     }
     return renderValue(item);
   }
-  renderTitle = (item, maxDuration) => {
-    const { onClick } = this.props;
+  renderTitle = (item, maxValue) => {
+    const { onClick, color = '#87CEFA' } = this.props;
     return (
       <div className={styles.progressWrap}>
-        {maxDuration > 0 ? (
+        {maxValue > 0 ? (
           <div
             className={styles.progress}
             style={{
-              backgroundColor: '#87CEFA',
-              width: `${(item.value * 100) / maxDuration}%`,
+              backgroundColor: color,
+              width: `${(item.value * 100) / maxValue}%`,
               height: 25,
             }}
           />

@@ -32,7 +32,7 @@ export default {
     res.json(mockjs.mock(
       {
         data: {
-          'getSlowService|10': [{ 'key|+1': 1, name: '@name', 'avgResponseTime|200-1000': 1 }],
+          'getSlowService|10': [{ 'key|+1': 1, label: '@url', 'value|200-1000': 1 }],
           'getServerThroughput|10': [{
             'key|+1': 3,
             osName: 'Linux-@name',
