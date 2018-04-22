@@ -123,20 +123,21 @@ Jedis:
 
 
 # .NET/.NET Core components
+# [3000, 4000) for C#/.NET only
 AspNetCore:
-  id: 1001
+  id: 3001
   languages: C#
 EntityFrameworkCore:
-  id: 1002
+  id: 3002
   languages: C#
 SqlClient:
-  id: 1003
+  id: 3003
   languages: C#
 CAP:
-  id: 1004
+  id: 3004
   languages: C#
 StackExchange.Redis:
-  id: 1005
+  id: 3005
   languages: C#
 
 
