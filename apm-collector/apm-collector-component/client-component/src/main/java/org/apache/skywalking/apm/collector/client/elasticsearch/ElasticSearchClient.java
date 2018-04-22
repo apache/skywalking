@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.apache.skywalking.apm.collector.client.Client;
 import org.apache.skywalking.apm.collector.client.ClientException;
+import org.apache.skywalking.apm.collector.client.NameSpace;
 import org.apache.skywalking.apm.collector.core.data.CommonTable;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
@@ -65,18 +66,18 @@ public class ElasticSearchClient implements Client {
 
     private final String clusterNodes;
 
-    private final String namespace;
+    private final NameSpace namespace;
 
     public ElasticSearchClient(String clusterName, boolean clusterTransportSniffer,
         String clusterNodes) {
         this.clusterName = clusterName;
         this.clusterTransportSniffer = clusterTransportSniffer;
         this.clusterNodes = clusterNodes;
-        this.namespace = Const.EMPTY_STRING;
+        this.namespace = new NameSpace();
     }
 
     public ElasticSearchClient(String clusterName, boolean clusterTransportSniffer,
-        String clusterNodes, String namespace) {
+        String clusterNodes, NameSpace namespace) {
         this.clusterName = clusterName;
         this.clusterTransportSniffer = clusterTransportSniffer;
         this.clusterNodes = clusterNodes;
@@ -187,7 +188,7 @@ public class ElasticSearchClient implements Client {
     public MultiGetRequestBuilder prepareMultiGet(List<?> rows, MultiGetRowHandler rowHandler) {
         MultiGetRequestBuilder prepareMultiGet = client.prepareMultiGet();
         rowHandler.setPrepareMultiGet(prepareMultiGet);
-        rowHandler.setNamespace(namespace);
+        rowHandler.setNamespace(namespace.getNameSpace());
 
         rows.forEach(rowHandler::accept);
 
@@ -221,7 +222,7 @@ public class ElasticSearchClient implements Client {
     }
 
     private String formatIndexName(String indexName) {
-        return formatIndexName(this.namespace, indexName);
+        return formatIndexName(this.namespace.getNameSpace(), indexName);
     }
 
     private static String formatIndexName(String namespace, String indexName) {

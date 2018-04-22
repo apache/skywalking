@@ -32,7 +32,7 @@ public class MetricGraphIdDefine {
 
     public static final int APPLICATION_COMPONENT_GRAPH_ID = 406;
     public static final int APPLICATION_MAPPING_GRAPH_ID = 407;
-    public static final int SERVICE_MAPPING_GRAPH_ID = 408;
+    public static final int RESPONSE_TIME_DISTRIBUTION_GRAPH_ID = 408;
     public static final int GLOBAL_TRACE_GRAPH_ID = 409;
     public static final int SEGMENT_DURATION_GRAPH_ID = 410;
     public static final int INSTANCE_MAPPING_GRAPH_ID = 411;

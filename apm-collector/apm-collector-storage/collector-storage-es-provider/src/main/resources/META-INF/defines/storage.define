@@ -66,6 +66,11 @@ org.apache.skywalking.apm.collector.storage.es.define.amp.ApplicationHourMetricE
 org.apache.skywalking.apm.collector.storage.es.define.amp.ApplicationDayMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.amp.ApplicationMonthMetricEsTableDefine
 
+org.apache.skywalking.apm.collector.storage.es.define.rtd.ResponseTimeDistributionMinuteEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.rtd.ResponseTimeDistributionHourEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.rtd.ResponseTimeDistributionDayEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.rtd.ResponseTimeDistributionMonthEsTableDefine
+
 org.apache.skywalking.apm.collector.storage.es.define.GlobalTraceEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.SegmentEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.SegmentDurationEsTableDefine
