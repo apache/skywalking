@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.client.elasticsearch;
 
 import org.apache.skywalking.apm.collector.client.ClientException;
@@ -24,12 +23,8 @@ import org.apache.skywalking.apm.collector.client.ClientException;
 /**
  * @author peng-yongsheng
  */
-public class ElasticSearchClientException extends ClientException {
-    public ElasticSearchClientException(String message) {
-        super(message);
-    }
-
-    public ElasticSearchClientException(String message, Throwable cause) {
+class ElasticSearchClientException extends ClientException {
+    ElasticSearchClientException(String message, Throwable cause) {
         super(message, cause);
     }
 }

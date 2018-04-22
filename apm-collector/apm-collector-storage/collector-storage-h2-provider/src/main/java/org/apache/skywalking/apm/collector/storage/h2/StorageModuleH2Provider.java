@@ -280,7 +280,7 @@ public class StorageModuleH2Provider extends ModuleProvider {
         try {
             h2Client.initialize();
 
-            H2StorageInstaller installer = new H2StorageInstaller();
+            H2StorageInstaller installer = new H2StorageInstaller(false);
             installer.install(h2Client);
         } catch (H2ClientException | StorageException e) {
             logger.error(e.getMessage(), e);

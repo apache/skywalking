@@ -29,6 +29,7 @@ import org.apache.skywalking.apm.collector.configuration.service.ICollectorConfi
 import org.apache.skywalking.apm.collector.core.module.Module;
 import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
+import org.apache.skywalking.apm.collector.core.module.ModuleStartException;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.apache.skywalking.apm.collector.remote.RemoteModule;
 import org.apache.skywalking.apm.collector.storage.StorageException;
@@ -242,15 +243,11 @@ import org.apache.skywalking.apm.collector.storage.es.dao.ui.ServiceAlarmEsUIDAO
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.ServiceMetricEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.ServiceNameServiceEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.ServiceReferenceEsMetricUIDAO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class StorageModuleEsProvider extends ModuleProvider {
-
-    private static final Logger logger = LoggerFactory.getLogger(StorageModuleEsProvider.class);
 
     static final String NAME = "elasticsearch";
     private final StorageModuleEsConfig config;
@@ -275,8 +272,6 @@ public class StorageModuleEsProvider extends ModuleProvider {
     }
 
     @Override public void prepare() throws ServiceNotProvidedException {
-        elasticSearchClient = new ElasticSearchClient(config.getClusterName(), config.getClusterTransportSniffer(), config.getClusterNodes());
-
         this.registerServiceImplementation(IBatchDAO.class, new BatchEsDAO(elasticSearchClient));
         registerCacheDAO();
         registerRegisterDAO();
@@ -286,17 +281,16 @@ public class StorageModuleEsProvider extends ModuleProvider {
     }
 
     @Override
-    public void start() {
+    public void start() throws ModuleStartException {
         try {
             String namespace = getManager().find(ConfigurationModule.NAME).getService(ICollectorConfig.class).getNamespace();
-            elasticSearchClient.setNamespace(namespace);
-
+            elasticSearchClient = new ElasticSearchClient(config.getClusterName(), config.getClusterTransportSniffer(), config.getClusterNodes(), namespace);
             elasticSearchClient.initialize();
 
             ElasticSearchStorageInstaller installer = new ElasticSearchStorageInstaller(config.getIndexShardsNumber(), config.getIndexReplicasNumber(), config.isHighPerformanceMode());
             installer.install(elasticSearchClient);
         } catch (ClientException | StorageException e) {
-            logger.error(e.getMessage(), e);
+            throw new ModuleStartException(e.getMessage(), e);
         }
 
         String uuId = UUID.randomUUID().toString();

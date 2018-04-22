@@ -37,7 +37,7 @@ public class ModuleManager {
      * Init the given modules
      */
     public void init(
-        ApplicationConfiguration applicationConfiguration) throws ModuleNotFoundException, ProviderNotFoundException, ServiceNotProvidedException, CycleDependencyException, ModuleConfigException {
+        ApplicationConfiguration applicationConfiguration) throws ModuleNotFoundException, ProviderNotFoundException, ServiceNotProvidedException, CycleDependencyException, ModuleConfigException, ModuleStartException {
         String[] moduleNames = applicationConfiguration.moduleList();
         ServiceLoader<Module> moduleServiceLoader = ServiceLoader.load(Module.class);
         LinkedList<String> moduleList = new LinkedList<>(Arrays.asList(moduleNames));
