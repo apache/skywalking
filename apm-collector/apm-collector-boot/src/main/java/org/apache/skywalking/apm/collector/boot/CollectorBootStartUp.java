@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.collector.core.module.ApplicationConfiguration;
 import org.apache.skywalking.apm.collector.core.module.ModuleConfigException;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleNotFoundException;
+import org.apache.skywalking.apm.collector.core.module.ModuleStartException;
 import org.apache.skywalking.apm.collector.core.module.ProviderNotFoundException;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.slf4j.Logger;
@@ -42,7 +43,7 @@ public class CollectorBootStartUp {
         try {
             ApplicationConfiguration applicationConfiguration = configLoader.load();
             manager.init(applicationConfiguration);
-        } catch (ConfigFileNotFoundException | ModuleNotFoundException | ProviderNotFoundException | ServiceNotProvidedException | ModuleConfigException e) {
+        } catch (ConfigFileNotFoundException | ModuleNotFoundException | ProviderNotFoundException | ServiceNotProvidedException | ModuleConfigException | ModuleStartException e) {
             logger.error(e.getMessage(), e);
             System.exit(1);
         }

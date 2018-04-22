@@ -43,7 +43,8 @@ class BootstrapFlow {
     }
 
     @SuppressWarnings("unchecked")
-    void start(ModuleManager moduleManager) throws ModuleNotFoundException, ServiceNotProvidedException {
+    void start(
+        ModuleManager moduleManager) throws ModuleNotFoundException, ServiceNotProvidedException, ModuleStartException {
         for (ModuleProvider provider : startupSequence) {
             String[] requiredModules = provider.requiredModules();
             if (requiredModules != null) {

@@ -71,7 +71,7 @@ public abstract class ModuleProvider {
     /**
      * In start stage, the module has been ready for interop.
      */
-    public abstract void start() throws ServiceNotProvidedException;
+    public abstract void start() throws ServiceNotProvidedException, ModuleStartException;
 
     /**
      * This callback executes after all modules start up successfully.

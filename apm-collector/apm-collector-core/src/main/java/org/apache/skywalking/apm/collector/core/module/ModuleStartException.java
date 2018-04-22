@@ -16,14 +16,14 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.client.elasticsearch;
+package org.apache.skywalking.apm.collector.core.module;
 
 /**
- * @author zhang xin
+ * @author peng-yongsheng
  */
-public class ElasticSearchClientNotReadyException extends RuntimeException {
-    public ElasticSearchClientNotReadyException() {
-        super("ElasticSearchClient not complete the initialization, Please call initializeFinished method before operation ElasticSearchClient.");
-    }
+public class ModuleStartException extends Exception {
 
+    public ModuleStartException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

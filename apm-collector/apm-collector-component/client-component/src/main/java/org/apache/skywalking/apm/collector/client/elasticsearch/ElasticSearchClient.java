@@ -25,10 +25,13 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.apache.skywalking.apm.collector.client.Client;
 import org.apache.skywalking.apm.collector.client.ClientException;
+import org.apache.skywalking.apm.collector.core.data.CommonTable;
+import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
+import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.MultiGetRequestBuilder;
@@ -62,7 +65,6 @@ public class ElasticSearchClient implements Client {
 
     private final String clusterNodes;
 
-    private boolean ready = false;
     private String namespace;
 
     public ElasticSearchClient(String clusterName, boolean clusterTransportSniffer,
@@ -89,8 +91,6 @@ public class ElasticSearchClient implements Client {
                 throw new ElasticSearchClientException(e.getMessage(), e);
             }
         }
-
-        this.ready = true;
     }
 
     @Override
@@ -111,12 +111,8 @@ public class ElasticSearchClient implements Client {
         return pairsList;
     }
 
-    public void setNamespace(String namespace) throws ElasticSearchClientException {
-        if (!ready) {
-            this.namespace = namespace;
-        } else {
-            throw new ElasticSearchClientException("The namespace cannot be set after ElasticSearchClient is ready.");
-        }
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
     }
 
     class AddressPairs {
@@ -130,10 +126,6 @@ public class ElasticSearchClient implements Client {
     }
 
     public boolean createIndex(String indexName, String indexType, Settings settings, XContentBuilder mappingBuilder) {
-        if (!ready) {
-            throw new ElasticSearchClientNotReadyException();
-        }
-
         IndicesAdminClient adminClient = client.admin().indices();
         indexName = formatIndexName(indexName);
         CreateIndexResponse response = adminClient.prepareCreate(indexName).setSettings(settings).addMapping(indexType, mappingBuilder).get();
@@ -142,10 +134,6 @@ public class ElasticSearchClient implements Client {
     }
 
     public boolean deleteIndex(String indexName) {
-        if (!ready) {
-            throw new ElasticSearchClientNotReadyException();
-        }
-
         indexName = formatIndexName(indexName);
         IndicesAdminClient adminClient = client.admin().indices();
         DeleteIndexResponse response = adminClient.prepareDelete(indexName).get();
@@ -154,10 +142,6 @@ public class ElasticSearchClient implements Client {
     }
 
     public boolean isExistsIndex(String indexName) {
-        if (!ready) {
-            throw new ElasticSearchClientNotReadyException();
-        }
-
         indexName = formatIndexName(indexName);
         IndicesAdminClient adminClient = client.admin().indices();
         IndicesExistsResponse response = adminClient.prepareExists(indexName).get();
@@ -165,60 +149,42 @@ public class ElasticSearchClient implements Client {
     }
 
     public SearchRequestBuilder prepareSearch(String indexName) {
-        if (!ready) {
-            throw new ElasticSearchClientNotReadyException();
-        }
-
         indexName = formatIndexName(indexName);
         return client.prepareSearch(indexName);
     }
 
     public IndexRequestBuilder prepareIndex(String indexName, String id) {
-        if (!ready) {
-            throw new ElasticSearchClientNotReadyException();
-        }
-
         indexName = formatIndexName(indexName);
-        return client.prepareIndex(indexName, "type", id);
+        return client.prepareIndex(indexName, CommonTable.TABLE_TYPE, id);
+    }
+
+    public GetFieldMappingsResponse.FieldMappingMetaData prepareGetMappings(String indexName, String fieldName) {
+        indexName = formatIndexName(indexName);
+        GetFieldMappingsResponse response = client.admin().indices().prepareGetFieldMappings(indexName).setFields(fieldName).get();
+        return response.fieldMappings(indexName, CommonTable.TABLE_TYPE, fieldName);
     }
 
     public UpdateRequestBuilder prepareUpdate(String indexName, String id) {
-        if (!ready) {
-            throw new ElasticSearchClientNotReadyException();
-        }
-
         indexName = formatIndexName(indexName);
-        return client.prepareUpdate(indexName, "type", id);
+        return client.prepareUpdate(indexName, CommonTable.TABLE_TYPE, id);
     }
 
     public GetRequestBuilder prepareGet(String indexName, String id) {
-        if (!ready) {
-            throw new ElasticSearchClientNotReadyException();
-        }
-
         indexName = formatIndexName(indexName);
-        return client.prepareGet(indexName, "type", id);
+        return client.prepareGet(indexName, CommonTable.TABLE_TYPE, id);
     }
 
     public DeleteByQueryRequestBuilder prepareDelete(QueryBuilder queryBuilder, String indexName) {
-        if (!ready) {
-            throw new ElasticSearchClientNotReadyException();
-        }
-
         indexName = formatIndexName(indexName);
         return DeleteByQueryAction.INSTANCE.newRequestBuilder(client).filter(queryBuilder).source(indexName);
     }
 
     public MultiGetRequestBuilder prepareMultiGet(List<?> rows, MultiGetRowHandler rowHandler) {
-        if (!ready) {
-            throw new ElasticSearchClientNotReadyException();
-        }
-
         MultiGetRequestBuilder prepareMultiGet = client.prepareMultiGet();
         rowHandler.setPrepareMultiGet(prepareMultiGet);
         rowHandler.setNamespace(namespace);
 
-        rows.forEach(row -> rowHandler.accept(row));
+        rows.forEach(rowHandler::accept);
 
         return rowHandler.getPrepareMultiGet();
     }
@@ -255,7 +221,7 @@ public class ElasticSearchClient implements Client {
 
     private static String formatIndexName(String namespace, String indexName) {
         if (StringUtils.isNotEmpty(namespace)) {
-            return namespace + "_" + indexName;
+            return namespace + Const.ID_SPLIT + indexName;
         }
         return indexName;
     }
