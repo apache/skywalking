@@ -33,6 +33,8 @@ class ConfigurationModuleConfig extends ModuleConfig {
     private int instanceAverageResponseTimeThreshold;
     private double applicationErrorRateThreshold;
     private int applicationAverageResponseTimeThreshold;
+    private int responseTimeDistributionDuration;
+    private int responseTimeDistributionMaxDurationns;
 
     public String getNamespace() {
         return namespace;
@@ -96,5 +98,21 @@ class ConfigurationModuleConfig extends ModuleConfig {
 
     public void setApplicationAverageResponseTimeThreshold(int applicationAverageResponseTimeThreshold) {
         this.applicationAverageResponseTimeThreshold = applicationAverageResponseTimeThreshold;
+    }
+
+    public int getResponseTimeDistributionDuration() {
+        return responseTimeDistributionDuration;
+    }
+
+    public void setResponseTimeDistributionDuration(int responseTimeDistributionDuration) {
+        this.responseTimeDistributionDuration = responseTimeDistributionDuration;
+    }
+
+    public int getResponseTimeDistributionMaxDurationns() {
+        return responseTimeDistributionMaxDurationns;
+    }
+
+    public void setResponseTimeDistributionMaxDurationns(int responseTimeDistributionMaxDurationns) {
+        this.responseTimeDistributionMaxDurationns = responseTimeDistributionMaxDurationns;
     }
 }

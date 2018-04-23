@@ -35,6 +35,7 @@ import org.apache.skywalking.apm.collector.ui.service.AlarmService;
 import org.apache.skywalking.apm.collector.ui.service.ApplicationService;
 import org.apache.skywalking.apm.collector.ui.service.ClusterTopologyService;
 import org.apache.skywalking.apm.collector.ui.service.NetworkAddressService;
+import org.apache.skywalking.apm.collector.ui.service.ResponseTimeDistributionService;
 import org.apache.skywalking.apm.collector.ui.service.ServiceNameService;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 
@@ -51,6 +52,7 @@ public class OverViewLayerQuery implements Query {
     private NetworkAddressService networkAddressService;
     private ServiceNameService serviceNameService;
     private AlarmService alarmService;
+    private ResponseTimeDistributionService timeDistributionService;
 
     public OverViewLayerQuery(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
@@ -89,6 +91,13 @@ public class OverViewLayerQuery implements Query {
             this.alarmService = new AlarmService(moduleManager);
         }
         return alarmService;
+    }
+
+    private ResponseTimeDistributionService getTimeDistributionService() {
+        if (isNull(timeDistributionService)) {
+            this.timeDistributionService = new ResponseTimeDistributionService(moduleManager);
+        }
+        return timeDistributionService;
     }
 
     public Topology getClusterTopology(Duration duration) throws ParseException {
@@ -150,6 +159,9 @@ public class OverViewLayerQuery implements Query {
     }
 
     public Thermodynamic getThermodynamic(Duration duration, ValueType type) throws ParseException {
-        return new Thermodynamic();
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+
+        return getTimeDistributionService().getThermodynamic(duration.getStep(), startTimeBucket, endTimeBucket, type);
     }
 }

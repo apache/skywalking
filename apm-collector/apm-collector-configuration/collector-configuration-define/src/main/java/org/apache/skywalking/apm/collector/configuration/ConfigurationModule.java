@@ -25,6 +25,7 @@ import org.apache.skywalking.apm.collector.configuration.service.ICollectorConfi
 import org.apache.skywalking.apm.collector.configuration.service.IComponentLibraryCatalogService;
 import org.apache.skywalking.apm.collector.configuration.service.IInstanceAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.configuration.service.IInstanceReferenceAlarmRuleConfig;
+import org.apache.skywalking.apm.collector.configuration.service.IResponseTimeDistributionConfigService;
 import org.apache.skywalking.apm.collector.configuration.service.IServiceAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.configuration.service.IServiceReferenceAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.core.module.Module;
@@ -46,6 +47,6 @@ public class ConfigurationModule extends Module {
             IApdexThresholdService.class,
             IServiceAlarmRuleConfig.class, IInstanceAlarmRuleConfig.class, IApplicationAlarmRuleConfig.class,
             IServiceReferenceAlarmRuleConfig.class, IInstanceReferenceAlarmRuleConfig.class, IApplicationReferenceAlarmRuleConfig.class,
-            IComponentLibraryCatalogService.class};
+            IComponentLibraryCatalogService.class, IResponseTimeDistributionConfigService.class};
     }
 }
