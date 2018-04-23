@@ -77,20 +77,4 @@ public enum TimeBucketUtils {
     public long minuteToMonth(long minuteBucket) {
         return minuteBucket / 100 / 100 / 100;
     }
-
-    public long secondToMinute(long secondBucket) {
-        return secondBucket / 100;
-    }
-
-    public long secondToHour(long secondBucket) {
-        return secondBucket / 100 / 100;
-    }
-
-    public long secondToDay(long secondBucket) {
-        return secondBucket / 100 / 100 / 100;
-    }
-
-    public long secondToMonth(long secondBucket) {
-        return secondBucket / 100 / 100 / 100 / 100;
-    }
 }
