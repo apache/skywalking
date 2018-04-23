@@ -18,8 +18,15 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global.std;
 
+import java.util.LinkedList;
+import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
+import org.apache.skywalking.apm.collector.configuration.service.IResponseTimeDistributionConfigService;
+import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.powermock.reflect.Whitebox;
 
 /**
@@ -29,7 +36,22 @@ public class ResponseTimeDistributionSpanListenerTestCase {
 
     @Test
     public void testStep() {
-        ResponseTimeDistributionSpanListener listener = new ResponseTimeDistributionSpanListener();
+        ModuleProvider moduleProvider = Mockito.mock(ModuleProvider.class);
+        LinkedList<ModuleProvider> loadedProviders = new LinkedList<>();
+        loadedProviders.add(moduleProvider);
+
+        IResponseTimeDistributionConfigService service = Mockito.mock(IResponseTimeDistributionConfigService.class);
+        Mockito.when(service.getResponseTimeStep()).thenReturn(50);
+        Mockito.when(service.getResponseTimeMaxStep()).thenReturn(40);
+
+        Module module = Mockito.mock(Module.class);
+        Whitebox.setInternalState(module, "loadedProviders", loadedProviders);
+        Mockito.when(module.getService(IResponseTimeDistributionConfigService.class)).thenReturn(service);
+
+        ModuleManager moduleManager = Mockito.mock(ModuleManager.class);
+        Mockito.when(moduleManager.find(ConfigurationModule.NAME)).thenReturn(module);
+
+        ResponseTimeDistributionSpanListener listener = new ResponseTimeDistributionSpanListener(moduleManager);
 
         Whitebox.setInternalState(listener, "entrySpanDuration", 0);
         Whitebox.setInternalState(listener, "firstSpanDuration", 200);
@@ -42,6 +64,6 @@ public class ResponseTimeDistributionSpanListenerTestCase {
         Assert.assertEquals(1, listener.getStep());
 
         Whitebox.setInternalState(listener, "entrySpanDuration", 3100);
-        Assert.assertEquals(60, listener.getStep());
+        Assert.assertEquals(40, listener.getStep());
     }
 }

@@ -137,6 +137,7 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IMemoryMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.INetworkAddressUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IResponseTimeDistributionUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentDurationUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceAlarmUIDAO;
@@ -246,6 +247,7 @@ import org.apache.skywalking.apm.collector.storage.es.dao.ui.InstanceEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.InstanceMetricEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.MemoryMetricEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.NetworkAddressEsUIDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.ui.ResponseTimeDistributionEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.SegmentDurationEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.SegmentEsUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.ServiceAlarmEsUIDAO;
@@ -450,6 +452,7 @@ public class StorageModuleEsProvider extends ModuleProvider {
         this.registerServiceImplementation(IServiceAlarmUIDAO.class, new ServiceAlarmEsUIDAO(elasticSearchClient));
 
         this.registerServiceImplementation(IApplicationAlarmListUIDAO.class, new ApplicationAlarmListEsUIDAO(elasticSearchClient));
+        this.registerServiceImplementation(IResponseTimeDistributionUIDAO.class, new ResponseTimeDistributionEsUIDAO(elasticSearchClient));
     }
 
     private void registerAlarmDAO() throws ServiceNotProvidedException {
