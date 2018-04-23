@@ -35,7 +35,7 @@ public class MemoryPoolDayMetricTransformNode implements NodeProcessor<MemoryPoo
     }
 
     @Override public void process(MemoryPoolMetric memoryPoolMetric, Next<MemoryPoolMetric> next) {
-        long timeBucket = TimeBucketUtils.INSTANCE.secondToDay(memoryPoolMetric.getTimeBucket());
+        long timeBucket = TimeBucketUtils.INSTANCE.minuteToDay(memoryPoolMetric.getTimeBucket());
 
         MemoryPoolMetric newMemoryPoolMetric = MemoryPoolMetricCopy.copy(memoryPoolMetric);
         newMemoryPoolMetric.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + memoryPoolMetric.getMetricId());

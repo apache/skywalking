@@ -66,11 +66,11 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
         logger.debug("receive the jvm metric from application instance, id: {}", instanceId);
 
         request.getMetricsList().forEach(metric -> {
-            long secondTimeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(metric.getTime());
-            sendToCpuMetricService(instanceId, secondTimeBucket, metric.getCpu());
-            sendToMemoryMetricService(instanceId, secondTimeBucket, metric.getMemoryList());
-            sendToMemoryPoolMetricService(instanceId, secondTimeBucket, metric.getMemoryPoolList());
-            sendToGCMetricService(instanceId, secondTimeBucket, metric.getGcList());
+            long minuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(metric.getTime());
+            sendToCpuMetricService(instanceId, minuteTimeBucket, metric.getCpu());
+            sendToMemoryMetricService(instanceId, minuteTimeBucket, metric.getMemoryList());
+            sendToMemoryPoolMetricService(instanceId, minuteTimeBucket, metric.getMemoryPoolList());
+            sendToGCMetricService(instanceId, minuteTimeBucket, metric.getGcList());
             sendToInstanceHeartBeatService(instanceId, metric.getTime());
         });
 
