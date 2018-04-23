@@ -18,8 +18,7 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao.ui;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceMetricUIDAO;
@@ -29,19 +28,12 @@ import org.apache.skywalking.apm.collector.storage.table.application.Application
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetricTable;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.ui.server.AppServerInfo;
-import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
-import org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder;
-import org.elasticsearch.action.get.MultiGetItemResponse;
-import org.elasticsearch.action.get.MultiGetRequestBuilder;
-import org.elasticsearch.action.get.MultiGetResponse;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
+import org.apache.skywalking.apm.collector.storage.utils.*;
+import org.elasticsearch.action.get.*;
+import org.elasticsearch.action.search.*;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.terms.*;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 
 /**
@@ -84,15 +76,15 @@ public class InstanceMetricEsUIDAO extends EsDAO implements IInstanceMetricUIDAO
             int instanceId = instanceIdTerm.getKeyAsNumber().intValue();
             Sum callSum = instanceIdTerm.getAggregations().get(ApplicationMetricTable.TRANSACTION_CALLS.getName());
             long calls = (long)callSum.getValue();
-            int callsPerSec = (int)(secondBetween == 0 ? 0 : calls / secondBetween);
+            int callsPerMinute = (int)(secondBetween == 0 ? 0 : calls * 60 / secondBetween);
 
             AppServerInfo appServerInfo = new AppServerInfo();
             appServerInfo.setId(instanceId);
-            appServerInfo.setCallsPerSec(callsPerSec);
+            appServerInfo.setCpm(callsPerMinute);
             appServerInfos.add(appServerInfo);
         });
 
-        appServerInfos.sort((first, second) -> first.getCallsPerSec() > second.getCallsPerSec() ? -1 : 1);
+        appServerInfos.sort((first, second) -> first.getCpm() > second.getCpm() ? -1 : 1);
         if (appServerInfos.size() <= topN) {
             return appServerInfos;
         } else {

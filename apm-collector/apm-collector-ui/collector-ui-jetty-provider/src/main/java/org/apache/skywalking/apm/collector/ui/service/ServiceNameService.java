@@ -24,20 +24,14 @@ import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceNameServiceUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.*;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
-import org.apache.skywalking.apm.collector.storage.ui.common.ResponseTimeTrend;
-import org.apache.skywalking.apm.collector.storage.ui.common.SLATrend;
-import org.apache.skywalking.apm.collector.storage.ui.common.Step;
-import org.apache.skywalking.apm.collector.storage.ui.common.ThroughputTrend;
-import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
-import org.apache.skywalking.apm.collector.storage.ui.service.ServiceMetric;
+import org.apache.skywalking.apm.collector.storage.ui.common.*;
+import org.apache.skywalking.apm.collector.storage.ui.service.*;
 import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -66,7 +60,7 @@ public class ServiceNameService {
         return serviceNameServiceUIDAO.searchService(keyword, topN);
     }
 
-    public ThroughputTrend getServiceTPSTrend(int serviceId, Step step, long startTimeBucket,
+    public ThroughputTrend getServiceThroughputTrend(int serviceId, Step step, long startTimeBucket,
         long endTimeBucket) throws ParseException {
         ThroughputTrend throughputTrend = new ThroughputTrend();
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTimeBucket, endTimeBucket);
@@ -99,7 +93,7 @@ public class ServiceNameService {
             ServiceName serviceName = serviceNameCacheService.get(slowService.getId());
             slowService.setName(serviceName.getServiceName());
             try {
-                slowService.setCallsPerSec((int)(slowService.getCalls() / secondBetweenService.calculate(serviceName.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket)));
+                slowService.setCpm((int)((slowService.getCalls() * 60) / secondBetweenService.calculate(serviceName.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket)));
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
             }

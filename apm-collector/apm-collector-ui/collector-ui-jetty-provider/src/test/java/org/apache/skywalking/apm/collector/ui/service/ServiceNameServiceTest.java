@@ -91,8 +91,8 @@ public class ServiceNameServiceTest {
     }
 
     @Test
-    public void getServiceTPSTrend() throws ParseException {
-        ThroughputTrend serviceTPSTrend = serverNameService.getServiceTPSTrend(1, duration.getStep(), startTimeBucket, endTimeBucket);
+    public void getServiceThroughputTrend() throws ParseException {
+        ThroughputTrend serviceTPSTrend = serverNameService.getServiceThroughputTrend(1, duration.getStep(), startTimeBucket, endTimeBucket);
         Assert.assertNotNull(serviceTPSTrend);
     }
 

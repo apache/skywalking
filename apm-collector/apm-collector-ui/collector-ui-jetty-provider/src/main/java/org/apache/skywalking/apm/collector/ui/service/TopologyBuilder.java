@@ -19,36 +19,20 @@
 package org.apache.skywalking.apm.collector.ui.service;
 
 import java.text.ParseException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
 import org.apache.skywalking.apm.collector.configuration.service.IComponentLibraryCatalogService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
-import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationComponentUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMappingUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationReferenceMetricUIDAO;
+import org.apache.skywalking.apm.collector.core.util.*;
+import org.apache.skywalking.apm.collector.storage.dao.ui.*;
 import org.apache.skywalking.apm.collector.storage.table.register.Application;
 import org.apache.skywalking.apm.collector.storage.ui.alarm.Alarm;
-import org.apache.skywalking.apm.collector.storage.ui.application.ApplicationNode;
-import org.apache.skywalking.apm.collector.storage.ui.application.ConjecturalNode;
-import org.apache.skywalking.apm.collector.storage.ui.common.Call;
-import org.apache.skywalking.apm.collector.storage.ui.common.Node;
-import org.apache.skywalking.apm.collector.storage.ui.common.Step;
-import org.apache.skywalking.apm.collector.storage.ui.common.Topology;
-import org.apache.skywalking.apm.collector.storage.ui.common.VisualUserNode;
-import org.apache.skywalking.apm.collector.ui.utils.ApdexCalculator;
-import org.apache.skywalking.apm.collector.ui.utils.SLACalculator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.apm.collector.storage.ui.application.*;
+import org.apache.skywalking.apm.collector.storage.ui.common.*;
+import org.apache.skywalking.apm.collector.ui.utils.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -96,7 +80,7 @@ class TopologyBuilder {
 
             applicationNode.setSla(SLACalculator.INSTANCE.calculate(applicationMetric.getErrorCalls(), applicationMetric.getCalls()));
             try {
-                applicationNode.setCallsPerSec(applicationMetric.getCalls() / secondBetweenService.calculate(applicationId, startSecondTimeBucket, endSecondTimeBucket));
+                applicationNode.setCpm((applicationMetric.getCalls() * 60) / secondBetweenService.calculate(applicationId, startSecondTimeBucket, endSecondTimeBucket));
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
             }
@@ -167,7 +151,7 @@ class TopologyBuilder {
             call.setAlert(false);
             call.setCallType(components.get(referenceMetric.getTarget()));
             try {
-                call.setCallsPerSec(referenceMetric.getCalls() / secondBetweenService.calculate(source.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket));
+                call.setCpm((referenceMetric.getCalls() * 60) / secondBetweenService.calculate(source.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket));
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
             }
@@ -214,7 +198,7 @@ class TopologyBuilder {
                 call.setCallType(components.get(referenceMetric.getTarget()));
             }
             try {
-                call.setCallsPerSec(referenceMetric.getCalls() / secondBetweenService.calculate(target.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket));
+                call.setCpm((referenceMetric.getCalls() * 60) / secondBetweenService.calculate(target.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket));
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
             }

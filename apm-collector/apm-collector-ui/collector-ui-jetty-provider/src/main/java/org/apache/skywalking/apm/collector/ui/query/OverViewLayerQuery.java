@@ -25,7 +25,7 @@ import org.apache.skywalking.apm.collector.storage.ui.common.Duration;
 import org.apache.skywalking.apm.collector.storage.ui.common.Topology;
 import org.apache.skywalking.apm.collector.storage.ui.common.ValueType;
 import org.apache.skywalking.apm.collector.storage.ui.overview.AlarmTrend;
-import org.apache.skywalking.apm.collector.storage.ui.overview.ApplicationTPS;
+import org.apache.skywalking.apm.collector.storage.ui.overview.ApplicationThroughput;
 import org.apache.skywalking.apm.collector.storage.ui.overview.ClusterBrief;
 import org.apache.skywalking.apm.collector.storage.ui.overview.ConjecturalAppBrief;
 import org.apache.skywalking.apm.collector.storage.ui.overview.Thermodynamic;
@@ -150,7 +150,7 @@ public class OverViewLayerQuery implements Query {
         return getServiceNameService().getSlowService(duration.getStep(), startTimeBucket, endTimeBucket, startSecondTimeBucket, endSecondTimeBucket, topN);
     }
 
-    public List<ApplicationTPS> getTopNApplicationThroughput(Duration duration,
+    public List<ApplicationThroughput> getTopNApplicationThroughput(Duration duration,
         int topN) throws ParseException {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());

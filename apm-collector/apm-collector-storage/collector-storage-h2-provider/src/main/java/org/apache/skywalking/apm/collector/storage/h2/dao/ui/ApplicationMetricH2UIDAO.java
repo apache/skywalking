@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMetricUIDA
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
-import org.apache.skywalking.apm.collector.storage.ui.overview.ApplicationTPS;
+import org.apache.skywalking.apm.collector.storage.ui.overview.ApplicationThroughput;
 
 /**
  * @author peng-yongsheng
@@ -36,7 +36,7 @@ public class ApplicationMetricH2UIDAO extends H2DAO implements IApplicationMetri
     }
 
     @Override
-    public List<ApplicationTPS> getTopNApplicationThroughput(Step step, long startTimeBucket, long endTimeBucket,
+    public List<ApplicationThroughput> getTopNApplicationThroughput(Step step, long startTimeBucket, long endTimeBucket,
         int betweenSecond, int topN, MetricSource metricSource) {
         return null;
     }

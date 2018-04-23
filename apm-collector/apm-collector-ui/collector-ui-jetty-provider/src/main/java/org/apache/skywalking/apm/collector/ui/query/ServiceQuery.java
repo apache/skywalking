@@ -68,11 +68,11 @@ public class ServiceQuery implements Query {
         return getServiceNameService().getServiceResponseTimeTrend(serviceId, duration.getStep(), startTimeBucket, endTimeBucket);
     }
 
-    public ThroughputTrend getServiceTPSTrend(int serviceId, Duration duration) throws ParseException {
+    public ThroughputTrend getServiceThroughputTrend(int serviceId, Duration duration) throws ParseException {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
-        return getServiceNameService().getServiceTPSTrend(serviceId, duration.getStep(), startTimeBucket, endTimeBucket);
+        return getServiceNameService().getServiceThroughputTrend(serviceId, duration.getStep(), startTimeBucket, endTimeBucket);
     }
 
     public SLATrend getServiceSLATrend(int serviceId, Duration duration) throws ParseException {

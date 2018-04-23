@@ -22,7 +22,7 @@ import java.util.List;
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
-import org.apache.skywalking.apm.collector.storage.ui.overview.ApplicationTPS;
+import org.apache.skywalking.apm.collector.storage.ui.overview.ApplicationThroughput;
 
 /**
  * Interface to be implemented for execute database query operation
@@ -57,7 +57,7 @@ public interface IApplicationMetricUIDAO extends DAO {
      * @param metricSource source of this metric, server side or client side
      * @return not nullable result list
      */
-    List<ApplicationTPS> getTopNApplicationThroughput(Step step, long startTimeBucket, long endTimeBucket,
+    List<ApplicationThroughput> getTopNApplicationThroughput(Step step, long startTimeBucket, long endTimeBucket,
         int betweenSecond, int topN, MetricSource metricSource);
 
     /**

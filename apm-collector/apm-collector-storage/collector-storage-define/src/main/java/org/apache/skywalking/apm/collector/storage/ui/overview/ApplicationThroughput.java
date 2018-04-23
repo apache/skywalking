@@ -21,10 +21,10 @@ package org.apache.skywalking.apm.collector.storage.ui.overview;
 /**
  * @author peng-yongsheng
  */
-public class ApplicationTPS {
+public class ApplicationThroughput {
     private int applicationId;
     private String applicationCode;
-    private int callsPerSec;
+    private int cpm;
 
     public int getApplicationId() {
         return applicationId;
@@ -42,11 +42,11 @@ public class ApplicationTPS {
         this.applicationCode = applicationCode;
     }
 
-    public int getCallsPerSec() {
-        return callsPerSec;
+    public int getCpm() {
+        return cpm;
     }
 
-    public void setCallsPerSec(int callsPerSec) {
-        this.callsPerSec = callsPerSec;
+    public void setCpm(int cpm) {
+        this.cpm = cpm;
     }
 }

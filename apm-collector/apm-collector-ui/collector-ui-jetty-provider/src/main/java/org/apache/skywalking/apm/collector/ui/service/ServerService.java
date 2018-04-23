@@ -18,33 +18,19 @@
 
 package org.apache.skywalking.apm.collector.ui.service;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import java.text.ParseException;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
-import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
-import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
+import org.apache.skywalking.apm.collector.cache.service.*;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.StringUtils;
+import org.apache.skywalking.apm.collector.core.util.*;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.dao.ui.ICpuMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IGCMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IMemoryMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.*;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
-import org.apache.skywalking.apm.collector.storage.ui.common.ResponseTimeTrend;
-import org.apache.skywalking.apm.collector.storage.ui.common.Step;
-import org.apache.skywalking.apm.collector.storage.ui.common.ThroughputTrend;
-import org.apache.skywalking.apm.collector.storage.ui.server.AppServerInfo;
-import org.apache.skywalking.apm.collector.storage.ui.server.CPUTrend;
-import org.apache.skywalking.apm.collector.storage.ui.server.GCTrend;
-import org.apache.skywalking.apm.collector.storage.ui.server.MemoryTrend;
+import org.apache.skywalking.apm.collector.storage.ui.common.*;
+import org.apache.skywalking.apm.collector.storage.ui.server.*;
 import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 
@@ -142,9 +128,9 @@ public class ServerService {
         GCTrend gcTrend = new GCTrend();
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTimeBucket, endTimeBucket);
         List<Integer> youngGCTrend = gcMetricUIDAO.getYoungGCTrend(instanceId, step, durationPoints);
-        gcTrend.setYoungGC(youngGCTrend);
+        gcTrend.setYoungGCCount(youngGCTrend);
         List<Integer> oldGCTrend = gcMetricUIDAO.getOldGCTrend(instanceId, step, durationPoints);
-        gcTrend.setOldGC(oldGCTrend);
+        gcTrend.setOldGCount(oldGCTrend);
         return gcTrend;
     }
 
