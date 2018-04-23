@@ -37,6 +37,7 @@
   - New trace query UI.
   - New Application UI, merge server tab(removed) into applciation as sub page.
   - Add Thermodynamic chart in overview page.
+  - Change all tps to cpm(calls per minutes).
   - Fix wrong osName in server view.
  
  #### Documents
