@@ -19,8 +19,7 @@
 package org.apache.skywalking.apm.collector.storage.es;
 
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.*;
 import org.powermock.reflect.Whitebox;
 
 /**
@@ -40,19 +39,19 @@ public class DataTTLKeeperTimerTestCase {
         Assert.assertEquals((dayTimeBucket - 8) * 1000000, startSecondTimeBucket);
 
         long endSecondTimeBucket = Whitebox.getInternalState(timeBuckets, "endSecondTimeBucket");
-        Assert.assertEquals(((dayTimeBucket - 8) * 1000000 + 235959), endSecondTimeBucket);
+        Assert.assertEquals((dayTimeBucket - 8) * 1000000 + 235959, endSecondTimeBucket);
 
         long startMinuteTimeBucket = Whitebox.getInternalState(timeBuckets, "startMinuteTimeBucket");
         Assert.assertEquals((dayTimeBucket - 8) * 10000, startMinuteTimeBucket);
 
         long endMinuteTimeBucket = Whitebox.getInternalState(timeBuckets, "endMinuteTimeBucket");
-        Assert.assertEquals(((dayTimeBucket - 8) * 10000 + 2359), endMinuteTimeBucket);
+        Assert.assertEquals((dayTimeBucket - 8) * 10000 + 2359, endMinuteTimeBucket);
 
         long startHourTimeBucket = Whitebox.getInternalState(timeBuckets, "startHourTimeBucket");
         Assert.assertEquals((dayTimeBucket - 8) * 100, startHourTimeBucket);
 
         long endHourTimeBucket = Whitebox.getInternalState(timeBuckets, "endHourTimeBucket");
-        Assert.assertEquals(((dayTimeBucket - 8) * 100 + 23), endHourTimeBucket);
+        Assert.assertEquals((dayTimeBucket - 8) * 100 + 23, endHourTimeBucket);
 
         long startDayTimeBucket = Whitebox.getInternalState(timeBuckets, "startDayTimeBucket");
         Assert.assertEquals(dayTimeBucket - 8, startDayTimeBucket);
