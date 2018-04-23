@@ -35,7 +35,7 @@ public class CpuMonthMetricTransformNode implements NodeProcessor<CpuMetric, Cpu
     }
 
     @Override public void process(CpuMetric cpuMetric, Next<CpuMetric> next) {
-        long timeBucket = TimeBucketUtils.INSTANCE.secondToMonth(cpuMetric.getTimeBucket());
+        long timeBucket = TimeBucketUtils.INSTANCE.minuteToMonth(cpuMetric.getTimeBucket());
 
         CpuMetric newCpuMetric = CpuMetricCopy.copy(cpuMetric);
         newCpuMetric.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + cpuMetric.getMetricId());
