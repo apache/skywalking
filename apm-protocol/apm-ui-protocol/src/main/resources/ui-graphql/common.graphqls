@@ -124,3 +124,9 @@ type Call {
     # Unit: millisecond
     avgResponseTime: Long!
 }
+
+enum ValueType {
+    ALL,
+    RIGHT,
+    WRONG
+}
