@@ -20,6 +20,8 @@ package org.apache.skywalking.apm.collector.storage.h2;
 
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
 import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
+import org.apache.skywalking.apm.collector.cluster.ClusterModule;
+import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
 import org.apache.skywalking.apm.collector.core.module.Module;
 import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
@@ -129,6 +131,7 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IMemoryMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.INetworkAddressUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.IResponseTimeDistributionUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentDurationUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceAlarmUIDAO;
@@ -238,6 +241,7 @@ import org.apache.skywalking.apm.collector.storage.h2.dao.ui.InstanceH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ui.InstanceMetricH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ui.MemoryMetricH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ui.NetworkAddressH2UIDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.ui.ResponseTimeDistributionH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ui.SegmentDurationH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ui.SegmentH2UIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.ui.ServiceAlarmH2UIDAO;
@@ -299,7 +303,7 @@ public class StorageModuleH2Provider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {RemoteModule.NAME};
+        return new String[] {ClusterModule.NAME, ConfigurationModule.NAME, RemoteModule.NAME};
     }
 
     private void registerCacheDAO() throws ServiceNotProvidedException {
@@ -423,6 +427,7 @@ public class StorageModuleH2Provider extends ModuleProvider {
         this.registerServiceImplementation(IServiceAlarmUIDAO.class, new ServiceAlarmH2UIDAO(h2Client));
 
         this.registerServiceImplementation(IApplicationAlarmListUIDAO.class, new ApplicationAlarmListH2UIDAO(h2Client));
+        this.registerServiceImplementation(IResponseTimeDistributionUIDAO.class, new ResponseTimeDistributionH2UIDAO(h2Client));
     }
 
     private void registerAlarmDAO() throws ServiceNotProvidedException {
