@@ -37,7 +37,7 @@ type ServiceMetric {
     name: String
     # The unit is millisecond.
     avgResponseTime: Int!
-    callsPerSec: Int!
+    cpm: Int!
 }
 
 type TraceItem {
@@ -49,7 +49,7 @@ type TraceItem {
 extend type Query {
     searchService(keyword: String!, topN: Int!): [ServiceInfo!]!
     getServiceResponseTimeTrend(serviceId: ID!, duration: Duration!): ResponseTimeTrend
-    getServiceTPSTrend(serviceId: ID!, duration: Duration!): ThroughputTrend
+    getServiceThoughputTrend(serviceId: ID!, duration: Duration!): ThroughputTrend
     getServiceSLATrend(serviceId: ID!, duration: Duration!): SLATrend
     getServiceTopology(serviceId: ID!, duration: Duration!): Topology
 }
