@@ -28,15 +28,11 @@ import org.apache.skywalking.apm.collector.storage.table.alarm.InstanceReference
 import org.apache.skywalking.apm.collector.storage.table.alarm.InstanceReferenceAlarmTable;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class InstanceReferenceAlarmEsPersistenceDAO extends AbstractPersistenceEsDAO<InstanceReferenceAlarm> implements IInstanceReferenceAlarmPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, InstanceReferenceAlarm> {
-
-    private final Logger logger = LoggerFactory.getLogger(InstanceReferenceAlarmEsPersistenceDAO.class);
 
     public InstanceReferenceAlarmEsPersistenceDAO(ElasticSearchClient client) {
         super(client);
