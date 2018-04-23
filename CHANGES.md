@@ -39,6 +39,7 @@
   - Add Thermodynamic chart in overview page.
   - Change all tps to cpm(calls per minutes).
   - Fix wrong osName in server view.
+  - Fix wrong startTime in trace view.
  
  #### Documents
    - Add TLS document.
