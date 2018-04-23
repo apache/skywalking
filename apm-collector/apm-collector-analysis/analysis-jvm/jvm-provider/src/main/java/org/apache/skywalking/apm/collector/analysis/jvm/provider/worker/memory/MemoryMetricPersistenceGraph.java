@@ -42,10 +42,7 @@ public class MemoryMetricPersistenceGraph {
         Node<MemoryMetric, MemoryMetric> bridgeNode = GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.MEMORY_METRIC_PERSISTENCE_GRAPH_ID, MemoryMetric.class)
             .addNode(new MemoryMetricBridgeNode());
 
-        bridgeNode.addNext(new MemorySecondMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
-
-        bridgeNode.addNext(new MemoryMinuteMetricTransformNode())
-            .addNext(new MemoryMinuteMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+        bridgeNode.addNext(new MemoryMinuteMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
         bridgeNode.addNext(new MemoryHourMetricTransformNode())
             .addNext(new MemoryHourMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));

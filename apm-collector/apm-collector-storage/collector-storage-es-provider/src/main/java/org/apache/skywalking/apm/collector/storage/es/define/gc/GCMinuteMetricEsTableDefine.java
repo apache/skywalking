@@ -32,6 +32,6 @@ public class GCMinuteMetricEsTableDefine extends AbstractGCMetricEsTableDefine {
     }
 
     @Override public int refreshInterval() {
-        return 1;
+        return 2;
     }
 }

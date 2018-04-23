@@ -35,7 +35,7 @@ public class CpuHourMetricTransformNode implements NodeProcessor<CpuMetric, CpuM
     }
 
     @Override public void process(CpuMetric cpuMetric, Next<CpuMetric> next) {
-        long timeBucket = TimeBucketUtils.INSTANCE.secondToHour(cpuMetric.getTimeBucket());
+        long timeBucket = TimeBucketUtils.INSTANCE.minuteToHour(cpuMetric.getTimeBucket());
 
         CpuMetric newCpuMetric = CpuMetricCopy.copy(cpuMetric);
         newCpuMetric.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + cpuMetric.getMetricId());

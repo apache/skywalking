@@ -35,7 +35,7 @@ public class MemoryHourMetricTransformNode implements NodeProcessor<MemoryMetric
     }
 
     @Override public void process(MemoryMetric memoryMetric, Next<MemoryMetric> next) {
-        long timeBucket = TimeBucketUtils.INSTANCE.secondToHour(memoryMetric.getTimeBucket());
+        long timeBucket = TimeBucketUtils.INSTANCE.minuteToHour(memoryMetric.getTimeBucket());
 
         MemoryMetric newMemoryMetric = MemoryMetricCopy.copy(memoryMetric);
         newMemoryMetric.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + memoryMetric.getMetricId());
