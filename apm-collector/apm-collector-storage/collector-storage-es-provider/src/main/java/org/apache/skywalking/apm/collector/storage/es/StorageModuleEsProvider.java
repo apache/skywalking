@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.collector.storage.es;
 
 import java.util.UUID;
 import org.apache.skywalking.apm.collector.client.ClientException;
+import org.apache.skywalking.apm.collector.client.NameSpace;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.cluster.ClusterModule;
 import org.apache.skywalking.apm.collector.cluster.service.ModuleListenerService;
@@ -110,6 +111,10 @@ import org.apache.skywalking.apm.collector.storage.dao.register.IApplicationRegi
 import org.apache.skywalking.apm.collector.storage.dao.register.IInstanceRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.dao.register.INetworkAddressRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.dao.register.IServiceNameRegisterDAO;
+import org.apache.skywalking.apm.collector.storage.dao.rtd.IResponseTimeDistributionDayPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.rtd.IResponseTimeDistributionHourPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.rtd.IResponseTimeDistributionMinutePersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.rtd.IResponseTimeDistributionMonthPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.smp.IServiceDayMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.smp.IServiceHourMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.smp.IServiceMinuteMetricPersistenceDAO;
@@ -215,6 +220,10 @@ import org.apache.skywalking.apm.collector.storage.es.dao.register.ApplicationRe
 import org.apache.skywalking.apm.collector.storage.es.dao.register.InstanceRegisterEsDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.register.NetworkAddressRegisterEsDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.register.ServiceNameRegisterEsDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.rtd.ResponseTimeDistributionDayEsPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.rtd.ResponseTimeDistributionHourEsPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.rtd.ResponseTimeDistributionMinuteEsPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.es.dao.rtd.ResponseTimeDistributionMonthEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.smp.ServiceDayMetricEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.smp.ServiceHourMetricEsPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.dao.smp.ServiceMinuteMetricEsPersistenceDAO;
@@ -251,12 +260,14 @@ public class StorageModuleEsProvider extends ModuleProvider {
 
     static final String NAME = "elasticsearch";
     private final StorageModuleEsConfig config;
+    private final NameSpace nameSpace;
     private ElasticSearchClient elasticSearchClient;
     private DataTTLKeeperTimer deleteTimer;
 
     public StorageModuleEsProvider() {
         super();
         this.config = new StorageModuleEsConfig();
+        this.nameSpace = new NameSpace();
     }
 
     @Override public String name() {
@@ -272,6 +283,8 @@ public class StorageModuleEsProvider extends ModuleProvider {
     }
 
     @Override public void prepare() throws ServiceNotProvidedException {
+        elasticSearchClient = new ElasticSearchClient(config.getClusterName(), config.getClusterTransportSniffer(), config.getClusterNodes(), nameSpace);
+
         this.registerServiceImplementation(IBatchDAO.class, new BatchEsDAO(elasticSearchClient));
         registerCacheDAO();
         registerRegisterDAO();
@@ -284,7 +297,7 @@ public class StorageModuleEsProvider extends ModuleProvider {
     public void start() throws ModuleStartException {
         try {
             String namespace = getManager().find(ConfigurationModule.NAME).getService(ICollectorConfig.class).getNamespace();
-            elasticSearchClient = new ElasticSearchClient(config.getClusterName(), config.getClusterTransportSniffer(), config.getClusterNodes(), namespace);
+            nameSpace.setNameSpace(namespace);
             elasticSearchClient.initialize();
 
             ElasticSearchStorageInstaller installer = new ElasticSearchStorageInstaller(config.getIndexShardsNumber(), config.getIndexReplicasNumber(), config.isHighPerformanceMode());
@@ -370,6 +383,11 @@ public class StorageModuleEsProvider extends ModuleProvider {
         this.registerServiceImplementation(IInstanceMappingMonthPersistenceDAO.class, new InstanceMappingMonthEsPersistenceDAO(elasticSearchClient));
 
         this.registerServiceImplementation(IGlobalTracePersistenceDAO.class, new GlobalTraceEsPersistenceDAO(elasticSearchClient));
+
+        this.registerServiceImplementation(IResponseTimeDistributionMinutePersistenceDAO.class, new ResponseTimeDistributionMinuteEsPersistenceDAO(elasticSearchClient));
+        this.registerServiceImplementation(IResponseTimeDistributionHourPersistenceDAO.class, new ResponseTimeDistributionHourEsPersistenceDAO(elasticSearchClient));
+        this.registerServiceImplementation(IResponseTimeDistributionDayPersistenceDAO.class, new ResponseTimeDistributionDayEsPersistenceDAO(elasticSearchClient));
+        this.registerServiceImplementation(IResponseTimeDistributionMonthPersistenceDAO.class, new ResponseTimeDistributionMonthEsPersistenceDAO(elasticSearchClient));
 
         this.registerServiceImplementation(IApplicationMinuteMetricPersistenceDAO.class, new ApplicationMinuteMetricEsPersistenceDAO(elasticSearchClient));
         this.registerServiceImplementation(IApplicationHourMetricPersistenceDAO.class, new ApplicationHourMetricEsPersistenceDAO(elasticSearchClient));

@@ -29,6 +29,8 @@ import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.appli
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.refmetric.ApplicationReferenceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global.GlobalTraceGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global.GlobalTraceSpanListener;
+import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global.std.ResponseTimeDistributionGraph;
+import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global.std.ResponseTimeDistributionSpanListener;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.heartbeat.InstanceHeartBeatPersistenceGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.mapping.InstanceMappingGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.mapping.InstanceMappingSpanListener;
@@ -56,6 +58,7 @@ import org.apache.skywalking.apm.collector.storage.table.application.Application
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMapping;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMetric;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetric;
+import org.apache.skywalking.apm.collector.storage.table.global.ResponseTimeDistribution;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMapping;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetric;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetric;
@@ -118,6 +121,7 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
         segmentParserListenerRegister.register(new InstanceMappingSpanListener.Factory());
         segmentParserListenerRegister.register(new GlobalTraceSpanListener.Factory());
         segmentParserListenerRegister.register(new SegmentDurationSpanListener.Factory());
+        segmentParserListenerRegister.register(new ResponseTimeDistributionSpanListener.Factory());
     }
 
     private void graphCreate(WorkerCreateListener workerCreateListener) {
@@ -151,6 +155,9 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
         GlobalTraceGraph globalTraceGraph = new GlobalTraceGraph(getManager(), workerCreateListener);
         globalTraceGraph.create();
 
+        ResponseTimeDistributionGraph responseTimeDistributionGraph = new ResponseTimeDistributionGraph(getManager(), workerCreateListener);
+        responseTimeDistributionGraph.create();
+
         SegmentDurationGraph segmentDurationGraph = new SegmentDurationGraph(getManager(), workerCreateListener);
         segmentDurationGraph.create();
 
@@ -169,5 +176,6 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
         remoteDataRegisterService.register(InstanceReferenceMetric.class, new InstanceReferenceMetric.InstanceCreator());
         remoteDataRegisterService.register(ServiceMetric.class, new ServiceMetric.InstanceCreator());
         remoteDataRegisterService.register(ServiceReferenceMetric.class, new ServiceReferenceMetric.InstanceCreator());
+        remoteDataRegisterService.register(ResponseTimeDistribution.class, new ResponseTimeDistribution.InstanceCreator());
     }
 }
