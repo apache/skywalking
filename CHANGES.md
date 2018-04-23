@@ -30,7 +30,8 @@
   - Refactor settings initialization.
   - Provide collector instrumentation agent.
   - Fix `divide zero` in query.
-  - Add some checks in collector modulization core.
+  - Fix `Data don't remove as expected` in ES implementor.
+  - Add some checks in collector modulization core.
   - Add some test cases.
  
  #### UI Changes
