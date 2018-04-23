@@ -1,19 +1,67 @@
  Changes by Version
  ==================
  Release Notes.
+  
+ 5.0.0-beta
+ ------------------
+ 
+ #### Agent Changes
+  - Support TLS.
+  - Support namespace.
+  - Support direct link.
+  - Support token.
+  - Add across thread toolkit.
+  - Fix an agent start up sequence bug.
+  - Fix wrong gc count.
+  - Remove system env override.
+ 
+ #### Collector Changes
+  - Trace query based on timeline.
+  - Delete JVM aggregation in second.
+  - Support TLS.
+  - Support namespace.
+  - Support token auth.
+  - Group and aggregate requests based on reponse time and timeline, support Thermodynamic chart query
+  - Support component librariy setting through yml file for better extendibility.
+  - Optimize performance.
+  - Support short column name in ES or other storage implementor.
+  - Add a new cache module implementor, based on **Caffeine**.
+  - Support system property override settings.
+  - Refactor settings initialization.
+  - Provide collector instrumentation agent.
+  - Fix `divide zero` in query.
+  - Add some checks in collector modulization core.
+  - Add some test cases.
+ 
+ #### UI Changes
+  - New trace query UI.
+  - New Application UI, merge server tab(removed) into applciation as sub page.
+  - Add Thermodynamic chart in overview page.
+  - Fix wrong osName in server view.
+ 
+ #### Documents
+   - Add TLS document.
+   - Add namespace document.
+   - Add direct link document.
+   - Add token document.
+   - Add across thread toolkit document.
+   - Add a FAQ about, `Agent or collector version upgrade`.
+   - Sync all English document to Chinese.
+ 
+  [Issues and Pull requests](https://github.com/apache/incubator-skywalking/milestone/24)
  
  5.0.0-alpha
  ------------------
  
- #### Agent -> Collector protocol
+#### Agent -> Collector protocol
  - Remove C++ keywords
  - Move **Ref** into Span from Segment
  - Add span type, when register an operation
 
- #### UI -> Collector GraphQL query protocol
+#### UI -> Collector GraphQL query protocol
  - First version protocol
  
- #### Agent Changes
+#### Agent Changes
  - Support gRPC 1.x plugin
  - Support kafka 0.11 and 1.x plugin
  - Support ServiceComb 0.x plugin
@@ -27,14 +75,14 @@
  - Fix log config didn't work
  - Fix a class loader error in okhttp plugin
  
- #### Collector Changes
+#### Collector Changes
  - Support metrics analysis and aggregation for application, application instance and service in minute, hour, day and month.
  - Support new GraphQL query protocol
  - Support alarm
  - Provide a prototype instrument for collector.
  - Support node speculate in cluster and application topology. (Provider Node -> Consumer Node) -> (Provider Node -> MQ Server -> Consumer Node)
  
- #### UI Changes
+#### UI Changes
  - New 5.0.0 UI!!!
  
  [Issues and Pull requests](https://github.com/apache/incubator-skywalking/milestone/17)
