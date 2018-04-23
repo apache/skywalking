@@ -114,3 +114,10 @@ export function getServerId(serverInfo) {
   }
   return `${serverInfo.pid}@${host}`;
 }
+
+export function redirect(history, pathname, param) {
+  if (history.location.pathname === pathname) {
+    return;
+  }
+  history.push({ pathname, state: param });
+}

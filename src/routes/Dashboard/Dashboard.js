@@ -18,13 +18,14 @@
 
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Card } from 'antd';
+import { Row, Col, Card, Tooltip, Icon } from 'antd';
 import {
   ChartCard, Pie, MiniArea, Field,
 } from '../../components/Charts';
 import { axis } from '../../utils/time';
-import { avgTimeSeries } from '../../utils/utils';
-import { Panel, Ranking } from '../../components/Page';
+import { avgTimeSeries, redirect } from '../../utils/utils';
+import { Panel } from '../../components/Page';
+import RankList from '../../components/RankList';
 
 @connect(state => ({
   dashboard: state.dashboard,
@@ -37,6 +38,13 @@ export default class Dashboard extends PureComponent {
       type: 'dashboard/fetchData',
       payload: { variables },
     });
+  }
+  renderAction = (prompt, path) => {
+    return (
+      <Tooltip title={prompt}>
+        <Icon type="info-circle-o" onClick={() => redirect(this.props.history, path)} />
+      </Tooltip>
+    );
   }
   render() {
     const { data } = this.props.dashboard;
@@ -54,10 +62,11 @@ export default class Dashboard extends PureComponent {
     }
     return (
       <Panel globalVariables={this.props.globalVariables} onChange={this.handleDurationChange}>
-        <Row gutter={24}>
+        <Row gutter={8}>
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
               title="App"
+              action={this.renderAction('Show application details', '/application')}
               avatar={<img style={{ width: 56, height: 56 }} src="img/icon/app.png" alt="app" />}
               total={data.getClusterBrief.numOfApplication}
             />
@@ -65,6 +74,7 @@ export default class Dashboard extends PureComponent {
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
               title="Service"
+              action={this.renderAction('Show service details', '/service')}
               avatar={<img style={{ width: 56, height: 56 }} src="img/icon/service.png" alt="service" />}
               total={data.getClusterBrief.numOfService}
             />
@@ -85,8 +95,8 @@ export default class Dashboard extends PureComponent {
             />
           </Col>
         </Row>
-        <Row gutter={24}>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 24 }}>
+        <Row gutter={8}>
+          <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
             <ChartCard
               title="Avg Application Alarm"
               avatar={<img style={{ width: 56, height: 56 }} src="img/icon/alert.png" alt="app" />}
@@ -108,7 +118,7 @@ export default class Dashboard extends PureComponent {
               />
             </ChartCard>
           </Col>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 24 }}>
+          <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
             <ChartCard
               contentHeight={200}
             >
@@ -124,23 +134,32 @@ export default class Dashboard extends PureComponent {
             </ChartCard>
           </Col>
         </Row>
-        <Row gutter={24}>
-          <Col xs={24} sm={24} md={24} lg={16} xl={16} style={{ marginTop: 24 }}>
+        <Row gutter={8}>
+          <Col xs={24} sm={24} md={24} lg={16} xl={16} style={{ marginTop: 8 }}>
             <Card
               title="Slow Service"
               bordered={false}
               bodyStyle={{ padding: '0px 10px' }}
             >
-              <Ranking data={data.getTopNSlowService} title="name" content="avgResponseTime" unit="ms" />
+              <RankList
+                data={data.getTopNSlowService}
+                renderValue={_ => `${_.value} ms`}
+                onClick={(key, item) => redirect(this.props.history, '/service', { key, label: item.label })}
+              />
             </Card>
           </Col>
-          <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 24 }}>
+          <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 8 }}>
             <Card
               title="Application Throughput"
               bordered={false}
               bodyStyle={{ padding: '0px 10px' }}
             >
-              <Ranking data={data.getTopNApplicationThroughput} title="applicationCode" content="callsPerSec" unit="t/s" />
+              <RankList
+                data={data.getTopNApplicationThroughput}
+                renderValue={_ => `${_.value} cps`}
+                color="#965fe466"
+                onClick={(key, item) => redirect(this.props.history, '/application', { key, label: item.label })}
+              />
             </Card>
           </Col>
         </Row>

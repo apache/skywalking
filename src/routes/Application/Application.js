@@ -24,7 +24,7 @@ import { AppTopology } from '../../components/Topology';
 import { Panel } from '../../components/Page';
 import RankList from '../../components/RankList';
 import ServerLitePanel from '../../components/ServerLitePanel';
-import { getServerId } from '../../utils/utils';
+import { getServerId, redirect } from '../../utils/utils';
 
 const { Option } = Select;
 const { Item: FormItem } = Form;
@@ -197,6 +197,7 @@ export default class Application extends PureComponent {
                 <RankList
                   data={data.getSlowService}
                   renderValue={_ => `${_.value} ms`}
+                  onClick={(key, item) => redirect(this.props.history, '/service', { key, label: item.label })}
                 />
               </Card>
             </Col>

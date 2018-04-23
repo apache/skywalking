@@ -176,4 +176,23 @@ export default generateModal({
       };
     },
   },
+  subscriptions: {
+    setup({ history, dispatch }) {
+      return history.listen(({ pathname, state }) => {
+        if (pathname === '/application' && state) {
+          dispatch({
+            type: 'saveVariables',
+            payload: {
+              values: {
+                applicationId: state.key,
+              },
+              labels: {
+                applicationId: state.label,
+              },
+            },
+          });
+        }
+      });
+    },
+  },
 });

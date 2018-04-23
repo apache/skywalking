@@ -70,4 +70,23 @@ export default generateModal({
     },
   },
   dataQuery,
+  subscriptions: {
+    setup({ history, dispatch }) {
+      return history.listen(({ pathname, state }) => {
+        if (pathname === '/service' && state) {
+          dispatch({
+            type: 'saveVariables',
+            payload: {
+              values: {
+                serviceId: state.key,
+              },
+              labels: {
+                serviceId: state.label,
+              },
+            },
+          });
+        }
+      });
+    },
+  },
 });

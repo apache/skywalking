@@ -35,7 +35,7 @@ export default generateModal({
       apps: [],
     },
     getTopNSlowService: [],
-    getTopNServerThroughput: [],
+    getTopNApplicationThroughput: [],
   },
   dataQuery: `
     query Dashboard($duration: Duration!) {
@@ -57,13 +57,13 @@ export default generateModal({
       }
       getTopNSlowService(duration: $duration, topN: 10) {
         key: id
-        name
-        avgResponseTime
+        label: name
+        value: avgResponseTime
       }
       getTopNApplicationThroughput(duration: $duration, topN: 10) {
         key: applicationId
-        applicationCode
-        callsPerSec
+        label: applicationCode
+        value: callsPerSec
       }
     }
   `,
