@@ -26,6 +26,8 @@ import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listen
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.LocalSpanListener;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListener;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListenerFactory;
+import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
+import org.apache.skywalking.apm.collector.configuration.service.IResponseTimeDistributionConfigService;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
@@ -47,6 +49,11 @@ public class ResponseTimeDistributionSpanListener implements FirstSpanListener, 
     private boolean isError = false;
     private int entrySpanDuration = 0;
     private int firstSpanDuration = 0;
+    private final IResponseTimeDistributionConfigService configService;
+
+    ResponseTimeDistributionSpanListener(ModuleManager moduleManager) {
+        this.configService = moduleManager.find(ConfigurationModule.NAME).getService(IResponseTimeDistributionConfigService.class);
+    }
 
     @Override public boolean containsPoint(Point point) {
         return Point.First.equals(point) || Point.Entry.equals(point) || Point.Exit.equals(point) || Point.Local.equals(point);
@@ -101,8 +108,8 @@ public class ResponseTimeDistributionSpanListener implements FirstSpanListener, 
     }
 
     int getStep() {
-        int abovePoint = 3000;
-        int interval = 50;
+        int responseTimeMaxStep = configService.getResponseTimeStep() * configService.getResponseTimeMaxStep();
+        int responseTimeStep = configService.getResponseTimeStep();
 
         int duration;
         if (entrySpanDuration == 0) {
@@ -111,12 +118,12 @@ public class ResponseTimeDistributionSpanListener implements FirstSpanListener, 
             duration = entrySpanDuration;
         }
 
-        if (duration > abovePoint) {
-            return abovePoint / interval;
-        } else if (duration <= interval) {
+        if (duration > responseTimeMaxStep) {
+            return responseTimeMaxStep / responseTimeStep;
+        } else if (duration <= responseTimeStep) {
             return 0;
         } else {
-            return (int)Math.ceil((double)duration / (double)interval) - 1;
+            return (int)Math.ceil((double)duration / (double)responseTimeStep) - 1;
         }
     }
 
@@ -124,7 +131,7 @@ public class ResponseTimeDistributionSpanListener implements FirstSpanListener, 
 
         @GraphComputingMetric(name = "/segment/parse/createSpanListeners/responseTimeDistributionSpanListener")
         @Override public SpanListener create(ModuleManager moduleManager) {
-            return new ResponseTimeDistributionSpanListener();
+            return new ResponseTimeDistributionSpanListener(moduleManager);
         }
     }
 }
