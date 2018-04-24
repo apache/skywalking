@@ -28,7 +28,7 @@ public class Call {
     private String targetName;
     private boolean isAlert;
     private String callType;
-    private long callsPerSec;
+    private long cpm;
     private long avgResponseTime;
 
     public int getSource() {
@@ -79,12 +79,12 @@ public class Call {
         this.callType = callType;
     }
 
-    public long getCallsPerSec() {
-        return callsPerSec;
+    public long getCpm() {
+        return cpm;
     }
 
-    public void setCallsPerSec(long callsPerSec) {
-        this.callsPerSec = callsPerSec;
+    public void setCpm(long cpm) {
+        this.cpm = cpm;
     }
 
     public long getAvgResponseTime() {

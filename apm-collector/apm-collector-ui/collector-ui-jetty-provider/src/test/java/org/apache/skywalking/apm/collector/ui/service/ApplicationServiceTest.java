@@ -17,33 +17,20 @@
 
 package org.apache.skywalking.apm.collector.ui.service;
 
-import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
-import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
-import org.apache.skywalking.apm.collector.core.module.MockModule;
-import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.INetworkAddressUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceMetricUIDAO;
+import java.text.ParseException;
+import java.util.*;
+import org.apache.skywalking.apm.collector.cache.service.*;
+import org.apache.skywalking.apm.collector.core.module.*;
+import org.apache.skywalking.apm.collector.storage.dao.ui.*;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
 import org.apache.skywalking.apm.collector.storage.ui.application.Application;
-import org.apache.skywalking.apm.collector.storage.ui.common.Duration;
-import org.apache.skywalking.apm.collector.storage.ui.common.Step;
-import org.apache.skywalking.apm.collector.storage.ui.overview.ApplicationTPS;
-import org.apache.skywalking.apm.collector.storage.ui.overview.ConjecturalApp;
-import org.apache.skywalking.apm.collector.storage.ui.overview.ConjecturalAppBrief;
+import org.apache.skywalking.apm.collector.storage.ui.common.*;
+import org.apache.skywalking.apm.collector.storage.ui.overview.*;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceMetric;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
-
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
@@ -60,10 +47,9 @@ public class ApplicationServiceTest {
     private INetworkAddressUIDAO networkAddressUIDAO;
     private ApplicationCacheService applicationCacheService;
     private ServiceNameCacheService serviceNameCacheService;
-    private SecondBetweenService secondBetweenService;
+    private DateBetweenService dateBetweenService;
     private ApplicationService applicationService;
     private Duration duration;
-
 
     @Before
     public void setUp() throws Exception {
@@ -76,14 +62,14 @@ public class ApplicationServiceTest {
         networkAddressUIDAO = mock(INetworkAddressUIDAO.class);
         applicationCacheService = mock(ApplicationCacheService.class);
         serviceNameCacheService = mock(ServiceNameCacheService.class);
-        secondBetweenService = mock(SecondBetweenService.class);
+        dateBetweenService = mock(DateBetweenService.class);
         Whitebox.setInternalState(applicationService, "instanceDAO", instanceDAO);
         Whitebox.setInternalState(applicationService, "serviceMetricUIDAO", serviceMetricUIDAO);
         Whitebox.setInternalState(applicationService, "applicationMetricUIDAO", applicationMetricUIDAO);
         Whitebox.setInternalState(applicationService, "networkAddressUIDAO", networkAddressUIDAO);
         Whitebox.setInternalState(applicationService, "applicationCacheService", applicationCacheService);
         Whitebox.setInternalState(applicationService, "serviceNameCacheService", serviceNameCacheService);
-        Whitebox.setInternalState(applicationService, "secondBetweenService", secondBetweenService);
+        Whitebox.setInternalState(applicationService, "dateBetweenService", dateBetweenService);
         duration = new Duration();
         duration.setEnd("2018-02");
         duration.setStart("2018-01");
@@ -139,9 +125,9 @@ public class ApplicationServiceTest {
             serviceName.setServiceName("serviceName");
             return serviceName;
         });
-        when(secondBetweenService.calculate(anyInt(), anyLong(), anyLong())).then(invocation -> 20L);
+        when(dateBetweenService.minutesBetween(anyInt(), anyLong(), anyLong())).then(invocation -> 20L);
         List<ServiceMetric> slowService = applicationService.getSlowService(-1, duration.getStep(), startTimeBucket, endTimeBucket, startSecondTimeBucket, endSecondTimeBucket, 10);
-        Assert.assertTrue(slowService.get(0).getCallsPerSec() > 0);
+        Assert.assertTrue(slowService.get(0).getCpm() > 0);
     }
 
     @Test
@@ -149,12 +135,12 @@ public class ApplicationServiceTest {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
         when(applicationMetricUIDAO.getTopNApplicationThroughput(anyObject(), anyLong(), anyLong(), anyInt(), anyInt(), anyObject())).then(invocation -> {
-            ApplicationTPS applicationTPS = new ApplicationTPS();
-            applicationTPS.setApplicationId(-1);
-            return Collections.singletonList(applicationTPS);
+            ApplicationThroughput applicationThroughput = new ApplicationThroughput();
+            applicationThroughput.setApplicationId(-1);
+            return Collections.singletonList(applicationThroughput);
         });
         mockCache();
-        List<ApplicationTPS> topNApplicationThroughput = applicationService.getTopNApplicationThroughput(duration.getStep(), startTimeBucket, endTimeBucket, 10);
+        List<ApplicationThroughput> topNApplicationThroughput = applicationService.getTopNApplicationThroughput(duration.getStep(), startTimeBucket, endTimeBucket, 10);
         Assert.assertTrue(topNApplicationThroughput.size() > 0);
     }
 

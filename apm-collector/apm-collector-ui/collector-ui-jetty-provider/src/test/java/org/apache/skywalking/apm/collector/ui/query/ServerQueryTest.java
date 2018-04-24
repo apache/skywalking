@@ -94,8 +94,8 @@ public class ServerQueryTest {
     }
 
     @Test
-    public void getServerTPSTrend() throws ParseException {
-        Mockito.when(serverService.getServerTPSTrend(Mockito.anyInt(), Mockito.anyObject(), Mockito.anyLong(), Mockito.anyLong())).then(invocation -> {
+    public void getServerThroughputTrend() throws ParseException {
+        Mockito.when(serverService.getServerThroughputTrend(Mockito.anyInt(), Mockito.anyObject(), Mockito.anyLong(), Mockito.anyLong())).then(invocation -> {
             Object[] arguments = invocation.getArguments();
             Assert.assertEquals(201701L, arguments[2]);
             Assert.assertEquals(201702L, arguments[3]);
@@ -106,7 +106,7 @@ public class ServerQueryTest {
         duration.setEnd("2017-02");
         duration.setStep(Step.MONTH);
 
-        serverQuery.getServerTPSTrend(-1, duration);
+        serverQuery.getServerThroughputTrend(-1, duration);
     }
 
     @Test

@@ -18,26 +18,19 @@
 
 package org.apache.skywalking.apm.collector.storage.h2.dao.ui;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import org.apache.skywalking.apm.collector.client.h2.H2Client;
-import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
+import java.sql.*;
+import java.util.*;
+import org.apache.skywalking.apm.collector.client.h2.*;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetricTable;
-import org.apache.skywalking.apm.collector.storage.ui.common.Node;
-import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.ui.common.*;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceMetric;
-import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
-import org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.apm.collector.storage.utils.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -66,7 +59,7 @@ public class ServiceMetricH2UIDAO extends H2DAO implements IServiceMetricUIDAO {
                 if (rs.next()) {
                     long calls = rs.getLong(ServiceMetricTable.TRANSACTION_CALLS.getName());
                     long durationSum = rs.getLong(ServiceMetricTable.TRANSACTION_DURATION_SUM.getName());
-                    trends.add((int) (durationSum / calls));
+                    trends.add((int)(durationSum / calls));
                 } else {
                     trends.add(0);
                 }
@@ -78,7 +71,8 @@ public class ServiceMetricH2UIDAO extends H2DAO implements IServiceMetricUIDAO {
         return trends;
     }
 
-    @Override public List<Integer> getServiceTPSTrend(int serviceId, Step step, List<DurationPoint> durationPoints) {
+    @Override
+    public List<Integer> getServiceThroughputTrend(int serviceId, Step step, List<DurationPoint> durationPoints) {
         return null;
     }
 
@@ -109,12 +103,15 @@ public class ServiceMetricH2UIDAO extends H2DAO implements IServiceMetricUIDAO {
         return trends;
     }
 
-    @Override public List<Node> getServicesMetric(Step step, long startTimeBucket, long endTimeBucket, MetricSource metricSource,
+    @Override
+    public List<Node> getServicesMetric(Step step, long startTimeBucket, long endTimeBucket, MetricSource metricSource,
         Collection<Integer> serviceIds) {
         return null;
     }
 
-    @Override public List<ServiceMetric> getSlowService(int applicationId, Step step, long startTimeBucket, long endTimeBucket, Integer topN,
+    @Override
+    public List<ServiceMetric> getSlowService(int applicationId, Step step, long startTimeBucket, long endTimeBucket,
+        Integer topN,
         MetricSource metricSource) {
         return null;
     }

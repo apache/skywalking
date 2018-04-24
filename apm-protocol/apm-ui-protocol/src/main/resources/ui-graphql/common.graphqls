@@ -120,7 +120,7 @@ type Call {
     isAlert: Boolean
     # The protocol and tech stack used in this distributed call
     callType: String!
-    callsPerSec: Long!
+    cpm: Long!
     # Unit: millisecond
     avgResponseTime: Long!
 }
