@@ -127,10 +127,18 @@ public class ServerService {
         long endTimeBucket) throws ParseException {
         GCTrend gcTrend = new GCTrend();
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTimeBucket, endTimeBucket);
-        List<Integer> youngGCTrend = gcMetricUIDAO.getYoungGCTrend(instanceId, step, durationPoints);
-        gcTrend.setYoungGCCount(youngGCTrend);
-        List<Integer> oldGCTrend = gcMetricUIDAO.getOldGCTrend(instanceId, step, durationPoints);
-        gcTrend.setOldGCount(oldGCTrend);
+        List<IGCMetricUIDAO.Trend> youngGCTrend = gcMetricUIDAO.getYoungGCTrend(instanceId, step, durationPoints);
+        youngGCTrend.forEach(young -> {
+            gcTrend.getYoungGCCount().add(young.getAverageCount());
+            gcTrend.getYoungGCTime().add(young.getAverageDuration());
+        });
+
+        List<IGCMetricUIDAO.Trend> oldGCTrend = gcMetricUIDAO.getOldGCTrend(instanceId, step, durationPoints);
+        oldGCTrend.forEach(old -> {
+            gcTrend.getOldGCount().add(old.getAverageCount());
+            gcTrend.getOldGCTime().add(old.getAverageDuration());
+        });
+
         return gcTrend;
     }
 
