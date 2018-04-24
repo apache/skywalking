@@ -11,6 +11,7 @@
   - Support direct link.
   - Support token.
   - Add across thread toolkit.
+  - Add new plugin extend machenism to override agent core implementations.
   - Fix an agent start up sequence bug.
   - Fix wrong gc count.
   - Remove system env override.
@@ -41,6 +42,7 @@
   - Change all tps to cpm(calls per minutes).
   - Fix wrong osName in server view.
   - Fix wrong startTime in trace view.
+  - Fix some icons internet requirements.
  
  #### Documents
    - Add TLS document.
