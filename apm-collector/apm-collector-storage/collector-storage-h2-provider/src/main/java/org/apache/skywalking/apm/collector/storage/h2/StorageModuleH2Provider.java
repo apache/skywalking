@@ -179,10 +179,10 @@ import org.apache.skywalking.apm.collector.storage.h2.dao.cpu.CpuDayMetricH2Pers
 import org.apache.skywalking.apm.collector.storage.h2.dao.cpu.CpuHourMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.cpu.CpuMinuteMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.cpu.CpuMonthMetricH2PersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.h2.dao.gcmp.GCDayMetricH2PersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.h2.dao.gcmp.GCHourMetricH2PersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.h2.dao.gcmp.GCMinuteMetricH2PersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.h2.dao.gcmp.GCMonthMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.gc.GCDayMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.gc.GCHourMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.gc.GCMinuteMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.gc.GCMonthMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.imp.InstanceDayMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.imp.InstanceHourMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.imp.InstanceMinuteMetricH2PersistenceDAO;

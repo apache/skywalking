@@ -34,6 +34,7 @@ public class GCMetricCopy {
         newGCMetric.setPhrase(gcMetric.getPhrase());
 
         newGCMetric.setCount(gcMetric.getCount());
+        newGCMetric.setDuration(gcMetric.getDuration());
         newGCMetric.setTimes(gcMetric.getTimes());
 
         newGCMetric.setTimeBucket(gcMetric.getTimeBucket());
