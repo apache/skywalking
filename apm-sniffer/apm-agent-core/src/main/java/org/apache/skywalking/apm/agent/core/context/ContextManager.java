@@ -42,12 +42,12 @@ import org.apache.skywalking.apm.util.StringUtil;
 public class ContextManager implements TracingContextListener, BootService, IgnoreTracerContextListener {
     private static final ILog logger = LogManager.getLogger(ContextManager.class);
     private static ThreadLocal<AbstractTracerContext> CONTEXT = new ThreadLocal<AbstractTracerContext>();
-    private static ContextManagerExtendService service;
+    private static ContextManagerExtendService EXTEND_SERVICE;
 
     private static AbstractTracerContext getOrCreate(String operationName, boolean forceSampling) {
         AbstractTracerContext context = CONTEXT.get();
-        if (service == null) {
-            service = ServiceManager.INSTANCE.findService(ContextManagerExtendService.class);
+        if (EXTEND_SERVICE == null) {
+            EXTEND_SERVICE = ServiceManager.INSTANCE.findService(ContextManagerExtendService.class);
         }
         if (context == null) {
             if (StringUtil.isEmpty(operationName)) {
@@ -59,7 +59,7 @@ public class ContextManager implements TracingContextListener, BootService, Igno
                 if (RemoteDownstreamConfig.Agent.APPLICATION_ID != DictionaryUtil.nullValue()
                     && RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID != DictionaryUtil.nullValue()
                     ) {
-                    context = service.createTraceContext(operationName, forceSampling);
+                    context = EXTEND_SERVICE.createTraceContext(operationName, forceSampling);
                 } else {
                     /**
                      * Can't register to collector, no need to trace anything.
