@@ -16,16 +16,13 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.h2.dao.gcmp;
+package org.apache.skywalking.apm.collector.storage.h2.dao.gc;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.sql.*;
+import java.util.*;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.AbstractPersistenceH2DAO;
-import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetric;
-import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetricTable;
+import org.apache.skywalking.apm.collector.storage.table.jvm.*;
 
 /**
  * @author peng-yongsheng
@@ -46,6 +43,7 @@ public abstract class AbstractGCMetricH2PersistenceDAO extends AbstractPersisten
 
         gcMetric.setCount(resultSet.getLong(GCMetricTable.COUNT.getName()));
         gcMetric.setTimes(resultSet.getLong(GCMetricTable.TIMES.getName()));
+        gcMetric.setDuration(resultSet.getLong(GCMetricTable.DURATION.getName()));
 
         gcMetric.setTimeBucket(resultSet.getLong(GCMetricTable.TIME_BUCKET.getName()));
 
@@ -61,6 +59,7 @@ public abstract class AbstractGCMetricH2PersistenceDAO extends AbstractPersisten
         target.put(GCMetricTable.PHRASE.getName(), streamData.getPhrase());
         target.put(GCMetricTable.COUNT.getName(), streamData.getCount());
         target.put(GCMetricTable.TIMES.getName(), streamData.getTimes());
+        target.put(GCMetricTable.DURATION.getName(), streamData.getDuration());
         target.put(GCMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
 
         return target;

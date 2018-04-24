@@ -24,10 +24,12 @@ package org.apache.skywalking.apm.collector.storage.utils;
 public class DurationPoint {
     private long point;
     private long secondsBetween;
+    private long minutesBetween;
 
-    public DurationPoint(long point, long secondsBetween) {
+    public DurationPoint(long point, long secondsBetween, long minutesBetween) {
         this.point = point;
         this.secondsBetween = secondsBetween;
+        this.minutesBetween = minutesBetween;
     }
 
     public long getPoint() {
@@ -36,5 +38,9 @@ public class DurationPoint {
 
     public long getSecondsBetween() {
         return secondsBetween;
+    }
+
+    public long getMinutesBetween() {
+        return minutesBetween;
     }
 }

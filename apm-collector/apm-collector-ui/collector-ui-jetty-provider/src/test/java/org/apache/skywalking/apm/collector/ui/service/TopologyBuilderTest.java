@@ -17,30 +17,18 @@
 
 package org.apache.skywalking.apm.collector.ui.service;
 
+import java.text.ParseException;
+import java.util.*;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
-import org.apache.skywalking.apm.collector.core.module.MockModule;
-import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationComponentUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMappingUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationReferenceMetricUIDAO;
+import org.apache.skywalking.apm.collector.core.module.*;
+import org.apache.skywalking.apm.collector.storage.dao.ui.*;
 import org.apache.skywalking.apm.collector.storage.table.register.Application;
-import org.apache.skywalking.apm.collector.storage.ui.alarm.Alarm;
-import org.apache.skywalking.apm.collector.storage.ui.alarm.AlarmItem;
-import org.apache.skywalking.apm.collector.storage.ui.common.Duration;
-import org.apache.skywalking.apm.collector.storage.ui.common.Step;
-import org.apache.skywalking.apm.collector.storage.ui.common.Topology;
+import org.apache.skywalking.apm.collector.storage.ui.alarm.*;
+import org.apache.skywalking.apm.collector.storage.ui.common.*;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
-
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
@@ -53,7 +41,7 @@ public class TopologyBuilderTest {
 
     private ApplicationCacheService applicationCacheService;
     private ServerService serverService;
-    private SecondBetweenService secondBetweenService;
+    private DateBetweenService dateBetweenService;
     private AlarmService alarmService;
     private TopologyBuilder topologyBuilder;
     private Duration duration;
@@ -69,10 +57,10 @@ public class TopologyBuilderTest {
         topologyBuilder = new TopologyBuilder(moduleManager);
         applicationCacheService = mock(ApplicationCacheService.class);
         alarmService = mock(AlarmService.class);
-        secondBetweenService = mock(SecondBetweenService.class);
+        dateBetweenService = mock(DateBetweenService.class);
         Whitebox.setInternalState(topologyBuilder, "applicationCacheService", applicationCacheService);
         Whitebox.setInternalState(topologyBuilder, "alarmService", alarmService);
-        Whitebox.setInternalState(topologyBuilder, "secondBetweenService", secondBetweenService);
+        Whitebox.setInternalState(topologyBuilder, "dateBetweenService", dateBetweenService);
         duration = new Duration();
         duration.setEnd("2018-02");
         duration.setStart("2018-01");
@@ -140,7 +128,7 @@ public class TopologyBuilderTest {
             alarm.setItems(Collections.singletonList(new AlarmItem()));
             return alarm;
         });
-        when(secondBetweenService.calculate(anyInt(), anyLong(), anyLong())).then(invocation -> 20L);
+        when(dateBetweenService.minutesBetween(anyInt(), anyLong(), anyLong())).then(invocation -> 20L);
         Topology topology = topologyBuilder.build(applicationComponents, applicationMappings, applicationMetrics, callerReferenceMetric, calleeReferenceMetric, duration.getStep(), startTimeBucket, endTimeBucket, startSecondTimeBucket, endSecondTimeBucket);
         Assert.assertNotNull(topology);
     }

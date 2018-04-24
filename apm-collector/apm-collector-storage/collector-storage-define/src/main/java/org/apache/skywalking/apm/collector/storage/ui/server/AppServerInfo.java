@@ -30,7 +30,7 @@ public class AppServerInfo {
     private String applicationCode;
     private String osInfo;
     private String osName;
-    private int callsPerSec;
+    private int cpm;
     private String host;
     private int pid;
     private List<String> ipv4;
@@ -75,12 +75,12 @@ public class AppServerInfo {
         this.osName = osName;
     }
 
-    public int getCallsPerSec() {
-        return callsPerSec;
+    public int getCpm() {
+        return cpm;
     }
 
-    public void setCallsPerSec(int callsPerSec) {
-        this.callsPerSec = callsPerSec;
+    public void setCpm(int cpm) {
+        this.cpm = cpm;
     }
 
     public String getHost() {

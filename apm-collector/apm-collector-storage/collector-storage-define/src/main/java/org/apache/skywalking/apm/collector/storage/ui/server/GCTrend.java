@@ -18,28 +18,53 @@
 
 package org.apache.skywalking.apm.collector.storage.ui.server;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * @author peng-yongsheng
  */
 public class GCTrend {
-    private List<Integer> youngGC;
-    private List<Integer> oldGC;
+    private List<Integer> youngGCCount;
+    private List<Integer> oldGCount;
+    private List<Integer> youngGCTime;
+    private List<Integer> oldGCTime;
 
-    public List<Integer> getYoungGC() {
-        return youngGC;
+    public GCTrend() {
+        this.youngGCCount = new LinkedList<>();
+        this.oldGCount = new LinkedList<>();
+        this.youngGCTime = new LinkedList<>();
+        this.oldGCTime = new LinkedList<>();
     }
 
-    public void setYoungGC(List<Integer> youngGC) {
-        this.youngGC = youngGC;
+    public List<Integer> getYoungGCCount() {
+        return youngGCCount;
     }
 
-    public List<Integer> getOldGC() {
-        return oldGC;
+    public void setYoungGCCount(List<Integer> youngGCCount) {
+        this.youngGCCount = youngGCCount;
     }
 
-    public void setOldGC(List<Integer> oldGC) {
-        this.oldGC = oldGC;
+    public List<Integer> getOldGCount() {
+        return oldGCount;
+    }
+
+    public void setOldGCount(List<Integer> oldGCount) {
+        this.oldGCount = oldGCount;
+    }
+
+    public List<Integer> getYoungGCTime() {
+        return youngGCTime;
+    }
+
+    public void setYoungGCTime(List<Integer> youngGCTime) {
+        this.youngGCTime = youngGCTime;
+    }
+
+    public List<Integer> getOldGCTime() {
+        return oldGCTime;
+    }
+
+    public void setOldGCTime(List<Integer> oldGCTime) {
+        this.oldGCTime = oldGCTime;
     }
 }
