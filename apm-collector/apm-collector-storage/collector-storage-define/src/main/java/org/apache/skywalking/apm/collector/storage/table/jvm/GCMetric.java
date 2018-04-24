@@ -18,11 +18,8 @@
 
 package org.apache.skywalking.apm.collector.storage.table.jvm;
 
-import org.apache.skywalking.apm.collector.core.data.Column;
-import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.data.operator.AddMergeOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.CoverMergeOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.*;
+import org.apache.skywalking.apm.collector.core.data.operator.*;
 
 /**
  * @author peng-yongsheng
@@ -38,6 +35,7 @@ public class GCMetric extends StreamData {
         new Column(GCMetricTable.COUNT, new AddMergeOperation()),
         new Column(GCMetricTable.TIMES, new AddMergeOperation()),
         new Column(GCMetricTable.TIME_BUCKET, new CoverMergeOperation()),
+        new Column(GCMetricTable.DURATION, new AddMergeOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {
@@ -92,6 +90,14 @@ public class GCMetric extends StreamData {
 
     public void setTimeBucket(Long timeBucket) {
         setDataLong(2, timeBucket);
+    }
+
+    public Long getDuration() {
+        return getDataLong(3);
+    }
+
+    public void setDuration(Long duration) {
+        setDataLong(3, duration);
     }
 
     public Integer getInstanceId() {

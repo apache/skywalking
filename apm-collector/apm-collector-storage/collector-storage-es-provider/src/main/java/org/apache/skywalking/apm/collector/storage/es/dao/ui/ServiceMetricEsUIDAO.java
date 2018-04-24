@@ -86,7 +86,7 @@ public class ServiceMetricEsUIDAO extends EsDAO implements IServiceMetricUIDAO {
     }
 
     @Override
-    public List<Integer> getServiceTPSTrend(int serviceId, Step step, List<DurationPoint> durationPoints) {
+    public List<Integer> getServiceThroughputTrend(int serviceId, Step step, List<DurationPoint> durationPoints) {
         String tableName = TimePyramidTableNameBuilder.build(step, ServiceMetricTable.TABLE);
         MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet(durationPoints, new ElasticSearchClient.MultiGetRowHandler<DurationPoint>() {
             @Override
@@ -103,8 +103,8 @@ public class ServiceMetricEsUIDAO extends EsDAO implements IServiceMetricUIDAO {
         for (MultiGetItemResponse response : multiGetResponse.getResponses()) {
             if (response.getResponse().isExists()) {
                 long calls = ((Number)response.getResponse().getSource().get(ServiceMetricTable.TRANSACTION_CALLS.getName())).longValue();
-                long secondBetween = durationPoints.get(index).getSecondsBetween();
-                trends.add((int)(calls / secondBetween));
+                long minutesBetween = durationPoints.get(index).getMinutesBetween();
+                trends.add((int)(calls / minutesBetween));
             } else {
                 trends.add(0);
             }

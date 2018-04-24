@@ -17,29 +17,18 @@
 
 package org.apache.skywalking.apm.collector.ui.service;
 
+import java.text.ParseException;
+import java.util.*;
 import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
-import org.apache.skywalking.apm.collector.core.module.MockModule;
-import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationComponentUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceReferenceMetricUIDAO;
+import org.apache.skywalking.apm.collector.core.module.*;
+import org.apache.skywalking.apm.collector.storage.dao.ui.*;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
-import org.apache.skywalking.apm.collector.storage.ui.common.Duration;
-import org.apache.skywalking.apm.collector.storage.ui.common.Node;
-import org.apache.skywalking.apm.collector.storage.ui.common.Step;
-import org.apache.skywalking.apm.collector.storage.ui.common.Topology;
+import org.apache.skywalking.apm.collector.storage.ui.common.*;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceNode;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
-
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
@@ -54,7 +43,7 @@ public class ServiceTopologyServiceTest {
     private IServiceMetricUIDAO serviceMetricUIDAO;
     private IServiceReferenceMetricUIDAO serviceReferenceMetricUIDAO;
     private ServiceNameCacheService serviceNameCacheService;
-    private SecondBetweenService secondBetweenService;
+    private DateBetweenService dateBetweenService;
     private ServiceTopologyService serviceTopologyService;
     private Duration duration;
     private long startSecondTimeBucket;
@@ -71,12 +60,12 @@ public class ServiceTopologyServiceTest {
         serviceMetricUIDAO = mock(IServiceMetricUIDAO.class);
         serviceReferenceMetricUIDAO = mock(IServiceReferenceMetricUIDAO.class);
         serviceNameCacheService = mock(ServiceNameCacheService.class);
-        secondBetweenService = mock(SecondBetweenService.class);
+        dateBetweenService = mock(DateBetweenService.class);
         Whitebox.setInternalState(serviceTopologyService, "applicationComponentUIDAO", applicationComponentUIDAO);
         Whitebox.setInternalState(serviceTopologyService, "serviceMetricUIDAO", serviceMetricUIDAO);
         Whitebox.setInternalState(serviceTopologyService, "serviceReferenceMetricUIDAO", serviceReferenceMetricUIDAO);
         Whitebox.setInternalState(serviceTopologyService, "serviceNameCacheService", serviceNameCacheService);
-        Whitebox.setInternalState(serviceTopologyService, "secondBetweenService", secondBetweenService);
+        Whitebox.setInternalState(serviceTopologyService, "dateBetweenService", dateBetweenService);
         duration = new Duration();
         duration.setEnd("2018-02");
         duration.setStart("2018-01");
@@ -113,7 +102,7 @@ public class ServiceTopologyServiceTest {
         });
         mockCache();
 
-        when(secondBetweenService.calculate(anyInt(), anyLong(), anyLong())).then(invocation -> 20L);
+        when(dateBetweenService.minutesBetween(anyInt(), anyLong(), anyLong())).then(invocation -> 20L);
         when(serviceMetricUIDAO.getServicesMetric(anyObject(), anyLong(), anyLong(), anyObject(), anyObject())).then(invocation -> {
             List<Node> nodes = new LinkedList<>();
             ServiceNode serviceNode = new ServiceNode();

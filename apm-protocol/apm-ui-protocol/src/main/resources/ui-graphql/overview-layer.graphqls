@@ -43,10 +43,10 @@ type ConjecturalApp {
     num: Int!
 }
 
-type ApplicationTPS {
+type ApplicationThroughput {
     applicationId: Int!
     applicationCode: String
-    callsPerSec: Int!
+    cpm: Int!
 }
 
 type Thermodynamic {
@@ -71,6 +71,6 @@ extend type Query {
     getAlarmTrend(duration: Duration!): AlarmTrend
     getConjecturalApps(duration: Duration!): ConjecturalAppBrief
     getTopNSlowService(duration: Duration!, topN: Int!): [ServiceMetric!]!
-    getTopNApplicationThroughput(duration: Duration!, topN: Int!): [ApplicationTPS!]!
+    getTopNApplicationThroughput(duration: Duration!, topN: Int!): [ApplicationThroughput!]!
     getThermodynamic(duration: Duration!, type: ValueType!): Thermodynamic!
 }

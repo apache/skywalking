@@ -18,12 +18,10 @@
 
 package org.apache.skywalking.apm.collector.storage.dao.ui;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
-import org.apache.skywalking.apm.collector.storage.ui.common.Node;
-import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.ui.common.*;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceMetric;
 import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 
@@ -56,10 +54,10 @@ public interface IServiceMetricUIDAO extends DAO {
     List<Integer> getServiceResponseTimeTrend(int serviceId, Step step, List<DurationPoint> durationPoints);
 
     /**
-     * Service TPS Trend describes the trend of Service metric in the given duration
+     * Service throughout Trend describes the trend of Service metric in the given duration
      * , which represents by the DurationPoint list in the `step` Unit.
      *
-     * <p>SQL as: select TRANSACTION_CALLS / ${durationPoint#secondsBetween} from SERVICE_METRIC
+     * <p>SQL as: select TRANSACTION_CALLS / ${durationPoint#minutesBetween} from SERVICE_METRIC
      * where ID in (${durationPoints})
      *
      * <p>rule of ID generation is "${durationPoint}_${serviceId}_${MetricSource.Callee}"
@@ -71,7 +69,7 @@ public interface IServiceMetricUIDAO extends DAO {
      * @param durationPoints the time points in the time span
      * @return every duration points average throughout metrics.
      */
-    List<Integer> getServiceTPSTrend(int serviceId, Step step, List<DurationPoint> durationPoints);
+    List<Integer> getServiceThroughputTrend(int serviceId, Step step, List<DurationPoint> durationPoints);
 
     /**
      * Service SLA Trend describes the trend of Service SLA metrics in the given duration
