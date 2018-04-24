@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.agent.core.remote;
 
 import org.apache.skywalking.apm.agent.core.boot.BootService;
+import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
@@ -36,12 +37,13 @@ import java.util.concurrent.TimeUnit;
  *
  * @author wusheng
  */
+@DefaultImplementor
 public class CollectorDiscoveryService implements BootService {
     private static final ILog logger = LogManager.getLogger(CollectorDiscoveryService.class);
     private ScheduledFuture<?> future;
 
     @Override
-    public void beforeBoot() {
+    public void prepare() {
 
     }
 
@@ -72,7 +74,7 @@ public class CollectorDiscoveryService implements BootService {
     }
 
     @Override
-    public void afterBoot() throws Throwable {
+    public void onComplete() throws Throwable {
 
     }
 
