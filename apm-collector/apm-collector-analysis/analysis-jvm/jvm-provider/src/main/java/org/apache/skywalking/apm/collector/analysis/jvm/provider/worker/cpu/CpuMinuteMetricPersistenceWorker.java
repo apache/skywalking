@@ -32,7 +32,7 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.CpuMetric;
  */
 public class CpuMinuteMetricPersistenceWorker extends PersistenceWorker<CpuMetric> {
 
-    public CpuMinuteMetricPersistenceWorker(ModuleManager moduleManager) {
+    private CpuMinuteMetricPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 

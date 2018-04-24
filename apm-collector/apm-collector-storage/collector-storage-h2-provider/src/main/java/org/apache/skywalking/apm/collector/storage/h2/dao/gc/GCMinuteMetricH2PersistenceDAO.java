@@ -16,12 +16,12 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.h2.dao.gcmp;
+package org.apache.skywalking.apm.collector.storage.h2.dao.gc;
 
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
 import org.apache.skywalking.apm.collector.core.storage.TimePyramid;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.storage.dao.gc.IGCHourMetricPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.gc.IGCMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
 import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetric;
 import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetricTable;
@@ -29,13 +29,13 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetricTable;
 /**
  * @author peng-yongsheng
  */
-public class GCHourMetricH2PersistenceDAO extends AbstractGCMetricH2PersistenceDAO implements IGCHourMetricPersistenceDAO<H2SqlEntity, H2SqlEntity, GCMetric> {
+public class GCMinuteMetricH2PersistenceDAO extends AbstractGCMetricH2PersistenceDAO implements IGCMinuteMetricPersistenceDAO<H2SqlEntity, H2SqlEntity, GCMetric> {
 
-    public GCHourMetricH2PersistenceDAO(H2Client client) {
+    public GCMinuteMetricH2PersistenceDAO(H2Client client) {
         super(client);
     }
 
     @Override protected String tableName() {
-        return GCMetricTable.TABLE + Const.ID_SPLIT + TimePyramid.Hour.getName();
+        return GCMetricTable.TABLE + Const.ID_SPLIT + TimePyramid.Minute.getName();
     }
 }

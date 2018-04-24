@@ -17,43 +17,21 @@
 
 package org.apache.skywalking.apm.collector.ui.service;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
-import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
-import org.apache.skywalking.apm.collector.core.module.MockModule;
-import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.storage.dao.ui.ICpuMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IGCMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IMemoryMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.table.register.Application;
-import org.apache.skywalking.apm.collector.storage.table.register.Instance;
-import org.apache.skywalking.apm.collector.storage.ui.common.Duration;
-import org.apache.skywalking.apm.collector.storage.ui.common.ResponseTimeTrend;
-import org.apache.skywalking.apm.collector.storage.ui.common.Step;
-import org.apache.skywalking.apm.collector.storage.ui.common.ThroughputTrend;
-import org.apache.skywalking.apm.collector.storage.ui.server.AppServerInfo;
-import org.apache.skywalking.apm.collector.storage.ui.server.CPUTrend;
-import org.apache.skywalking.apm.collector.storage.ui.server.GCTrend;
-import org.apache.skywalking.apm.collector.storage.ui.server.MemoryTrend;
+import java.util.*;
+import org.apache.skywalking.apm.collector.cache.service.*;
+import org.apache.skywalking.apm.collector.core.module.*;
+import org.apache.skywalking.apm.collector.storage.dao.ui.*;
+import org.apache.skywalking.apm.collector.storage.table.register.*;
+import org.apache.skywalking.apm.collector.storage.ui.common.*;
+import org.apache.skywalking.apm.collector.storage.ui.server.*;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
@@ -69,7 +47,7 @@ public class ServerServiceTest {
     private IMemoryMetricUIDAO memoryMetricUIDAO;
     private ApplicationCacheService applicationCacheService;
     private InstanceCacheService instanceCacheService;
-    private SecondBetweenService secondBetweenService;
+    private DateBetweenService dateBetweenService;
     private ServerService serverService;
     private Duration duration;
     private long startSecondTimeBucket;
@@ -89,7 +67,7 @@ public class ServerServiceTest {
         memoryMetricUIDAO = mock(IMemoryMetricUIDAO.class);
         applicationCacheService = mock(ApplicationCacheService.class);
         instanceCacheService = mock(InstanceCacheService.class);
-        secondBetweenService = mock(SecondBetweenService.class);
+        dateBetweenService = mock(DateBetweenService.class);
         Whitebox.setInternalState(serverService, "instanceUIDAO", instanceUIDAO);
         Whitebox.setInternalState(serverService, "instanceMetricUIDAO", instanceMetricUIDAO);
         Whitebox.setInternalState(serverService, "cpuMetricUIDAO", cpuMetricUIDAO);
@@ -97,7 +75,7 @@ public class ServerServiceTest {
         Whitebox.setInternalState(serverService, "memoryMetricUIDAO", memoryMetricUIDAO);
         Whitebox.setInternalState(serverService, "applicationCacheService", applicationCacheService);
         Whitebox.setInternalState(serverService, "instanceCacheService", instanceCacheService);
-        Whitebox.setInternalState(serverService, "secondBetweenService", secondBetweenService);
+        Whitebox.setInternalState(serverService, "dateBetweenService", dateBetweenService);
         duration = new Duration();
         duration.setEnd("2018-02");
         duration.setStart("2018-01");
@@ -176,8 +154,8 @@ public class ServerServiceTest {
     }
 
     @Test
-    public void getServerTPSTrend() throws ParseException {
-        ThroughputTrend serverTPSTrend = serverService.getServerTPSTrend(1, duration.getStep(), startTimeBucket, endTimeBucket);
+    public void getServerThroughputTrend() throws ParseException {
+        ThroughputTrend serverTPSTrend = serverService.getServerThroughputTrend(1, duration.getStep(), startTimeBucket, endTimeBucket);
         Assert.assertNotNull(serverTPSTrend);
     }
 

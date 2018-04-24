@@ -24,5 +24,5 @@ import org.apache.skywalking.apm.collector.core.module.Service;
  * @author peng-yongsheng
  */
 public interface IGCMetricService extends Service {
-    void send(int instanceId, long timeBucket, int phraseValue, long count, long time);
+    void send(int instanceId, long timeBucket, int phraseValue, long count, long duration);
 }
