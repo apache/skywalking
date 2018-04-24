@@ -54,7 +54,7 @@ extend type Query {
     searchServer(keyword: String!, duration: Duration!): [AppServerInfo!]!
     getAllServer(applicationId: ID!, duration: Duration!): [AppServerInfo!]!
     getServerResponseTimeTrend(serverId: ID!, duration: Duration!): ResponseTimeTrend
-    getServerTPSTrend(serverId: ID!, duration: Duration!): ThroughputTrend
+    getServerThroughputTrend(serverId: ID!, duration: Duration!): ThroughputTrend
     getCPUTrend(serverId: ID!, duration: Duration!): CPUTrend
     getGCTrend(serverId: ID!, duration: Duration!): GCTrend
     getMemoryTrend(serverId: ID!, duration: Duration!): MemoryTrend

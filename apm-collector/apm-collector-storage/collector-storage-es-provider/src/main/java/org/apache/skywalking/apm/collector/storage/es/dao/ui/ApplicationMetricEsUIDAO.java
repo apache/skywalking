@@ -44,7 +44,7 @@ public class ApplicationMetricEsUIDAO extends EsDAO implements IApplicationMetri
 
     @Override
     public List<ApplicationThroughput> getTopNApplicationThroughput(Step step, long startTimeBucket, long endTimeBucket,
-        int betweenSecond, int topN, MetricSource metricSource) {
+        int minutesBetween, int topN, MetricSource metricSource) {
         String tableName = TimePyramidTableNameBuilder.build(step, ApplicationMetricTable.TABLE);
 
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
@@ -64,28 +64,28 @@ public class ApplicationMetricEsUIDAO extends EsDAO implements IApplicationMetri
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
-        List<ApplicationThroughput> applicationTPSses = new LinkedList<>();
+        List<ApplicationThroughput> applicationThroughputList = new LinkedList<>();
         Terms applicationIdTerms = searchResponse.getAggregations().get(ApplicationMetricTable.APPLICATION_ID.getName());
         applicationIdTerms.getBuckets().forEach(applicationIdTerm -> {
             int applicationId = applicationIdTerm.getKeyAsNumber().intValue();
             Sum callSum = applicationIdTerm.getAggregations().get(ApplicationMetricTable.TRANSACTION_CALLS.getName());
             long calls = (long)callSum.getValue();
-            int callsPerMinute = (int)(betweenSecond == 0 ? 0 : (calls * 60) / betweenSecond);
+            int callsPerMinute = (int)(minutesBetween == 0 ? 0 : calls / minutesBetween);
 
             ApplicationThroughput applicationThroughput = new ApplicationThroughput();
             applicationThroughput.setApplicationId(applicationId);
             applicationThroughput.setCpm(callsPerMinute);
-            applicationTPSses.add(applicationThroughput);
+            applicationThroughputList.add(applicationThroughput);
         });
 
-        applicationTPSses.sort((first, second) -> first.getCpm() > second.getCpm() ? -1 : 1);
+        applicationThroughputList.sort((first, second) -> first.getCpm() > second.getCpm() ? -1 : 1);
 
-        if (applicationTPSses.size() <= topN) {
-            return applicationTPSses;
+        if (applicationThroughputList.size() <= topN) {
+            return applicationThroughputList;
         } else {
             List<ApplicationThroughput> newCollection = new LinkedList<>();
             for (int i = 0; i < topN; i++) {
-                newCollection.add(applicationTPSses.get(i));
+                newCollection.add(applicationThroughputList.get(i));
             }
             return newCollection;
         }

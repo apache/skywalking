@@ -43,14 +43,14 @@ class TopologyBuilder {
 
     private final ApplicationCacheService applicationCacheService;
     private final ServerService serverService;
-    private final SecondBetweenService secondBetweenService;
+    private final DateBetweenService dateBetweenService;
     private final AlarmService alarmService;
     private final IComponentLibraryCatalogService componentLibraryCatalogService;
 
     TopologyBuilder(ModuleManager moduleManager) {
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
         this.serverService = new ServerService(moduleManager);
-        this.secondBetweenService = new SecondBetweenService(moduleManager);
+        this.dateBetweenService = new DateBetweenService(moduleManager);
         this.alarmService = new AlarmService(moduleManager);
         this.componentLibraryCatalogService = moduleManager.find(ConfigurationModule.NAME).getService(IComponentLibraryCatalogService.class);
     }
@@ -80,7 +80,7 @@ class TopologyBuilder {
 
             applicationNode.setSla(SLACalculator.INSTANCE.calculate(applicationMetric.getErrorCalls(), applicationMetric.getCalls()));
             try {
-                applicationNode.setCpm((applicationMetric.getCalls() * 60) / secondBetweenService.calculate(applicationId, startSecondTimeBucket, endSecondTimeBucket));
+                applicationNode.setCpm(applicationMetric.getCalls() / dateBetweenService.minutesBetween(applicationId, startSecondTimeBucket, endSecondTimeBucket));
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
             }
@@ -151,7 +151,7 @@ class TopologyBuilder {
             call.setAlert(false);
             call.setCallType(components.get(referenceMetric.getTarget()));
             try {
-                call.setCpm((referenceMetric.getCalls() * 60) / secondBetweenService.calculate(source.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket));
+                call.setCpm(referenceMetric.getCalls() / dateBetweenService.minutesBetween(source.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket));
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
             }
@@ -198,7 +198,7 @@ class TopologyBuilder {
                 call.setCallType(components.get(referenceMetric.getTarget()));
             }
             try {
-                call.setCpm((referenceMetric.getCalls() * 60) / secondBetweenService.calculate(target.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket));
+                call.setCpm(referenceMetric.getCalls() / dateBetweenService.minutesBetween(target.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket));
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
             }

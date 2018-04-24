@@ -44,7 +44,7 @@ public class ServiceTopologyService {
     private final IServiceMetricUIDAO serviceMetricUIDAO;
     private final IServiceReferenceMetricUIDAO serviceReferenceMetricUIDAO;
     private final ServiceNameCacheService serviceNameCacheService;
-    private final SecondBetweenService secondBetweenService;
+    private final DateBetweenService dateBetweenService;
     private final IComponentLibraryCatalogService componentLibraryCatalogService;
 
     public ServiceTopologyService(ModuleManager moduleManager) {
@@ -52,12 +52,12 @@ public class ServiceTopologyService {
         this.serviceReferenceMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IServiceReferenceMetricUIDAO.class);
         this.applicationComponentUIDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationComponentUIDAO.class);
         this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
-        this.secondBetweenService = new SecondBetweenService(moduleManager);
+        this.dateBetweenService = new DateBetweenService(moduleManager);
         this.componentLibraryCatalogService = moduleManager.find(ConfigurationModule.NAME).getService(IComponentLibraryCatalogService.class);
     }
 
     public Topology getServiceTopology(Step step, int serviceId, long startTimeBucket,
-        long endTimeBucket, long startSecondTimeBucket, long endSecondTimeBucket) throws ParseException {
+        long endTimeBucket, long startSecondTimeBucket, long endSecondTimeBucket) {
         logger.debug("startTimeBucket: {}, endTimeBucket: {}", startTimeBucket, endTimeBucket);
         List<IApplicationComponentUIDAO.ApplicationComponent> applicationComponents = applicationComponentUIDAO.load(step, startTimeBucket, endTimeBucket);
 
@@ -81,7 +81,7 @@ public class ServiceTopologyService {
             call.setCallType(components.getOrDefault(serviceNameCacheService.get(referenceMetric.getTarget()).getApplicationId(), Const.UNKNOWN));
             try {
                 int applicationId = serviceNameCacheService.get(referenceMetric.getTarget()).getApplicationId();
-                call.setCpm((referenceMetric.getCalls() * 60) / secondBetweenService.calculate(applicationId, startSecondTimeBucket, endSecondTimeBucket));
+                call.setCpm(referenceMetric.getCalls() / dateBetweenService.minutesBetween(applicationId, startSecondTimeBucket, endSecondTimeBucket));
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
             }

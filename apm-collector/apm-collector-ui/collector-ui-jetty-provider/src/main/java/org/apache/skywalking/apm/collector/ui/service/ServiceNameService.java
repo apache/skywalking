@@ -43,13 +43,13 @@ public class ServiceNameService {
     private final IServiceNameServiceUIDAO serviceNameServiceUIDAO;
     private final IServiceMetricUIDAO serviceMetricUIDAO;
     private final ServiceNameCacheService serviceNameCacheService;
-    private final SecondBetweenService secondBetweenService;
+    private final DateBetweenService dateBetweenService;
 
     public ServiceNameService(ModuleManager moduleManager) {
         this.serviceNameServiceUIDAO = moduleManager.find(StorageModule.NAME).getService(IServiceNameServiceUIDAO.class);
         this.serviceMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IServiceMetricUIDAO.class);
         this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
-        this.secondBetweenService = new SecondBetweenService(moduleManager);
+        this.dateBetweenService = new DateBetweenService(moduleManager);
     }
 
     public int getCount() {
@@ -64,7 +64,7 @@ public class ServiceNameService {
         long endTimeBucket) throws ParseException {
         ThroughputTrend throughputTrend = new ThroughputTrend();
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTimeBucket, endTimeBucket);
-        List<Integer> throughputTrends = serviceMetricUIDAO.getServiceTPSTrend(serviceId, step, durationPoints);
+        List<Integer> throughputTrends = serviceMetricUIDAO.getServiceThroughputTrend(serviceId, step, durationPoints);
         throughputTrend.setTrendList(throughputTrends);
         return throughputTrend;
     }
@@ -86,14 +86,13 @@ public class ServiceNameService {
     }
 
     public List<ServiceMetric> getSlowService(Step step, long startTimeBucket, long endTimeBucket,
-        long startSecondTimeBucket, long endSecondTimeBucket,
-        Integer topN) throws ParseException {
+        long startSecondTimeBucket, long endSecondTimeBucket, Integer topN) {
         List<ServiceMetric> slowServices = serviceMetricUIDAO.getSlowService(0, step, startTimeBucket, endTimeBucket, topN, MetricSource.Callee);
         slowServices.forEach(slowService -> {
             ServiceName serviceName = serviceNameCacheService.get(slowService.getId());
             slowService.setName(serviceName.getServiceName());
             try {
-                slowService.setCpm((int)((slowService.getCalls() * 60) / secondBetweenService.calculate(serviceName.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket)));
+                slowService.setCpm((int)(slowService.getCalls() / dateBetweenService.minutesBetween(serviceName.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket)));
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
             }

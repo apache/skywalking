@@ -47,7 +47,7 @@ public class ApplicationServiceTest {
     private INetworkAddressUIDAO networkAddressUIDAO;
     private ApplicationCacheService applicationCacheService;
     private ServiceNameCacheService serviceNameCacheService;
-    private SecondBetweenService secondBetweenService;
+    private DateBetweenService dateBetweenService;
     private ApplicationService applicationService;
     private Duration duration;
 
@@ -62,14 +62,14 @@ public class ApplicationServiceTest {
         networkAddressUIDAO = mock(INetworkAddressUIDAO.class);
         applicationCacheService = mock(ApplicationCacheService.class);
         serviceNameCacheService = mock(ServiceNameCacheService.class);
-        secondBetweenService = mock(SecondBetweenService.class);
+        dateBetweenService = mock(DateBetweenService.class);
         Whitebox.setInternalState(applicationService, "instanceDAO", instanceDAO);
         Whitebox.setInternalState(applicationService, "serviceMetricUIDAO", serviceMetricUIDAO);
         Whitebox.setInternalState(applicationService, "applicationMetricUIDAO", applicationMetricUIDAO);
         Whitebox.setInternalState(applicationService, "networkAddressUIDAO", networkAddressUIDAO);
         Whitebox.setInternalState(applicationService, "applicationCacheService", applicationCacheService);
         Whitebox.setInternalState(applicationService, "serviceNameCacheService", serviceNameCacheService);
-        Whitebox.setInternalState(applicationService, "secondBetweenService", secondBetweenService);
+        Whitebox.setInternalState(applicationService, "dateBetweenService", dateBetweenService);
         duration = new Duration();
         duration.setEnd("2018-02");
         duration.setStart("2018-01");
@@ -125,7 +125,7 @@ public class ApplicationServiceTest {
             serviceName.setServiceName("serviceName");
             return serviceName;
         });
-        when(secondBetweenService.calculate(anyInt(), anyLong(), anyLong())).then(invocation -> 20L);
+        when(dateBetweenService.minutesBetween(anyInt(), anyLong(), anyLong())).then(invocation -> 20L);
         List<ServiceMetric> slowService = applicationService.getSlowService(-1, duration.getStep(), startTimeBucket, endTimeBucket, startSecondTimeBucket, endSecondTimeBucket, 10);
         Assert.assertTrue(slowService.get(0).getCpm() > 0);
     }

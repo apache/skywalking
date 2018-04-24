@@ -18,27 +18,25 @@
 
 package org.apache.skywalking.apm.collector.ui.service;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.text.*;
 import java.util.Date;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
-import org.joda.time.DateTime;
-import org.joda.time.Seconds;
+import org.joda.time.*;
 
 /**
  * @author peng-yongsheng
  */
-class SecondBetweenService {
+class DateBetweenService {
 
     private final IInstanceUIDAO instanceUIDAO;
 
-    SecondBetweenService(ModuleManager moduleManager) {
+    DateBetweenService(ModuleManager moduleManager) {
         this.instanceUIDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceUIDAO.class);
     }
 
-    int calculate(int applicationId, long startSecondTimeBucket,
+    int secondsBetween(int applicationId, long startSecondTimeBucket,
         long endSecondTimeBucket) throws ParseException {
         long registerTime = instanceUIDAO.getEarliestRegisterTime(applicationId);
         if (startSecondTimeBucket < registerTime) {
@@ -58,5 +56,27 @@ class SecondBetweenService {
             seconds = 1;
         }
         return seconds;
+    }
+
+    int minutesBetween(int applicationId, long startSecondTimeBucket,
+        long endSecondTimeBucket) throws ParseException {
+        long registerTime = instanceUIDAO.getEarliestRegisterTime(applicationId);
+        if (startSecondTimeBucket < registerTime) {
+            startSecondTimeBucket = registerTime;
+        }
+
+        long heartBeatTime = instanceUIDAO.getLatestHeartBeatTime(applicationId);
+        if (endSecondTimeBucket > heartBeatTime) {
+            endSecondTimeBucket = heartBeatTime;
+        }
+
+        Date startDate = new SimpleDateFormat("yyyyMMddHHmmss").parse(String.valueOf(startSecondTimeBucket));
+        Date endDate = new SimpleDateFormat("yyyyMMddHHmmss").parse(String.valueOf(endSecondTimeBucket));
+
+        int minutes = Minutes.minutesBetween(new DateTime(startDate), new DateTime(endDate)).getMinutes();
+        if (minutes == 0) {
+            minutes = 1;
+        }
+        return minutes;
     }
 }

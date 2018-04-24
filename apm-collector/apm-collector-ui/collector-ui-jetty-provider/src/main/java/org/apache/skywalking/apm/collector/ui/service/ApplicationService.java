@@ -50,7 +50,7 @@ public class ApplicationService {
     private final INetworkAddressUIDAO networkAddressUIDAO;
     private final ApplicationCacheService applicationCacheService;
     private final ServiceNameCacheService serviceNameCacheService;
-    private final SecondBetweenService secondBetweenService;
+    private final DateBetweenService dateBetweenService;
     private final IComponentLibraryCatalogService componentLibraryCatalogService;
 
     public ApplicationService(ModuleManager moduleManager) {
@@ -61,7 +61,7 @@ public class ApplicationService {
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
         this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
         this.componentLibraryCatalogService = moduleManager.find(ConfigurationModule.NAME).getService(IComponentLibraryCatalogService.class);
-        this.secondBetweenService = new SecondBetweenService(moduleManager);
+        this.dateBetweenService = new DateBetweenService(moduleManager);
     }
 
     public List<Application> getApplications(long startSecondTimeBucket, long endSecondTimeBucket,
@@ -83,13 +83,13 @@ public class ApplicationService {
     }
 
     public List<ServiceMetric> getSlowService(int applicationId, Step step, long startTimeBucket, long endTimeBucket,
-        long startSecondTimeBucket, long endSecondTimeBucket, Integer topN) throws ParseException {
+        long startSecondTimeBucket, long endSecondTimeBucket, Integer topN) {
         List<ServiceMetric> slowServices = serviceMetricUIDAO.getSlowService(applicationId, step, startTimeBucket, endTimeBucket, topN, MetricSource.Callee);
         slowServices.forEach(slowService -> {
             ServiceName serviceName = serviceNameCacheService.get(slowService.getId());
 
             try {
-                slowService.setCpm((int)((slowService.getCalls() * 60) / secondBetweenService.calculate(serviceName.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket)));
+                slowService.setCpm((int)(slowService.getCalls() / dateBetweenService.minutesBetween(serviceName.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket)));
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
             }
@@ -100,17 +100,17 @@ public class ApplicationService {
 
     public List<ApplicationThroughput> getTopNApplicationThroughput(Step step, long startTimeBucket, long endTimeBucket,
         int topN) throws ParseException {
-        int secondsBetween = DurationUtils.INSTANCE.secondsBetween(step, startTimeBucket, endTimeBucket);
-        List<ApplicationThroughput> applicationThroughput = applicationMetricUIDAO.getTopNApplicationThroughput(step, startTimeBucket, endTimeBucket, secondsBetween, topN, MetricSource.Callee);
-        applicationThroughput.forEach(applicationTPS -> {
-            String applicationCode = applicationCacheService.getApplicationById(applicationTPS.getApplicationId()).getApplicationCode();
-            applicationTPS.setApplicationCode(applicationCode);
+        int minutesBetween = DurationUtils.INSTANCE.minutesBetween(step, startTimeBucket, endTimeBucket);
+        List<ApplicationThroughput> applicationThroughputList = applicationMetricUIDAO.getTopNApplicationThroughput(step, startTimeBucket, endTimeBucket, minutesBetween, topN, MetricSource.Callee);
+        applicationThroughputList.forEach(applicationThroughput -> {
+            String applicationCode = applicationCacheService.getApplicationById(applicationThroughput.getApplicationId()).getApplicationCode();
+            applicationThroughput.setApplicationCode(applicationCode);
         });
-        return applicationThroughput;
+        return applicationThroughputList;
     }
 
     public ConjecturalAppBrief getConjecturalApps(Step step, long startSecondTimeBucket,
-        long endSecondTimeBucket) throws ParseException {
+        long endSecondTimeBucket) {
         List<ConjecturalApp> conjecturalApps = networkAddressUIDAO.getConjecturalApps();
         conjecturalApps.forEach(conjecturalApp -> {
             String serverType = componentLibraryCatalogService.getServerName(conjecturalApp.getId());

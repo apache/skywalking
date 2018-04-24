@@ -38,7 +38,7 @@ public interface IApplicationMetricUIDAO extends DAO {
      * Returns the top n application throughput between start time bucket
      * and end time bucket.
      *
-     * <p>SQL as: select APPLICATION_ID, sum(TRANSACTION_CALLS) / betweenSecond as tps
+     * <p>SQL as: select APPLICATION_ID, sum(TRANSACTION_CALLS) / minutesBetween as tps
      * from APPLICATION_METRIC
      * where TIME_BUCKET ge ${startTimeBucket} and TIME_BUCKET le ${endTimeBucket}
      * and SOURCE_VALUE = ${metricSource}
@@ -52,13 +52,13 @@ public interface IApplicationMetricUIDAO extends DAO {
      * @param step the step which represent time formats
      * @param startTimeBucket start time bucket
      * @param endTimeBucket end time bucket
-     * @param betweenSecond the seconds between start time bucket and end time bucket
+     * @param minutesBetween the minutes between start time bucket and end time bucket
      * @param topN how many rows should return
      * @param metricSource source of this metric, server side or client side
      * @return not nullable result list
      */
     List<ApplicationThroughput> getTopNApplicationThroughput(Step step, long startTimeBucket, long endTimeBucket,
-        int betweenSecond, int topN, MetricSource metricSource);
+        int minutesBetween, int topN, MetricSource metricSource);
 
     /**
      * Returns aggregated application metrics that collected between start time bucket

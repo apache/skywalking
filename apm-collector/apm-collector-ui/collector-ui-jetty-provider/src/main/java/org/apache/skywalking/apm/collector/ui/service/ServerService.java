@@ -47,7 +47,7 @@ public class ServerService {
     private final IMemoryMetricUIDAO memoryMetricUIDAO;
     private final ApplicationCacheService applicationCacheService;
     private final InstanceCacheService instanceCacheService;
-    private final SecondBetweenService secondBetweenService;
+    private final DateBetweenService dateBetweenService;
 
     public ServerService(ModuleManager moduleManager) {
         this.instanceUIDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceUIDAO.class);
@@ -57,7 +57,7 @@ public class ServerService {
         this.memoryMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IMemoryMetricUIDAO.class);
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
         this.instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
-        this.secondBetweenService = new SecondBetweenService(moduleManager);
+        this.dateBetweenService = new DateBetweenService(moduleManager);
     }
 
     public List<AppServerInfo> searchServer(String keyword, long startSecondTimeBucket, long endSecondTimeBucket) {
@@ -90,9 +90,9 @@ public class ServerService {
 
     public List<AppServerInfo> getServerThroughput(int applicationId, Step step, long startTimeBucket,
         long endTimeBucket, long startSecondTimeBucket, long endSecondTimeBucket, Integer topN) throws ParseException {
-        int secondBetween = secondBetweenService.calculate(applicationId, startSecondTimeBucket, endSecondTimeBucket);
+        int minutesBetween = dateBetweenService.minutesBetween(applicationId, startSecondTimeBucket, endSecondTimeBucket);
 
-        List<AppServerInfo> serverThroughput = instanceMetricUIDAO.getServerThroughput(applicationId, step, startTimeBucket, endTimeBucket, secondBetween, topN, MetricSource.Callee);
+        List<AppServerInfo> serverThroughput = instanceMetricUIDAO.getServerThroughput(applicationId, step, startTimeBucket, endTimeBucket, minutesBetween, topN, MetricSource.Callee);
         serverThroughput.forEach(appServerInfo -> {
             appServerInfo.setApplicationId(instanceCacheService.getApplicationId(appServerInfo.getId()));
             String applicationCode = applicationCacheService.getApplicationById(appServerInfo.getApplicationId()).getApplicationCode();
@@ -105,11 +105,11 @@ public class ServerService {
         return serverThroughput;
     }
 
-    public ThroughputTrend getServerTPSTrend(int instanceId, Step step, long startTimeBucket,
+    public ThroughputTrend getServerThroughputTrend(int instanceId, Step step, long startTimeBucket,
         long endTimeBucket) throws ParseException {
         ThroughputTrend throughputTrend = new ThroughputTrend();
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTimeBucket, endTimeBucket);
-        List<Integer> trends = instanceMetricUIDAO.getServerTPSTrend(instanceId, step, durationPoints);
+        List<Integer> trends = instanceMetricUIDAO.getServerThroughputTrend(instanceId, step, durationPoints);
         throughputTrend.setTrendList(trends);
         return throughputTrend;
     }

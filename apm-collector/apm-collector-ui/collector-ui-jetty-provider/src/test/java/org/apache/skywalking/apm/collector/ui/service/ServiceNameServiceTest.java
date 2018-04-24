@@ -17,25 +17,18 @@
 
 package org.apache.skywalking.apm.collector.ui.service;
 
+import java.text.ParseException;
+import java.util.*;
 import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
-import org.apache.skywalking.apm.collector.core.module.MockModule;
-import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceNameServiceUIDAO;
+import org.apache.skywalking.apm.collector.core.module.*;
+import org.apache.skywalking.apm.collector.storage.dao.ui.*;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
 import org.apache.skywalking.apm.collector.storage.ui.common.*;
-import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
-import org.apache.skywalking.apm.collector.storage.ui.service.ServiceMetric;
+import org.apache.skywalking.apm.collector.storage.ui.service.*;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
-
-import java.text.ParseException;
-import java.util.Collections;
-import java.util.List;
 
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
@@ -49,7 +42,7 @@ public class ServiceNameServiceTest {
     private IServiceNameServiceUIDAO serviceNameServiceUIDAO;
     private IServiceMetricUIDAO serviceMetricUIDAO;
     private ServiceNameCacheService serviceNameCacheService;
-    private SecondBetweenService secondBetweenService;
+    private DateBetweenService dateBetweenService;
     private ServiceNameService serverNameService;
     private Duration duration;
     private long startSecondTimeBucket;
@@ -64,10 +57,10 @@ public class ServiceNameServiceTest {
         serverNameService = new ServiceNameService(moduleManager);
         serviceNameCacheService = mock(ServiceNameCacheService.class);
         serviceMetricUIDAO = mock(IServiceMetricUIDAO.class);
-        secondBetweenService = mock(SecondBetweenService.class);
+        dateBetweenService = mock(DateBetweenService.class);
         Whitebox.setInternalState(serverNameService, "serviceNameCacheService", serviceNameCacheService);
         Whitebox.setInternalState(serverNameService, "serviceMetricUIDAO", serviceMetricUIDAO);
-        Whitebox.setInternalState(serverNameService, "secondBetweenService", secondBetweenService);
+        Whitebox.setInternalState(serverNameService, "dateBetweenService", dateBetweenService);
         duration = new Duration();
         duration.setEnd("2018-02");
         duration.setStart("2018-01");
@@ -118,7 +111,7 @@ public class ServiceNameServiceTest {
             serviceMetric.setId(1);
             return Collections.singletonList(serviceMetric);
         });
-        when(secondBetweenService.calculate(anyInt(), anyLong(), anyLong())).then(invocation -> 20L);
+        when(dateBetweenService.minutesBetween(anyInt(), anyLong(), anyLong())).then(invocation -> 20L);
         mockCache();
         List<ServiceMetric> slowService = serverNameService.getSlowService(duration.getStep(), startTimeBucket, endTimeBucket, startSecondTimeBucket, endSecondTimeBucket, 10);
         Assert.assertTrue(slowService.size() > 0);

@@ -47,7 +47,7 @@ public class InstanceMetricEsUIDAO extends EsDAO implements IInstanceMetricUIDAO
 
     @Override
     public List<AppServerInfo> getServerThroughput(int applicationId, Step step, long startTimeBucket,
-        long endTimeBucket, int secondBetween, int topN, MetricSource metricSource) {
+        long endTimeBucket, int minutesBetween, int topN, MetricSource metricSource) {
         String tableName = TimePyramidTableNameBuilder.build(step, InstanceMetricTable.TABLE);
 
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
@@ -70,34 +70,34 @@ public class InstanceMetricEsUIDAO extends EsDAO implements IInstanceMetricUIDAO
         searchRequestBuilder.addAggregation(aggregationBuilder);
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
-        List<AppServerInfo> appServerInfos = new LinkedList<>();
+        List<AppServerInfo> appServerInfoList = new LinkedList<>();
         Terms instanceIdTerms = searchResponse.getAggregations().get(InstanceMetricTable.INSTANCE_ID.getName());
         instanceIdTerms.getBuckets().forEach(instanceIdTerm -> {
             int instanceId = instanceIdTerm.getKeyAsNumber().intValue();
             Sum callSum = instanceIdTerm.getAggregations().get(ApplicationMetricTable.TRANSACTION_CALLS.getName());
             long calls = (long)callSum.getValue();
-            int callsPerMinute = (int)(secondBetween == 0 ? 0 : calls * 60 / secondBetween);
+            int callsPerMinute = (int)(minutesBetween == 0 ? 0 : calls / minutesBetween);
 
             AppServerInfo appServerInfo = new AppServerInfo();
             appServerInfo.setId(instanceId);
             appServerInfo.setCpm(callsPerMinute);
-            appServerInfos.add(appServerInfo);
+            appServerInfoList.add(appServerInfo);
         });
 
-        appServerInfos.sort((first, second) -> first.getCpm() > second.getCpm() ? -1 : 1);
-        if (appServerInfos.size() <= topN) {
-            return appServerInfos;
+        appServerInfoList.sort((first, second) -> first.getCpm() > second.getCpm() ? -1 : 1);
+        if (appServerInfoList.size() <= topN) {
+            return appServerInfoList;
         } else {
             List<AppServerInfo> newCollection = new LinkedList<>();
             for (int i = 0; i < topN; i++) {
-                newCollection.add(appServerInfos.get(i));
+                newCollection.add(appServerInfoList.get(i));
             }
             return newCollection;
         }
     }
 
     @Override
-    public List<Integer> getServerTPSTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
+    public List<Integer> getServerThroughputTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
         String tableName = TimePyramidTableNameBuilder.build(step, InstanceMetricTable.TABLE);
         MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet(durationPoints, new ElasticSearchClient.MultiGetRowHandler<DurationPoint>() {
             @Override
@@ -114,7 +114,7 @@ public class InstanceMetricEsUIDAO extends EsDAO implements IInstanceMetricUIDAO
             MultiGetItemResponse response = multiGetResponse.getResponses()[i];
             if (response.getResponse().isExists()) {
                 long callTimes = ((Number)response.getResponse().getSource().get(InstanceMetricTable.TRANSACTION_CALLS.getName())).longValue();
-                throughputTrend.add((int)(callTimes / durationPoints.get(i).getSecondsBetween()));
+                throughputTrend.add((int)(callTimes / durationPoints.get(i).getMinutesBetween()));
             } else {
                 throughputTrend.add(0);
             }
