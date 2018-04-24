@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.agent.core.context;
 
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -42,11 +41,14 @@ import org.apache.skywalking.apm.util.StringUtil;
  */
 public class ContextManager implements TracingContextListener, BootService, IgnoreTracerContextListener {
     private static final ILog logger = LogManager.getLogger(ContextManager.class);
-
     private static ThreadLocal<AbstractTracerContext> CONTEXT = new ThreadLocal<AbstractTracerContext>();
+    private static ContextManagerExtendService service;
 
     private static AbstractTracerContext getOrCreate(String operationName, boolean forceSampling) {
         AbstractTracerContext context = CONTEXT.get();
+        if (service == null) {
+            service = ServiceManager.INSTANCE.findService(ContextManagerExtendService.class);
+        }
         if (context == null) {
             if (StringUtil.isEmpty(operationName)) {
                 if (logger.isDebugEnable()) {
@@ -57,17 +59,7 @@ public class ContextManager implements TracingContextListener, BootService, Igno
                 if (RemoteDownstreamConfig.Agent.APPLICATION_ID != DictionaryUtil.nullValue()
                     && RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID != DictionaryUtil.nullValue()
                     ) {
-                    int suffixIdx = operationName.lastIndexOf(".");
-                    if (suffixIdx > -1 && Config.Agent.IGNORE_SUFFIX.contains(operationName.substring(suffixIdx))) {
-                        context = new IgnoredTracerContext();
-                    } else {
-                        SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
-                        if (forceSampling || samplingService.trySampling()) {
-                            context = new TracingContext();
-                        } else {
-                            context = new IgnoredTracerContext();
-                        }
-                    }
+                    context = service.createTraceContext(operationName, forceSampling);
                 } else {
                     /**
                      * Can't register to collector, no need to trace anything.
@@ -172,18 +164,18 @@ public class ContextManager implements TracingContextListener, BootService, Igno
     }
 
     @Override
-    public void beforeBoot() throws Throwable {
+    public void prepare() throws Throwable {
 
     }
 
     @Override
     public void boot() {
-        TracingContext.ListenerManager.add(this);
-        IgnoredTracerContext.ListenerManager.add(this);
+        ContextManagerExtendService service = ServiceManager.INSTANCE.findService(ContextManagerExtendService.class);
+        service.registerListeners(this);
     }
 
     @Override
-    public void afterBoot() throws Throwable {
+    public void onComplete() throws Throwable {
 
     }
 
