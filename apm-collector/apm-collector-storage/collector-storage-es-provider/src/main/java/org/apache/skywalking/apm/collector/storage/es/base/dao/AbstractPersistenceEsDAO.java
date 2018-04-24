@@ -21,7 +21,6 @@ package org.apache.skywalking.apm.collector.storage.es.base.dao;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
@@ -75,9 +74,7 @@ public abstract class AbstractPersistenceEsDAO<STREAM_DATA extends StreamData> e
     protected abstract String timeBucketColumnNameForDelete();
 
     @Override
-    public final void deleteHistory(Long startTimestamp, Long endTimestamp) {
-        long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
-        long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
+    public final void deleteHistory(Long startTimeBucket, Long endTimeBucket) {
         BulkByScrollResponse response = getClient().prepareDelete(
             QueryBuilders.rangeQuery(timeBucketColumnNameForDelete()).gte(startTimeBucket).lte(endTimeBucket),
             tableName())
