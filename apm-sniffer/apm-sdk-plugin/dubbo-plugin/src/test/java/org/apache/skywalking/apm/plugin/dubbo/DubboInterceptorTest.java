@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.dubbo;
 
 import com.alibaba.dubbo.common.URL;
@@ -25,7 +24,9 @@ import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.Result;
 import com.alibaba.dubbo.rpc.RpcContext;
 import java.util.List;
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.context.ContextManagerExtendService;
 import org.apache.skywalking.apm.agent.core.context.SW3CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
@@ -52,6 +53,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
+import org.springframework.util.Assert;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
@@ -104,6 +106,20 @@ public class DubboInterceptorTest {
         allArguments = new Object[] {invoker, invocation};
         argumentTypes = new Class[] {invoker.getClass(), invocation.getClass()};
         Config.Agent.APPLICATION_CODE = "DubboTestCases-APP";
+    }
+
+    @Test
+    public void testServiceFromPlugin() {
+        PluginBootService service = ServiceManager.INSTANCE.findService(PluginBootService.class);
+
+        Assert.notNull(service);
+    }
+
+    @Test
+    public void testServiceOverrideFromPlugin() {
+        ContextManagerExtendService service = ServiceManager.INSTANCE.findService(ContextManagerExtendService.class);
+
+        Assert.isInstanceOf(ContextManagerExtendOverrideService.class, service);
     }
 
     @Test
