@@ -19,12 +19,15 @@ package org.apache.skywalking.apm.collector.agent.grpc.provider;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.*;
 
 /**
  * @author lican
  */
+@RunWith(MockitoJUnitRunner.class)
 public class AuthenticationSimpleCheckerTest {
 
     @Before
