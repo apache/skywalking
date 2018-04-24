@@ -63,7 +63,6 @@ public enum ServiceManager {
         Map<Class, BootService> bootedServices = new LinkedHashMap<Class, BootService>();
         List<BootService> allServices = new LinkedList<BootService>();
         load(allServices);
-        loadFromPlugins(allServices);
         Iterator<BootService> serviceIterator = allServices.iterator();
         while (serviceIterator.hasNext()) {
             BootService bootService = serviceIterator.next();
@@ -82,7 +81,7 @@ public enum ServiceManager {
                     if (!bootedServices.containsKey(bootServiceClass)) {
                         bootedServices.put(bootServiceClass, bootService);
                     } else {
-                        throw new ServiceConflictException("Duplicate service define for :" + bootServiceClass.getClass());
+                        throw new ServiceConflictException("Duplicate service define for :" + bootServiceClass);
                     }
                 } else {
                     Class<? extends BootService> targetService = overrideImplementor.value();
@@ -91,8 +90,8 @@ public enum ServiceManager {
                         if (presentDefault) {
                             bootedServices.put(targetService, bootService);
                         } else {
-                            throw new ServiceConflictException("Service " + bootServiceClass.getClass() + " overrides conflict, " +
-                                "exist more than one service want to override :" + targetService.getClass());
+                            throw new ServiceConflictException("Service " + bootServiceClass + " overrides conflict, " +
+                                "exist more than one service want to override :" + targetService);
                         }
                     } else {
                         bootedServices.put(targetService, bootService);
@@ -146,13 +145,6 @@ public enum ServiceManager {
     }
 
     void load(List<BootService> allServices) {
-        Iterator<BootService> iterator = ServiceLoader.load(BootService.class).iterator();
-        while (iterator.hasNext()) {
-            allServices.add(iterator.next());
-        }
-    }
-
-    void loadFromPlugins(List<BootService> allServices) {
         Iterator<BootService> iterator = ServiceLoader.load(BootService.class, AgentClassLoader.getDefault()).iterator();
         while (iterator.hasNext()) {
             allServices.add(iterator.next());
