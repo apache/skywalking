@@ -5,7 +5,12 @@
  5.0.0-beta
  ------------------
  
- #### Agent Changes
+#### UI -> Collector GraphQL query protocol
+  - Replace all tps to throughtput/cpm(calls per min)
+  - Add `getThermodynamic` service
+  - Update version to beta
+ 
+#### Agent Changes
   - Support TLS.
   - Support namespace.
   - Support direct link.
@@ -16,7 +21,7 @@
   - Fix wrong gc count.
   - Remove system env override.
  
- #### Collector Changes
+#### Collector Changes
   - Trace query based on timeline.
   - Delete JVM aggregation in second.
   - Support TLS.
@@ -30,12 +35,13 @@
   - Support system property override settings.
   - Refactor settings initialization.
   - Provide collector instrumentation agent.
+  - Support .NET core component libraries.
   - Fix `divide zero` in query.
   - Fix `Data don't remove as expected` in ES implementor.
   - Add some checks in collector modulization core.
   - Add some test cases.
  
- #### UI Changes
+#### UI Changes
   - New trace query UI.
   - New Application UI, merge server tab(removed) into applciation as sub page.
   - Add Thermodynamic chart in overview page.
