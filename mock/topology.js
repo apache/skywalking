@@ -25,12 +25,12 @@ export default {
         data: {
           getClusterTopology: () => {
             const application = mockjs.mock({
-              'nodes|2': [
+              'nodes|2-3': [
                 {
                   'id|+1': 1,
                   name: '@name',
                   'type|1': ['DUBBO', 'tomcat', 'SPRINGMVC'],
-                  'callsPerSec|1000-2000': 1,
+                  'cpm|10-2000': 1,
                   'sla|1-100.1-2': 1,
                   'apdex|0.2': 1,
                   'avgResponseTime|500-1000': 1,

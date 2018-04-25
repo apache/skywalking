@@ -44,10 +44,12 @@ export default class Topology extends PureComponent {
         <ChartCard
           title="Topology Map"
         >
-          <AppTopology
-            height={this.props.graphHeight}
-            elements={data.getClusterTopology}
-          />
+          {data.getClusterTopology.nodes.length > 0 ? (
+            <AppTopology
+              height={this.props.graphHeight}
+              elements={data.getClusterTopology}
+            />
+          ) : null}
         </ChartCard>
       </Panel>
     );

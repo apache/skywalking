@@ -19,42 +19,54 @@
 import React, { Component } from 'react';
 import cytoscape from 'cytoscape';
 import coseBilkent from 'cytoscape-cose-bilkent';
-import nodeHtmlLabel from 'cytoscape-node-html-label';
-import conf from './conf';
 
 cytoscape.use(coseBilkent);
-cytoscape.use(nodeHtmlLabel);
 
+const config = {
+  layout: {
+    name: 'cose-bilkent',
+    animate: false,
+    idealEdgeLength: 200,
+    edgeElasticity: 0.1,
+  },
+};
 export default class Base extends Component {
-  state= {
+  static defaultProps = {
     height: '600px',
     display: 'block',
   }
   componentDidMount() {
+    const { elements } = this.props;
+    let nextElements = this.transform(elements);
+    if (this.setUp) {
+      nextElements = this.setUp(nextElements);
+    }
     this.cy = cytoscape({
-      ...conf,
-      elements: this.transform(this.props.elements),
+      container: this.container,
+      zoom: 1,
+      maxZoom: 1,
+      boxSelectionEnabled: true,
+      wheelSensitivity: 0.2,
+      layout: config.layout,
+      elements: nextElements,
       style: this.getStyle(),
     });
-    this.cy.nodeHtmlLabel(this.getNodeLabel());
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.elements === this.elements) {
       return;
     }
+    const { elements } = nextProps;
     const nodes = this.cy.nodes();
-    const nextElements = this.transform(nextProps.elements);
+    let nextElements = this.transform(elements);
+    if (this.setUp) {
+      nextElements = this.setUp(nextElements);
+    }
     this.cy.json({ elements: nextElements, style: this.getStyle() });
     if (this.isSame(nodes, this.cy.nodes())) {
       return;
     }
-    const { layout: layoutConfig = {
-      name: 'cose-bilkent',
-      animate: false,
-      idealEdgeLength: 200,
-      edgeElasticity: 0.1,
-    } } = this.props;
-    const layout = this.cy.layout(layoutConfig);
+    const layout = this.cy.layout(config.layout);
     layout.pon('layoutstop').then(() => {
       this.cy.minZoom(this.cy.zoom() - 0.3);
     });
@@ -90,7 +102,6 @@ export default class Base extends Component {
     };
   }
   render() {
-    const { height = this.state.height } = this.props;
-    return (<div style={{ ...this.state, height }} ref={(el) => { conf.container = el; }} />);
+    return (<div style={{ ...this.props }} ref={(el) => { this.container = el; }} />);
   }
 }
