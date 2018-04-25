@@ -6,3 +6,4 @@
 
 **Resolve**：
 - check and upgrade the latest version of the glibc library.The container recommends using the latest glibc version of the alpine system.
+Please refer to http://www.gnu.org/software/libc/documentation.html
