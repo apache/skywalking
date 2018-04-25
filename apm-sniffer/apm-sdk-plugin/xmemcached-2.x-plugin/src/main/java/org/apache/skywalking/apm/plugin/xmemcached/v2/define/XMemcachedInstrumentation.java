@@ -44,11 +44,11 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 public class XMemcachedInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "net.rubyeye.xmemcached.XMemcachedClient";
-    private static final String CONSTRUCTOR_WITH_HOSTPORT_ARG_INTERCEPT_CLASS = "XMemcachedConstructorWithHostPortArgInterceptor";
-    private static final String CONSTRUCTOR_WITH_INETSOCKETADDRESS_ARG_INTERCEPT_CLASS = "XMemcachedConstructorWithInetSocketAddressArgInterceptor";
-    private static final String CONSTRUCTOR_WITH_INETSOCKETADDRESS_LIST_ARG_INTERCEPT_CLASS = "XMemcachedConstructorWithInetSocketAddressListArgInterceptor";
-    private static final String CONSTRUCTOR_WITH_COMPLEX_ARG_INTERCEPT_CLASS = "XMemcachedConstructorWithComplexArgInterceptor";
-    private static final String METHOD_INTERCEPT_CLASS = "XMemcachedMethodInterceptor";
+    private static final String CONSTRUCTOR_WITH_HOSTPORT_ARG_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.xmemcached.v2.XMemcachedConstructorWithHostPortArgInterceptor";
+    private static final String CONSTRUCTOR_WITH_INETSOCKETADDRESS_ARG_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.xmemcached.v2.XMemcachedConstructorWithInetSocketAddressArgInterceptor";
+    private static final String CONSTRUCTOR_WITH_INETSOCKETADDRESS_LIST_ARG_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.xmemcached.v2.XMemcachedConstructorWithInetSocketAddressListArgInterceptor";
+    private static final String CONSTRUCTOR_WITH_COMPLEX_ARG_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.xmemcached.v2.XMemcachedConstructorWithComplexArgInterceptor";
+    private static final String METHOD_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.xmemcached.v2.XMemcachedMethodInterceptor";
 
     @Override
     public ClassMatch enhanceClass() {
