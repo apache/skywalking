@@ -16,15 +16,17 @@ Apache SkyWalking | [English](README.md)
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
 
 
-* Java自动探针，**不需要修改应用程序源代码**
-  * 高性能探针.
-  * [中间件，框架与类库支持列表](docs/Supported-list.md).
-* 手动探针
-  * [使用OpenTracing手动探针API](http://opentracing.io/documentation/pages/supported-tracers)
-  * 使用 [**@Trace**](docs/cn/Application-toolkit-trace-CN.md) 标注追踪业务方法
-  * 将 traceId 集成到 log4j, log4j2 或 logback这些日志组件中
-* 纯Java后端Collector实现，提供RESTful和gRPC接口。兼容接受其他语言探针发送数据 
-  * [如何将探针的Metric和Trace数据上传到Collector？](/docs/cn/How-to-communicate-with-the-collector-CN.md)
+- Java自动探针，**不需要修改应用程序源代码**. 
+  - 高性能探针.
+  - [中间件，框架与类库支持列表](docs/Supported-list.md).
+- 手动探针
+  - [使用OpenTracing手动探针API](http://opentracing.io/documentation/pages/supported-tracers)
+  - 使用 [**@Trace**](docs/cn/Application-toolkit-trace-CN.md) 标注追踪业务方法
+  - 将 traceId 集成到 log4j, log4j2 或 logback这些日志组件中
+- 纯Java后端Collector实现，提供RESTful和gRPC接口。兼容接受其他语言探针发送数据 
+  - [如何将探针的Metric和Trace数据上传到Collector？](/docs/cn/How-to-communicate-with-the-collector-CN.md)
+- 社区探针和SDK
+  - [.NET Core](https://github.com/OpenSkywalking/skywalking-netcore)
 
 # Document
 [![EN doc](https://img.shields.io/badge/document-English-blue.svg)](docs/README.md) [![cn doc](https://img.shields.io/badge/文档-中文版-blue.svg)](docs/README_ZH.md)
@@ -69,6 +71,11 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
   - [Java探针测试报告](https://github.com/SkywalkingTest/agent-integration-test-report)
 - 性能测试报告
   - [Java探针测试报告](https://skywalkingtest.github.io/Agent-Benchmarks/)
+
+# Users
+<img src="https://skywalkingtest.github.io/page-resources/users/users-2018-04-18.png"/>
+
+[报告新的用户案例](https://github.com/apache/incubator-skywalking/issues/443)
 
 # Contact Us
 * 直接提交Issue

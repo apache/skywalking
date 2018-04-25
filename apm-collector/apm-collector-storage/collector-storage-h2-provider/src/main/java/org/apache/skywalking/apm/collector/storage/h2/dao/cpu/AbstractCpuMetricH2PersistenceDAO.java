@@ -32,34 +32,34 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.CpuMetricTable;
  */
 public abstract class AbstractCpuMetricH2PersistenceDAO extends AbstractPersistenceH2DAO<CpuMetric> {
 
-    public AbstractCpuMetricH2PersistenceDAO(H2Client client) {
+    AbstractCpuMetricH2PersistenceDAO(H2Client client) {
         super(client);
     }
 
     @Override protected final CpuMetric h2DataToStreamData(ResultSet resultSet) throws SQLException {
         CpuMetric cpuMetric = new CpuMetric();
-        cpuMetric.setId(resultSet.getString(CpuMetricTable.COLUMN_ID));
-        cpuMetric.setMetricId(resultSet.getString(CpuMetricTable.COLUMN_METRIC_ID));
+        cpuMetric.setId(resultSet.getString(CpuMetricTable.ID.getName()));
+        cpuMetric.setMetricId(resultSet.getString(CpuMetricTable.METRIC_ID.getName()));
 
-        cpuMetric.setInstanceId(resultSet.getInt(CpuMetricTable.COLUMN_INSTANCE_ID));
+        cpuMetric.setInstanceId(resultSet.getInt(CpuMetricTable.INSTANCE_ID.getName()));
 
-        cpuMetric.setUsagePercent(resultSet.getDouble(CpuMetricTable.COLUMN_USAGE_PERCENT));
-        cpuMetric.setTimes(resultSet.getLong(CpuMetricTable.COLUMN_TIMES));
-        cpuMetric.setTimeBucket(resultSet.getLong(CpuMetricTable.COLUMN_TIME_BUCKET));
+        cpuMetric.setUsagePercent(resultSet.getDouble(CpuMetricTable.USAGE_PERCENT.getName()));
+        cpuMetric.setTimes(resultSet.getLong(CpuMetricTable.TIMES.getName()));
+        cpuMetric.setTimeBucket(resultSet.getLong(CpuMetricTable.TIME_BUCKET.getName()));
 
         return cpuMetric;
     }
 
     @Override protected final Map<String, Object> streamDataToH2Data(CpuMetric streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(CpuMetricTable.COLUMN_ID, streamData.getId());
-        source.put(CpuMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(CpuMetricTable.ID.getName(), streamData.getId());
+        target.put(CpuMetricTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(CpuMetricTable.COLUMN_INSTANCE_ID, streamData.getInstanceId());
-        source.put(CpuMetricTable.COLUMN_USAGE_PERCENT, streamData.getUsagePercent());
-        source.put(CpuMetricTable.COLUMN_TIMES, streamData.getTimes());
-        source.put(CpuMetricTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
+        target.put(CpuMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId());
+        target.put(CpuMetricTable.USAGE_PERCENT.getName(), streamData.getUsagePercent());
+        target.put(CpuMetricTable.TIMES.getName(), streamData.getTimes());
+        target.put(CpuMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
 
-        return source;
+        return target;
     }
 }

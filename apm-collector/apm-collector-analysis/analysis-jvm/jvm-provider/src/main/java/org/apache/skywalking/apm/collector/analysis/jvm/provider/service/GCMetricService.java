@@ -23,10 +23,11 @@ import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IGCMetric
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.Objects.isNull;
 
 /**
  * @author peng-yongsheng
@@ -38,13 +39,13 @@ public class GCMetricService implements IGCMetricService {
     private Graph<GCMetric> gcMetricGraph;
 
     private Graph<GCMetric> getGcMetricGraph() {
-        if (ObjectUtils.isEmpty(gcMetricGraph)) {
+        if (isNull(gcMetricGraph)) {
             gcMetricGraph = GraphManager.INSTANCE.findGraph(GraphIdDefine.GC_METRIC_PERSISTENCE_GRAPH_ID, GCMetric.class);
         }
         return gcMetricGraph;
     }
 
-    @Override public void send(int instanceId, long timeBucket, int phraseValue, long count, long time) {
+    @Override public void send(int instanceId, long timeBucket, int phraseValue, long count, long duration) {
         String metricId = instanceId + Const.ID_SPLIT + String.valueOf(phraseValue);
         String id = timeBucket + Const.ID_SPLIT + metricId;
 
@@ -54,6 +55,7 @@ public class GCMetricService implements IGCMetricService {
         gcMetric.setInstanceId(instanceId);
         gcMetric.setPhrase(phraseValue);
         gcMetric.setCount(count);
+        gcMetric.setDuration(duration);
         gcMetric.setTimes(1L);
         gcMetric.setTimeBucket(timeBucket);
 

@@ -128,12 +128,4 @@ public class ComponentsDefine {
     private void addComponent(OfficialComponent component) {
         components[component.getId()] = component.getName();
     }
-
-    public String getComponentName(int componentId) {
-        if (componentId > components.length - 1 || componentId == 0) {
-            return null;
-        } else {
-            return components[componentId];
-        }
-    }
 }

@@ -18,23 +18,18 @@
 
 package org.apache.skywalking.apm.collector.storage.h2.dao.ui;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.LinkedList;
-import java.util.List;
-import org.apache.skywalking.apm.collector.client.h2.H2Client;
-import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
+import java.sql.*;
+import java.util.*;
+import org.apache.skywalking.apm.collector.client.h2.*;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IGCMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetricTable;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
-import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
-import org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder;
+import org.apache.skywalking.apm.collector.storage.utils.*;
 import org.apache.skywalking.apm.network.proto.GCPhrase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng, clevertension
@@ -48,33 +43,35 @@ public class GCMetricH2UIDAO extends H2DAO implements IGCMetricUIDAO {
         super(client);
     }
 
-    @Override public List<Integer> getYoungGCTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
+    @Override public List<Trend> getYoungGCTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
         return getGCTrend(instanceId, step, durationPoints, GCPhrase.NEW_VALUE);
     }
 
-    @Override public List<Integer> getOldGCTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
+    @Override public List<Trend> getOldGCTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
         return getGCTrend(instanceId, step, durationPoints, GCPhrase.OLD_VALUE);
     }
 
-    private List<Integer> getGCTrend(int instanceId, Step step, List<DurationPoint> durationPoints, int gcPhrase) {
+    private List<Trend> getGCTrend(int instanceId, Step step, List<DurationPoint> durationPoints, int gcPhrase) {
         String tableName = TimePyramidTableNameBuilder.build(step, GCMetricTable.TABLE);
 
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_GC_METRIC_SQL, tableName, GCMetricTable.COLUMN_ID);
+        String sql = SqlBuilder.buildSql(GET_GC_METRIC_SQL, tableName, GCMetricTable.ID.getName());
 
-        List<Integer> gcTrends = new LinkedList<>();
+        List<Trend> gcTrends = new LinkedList<>();
         durationPoints.forEach(durationPoint -> {
             String id = durationPoint.getPoint() + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + gcPhrase;
             try (ResultSet rs = client.executeQuery(sql, new String[] {id})) {
                 if (rs.next()) {
-                    long count = rs.getLong(GCMetricTable.COLUMN_COUNT);
-                    long times = rs.getLong(GCMetricTable.COLUMN_TIMES);
-                    gcTrends.add((int)(count / times));
+                    long count = rs.getLong(GCMetricTable.COUNT.getName());
+                    long duration = rs.getLong(GCMetricTable.DURATION.getName());
+                    long times = rs.getLong(GCMetricTable.TIMES.getName());
+                    gcTrends.add(new Trend((int)(count / times), (int)(duration / times)));
                 } else {
-                    gcTrends.add(0);
+                    gcTrends.add(new Trend(0, 0));
                 }
             } catch (SQLException | H2ClientException e) {
                 logger.error(e.getMessage(), e);
+                gcTrends.add(new Trend(0, 0));
             }
         });
 

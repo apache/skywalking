@@ -32,13 +32,6 @@
     </dependencySets>
     <fileSets>
         <fileSet>
-            <directory>src/main/resources</directory>
-            <outputDirectory>/config</outputDirectory>
-            <includes>
-                <include>application.yml</include>
-            </includes>
-        </fileSet>
-        <fileSet>
             <directory>src/main/assembly</directory>
             <outputDirectory>/config</outputDirectory>
             <includes>
@@ -50,6 +43,7 @@
             <includes>
                 <include>application.yml</include>
                 <include>log4j2.xml</include>
+                <include>component-libraries.yml</include>
             </includes>
             <outputDirectory>/config</outputDirectory>
         </fileSet>

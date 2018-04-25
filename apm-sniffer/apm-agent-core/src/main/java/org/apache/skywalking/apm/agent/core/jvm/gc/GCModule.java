@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.jvm.gc;
 
 import java.lang.management.GarbageCollectorMXBean;
@@ -30,6 +29,9 @@ import org.apache.skywalking.apm.network.proto.GCPhrase;
  */
 public abstract class GCModule implements GCMetricAccessor {
     private List<GarbageCollectorMXBean> beans;
+
+    private long lastGCCount = 0;
+    private long lastCollectionTime = 0;
 
     public GCModule(List<GarbageCollectorMXBean> beans) {
         this.beans = beans;
@@ -49,10 +51,18 @@ public abstract class GCModule implements GCMetricAccessor {
                 continue;
             }
 
+            long collectionCount = bean.getCollectionCount();
+            long gcCount = collectionCount - lastGCCount;
+            lastGCCount = collectionCount;
+
+            long time = bean.getCollectionTime();
+            long gcTime = time - lastCollectionTime;
+            lastCollectionTime = time;
+
             gcList.add(
                 GC.newBuilder().setPhrase(phrase)
-                    .setCount(bean.getCollectionCount())
-                    .setTime(bean.getCollectionTime())
+                    .setCount(gcCount)
+                    .setTime(gcTime)
                     .build()
             );
         }

@@ -18,20 +18,22 @@
 
 package org.apache.skywalking.apm.collector.analysis.worker.model.impl;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorker;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.data.DataCache;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IBatchDAO;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import static java.util.Objects.nonNull;
 
 /**
  * @author peng-yongsheng
@@ -49,18 +51,20 @@ public abstract class PersistenceWorker<INPUT_AND_OUTPUT extends StreamData> ext
         this.batchDAO = moduleManager.find(StorageModule.NAME).getService(IBatchDAO.class);
     }
 
-    public void flushAndSwitch() {
+    public boolean flushAndSwitch() {
+        boolean isSwitch;
         try {
-            if (dataCache.trySwitchPointer()) {
+            if (isSwitch = dataCache.trySwitchPointer()) {
                 dataCache.switchPointer();
             }
         } finally {
             dataCache.trySwitchPointerFinally();
         }
+        return isSwitch;
     }
 
     @Override protected void onWork(INPUT_AND_OUTPUT input) {
-        if (dataCache.currentCollectionSize() >= 5000) {
+        if (dataCache.currentCollectionSize() >= 520000) {
             try {
                 if (dataCache.trySwitchPointer()) {
                     dataCache.switchPointer();
@@ -102,7 +106,7 @@ public abstract class PersistenceWorker<INPUT_AND_OUTPUT extends StreamData> ext
         dataMap.forEach((id, data) -> {
             if (needMergeDBData()) {
                 INPUT_AND_OUTPUT dbData = persistenceDAO().get(id);
-                if (ObjectUtils.isNotEmpty(dbData)) {
+                if (nonNull(dbData)) {
                     dbData.mergeAndFormulaCalculateData(data);
                     try {
                         updateBatchCollection.add(persistenceDAO().prepareBatchUpdate(dbData));

@@ -18,17 +18,12 @@
 
 package org.apache.skywalking.apm.collector.storage.table.service;
 
-import org.apache.skywalking.apm.collector.storage.table.CommonMetricTable;
+import org.apache.skywalking.apm.collector.storage.table.MetricColumns;
+import org.apache.skywalking.apm.collector.storage.table.ReferenceColumns;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceReferenceMetricTable extends CommonMetricTable {
-    public static final String TABLE = "service_reference_metric";
-    public static final String COLUMN_FRONT_SERVICE_ID = "front_service_id";
-    public static final String COLUMN_FRONT_INSTANCE_ID = "front_instance_id";
-    public static final String COLUMN_FRONT_APPLICATION_ID = "front_application_id";
-    public static final String COLUMN_BEHIND_SERVICE_ID = "behind_service_id";
-    public static final String COLUMN_BEHIND_INSTANCE_ID = "behind_instance_id";
-    public static final String COLUMN_BEHIND_APPLICATION_ID = "behind_application_id";
+public interface ServiceReferenceMetricTable extends MetricColumns, ReferenceColumns {
+    String TABLE = "service_reference_metric";
 }

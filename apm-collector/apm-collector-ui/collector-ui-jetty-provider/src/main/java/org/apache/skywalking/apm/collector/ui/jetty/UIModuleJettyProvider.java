@@ -22,9 +22,10 @@ import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cluster.ClusterModule;
 import org.apache.skywalking.apm.collector.cluster.service.ModuleListenerService;
 import org.apache.skywalking.apm.collector.cluster.service.ModuleRegisterService;
+import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
 import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
-import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.apache.skywalking.apm.collector.jetty.manager.JettyManagerModule;
 import org.apache.skywalking.apm.collector.jetty.manager.service.JettyManagerService;
 import org.apache.skywalking.apm.collector.naming.NamingModule;
@@ -36,17 +37,18 @@ import org.apache.skywalking.apm.collector.ui.jetty.handler.GraphQLHandler;
 import org.apache.skywalking.apm.collector.ui.jetty.handler.naming.UIJettyNamingHandler;
 import org.apache.skywalking.apm.collector.ui.jetty.handler.naming.UIJettyNamingListener;
 
-import java.util.Properties;
-
 /**
  * @author peng-yongsheng
  */
 public class UIModuleJettyProvider extends ModuleProvider {
 
     public static final String NAME = "jetty";
-    private static final String HOST = "host";
-    private static final String PORT = "port";
-    private static final String CONTEXT_PATH = "context_path";
+    private final UIModuleJettyConfig config;
+
+    public UIModuleJettyProvider() {
+        super();
+        this.config = new UIModuleJettyConfig();
+    }
 
     @Override public String name() {
         return NAME;
@@ -56,16 +58,16 @@ public class UIModuleJettyProvider extends ModuleProvider {
         return UIModule.class;
     }
 
-    @Override public void prepare(Properties config) throws ServiceNotProvidedException {
+    @Override public ModuleConfig createConfigBeanIfAbsent() {
+        return config;
     }
 
-    @Override public void start(Properties config) throws ServiceNotProvidedException {
-        String host = config.getProperty(HOST);
-        Integer port = (Integer)config.get(PORT);
-        String contextPath = config.getProperty(CONTEXT_PATH);
+    @Override public void prepare() {
+    }
 
+    @Override public void start() {
         ModuleRegisterService moduleRegisterService = getManager().find(ClusterModule.NAME).getService(ModuleRegisterService.class);
-        moduleRegisterService.register(UIModule.NAME, this.name(), new UIModuleJettyRegistration(host, port, contextPath));
+        moduleRegisterService.register(UIModule.NAME, this.name(), new UIModuleJettyRegistration(config.getHost(), config.getPort(), config.getContextPath()));
 
         UIJettyNamingListener namingListener = new UIJettyNamingListener();
         ModuleListenerService moduleListenerService = getManager().find(ClusterModule.NAME).getService(ModuleListenerService.class);
@@ -75,16 +77,15 @@ public class UIModuleJettyProvider extends ModuleProvider {
         namingHandlerRegisterService.register(new UIJettyNamingHandler(namingListener));
 
         JettyManagerService managerService = getManager().find(JettyManagerModule.NAME).getService(JettyManagerService.class);
-        JettyServer jettyServer = managerService.createIfAbsent(host, port, contextPath);
+        JettyServer jettyServer = managerService.createIfAbsent(config.getHost(), config.getPort(), config.getContextPath());
         addHandlers(jettyServer);
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
-
+    @Override public void notifyAfterCompleted() {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {ClusterModule.NAME, JettyManagerModule.NAME, NamingModule.NAME, CacheModule.NAME, StorageModule.NAME};
+        return new String[] {ConfigurationModule.NAME, ClusterModule.NAME, JettyManagerModule.NAME, NamingModule.NAME, CacheModule.NAME, StorageModule.NAME};
     }
 
     private void addHandlers(JettyServer jettyServer) {

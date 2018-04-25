@@ -8,7 +8,7 @@ As you known, skywalking agent run by -javeagent VM parameter. So you definitely
 e.g.
 1. Integrate trace context(traceId) into your log component, e.g. log4j, log4j2 and logback. 
 1. Use CNCF OpenTracing for manually instrumentation. 
-1. Use Skywalking annotation and interop APIs. 
+1. Use Skywalking annotation and interactive APIs. 
 
 
-_**Notice**: all toolkits librarries are on bitray.com/jcenter. And make sure their version should be as same as the tracer's version._
+_**Notice**: all toolkits libraries are on bitray.com/jcenter. And make sure their version should be as same as the tracer's version._

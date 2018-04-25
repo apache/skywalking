@@ -32,15 +32,15 @@ public class InstanceH2TableDefine extends H2TableDefine {
     }
 
     @Override public void initialize() {
-        addColumn(new H2ColumnDefine(InstanceTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(InstanceTable.COLUMN_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(InstanceTable.COLUMN_APPLICATION_CODE, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(InstanceTable.COLUMN_AGENT_UUID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(InstanceTable.COLUMN_REGISTER_TIME, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(InstanceTable.COLUMN_INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(InstanceTable.COLUMN_HEARTBEAT_TIME, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(InstanceTable.COLUMN_OS_INFO, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(InstanceTable.COLUMN_ADDRESS_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(InstanceTable.COLUMN_IS_ADDRESS, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(InstanceTable.ID, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(InstanceTable.APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(InstanceTable.APPLICATION_CODE, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(InstanceTable.AGENT_UUID, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(InstanceTable.REGISTER_TIME, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(InstanceTable.INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(InstanceTable.HEARTBEAT_TIME, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(InstanceTable.OS_INFO, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(InstanceTable.ADDRESS_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(InstanceTable.IS_ADDRESS, H2ColumnDefine.Type.Int.name()));
     }
 }

@@ -28,10 +28,11 @@ import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.Objects.isNull;
 
 /**
  * @author peng-yongsheng
@@ -50,21 +51,21 @@ public class InstanceIDService implements IInstanceIDService {
     }
 
     private InstanceCacheService getInstanceCacheService() {
-        if (ObjectUtils.isEmpty(instanceCacheService)) {
+        if (isNull(instanceCacheService)) {
             instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
         }
         return instanceCacheService;
     }
 
     private Graph<Instance> getInstanceRegisterGraph() {
-        if (ObjectUtils.isEmpty(instanceRegisterGraph)) {
+        if (isNull(instanceRegisterGraph)) {
             this.instanceRegisterGraph = GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.INSTANCE_REGISTER_GRAPH_ID, Instance.class);
         }
         return instanceRegisterGraph;
     }
 
     private ApplicationCacheService getApplicationCacheService() {
-        if (ObjectUtils.isEmpty(applicationCacheService)) {
+        if (isNull(applicationCacheService)) {
             this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
         }
         return applicationCacheService;

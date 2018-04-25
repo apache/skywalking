@@ -31,15 +31,11 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class NetworkAddressEsCacheDAO extends EsDAO implements INetworkAddressCacheDAO {
-
-    private final Logger logger = LoggerFactory.getLogger(NetworkAddressEsCacheDAO.class);
 
     public NetworkAddressEsCacheDAO(ElasticSearchClient client) {
         super(client);
@@ -51,13 +47,13 @@ public class NetworkAddressEsCacheDAO extends EsDAO implements INetworkAddressCa
         SearchRequestBuilder searchRequestBuilder = client.prepareSearch(NetworkAddressTable.TABLE);
         searchRequestBuilder.setTypes(NetworkAddressTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH);
-        searchRequestBuilder.setQuery(QueryBuilders.termQuery(NetworkAddressTable.COLUMN_NETWORK_ADDRESS, networkAddress));
+        searchRequestBuilder.setQuery(QueryBuilders.termQuery(NetworkAddressTable.NETWORK_ADDRESS.getName(), networkAddress));
         searchRequestBuilder.setSize(1);
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
         if (searchResponse.getHits().totalHits > 0) {
             SearchHit searchHit = searchResponse.getHits().iterator().next();
-            return ((Number)searchHit.getSource().get(NetworkAddressTable.COLUMN_ADDRESS_ID)).intValue();
+            return ((Number)searchHit.getSource().get(NetworkAddressTable.ADDRESS_ID.getName())).intValue();
         }
         return Const.NONE;
     }
@@ -69,11 +65,11 @@ public class NetworkAddressEsCacheDAO extends EsDAO implements INetworkAddressCa
         GetResponse getResponse = getRequestBuilder.get();
         if (getResponse.isExists()) {
             NetworkAddress address = new NetworkAddress();
-            address.setId((String)getResponse.getSource().get(NetworkAddressTable.COLUMN_ID));
-            address.setAddressId(((Number)getResponse.getSource().get(NetworkAddressTable.COLUMN_ADDRESS_ID)).intValue());
-            address.setSpanLayer(((Number)getResponse.getSource().get(NetworkAddressTable.COLUMN_SPAN_LAYER)).intValue());
-            address.setServerType(((Number)getResponse.getSource().get(NetworkAddressTable.COLUMN_SERVER_TYPE)).intValue());
-            address.setNetworkAddress((String)getResponse.getSource().get(NetworkAddressTable.COLUMN_NETWORK_ADDRESS));
+            address.setId((String)getResponse.getSource().get(NetworkAddressTable.ID.getName()));
+            address.setAddressId(((Number)getResponse.getSource().get(NetworkAddressTable.ADDRESS_ID.getName())).intValue());
+            address.setSrcSpanLayer(((Number)getResponse.getSource().get(NetworkAddressTable.SRC_SPAN_LAYER.getName())).intValue());
+            address.setServerType(((Number)getResponse.getSource().get(NetworkAddressTable.SERVER_TYPE.getName())).intValue());
+            address.setNetworkAddress((String)getResponse.getSource().get(NetworkAddressTable.NETWORK_ADDRESS.getName()));
             return address;
         }
         return null;

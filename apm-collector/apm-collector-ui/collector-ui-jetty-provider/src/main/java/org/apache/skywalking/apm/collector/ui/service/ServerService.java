@@ -18,33 +18,19 @@
 
 package org.apache.skywalking.apm.collector.ui.service;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import java.text.ParseException;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
-import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
-import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
+import org.apache.skywalking.apm.collector.cache.service.*;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.StringUtils;
+import org.apache.skywalking.apm.collector.core.util.*;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.dao.ui.ICpuMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IGCMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IMemoryMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.*;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
-import org.apache.skywalking.apm.collector.storage.ui.common.ResponseTimeTrend;
-import org.apache.skywalking.apm.collector.storage.ui.common.Step;
-import org.apache.skywalking.apm.collector.storage.ui.common.ThroughputTrend;
-import org.apache.skywalking.apm.collector.storage.ui.server.AppServerInfo;
-import org.apache.skywalking.apm.collector.storage.ui.server.CPUTrend;
-import org.apache.skywalking.apm.collector.storage.ui.server.GCTrend;
-import org.apache.skywalking.apm.collector.storage.ui.server.MemoryTrend;
+import org.apache.skywalking.apm.collector.storage.ui.common.*;
+import org.apache.skywalking.apm.collector.storage.ui.server.*;
 import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 
@@ -61,7 +47,7 @@ public class ServerService {
     private final IMemoryMetricUIDAO memoryMetricUIDAO;
     private final ApplicationCacheService applicationCacheService;
     private final InstanceCacheService instanceCacheService;
-    private final SecondBetweenService secondBetweenService;
+    private final DateBetweenService dateBetweenService;
 
     public ServerService(ModuleManager moduleManager) {
         this.instanceUIDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceUIDAO.class);
@@ -71,7 +57,7 @@ public class ServerService {
         this.memoryMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IMemoryMetricUIDAO.class);
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
         this.instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
-        this.secondBetweenService = new SecondBetweenService(moduleManager);
+        this.dateBetweenService = new DateBetweenService(moduleManager);
     }
 
     public List<AppServerInfo> searchServer(String keyword, long startSecondTimeBucket, long endSecondTimeBucket) {
@@ -104,9 +90,9 @@ public class ServerService {
 
     public List<AppServerInfo> getServerThroughput(int applicationId, Step step, long startTimeBucket,
         long endTimeBucket, long startSecondTimeBucket, long endSecondTimeBucket, Integer topN) throws ParseException {
-        int secondBetween = secondBetweenService.calculate(applicationId, startSecondTimeBucket, endSecondTimeBucket);
+        int minutesBetween = dateBetweenService.minutesBetween(applicationId, startSecondTimeBucket, endSecondTimeBucket);
 
-        List<AppServerInfo> serverThroughput = instanceMetricUIDAO.getServerThroughput(applicationId, step, startTimeBucket, endTimeBucket, secondBetween, topN, MetricSource.Callee);
+        List<AppServerInfo> serverThroughput = instanceMetricUIDAO.getServerThroughput(applicationId, step, startTimeBucket, endTimeBucket, minutesBetween, topN, MetricSource.Callee);
         serverThroughput.forEach(appServerInfo -> {
             appServerInfo.setApplicationId(instanceCacheService.getApplicationId(appServerInfo.getId()));
             String applicationCode = applicationCacheService.getApplicationById(appServerInfo.getApplicationId()).getApplicationCode();
@@ -119,11 +105,11 @@ public class ServerService {
         return serverThroughput;
     }
 
-    public ThroughputTrend getServerTPSTrend(int instanceId, Step step, long startTimeBucket,
+    public ThroughputTrend getServerThroughputTrend(int instanceId, Step step, long startTimeBucket,
         long endTimeBucket) throws ParseException {
         ThroughputTrend throughputTrend = new ThroughputTrend();
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTimeBucket, endTimeBucket);
-        List<Integer> trends = instanceMetricUIDAO.getServerTPSTrend(instanceId, step, durationPoints);
+        List<Integer> trends = instanceMetricUIDAO.getServerThroughputTrend(instanceId, step, durationPoints);
         throughputTrend.setTrendList(trends);
         return throughputTrend;
     }
@@ -141,10 +127,18 @@ public class ServerService {
         long endTimeBucket) throws ParseException {
         GCTrend gcTrend = new GCTrend();
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTimeBucket, endTimeBucket);
-        List<Integer> youngGCTrend = gcMetricUIDAO.getYoungGCTrend(instanceId, step, durationPoints);
-        gcTrend.setYoungGC(youngGCTrend);
-        List<Integer> oldGCTrend = gcMetricUIDAO.getOldGCTrend(instanceId, step, durationPoints);
-        gcTrend.setOldGC(oldGCTrend);
+        List<IGCMetricUIDAO.Trend> youngGCTrend = gcMetricUIDAO.getYoungGCTrend(instanceId, step, durationPoints);
+        youngGCTrend.forEach(young -> {
+            gcTrend.getYoungGCCount().add(young.getAverageCount());
+            gcTrend.getYoungGCTime().add(young.getAverageDuration());
+        });
+
+        List<IGCMetricUIDAO.Trend> oldGCTrend = gcMetricUIDAO.getOldGCTrend(instanceId, step, durationPoints);
+        oldGCTrend.forEach(old -> {
+            gcTrend.getOldGCount().add(old.getAverageCount());
+            gcTrend.getOldGCTime().add(old.getAverageDuration());
+        });
+
         return gcTrend;
     }
 

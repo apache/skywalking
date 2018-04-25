@@ -16,11 +16,13 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.core.module;
 
+import java.lang.reflect.Field;
+import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import java.util.ServiceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +56,7 @@ public abstract class Module {
      * @throws ProviderNotFoundException when even don't find a single one providers.
      */
     void prepare(ModuleManager moduleManager,
-        ApplicationConfiguration.ModuleConfiguration configuration) throws ProviderNotFoundException, ServiceNotProvidedException {
+        ApplicationConfiguration.ModuleConfiguration configuration) throws ProviderNotFoundException, ServiceNotProvidedException, ModuleConfigException {
         ServiceLoader<ModuleProvider> moduleProviderLoader = ServiceLoader.load(ModuleProvider.class);
         boolean providerExist = false;
         for (ModuleProvider provider : moduleProviderLoader) {
@@ -67,9 +69,7 @@ public abstract class Module {
                 ModuleProvider newProvider;
                 try {
                     newProvider = provider.getClass().newInstance();
-                } catch (InstantiationException e) {
-                    throw new ProviderNotFoundException(e);
-                } catch (IllegalAccessException e) {
+                } catch (InstantiationException | IllegalAccessException e) {
                     throw new ProviderNotFoundException(e);
                 }
                 newProvider.setManager(moduleManager);
@@ -84,8 +84,44 @@ public abstract class Module {
 
         for (ModuleProvider moduleProvider : loadedProviders) {
             logger.info("Prepare the {} provider in {} module.", moduleProvider.name(), this.name());
-            moduleProvider.prepare(configuration.getProviderConfiguration(moduleProvider.name()));
+            try {
+                copyProperties(moduleProvider.createConfigBeanIfAbsent(), configuration.getProviderConfiguration(moduleProvider.name()), this.name(), moduleProvider.name());
+            } catch (IllegalAccessException e) {
+                throw new ModuleConfigException(this.name() + " module config transport to config bean failure.", e);
+            }
+            moduleProvider.prepare();
         }
+    }
+
+    private void copyProperties(ModuleConfig dest, Properties src, String moduleName,
+        String providerName) throws IllegalAccessException {
+        Enumeration<?> propertyNames = src.propertyNames();
+        while (propertyNames.hasMoreElements()) {
+            String propertyName = (String)propertyNames.nextElement();
+            Class<? extends ModuleConfig> destClass = dest.getClass();
+
+            try {
+                Field field = getDeclaredField(destClass, propertyName);
+                field.setAccessible(true);
+                field.set(dest, src.get(propertyName));
+            } catch (NoSuchFieldException e) {
+                logger.warn(propertyName + " setting is not supported in " + providerName + " provider of " + moduleName + " module");
+            }
+        }
+    }
+
+    private Field getDeclaredField(Class<?> destClass, String fieldName) throws NoSuchFieldException {
+        if (destClass != null) {
+            Field[] fields = destClass.getDeclaredFields();
+            for (Field field : fields) {
+                if (field.getName().equals(fieldName)) {
+                    return field;
+                }
+            }
+            return getDeclaredField(destClass.getSuperclass(), fieldName);
+        }
+
+        throw new NoSuchFieldException();
     }
 
     /**
@@ -95,7 +131,7 @@ public abstract class Module {
         return loadedProviders;
     }
 
-    final ModuleProvider provider() throws ProviderNotFoundException, DuplicateProviderException {
+    final ModuleProvider provider() throws DuplicateProviderException {
         if (loadedProviders.size() > 1) {
             throw new DuplicateProviderException(this.name() + " module exist " + loadedProviders.size() + " providers");
         }
@@ -106,7 +142,7 @@ public abstract class Module {
     public final <T extends Service> T getService(Class<T> serviceType) throws ServiceNotProvidedRuntimeException {
         try {
             return provider().getService(serviceType);
-        } catch (ProviderNotFoundException | DuplicateProviderException | ServiceNotProvidedException e) {
+        } catch (DuplicateProviderException | ServiceNotProvidedException e) {
             throw new ServiceNotProvidedRuntimeException(e.getMessage());
         }
     }

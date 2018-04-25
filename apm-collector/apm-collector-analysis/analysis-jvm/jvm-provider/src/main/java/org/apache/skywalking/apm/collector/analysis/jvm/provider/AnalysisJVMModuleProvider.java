@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.collector.analysis.jvm.provider;
 
-import java.util.Properties;
 import org.apache.skywalking.apm.collector.analysis.jvm.define.AnalysisJVMModule;
 import org.apache.skywalking.apm.collector.analysis.jvm.define.service.ICpuMetricService;
 import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IGCMetricService;
@@ -35,6 +34,7 @@ import org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.memorypo
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.analysis.worker.timer.PersistenceTimer;
 import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.apache.skywalking.apm.collector.remote.RemoteModule;
@@ -46,6 +46,12 @@ import org.apache.skywalking.apm.collector.storage.StorageModule;
 public class AnalysisJVMModuleProvider extends ModuleProvider {
 
     public static final String NAME = "default";
+    private final AnalysisJVMModuleConfig config;
+
+    public AnalysisJVMModuleProvider() {
+        super();
+        this.config = new AnalysisJVMModuleConfig();
+    }
 
     @Override public String name() {
         return NAME;
@@ -55,24 +61,26 @@ public class AnalysisJVMModuleProvider extends ModuleProvider {
         return AnalysisJVMModule.class;
     }
 
-    @Override public void prepare(Properties config) throws ServiceNotProvidedException {
+    @Override public ModuleConfig createConfigBeanIfAbsent() {
+        return config;
+    }
+
+    @Override public void prepare() throws ServiceNotProvidedException {
         this.registerServiceImplementation(ICpuMetricService.class, new CpuMetricService());
         this.registerServiceImplementation(IGCMetricService.class, new GCMetricService());
         this.registerServiceImplementation(IMemoryMetricService.class, new MemoryMetricService());
         this.registerServiceImplementation(IMemoryPoolMetricService.class, new MemoryPoolMetricService());
     }
 
-    @Override public void start(Properties config) throws ServiceNotProvidedException {
+    @Override public void start() {
         WorkerCreateListener workerCreateListener = new WorkerCreateListener();
 
         graphCreate(workerCreateListener);
 
-        PersistenceTimer persistenceTimer = new PersistenceTimer(AnalysisJVMModule.NAME);
-        persistenceTimer.start(getManager(), workerCreateListener.getPersistenceWorkers());
+        PersistenceTimer.INSTANCE.start(getManager(), workerCreateListener.getPersistenceWorkers());
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
-
+    @Override public void notifyAfterCompleted() {
     }
 
     @Override public String[] requiredModules() {

@@ -19,10 +19,10 @@
 
 package org.apache.skywalking.apm.agent.core.conf;
 
-import org.junit.AfterClass;
-import org.junit.Test;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
+import org.junit.AfterClass;
+import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;

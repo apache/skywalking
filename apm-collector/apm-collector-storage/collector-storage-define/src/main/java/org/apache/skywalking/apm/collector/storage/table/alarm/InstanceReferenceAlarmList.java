@@ -29,23 +29,23 @@ import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
 public class InstanceReferenceAlarmList extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(InstanceReferenceAlarmListTable.COLUMN_ID, new NonMergeOperation()),
-        new Column(InstanceReferenceAlarmListTable.COLUMN_ALARM_CONTENT, new CoverMergeOperation()),
+        new Column(InstanceReferenceAlarmListTable.ID, new NonMergeOperation()),
+        new Column(InstanceReferenceAlarmListTable.ALARM_CONTENT, new CoverMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(InstanceReferenceAlarmListTable.COLUMN_TIME_BUCKET, new NonMergeOperation()),
+        new Column(InstanceReferenceAlarmListTable.TIME_BUCKET, new NonMergeOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {};
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(InstanceReferenceAlarmListTable.COLUMN_ALARM_TYPE, new NonMergeOperation()),
-        new Column(InstanceReferenceAlarmListTable.COLUMN_SOURCE_VALUE, new NonMergeOperation()),
-        new Column(InstanceReferenceAlarmListTable.COLUMN_FRONT_APPLICATION_ID, new NonMergeOperation()),
-        new Column(InstanceReferenceAlarmListTable.COLUMN_BEHIND_APPLICATION_ID, new NonMergeOperation()),
-        new Column(InstanceReferenceAlarmListTable.COLUMN_FRONT_INSTANCE_ID, new NonMergeOperation()),
-        new Column(InstanceReferenceAlarmListTable.COLUMN_BEHIND_INSTANCE_ID, new NonMergeOperation()),
+        new Column(InstanceReferenceAlarmListTable.ALARM_TYPE, new NonMergeOperation()),
+        new Column(InstanceReferenceAlarmListTable.SOURCE_VALUE, new NonMergeOperation()),
+        new Column(InstanceReferenceAlarmListTable.FRONT_APPLICATION_ID, new NonMergeOperation()),
+        new Column(InstanceReferenceAlarmListTable.BEHIND_APPLICATION_ID, new NonMergeOperation()),
+        new Column(InstanceReferenceAlarmListTable.FRONT_INSTANCE_ID, new NonMergeOperation()),
+        new Column(InstanceReferenceAlarmListTable.BEHIND_INSTANCE_ID, new NonMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};

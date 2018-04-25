@@ -19,8 +19,7 @@
 package org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.gc;
 
 import org.apache.skywalking.apm.collector.analysis.jvm.define.graph.WorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.*;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
@@ -32,7 +31,7 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetric;
  */
 public class GCDayMetricPersistenceWorker extends PersistenceWorker<GCMetric> {
 
-    public GCDayMetricPersistenceWorker(ModuleManager moduleManager) {
+    private GCDayMetricPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 

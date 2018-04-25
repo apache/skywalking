@@ -45,10 +45,12 @@ public class BatchEsDAO extends EsDAO implements IBatchDAO {
 
     @GraphComputingMetric(name = "/persistence/batchPersistence/")
     @Override public void batchPersistence(@BatchParameter List<?> batchCollection) {
-        BulkRequestBuilder bulkRequest = getClient().prepareBulk();
-
-        logger.debug("bulk data size: {}", batchCollection.size());
+        if (logger.isDebugEnabled()) {
+            logger.debug("bulk data size: {}", batchCollection.size());
+        }
         if (CollectionUtils.isNotEmpty(batchCollection)) {
+            BulkRequestBuilder bulkRequest = getClient().prepareBulk();
+
             batchCollection.forEach(builder -> {
                 if (builder instanceof IndexRequestBuilder) {
                     bulkRequest.add((IndexRequestBuilder)builder);

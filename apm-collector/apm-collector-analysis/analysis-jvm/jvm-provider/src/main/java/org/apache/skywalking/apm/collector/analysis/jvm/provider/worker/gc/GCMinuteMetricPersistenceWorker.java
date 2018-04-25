@@ -32,7 +32,7 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetric;
  */
 public class GCMinuteMetricPersistenceWorker extends PersistenceWorker<GCMetric> {
 
-    public GCMinuteMetricPersistenceWorker(ModuleManager moduleManager) {
+    private GCMinuteMetricPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 

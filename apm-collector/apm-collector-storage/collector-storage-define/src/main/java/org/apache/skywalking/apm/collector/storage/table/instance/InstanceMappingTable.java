@@ -19,13 +19,11 @@
 package org.apache.skywalking.apm.collector.storage.table.instance;
 
 import org.apache.skywalking.apm.collector.core.data.CommonTable;
+import org.apache.skywalking.apm.collector.storage.table.register.RegisterColumns;
 
 /**
  * @author peng-yongsheng
  */
-public class InstanceMappingTable extends CommonTable {
-    public static final String TABLE = "instance_mapping";
-    public static final String COLUMN_APPLICATION_ID = "application_id";
-    public static final String COLUMN_INSTANCE_ID = "instance_id";
-    public static final String COLUMN_ADDRESS_ID = "address_id";
+public interface InstanceMappingTable extends RegisterColumns, CommonTable {
+    String TABLE = "instance_mapping";
 }
