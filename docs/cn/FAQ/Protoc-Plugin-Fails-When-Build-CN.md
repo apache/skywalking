@@ -1,10 +1,8 @@
 现象：
-- Agent和Collector正常工作，没有异常日志
-- 已经对系统进行过访问，Trace查询有数据
-- UI除Trace查询页面外，其他页面无数据
+- Collector启动时加载protoc-plugins插件产生“另一个程序正在使用此文件，进程无法访问”的错误。
 
 原因：
-Collector和被监控应用的系统主机时间，没有同步。
+- Protobuf编译器依赖于glibc环境，部分linux操作系统未安装或未升级该函数库会产生该问题。
 
 解决方法：
-同步各主机操作系统时间。
+- 检查并升级最新版本glibc库，若使用容器镜像环境推荐含有最新版本glibc的alpine系统。
