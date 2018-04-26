@@ -40,3 +40,7 @@
     * [Trace查询有数据，但是没有拓扑图和JVM数据?](cn/FAQ/Why-have-traces-no-others-CN.md)
     * [加载探针，Console被GRPC日志刷屏](cn/FAQ/Too-many-gRPC-logs-CN.md)
     * [Kafka消息消费端链路断裂](cn/FAQ/Kafka-plugin-CN.md)
+<<<<<<< HEAD
+=======
+    *  [Protoc-Plugin Maven编译时异常](cn/FAQ/Protoc-Plugin-Fails-When-Build-CN.md)
+>>>>>>> 5520c3031c7bd4646bd52c083f087f28c19c8049
