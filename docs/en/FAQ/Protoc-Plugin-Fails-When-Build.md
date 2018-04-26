@@ -1,5 +1,5 @@
 **Problem**：
-- When maven build the protoc-plugins to produce the error “Another program is currently using this file,process cannot access”.
+- When maven build the protoc-plugins to produce the error “(另一个程序正在使用此文件，进程无法访问)”.
 
 **Reason**：
 - Protobuf compiler is dependent on the glibc, and some Linux operating systems do not install or upgrade the function library.
