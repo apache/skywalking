@@ -30,5 +30,6 @@
     * [Why only traces in UI?](cn/FAQ/Why-have-traces-no-others.md)
     * [Too many GRPC logs in the console](cn/FAQ/Too-many-gRPC-logs.md)
     * [The trace doesn't continue in kafka consumer side](en/FAQ/kafka-plugin.md)
+    * [Agent or collector version upgrade](en/FAQ/Upgrade.md)
     * [Protoc Plugin fails when maven build](en/FAQ/Protoc-Plugin-Fails-When-Build.md)
 
