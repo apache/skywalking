@@ -20,6 +20,7 @@
   - Fix an agent start up sequence bug.
   - Fix wrong gc count.
   - Remove system env override.
+  - Add Spring AOP aspect patch to avoid aop conflicts.
  
 #### Collector Changes
   - Trace query based on timeline.
