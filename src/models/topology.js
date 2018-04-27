@@ -35,7 +35,7 @@ export default generateModal({
           type
           ... on ApplicationNode {
             sla
-            callsPerSec
+            cpm
             avgResponseTime
             apdex
             isAlarm
@@ -49,7 +49,7 @@ export default generateModal({
           target
           isAlert
           callType
-          callsPerSec
+          cpm
           avgResponseTime
         }
       }

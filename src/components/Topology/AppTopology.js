@@ -47,6 +47,16 @@ export default class AppTopology extends Base {
       }),
     };
   }
+  bindEvent = (cy) => {
+    const { onSelectedApplication } = this.props;
+    cy.on('select', 'node[sla]', (evt) => {
+      const node = evt.target;
+      onSelectedApplication(node.data());
+    });
+    cy.on('unselect', 'node[sla]', () => {
+      onSelectedApplication();
+    });
+  }
   getStyle = () => {
     return cytoscape.stylesheet()
       .selector('node[sla]')

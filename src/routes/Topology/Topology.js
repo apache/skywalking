@@ -18,10 +18,24 @@
 
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
+import { Row, Col, Card, Icon } from 'antd';
 import { ChartCard } from '../../components/Charts';
 import { AppTopology } from '../../components/Topology';
 import { Panel } from '../../components/Page';
+import ApplicationLitePanel from '../../components/ApplicationLitePanel';
+import DescriptionList from '../../components/DescriptionList';
+import { redirect } from '../../utils/utils';
 
+const { Description } = DescriptionList;
+
+const colResponsiveProps = {
+  xs: 24,
+  sm: 24,
+  md: 24,
+  lg: 12,
+  xl: 12,
+  style: { marginTop: 8 },
+};
 @connect(state => ({
   topology: state.topology,
   duration: state.global.duration,
@@ -37,20 +51,65 @@ export default class Topology extends PureComponent {
       payload: { variables },
     });
   }
+  handleSelectedApplication = (appInfo) => {
+    if (appInfo) {
+      this.props.dispatch({
+        type: 'topology/saveData',
+        payload: { appInfo },
+      });
+    } else {
+      this.props.dispatch({
+        type: 'topology/saveData',
+        payload: { appInfo: null },
+      });
+    }
+  }
+  renderActions = () => {
+    const { data: { appInfo } } = this.props.topology;
+    return [
+      <Icon type="appstore" onClick={() => redirect(this.props.history, '/application', { key: appInfo.id, label: appInfo.name })} />,
+      <Icon type="exception" onClick={() => redirect(this.props.history, '/trace', { key: appInfo.id, label: appInfo.name })} />,
+      appInfo.isAlarm ? <Icon type="bell" onClick={() => redirect(this.props.history, '/alarm')} /> : null,
+    ];
+  }
   render() {
     const { data } = this.props.topology;
     return (
       <Panel globalVariables={this.props.globalVariables} onChange={this.handleChange}>
-        <ChartCard
-          title="Topology Map"
-        >
-          {data.getClusterTopology.nodes.length > 0 ? (
-            <AppTopology
-              height={this.props.graphHeight}
-              elements={data.getClusterTopology}
-            />
-          ) : null}
-        </ChartCard>
+        <Row gutter={8}>
+          <Col {...{ ...colResponsiveProps, xl: 18, lg: 16 }}>
+            <ChartCard
+              title="Topology Map"
+            >
+              {data.getClusterTopology.nodes.length > 0 ? (
+                <AppTopology
+                  height={this.props.graphHeight}
+                  elements={data.getClusterTopology}
+                  onSelectedApplication={this.handleSelectedApplication}
+                />
+              ) : null}
+            </ChartCard>
+          </Col>
+          <Col {...{ ...colResponsiveProps, xl: 6, lg: 8 }}>
+            {data.appInfo ? (
+              <Card
+                title={data.appInfo.name}
+                bodyStyle={{ height: 558 }}
+                actions={this.renderActions()}
+              >
+                <ApplicationLitePanel appInfo={data.appInfo} />
+              </Card>
+            )
+            : (
+              <Card title="Overview" style={{ height: 662 }}>
+                <DescriptionList col={1} layout="vertical" >
+                  <Description term="Total Application">{data.getClusterTopology.nodes.filter(_ => _.sla).length}</Description>
+                  <Description term="Application Alarm">{data.getClusterTopology.nodes.filter(_ => _.isAlarm).length}</Description>
+                </DescriptionList>
+              </Card>
+            )}
+          </Col>
+        </Row>
       </Panel>
     );
   }

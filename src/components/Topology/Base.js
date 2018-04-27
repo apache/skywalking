@@ -51,6 +51,9 @@ export default class Base extends Component {
       elements: nextElements,
       style: this.getStyle(),
     });
+    if (this.bindEvent) {
+      this.bindEvent(this.cy);
+    }
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.elements === this.elements) {
