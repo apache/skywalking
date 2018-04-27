@@ -42,4 +42,5 @@
     * [Too many GRPC logs in the console](en/FAQ/Too-many-gRPC-logs.md)
     * [The trace doesn't continue in kafka consumer side](en/FAQ/kafka-plugin.md)
     * [Agent or collector version upgrade](en/FAQ/Upgrade.md)
+    * [Protoc plugin fails in maven build](en/FAQ/Protoc-Plugin-Fails-When-Build.md)
     
