@@ -19,8 +19,8 @@
 package org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.service;
 
 import org.apache.skywalking.apm.collector.analysis.alarm.define.graph.AlarmWorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorkerProvider;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
@@ -30,7 +30,7 @@ import org.apache.skywalking.apm.collector.storage.table.alarm.ServiceReferenceA
 /**
  * @author peng-yongsheng
  */
-public class ServiceReferenceMetricAlarmPersistenceWorker extends PersistenceWorker<ServiceReferenceAlarm> {
+public class ServiceReferenceMetricAlarmPersistenceWorker extends MergePersistenceWorker<ServiceReferenceAlarm> {
 
     public ServiceReferenceMetricAlarmPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
@@ -49,7 +49,7 @@ public class ServiceReferenceMetricAlarmPersistenceWorker extends PersistenceWor
         return getModuleManager().find(StorageModule.NAME).getService(IServiceReferenceAlarmPersistenceDAO.class);
     }
 
-    public static class Factory extends PersistenceWorkerProvider<ServiceReferenceAlarm, ServiceReferenceMetricAlarmPersistenceWorker> {
+    public static class Factory extends MergePersistenceWorkerProvider<ServiceReferenceAlarm, ServiceReferenceMetricAlarmPersistenceWorker> {
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
         }

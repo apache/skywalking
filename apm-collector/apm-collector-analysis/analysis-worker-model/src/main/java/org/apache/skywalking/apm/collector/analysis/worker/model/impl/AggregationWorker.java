@@ -20,7 +20,7 @@ package org.apache.skywalking.apm.collector.analysis.worker.model.impl;
 
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorker;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.data.DataCache;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.data.MergeDataCache;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.slf4j.Logger;
@@ -33,12 +33,12 @@ public abstract class AggregationWorker<INPUT extends StreamData, OUTPUT extends
 
     private final Logger logger = LoggerFactory.getLogger(AggregationWorker.class);
 
-    private DataCache<OUTPUT> dataCache;
+    private MergeDataCache<OUTPUT> mergeDataCache;
     private int messageNum;
 
     public AggregationWorker(ModuleManager moduleManager) {
         super(moduleManager);
-        this.dataCache = new DataCache<>();
+        this.mergeDataCache = new MergeDataCache<>();
     }
 
     @SuppressWarnings("unchecked")
@@ -62,28 +62,28 @@ public abstract class AggregationWorker<INPUT extends StreamData, OUTPUT extends
     }
 
     private void sendToNext() throws WorkerException {
-        dataCache.switchPointer();
-        while (dataCache.getLast().isWriting()) {
+        mergeDataCache.switchPointer();
+        while (mergeDataCache.getLast().isWriting()) {
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
                 throw new WorkerException(e.getMessage(), e);
             }
         }
-        dataCache.getLast().collection().forEach((String id, OUTPUT data) -> {
+        mergeDataCache.getLast().collection().forEach((String id, OUTPUT data) -> {
             logger.debug(data.toString());
             onNext(data);
         });
-        dataCache.finishReadingLast();
+        mergeDataCache.finishReadingLast();
     }
 
     private void aggregate(OUTPUT message) {
-        dataCache.writing();
-        if (dataCache.containsKey(message.getId())) {
-            dataCache.get(message.getId()).mergeAndFormulaCalculateData(message);
+        mergeDataCache.writing();
+        if (mergeDataCache.containsKey(message.getId())) {
+            mergeDataCache.get(message.getId()).mergeAndFormulaCalculateData(message);
         } else {
-            dataCache.put(message.getId(), message);
+            mergeDataCache.put(message.getId(), message);
         }
-        dataCache.finishWriting();
+        mergeDataCache.finishWriting();
     }
 }
