@@ -18,7 +18,7 @@
 
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Card, Icon } from 'antd';
+import { Row, Col, Card, Icon, Radio, Avatar } from 'antd';
 import { ChartCard } from '../../components/Charts';
 import { AppTopology } from '../../components/Topology';
 import { Panel } from '../../components/Page';
@@ -36,6 +36,26 @@ const colResponsiveProps = {
   xl: 12,
   style: { marginTop: 8 },
 };
+
+const layouts = {
+  'cose-bilkent': {
+    name: 'cose-bilkent',
+    idealEdgeLength: 200,
+    edgeElasticity: 0.1,
+  },
+  dagre: {
+    name: 'dagre',
+    rankDir: 'LR',
+    minLen: 4,
+    animate: true,
+  },
+  concentric: {
+    name: 'concentric',
+    minNodeSpacing: 10,
+    animate: true,
+  },
+};
+
 @connect(state => ({
   topology: state.topology,
   duration: state.global.duration,
@@ -49,6 +69,12 @@ export default class Topology extends PureComponent {
     this.props.dispatch({
       type: 'topology/fetchData',
       payload: { variables },
+    });
+  }
+  handleLayoutChange = ({ target: { value } }) => {
+    this.props.dispatch({
+      type: 'topology/saveData',
+      payload: { layout: layouts[value] },
     });
   }
   handleSelectedApplication = (appInfo) => {
@@ -74,18 +100,28 @@ export default class Topology extends PureComponent {
   }
   render() {
     const { data } = this.props.topology;
+    const { layout = layouts['cose-bilkent'] } = data;
     return (
       <Panel globalVariables={this.props.globalVariables} onChange={this.handleChange}>
         <Row gutter={8}>
           <Col {...{ ...colResponsiveProps, xl: 18, lg: 16 }}>
             <ChartCard
               title="Topology Map"
+              avatar={<Avatar icon="fork" style={{ color: '#1890ff', backgroundColor: '#ffffff' }} />}
+              action={(
+                <Radio.Group value={layout.name} onChange={this.handleLayoutChange} size="small">
+                  <Radio.Button value="cose-bilkent">Cose</Radio.Button>
+                  <Radio.Button value="dagre">Dagre</Radio.Button>
+                  <Radio.Button value="concentric">concentric</Radio.Button>
+                </Radio.Group>
+              )}
             >
               {data.getClusterTopology.nodes.length > 0 ? (
                 <AppTopology
                   height={this.props.graphHeight}
                   elements={data.getClusterTopology}
                   onSelectedApplication={this.handleSelectedApplication}
+                  layout={layout}
                 />
               ) : null}
             </ChartCard>

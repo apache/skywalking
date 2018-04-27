@@ -19,13 +19,15 @@
 import React, { Component } from 'react';
 import cytoscape from 'cytoscape';
 import coseBilkent from 'cytoscape-cose-bilkent';
+import dagre from 'cytoscape-dagre';
 
 cytoscape.use(coseBilkent);
+cytoscape.use(dagre);
 
 const config = {
   layout: {
     name: 'cose-bilkent',
-    animate: false,
+    animate: true,
     idealEdgeLength: 200,
     edgeElasticity: 0.1,
   },
@@ -36,7 +38,8 @@ export default class Base extends Component {
     display: 'block',
   }
   componentDidMount() {
-    const { elements } = this.props;
+    const { elements, layout = config.layout } = this.props;
+    this.layout = layout;
     let nextElements = this.transform(elements);
     if (this.setUp) {
       nextElements = this.setUp(nextElements);
@@ -47,7 +50,7 @@ export default class Base extends Component {
       maxZoom: 1,
       boxSelectionEnabled: true,
       wheelSensitivity: 0.2,
-      layout: config.layout,
+      layout,
       elements: nextElements,
       style: this.getStyle(),
     });
@@ -56,20 +59,21 @@ export default class Base extends Component {
     }
   }
   componentWillReceiveProps(nextProps) {
-    if (nextProps.elements === this.elements) {
+    if (nextProps.elements === this.elements && nextProps.layout === this.layout) {
       return;
     }
-    const { elements } = nextProps;
+    const { elements, layout: nextLayout } = nextProps;
     const nodes = this.cy.nodes();
     let nextElements = this.transform(elements);
     if (this.setUp) {
       nextElements = this.setUp(nextElements);
     }
     this.cy.json({ elements: nextElements, style: this.getStyle() });
-    if (this.isSame(nodes, this.cy.nodes())) {
+    if (nextLayout === this.layout && this.isSame(nodes, this.cy.nodes())) {
       return;
     }
-    const layout = this.cy.layout(config.layout);
+    this.layout = nextLayout;
+    const layout = this.cy.layout(nextLayout);
     layout.pon('layoutstop').then(() => {
       this.cy.minZoom(this.cy.zoom() - 0.3);
     });

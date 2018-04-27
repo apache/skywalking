@@ -79,6 +79,14 @@ export default {
                   'avgResponseTime|500-5000': 1,
                 },
                 {
+                  source: 2,
+                  target: 1,
+                  'isAlert|1': true,
+                  'callType|1': ['rpc', 'http', 'dubbo'],
+                  'callsPerSec|100-2000': 1,
+                  'avgResponseTime|500-5000': 1,
+                },
+                {
                   source: 1,
                   target: 200,
                   'isAlert|1': true,
