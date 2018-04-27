@@ -56,6 +56,8 @@ const layouts = {
   },
 };
 
+const layoutButtonStyle = { height: '90%', verticalAlign: 'middle', paddingBottom: 2 };
+
 @connect(state => ({
   topology: state.topology,
   duration: state.global.duration,
@@ -109,10 +111,10 @@ export default class Topology extends PureComponent {
               title="Topology Map"
               avatar={<Avatar icon="fork" style={{ color: '#1890ff', backgroundColor: '#ffffff' }} />}
               action={(
-                <Radio.Group value={layout.name} onChange={this.handleLayoutChange} size="small">
-                  <Radio.Button value="cose-bilkent">Cose</Radio.Button>
-                  <Radio.Button value="dagre">Dagre</Radio.Button>
-                  <Radio.Button value="concentric">concentric</Radio.Button>
+                <Radio.Group value={layout.name} onChange={this.handleLayoutChange} size="normal">
+                  <Radio.Button value="cose-bilkent"><img src="img/icon/cose.png" alt="cose" style={layoutButtonStyle} /></Radio.Button>
+                  <Radio.Button value="dagre"><img src="img/icon/dagre.png" alt="dagre" style={layoutButtonStyle} /></Radio.Button>
+                  <Radio.Button value="concentric"><img src="img/icon/concentric.png" alt="concentric" style={layoutButtonStyle} /></Radio.Button>
                 </Radio.Group>
               )}
             >
