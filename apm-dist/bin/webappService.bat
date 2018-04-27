@@ -29,7 +29,7 @@ if exist "%WEBAPP_LOG_DIR%" (
 set LOG_FILE_LOCATION=%WEBAPP_LOG_DIR%\webapp.log
 
 if defined JAVA_HOME (
- set _EXECJAVA="%JAVA_HOME:"=%"\bin\java
+ set _EXECJAVA="%JAVA_HOME%\bin\java"
 )
 
 if not defined JAVA_HOME (
