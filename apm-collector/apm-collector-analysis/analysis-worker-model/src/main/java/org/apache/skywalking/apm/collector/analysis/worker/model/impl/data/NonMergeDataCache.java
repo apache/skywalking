@@ -18,12 +18,30 @@
 
 package org.apache.skywalking.apm.collector.analysis.worker.model.impl.data;
 
+import org.apache.skywalking.apm.collector.core.cache.Window;
+import org.apache.skywalking.apm.collector.core.data.StreamData;
+
 /**
  * @author peng-yongsheng
  */
-public interface DataCache {
+public class NonMergeDataCache<STREAM_DATA extends StreamData> extends Window<NonMergeDataCollection<STREAM_DATA>> implements DataCache {
 
-    void writing();
+    private NonMergeDataCollection<STREAM_DATA> lockedMergeDataCollection;
 
-    void finishWriting();
+    @Override public NonMergeDataCollection<STREAM_DATA> collectionInstance() {
+        return new NonMergeDataCollection<>();
+    }
+
+    public void add(STREAM_DATA data) {
+        lockedMergeDataCollection.add(data);
+    }
+
+    @Override public void writing() {
+        lockedMergeDataCollection = getCurrentAndWriting();
+    }
+
+    @Override public void finishWriting() {
+        lockedMergeDataCollection.finishWriting();
+        lockedMergeDataCollection = null;
+    }
 }

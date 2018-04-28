@@ -16,26 +16,19 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.es.define;
+package org.apache.skywalking.apm.collector.agent.grpc.provider.handler;
 
-import org.apache.skywalking.apm.collector.storage.es.base.define.*;
-import org.apache.skywalking.apm.collector.storage.table.segment.SegmentTable;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author peng-yongsheng
  */
-public class SegmentEsTableDefine extends ElasticSearchTableDefine {
+public enum SegmentCounter {
+    INSTANCE;
 
-    public SegmentEsTableDefine() {
-        super(SegmentTable.TABLE);
-    }
+    private final AtomicLong counter = new AtomicLong(0);
 
-    @Override public int refreshInterval() {
-        return 10;
-    }
-
-    @Override public void initialize() {
-        addColumn(new ElasticSearchColumnDefine(SegmentTable.DATA_BINARY, ElasticSearchColumnDefine.Type.Binary.name()));
-        addColumn(new ElasticSearchColumnDefine(SegmentTable.TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
+    public long incrementAndGet() {
+        return counter.incrementAndGet();
     }
 }

@@ -18,17 +18,14 @@
 
 package org.apache.skywalking.apm.collector.analysis.worker.timer;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IBatchDAO;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -40,6 +37,11 @@ public enum PersistenceTimer {
 
     private Boolean isStarted = false;
     private List<PersistenceWorker> persistenceWorkers = new LinkedList<>();
+    private final Boolean debug;
+
+    PersistenceTimer() {
+        this.debug = System.getProperty("debug") != null;
+    }
 
     public void start(ModuleManager moduleManager, List<PersistenceWorker> persistenceWorkers) {
         logger.info("persistence timer start");
@@ -61,6 +63,7 @@ public enum PersistenceTimer {
     @SuppressWarnings("unchecked")
     private void extractDataAndSave(IBatchDAO batchDAO, List<PersistenceWorker> persistenceWorkers) {
         logger.debug("Extract data and save");
+        long startTime = System.currentTimeMillis();
         try {
             List batchAllCollection = new LinkedList();
             persistenceWorkers.forEach((PersistenceWorker worker) -> {
@@ -77,6 +80,11 @@ public enum PersistenceTimer {
             logger.error(e.getMessage(), e);
         } finally {
             logger.debug("persistence data save finish");
+        }
+
+        if (debug) {
+            long endTime = System.currentTimeMillis();
+            logger.info("batch persistence duration: {} ms", endTime - startTime);
         }
     }
 }

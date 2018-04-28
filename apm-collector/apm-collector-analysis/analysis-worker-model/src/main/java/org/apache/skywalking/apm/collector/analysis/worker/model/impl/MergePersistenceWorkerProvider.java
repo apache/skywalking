@@ -16,26 +16,18 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.es.define;
+package org.apache.skywalking.apm.collector.analysis.worker.model.impl;
 
-import org.apache.skywalking.apm.collector.storage.es.base.define.*;
-import org.apache.skywalking.apm.collector.storage.table.segment.SegmentTable;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
+import org.apache.skywalking.apm.collector.core.data.StreamData;
+import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 
 /**
  * @author peng-yongsheng
  */
-public class SegmentEsTableDefine extends ElasticSearchTableDefine {
+public abstract class MergePersistenceWorkerProvider<INPUT_AND_OUTPUT extends StreamData, WORKER_TYPE extends MergePersistenceWorker<INPUT_AND_OUTPUT>> extends AbstractLocalAsyncWorkerProvider<INPUT_AND_OUTPUT, INPUT_AND_OUTPUT, WORKER_TYPE> {
 
-    public SegmentEsTableDefine() {
-        super(SegmentTable.TABLE);
-    }
-
-    @Override public int refreshInterval() {
-        return 10;
-    }
-
-    @Override public void initialize() {
-        addColumn(new ElasticSearchColumnDefine(SegmentTable.DATA_BINARY, ElasticSearchColumnDefine.Type.Binary.name()));
-        addColumn(new ElasticSearchColumnDefine(SegmentTable.TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
+    public MergePersistenceWorkerProvider(ModuleManager moduleManager) {
+        super(moduleManager);
     }
 }
