@@ -19,8 +19,7 @@
 package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser;
 
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.graph.WorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.*;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
@@ -30,9 +29,9 @@ import org.apache.skywalking.apm.collector.storage.table.segment.Segment;
 /**
  * @author peng-yongsheng
  */
-public class SegmentPersistenceWorker extends PersistenceWorker<Segment> {
+public class SegmentPersistenceWorker extends NonMergePersistenceWorker<Segment> {
 
-    public SegmentPersistenceWorker(ModuleManager moduleManager) {
+    private SegmentPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -49,8 +48,8 @@ public class SegmentPersistenceWorker extends PersistenceWorker<Segment> {
         return getModuleManager().find(StorageModule.NAME).getService(ISegmentPersistenceDAO.class);
     }
 
-    public static class Factory extends PersistenceWorkerProvider<Segment, SegmentPersistenceWorker> {
-        public Factory(ModuleManager moduleManager) {
+    public static class Factory extends NonMergePersistenceWorkerProvider<Segment, SegmentPersistenceWorker> {
+        Factory(ModuleManager moduleManager) {
             super(moduleManager);
         }
 

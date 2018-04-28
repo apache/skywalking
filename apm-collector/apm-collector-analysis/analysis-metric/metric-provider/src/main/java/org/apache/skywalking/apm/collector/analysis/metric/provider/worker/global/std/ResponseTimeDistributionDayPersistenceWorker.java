@@ -19,8 +19,8 @@
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global.std;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorkerProvider;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
@@ -32,7 +32,7 @@ import org.apache.skywalking.apm.collector.storage.table.global.ResponseTimeDist
 /**
  * @author peng-yongsheng
  */
-public class ResponseTimeDistributionDayPersistenceWorker extends PersistenceWorker<ResponseTimeDistribution> {
+public class ResponseTimeDistributionDayPersistenceWorker extends MergePersistenceWorker<ResponseTimeDistribution> {
 
     private ResponseTimeDistributionDayPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
@@ -51,7 +51,7 @@ public class ResponseTimeDistributionDayPersistenceWorker extends PersistenceWor
         return getModuleManager().find(StorageModule.NAME).getService(IResponseTimeDistributionDayPersistenceDAO.class);
     }
 
-    public static class Factory extends PersistenceWorkerProvider<ResponseTimeDistribution, ResponseTimeDistributionDayPersistenceWorker> {
+    public static class Factory extends MergePersistenceWorkerProvider<ResponseTimeDistribution, ResponseTimeDistributionDayPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);

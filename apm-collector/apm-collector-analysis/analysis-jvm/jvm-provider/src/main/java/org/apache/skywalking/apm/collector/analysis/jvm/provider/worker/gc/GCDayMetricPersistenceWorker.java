@@ -29,7 +29,7 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetric;
 /**
  * @author peng-yongsheng
  */
-public class GCDayMetricPersistenceWorker extends PersistenceWorker<GCMetric> {
+public class GCDayMetricPersistenceWorker extends MergePersistenceWorker<GCMetric> {
 
     private GCDayMetricPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
@@ -48,7 +48,7 @@ public class GCDayMetricPersistenceWorker extends PersistenceWorker<GCMetric> {
         return getModuleManager().find(StorageModule.NAME).getService(IGCDayMetricPersistenceDAO.class);
     }
 
-    public static class Factory extends PersistenceWorkerProvider<GCMetric, GCDayMetricPersistenceWorker> {
+    public static class Factory extends MergePersistenceWorkerProvider<GCMetric, GCDayMetricPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);

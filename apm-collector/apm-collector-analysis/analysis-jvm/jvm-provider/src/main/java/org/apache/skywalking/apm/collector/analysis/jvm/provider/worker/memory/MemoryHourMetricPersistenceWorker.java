@@ -19,8 +19,8 @@
 package org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.memory;
 
 import org.apache.skywalking.apm.collector.analysis.jvm.define.graph.WorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorkerProvider;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
@@ -30,7 +30,7 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetric;
 /**
  * @author peng-yongsheng
  */
-public class MemoryHourMetricPersistenceWorker extends PersistenceWorker<MemoryMetric> {
+public class MemoryHourMetricPersistenceWorker extends MergePersistenceWorker<MemoryMetric> {
 
     public MemoryHourMetricPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
@@ -49,7 +49,7 @@ public class MemoryHourMetricPersistenceWorker extends PersistenceWorker<MemoryM
         return getModuleManager().find(StorageModule.NAME).getService(IMemoryHourMetricPersistenceDAO.class);
     }
 
-    public static class Factory extends PersistenceWorkerProvider<MemoryMetric, MemoryHourMetricPersistenceWorker> {
+    public static class Factory extends MergePersistenceWorkerProvider<MemoryMetric, MemoryHourMetricPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
