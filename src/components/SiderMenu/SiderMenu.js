@@ -137,7 +137,7 @@ export default class SiderMenu extends PureComponent {
         to={itemPath}
         target={target}
         replace={itemPath === this.props.location.pathname}
-        onClick={this.props.isMobile ? () => { this.props.onCollapse(true); } : undefined}
+        onClick={() => this.props.onCollapse(true)}
       >
         {icon}<span>{name}</span>
       </Link>

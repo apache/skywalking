@@ -73,23 +73,17 @@ export default class GlobalHeader extends PureComponent {
   render() {
     const {
       collapsed, notices: { applicationAlarmList, serverAlarmList },
-      isMobile, logo, selectedDuration, fetching,
+      logo, selectedDuration, fetching,
       onDurationToggle, onDurationReload, onRedirect: redirect,
     } = this.props;
     const applications = applicationAlarmList.items.map(_ => ({ ..._, datetime: _.startTime }));
     const servers = serverAlarmList.items.map(_ => ({ ..._, datetime: _.startTime }));
     return (
       <Header className={styles.header}>
-        {isMobile && (
-          [
-            (
-              <Link to="/" className={styles.logo} key="logo">
-                <img src={logo} alt="logo" width="32" />
-              </Link>
-            ),
-            <Divider type="vertical" key="line" />,
-          ]
-        )}
+        <Link to="/" className={styles.logo} key="logo">
+          <img src={logo} alt="logo" width="50" />
+        </Link>
+        <Divider type="vertical" key="line" />
         <Icon
           className={styles.trigger}
           type={collapsed ? 'menu-unfold' : 'menu-fold'}

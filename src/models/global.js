@@ -44,7 +44,7 @@ export default {
   namespace: 'global',
 
   state: {
-    collapsed: false,
+    collapsed: true,
     notices: {
       applicationAlarmList: {
         items: [],
