@@ -83,7 +83,7 @@ public class ApplicationMetricEsUIDAO extends EsDAO implements IApplicationMetri
             applicationTPSs.add(applicationTPS);
         });
 
-        applicationTPSs.sort((first, second) -> first.getCallsPerSec() > second.getCallsPerSec() ? -1 : 1);
+        applicationTPSs.sort((first, second) -> Integer.compare(second.getCallsPerSec(), first.getCallsPerSec()));
 
         if (applicationTPSs.size() <= topN) {
             return applicationTPSs;
