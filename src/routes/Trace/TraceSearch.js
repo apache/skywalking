@@ -16,15 +16,16 @@
  */
 
 import React, { PureComponent } from 'react';
-import { Form, Input, Select, Button, Card, InputNumber, Row, Col, Pagination } from 'antd';
+import { Form, Input, Select, Button, Card, InputNumber, Row, Col, Pagination, DatePicker } from 'antd';
 import { Chart, Geom, Axis, Tooltip, Legend } from 'bizcharts';
 import { DataSet } from '@antv/data-set';
 import moment from 'moment';
 import TraceList from '../../components/Trace/TraceList';
-import { Panel } from '../../components/Page';
+import { generateDuration } from '../../utils/time';
 import styles from './Trace.less';
 
 const { Option } = Select;
+const { RangePicker } = DatePicker;
 const FormItem = Form.Item;
 const initPaging = {
   pageNum: 1,
@@ -36,79 +37,101 @@ const initPaging = {
   mapPropsToFields(props) {
     const { variables: { values } } = props.trace;
     const result = {};
-    Object.keys(values).forEach((_) => {
+    Object.keys(values).filter(_ => _ !== 'range-time-picker').forEach((_) => {
       result[_] = Form.createFormField({
         value: values[_],
       });
     });
+    const { duration } = values;
+    if (duration) {
+      result['range-time-picker'] = Form.createFormField({
+        value: [duration.raw.start, duration.raw.end],
+      });
+    }
     return result;
   },
 })
 export default class Trace extends PureComponent {
   componentDidMount() {
+    const { trace: { variables: { values } } } = this.props;
+    const { duration } = values;
     this.props.dispatch({
       type: 'trace/initOptions',
-      payload: { variables: this.props.globalVariables },
+      payload: { variables: { duration: duration.input } },
     });
+    const condition = { ...values };
+    condition.queryDuration = values.duration.input;
+    delete condition.duration;
+    this.fetchData(condition, initPaging);
   }
-  componentWillUpdate(nextProps) {
-    if (nextProps.globalVariables.duration === this.props.globalVariables.duration) {
-      return;
-    }
-    this.props.dispatch({
-      type: 'trace/initOptions',
-      payload: { variables: nextProps.globalVariables },
-    });
-  }
-  handleChange = (variables) => {
-    const filteredVariables = { ...variables };
-    filteredVariables.queryDuration = filteredVariables.duration;
-    delete filteredVariables.duration;
-    if (!filteredVariables.paging) {
-      filteredVariables.paging = initPaging;
-    }
-    this.props.dispatch({
-      type: 'trace/fetchData',
-      payload: { variables: { condition: filteredVariables } },
+  getDefaultDuration = () => {
+    return generateDuration({
+      from() {
+        return moment().subtract(15, 'minutes');
+      },
+      to() {
+        return moment();
+      },
     });
   }
   handleSearch = (e) => {
     if (e) {
       e.preventDefault();
     }
-    const { dispatch, form, globalVariables: { duration } } = this.props;
+    const { form, dispatch } = this.props;
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
+      const condition = { ...fieldsValue };
+      delete condition['range-time-picker'];
+      const rangeTime = fieldsValue['range-time-picker'];
+      const duration = generateDuration({ from: () => rangeTime[0], to: () => rangeTime[1] });
       dispatch({
         type: 'trace/saveVariables',
         payload: {
           values: {
-            ...fieldsValue,
-            queryDuration: duration,
+            ...condition,
+            duration,
             paging: initPaging,
           },
         },
       });
+      this.fetchData({ ...condition, queryDuration: duration.input });
     });
   }
-  handleTableChange = (pagination) => {
-    const { dispatch, globalVariables: { duration },
-      trace: { variables: { values } } } = this.props;
-    dispatch({
-      type: 'trace/saveVariables',
+  fetchData = (queryCondition, paging = initPaging) => {
+    this.props.dispatch({
+      type: 'trace/fetchData',
       payload: {
-        values: {
-          ...values,
-          queryDuration: duration,
-          paging: {
-            pageNum: pagination.current,
-            pageSize: pagination.pageSize,
-            needTotal: true,
+        variables: {
+          condition: {
+            ...queryCondition,
+            paging,
           },
         },
       },
     });
+  }
+  handleTableChange = (pagination) => {
+    const { dispatch, trace: { variables: { values } } } = this.props;
+    const condition = {
+      ...values,
+      paging: {
+        pageNum: pagination.current,
+        pageSize: pagination.pageSize,
+        needTotal: true,
+      },
+    };
+    dispatch({
+      type: 'trace/saveVariables',
+      payload: {
+        values: {
+          ...condition,
+        },
+      },
+    });
+    delete condition.duration;
+    this.fetchData({ ...condition, queryDuration: values.duration.input }, condition.paging);
   }
   handleShowTrace = (traceId) => {
     const { dispatch } = this.props;
@@ -186,6 +209,16 @@ export default class Trace extends PureComponent {
     const { trace: { variables: { options } } } = this.props;
     return (
       <Form onSubmit={this.handleSearch} layout="vertical">
+        <FormItem label="Time Range">
+          {getFieldDecorator('range-time-picker')(
+            <RangePicker
+              showTime
+              disabledDate={current => current && current.valueOf() >= Date.now()}
+              format="YYYY-MM-DD HH:mm"
+              style={{ width: '100%' }}
+            />
+          )}
+        </FormItem>
         <FormItem label="Application">
           {getFieldDecorator('applicationId')(
             <Select placeholder="All application" style={{ width: '100%' }}>
@@ -276,17 +309,11 @@ export default class Trace extends PureComponent {
             </Col>
           </Row>
           {this.renderPage(values, queryBasicTraces.total)}
-          <Panel
-            variables={values}
-            globalVariables={this.props.globalVariables}
-            onChange={this.handleChange}
-          >
-            <TraceList
-              loading={loading}
-              data={queryBasicTraces.traces}
-              onClickTraceTag={this.handleShowTrace}
-            />
-          </Panel>
+          <TraceList
+            loading={loading}
+            data={queryBasicTraces.traces}
+            onClickTraceTag={this.handleShowTrace}
+          />
           {this.renderPage(values, queryBasicTraces.total)}
         </div>
       </Card>

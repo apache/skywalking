@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-
+import moment from 'moment';
 import { query } from '../services/graphql';
 import { generateModal } from '../utils/models';
+import { generateDuration } from '../utils/time';
 
 const optionsQuery = `
   query ApplicationOption($duration: Duration!) {
@@ -92,6 +93,18 @@ export default generateModal({
       spans: [],
     },
     showTimeline: false,
+  },
+  varState: {
+    values: {
+      duration: generateDuration({
+        from() {
+          return moment().subtract(15, 'minutes');
+        },
+        to() {
+          return moment();
+        },
+      }),
+    },
   },
   optionsQuery,
   defaultOption: {

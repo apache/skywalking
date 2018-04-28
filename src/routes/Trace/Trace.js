@@ -24,9 +24,7 @@ import TraceTimeline from './TraceTimeline';
 
 @connect(state => ({
   trace: state.trace,
-  duration: state.global.duration,
   loading: state.loading.models.trace,
-  globalVariables: state.global.globalVariables,
 }))
 export default class Trace extends PureComponent {
   handleGoBack = () => {

@@ -88,7 +88,10 @@ class BasicLayout extends React.PureComponent {
     };
   }
   componentWillUpdate(nextProps) {
-    const { globalVariables: { duration } } = nextProps;
+    const { globalVariables: { duration }, isMonitor } = nextProps;
+    if (!isMonitor) {
+      return;
+    }
     if (!duration || Object.keys(duration).length < 1) {
       return;
     }
@@ -214,11 +217,13 @@ class BasicLayout extends React.PureComponent {
             onDurationReload={this.handleDurationReload}
             onRedirect={this.handleRedirect}
           />
-          <DurationPanel
-            selected={dSelected}
-            onSelected={this.handleDurationSelected}
-            collapsed={dCollapsed}
-          />
+          {isMonitor ? (
+            <DurationPanel
+              selected={dSelected}
+              onSelected={this.handleDurationSelected}
+              collapsed={dCollapsed}
+            />
+          ) : null}
           <Content style={{ margin: '24px 24px 0', height: '100%' }}>
             <Switch>
               {

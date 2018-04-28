@@ -38,6 +38,10 @@ export function generateDuration({ from, to }) {
       range: Array.from({ length: end.diff(start, measureType) + 1 },
         (v, i) => start.clone().add(i, measureType).format(displayFormat)),
     },
+    raw: {
+      start,
+      end,
+    },
   };
 }
 

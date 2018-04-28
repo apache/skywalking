@@ -19,7 +19,7 @@
 import { query as queryService } from '../services/graphql';
 
 export function generateModal({ namespace, dataQuery, optionsQuery, defaultOption, state = {},
-  effects = {}, reducers = {}, subscriptions = {} }) {
+  varState = {}, effects = {}, reducers = {}, subscriptions = {} }) {
   return {
     namespace,
     state: {
@@ -27,6 +27,7 @@ export function generateModal({ namespace, dataQuery, optionsQuery, defaultOptio
         values: {},
         labels: {},
         options: {},
+        ...varState,
       },
       data: state,
     },
