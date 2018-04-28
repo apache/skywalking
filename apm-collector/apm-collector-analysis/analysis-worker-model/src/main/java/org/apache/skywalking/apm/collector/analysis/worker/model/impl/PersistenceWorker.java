@@ -47,7 +47,7 @@ public abstract class PersistenceWorker<INPUT_AND_OUTPUT extends StreamData, COL
         if (StringUtils.isNotEmpty(System.getProperty("batchSize"))) {
             this.blockBatchPersistenceSize = Integer.valueOf(System.getProperty("batchSize"));
         } else {
-            this.blockBatchPersistenceSize = 10000;
+            this.blockBatchPersistenceSize = 500000;
         }
     }
 
