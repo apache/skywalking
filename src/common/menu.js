@@ -19,29 +19,32 @@
 import { isUrl } from '../utils/utils';
 
 const menuData = [{
-  name: 'Dashboard',
+  name: 'Monitor',
   icon: 'dashboard',
-  path: 'dashboard',
-}, {
-  name: 'Topology',
-  icon: 'fork',
-  path: 'topology',
-}, {
-  name: 'Application',
-  icon: 'appstore',
-  path: 'application',
-}, {
-  name: 'Service',
-  icon: 'api',
-  path: 'service',
+  path: 'monitor',
+  children: [
+    {
+      name: 'Dashboard',
+      path: 'dashboard',
+    },
+    {
+      name: 'Topology',
+      path: 'topology',
+    }, {
+      name: 'Application',
+      path: 'application',
+    }, {
+      name: 'Service',
+      path: 'service',
+    }, {
+      name: 'Alarm',
+      path: 'alarm',
+    },
+  ],
 }, {
   name: 'Trace',
   icon: 'exception',
   path: 'trace',
-}, {
-  name: 'Alarm',
-  icon: 'bell',
-  path: 'alarm',
 }];
 
 function formatter(data, parentPath = '', parentAuthority) {

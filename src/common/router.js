@@ -91,22 +91,22 @@ export const getRouterData = (app) => {
     '/': {
       component: dynamicWrapper(app, ['user', 'login'], () => import('../layouts/BasicLayout')),
     },
-    '/dashboard': {
+    '/monitor/dashboard': {
       component: dynamicWrapper(app, ['dashboard'], () => import('../routes/Dashboard/Dashboard')),
     },
-    '/topology': {
+    '/monitor/topology': {
       component: dynamicWrapper(app, ['topology'], () => import('../routes/Topology/Topology')),
     },
-    '/application': {
+    '/monitor/application': {
       component: dynamicWrapper(app, ['application'], () => import('../routes/Application/Application')),
     },
-    '/service': {
+    '/monitor/service': {
       component: dynamicWrapper(app, ['service'], () => import('../routes/Service/Service')),
     },
     '/trace': {
       component: dynamicWrapper(app, ['trace'], () => import('../routes/Trace/Trace')),
     },
-    '/alarm': {
+    '/monitor/alarm': {
       component: dynamicWrapper(app, ['alarm'], () => import('../routes/Alarm/Alarm')),
     },
     '/user': {

@@ -45,6 +45,7 @@ export default {
 
   state: {
     collapsed: true,
+    isMonitor: false,
     notices: {
       applicationAlarmList: {
         items: [],
@@ -130,14 +131,31 @@ export default {
         },
       };
     },
+    toggleMonitorHeader(state, { payload }) {
+      return {
+        ...state,
+        isMonitor: payload,
+      };
+    },
   },
 
   subscriptions: {
-    setup({ history }) {
+    setup({ history, dispatch }) {
       // Subscribe history(url) change, trigger `load` action if pathname is `/`
       return history.listen(({ pathname, search }) => {
         if (typeof window.ga !== 'undefined') {
           window.ga('send', 'pageview', pathname + search);
+        }
+        if (pathname && pathname.startsWith('/monitor')) {
+          dispatch({
+            type: 'toggleMonitorHeader',
+            payload: true,
+          });
+        } else {
+          dispatch({
+            type: 'toggleMonitorHeader',
+            payload: false,
+          });
         }
       });
     },

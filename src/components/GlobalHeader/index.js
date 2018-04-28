@@ -73,7 +73,7 @@ export default class GlobalHeader extends PureComponent {
   render() {
     const {
       collapsed, notices: { applicationAlarmList, serverAlarmList },
-      logo, selectedDuration, fetching,
+      logo, selectedDuration, fetching, isMonitor,
       onDurationToggle, onDurationReload, onRedirect: redirect,
     } = this.props;
     const applications = applicationAlarmList.items.map(_ => ({ ..._, datetime: _.startTime }));
@@ -89,44 +89,46 @@ export default class GlobalHeader extends PureComponent {
           type={collapsed ? 'menu-unfold' : 'menu-fold'}
           onClick={this.toggle}
         />
-        <div className={styles.right}>
-          <DurationIcon
-            loading={fetching}
-            className={styles.action}
-            selectedDuration={selectedDuration}
-            onToggle={onDurationToggle}
-            onReload={onDurationReload}
-          />
-          <NoticeIcon
-            className={styles.action}
-            count={applicationAlarmList.total + serverAlarmList.total}
-            onItemClick={(item, tabProps) => {
-              redirect({ pathname: '/alarm', state: { type: tabProps.title } });
-            }}
-            onClear={(tabTitle) => {
-              redirect({ pathname: '/alarm', state: { type: tabTitle } });
-            }}
-            loading={fetching}
-            popupAlign={{ offset: [20, -16] }}
-            locale={{
-              emptyText: 'No alert',
-              clear: 'More ',
-            }}
-          >
-            <NoticeIcon.Tab
-              list={applications}
-              title="Application"
-              emptyText="No alarm"
-              emptyImage="https://gw.alipayobjects.com/zos/rmsportal/wAhyIChODzsoKIOBHcBk.svg"
+        { isMonitor ? (
+          <div className={styles.right}>
+            <DurationIcon
+              loading={fetching}
+              className={styles.action}
+              selectedDuration={selectedDuration}
+              onToggle={onDurationToggle}
+              onReload={onDurationReload}
             />
-            <NoticeIcon.Tab
-              list={servers}
-              title="Server"
-              emptyText="No alarm"
-              emptyImage="https://gw.alipayobjects.com/zos/rmsportal/wAhyIChODzsoKIOBHcBk.svg"
-            />
-          </NoticeIcon>
-        </div>
+            <NoticeIcon
+              className={styles.action}
+              count={applicationAlarmList.total + serverAlarmList.total}
+              onItemClick={(item, tabProps) => {
+                redirect({ pathname: '/alarm', state: { type: tabProps.title } });
+              }}
+              onClear={(tabTitle) => {
+                redirect({ pathname: '/alarm', state: { type: tabTitle } });
+              }}
+              loading={fetching}
+              popupAlign={{ offset: [20, -16] }}
+              locale={{
+                emptyText: 'No alert',
+                clear: 'More ',
+              }}
+            >
+              <NoticeIcon.Tab
+                list={applications}
+                title="Application"
+                emptyText="No alarm"
+                emptyImage="https://gw.alipayobjects.com/zos/rmsportal/wAhyIChODzsoKIOBHcBk.svg"
+              />
+              <NoticeIcon.Tab
+                list={servers}
+                title="Server"
+                emptyText="No alarm"
+                emptyImage="https://gw.alipayobjects.com/zos/rmsportal/wAhyIChODzsoKIOBHcBk.svg"
+              />
+            </NoticeIcon>
+          </div>
+        ) : null}
       </Header>
     );
   }

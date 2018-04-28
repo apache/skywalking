@@ -24,7 +24,6 @@ import { connect } from 'dva';
 import { Route, Redirect, Switch, routerRedux } from 'dva/router';
 import { ContainerQuery } from 'react-container-query';
 import classNames from 'classnames';
-import { enquireScreen } from 'enquire-js';
 import lodash from 'lodash';
 import GlobalHeader from '../components/GlobalHeader';
 import GlobalFooter from '../components/GlobalFooter';
@@ -76,32 +75,17 @@ const query = {
   },
 };
 
-let isMobile;
-enquireScreen((b) => {
-  isMobile = b;
-});
-
 class BasicLayout extends React.PureComponent {
   static childContextTypes = {
     location: PropTypes.object,
     breadcrumbNameMap: PropTypes.object,
   }
-  state = {
-    isMobile,
-  };
   getChildContext() {
     const { location, routerData } = this.props;
     return {
       location,
       breadcrumbNameMap: routerData,
     };
-  }
-  componentDidMount() {
-    enquireScreen((mobile) => {
-      this.setState({
-        isMobile: mobile,
-      });
-    });
   }
   componentWillUpdate(nextProps) {
     const { globalVariables: { duration } } = nextProps;
@@ -136,7 +120,7 @@ class BasicLayout extends React.PureComponent {
       urlParams.searchParams.delete('redirect');
       window.history.replaceState(null, 'redirect', urlParams.href);
     } else {
-      return '/dashboard';
+      return '/monitor/dashboard';
     }
     return redirect;
   }
@@ -198,7 +182,7 @@ class BasicLayout extends React.PureComponent {
   }
   render() {
     const {
-      collapsed, fetching, notices, routerData, match, location,
+      isMonitor, collapsed, fetching, notices, routerData, match, location,
       duration: { selected: dSelected, collapsed: dCollapsed },
     } = this.props;
     const bashRedirect = this.getBashRedirect();
@@ -212,7 +196,6 @@ class BasicLayout extends React.PureComponent {
           menuData={getMenuData()}
           collapsed={collapsed}
           location={location}
-          isMobile={this.state.isMobile}
           onCollapse={this.handleMenuCollapse}
         />
         <Layout>
@@ -221,8 +204,8 @@ class BasicLayout extends React.PureComponent {
             fetching={fetching}
             notices={notices}
             collapsed={collapsed}
-            isMobile={this.state.isMobile}
             selectedDuration={dSelected}
+            isMonitor={isMonitor}
             onNoticeClear={this.handleNoticeClear}
             onCollapse={this.handleMenuCollapse}
             onMenuClick={this.handleMenuClick}
@@ -294,6 +277,7 @@ class BasicLayout extends React.PureComponent {
 }
 
 export default connect(({ global, loading }) => ({
+  isMonitor: global.isMonitor,
   collapsed: global.collapsed,
   fetching: lodash.values(loading.models).findIndex(_ => _) > -1,
   notices: global.notices,
