@@ -78,7 +78,7 @@ public class ApplicationMetricEsUIDAO extends EsDAO implements IApplicationMetri
             applicationThroughputList.add(applicationThroughput);
         });
 
-        applicationThroughputList.sort((first, second) -> first.getCpm() > second.getCpm() ? -1 : 1);
+        applicationThroughputList.sort((first, second) -> Integer.compare(second.getCpm(), first.getCpm()));
 
         if (applicationThroughputList.size() <= topN) {
             return applicationThroughputList;
