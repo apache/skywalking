@@ -36,20 +36,25 @@ public class LogJsonReader implements StreamJsonReader<LogMessage> {
     @Override public LogMessage read(JsonReader reader) throws IOException {
         LogMessage.Builder builder = LogMessage.newBuilder();
 
+        reader.beginObject();
         while (reader.hasNext()) {
             switch (reader.nextName()) {
                 case TIME:
                     builder.setTime(reader.nextLong());
+                    break;
                 case LOG_DATA:
                     reader.beginArray();
                     while (reader.hasNext()) {
                         builder.addData(keyWithStringValueJsonReader.read(reader));
                     }
                     reader.endArray();
+                    break;
                 default:
                     reader.skipValue();
+                    break;
             }
         }
+        reader.endObject();
 
         return builder.build();
     }

@@ -223,12 +223,12 @@ HTTP JSON服务, 属性名与gRPC对应，属性解释详见gRPC协议说明，�
             }
           ],
           "lo": [{
-                  "t": 1501858094726,
-                  "d": [{ 
+                  "ti": 1501858094726,
+                  "ld": [{ 
                           "k": "NullPointException",
                           "v": "Error Stack"
                       }]
-          }]
+             }]
         },
         {
           "si": 1,
