@@ -16,18 +16,17 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.worker.model.impl;
+package org.apache.skywalking.apm.agent.core.boot;
 
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
-import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public abstract class PersistenceWorkerProvider<INPUT_AND_OUTPUT extends StreamData, WORKER_TYPE extends PersistenceWorker<INPUT_AND_OUTPUT>> extends AbstractLocalAsyncWorkerProvider<INPUT_AND_OUTPUT, INPUT_AND_OUTPUT, WORKER_TYPE> {
-
-    public PersistenceWorkerProvider(ModuleManager moduleManager) {
-        super(moduleManager);
-    }
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface DefaultImplementor {
 }

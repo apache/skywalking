@@ -25,7 +25,7 @@ set CLASSPATH=%COLLECTOR_HOME%\config;.;
 set CLASSPATH=%COLLECTOR_HOME%\collector-libs\*;%CLASSPATH%
 
 if defined JAVA_HOME (
- set _EXECJAVA="%JAVA_HOME:"=%"\bin\java
+ set _EXECJAVA="%JAVA_HOME%\bin\java"
 )
 
 if not defined JAVA_HOME (

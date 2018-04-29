@@ -18,8 +18,7 @@
 
 package org.apache.skywalking.apm.collector.storage.es.define;
 
-import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchColumnDefine;
-import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchTableDefine;
+import org.apache.skywalking.apm.collector.storage.es.base.define.*;
 import org.apache.skywalking.apm.collector.storage.table.segment.SegmentTable;
 
 /**
@@ -32,7 +31,7 @@ public class SegmentEsTableDefine extends ElasticSearchTableDefine {
     }
 
     @Override public int refreshInterval() {
-        return 3;
+        return 10;
     }
 
     @Override public void initialize() {

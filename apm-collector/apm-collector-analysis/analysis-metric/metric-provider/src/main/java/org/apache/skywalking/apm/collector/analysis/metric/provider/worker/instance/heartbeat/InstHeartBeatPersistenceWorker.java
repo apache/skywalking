@@ -19,8 +19,8 @@
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.heartbeat;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorkerProvider;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
@@ -31,7 +31,7 @@ import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 /**
  * @author peng-yongsheng
  */
-public class InstHeartBeatPersistenceWorker extends PersistenceWorker<Instance> {
+public class InstHeartBeatPersistenceWorker extends MergePersistenceWorker<Instance> {
 
     private InstHeartBeatPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
@@ -50,7 +50,7 @@ public class InstHeartBeatPersistenceWorker extends PersistenceWorker<Instance> 
         return getModuleManager().find(StorageModule.NAME).getService(IInstanceHeartBeatPersistenceDAO.class);
     }
 
-    public static class Factory extends PersistenceWorkerProvider<Instance, InstHeartBeatPersistenceWorker> {
+    public static class Factory extends MergePersistenceWorkerProvider<Instance, InstHeartBeatPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);

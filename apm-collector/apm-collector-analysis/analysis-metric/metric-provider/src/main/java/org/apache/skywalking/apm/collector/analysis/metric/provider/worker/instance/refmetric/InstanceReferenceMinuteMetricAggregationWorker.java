@@ -65,14 +65,14 @@ public class InstanceReferenceMinuteMetricAggregationWorker extends AggregationW
         instanceReferenceMetric.setTransactionErrorDurationSum(serviceReferenceMetric.getTransactionErrorDurationSum());
 
         instanceReferenceMetric.setBusinessTransactionCalls(serviceReferenceMetric.getBusinessTransactionCalls());
-        instanceReferenceMetric.setBusinessTransactionErrorCalls(instanceReferenceMetric.getBusinessTransactionErrorCalls());
-        instanceReferenceMetric.setBusinessTransactionDurationSum(instanceReferenceMetric.getBusinessTransactionDurationSum());
-        instanceReferenceMetric.setBusinessTransactionErrorDurationSum(instanceReferenceMetric.getBusinessTransactionErrorDurationSum());
+        instanceReferenceMetric.setBusinessTransactionErrorCalls(serviceReferenceMetric.getBusinessTransactionErrorCalls());
+        instanceReferenceMetric.setBusinessTransactionDurationSum(serviceReferenceMetric.getBusinessTransactionDurationSum());
+        instanceReferenceMetric.setBusinessTransactionErrorDurationSum(serviceReferenceMetric.getBusinessTransactionErrorDurationSum());
 
-        instanceReferenceMetric.setMqTransactionCalls(instanceReferenceMetric.getMqTransactionCalls());
-        instanceReferenceMetric.setMqTransactionErrorCalls(instanceReferenceMetric.getMqTransactionErrorCalls());
-        instanceReferenceMetric.setMqTransactionDurationSum(instanceReferenceMetric.getMqTransactionDurationSum());
-        instanceReferenceMetric.setMqTransactionErrorDurationSum(instanceReferenceMetric.getMqTransactionErrorDurationSum());
+        instanceReferenceMetric.setMqTransactionCalls(serviceReferenceMetric.getMqTransactionCalls());
+        instanceReferenceMetric.setMqTransactionErrorCalls(serviceReferenceMetric.getMqTransactionErrorCalls());
+        instanceReferenceMetric.setMqTransactionDurationSum(serviceReferenceMetric.getMqTransactionDurationSum());
+        instanceReferenceMetric.setMqTransactionErrorDurationSum(serviceReferenceMetric.getMqTransactionErrorDurationSum());
 
         instanceReferenceMetric.setTimeBucket(serviceReferenceMetric.getTimeBucket());
         return instanceReferenceMetric;

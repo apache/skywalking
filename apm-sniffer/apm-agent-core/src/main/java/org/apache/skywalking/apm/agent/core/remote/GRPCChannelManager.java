@@ -29,6 +29,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
+import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
@@ -39,6 +40,7 @@ import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 /**
  * @author wusheng, zhang xin
  */
+@DefaultImplementor
 public class GRPCChannelManager implements BootService, Runnable {
     private static final ILog logger = LogManager.getLogger(GRPCChannelManager.class);
 
@@ -49,7 +51,7 @@ public class GRPCChannelManager implements BootService, Runnable {
     private List<GRPCChannelListener> listeners = Collections.synchronizedList(new LinkedList<GRPCChannelListener>());
 
     @Override
-    public void beforeBoot() throws Throwable {
+    public void prepare() throws Throwable {
 
     }
 
@@ -66,7 +68,7 @@ public class GRPCChannelManager implements BootService, Runnable {
     }
 
     @Override
-    public void afterBoot() throws Throwable {
+    public void onComplete() throws Throwable {
 
     }
 

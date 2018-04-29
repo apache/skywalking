@@ -84,7 +84,7 @@ public class InstanceMetricEsUIDAO extends EsDAO implements IInstanceMetricUIDAO
             appServerInfoList.add(appServerInfo);
         });
 
-        appServerInfoList.sort((first, second) -> first.getCpm() > second.getCpm() ? -1 : 1);
+        appServerInfoList.sort((first, second) -> Integer.compare(second.getCpm(), first.getCpm()));
         if (appServerInfoList.size() <= topN) {
             return appServerInfoList;
         } else {

@@ -32,6 +32,7 @@ import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddress;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * @author peng-yongsheng
@@ -122,7 +123,7 @@ public class NetworkAddressIDService implements INetworkAddressIDService {
     private boolean compare(int addressId, int spanLayer, int serverType) {
         NetworkAddress networkAddress = networkAddressCacheService.getAddress(addressId);
         
-        if (isNull(networkAddress)) {
+        if (nonNull(networkAddress)) {
             return spanLayer == networkAddress.getSrcSpanLayer() && serverType == networkAddress.getServerType();
         }
         return true;

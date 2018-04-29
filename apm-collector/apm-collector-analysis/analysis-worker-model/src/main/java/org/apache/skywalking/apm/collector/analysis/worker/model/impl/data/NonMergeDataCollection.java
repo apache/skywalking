@@ -18,21 +18,21 @@
 
 package org.apache.skywalking.apm.collector.analysis.worker.model.impl.data;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import org.apache.skywalking.apm.collector.core.cache.Collection;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
 
 /**
  * @author peng-yongsheng
  */
-public class DataCollection<STREAM_DATA extends StreamData> implements Collection<Map<String, STREAM_DATA>> {
-    private Map<String, STREAM_DATA> data;
+public class NonMergeDataCollection<STREAM_DATA extends StreamData> implements Collection<List<STREAM_DATA>> {
+
+    private final List<STREAM_DATA> data;
     private volatile boolean writing;
     private volatile boolean reading;
 
-    DataCollection() {
-        this.data = new LinkedHashMap<>();
+    NonMergeDataCollection() {
+        this.data = new LinkedList<>();
         this.writing = false;
         this.reading = false;
     }
@@ -61,16 +61,8 @@ public class DataCollection<STREAM_DATA extends StreamData> implements Collectio
         return reading;
     }
 
-    boolean containsKey(String key) {
-        return data.containsKey(key);
-    }
-
-    void put(String key, STREAM_DATA value) {
-        data.put(key, value);
-    }
-
-    public STREAM_DATA get(String key) {
-        return data.get(key);
+    void add(STREAM_DATA value) {
+        data.add(value);
     }
 
     @Override public int size() {
@@ -81,7 +73,7 @@ public class DataCollection<STREAM_DATA extends StreamData> implements Collectio
         data.clear();
     }
 
-    public Map<String, STREAM_DATA> collection() {
+    public List<STREAM_DATA> collection() {
         return data;
     }
 }
