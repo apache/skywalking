@@ -15,34 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.apm.collector.agent.grpc.provider;
+package org.apache.skywalking.apm.collector.agent.grpc.provider.handler;
 
-import org.apache.skywalking.apm.collector.cluster.ModuleRegistration;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.*;
 
 /**
  * @author lican
  */
-@RunWith(MockitoJUnitRunner.class)
-public class AgentModuleGRPCRegistrationTest {
-
-    private AgentModuleGRPCRegistration agentModuleGRPCRegistration;
-
-    @Before
-    public void setUp() throws Exception {
-        agentModuleGRPCRegistration = new AgentModuleGRPCRegistration("127.0.0.1", 10900);
-    }
+public class SegmentCounterTest {
 
     @Test
-    public void buildValue() {
-        ModuleRegistration.Value value = agentModuleGRPCRegistration.buildValue();
-        Assert.assertEquals(value.getHostPort(),"127.0.0.1:10900");
-        Assert.assertEquals(value.getContextPath(),"");
+    public void incrementAndGet() {
+        long l = SegmentCounter.INSTANCE.incrementAndGet();
+        assertEquals(1L,l);
     }
 }

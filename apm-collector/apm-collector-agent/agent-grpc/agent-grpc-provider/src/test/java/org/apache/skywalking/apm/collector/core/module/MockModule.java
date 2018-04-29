@@ -18,12 +18,14 @@
 package org.apache.skywalking.apm.collector.core.module;
 
 import com.google.common.collect.Lists;
+import org.apache.skywalking.apm.collector.grpc.manager.service.GRPCManagerService;
+import org.apache.skywalking.apm.collector.server.grpc.GRPCServer;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.LinkedList;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.when;
 
 /**
@@ -38,7 +40,15 @@ public class MockModule extends Module {
         Whitebox.setInternalState(this, "loadedProviders", linkedList);
         when(moduleProvider.getService(any())).then(invocation -> {
             Class argumentAt = invocation.getArgumentAt(0, Class.class);
-            return Mockito.mock(argumentAt);
+            Object mock = Mockito.mock(argumentAt);
+            if (mock instanceof GRPCManagerService) {
+                when(((GRPCManagerService) mock).createIfAbsent(anyString(), anyInt())).then(invocation1 -> {
+                    GRPCServer grpcServer = new GRPCServer("127.0.0.1", 18098);
+                    grpcServer.initialize();
+                    return grpcServer;
+                });
+            }
+            return mock;
         });
     }
 

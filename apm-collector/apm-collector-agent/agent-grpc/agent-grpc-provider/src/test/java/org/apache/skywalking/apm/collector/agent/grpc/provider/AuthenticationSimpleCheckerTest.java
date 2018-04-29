@@ -17,12 +17,30 @@
 
 package org.apache.skywalking.apm.collector.agent.grpc.provider;
 
+import io.grpc.ServerServiceDefinition;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import io.grpc.testing.GrpcServerRule;
+import org.apache.skywalking.apm.collector.agent.grpc.provider.handler.ApplicationRegisterServiceHandler;
+import org.apache.skywalking.apm.collector.core.module.MockModule;
+import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.server.ServerException;
+import org.apache.skywalking.apm.collector.server.grpc.GRPCServer;
+import org.apache.skywalking.apm.network.proto.Application;
+import org.apache.skywalking.apm.network.proto.ApplicationMapping;
+import org.apache.skywalking.apm.network.proto.ApplicationRegisterServiceGrpc;
+import org.apache.skywalking.apm.network.proto.KeyWithIntegerValue;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
  * @author lican
@@ -30,15 +48,65 @@ import static org.junit.Assert.*;
 @RunWith(MockitoJUnitRunner.class)
 public class AuthenticationSimpleCheckerTest {
 
+    @Rule
+    public final GrpcServerRule grpcServerRule = new GrpcServerRule().directExecutor();
+
+    @Mock
+    private ModuleManager moduleManager;
+
     @Before
     public void setUp() throws Exception {
+        when(moduleManager.find(anyString())).then(invocation -> new MockModule());
     }
 
     @Test
-    public void build() {
+    public void build() throws ServerException {
+        ApplicationRegisterServiceHandler applicationRegisterServiceHandler = new ApplicationRegisterServiceHandler(moduleManager);
+        MockGRPCServer mockGRPCServer = new MockGRPCServer(grpcServerRule);
+        mockGRPCServer.initialize();
+
+        AuthenticationSimpleChecker.INSTANCE.build(mockGRPCServer, applicationRegisterServiceHandler);
+        grpcServerRule.getServiceRegistry().addService(applicationRegisterServiceHandler);
+
+        ApplicationRegisterServiceGrpc.ApplicationRegisterServiceBlockingStub stub = ApplicationRegisterServiceGrpc.newBlockingStub(grpcServerRule.getChannel());
+        Application application = Application.newBuilder().setApplicationCode("test").build();
+
+        ApplicationMapping applicationMapping = stub.applicationCodeRegister(application);
+        assertEquals(applicationMapping.getApplication(), KeyWithIntegerValue.getDefaultInstance());
+
+        AuthenticationSimpleChecker.INSTANCE.setExpectedToken("test");
+        AuthenticationSimpleChecker.INSTANCE.build(mockGRPCServer, applicationRegisterServiceHandler);
+        try {
+            stub.applicationCodeRegister(application);
+        } catch (Exception e) {
+            assertTrue(e instanceof StatusRuntimeException);
+            assertEquals(((StatusRuntimeException) e).getStatus(), Status.PERMISSION_DENIED);
+        }
+
     }
 
     @Test
     public void setExpectedToken() {
+
+    }
+
+    class MockGRPCServer extends GRPCServer {
+
+        private GrpcServerRule grpcServerRule;
+
+        public MockGRPCServer(String host, int port) {
+            super(host, port);
+        }
+
+        public MockGRPCServer(GrpcServerRule grpcServerRule) {
+            super("127.0.0.1", 0);
+            this.grpcServerRule = grpcServerRule;
+        }
+
+        public void addHandler(ServerServiceDefinition definition) {
+            grpcServerRule.getServiceRegistry().addService(definition);
+        }
+
+
     }
 }

@@ -17,12 +17,23 @@
 
 package org.apache.skywalking.apm.collector.agent.grpc.provider.handler;
 
+import io.grpc.stub.StreamObserver;
+import org.apache.skywalking.apm.collector.analysis.register.define.service.IServiceNameService;
+import org.apache.skywalking.apm.collector.core.module.MockModule;
+import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.network.proto.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
  * @author lican
@@ -30,11 +41,49 @@ import static org.junit.Assert.*;
 @RunWith(MockitoJUnitRunner.class)
 public class ServiceNameDiscoveryServiceHandlerTest {
 
+    @Mock
+    private IServiceNameService serviceNameService;
+
+    private ServiceNameDiscoveryServiceHandler serviceNameDiscoveryServiceHandler;
+
     @Before
     public void setUp() throws Exception {
+        ModuleManager moduleManager = mock(ModuleManager.class);
+        when(moduleManager.find(anyString())).then(invocation -> new MockModule());
+        serviceNameDiscoveryServiceHandler = new ServiceNameDiscoveryServiceHandler(moduleManager);
+        Whitebox.setInternalState(serviceNameDiscoveryServiceHandler, "serviceNameService", serviceNameService);
+
     }
 
     @Test
     public void discovery() {
+        ServiceNameElement element = ServiceNameElement.newBuilder()
+                .setApplicationId(10)
+                .setServiceName("/hello/world")
+                .setSrcSpanType(SpanType.Entry)
+                .build();
+        ServiceNameCollection nameCollection = ServiceNameCollection.newBuilder()
+                .addElements(element)
+                .build();
+        when(serviceNameService.get(anyInt(), anyInt(), anyString())).thenReturn(1);
+        serviceNameDiscoveryServiceHandler.discovery(nameCollection, new StreamObserver<ServiceNameMappingCollection>() {
+            @Override
+            public void onNext(ServiceNameMappingCollection serviceNameMappingCollection) {
+                ServiceNameMappingElement mappingElement = serviceNameMappingCollection.getElementsList().get(0);
+                assertEquals(mappingElement.getElement(), element);
+                int serviceId = mappingElement.getServiceId();
+                assertEquals(serviceId, 1);
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+
+            }
+
+            @Override
+            public void onCompleted() {
+
+            }
+        });
     }
 }
