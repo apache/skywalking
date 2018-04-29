@@ -17,19 +17,12 @@
 
 package org.apache.skywalking.apm.collector.agent.grpc.provider;
 
-import io.grpc.Channel;
-import io.grpc.netty.NettyChannelBuilder;
-import io.grpc.testing.GrpcServerRule;
 import org.apache.skywalking.apm.collector.agent.grpc.define.AgentGRPCModule;
 import org.apache.skywalking.apm.collector.core.module.MockModule;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
-import org.apache.skywalking.apm.network.proto.Application;
-import org.apache.skywalking.apm.network.proto.ApplicationMapping;
-import org.apache.skywalking.apm.network.proto.ApplicationRegisterServiceGrpc;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -37,7 +30,8 @@ import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.powermock.api.mockito.PowerMockito.when;
 

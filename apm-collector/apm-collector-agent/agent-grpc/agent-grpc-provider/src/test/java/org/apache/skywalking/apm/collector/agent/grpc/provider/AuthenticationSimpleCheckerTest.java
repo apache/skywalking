@@ -59,7 +59,7 @@ public class AuthenticationSimpleCheckerTest {
         when(moduleManager.find(anyString())).then(invocation -> new MockModule());
     }
 
-    @Test
+    @Test(expected = StatusRuntimeException.class)
     public void build() throws ServerException {
         ApplicationRegisterServiceHandler applicationRegisterServiceHandler = new ApplicationRegisterServiceHandler(moduleManager);
         MockGRPCServer mockGRPCServer = new MockGRPCServer(grpcServerRule);
@@ -76,12 +76,7 @@ public class AuthenticationSimpleCheckerTest {
 
         AuthenticationSimpleChecker.INSTANCE.setExpectedToken("test");
         AuthenticationSimpleChecker.INSTANCE.build(mockGRPCServer, applicationRegisterServiceHandler);
-        try {
-            stub.applicationCodeRegister(application);
-        } catch (Exception e) {
-            assertTrue(e instanceof StatusRuntimeException);
-            assertEquals(((StatusRuntimeException) e).getStatus(), Status.PERMISSION_DENIED);
-        }
+        stub.applicationCodeRegister(application);
 
     }
 
