@@ -199,13 +199,13 @@ Input：
               "v": "GET"
             }
           ],
-          "lo": { //LogMessage
-            "t": 1501858094726,
-            "d": [
-                "k": "NullPointException",
-                "v": "Error Stack"
-            }
-          }
+          "lo": [{
+                "t": 1501858094726,
+                "d": [{ 
+                        "k": "NullPointException",
+                        "v": "Error Stack"
+                    }]
+           }]
         },
         {
           "si": 1,
