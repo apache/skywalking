@@ -5,6 +5,7 @@
     * [快速入门](cn/Quick-start-CN.md)
     * [中间件，框架与类库支持列表](Supported-list.md)
         * [如何关闭特定插件](cn/How-to-disable-plugin-CN.md)
+        * [可选插件](cn/Optional-plugins-CN.md)
   * 高级特性
     * [通过系统启动参数进行覆盖配置](cn/Setting-override-CN.md)
     * [服务直连(Direct uplink)及禁用名称服务(naming service)](cn/Direct-uplink-CN.md)
