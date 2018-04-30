@@ -17,6 +17,8 @@
 
 package org.apache.skywalking.apm.collector.agent.jetty.provider;
 
+import org.apache.skywalking.apm.collector.cluster.ModuleRegistration;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,11 +32,17 @@ import static org.junit.Assert.*;
 @RunWith(MockitoJUnitRunner.class)
 public class AgentModuleJettyRegistrationTest {
 
+    private AgentModuleJettyRegistration registration;
+
     @Before
     public void setUp() throws Exception {
+        registration = new AgentModuleJettyRegistration("127.0.0.1", 8080, "/");
     }
 
     @Test
     public void buildValue() {
+        ModuleRegistration.Value value = registration.buildValue();
+        Assert.assertEquals(value.getHostPort(), "127.0.0.1:8080");
+        assertEquals(value.getContextPath(), "/");
     }
 }

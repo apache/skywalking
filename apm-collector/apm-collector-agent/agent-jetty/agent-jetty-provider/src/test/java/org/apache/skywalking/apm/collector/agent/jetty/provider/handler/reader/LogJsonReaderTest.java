@@ -39,8 +39,8 @@ import static java.lang.System.out;
 /**
  * @author lican
  */
-//@RunWith(MockitoJUnitRunner.class)
-public class LogJsonReaderTest {
+@RunWith(MockitoJUnitRunner.class)
+public class LogJsonReaderTest extends BaseReader{
 
     private LogJsonReader logJsonReader;
 
@@ -64,15 +64,8 @@ public class LogJsonReaderTest {
         JsonObject json = new JsonObject();
         json.addProperty("ti", l);
         json.add("ld", array);
-        String s = gson.toJson(json);
-        out.println(s);
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(s.getBytes());
-        InputStreamReader inputStreamReader = new InputStreamReader(byteArrayInputStream);
 
-        JsonReader reader = new JsonReader(inputStreamReader);
-        reader.setLenient(true);
-
-        LogMessage read = logJsonReader.read(reader);
+        LogMessage read = logJsonReader.read(getReader(json));
 
         Assert.assertEquals(read.getTime(), l);
     }

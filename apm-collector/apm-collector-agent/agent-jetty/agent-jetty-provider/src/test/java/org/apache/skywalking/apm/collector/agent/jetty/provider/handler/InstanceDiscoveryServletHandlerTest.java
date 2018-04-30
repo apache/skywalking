@@ -17,12 +17,29 @@
 
 package org.apache.skywalking.apm.collector.agent.jetty.provider.handler;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import org.apache.skywalking.apm.collector.DelegatingServletInputStream;
+import org.apache.skywalking.apm.collector.core.module.MockModule;
+import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.*;
+import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyString;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
  * @author lican
@@ -30,19 +47,48 @@ import static org.junit.Assert.*;
 @RunWith(MockitoJUnitRunner.class)
 public class InstanceDiscoveryServletHandlerTest {
 
+    @Mock
+    private ModuleManager moduleManager;
+    @Mock
+    private HttpServletRequest request;
+
+    private Gson gson = new Gson();
+
+    private InstanceDiscoveryServletHandler instanceDiscoveryServletHandler;
+
     @Before
     public void setUp() throws Exception {
+        when(moduleManager.find(anyString())).then(invocation -> new MockModule());
+        instanceDiscoveryServletHandler = new InstanceDiscoveryServletHandler(moduleManager);
+
     }
 
     @Test
     public void pathSpec() {
+        assertEquals(instanceDiscoveryServletHandler.pathSpec(), "/instance/register");
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void doGet() throws ArgumentsParseException {
+        instanceDiscoveryServletHandler.doGet(request);
     }
 
     @Test
-    public void doGet() {
-    }
-
-    @Test
-    public void doPost() {
+    public void doPost() throws ArgumentsParseException, IOException {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("ai", 1);
+        jsonObject.addProperty("au", "123");
+        jsonObject.addProperty("rt", System.currentTimeMillis());
+        JsonObject osInfo = new JsonObject();
+        osInfo.addProperty("osName", "test");
+        jsonObject.add("oi", osInfo);
+        String s = gson.toJson(jsonObject);
+        Mockito.when(request.getReader()).then(invocation -> {
+            DelegatingServletInputStream delegatingServletInputStream = new DelegatingServletInputStream(new ByteArrayInputStream(s.getBytes()));
+            return new BufferedReader(new InputStreamReader(delegatingServletInputStream));
+        });
+        JsonElement jsonElement = instanceDiscoveryServletHandler.doPost(request);
+        int ii = ((JsonObject) jsonElement).get("ii").getAsInt();
+        assertEquals(ii, 0);
     }
 }

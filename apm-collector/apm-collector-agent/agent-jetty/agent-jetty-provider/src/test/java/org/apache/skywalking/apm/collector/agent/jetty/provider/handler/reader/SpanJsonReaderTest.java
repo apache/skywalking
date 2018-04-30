@@ -17,24 +17,71 @@
 
 package org.apache.skywalking.apm.collector.agent.jetty.provider.handler.reader;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import org.apache.skywalking.apm.network.proto.SpanObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.*;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author lican
  */
 @RunWith(MockitoJUnitRunner.class)
-public class SpanJsonReaderTest {
+public class SpanJsonReaderTest extends BaseReader {
+
+    private SpanJsonReader spanJsonReader;
 
     @Before
     public void setUp() throws Exception {
+        spanJsonReader = new SpanJsonReader();
     }
 
+    /**
+     * {
+     * "si": 0, //spanId
+     * "tv": 0, //SpanType
+     * "lv": 2, //SpanLayer
+     * "ps": -1, //parentSpanId
+     * "st": 1501858094726, //startTime
+     * "et": 1501858096804, //endTime
+     * "ci": 3, //componentId
+     * "cn": "", //component
+     * "oi": 0, //operationNameId
+     * "on": "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()", //operationName
+     * "pi": 0, //peerId
+     * "pn": "", //peer
+     * "ie": false, //isError
+     * "rs": [ //TraceSegmentReference],
+     * "to": [ //KeyWithStringValue ],
+     * "lo": [] //log
+     * }
+     */
     @Test
-    public void read() {
+    public void read() throws IOException {
+        JsonObject json = new JsonObject();
+        json.addProperty("si", 1);
+        json.addProperty("tv", 0);
+        json.addProperty("lv", 2);
+        json.addProperty("ps", -1);
+        json.addProperty("st", 1501858094726L);
+        json.addProperty("et", 1501858096804L);
+        json.addProperty("ci", 3);
+        json.addProperty("cn", "redis");
+        json.addProperty("oi", 0);
+        json.addProperty("on", "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()");
+        json.addProperty("pi", 0);
+        json.addProperty("pn", "127.0.0.1:6379");
+        json.addProperty("ie", false);
+        json.add("rs", new JsonArray());
+        json.add("to", new JsonArray());
+        json.add("lo", new JsonArray());
+        SpanObject read = spanJsonReader.read(getReader(json));
+        assertEquals(read.getSpanId(), 1);
     }
 }

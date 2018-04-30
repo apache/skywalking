@@ -17,32 +17,21 @@
 
 package org.apache.skywalking.apm.collector.agent.jetty.provider.handler.reader;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.stream.JsonReader;
 
-import static org.junit.Assert.*;
+import java.io.ByteArrayInputStream;
+import java.io.InputStreamReader;
 
 /**
  * @author lican
  */
-@RunWith(MockitoJUnitRunner.class)
-public class TraceSegmentTest {
+public class BaseReader {
 
-    @Before
-    public void setUp() throws Exception {
-    }
+    private Gson gson = new Gson();
 
-    @Test
-    public void addGlobalTraceId() {
-    }
-
-    @Test
-    public void setTraceSegmentBuilder() {
-    }
-
-    @Test
-    public void getUpstreamSegment() {
+    protected JsonReader getReader(JsonElement element) {
+        return new JsonReader(new InputStreamReader(new ByteArrayInputStream(gson.toJson(element).getBytes())));
     }
 }

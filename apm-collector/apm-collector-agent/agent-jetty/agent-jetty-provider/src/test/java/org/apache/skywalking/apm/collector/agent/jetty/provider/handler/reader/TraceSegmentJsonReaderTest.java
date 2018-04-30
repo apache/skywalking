@@ -17,24 +17,50 @@
 
 package org.apache.skywalking.apm.collector.agent.jetty.provider.handler.reader;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import org.apache.skywalking.apm.network.proto.UniqueId;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.*;
+import java.io.IOException;
+import java.util.List;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author lican
  */
 @RunWith(MockitoJUnitRunner.class)
-public class TraceSegmentJsonReaderTest {
+public class TraceSegmentJsonReaderTest extends BaseReader {
+
+    private TraceSegmentJsonReader traceSegmentJsonReader;
 
     @Before
     public void setUp() throws Exception {
+        traceSegmentJsonReader = new TraceSegmentJsonReader();
     }
 
+    /**
+     * {
+     * "gt": [[230150, 185809, 24040000]],
+     * "sg": { }//TraceSegmentObject
+     */
     @Test
-    public void read() {
+    public void read() throws IOException {
+        JsonArray array = new JsonArray();
+        array.add(230150);
+        array.add(185809);
+        array.add(24040000);
+        JsonArray gtArray = new JsonArray();
+        gtArray.add(array);
+        JsonObject json = new JsonObject();
+        json.add("gt", gtArray);
+        json.add("sg", new JsonObject());
+        TraceSegment read = traceSegmentJsonReader.read(getReader(json));
+        List<UniqueId> globalTraceIdsList = read.getUpstreamSegment().getGlobalTraceIdsList();
+        assertTrue(globalTraceIdsList.size() == 1);
     }
 }

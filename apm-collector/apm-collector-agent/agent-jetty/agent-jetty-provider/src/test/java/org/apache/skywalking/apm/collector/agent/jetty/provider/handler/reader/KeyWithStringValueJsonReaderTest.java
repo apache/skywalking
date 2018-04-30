@@ -37,7 +37,7 @@ import static org.junit.Assert.*;
  * @author lican
  */
 @RunWith(MockitoJUnitRunner.class)
-public class KeyWithStringValueJsonReaderTest {
+public class KeyWithStringValueJsonReaderTest extends BaseReader {
 
     private KeyWithStringValueJsonReader jsonReader;
 
@@ -52,9 +52,7 @@ public class KeyWithStringValueJsonReaderTest {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("k", "hello");
         jsonObject.addProperty("v", "world");
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(gson.toJson(jsonObject).getBytes());
-        JsonReader reader = new JsonReader(new InputStreamReader(byteArrayInputStream));
-        KeyWithStringValue read = jsonReader.read(reader);
+        KeyWithStringValue read = jsonReader.read(getReader(jsonObject));
         assertEquals(read.getKey(),"hello");
         assertEquals(read.getValue(),"world");
     }
