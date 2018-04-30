@@ -5,6 +5,7 @@
     * [Quick start](en/Quick-start.md)
     * [Supported middlewares, frameworks and libraries](Supported-list.md)
       * [How to disable plugins?](en/How-to-disable-plugin.md)
+      * [Optional plugins](en/Optional-plugins.md)
   * Advanced Features
     * [Override settings through System.properties or System.env](en/Setting-override.md)
     * [Direct uplink and disable naming discovery](en/Direct-uplink.md)
