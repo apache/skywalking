@@ -186,7 +186,7 @@ Input：
               "eii": 2, //entryApplicationInstanceId
               "esi": 0, //entryServiceId
               "esn": "/dubbox-case/case/dubbox-rest", //entryServiceName
-              "rn": 0 //RefType
+              "rv": 0 //RefTypeValue
             }
           ],
           "to": [ //KeyWithStringValue
