@@ -19,7 +19,6 @@ package org.apache.skywalking.apm.collector.agent.jetty.provider.handler.naming;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import org.apache.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.junit.Before;
 import org.junit.Test;

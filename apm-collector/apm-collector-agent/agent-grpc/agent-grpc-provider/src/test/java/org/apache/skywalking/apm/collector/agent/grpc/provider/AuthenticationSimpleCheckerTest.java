@@ -18,7 +18,6 @@
 package org.apache.skywalking.apm.collector.agent.grpc.provider;
 
 import io.grpc.ServerServiceDefinition;
-import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.testing.GrpcServerRule;
 import org.apache.skywalking.apm.collector.agent.grpc.provider.handler.ApplicationRegisterServiceHandler;
@@ -38,7 +37,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.powermock.api.mockito.PowerMockito.when;
 

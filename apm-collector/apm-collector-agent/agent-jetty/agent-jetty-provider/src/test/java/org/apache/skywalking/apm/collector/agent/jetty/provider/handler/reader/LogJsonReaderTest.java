@@ -20,8 +20,6 @@ package org.apache.skywalking.apm.collector.agent.jetty.provider.handler.reader;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 import org.apache.skywalking.apm.network.proto.LogMessage;
 import org.junit.Assert;
 import org.junit.Before;
@@ -29,18 +27,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-
-import static java.lang.System.out;
 
 /**
  * @author lican
  */
 @RunWith(MockitoJUnitRunner.class)
-public class LogJsonReaderTest extends BaseReader{
+public class LogJsonReaderTest extends BaseReader {
 
     private LogJsonReader logJsonReader;
 
