@@ -17,9 +17,11 @@
 
 package org.apache.skywalking.apm.collector.agent.grpc.provider.handler;
 
+import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.internal.util.reflection.Whitebox;
 
-import static org.junit.Assert.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author lican
@@ -28,6 +30,9 @@ public class SegmentCounterTest {
 
     @Test
     public void incrementAndGet() {
-
+        //set default value in case in other test has increments
+        Whitebox.setInternalState(SegmentCounter.INSTANCE, "counter", new AtomicLong(0));
+        long l = SegmentCounter.INSTANCE.incrementAndGet();
+        Assert.assertEquals(1L, l);
     }
 }
