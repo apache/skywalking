@@ -77,9 +77,9 @@ public class DataTTLKeeperTimerTestCase {
         Assert.assertEquals(newDayTimeBucket, endDayTimeBucket);
 
         long startMonthTimeBucket = Whitebox.getInternalState(timeBuckets, "startMonthTimeBucket");
-        Assert.assertEquals((newDayTimeBucket) / 100, startMonthTimeBucket);
+        Assert.assertEquals(newDayTimeBucket / 100, startMonthTimeBucket);
 
         long endMonthTimeBucket = Whitebox.getInternalState(timeBuckets, "endMonthTimeBucket");
-        Assert.assertEquals((newDayTimeBucket) / 100, endMonthTimeBucket);
+        Assert.assertEquals(newDayTimeBucket / 100, endMonthTimeBucket);
     }
 }
