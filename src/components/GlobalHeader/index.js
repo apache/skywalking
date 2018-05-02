@@ -102,10 +102,10 @@ export default class GlobalHeader extends PureComponent {
               className={styles.action}
               count={applicationAlarmList.total + serverAlarmList.total}
               onItemClick={(item, tabProps) => {
-                redirect({ pathname: '/alarm', state: { type: tabProps.title } });
+                redirect({ pathname: '/monitor/alarm', state: { type: tabProps.title } });
               }}
               onClear={(tabTitle) => {
-                redirect({ pathname: '/alarm', state: { type: tabTitle } });
+                redirect({ pathname: '/monitor/alarm', state: { type: tabTitle } });
               }}
               loading={fetching}
               popupAlign={{ offset: [20, -16] }}

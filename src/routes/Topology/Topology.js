@@ -132,14 +132,14 @@ export default class Topology extends PureComponent {
             {data.appInfo ? (
               <Card
                 title={data.appInfo.name}
-                bodyStyle={{ height: 558 }}
+                bodyStyle={{ height: 568 }}
                 actions={this.renderActions()}
               >
                 <ApplicationLitePanel appInfo={data.appInfo} />
               </Card>
             )
             : (
-              <Card title="Overview" style={{ height: 662 }}>
+              <Card title="Overview" style={{ height: 672 }}>
                 <DescriptionList col={1} layout="vertical" >
                   <Description term="Total Application">{data.getClusterTopology.nodes.filter(_ => _.sla).length}</Description>
                   <Description term="Application Alarm">{data.getClusterTopology.nodes.filter(_ => _.isAlarm).length}</Description>

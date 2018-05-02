@@ -97,7 +97,7 @@ export default generateModal({
   subscriptions: {
     setup({ history, dispatch }) {
       return history.listen(({ pathname, state }) => {
-        if (pathname === '/alarm' && state) {
+        if (pathname === '/monitor/alarm' && state) {
           dispatch({
             type: 'saveVariables',
             payload: { values: {
