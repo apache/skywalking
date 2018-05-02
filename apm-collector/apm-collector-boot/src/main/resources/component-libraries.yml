@@ -83,7 +83,7 @@ NutzHttp:
   languages: Java
 JettyClient:
   id: 18
-  languages: Javaƒ
+  languages: Java
 JettyServer:
   id: 19
   languages: Java
