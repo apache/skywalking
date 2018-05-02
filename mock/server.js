@@ -56,8 +56,10 @@ export default {
             'maxNoheap|61': [68260667],
           },
           getGCTrend: {
-            'youngGC|60': ['@natural(200, 300)'],
-            'oldGC|60': ['@natural(10,100)'],
+            'youngGCTime|60': ['@natural(200, 300)'],
+            'oldGCTime|60': ['@natural(10,100)'],
+            'youngGCCount|60': ['@natural(200, 300)'],
+            'oldGCount|60': ['@natural(10,100)'],
           },
         },
       }

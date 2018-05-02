@@ -17,7 +17,7 @@
 
 
 import React, { PureComponent } from 'react';
-import { Row, Col, Card } from 'antd';
+import { Row, Col, Card, Tag } from 'antd';
 import {
   ChartCard, MiniArea, MiniBar, Line, Area, StackBar,
 } from '../../components/Charts';
@@ -88,7 +88,7 @@ export default class Server extends PureComponent {
               </Col>
             </Row>
             <Row gutter={8}>
-              <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
+              <Col span={24} style={{ marginTop: 8 }}>
                 <ChartCard
                   title="Heap MB"
                   contentHeight={150}
@@ -99,7 +99,7 @@ export default class Server extends PureComponent {
                   />
                 </ChartCard>
               </Col>
-              <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
+              <Col span={24} style={{ marginTop: 8 }}>
                 <ChartCard
                   title="Non-Heap MB"
                   contentHeight={150}
@@ -116,10 +116,28 @@ export default class Server extends PureComponent {
                 <ChartCard
                   title="GC ms"
                   contentHeight={150}
+                  footer={
+                    <div>
+                      <div style={{ marginBottom: 10 }}>
+                        <span style={{ marginRight: 10 }}>Young GC</span>
+                        <Tag color="#66b5ff" >
+                          {getGCTrend.youngGCCount.reduce((sum, v) => sum + v)}
+                        </Tag>
+                        <span>collections</span>
+                      </div>
+                      <div>
+                        <span style={{ marginRight: 10 }}>Old GC</span>
+                        <Tag color="#ffb566" >
+                          {getGCTrend.oldGCount.reduce((sum, v) => sum + v)}
+                        </Tag>
+                        <span>collections</span>
+                      </div>
+                    </div>
+                  }
                 >
                   <StackBar
-                    data={axis(duration, getGCTrend.oldGC, ({ x, y }) => ({ x, y, type: 'oldGC' }))
-                    .concat(axis(duration, getGCTrend.youngGC, ({ x, y }) => ({ x, y, type: 'youngGC' })))}
+                    data={axis(duration, getGCTrend.oldGCTime, ({ x, y }) => ({ x, y, type: 'oldGCTime' }))
+                    .concat(axis(duration, getGCTrend.youngGCTime, ({ x, y }) => ({ x, y, type: 'youngGCTime' })))}
                   />
                 </ChartCard>
               </Col>

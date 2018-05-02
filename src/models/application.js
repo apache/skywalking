@@ -83,8 +83,10 @@ query Application($serverId: ID!, $duration: Duration!) {
     cost
   }
   getGCTrend(serverId: $serverId, duration: $duration) {
-    youngGC
-    oldGC
+    youngGCCount
+    oldGCount
+    youngGCTime
+    oldGCTime
   }
   getMemoryTrend(serverId: $serverId, duration: $duration) {
     heap
@@ -123,8 +125,10 @@ export default generateModal({
       maxNoheap: [],
     },
     getGCTrend: {
-      youngGC: [],
-      oldGC: [],
+      youngGCCount: [],
+      oldGCount: [],
+      youngGCTime: [],
+      oldGCTime: [],
     },
   },
   optionsQuery,
