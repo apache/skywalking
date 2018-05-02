@@ -33,7 +33,7 @@ export default {
       {
         data: {
           'getSlowService|10': [{ 'key|+1': 1, name: '@name', 'avgResponseTime|200-1000': 1 }],
-          'getServerThroughput|10': [{ 'key|+1': 1, name: '@name', 'callsPerSec|100-10000': 1 }],
+          'getServerThroughput|10': [{ 'key|+1': 1, pid: '@natural(4, 20)', 'ipv4|1-3': ['@ip'], host: 'WORKSAPCE-@name', 'callsPerSec|100-10000': 1 }],
           getApplicationTopology: () => {
             const application = mockjs.mock({
               nodes: [

@@ -128,7 +128,7 @@ export default class Application extends PureComponent {
                 bordered={false}
                 bodyStyle={{ padding: '0px 10px' }}
               >
-                <Ranking data={data.getServerThroughput} title="name" content="callsPerSec" unit="t/s" />
+                <Ranking data={data.getServerThroughput.map(_ => ({ ..._, name: `${_.pid}@${_.ipv4.length > 0 ? _.ipv4[0] : _.host}` }))} title="name" content="callsPerSec" unit="t/s" />
               </Card>
             </Col>
           </Row>
