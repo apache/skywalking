@@ -20,7 +20,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Row, Col, Card, Tooltip, Icon } from 'antd';
 import {
-  ChartCard, Pie, MiniArea, Field,
+  ChartCard, MiniArea, Field, HeatMap,
 } from '../../components/Charts';
 import { axis } from '../../utils/time';
 import { avgTimeSeries, redirect } from '../../utils/utils';
@@ -99,6 +99,18 @@ export default class Dashboard extends PureComponent {
           <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
             <ChartCard
               title="Avg Application Alarm"
+              contentHeight={200}
+            >
+              <HeatMap
+                data={data.getThermodynamic}
+                duration={this.props.duration}
+                height={200}
+              />
+            </ChartCard>
+          </Col>
+          <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
+            <ChartCard
+              title="Avg Application Alarm"
               avatar={<img style={{ width: 56, height: 56 }} src="img/icon/alert.png" alt="app" />}
               total={`${avg.toFixed(2)}%`}
               footer={<div><Field label="Max" value={`${max}%`} /> <Field label="Min" value={`${min}%`} /></div>}
@@ -115,21 +127,6 @@ export default class Dashboard extends PureComponent {
                       return `${val} %`;
                   },
                 }}
-              />
-            </ChartCard>
-          </Col>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
-            <ChartCard
-              contentHeight={200}
-            >
-              <Pie
-                hasLegend
-                title="Database"
-                subTitle="Total"
-                total={data.getConjecturalApps.apps
-                  .reduce((pre, now) => now.num + pre, 0)}
-                data={data.getConjecturalApps.apps
-                  .map((v) => { return { x: v.name, y: v.num }; })}
               />
             </ChartCard>
           </Col>

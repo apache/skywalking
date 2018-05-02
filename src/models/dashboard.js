@@ -31,8 +31,9 @@ export default generateModal({
     getAlarmTrend: {
       numOfAlarmRate: [],
     },
-    getConjecturalApps: {
-      apps: [],
+    getThermodynamic: {
+      nodes: [],
+      responseTimeStep: 0,
     },
     getTopNSlowService: [],
     getTopNApplicationThroughput: [],
@@ -49,11 +50,9 @@ export default generateModal({
       getAlarmTrend(duration: $duration) {
         numOfAlarmRate
       }
-      getConjecturalApps(duration: $duration) {
-        apps {
-          name
-          num
-        }
+      getThermodynamic(duration: $duration) {
+        nodes
+        responseTimeStep
       }
       getTopNSlowService(duration: $duration, topN: 10) {
         key: id

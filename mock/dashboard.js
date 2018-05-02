@@ -36,6 +36,19 @@ export default {
           getConjecturalApps: {
             'apps|3-5': [{ 'name|1': ['Oracle', 'MySQL', 'ActiveMQ', 'Redis', 'Memcache', 'SQLServer'], num: '@natural(1, 20)' }],
           },
+          getThermodynamic: {
+            nodes: () => {
+              const result = [];
+              for (let i = 0; i < 61; i += 1) {
+                for (let j = 0; j < 41; j += 1) {
+                  // result.push([i, j, mockjs.Random.natural(0, 999)]);
+                  result.push([i, j, 1]);
+                }
+              }
+              return result;
+            },
+            responseTimeStep: 50,
+          },
           'getTopNSlowService|10': [{ 'key|+1': 1, label: '@url', 'value|200-1000': 1 }],
           'getTopNApplicationThroughput|10': [{ 'key|+1': 1, label: '@name', 'value|100-10000': 1 }],
         },

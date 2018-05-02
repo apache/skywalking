@@ -28,6 +28,7 @@ import MiniBar from './MiniBar';
 import Field from './Field';
 import StackBar from './StackBar';
 import Sankey from './Sankey';
+import HeatMap from './HeatMap';
 
 const yuan = val => `&yen; ${numeral(val).format('0,0')}`;
 
@@ -43,4 +44,5 @@ export {
   Area,
   StackBar,
   Sankey,
+  HeatMap,
 };
