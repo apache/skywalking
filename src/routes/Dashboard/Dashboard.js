@@ -98,7 +98,7 @@ export default class Dashboard extends PureComponent {
         <Row gutter={8}>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
             <ChartCard
-              title="Avg Application Alarm"
+              title="Calls HeatMap"
               contentHeight={200}
             >
               <HeatMap

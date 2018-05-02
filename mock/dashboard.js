@@ -41,8 +41,7 @@ export default {
               const result = [];
               for (let i = 0; i < 61; i += 1) {
                 for (let j = 0; j < 41; j += 1) {
-                  // result.push([i, j, mockjs.Random.natural(0, 999)]);
-                  result.push([i, j, 1]);
+                  result.push([i, j, mockjs.Random.natural(0, 999)]);
                 }
               }
               return result;
