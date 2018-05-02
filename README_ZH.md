@@ -78,6 +78,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 
 # Contact Us
 * 直接提交Issue
+- 订阅邮件列表: dev@skywalking.apache.org
 * [Gitter](https://gitter.im/openskywalking/Lobby)
 * QQ群: 392443393
 
