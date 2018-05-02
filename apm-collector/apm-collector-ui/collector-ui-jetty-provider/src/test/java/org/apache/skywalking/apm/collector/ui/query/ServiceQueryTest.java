@@ -72,8 +72,8 @@ public class ServiceQueryTest {
     }
 
     @Test
-    public void getServiceTPSTrend() throws ParseException {
-        Mockito.when(serviceNameService.getServiceTPSTrend(
+    public void getServiceThroughputTrend() throws ParseException {
+        Mockito.when(serviceNameService.getServiceThroughputTrend(
                 Mockito.anyInt(), Mockito.anyObject(),
                 Mockito.anyLong(), Mockito.anyLong())
         ).then(invocation -> {
@@ -86,7 +86,7 @@ public class ServiceQueryTest {
         duration.setStart("2017-01");
         duration.setEnd("2017-02");
         duration.setStep(Step.MONTH);
-        serviceQuery.getServiceTPSTrend(-1, duration);
+        serviceQuery.getServiceThroughputTrend(-1, duration);
     }
 
     @Test

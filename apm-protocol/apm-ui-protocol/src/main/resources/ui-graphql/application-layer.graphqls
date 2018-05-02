@@ -24,7 +24,7 @@ type ApplicationNode implements Node {
     # 2 Digits after floating point in UI, need to division by 100. 10000 -> 100.00
     sla: Int!
     # The number of incoming calls
-    callsPerSec: Long!
+    cpm: Long!
     # Unit: millisecond
     avgResponseTime: Long!
     # ref: http://www.apdex.org/

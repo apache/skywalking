@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.apache.skywalking.apm.agent.core.context.TracingContext;
+import org.apache.skywalking.apm.agent.core.plugin.loader.AgentClassLoader;
 import org.junit.rules.ExternalResource;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
@@ -49,6 +50,7 @@ public class AgentServiceRule extends ExternalResource {
     @Override
     protected void before() throws Throwable {
         super.before();
+        AgentClassLoader.initDefaultLoader();
         Config.Logging.LEVEL = LogLevel.OFF;
         ServiceManager.INSTANCE.boot();
         RemoteDownstreamConfig.Agent.APPLICATION_ID = 1;

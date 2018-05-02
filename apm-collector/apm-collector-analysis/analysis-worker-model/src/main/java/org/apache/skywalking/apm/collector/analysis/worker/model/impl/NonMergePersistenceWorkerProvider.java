@@ -25,9 +25,9 @@ import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 /**
  * @author peng-yongsheng
  */
-public abstract class PersistenceWorkerProvider<INPUT_AND_OUTPUT extends StreamData, WORKER_TYPE extends PersistenceWorker<INPUT_AND_OUTPUT>> extends AbstractLocalAsyncWorkerProvider<INPUT_AND_OUTPUT, INPUT_AND_OUTPUT, WORKER_TYPE> {
+public abstract class NonMergePersistenceWorkerProvider<INPUT_AND_OUTPUT extends StreamData, WORKER_TYPE extends NonMergePersistenceWorker<INPUT_AND_OUTPUT>> extends AbstractLocalAsyncWorkerProvider<INPUT_AND_OUTPUT, INPUT_AND_OUTPUT, WORKER_TYPE> {
 
-    public PersistenceWorkerProvider(ModuleManager moduleManager) {
+    public NonMergePersistenceWorkerProvider(ModuleManager moduleManager) {
         super(moduleManager);
     }
 }

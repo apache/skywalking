@@ -19,22 +19,15 @@
 package org.apache.skywalking.apm.collector.storage.es.base.define;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import org.apache.skywalking.apm.collector.client.Client;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.apm.collector.core.data.ColumnDefine;
-import org.apache.skywalking.apm.collector.core.data.TableDefine;
-import org.apache.skywalking.apm.collector.storage.StorageException;
-import org.apache.skywalking.apm.collector.storage.StorageInstallException;
-import org.apache.skywalking.apm.collector.storage.StorageInstaller;
+import org.apache.skywalking.apm.collector.core.data.*;
+import org.apache.skywalking.apm.collector.storage.*;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.elasticsearch.common.xcontent.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -109,7 +102,6 @@ public class ElasticSearchStorageInstaller extends StorageInstaller {
             .put("index.number_of_shards", indexShardsNumber)
             .put("index.number_of_replicas", indexReplicasNumber)
             .put("index.refresh_interval", String.valueOf(tableDefine.refreshInterval()) + "s")
-
             .put("analysis.analyzer.collector_analyzer.type", "stop")
             .build();
     }
@@ -117,6 +109,9 @@ public class ElasticSearchStorageInstaller extends StorageInstaller {
     private XContentBuilder createMappingBuilder(ElasticSearchTableDefine tableDefine) throws IOException {
         XContentBuilder mappingBuilder = XContentFactory.jsonBuilder()
             .startObject()
+            .startObject("_all")
+            .field("enabled", false)
+            .endObject()
             .startObject("properties");
 
         for (ColumnDefine columnDefine : tableDefine.getColumnDefines()) {

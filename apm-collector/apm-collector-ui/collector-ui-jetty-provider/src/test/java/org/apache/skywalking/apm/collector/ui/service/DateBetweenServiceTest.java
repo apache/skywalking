@@ -38,9 +38,9 @@ import static org.powermock.api.mockito.PowerMockito.when;
 /**
  * @author lican
  */
-public class SecondBetweenServiceTest {
+public class DateBetweenServiceTest {
 
-    private SecondBetweenService secondBetweenService;
+    private DateBetweenService dateBetweenService;
 
     private IInstanceUIDAO instanceUIDAO;
 
@@ -50,9 +50,9 @@ public class SecondBetweenServiceTest {
     public void setUp() throws Exception {
         ModuleManager moduleManager = mock(ModuleManager.class);
         when(moduleManager.find(anyString())).then(invocation -> new MockModule());
-        secondBetweenService = new SecondBetweenService(moduleManager);
+        dateBetweenService = new DateBetweenService(moduleManager);
         instanceUIDAO = mock(IInstanceUIDAO.class);
-        Whitebox.setInternalState(secondBetweenService, "instanceUIDAO", instanceUIDAO);
+        Whitebox.setInternalState(dateBetweenService, "instanceUIDAO", instanceUIDAO);
         duration = new Duration();
         duration.setEnd("2018-02");
         duration.setStart("2018-01");
@@ -60,11 +60,11 @@ public class SecondBetweenServiceTest {
     }
 
     @Test
-    public void calculate() throws ParseException {
+    public void secondsBetween() throws ParseException {
         long startSecondTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(duration.getStep(), duration.getStart());
         long endSecondTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(duration.getStep(), duration.getEnd());
         when(instanceUIDAO.getLatestHeartBeatTime(anyInt())).then(invocation -> endSecondTimeBucket);
-        int seconds = secondBetweenService.calculate(1, startSecondTimeBucket, endSecondTimeBucket);
+        int seconds = dateBetweenService.secondsBetween(1, startSecondTimeBucket, endSecondTimeBucket);
         Assert.assertTrue(seconds > 0);
     }
 }

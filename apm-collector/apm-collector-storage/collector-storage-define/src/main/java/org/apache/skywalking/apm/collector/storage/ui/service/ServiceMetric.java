@@ -26,7 +26,7 @@ public class ServiceMetric {
     private String name;
     private long calls;
     private int avgResponseTime;
-    private int callsPerSec;
+    private int cpm;
 
     public int getId() {
         return id;
@@ -52,12 +52,12 @@ public class ServiceMetric {
         this.avgResponseTime = avgResponseTime;
     }
 
-    public int getCallsPerSec() {
-        return callsPerSec;
+    public int getCpm() {
+        return cpm;
     }
 
-    public void setCallsPerSec(int callsPerSec) {
-        this.callsPerSec = callsPerSec;
+    public void setCpm(int cpm) {
+        this.cpm = cpm;
     }
 
     public long getCalls() {

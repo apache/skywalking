@@ -18,42 +18,12 @@
 
 package org.apache.skywalking.apm.collector.analysis.worker.model.impl.data;
 
-import org.apache.skywalking.apm.collector.core.cache.Window;
-import org.apache.skywalking.apm.collector.core.data.StreamData;
-
 /**
  * @author peng-yongsheng
  */
-public class DataCache<STREAM_DATA extends StreamData> extends Window<DataCollection<STREAM_DATA>> {
+public interface DataCache {
 
-    private DataCollection<STREAM_DATA> lockedDataCollection;
+    void writing();
 
-    @Override public DataCollection<STREAM_DATA> collectionInstance() {
-        return new DataCollection<>();
-    }
-
-    public boolean containsKey(String id) {
-        return lockedDataCollection.containsKey(id);
-    }
-
-    public StreamData get(String id) {
-        return lockedDataCollection.get(id);
-    }
-
-    public void put(String id, STREAM_DATA data) {
-        lockedDataCollection.put(id, data);
-    }
-
-    public void writing() {
-        lockedDataCollection = getCurrentAndWriting();
-    }
-
-    public int currentCollectionSize() {
-        return getCurrent().size();
-    }
-
-    public void finishWriting() {
-        lockedDataCollection.finishWriting();
-        lockedDataCollection = null;
-    }
+    void finishWriting();
 }

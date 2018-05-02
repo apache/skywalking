@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.agent.core.jvm;
 
 import io.grpc.Channel;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
+import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
@@ -52,6 +53,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author wusheng
  */
+@DefaultImplementor
 public class JVMService implements BootService, Runnable {
     private static final ILog logger = LogManager.getLogger(JVMService.class);
     private LinkedBlockingQueue<JVMMetric> queue;
@@ -60,7 +62,7 @@ public class JVMService implements BootService, Runnable {
     private Sender sender;
 
     @Override
-    public void beforeBoot() throws Throwable {
+    public void prepare() throws Throwable {
         queue = new LinkedBlockingQueue(Config.Jvm.BUFFER_SIZE);
         sender = new Sender();
         ServiceManager.INSTANCE.findService(GRPCChannelManager.class).addChannelListener(sender);
@@ -86,7 +88,7 @@ public class JVMService implements BootService, Runnable {
     }
 
     @Override
-    public void afterBoot() throws Throwable {
+    public void onComplete() throws Throwable {
 
     }
 

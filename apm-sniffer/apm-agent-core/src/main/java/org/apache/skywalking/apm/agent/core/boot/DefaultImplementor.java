@@ -16,37 +16,17 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.ui.overview;
+package org.apache.skywalking.apm.agent.core.boot;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public class ApplicationTPS {
-    private int applicationId;
-    private String applicationCode;
-    private int callsPerSec;
-
-    public int getApplicationId() {
-        return applicationId;
-    }
-
-    public void setApplicationId(int applicationId) {
-        this.applicationId = applicationId;
-    }
-
-    public String getApplicationCode() {
-        return applicationCode;
-    }
-
-    public void setApplicationCode(String applicationCode) {
-        this.applicationCode = applicationCode;
-    }
-
-    public int getCallsPerSec() {
-        return callsPerSec;
-    }
-
-    public void setCallsPerSec(int callsPerSec) {
-        this.callsPerSec = callsPerSec;
-    }
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface DefaultImplementor {
 }

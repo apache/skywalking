@@ -37,6 +37,7 @@ public abstract class AbstractGCMetricEsTableDefine extends ElasticSearchTableDe
         addColumn(new ElasticSearchColumnDefine(GCMetricTable.INSTANCE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
         addColumn(new ElasticSearchColumnDefine(GCMetricTable.PHRASE, ElasticSearchColumnDefine.Type.Integer.name()));
         addColumn(new ElasticSearchColumnDefine(GCMetricTable.COUNT, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(GCMetricTable.DURATION, ElasticSearchColumnDefine.Type.Long.name()));
         addColumn(new ElasticSearchColumnDefine(GCMetricTable.TIMES, ElasticSearchColumnDefine.Type.Long.name()));
         addColumn(new ElasticSearchColumnDefine(GCMetricTable.TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
     }

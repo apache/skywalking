@@ -30,4 +30,6 @@ public interface GCMetricTable extends InstanceTable {
     ColumnName PHRASE = new ColumnName("phrase", "p");
 
     ColumnName COUNT = new ColumnName("count", "c");
+
+    ColumnName DURATION = new ColumnName("duration", "d");
 }

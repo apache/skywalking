@@ -19,12 +19,7 @@
 package org.apache.skywalking.apm.collector.ui.service;
 
 import java.text.ParseException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
 import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
@@ -32,18 +27,11 @@ import org.apache.skywalking.apm.collector.configuration.service.IComponentLibra
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationComponentUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceReferenceMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.*;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
-import org.apache.skywalking.apm.collector.storage.ui.common.Call;
-import org.apache.skywalking.apm.collector.storage.ui.common.Node;
-import org.apache.skywalking.apm.collector.storage.ui.common.Step;
-import org.apache.skywalking.apm.collector.storage.ui.common.Topology;
-import org.apache.skywalking.apm.collector.storage.ui.common.VisualUserNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.apm.collector.storage.ui.common.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -56,7 +44,7 @@ public class ServiceTopologyService {
     private final IServiceMetricUIDAO serviceMetricUIDAO;
     private final IServiceReferenceMetricUIDAO serviceReferenceMetricUIDAO;
     private final ServiceNameCacheService serviceNameCacheService;
-    private final SecondBetweenService secondBetweenService;
+    private final DateBetweenService dateBetweenService;
     private final IComponentLibraryCatalogService componentLibraryCatalogService;
 
     public ServiceTopologyService(ModuleManager moduleManager) {
@@ -64,12 +52,12 @@ public class ServiceTopologyService {
         this.serviceReferenceMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IServiceReferenceMetricUIDAO.class);
         this.applicationComponentUIDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationComponentUIDAO.class);
         this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
-        this.secondBetweenService = new SecondBetweenService(moduleManager);
+        this.dateBetweenService = new DateBetweenService(moduleManager);
         this.componentLibraryCatalogService = moduleManager.find(ConfigurationModule.NAME).getService(IComponentLibraryCatalogService.class);
     }
 
     public Topology getServiceTopology(Step step, int serviceId, long startTimeBucket,
-        long endTimeBucket, long startSecondTimeBucket, long endSecondTimeBucket) throws ParseException {
+        long endTimeBucket, long startSecondTimeBucket, long endSecondTimeBucket) {
         logger.debug("startTimeBucket: {}, endTimeBucket: {}", startTimeBucket, endTimeBucket);
         List<IApplicationComponentUIDAO.ApplicationComponent> applicationComponents = applicationComponentUIDAO.load(step, startTimeBucket, endTimeBucket);
 
@@ -93,7 +81,7 @@ public class ServiceTopologyService {
             call.setCallType(components.getOrDefault(serviceNameCacheService.get(referenceMetric.getTarget()).getApplicationId(), Const.UNKNOWN));
             try {
                 int applicationId = serviceNameCacheService.get(referenceMetric.getTarget()).getApplicationId();
-                call.setCallsPerSec(referenceMetric.getCalls() / secondBetweenService.calculate(applicationId, startSecondTimeBucket, endSecondTimeBucket));
+                call.setCpm(referenceMetric.getCalls() / dateBetweenService.minutesBetween(applicationId, startSecondTimeBucket, endSecondTimeBucket));
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
             }
