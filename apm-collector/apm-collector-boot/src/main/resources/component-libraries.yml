@@ -35,7 +35,7 @@ Tomcat:
   languages: Java
 HttpClient:
   id: 2
-  languages: Java,C#
+  languages: Java,C#,Node.js
 Dubbo:
   id: 3
   languages: Java
@@ -44,19 +44,19 @@ H2:
   languages: Java
 Mysql:
   id: 5
-  languages: Java,C#
+  languages: Java,C#,Node.js
 ORACLE:
   id: 6
   languages: Java
 Redis:
   id: 7
-  languages: Java,C#
+  languages: Java,C#,Node.js
 Motan:
   id: 8
   languages: Java
 MongoDB:
   id: 9
-  languages: Java,C#
+  languages: Java,C#,Node.js
 Resin:
   id: 10
   languages: Java
@@ -95,7 +95,7 @@ ShardingJDBC:
   languages: Java
 PostgreSQL:
   id: 22
-  languages: Java,C#
+  languages: Java,C#,Node.js
 GRPC:
   id: 23
   languages: Java
@@ -169,6 +169,15 @@ Npgsql.EntityFrameworkCore.PostgreSQL:
 InMemoryDatabase:
   id: 3014
   languages: C#
+
+# NoeJS components
+# [4000, 5000) for Node.js agent
+HttpServer:
+  id: 4001
+  languages: Node.js
+express:
+  id: 4002
+  languages: Node.js
 
 # Component Server mapping defines the server display names of some components
 # e.g.
