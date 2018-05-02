@@ -145,6 +145,13 @@ class HeatMap extends Component {
               position="datetime*responseTime"
               color={['count', '#BAE7FF-#1890FF-#0050B3']}
               style={{ stroke: '#fff', lineWidth: 1 }}
+              tooltip={['datetime*responseTime*count', (datetime, responseTime, count) => {
+                return {
+                name: range[datetime],
+                title: `${responseTime > 0 ? responseTimeAxis[responseTime - 1] : 0}~${responseTimeAxis[responseTime]}`,
+                value: count,
+                };
+              }]}
             />
           </Chart>
         </div>
