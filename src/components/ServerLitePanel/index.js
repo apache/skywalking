@@ -35,7 +35,7 @@ export default class ServerLitePanel extends PureComponent {
     if (serverList.length < 1) {
       return null;
     }
-    const { serverInfo, getServerResponseTimeTrend, getServerTPSTrend } = data;
+    const { serverInfo, getServerResponseTimeTrend, getServerThroughputTrend } = data;
     if (!serverInfo.key) {
       onSelectServer(serverList[0].key, serverList[0]);
       return null;
@@ -64,13 +64,13 @@ export default class ServerLitePanel extends PureComponent {
           <Col span={24}>
             <ChartCard
               title="Avg Throughput"
-              total={`${avgTimeSeries(getServerTPSTrend.trendList)}`}
+              total={`${avgTimeSeries(getServerThroughputTrend.trendList)} cpm`}
               contentHeight={46}
               bordered={false}
               bodyStyle={{ padding: 5 }}
             >
               <MiniBar
-                data={axis(duration, getServerTPSTrend.trendList)}
+                data={axis(duration, getServerThroughputTrend.trendList)}
                 color="#975FE4"
               />
             </ChartCard>

@@ -32,7 +32,7 @@ export default class Server extends PureComponent {
   bytesToMB = list => list.map(_ => parseFloat((_ / (1024 ** 2)).toFixed(2)))
   render() {
     const { duration, data } = this.props;
-    const { serverInfo, getServerResponseTimeTrend, getServerTPSTrend,
+    const { serverInfo, getServerResponseTimeTrend, getServerThroughputTrend,
       getCPUTrend, getMemoryTrend, getGCTrend } = data;
     return (
       <div>
@@ -52,12 +52,12 @@ export default class Server extends PureComponent {
               <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
                 <ChartCard
                   title="Avg Throughput"
-                  total={`${avgTimeSeries(getServerTPSTrend.trendList)}`}
+                  total={`${avgTimeSeries(getServerThroughputTrend.trendList)} cpm`}
                   contentHeight={46}
                 >
                   <MiniBar
                     color="#975FE4"
-                    data={axis(duration, getServerTPSTrend.trendList)}
+                    data={axis(duration, getServerThroughputTrend.trendList)}
                   />
                 </ChartCard>
               </Col>

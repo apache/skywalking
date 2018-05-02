@@ -43,7 +43,7 @@ export default {
           getServerResponseTimeTrend: {
             'trendList|60': ['@natural(0, 1000)'],
           },
-          getServerTPSTrend: {
+          getServerThroughputTrend: {
             'trendList|60': ['@natural(0, 10000)'],
           },
           getCPUTrend: {

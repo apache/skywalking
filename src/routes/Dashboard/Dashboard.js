@@ -66,7 +66,7 @@ export default class Dashboard extends PureComponent {
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
               title="App"
-              action={this.renderAction('Show application details', '/application')}
+              action={this.renderAction('Show application details', '/monitor/application')}
               avatar={<img style={{ width: 56, height: 56 }} src="img/icon/app.png" alt="app" />}
               total={data.getClusterBrief.numOfApplication}
             />
@@ -74,7 +74,7 @@ export default class Dashboard extends PureComponent {
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
               title="Service"
-              action={this.renderAction('Show service details', '/service')}
+              action={this.renderAction('Show service details', '/monitor/service')}
               avatar={<img style={{ width: 56, height: 56 }} src="img/icon/service.png" alt="service" />}
               total={data.getClusterBrief.numOfService}
             />
@@ -144,7 +144,7 @@ export default class Dashboard extends PureComponent {
               <RankList
                 data={data.getTopNSlowService}
                 renderValue={_ => `${_.value} ms`}
-                onClick={(key, item) => redirect(this.props.history, '/service', { key, label: item.label })}
+                onClick={(key, item) => redirect(this.props.history, '/monitor/service', { key, label: item.label })}
               />
             </Card>
           </Col>
@@ -156,9 +156,9 @@ export default class Dashboard extends PureComponent {
             >
               <RankList
                 data={data.getTopNApplicationThroughput}
-                renderValue={_ => `${_.value} cps`}
+                renderValue={_ => `${_.value} cpm`}
                 color="#965fe466"
-                onClick={(key, item) => redirect(this.props.history, '/application', { key, label: item.label })}
+                onClick={(key, item) => redirect(this.props.history, '/monitor/application', { key, label: item.label })}
               />
             </Card>
           </Col>
