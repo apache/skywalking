@@ -17,7 +17,6 @@
 
 
 import cytoscape from 'cytoscape';
-import styles from './index.less';
 import Base from './Base';
 
 const conf = {
@@ -108,34 +107,10 @@ export default class AppTopology extends Base {
         'target-arrow-color': ele => (ele.data('isAlert') ? 'rgb(204, 0, 51)' : 'rgb(147, 198, 174)'),
         'line-color': ele => (ele.data('isAlert') ? 'rgb(204, 0, 51)' : 'rgb(147, 198, 174)'),
         width: 3,
-        label: ele => `${ele.data('callType')} \n ${ele.data('callsPerSec')} tps / ${ele.data('avgResponseTime')} ms`,
+        label: ele => `${ele.data('callType')} \n ${ele.data('cpm')} cpm / ${ele.data('avgResponseTime')} ms`,
         'text-wrap': 'wrap',
         color: 'rgb(110, 112, 116)',
         'text-rotation': 'autorotate',
       });
-  }
-  getNodeLabel = () => {
-    return [
-      {
-        query: 'node[sla]',
-        halign: 'center',
-        valign: 'center',
-        halignBox: 'center',
-        valignBox: 'center',
-        cssClass: `${styles.node}`,
-        tpl(data) {
-          return `
-          <div class="${styles.circle}">
-            <div class="node-percentage">${data.sla}%</div>
-            <div>
-              <img src="img/icon/data.png" class="${styles.logo}"/>${data.numOfServer}
-              <img src="img/icon/alert.png" class="${styles.logo}"/>
-              <span class="${styles.alert}">${data.numOfServerAlarm}</span>
-            </div>
-            <div>${data.callsPerSec} calls/s</div>
-          </div>`;
-        },
-      },
-    ];
   }
 }

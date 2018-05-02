@@ -119,14 +119,14 @@ export default class Application extends PureComponent {
             {getFieldDecorator('applicationId')(
               <Select
                 showSearch
+                optionFilterProp="children"
                 style={{ width: 200 }}
                 placeholder="Select a application"
                 labelInValue
                 onSelect={this.handleSelect.bind(this)}
               >
-                {options.applicationId && options.applicationId.map((app) => {
-                    return (<Option key={app.key} value={app.key}>{app.label}</Option>);
-                  })}
+                {options.applicationId && options.applicationId.map(app =>
+                  <Option key={app.key} value={app.key}>{app.label}</Option>)}
               </Select>
             )}
           </FormItem>
@@ -171,7 +171,7 @@ export default class Application extends PureComponent {
                 <RankList
                   data={data.getServerThroughput}
                   renderLabel={getServerId}
-                  renderValue={_ => `${_.value} cps`}
+                  renderValue={_ => `${_.value} cpm`}
                   renderBadge={_ => ([
                     {
                       key: 'host',
@@ -197,7 +197,7 @@ export default class Application extends PureComponent {
                 <RankList
                   data={data.getSlowService}
                   renderValue={_ => `${_.value} ms`}
-                  onClick={(key, item) => redirect(this.props.history, '/service', { key, label: item.label })}
+                  onClick={(key, item) => redirect(this.props.history, '/monitor/service', { key, label: item.label })}
                 />
               </Card>
             </Col>

@@ -41,7 +41,7 @@ export default {
           getServiceResponseTimeTrend: {
             'trendList|60': ['@natural(100, 1000)'],
           },
-          getServiceTPSTrend: {
+          getServiceThroughputTrend: {
             'trendList|60': ['@natural(500, 10000)'],
           },
           getServiceSLATrend: {
@@ -87,14 +87,14 @@ export default {
               target: 1,
               'isAlert|1': true,
               'callType|1': ['rpc', 'http', 'dubbo'],
-              'callsPerSec|0-1000': 1,
+              'cpm|0-1000': 1,
               'avgResponseTime|500-5000': 0,
             }))).concat(downNodes.nodes.map(node => (mockjs.mock({
               source: 1,
               target: node.id,
               'isAlert|1': true,
               'callType|1': ['rpc', 'http', 'dubbo'],
-              'callsPerSec|0-2000': 1,
+              'cpm|0-2000': 1,
               'avgResponseTime|500-5000': 1,
             }))));
             return {

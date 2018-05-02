@@ -322,7 +322,7 @@ class TraceStack extends PureComponent {
                 size="small"
                 title={moment(log.time).format('mm:ss.SSS')}
                 description={
-                  <DescriptionList layout="vertical">
+                  <DescriptionList layout="vertical" col={1}>
                     {log.data.map(_ =>
                       <Description key={_.key} term={_.key}>{_.value}</Description>)}
                   </DescriptionList>

@@ -64,7 +64,7 @@ export default class Service extends PureComponent {
       payload: { variables },
     });
   }
-  edgeWith = edge => edge.callsPerSec * edge.avgResponseTime;
+  edgeWith = edge => edge.cpm * edge.avgResponseTime;
   renderSankey = (data) => {
     if (data.nodes.length < 2) {
       return <span style={{ display: 'none' }} />;
@@ -87,10 +87,10 @@ export default class Service extends PureComponent {
           >
             <Sankey
               data={nData}
-              edgeTooltip={['target*source*callsPerSec*avgResponseTime*isAlert', (target, source, callsPerSec, avgResponseTime) => {
+              edgeTooltip={['target*source*cpm*avgResponseTime*isAlert', (target, source, cpm, avgResponseTime) => {
                 return {
                   name: `${source.name} to ${target.name} </span>`,
-                  value: `${callsPerSec < 1 ? '<1' : callsPerSec} calls/s ${avgResponseTime}ms`,
+                  value: `${cpm < 1 ? '<1' : cpm} cpm ${avgResponseTime}ms`,
                 };
               }]}
               edgeColor={['isAlert', isAlert => (isAlert ? '#DC143C' : '#bbb')]}
@@ -103,7 +103,7 @@ export default class Service extends PureComponent {
     const { form, service, duration } = this.props;
     const { getFieldDecorator } = form;
     const { variables: { values }, data } = service;
-    const { getServiceResponseTimeTrend, getServiceTPSTrend,
+    const { getServiceResponseTimeTrend, getServiceThroughputTrend,
       getServiceSLATrend, getServiceTopology } = data;
     return (
       <div>
@@ -135,12 +135,12 @@ export default class Service extends PureComponent {
             <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 24 }}>
               <ChartCard
                 title="Avg Throughput"
-                total={`${avgTimeSeries(getServiceTPSTrend.trendList)}`}
+                total={`${avgTimeSeries(getServiceThroughputTrend.trendList)} cpm`}
                 contentHeight={46}
               >
                 <MiniArea
                   color="#975FE4"
-                  data={axis(duration, getServiceTPSTrend.trendList)}
+                  data={axis(duration, getServiceThroughputTrend.trendList)}
                 />
               </ChartCard>
             </Col>

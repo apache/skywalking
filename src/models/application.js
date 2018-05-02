@@ -41,7 +41,7 @@ const dataQuery = `
       host
       pid
       ipv4
-      value: callsPerSec
+      value: cpm
     }
     getApplicationTopology(applicationId: $applicationId, duration: $duration) {
       nodes {
@@ -50,7 +50,7 @@ const dataQuery = `
         type
         ... on ApplicationNode {
           sla
-          callsPerSec
+          cpm
           avgResponseTime
           apdex
           isAlarm
@@ -64,7 +64,7 @@ const dataQuery = `
         target
         isAlert
         callType
-        callsPerSec
+        cpm
         avgResponseTime
       }
     }
@@ -76,15 +76,17 @@ query Application($serverId: ID!, $duration: Duration!) {
   getServerResponseTimeTrend(serverId: $serverId, duration: $duration) {
     trendList
   }
-  getServerTPSTrend(serverId: $serverId, duration: $duration) {
+  getServerThroughputTrend(serverId: $serverId, duration: $duration) {
     trendList
   }
   getCPUTrend(serverId: $serverId, duration: $duration) {
     cost
   }
   getGCTrend(serverId: $serverId, duration: $duration) {
-    youngGC
-    oldGC
+    youngGCCount
+    oldGCount
+    youngGCTime
+    oldGCTime
   }
   getMemoryTrend(serverId: $serverId, duration: $duration) {
     heap
@@ -110,7 +112,7 @@ export default generateModal({
     getServerResponseTimeTrend: {
       trendList: [],
     },
-    getServerTPSTrend: {
+    getServerThroughputTrend: {
       trendList: [],
     },
     getCPUTrend: {
@@ -123,8 +125,10 @@ export default generateModal({
       maxNoheap: [],
     },
     getGCTrend: {
-      youngGC: [],
-      oldGC: [],
+      youngGCCount: [],
+      oldGCount: [],
+      youngGCTime: [],
+      oldGCTime: [],
     },
   },
   optionsQuery,
@@ -179,7 +183,7 @@ export default generateModal({
   subscriptions: {
     setup({ history, dispatch }) {
       return history.listen(({ pathname, state }) => {
-        if (pathname === '/application' && state) {
+        if (pathname === '/monitor/application' && state) {
           dispatch({
             type: 'saveVariables',
             payload: {
