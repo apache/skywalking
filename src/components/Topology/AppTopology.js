@@ -66,19 +66,24 @@ export default class AppTopology extends Base {
         height: 'data(size)',
         'text-valign': 'bottom',
         'text-halign': 'center',
-        'background-color': ele => (ele.data('isAlarm') ? '#A8071A' : '#1890FF'),
         'font-family': 'Microsoft YaHei',
         content: 'data(name)',
         'text-margin-y': 10,
-        'pie-size': ele => (ele.data('isAlarm') ? '90%' : '100%'),
+        'border-width': ele => (ele.data('isAlarm') ? 10 : 0),
+        'border-color': '#A8071A',
         'pie-1-background-color': '#2FC25B',
         'pie-1-background-size': 'data(sla)',
+        'pie-1-background-opacity': 0.8,
         'pie-2-background-color': '#F04864',
         'pie-2-background-size': '100 - data(sla)',
+        'pie-2-background-opacity': 0.8,
       })
       .selector(':selected')
       .css({
         'pie-size': '80%',
+        'background-color': ele => (ele.data('isAlarm') ? '#A8071A' : '#1890FF'),
+        'pie-1-background-opacity': 1,
+        'pie-2-background-opacity': 1,
       })
       .selector('.faded')
       .css({

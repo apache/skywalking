@@ -100,6 +100,20 @@ export default class Topology extends PureComponent {
       appInfo.isAlarm ? <Icon type="bell" onClick={() => redirect(this.props.history, '/monitor/alarm')} /> : null,
     ];
   }
+  renderNodeType = () => {
+    const { data } = this.props.topology;
+    const typeMap = new Map();
+    data.getClusterTopology.nodes.forEach((_) => {
+      if (typeMap.has(_.type)) {
+        typeMap.set(_.type, typeMap.get(_.type) + 1);
+      } else {
+        typeMap.set(_.type, 1);
+      }
+    });
+    const result = [];
+    typeMap.forEach((v, k) => result.push(<Description term={k}>{v}</Description>));
+    return result;
+  }
   render() {
     const { data } = this.props.topology;
     const { layout = layouts['cose-bilkent'] } = data;
@@ -140,9 +154,9 @@ export default class Topology extends PureComponent {
             )
             : (
               <Card title="Overview" style={{ height: 672 }}>
-                <DescriptionList col={1} layout="vertical" >
-                  <Description term="Total Application">{data.getClusterTopology.nodes.filter(_ => _.sla).length}</Description>
-                  <Description term="Application Alarm">{data.getClusterTopology.nodes.filter(_ => _.isAlarm).length}</Description>
+                <DescriptionList layout="vertical" >
+                  <Description term="Total">{data.getClusterTopology.nodes.length}</Description>
+                  {this.renderNodeType()}
                 </DescriptionList>
               </Card>
             )}
