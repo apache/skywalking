@@ -18,11 +18,11 @@
 
 package org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener;
 
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.*;
 
 /**
  * @author peng-yongsheng
  */
 public interface ExitSpanListener extends SpanListener {
-    void parseExit(SpanDecorator spanDecorator, int applicationId, int instanceId, String segmentId);
+    void parseExit(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo);
 }
