@@ -65,13 +65,13 @@ public class ApplicationMappingEsUIDAO extends EsDAO implements IApplicationMapp
         List<ApplicationMapping> applicationMappings = new LinkedList<>();
         for (Terms.Bucket applicationIdBucket : applicationIdTerms.getBuckets()) {
             int applicationId = applicationIdBucket.getKeyAsNumber().intValue();
-            Terms addressIdTerms = applicationIdBucket.getAggregations().get(ApplicationMappingTable.MAPPING_APPLICATION_ID.getName());
-            for (Terms.Bucket addressIdBucket : addressIdTerms.getBuckets()) {
-                int addressId = addressIdBucket.getKeyAsNumber().intValue();
+            Terms mappingApplicationIdTerms = applicationIdBucket.getAggregations().get(ApplicationMappingTable.MAPPING_APPLICATION_ID.getName());
+            for (Terms.Bucket mappingApplicationIdBucket : mappingApplicationIdTerms.getBuckets()) {
+                int mappingApplicationId = mappingApplicationIdBucket.getKeyAsNumber().intValue();
 
                 ApplicationMapping applicationMapping = new ApplicationMapping();
                 applicationMapping.setApplicationId(applicationId);
-                applicationMapping.setMappingApplicationId(addressId);
+                applicationMapping.setMappingApplicationId(mappingApplicationId);
                 applicationMappings.add(applicationMapping);
             }
         }
