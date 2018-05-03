@@ -17,7 +17,7 @@
 
 
 import React, { PureComponent } from 'react';
-import { Row, Col, Card, Select } from 'antd';
+import { Row, Col, Card, Select, Icon } from 'antd';
 import {
   ChartCard, MiniArea, MiniBar,
 } from '../../components/Charts';
@@ -31,14 +31,13 @@ const { Description } = DescriptionList;
 export default class ServerLitePanel extends PureComponent {
   bytesToMB = list => list.map(_ => parseFloat((_ / (1024 ** 2)).toFixed(2)))
   render() {
-    const { serverList, duration, data, onSelectServer } = this.props;
+    const { serverList, duration, data, onSelectServer, onMoreServer } = this.props;
     if (serverList.length < 1) {
       return null;
     }
     const { serverInfo, getServerResponseTimeTrend, getServerThroughputTrend } = data;
     if (!serverInfo.key) {
       onSelectServer(serverList[0].key, serverList[0]);
-      return null;
     }
     return (
       <div>
@@ -93,6 +92,7 @@ export default class ServerLitePanel extends PureComponent {
             </ChartCard>
           </Col>
         </Row>
+        {serverInfo.key ? <a style={{ float: 'right' }} onClick={onMoreServer}> More Server Details<Icon type="ellipsis" /> </a> : null}
       </div>
     );
   }

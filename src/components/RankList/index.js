@@ -83,7 +83,8 @@ class RankList extends PureComponent {
   render() {
     const { data, loading, renderBadge } = this.props;
     let maxValue = 0;
-    const sortData = data.sort((a, b) => {
+    const sortData = [...data];
+    sortData.sort((a, b) => {
       if (a.value > b.value) {
         maxValue = a.value > maxValue ? a.value : maxValue;
       } else {

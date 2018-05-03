@@ -148,6 +148,38 @@ export default generateModal({
     },
   },
   reducers: {
+    saveApplication(preState, { payload }) {
+      const { data } = preState;
+      return {
+        ...preState,
+        data: {
+          ...data,
+          ...payload,
+          serverInfo: {},
+          getServerResponseTimeTrend: {
+            trendList: [],
+          },
+          getServerThroughputTrend: {
+            trendList: [],
+          },
+          getCPUTrend: {
+            cost: [],
+          },
+          getMemoryTrend: {
+            heap: [],
+            maxHeap: [],
+            noheap: [],
+            maxNoheap: [],
+          },
+          getGCTrend: {
+            youngGCCount: [],
+            oldGCount: [],
+            youngGCTime: [],
+            oldGCTime: [],
+          },
+        },
+      };
+    },
     saveServer(preState, { payload, serverInfo }) {
       const { data } = preState;
       return {

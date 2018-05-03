@@ -18,7 +18,7 @@
 
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Select, Card, Form, Breadcrumb, Icon } from 'antd';
+import { Row, Col, Select, Card, Form, Breadcrumb } from 'antd';
 import Server from './Server';
 import { AppTopology } from '../../components/Topology';
 import { Panel } from '../../components/Page';
@@ -85,11 +85,8 @@ export default class Application extends PureComponent {
     } else {
       this.props.dispatch({
         type: 'application/fetchData',
-        payload: { variables },
+        payload: { variables, reducer: 'saveApplication' },
       });
-      if (serverInfo.key) {
-        this.handleSelectServer(serverInfo.key, serverInfo);
-      }
     }
   }
   handleGoApplication = () => {
@@ -157,15 +154,15 @@ export default class Application extends PureComponent {
             <Col {...{ ...middleColResponsiveProps, xl: 8, lg: 12, md: 24 }}>
               <Card
                 bordered={false}
-                bodyStyle={{ padding: '10px 10px' }}
+                bodyStyle={{ padding: '10px 10px', height: 391 }}
               >
                 <ServerLitePanel
                   data={data}
                   serverList={data.getServerThroughput}
                   duration={this.props.duration}
                   onSelectServer={this.handleSelectServer}
+                  onMoreServer={this.handleGoServer}
                 />
-                <a style={{ float: 'right' }} onClick={this.handleGoServer}> More Server Details<Icon type="ellipsis" /> </a>
               </Card>
             </Col>
           </Row>
@@ -239,11 +236,10 @@ export default class Application extends PureComponent {
               <Server data={data} duration={duration} />
             </Panel>
           </Col>
-        ) : (
-          <Col span={showServer ? 0 : 24}>
-            {this.renderApp()}
-          </Col>
-        )}
+         ) : null}
+        <Col span={showServer ? 0 : 24}>
+          {this.renderApp()}
+        </Col>
       </Row>
     );
   }
