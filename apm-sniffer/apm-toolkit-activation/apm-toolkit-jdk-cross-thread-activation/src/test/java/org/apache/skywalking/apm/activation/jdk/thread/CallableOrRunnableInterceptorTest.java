@@ -13,10 +13,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.skywalking.apm.plugin.jdk.thread;
+package org.apache.skywalking.apm.activation.jdk.thread;
 
 import java.lang.reflect.Method;
 import java.util.List;

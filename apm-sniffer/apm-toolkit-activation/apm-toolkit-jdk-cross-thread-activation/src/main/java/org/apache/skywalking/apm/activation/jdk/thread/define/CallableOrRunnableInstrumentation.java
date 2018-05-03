@@ -13,10 +13,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.skywalking.apm.plugin.jdk.thread.define;
+package org.apache.skywalking.apm.activation.jdk.thread.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -39,8 +38,8 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.ClassAnnotationM
 public class CallableOrRunnableInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     public static final String ANNOTATION_NAME = "org.apache.skywalking.apm.toolkit.trace.TraceCrossThread";
-    private static final String INIT_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdk.thread.CallableOrRunnableConstructInterceptor";
-    private static final String CALL_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdk.thread.CallableOrRunnableInvokeInterceptor";
+    private static final String INIT_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.activation.jdk.thread.CallableOrRunnableConstructInterceptor";
+    private static final String CALL_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.activation.jdk.thread.CallableOrRunnableInvokeInterceptor";
     private static final String CALL_METHOD_NAME = "call";
     private static final String RUN_METHOD_NAME = "run";
 
