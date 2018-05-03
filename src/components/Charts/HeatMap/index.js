@@ -143,7 +143,7 @@ class HeatMap extends Component {
             <Geom
               type="polygon"
               position="datetime*responseTime"
-              color={['count', '#BAE7FF-#1890FF-#0050B3']}
+              color={['count', '#EBEDF0-#BAE7FF-#1890FF-#0050B3']}
               style={{ stroke: '#fff', lineWidth: 1 }}
               tooltip={['datetime*responseTime*count', (datetime, responseTime, count) => {
                 return {
