@@ -18,11 +18,11 @@
 
 package org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener;
 
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.*;
 
 /**
  * @author peng-yongsheng
  */
 public interface LocalSpanListener extends SpanListener {
-    void parseLocal(SpanDecorator spanDecorator, int applicationId, int instanceId, String segmentId);
+    void parseLocal(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo);
 }

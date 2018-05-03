@@ -53,17 +53,9 @@ public class ResponseTimeDistributionSpanListenerTestCase {
 
         ResponseTimeDistributionSpanListener listener = new ResponseTimeDistributionSpanListener(moduleManager);
 
-        Whitebox.setInternalState(listener, "entrySpanDuration", 0);
-        Whitebox.setInternalState(listener, "firstSpanDuration", 200);
-        Assert.assertEquals(3, listener.getStep());
-
-        Whitebox.setInternalState(listener, "entrySpanDuration", 10);
-        Assert.assertEquals(0, listener.getStep());
-
-        Whitebox.setInternalState(listener, "entrySpanDuration", 60);
-        Assert.assertEquals(1, listener.getStep());
-
-        Whitebox.setInternalState(listener, "entrySpanDuration", 3100);
-        Assert.assertEquals(40, listener.getStep());
+        Assert.assertEquals(3, listener.getStep(200));
+        Assert.assertEquals(0, listener.getStep(10));
+        Assert.assertEquals(1, listener.getStep(60));
+        Assert.assertEquals(40, listener.getStep(3100));
     }
 }
