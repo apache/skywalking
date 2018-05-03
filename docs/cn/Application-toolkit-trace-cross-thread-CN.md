@@ -30,6 +30,15 @@
         }
     }));
 ```
+或者
+```java
+    ExecutorService executorService = Executors.newFixedThreadPool(1);
+    executorService.execute(RunnableWrapper.of(new Runnable() {
+        @Override public void run() {
+            //your code
+        }
+    }));
+```
 _示例代码，仅供参考_
 
 

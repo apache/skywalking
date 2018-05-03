@@ -13,23 +13,27 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-package org.apache.skywalking.apm.plugin.jdk.thread;
-
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
+package org.apache.skywalking.apm.toolkit.trace;
 
 /**
- * @author carlvine500
+ * @author lican
  */
-public class CallableOrRunnableConstructInterceptor implements InstanceConstructorInterceptor {
-    @Override
-    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        if (ContextManager.isActive()) {
-            objInst.setSkyWalkingDynamicField(ContextManager.capture());
-        }
+@TraceCrossThread
+public class RunnableWrapper implements Runnable {
+    final Runnable runnable;
+
+    public RunnableWrapper(Runnable runnable) {
+        this.runnable = runnable;
     }
 
+    public static RunnableWrapper of(Runnable r) {
+        return new RunnableWrapper(r);
+    }
+
+
+    @Override
+    public void run() {
+        this.runnable.run();
+    }
 }
