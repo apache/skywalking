@@ -143,7 +143,15 @@ export default class Application extends PureComponent {
                 bordered={false}
                 bodyStyle={{ padding: 0 }}
               >
-                <AppTopology elements={data.getApplicationTopology} height={335} layout={{ name: 'concentric', startAngle: Math.PI, minNodeSpacing: 250 }} />
+                <AppTopology
+                  elements={data.getApplicationTopology}
+                  height={335}
+                  layout={{
+                    name: 'dagre',
+                    rankDir: 'LR',
+                    minLen: 4,
+                  }}
+                />
               </Card>
             </Col>
             <Col {...{ ...middleColResponsiveProps, xl: 8, lg: 12, md: 24 }}>
@@ -223,7 +231,13 @@ export default class Application extends PureComponent {
               </Breadcrumb.Item>
               <Breadcrumb.Item>{getServerId(serverInfo)}</Breadcrumb.Item>
             </Breadcrumb>
-            <Server data={data} duration={duration} />
+            <Panel
+              variables={variables.values}
+              globalVariables={this.props.globalVariables}
+              onChange={this.handleChange}
+            >
+              <Server data={data} duration={duration} />
+            </Panel>
           </Col>
         ) : (
           <Col span={showServer ? 0 : 24}>

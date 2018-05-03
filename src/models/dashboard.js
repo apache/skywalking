@@ -50,7 +50,7 @@ export default generateModal({
       getAlarmTrend(duration: $duration) {
         numOfAlarmRate
       }
-      getThermodynamic(duration: $duration) {
+      getThermodynamic(duration: $duration, type: ALL) {
         nodes
         responseTimeStep
       }

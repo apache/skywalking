@@ -188,7 +188,7 @@ export default generateModal({
             type: 'saveVariables',
             payload: {
               values: {
-                applicationId: state.key,
+                applicationId: `${state.key}`,
               },
               labels: {
                 applicationId: state.label,
