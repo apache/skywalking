@@ -40,8 +40,8 @@ eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} -jar ${JAR_PATH}/skywalking-webapp.jar \
 
 if [ $? -eq 0 ]; then
     sleep 1
-	echo "Skywalking Web Application started successfully!"
+	echo "SkyWalking Web Application started successfully!"
 else
-	echo "Skywalking Web Application started failure!"
+	echo "SkyWalking Web Application started failure!"
 	exit 1
 fi
