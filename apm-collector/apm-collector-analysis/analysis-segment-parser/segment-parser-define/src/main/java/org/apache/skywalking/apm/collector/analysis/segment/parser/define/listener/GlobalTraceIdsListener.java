@@ -18,11 +18,12 @@
 
 package org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener;
 
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SegmentCoreInfo;
 import org.apache.skywalking.apm.network.proto.UniqueId;
 
 /**
  * @author peng-yongsheng
  */
 public interface GlobalTraceIdsListener extends SpanListener {
-    void parseGlobalTraceId(UniqueId uniqueId);
+    void parseGlobalTraceId(UniqueId uniqueId, SegmentCoreInfo segmentCoreInfo);
 }
