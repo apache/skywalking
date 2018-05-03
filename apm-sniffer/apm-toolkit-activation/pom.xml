@@ -31,7 +31,6 @@
         <module>apm-toolkit-logback-1.x-activation</module>
         <module>apm-toolkit-opentracing-activation</module>
         <module>apm-toolkit-trace-activation</module>
-        <module>apm-toolkit-jdk-cross-thread-activation</module>
     </modules>
 
     <artifactId>apm-toolkit-activation</artifactId>
