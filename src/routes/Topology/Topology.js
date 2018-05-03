@@ -97,7 +97,7 @@ export default class Topology extends PureComponent {
     return [
       <Icon type="appstore" onClick={() => redirect(this.props.history, '/monitor/application', { key: appInfo.id, label: appInfo.name })} />,
       <Icon type="exception" onClick={() => redirect(this.props.history, '/trace', { key: appInfo.id, label: appInfo.name })} />,
-      appInfo.isAlarm ? <Icon type="bell" onClick={() => redirect(this.props.history, '/alarm')} /> : null,
+      appInfo.isAlarm ? <Icon type="bell" onClick={() => redirect(this.props.history, '/monitor/alarm')} /> : null,
     ];
   }
   render() {
