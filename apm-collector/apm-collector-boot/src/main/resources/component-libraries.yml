@@ -151,23 +151,17 @@ Npgsql:
 MySqlConnector:
   id: 3008
   languages: C#
-EntityFrameworkCore.InMemory:
+EntityFrameworkCore.SqlServer:
   id: 3009
   languages: C#
-EntityFrameworkCore.SqlServer:
+EntityFrameworkCore.Sqlite:
   id: 3010
   languages: C#
-EntityFrameworkCore.Sqlite:
+Pomelo.EntityFrameworkCore.MySql:
   id: 3011
   languages: C#
-Pomelo.EntityFrameworkCore.MySql:
-  id: 3012
-  languages: C#
 Npgsql.EntityFrameworkCore.PostgreSQL:
-  id: 3013
-  languages: C#
-InMemoryDatabase:
-  id: 3014
+  id: 3012
   languages: C#
 
 # NoeJS components
@@ -188,7 +182,6 @@ Component-Server-Mappings:
   SqlClient: SqlServer
   Npgsql: PostgreSQL
   MySqlConnector: Mysql
-  EntityFrameworkCore.InMemory: InMemoryDatabase
   EntityFrameworkCore.SqlServer: SqlServer
   EntityFrameworkCore.Sqlite: SQLite
   Pomelo.EntityFrameworkCore.MySql: Mysql
