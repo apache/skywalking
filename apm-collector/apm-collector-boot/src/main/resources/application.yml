@@ -75,6 +75,7 @@ storage:
 configuration:
   default:
 #     namespace: xxxxx
+# alarm threshold
     applicationApdexThreshold: 2000
     serviceErrorRateThreshold: 10.00
     serviceAverageResponseTimeThreshold: 2000
@@ -82,3 +83,6 @@ configuration:
     instanceAverageResponseTimeThreshold: 2000
     applicationErrorRateThreshold: 10.00
     applicationAverageResponseTimeThreshold: 2000
+# thermodynamic
+    thermodynamicResponseTimeStep: 50
+    thermodynamicCountOfResponseTimeSteps: 40
