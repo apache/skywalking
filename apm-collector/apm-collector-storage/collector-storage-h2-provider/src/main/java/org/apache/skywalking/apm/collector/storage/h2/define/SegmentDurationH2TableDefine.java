@@ -32,15 +32,15 @@ public class SegmentDurationH2TableDefine extends H2TableDefine {
     }
 
     @Override public void initialize() {
-        addColumn(new H2ColumnDefine(SegmentDurationTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(SegmentDurationTable.COLUMN_SEGMENT_ID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(SegmentDurationTable.COLUMN_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(SegmentDurationTable.COLUMN_SERVICE_NAME, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(SegmentDurationTable.COLUMN_TRACE_ID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(SegmentDurationTable.COLUMN_DURATION, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(SegmentDurationTable.COLUMN_START_TIME, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(SegmentDurationTable.COLUMN_END_TIME, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(SegmentDurationTable.COLUMN_IS_ERROR, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(SegmentDurationTable.COLUMN_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(SegmentDurationTable.ID, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(SegmentDurationTable.SEGMENT_ID, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(SegmentDurationTable.APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(SegmentDurationTable.SERVICE_NAME, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(SegmentDurationTable.TRACE_ID, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(SegmentDurationTable.DURATION, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(SegmentDurationTable.START_TIME, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(SegmentDurationTable.END_TIME, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(SegmentDurationTable.IS_ERROR, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(SegmentDurationTable.TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
     }
 }

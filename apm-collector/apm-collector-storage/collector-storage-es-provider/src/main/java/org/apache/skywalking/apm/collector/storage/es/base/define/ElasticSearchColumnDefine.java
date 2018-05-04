@@ -19,13 +19,15 @@
 package org.apache.skywalking.apm.collector.storage.es.base.define;
 
 import org.apache.skywalking.apm.collector.core.data.ColumnDefine;
+import org.apache.skywalking.apm.collector.core.data.ColumnName;
 
 /**
  * @author peng-yongsheng
  */
 public class ElasticSearchColumnDefine extends ColumnDefine {
-    public ElasticSearchColumnDefine(String name, String type) {
-        super(name, type);
+
+    public ElasticSearchColumnDefine(ColumnName columnName, String type) {
+        super(columnName, type);
     }
 
     public enum Type {

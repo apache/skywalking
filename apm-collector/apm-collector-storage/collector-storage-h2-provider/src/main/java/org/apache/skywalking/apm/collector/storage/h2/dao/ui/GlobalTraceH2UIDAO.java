@@ -49,12 +49,12 @@ public class GlobalTraceH2UIDAO extends H2DAO implements IGlobalTraceUIDAO {
     @Override public List<String> getGlobalTraceId(String segmentId) {
         List<String> globalTraceIds = new ArrayList<>();
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_GLOBAL_TRACE_ID_SQL, GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID,
-            GlobalTraceTable.TABLE, GlobalTraceTable.COLUMN_SEGMENT_ID);
+        String sql = SqlBuilder.buildSql(GET_GLOBAL_TRACE_ID_SQL, GlobalTraceTable.TRACE_ID.getName(),
+            GlobalTraceTable.TABLE, GlobalTraceTable.SEGMENT_ID.getName());
         Object[] params = new Object[] {segmentId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             while (rs.next()) {
-                String globalTraceId = rs.getString(GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID);
+                String globalTraceId = rs.getString(GlobalTraceTable.TRACE_ID.getName());
                 logger.debug("segmentId: {}, global trace id: {}", segmentId, globalTraceId);
                 globalTraceIds.add(globalTraceId);
             }
@@ -67,12 +67,12 @@ public class GlobalTraceH2UIDAO extends H2DAO implements IGlobalTraceUIDAO {
     @Override public List<String> getSegmentIds(String globalTraceId) {
         List<String> segmentIds = new ArrayList<>();
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_SEGMENT_IDS_SQL, GlobalTraceTable.COLUMN_SEGMENT_ID,
-            GlobalTraceTable.TABLE, GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID);
+        String sql = SqlBuilder.buildSql(GET_SEGMENT_IDS_SQL, GlobalTraceTable.SEGMENT_ID.getName(),
+            GlobalTraceTable.TABLE, GlobalTraceTable.TRACE_ID);
         Object[] params = new Object[] {globalTraceId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             while (rs.next()) {
-                String segmentId = rs.getString(GlobalTraceTable.COLUMN_SEGMENT_ID);
+                String segmentId = rs.getString(GlobalTraceTable.SEGMENT_ID.getName());
                 logger.debug("segmentId: {}, global trace id: {}", segmentId, globalTraceId);
                 segmentIds.add(segmentId);
             }

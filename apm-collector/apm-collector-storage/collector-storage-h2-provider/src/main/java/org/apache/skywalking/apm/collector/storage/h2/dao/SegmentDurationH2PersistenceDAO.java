@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.h2.dao;
 
 import java.util.HashMap;
@@ -36,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SegmentDurationH2PersistenceDAO extends H2DAO implements ISegmentDurationPersistenceDAO<H2SqlEntity, H2SqlEntity, SegmentDuration> {
 
-    private final Logger logger = LoggerFactory.getLogger(SegmentDurationH2PersistenceDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(SegmentDurationH2PersistenceDAO.class);
 
     public SegmentDurationH2PersistenceDAO(H2Client client) {
         super(client);
@@ -49,21 +48,21 @@ public class SegmentDurationH2PersistenceDAO extends H2DAO implements ISegmentDu
     @Override public H2SqlEntity prepareBatchInsert(SegmentDuration data) {
         logger.debug("segment cost prepareBatchInsert, getApplicationId: {}", data.getId());
         H2SqlEntity entity = new H2SqlEntity();
-        Map<String, Object> source = new HashMap<>();
-        source.put(SegmentDurationTable.COLUMN_ID, data.getId());
-        source.put(SegmentDurationTable.COLUMN_SEGMENT_ID, data.getSegmentId());
-        source.put(SegmentDurationTable.COLUMN_APPLICATION_ID, data.getApplicationId());
-        source.put(SegmentDurationTable.COLUMN_SERVICE_NAME, data.getServiceName());
-        source.put(SegmentDurationTable.COLUMN_DURATION, data.getDuration());
-        source.put(SegmentDurationTable.COLUMN_START_TIME, data.getStartTime());
-        source.put(SegmentDurationTable.COLUMN_END_TIME, data.getEndTime());
-        source.put(SegmentDurationTable.COLUMN_IS_ERROR, data.getIsError());
-        source.put(SegmentDurationTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
-        logger.debug("segment cost source: {}", source.toString());
+        Map<String, Object> target = new HashMap<>();
+        target.put(SegmentDurationTable.ID.getName(), data.getId());
+        target.put(SegmentDurationTable.SEGMENT_ID.getName(), data.getSegmentId());
+        target.put(SegmentDurationTable.APPLICATION_ID.getName(), data.getApplicationId());
+        target.put(SegmentDurationTable.SERVICE_NAME.getName(), data.getServiceName());
+        target.put(SegmentDurationTable.DURATION.getName(), data.getDuration());
+        target.put(SegmentDurationTable.START_TIME.getName(), data.getStartTime());
+        target.put(SegmentDurationTable.END_TIME.getName(), data.getEndTime());
+        target.put(SegmentDurationTable.IS_ERROR.getName(), data.getIsError());
+        target.put(SegmentDurationTable.TIME_BUCKET.getName(), data.getTimeBucket());
+        logger.debug("segment cost source: {}", target.toString());
 
-        String sql = SqlBuilder.buildBatchInsertSql(SegmentDurationTable.TABLE, source.keySet());
+        String sql = SqlBuilder.buildBatchInsertSql(SegmentDurationTable.TABLE, target.keySet());
         entity.setSql(sql);
-        entity.setParams(source.values().toArray(new Object[0]));
+        entity.setParams(target.values().toArray(new Object[0]));
         return entity;
     }
 

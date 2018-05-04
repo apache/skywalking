@@ -26,15 +26,11 @@ import org.apache.skywalking.apm.collector.storage.table.instance.InstanceRefere
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetricTable;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class InstanceReferenceDayMetricEsPersistenceDAO extends AbstractInstanceReferenceMetricEsPersistenceDAO implements IInstanceReferenceDayMetricPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, InstanceReferenceMetric> {
-
-    private final Logger logger = LoggerFactory.getLogger(InstanceReferenceDayMetricEsPersistenceDAO.class);
 
     public InstanceReferenceDayMetricEsPersistenceDAO(ElasticSearchClient client) {
         super(client);

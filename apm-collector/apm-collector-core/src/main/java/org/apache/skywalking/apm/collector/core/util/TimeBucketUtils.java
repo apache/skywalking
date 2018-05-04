@@ -22,6 +22,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 
 /**
  * @author peng-yongsheng
@@ -29,36 +30,33 @@ import java.util.Date;
 public enum TimeBucketUtils {
     INSTANCE;
 
+    @GraphComputingMetric(name = "/utils/timeBucket/getMinuteTimeBucket")
     public long getMinuteTimeBucket(long time) {
-        SimpleDateFormat minuteDateFormat = new SimpleDateFormat("yyyyMMddHHmm");
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);
-        String timeStr = minuteDateFormat.format(calendar.getTime());
-        return Long.valueOf(timeStr);
+
+        long year = calendar.get(Calendar.YEAR);
+        long month = calendar.get(Calendar.MONTH) + 1;
+        long day = calendar.get(Calendar.DAY_OF_MONTH);
+        long hour = calendar.get(Calendar.HOUR_OF_DAY);
+        long minute = calendar.get(Calendar.MINUTE);
+
+        return year * 100000000 + month * 1000000 + day * 10000 + hour * 100 + minute;
     }
 
+    @GraphComputingMetric(name = "/utils/timeBucket/getSecondTimeBucket")
     public long getSecondTimeBucket(long time) {
-        SimpleDateFormat secondDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);
-        String timeStr = secondDateFormat.format(calendar.getTime());
-        return Long.valueOf(timeStr);
-    }
 
-    public long getHourTimeBucket(long time) {
-        SimpleDateFormat hourDateFormat = new SimpleDateFormat("yyyyMMddHH");
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(time);
-        String timeStr = hourDateFormat.format(calendar.getTime()) + "00";
-        return Long.valueOf(timeStr);
-    }
+        long year = calendar.get(Calendar.YEAR);
+        long month = calendar.get(Calendar.MONTH) + 1;
+        long day = calendar.get(Calendar.DAY_OF_MONTH);
+        long hour = calendar.get(Calendar.HOUR_OF_DAY);
+        long minute = calendar.get(Calendar.MINUTE);
+        long second = calendar.get(Calendar.SECOND);
 
-    public long getDayTimeBucket(long time) {
-        SimpleDateFormat dayDateFormat = new SimpleDateFormat("yyyyMMdd");
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(time);
-        String timeStr = dayDateFormat.format(calendar.getTime()) + "0000";
-        return Long.valueOf(timeStr);
+        return year * 10000000000L + month * 100000000 + day * 1000000 + hour * 10000 + minute * 100 + second;
     }
 
     public String formatMinuteTimeBucket(long minuteTimeBucket) throws ParseException {
@@ -78,21 +76,5 @@ public enum TimeBucketUtils {
 
     public long minuteToMonth(long minuteBucket) {
         return minuteBucket / 100 / 100 / 100;
-    }
-
-    public long secondToMinute(long secondBucket) {
-        return secondBucket / 100;
-    }
-
-    public long secondToHour(long secondBucket) {
-        return secondBucket / 100 / 100;
-    }
-
-    public long secondToDay(long secondBucket) {
-        return secondBucket / 100 / 100 / 100;
-    }
-
-    public long secondToMonth(long secondBucket) {
-        return secondBucket / 100 / 100 / 100 / 100;
     }
 }

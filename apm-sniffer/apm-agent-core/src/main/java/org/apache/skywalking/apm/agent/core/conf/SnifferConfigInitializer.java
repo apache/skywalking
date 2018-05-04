@@ -105,14 +105,6 @@ public class SnifferConfigInitializer {
             }
         }
 
-        Map<String, String> envs = System.getenv();
-        for (String envKey : envs.keySet()) {
-            if (envKey.startsWith(ENV_KEY_PREFIX)) {
-                String realKey = envKey.substring(ENV_KEY_PREFIX.length());
-                properties.setProperty(realKey, envs.get(envKey));
-            }
-        }
-
         if (!properties.isEmpty()) {
             ConfigInitializer.initialize(properties, Config.class);
         }

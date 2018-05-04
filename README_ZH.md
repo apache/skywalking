@@ -9,20 +9,23 @@ Apache SkyWalking | [English](README.md)
 [![GitHub stars](https://img.shields.io/github/stars/apache/incubator-skywalking.svg?style=for-the-badge&label=Stars&logo=github)](https://github.com/apache/incubator-skywalking)
 [![Twitter Follow](https://img.shields.io/twitter/follow/asfskywalking.svg?style=for-the-badge&label=Follow&logo=twitter)](https://twitter.com/AsfSkyWalking)
 
+
+[![Maven Central](https://img.shields.io/maven-central/v/org.apache.skywalking/apache-skywalking-apm-incubating.svg)](http://skywalking.apache.org/downloads/)
 [![Build Status](https://travis-ci.org/apache/incubator-skywalking.svg?branch=master)](https://travis-ci.org/apache/incubator-skywalking)
 [![Join the chat at https://gitter.im/openskywalking/Lobby](https://badges.gitter.im/openskywalking/Lobby.svg)](https://gitter.im/openskywalking/Lobby)
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
 
 
-* Java自动探针，**不需要修改应用程序源代码**
-  * 高性能探针.
-  * [中间件，框架与类库支持列表](docs/Supported-list.md).
-* 手动探针
-  * [使用OpenTracing手动探针API](http://opentracing.io/documentation/pages/supported-tracers)
-  * 使用 [**@Trace**](docs/cn/Application-toolkit-trace-CN.md) 标注追踪业务方法
-  * 将 traceId 集成到 log4j, log4j2 或 logback这些日志组件中
-* 纯Java后端Collector实现，提供RESTful和gRPC接口。兼容接受其他语言探针发送数据 
-  * [如何将探针的Metric和Trace数据上传到Collector？](/docs/cn/How-to-communicate-with-the-collector-CN.md)
+- Java自动探针，**不需要修改应用程序源代码**. 
+  - 高性能探针.
+  - [中间件，框架与类库支持列表](docs/Supported-list.md).
+- 手动探针
+  - [使用OpenTracing手动探针API](http://opentracing.io/documentation/pages/supported-tracers)
+  - 使用 [**@Trace**](docs/cn/Application-toolkit-trace-CN.md) 标注追踪业务方法
+  - 将 traceId 集成到 log4j, log4j2 或 logback这些日志组件中
+- 纯Java后端Collector实现，提供RESTful和gRPC接口。兼容接受其他语言探针发送数据
+- 社区探针和SDK
+  - [.NET Core](https://github.com/OpenSkywalking/skywalking-netcore)
 
 # Document
 [![EN doc](https://img.shields.io/badge/document-English-blue.svg)](docs/README.md) [![cn doc](https://img.shields.io/badge/文档-中文版-blue.svg)](docs/README_ZH.md)
@@ -68,8 +71,14 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 - 性能测试报告
   - [Java探针测试报告](https://skywalkingtest.github.io/Agent-Benchmarks/)
 
+# Users
+<img src="https://skywalkingtest.github.io/page-resources/users/users-2018-04-18.png"/>
+
+[报告新的用户案例](https://github.com/apache/incubator-skywalking/issues/443)
+
 # Contact Us
 * 直接提交Issue
+- 订阅邮件列表: dev@skywalking.apache.org
 * [Gitter](https://gitter.im/openskywalking/Lobby)
 * QQ群: 392443393
 

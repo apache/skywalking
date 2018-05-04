@@ -32,17 +32,17 @@ public class InstanceReferenceAlarmH2TableDefine extends H2TableDefine {
     }
 
     @Override public void initialize() {
-        addColumn(new H2ColumnDefine(InstanceReferenceAlarmTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(InstanceReferenceAlarmTable.COLUMN_FRONT_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(InstanceReferenceAlarmTable.COLUMN_BEHIND_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(InstanceReferenceAlarmTable.COLUMN_FRONT_INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(InstanceReferenceAlarmTable.COLUMN_BEHIND_INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(InstanceReferenceAlarmTable.ID, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(InstanceReferenceAlarmTable.FRONT_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(InstanceReferenceAlarmTable.BEHIND_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(InstanceReferenceAlarmTable.FRONT_INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(InstanceReferenceAlarmTable.BEHIND_INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
 
-        addColumn(new H2ColumnDefine(InstanceReferenceAlarmTable.COLUMN_SOURCE_VALUE, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(InstanceReferenceAlarmTable.COLUMN_ALARM_TYPE, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(InstanceReferenceAlarmTable.SOURCE_VALUE, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(InstanceReferenceAlarmTable.ALARM_TYPE, H2ColumnDefine.Type.Int.name()));
 
-        addColumn(new H2ColumnDefine(InstanceReferenceAlarmTable.COLUMN_ALARM_CONTENT, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(InstanceReferenceAlarmTable.ALARM_CONTENT, H2ColumnDefine.Type.Varchar.name()));
 
-        addColumn(new H2ColumnDefine(InstanceReferenceAlarmTable.COLUMN_LAST_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(InstanceReferenceAlarmTable.LAST_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
     }
 }

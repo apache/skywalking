@@ -16,40 +16,40 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.remote.grpc;
 
-import java.util.Properties;
 import org.apache.skywalking.apm.collector.cluster.ClusterModule;
+import org.apache.skywalking.apm.collector.cluster.service.ModuleListenerService;
 import org.apache.skywalking.apm.collector.cluster.service.ModuleRegisterService;
 import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.apache.skywalking.apm.collector.grpc.manager.GRPCManagerModule;
+import org.apache.skywalking.apm.collector.grpc.manager.service.GRPCManagerService;
 import org.apache.skywalking.apm.collector.remote.RemoteModule;
 import org.apache.skywalking.apm.collector.remote.grpc.handler.RemoteCommonServiceHandler;
+import org.apache.skywalking.apm.collector.remote.grpc.service.GRPCRemoteSenderService;
 import org.apache.skywalking.apm.collector.remote.service.CommonRemoteDataRegisterService;
 import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 import org.apache.skywalking.apm.collector.remote.service.RemoteSenderService;
-import org.apache.skywalking.apm.collector.server.Server;
-import org.apache.skywalking.apm.collector.cluster.service.ModuleListenerService;
-import org.apache.skywalking.apm.collector.grpc.manager.service.GRPCManagerService;
-import org.apache.skywalking.apm.collector.remote.grpc.service.GRPCRemoteSenderService;
+import org.apache.skywalking.apm.collector.server.grpc.GRPCServer;
 
 /**
  * @author peng-yongsheng
  */
 public class RemoteModuleGRPCProvider extends ModuleProvider {
 
+    private final RemoteModuleGRPCConfig config;
     public static final String NAME = "gRPC";
-
-    private static final String HOST = "host";
-    private static final String PORT = "port";
-    private static final String CHANNEL_SIZE = "channel_size";
-    private static final String BUFFER_SIZE = "buffer_size";
 
     private GRPCRemoteSenderService remoteSenderService;
     private CommonRemoteDataRegisterService remoteDataRegisterService;
+
+    public RemoteModuleGRPCProvider() {
+        super();
+        this.config = new RemoteModuleGRPCConfig();
+    }
 
     @Override public String name() {
         return NAME;
@@ -59,35 +59,33 @@ public class RemoteModuleGRPCProvider extends ModuleProvider {
         return RemoteModule.class;
     }
 
-    @Override public void prepare(Properties config) throws ServiceNotProvidedException {
-        String host = config.getProperty(HOST);
-        Integer port = (Integer)config.get(PORT);
-        Integer channelSize = (Integer)config.getOrDefault(CHANNEL_SIZE, 5);
-        Integer bufferSize = (Integer)config.getOrDefault(BUFFER_SIZE, 1000);
+    @Override public ModuleConfig createConfigBeanIfAbsent() {
+        return config;
+    }
+
+    @Override public void prepare() throws ServiceNotProvidedException {
+        Integer channelSize = config.getChannelSize() == 0 ? 5 : config.getChannelSize();
+        Integer bufferSize = config.getBufferSize() == 0 ? 1000 : config.getBufferSize();
 
         remoteDataRegisterService = new CommonRemoteDataRegisterService();
-        remoteSenderService = new GRPCRemoteSenderService(host, port, channelSize, bufferSize, remoteDataRegisterService);
+        remoteSenderService = new GRPCRemoteSenderService(config.getHost(), config.getPort(), channelSize, bufferSize, remoteDataRegisterService);
         this.registerServiceImplementation(RemoteSenderService.class, remoteSenderService);
         this.registerServiceImplementation(RemoteDataRegisterService.class, remoteDataRegisterService);
     }
 
-    @Override public void start(Properties config) throws ServiceNotProvidedException {
-        String host = config.getProperty(HOST);
-        Integer port = (Integer)config.get(PORT);
-
+    @Override public void start() throws ServiceNotProvidedException {
         GRPCManagerService managerService = getManager().find(GRPCManagerModule.NAME).getService(GRPCManagerService.class);
-        Server gRPCServer = managerService.createIfAbsent(host, port);
+        GRPCServer gRPCServer = managerService.createIfAbsent(config.getHost(), config.getPort());
         gRPCServer.addHandler(new RemoteCommonServiceHandler(remoteDataRegisterService));
 
         ModuleRegisterService moduleRegisterService = getManager().find(ClusterModule.NAME).getService(ModuleRegisterService.class);
-        moduleRegisterService.register(RemoteModule.NAME, this.name(), new RemoteModuleGRPCRegistration(host, port));
+        moduleRegisterService.register(RemoteModule.NAME, this.name(), new RemoteModuleGRPCRegistration(config.getHost(), config.getPort()));
 
         ModuleListenerService moduleListenerService = getManager().find(ClusterModule.NAME).getService(ModuleListenerService.class);
         moduleListenerService.addListener(remoteSenderService);
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
-
+    @Override public void notifyAfterCompleted() {
     }
 
     @Override public String[] requiredModules() {

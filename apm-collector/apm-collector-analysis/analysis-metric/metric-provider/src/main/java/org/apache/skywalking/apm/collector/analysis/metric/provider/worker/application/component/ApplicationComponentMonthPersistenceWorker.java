@@ -19,20 +19,22 @@
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.component;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentMonthPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponent;
+import org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponentTable;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationComponentMonthPersistenceWorker extends PersistenceWorker<ApplicationComponent> {
+public class ApplicationComponentMonthPersistenceWorker extends MergePersistenceWorker<ApplicationComponent> {
 
-    public ApplicationComponentMonthPersistenceWorker(ModuleManager moduleManager) {
+    private ApplicationComponentMonthPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -49,7 +51,7 @@ public class ApplicationComponentMonthPersistenceWorker extends PersistenceWorke
         return getModuleManager().find(StorageModule.NAME).getService(IApplicationComponentMonthPersistenceDAO.class);
     }
 
-    public static class Factory extends PersistenceWorkerProvider<ApplicationComponent, ApplicationComponentMonthPersistenceWorker> {
+    public static class Factory extends MergePersistenceWorkerProvider<ApplicationComponent, ApplicationComponentMonthPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
@@ -63,5 +65,10 @@ public class ApplicationComponentMonthPersistenceWorker extends PersistenceWorke
         public int queueSize() {
             return 1024;
         }
+    }
+
+    @GraphComputingMetric(name = "/persistence/onWork/" + ApplicationComponentTable.TABLE + "/month")
+    @Override protected void onWork(ApplicationComponent message) {
+        super.onWork(message);
     }
 }

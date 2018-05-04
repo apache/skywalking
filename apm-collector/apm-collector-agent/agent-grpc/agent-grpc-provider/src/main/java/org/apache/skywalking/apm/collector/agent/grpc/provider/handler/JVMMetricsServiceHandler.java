@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsServiceImplBase implements GRPCHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(JVMMetricsServiceHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(JVMMetricsServiceHandler.class);
 
     private final ICpuMetricService cpuMetricService;
     private final IGCMetricService gcMetricService;
@@ -66,11 +66,11 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
         logger.debug("receive the jvm metric from application instance, id: {}", instanceId);
 
         request.getMetricsList().forEach(metric -> {
-            long time = TimeBucketUtils.INSTANCE.getSecondTimeBucket(metric.getTime());
-            sendToCpuMetricService(instanceId, time, metric.getCpu());
-            sendToMemoryMetricService(instanceId, time, metric.getMemoryList());
-            sendToMemoryPoolMetricService(instanceId, time, metric.getMemoryPoolList());
-            sendToGCMetricService(instanceId, time, metric.getGcList());
+            long minuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(metric.getTime());
+            sendToCpuMetricService(instanceId, minuteTimeBucket, metric.getCpu());
+            sendToMemoryMetricService(instanceId, minuteTimeBucket, metric.getMemoryList());
+            sendToMemoryPoolMetricService(instanceId, minuteTimeBucket, metric.getMemoryPoolList());
+            sendToGCMetricService(instanceId, minuteTimeBucket, metric.getGcList());
             sendToInstanceHeartBeatService(instanceId, metric.getTime());
         });
 

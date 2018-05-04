@@ -35,7 +35,7 @@ public class GCDayMetricTransformNode implements NodeProcessor<GCMetric, GCMetri
     }
 
     @Override public void process(GCMetric gcMetric, Next<GCMetric> next) {
-        long timeBucket = TimeBucketUtils.INSTANCE.secondToDay(gcMetric.getTimeBucket());
+        long timeBucket = TimeBucketUtils.INSTANCE.minuteToDay(gcMetric.getTimeBucket());
 
         GCMetric newGCMetric = GCMetricCopy.copy(gcMetric);
         newGCMetric.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + gcMetric.getMetricId());

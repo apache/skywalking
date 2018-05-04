@@ -18,39 +18,21 @@
 
 package org.apache.skywalking.apm.collector.configuration;
 
-import java.util.Properties;
-import org.apache.skywalking.apm.collector.configuration.service.ApdexThresholdService;
-import org.apache.skywalking.apm.collector.configuration.service.ApplicationAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.ApplicationReferenceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.CollectorConfigService;
-import org.apache.skywalking.apm.collector.configuration.service.IApdexThresholdService;
-import org.apache.skywalking.apm.collector.configuration.service.IApplicationAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.IApplicationReferenceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.ICollectorConfig;
-import org.apache.skywalking.apm.collector.configuration.service.IInstanceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.IInstanceReferenceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.IServiceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.IServiceReferenceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.InstanceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.InstanceReferenceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.ServiceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.ServiceReferenceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.core.module.Module;
-import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
-import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.apache.skywalking.apm.collector.configuration.service.*;
+import org.apache.skywalking.apm.collector.core.module.*;
+import org.apache.skywalking.apm.collector.core.util.*;
 
 /**
  * @author peng-yongsheng
  */
 public class ConfigurationModuleProvider extends ModuleProvider {
-    private static final String NAMESPACE = "namespace";
-    private static final String APPLICATION_APDEX_THRESHOLD = "application_apdex_threshold";
-    private static final String SERVICE_ERROR_RATE_THRESHOLD = "service_error_rate_threshold";
-    private static final String SERVICE_AVERAGE_RESPONSE_TIME_THRESHOLD = "service_average_response_time_threshold";
-    private static final String INSTANCE_ERROR_RATE_THRESHOLD = "instance_error_rate_threshold";
-    private static final String INSTANCE_AVERAGE_RESPONSE_TIME_THRESHOLD = "instance_average_response_time_threshold";
-    private static final String APPLICATION_ERROR_RATE_THRESHOLD = "application_error_rate_threshold";
-    private static final String APPLICATION_AVERAGE_RESPONSE_TIME_THRESHOLD = "application_average_response_time_threshold";
+
+    private final ConfigurationModuleConfig config;
+
+    public ConfigurationModuleProvider() {
+        super();
+        this.config = new ConfigurationModuleConfig();
+    }
 
     @Override public String name() {
         return "default";
@@ -60,17 +42,25 @@ public class ConfigurationModuleProvider extends ModuleProvider {
         return ConfigurationModule.class;
     }
 
-    @Override public void prepare(Properties config) throws ServiceNotProvidedException {
-        String namespace = (String)config.getOrDefault(NAMESPACE, "");
-        Integer applicationApdexThreshold = (Integer)config.getOrDefault(APPLICATION_APDEX_THRESHOLD, 2000);
-        Double serviceErrorRateThreshold = (Double)config.getOrDefault(SERVICE_ERROR_RATE_THRESHOLD, 10.00);
-        Integer serviceAverageResponseTimeThreshold = (Integer)config.getOrDefault(SERVICE_AVERAGE_RESPONSE_TIME_THRESHOLD, 2000);
-        Double instanceErrorRateThreshold = (Double)config.getOrDefault(INSTANCE_ERROR_RATE_THRESHOLD, 10.00);
-        Integer instanceAverageResponseTimeThreshold = (Integer)config.getOrDefault(INSTANCE_AVERAGE_RESPONSE_TIME_THRESHOLD, 2000);
-        Double applicationErrorRateThreshold = (Double)config.getOrDefault(APPLICATION_ERROR_RATE_THRESHOLD, 10.00);
-        Integer applicationAverageResponseTimeThreshold = (Integer)config.getOrDefault(APPLICATION_AVERAGE_RESPONSE_TIME_THRESHOLD, 2000);
+    @Override public ModuleConfig createConfigBeanIfAbsent() {
+        return config;
+    }
+
+    @Override public void prepare() throws ServiceNotProvidedException {
+        String namespace = StringUtils.isNotEmpty(config.getNamespace()) ? config.getNamespace() : Const.EMPTY_STRING;
+        int applicationApdexThreshold = config.getApplicationApdexThreshold() == 0 ? 2000 : config.getApplicationApdexThreshold();
+        double serviceErrorRateThreshold = config.getServiceErrorRateThreshold() == 0 ? 10.00 : config.getServiceErrorRateThreshold();
+        int serviceAverageResponseTimeThreshold = config.getServiceAverageResponseTimeThreshold() == 0 ? 2000 : config.getServiceAverageResponseTimeThreshold();
+        double instanceErrorRateThreshold = config.getInstanceErrorRateThreshold() == 0 ? 10.00 : config.getInstanceErrorRateThreshold();
+        int instanceAverageResponseTimeThreshold = config.getInstanceAverageResponseTimeThreshold() == 0 ? 2000 : config.getInstanceAverageResponseTimeThreshold();
+        double applicationErrorRateThreshold = config.getApplicationErrorRateThreshold() == 0 ? 10.00 : config.getApplicationErrorRateThreshold();
+        int applicationAverageResponseTimeThreshold = config.getApplicationAverageResponseTimeThreshold() == 0 ? 2000 : config.getApplicationAverageResponseTimeThreshold();
+
+        int thermodynamicResponseTimeStep = config.getThermodynamicResponseTimeStep() == 0 ? 50 : config.getThermodynamicResponseTimeStep();
+        int thermodynamicCountOfResponseTimeSteps = config.getThermodynamicCountOfResponseTimeSteps() == 0 ? 40 : config.getThermodynamicCountOfResponseTimeSteps();
 
         this.registerServiceImplementation(ICollectorConfig.class, new CollectorConfigService(namespace));
+        this.registerServiceImplementation(IComponentLibraryCatalogService.class, new ComponentLibraryCatalogService());
         this.registerServiceImplementation(IApdexThresholdService.class, new ApdexThresholdService(applicationApdexThreshold));
         this.registerServiceImplementation(IServiceAlarmRuleConfig.class, new ServiceAlarmRuleConfig(serviceErrorRateThreshold, serviceAverageResponseTimeThreshold));
         this.registerServiceImplementation(IInstanceAlarmRuleConfig.class, new InstanceAlarmRuleConfig(instanceErrorRateThreshold, instanceAverageResponseTimeThreshold));
@@ -78,14 +68,13 @@ public class ConfigurationModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(IServiceReferenceAlarmRuleConfig.class, new ServiceReferenceAlarmRuleConfig(serviceErrorRateThreshold, serviceAverageResponseTimeThreshold));
         this.registerServiceImplementation(IInstanceReferenceAlarmRuleConfig.class, new InstanceReferenceAlarmRuleConfig(instanceErrorRateThreshold, instanceAverageResponseTimeThreshold));
         this.registerServiceImplementation(IApplicationReferenceAlarmRuleConfig.class, new ApplicationReferenceAlarmRuleConfig(applicationErrorRateThreshold, applicationAverageResponseTimeThreshold));
+        this.registerServiceImplementation(IResponseTimeDistributionConfigService.class, new ResponseTimeDistributionConfigService(thermodynamicResponseTimeStep, thermodynamicCountOfResponseTimeSteps));
     }
 
-    @Override public void start(Properties config) throws ServiceNotProvidedException {
-
+    @Override public void start() {
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
-
+    @Override public void notifyAfterCompleted() {
     }
 
     @Override public String[] requiredModules() {

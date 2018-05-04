@@ -16,14 +16,14 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.naming.jetty.service;
 
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.jetty.manager.JettyManagerModule;
 import org.apache.skywalking.apm.collector.jetty.manager.service.JettyManagerService;
 import org.apache.skywalking.apm.collector.naming.service.NamingHandlerRegisterService;
-import org.apache.skywalking.apm.collector.jetty.manager.JettyManagerModule;
 import org.apache.skywalking.apm.collector.server.ServerHandler;
+import org.apache.skywalking.apm.collector.server.jetty.JettyHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NamingJettyHandlerRegisterService implements NamingHandlerRegisterService {
 
-    private final Logger logger = LoggerFactory.getLogger(NamingJettyHandlerRegisterService.class);
+    private static final Logger logger = LoggerFactory.getLogger(NamingJettyHandlerRegisterService.class);
 
     private final ModuleManager moduleManager;
     private final String host;
@@ -44,8 +44,12 @@ public class NamingJettyHandlerRegisterService implements NamingHandlerRegisterS
         this.port = port;
     }
 
-    @Override public void register(ServerHandler namingHandler) {
+    @Override
+    public void register(ServerHandler namingHandler) {
+        if (!(namingHandler instanceof JettyHandler)) {
+            throw new IllegalArgumentException("NamingJettyHandlerRegisterService support JettyHandler only.");
+        }
         JettyManagerService managerService = moduleManager.find(JettyManagerModule.NAME).getService(JettyManagerService.class);
-        managerService.addHandler(this.host, this.port, namingHandler);
+        managerService.addHandler(this.host, this.port, (JettyHandler)namingHandler);
     }
 }

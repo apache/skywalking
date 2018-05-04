@@ -66,6 +66,11 @@ org.apache.skywalking.apm.collector.storage.es.define.amp.ApplicationHourMetricE
 org.apache.skywalking.apm.collector.storage.es.define.amp.ApplicationDayMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.amp.ApplicationMonthMetricEsTableDefine
 
+org.apache.skywalking.apm.collector.storage.es.define.rtd.ResponseTimeDistributionMinuteEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.rtd.ResponseTimeDistributionHourEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.rtd.ResponseTimeDistributionDayEsTableDefine
+org.apache.skywalking.apm.collector.storage.es.define.rtd.ResponseTimeDistributionMonthEsTableDefine
+
 org.apache.skywalking.apm.collector.storage.es.define.GlobalTraceEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.SegmentEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.SegmentDurationEsTableDefine
@@ -88,25 +93,21 @@ org.apache.skywalking.apm.collector.storage.es.define.alarm.ServiceAlarmListEsTa
 org.apache.skywalking.apm.collector.storage.es.define.alarm.ServiceReferenceAlarmEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.alarm.ServiceReferenceAlarmListEsTableDefine
 
-org.apache.skywalking.apm.collector.storage.es.define.mpool.MemoryPoolSecondMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.mpool.MemoryPoolMinuteMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.mpool.MemoryPoolHourMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.mpool.MemoryPoolDayMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.mpool.MemoryPoolMonthMetricEsTableDefine
 
-org.apache.skywalking.apm.collector.storage.es.define.memory.MemorySecondMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.memory.MemoryMinuteMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.memory.MemoryHourMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.memory.MemoryDayMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.memory.MemoryMonthMetricEsTableDefine
 
-org.apache.skywalking.apm.collector.storage.es.define.gc.GCSecondMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.gc.GCMinuteMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.gc.GCHourMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.gc.GCDayMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.gc.GCMonthMetricEsTableDefine
 
-org.apache.skywalking.apm.collector.storage.es.define.cpu.CpuSecondMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.cpu.CpuMinuteMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.cpu.CpuHourMetricEsTableDefine
 org.apache.skywalking.apm.collector.storage.es.define.cpu.CpuDayMetricEsTableDefine

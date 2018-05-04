@@ -20,6 +20,8 @@ package org.apache.skywalking.apm.collector.storage.es.base.dao;
 
 import java.util.List;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.annotations.trace.BatchParameter;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
 import org.apache.skywalking.apm.collector.storage.base.dao.IBatchDAO;
 import org.elasticsearch.action.bulk.BulkItemResponse;
@@ -41,11 +43,14 @@ public class BatchEsDAO extends EsDAO implements IBatchDAO {
         super(client);
     }
 
-    @Override public void batchPersistence(List<?> batchCollection) {
-        BulkRequestBuilder bulkRequest = getClient().prepareBulk();
-
-        logger.debug("bulk data size: {}", batchCollection.size());
+    @GraphComputingMetric(name = "/persistence/batchPersistence/")
+    @Override public void batchPersistence(@BatchParameter List<?> batchCollection) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("bulk data size: {}", batchCollection.size());
+        }
         if (CollectionUtils.isNotEmpty(batchCollection)) {
+            BulkRequestBuilder bulkRequest = getClient().prepareBulk();
+
             batchCollection.forEach(builder -> {
                 if (builder instanceof IndexRequestBuilder) {
                     bulkRequest.add((IndexRequestBuilder)builder);

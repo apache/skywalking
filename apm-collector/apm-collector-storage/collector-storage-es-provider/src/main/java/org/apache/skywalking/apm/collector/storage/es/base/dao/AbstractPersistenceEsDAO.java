@@ -18,9 +18,9 @@
 
 package org.apache.skywalking.apm.collector.storage.es.base.dao;
 
+import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
@@ -29,8 +29,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
 
 /**
  * @author peng-yongsheng
@@ -48,7 +46,7 @@ public abstract class AbstractPersistenceEsDAO<STREAM_DATA extends StreamData> e
     protected abstract String tableName();
 
     @Override
-    public final STREAM_DATA get(String id) {
+    public STREAM_DATA get(String id) {
         GetResponse getResponse = getClient().prepareGet(tableName(), id).get();
         if (getResponse.isExists()) {
             STREAM_DATA streamData = esDataToStreamData(getResponse.getSource());
@@ -76,13 +74,11 @@ public abstract class AbstractPersistenceEsDAO<STREAM_DATA extends StreamData> e
     protected abstract String timeBucketColumnNameForDelete();
 
     @Override
-    public final void deleteHistory(Long startTimestamp, Long endTimestamp) {
-        long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
-        long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
+    public final void deleteHistory(Long startTimeBucket, Long endTimeBucket) {
         BulkByScrollResponse response = getClient().prepareDelete(
-                QueryBuilders.rangeQuery(timeBucketColumnNameForDelete()).gte(startTimeBucket).lte(endTimeBucket),
-                tableName())
-                .get();
+            QueryBuilders.rangeQuery(timeBucketColumnNameForDelete()).gte(startTimeBucket).lte(endTimeBucket),
+            tableName())
+            .get();
 
         long deleted = response.getDeleted();
         logger.info("Delete {} rows history from {} index.", deleted, tableName());

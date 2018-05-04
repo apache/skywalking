@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.core.data;
 
 import java.util.LinkedList;
@@ -32,7 +31,7 @@ import org.slf4j.LoggerFactory;
  */
 public class StorageDefineLoader implements Loader<List<TableDefine>> {
 
-    private final Logger logger = LoggerFactory.getLogger(StorageDefineLoader.class);
+    private static final Logger logger = LoggerFactory.getLogger(StorageDefineLoader.class);
 
     @Override public List<TableDefine> load() throws DefineException {
         List<TableDefine> tableDefines = new LinkedList<>();

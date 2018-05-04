@@ -23,9 +23,7 @@ package org.apache.skywalking.apm.collector.analysis.jvm.define.graph;
  */
 public class WorkerIdDefine {
     public static final int CPU_METRIC_BRIDGE_NODE_ID = 3000;
-    public static final int CPU_SECOND_METRIC_PERSISTENCE_WORKER_ID = 3001;
     public static final int CPU_MINUTE_METRIC_PERSISTENCE_WORKER_ID = 3002;
-    public static final int CPU_MINUTE_METRIC_TRANSFORM_NODE_ID = 3003;
     public static final int CPU_HOUR_METRIC_PERSISTENCE_WORKER_ID = 3004;
     public static final int CPU_HOUR_METRIC_TRANSFORM_NODE_ID = 3005;
     public static final int CPU_DAY_METRIC_PERSISTENCE_WORKER_ID = 3006;
@@ -34,9 +32,7 @@ public class WorkerIdDefine {
     public static final int CPU_MONTH_METRIC_TRANSFORM_NODE_ID = 3009;
 
     public static final int GC_METRIC_BRIDGE_NODE_ID = 3100;
-    public static final int GC_SECOND_METRIC_PERSISTENCE_WORKER_ID = 3101;
     public static final int GC_MINUTE_METRIC_PERSISTENCE_WORKER_ID = 3102;
-    public static final int GC_MINUTE_METRIC_TRANSFORM_NODE_ID = 3103;
     public static final int GC_HOUR_METRIC_PERSISTENCE_WORKER_ID = 3104;
     public static final int GC_HOUR_METRIC_TRANSFORM_NODE_ID = 3105;
     public static final int GC_DAY_METRIC_PERSISTENCE_WORKER_ID = 3106;
@@ -45,9 +41,7 @@ public class WorkerIdDefine {
     public static final int GC_MONTH_METRIC_TRANSFORM_NODE_ID = 3109;
 
     public static final int MEMORY_METRIC_BRIDGE_NODE_ID = 3200;
-    public static final int MEMORY_SECOND_METRIC_PERSISTENCE_WORKER_ID = 3201;
     public static final int MEMORY_MINUTE_METRIC_PERSISTENCE_WORKER_ID = 3202;
-    public static final int MEMORY_MINUTE_METRIC_TRANSFORM_NODE_ID = 3203;
     public static final int MEMORY_HOUR_METRIC_PERSISTENCE_WORKER_ID = 3204;
     public static final int MEMORY_HOUR_METRIC_TRANSFORM_NODE_ID = 3205;
     public static final int MEMORY_DAY_METRIC_PERSISTENCE_WORKER_ID = 3206;
@@ -56,9 +50,7 @@ public class WorkerIdDefine {
     public static final int MEMORY_MONTH_METRIC_TRANSFORM_NODE_ID = 3209;
 
     public static final int MEMORY_POOL_METRIC_BRIDGE_NODE_ID = 3300;
-    public static final int MEMORY_POOL_SECOND_METRIC_PERSISTENCE_WORKER_ID = 3301;
     public static final int MEMORY_POOL_MINUTE_METRIC_PERSISTENCE_WORKER_ID = 3302;
-    public static final int MEMORY_POOL_MINUTE_METRIC_TRANSFORM_NODE_ID = 3303;
     public static final int MEMORY_POOL_HOUR_METRIC_PERSISTENCE_WORKER_ID = 3304;
     public static final int MEMORY_POOL_HOUR_METRIC_TRANSFORM_NODE_ID = 3305;
     public static final int MEMORY_POOL_DAY_METRIC_PERSISTENCE_WORKER_ID = 3306;

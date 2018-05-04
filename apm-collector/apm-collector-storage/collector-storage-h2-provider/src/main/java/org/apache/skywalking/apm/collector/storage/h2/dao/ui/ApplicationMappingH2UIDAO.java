@@ -49,15 +49,15 @@ public class ApplicationMappingH2UIDAO extends H2DAO implements IApplicationMapp
         String tableName = TimePyramidTableNameBuilder.build(step, ApplicationMappingTable.TABLE);
 
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(APPLICATION_MAPPING_SQL, ApplicationMappingTable.COLUMN_APPLICATION_ID,
-            ApplicationMappingTable.COLUMN_MAPPING_APPLICATION_ID, tableName, ApplicationMappingTable.COLUMN_TIME_BUCKET);
+        String sql = SqlBuilder.buildSql(APPLICATION_MAPPING_SQL, ApplicationMappingTable.APPLICATION_ID.getName(),
+            ApplicationMappingTable.MAPPING_APPLICATION_ID.getName(), tableName, ApplicationMappingTable.TIME_BUCKET.getName());
 
         List<ApplicationMapping> applicationMappings = new LinkedList<>();
         Object[] params = new Object[] {startTimeBucket, endTimeBucket};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             while (rs.next()) {
-                int applicationId = rs.getInt(ApplicationMappingTable.COLUMN_APPLICATION_ID);
-                int addressId = rs.getInt(ApplicationMappingTable.COLUMN_MAPPING_APPLICATION_ID);
+                int applicationId = rs.getInt(ApplicationMappingTable.APPLICATION_ID.getName());
+                int addressId = rs.getInt(ApplicationMappingTable.MAPPING_APPLICATION_ID.getName());
 
                 ApplicationMapping applicationMapping = new ApplicationMapping();
                 applicationMapping.setApplicationId(applicationId);

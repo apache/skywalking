@@ -25,10 +25,11 @@ import org.apache.skywalking.apm.collector.cache.service.ServiceIdCacheService;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.Objects.isNull;
 
 /**
  * @author peng-yongsheng
@@ -46,14 +47,14 @@ public class ServiceNameService implements IServiceNameService {
     }
 
     private ServiceIdCacheService getServiceIdCacheService() {
-        if (ObjectUtils.isEmpty(serviceIdCacheService)) {
+        if (isNull(serviceIdCacheService)) {
             serviceIdCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceIdCacheService.class);
         }
         return serviceIdCacheService;
     }
 
     private Graph<ServiceName> getServiceNameRegisterGraph() {
-        if (ObjectUtils.isEmpty(serviceNameRegisterGraph)) {
+        if (isNull(serviceNameRegisterGraph)) {
             this.serviceNameRegisterGraph = GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.SERVICE_NAME_REGISTER_GRAPH_ID, ServiceName.class);
         }
         return serviceNameRegisterGraph;

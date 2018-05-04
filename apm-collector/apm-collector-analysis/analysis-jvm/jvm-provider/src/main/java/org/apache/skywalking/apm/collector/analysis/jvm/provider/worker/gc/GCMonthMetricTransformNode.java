@@ -35,7 +35,7 @@ public class GCMonthMetricTransformNode implements NodeProcessor<GCMetric, GCMet
     }
 
     @Override public void process(GCMetric gcMetric, Next<GCMetric> next) {
-        long timeBucket = TimeBucketUtils.INSTANCE.secondToMonth(gcMetric.getTimeBucket());
+        long timeBucket = TimeBucketUtils.INSTANCE.minuteToMonth(gcMetric.getTimeBucket());
 
         GCMetric newGCMetric = GCMetricCopy.copy(gcMetric);
         newGCMetric.setId(String.valueOf(timeBucket) + Const.ID_SPLIT + gcMetric.getMetricId());

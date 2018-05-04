@@ -21,7 +21,6 @@ package org.apache.skywalking.apm.collector.storage.es.dao;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentPersistenceDAO;
@@ -40,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SegmentEsPersistenceDAO extends EsDAO implements ISegmentPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, Segment> {
 
-    private final Logger logger = LoggerFactory.getLogger(SegmentEsPersistenceDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(SegmentEsPersistenceDAO.class);
 
     public SegmentEsPersistenceDAO(ElasticSearchClient client) {
         super(client);
@@ -58,11 +57,11 @@ public class SegmentEsPersistenceDAO extends EsDAO implements ISegmentPersistenc
 
     @Override
     public IndexRequestBuilder prepareBatchInsert(Segment data) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(SegmentTable.COLUMN_DATA_BINARY, new String(Base64.getEncoder().encode(data.getDataBinary())));
-        source.put(SegmentTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
-        logger.debug("segment source: {}", source.toString());
-        return getClient().prepareIndex(SegmentTable.TABLE, data.getId()).setSource(source);
+        Map<String, Object> target = new HashMap<>();
+        target.put(SegmentTable.DATA_BINARY.getName(), new String(Base64.getEncoder().encode(data.getDataBinary())));
+        target.put(SegmentTable.TIME_BUCKET.getName(), data.getTimeBucket());
+        logger.debug("segment source: {}", target.toString());
+        return getClient().prepareIndex(SegmentTable.TABLE, data.getId()).setSource(target);
     }
 
     @Override
@@ -70,9 +69,9 @@ public class SegmentEsPersistenceDAO extends EsDAO implements ISegmentPersistenc
         long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
         long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
         BulkByScrollResponse response = getClient().prepareDelete(
-                QueryBuilders.rangeQuery(SegmentTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket),
-                SegmentTable.TABLE)
-                .get();
+            QueryBuilders.rangeQuery(SegmentTable.TIME_BUCKET.getName()).gte(startTimeBucket).lte(endTimeBucket),
+            SegmentTable.TABLE)
+            .get();
 
         long deleted = response.getDeleted();
         logger.info("Delete {} rows history from {} index.", deleted, SegmentTable.TABLE);

@@ -19,20 +19,22 @@
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.refmetric;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceMonthMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
+import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetricTable;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceReferenceMonthMetricPersistenceWorker extends PersistenceWorker<ServiceReferenceMetric> {
+public class ServiceReferenceMonthMetricPersistenceWorker extends MergePersistenceWorker<ServiceReferenceMetric> {
 
-    public ServiceReferenceMonthMetricPersistenceWorker(ModuleManager moduleManager) {
+    private ServiceReferenceMonthMetricPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -49,7 +51,7 @@ public class ServiceReferenceMonthMetricPersistenceWorker extends PersistenceWor
         return getModuleManager().find(StorageModule.NAME).getService(IServiceReferenceMonthMetricPersistenceDAO.class);
     }
 
-    public static class Factory extends PersistenceWorkerProvider<ServiceReferenceMetric, ServiceReferenceMonthMetricPersistenceWorker> {
+    public static class Factory extends MergePersistenceWorkerProvider<ServiceReferenceMetric, ServiceReferenceMonthMetricPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
@@ -63,5 +65,15 @@ public class ServiceReferenceMonthMetricPersistenceWorker extends PersistenceWor
         public int queueSize() {
             return 1024;
         }
+    }
+
+    @GraphComputingMetric(name = "/persistence/onWork/" + ServiceReferenceMetricTable.TABLE + "/month")
+    @Override protected void onWork(ServiceReferenceMetric input) {
+        super.onWork(input);
+    }
+
+    @GraphComputingMetric(name = "/persistence/flushAndSwitch/" + ServiceReferenceMetricTable.TABLE + "/month")
+    @Override public boolean flushAndSwitch() {
+        return super.flushAndSwitch();
     }
 }

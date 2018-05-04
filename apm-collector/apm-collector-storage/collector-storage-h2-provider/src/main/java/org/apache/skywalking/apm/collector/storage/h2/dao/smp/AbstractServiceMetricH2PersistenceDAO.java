@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
+import org.apache.skywalking.apm.collector.storage.h2.MetricTransformUtil;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.AbstractPersistenceH2DAO;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetric;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetricTable;
@@ -32,69 +33,35 @@ import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetricTa
  */
 public abstract class AbstractServiceMetricH2PersistenceDAO extends AbstractPersistenceH2DAO<ServiceMetric> {
 
-    public AbstractServiceMetricH2PersistenceDAO(H2Client client) {
+    AbstractServiceMetricH2PersistenceDAO(H2Client client) {
         super(client);
     }
 
     @Override protected final ServiceMetric h2DataToStreamData(ResultSet resultSet) throws SQLException {
         ServiceMetric serviceMetric = new ServiceMetric();
-        serviceMetric.setId(resultSet.getString(ServiceMetricTable.COLUMN_ID));
-        serviceMetric.setMetricId(resultSet.getString(ServiceMetricTable.COLUMN_METRIC_ID));
+        serviceMetric.setId(resultSet.getString(ServiceMetricTable.ID.getName()));
+        serviceMetric.setMetricId(resultSet.getString(ServiceMetricTable.METRIC_ID.getName()));
 
-        serviceMetric.setApplicationId(resultSet.getInt(ServiceMetricTable.COLUMN_APPLICATION_ID));
-        serviceMetric.setInstanceId(resultSet.getInt(ServiceMetricTable.COLUMN_INSTANCE_ID));
-        serviceMetric.setServiceId(resultSet.getInt(ServiceMetricTable.COLUMN_SERVICE_ID));
-        serviceMetric.setSourceValue(resultSet.getInt(ServiceMetricTable.COLUMN_SOURCE_VALUE));
+        serviceMetric.setApplicationId(resultSet.getInt(ServiceMetricTable.APPLICATION_ID.getName()));
+        serviceMetric.setInstanceId(resultSet.getInt(ServiceMetricTable.INSTANCE_ID.getName()));
+        serviceMetric.setServiceId(resultSet.getInt(ServiceMetricTable.SERVICE_ID.getName()));
 
-        serviceMetric.setTransactionCalls(resultSet.getLong(ServiceMetricTable.COLUMN_TRANSACTION_CALLS));
-        serviceMetric.setTransactionErrorCalls(resultSet.getLong(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS));
-        serviceMetric.setTransactionDurationSum(resultSet.getLong(ServiceMetricTable.COLUMN_TRANSACTION_DURATION_SUM));
-        serviceMetric.setTransactionErrorDurationSum(resultSet.getLong(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM));
-        serviceMetric.setTransactionAverageDuration(resultSet.getLong(ServiceMetricTable.COLUMN_TRANSACTION_AVERAGE_DURATION));
+        MetricTransformUtil.INSTANCE.h2DataToStreamData(resultSet, serviceMetric);
 
-        serviceMetric.setBusinessTransactionCalls(resultSet.getLong(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS));
-        serviceMetric.setBusinessTransactionErrorCalls(resultSet.getLong(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS));
-        serviceMetric.setBusinessTransactionDurationSum(resultSet.getLong(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM));
-        serviceMetric.setBusinessTransactionErrorDurationSum(resultSet.getLong(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM));
-        serviceMetric.setBusinessTransactionAverageDuration(resultSet.getLong(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_AVERAGE_DURATION));
-
-        serviceMetric.setMqTransactionCalls(resultSet.getLong(ServiceMetricTable.COLUMN_MQ_TRANSACTION_CALLS));
-        serviceMetric.setMqTransactionErrorCalls(resultSet.getLong(ServiceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS));
-        serviceMetric.setMqTransactionDurationSum(resultSet.getLong(ServiceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM));
-        serviceMetric.setMqTransactionErrorDurationSum(resultSet.getLong(ServiceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM));
-        serviceMetric.setMqTransactionAverageDuration(resultSet.getLong(ServiceMetricTable.COLUMN_MQ_TRANSACTION_AVERAGE_DURATION));
-
-        serviceMetric.setTimeBucket(resultSet.getLong(ServiceMetricTable.COLUMN_TIME_BUCKET));
         return serviceMetric;
     }
 
     @Override protected final Map<String, Object> streamDataToH2Data(ServiceMetric streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(ServiceMetricTable.COLUMN_ID, streamData.getId());
-        source.put(ServiceMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(ServiceMetricTable.ID.getName(), streamData.getId());
+        target.put(ServiceMetricTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(ServiceMetricTable.COLUMN_APPLICATION_ID, streamData.getApplicationId());
-        source.put(ServiceMetricTable.COLUMN_INSTANCE_ID, streamData.getInstanceId());
-        source.put(ServiceMetricTable.COLUMN_SERVICE_ID, streamData.getServiceId());
-        source.put(ServiceMetricTable.COLUMN_SOURCE_VALUE, streamData.getSourceValue());
+        target.put(ServiceMetricTable.APPLICATION_ID.getName(), streamData.getApplicationId());
+        target.put(ServiceMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId());
+        target.put(ServiceMetricTable.SERVICE_ID.getName(), streamData.getServiceId());
 
-        source.put(ServiceMetricTable.COLUMN_TRANSACTION_CALLS, streamData.getTransactionCalls());
-        source.put(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, streamData.getTransactionErrorCalls());
-        source.put(ServiceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, streamData.getTransactionDurationSum());
-        source.put(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, streamData.getTransactionErrorDurationSum());
+        MetricTransformUtil.INSTANCE.streamDataToH2Data(streamData, target);
 
-        source.put(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, streamData.getBusinessTransactionCalls());
-        source.put(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, streamData.getBusinessTransactionErrorCalls());
-        source.put(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, streamData.getBusinessTransactionDurationSum());
-        source.put(ServiceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, streamData.getBusinessTransactionErrorDurationSum());
-
-        source.put(ServiceMetricTable.COLUMN_MQ_TRANSACTION_CALLS, streamData.getMqTransactionCalls());
-        source.put(ServiceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, streamData.getMqTransactionErrorCalls());
-        source.put(ServiceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, streamData.getMqTransactionDurationSum());
-        source.put(ServiceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, streamData.getMqTransactionErrorDurationSum());
-
-        source.put(ServiceMetricTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
-
-        return source;
+        return target;
     }
 }

@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InstanceHeartBeatServletHandler extends JettyHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatServletHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatServletHandler.class);
 
     private final IInstanceHeartBeatService instanceHeartBeatService;
     private final Gson gson = new Gson();

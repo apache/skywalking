@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 public enum HttpClientTools {
     INSTANCE;
 
-    private final Logger logger = LoggerFactory.getLogger(HttpClientTools.class);
+    private static final Logger logger = LoggerFactory.getLogger(HttpClientTools.class);
 
     public String get(String url, List<NameValuePair> params) throws IOException {
         CloseableHttpClient httpClient = HttpClients.createDefault();

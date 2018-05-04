@@ -16,19 +16,13 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.buffer;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.StringUtils;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
+import org.apache.skywalking.apm.collector.core.util.*;
 import org.apache.skywalking.apm.network.proto.UpstreamSegment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -36,7 +30,7 @@ import org.slf4j.LoggerFactory;
 public enum SegmentBufferManager {
     INSTANCE;
 
-    private final Logger logger = LoggerFactory.getLogger(SegmentBufferManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(SegmentBufferManager.class);
 
     public static final String DATA_FILE_PREFIX = "data";
     private FileOutputStream outputStream;
@@ -46,6 +40,9 @@ public enum SegmentBufferManager {
         try {
             OffsetManager.INSTANCE.initialize();
             if (new File(BufferFileConfig.BUFFER_PATH).mkdirs()) {
+                newDataFile();
+            } else if (BufferFileConfig.BUFFER_FILE_CLEAN_WHEN_RESTART) {
+                deleteFiles();
                 newDataFile();
             } else {
                 String writeFileName = OffsetManager.INSTANCE.getWriteFileName();
@@ -85,7 +82,11 @@ public enum SegmentBufferManager {
         String timeBucket = String.valueOf(TimeBucketUtils.INSTANCE.getSecondTimeBucket(System.currentTimeMillis()));
         String writeFileName = DATA_FILE_PREFIX + "_" + timeBucket + "." + Const.FILE_SUFFIX;
         File dataFile = new File(BufferFileConfig.BUFFER_PATH + writeFileName);
-        dataFile.createNewFile();
+        boolean created = dataFile.createNewFile();
+        if (!created) {
+            logger.info("The file named {} already exists.", writeFileName);
+        }
+
         OffsetManager.INSTANCE.setWriteOffset(writeFileName, 0);
         try {
             if (outputStream != null) {
@@ -95,6 +96,16 @@ public enum SegmentBufferManager {
             outputStream.getChannel().position(0);
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
+        }
+    }
+
+    private void deleteFiles() {
+        File bufferDirectory = new File(BufferFileConfig.BUFFER_PATH);
+        boolean delete = bufferDirectory.delete();
+        if (delete) {
+            logger.info("Buffer directory is successfully deleted");
+        } else {
+            logger.info("Buffer directory is not deleted");
         }
     }
 

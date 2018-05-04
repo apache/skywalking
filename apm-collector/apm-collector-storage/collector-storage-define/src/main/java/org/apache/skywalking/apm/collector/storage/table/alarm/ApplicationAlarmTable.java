@@ -18,14 +18,11 @@
 
 package org.apache.skywalking.apm.collector.storage.table.alarm;
 
-import org.apache.skywalking.apm.collector.storage.table.CommonMetricTable;
+import org.apache.skywalking.apm.collector.storage.table.register.RegisterColumns;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationAlarmTable extends CommonMetricTable {
-    public static final String TABLE = "application_alarm";
-    public static final String COLUMN_ALARM_TYPE = "alarm_type";
-    public static final String COLUMN_LAST_TIME_BUCKET = "last_time_bucket";
-    public static final String COLUMN_ALARM_CONTENT = "alarm_content";
+public interface ApplicationAlarmTable extends AlarmColumns, RegisterColumns {
+    String TABLE = "application_alarm";
 }

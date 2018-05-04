@@ -21,34 +21,28 @@ package org.apache.skywalking.apm.collector.ui.service;
 import java.text.ParseException;
 import java.util.List;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
-import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
-import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
+import org.apache.skywalking.apm.collector.cache.service.*;
+import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
+import org.apache.skywalking.apm.collector.configuration.service.IComponentLibraryCatalogService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.INetworkAddressUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.*;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
-import org.apache.skywalking.apm.collector.storage.table.register.ServerTypeDefine;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
 import org.apache.skywalking.apm.collector.storage.ui.application.Application;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
-import org.apache.skywalking.apm.collector.storage.ui.overview.ApplicationTPS;
-import org.apache.skywalking.apm.collector.storage.ui.overview.ConjecturalApp;
-import org.apache.skywalking.apm.collector.storage.ui.overview.ConjecturalAppBrief;
+import org.apache.skywalking.apm.collector.storage.ui.overview.*;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceMetric;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
 public class ApplicationService {
 
-    private final Logger logger = LoggerFactory.getLogger(ApplicationService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationService.class);
 
     private final IInstanceUIDAO instanceDAO;
     private final IServiceMetricUIDAO serviceMetricUIDAO;
@@ -56,7 +50,8 @@ public class ApplicationService {
     private final INetworkAddressUIDAO networkAddressUIDAO;
     private final ApplicationCacheService applicationCacheService;
     private final ServiceNameCacheService serviceNameCacheService;
-    private final SecondBetweenService secondBetweenService;
+    private final DateBetweenService dateBetweenService;
+    private final IComponentLibraryCatalogService componentLibraryCatalogService;
 
     public ApplicationService(ModuleManager moduleManager) {
         this.instanceDAO = moduleManager.find(StorageModule.NAME).getService(IInstanceUIDAO.class);
@@ -65,7 +60,8 @@ public class ApplicationService {
         this.networkAddressUIDAO = moduleManager.find(StorageModule.NAME).getService(INetworkAddressUIDAO.class);
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
         this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
-        this.secondBetweenService = new SecondBetweenService(moduleManager);
+        this.componentLibraryCatalogService = moduleManager.find(ConfigurationModule.NAME).getService(IComponentLibraryCatalogService.class);
+        this.dateBetweenService = new DateBetweenService(moduleManager);
     }
 
     public List<Application> getApplications(long startSecondTimeBucket, long endSecondTimeBucket,
@@ -87,13 +83,13 @@ public class ApplicationService {
     }
 
     public List<ServiceMetric> getSlowService(int applicationId, Step step, long startTimeBucket, long endTimeBucket,
-        long startSecondTimeBucket, long endSecondTimeBucket, Integer topN) throws ParseException {
+        long startSecondTimeBucket, long endSecondTimeBucket, Integer topN) {
         List<ServiceMetric> slowServices = serviceMetricUIDAO.getSlowService(applicationId, step, startTimeBucket, endTimeBucket, topN, MetricSource.Callee);
         slowServices.forEach(slowService -> {
             ServiceName serviceName = serviceNameCacheService.get(slowService.getId());
 
             try {
-                slowService.setCallsPerSec((int)(slowService.getCalls() / secondBetweenService.calculate(serviceName.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket)));
+                slowService.setCpm((int)(slowService.getCalls() / dateBetweenService.minutesBetween(serviceName.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket)));
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
             }
@@ -102,22 +98,22 @@ public class ApplicationService {
         return slowServices;
     }
 
-    public List<ApplicationTPS> getTopNApplicationThroughput(Step step, long startTimeBucket, long endTimeBucket,
+    public List<ApplicationThroughput> getTopNApplicationThroughput(Step step, long startTimeBucket, long endTimeBucket,
         int topN) throws ParseException {
-        int secondsBetween = DurationUtils.INSTANCE.secondsBetween(step, startTimeBucket, endTimeBucket);
-        List<ApplicationTPS> applicationThroughput = applicationMetricUIDAO.getTopNApplicationThroughput(step, startTimeBucket, endTimeBucket, secondsBetween, topN, MetricSource.Callee);
-        applicationThroughput.forEach(applicationTPS -> {
-            String applicationCode = applicationCacheService.getApplicationById(applicationTPS.getApplicationId()).getApplicationCode();
-            applicationTPS.setApplicationCode(applicationCode);
+        int minutesBetween = DurationUtils.INSTANCE.minutesBetween(step, startTimeBucket, endTimeBucket);
+        List<ApplicationThroughput> applicationThroughputList = applicationMetricUIDAO.getTopNApplicationThroughput(step, startTimeBucket, endTimeBucket, minutesBetween, topN, MetricSource.Callee);
+        applicationThroughputList.forEach(applicationThroughput -> {
+            String applicationCode = applicationCacheService.getApplicationById(applicationThroughput.getApplicationId()).getApplicationCode();
+            applicationThroughput.setApplicationCode(applicationCode);
         });
-        return applicationThroughput;
+        return applicationThroughputList;
     }
 
     public ConjecturalAppBrief getConjecturalApps(Step step, long startSecondTimeBucket,
-        long endSecondTimeBucket) throws ParseException {
+        long endSecondTimeBucket) {
         List<ConjecturalApp> conjecturalApps = networkAddressUIDAO.getConjecturalApps();
         conjecturalApps.forEach(conjecturalApp -> {
-            String serverType = ServerTypeDefine.getInstance().getServerType(conjecturalApp.getId());
+            String serverType = componentLibraryCatalogService.getServerName(conjecturalApp.getId());
             conjecturalApp.setName(serverType);
         });
 

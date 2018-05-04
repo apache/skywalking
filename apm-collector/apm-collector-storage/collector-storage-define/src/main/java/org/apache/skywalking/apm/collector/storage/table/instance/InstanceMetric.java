@@ -34,36 +34,36 @@ import org.apache.skywalking.apm.collector.storage.table.Metric;
 public class InstanceMetric extends StreamData implements Metric {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(InstanceMetricTable.COLUMN_ID, new NonMergeOperation()),
-        new Column(InstanceMetricTable.COLUMN_METRIC_ID, new NonMergeOperation()),
+        new Column(InstanceMetricTable.ID, new NonMergeOperation()),
+        new Column(InstanceMetricTable.METRIC_ID, new NonMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(InstanceMetricTable.COLUMN_TIME_BUCKET, new NonMergeOperation()),
+        new Column(InstanceMetricTable.TIME_BUCKET, new NonMergeOperation()),
 
-        new Column(InstanceMetricTable.COLUMN_TRANSACTION_CALLS, new AddMergeOperation()),
-        new Column(InstanceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
-        new Column(InstanceMetricTable.COLUMN_TRANSACTION_DURATION_SUM, new AddMergeOperation()),
-        new Column(InstanceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
-        new Column(InstanceMetricTable.COLUMN_TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new TransactionAverageDurationFormulaOperation()),
-        new Column(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, new AddMergeOperation()),
-        new Column(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
-        new Column(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, new AddMergeOperation()),
-        new Column(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
-        new Column(InstanceMetricTable.COLUMN_BUSINESS_TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new BusinessTransactionAverageDurationFormulaOperation()),
-        new Column(InstanceMetricTable.COLUMN_MQ_TRANSACTION_CALLS, new AddMergeOperation()),
-        new Column(InstanceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
-        new Column(InstanceMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, new AddMergeOperation()),
-        new Column(InstanceMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
-        new Column(InstanceMetricTable.COLUMN_MQ_TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new MqTransactionAverageDurationFormulaOperation()),
+        new Column(InstanceMetricTable.TRANSACTION_CALLS, new AddMergeOperation()),
+        new Column(InstanceMetricTable.TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
+        new Column(InstanceMetricTable.TRANSACTION_DURATION_SUM, new AddMergeOperation()),
+        new Column(InstanceMetricTable.TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
+        new Column(InstanceMetricTable.TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new TransactionAverageDurationFormulaOperation()),
+        new Column(InstanceMetricTable.BUSINESS_TRANSACTION_CALLS, new AddMergeOperation()),
+        new Column(InstanceMetricTable.BUSINESS_TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
+        new Column(InstanceMetricTable.BUSINESS_TRANSACTION_DURATION_SUM, new AddMergeOperation()),
+        new Column(InstanceMetricTable.BUSINESS_TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
+        new Column(InstanceMetricTable.BUSINESS_TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new BusinessTransactionAverageDurationFormulaOperation()),
+        new Column(InstanceMetricTable.MQ_TRANSACTION_CALLS, new AddMergeOperation()),
+        new Column(InstanceMetricTable.MQ_TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
+        new Column(InstanceMetricTable.MQ_TRANSACTION_DURATION_SUM, new AddMergeOperation()),
+        new Column(InstanceMetricTable.MQ_TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
+        new Column(InstanceMetricTable.MQ_TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new MqTransactionAverageDurationFormulaOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {};
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(InstanceMetricTable.COLUMN_SOURCE_VALUE, new CoverMergeOperation()),
-        new Column(InstanceMetricTable.COLUMN_APPLICATION_ID, new CoverMergeOperation()),
-        new Column(InstanceMetricTable.COLUMN_INSTANCE_ID, new CoverMergeOperation()),
+        new Column(InstanceMetricTable.SOURCE_VALUE, new CoverMergeOperation()),
+        new Column(InstanceMetricTable.APPLICATION_ID, new CoverMergeOperation()),
+        new Column(InstanceMetricTable.INSTANCE_ID, new CoverMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};

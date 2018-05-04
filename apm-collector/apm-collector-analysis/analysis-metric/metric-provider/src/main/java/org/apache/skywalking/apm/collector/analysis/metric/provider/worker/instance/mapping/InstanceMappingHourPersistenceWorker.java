@@ -19,20 +19,22 @@
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.mapping;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.impp.IInstanceMappingHourPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMapping;
+import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMappingTable;
 
 /**
  * @author peng-yongsheng
  */
-public class InstanceMappingHourPersistenceWorker extends PersistenceWorker<InstanceMapping> {
+public class InstanceMappingHourPersistenceWorker extends MergePersistenceWorker<InstanceMapping> {
 
-    InstanceMappingHourPersistenceWorker(ModuleManager moduleManager) {
+    private InstanceMappingHourPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -49,7 +51,7 @@ public class InstanceMappingHourPersistenceWorker extends PersistenceWorker<Inst
         return getModuleManager().find(StorageModule.NAME).getService(IInstanceMappingHourPersistenceDAO.class);
     }
 
-    public static class Factory extends PersistenceWorkerProvider<InstanceMapping, InstanceMappingHourPersistenceWorker> {
+    public static class Factory extends MergePersistenceWorkerProvider<InstanceMapping, InstanceMappingHourPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
@@ -63,5 +65,10 @@ public class InstanceMappingHourPersistenceWorker extends PersistenceWorker<Inst
         public int queueSize() {
             return 1024;
         }
+    }
+
+    @GraphComputingMetric(name = "/persistence/onWork/" + InstanceMappingTable.TABLE + "/hour")
+    @Override protected void onWork(InstanceMapping input) {
+        super.onWork(input);
     }
 }

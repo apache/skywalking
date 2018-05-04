@@ -22,24 +22,24 @@ package org.apache.skywalking.apm.collector.core.data;
  * @author peng-yongsheng
  */
 public class Column {
-    private final String name;
+    private final ColumnName columnName;
     private final MergeOperation mergeOperation;
     private final FormulaOperation formulaOperation;
 
-    public Column(String name, MergeOperation mergeOperation) {
-        this.name = name;
+    public Column(ColumnName columnName, MergeOperation mergeOperation) {
+        this.columnName = columnName;
         this.mergeOperation = mergeOperation;
         this.formulaOperation = null;
     }
 
-    public Column(String name, MergeOperation mergeOperation, FormulaOperation formulaOperation) {
-        this.name = name;
+    public Column(ColumnName columnName, MergeOperation mergeOperation, FormulaOperation formulaOperation) {
+        this.columnName = columnName;
         this.mergeOperation = mergeOperation;
         this.formulaOperation = formulaOperation;
     }
 
-    public String getName() {
-        return name;
+    public ColumnName getColumnName() {
+        return columnName;
     }
 
     MergeOperation getMergeOperation() {

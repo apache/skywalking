@@ -34,9 +34,9 @@ import org.slf4j.LoggerFactory;
  */
 public class ServiceNameRegisterRemoteWorker extends AbstractRemoteWorker<ServiceName, ServiceName> {
 
-    private final Logger logger = LoggerFactory.getLogger(ServiceNameRegisterRemoteWorker.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceNameRegisterRemoteWorker.class);
 
-    public ServiceNameRegisterRemoteWorker(ModuleManager moduleManager) {
+    private ServiceNameRegisterRemoteWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 

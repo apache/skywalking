@@ -18,8 +18,7 @@
 
 package org.apache.skywalking.apm.collector.storage.es.define;
 
-import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchColumnDefine;
-import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchTableDefine;
+import org.apache.skywalking.apm.collector.storage.es.base.define.*;
 import org.apache.skywalking.apm.collector.storage.table.segment.SegmentTable;
 
 /**
@@ -36,7 +35,7 @@ public class SegmentEsTableDefine extends ElasticSearchTableDefine {
     }
 
     @Override public void initialize() {
-        addColumn(new ElasticSearchColumnDefine(SegmentTable.COLUMN_DATA_BINARY, ElasticSearchColumnDefine.Type.Binary.name()));
-        addColumn(new ElasticSearchColumnDefine(SegmentTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(SegmentTable.DATA_BINARY, ElasticSearchColumnDefine.Type.Binary.name()));
+        addColumn(new ElasticSearchColumnDefine(SegmentTable.TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
     }
 }

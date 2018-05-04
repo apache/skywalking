@@ -18,63 +18,73 @@
 
 package org.apache.skywalking.apm.collector.analysis.worker.timer;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
+import java.util.*;
+import java.util.concurrent.*;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IBatchDAO;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
-public class PersistenceTimer {
+public enum PersistenceTimer {
+    INSTANCE;
 
-    private final String belongsToModuleName;
+    private static final Logger logger = LoggerFactory.getLogger(PersistenceTimer.class);
 
-    public PersistenceTimer(String belongsToModuleName) {
-        this.belongsToModuleName = belongsToModuleName;
+    private Boolean isStarted = false;
+    private List<PersistenceWorker> persistenceWorkers = new LinkedList<>();
+    private final Boolean debug;
+
+    PersistenceTimer() {
+        this.debug = System.getProperty("debug") != null;
     }
-
-    private final Logger logger = LoggerFactory.getLogger(PersistenceTimer.class);
 
     public void start(ModuleManager moduleManager, List<PersistenceWorker> persistenceWorkers) {
         logger.info("persistence timer start");
+        this.persistenceWorkers.addAll(persistenceWorkers);
         //TODO timer value config
 //        final long timeInterval = EsConfig.Es.Persistence.Timer.VALUE * 1000;
         final long timeInterval = 3;
         IBatchDAO batchDAO = moduleManager.find(StorageModule.NAME).getService(IBatchDAO.class);
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
-            new RunnableWithExceptionProtection(() -> extractDataAndSave(batchDAO, persistenceWorkers),
-                t -> logger.error("Extract data and save failure.", t)), 1, timeInterval, TimeUnit.SECONDS);
+
+        if (!isStarted) {
+            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
+                new RunnableWithExceptionProtection(() -> extractDataAndSave(batchDAO, this.persistenceWorkers),
+                    t -> logger.error("Extract data and save failure.", t)), 1, timeInterval, TimeUnit.SECONDS);
+
+            this.isStarted = true;
+        }
     }
 
+    @SuppressWarnings("unchecked")
     private void extractDataAndSave(IBatchDAO batchDAO, List<PersistenceWorker> persistenceWorkers) {
+        logger.debug("Extract data and save");
+        long startTime = System.currentTimeMillis();
         try {
-            List batchAllCollection = new ArrayList<>();
+            List batchAllCollection = new LinkedList();
             persistenceWorkers.forEach((PersistenceWorker worker) -> {
                 logger.debug("extract {} worker data and save", worker.getClass().getName());
-                try {
-                    worker.flushAndSwitch();
+                if (worker.flushAndSwitch()) {
                     List<?> batchCollection = worker.buildBatchCollection();
                     logger.debug("extract {} worker data size: {}", worker.getClass().getName(), batchCollection.size());
                     batchAllCollection.addAll(batchCollection);
-                } catch (WorkerException e) {
-                    logger.error(e.getMessage(), e);
                 }
             });
 
             batchDAO.batchPersistence(batchAllCollection);
         } catch (Throwable e) {
-            logger.error("The persistence timer belongs to module name: " + belongsToModuleName + ", error message: " + e.getMessage(), e);
+            logger.error(e.getMessage(), e);
         } finally {
             logger.debug("persistence data save finish");
+        }
+
+        if (debug) {
+            long endTime = System.currentTimeMillis();
+            logger.info("batch persistence duration: {} ms", endTime - startTime);
         }
     }
 }

@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.collector.storage.es.dao.ampp;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMapping;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMappingTable;
@@ -35,27 +36,32 @@ public abstract class AbstractApplicationMappingEsPersistenceDAO extends Abstrac
     }
 
     @Override protected final String timeBucketColumnNameForDelete() {
-        return ApplicationMappingTable.COLUMN_TIME_BUCKET;
+        return ApplicationMappingTable.TIME_BUCKET.getName();
     }
 
     @Override protected final ApplicationMapping esDataToStreamData(Map<String, Object> source) {
         ApplicationMapping applicationMapping = new ApplicationMapping();
-        applicationMapping.setMetricId((String)source.get(ApplicationMappingTable.COLUMN_METRIC_ID));
+        applicationMapping.setMetricId((String)source.get(ApplicationMappingTable.METRIC_ID.getName()));
 
-        applicationMapping.setApplicationId(((Number)source.get(ApplicationMappingTable.COLUMN_APPLICATION_ID)).intValue());
-        applicationMapping.setMappingApplicationId(((Number)source.get(ApplicationMappingTable.COLUMN_MAPPING_APPLICATION_ID)).intValue());
-        applicationMapping.setTimeBucket(((Number)source.get(ApplicationMappingTable.COLUMN_TIME_BUCKET)).longValue());
+        applicationMapping.setApplicationId(((Number)source.get(ApplicationMappingTable.APPLICATION_ID.getName())).intValue());
+        applicationMapping.setMappingApplicationId(((Number)source.get(ApplicationMappingTable.MAPPING_APPLICATION_ID.getName())).intValue());
+        applicationMapping.setTimeBucket(((Number)source.get(ApplicationMappingTable.TIME_BUCKET.getName())).longValue());
         return applicationMapping;
     }
 
     @Override protected final Map<String, Object> esStreamDataToEsData(ApplicationMapping streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationMappingTable.COLUMN_METRIC_ID, streamData.getMetricId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(ApplicationMappingTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(ApplicationMappingTable.COLUMN_APPLICATION_ID, streamData.getApplicationId());
-        source.put(ApplicationMappingTable.COLUMN_MAPPING_APPLICATION_ID, streamData.getMappingApplicationId());
-        source.put(ApplicationMappingTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
+        target.put(ApplicationMappingTable.APPLICATION_ID.getName(), streamData.getApplicationId());
+        target.put(ApplicationMappingTable.MAPPING_APPLICATION_ID.getName(), streamData.getMappingApplicationId());
+        target.put(ApplicationMappingTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
 
-        return source;
+        return target;
+    }
+
+    @GraphComputingMetric(name = "/persistence/get/" + ApplicationMappingTable.TABLE)
+    @Override public final ApplicationMapping get(String id) {
+        return super.get(id);
     }
 }

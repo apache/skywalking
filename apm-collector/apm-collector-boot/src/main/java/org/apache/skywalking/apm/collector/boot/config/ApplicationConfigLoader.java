@@ -20,10 +20,10 @@ package org.apache.skywalking.apm.collector.boot.config;
 
 import java.io.FileNotFoundException;
 import java.io.Reader;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.skywalking.apm.collector.core.module.ApplicationConfiguration;
+import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
 import org.apache.skywalking.apm.collector.core.util.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +40,7 @@ import org.yaml.snakeyaml.Yaml;
  */
 public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfiguration> {
 
-    private final Logger logger = LoggerFactory.getLogger(ApplicationConfigLoader.class);
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationConfigLoader.class);
 
     private final Yaml yaml = new Yaml();
 
@@ -52,71 +52,69 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
         return configuration;
     }
 
+    @SuppressWarnings("unchecked")
     private void loadConfig(ApplicationConfiguration configuration) throws ConfigFileNotFoundException {
         try {
             Reader applicationReader = ResourceUtils.read("application.yml");
             Map<String, Map<String, Map<String, ?>>> moduleConfig = yaml.loadAs(applicationReader, Map.class);
-            moduleConfig.forEach((moduleName, providerConfig) -> {
-                if (providerConfig.size() > 0) {
-                    logger.info("Get a module define from application.yml, module name: {}", moduleName);
-                    ApplicationConfiguration.ModuleConfiguration moduleConfiguration = configuration.addModule(moduleName);
-                    providerConfig.forEach((name, propertiesConfig) -> {
-                        logger.info("Get a provider define belong to {} module, provider name: {}", moduleName, name);
-                        Properties properties = new Properties();
-                        if (propertiesConfig != null) {
-                            propertiesConfig.forEach((key, value) -> {
-                                properties.put(key, value);
-                                logger.info("The property with key: {}, value: {}, in {} provider", key, value, name);
-                            });
-                        }
-                        moduleConfiguration.addProviderConfiguration(name, properties);
-                    });
-                } else {
-                    logger.warn("Get a module define from application.yml, but no provider define, use default, module name: {}", moduleName);
-                }
-            });
+            if (CollectionUtils.isNotEmpty(moduleConfig)) {
+                moduleConfig.forEach((moduleName, providerConfig) -> {
+                    if (providerConfig.size() > 0) {
+                        logger.info("Get a module define from application.yml, module name: {}", moduleName);
+                        ApplicationConfiguration.ModuleConfiguration moduleConfiguration = configuration.addModule(moduleName);
+                        providerConfig.forEach((name, propertiesConfig) -> {
+                            logger.info("Get a provider define belong to {} module, provider name: {}", moduleName, name);
+                            Properties properties = new Properties();
+                            if (propertiesConfig != null) {
+                                propertiesConfig.forEach((key, value) -> {
+                                    properties.put(key, value);
+                                    logger.info("The property with key: {}, value: {}, in {} provider", key, value, name);
+                                });
+                            }
+                            moduleConfiguration.addProviderConfiguration(name, properties);
+                        });
+                    } else {
+                        logger.warn("Get a module define from application.yml, but no provider define, use default, module name: {}", moduleName);
+                    }
+                });
+            }
         } catch (FileNotFoundException e) {
             throw new ConfigFileNotFoundException(e.getMessage(), e);
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void loadDefaultConfig(ApplicationConfiguration configuration) throws ConfigFileNotFoundException {
         try {
             Reader applicationReader = ResourceUtils.read("application-default.yml");
             Map<String, Map<String, Map<String, ?>>> moduleConfig = yaml.loadAs(applicationReader, Map.class);
-            moduleConfig.forEach((moduleName, providerConfig) -> {
-                if (!configuration.has(moduleName)) {
-                    logger.warn("The {} module did't define in application.yml, use default", moduleName);
-                    ApplicationConfiguration.ModuleConfiguration moduleConfiguration = configuration.addModule(moduleName);
-                    providerConfig.forEach((name, propertiesConfig) -> {
-                        Properties properties = new Properties();
-                        if (propertiesConfig != null) {
-                            propertiesConfig.forEach(properties::put);
-                        }
-                        moduleConfiguration.addProviderConfiguration(name, properties);
-                    });
-                }
-            });
+            if (CollectionUtils.isNotEmpty(moduleConfig)) {
+                moduleConfig.forEach((moduleName, providerConfig) -> {
+                    if (!configuration.has(moduleName)) {
+                        logger.warn("The {} module did't define in application.yml, use default", moduleName);
+                        ApplicationConfiguration.ModuleConfiguration moduleConfiguration = configuration.addModule(moduleName);
+                        providerConfig.forEach((name, propertiesConfig) -> {
+                            Properties properties = new Properties();
+                            if (propertiesConfig != null) {
+                                propertiesConfig.forEach(properties::put);
+                            }
+                            moduleConfiguration.addProviderConfiguration(name, properties);
+                        });
+                    }
+                });
+            }
         } catch (FileNotFoundException e) {
             throw new ConfigFileNotFoundException(e.getMessage(), e);
         }
     }
 
     private void overrideConfigBySystemEnv(ApplicationConfiguration configuration) {
-        Iterator<Map.Entry<Object, Object>> entryIterator = System.getProperties().entrySet().iterator();
-        while (entryIterator.hasNext()) {
-            Map.Entry<Object, Object> prop = entryIterator.next();
-            overrideModuleSettings(configuration, prop.getKey().toString(), prop.getValue().toString(), true);
-        }
-
-        Map<String, String> envs = System.getenv();
-        for (String envKey : envs.keySet()) {
-            overrideModuleSettings(configuration, envKey, envs.get(envKey), false);
+        for (Map.Entry<Object, Object> prop : System.getProperties().entrySet()) {
+            overrideModuleSettings(configuration, prop.getKey().toString(), prop.getValue().toString());
         }
     }
 
-    private void overrideModuleSettings(ApplicationConfiguration configuration, String key, String value,
-        boolean isSystemProperty) {
+    private void overrideModuleSettings(ApplicationConfiguration configuration, String key, String value) {
         int moduleAndConfigSeparator = key.indexOf('.');
         if (moduleAndConfigSeparator <= 0) {
             return;
@@ -137,8 +135,24 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
             return;
         }
         Properties providerSettings = moduleConfiguration.getProviderConfiguration(providerName);
-        providerSettings.put(settingKey, value);
+        if (!providerSettings.containsKey(settingKey)) {
+            return;
+        }
+        Object originValue = providerSettings.get(settingKey);
+        Class<?> type = originValue.getClass();
+        if (type.equals(int.class) || type.equals(Integer.class))
+            providerSettings.put(settingKey, Integer.valueOf(value));
+        else if (type.equals(String.class))
+            providerSettings.put(settingKey, value);
+        else if (type.equals(long.class) || type.equals(Long.class))
+            providerSettings.put(settingKey, Long.valueOf(value));
+        else if (type.equals(boolean.class) || type.equals(Boolean.class)) {
+            providerSettings.put(settingKey, Boolean.valueOf(value));
+        } else {
+            return;
+        }
+
         logger.info("The setting has been override by key: {}, value: {}, in {} provider of {} module through {}",
-            settingKey, value, providerName, moduleName, isSystemProperty ? "System.properties" : "System.envs");
+            settingKey, value, providerName, moduleName, "System.properties");
     }
 }

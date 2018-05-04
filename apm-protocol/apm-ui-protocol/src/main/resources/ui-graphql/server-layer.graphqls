@@ -21,10 +21,10 @@
 #   2. A Tomcat server instance
 type AppServerInfo {
     id: ID!
-    name: String!
+    osName: String!
     applicationId: Int!
     applicationCode: String
-    callsPerSec: Int!
+    cpm: Int!
     host: String
     pid: Int
     ipv4: [String!]!
@@ -34,10 +34,12 @@ type CPUTrend {
     cost: [Int!]!
 }
 
-# The gc trend represents the numbers of Garbage Collector execution
+# The gc trend represents the numbers and time of Garbage Collector execution
 type GCTrend {
-    youngGC: [Int!]!
-    oldGC: [Int!]!
+    youngGCCount: [Int!]!
+    oldGCount: [Int!]!
+    youngGCTime: [Int!]!
+    oldGCTime: [Int!]!
 }
 
 # The memory used and max limit in heap and noheap space.
@@ -52,7 +54,7 @@ extend type Query {
     searchServer(keyword: String!, duration: Duration!): [AppServerInfo!]!
     getAllServer(applicationId: ID!, duration: Duration!): [AppServerInfo!]!
     getServerResponseTimeTrend(serverId: ID!, duration: Duration!): ResponseTimeTrend
-    getServerTPSTrend(serverId: ID!, duration: Duration!): ThroughputTrend
+    getServerThroughputTrend(serverId: ID!, duration: Duration!): ThroughputTrend
     getCPUTrend(serverId: ID!, duration: Duration!): CPUTrend
     getGCTrend(serverId: ID!, duration: Duration!): GCTrend
     getMemoryTrend(serverId: ID!, duration: Duration!): MemoryTrend

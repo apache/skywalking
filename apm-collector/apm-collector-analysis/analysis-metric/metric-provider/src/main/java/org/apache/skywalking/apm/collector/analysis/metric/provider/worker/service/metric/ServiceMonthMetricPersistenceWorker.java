@@ -19,20 +19,22 @@
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.metric;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.smp.IServiceMonthMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetric;
+import org.apache.skywalking.apm.collector.storage.table.service.ServiceMetricTable;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceMonthMetricPersistenceWorker extends PersistenceWorker<ServiceMetric> {
+public class ServiceMonthMetricPersistenceWorker extends MergePersistenceWorker<ServiceMetric> {
 
-    public ServiceMonthMetricPersistenceWorker(ModuleManager moduleManager) {
+    private ServiceMonthMetricPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -49,7 +51,7 @@ public class ServiceMonthMetricPersistenceWorker extends PersistenceWorker<Servi
         return true;
     }
 
-    public static class Factory extends PersistenceWorkerProvider<ServiceMetric, ServiceMonthMetricPersistenceWorker> {
+    public static class Factory extends MergePersistenceWorkerProvider<ServiceMetric, ServiceMonthMetricPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
@@ -63,5 +65,10 @@ public class ServiceMonthMetricPersistenceWorker extends PersistenceWorker<Servi
         public int queueSize() {
             return 1024;
         }
+    }
+
+    @GraphComputingMetric(name = "/persistence/onWork/" + ServiceMetricTable.TABLE + "/month")
+    @Override protected void onWork(ServiceMetric input) {
+        super.onWork(input);
     }
 }

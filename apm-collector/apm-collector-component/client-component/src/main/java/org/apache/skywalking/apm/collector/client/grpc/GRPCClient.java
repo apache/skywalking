@@ -16,12 +16,10 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.client.grpc;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import org.apache.skywalking.apm.collector.client.ClientException;
 import org.apache.skywalking.apm.collector.client.Client;
 
 /**
@@ -40,7 +38,7 @@ public class GRPCClient implements Client {
         this.port = port;
     }
 
-    @Override public void initialize() throws ClientException {
+    @Override public void initialize() {
         channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build();
     }
 

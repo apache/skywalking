@@ -31,19 +31,19 @@ import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterServ
 public class ApplicationComponent extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(ApplicationComponentTable.COLUMN_ID, new NonMergeOperation()),
-        new Column(ApplicationComponentTable.COLUMN_METRIC_ID, new NonMergeOperation()),
+        new Column(ApplicationComponentTable.ID, new NonMergeOperation()),
+        new Column(ApplicationComponentTable.METRIC_ID, new NonMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(ApplicationComponentTable.COLUMN_TIME_BUCKET, new CoverMergeOperation()),
+        new Column(ApplicationComponentTable.TIME_BUCKET, new CoverMergeOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {};
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(ApplicationComponentTable.COLUMN_COMPONENT_ID, new CoverMergeOperation()),
-        new Column(ApplicationComponentTable.COLUMN_APPLICATION_ID, new CoverMergeOperation()),
+        new Column(ApplicationComponentTable.COMPONENT_ID, new CoverMergeOperation()),
+        new Column(ApplicationComponentTable.APPLICATION_ID, new CoverMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};
