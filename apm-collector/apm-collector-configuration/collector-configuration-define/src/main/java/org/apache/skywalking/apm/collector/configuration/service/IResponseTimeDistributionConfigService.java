@@ -27,5 +27,5 @@ public interface IResponseTimeDistributionConfigService extends Service {
 
     int getResponseTimeStep();
 
-    int getResponseTimeMaxStep();
+    int getCountOfResponseTimeSteps();
 }

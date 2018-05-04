@@ -33,8 +33,8 @@ class ConfigurationModuleConfig extends ModuleConfig {
     private int instanceAverageResponseTimeThreshold;
     private double applicationErrorRateThreshold;
     private int applicationAverageResponseTimeThreshold;
-    private int responseTimeDistributionDuration;
-    private int responseTimeDistributionMaxDurationns;
+    private int thermodynamicResponseTimeStep;
+    private int thermodynamicCountOfResponseTimeSteps;
 
     public String getNamespace() {
         return namespace;
@@ -100,19 +100,19 @@ class ConfigurationModuleConfig extends ModuleConfig {
         this.applicationAverageResponseTimeThreshold = applicationAverageResponseTimeThreshold;
     }
 
-    public int getResponseTimeDistributionDuration() {
-        return responseTimeDistributionDuration;
+    public int getThermodynamicResponseTimeStep() {
+        return thermodynamicResponseTimeStep;
     }
 
-    public void setResponseTimeDistributionDuration(int responseTimeDistributionDuration) {
-        this.responseTimeDistributionDuration = responseTimeDistributionDuration;
+    public void setThermodynamicResponseTimeStep(int thermodynamicResponseTimeStep) {
+        this.thermodynamicResponseTimeStep = thermodynamicResponseTimeStep;
     }
 
-    public int getResponseTimeDistributionMaxDurationns() {
-        return responseTimeDistributionMaxDurationns;
+    public int getThermodynamicCountOfResponseTimeSteps() {
+        return thermodynamicCountOfResponseTimeSteps;
     }
 
-    public void setResponseTimeDistributionMaxDurationns(int responseTimeDistributionMaxDurationns) {
-        this.responseTimeDistributionMaxDurationns = responseTimeDistributionMaxDurationns;
+    public void setThermodynamicCountOfResponseTimeSteps(int thermodynamicCountOfResponseTimeSteps) {
+        this.thermodynamicCountOfResponseTimeSteps = thermodynamicCountOfResponseTimeSteps;
     }
 }
