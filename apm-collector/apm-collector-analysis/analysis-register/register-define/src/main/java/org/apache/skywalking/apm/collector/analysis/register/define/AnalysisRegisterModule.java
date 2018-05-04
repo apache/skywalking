@@ -22,12 +22,12 @@ import org.apache.skywalking.apm.collector.analysis.register.define.service.IApp
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IInstanceIDService;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.INetworkAddressIDService;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IServiceNameService;
-import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
 
 /**
  * @author peng-yongsheng
  */
-public class AnalysisRegisterModule extends Module {
+public class AnalysisRegisterModule extends ModuleDefine {
 
     public static final String NAME = "analysis_register";
 

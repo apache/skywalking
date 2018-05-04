@@ -21,12 +21,12 @@ package org.apache.skywalking.apm.collector.naming;
 
 import org.apache.skywalking.apm.collector.core.module.Service;
 import org.apache.skywalking.apm.collector.naming.service.NamingHandlerRegisterService;
-import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
 
 /**
  * @author peng-yongsheng
  */
-public class NamingModule extends Module {
+public class NamingModule extends ModuleDefine {
 
     public static final String NAME = "naming";
 

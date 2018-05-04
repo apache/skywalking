@@ -18,12 +18,12 @@
 
 package org.apache.skywalking.apm.collector.agent.jetty.define;
 
-import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
 
 /**
  * @author peng-yongsheng
  */
-public class AgentJettyModule extends Module {
+public class AgentJettyModule extends ModuleDefine {
 
     public static final String NAME = "agent_jetty";
 

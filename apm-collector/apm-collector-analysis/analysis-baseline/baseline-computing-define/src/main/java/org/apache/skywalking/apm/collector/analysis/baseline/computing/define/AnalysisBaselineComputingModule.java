@@ -18,14 +18,14 @@
 
 package org.apache.skywalking.apm.collector.analysis.baseline.computing.define;
 
-import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
 
 /**
  * The <code>AnalysisBaselineComputingModule</code> defines the required service interfaces.
  *
  * @author wu-sheng, peng-yongsheng
  */
-public class AnalysisBaselineComputingModule extends Module {
+public class AnalysisBaselineComputingModule extends ModuleDefine {
 
     public static final String NAME = "analysis_baseline-computing";
 

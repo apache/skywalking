@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The <code>ModuleProvider</code> is an implementation of a {@link Module}.
+ * The <code>ModuleProvider</code> is an implementation of a {@link ModuleDefine}.
  *
  * And each module can have one or more implementation, which depends on `application.yml`
  *
@@ -30,7 +30,7 @@ import java.util.Map;
  */
 public abstract class ModuleProvider {
     private ModuleManager manager;
-    private Module module;
+    private ModuleDefine module;
     private Map<Class<? extends Service>, Service> services = new HashMap<>();
 
     public ModuleProvider() {
@@ -40,7 +40,7 @@ public abstract class ModuleProvider {
         this.manager = manager;
     }
 
-    void setModule(Module module) {
+    void setModule(ModuleDefine module) {
         this.module = module;
     }
 
@@ -56,7 +56,7 @@ public abstract class ModuleProvider {
     /**
      * @return the module name
      */
-    public abstract Class<? extends Module> module();
+    public abstract Class<? extends ModuleDefine> module();
 
     /**
      * @return ModuleConfig
@@ -112,7 +112,7 @@ public abstract class ModuleProvider {
         }
 
         if (requiredServices.length != services.size()) {
-            throw new ServiceNotProvidedException("The " + this.name() + " provider in " + module.name() + " module provide more service implementations than Module requirements.");
+            throw new ServiceNotProvidedException("The " + this.name() + " provider in " + module.name() + " module provide more service implementations than ModuleDefine requirements.");
         }
     }
 
@@ -126,7 +126,7 @@ public abstract class ModuleProvider {
         throw new ServiceNotProvidedException("Service " + serviceType.getName() + " should not be provided, based on module define.");
     }
 
-    Module getModule() {
+    ModuleDefine getModule() {
         return module;
     }
 
