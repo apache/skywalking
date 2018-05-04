@@ -18,17 +18,13 @@
 
 package org.apache.skywalking.apm.collector.ui.query;
 
+import java.text.ParseException;
 import org.apache.skywalking.apm.collector.storage.ui.alarm.AlarmType;
-import org.apache.skywalking.apm.collector.storage.ui.common.Duration;
-import org.apache.skywalking.apm.collector.storage.ui.common.Pagination;
-import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.ui.common.*;
 import org.apache.skywalking.apm.collector.ui.service.AlarmService;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
-
-import java.text.ParseException;
 
 /**
  * @author lican
@@ -41,18 +37,18 @@ public class AlarmQueryTestCase {
         AlarmService alarmService = Mockito.mock(AlarmService.class);
         Whitebox.setInternalState(query, "alarmService", alarmService);
         Mockito.when(alarmService.loadApplicationAlarmList(
-                Mockito.anyString(), Mockito.anyObject(),
-                Mockito.anyLong(), Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt()
+            Mockito.anyString(), Mockito.anyInt(), Mockito.anyObject(),
+            Mockito.anyLong(), Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt()
         )).then(invocation -> {
             Object[] arguments = invocation.getArguments();
-            Assert.assertEquals(201701000000L, arguments[2]);
-            Assert.assertEquals(201701999999L, arguments[3]);
+            Assert.assertEquals(201701000000L, arguments[3]);
+            Assert.assertEquals(201701999999L, arguments[4]);
             return null;
         });
 
         Mockito.when(alarmService.loadInstanceAlarmList(
-                Mockito.anyString(), Mockito.anyObject(),
-                Mockito.anyLong(), Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt()
+            Mockito.anyString(), Mockito.anyObject(),
+            Mockito.anyLong(), Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt()
         )).then(invocation -> {
             Object[] arguments = invocation.getArguments();
             Assert.assertEquals(201701000000L, arguments[2]);
@@ -61,8 +57,8 @@ public class AlarmQueryTestCase {
         });
 
         Mockito.when(alarmService.loadServiceAlarmList(
-                Mockito.anyString(), Mockito.anyObject(),
-                Mockito.anyLong(), Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt()
+            Mockito.anyString(), Mockito.anyObject(),
+            Mockito.anyLong(), Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt()
         )).then(invocation -> {
             Object[] arguments = invocation.getArguments();
             Assert.assertEquals(201701000000L, arguments[2]);
