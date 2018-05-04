@@ -32,9 +32,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author wu-sheng, peng-yongsheng
  */
-public abstract class Module {
+public abstract class ModuleDefine {
 
-    private final Logger logger = LoggerFactory.getLogger(Module.class);
+    private final Logger logger = LoggerFactory.getLogger(ModuleDefine.class);
 
     private LinkedList<ModuleProvider> loadedProviders = new LinkedList<>();
 

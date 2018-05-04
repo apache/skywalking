@@ -22,12 +22,12 @@ package org.apache.skywalking.apm.collector.cluster;
 import org.apache.skywalking.apm.collector.cluster.service.ModuleRegisterService;
 import org.apache.skywalking.apm.collector.core.module.Service;
 import org.apache.skywalking.apm.collector.cluster.service.ModuleListenerService;
-import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
 
 /**
  * @author peng-yongsheng
  */
-public class ClusterModule extends Module {
+public class ClusterModule extends ModuleDefine {
 
     public static final String NAME = "cluster";
 
