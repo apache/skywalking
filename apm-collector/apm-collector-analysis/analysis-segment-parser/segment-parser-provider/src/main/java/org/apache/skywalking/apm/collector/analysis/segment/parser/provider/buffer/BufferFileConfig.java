@@ -28,6 +28,7 @@ public class BufferFileConfig {
     static int BUFFER_OFFSET_MAX_FILE_SIZE = 10 * 1024 * 1024;
     static int BUFFER_SEGMENT_MAX_FILE_SIZE = 10 * 1024 * 1024;
     static String BUFFER_PATH = "../buffer/";
+    static boolean BUFFER_FILE_CLEAN_WHEN_RESTART = false;
 
     public static class Parser {
 
@@ -77,6 +78,8 @@ public class BufferFileConfig {
             } else {
                 BUFFER_SEGMENT_MAX_FILE_SIZE = 1024 * 1024;
             }
+
+            BUFFER_FILE_CLEAN_WHEN_RESTART = config.isBufferFileCleanWhenRestart();
         }
     }
 }
