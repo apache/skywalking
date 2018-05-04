@@ -29,10 +29,8 @@ import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.apache.skywalking.apm.collector.cache.service.NetworkAddressCacheService;
 import org.apache.skywalking.apm.collector.cache.service.ServiceIdCacheService;
 import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
-import org.apache.skywalking.apm.collector.core.module.Module;
-import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
-import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
-import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.apache.skywalking.apm.collector.core.module.*;
+import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 
 /**
@@ -51,7 +49,7 @@ public class CacheModuleCaffeineProvider extends ModuleProvider {
         return "caffeine";
     }
 
-    @Override public Class<? extends Module> module() {
+    @Override public Class<? extends ModuleDefine> module() {
         return CacheModule.class;
     }
 

@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.collector.cluster.service.ModuleListenerService
 import org.apache.skywalking.apm.collector.cluster.service.ModuleRegisterService;
 import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
 import org.apache.skywalking.apm.collector.configuration.service.ICollectorConfig;
-import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
 import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ModuleStartException;
@@ -268,7 +268,7 @@ public class StorageModuleEsProvider extends ModuleProvider {
         return NAME;
     }
 
-    @Override public Class<? extends Module> module() {
+    @Override public Class<? extends ModuleDefine> module() {
         return StorageModule.class;
     }
 

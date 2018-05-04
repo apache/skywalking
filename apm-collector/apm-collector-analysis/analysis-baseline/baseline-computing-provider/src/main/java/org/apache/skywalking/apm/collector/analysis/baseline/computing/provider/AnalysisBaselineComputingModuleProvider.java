@@ -19,9 +19,8 @@
 package org.apache.skywalking.apm.collector.analysis.baseline.computing.provider;
 
 import org.apache.skywalking.apm.collector.analysis.baseline.computing.define.AnalysisBaselineComputingModule;
-import org.apache.skywalking.apm.collector.core.module.Module;
-import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
-import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
+import org.apache.skywalking.apm.collector.core.module.*;
+import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
 
 /**
  * The <code>AnalysisBaselineComputingModuleProvider</code> is the default implementation of {@link
@@ -43,7 +42,7 @@ public class AnalysisBaselineComputingModuleProvider extends ModuleProvider {
         return NAME;
     }
 
-    @Override public Class<? extends Module> module() {
+    @Override public Class<? extends ModuleDefine> module() {
         return AnalysisBaselineComputingModule.class;
     }
 
