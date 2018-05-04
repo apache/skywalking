@@ -20,12 +20,12 @@ package org.apache.skywalking.apm.collector.analysis.segment.parser.define;
 
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParseService;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParserListenerRegister;
-import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
+import org.apache.skywalking.apm.collector.core.module.Module;
 
 /**
  * @author peng-yongsheng
  */
-public class AnalysisSegmentParserModule extends ModuleDefine {
+public class AnalysisSegmentParserModule extends Module {
 
     public static final String NAME = "analysis_segment_parser";
 

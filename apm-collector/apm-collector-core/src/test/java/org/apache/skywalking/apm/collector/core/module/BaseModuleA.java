@@ -22,7 +22,7 @@ package org.apache.skywalking.apm.collector.core.module;
 /**
  * @author wu-sheng
  */
-public class BaseModuleA extends ModuleDefine {
+public class BaseModuleA extends Module {
     @Override public String name() {
         return "BaseA";
     }

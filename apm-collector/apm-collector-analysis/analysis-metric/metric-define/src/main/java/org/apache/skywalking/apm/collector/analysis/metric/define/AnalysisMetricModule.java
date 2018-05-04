@@ -19,12 +19,12 @@
 package org.apache.skywalking.apm.collector.analysis.metric.define;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.service.IInstanceHeartBeatService;
-import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
+import org.apache.skywalking.apm.collector.core.module.Module;
 
 /**
  * @author peng-yongsheng
  */
-public class AnalysisMetricModule extends ModuleDefine {
+public class AnalysisMetricModule extends Module {
 
     public static final String NAME = "analysis_metric";
 

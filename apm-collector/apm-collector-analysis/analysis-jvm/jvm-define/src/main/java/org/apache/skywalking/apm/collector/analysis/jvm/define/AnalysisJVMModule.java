@@ -22,12 +22,12 @@ import org.apache.skywalking.apm.collector.analysis.jvm.define.service.ICpuMetri
 import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IGCMetricService;
 import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IMemoryMetricService;
 import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IMemoryPoolMetricService;
-import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
+import org.apache.skywalking.apm.collector.core.module.Module;
 
 /**
  * @author peng-yongsheng
  */
-public class AnalysisJVMModule extends ModuleDefine {
+public class AnalysisJVMModule extends Module {
 
     public static final String NAME = "analysis_jvm";
 

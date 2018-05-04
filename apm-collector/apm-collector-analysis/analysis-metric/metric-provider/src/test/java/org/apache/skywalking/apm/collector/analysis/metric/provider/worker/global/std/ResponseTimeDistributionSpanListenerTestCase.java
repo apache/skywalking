@@ -21,8 +21,9 @@ package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.glob
 import java.util.LinkedList;
 import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
 import org.apache.skywalking.apm.collector.configuration.service.IResponseTimeDistributionConfigService;
-import org.apache.skywalking.apm.collector.core.module.*;
-import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
+import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -43,7 +44,7 @@ public class ResponseTimeDistributionSpanListenerTestCase {
         Mockito.when(service.getResponseTimeStep()).thenReturn(50);
         Mockito.when(service.getCountOfResponseTimeSteps()).thenReturn(40);
 
-        ModuleDefine module = Mockito.mock(ModuleDefine.class);
+        Module module = Mockito.mock(Module.class);
         Whitebox.setInternalState(module, "loadedProviders", loadedProviders);
         Mockito.when(module.getService(IResponseTimeDistributionConfigService.class)).thenReturn(service);
 

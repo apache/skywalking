@@ -19,12 +19,12 @@
 
 package org.apache.skywalking.apm.collector.agent.grpc.define;
 
-import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
+import org.apache.skywalking.apm.collector.core.module.Module;
 
 /**
  * @author peng-yongsheng
  */
-public class AgentGRPCModule extends ModuleDefine {
+public class AgentGRPCModule extends Module {
 
     public static final String NAME = "agent_gRPC";
 

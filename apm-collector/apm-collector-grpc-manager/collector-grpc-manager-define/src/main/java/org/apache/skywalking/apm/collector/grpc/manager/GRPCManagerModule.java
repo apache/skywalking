@@ -19,13 +19,13 @@
 
 package org.apache.skywalking.apm.collector.grpc.manager;
 
-import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
+import org.apache.skywalking.apm.collector.core.module.Module;
 import org.apache.skywalking.apm.collector.grpc.manager.service.GRPCManagerService;
 
 /**
  * @author peng-yongsheng
  */
-public class GRPCManagerModule extends ModuleDefine {
+public class GRPCManagerModule extends Module {
 
     public static final String NAME = "gRPC_manager";
 

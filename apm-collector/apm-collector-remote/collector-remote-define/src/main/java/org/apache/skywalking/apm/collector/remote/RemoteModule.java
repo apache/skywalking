@@ -19,14 +19,14 @@
 
 package org.apache.skywalking.apm.collector.remote;
 
-import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
 import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 import org.apache.skywalking.apm.collector.remote.service.RemoteSenderService;
+import org.apache.skywalking.apm.collector.core.module.Module;
 
 /**
  * @author peng-yongsheng
  */
-public class RemoteModule extends ModuleDefine {
+public class RemoteModule extends Module {
 
     public static final String NAME = "remote";
 

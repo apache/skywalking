@@ -32,10 +32,10 @@ import org.slf4j.LoggerFactory;
 class BootstrapFlow {
     private static final Logger logger = LoggerFactory.getLogger(BootstrapFlow.class);
 
-    private Map<String, ModuleDefine> loadedModules;
+    private Map<String, Module> loadedModules;
     private List<ModuleProvider> startupSequence;
 
-    BootstrapFlow(Map<String, ModuleDefine> loadedModules) throws CycleDependencyException {
+    BootstrapFlow(Map<String, Module> loadedModules) throws CycleDependencyException {
         this.loadedModules = loadedModules;
         startupSequence = new LinkedList<>();
 

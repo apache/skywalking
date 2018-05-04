@@ -19,12 +19,12 @@
 
 package org.apache.skywalking.apm.collector.ui;
 
-import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
+import org.apache.skywalking.apm.collector.core.module.Module;
 
 /**
  * @author peng-yongsheng
  */
-public class UIModule extends ModuleDefine {
+public class UIModule extends Module {
 
     public static final String NAME = "ui";
 

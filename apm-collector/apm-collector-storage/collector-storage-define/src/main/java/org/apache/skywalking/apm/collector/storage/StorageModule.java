@@ -20,7 +20,7 @@ package org.apache.skywalking.apm.collector.storage;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
+import org.apache.skywalking.apm.collector.core.module.Module;
 import org.apache.skywalking.apm.collector.storage.base.dao.IBatchDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IGlobalTracePersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceHeartBeatPersistenceDAO;
@@ -130,7 +130,7 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceReferenceMetri
 /**
  * @author peng-yongsheng
  */
-public class StorageModule extends ModuleDefine {
+public class StorageModule extends Module {
 
     public static final String NAME = "storage";
 

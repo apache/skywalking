@@ -33,7 +33,7 @@ import org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.memory.M
 import org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.memorypool.MemoryPoolMetricPersistenceGraph;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.analysis.worker.timer.PersistenceTimer;
-import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
+import org.apache.skywalking.apm.collector.core.module.Module;
 import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
@@ -57,7 +57,7 @@ public class AnalysisJVMModuleProvider extends ModuleProvider {
         return NAME;
     }
 
-    @Override public Class<? extends ModuleDefine> module() {
+    @Override public Class<? extends Module> module() {
         return AnalysisJVMModule.class;
     }
 

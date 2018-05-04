@@ -19,13 +19,13 @@
 
 package org.apache.skywalking.apm.collector.jetty.manager;
 
-import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
+import org.apache.skywalking.apm.collector.core.module.Module;
 import org.apache.skywalking.apm.collector.jetty.manager.service.JettyManagerService;
 
 /**
  * @author peng-yongsheng
  */
-public class JettyManagerModule extends ModuleDefine {
+public class JettyManagerModule extends Module {
 
     public static final String NAME = "jetty_manager";
 

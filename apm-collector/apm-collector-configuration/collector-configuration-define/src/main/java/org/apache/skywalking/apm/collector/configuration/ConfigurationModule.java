@@ -28,12 +28,12 @@ import org.apache.skywalking.apm.collector.configuration.service.IInstanceRefere
 import org.apache.skywalking.apm.collector.configuration.service.IResponseTimeDistributionConfigService;
 import org.apache.skywalking.apm.collector.configuration.service.IServiceAlarmRuleConfig;
 import org.apache.skywalking.apm.collector.configuration.service.IServiceReferenceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
+import org.apache.skywalking.apm.collector.core.module.Module;
 
 /**
  * @author peng-yongsheng
  */
-public class ConfigurationModule extends ModuleDefine {
+public class ConfigurationModule extends Module {
 
     public static final String NAME = "configuration";
 

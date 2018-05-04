@@ -31,7 +31,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 /**
  * @author lican
  */
-public class MockModule extends ModuleDefine {
+public class MockModule extends Module {
 
     public MockModule() throws ServiceNotProvidedException {
         ModuleProvider moduleProvider = Mockito.mock(ModuleProvider.class);
