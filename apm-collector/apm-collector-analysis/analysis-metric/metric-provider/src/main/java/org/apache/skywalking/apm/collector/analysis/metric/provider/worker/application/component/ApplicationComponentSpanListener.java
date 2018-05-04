@@ -43,7 +43,7 @@ public class ApplicationComponentSpanListener implements EntrySpanListener, Exit
     }
 
     @Override public boolean containsPoint(Point point) {
-        return Point.Entry.equals(point) || Point.Exit.equals(point) || Point.First.equals(point);
+        return Point.Entry.equals(point) || Point.Exit.equals(point);
     }
 
     @Override

@@ -28,6 +28,7 @@ public class AnalysisSegmentParserModuleConfig extends ModuleConfig {
     private String bufferFilePath;
     private String bufferOffsetMaxFileSize;
     private String bufferSegmentMaxFileSize;
+    private boolean bufferFileCleanWhenRestart;
 
     public String getBufferFilePath() {
         return bufferFilePath;
@@ -51,5 +52,13 @@ public class AnalysisSegmentParserModuleConfig extends ModuleConfig {
 
     public void setBufferSegmentMaxFileSize(String bufferSegmentMaxFileSize) {
         this.bufferSegmentMaxFileSize = bufferSegmentMaxFileSize;
+    }
+
+    public boolean isBufferFileCleanWhenRestart() {
+        return bufferFileCleanWhenRestart;
+    }
+
+    public void setBufferFileCleanWhenRestart(boolean bufferFileCleanWhenRestart) {
+        this.bufferFileCleanWhenRestart = bufferFileCleanWhenRestart;
     }
 }
