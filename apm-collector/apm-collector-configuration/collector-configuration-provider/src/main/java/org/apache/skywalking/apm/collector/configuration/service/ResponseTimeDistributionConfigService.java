@@ -24,18 +24,18 @@ package org.apache.skywalking.apm.collector.configuration.service;
 public class ResponseTimeDistributionConfigService implements IResponseTimeDistributionConfigService {
 
     private final int responseTimeStep;
-    private final int responseTimeMaxStep;
+    private final int countOfResponseTimeSteps;
 
-    public ResponseTimeDistributionConfigService(int responseTimeStep, int responseTimeMaxStep) {
+    public ResponseTimeDistributionConfigService(int responseTimeStep, int countOfResponseTimeSteps) {
         this.responseTimeStep = responseTimeStep;
-        this.responseTimeMaxStep = responseTimeMaxStep + 1;
+        this.countOfResponseTimeSteps = countOfResponseTimeSteps + 1;
     }
 
     @Override public int getResponseTimeStep() {
         return responseTimeStep;
     }
 
-    @Override public int getResponseTimeMaxStep() {
-        return responseTimeMaxStep;
+    @Override public int getCountOfResponseTimeSteps() {
+        return countOfResponseTimeSteps;
     }
 }
