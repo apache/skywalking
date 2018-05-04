@@ -66,18 +66,19 @@ class HeatMap extends Component {
     const { display: { range } } = duration;
 
     const source = [];
+    let maxResponseTimeOffset = 0;
     for (let i = 0; i < nodes.length; i += 1) {
       const item = nodes[i];
       if (item[0] >= range.length) {
         break;
       }
+      maxResponseTimeOffset = maxResponseTimeOffset > item[1] ? maxResponseTimeOffset : item[1];
       source.push({
         datetime: item[0],
         responseTime: item[1],
         count: item[2],
       });
     }
-    let maxResponseTimeOffset = (source.length / range.length) - 1;
     const mergeSource = [];
     let responseTimeAxis = [];
     if (maxResponseTimeOffset > yTickOffset) {
@@ -90,11 +91,13 @@ class HeatMap extends Component {
       });
       let datetime = 0;
       while (source.length > 0) {
-        const reducedData = this.reduceData(scaleMap, count => source.shift().count + count);
+        const reducedData = this.reduceData(scaleMap, (count) => {
+          const item = source.shift();
+          return item ? item.count + count : count;
+        });
         mergeSource.push(...this.mapXAxisData(reducedData, datetime));
         datetime += 1;
       }
-      maxResponseTimeOffset = yTickOffset;
     } else {
       for (let i = 0; i < maxResponseTimeOffset + 1; i += 1) {
         responseTimeAxis.push(`${(i === maxResponseTimeOffset) ? `>${i * responseTimeStep}` : (i + 1) * responseTimeStep}ms`);
