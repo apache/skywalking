@@ -19,21 +19,15 @@
 package org.apache.skywalking.apm.collector.storage.es.dao.ui;
 
 import java.text.ParseException;
+import java.util.List;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.apm.collector.core.util.StringUtils;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
+import org.apache.skywalking.apm.collector.core.util.*;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationAlarmUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmTable;
-import org.apache.skywalking.apm.collector.storage.ui.alarm.Alarm;
-import org.apache.skywalking.apm.collector.storage.ui.alarm.AlarmItem;
-import org.apache.skywalking.apm.collector.storage.ui.alarm.AlarmType;
-import org.apache.skywalking.apm.collector.storage.ui.alarm.CauseType;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
+import org.apache.skywalking.apm.collector.storage.ui.alarm.*;
+import org.elasticsearch.action.search.*;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 
 /**
@@ -46,8 +40,8 @@ public class ApplicationAlarmEsUIDAO extends EsDAO implements IApplicationAlarmU
     }
 
     @Override
-    public Alarm loadAlarmList(String keyword, long startTimeBucket, long endTimeBucket, int limit,
-        int from) throws ParseException {
+    public Alarm loadAlarmList(String keyword, List<Integer> applicationIds, long startTimeBucket, long endTimeBucket,
+        int limit, int from) throws ParseException {
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(ApplicationAlarmTable.TABLE);
         searchRequestBuilder.setTypes(ApplicationAlarmTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
@@ -56,6 +50,9 @@ public class ApplicationAlarmEsUIDAO extends EsDAO implements IApplicationAlarmU
         boolQueryBuilder.must().add(QueryBuilders.rangeQuery(ApplicationAlarmTable.LAST_TIME_BUCKET.getName()).gte(startTimeBucket).lte(endTimeBucket));
         if (StringUtils.isNotEmpty(keyword)) {
             boolQueryBuilder.must().add(QueryBuilders.matchQuery(ApplicationAlarmTable.ALARM_CONTENT.getName(), keyword));
+        }
+        if (CollectionUtils.isNotEmpty(applicationIds)) {
+            boolQueryBuilder.must().add(QueryBuilders.termsQuery(ApplicationAlarmTable.APPLICATION_ID.getName(), applicationIds));
         }
 
         searchRequestBuilder.setQuery(boolQueryBuilder);
