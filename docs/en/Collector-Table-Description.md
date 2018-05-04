@@ -117,10 +117,10 @@ _id | _id | Keyword | primary key, es speciality, `time_bucket`_`metric_id`
 metric_id | mi | Keyword | `application_id`_`source_value`
 application_id | ai | Integer | Owner application id
 source_value | sv | Integer | Caller(0), Callee(1)
-transaction_calls | t1 | Long | The total number of calls, sums values aggregate by `time_bucket`
+transaction_calls | t1 | Long | The total number of calls based on `time_bucket`
 transaction_error_calls | t2 | Long | The total number of error calls, sums values aggregate by `time_bucket`
-transaction_duration_sum | t3 | Long | The duration sum of all calls, sums values aggregate by `time_bucket`
-transaction_error_duration_sum | t4 | Long | The duration sum of error calls, sums values aggregate by `time_bucket`
+transaction_duration_sum | t3 | Long | The total duration of calls based on `time_bucket`
+transaction_error_duration_sum | t4 | Long | The total duration of error calls based on `time_bucket`
 transaction_average_duration | t5 | Long | The average duration of all calls, used for order by this column in database.
 business_transaction_calls | b1 | Long | 
 business_transaction_error_calls | b2 | Long | 
@@ -148,10 +148,10 @@ metric_id | mi | Keyword | `front_application_id`_`behind_application_id`_`sourc
 front_application_id | fai | Integer | 
 behind_application_id | bai | Integer | 
 source_value | sv | Integer | Caller(0), Callee(1)
-transaction_calls | t1 | Long | The total number of calls, sums values aggregate by `time_bucket`
+transaction_calls | t1 | Long | The total number of calls based on `time_bucket`
 transaction_error_calls | t2 | Long | The total number of error calls, sums values aggregate by `time_bucket`
-transaction_duration_sum | t3 | Long | The duration sum of all calls, sums values aggregate by `time_bucket`
-transaction_error_duration_sum | t4 | Long | The duration sum of error calls, sums values aggregate by `time_bucket`
+transaction_duration_sum | t3 | Long | The total duration of calls based on `time_bucket`
+transaction_error_duration_sum | t4 | Long | The total duration of error calls based on `time_bucket`
 transaction_average_duration | t5 | Long | The average duration of all calls, used for order by this column in database.
 business_transaction_calls | b1 | Long | 
 business_transaction_error_calls | b2 | Long | 
@@ -192,10 +192,10 @@ metric_id | mi | Keyword | `instance_id`_`source_value`
 application_id | ai | Integer | 
 instance_id | ii | Integer | 
 source_value | sv | Integer | Caller(0), Callee(1)
-transaction_calls | t1 | Long | The total number of calls, sums values aggregate by `time_bucket`
+transaction_calls | t1 | Long | The total number of calls based on `time_bucket`
 transaction_error_calls | t2 | Long | The total number of error calls, sums values aggregate by `time_bucket`
-transaction_duration_sum | t3 | Long | The duration sum of all calls, sums values aggregate by `time_bucket`
-transaction_error_duration_sum | t4 | Long | The duration sum of error calls, sums values aggregate by `time_bucket`
+transaction_duration_sum | t3 | Long | The total duration of calls based on `time_bucket`
+transaction_error_duration_sum | t4 | Long | The total duration of error calls based on `time_bucket`
 transaction_average_duration | t5 | Long | The average duration of all calls, used for order by this column in database.
 business_transaction_calls | b1 | Long | 
 business_transaction_error_calls | b2 | Long | 
@@ -222,10 +222,10 @@ behind_application_id | bai | Integer |
 front_instance_id | fii | Integer | 
 behind_instance_id | bii | Integer | 
 source_value | sv | Integer | Caller(0), Callee(1)
-transaction_calls | t1 | Long | The total number of calls, sums values aggregate by `time_bucket`
+transaction_calls | t1 | Long | The total number of calls based on `time_bucket`
 transaction_error_calls | t2 | Long | The total number of error calls, sums values aggregate by `time_bucket`
-transaction_duration_sum | t3 | Long | The duration sum of all calls, sums values aggregate by `time_bucket`
-transaction_error_duration_sum | t4 | Long | The duration sum of error calls, sums values aggregate by `time_bucket`
+transaction_duration_sum | t3 | Long | The total duration of calls based on `time_bucket`
+transaction_error_duration_sum | t4 | Long | The total duration of error calls based on `time_bucket`
 transaction_average_duration | t5 | Long | The average duration of all calls, used for order by this column in database.
 business_transaction_calls | b1 | Long | 
 business_transaction_error_calls | b2 | Long | 
@@ -251,10 +251,10 @@ application_id | ai | Integer |
 instance_id | ii | Integer | 
 service_id | si | Integer | 
 source_value | sv | Integer | Caller(0), Callee(1)
-transaction_calls | t1 | Long | The total number of calls, sums values aggregate by `time_bucket`
+transaction_calls | t1 | Long | The total number of calls based on `time_bucket`
 transaction_error_calls | t2 | Long | The total number of error calls, sums values aggregate by `time_bucket`
-transaction_duration_sum | t3 | Long | The duration sum of all calls, sums values aggregate by `time_bucket`
-transaction_error_duration_sum | t4 | Long | The duration sum of error calls, sums values aggregate by `time_bucket`
+transaction_duration_sum | t3 | Long | The total duration of calls based on `time_bucket`
+transaction_error_duration_sum | t4 | Long | The total duration of error calls based on `time_bucket`
 transaction_average_duration | t5 | Long | The average duration of all calls, used for order by this column in database.
 business_transaction_calls | b1 | Long | 
 business_transaction_error_calls | b2 | Long | 
@@ -283,10 +283,10 @@ behind_application_id | bai | Integer |
 behind_instance_id | bii | Integer | 
 behind_service_id | bsi | Integer | 
 source_value | sv | Integer | Caller(0), Callee(1)
-transaction_calls | t1 | Long | The total number of calls, sums values aggregate by `time_bucket`
+transaction_calls | t1 | Long | The total number of calls based on `time_bucket`
 transaction_error_calls | t2 | Long | The total number of error calls, sums values aggregate by `time_bucket`
-transaction_duration_sum | t3 | Long | The duration sum of all calls, sums values aggregate by `time_bucket`
-transaction_error_duration_sum | t4 | Long | The duration sum of error calls, sums values aggregate by `time_bucket`
+transaction_duration_sum | t3 | Long | The total duration of calls based on `time_bucket`
+transaction_error_duration_sum | t4 | Long | The total duration of error calls based on `time_bucket`
 transaction_average_duration | t5 | Long | The average duration of all calls, used for order by this column in database.
 business_transaction_calls | b1 | Long | 
 business_transaction_error_calls | b2 | Long | 
