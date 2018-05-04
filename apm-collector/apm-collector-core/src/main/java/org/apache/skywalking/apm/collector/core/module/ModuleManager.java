@@ -25,13 +25,13 @@ import java.util.Map;
 import java.util.ServiceLoader;
 
 /**
- * The <code>ModuleManager</code> takes charge of all {@link Module}s in collector.
+ * The <code>ModuleManager</code> takes charge of all {@link ModuleDefine}s in collector.
  *
  * @author wu-sheng, peng-yongsheng
  */
 public class ModuleManager {
     private boolean isInPrepareStage = true;
-    private Map<String, Module> loadedModules = new HashMap<>();
+    private Map<String, ModuleDefine> loadedModules = new HashMap<>();
 
     /**
      * Init the given modules
@@ -39,12 +39,12 @@ public class ModuleManager {
     public void init(
         ApplicationConfiguration applicationConfiguration) throws ModuleNotFoundException, ProviderNotFoundException, ServiceNotProvidedException, CycleDependencyException, ModuleConfigException, ModuleStartException {
         String[] moduleNames = applicationConfiguration.moduleList();
-        ServiceLoader<Module> moduleServiceLoader = ServiceLoader.load(Module.class);
+        ServiceLoader<ModuleDefine> moduleServiceLoader = ServiceLoader.load(ModuleDefine.class);
         LinkedList<String> moduleList = new LinkedList<>(Arrays.asList(moduleNames));
-        for (Module module : moduleServiceLoader) {
+        for (ModuleDefine module : moduleServiceLoader) {
             for (String moduleName : moduleNames) {
                 if (moduleName.equals(module.name())) {
-                    Module newInstance;
+                    ModuleDefine newInstance;
                     try {
                         newInstance = module.getClass().newInstance();
                     } catch (InstantiationException | IllegalAccessException e) {
@@ -73,9 +73,9 @@ public class ModuleManager {
         return loadedModules.get(moduleName) != null;
     }
 
-    public Module find(String moduleName) throws ModuleNotFoundRuntimeException {
+    public ModuleDefine find(String moduleName) throws ModuleNotFoundRuntimeException {
         assertPreparedStage();
-        Module module = loadedModules.get(moduleName);
+        ModuleDefine module = loadedModules.get(moduleName);
         if (module != null)
             return module;
         throw new ModuleNotFoundRuntimeException(moduleName + " missing.");

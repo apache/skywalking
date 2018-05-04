@@ -30,7 +30,7 @@ public class ModuleAProvider extends ModuleProvider {
         return null;
     }
 
-    @Override public Class<? extends Module> module() {
+    @Override public Class<? extends ModuleDefine> module() {
         return BaseModuleA.class;
     }
 
