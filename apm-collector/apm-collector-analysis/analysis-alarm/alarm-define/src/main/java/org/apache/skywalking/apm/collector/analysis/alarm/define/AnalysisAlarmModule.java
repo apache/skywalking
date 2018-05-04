@@ -18,12 +18,12 @@
 
 package org.apache.skywalking.apm.collector.analysis.alarm.define;
 
-import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
 
 /**
  * @author peng-yongsheng
  */
-public class AnalysisAlarmModule extends Module {
+public class AnalysisAlarmModule extends ModuleDefine {
 
     public static final String NAME = "analysis_alarm";
 

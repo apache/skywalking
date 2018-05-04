@@ -20,10 +20,8 @@ package org.apache.skywalking.apm.collector.jetty.manager;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.skywalking.apm.collector.core.module.Module;
-import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
-import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
-import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.apache.skywalking.apm.collector.core.module.*;
+import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
 import org.apache.skywalking.apm.collector.jetty.manager.service.JettyManagerService;
 import org.apache.skywalking.apm.collector.jetty.manager.service.JettyManagerServiceImpl;
 import org.apache.skywalking.apm.collector.server.ServerException;
@@ -49,7 +47,7 @@ public class JettyManagerProvider extends ModuleProvider {
         return "default";
     }
 
-    @Override public Class<? extends Module> module() {
+    @Override public Class<? extends ModuleDefine> module() {
         return JettyManagerModule.class;
     }
 

@@ -38,7 +38,7 @@ public class ConfigurationModuleProvider extends ModuleProvider {
         return "default";
     }
 
-    @Override public Class<? extends Module> module() {
+    @Override public Class<? extends ModuleDefine> module() {
         return ConfigurationModule.class;
     }
 
