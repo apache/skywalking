@@ -28,7 +28,6 @@ import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.*;
 import org.apache.skywalking.apm.collector.storage.dao.ui.*;
 import org.apache.skywalking.apm.collector.storage.table.register.Application;
-import org.apache.skywalking.apm.collector.storage.ui.alarm.Alarm;
 import org.apache.skywalking.apm.collector.storage.ui.application.*;
 import org.apache.skywalking.apm.collector.storage.ui.common.*;
 import org.apache.skywalking.apm.collector.ui.utils.*;
@@ -88,29 +87,29 @@ class TopologyBuilder {
             applicationNode.setAvgResponseTime(applicationMetric.getDurations() / applicationMetric.getCalls());
             applicationNode.setApdex(ApdexCalculator.INSTANCE.calculate(applicationMetric.getSatisfiedCount(), applicationMetric.getToleratingCount(), applicationMetric.getFrustratedCount()));
             applicationNode.setAlarm(false);
-            try {
-                Alarm alarm = alarmService.loadApplicationAlarmList(Const.EMPTY_STRING, step, startTimeBucket, endTimeBucket, 1, 0);
-                if (alarm.getItems().size() > 0) {
-                    applicationNode.setAlarm(true);
-                }
-            } catch (ParseException e) {
-                logger.error(e.getMessage(), e);
-            }
+//            try {
+//                Alarm alarm = alarmService.loadApplicationAlarmList(Const.EMPTY_STRING, step, startTimeBucket, endTimeBucket, 1, 0);
+//                if (alarm.getItems().size() > 0) {
+//                    applicationNode.setAlarm(true);
+//                }
+//            } catch (ParseException e) {
+//                logger.error(e.getMessage(), e);
+//            }
 
             applicationNode.setNumOfServer(serverService.getAllServer(applicationId, startSecondTimeBucket, endSecondTimeBucket).size());
-            try {
-                Alarm alarm = alarmService.loadInstanceAlarmList(Const.EMPTY_STRING, step, startTimeBucket, endTimeBucket, 1000, 0);
-                applicationNode.setNumOfServerAlarm(alarm.getItems().size());
-            } catch (ParseException e) {
-                logger.error(e.getMessage(), e);
-            }
+//            try {
+//                Alarm alarm = alarmService.loadInstanceAlarmList(Const.EMPTY_STRING, step, startTimeBucket, endTimeBucket, 1000, 0);
+//                applicationNode.setNumOfServerAlarm(alarm.getItems().size());
+//            } catch (ParseException e) {
+//                logger.error(e.getMessage(), e);
+//            }
 
-            try {
-                Alarm alarm = alarmService.loadServiceAlarmList(Const.EMPTY_STRING, step, startTimeBucket, endTimeBucket, 1000, 0);
-                applicationNode.setNumOfServiceAlarm(alarm.getItems().size());
-            } catch (ParseException e) {
-                logger.error(e.getMessage(), e);
-            }
+//            try {
+//                Alarm alarm = alarmService.loadServiceAlarmList(Const.EMPTY_STRING, step, startTimeBucket, endTimeBucket, 1000, 0);
+//                applicationNode.setNumOfServiceAlarm(alarm.getItems().size());
+//            } catch (ParseException e) {
+//                logger.error(e.getMessage(), e);
+//            }
             nodes.add(applicationNode);
         });
 
