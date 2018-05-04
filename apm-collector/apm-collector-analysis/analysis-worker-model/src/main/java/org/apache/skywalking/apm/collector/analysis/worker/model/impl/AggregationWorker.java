@@ -82,6 +82,7 @@ public abstract class AggregationWorker<INPUT extends StreamData, OUTPUT extends
         if (mergeDataCache.containsKey(message.getId())) {
             mergeDataCache.get(message.getId()).mergeAndFormulaCalculateData(message);
         } else {
+            message.calculateFormula();
             mergeDataCache.put(message.getId(), message);
         }
         mergeDataCache.finishWriting();
