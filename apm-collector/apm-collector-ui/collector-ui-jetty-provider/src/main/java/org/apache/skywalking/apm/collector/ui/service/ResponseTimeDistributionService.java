@@ -51,7 +51,7 @@ public class ResponseTimeDistributionService {
 
         List<IResponseTimeDistributionUIDAO.ResponseTimeStep> responseTimeSteps = new LinkedList<>();
         for (int i = 0; i < durationPoints.size(); i++) {
-            for (int j = 0; j < responseTimeDistributionConfigService.getResponseTimeMaxStep(); j++) {
+            for (int j = 0; j < responseTimeDistributionConfigService.getCountOfResponseTimeSteps(); j++) {
                 responseTimeSteps.add(new IResponseTimeDistributionUIDAO.ResponseTimeStep(durationPoints.get(i).getPoint(), i, j));
             }
         }

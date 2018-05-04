@@ -18,32 +18,9 @@
 
 package org.apache.skywalking.apm.collector.configuration;
 
-import org.apache.skywalking.apm.collector.configuration.service.ApdexThresholdService;
-import org.apache.skywalking.apm.collector.configuration.service.ApplicationAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.ApplicationReferenceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.CollectorConfigService;
-import org.apache.skywalking.apm.collector.configuration.service.ComponentLibraryCatalogService;
-import org.apache.skywalking.apm.collector.configuration.service.IApdexThresholdService;
-import org.apache.skywalking.apm.collector.configuration.service.IApplicationAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.IApplicationReferenceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.ICollectorConfig;
-import org.apache.skywalking.apm.collector.configuration.service.IComponentLibraryCatalogService;
-import org.apache.skywalking.apm.collector.configuration.service.IInstanceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.IInstanceReferenceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.IResponseTimeDistributionConfigService;
-import org.apache.skywalking.apm.collector.configuration.service.IServiceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.IServiceReferenceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.InstanceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.InstanceReferenceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.ResponseTimeDistributionConfigService;
-import org.apache.skywalking.apm.collector.configuration.service.ServiceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.ServiceReferenceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.core.module.Module;
-import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
-import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
-import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
-import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.StringUtils;
+import org.apache.skywalking.apm.collector.configuration.service.*;
+import org.apache.skywalking.apm.collector.core.module.*;
+import org.apache.skywalking.apm.collector.core.util.*;
 
 /**
  * @author peng-yongsheng
@@ -79,8 +56,8 @@ public class ConfigurationModuleProvider extends ModuleProvider {
         double applicationErrorRateThreshold = config.getApplicationErrorRateThreshold() == 0 ? 10.00 : config.getApplicationErrorRateThreshold();
         int applicationAverageResponseTimeThreshold = config.getApplicationAverageResponseTimeThreshold() == 0 ? 2000 : config.getApplicationAverageResponseTimeThreshold();
 
-        int responseTimeDistributionDuration = config.getResponseTimeDistributionDuration() == 0 ? 50 : config.getResponseTimeDistributionDuration();
-        int responseTimeDistributionMaxDurations = config.getResponseTimeDistributionMaxDurationns() == 0 ? 40 : config.getResponseTimeDistributionMaxDurationns();
+        int thermodynamicResponseTimeStep = config.getThermodynamicResponseTimeStep() == 0 ? 50 : config.getThermodynamicResponseTimeStep();
+        int thermodynamicCountOfResponseTimeSteps = config.getThermodynamicCountOfResponseTimeSteps() == 0 ? 40 : config.getThermodynamicCountOfResponseTimeSteps();
 
         this.registerServiceImplementation(ICollectorConfig.class, new CollectorConfigService(namespace));
         this.registerServiceImplementation(IComponentLibraryCatalogService.class, new ComponentLibraryCatalogService());
@@ -91,7 +68,7 @@ public class ConfigurationModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(IServiceReferenceAlarmRuleConfig.class, new ServiceReferenceAlarmRuleConfig(serviceErrorRateThreshold, serviceAverageResponseTimeThreshold));
         this.registerServiceImplementation(IInstanceReferenceAlarmRuleConfig.class, new InstanceReferenceAlarmRuleConfig(instanceErrorRateThreshold, instanceAverageResponseTimeThreshold));
         this.registerServiceImplementation(IApplicationReferenceAlarmRuleConfig.class, new ApplicationReferenceAlarmRuleConfig(applicationErrorRateThreshold, applicationAverageResponseTimeThreshold));
-        this.registerServiceImplementation(IResponseTimeDistributionConfigService.class, new ResponseTimeDistributionConfigService(responseTimeDistributionDuration, responseTimeDistributionMaxDurations));
+        this.registerServiceImplementation(IResponseTimeDistributionConfigService.class, new ResponseTimeDistributionConfigService(thermodynamicResponseTimeStep, thermodynamicCountOfResponseTimeSteps));
     }
 
     @Override public void start() {
