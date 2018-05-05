@@ -29,6 +29,7 @@
   * Development Guides
     * [How to build project](en/How-to-build.md)
     * [Plugin development guide](en/Plugin-Development-Guide.md)
+    * [Collector table description](en/Collector-Table-Description.md)
     * Protocol
       * [Cross Process Propagation Headers Protocol, v1.0](en/Skywalking-Cross-Process-Propagation-Headers-Protocol-v1.md)
       * [SkyWalking Trace Data Protocol](en/Trace-Data-Protocol.md)
