@@ -113,7 +113,7 @@ public class TopologyBuilderTest {
         calleeReferenceMetric.add(metric);
         mockCache();
 
-        when(alarmService.loadApplicationAlarmList(anyString(), anyObject(), anyLong(), anyLong(), anyInt(), anyInt())).then(invocation -> {
+        when(alarmService.loadApplicationAlarmList(anyString(), anyInt(), anyObject(), anyLong(), anyLong(), anyInt(), anyInt())).then(invocation -> {
             Alarm alarm = new Alarm();
             alarm.setItems(Collections.singletonList(new AlarmItem()));
             return alarm;
