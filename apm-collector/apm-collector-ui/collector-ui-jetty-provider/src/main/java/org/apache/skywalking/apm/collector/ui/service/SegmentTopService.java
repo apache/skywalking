@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.collector.ui.service;
 
 import java.util.List;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IGlobalTraceUIDAO;
@@ -54,6 +55,9 @@ public class SegmentTopService {
         TraceBrief traceBrief;
         if (StringUtils.isNotEmpty(traceId)) {
             List<String> segmentIds = globalTraceUIDAO.getSegmentIds(traceId);
+            if (CollectionUtils.isEmpty(segmentIds)) {
+                return new TraceBrief();
+            }
             traceBrief = segmentDurationUIDAO.loadTop(startSecondTimeBucket, endSecondTimeBucket, minDuration, maxDuration, operationName, applicationId, limit, from, segmentIds.toArray(new String[0]));
         } else {
             traceBrief = segmentDurationUIDAO.loadTop(startSecondTimeBucket, endSecondTimeBucket, minDuration, maxDuration, operationName, applicationId, limit, from);
