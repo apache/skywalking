@@ -86,6 +86,7 @@ public abstract class MergePersistenceWorker<INPUT_AND_OUTPUT extends StreamData
         if (mergeDataCache.containsKey(input.getId())) {
             mergeDataCache.get(input.getId()).mergeAndFormulaCalculateData(input);
         } else {
+            input.calculateFormula();
             mergeDataCache.put(input.getId(), input);
         }
 
