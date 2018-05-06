@@ -89,7 +89,7 @@ class TopologyBuilder {
             applicationNode.setApdex(ApdexCalculator.INSTANCE.calculate(applicationMetric.getSatisfiedCount(), applicationMetric.getToleratingCount(), applicationMetric.getFrustratedCount()));
             applicationNode.setAlarm(false);
             try {
-                Alarm alarm = alarmService.loadApplicationAlarmList(Const.EMPTY_STRING, step, startTimeBucket, endTimeBucket, 1, 0);
+                Alarm alarm = alarmService.loadApplicationAlarmList(Const.EMPTY_STRING, applicationId, step, startTimeBucket, endTimeBucket, 1, 0);
                 if (alarm.getItems().size() > 0) {
                     applicationNode.setAlarm(true);
                 }
@@ -98,19 +98,6 @@ class TopologyBuilder {
             }
 
             applicationNode.setNumOfServer(serverService.getAllServer(applicationId, startSecondTimeBucket, endSecondTimeBucket).size());
-            try {
-                Alarm alarm = alarmService.loadInstanceAlarmList(Const.EMPTY_STRING, step, startTimeBucket, endTimeBucket, 1000, 0);
-                applicationNode.setNumOfServerAlarm(alarm.getItems().size());
-            } catch (ParseException e) {
-                logger.error(e.getMessage(), e);
-            }
-
-            try {
-                Alarm alarm = alarmService.loadServiceAlarmList(Const.EMPTY_STRING, step, startTimeBucket, endTimeBucket, 1000, 0);
-                applicationNode.setNumOfServiceAlarm(alarm.getItems().size());
-            } catch (ParseException e) {
-                logger.error(e.getMessage(), e);
-            }
             nodes.add(applicationNode);
         });
 

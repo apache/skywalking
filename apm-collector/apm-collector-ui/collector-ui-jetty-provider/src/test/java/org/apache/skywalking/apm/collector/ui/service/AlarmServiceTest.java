@@ -17,32 +17,20 @@
 
 package org.apache.skywalking.apm.collector.ui.service;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
-import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
-import org.apache.skywalking.apm.collector.core.module.MockModule;
-import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.storage.dao.ui.*;
-import org.apache.skywalking.apm.collector.storage.table.register.Application;
-import org.apache.skywalking.apm.collector.storage.table.register.Instance;
-import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
-import org.apache.skywalking.apm.collector.storage.ui.alarm.Alarm;
-import org.apache.skywalking.apm.collector.storage.ui.alarm.AlarmItem;
-import org.apache.skywalking.apm.collector.storage.ui.alarm.AlarmType;
-import org.apache.skywalking.apm.collector.storage.ui.alarm.CauseType;
-import org.apache.skywalking.apm.collector.storage.ui.common.Duration;
-import org.apache.skywalking.apm.collector.storage.ui.common.Step;
-import org.apache.skywalking.apm.collector.storage.ui.overview.AlarmTrend;
-import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.Whitebox;
-
+import com.google.gson.*;
 import java.text.ParseException;
 import java.util.Collections;
+import org.apache.skywalking.apm.collector.cache.service.*;
+import org.apache.skywalking.apm.collector.core.module.*;
+import org.apache.skywalking.apm.collector.storage.dao.ui.*;
+import org.apache.skywalking.apm.collector.storage.table.register.*;
+import org.apache.skywalking.apm.collector.storage.ui.alarm.*;
+import org.apache.skywalking.apm.collector.storage.ui.common.*;
+import org.apache.skywalking.apm.collector.storage.ui.overview.AlarmTrend;
+import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
+import org.junit.*;
+import org.mockito.Mockito;
+import org.mockito.internal.util.reflection.Whitebox;
 
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
@@ -94,7 +82,7 @@ public class AlarmServiceTest {
 
     @Test
     public void loadApplicationAlarmList() throws ParseException {
-        Mockito.when(applicationAlarmUIDAO.loadAlarmList(anyString(), anyLong(), anyLong(), anyInt(), anyInt())).then(invocation -> {
+        Mockito.when(applicationAlarmUIDAO.loadAlarmList(anyString(), anyList(), anyLong(), anyLong(), anyInt(), anyInt())).then(invocation -> {
             return testAlarm();
         });
         long startTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(duration.getStep(), duration.getStart()) / 100;
@@ -106,7 +94,7 @@ public class AlarmServiceTest {
             return Collections.singletonList(applicationMapping);
         });
         mockCache();
-        Alarm alarm = alarmService.loadApplicationAlarmList("keyword", Step.MONTH, startTimeBucket, endTimeBucket, 10, 0);
+        Alarm alarm = alarmService.loadApplicationAlarmList("keyword", 0, Step.MONTH, startTimeBucket, endTimeBucket, 10, 0);
         Assert.assertTrue(alarm.getItems().size() == 1);
         Assert.assertNotNull(alarm.getItems().get(0).getTitle());
     }
