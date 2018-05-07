@@ -45,6 +45,8 @@
 #### UI Changes
   - New trace query UI.
   - New Application UI, merge server tab(removed) into applciation as sub page.
+  - New Topology UI.
+  - New response time / throughput TopN list.
   - Add Thermodynamic chart in overview page.
   - Change all tps to cpm(calls per minutes).
   - Fix wrong osName in server view.
