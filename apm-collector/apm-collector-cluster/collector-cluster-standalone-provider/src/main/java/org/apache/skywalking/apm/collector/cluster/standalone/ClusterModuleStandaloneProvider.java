@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.collector.cluster.standalone.service.Standalone
 import org.apache.skywalking.apm.collector.cluster.standalone.service.StandaloneModuleRegisterService;
 import org.apache.skywalking.apm.collector.core.CollectorException;
 import org.apache.skywalking.apm.collector.core.UnexpectedException;
-import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
 import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
@@ -55,7 +55,7 @@ public class ClusterModuleStandaloneProvider extends ModuleProvider {
         return "standalone";
     }
 
-    @Override public Class<? extends Module> module() {
+    @Override public Class<? extends ModuleDefine> module() {
         return ClusterModule.class;
     }
 

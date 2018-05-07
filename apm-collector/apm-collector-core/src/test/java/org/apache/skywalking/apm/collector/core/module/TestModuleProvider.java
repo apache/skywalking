@@ -26,7 +26,7 @@ public class TestModuleProvider extends ModuleProvider {
         return "TestModule-Provider";
     }
 
-    @Override public Class<? extends Module> module() {
+    @Override public Class<? extends ModuleDefine> module() {
         return TestModule.class;
     }
 

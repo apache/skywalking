@@ -61,7 +61,8 @@ class TopologyBuilder {
         List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> callerReferenceMetric,
         List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> calleeReferenceMetric,
         Step step, long startTimeBucket, long endTimeBucket, long startSecondTimeBucket, long endSecondTimeBucket) {
-        Map<Integer, String> components = changeNodeComp2Map(applicationComponents);
+        Map<Integer, String> nodeCompMap = buildNodeCompMap(applicationComponents);
+        Map<Integer, String> conjecturalNodeCompMap = buildConjecturalNodeCompMap(applicationComponents);
         Map<Integer, Integer> mappings = changeMapping2Map(applicationMappings);
 
         filterZeroSourceOrTargetReference(callerReferenceMetric);
@@ -76,7 +77,7 @@ class TopologyBuilder {
             ApplicationNode applicationNode = new ApplicationNode();
             applicationNode.setId(applicationId);
             applicationNode.setName(application.getApplicationCode());
-            applicationNode.setType(components.getOrDefault(application.getApplicationId(), Const.UNKNOWN));
+            applicationNode.setType(nodeCompMap.getOrDefault(application.getApplicationId(), Const.UNKNOWN));
 
             applicationNode.setSla(SLACalculator.INSTANCE.calculate(applicationMetric.getErrorCalls(), applicationMetric.getCalls()));
             try {
@@ -88,7 +89,7 @@ class TopologyBuilder {
             applicationNode.setApdex(ApdexCalculator.INSTANCE.calculate(applicationMetric.getSatisfiedCount(), applicationMetric.getToleratingCount(), applicationMetric.getFrustratedCount()));
             applicationNode.setAlarm(false);
             try {
-                Alarm alarm = alarmService.loadApplicationAlarmList(Const.EMPTY_STRING, step, startTimeBucket, endTimeBucket, 1, 0);
+                Alarm alarm = alarmService.loadApplicationAlarmList(Const.EMPTY_STRING, applicationId, step, startTimeBucket, endTimeBucket, 1, 0);
                 if (alarm.getItems().size() > 0) {
                     applicationNode.setAlarm(true);
                 }
@@ -97,19 +98,6 @@ class TopologyBuilder {
             }
 
             applicationNode.setNumOfServer(serverService.getAllServer(applicationId, startSecondTimeBucket, endSecondTimeBucket).size());
-            try {
-                Alarm alarm = alarmService.loadInstanceAlarmList(Const.EMPTY_STRING, step, startTimeBucket, endTimeBucket, 1000, 0);
-                applicationNode.setNumOfServerAlarm(alarm.getItems().size());
-            } catch (ParseException e) {
-                logger.error(e.getMessage(), e);
-            }
-
-            try {
-                Alarm alarm = alarmService.loadServiceAlarmList(Const.EMPTY_STRING, step, startTimeBucket, endTimeBucket, 1000, 0);
-                applicationNode.setNumOfServiceAlarm(alarm.getItems().size());
-            } catch (ParseException e) {
-                logger.error(e.getMessage(), e);
-            }
             nodes.add(applicationNode);
         });
 
@@ -124,7 +112,7 @@ class TopologyBuilder {
                     ConjecturalNode conjecturalNode = new ConjecturalNode();
                     conjecturalNode.setId(target.getApplicationId());
                     conjecturalNode.setName(target.getApplicationCode());
-                    conjecturalNode.setType(components.getOrDefault(target.getApplicationId(), Const.UNKNOWN));
+                    conjecturalNode.setType(conjecturalNodeCompMap.getOrDefault(target.getApplicationId(), Const.UNKNOWN));
                     nodes.add(conjecturalNode);
                     nodeIds.add(target.getApplicationId());
                 }
@@ -135,7 +123,7 @@ class TopologyBuilder {
                 ApplicationNode applicationNode = new ApplicationNode();
                 applicationNode.setId(source.getApplicationId());
                 applicationNode.setName(source.getApplicationCode());
-                applicationNode.setType(components.getOrDefault(source.getApplicationId(), Const.UNKNOWN));
+                applicationNode.setType(nodeCompMap.getOrDefault(source.getApplicationId(), Const.UNKNOWN));
                 applicationNode.setApdex(100);
                 applicationNode.setSla(100);
                 nodes.add(applicationNode);
@@ -149,7 +137,7 @@ class TopologyBuilder {
             call.setTarget(actualTargetId);
             call.setTargetName(applicationCacheService.getApplicationById(actualTargetId).getApplicationCode());
             call.setAlert(false);
-            call.setCallType(components.get(referenceMetric.getTarget()));
+            call.setCallType(nodeCompMap.get(referenceMetric.getTarget()));
             try {
                 call.setCpm(referenceMetric.getCalls() / dateBetweenService.minutesBetween(source.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket));
             } catch (ParseException e) {
@@ -179,7 +167,7 @@ class TopologyBuilder {
                     ConjecturalNode conjecturalNode = new ConjecturalNode();
                     conjecturalNode.setId(source.getApplicationId());
                     conjecturalNode.setName(source.getApplicationCode());
-                    conjecturalNode.setType(components.getOrDefault(source.getApplicationId(), Const.UNKNOWN));
+                    conjecturalNode.setType(conjecturalNodeCompMap.getOrDefault(target.getApplicationId(), Const.UNKNOWN));
                     nodeIds.add(source.getApplicationId());
                     nodes.add(conjecturalNode);
                 }
@@ -195,7 +183,7 @@ class TopologyBuilder {
             if (source.getApplicationId() == Const.NONE_APPLICATION_ID) {
                 call.setCallType(Const.EMPTY_STRING);
             } else {
-                call.setCallType(components.get(referenceMetric.getTarget()));
+                call.setCallType(nodeCompMap.get(referenceMetric.getTarget()));
             }
             try {
                 call.setCpm(referenceMetric.getCalls() / dateBetweenService.minutesBetween(target.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket));
@@ -239,7 +227,18 @@ class TopologyBuilder {
         return mappings;
     }
 
-    private Map<Integer, String> changeNodeComp2Map(
+    private Map<Integer, String> buildConjecturalNodeCompMap(
+        List<IApplicationComponentUIDAO.ApplicationComponent> applicationComponents) {
+        Map<Integer, String> components = new HashMap<>();
+        applicationComponents.forEach(applicationComponent -> {
+            int componentServerId = this.componentLibraryCatalogService.getServerIdBasedOnComponent(applicationComponent.getComponentId());
+            String componentName = this.componentLibraryCatalogService.getServerName(componentServerId);
+            components.put(applicationComponent.getApplicationId(), componentName);
+        });
+        return components;
+    }
+
+    private Map<Integer, String> buildNodeCompMap(
         List<IApplicationComponentUIDAO.ApplicationComponent> applicationComponents) {
         Map<Integer, String> components = new HashMap<>();
         applicationComponents.forEach(applicationComponent -> {

@@ -18,9 +18,7 @@
 
 package org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator;
 
-import org.apache.skywalking.apm.network.proto.SpanLayer;
-import org.apache.skywalking.apm.network.proto.SpanObject;
-import org.apache.skywalking.apm.network.proto.SpanType;
+import org.apache.skywalking.apm.network.proto.*;
 
 import static java.util.Objects.isNull;
 
@@ -32,7 +30,6 @@ public class SpanDecorator implements StandardBuilder {
     private StandardBuilder standardBuilder;
     private SpanObject spanObject;
     private SpanObject.Builder spanBuilder;
-    private long startTimeMinuteTimeBucket = 0;
     private final ReferenceDecorator[] referenceDecorators;
 
     public SpanDecorator(SpanObject spanObject, StandardBuilder standardBuilder) {
@@ -94,14 +91,6 @@ public class SpanDecorator implements StandardBuilder {
         } else {
             return spanBuilder.getSpanLayerValue();
         }
-    }
-
-    public void setStartTimeMinuteTimeBucket(long startTimeMinuteTimeBucket) {
-        this.startTimeMinuteTimeBucket = startTimeMinuteTimeBucket;
-    }
-
-    public long getStartTimeMinuteTimeBucket() {
-        return startTimeMinuteTimeBucket;
     }
 
     public long getStartTime() {

@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.collector.storage.h2.dao.ui;
 
 import java.text.ParseException;
+import java.util.List;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationAlarmUIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
@@ -34,7 +35,8 @@ public class ApplicationAlarmH2UIDAO extends H2DAO implements IApplicationAlarmU
     }
 
     @Override
-    public Alarm loadAlarmList(String keyword, long startTimeBucket, long endTimeBucket, int limit, int from) throws ParseException {
+    public Alarm loadAlarmList(String keyword, List<Integer> applicationIds, long startTimeBucket, long endTimeBucket,
+        int limit, int from) throws ParseException {
         return null;
     }
 }
