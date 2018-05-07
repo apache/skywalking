@@ -18,12 +18,9 @@ Core features are separated into 3 groups: agent, collector and UI.
 - Continue DB/Cache access span merged automatically.
 
 ### Collector
-- Multi-Tenancy
-- Config alarm thresholds.
-- Config data TTL.
 - Support config data downstream to agent. Need adjust TDP(Trace Data Protocol)
 - Support server metrics of other languages, such as C#. Need adjust TDP(Trace Data Protocol)
-- Alarm notification. Default through mail.
+- Alarm notification. 
 - Baseline calculation, to make the alarm more accuracy.
 - Performance optimization (Stream metric aggregate and query for UI)
 - Automated testing (Stream metric aggregate and query for UI)
@@ -40,7 +37,6 @@ Core features are separated into 3 groups: agent, collector and UI.
 ## Community features
 Community features are reported from SkyWalking community or the core team hopes community contributors provide the implementations.
 
-- C# agent.
 - Golang SDK as OpenCensus Reporter.
 - Support Sharding-JDBC as Collector storage implementor.
 - Support connect ES under auth, in Collector.
@@ -52,7 +48,7 @@ Community features are reported from SkyWalking community or the core team hopes
 - [Java]Specific service profile
 
 ## Project release plan
-1. Mar. 2018, 5.0.0-alpha
-1. Apr. 2018, 5.0.0-beta
-1. May. 2018, 5.0.0-RC
-1. Jun. 2018, 5.0.0(GA)
+1. May. 2018, 5.0.0-beta
+1. Jun. 2018, 5.0.0-beta2
+1. Jul. 2018, 5.0.0-RC
+1. Jul. 2018, 5.0.0(GA)
