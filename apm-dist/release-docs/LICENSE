@@ -373,7 +373,7 @@ batch-processor 1.0.0:  https://github.com/wnr/batch-processor  MIT
 bizcharts       3.1.3-beta.2:   https://github.com/alibaba/BizCharts    MIT
 classnames      2.2.5:  https://github.com/JedWatson/classnames MIT
 component-classes       1.2.6:  https://github.com/component/classes    MIT     , declare license in package.json only.
-component-indexof       0.0.3:  https://github.com/component/indexof    MIT*
+component-indexof       0.0.3:  https://github.com/component/indexof    MIT     , declare license in README.md only.
 container-query-toolkit 0.1.1:  https://github.com/d6u/container-query-toolkit  MIT
 core-js 2.5.3:  https://github.com/zloirock/core-js     MIT
 create-react-class      15.6.3: https://github.com/facebook/react       MIT
