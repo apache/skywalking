@@ -12,8 +12,9 @@
     * [Open TLS](en/TLS.md)
     * [Namespace Isolation](en/Namespace.md)
     * [Token Authentication](en/Token-auth.md)
+    * [Add your own component library settings in collector](en/Component-libraries-extend.md)
   * Incubating Features
-    * Abstract
+    * [Abstract](en/Incubating/Abstract.md)
   * Application Toolkit
     * [Overview](en/Applicaton-toolkit.md)
     * [OpenTracing Tracer](en/Opentracing.md)
