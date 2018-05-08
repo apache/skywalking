@@ -46,4 +46,6 @@
     * [The trace doesn't continue in kafka consumer side](en/FAQ/kafka-plugin.md)
     * [Agent or collector version upgrade](en/FAQ/Upgrade.md)
     * [Protoc plugin fails in maven build](en/FAQ/Protoc-Plugin-Fails-When-Build.md)
+    * [EnhanceRequireObjectCache class cast exception](en/FAQ/EnhanceRequireObjectCache-Cast-Exception.md)
+
     
