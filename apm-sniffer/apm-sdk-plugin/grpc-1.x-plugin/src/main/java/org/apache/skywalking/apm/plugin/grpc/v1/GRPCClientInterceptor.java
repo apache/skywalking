@@ -39,7 +39,7 @@ public class GRPCClientInterceptor implements ClientInterceptor {
         if (method.getType() != MethodDescriptor.MethodType.UNARY) {
             return new StreamCallClientInterceptor(channel.newCall(method, callOptions), method, channel);
         }
-        return new BlockingCallClientInterceptor(channel.newCall(method, callOptions), method, channel);
+        return new BlockingCallClientInterceptor(channel.newCall(method, callOptions));
     }
 
 }

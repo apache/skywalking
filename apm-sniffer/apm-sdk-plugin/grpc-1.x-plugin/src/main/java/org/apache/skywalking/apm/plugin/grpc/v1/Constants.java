@@ -27,4 +27,9 @@ public class Constants {
     public static final String STREAM_ON_READY_OPERATION_NAME = "RequestStreamObserver/onReady";
 
     public static final String STREAM_ON_NEXT_OPERATION_NAME = "ResponseStreamObserver/OnNext";
+
+    public static final String STREAM_ON_COMPLETE_OPERATION_NAME = "ResponseStreamObserver/OnComplete";
+
+    public static final String STREAM_ON_ERROR_OPERATION_NAME = "ResponseStreamObserver/OnError";
+
 }
