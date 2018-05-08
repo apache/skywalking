@@ -39,7 +39,7 @@ public interface IInstanceMetricUIDAO extends DAO {
      * Returns the top n instance throughput between start time bucket
      * and end time bucket.
      *
-     * <p>SQL as: select APPLICATION_ID, sum(TRANSACTION_CALLS) / ${secondBetween} as tps
+     * <p>SQL as: select INSTANCE_ID, sum(TRANSACTION_CALLS) / ${secondBetween} as tps
      * from INSTANCE_METRIC
      * where TIME_BUCKET ge ${startTimeBucket} and TIME_BUCKET le ${endTimeBucket}
      * and SOURCE_VALUE = ${metricSource}
