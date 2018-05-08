@@ -363,10 +363,7 @@ The text of each license is also included at licenses/ui-licenses/LICENSE-[proje
 ========================================
 MIT licenses
 ========================================
-
 antv/data-set	0.8.6:	https://github.com/antvis/data-set	MIT
-antv/g2	3.0.5-beta.4:	https://github.com/antvis/g2	MIT
-antv/g	2.0.6:	https://github.com/antvis/g	MIT*
 add-dom-event-listener  1.0.2:  https://github.com/yiminghe/add-dom-event-listener      MIT
 antd    3.2.2:  https://github.com/ant-design/ant-design        MIT
 async-validator 1.8.2:  https://github.com/yiminghe/async-validator     MIT
@@ -497,35 +494,6 @@ exenv   1.2.2:  https://github.com/JedWatson/exenv      BSD-3-Clause
 hoist-non-react-statics 2.5.0:  https://github.com/mridgway/hoist-non-react-statics     BSD-3-Clause
 qs      6.5.1:  https://github.com/ljharb/qs    BSD-3-Clause
 warning 3.0.0:  https://github.com/BerkeleyTrue/warning BSD-3-Clause
-
-========================================
-ISC licenses
-========================================
-fs.realpath	1.0.0:	https://github.com/isaacs/fs.realpath	ISC
-glob	7.1.2:	https://github.com/isaacs/node-glob	ISC
-graceful-fs	4.1.11:	https://github.com/isaacs/node-graceful-fs	ISC
-har-schema	2.0.0:	https://github.com/ahmadnassri/har-schema	ISC
-har-validator	5.0.3:	https://github.com/ahmadnassri/har-validator	ISC
-hosted-git-info	2.6.0:	https://github.com/npm/hosted-git-info	ISC
-inflight	1.0.6:	https://github.com/npm/inflight	ISC
-inherits	2.0.3:	https://github.com/isaacs/inherits	ISC
-ini	1.3.5:	https://github.com/isaacs/ini	ISC
-json-stringify-safe	5.0.1:	https://github.com/isaacs/json-stringify-safe	ISC
-minimatch	3.0.4:	https://github.com/isaacs/minimatch	ISC
-once	1.4.0:	https://github.com/isaacs/once	ISC
-rimraf	2.6.2:	https://github.com/isaacs/rimraf	ISC
-semver	5.5.0:	https://github.com/npm/node-semver	ISC
-signal-exit	3.0.2:	https://github.com/tapjs/signal-exit	ISC
-simple-statistics	4.1.1:	https://github.com/simple-statistics/simple-statistics	ISC
-split2	2.2.0:	https://github.com/mcollina/split2	ISC
-wrappy	1.0.2:	https://github.com/npm/wrappy	ISC
-
-========================================
-Unlicense licenses
-========================================
-tweetnacl	0.14.5:	https://github.com/dchest/tweetnacl-js	Unlicense
-wolfy87-eventemitter	5.1.0:	https://github.com/Olical/EventEmitter	Unlicense
-wolfy87-eventemitter	5.2.4:	https://github.com/Olical/EventEmitter	Unlicense
 
 ========================================
 PSF licenses
