@@ -72,6 +72,7 @@ public class ShardingjdbcClient implements Client {
             dataSource = ShardingDataSourceFactory.createDataSource(shardingDataSource, shardingRuleConfiguration,
                     new HashMap<String, Object>(), new Properties());
         } catch (Exception e) {
+            logger.error("case the exception is 'Cannot load JDBC driver class', please add the driver mysql-connector-java-5.1.36.jar to collector-libs manual");
             throw new ShardingjdbcClientException(e.getMessage(), e);
         }
     }
