@@ -35,6 +35,7 @@ public class ClientCallsInstrumentation extends ClassStaticMethodsEnhancePluginD
 
     private static final String ENHANCE_CLASS = "io.grpc.stub.ClientCalls";
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.BlockingCallInterceptor";
+    private static final String FUTURE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.AsyncUnaryRequestCallCallInterceptor";
 
     @Override protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
         return new StaticMethodsInterceptPoint[] {
@@ -51,17 +52,30 @@ public class ClientCallsInstrumentation extends ClassStaticMethodsEnhancePluginD
                     return false;
                 }
             },
+//            new StaticMethodsInterceptPoint() {
+//                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+//                    return named("blockingServerStreamingCall").and(takesArgumentWithType(1, "io.grpc.MethodDescriptor"));
+//                }
+//
+//                @Override public String getMethodsInterceptor() {
+//                    return INTERCEPTOR_CLASS;
+//                }
+//
+//                @Override public boolean isOverrideArgs() {
+//                    return false;
+//                }
+//            },
             new StaticMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("blockingServerStreamingCall").and(takesArgumentWithType(1, "io.grpc.MethodDescriptor"));
+                    return named("asyncUnaryRequestCall").and(takesArgumentWithType(2, "io.grpc.ClientCall$Listener"));
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return INTERCEPTOR_CLASS;
+                    return FUTURE_INTERCEPTOR_CLASS;
                 }
 
                 @Override public boolean isOverrideArgs() {
-                    return false;
+                    return true;
                 }
             }
         };

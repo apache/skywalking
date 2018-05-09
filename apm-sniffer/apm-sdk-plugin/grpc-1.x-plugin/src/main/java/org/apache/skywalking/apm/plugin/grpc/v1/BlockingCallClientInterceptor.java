@@ -18,9 +18,11 @@
 
 package org.apache.skywalking.apm.plugin.grpc.v1;
 
+import io.grpc.Channel;
 import io.grpc.ClientCall;
 import io.grpc.ForwardingClientCall;
 import io.grpc.Metadata;
+import io.grpc.MethodDescriptor;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -30,8 +32,13 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
  */
 public class BlockingCallClientInterceptor extends ForwardingClientCall.SimpleForwardingClientCall {
 
-    public BlockingCallClientInterceptor(ClientCall delegate) {
+    private final MethodDescriptor methodDescriptor;
+    private final Channel channel;
+
+    public BlockingCallClientInterceptor(ClientCall delegate, MethodDescriptor method, Channel channel) {
         super(delegate);
+        this.methodDescriptor = method;
+        this.channel = channel;
     }
 
     @Override public void start(Listener responseListener, Metadata headers) {
@@ -44,5 +51,13 @@ public class BlockingCallClientInterceptor extends ForwardingClientCall.SimpleFo
             headers.put(headerKey, contextItem.getHeadValue());
         }
         delegate().start(responseListener, headers);
+    }
+
+    public MethodDescriptor getMethodDescriptor() {
+        return methodDescriptor;
+    }
+
+    public Channel getChannel() {
+        return channel;
     }
 }

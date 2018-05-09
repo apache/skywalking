@@ -35,9 +35,10 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.util.StringUtil;
 
-import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.STREAM_ON_COMPLETE_OPERATION_NAME;
-import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.STREAM_ON_ERROR_OPERATION_NAME;
-import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.STREAM_ON_NEXT_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.SERVER;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.STREAM_REQUEST_OBSERVER_ON_COMPLETE_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.STREAM_REQUEST_OBSERVER_ON_ERROR_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.STREAM_REQUEST_OBSERVER_ON_NEXT_OPERATION_NAME;
 
 /**
  * @author zhang xin
@@ -81,12 +82,14 @@ public class CallServerInterceptor implements ServerInterceptor {
 
         private final ContextSnapshot contextSnapshot;
         private final MethodDescriptor.MethodType methodType;
+        private final String operationPrefix;
 
         protected ServerCallListener(ServerCall.Listener delegate, MethodDescriptor descriptor,
             ContextSnapshot contextSnapshot) {
             super(delegate);
             this.contextSnapshot = contextSnapshot;
             this.methodType = descriptor.getType();
+            this.operationPrefix = OperationNameFormatUtil.formatOperationName(descriptor) + SERVER;
         }
 
         @Override public void onReady() {
@@ -94,25 +97,21 @@ public class CallServerInterceptor implements ServerInterceptor {
         }
 
         @Override public void onMessage(Object message) {
-            if (methodType != MethodDescriptor.MethodType.UNARY) {
-                try {
-                    ContextManager.createLocalSpan(STREAM_ON_NEXT_OPERATION_NAME);
-                    ContextManager.continued(contextSnapshot);
-                    delegate().onMessage(message);
-                } catch (Throwable t) {
-                    ContextManager.activeSpan().errorOccurred().log(t);
-                } finally {
-                    ContextManager.stopSpan();
-                }
-            } else {
+            try {
+                ContextManager.createLocalSpan(operationPrefix + STREAM_REQUEST_OBSERVER_ON_NEXT_OPERATION_NAME);
+                ContextManager.continued(contextSnapshot);
                 delegate().onMessage(message);
+            } catch (Throwable t) {
+                ContextManager.activeSpan().errorOccurred().log(t);
+            } finally {
+                ContextManager.stopSpan();
             }
         }
 
         @Override public void onComplete() {
             if (methodType != MethodDescriptor.MethodType.UNARY) {
                 try {
-                    ContextManager.createLocalSpan(STREAM_ON_COMPLETE_OPERATION_NAME);
+                    ContextManager.createLocalSpan(operationPrefix + STREAM_REQUEST_OBSERVER_ON_COMPLETE_OPERATION_NAME);
                     ContextManager.continued(contextSnapshot);
                     delegate().onComplete();
                 } catch (Throwable t) {
@@ -128,7 +127,7 @@ public class CallServerInterceptor implements ServerInterceptor {
         @Override public void onCancel() {
             if (methodType != MethodDescriptor.MethodType.UNARY) {
                 try {
-                    ContextManager.createLocalSpan(STREAM_ON_ERROR_OPERATION_NAME);
+                    ContextManager.createLocalSpan(operationPrefix + STREAM_REQUEST_OBSERVER_ON_ERROR_OPERATION_NAME);
                     ContextManager.continued(contextSnapshot);
                     delegate().onCancel();
                 } catch (Throwable t) {
