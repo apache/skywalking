@@ -73,7 +73,7 @@ public class SegmentDurationEsUIDAO extends EsDAO implements ISegmentDurationUID
             boolQueryBuilder.must().add(rangeQueryBuilder);
         }
         if (StringUtils.isNotEmpty(operationName)) {
-            mustQueryList.add(QueryBuilders.matchQuery(SegmentDurationTable.SERVICE_NAME.getName(), operationName));
+            mustQueryList.add(QueryBuilders.matchPhraseQuery(SegmentDurationTable.SERVICE_NAME.getName(), operationName));
         }
         if (CollectionUtils.isNotEmpty(segmentIds)) {
             boolQueryBuilder.must().add(QueryBuilders.termsQuery(SegmentDurationTable.SEGMENT_ID.getName(), segmentIds));
