@@ -318,8 +318,8 @@ public class StorageModuleShardingjdbcProvider extends ModuleProvider {
         String[] userName = config.getUserName().split(",");
         String[] password = config.getPassword().split(",");
         for (int i = 0; i < url.length; i++) {
-            shardingjdbcClientConfigs.put(ShardingjdbcStrategy.SHARDING_DS_PREFIX + i, new ShardingjdbcClientConfig(driverClass, url[i], userName[i], password[i]));
-            logger.info("create datasource: {}, url: {}", ShardingjdbcStrategy.SHARDING_DS_PREFIX + i, url[i]);
+            shardingjdbcClientConfigs.put(ShardingjdbcStrategy.SHARDING_DS_PREFIX + i, new ShardingjdbcClientConfig(driverClass, url[i].trim(), userName[i].trim(), password[i].trim()));
+            logger.info("create datasource: {}, url: {}", ShardingjdbcStrategy.SHARDING_DS_PREFIX + i, url[i].trim());
         }
         return shardingjdbcClientConfigs;
     }
