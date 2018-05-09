@@ -16,11 +16,11 @@ microservices, cloud native and container-based (Docker, Kubernetes, Mesos) arch
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
 
 # Abstract
-**SkyWalking** started as a distributed system in 2015. Now, it evolves to the fully functional [Application Performance Management](https://en.wikipedia.org/wiki/Application_performance_management) 
-system from 5.x release. It is used for tracing, monitoring, diagnose distributed systems, especially based on microservices, cloud native and container,
+**SkyWalking** started as a distributed system in 2015. From 5.x, it evolved to the fully functional [Application Performance Management](https://en.wikipedia.org/wiki/Application_performance_management) 
+system. It is used for tracing, monitoring, diagnose distributed systems, especially based on microservices, cloud native and container,
 including:
 - Distributed tracing and context propagation
-- Application, transaction, server metrics analysis
+- Application, instance, service metrics analysis
 - Root cause analysis
 - Application topology map analysis
 - Application and service dependency analysis
@@ -37,6 +37,8 @@ including:
 - [OpenTracing](http://opentracing.io/) compatible
   - Native Java auto instrumentation agent could work with OpenTracing APIs in the same context
 - Lightweight and powerful backend aggregation and analysis capabilities
+- Modern and cool Web UI
+- Log integration
 - Alarm for slow or unstable(low SLA) application, instance and service 
 
 # Document
