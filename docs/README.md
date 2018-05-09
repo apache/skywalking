@@ -11,6 +11,7 @@
     * [Open TLS](en/TLS.md)
     * [Namespace Isolation](en/Namespace.md)
     * [Token Authentication](en/Token-auth.md)
+    * [Open Database Sharding Storage](en/Shardingjdbc.md)
   * Incubating Features
     * Abstract
   * Application Toolkit
