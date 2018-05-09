@@ -210,7 +210,12 @@ export default class Trace extends PureComponent {
     return (
       <Form onSubmit={this.handleSearch} layout="vertical">
         <FormItem label="Time Range">
-          {getFieldDecorator('range-time-picker')(
+          {getFieldDecorator('range-time-picker', {
+            rules: [{
+              required: true,
+              message: 'Please select the correct date',
+            }],
+          })(
             <RangePicker
               showTime
               disabledDate={current => current && current.valueOf() >= Date.now()}
