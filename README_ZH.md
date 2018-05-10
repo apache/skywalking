@@ -54,28 +54,11 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 - 北京服务器. [前往](http://49.4.12.44:8080/)
 - 香港服务器. [前往](http://159.138.0.181:8080/)
 
-# Screenshots
-- 全局总揽
-<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/Dashboard.png"/>
+# Screenshot
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-beta/Dashboard.png"/>
 
-- 拓扑图自动发现
-<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/Topology.png"/>
 
-- 应用视图
-<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/Application.png"/>
-
-- 应用服务器视图
-<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/server.png"/>
-
-- 服务视图
-<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/Service.png"/>
-
-- 调用链
-<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/trace.png"/>
-
-- 告警
-<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/application-alarm.png"/>
-
+- [查看所有系统截图](/docs/Screenshots.md)
 
 # Test reports
 - 自动化集成测试报告
