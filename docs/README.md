@@ -12,8 +12,9 @@
     * [Open TLS](en/TLS.md)
     * [Namespace Isolation](en/Namespace.md)
     * [Token Authentication](en/Token-auth.md)
+    * [Add your own component library settings in collector](en/Component-libraries-extend.md)
   * Incubating Features
-    * Abstract
+    * [Abstract](en/Incubating/Abstract.md)
   * Application Toolkit
     * [Overview](en/Applicaton-toolkit.md)
     * [OpenTracing Tracer](en/Opentracing.md)
@@ -45,4 +46,6 @@
     * [The trace doesn't continue in kafka consumer side](en/FAQ/kafka-plugin.md)
     * [Agent or collector version upgrade](en/FAQ/Upgrade.md)
     * [Protoc plugin fails in maven build](en/FAQ/Protoc-Plugin-Fails-When-Build.md)
+    * [EnhanceRequireObjectCache class cast exception](en/FAQ/EnhanceRequireObjectCache-Cast-Exception.md)
+
     

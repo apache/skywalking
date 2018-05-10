@@ -42,3 +42,5 @@
     * [加载探针，Console被GRPC日志刷屏](cn/FAQ/Too-many-gRPC-logs-CN.md)
     * [Kafka消息消费端链路断裂](cn/FAQ/Kafka-plugin-CN.md)
     * [Protoc-Plugin Maven编译时异常](cn/FAQ/Protoc-Plugin-Fails-When-Build-CN.md)
+    * [EnhanceRequireObjectCache 类转换异常](cn/FAQ/EnhanceRequireObjectCache-Cast-Exception-CN.md)
+    
