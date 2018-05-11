@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>5.0.0-beta-SNAPSHOT</version>
+        <version>5.0.0-beta</version>
     </parent>
 
     <artifactId>apm-agent-core</artifactId>
@@ -227,9 +227,9 @@
                                 <echo message="unjar" />
                                 <unzip src="${project.build.directory}/${artifactId}-${version}.jar" dest="${project.build.directory}/unpacked/" />
                                 <echo message="rename service providers in META-INF/services" />
-                                <move file="${project.build.directory}/unpacked/META-INF/native/libnetty_tcnative_osx_x86_64.jnilib" tofile="${project.build.directory}/unpacked/META-INF/native/liborg_apache_skywalking_apm_dependencies_netty_tcnative_osx_x86_64.jnilib"/>
-                                <move file="${project.build.directory}/unpacked/META-INF/native/libnetty_tcnative_linux_x86_64.so" tofile="${project.build.directory}/unpacked/META-INF/native/liborg_apache_skywalking_apm_dependencies_netty_tcnative_linux_x86_64.so"/>
-                                <move file="${project.build.directory}/unpacked/META-INF/native/netty_tcnative_windows_x86_64.dll" tofile="${project.build.directory}/unpacked/META-INF/native/org_apache_skywalking_apm_dependencies_netty_tcnative_windows_x86_64.dll"/>
+                                <move file="${project.build.directory}/unpacked/META-INF/native/libnetty_tcnative_osx_x86_64.jnilib" tofile="${project.build.directory}/unpacked/META-INF/native/liborg_apache_skywalking_apm_dependencies_netty_tcnative_osx_x86_64.jnilib" />
+                                <move file="${project.build.directory}/unpacked/META-INF/native/libnetty_tcnative_linux_x86_64.so" tofile="${project.build.directory}/unpacked/META-INF/native/liborg_apache_skywalking_apm_dependencies_netty_tcnative_linux_x86_64.so" />
+                                <move file="${project.build.directory}/unpacked/META-INF/native/netty_tcnative_windows_x86_64.dll" tofile="${project.build.directory}/unpacked/META-INF/native/org_apache_skywalking_apm_dependencies_netty_tcnative_windows_x86_64.dll" />
                                 <echo message="jar back" />
                                 <jar destfile="${project.build.directory}/${artifactId}-${version}.jar" basedir="${project.build.directory}/unpacked" />
                             </target>

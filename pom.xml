@@ -22,7 +22,7 @@
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>5.0.0-beta-SNAPSHOT</version>
+    <version>5.0.0-beta</version>
 
     <parent>
         <groupId>org.apache</groupId>
@@ -76,7 +76,7 @@
         <url>https://github.com/apache/incubator-skywalking</url>
         <connection>scm:git:https://github.com/apache/incubator-skywalking.git</connection>
         <developerConnection>scm:git:https://github.com/apache/incubator-skywalking.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v5.0.0-beta</tag>
     </scm>
 
     <issueManagement>

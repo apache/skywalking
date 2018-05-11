@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sdk-plugin</artifactId>
-        <version>5.0.0-beta-SNAPSHOT</version>
+        <version>5.0.0-beta</version>
     </parent>
 
     <artifactId>apm-grpc-1.x-plugin</artifactId>
