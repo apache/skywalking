@@ -32,10 +32,12 @@
         <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}</shade.net.bytebuddy.target>
 
         <plugin.dest.dir>${project.build.directory}/../../../../skywalking-agent/optional-plugins</plugin.dest.dir>
+        <directory.plugins>apm-trace-ignore-plugin</directory.plugins>
     </properties>
 
     <modules>
         <module>optional-spring-plugins</module>
+        <module>trace-ignore-plugin</module>
     </modules>
 
     <dependencies>
@@ -98,11 +100,26 @@
                         <configuration>
                             <tasks>
                                 <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.runtime.classpath" />
+                                <mkdir dir="${plugin.dest.dir}" />
                                 <if>
                                     <equals arg1="${project.packaging}" arg2="jar" />
                                     <then>
-                                        <mkdir dir="${plugin.dest.dir}" />
-                                        <copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar" tofile="${plugin.dest.dir}/${project.artifactId}-${project.version}.jar" overwrite="true" />
+                                        <if>
+                                            <!-- if the plugin is a directory -->
+                                            <contains string="${directory.plugins}" substring="${project.name}" />
+                                            <then>
+                                                <mkdir dir="${plugin.dest.dir}/${project.name}" />
+                                                <!-- copy jar -->
+                                                <copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar" tofile="${plugin.dest.dir}/${project.name}/${project.artifactId}-${project.version}.jar" overwrite="true" />
+                                                <!-- copy config file -->
+                                                <copy file="${project.basedir}/${project.name}.config" tofile="${plugin.dest.dir}/${project.name}/${project.name}.config" overwrite="true" />
+                                                <!-- copy introduction -->
+                                                <copy file="${project.basedir}/README.md" tofile="${plugin.dest.dir}/${project.name}/README.md" overwrite="true" />
+                                            </then>
+                                            <else>
+                                                <copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar" tofile="${plugin.dest.dir}/${project.artifactId}-${project.version}.jar" overwrite="true" />
+                                            </else>
+                                        </if>
                                     </then>
                                 </if>
 

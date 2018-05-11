@@ -1,0 +1,2 @@
+###How to use trace ignore plugin
+Please just copy or move the apm-trace-ignore-plugin-x.jar to agent/plugins, then you can set you need ignore paths in trace-ignore-plugin.config(this config file don't need to move)
