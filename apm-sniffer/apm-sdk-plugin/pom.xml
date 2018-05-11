@@ -56,9 +56,6 @@
         <module>kafka-v1-plugin</module>
         <module>servicecomb-plugin</module>
         <module>hystrix-1.x-plugin</module>
-        <module>oracle-10.x-plugin</module>
-        <module>resin-3.x-plugin</module>
-        <module>resin-4.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
