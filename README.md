@@ -55,27 +55,11 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 - Host in Beijing. [goto](http://49.4.12.44:8080/)
 - Host in HK. [goto](http://159.138.0.181:8080/)
 
-# Screenshots
-- Overview dashboard
-<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/Dashboard.png"/>
+# Screenshot
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-beta/Dashboard.png"/>
 
-- Discovery topological graph of application clusters automatically.
-<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/Topology.png"/>
 
-- Application overview
-<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/Application.png"/>
-
-- Server metrics
-<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/server.png"/>
-
-- Service metrics
-<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/Service.png"/>
-
-- Trace
-<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/trace.png"/>
-
-- Alarm
-<img src="https://skywalkingtest.github.io/page-resources/5.0.0-alpha/application-alarm.png"/>
+- [See all screenshots](/docs/Screenshots.md)
 
 # Test reports
 - Automatic integration test reports
