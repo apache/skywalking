@@ -42,25 +42,21 @@ public class SofaRpcProviderInterceptor implements InstanceMethodsAroundIntercep
                              Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         SofaRequest sofaRequest = (SofaRequest) allArguments[0];
         RpcInternalContext rpcContext = RpcInternalContext.getContext();
-        boolean isConsumer = rpcContext.isConsumerSide();
 
         AbstractSpan span = null;
 
-        if (!isConsumer) {
-            ContextCarrier contextCarrier = new ContextCarrier();
-            CarrierItem next = contextCarrier.items();
-            while (next.hasNext()) {
-                next = next.next();
-                final Object attachment = rpcContext.getAttachment(next.getHeadKey());
-                if (attachment != null) {
-                    next.setHeadValue(attachment.toString());
-                } else {
-                    next.setHeadValue("");
-                }
+        ContextCarrier contextCarrier = new ContextCarrier();
+        CarrierItem next = contextCarrier.items();
+        while (next.hasNext()) {
+            next = next.next();
+            final Object attachment = rpcContext.getAttachment(next.getHeadKey());
+            if (attachment != null) {
+                next.setHeadValue(attachment.toString());
+            } else {
+                next.setHeadValue("");
             }
-            span = ContextManager.createEntrySpan(generateViewPoint(sofaRequest), contextCarrier);
-
         }
+        span = ContextManager.createEntrySpan(generateViewPoint(sofaRequest), contextCarrier);
 
         span.setComponent(ComponentsDefine.SOFARPC);
         SpanLayer.asRPCFramework(span);
