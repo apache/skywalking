@@ -18,6 +18,7 @@
 package org.apache.skywalking.apm.plugin.httpasyncclient.v4;
 
 import org.apache.http.*;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpRequestWrapper;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.concurrent.FutureCallback;
@@ -52,7 +53,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL;
 import static org.hamcrest.CoreMatchers.is;
@@ -121,7 +121,7 @@ public class HttpAsyncClientInterceptorTest {
         when(httpHost.getSchemeName()).thenReturn("http");
 
 
-        RequestLine requestLine = new RequestLine() {
+        final RequestLine requestLine = new RequestLine() {
             @Override
             public String getMethod() {
                 return "GET";
@@ -156,6 +156,7 @@ public class HttpAsyncClientInterceptorTest {
         });
 
         when(requestWrapper.getRequestLine()).thenReturn(requestLine);
+        when(requestWrapper.getOriginal()).thenReturn(new HttpGet("http://localhost:8081/original/test"));
         when(httpHost.getPort()).thenReturn(8080);
 
         enhancedInstance = new EnhancedInstance() {
@@ -175,11 +176,39 @@ public class HttpAsyncClientInterceptorTest {
     }
 
     @Test
-    public void testAll() throws Throwable {
+    public void testSuccess() throws Throwable {
 
         //mock active span;
         ContextManager.createEntrySpan("mock-test", new ContextCarrier());
 
+        Thread thread = baseTest();
+
+        ContextManager.stopSpan();
+
+        thread.join();
+        Assert.assertThat(segmentStorage.getTraceSegments().size(), is(2));
+
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(findNeedSegemnt());
+        assertHttpSpan(spans.get(0));
+        verify(requestWrapper, times(1)).setHeader(anyString(), anyString());
+
+
+    }
+
+    @Test
+    public void testNoContext() throws Throwable {
+
+        Thread thread = baseTest();
+        thread.join();
+
+        Assert.assertThat(segmentStorage.getTraceSegments().size(), is(0));
+
+        verify(requestWrapper, times(0)).setHeader(anyString(), anyString());
+
+
+    }
+
+    private Thread baseTest() throws Throwable {
         Object[] allArguments = new Object[]{producer, consumer, httpContext, callback};
         Class[] types = new Class[]{HttpAsyncRequestProducer.class, HttpAsyncResponseConsumer.class, HttpContext.class, FutureCallback.class};
         httpAsyncClientInterceptor.beforeMethod(enhancedInstance, null, allArguments, types, null);
@@ -188,8 +217,6 @@ public class HttpAsyncClientInterceptorTest {
         Assert.assertTrue(allArguments[3] instanceof FutureCallbackWrapper);
 
         sessionRequestConstructorInterceptor.onConstruct(enhancedInstance, null);
-
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
 
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -206,27 +233,13 @@ public class HttpAsyncClientInterceptorTest {
 
                     new FutureCallbackWrapper(callback).completed(null);
 
-                    countDownLatch.countDown();
                 } catch (Throwable throwable) {
                     throwable.printStackTrace();
                 }
             }
         });
         thread.start();
-        //stop test
-
-        ContextManager.stopSpan();
-        thread.join();
-        Assert.assertThat(segmentStorage.getTraceSegments().size(), is(2));
-
-
-        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(1);
-
-        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(findNeedSegemnt());
-        assertHttpSpan(spans.get(0));
-        verify(requestWrapper, times(1)).setHeader(anyString(), anyString());
-
-
+        return thread;
     }
 
     private TraceSegment findNeedSegemnt() {
@@ -242,7 +255,7 @@ public class HttpAsyncClientInterceptorTest {
         assertThat(span.getOperationName(), is("/test-web/test"));
         assertThat(SpanHelper.getComponentId(span), is(26));
         List<KeyValuePair> tags = SpanHelper.getTags(span);
-        assertThat(tags.get(0).getValue(), is("http://127.0.0.1:8080/test-web/test"));
+        assertThat(tags.get(0).getValue(), is("http://localhost:8081/original/test"));
         assertThat(tags.get(1).getValue(), is("GET"));
         assertThat(span.isExit(), is(true));
     }

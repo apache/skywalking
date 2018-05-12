@@ -28,6 +28,7 @@ import java.lang.reflect.Method;
 
 /**
  * request ready(completed) so we can start our local thread span;
+ *
  * @author lican
  */
 public class SessionRequestCompleteInterceptor implements InstanceMethodsAroundInterceptor {
@@ -37,6 +38,9 @@ public class SessionRequestCompleteInterceptor implements InstanceMethodsAroundI
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         Object[] array = (Object[]) objInst.getSkyWalkingDynamicField();
+        if (array == null || array.length == 0) {
+            return;
+        }
         ContextSnapshot snapshot = (ContextSnapshot) array[0];
         ContextManager.createLocalSpan("httpasyncclient/local");
         if (snapshot != null) {
