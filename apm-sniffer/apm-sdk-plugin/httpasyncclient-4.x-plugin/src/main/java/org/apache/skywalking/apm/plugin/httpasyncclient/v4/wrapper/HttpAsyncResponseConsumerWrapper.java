@@ -30,6 +30,8 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import java.io.IOException;
 
 /**
+ * a wrapper for {@link HttpAsyncResponseConsumer} so we can be notified when the
+ * current response(every response will callback the wrapper) received maybe completed or canceled,or failed.
  * @author lican
  */
 public class HttpAsyncResponseConsumerWrapper<T> implements HttpAsyncResponseConsumer<T> {
@@ -42,12 +44,14 @@ public class HttpAsyncResponseConsumerWrapper<T> implements HttpAsyncResponseCon
 
     @Override
     public void responseReceived(HttpResponse response) throws IOException, HttpException {
-        int statusCode = response.getStatusLine().getStatusCode();
-        if (statusCode > 400) {
-            AbstractSpan span = ContextManager.activeSpan();
-            Tags.STATUS_CODE.set(span, String.valueOf(statusCode));
+        if (ContextManager.isActive()) {
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode > 400) {
+                AbstractSpan span = ContextManager.activeSpan();
+                Tags.STATUS_CODE.set(span, String.valueOf(statusCode));
+            }
+            ContextManager.stopSpan();
         }
-        ContextManager.stopSpan();
         consumer.responseReceived(response);
     }
 
@@ -63,8 +67,10 @@ public class HttpAsyncResponseConsumerWrapper<T> implements HttpAsyncResponseCon
 
     @Override
     public void failed(Exception ex) {
-        ContextManager.activeSpan().errorOccurred().log(ex);
-        ContextManager.stopSpan();
+        if (ContextManager.isActive()) {
+            ContextManager.activeSpan().errorOccurred().log(ex);
+            ContextManager.stopSpan();
+        }
         consumer.failed(ex);
 
     }
@@ -91,8 +97,10 @@ public class HttpAsyncResponseConsumerWrapper<T> implements HttpAsyncResponseCon
 
     @Override
     public boolean cancel() {
-        ContextManager.activeSpan().errorOccurred();
-        ContextManager.stopSpan();
+        if (ContextManager.isActive()) {
+            ContextManager.activeSpan().errorOccurred();
+            ContextManager.stopSpan();
+        }
         return consumer.cancel();
     }
 }

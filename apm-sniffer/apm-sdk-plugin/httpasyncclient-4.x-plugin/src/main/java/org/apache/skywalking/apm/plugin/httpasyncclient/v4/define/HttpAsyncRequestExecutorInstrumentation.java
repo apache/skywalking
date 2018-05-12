@@ -28,6 +28,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
+ * {@link HttpAsyncRequestExecutorInstrumentation} indicates the real request start location in method requestReady
  * @author lican
  */
 public class HttpAsyncRequestExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {

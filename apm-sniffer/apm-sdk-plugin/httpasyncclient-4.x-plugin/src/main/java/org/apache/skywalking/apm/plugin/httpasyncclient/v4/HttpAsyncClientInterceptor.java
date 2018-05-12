@@ -32,6 +32,7 @@ import java.lang.reflect.Method;
 import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL;
 
 /**
+ * in main thread,hold the context in thread local so we can read in the same thread.
  * @author lican
  */
 public class HttpAsyncClientInterceptor implements InstanceMethodsAroundInterceptor {

@@ -21,6 +21,9 @@ import org.apache.http.concurrent.FutureCallback;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 
 /**
+ * a wrapper for {@link FutureCallback} so we can be notified when the hold response
+ * (when one or more request fails the pipeline mode may not callback though we haven't support pipeline)
+ * received whether it fails or completed or canceled.
  * @author lican
  */
 public class FutureCallbackWrapper<T> implements FutureCallback<T> {
@@ -33,7 +36,9 @@ public class FutureCallbackWrapper<T> implements FutureCallback<T> {
 
     @Override
     public void completed(T o) {
-        ContextManager.stopSpan();
+        if (ContextManager.isActive()) {
+            ContextManager.stopSpan();
+        }
         if (callback != null) {
             callback.completed(o);
         }
@@ -41,7 +46,9 @@ public class FutureCallbackWrapper<T> implements FutureCallback<T> {
 
     @Override
     public void failed(Exception e) {
-        ContextManager.stopSpan();
+        if (ContextManager.isActive()) {
+            ContextManager.stopSpan();
+        }
         if (callback != null) {
             callback.failed(e);
         }
@@ -49,9 +56,15 @@ public class FutureCallbackWrapper<T> implements FutureCallback<T> {
 
     @Override
     public void cancelled() {
-        ContextManager.stopSpan();
+        if (ContextManager.isActive()) {
+            ContextManager.stopSpan();
+        }
         if (callback != null) {
             callback.cancelled();
         }
+    }
+
+    private void quietStop() {
+
     }
 }

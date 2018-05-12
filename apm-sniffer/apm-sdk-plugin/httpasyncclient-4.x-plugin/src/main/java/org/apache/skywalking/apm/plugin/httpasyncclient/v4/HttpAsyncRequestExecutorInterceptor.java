@@ -34,10 +34,13 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL;
 
 /**
+ * the actual point request begin fetch the request from thread local .
  * @author lican
  */
 public class HttpAsyncRequestExecutorInterceptor implements InstanceMethodsAroundInterceptor {
@@ -56,22 +59,23 @@ public class HttpAsyncRequestExecutorInterceptor implements InstanceMethodsAroun
 
         RequestLine requestLine = requestWrapper.getRequestLine();
         String uri = requestLine.getUri();
+        String operationName = uri.startsWith("http") ? new URL(uri).getPath() : uri;
         int port = httpHost.getPort();
-        AbstractSpan span = ContextManager.createExitSpan(uri, contextCarrier, httpHost.getHostName() + ":" + (port == -1 ? 80 : port));
+        AbstractSpan span = ContextManager.createExitSpan(operationName, contextCarrier, httpHost.getHostName() + ":" + (port == -1 ? 80 : port));
         span.setComponent(ComponentsDefine.HTTP_ASYNC_CLIENT);
-        Tags.URL.set(span, requestWrapper.getOriginal().getRequestLine().getUri());
+        Tags.URL.set(span, uri);
         Tags.HTTP.METHOD.set(span, requestLine.getMethod());
         SpanLayer.asHttp(span);
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            requestWrapper.addHeader(next.getHeadKey(), next.getHeadValue());
+            requestWrapper.setHeader(next.getHeadKey(), next.getHeadValue());
         }
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        return null;
+        return ret;
     }
 
     @Override

@@ -25,6 +25,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL;
 
 /**
+ * hold the snapshot in SkyWalkingDynamicField
  * @author lican
  */
 public class SessionRequestConstructorInterceptor implements InstanceConstructorInterceptor {

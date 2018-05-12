@@ -19,6 +19,10 @@ package org.apache.skywalking.apm.plugin.httpasyncclient.v4.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.nio.protocol.HttpAsyncRequestProducer;
+import org.apache.http.nio.protocol.HttpAsyncResponseConsumer;
+import org.apache.http.protocol.HttpContext;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
@@ -28,6 +32,10 @@ import org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.*;
 
 /**
+ * {@link HttpAsyncClientInstrumentation} indicates that the execute method in both {@link org.apache.http.impl.nio.client.MinimalHttpAsyncClient#execute(HttpAsyncRequestProducer, HttpAsyncResponseConsumer, HttpContext, FutureCallback)}
+ * and {@link org.apache.http.impl.nio.client.InternalHttpAsyncClient#execute(HttpAsyncRequestProducer, HttpAsyncResponseConsumer, HttpContext, FutureCallback)} can be instrumented for single request.pipeline is not support now for some
+ * complex situation.this is run in main thread.
+ *
  * @author lican
  */
 public class HttpAsyncClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {

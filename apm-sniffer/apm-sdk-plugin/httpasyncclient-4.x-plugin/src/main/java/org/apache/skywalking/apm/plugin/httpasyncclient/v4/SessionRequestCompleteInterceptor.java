@@ -29,11 +29,10 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import java.lang.reflect.Method;
 
 /**
+ * request ready(completed) so we can start our local thread span;
  * @author lican
  */
 public class SessionRequestCompleteInterceptor implements InstanceMethodsAroundInterceptor {
-
-    private ILog log = LogManager.getLogger(SessionRequestCompleteInterceptor.class);
 
     static ThreadLocal<HttpContext> CONTEXT_LOCAL = new ThreadLocal<HttpContext>();
 
