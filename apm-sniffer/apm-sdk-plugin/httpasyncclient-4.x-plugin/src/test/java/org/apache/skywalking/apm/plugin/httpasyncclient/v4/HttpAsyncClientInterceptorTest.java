@@ -238,8 +238,6 @@ public class HttpAsyncClientInterceptorTest {
         return null;
     }
 
-    ;
-
     private void assertHttpSpan(AbstractTracingSpan span) {
         assertThat(span.getOperationName(), is("/test-web/test"));
         assertThat(SpanHelper.getComponentId(span), is(26));

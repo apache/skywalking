@@ -34,7 +34,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL;
@@ -63,7 +62,7 @@ public class HttpAsyncRequestExecutorInterceptor implements InstanceMethodsAroun
         int port = httpHost.getPort();
         AbstractSpan span = ContextManager.createExitSpan(operationName, contextCarrier, httpHost.getHostName() + ":" + (port == -1 ? 80 : port));
         span.setComponent(ComponentsDefine.HTTP_ASYNC_CLIENT);
-        Tags.URL.set(span, uri);
+        Tags.URL.set(span, requestWrapper.getOriginal().getRequestLine().getUri());
         Tags.HTTP.METHOD.set(span, requestLine.getMethod());
         SpanLayer.asHttp(span);
         CarrierItem next = contextCarrier.items();
