@@ -73,12 +73,6 @@ storage:
 #  h2:
 #    url: jdbc:h2:~/memorydb
 #    userName: sa
-#storage:
-#  shardingjdbc:
-#    driverClass: com.mysql.jdbc.Driver
-#    url: jdbc:mysql://ip1:port1/skywalking,jdbc:mysql://ip2:port2/skywalking
-#    userName: admin,admin
-#    password: 123456,123456
 configuration:
   default:
 #     namespace: xxxxx
