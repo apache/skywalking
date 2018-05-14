@@ -144,6 +144,6 @@ public class SofaRpcProviderInterceptorTest {
         List<KeyValuePair> tags = SpanHelper.getTags(span);
         assertThat(tags.size(), is(0));
         assertThat(SpanHelper.getLayer(span), CoreMatchers.is(SpanLayer.RPC_FRAMEWORK));
-        assertThat(SpanHelper.getComponentId(span), is(30));
+        assertThat(SpanHelper.getComponentId(span), is(32));
     }
 }

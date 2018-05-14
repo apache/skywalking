@@ -84,7 +84,7 @@ public class ComponentsDefine {
 
     public static final OfficialComponent HYSTRIX =  new OfficialComponent(29, "Hystrix");
 
-    public static final OfficialComponent SOFARPC =  new OfficialComponent(30, "SOFARPC");
+    public static final OfficialComponent SOFARPC =  new OfficialComponent(32, "SOFARPC");
 
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
@@ -95,7 +95,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[31];
+        components = new String[33];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
