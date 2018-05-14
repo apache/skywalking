@@ -5,6 +5,7 @@
     * [快速入门](cn/Quick-start-CN.md)
     * [中间件，框架与类库支持列表](Supported-list.md)
         * [如何关闭特定插件](cn/How-to-disable-plugin-CN.md)
+        * [可选插件](cn/Optional-plugins-CN.md)
   * 高级特性
     * [通过系统启动参数进行覆盖配置](cn/Setting-override-CN.md)
     * [服务直连(Direct uplink)及禁用名称服务(naming service)](cn/Direct-uplink-CN.md)
@@ -41,3 +42,5 @@
     * [Trace查询有数据，但是没有拓扑图和JVM数据?](cn/FAQ/Why-have-traces-no-others-CN.md)
     * [加载探针，Console被GRPC日志刷屏](cn/FAQ/Too-many-gRPC-logs-CN.md)
     * [Kafka消息消费端链路断裂](cn/FAQ/Kafka-plugin-CN.md)
+    * [Protoc-Plugin Maven编译时异常](cn/FAQ/Protoc-Plugin-Fails-When-Build-CN.md)
+    * [EnhanceRequireObjectCache 类转换异常](cn/FAQ/EnhanceRequireObjectCache-Cast-Exception-CN.md)
