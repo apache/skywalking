@@ -1,7 +1,6 @@
 package org.apache.skywalking.apm.plugin.trace.ignore.matcher;
 
 import org.apache.skywalking.apm.util.StringUtil;
-import org.springframework.util.Assert;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -47,11 +46,6 @@ public class AntPathMatcher implements TracePathMatcher {
     }
 
 
-    public AntPathMatcher(String pathSeparator) {
-        Assert.notNull(pathSeparator, "'pathSeparator' is required");
-        this.pathSeparator = pathSeparator;
-        this.pathSeparatorPatternCache = new PathSeparatorPatternCache(pathSeparator);
-    }
 
 
     @Override
