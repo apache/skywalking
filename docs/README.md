@@ -13,7 +13,7 @@
     * [Namespace Isolation](en/Namespace.md)
     * [Token Authentication](en/Token-auth.md)
     * [Add your own component library settings in collector](en/Component-libraries-extend.md)
-    * [Open Database Sharding Storage](en/Shardingjdbc.md)
+    * [Use Sharding JDBC as storage implementor](en/Shardingjdbc.md)
   * Incubating Features
     * [Abstract](en/Incubating/Abstract.md)
   * Application Toolkit
