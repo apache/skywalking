@@ -54,7 +54,7 @@ public class InstanceMetricShardingjdbcUIDAO extends ShardingjdbcDAO implements 
     }
 
     @Override public List<AppServerInfo> getServerThroughput(int applicationId, Step step, long startTimeBucket, long endTimeBucket,
-        int secondBetween, int topN, MetricSource metricSource) {
+        int minutesBetween, int topN, MetricSource metricSource) {
         ShardingjdbcClient client = getClient();
         
         String tableName = TimePyramidTableNameBuilder.build(step, InstanceMetricTable.TABLE);
@@ -73,7 +73,7 @@ public class InstanceMetricShardingjdbcUIDAO extends ShardingjdbcDAO implements 
             while (rs.next()) {
                 int instanceId = rs.getInt(InstanceMetricTable.INSTANCE_ID.getName());
                 long calls = rs.getLong(InstanceMetricTable.TRANSACTION_CALLS.getName());
-                int callsPerSec = (int)(secondBetween == 0 ? 0 : calls / secondBetween);
+                int callsPerSec = (int)(minutesBetween == 0 ? 0 : calls / minutesBetween);
 
                 AppServerInfo appServerInfo = new AppServerInfo();
                 appServerInfo.setId(instanceId);
@@ -87,7 +87,7 @@ public class InstanceMetricShardingjdbcUIDAO extends ShardingjdbcDAO implements 
         return appServerInfos;
     }
 
-    @Override public List<Integer> getServerTPSTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
+    @Override public List<Integer> getServerThroughputTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
         ShardingjdbcClient client = getClient();
         String tableName = TimePyramidTableNameBuilder.build(step, InstanceMetricTable.TABLE);
 
