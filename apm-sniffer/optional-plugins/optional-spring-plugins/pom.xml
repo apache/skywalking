@@ -27,9 +27,6 @@
     <packaging>pom</packaging>
 
     <artifactId>optional-spring-plugins</artifactId>
-    <properties>
-        <plugin.dest.dir>${project.build.directory}/../../../../../skywalking-agent/optional-plugins</plugin.dest.dir>
-    </properties>
 
     <modules>
         <module>spring-annotation-plugin</module>

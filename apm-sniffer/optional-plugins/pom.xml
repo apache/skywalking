@@ -28,13 +28,14 @@
     <artifactId>optional-plugins</artifactId>
     <packaging>pom</packaging>
     <properties>
+        <sdk.plugin.related.dir />
+        <directory.plugin />
+
         <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
         <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}</shade.net.bytebuddy.target>
-
-        <sdk.plugin.related.dir />
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <agent.package.dest.dir>${project.build.directory}${sdk.plugin.related.dir}/../../../../skywalking-agent</agent.package.dest.dir>
         <optional.agent.package.dest.dir>${agent.package.dest.dir}/optional-plugins</optional.agent.package.dest.dir>
-        <directory.plugins>apm-trace-ignore-plugin</directory.plugins>
     </properties>
 
     <modules>
@@ -108,7 +109,7 @@
                                     <then>
                                         <if>
                                             <!-- if the plugin is a directory -->
-                                            <contains string="${directory.plugins}" substring="${project.artifactId}" />
+                                            <equals arg1="${directory.plugin}" arg2="${project.artifactId}" />
                                             <then>
                                                 <mkdir dir="${optional.agent.package.dest.dir}/${project.artifactId}" />
                                                 <!-- copy jar -->
@@ -120,7 +121,6 @@
                                         </if>
                                     </then>
                                 </if>
-
                             </tasks>
                         </configuration>
                     </execution>

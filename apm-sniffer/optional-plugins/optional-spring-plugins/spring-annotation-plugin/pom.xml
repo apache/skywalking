@@ -29,7 +29,6 @@
     <artifactId>apm-spring-annotation-plugin</artifactId>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <sdk.plugin.related.dir>/..</sdk.plugin.related.dir>
     </properties>
     <dependencies>

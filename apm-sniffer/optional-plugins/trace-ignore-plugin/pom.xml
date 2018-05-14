@@ -31,6 +31,10 @@
     <name>apm-trace-ignore-plugin</name>
     <url>http://maven.apache.org</url>
 
+    <properties>
+        <directory.plugin>${project.artifactId}</directory.plugin>
+    </properties>
+
 
     <build>
         <plugins>
@@ -54,24 +58,6 @@
                         </configuration>
                     </execution>
                 </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>ant-contrib</groupId>
-                        <artifactId>ant-contrib</artifactId>
-                        <version>1.0b3</version>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>ant</groupId>
-                                <artifactId>ant</artifactId>
-                            </exclusion>
-                        </exclusions>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.ant</groupId>
-                        <artifactId>ant-nodeps</artifactId>
-                        <version>1.8.1</version>
-                    </dependency>
-                </dependencies>
             </plugin>
         </plugins>
     </build>
