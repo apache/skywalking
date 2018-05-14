@@ -5,15 +5,17 @@
     * [Quick start](en/Quick-start.md)
     * [Supported middlewares, frameworks and libraries](Supported-list.md)
       * [How to disable plugins?](en/How-to-disable-plugin.md)
+      * [Optional plugins](en/Optional-plugins.md)
   * Advanced Features
     * [Override settings through System.properties or System.env](en/Setting-override.md)
     * [Direct uplink and disable naming discovery](en/Direct-uplink.md)
     * [Open TLS](en/TLS.md)
     * [Namespace Isolation](en/Namespace.md)
     * [Token Authentication](en/Token-auth.md)
+    * [Add your own component library settings in collector](en/Component-libraries-extend.md)
     * [Open Database Sharding Storage](en/Shardingjdbc.md)
   * Incubating Features
-    * Abstract
+    * [Abstract](en/Incubating/Abstract.md)
   * Application Toolkit
     * [Overview](en/Applicaton-toolkit.md)
     * [OpenTracing Tracer](en/Opentracing.md)
@@ -29,6 +31,7 @@
   * Development Guides
     * [How to build project](en/How-to-build.md)
     * [Plugin development guide](en/Plugin-Development-Guide.md)
+    * [Collector table description](en/Collector-Table-Description.md)
     * Protocol
       * [Cross Process Propagation Headers Protocol, v1.0](en/Skywalking-Cross-Process-Propagation-Headers-Protocol-v1.md)
       * [SkyWalking Trace Data Protocol](en/Trace-Data-Protocol.md)
@@ -43,4 +46,6 @@
     * [Too many GRPC logs in the console](en/FAQ/Too-many-gRPC-logs.md)
     * [The trace doesn't continue in kafka consumer side](en/FAQ/kafka-plugin.md)
     * [Agent or collector version upgrade](en/FAQ/Upgrade.md)
+    * [Protoc plugin fails in maven build](en/FAQ/Protoc-Plugin-Fails-When-Build.md)
+    * [EnhanceRequireObjectCache class cast exception](en/FAQ/EnhanceRequireObjectCache-Cast-Exception.md)
     
