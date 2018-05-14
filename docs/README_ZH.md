@@ -13,7 +13,6 @@
     * [命名空间隔离](cn/Namespace-CN.md)
     * [基于Token认证](cn/Token-auth-CN.md)
     * [使用数据分片作为存储实现](cn/Shardingjdbc-CN.md)
-    * [使用数据分片作为存储实现](cn/Shardingjdbc-CN.md)
   * APM相关介绍资料
     * [OpenTracing中文版](https://github.com/opentracing-contrib/opentracing-specification-zh)
   * Application Toolkit，应用程序工具包
