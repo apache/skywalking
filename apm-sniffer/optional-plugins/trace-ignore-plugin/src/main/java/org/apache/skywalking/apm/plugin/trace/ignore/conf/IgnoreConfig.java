@@ -3,7 +3,6 @@ package org.apache.skywalking.apm.plugin.trace.ignore.conf;
 /**
  *
  * @author liujc [liujunc1993@163.com]
- * @date 2018/5/11 11:30
  *
  */
 public class IgnoreConfig {

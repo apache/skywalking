@@ -1,2 +1,2 @@
 ###How to use trace ignore plugin
-Please just copy or move the apm-trace-ignore-plugin-x.jar to agent/plugins, then you can set you need ignore paths in trace-ignore-plugin.config(this config file don't need to move)
+Please copy the apm-trace-ignore-plugin-x.jar to `agent/plugins`, this plugin support reading config from environment variables(The env key must start with `skywalking.`, the reuslt should be as same as in `apm-trace-ignore-plugin.config`), or you can copy the `apm-trace-ignore-plugin.config` to `agent/config` then you'll set you need ignore paths in `apm-trace-ignore-plugin.config`

@@ -13,7 +13,6 @@ import org.springframework.util.Assert;
 
 /**
  * @author liujc [liujunc1993@163.com]
- * @date 2018/5/11 11:24
  */
 public class TraceIgnoreTest {
 

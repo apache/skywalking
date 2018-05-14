@@ -10,14 +10,13 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.plugin.trace.ignore.conf.IgnoreConfig;
 import org.apache.skywalking.apm.plugin.trace.ignore.conf.IgnoreConfigInitializer;
-import org.apache.skywalking.apm.plugin.trace.ignore.matcher.SpringAntPathMatcher;
+import org.apache.skywalking.apm.plugin.trace.ignore.matcher.AntPathMatcher;
 import org.apache.skywalking.apm.plugin.trace.ignore.matcher.TracePathMatcher;
 import org.apache.skywalking.apm.util.StringUtil;
 
 /**
  *
  * @author liujc [liujunc1993@163.com]
- * @date 2018/5/11 11:27
  *
  */
 @OverrideImplementor(ContextManagerExtendService.class)
@@ -25,7 +24,8 @@ public class TraceIgnoreExtendService extends ContextManagerExtendService {
 
     private static final ILog logger = LogManager.getLogger(TraceIgnoreExtendService.class);
 
-    @Override public void boot() {
+    @Override
+    public void boot() {
         try {
             IgnoreConfigInitializer.initialize();
         } catch (ConfigNotFoundException e) {
@@ -36,7 +36,7 @@ public class TraceIgnoreExtendService extends ContextManagerExtendService {
     }
 
 
-    private TracePathMatcher pathMatcher = new SpringAntPathMatcher();
+    private TracePathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
     public AbstractTracerContext createTraceContext(String operationName, boolean forceSampling) {

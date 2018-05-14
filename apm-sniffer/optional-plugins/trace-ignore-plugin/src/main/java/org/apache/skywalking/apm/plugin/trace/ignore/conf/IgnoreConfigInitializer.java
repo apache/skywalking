@@ -2,7 +2,6 @@ package org.apache.skywalking.apm.plugin.trace.ignore.conf;
 
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
-import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.ConfigNotFoundException;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
@@ -16,9 +15,14 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ *
+ * @author liujc [liujunc1993@163.com]
+ *
+ */
 public class IgnoreConfigInitializer {
     private static final ILog logger = LogManager.getLogger(IgnoreConfigInitializer.class);
-    private static String CONFIG_FILE_NAME = "/optional-plugins/apm-trace-ignore-plugin/apm-trace-ignore-plugin.config";
+    private static String CONFIG_FILE_NAME = "/config/apm-trace-ignore-plugin.config";
     private static String ENV_KEY_PREFIX = "skywalking.";
 
     /**
