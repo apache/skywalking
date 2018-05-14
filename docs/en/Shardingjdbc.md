@@ -8,3 +8,6 @@ Note: it only supported MYSQL database sharding, and due to the license restrict
 ## Requirement
 - Manually import MySQL Driver package mysql-connector-java-5.1.36.jar to collector-libs directory.
 - In config/application.yml, close the elasticsearch configuration and open the shardingjdbc configuration, multiple data source configurations should be separated by Half Comma.
+
+## See also
+- [shardingsphere website](http://shardingsphere.io)

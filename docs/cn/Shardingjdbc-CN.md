@@ -8,3 +8,6 @@
 ## 配置要求
 - 手工导入MYSQL的驱动包mysql-connector-java-5.1.36.jar到collector-libs目录下。
 - config/application.yml中，关闭elasticsearch配置，打开shardingjdbc配置，多个数据源配置用半角逗号隔开。
+
+## 参阅
+- [shardingsphere官网](http://shardingsphere.io)
