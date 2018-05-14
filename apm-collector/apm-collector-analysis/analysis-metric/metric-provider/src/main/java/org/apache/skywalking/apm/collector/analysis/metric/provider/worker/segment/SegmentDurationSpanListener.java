@@ -18,97 +18,69 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.segment;
 
-import java.util.LinkedList;
-import java.util.List;
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.EntrySpanListener;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.ExitSpanListener;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.FirstSpanListener;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.LocalSpanListener;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListener;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListenerFactory;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.*;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.*;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
-import org.apache.skywalking.apm.collector.core.graph.Graph;
-import org.apache.skywalking.apm.collector.core.graph.GraphManager;
+import org.apache.skywalking.apm.collector.core.graph.*;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
+import org.apache.skywalking.apm.collector.core.util.*;
 import org.apache.skywalking.apm.collector.storage.table.segment.SegmentDuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
-public class SegmentDurationSpanListener implements EntrySpanListener, ExitSpanListener, LocalSpanListener, FirstSpanListener {
+public class SegmentDurationSpanListener implements FirstSpanListener, EntrySpanListener {
 
     private static final Logger logger = LoggerFactory.getLogger(SegmentDurationSpanListener.class);
 
-    private final List<SegmentDuration> segmentDurations;
+    private final SegmentDuration segmentDuration;
     private final ServiceNameCacheService serviceNameCacheService;
-    private boolean isError = false;
-    private long timeBucket;
+    private int entryOperationNameId = 0;
+    private int firstOperationNameId = 0;
 
     private SegmentDurationSpanListener(ModuleManager moduleManager) {
-        this.segmentDurations = new LinkedList<>();
+        this.segmentDuration = new SegmentDuration();
         this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
     }
 
     @Override public boolean containsPoint(Point point) {
-        return Point.Entry.equals(point) || Point.Exit.equals(point) || Point.Local.equals(point) || Point.First.equals(point);
+        return Point.First.equals(point) || Point.Entry.equals(point);
     }
 
     @Override
-    public void parseFirst(SpanDecorator spanDecorator, int applicationId, int instanceId,
-        String segmentId) {
+    public void parseFirst(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
+        long timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(segmentCoreInfo.getStartTime());
 
-        timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(spanDecorator.getStartTime());
+        segmentDuration.setId(segmentCoreInfo.getSegmentId());
+        segmentDuration.setSegmentId(segmentCoreInfo.getSegmentId());
+        segmentDuration.setApplicationId(segmentCoreInfo.getApplicationId());
+        segmentDuration.setDuration(segmentCoreInfo.getEndTime() - segmentCoreInfo.getStartTime());
+        segmentDuration.setStartTime(segmentCoreInfo.getStartTime());
+        segmentDuration.setEndTime(segmentCoreInfo.getEndTime());
+        segmentDuration.setIsError(BooleanUtils.booleanToValue(segmentCoreInfo.isError()));
+        segmentDuration.setTimeBucket(timeBucket);
 
-        SegmentDuration segmentDuration = new SegmentDuration();
-        segmentDuration.setId(segmentId);
-        segmentDuration.setSegmentId(segmentId);
-        segmentDuration.setApplicationId(applicationId);
-        segmentDuration.setDuration(spanDecorator.getEndTime() - spanDecorator.getStartTime());
-        segmentDuration.setStartTime(spanDecorator.getStartTime());
-        segmentDuration.setEndTime(spanDecorator.getEndTime());
-        if (spanDecorator.getOperationNameId() == 0) {
-            segmentDuration.setServiceName(spanDecorator.getOperationName());
-        } else {
-            segmentDuration.setServiceName(serviceNameCacheService.get(spanDecorator.getOperationNameId()).getServiceName());
-        }
-
-        segmentDurations.add(segmentDuration);
-        isError = isError || spanDecorator.getIsError();
+        firstOperationNameId = spanDecorator.getOperationNameId();
     }
 
-    @Override
-    public void parseEntry(SpanDecorator spanDecorator, int applicationId, int instanceId,
-        String segmentId) {
-        isError = isError || spanDecorator.getIsError();
-    }
-
-    @Override
-    public void parseExit(SpanDecorator spanDecorator, int applicationId, int instanceId, String segmentId) {
-        isError = isError || spanDecorator.getIsError();
-    }
-
-    @Override
-    public void parseLocal(SpanDecorator spanDecorator, int applicationId, int instanceId,
-        String segmentId) {
-        isError = isError || spanDecorator.getIsError();
+    @Override public void parseEntry(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
+        entryOperationNameId = spanDecorator.getOperationNameId();
     }
 
     @Override public void build() {
         Graph<SegmentDuration> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.SEGMENT_DURATION_GRAPH_ID, SegmentDuration.class);
-        logger.debug("segment cost listener build");
-        segmentDurations.forEach(segmentDuration -> {
-            segmentDuration.setIsError(BooleanUtils.booleanToValue(isError));
-            segmentDuration.setTimeBucket(timeBucket);
-            graph.start(segmentDuration);
-        });
+        logger.debug("segment duration listener build");
+        if (entryOperationNameId == 0) {
+            segmentDuration.setServiceName(serviceNameCacheService.get(firstOperationNameId).getServiceName());
+        } else {
+            segmentDuration.setServiceName(serviceNameCacheService.get(entryOperationNameId).getServiceName());
+        }
+
+        graph.start(segmentDuration);
     }
 
     public static class Factory implements SpanListenerFactory {

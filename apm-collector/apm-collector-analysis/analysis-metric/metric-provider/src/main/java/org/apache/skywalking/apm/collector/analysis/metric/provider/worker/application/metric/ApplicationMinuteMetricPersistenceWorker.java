@@ -19,8 +19,8 @@
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.metric;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorkerProvider;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
@@ -32,7 +32,7 @@ import org.apache.skywalking.apm.collector.storage.table.application.Application
 /**
  * @author peng-yongsheng
  */
-public class ApplicationMinuteMetricPersistenceWorker extends PersistenceWorker<ApplicationMetric> {
+public class ApplicationMinuteMetricPersistenceWorker extends MergePersistenceWorker<ApplicationMetric> {
 
     private ApplicationMinuteMetricPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
@@ -51,7 +51,7 @@ public class ApplicationMinuteMetricPersistenceWorker extends PersistenceWorker<
         return true;
     }
 
-    public static class Factory extends PersistenceWorkerProvider<ApplicationMetric, ApplicationMinuteMetricPersistenceWorker> {
+    public static class Factory extends MergePersistenceWorkerProvider<ApplicationMetric, ApplicationMinuteMetricPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);

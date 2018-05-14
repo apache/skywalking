@@ -71,6 +71,10 @@ public abstract class Window<WINDOW_COLLECTION extends Collection> {
         return pointer;
     }
 
+    public int currentCollectionSize() {
+        return getCurrent().size();
+    }
+
     public WINDOW_COLLECTION getLast() {
         if (pointer == windowDataA) {
             return windowDataB;

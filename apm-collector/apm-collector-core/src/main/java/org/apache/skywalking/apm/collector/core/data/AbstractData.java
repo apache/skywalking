@@ -156,7 +156,7 @@ public abstract class AbstractData {
     }
 
     @SuppressWarnings("unchecked")
-    private void calculateFormula() {
+    public void calculateFormula() {
         for (int i = 0; i < stringColumns.length; i++) {
             if (nonNull(stringColumns[i].getFormulaOperation())) {
                 String stringData = (String)stringColumns[i].getFormulaOperation().operate(this);

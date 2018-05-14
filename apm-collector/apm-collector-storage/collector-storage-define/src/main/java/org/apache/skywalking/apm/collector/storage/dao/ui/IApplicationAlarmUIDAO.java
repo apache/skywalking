@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.collector.storage.dao.ui;
 
 import java.text.ParseException;
+import java.util.List;
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
 import org.apache.skywalking.apm.collector.storage.ui.alarm.Alarm;
 
@@ -35,9 +36,11 @@ public interface IApplicationAlarmUIDAO extends DAO {
      * <p>SQL as: select APPLICATION_ID, ALARM_CONTENT, LAST_TIME_BUCKET, ALARM_TYPE from APPLICATION_ALARM
      * where LAST_TIME_BUCKET ge ${startTimeBucket} and LAST_TIME_BUCKET le ${endTimeBucket}
      * and ALARM_CONTENT like '%{keyword}%'
+     * and APPLICATION_ID in (${applicationIds})
      * <p>Note: keyword maybe not given
      *
      * @param keyword fuzzy query
+     * @param applicationIds may not be given
      * @param startTimeBucket start time bucket
      * @param endTimeBucket end time bucket
      * @param limit limits the number of rows returned by the query
@@ -45,6 +48,6 @@ public interface IApplicationAlarmUIDAO extends DAO {
      * @return application alarm items
      * @throws ParseException alarm time parse exception
      */
-    Alarm loadAlarmList(String keyword, long startTimeBucket, long endTimeBucket, int limit,
-        int from) throws ParseException;
+    Alarm loadAlarmList(String keyword, List<Integer> applicationIds, long startTimeBucket, long endTimeBucket,
+        int limit, int from) throws ParseException;
 }

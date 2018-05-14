@@ -18,44 +18,36 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.component;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.EntrySpanListener;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.ExitSpanListener;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.FirstSpanListener;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListener;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListenerFactory;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.*;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.*;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
-import org.apache.skywalking.apm.collector.core.graph.Graph;
-import org.apache.skywalking.apm.collector.core.graph.GraphManager;
+import org.apache.skywalking.apm.collector.core.graph.*;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponent;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationComponentSpanListener implements EntrySpanListener, ExitSpanListener, FirstSpanListener {
+public class ApplicationComponentSpanListener implements EntrySpanListener, ExitSpanListener {
 
     private final ApplicationCacheService applicationCacheService;
     private List<ApplicationComponent> applicationComponents = new LinkedList<>();
-    private long timeBucket;
 
     private ApplicationComponentSpanListener(ModuleManager moduleManager) {
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
     }
 
     @Override public boolean containsPoint(Point point) {
-        return Point.Entry.equals(point) || Point.Exit.equals(point) || Point.First.equals(point);
+        return Point.Entry.equals(point) || Point.Exit.equals(point);
     }
 
     @Override
-    public void parseExit(SpanDecorator spanDecorator, int applicationId, int instanceId, String segmentId) {
+    public void parseExit(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
         int applicationIdFromPeerId = applicationCacheService.getApplicationIdByAddressId(spanDecorator.getPeerId());
 
         String metricId = applicationIdFromPeerId + Const.ID_SPLIT + String.valueOf(spanDecorator.getComponentId());
@@ -64,38 +56,27 @@ public class ApplicationComponentSpanListener implements EntrySpanListener, Exit
         applicationComponent.setMetricId(metricId);
         applicationComponent.setComponentId(spanDecorator.getComponentId());
         applicationComponent.setApplicationId(applicationIdFromPeerId);
+        applicationComponent.setId(segmentCoreInfo.getMinuteTimeBucket() + Const.ID_SPLIT + applicationComponent.getMetricId());
+        applicationComponent.setTimeBucket(segmentCoreInfo.getMinuteTimeBucket());
         applicationComponents.add(applicationComponent);
     }
 
     @Override
-    public void parseEntry(SpanDecorator spanDecorator, int applicationId, int instanceId, String segmentId) {
-        String metricId = String.valueOf(applicationId) + Const.ID_SPLIT + String.valueOf(spanDecorator.getComponentId());
+    public void parseEntry(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
+        String metricId = String.valueOf(segmentCoreInfo.getApplicationId()) + Const.ID_SPLIT + String.valueOf(spanDecorator.getComponentId());
 
         ApplicationComponent applicationComponent = new ApplicationComponent();
         applicationComponent.setMetricId(metricId);
         applicationComponent.setComponentId(spanDecorator.getComponentId());
-        applicationComponent.setApplicationId(applicationId);
+        applicationComponent.setApplicationId(segmentCoreInfo.getApplicationId());
+        applicationComponent.setId(segmentCoreInfo.getMinuteTimeBucket() + Const.ID_SPLIT + applicationComponent.getMetricId());
+        applicationComponent.setTimeBucket(segmentCoreInfo.getMinuteTimeBucket());
         applicationComponents.add(applicationComponent);
-    }
-
-    @Override
-    public void parseFirst(SpanDecorator spanDecorator, int applicationId, int instanceId,
-        String segmentId) {
-        if (spanDecorator.getStartTimeMinuteTimeBucket() == 0) {
-            long startTimeMinuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
-            spanDecorator.setStartTimeMinuteTimeBucket(startTimeMinuteTimeBucket);
-        }
-        timeBucket = spanDecorator.getStartTimeMinuteTimeBucket();
     }
 
     @Override public void build() {
         Graph<ApplicationComponent> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.APPLICATION_COMPONENT_GRAPH_ID, ApplicationComponent.class);
-
-        applicationComponents.forEach(applicationComponent -> {
-            applicationComponent.setId(timeBucket + Const.ID_SPLIT + applicationComponent.getMetricId());
-            applicationComponent.setTimeBucket(timeBucket);
-            graph.start(applicationComponent);
-        });
+        applicationComponents.forEach(graph::start);
     }
 
     public static class Factory implements SpanListenerFactory {

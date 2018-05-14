@@ -56,7 +56,7 @@ public class AgentDataMock {
         Long[] times = TimeBuilder.INSTANCE.generateTimes();
         logger.info("times size: {}", times.length);
 
-//        segmentMock.mock(upstreamSegments, times, false);
+        segmentMock.mock(upstreamSegments, times, false);
 
         JVMMetricMock jvmMetricMock = new JVMMetricMock();
         jvmMetricMock.mock(channel, times);

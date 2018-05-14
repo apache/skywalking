@@ -24,7 +24,7 @@ This document helps people to compile and build the project in your maven and se
 1. Run `mvn compile -Dmaven.test.skip=true` to compile project and generate source codes. Because we use gRPC and protobuf.
 1. Set **Generated Source Codes** folders.
     * `grpc-java` and `java` folders in **apm-protocol/apm-network/target/generated-sources/protobuf**
-    * `grpc-java` and `java` folders in **apm-collector/apm-collector-remote/apm-remote-grpc-provider/target/protobuf**
+    * `grpc-java` and `java` folders in **apm-collector/apm-collector-remote/apm-remote-grpc-provider/target/generated-sources/protobuf**
 
 ## Building Resin-3, Resin-4, and OJDBC sdk plugins
 Due to license incompatibilities/restrictions these plugins under `apm-sniffer/apm-sdk-plugin/` are not built by default.

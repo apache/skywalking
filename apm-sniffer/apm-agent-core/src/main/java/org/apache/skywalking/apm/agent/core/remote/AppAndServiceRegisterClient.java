@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.agent.core.remote;
 
 import io.grpc.Channel;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
+import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
@@ -44,6 +45,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author wusheng
  */
+@DefaultImplementor
 public class AppAndServiceRegisterClient implements BootService, GRPCChannelListener, Runnable, TracingContextListener {
     private static final ILog logger = LogManager.getLogger(AppAndServiceRegisterClient.class);
     private static final String PROCESS_UUID = UUID.randomUUID().toString().replaceAll("-", "");
@@ -73,7 +75,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
     }
 
     @Override
-    public void beforeBoot() throws Throwable {
+    public void prepare() throws Throwable {
         ServiceManager.INSTANCE.findService(GRPCChannelManager.class).addChannelListener(this);
     }
 
@@ -89,7 +91,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
     }
 
     @Override
-    public void afterBoot() throws Throwable {
+    public void onComplete() throws Throwable {
         TracingContext.ListenerManager.add(this);
     }
 

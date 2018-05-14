@@ -19,20 +19,18 @@
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.*;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.IGlobalTracePersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.table.global.GlobalTrace;
-import org.apache.skywalking.apm.collector.storage.table.global.GlobalTraceTable;
+import org.apache.skywalking.apm.collector.storage.table.global.*;
 
 /**
  * @author peng-yongsheng
  */
-public class GlobalTracePersistenceWorker extends PersistenceWorker<GlobalTrace> {
+public class GlobalTracePersistenceWorker extends NonMergePersistenceWorker<GlobalTrace> {
 
     private GlobalTracePersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
@@ -51,7 +49,7 @@ public class GlobalTracePersistenceWorker extends PersistenceWorker<GlobalTrace>
         return getModuleManager().find(StorageModule.NAME).getService(IGlobalTracePersistenceDAO.class);
     }
 
-    public static class Factory extends PersistenceWorkerProvider<GlobalTrace, GlobalTracePersistenceWorker> {
+    public static class Factory extends NonMergePersistenceWorkerProvider<GlobalTrace, GlobalTracePersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);

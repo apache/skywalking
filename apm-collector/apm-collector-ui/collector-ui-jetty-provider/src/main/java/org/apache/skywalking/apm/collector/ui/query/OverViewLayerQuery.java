@@ -21,22 +21,11 @@ package org.apache.skywalking.apm.collector.ui.query;
 import java.text.ParseException;
 import java.util.List;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.storage.ui.common.Duration;
-import org.apache.skywalking.apm.collector.storage.ui.common.Topology;
-import org.apache.skywalking.apm.collector.storage.ui.common.ValueType;
-import org.apache.skywalking.apm.collector.storage.ui.overview.AlarmTrend;
-import org.apache.skywalking.apm.collector.storage.ui.overview.ApplicationTPS;
-import org.apache.skywalking.apm.collector.storage.ui.overview.ClusterBrief;
-import org.apache.skywalking.apm.collector.storage.ui.overview.ConjecturalAppBrief;
-import org.apache.skywalking.apm.collector.storage.ui.overview.Thermodynamic;
+import org.apache.skywalking.apm.collector.storage.ui.common.*;
+import org.apache.skywalking.apm.collector.storage.ui.overview.*;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceMetric;
 import org.apache.skywalking.apm.collector.ui.graphql.Query;
-import org.apache.skywalking.apm.collector.ui.service.AlarmService;
-import org.apache.skywalking.apm.collector.ui.service.ApplicationService;
-import org.apache.skywalking.apm.collector.ui.service.ClusterTopologyService;
-import org.apache.skywalking.apm.collector.ui.service.NetworkAddressService;
-import org.apache.skywalking.apm.collector.ui.service.ResponseTimeDistributionService;
-import org.apache.skywalking.apm.collector.ui.service.ServiceNameService;
+import org.apache.skywalking.apm.collector.ui.service.*;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 
 import static java.util.Objects.isNull;
@@ -100,7 +89,7 @@ public class OverViewLayerQuery implements Query {
         return timeDistributionService;
     }
 
-    public Topology getClusterTopology(Duration duration) throws ParseException {
+    public Topology getClusterTopology(Duration duration) {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
@@ -110,7 +99,7 @@ public class OverViewLayerQuery implements Query {
         return getClusterTopologyService().getClusterTopology(duration.getStep(), startTimeBucket, endTimeBucket, startSecondTimeBucket, endSecondTimeBucket);
     }
 
-    public ClusterBrief getClusterBrief(Duration duration) throws ParseException {
+    public ClusterBrief getClusterBrief(Duration duration) {
         long startSecondTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(duration.getStep(), duration.getStart());
         long endSecondTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(duration.getStep(), duration.getEnd());
 
@@ -133,14 +122,14 @@ public class OverViewLayerQuery implements Query {
         return getAlarmService().getApplicationAlarmTrend(duration.getStep(), startTimeBucket, endTimeBucket, startSecondTimeBucket, endSecondTimeBucket);
     }
 
-    public ConjecturalAppBrief getConjecturalApps(Duration duration) throws ParseException {
+    public ConjecturalAppBrief getConjecturalApps(Duration duration) {
         long startSecondTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(duration.getStep(), duration.getStart());
         long endSecondTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(duration.getStep(), duration.getEnd());
 
         return getApplicationService().getConjecturalApps(duration.getStep(), startSecondTimeBucket, endSecondTimeBucket);
     }
 
-    public List<ServiceMetric> getTopNSlowService(Duration duration, int topN) throws ParseException {
+    public List<ServiceMetric> getTopNSlowService(Duration duration, int topN) {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
@@ -150,7 +139,7 @@ public class OverViewLayerQuery implements Query {
         return getServiceNameService().getSlowService(duration.getStep(), startTimeBucket, endTimeBucket, startSecondTimeBucket, endSecondTimeBucket, topN);
     }
 
-    public List<ApplicationTPS> getTopNApplicationThroughput(Duration duration,
+    public List<ApplicationThroughput> getTopNApplicationThroughput(Duration duration,
         int topN) throws ParseException {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());

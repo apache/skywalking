@@ -22,10 +22,8 @@ import org.apache.skywalking.apm.collector.client.h2.H2Client;
 import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
 import org.apache.skywalking.apm.collector.cluster.ClusterModule;
 import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
-import org.apache.skywalking.apm.collector.core.module.Module;
-import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
-import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
-import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.apache.skywalking.apm.collector.core.module.*;
+import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
 import org.apache.skywalking.apm.collector.remote.RemoteModule;
 import org.apache.skywalking.apm.collector.storage.StorageException;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
@@ -179,10 +177,10 @@ import org.apache.skywalking.apm.collector.storage.h2.dao.cpu.CpuDayMetricH2Pers
 import org.apache.skywalking.apm.collector.storage.h2.dao.cpu.CpuHourMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.cpu.CpuMinuteMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.cpu.CpuMonthMetricH2PersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.h2.dao.gcmp.GCDayMetricH2PersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.h2.dao.gcmp.GCHourMetricH2PersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.h2.dao.gcmp.GCMinuteMetricH2PersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.h2.dao.gcmp.GCMonthMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.gc.GCDayMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.gc.GCHourMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.gc.GCMinuteMetricH2PersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.h2.dao.gc.GCMonthMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.imp.InstanceDayMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.imp.InstanceHourMetricH2PersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.dao.imp.InstanceMinuteMetricH2PersistenceDAO;
@@ -261,7 +259,7 @@ public class StorageModuleH2Provider extends ModuleProvider {
         return "h2";
     }
 
-    @Override public Class<? extends Module> module() {
+    @Override public Class<? extends ModuleDefine> module() {
         return StorageModule.class;
     }
 

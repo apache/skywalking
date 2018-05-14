@@ -39,7 +39,7 @@ public interface IInstanceMetricUIDAO extends DAO {
      * Returns the top n instance throughput between start time bucket
      * and end time bucket.
      *
-     * <p>SQL as: select INSTANCE_ID, sum(TRANSACTION_CALLS) / ${minutesBetween} as tps
+     * <p>SQL as: select APPLICATION_ID, sum(TRANSACTION_CALLS) / ${minutesBetween} as tps
      * from INSTANCE_METRIC
      * where TIME_BUCKET ge ${startTimeBucket} and TIME_BUCKET le ${endTimeBucket}
      * and SOURCE_VALUE = ${metricSource}
@@ -55,13 +55,13 @@ public interface IInstanceMetricUIDAO extends DAO {
      * @param step the step which represent time formats
      * @param startTimeBucket start time bucket
      * @param endTimeBucket end time bucket
-     * @param minutesBetween the minutes between start time bucket and end time bucket
+     * @param secondBetween the seconds between start time bucket and end time bucket
      * @param topN how many rows should return
      * @param metricSource source of this metric, server side or client side
      * @return not nullable result list
      */
     List<AppServerInfo> getServerThroughput(int applicationId, Step step, long startTimeBucket, long endTimeBucket,
-        int minutesBetween, int topN, MetricSource metricSource);
+        int secondBetween, int topN, MetricSource metricSource);
 
     /**
      * Server TPS Trend describes the trend of instance throughout in the given duration,
@@ -70,7 +70,7 @@ public interface IInstanceMetricUIDAO extends DAO {
      * <p>SQL as: select TRANSACTION_CALLS from INSTANCE_METRIC where ID in (durationPoints),
      * rule of ID generation is "${durationPoint}_${instanceId}_${MetricSource.Callee}".
      *
-     * <p>The formula is "TRANSACTION_CALLS * durationPoint#minutesBetween"
+     * <p>The formula is "TRANSACTION_CALLS * durationPoint#secondsBetween"
      *
      * <p>Use {@link org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder#build(Step, String)}
      * to generate table name which mixed with step name.
@@ -80,7 +80,7 @@ public interface IInstanceMetricUIDAO extends DAO {
      * @param durationPoints the time points in the time span
      * @return every duration points average instance throughput metrics.
      */
-    List<Integer> getServerThroughputTrend(int instanceId, Step step, List<DurationPoint> durationPoints);
+    List<Integer> getServerTPSTrend(int instanceId, Step step, List<DurationPoint> durationPoints);
 
     /**
      * Response time Trend describes the trend of instance average response time in the given duration,
