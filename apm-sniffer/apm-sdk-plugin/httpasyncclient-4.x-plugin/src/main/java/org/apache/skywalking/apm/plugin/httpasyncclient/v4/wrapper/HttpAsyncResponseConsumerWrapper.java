@@ -29,9 +29,12 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 
 import java.io.IOException;
 
+import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL;
+
 /**
  * a wrapper for {@link HttpAsyncResponseConsumer} so we can be notified when the
  * current response(every response will callback the wrapper) received maybe completed or canceled,or failed.
+ *
  * @author lican
  */
 public class HttpAsyncResponseConsumerWrapper<T> implements HttpAsyncResponseConsumer<T> {
@@ -67,6 +70,7 @@ public class HttpAsyncResponseConsumerWrapper<T> implements HttpAsyncResponseCon
 
     @Override
     public void failed(Exception ex) {
+        CONTEXT_LOCAL.remove();
         if (ContextManager.isActive()) {
             ContextManager.activeSpan().errorOccurred().log(ex);
             ContextManager.stopSpan();
@@ -97,6 +101,7 @@ public class HttpAsyncResponseConsumerWrapper<T> implements HttpAsyncResponseCon
 
     @Override
     public boolean cancel() {
+        CONTEXT_LOCAL.remove();
         if (ContextManager.isActive()) {
             ContextManager.activeSpan().errorOccurred();
             ContextManager.stopSpan();

@@ -29,9 +29,15 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 
 /**
  * {@link HttpAsyncRequestExecutorInstrumentation} indicates the real request start location in method requestReady
+ *
  * @author lican
  */
 public class HttpAsyncRequestExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+
+    private static final String ENHANCE_CLASS = "org.apache.http.nio.protocol.HttpAsyncRequestExecutor";
+    private static final String METHOD = "requestReady";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.httpasyncclient.v4.HttpAsyncRequestExecutorInterceptor";
+
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return null;
@@ -42,12 +48,12 @@ public class HttpAsyncRequestExecutorInstrumentation extends ClassInstanceMethod
         return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
             @Override
             public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return named("requestReady");
+                return named(METHOD);
             }
 
             @Override
             public String getMethodsInterceptor() {
-                return "org.apache.skywalking.apm.plugin.httpasyncclient.v4.HttpAsyncRequestExecutorInterceptor";
+                return INTERCEPTOR_CLASS;
             }
 
             @Override
@@ -60,6 +66,6 @@ public class HttpAsyncRequestExecutorInstrumentation extends ClassInstanceMethod
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byName("org.apache.http.nio.protocol.HttpAsyncRequestExecutor");
+        return byName(ENHANCE_CLASS);
     }
 }

@@ -35,6 +35,13 @@ import static net.bytebuddy.matcher.ElementMatchers.*;
  * @author lican
  */
 public class HttpAsyncClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+
+    private static final String ENHANCE_CLASS_MINIMAL = "org.apache.http.impl.nio.client.MinimalHttpAsyncClient";
+    private static final String ENHANCE_CLASS_INTERNAL = "org.apache.http.impl.nio.client.InternalHttpAsyncClient";
+    private static final String METHOD = "execute";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.httpasyncclient.v4.HttpAsyncClientInterceptor";
+    private static final String FIRST_ARG_TYPE = "org.apache.http.nio.protocol.HttpAsyncRequestProducer";
+
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return null;
@@ -45,13 +52,13 @@ public class HttpAsyncClientInstrumentation extends ClassInstanceMethodsEnhanceP
         return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
             @Override
             public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return named("execute").and(takesArguments(4)
-                        .and(takesArgument(0, named("org.apache.http.nio.protocol.HttpAsyncRequestProducer"))));
+                return named(METHOD).and(takesArguments(4)
+                        .and(takesArgument(0, named(FIRST_ARG_TYPE))));
             }
 
             @Override
             public String getMethodsInterceptor() {
-                return "org.apache.skywalking.apm.plugin.httpasyncclient.v4.HttpAsyncClientInterceptor";
+                return INTERCEPTOR_CLASS;
             }
 
             @Override
@@ -64,9 +71,6 @@ public class HttpAsyncClientInstrumentation extends ClassInstanceMethodsEnhanceP
 
     @Override
     protected ClassMatch enhanceClass() {
-        return MultiClassNameMatch.byMultiClassMatch(
-                "org.apache.http.impl.nio.client.MinimalHttpAsyncClient",
-                "org.apache.http.impl.nio.client.InternalHttpAsyncClient"
-        );
+        return MultiClassNameMatch.byMultiClassMatch(ENHANCE_CLASS_MINIMAL, ENHANCE_CLASS_INTERNAL);
     }
 }

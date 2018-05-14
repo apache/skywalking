@@ -17,38 +17,27 @@
 
 package org.apache.skywalking.apm.plugin.httpasyncclient.v4;
 
-import org.apache.http.protocol.HttpContext;
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
 import java.lang.reflect.Method;
 
+import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL;
+
 /**
- * request ready(completed) so we can start our local thread span;
+ * when request fail to ready we should remove thread local in case of memory leak;
  *
  * @author lican
  */
-public class SessionRequestCompleteInterceptor implements InstanceMethodsAroundInterceptor {
+public class SessionRequestFailInterceptor implements InstanceMethodsAroundInterceptor {
 
-    public static ThreadLocal<HttpContext> CONTEXT_LOCAL = new ThreadLocal<HttpContext>();
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        Object[] array = (Object[]) objInst.getSkyWalkingDynamicField();
-        if (array == null || array.length == 0) {
-            return;
-        }
-        ContextSnapshot snapshot = (ContextSnapshot) array[0];
-        ContextManager.createLocalSpan("httpasyncclient/local");
-        if (snapshot != null) {
-            ContextManager.continued(snapshot);
-        }
-        CONTEXT_LOCAL.set((HttpContext) array[1]);
-
-
+        //this means actual request will not started. so the span has not been created,we cannot log the status.
+        CONTEXT_LOCAL.remove();
+        objInst.setSkyWalkingDynamicField(null);
     }
 
     @Override

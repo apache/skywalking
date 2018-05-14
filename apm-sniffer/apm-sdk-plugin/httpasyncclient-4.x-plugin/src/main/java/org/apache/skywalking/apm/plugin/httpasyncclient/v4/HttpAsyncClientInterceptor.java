@@ -18,7 +18,6 @@
 package org.apache.skywalking.apm.plugin.httpasyncclient.v4;
 
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.nio.protocol.HttpAsyncRequestProducer;
 import org.apache.http.nio.protocol.HttpAsyncResponseConsumer;
 import org.apache.http.protocol.HttpContext;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -33,6 +32,7 @@ import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequest
 
 /**
  * in main thread,hold the context in thread local so we can read in the same thread.
+ *
  * @author lican
  */
 public class HttpAsyncClientInterceptor implements InstanceMethodsAroundInterceptor {
@@ -40,15 +40,12 @@ public class HttpAsyncClientInterceptor implements InstanceMethodsAroundIntercep
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        if (argumentsTypes[0].equals(HttpAsyncRequestProducer.class)) {
-            HttpAsyncResponseConsumer consumer = (HttpAsyncResponseConsumer) allArguments[1];
-            HttpContext context = (HttpContext) allArguments[2];
-            FutureCallback callback = (FutureCallback) allArguments[3];
-            allArguments[1] = new HttpAsyncResponseConsumerWrapper(consumer);
-            allArguments[3] = new FutureCallbackWrapper(callback);
-            CONTEXT_LOCAL.set(context);
-        }
-
+        HttpAsyncResponseConsumer consumer = (HttpAsyncResponseConsumer) allArguments[1];
+        HttpContext context = (HttpContext) allArguments[2];
+        FutureCallback callback = (FutureCallback) allArguments[3];
+        allArguments[1] = new HttpAsyncResponseConsumerWrapper(consumer);
+        allArguments[3] = new FutureCallbackWrapper(callback);
+        CONTEXT_LOCAL.set(context);
     }
 
     @Override
