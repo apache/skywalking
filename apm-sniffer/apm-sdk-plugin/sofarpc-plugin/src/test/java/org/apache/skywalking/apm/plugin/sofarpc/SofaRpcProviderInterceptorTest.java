@@ -25,7 +25,10 @@ import com.alipay.sofa.rpc.core.response.SofaResponse;
 import com.alipay.sofa.rpc.filter.ProviderInvoker;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.SW3CarrierItem;
-import org.apache.skywalking.apm.agent.core.context.trace.*;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
+import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.apache.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
 import org.apache.skywalking.apm.agent.core.context.util.KeyValuePair;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -50,13 +53,16 @@ import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 @PrepareForTest({RpcInternalContext.class, SofaRequest.class, SofaResponse.class})
 public class SofaRpcProviderInterceptorTest {
+
+    public static final String SKYWALKING_PREFIX = "skywalking.";
 
     @SegmentStoragePoint
     private SegmentStorage segmentStorage;
@@ -108,7 +114,7 @@ public class SofaRpcProviderInterceptorTest {
     @Test
     public void testProviderWithAttachment() throws Throwable {
         when(rpcContext.isConsumerSide()).thenReturn(false);
-        when(rpcContext.getAttachment(SW3CarrierItem.HEADER_NAME)).thenReturn(
+        when(sofaRequest.getRequestProp(SKYWALKING_PREFIX + SW3CarrierItem.HEADER_NAME)).thenReturn(
                 "1.323.4433|3|1|1|#192.168.1.8 :18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
 
         sofaRpcProviderInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentTypes, methodInterceptResult);

@@ -29,7 +29,6 @@ import org.apache.skywalking.apm.agent.core.context.util.KeyValuePair;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
-import org.apache.skywalking.apm.agent.test.helper.SegmentRefHelper;
 import org.apache.skywalking.apm.agent.test.helper.SpanHelper;
 import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
@@ -154,24 +153,6 @@ public class SofaRpcConsumerInterceptorTest {
         assertThat(logData.getLogs().get(0).getValue(), CoreMatchers.<Object>is("error"));
         assertThat(logData.getLogs().get(1).getValue(), CoreMatchers.<Object>is(RuntimeException.class.getName()));
         assertNull(logData.getLogs().get(2).getValue());
-    }
-
-    private void assertProvider() {
-        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
-        assertThat(SegmentHelper.getSpans(traceSegment).size(), is(1));
-        assertProviderSpan(SegmentHelper.getSpans(traceSegment).get(0));
-        assertTraceSegmentRef(traceSegment.getRefs().get(0));
-    }
-
-    private void assertTraceSegmentRef(TraceSegmentRef actual) {
-        assertThat(SegmentRefHelper.getSpanId(actual), is(3));
-        assertThat(SegmentRefHelper.getEntryApplicationInstanceId(actual), is(1));
-        assertThat(SegmentRefHelper.getTraceSegmentId(actual).toString(), is("1.323.4433"));
-    }
-
-    private void assertProviderSpan(AbstractTracingSpan span) {
-        assertCommonsAttribute(span);
-        assertTrue(span.isEntry());
     }
 
     private void assertConsumerSpan(AbstractTracingSpan span) {

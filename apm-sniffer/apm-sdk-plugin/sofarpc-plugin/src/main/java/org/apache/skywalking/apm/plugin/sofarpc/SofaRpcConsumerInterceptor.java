@@ -39,6 +39,9 @@ import java.lang.reflect.Method;
  * @author leizhiyuan
  */
 public class SofaRpcConsumerInterceptor implements InstanceMethodsAroundInterceptor {
+
+    public static final String SKYWALKING_PREFIX = "skywalking.";
+
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                              Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
@@ -52,11 +55,14 @@ public class SofaRpcConsumerInterceptor implements InstanceMethodsAroundIntercep
         final String host = providerInfo.getHost();
         final int port = providerInfo.getPort();
         final ContextCarrier contextCarrier = new ContextCarrier();
-        span = ContextManager.createExitSpan(generateOperationName(providerInfo, sofaRequest), contextCarrier, host + ":" + port);
+        final String operationName = generateOperationName(providerInfo, sofaRequest);
+        span = ContextManager.createExitSpan(operationName, contextCarrier, host + ":" + port);
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            rpcContext.getAttachments().put(next.getHeadKey(), next.getHeadValue());
+            String key = next.getHeadKey();
+            String skyWalkingKey = SKYWALKING_PREFIX + key;
+            sofaRequest.addRequestProp(skyWalkingKey, next.getHeadValue());
         }
 
         Tags.URL.set(span, generateRequestURL(providerInfo, sofaRequest));
