@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.sofarpc;
 
-import com.alipay.sofa.rpc.context.RpcInternalContext;
 import com.alipay.sofa.rpc.core.request.SofaRequest;
 import com.alipay.sofa.rpc.core.response.SofaResponse;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
@@ -37,11 +36,13 @@ import java.lang.reflect.Method;
  * @author leizhiyuan
  */
 public class SofaRpcProviderInterceptor implements InstanceMethodsAroundInterceptor {
+
+    public static final String SKYWALKING_PREFIX = "skywalking.";
+
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                              Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         SofaRequest sofaRequest = (SofaRequest) allArguments[0];
-        RpcInternalContext rpcContext = RpcInternalContext.getContext();
 
         AbstractSpan span = null;
 
@@ -49,7 +50,8 @@ public class SofaRpcProviderInterceptor implements InstanceMethodsAroundIntercep
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            final Object attachment = rpcContext.getAttachment(next.getHeadKey());
+            final String headKey = next.getHeadKey();
+            final Object attachment = sofaRequest.getRequestProp(SKYWALKING_PREFIX + headKey);
             if (attachment != null) {
                 next.setHeadValue(attachment.toString());
             } else {
