@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.httpClient.v4;
 
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -36,6 +33,9 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
+import java.lang.reflect.Method;
+import java.net.URL;
+
 public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
@@ -47,20 +47,16 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         final HttpHost httpHost = (HttpHost)allArguments[0];
         HttpRequest httpRequest = (HttpRequest)allArguments[1];
         final ContextCarrier contextCarrier = new ContextCarrier();
-        AbstractSpan span = null;
 
         String remotePeer = httpHost.getHostName() + ":" + (httpHost.getPort() > 0 ? httpHost.getPort() :
             "https".equals(httpHost.getSchemeName().toLowerCase()) ? 443 : 80);
 
-        try {
-            URL url = new URL(httpRequest.getRequestLine().getUri());
-            span = ContextManager.createExitSpan(url.getPath(), contextCarrier, remotePeer);
-        } catch (MalformedURLException e) {
-            throw e;
-        }
+        String uri = httpRequest.getRequestLine().getUri();
+        String operationName = uri.startsWith("http") ? new URL(uri).getPath() : uri;
+        AbstractSpan span = ContextManager.createExitSpan(operationName, contextCarrier, remotePeer);
 
         span.setComponent(ComponentsDefine.HTTPCLIENT);
-        Tags.URL.set(span, httpRequest.getRequestLine().getUri());
+        Tags.URL.set(span, uri);
         Tags.HTTP.METHOD.set(span, httpRequest.getRequestLine().getMethod());
         SpanLayer.asHttp(span);
 
