@@ -256,7 +256,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     Apache: commons-configuration 1.8: https://github.com/apache/commons-configuration, Apache 2.0
     Apache: commons-io 2.4: https://github.com/apache/commons-io, Apache 2.0
     Apache: tomcat 8.5.27: https://github.com/apache/tomcat/tree/trunk, Apache 2.0
-    Apache: groovy 2.4.5-indy: https://github.com/apache/groovy/blob/master/NOTICE, Apache 2.0
+    Apache: groovy 2.4.5-indy: https://github.com/apache/groovy, Apache 2.0
     netty 5.5.0: https://github.com/netty/netty/blob/4.1/LICENSE.txt, Apache 2.0
     annotations 13.0: http://www.jetbrains.org, Apache 2.0
     compiler 0.9.3: https://github.com/spullara/mustache.java, Apache 2.0
