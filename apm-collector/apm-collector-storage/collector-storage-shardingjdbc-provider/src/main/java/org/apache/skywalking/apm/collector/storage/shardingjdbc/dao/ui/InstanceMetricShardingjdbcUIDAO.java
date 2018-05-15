@@ -73,11 +73,11 @@ public class InstanceMetricShardingjdbcUIDAO extends ShardingjdbcDAO implements 
             while (rs.next()) {
                 int instanceId = rs.getInt(InstanceMetricTable.INSTANCE_ID.getName());
                 long calls = rs.getLong(InstanceMetricTable.TRANSACTION_CALLS.getName());
-                int callsPerSec = (int)(minutesBetween == 0 ? 0 : calls / minutesBetween);
+                int callsPerMinute = (int)(minutesBetween == 0 ? 0 : calls / minutesBetween);
 
                 AppServerInfo appServerInfo = new AppServerInfo();
                 appServerInfo.setId(instanceId);
-                appServerInfo.setCallsPerSec(callsPerSec);
+                appServerInfo.setCpm(callsPerMinute);
                 appServerInfos.add(appServerInfo);
             }
         } catch (SQLException | ShardingjdbcClientException e) {
