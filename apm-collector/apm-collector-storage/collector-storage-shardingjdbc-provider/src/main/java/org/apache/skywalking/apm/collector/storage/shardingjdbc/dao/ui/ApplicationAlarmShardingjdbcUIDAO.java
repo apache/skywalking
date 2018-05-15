@@ -18,14 +18,6 @@
 
 package org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.ui;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.ParseException;
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.skywalking.apm.collector.client.shardingjdbc.ShardingjdbcClient;
 import org.apache.skywalking.apm.collector.client.shardingjdbc.ShardingjdbcClientException;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
@@ -39,6 +31,13 @@ import org.apache.skywalking.apm.collector.storage.ui.alarm.AlarmType;
 import org.apache.skywalking.apm.collector.storage.ui.alarm.CauseType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.ParseException;
+import java.util.List;
 
 /**
  * @author linjiaqi
