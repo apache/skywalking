@@ -28,9 +28,6 @@
 
     <artifactId>apm-spring-annotation-plugin</artifactId>
 
-    <properties>
-        <sdk.plugin.related.dir>/..</sdk.plugin.related.dir>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>org.springframework</groupId>

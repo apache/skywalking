@@ -32,4 +32,8 @@
         <module>spring-annotation-plugin</module>
     </modules>
 
+    <properties>
+        <sdk.plugin.related.dir>/..</sdk.plugin.related.dir>
+    </properties>
+
 </project>

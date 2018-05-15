@@ -28,14 +28,13 @@
     <artifactId>optional-plugins</artifactId>
     <packaging>pom</packaging>
     <properties>
-        <sdk.plugin.related.dir />
-        <directory.plugin />
-
         <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
         <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}</shade.net.bytebuddy.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <sdk.plugin.related.dir />
         <agent.package.dest.dir>${project.build.directory}${sdk.plugin.related.dir}/../../../../skywalking-agent</agent.package.dest.dir>
-        <optional.agent.package.dest.dir>${agent.package.dest.dir}/optional-plugins</optional.agent.package.dest.dir>
+        <optional.plugin.dest.dir>${agent.package.dest.dir}/optional-plugins</optional.plugin.dest.dir>
     </properties>
 
     <modules>
@@ -103,22 +102,11 @@
                         <configuration>
                             <tasks>
                                 <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.runtime.classpath" />
-                                <mkdir dir="${optional.agent.package.dest.dir}" />
                                 <if>
                                     <equals arg1="${project.packaging}" arg2="jar" />
                                     <then>
-                                        <if>
-                                            <!-- if the plugin is a directory -->
-                                            <equals arg1="${directory.plugin}" arg2="${project.artifactId}" />
-                                            <then>
-                                                <mkdir dir="${optional.agent.package.dest.dir}/${project.artifactId}" />
-                                                <!-- copy jar -->
-                                                <copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar" tofile="${optional.agent.package.dest.dir}/${project.artifactId}/${project.artifactId}-${project.version}.jar" overwrite="true" />
-                                            </then>
-                                            <else>
-                                                <copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar" tofile="${optional.agent.package.dest.dir}/${project.artifactId}-${project.version}.jar" overwrite="true" />
-                                            </else>
-                                        </if>
+                                        <mkdir dir="${optional.plugin.dest.dir}" />
+                                        <copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar" tofile="${optional.plugin.dest.dir}/${project.artifactId}-${project.version}.jar" overwrite="true" />
                                     </then>
                                 </if>
                             </tasks>

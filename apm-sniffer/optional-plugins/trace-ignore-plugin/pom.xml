@@ -31,11 +31,6 @@
     <name>apm-trace-ignore-plugin</name>
     <url>http://maven.apache.org</url>
 
-    <properties>
-        <directory.plugin>${project.artifactId}</directory.plugin>
-    </properties>
-
-
     <build>
         <plugins>
             <plugin>
@@ -47,13 +42,16 @@
                         <goals>
                             <goal>run</goal>
                         </goals>
-                        <configuration>
+                        <configuration combine.self="override">
                             <tasks>
                                 <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.runtime.classpath" />
-                                    <!-- copy config file -->
-                                    <copy file="${project.basedir}/${project.name}.config" tofile="${optional.agent.package.dest.dir}/${project.name}/${project.name}.config" overwrite="true" />
-                                    <!-- copy introduction -->
-                                    <copy file="${project.basedir}/README.md" tofile="${optional.agent.package.dest.dir}/${project.name}/README.md" overwrite="true" />
+                                <mkdir dir="${optional.plugin.dest.dir}/${project.artifactId}" />
+                                <!-- copy jar -->
+                                <copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar" tofile="${optional.plugin.dest.dir}/${project.artifactId}/${project.artifactId}-${project.version}.jar" overwrite="true" />
+                                <!-- copy config file -->
+                                <copy file="${project.basedir}/${project.name}.config" tofile="${optional.plugin.dest.dir}/${project.name}/${project.name}.config" overwrite="true" />
+                                <!-- copy introduction -->
+                                <copy file="${project.basedir}/README.md" tofile="${optional.plugin.dest.dir}/${project.name}/README.md" overwrite="true" />
                             </tasks>
                         </configuration>
                     </execution>
