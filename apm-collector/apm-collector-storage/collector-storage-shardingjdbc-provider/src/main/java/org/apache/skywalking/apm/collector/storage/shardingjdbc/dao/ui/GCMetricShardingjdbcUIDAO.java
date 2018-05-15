@@ -51,21 +51,21 @@ public class GCMetricShardingjdbcUIDAO extends ShardingjdbcDAO implements IGCMet
         super(client);
     }
 
-    @Override public List<Integer> getYoungGCTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
+    @Override public List<Trend> getYoungGCTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
         return getGCTrend(instanceId, step, durationPoints, GCPhrase.NEW_VALUE);
     }
 
-    @Override public List<Integer> getOldGCTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
+    @Override public List<Trend> getOldGCTrend(int instanceId, Step step, List<DurationPoint> durationPoints) {
         return getGCTrend(instanceId, step, durationPoints, GCPhrase.OLD_VALUE);
     }
 
-    private List<Integer> getGCTrend(int instanceId, Step step, List<DurationPoint> durationPoints, int gcPhrase) {
+    private List<Trend> getGCTrend(int instanceId, Step step, List<DurationPoint> durationPoints, int gcPhrase) {
         String tableName = TimePyramidTableNameBuilder.build(step, GCMetricTable.TABLE);
 
         ShardingjdbcClient client = getClient();
         String sql = SqlBuilder.buildSql(GET_GC_METRIC_SQL, tableName, GCMetricTable.ID.getName());
 
-        List<Integer> gcTrends = new LinkedList<>();
+        List<Trend> gcTrends = new LinkedList<>();
         durationPoints.forEach(durationPoint -> {
             String id = durationPoint.getPoint() + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + gcPhrase;
             try (
@@ -75,13 +75,15 @@ public class GCMetricShardingjdbcUIDAO extends ShardingjdbcDAO implements IGCMet
                 ) {
                 if (rs.next()) {
                     long count = rs.getLong(GCMetricTable.COUNT.getName());
+                    long duration = rs.getLong(GCMetricTable.DURATION.getName());
                     long times = rs.getLong(GCMetricTable.TIMES.getName());
-                    gcTrends.add((int)(count / times));
+                    gcTrends.add(new Trend((int)(count / times), (int)(duration / times)));
                 } else {
-                    gcTrends.add(0);
+                    gcTrends.add(new Trend(0, 0));
                 }
             } catch (SQLException | ShardingjdbcClientException e) {
                 logger.error(e.getMessage(), e);
+                gcTrends.add(new Trend(0, 0));
             }
         });
 

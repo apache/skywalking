@@ -89,8 +89,8 @@ public class ServiceMetricShardingjdbcUIDAO extends ShardingjdbcDAO implements I
 
         return trends;
     }
-
-    @Override public List<Integer> getServiceTPSTrend(int serviceId, Step step, List<DurationPoint> durationPoints) {
+    
+    @Override public List<Integer> getServiceThroughputTrend(int serviceId, Step step, List<DurationPoint> durationPoints) {
         String tableName = TimePyramidTableNameBuilder.build(step, ServiceMetricTable.TABLE);
 
         ShardingjdbcClient client = getClient();

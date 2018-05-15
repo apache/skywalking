@@ -23,6 +23,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.skywalking.apm.collector.client.shardingjdbc.ShardingjdbcClient;
 import org.apache.skywalking.apm.collector.client.shardingjdbc.ShardingjdbcClientException;
@@ -44,21 +46,22 @@ import org.slf4j.LoggerFactory;
 public class ApplicationAlarmShardingjdbcUIDAO extends ShardingjdbcDAO implements IApplicationAlarmUIDAO {
     
     private final Logger logger = LoggerFactory.getLogger(ApplicationAlarmShardingjdbcUIDAO.class);
-    private static final String APPLICATION_ALARM_SQL = "select {0}, {1}, {2}, {3} from {4} where {2} >= ? and {2} <= ? and {1} like ? limit ?, ?";
+    private static final String APPLICATION_ALARM_SQL = "select {0}, {1}, {2}, {3} from {4} where {2} >= ? and {2} <= ? and {1} like ? and {0} in (?) limit ?, ?";
 
     public ApplicationAlarmShardingjdbcUIDAO(ShardingjdbcClient client) {
         super(client);
     }
 
     @Override
-    public Alarm loadAlarmList(String keyword, long startTimeBucket, long endTimeBucket, int limit, int from) throws ParseException {
+    public Alarm loadAlarmList(String keyword, List<Integer> applicationIds, long startTimeBucket, long endTimeBucket, int limit, int from) throws ParseException {
         ShardingjdbcClient client = getClient();
         
         String tableName = ApplicationAlarmTable.TABLE;
         String sql = SqlBuilder.buildSql(APPLICATION_ALARM_SQL, ApplicationAlarmTable.APPLICATION_ID.getName(), ApplicationAlarmTable.ALARM_CONTENT.getName(), 
                 ApplicationAlarmTable.LAST_TIME_BUCKET.getName(), ApplicationAlarmTable.ALARM_TYPE.getName(), tableName);
-        
-        Object[] params = new Object[] {startTimeBucket, endTimeBucket, keyword == null ? "%%" : "%" + keyword + "%", from, limit};
+    
+        String applicationIdsParam = applicationIds.toString().replace("[", "").replace("]", "");
+        Object[] params = new Object[] {startTimeBucket, endTimeBucket, keyword == null ? "%%" : "%" + keyword + "%", applicationIdsParam, from, limit};
         Alarm alarm = new Alarm();
         try (
                 ResultSet rs = client.executeQuery(sql, params);
