@@ -13,9 +13,9 @@
     * [Namespace Isolation](en/Namespace.md)
     * [Token Authentication](en/Token-auth.md)
     * [Add your own component library settings in collector](en/Component-libraries-extend.md)
-    * [Use Sharding JDBC as storage implementor](en/Shardingjdbc.md)
   * Incubating Features
     * [Abstract](en/Incubating/Abstract.md)
+    * [Use Sharding JDBC as storage implementor](en/Use-ShardingJDBC-as-storage-implementor.md)
   * Application Toolkit
     * [Overview](en/Applicaton-toolkit.md)
     * [OpenTracing Tracer](en/Opentracing.md)
