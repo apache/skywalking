@@ -14,11 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-httpasyncclient-4.x=org.apache.skywalking.apm.plugin.httpasyncclient.v4.define.ExecuteInstrumentation
-httpasyncclient-4.x=org.apache.skywalking.apm.plugin.httpasyncclient.v4.define.DefaultConnectingIOReactorInstrumentation
-httpasyncclient-4.x=org.apache.skywalking.apm.plugin.httpasyncclient.v4.define.SessionRequestImplInstrumentation
-httpasyncclient-4.x=org.apache.skywalking.apm.plugin.httpasyncclient.v4.define.AbstractNIOConnPoolInstrumentation
-httpasyncclient-4.x=org.apache.skywalking.apm.plugin.httpasyncclient.v4.define.StateInstrumentation
-httpasyncclient-4.x=org.apache.skywalking.apm.plugin.httpasyncclient.v4.define.ProcessResponseInstrumentation
+httpasyncclient-4.x=org.apache.skywalking.apm.plugin.httpasyncclient.v4.define.HttpAsyncClientInstrumentation
+httpasyncclient-4.x=org.apache.skywalking.apm.plugin.httpasyncclient.v4.define.SessionRequestInstrumentation
+httpasyncclient-4.x=org.apache.skywalking.apm.plugin.httpasyncclient.v4.define.HttpAsyncRequestExecutorInstrumentation
 
 
