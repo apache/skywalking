@@ -47,8 +47,6 @@ public class AntPathMatcher implements TracePathMatcher {
 
     private String pathSeparator;
 
-    private PathSeparatorPatternCache pathSeparatorPatternCache;
-
     private boolean caseSensitive = true;
 
     private boolean trimTokens = false;
@@ -60,10 +58,7 @@ public class AntPathMatcher implements TracePathMatcher {
 
     public AntPathMatcher() {
         this.pathSeparator = DEFAULT_PATH_SEPARATOR;
-        this.pathSeparatorPatternCache = new PathSeparatorPatternCache(DEFAULT_PATH_SEPARATOR);
     }
-
-
 
 
     @Override
@@ -317,29 +312,6 @@ public class AntPathMatcher implements TracePathMatcher {
         this.stringMatcherCache.clear();
     }
 
-
-
-
-    private static class PathSeparatorPatternCache {
-
-        private final String endsOnWildCard;
-
-        private final String endsOnDoubleWildCard;
-
-        PathSeparatorPatternCache(String pathSeparator) {
-            this.endsOnWildCard = pathSeparator + "*";
-            this.endsOnDoubleWildCard = pathSeparator + "**";
-        }
-
-        public String getEndsOnWildCard() {
-            return this.endsOnWildCard;
-        }
-
-        public String getEndsOnDoubleWildCard() {
-            return this.endsOnDoubleWildCard;
-        }
-    }
-
     private static class AntPathStringMatcher {
 
         private static final Pattern GLOB_PATTERN = Pattern.compile("\\?|\\*|\\{((?:\\{[^/]+?\\}|[^/{}]|\\\\[{}])+?)\\}");
@@ -347,12 +319,6 @@ public class AntPathMatcher implements TracePathMatcher {
         private static final String DEFAULT_VARIABLE_PATTERN = "(.*)";
 
         private final Pattern pattern;
-
-        private final List<String> variableNames = new LinkedList<String>();
-
-        public AntPathStringMatcher(String pattern) {
-            this(pattern, true);
-        }
 
         AntPathStringMatcher(String pattern, boolean caseSensitive) {
             StringBuilder patternBuilder = new StringBuilder();
@@ -371,15 +337,12 @@ public class AntPathMatcher implements TracePathMatcher {
                     int colonIdx = match.indexOf(':');
                     if (colonIdx == -1) {
                         patternBuilder.append(DEFAULT_VARIABLE_PATTERN);
-                        this.variableNames.add(matcher.group(1));
                     }
                     else {
                         String variablePattern = match.substring(colonIdx + 1, match.length() - 1);
                         patternBuilder.append('(');
                         patternBuilder.append(variablePattern);
                         patternBuilder.append(')');
-                        String variableName = match.substring(1, colonIdx);
-                        this.variableNames.add(variableName);
                     }
                 }
                 end = matcher.end();

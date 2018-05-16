@@ -40,34 +40,37 @@ import org.apache.skywalking.apm.util.StringUtil;
 @OverrideImplementor(ContextManagerExtendService.class)
 public class TraceIgnoreExtendService extends ContextManagerExtendService {
 
-    private static final ILog logger = LogManager.getLogger(TraceIgnoreExtendService.class);
+    private static final ILog LOGGER = LogManager.getLogger(TraceIgnoreExtendService.class);
+
+    private static final String DEFAULT_PATH_SEPARATOR = "/";
+
+    private static final String PATTERN_SEPARATOR = ",";
+
+    private TracePathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
     public void boot() {
         try {
             IgnoreConfigInitializer.initialize();
         } catch (ConfigNotFoundException e) {
-            logger.error("trace ignore config init error", e);
+            LOGGER.error("trace ignore config init error", e);
         } catch (AgentPackageNotFoundException e) {
-            logger.error("trace ignore config init error", e);
+            LOGGER.error("trace ignore config init error", e);
         }
     }
-
-
-    private TracePathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
     public AbstractTracerContext createTraceContext(String operationName, boolean forceSampling) {
         String pattens = IgnoreConfig.Trace.IGNORE_PATH;
         if (!StringUtil.isEmpty(pattens) && !forceSampling) {
             String path = operationName;
-            if (!StringUtil.isEmpty(path) && path.length() > 1 && path.endsWith("/")) {
+            if (!StringUtil.isEmpty(path) && path.length() > 1 && path.endsWith(DEFAULT_PATH_SEPARATOR)) {
                 path = path.substring(0, path.length() - 1);
             }
 
-            for (String pattern : pattens.split(",")) {
+            for (String pattern : pattens.split(PATTERN_SEPARATOR)) {
                 if (pathMatcher.match(pattern, path)) {
-                    logger.debug("operationName : " + operationName + " Ignore tracking");
+                    LOGGER.debug("operationName : " + operationName + " Ignore tracking");
                     return new IgnoredTracerContext();
                 }
             }

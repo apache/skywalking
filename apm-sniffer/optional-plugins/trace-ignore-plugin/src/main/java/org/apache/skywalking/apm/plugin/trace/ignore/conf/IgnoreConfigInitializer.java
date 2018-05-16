@@ -39,7 +39,7 @@ import java.util.Properties;
  *
  */
 public class IgnoreConfigInitializer {
-    private static final ILog logger = LogManager.getLogger(IgnoreConfigInitializer.class);
+    private static final ILog LOGGER = LogManager.getLogger(IgnoreConfigInitializer.class);
     private static String CONFIG_FILE_NAME = "/config/apm-trace-ignore-plugin.config";
     private static String ENV_KEY_PREFIX = "skywalking.";
 
@@ -59,13 +59,13 @@ public class IgnoreConfigInitializer {
             properties.load(configFileStream);
             ConfigInitializer.initialize(properties, IgnoreConfig.class);
         } catch (Exception e) {
-            logger.error(e, "Failed to read the config file, skywalking is going to run in default config.");
+            LOGGER.error(e, "Failed to read the config file, skywalking is going to run in default config.");
         }
 
         try {
             overrideConfigBySystemEnv();
         } catch (Exception e) {
-            logger.error(e, "Failed to read the system env.");
+            LOGGER.error(e, "Failed to read the system env.");
         }
     }
 
@@ -96,7 +96,7 @@ public class IgnoreConfigInitializer {
         File configFile = new File(AgentPackagePath.getPath(), CONFIG_FILE_NAME);
         if (configFile.exists() && configFile.isFile()) {
             try {
-                logger.info("Ignore config file found in {}.", configFile);
+                LOGGER.info("Ignore config file found in {}.", configFile);
                 return new FileInputStream(configFile);
             } catch (FileNotFoundException e) {
                 throw new ConfigNotFoundException("Fail to load apm-trace-ignore-plugin.config", e);
