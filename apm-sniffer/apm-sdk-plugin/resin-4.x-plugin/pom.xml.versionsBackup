@@ -17,18 +17,21 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <artifactId>apm-sdk-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-beta2-SNAPSHOT</version>
+        <version>5.0.0-beta-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-elastic-job-2.x-plugin</artifactId>
+    <artifactId>apm-resin-4.x-plugin</artifactId>
     <packaging>jar</packaging>
 
-    <name>elastic-job-2.x-plugin</name>
+    <name>resin-4.x-plugin</name>
     <url>http://maven.apache.org</url>
 
     <properties>
@@ -37,19 +40,21 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.dangdang</groupId>
-            <artifactId>elastic-job-common-core</artifactId>
-            <version>[2.0.0,3.0.0)</version>
+            <groupId>com.caucho</groupId>
+            <artifactId>resin</artifactId>
+            <version>4.0.41</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.0.1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-            </plugin>
             <plugin>
                 <!-- 源码插件 -->
                 <groupId>org.apache.maven.plugins</groupId>
@@ -58,6 +63,7 @@
                 <executions>
                     <execution>
                         <id>attach-sources</id>
+                        <phase>none</phase>
                         <goals>
                             <goal>jar</goal>
                         </goals>
