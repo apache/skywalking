@@ -58,7 +58,7 @@ public class TracePathMatcherTest {
         match = pathMatcher.match(patten, path);
         Assert.assertTrue(match);
 
-        path= "eureka/apps/a/b/c/";
+        path = "eureka/apps/a/b/c/";
         match = pathMatcher.match(patten, path);
         Assert.assertFalse(match);
 
