@@ -37,12 +37,12 @@ public interface IServiceReferenceMetricUIDAO extends DAO {
      * Returns the service reference metrics which call the given service id
      * that collected between start time bucket and end time bucket.
      *
-     * <p>SQL as: select BEHIND_SERVICE_ID, sum(TRANSACTION_CALLS), sum(TRANSACTION_ERROR_CALLS),
+     * <p>SQL as: select FRONT_SERVICE_ID, sum(TRANSACTION_CALLS), sum(TRANSACTION_ERROR_CALLS),
      * sum(TRANSACTION_DURATION_SUM), sum(TRANSACTION_ERROR_DURATION_SUM)
      * from SERVICE_REFERENCE_METRIC
      * where TIME_BUCKET ge ${startTimeBucket} and TIME_BUCKET le ${endTimeBucket}
      * and SOURCE_VALUE = ${metricSource}
-     * and FRONT_SERVICE_ID = ${behindServiceId}
+     * and BEHIND_SERVICE_ID = ${behindServiceId}
      * group by FRONT_SERVICE_ID
      *
      * <p>Use {@link org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder#build(Step, String)}
@@ -62,12 +62,12 @@ public interface IServiceReferenceMetricUIDAO extends DAO {
      * Returns the service reference metrics which call from the given service id
      * that collected between start time bucket and end time bucket.
      *
-     * <p>SQL as: select BEHIND_SERVICE_ID, sum(TRANSACTION_CALLS), sum(TRANSACTION_ERROR_CALLS),
+     * <p>SQL as: select FRONT_SERVICE_ID, sum(TRANSACTION_CALLS), sum(TRANSACTION_ERROR_CALLS),
      * sum(TRANSACTION_DURATION_SUM), sum(TRANSACTION_ERROR_DURATION_SUM)
      * from SERVICE_REFERENCE_METRIC
      * where TIME_BUCKET ge ${startTimeBucket} and TIME_BUCKET le ${endTimeBucket}
      * and SOURCE_VALUE = ${metricSource}
-     * and FRONT_SERVICE_ID = ${frontServiceId}
+     * and BEHIND_SERVICE_ID = ${frontServiceId}
      * group by BEHIND_SERVICE_ID
      *
      * <p>Use {@link org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder#build(Step, String)}

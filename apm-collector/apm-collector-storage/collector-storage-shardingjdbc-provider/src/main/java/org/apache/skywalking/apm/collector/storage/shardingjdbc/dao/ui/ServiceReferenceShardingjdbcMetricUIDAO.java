@@ -43,7 +43,8 @@ import org.slf4j.LoggerFactory;
 public class ServiceReferenceShardingjdbcMetricUIDAO extends ShardingjdbcDAO implements IServiceReferenceMetricUIDAO {
     
     private final Logger logger = LoggerFactory.getLogger(ServiceReferenceShardingjdbcMetricUIDAO.class);
-    private static final String SERVICE_REFERENCE_SQL = "select {0}, sum({1}) as {1}, sum({2}) as {2}, sum({3}) as {3}, sum({4}) as {4} from {5} where {6} >= ? and {6} <= ? and {7} = ? and {8} = ? group by {0} limit 100";
+    private static final String SERVICE_REFERENCE_FRONT_SQL = "select {0}, sum({1}) as {1}, sum({2}) as {2}, sum({3}) as {3}, sum({4}) as {4} from {5} where {6} >= ? and {6} <= ? and {7} = ? and {8} = ? group by {0} limit 100";
+    private static final String SERVICE_REFERENCE_BEHIND_SQL = "select {0}, sum({1}) as {1}, sum({2}) as {2}, sum({3}) as {3}, sum({4}) as {4} from {5} where {6} >= ? and {6} <= ? and {7} = ? and {8} = ? group by {8} limit 100";
 
     public ServiceReferenceShardingjdbcMetricUIDAO(ShardingjdbcClient client) {
         super(client);
@@ -57,7 +58,7 @@ public class ServiceReferenceShardingjdbcMetricUIDAO extends ShardingjdbcDAO imp
         String tableName = TimePyramidTableNameBuilder.build(step, ServiceReferenceMetricTable.TABLE);
         
         List<ServiceReferenceMetric> referenceMetrics = new LinkedList<>();
-        String sql = SqlBuilder.buildSql(SERVICE_REFERENCE_SQL, ServiceReferenceMetricTable.FRONT_SERVICE_ID.getName(), 
+        String sql = SqlBuilder.buildSql(SERVICE_REFERENCE_FRONT_SQL, ServiceReferenceMetricTable.FRONT_SERVICE_ID.getName(), 
                 ServiceReferenceMetricTable.TRANSACTION_CALLS.getName(), ServiceReferenceMetricTable.TRANSACTION_ERROR_CALLS.getName(), 
                 ServiceReferenceMetricTable.TRANSACTION_DURATION_SUM.getName(), ServiceReferenceMetricTable.TRANSACTION_ERROR_DURATION_SUM.getName(), 
                 tableName, ServiceReferenceMetricTable.TIME_BUCKET.getName(), ServiceReferenceMetricTable.SOURCE_VALUE.getName(), 
@@ -100,11 +101,11 @@ public class ServiceReferenceShardingjdbcMetricUIDAO extends ShardingjdbcDAO imp
         String tableName = TimePyramidTableNameBuilder.build(step, ServiceReferenceMetricTable.TABLE);
         
         List<ServiceReferenceMetric> referenceMetrics = new LinkedList<>();
-        String sql = SqlBuilder.buildSql(SERVICE_REFERENCE_SQL, ServiceReferenceMetricTable.BEHIND_SERVICE_ID.getName(), 
+        String sql = SqlBuilder.buildSql(SERVICE_REFERENCE_BEHIND_SQL, ServiceReferenceMetricTable.FRONT_SERVICE_ID.getName(), 
                 ServiceReferenceMetricTable.TRANSACTION_CALLS.getName(), ServiceReferenceMetricTable.TRANSACTION_ERROR_CALLS.getName(), 
                 ServiceReferenceMetricTable.TRANSACTION_DURATION_SUM.getName(), ServiceReferenceMetricTable.TRANSACTION_ERROR_DURATION_SUM.getName(), 
                 tableName, ServiceReferenceMetricTable.TIME_BUCKET.getName(), ServiceReferenceMetricTable.SOURCE_VALUE.getName(), 
-                ServiceReferenceMetricTable.FRONT_SERVICE_ID.getName());
+                ServiceReferenceMetricTable.BEHIND_SERVICE_ID.getName());
         
         Object[] params = new Object[] {startTimeBucket, endTimeBucket, metricSource.getValue(), frontServiceId};
         try (
@@ -113,7 +114,7 @@ public class ServiceReferenceShardingjdbcMetricUIDAO extends ShardingjdbcDAO imp
                 Connection conn = statement.getConnection();
             ) {
             while (rs.next()) {
-                int behindServiceId = rs.getInt(ServiceReferenceMetricTable.BEHIND_SERVICE_ID.getName());
+                int targetServiceId = rs.getInt(ServiceReferenceMetricTable.FRONT_SERVICE_ID.getName());
                 long callsSum = rs.getLong(ServiceReferenceMetricTable.TRANSACTION_CALLS.getName());
                 long errorCallsSum = rs.getLong(ServiceReferenceMetricTable.TRANSACTION_ERROR_CALLS.getName());
                 long durationSum = rs.getLong(ServiceReferenceMetricTable.TRANSACTION_DURATION_SUM.getName());
@@ -121,7 +122,7 @@ public class ServiceReferenceShardingjdbcMetricUIDAO extends ShardingjdbcDAO imp
 
                 ServiceReferenceMetric referenceMetric = new ServiceReferenceMetric();
                 referenceMetric.setSource(frontServiceId);
-                referenceMetric.setTarget(behindServiceId);
+                referenceMetric.setTarget(targetServiceId);
                 referenceMetric.setCalls(callsSum);
                 referenceMetric.setErrorCalls(errorCallsSum);
                 referenceMetric.setDurations(durationSum);
