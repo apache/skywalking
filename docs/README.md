@@ -15,6 +15,7 @@
     * [Add your own component library settings in collector](en/Component-libraries-extend.md)
   * Incubating Features
     * [Abstract](en/Incubating/Abstract.md)
+    * [Use Sharding JDBC as storage implementor](en/Use-ShardingJDBC-as-storage-implementor.md)
   * Application Toolkit
     * [Overview](en/Applicaton-toolkit.md)
     * [OpenTracing Tracer](en/Opentracing.md)
