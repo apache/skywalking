@@ -104,4 +104,9 @@ public interface AbstractTracerContext {
      * @param span to finish
      */
     void stopSpan(AbstractSpan span);
+
+    /**
+     * @return the runtime context from current tracing context.
+     */
+    RuntimeContext getRuntimeContext();
 }
