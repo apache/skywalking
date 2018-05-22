@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.trace.ignore;
 
-import org.apache.skywalking.apm.plugin.trace.ignore.matcher.AntPathMatcher;
+import org.apache.skywalking.apm.plugin.trace.ignore.matcher.SimpleAntPathMatcher;
 import org.apache.skywalking.apm.plugin.trace.ignore.matcher.TracePathMatcher;
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,7 +27,7 @@ public class TracePathMatcherTest {
 
     @Test
     public void testAntPathMatcher() {
-        TracePathMatcher pathMatcher = new AntPathMatcher();
+        TracePathMatcher pathMatcher = new SimpleAntPathMatcher();
         String patten = "/eureka/*";
         String path = "/eureka/app";
 
@@ -65,5 +65,14 @@ public class TracePathMatcherTest {
         patten = "eureka/**/b/**";
         match = pathMatcher.match(patten, path);
         Assert.assertTrue(match);
+
+        patten = "/eureka/**/b/**/*.txt";
+        path = "/eureka/a/aa/aaa/b/bb/bbb/xxxxxx.txt";
+        match = pathMatcher.match(patten, path);
+        Assert.assertTrue(match);
+
+        path = "/eureka/a/aa/aaa/b/bb/bbb/xxxxxx";
+        match = pathMatcher.match(patten, path);
+        Assert.assertFalse(match);
     }
 }

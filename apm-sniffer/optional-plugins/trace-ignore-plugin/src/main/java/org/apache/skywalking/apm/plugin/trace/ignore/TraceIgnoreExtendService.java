@@ -28,7 +28,7 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.plugin.trace.ignore.conf.IgnoreConfig;
 import org.apache.skywalking.apm.plugin.trace.ignore.conf.IgnoreConfigInitializer;
-import org.apache.skywalking.apm.plugin.trace.ignore.matcher.AntPathMatcher;
+import org.apache.skywalking.apm.plugin.trace.ignore.matcher.SimpleAntPathMatcher;
 import org.apache.skywalking.apm.plugin.trace.ignore.matcher.TracePathMatcher;
 import org.apache.skywalking.apm.util.StringUtil;
 
@@ -46,7 +46,7 @@ public class TraceIgnoreExtendService extends ContextManagerExtendService {
 
     private static final String PATTERN_SEPARATOR = ",";
 
-    private TracePathMatcher pathMatcher = new AntPathMatcher();
+    private TracePathMatcher pathMatcher = new SimpleAntPathMatcher();
 
     @Override
     public void boot() {
