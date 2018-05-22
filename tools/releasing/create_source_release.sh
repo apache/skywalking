@@ -24,7 +24,7 @@
 
 
 RELEASE_VERSION=${RELEASE_VERSION}
-TAG_NAME="v"${RELEASE_VERSION}
+TAG_NAME=${RELEASE_RC_TAG}
 PRODUCT_NAME="apache-skywalking-apm-incubating"
 
 echo "Release version "${RELEASE_VERSION}
