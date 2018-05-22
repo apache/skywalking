@@ -61,12 +61,14 @@ public class TraceQueryTest {
         duration.setEnd("2017-02");
         duration.setStep(Step.MONTH);
         traceQueryCondition.setQueryDuration(duration);
+        traceQueryCondition.setOrder(0);
+        traceQueryCondition.setStatus(-1);
         traceQueryCondition.setPaging(new Pagination());
         Mockito.when(segmentTopService.loadTop(
                 Mockito.anyLong(), Mockito.anyLong(),
                 Mockito.anyLong(), Mockito.anyLong(),
                 Mockito.anyString(), Mockito.anyString(),
-                Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt()
+                Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt(),Mockito.anyInt(),Mockito.anyInt()
                 )
         ).then(invocation -> {
             Object[] arguments = invocation.getArguments();

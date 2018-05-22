@@ -81,9 +81,11 @@ public class TraceQuery implements Query {
         long maxDuration = condition.getMaxTraceDuration();
         String operationName = condition.getOperationName();
         int applicationId = condition.getApplicationId();
+        int status = condition.getStatus();
+        int order = condition.getOrder();
 
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
-        return getSegmentTopService().loadTop(startSecondTimeBucket, endSecondTimeBucket, minDuration, maxDuration, operationName, traceId, applicationId, page.getLimit(), page.getFrom());
+        return getSegmentTopService().loadTop(startSecondTimeBucket, endSecondTimeBucket, minDuration, maxDuration, operationName, traceId, applicationId, page.getLimit(), page.getFrom(),status,order);
     }
 
     public Trace queryTrace(String traceId) {

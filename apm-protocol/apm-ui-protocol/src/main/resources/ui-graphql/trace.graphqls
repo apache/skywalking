@@ -36,6 +36,10 @@ input TraceQueryCondition {
   applicationId: Int
   traceId: String
   operationName: String
+  # The value 0 means success, 1 means error and -1 means all
+  status: Int
+  # The value 0 means descending and 1 means ascending
+  order: Int
   # The time range of traces started
   queryDuration: Duration
   # The mix time of trace

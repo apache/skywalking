@@ -49,7 +49,7 @@ public class SegmentDurationEsUIDAO extends EsDAO implements ISegmentDurationUID
 
     @Override
     public TraceBrief loadTop(long startSecondTimeBucket, long endSecondTimeBucket, long minDuration, long maxDuration,
-        String operationName, int applicationId, int limit, int from, String... segmentIds) {
+        String operationName, int applicationId, int limit, int from, int status, int order, String... segmentIds) {
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(SegmentDurationTable.TABLE);
         searchRequestBuilder.setTypes(SegmentDurationTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
@@ -73,7 +73,7 @@ public class SegmentDurationEsUIDAO extends EsDAO implements ISegmentDurationUID
             boolQueryBuilder.must().add(rangeQueryBuilder);
         }
         if (StringUtils.isNotEmpty(operationName)) {
-            mustQueryList.add(QueryBuilders.matchPhraseQuery(SegmentDurationTable.SERVICE_NAME.getName(), operationName));
+            mustQueryList.add(QueryBuilders.matchQuery(SegmentDurationTable.SERVICE_NAME.getName(), operationName));
         }
         if (CollectionUtils.isNotEmpty(segmentIds)) {
             boolQueryBuilder.must().add(QueryBuilders.termsQuery(SegmentDurationTable.SEGMENT_ID.getName(), segmentIds));
@@ -81,8 +81,14 @@ public class SegmentDurationEsUIDAO extends EsDAO implements ISegmentDurationUID
         if (applicationId != 0) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentDurationTable.APPLICATION_ID.getName(), applicationId));
         }
-
-        searchRequestBuilder.addSort(SegmentDurationTable.START_TIME.getName(), SortOrder.DESC);
+        if (status != -1) {
+            mustQueryList.add(QueryBuilders.matchQuery(SegmentDurationTable.IS_ERROR.getName(), status));
+        }
+        if (order != 0) {
+            searchRequestBuilder.addSort(SegmentDurationTable.START_TIME.getName(), SortOrder.ASC);
+        } else {
+            searchRequestBuilder.addSort(SegmentDurationTable.START_TIME.getName(), SortOrder.DESC);
+        }
         searchRequestBuilder.setSize(limit);
         searchRequestBuilder.setFrom(from);
 

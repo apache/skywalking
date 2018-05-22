@@ -68,11 +68,11 @@ public class SegmentTopServiceTest {
         long startSecondTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(duration.getStep(), duration.getStart());
         long endSecondTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(duration.getStep(), duration.getEnd());
         when(globalTraceUIDAO.getSegmentIds(anyString())).then(invocation -> Collections.singletonList("segmentIds"));
-        when(segmentDurationUIDAO.loadTop(anyLong(), anyLong(), anyLong(), anyLong(), anyString(), anyInt(), anyInt(), anyInt())).then(invocation -> getTrace());
-        when(segmentDurationUIDAO.loadTop(anyLong(), anyLong(), anyLong(), anyLong(), anyString(), anyInt(), anyInt(), anyInt(), anyObject())).then(invocation -> getTrace());
-        TraceBrief traceBrief = segmentTopService.loadTop(startSecondTimeBucket, endSecondTimeBucket, 0, 1, "test", null, 1, 10, 0);
+        when(segmentDurationUIDAO.loadTop(anyLong(), anyLong(), anyLong(), anyLong(), anyString(), anyInt(), anyInt(), anyInt(),anyInt(),anyInt())).then(invocation -> getTrace());
+        when(segmentDurationUIDAO.loadTop(anyLong(), anyLong(), anyLong(), anyLong(), anyString(), anyInt(), anyInt(), anyInt(), anyInt(),anyInt(),anyObject())).then(invocation -> getTrace());
+        TraceBrief traceBrief = segmentTopService.loadTop(startSecondTimeBucket, endSecondTimeBucket, 0, 1, "test", null, 1, 10, 0,-1,0);
         Assert.assertTrue(traceBrief.getTraces().size() == 1);
-        traceBrief = segmentTopService.loadTop(startSecondTimeBucket, endSecondTimeBucket, 0, 1, "test", "traceId", 1, 10, 0);
+        traceBrief = segmentTopService.loadTop(startSecondTimeBucket, endSecondTimeBucket, 0, 1, "test", "traceId", 1, 10, 0,-1,0);
         Assert.assertTrue(traceBrief.getTraces().size() == 1);
     }
 

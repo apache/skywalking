@@ -48,7 +48,7 @@ public class SegmentDurationH2UIDAO extends H2DAO implements ISegmentDurationUID
 
     @Override
     public TraceBrief loadTop(long startSecondTimeBucket, long endSecondTimeBucket, long minDuration, long maxDuration,
-        String operationName, int applicationId, int limit, int from, String... segmentIds) {
+        String operationName, int applicationId, int limit, int from, int status, int order, String... segmentIds) {
         H2Client client = getClient();
         String sql = "select * from {0} where {1} >= ? and {1} <= ?";
         List<Object> params = new ArrayList<>();
@@ -90,8 +90,19 @@ public class SegmentDurationH2UIDAO extends H2DAO implements ISegmentDurationUID
             params.add(applicationId);
             columns.add(SegmentDurationTable.APPLICATION_ID.getName());
         }
+        if (status != -1) {
+            paramIndex++;
+            sql = sql + " and {" + paramIndex + "} = ?";
+            params.add(applicationId);
+            columns.add(SegmentDurationTable.IS_ERROR);
+        }
 
         sql = sql + " limit " + from + "," + limit;
+        if (order != 0) {
+            sql = sql + " order by " + SegmentDurationTable.START_TIME.getName() + " " + "asc";
+        } else {
+            sql = sql + " order by " + SegmentDurationTable.START_TIME.getName() + " " + "dsc";
+        }
         sql = SqlBuilder.buildSql(sql, columns);
         Object[] p = params.toArray(new Object[0]);
 

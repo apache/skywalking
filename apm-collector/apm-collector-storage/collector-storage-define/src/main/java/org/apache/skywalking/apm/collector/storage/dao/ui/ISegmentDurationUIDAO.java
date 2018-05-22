@@ -55,5 +55,5 @@ public interface ISegmentDurationUIDAO extends DAO {
      * @return not nullable result list
      */
     TraceBrief loadTop(long startSecondTimeBucket, long endSecondTimeBucket, long minDuration, long maxDuration,
-        String operationName, int applicationId, int limit, int from, String... segmentIds);
+        String operationName, int applicationId, int limit, int from, int status, int order, String... segmentIds);
 }
