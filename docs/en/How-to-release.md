@@ -49,7 +49,7 @@ The release will automatically be inserted into a temporary staging repository f
 ```shell
 switch to release version tag
 export RELEASE_VERSION=x.y.z (example: RELEASE_VERSION=5.0.0-alpha)
-export RELEASE_RC_TAG=x.y.z(RCx) (example: RELEASE_RC_TAG=5.0.0-alpha(RC1))
+export RELEASE_ROUND=1 (example: RELEASE_ROUND=1)
 cd tools/releasing
 sh create_source_release.sh
 ```
@@ -70,7 +70,7 @@ with .asc, .sha512, .md5
 
 ## Upload to Apache svn
 1. Use ApacheId to login `https://dist.apache.org/repos/dist/dev/incubator/skywalking/`
-1. Create folder, named by release RC tag name, such as: x.y.z(RCx)
+1. Create folder, named by release version and round, such as: x.y.z(RCx)
 1. Upload Source code package to the folder with .asc, .sha512
     * Package name: apache-skywalking-incubating-x.y.z-src.tar.gz
     * See Section "Build and sign the source code package" for more details 
