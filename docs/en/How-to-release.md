@@ -49,9 +49,12 @@ The release will automatically be inserted into a temporary staging repository f
 ```shell
 switch to release version tag
 export RELEASE_VERSION=x.y.z (example: RELEASE_VERSION=5.0.0-alpha)
+export RELEASE_ROUND=1 (example: RELEASE_ROUND=1)
 cd tools/releasing
 sh create_source_release.sh
 ```
+
+`x` in `RCx` is based the number of attempts release, and starts with 1.
 
 The `apache-skywalking-apm-incubating-x.y.z-src.tgz` should be found in `tools/releasing` folder,
 with .asc, .sha512, .md5
@@ -67,7 +70,7 @@ with .asc, .sha512, .md5
 
 ## Upload to Apache svn
 1. Use ApacheId to login `https://dist.apache.org/repos/dist/dev/incubator/skywalking/`
-1. Create folder, named by release version
+1. Create folder, named by release version and round, such as: x.y.z(RCx)
 1. Upload Source code package to the folder with .asc, .sha512
     * Package name: apache-skywalking-incubating-x.y.z-src.tar.gz
     * See Section "Build and sign the source code package" for more details 
@@ -97,6 +100,10 @@ Release notes:
 Release Candidate:
 
  * https://dist.apache.org/repos/dist/dev/incubator/skywalking/xxxx
+ * sha512 checksums
+   - sha512xxxxyyyzzz apache-skywalking-apm-incubating-x.x.x-src.tgz
+   - sha512xxxxyyyzzz apache-skywalking-apm-incubating-x.x.x.tar.gz
+   - sha512xxxxyyyzzz apache-skywalking-apm-incubating-x.x.x.zip
 
 Maven 2 staging repository:
 
@@ -104,11 +111,14 @@ Maven 2 staging repository:
 
 Release Tag :
 
- * (Git Tag)
+ * (Git Tag) x.y.z(RCx)
 
 Release CommitID :
 
- * (Git Commit ID)
+ * https://github.com/apache/incubator-skywalking/tree/(Git Commit ID)
+ * Git submodule
+   * skywalking-ui: https://github.com/apache/incubator-skywalking-ui/tree/(Git Commit ID)
+   * apm-protocol/apm-network/src/main/proto: https://github.com/apache/incubator-skywalking-data-collect-protocol/tree/(Git Commit ID)
 
 Keys to verify the Release Candidate :
 
@@ -143,6 +153,10 @@ Release notes:
 Release Candidate:
 
  * https://dist.apache.org/repos/dist/dev/incubator/skywalking/xxxx
+ * sha512 checksums
+   - sha512xxxxyyyzzz apache-skywalking-apm-incubating-x.x.x-src.tgz
+   - sha512xxxxyyyzzz apache-skywalking-apm-incubating-x.x.x.tar.gz
+   - sha512xxxxyyyzzz apache-skywalking-apm-incubating-x.x.x.zip
 
 Maven 2 staging repository:
 
@@ -150,11 +164,14 @@ Maven 2 staging repository:
 
 Release Tag :
 
- * (Git Tag)
+ * (Git Tag) x.y.z(RCx)
 
 Release CommitID :
 
- * (Git Commit ID)
+ * https://github.com/apache/incubator-skywalking/tree/(Git Commit ID)
+ * Git submodule
+   * skywalking-ui: https://github.com/apache/incubator-skywalking-ui/tree/(Git Commit ID)
+   * apm-protocol/apm-network/src/main/proto: https://github.com/apache/incubator-skywalking-data-collect-protocol/tree/(Git Commit ID)
 
 Keys to verify the Release Candidate :
 
@@ -218,6 +235,10 @@ Release notes:
 Release Candidate:
 
  * https://dist.apache.org/repos/dist/dev/incubator/skywalking/xxxx
+ * sha512 checksums
+   - sha512xxxxyyyzzz apache-skywalking-apm-incubating-x.x.x-src.tgz
+   - sha512xxxxyyyzzz apache-skywalking-apm-incubating-x.x.x.tar.gz
+   - sha512xxxxyyyzzz apache-skywalking-apm-incubating-x.x.x.zip
 
 Maven 2 staging repository:
 
@@ -225,11 +246,14 @@ Maven 2 staging repository:
 
 Release Tag :
 
- * (Git Tag)
+ * (Git Tag) x.y.z(RCx)
 
 Release CommitID :
 
- * (Git Commit ID)
+ * https://github.com/apache/incubator-skywalking/tree/(Git Commit ID)
+ * Git submodule
+   * skywalking-ui: https://github.com/apache/incubator-skywalking-ui/tree/(Git Commit ID)
+   * apm-protocol/apm-network/src/main/proto: https://github.com/apache/incubator-skywalking-data-collect-protocol/tree/(Git Commit ID)
 
 Keys to verify the Release Candidate :
 
@@ -272,7 +296,7 @@ I will procedd to publish the release and send ANNOUNCE.
 1. Move source codes tar balls and distributions to `https://dist.apache.org/repos/dist/release/incubator/skywalking/`.
 ```
 > export SVN_EDITOR=vim
-> svn mv https://dist.apache.org/repos/dist/dev/incubator/skywalking/5.0.0-alpha https://dist.apache.org/repos/dist/release/incubator/skywalking
+> svn mv https://dist.apache.org/repos/dist/dev/incubator/skywalking/x.y.z(RCx) https://dist.apache.org/repos/dist/release/incubator/skywalking
 ....
 enter your apache password
 ....
@@ -281,6 +305,7 @@ enter your apache password
 2. Do release in nexus staging repo.
 3. Public download URLs under `http://www.apache.org/dyn/closer.cgi/incubator/skywalking/x.y.z`.
 4. Public KEYS, sigs and sha512 URLs under `https://www.apache.org/dist/incubator/skywalking/xxxx`
+5. Re-tag on GitHub, tag `x.y.z(RCx)` as `x.y.z`, and publish a GitHub release based on this tag.
 5. Send ANNOUNCE mail to `announce@incubator.apache.org`.
 ```
 Mail title: [ANNOUNCE] Release Apache SkyWalking (incubating) version x.y.z
@@ -321,3 +346,5 @@ projects. While incubation status is not necessarily a reflection
 of the completeness or stability of the code, it does indicate
 that the project has yet to be fully endorsed by the ASF.
 ```
+
+6. Update skywalking website download page: http://skywalking.apache.org/downloads/
