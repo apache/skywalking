@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
  * @author liujc [liujunc1993@163.com]
  *
  */
-public class SimpleAntPathMatcher implements TracePathMatcher {
+public class AntPathMatcher implements TracePathMatcher {
 
     private static final String DEFAULT_PATH_SEPARATOR = "/";
 
