@@ -19,7 +19,9 @@
 package org.apache.skywalking.apm.collector.storage.dao.ui;
 
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
+import org.apache.skywalking.apm.collector.storage.ui.trace.QueryOrder;
 import org.apache.skywalking.apm.collector.storage.ui.trace.TraceBrief;
+import org.apache.skywalking.apm.collector.storage.ui.trace.TraceState;
 
 /**
  * Interface to be implemented for execute database query operation
@@ -55,5 +57,5 @@ public interface ISegmentDurationUIDAO extends DAO {
      * @return not nullable result list
      */
     TraceBrief loadTop(long startSecondTimeBucket, long endSecondTimeBucket, long minDuration, long maxDuration,
-        String operationName, int applicationId, int limit, int from, int status, int order, String... segmentIds);
+                       String operationName, int applicationId, int limit, int from, TraceState traceState, QueryOrder queryOrder, String... segmentIds);
 }

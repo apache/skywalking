@@ -31,23 +31,23 @@ public class TraceQueryCondition {
     private Duration queryDuration;
     private int minTraceDuration;
     private int maxTraceDuration;
-    private int status;
-    private  int order;
+    private TraceState traceState;
+    private  QueryOrder queryOrder;
 
-    public int getStatus() {
-        return status;
+    public TraceState getTraceState() {
+        return traceState;
     }
 
-    public void setStatus(int status) {
-        this.status = status;
+    public void setTraceState(TraceState traceState) {
+        this.traceState = traceState;
     }
 
-    public int getOrder() {
-        return order;
+    public QueryOrder getQueryOrder() {
+        return queryOrder;
     }
 
-    public void setOrder(int order) {
-        this.order = order;
+    public void setQueryOrder(QueryOrder queryOrder) {
+        this.queryOrder = queryOrder;
     }
 
     private Pagination paging;

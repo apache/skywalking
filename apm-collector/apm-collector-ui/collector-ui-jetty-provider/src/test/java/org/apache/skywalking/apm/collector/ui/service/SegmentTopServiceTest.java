@@ -24,7 +24,9 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentDurationUIDAO;
 import org.apache.skywalking.apm.collector.storage.ui.common.Duration;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.ui.trace.BasicTrace;
+import org.apache.skywalking.apm.collector.storage.ui.trace.QueryOrder;
 import org.apache.skywalking.apm.collector.storage.ui.trace.TraceBrief;
+import org.apache.skywalking.apm.collector.storage.ui.trace.TraceState;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -68,11 +70,11 @@ public class SegmentTopServiceTest {
         long startSecondTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(duration.getStep(), duration.getStart());
         long endSecondTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(duration.getStep(), duration.getEnd());
         when(globalTraceUIDAO.getSegmentIds(anyString())).then(invocation -> Collections.singletonList("segmentIds"));
-        when(segmentDurationUIDAO.loadTop(anyLong(), anyLong(), anyLong(), anyLong(), anyString(), anyInt(), anyInt(), anyInt(),anyInt(),anyInt())).then(invocation -> getTrace());
-        when(segmentDurationUIDAO.loadTop(anyLong(), anyLong(), anyLong(), anyLong(), anyString(), anyInt(), anyInt(), anyInt(), anyInt(),anyInt(),anyObject())).then(invocation -> getTrace());
-        TraceBrief traceBrief = segmentTopService.loadTop(startSecondTimeBucket, endSecondTimeBucket, 0, 1, "test", null, 1, 10, 0,-1,0);
+        when(segmentDurationUIDAO.loadTop(anyLong(), anyLong(), anyLong(), anyLong(), anyString(), anyInt(), anyInt(), anyInt(),anyObject(),anyObject())).then(invocation -> getTrace());
+        when(segmentDurationUIDAO.loadTop(anyLong(), anyLong(), anyLong(), anyLong(), anyString(), anyInt(), anyInt(), anyInt(), anyObject(),anyObject(),anyObject())).then(invocation -> getTrace());
+        TraceBrief traceBrief = segmentTopService.loadTop(startSecondTimeBucket, endSecondTimeBucket, 0, 1, "test", null, 1, 10, 0,TraceState.ALL,QueryOrder.BY_START_TIME);
         Assert.assertTrue(traceBrief.getTraces().size() == 1);
-        traceBrief = segmentTopService.loadTop(startSecondTimeBucket, endSecondTimeBucket, 0, 1, "test", "traceId", 1, 10, 0,-1,0);
+        traceBrief = segmentTopService.loadTop(startSecondTimeBucket, endSecondTimeBucket, 0, 1, "test", "traceId", 1, 10, 0,TraceState.ALL,QueryOrder.BY_START_TIME);
         Assert.assertTrue(traceBrief.getTraces().size() == 1);
     }
 

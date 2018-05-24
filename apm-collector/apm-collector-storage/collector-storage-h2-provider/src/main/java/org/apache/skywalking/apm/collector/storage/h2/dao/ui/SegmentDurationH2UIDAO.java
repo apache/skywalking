@@ -31,7 +31,9 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentDurationUIDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.table.segment.SegmentDurationTable;
 import org.apache.skywalking.apm.collector.storage.ui.trace.BasicTrace;
+import org.apache.skywalking.apm.collector.storage.ui.trace.QueryOrder;
 import org.apache.skywalking.apm.collector.storage.ui.trace.TraceBrief;
+import org.apache.skywalking.apm.collector.storage.ui.trace.TraceState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +50,7 @@ public class SegmentDurationH2UIDAO extends H2DAO implements ISegmentDurationUID
 
     @Override
     public TraceBrief loadTop(long startSecondTimeBucket, long endSecondTimeBucket, long minDuration, long maxDuration,
-        String operationName, int applicationId, int limit, int from, int status, int order, String... segmentIds) {
+                              String operationName, int applicationId, int limit, int from, TraceState traceState, QueryOrder queryOrder, String... segmentIds) {
         H2Client client = getClient();
         String sql = "select * from {0} where {1} >= ? and {1} <= ?";
         List<Object> params = new ArrayList<>();
@@ -90,18 +92,29 @@ public class SegmentDurationH2UIDAO extends H2DAO implements ISegmentDurationUID
             params.add(applicationId);
             columns.add(SegmentDurationTable.APPLICATION_ID.getName());
         }
-        if (status != -1) {
+        if (traceState != null) {
             paramIndex++;
             sql = sql + " and {" + paramIndex + "} = ?";
-            params.add(applicationId);
+            switch (traceState) {
+                case ERROR:
+                    params.add(1);
+                    break;
+                case SUCCESS:
+                    params.add(0);
+                    break;
+            }
+
             columns.add(SegmentDurationTable.IS_ERROR);
         }
 
         sql = sql + " limit " + from + "," + limit;
-        if (order != 0) {
-            sql = sql + " order by " + SegmentDurationTable.START_TIME.getName() + " " + "asc";
-        } else {
-            sql = sql + " order by " + SegmentDurationTable.START_TIME.getName() + " " + "dsc";
+        switch (queryOrder) {
+            case BY_START_TIME:
+                sql = sql + " queryOrder by " + SegmentDurationTable.START_TIME.getName() + " dsc";
+                break;
+            case BY_DURATION:
+                sql = sql + " queryOrder by " + SegmentDurationTable.DURATION.getName() + " dsc";
+                break;
         }
         sql = SqlBuilder.buildSql(sql, columns);
         Object[] p = params.toArray(new Object[0]);

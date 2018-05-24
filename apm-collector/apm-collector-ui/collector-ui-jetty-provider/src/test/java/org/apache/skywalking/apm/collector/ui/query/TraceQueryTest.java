@@ -21,7 +21,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.apm.collector.storage.ui.common.Duration;
 import org.apache.skywalking.apm.collector.storage.ui.common.Pagination;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
+import org.apache.skywalking.apm.collector.storage.ui.trace.QueryOrder;
 import org.apache.skywalking.apm.collector.storage.ui.trace.TraceQueryCondition;
+import org.apache.skywalking.apm.collector.storage.ui.trace.TraceState;
 import org.apache.skywalking.apm.collector.ui.service.SegmentTopService;
 import org.apache.skywalking.apm.collector.ui.service.TraceStackService;
 import org.junit.Assert;
@@ -61,14 +63,14 @@ public class TraceQueryTest {
         duration.setEnd("2017-02");
         duration.setStep(Step.MONTH);
         traceQueryCondition.setQueryDuration(duration);
-        traceQueryCondition.setOrder(0);
-        traceQueryCondition.setStatus(-1);
+        traceQueryCondition.setQueryOrder(QueryOrder.BY_START_TIME);
+        traceQueryCondition.setTraceState(TraceState.ALL);
         traceQueryCondition.setPaging(new Pagination());
         Mockito.when(segmentTopService.loadTop(
                 Mockito.anyLong(), Mockito.anyLong(),
                 Mockito.anyLong(), Mockito.anyLong(),
                 Mockito.anyString(), Mockito.anyString(),
-                Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt(),Mockito.anyInt(),Mockito.anyInt()
+                Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt(),TraceState.ALL,QueryOrder.BY_START_TIME
                 )
         ).then(invocation -> {
             Object[] arguments = invocation.getArguments();
