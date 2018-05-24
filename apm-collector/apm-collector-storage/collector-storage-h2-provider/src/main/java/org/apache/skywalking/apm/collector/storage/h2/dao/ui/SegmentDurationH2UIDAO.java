@@ -97,10 +97,10 @@ public class SegmentDurationH2UIDAO extends H2DAO implements ISegmentDurationUID
             sql = sql + " and {" + paramIndex + "} = ?";
             switch (traceState) {
                 case ERROR:
-                    params.add(1);
+                    params.add(BooleanUtils.TRUE);
                     break;
                 case SUCCESS:
-                    params.add(0);
+                    params.add(BooleanUtils.FALSE);
                     break;
             }
 

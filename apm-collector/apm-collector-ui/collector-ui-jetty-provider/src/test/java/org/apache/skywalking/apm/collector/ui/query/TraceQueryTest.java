@@ -70,7 +70,7 @@ public class TraceQueryTest {
                 Mockito.anyLong(), Mockito.anyLong(),
                 Mockito.anyLong(), Mockito.anyLong(),
                 Mockito.anyString(), Mockito.anyString(),
-                Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt(),TraceState.ALL,QueryOrder.BY_START_TIME
+                Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyObject(), Mockito.anyObject()
                 )
         ).then(invocation -> {
             Object[] arguments = invocation.getArguments();

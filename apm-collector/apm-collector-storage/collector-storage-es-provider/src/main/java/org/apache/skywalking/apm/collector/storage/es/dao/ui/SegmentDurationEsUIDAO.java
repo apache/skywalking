@@ -75,7 +75,7 @@ public class SegmentDurationEsUIDAO extends EsDAO implements ISegmentDurationUID
             boolQueryBuilder.must().add(rangeQueryBuilder);
         }
         if (StringUtils.isNotEmpty(operationName)) {
-            mustQueryList.add(QueryBuilders.matchQuery(SegmentDurationTable.SERVICE_NAME.getName(), operationName));
+            mustQueryList.add(QueryBuilders.matchPhraseQuery(SegmentDurationTable.SERVICE_NAME.getName(), operationName));
         }
         if (CollectionUtils.isNotEmpty(segmentIds)) {
             boolQueryBuilder.must().add(QueryBuilders.termsQuery(SegmentDurationTable.SEGMENT_ID.getName(), segmentIds));
@@ -85,10 +85,10 @@ public class SegmentDurationEsUIDAO extends EsDAO implements ISegmentDurationUID
         }
         switch (traceState) {
             case ERROR:
-                mustQueryList.add(QueryBuilders.matchQuery(SegmentDurationTable.IS_ERROR.getName(), 1));
+                mustQueryList.add(QueryBuilders.matchQuery(SegmentDurationTable.IS_ERROR.getName(), BooleanUtils.TRUE));
                 break;
             case SUCCESS:
-                mustQueryList.add(QueryBuilders.matchQuery(SegmentDurationTable.IS_ERROR.getName(), 0));
+                mustQueryList.add(QueryBuilders.matchQuery(SegmentDurationTable.IS_ERROR.getName(), BooleanUtils.FALSE));
                 break;
         }
         switch (queryOrder) {
