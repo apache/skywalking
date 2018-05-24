@@ -43,7 +43,12 @@ public class ServiceNameServiceEsUIDAO extends EsDAO implements IServiceNameServ
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(ServiceNameTable.TABLE);
         searchRequestBuilder.setTypes(ServiceNameTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-        searchRequestBuilder.setQuery(QueryBuilders.termQuery(ServiceNameTable.SRC_SPAN_TYPE.getName(), SpanType.Entry_VALUE));
+
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+        boolQuery.must().add(QueryBuilders.termQuery(ServiceNameTable.SRC_SPAN_TYPE.getName(), SpanType.Entry_VALUE));
+        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceNameTable.HEARTBEAT_TIME.getName()).gte(System.currentTimeMillis() - (1000 * 60 * 60 * 24)));
+        searchRequestBuilder.setQuery(boolQuery);
+
         searchRequestBuilder.setSize(0);
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();

@@ -37,6 +37,7 @@ public interface IServiceNameServiceUIDAO extends DAO {
      *
      * <p>SQL as: select count(SERVICE_NAME) from SERVICE_NAME
      * where SRC_SPAN_TYPE = SpanType.Entry_VALUE
+     * and HEARTBEAT_TIME ge ( System.currentTimeMillis() - (1000 * 60 * 60 * 24) )
      *
      * @return count of service names
      */
