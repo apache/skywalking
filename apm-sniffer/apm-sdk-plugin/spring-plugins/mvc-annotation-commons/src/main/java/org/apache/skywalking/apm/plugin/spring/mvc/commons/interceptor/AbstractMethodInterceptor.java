@@ -16,9 +16,11 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
+import java.lang.reflect.Method;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -30,12 +32,10 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.lang.reflect.Method;
+import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.ISOLATE_STRATEGY_KEY_IN_RUNNING_CONTEXT;
+import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.REQUEST_KEY_IN_RUNTIME_CONTEXT;
+import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESPONSE_KEY_IN_RUNTIME_CONTEXT;
 
 /**
  * the abstract method inteceptor
@@ -54,38 +54,45 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
             requestURL = pathMappingCache.findPathMapping(method);
         }
 
-        HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+        String hystrixIsolateStrategy = (String)ContextManager.getRuntimeContext().get(ISOLATE_STRATEGY_KEY_IN_RUNNING_CONTEXT);
+        HttpServletRequest request = (HttpServletRequest)ContextManager.getRuntimeContext().get(REQUEST_KEY_IN_RUNTIME_CONTEXT);
 
-        ContextCarrier contextCarrier = new ContextCarrier();
-        CarrierItem next = contextCarrier.items();
-        while (next.hasNext()) {
-            next = next.next();
-            next.setHeadValue(request.getHeader(next.getHeadKey()));
+        if (hystrixIsolateStrategy != null) {
+            ContextManager.createLocalSpan(requestURL);
+        } else if (request != null) {
+            ContextCarrier contextCarrier = new ContextCarrier();
+            CarrierItem next = contextCarrier.items();
+            while (next.hasNext()) {
+                next = next.next();
+                next.setHeadValue(request.getHeader(next.getHeadKey()));
+            }
+
+            AbstractSpan span = ContextManager.createEntrySpan(requestURL, contextCarrier);
+            Tags.URL.set(span, request.getRequestURL().toString());
+            Tags.HTTP.METHOD.set(span, request.getMethod());
+            span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);
+            SpanLayer.asHttp(span);
         }
-
-        AbstractSpan span = ContextManager.createEntrySpan(requestURL, contextCarrier);
-        Tags.URL.set(span, request.getRequestURL().toString());
-        Tags.HTTP.METHOD.set(span, request.getMethod());
-        span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);
-        SpanLayer.asHttp(span);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        try {
-            HttpServletResponse response = ((EnhanceRequireObjectCache) objInst.getSkyWalkingDynamicField()).getHttpServletResponse();
+        String hystrixIsolateStrategy = (String)ContextManager.getRuntimeContext().get(ISOLATE_STRATEGY_KEY_IN_RUNNING_CONTEXT);
+        HttpServletResponse response = (HttpServletResponse)ContextManager.getRuntimeContext().get(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
 
+        if (hystrixIsolateStrategy != null) {
+            ContextManager.stopSpan();
+        } else if (response != null) {
             AbstractSpan span = ContextManager.activeSpan();
             if (response.getStatus() >= 400) {
                 span.errorOccurred();
                 Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
             }
             ContextManager.stopSpan();
-            return ret;
-        } finally {
-            ((EnhanceRequireObjectCache)objInst.getSkyWalkingDynamicField()).clearRequestAndResponse();
         }
+
+        return ret;
     }
 
     @Override
