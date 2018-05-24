@@ -236,6 +236,23 @@ export default class Trace extends PureComponent {
             </Select>
           )}
         </FormItem>
+        <FormItem label="Trace State">
+          {getFieldDecorator('traceState')(
+            <Select placeholder="All" style={{ width: '100%' }}>
+              <Option key="success" value="SUCCESS">Success</Option>
+              <Option key="error" value="ERROR">Error</Option>
+              <Option key="all" value="ALL">All</Option>
+            </Select>
+          )}
+        </FormItem>
+        <FormItem label="Order By">
+          {getFieldDecorator('queryOrder')(
+            <Select placeholder="Start Time" style={{ width: '100%' }}>
+              <Option key="BY_START_TIME" value="BY_START_TIME">Start Time</Option>
+              <Option key="BY_DURATION" value="BY_DURATION">Duration</Option>
+            </Select>
+          )}
+        </FormItem>
         <FormItem label="OperationName">
           {getFieldDecorator('operationName')(
             <Input placeholder="eg Kafka/Trace-topic-1/Consumer" />

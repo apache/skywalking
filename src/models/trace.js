@@ -104,6 +104,8 @@ export default generateModal({
           return moment();
         },
       }),
+      traceState: 'ALL',
+      queryOrder: 'BY_START_TIME',
     },
   },
   optionsQuery,
