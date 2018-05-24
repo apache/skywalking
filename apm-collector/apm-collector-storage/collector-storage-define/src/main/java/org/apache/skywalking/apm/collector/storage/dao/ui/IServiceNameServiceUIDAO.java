@@ -46,6 +46,7 @@ public interface IServiceNameServiceUIDAO extends DAO {
      * <p>SQL as: select SERVICE_ID, SERVICE_NAME from SERVICE_NAME
      * where SRC_SPAN_TYPE = SpanType.Entry_VALUE
      * and SERVICE_NAME like '%{keyword}%'
+     * and HEARTBEAT_TIME ge ( System.currentTimeMillis() - (1000 * 60 * 60 * 24) )
      *
      * <p> Note: keyword might not given
      *

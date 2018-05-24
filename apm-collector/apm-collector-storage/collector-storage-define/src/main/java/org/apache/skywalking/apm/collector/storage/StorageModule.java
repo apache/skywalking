@@ -22,10 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
 import org.apache.skywalking.apm.collector.storage.base.dao.IBatchDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IGlobalTracePersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IInstanceHeartBeatPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ISegmentDurationPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ISegmentPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.*;
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentDayPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentHourPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentMinutePersistenceDAO;
@@ -205,6 +202,7 @@ public class StorageModule extends ModuleDefine {
         classes.add(ISegmentDurationPersistenceDAO.class);
         classes.add(ISegmentPersistenceDAO.class);
         classes.add(IInstanceHeartBeatPersistenceDAO.class);
+        classes.add(IServiceNameHeartBeatPersistenceDAO.class);
 
         classes.add(IResponseTimeDistributionMinutePersistenceDAO.class);
         classes.add(IResponseTimeDistributionHourPersistenceDAO.class);

@@ -18,8 +18,7 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao.ui;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceNameServiceUIDAO;
@@ -27,11 +26,8 @@ import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceNameTable;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
 import org.apache.skywalking.apm.network.proto.SpanType;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.action.search.*;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 
 /**
@@ -60,14 +56,14 @@ public class ServiceNameServiceEsUIDAO extends EsDAO implements IServiceNameServ
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
         searchRequestBuilder.setSize(topN);
 
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+        boolQuery.must().add(QueryBuilders.termQuery(ServiceNameTable.SRC_SPAN_TYPE.getName(), SpanType.Entry_VALUE));
+        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceNameTable.HEARTBEAT_TIME.getName()).gte(System.currentTimeMillis() - (1000 * 60 * 60 * 24)));
+
         if (StringUtils.isNotEmpty(keyword)) {
-            BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             boolQuery.must().add(QueryBuilders.matchQuery(ServiceNameTable.SERVICE_NAME.getName(), keyword));
-            boolQuery.must().add(QueryBuilders.termQuery(ServiceNameTable.SRC_SPAN_TYPE.getName(), SpanType.Entry_VALUE));
-            searchRequestBuilder.setQuery(boolQuery);
-        } else {
-            searchRequestBuilder.setQuery(QueryBuilders.termQuery(ServiceNameTable.SRC_SPAN_TYPE.getName(), SpanType.Entry_VALUE));
         }
+        searchRequestBuilder.setQuery(boolQuery);
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
         SearchHit[] searchHits = searchResponse.getHits().getHits();

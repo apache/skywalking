@@ -22,7 +22,7 @@ import java.util.*;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.UnexpectedException;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
-import org.apache.skywalking.apm.collector.storage.dao.IInstanceHeartBeatPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.IServiceNameHeartBeatPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.*;
 import org.elasticsearch.action.get.GetResponse;
@@ -33,40 +33,42 @@ import org.slf4j.*;
 /**
  * @author peng-yongsheng
  */
-public class InstanceHeartBeatEsPersistenceDAO extends EsDAO implements IInstanceHeartBeatPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, Instance> {
+public class ServiceNameHeartBeatEsPersistenceDAO extends EsDAO implements IServiceNameHeartBeatPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, ServiceName> {
 
-    private static final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatEsPersistenceDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceNameHeartBeatEsPersistenceDAO.class);
 
-    public InstanceHeartBeatEsPersistenceDAO(ElasticSearchClient client) {
+    public ServiceNameHeartBeatEsPersistenceDAO(ElasticSearchClient client) {
         super(client);
     }
 
-    @GraphComputingMetric(name = "/persistence/get/" + InstanceTable.TABLE + "/heartbeat")
-    @Override public Instance get(String id) {
-        GetResponse getResponse = getClient().prepareGet(InstanceTable.TABLE, id).get();
+    @GraphComputingMetric(name = "/persistence/get/" + ServiceNameTable.TABLE + "/heartbeat")
+    @Override public ServiceName get(String id) {
+        GetResponse getResponse = getClient().prepareGet(ServiceNameTable.TABLE, id).get();
         if (getResponse.isExists()) {
             Map<String, Object> source = getResponse.getSource();
 
-            Instance instance = new Instance();
-            instance.setId(id);
-            instance.setInstanceId(((Number)source.get(InstanceTable.INSTANCE_ID.getName())).intValue());
-            instance.setHeartBeatTime(((Number)source.get(InstanceTable.HEARTBEAT_TIME.getName())).longValue());
-            logger.debug("instance id: {} is exists", id);
-            return instance;
+            ServiceName serviceName = new ServiceName();
+            serviceName.setId(id);
+            serviceName.setServiceId(((Number)source.get(ServiceNameTable.SERVICE_ID.getName())).intValue());
+            serviceName.setHeartBeatTime(((Number)source.get(ServiceNameTable.HEARTBEAT_TIME.getName())).longValue());
+            logger.debug("service id: {} is exists", id);
+            return serviceName;
         } else {
-            logger.debug("instance id: {} is not exists", id);
+            logger.debug("service id: {} is not exists", id);
             return null;
         }
     }
 
-    @Override public IndexRequestBuilder prepareBatchInsert(Instance data) {
-        throw new UnexpectedException("Received an instance heart beat message under instance id= " + data.getId() + " , which doesn't exist.");
+    @Override public IndexRequestBuilder prepareBatchInsert(ServiceName data) {
+        throw new UnexpectedException("Received an service name heart beat message under service id= " + data.getId() + " , which doesn't exist.");
     }
 
-    @Override public UpdateRequestBuilder prepareBatchUpdate(Instance data) {
+    @Override public UpdateRequestBuilder prepareBatchUpdate(ServiceName data) {
+        logger.info("service name heart beat, service id: {}, heart beat time: {}", data.getId(), data.getHeartBeatTime());
+
         Map<String, Object> source = new HashMap<>();
-        source.put(InstanceTable.HEARTBEAT_TIME.getName(), data.getHeartBeatTime());
-        return getClient().prepareUpdate(InstanceTable.TABLE, data.getId()).setDoc(source);
+        source.put(ServiceNameTable.HEARTBEAT_TIME.getName(), data.getHeartBeatTime());
+        return getClient().prepareUpdate(ServiceNameTable.TABLE, data.getId()).setDoc(source);
     }
 
     @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {

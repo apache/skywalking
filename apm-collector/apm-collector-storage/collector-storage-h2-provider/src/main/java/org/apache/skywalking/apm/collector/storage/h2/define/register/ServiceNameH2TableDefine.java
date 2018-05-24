@@ -18,8 +18,7 @@
 
 package org.apache.skywalking.apm.collector.storage.h2.define.register;
 
-import org.apache.skywalking.apm.collector.storage.h2.base.define.H2ColumnDefine;
-import org.apache.skywalking.apm.collector.storage.h2.base.define.H2TableDefine;
+import org.apache.skywalking.apm.collector.storage.h2.base.define.*;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceNameTable;
 
 /**
@@ -37,5 +36,7 @@ public class ServiceNameH2TableDefine extends H2TableDefine {
         addColumn(new H2ColumnDefine(ServiceNameTable.SERVICE_NAME, H2ColumnDefine.Type.Varchar.name()));
         addColumn(new H2ColumnDefine(ServiceNameTable.SERVICE_ID, H2ColumnDefine.Type.Int.name()));
         addColumn(new H2ColumnDefine(ServiceNameTable.SRC_SPAN_TYPE, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ServiceNameTable.REGISTER_TIME, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceNameTable.HEARTBEAT_TIME, H2ColumnDefine.Type.Bigint.name()));
     }
 }

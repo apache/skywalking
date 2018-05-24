@@ -18,17 +18,14 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao.register;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.storage.dao.register.IServiceNameRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
-import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
-import org.apache.skywalking.apm.collector.storage.table.register.ServiceNameTable;
+import org.apache.skywalking.apm.collector.storage.table.register.*;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.support.WriteRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -58,6 +55,8 @@ public class ServiceNameRegisterEsDAO extends EsDAO implements IServiceNameRegis
         target.put(ServiceNameTable.SERVICE_NAME.getName(), serviceName.getServiceName());
         target.put(ServiceNameTable.SERVICE_NAME_KEYWORD.getName(), serviceName.getServiceName());
         target.put(ServiceNameTable.SRC_SPAN_TYPE.getName(), serviceName.getSrcSpanType());
+        target.put(ServiceNameTable.REGISTER_TIME.getName(), serviceName.getRegisterTime());
+        target.put(ServiceNameTable.HEARTBEAT_TIME.getName(), serviceName.getHeartBeatTime());
 
         IndexResponse response = client.prepareIndex(ServiceNameTable.TABLE, serviceName.getId()).setSource(target).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
         logger.debug("save service name register info, application getApplicationId: {}, service name: {}, status: {}", serviceName.getId(), serviceName.getServiceName(), response.status().name());
