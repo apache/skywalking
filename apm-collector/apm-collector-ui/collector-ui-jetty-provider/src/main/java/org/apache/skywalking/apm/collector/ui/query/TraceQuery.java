@@ -22,9 +22,7 @@ import org.apache.skywalking.apm.collector.core.UnexpectedException;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
-import org.apache.skywalking.apm.collector.storage.ui.trace.Trace;
-import org.apache.skywalking.apm.collector.storage.ui.trace.TraceBrief;
-import org.apache.skywalking.apm.collector.storage.ui.trace.TraceQueryCondition;
+import org.apache.skywalking.apm.collector.storage.ui.trace.*;
 import org.apache.skywalking.apm.collector.ui.graphql.Query;
 import org.apache.skywalking.apm.collector.ui.service.SegmentTopService;
 import org.apache.skywalking.apm.collector.ui.service.TraceStackService;
@@ -81,9 +79,11 @@ public class TraceQuery implements Query {
         long maxDuration = condition.getMaxTraceDuration();
         String operationName = condition.getOperationName();
         int applicationId = condition.getApplicationId();
+        TraceState traceState = condition.getTraceState();
+        QueryOrder queryOrder = condition.getQueryOrder();
 
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
-        return getSegmentTopService().loadTop(startSecondTimeBucket, endSecondTimeBucket, minDuration, maxDuration, operationName, traceId, applicationId, page.getLimit(), page.getFrom());
+        return getSegmentTopService().loadTop(startSecondTimeBucket, endSecondTimeBucket, minDuration, maxDuration, operationName, traceId, applicationId, page.getLimit(), page.getFrom(),traceState,queryOrder);
     }
 
     public Trace queryTrace(String traceId) {
