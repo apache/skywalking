@@ -42,7 +42,15 @@ input TraceQueryCondition {
   minTraceDuration: Int
   # The max time of trace
   maxTraceDuration: Int
+  traceState: TraceState!
+  queryOrder: QueryOrder!
   paging: Pagination!
+}
+
+enum TraceState {
+  ALL
+  SUCCESS
+  ERROR
 }
 
 enum QueryOrder {
