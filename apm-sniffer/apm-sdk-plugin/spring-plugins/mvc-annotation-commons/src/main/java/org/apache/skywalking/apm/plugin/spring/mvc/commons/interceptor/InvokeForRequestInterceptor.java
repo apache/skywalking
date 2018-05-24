@@ -19,12 +19,15 @@
 
 package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import java.lang.reflect.Method;
+
+import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESPONSE_KEY_IN_RUNTIME_CONTEXT;
 
 /**
  * {@link InvokeForRequestInterceptor} pass the {@link NativeWebRequest} object into the {@link
@@ -36,7 +39,7 @@ public class InvokeForRequestInterceptor implements InstanceMethodsAroundInterce
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        objInst.setSkyWalkingDynamicField(allArguments[0]);
+        ContextManager.getRuntimeContext().put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, ((NativeWebRequest)allArguments[0]).getNativeResponse());
     }
 
     @Override
