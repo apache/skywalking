@@ -16,26 +16,10 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.spring.mvc.commons;
+package org.apache.skywalking.apm.collector.storage.ui.trace;
 
-import java.lang.reflect.Method;
-
-public class EnhanceRequireObjectCache {
-    private PathMappingCache pathMappingCache;
-
-    public void setPathMappingCache(PathMappingCache pathMappingCache) {
-        this.pathMappingCache = pathMappingCache;
-    }
-
-    public String findPathMapping(Method method) {
-        return pathMappingCache.findPathMapping(method);
-    }
-
-    public void addPathMapping(Method method, String url) {
-        pathMappingCache.addPathMapping(method, url);
-    }
-
-    public PathMappingCache getPathMappingCache() {
-        return pathMappingCache;
-    }
+public enum TraceState {
+    ALL,
+    SUCCESS,
+    ERROR
 }

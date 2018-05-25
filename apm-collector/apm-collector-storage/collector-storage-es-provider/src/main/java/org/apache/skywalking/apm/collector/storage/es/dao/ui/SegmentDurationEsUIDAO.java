@@ -27,7 +27,9 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentDurationUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.segment.SegmentDurationTable;
 import org.apache.skywalking.apm.collector.storage.ui.trace.BasicTrace;
+import org.apache.skywalking.apm.collector.storage.ui.trace.QueryOrder;
 import org.apache.skywalking.apm.collector.storage.ui.trace.TraceBrief;
+import org.apache.skywalking.apm.collector.storage.ui.trace.TraceState;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -49,7 +51,7 @@ public class SegmentDurationEsUIDAO extends EsDAO implements ISegmentDurationUID
 
     @Override
     public TraceBrief loadTop(long startSecondTimeBucket, long endSecondTimeBucket, long minDuration, long maxDuration,
-        String operationName, int applicationId, int limit, int from, String... segmentIds) {
+                              String operationName, int applicationId, int limit, int from, TraceState traceState, QueryOrder queryOrder, String... segmentIds) {
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(SegmentDurationTable.TABLE);
         searchRequestBuilder.setTypes(SegmentDurationTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
@@ -81,8 +83,22 @@ public class SegmentDurationEsUIDAO extends EsDAO implements ISegmentDurationUID
         if (applicationId != 0) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentDurationTable.APPLICATION_ID.getName(), applicationId));
         }
-
-        searchRequestBuilder.addSort(SegmentDurationTable.START_TIME.getName(), SortOrder.DESC);
+        switch (traceState) {
+            case ERROR:
+                mustQueryList.add(QueryBuilders.matchQuery(SegmentDurationTable.IS_ERROR.getName(), BooleanUtils.TRUE));
+                break;
+            case SUCCESS:
+                mustQueryList.add(QueryBuilders.matchQuery(SegmentDurationTable.IS_ERROR.getName(), BooleanUtils.FALSE));
+                break;
+        }
+        switch (queryOrder) {
+            case BY_START_TIME:
+                searchRequestBuilder.addSort(SegmentDurationTable.START_TIME.getName(), SortOrder.DESC);
+                break;
+            case
+                BY_DURATION:searchRequestBuilder.addSort(SegmentDurationTable.DURATION.getName(), SortOrder.DESC);
+                break;
+        }
         searchRequestBuilder.setSize(limit);
         searchRequestBuilder.setFrom(from);
 
