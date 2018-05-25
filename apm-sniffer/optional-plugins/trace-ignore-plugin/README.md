@@ -6,7 +6,7 @@ Here is an optional plugin `apm-trace-ignore-plugin`
 - You can set up a number of paths that need to be ignored, means the `agent` won't send the traces to `collector`.
 - The current matching rule follows `Ant Path` match style , like `/path/*`, `/path/**`, `/path/?`.
 - Copy `apm-trace-ignore-plugin-x.jar` to `agent/plugins`, restarting the `agent` can take effect.
-- [Skywalking-使用可选插件 apm-trace-ignore-plugin](https://blog.csdn.net/u013095337/article/details/80452088) have a detailed introduction.
+- [Skywalking-use optional plugin apm-trace-ignore-plugin](https://blog.csdn.net/u013095337/article/details/80452088) have a detailed introduction.
                                                                                                          
 
 ## How to configure
