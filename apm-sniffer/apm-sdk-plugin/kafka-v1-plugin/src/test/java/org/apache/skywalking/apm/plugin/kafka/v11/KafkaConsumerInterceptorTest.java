@@ -46,7 +46,7 @@ import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
-import static org.apache.skywalking.apm.network.trace.component.ComponentsDefine.KAFKA;
+import static org.apache.skywalking.apm.network.trace.component.ComponentsDefine.KAFKA_CONSUMER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -128,7 +128,7 @@ public class KafkaConsumerInterceptorTest {
 
     private void assertConsumerSpan(AbstractTracingSpan span) {
         SpanAssert.assertLayer(span, SpanLayer.MQ);
-        SpanAssert.assertComponent(span, KAFKA);
+        SpanAssert.assertComponent(span, KAFKA_CONSUMER);
         SpanAssert.assertTagSize(span, 2);
         SpanAssert.assertTag(span, 0, "localhost:9092;localhost:19092");
         SpanAssert.assertTag(span, 1, "test;test-1");

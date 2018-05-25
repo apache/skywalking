@@ -109,7 +109,7 @@ public class MessageSendInterceptorTest {
         AbstractTracingSpan mqSpan = spans.get(0);
 
         SpanAssert.assertLayer(mqSpan, SpanLayer.MQ);
-        SpanAssert.assertComponent(mqSpan, ComponentsDefine.ROCKET_MQ);
+        SpanAssert.assertComponent(mqSpan, ComponentsDefine.ROCKET_MQ_PRODUCER);
         SpanAssert.assertTag(mqSpan, 0, "127.0.0.1");
         verify(messageRequestHeader, times(1)).setProperties(anyString());
         verify(callBack, times(1)).setSkyWalkingDynamicField(Matchers.any());
@@ -128,7 +128,7 @@ public class MessageSendInterceptorTest {
         AbstractTracingSpan mqSpan = spans.get(0);
 
         SpanAssert.assertLayer(mqSpan, SpanLayer.MQ);
-        SpanAssert.assertComponent(mqSpan, ComponentsDefine.ROCKET_MQ);
+        SpanAssert.assertComponent(mqSpan, ComponentsDefine.ROCKET_MQ_PRODUCER);
         SpanAssert.assertTag(mqSpan, 0, "127.0.0.1");
         verify(messageRequestHeader, times(1)).setProperties(anyString());
     }
