@@ -29,7 +29,7 @@ import org.apache.skywalking.apm.collector.server.jetty.JettyHandler;
  */
 public class SpanJettyHandler extends JettyHandler {
     @Override public String pathSpec() {
-        return "";
+        return "/api/v2/spans";
     }
 
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {

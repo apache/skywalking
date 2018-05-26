@@ -91,4 +91,4 @@ receiver_zipkin:
   default:
     host: localhost
     port: 9411
-    contextPath: /api/v2/spans
+    contextPath: /
