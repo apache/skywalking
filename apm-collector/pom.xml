@@ -45,6 +45,7 @@
         <module>apm-collector-configuration</module>
         <module>apm-collector-agent</module>
         <module>apm-collector-analysis</module>
+        <module>apm-collector-thirdparty-receiver</module>
     </modules>
 
     <properties>
