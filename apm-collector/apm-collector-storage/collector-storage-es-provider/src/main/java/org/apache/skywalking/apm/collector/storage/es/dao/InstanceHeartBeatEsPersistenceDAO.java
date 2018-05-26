@@ -18,20 +18,17 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.UnexpectedException;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceHeartBeatPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
-import org.apache.skywalking.apm.collector.storage.table.register.Instance;
-import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
+import org.apache.skywalking.apm.collector.storage.table.register.*;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -54,10 +51,10 @@ public class InstanceHeartBeatEsPersistenceDAO extends EsDAO implements IInstanc
             instance.setId(id);
             instance.setInstanceId(((Number)source.get(InstanceTable.INSTANCE_ID.getName())).intValue());
             instance.setHeartBeatTime(((Number)source.get(InstanceTable.HEARTBEAT_TIME.getName())).longValue());
-            logger.debug("getApplicationId: {} is exists", id);
+            logger.debug("instance id: {} is exists", id);
             return instance;
         } else {
-            logger.debug("getApplicationId: {} is not exists", id);
+            logger.debug("instance id: {} is not exists", id);
             return null;
         }
     }
@@ -72,6 +69,6 @@ public class InstanceHeartBeatEsPersistenceDAO extends EsDAO implements IInstanc
         return getClient().prepareUpdate(InstanceTable.TABLE, data.getId()).setDoc(source);
     }
 
-    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+    @Override public void deleteHistory(Long timeBucketBefore) {
     }
 }

@@ -90,6 +90,6 @@ public abstract class AbstractPersistenceH2DAO<STREAM_DATA extends StreamData> e
         return entity;
     }
 
-    @Override public final void deleteHistory(Long startTimestamp, Long endTimestamp) {
+    @Override public void deleteHistory(Long timeBucketBefore) {
     }
 }

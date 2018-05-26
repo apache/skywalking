@@ -68,7 +68,11 @@ storage:
     indexShardsNumber: 2
     indexReplicasNumber: 0
     highPerformanceMode: true
-    ttl: 7
+    # Set a timeout on metric data. After the timeout has expired, the metric data will automatically be deleted.
+    minuteMetricDataTTL: 45 # Unit is minute
+    hourMetricDataTTL: 36 # Unit is hour
+    dayMetricDataTTL: 45 # Unit is day
+    monthMetricDataTTL: 18 # Unit is month
 #storage:
 #  h2:
 #    url: jdbc:h2:~/memorydb

@@ -27,8 +27,11 @@ class StorageModuleEsConfig extends ElasticSearchClientConfig {
 
     private int indexShardsNumber;
     private int indexReplicasNumber;
-    private int ttl;
     private boolean highPerformanceMode;
+    private int minuteMetricDataTTL;
+    private int hourMetricDataTTL;
+    private int dayMetricDataTTL;
+    private int monthMetricDataTTL;
 
     int getIndexShardsNumber() {
         return indexShardsNumber;
@@ -46,19 +49,43 @@ class StorageModuleEsConfig extends ElasticSearchClientConfig {
         this.indexReplicasNumber = indexReplicasNumber;
     }
 
-    int getTtl() {
-        return ttl;
-    }
-
-    void setTtl(int ttl) {
-        this.ttl = ttl;
-    }
-
     boolean isHighPerformanceMode() {
         return highPerformanceMode;
     }
 
     void setHighPerformanceMode(boolean highPerformanceMode) {
         this.highPerformanceMode = highPerformanceMode;
+    }
+
+    int getMinuteMetricDataTTL() {
+        return minuteMetricDataTTL;
+    }
+
+    void setMinuteMetricDataTTL(int minuteMetricDataTTL) {
+        this.minuteMetricDataTTL = minuteMetricDataTTL;
+    }
+
+    int getHourMetricDataTTL() {
+        return hourMetricDataTTL;
+    }
+
+    void setHourMetricDataTTL(int hourMetricDataTTL) {
+        this.hourMetricDataTTL = hourMetricDataTTL;
+    }
+
+    int getDayMetricDataTTL() {
+        return dayMetricDataTTL;
+    }
+
+    void setDayMetricDataTTL(int dayMetricDataTTL) {
+        this.dayMetricDataTTL = dayMetricDataTTL;
+    }
+
+    int getMonthMetricDataTTL() {
+        return monthMetricDataTTL;
+    }
+
+    void setMonthMetricDataTTL(int monthMetricDataTTL) {
+        this.monthMetricDataTTL = monthMetricDataTTL;
     }
 }

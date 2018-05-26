@@ -27,8 +27,7 @@ import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -74,9 +73,9 @@ public abstract class AbstractPersistenceEsDAO<STREAM_DATA extends StreamData> e
     protected abstract String timeBucketColumnNameForDelete();
 
     @Override
-    public final void deleteHistory(Long startTimeBucket, Long endTimeBucket) {
+    public final void deleteHistory(Long timeBucketBefore) {
         BulkByScrollResponse response = getClient().prepareDelete(
-            QueryBuilders.rangeQuery(timeBucketColumnNameForDelete()).gte(startTimeBucket).lte(endTimeBucket),
+            QueryBuilders.rangeQuery(timeBucketColumnNameForDelete()).lte(timeBucketBefore),
             tableName())
             .get();
 
