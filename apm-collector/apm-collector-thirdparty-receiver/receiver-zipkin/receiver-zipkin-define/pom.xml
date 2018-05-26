@@ -21,24 +21,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>apm-collector-thirdparty-receiver</artifactId>
+        <artifactId>receiver-zipkin</artifactId>
         <groupId>org.apache.skywalking</groupId>
         <version>5.0.0-beta2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>receiver-zipkin</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>receiver-zipkin-define</module>
-        <module>receiver-zipkin-provider</module>
-    </modules>
+    <artifactId>receiver-zipkin-define</artifactId>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>apm-collector-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
+
 </project>

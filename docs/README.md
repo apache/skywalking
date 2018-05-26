@@ -16,6 +16,7 @@
   * Incubating Features
     * [Abstract](en/Incubating/Abstract.md)
     * [Support Custom Trace Ignore](../apm-sniffer/optional-plugins/trace-ignore-plugin/README.md)
+    * [Receive Zipkin span data](../apm-collector/apm-collector-thirdparty-receiver/receiver-zipkin/docs/README.md)
   * Application Toolkit
     * [Overview](en/Applicaton-toolkit.md)
     * [OpenTracing Tracer](en/Opentracing.md)

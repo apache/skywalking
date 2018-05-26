@@ -87,3 +87,8 @@ configuration:
 # thermodynamic
     thermodynamicResponseTimeStep: 50
     thermodynamicCountOfResponseTimeSteps: 40
+receiver_zipkin:
+  default:
+    host: localhost
+    port: 9411
+    contextPath: /api/v2/spans
