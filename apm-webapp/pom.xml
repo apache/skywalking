@@ -125,7 +125,7 @@
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>install --registry=https://registry.yarnpkg.org/</arguments>
+                            <arguments>install --registry=https://registry.yarnpkg.com/</arguments>
                         </configuration>
                     </execution>
                     <execution>
