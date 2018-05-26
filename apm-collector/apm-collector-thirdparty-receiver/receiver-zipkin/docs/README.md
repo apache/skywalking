@@ -1,9 +1,9 @@
 # Zipkin receiver
 Zipkin receiver provides the feature to receive span data from zipkin instrumented applications. SkyWalking backend provides
-analysis, aggregation and visualization. So the user will not need to change or learn how SkyWalking auto instrumentation
-agents(Java, .NET, node.js) work, or they don't want to change for some reasons.
+analysis, aggregation and visualization. So the user will not need to learn how SkyWalking auto instrumentation
+agents(Java, .NET, node.js) work, or they don't want to change for some reasons, such as Zipkin instrumentation integration has completed.
 
-Zipkin receiver is only an optional features in SkyWalking, even now it is [an incubating feature](../../../docs/en/Incubating/Abstract.md).
+Zipkin receiver is only an optional features in SkyWalking, even now it is [an incubating feature](../../../../docs/en/Incubating/Abstract.md).
 
 ## Limits
 As an incubating feature, it is a prototype. So it has following limits:
