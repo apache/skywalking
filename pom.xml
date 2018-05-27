@@ -295,7 +295,7 @@
                     <dependency>
                         <groupId>org.apache.skywalking</groupId>
                         <artifactId>apm-checkstyle</artifactId>
-                        <version>${project.version}</version>
+                        <version>5.0.0-beta</version>
                     </dependency>
                 </dependencies>
                 <executions>
