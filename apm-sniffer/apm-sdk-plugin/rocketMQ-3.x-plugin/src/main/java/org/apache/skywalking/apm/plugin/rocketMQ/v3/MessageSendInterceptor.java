@@ -58,7 +58,7 @@ public class MessageSendInterceptor implements InstanceMethodsAroundInterceptor 
         ContextCarrier contextCarrier = new ContextCarrier();
         String namingServiceAddress = String.valueOf(objInst.getSkyWalkingDynamicField());
         AbstractSpan span = ContextManager.createExitSpan(buildOperationName(message.getTopic()), contextCarrier, namingServiceAddress);
-        span.setComponent(ComponentsDefine.ROCKET_MQ);
+        span.setComponent(ComponentsDefine.ROCKET_MQ_PRODUCER);
         Tags.MQ_BROKER.set(span, (String)allArguments[0]);
         Tags.MQ_TOPIC.set(span, message.getTopic());
         SpanLayer.asMQ(span);

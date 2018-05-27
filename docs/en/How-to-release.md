@@ -39,11 +39,12 @@ mvn release:clean
 mvn release:prepare -DautoVersionSubmodules=true
 ```
 
-## Stage the release for a vote
+## Stage the release 
 ```
 mvn release:perform -DskipTests -Ptravis-ci-submodule
 ```
-The release will automatically be inserted into a temporary staging repository for you.
+1. Set version number as x.y.z, and tag as x.y.z(RCx). `x` in `RCx` is based the number of attempts release, aka `RELEASE_ROUND` in this doc, and starts with 1.
+1. The release will automatically be inserted into a temporary staging repository for you.
 
 ## Build and sign the source code package
 ```shell
@@ -54,7 +55,7 @@ cd tools/releasing
 sh create_source_release.sh
 ```
 
-`x` in `RCx` is based the number of attempts release, and starts with 1.
+`RELEASE_ROUND` must be as same as your setting in `Stage the release` step.
 
 The `apache-skywalking-apm-incubating-x.y.z-src.tgz` should be found in `tools/releasing` folder,
 with .asc, .sha512, .md5
