@@ -50,7 +50,7 @@ class DataTTLKeeperTimer {
     private final ModuleManager moduleManager;
     private final StorageModuleEsNamingListener namingListener;
     private final String selfAddress;
-    private int minuteMetricDataTTL = 45;
+    private int minuteMetricDataTTL = 90;
     private int hourMetricDataTTL = 36;
     private int dayMetricDataTTL = 45;
     private int monthMetricDataTTL = 18;
@@ -71,16 +71,16 @@ class DataTTLKeeperTimer {
     private void delete() {
         String firstAddressInCluster = namingListener.getAddresses().iterator().next();
         if (!firstAddressInCluster.equals(selfAddress)) {
-            logger.info("Self address is {}, first address in cluster is {}, not same, skip.", selfAddress, firstAddressInCluster);
+            logger.info("Current address {} isn't same with the selected first address is {}. Skip.", selfAddress, firstAddressInCluster);
             return;
         }
 
         TimeBuckets timeBuckets = convertTimeBucket(new DateTime());
-        logger.info("Beginning automatically removed metric data from the storage which they were expires");
-        logger.info("The expires minute time bucket is: {}", timeBuckets.minuteTimeBucketBefore);
-        logger.info("The expires hour time bucket is: {}", timeBuckets.hourTimeBucketBefore);
-        logger.info("The expires day time bucket is: {}", timeBuckets.dayTimeBucketBefore);
-        logger.info("The expires month time bucket is: {}", timeBuckets.monthTimeBucketBefore);
+        logger.info("Beginning to remove expired metrics from the storage.");
+        logger.info("Metrics in minute dimension before {}, are going to be removed.", timeBuckets.minuteTimeBucketBefore);
+        logger.info("Metrics in hour dimension before {}, are going to be removed.", timeBuckets.hourTimeBucketBefore);
+        logger.info("Metrics in day dimension before {}, are going to be removed.", timeBuckets.dayTimeBucketBefore);
+        logger.info("Metrics in month dimension before {}, are going to be removed.", timeBuckets.monthTimeBucketBefore);
 
         deleteJVMRelatedData(timeBuckets);
         deleteTraceRelatedData(timeBuckets);
@@ -206,7 +206,7 @@ class DataTTLKeeperTimer {
     }
 
     void setMinuteMetricDataTTL(int minuteMetricDataTTL) {
-        this.minuteMetricDataTTL = minuteMetricDataTTL == 0 ? 45 : minuteMetricDataTTL;
+        this.minuteMetricDataTTL = minuteMetricDataTTL == 0 ? 90 : minuteMetricDataTTL;
     }
 
     void setHourMetricDataTTL(int hourMetricDataTTL) {
