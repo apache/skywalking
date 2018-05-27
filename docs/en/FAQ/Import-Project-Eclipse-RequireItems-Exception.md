@@ -1,9 +1,11 @@
 ### Problem
 - Import skywalking project to Eclipse,Occur following errors:
-+  Software being installed: Checkstyle configuration plugin for M2Eclipse 1.0.0.201705301746 (com.basistech.m2e.code.quality.checkstyle.feature.feature.group 
-+  1.0.0.201705301746)
-+  Missing requirement: Checkstyle configuration plugin for M2Eclipse 1.0.0.201705301746 (com.basistech.m2e.code.quality.checkstyle.feature.feature.group  
-+  1.0.0.201705301746) requires 'net.sf.eclipsecs.core 5.2.0' but it could not be found
+> Software being installed: Checkstyle configuration plugin for
+> M2Eclipse 1.0.0.201705301746
+> (com.basistech.m2e.code.quality.checkstyle.feature.feature.group 
+> 1.0.0.201705301746) Missing requirement: Checkstyle configuration plugin for M2Eclipse 1.0.0.201705301746
+> (com.basistech.m2e.code.quality.checkstyle.feature.feature.group 
+> 1.0.0.201705301746) requires 'net.sf.eclipsecs.core 5.2.0' but it could not be found
 
 ### Reason
 Haven't installed Eclipse Checkstyle Plug-in
