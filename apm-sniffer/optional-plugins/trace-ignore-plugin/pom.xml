@@ -52,6 +52,7 @@
                                 <copy file="${project.basedir}/${project.name}.config" tofile="${optional.plugin.dest.dir}/${project.name}/${project.name}.config" overwrite="true" />
                                 <!-- copy introduction -->
                                 <copy file="${project.basedir}/README.md" tofile="${optional.plugin.dest.dir}/${project.name}/README.md" overwrite="true" />
+                                <copy file="${project.basedir}/README_CN.md" tofile="${optional.plugin.dest.dir}/${project.name}/README_CN.md" overwrite="true" />
                             </tasks>
                         </configuration>
                     </execution>
