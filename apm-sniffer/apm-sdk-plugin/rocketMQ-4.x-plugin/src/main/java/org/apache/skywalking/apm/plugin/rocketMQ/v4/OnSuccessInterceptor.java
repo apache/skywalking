@@ -46,7 +46,7 @@ public class OnSuccessInterceptor implements InstanceMethodsAroundInterceptor {
         MethodInterceptResult result) throws Throwable {
         SendCallBackEnhanceInfo enhanceInfo = (SendCallBackEnhanceInfo)objInst.getSkyWalkingDynamicField();
         AbstractSpan activeSpan = ContextManager.createLocalSpan(CALLBACK_OPERATION_NAME_PREFIX + enhanceInfo.getTopicId() + "/Producer/Callback");
-        activeSpan.setComponent(ComponentsDefine.ROCKET_MQ);
+        activeSpan.setComponent(ComponentsDefine.ROCKET_MQ_PRODUCER);
         SendStatus sendStatus = ((SendResult)allArguments[0]).getSendStatus();
         if (sendStatus != SendStatus.SEND_OK) {
             activeSpan.errorOccurred();
