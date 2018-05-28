@@ -64,7 +64,7 @@ public class GlobalTraceSpanListener implements GlobalTraceIdsListener {
         for (String globalTraceId : globalTraceIds) {
             GlobalTrace globalTrace = new GlobalTrace();
             globalTrace.setId(segmentCoreInfo.getSegmentId() + Const.ID_SPLIT + globalTraceId);
-            globalTrace.setGlobalTraceId(globalTraceId);
+            globalTrace.setTraceId(globalTraceId);
             globalTrace.setSegmentId(segmentCoreInfo.getSegmentId());
             globalTrace.setTimeBucket(segmentCoreInfo.getMinuteTimeBucket());
             graph.start(globalTrace);

@@ -20,16 +20,11 @@ package org.apache.skywalking.apm.collector.ui.service;
 
 import java.util.List;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
-import org.apache.skywalking.apm.collector.core.util.StringUtils;
+import org.apache.skywalking.apm.collector.core.util.*;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IGlobalTraceUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentDurationUIDAO;
-import org.apache.skywalking.apm.collector.storage.ui.trace.QueryOrder;
-import org.apache.skywalking.apm.collector.storage.ui.trace.TraceBrief;
-import org.apache.skywalking.apm.collector.storage.ui.trace.TraceState;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.apm.collector.storage.dao.ui.*;
+import org.apache.skywalking.apm.collector.storage.ui.trace.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -47,12 +42,12 @@ public class SegmentTopService {
     }
 
     public TraceBrief loadTop(long startSecondTimeBucket, long endSecondTimeBucket, long minDuration, long maxDuration,
-                              String operationName,
-                              String traceId, int applicationId, int limit, int from, TraceState traceState, QueryOrder queryOrder) {
+        String operationName,
+        String traceId, int applicationId, int limit, int from, TraceState traceState, QueryOrder queryOrder) {
         logger.debug("startSecondTimeBucket: {}, endSecondTimeBucket: {}, minDuration: {}, " +
                 "maxDuration: {}, operationName: {}, traceId: {}, applicationId: {}, limit: {}, from: {}, traceState: {}, queryOrder: {}",
             startSecondTimeBucket, endSecondTimeBucket, minDuration,
-            maxDuration, operationName, traceId, applicationId, limit, from,traceState,queryOrder);
+            maxDuration, operationName, traceId, applicationId, limit, from, traceState, queryOrder);
 
         TraceBrief traceBrief;
         if (StringUtils.isNotEmpty(traceId)) {
