@@ -38,10 +38,10 @@ cluster:
     sessionTimeout: 100000
 naming:
 # 配置探针使用的host和port
-  jetty:
+jetty:
     host: localhost
     port: 10800
-    context_path: /
+    contextPath: /
 remote:
   gRPC:
     host: localhost
@@ -54,30 +54,50 @@ agent_jetty:
   jetty:
     host: localhost
     port: 12800
-    context_path: /
+    contextPath: /
 analysis_register:
   default:
 analysis_jvm:
   default:
 analysis_segment_parser:
   default:
-    buffer_file_path: ../buffer/
-    buffer_offset_max_file_size: 10M
-    buffer_segment_max_file_size: 500M
+    bufferFilePath: ../buffer/
+    bufferOffsetMaxFileSize: 10M
+    bufferSegmentMaxFileSize: 500M
 ui:
   jetty:
     host: localhost
     port: 12800
-    context_path: /
+    contextPath: /
 # 配置 Elasticsearch 集群连接信息
 storage:
   elasticsearch:
-    cluster_name: CollectorDBCluster
-    cluster_transport_sniffer: true
-    cluster_nodes: localhost:9300
-    index_shards_number: 2
-    index_replicas_number: 0
-    ttl: 7
+    clusterName: CollectorDBCluster
+    clusterTransportSniffer: true
+    clusterNodes: localhost:9300
+    indexShardsNumber: 2
+    indexReplicasNumber: 0
+    highPerformanceMode: true
+    # 设置统计指标数据的失效时间，当指标数据失效时系统将数据自动删除.
+    traceDataTTL: 90 # 单位为分
+    minuteMetricDataTTL: 90 # 单位为分
+    hourMetricDataTTL: 36 # 单位为小时
+    dayMetricDataTTL: 45 # 单位为天
+    monthMetricDataTTL: 18 # 单位为月
+configuration:
+  default:
+#     namespace: xxxxx
+# 告警阀值
+    applicationApdexThreshold: 2000
+    serviceErrorRateThreshold: 10.00
+    serviceAverageResponseTimeThreshold: 2000
+    instanceErrorRateThreshold: 10.00
+    instanceAverageResponseTimeThreshold: 2000
+    applicationErrorRateThreshold: 10.00
+    applicationAverageResponseTimeThreshold: 2000
+# 热力图配置，修改配置后需要删除热力指标统计表，由系统重建
+    thermodynamicResponseTimeStep: 50
+    thermodynamicCountOfResponseTimeSteps: 40
 ```
 
 

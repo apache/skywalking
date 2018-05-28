@@ -73,11 +73,11 @@ public class GlobalTrace extends StreamData {
         setDataString(1, segmentId);
     }
 
-    public String getGlobalTraceId() {
+    public String getTraceId() {
         return getDataString(2);
     }
 
-    public void setGlobalTraceId(String globalTraceId) {
+    public void setTraceId(String globalTraceId) {
         setDataString(2, globalTraceId);
     }
 
