@@ -78,6 +78,7 @@ storage:
     indexReplicasNumber: 0
     highPerformanceMode: true
     # Set a timeout on metric data. After the timeout has expired, the metric data will automatically be deleted.
+    traceDataTTL: 90 # Unit is minute
     minuteMetricDataTTL: 45 # Unit is minute
     hourMetricDataTTL: 36 # Unit is hour
     dayMetricDataTTL: 45 # Unit is day

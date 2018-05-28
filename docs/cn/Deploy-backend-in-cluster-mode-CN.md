@@ -79,7 +79,8 @@ storage:
     indexReplicasNumber: 0
     highPerformanceMode: true
     # 设置统计指标数据的失效时间，当指标数据失效时系统将数据自动删除.
-    minuteMetricDataTTL: 45 # 单位为分
+    traceDataTTL: 90 # 单位为分
+    minuteMetricDataTTL: 90 # 单位为分
     hourMetricDataTTL: 36 # 单位为小时
     dayMetricDataTTL: 45 # 单位为天
     monthMetricDataTTL: 18 # 单位为月

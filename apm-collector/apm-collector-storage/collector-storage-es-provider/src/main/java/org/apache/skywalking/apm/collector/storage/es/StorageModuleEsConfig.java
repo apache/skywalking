@@ -28,6 +28,7 @@ class StorageModuleEsConfig extends ElasticSearchClientConfig {
     private int indexShardsNumber;
     private int indexReplicasNumber;
     private boolean highPerformanceMode;
+    private int traceDataTTL;
     private int minuteMetricDataTTL;
     private int hourMetricDataTTL;
     private int dayMetricDataTTL;
@@ -55,6 +56,14 @@ class StorageModuleEsConfig extends ElasticSearchClientConfig {
 
     void setHighPerformanceMode(boolean highPerformanceMode) {
         this.highPerformanceMode = highPerformanceMode;
+    }
+
+    int getTraceDataTTL() {
+        return traceDataTTL;
+    }
+
+    void setTraceDataTTL(int traceDataTTL) {
+        this.traceDataTTL = traceDataTTL;
     }
 
     int getMinuteMetricDataTTL() {

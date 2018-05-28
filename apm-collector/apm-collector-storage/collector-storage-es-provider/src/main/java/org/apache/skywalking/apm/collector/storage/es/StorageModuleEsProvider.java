@@ -133,6 +133,7 @@ public class StorageModuleEsProvider extends ModuleProvider {
         moduleListenerService.addListener(namingListener);
 
         deleteTimer = new DataTTLKeeperTimer(getManager(), namingListener, esRegistration.buildValue().getHostPort());
+        deleteTimer.setTraceDataTTL(config.getTraceDataTTL());
         deleteTimer.setMinuteMetricDataTTL(config.getMinuteMetricDataTTL());
         deleteTimer.setHourMetricDataTTL(config.getHourMetricDataTTL());
         deleteTimer.setDayMetricDataTTL(config.getDayMetricDataTTL());

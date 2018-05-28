@@ -34,16 +34,19 @@ public class DataTTLKeeperTimerTestCase {
         DateTime currentTime = new DateTime(2018, 5, 26, 15, 5);
         DataTTLKeeperTimer.TimeBuckets timeBuckets = timer.convertTimeBucket(currentTime);
 
-        long startMinuteTimeBucket = Whitebox.getInternalState(timeBuckets, "minuteTimeBucketBefore");
-        Assert.assertEquals(201805261420L, startMinuteTimeBucket);
+        long traceDataBefore = Whitebox.getInternalState(timeBuckets, "traceDataBefore");
+        Assert.assertEquals(201805261335L, traceDataBefore);
 
-        long startHourTimeBucket = Whitebox.getInternalState(timeBuckets, "hourTimeBucketBefore");
-        Assert.assertEquals(2018052503, startHourTimeBucket);
+        long minuteTimeBucketBefore = Whitebox.getInternalState(timeBuckets, "minuteTimeBucketBefore");
+        Assert.assertEquals(201805261335L, minuteTimeBucketBefore);
 
-        long startDayTimeBucket = Whitebox.getInternalState(timeBuckets, "dayTimeBucketBefore");
-        Assert.assertEquals(20180411, startDayTimeBucket);
+        long hourTimeBucketBefore = Whitebox.getInternalState(timeBuckets, "hourTimeBucketBefore");
+        Assert.assertEquals(2018052503, hourTimeBucketBefore);
 
-        long startMonthTimeBucket = Whitebox.getInternalState(timeBuckets, "monthTimeBucketBefore");
-        Assert.assertEquals(201611, startMonthTimeBucket);
+        long dayTimeBucketBefore = Whitebox.getInternalState(timeBuckets, "dayTimeBucketBefore");
+        Assert.assertEquals(20180411, dayTimeBucketBefore);
+
+        long monthTimeBucketBefore = Whitebox.getInternalState(timeBuckets, "monthTimeBucketBefore");
+        Assert.assertEquals(201611, monthTimeBucketBefore);
     }
 }

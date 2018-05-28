@@ -50,6 +50,7 @@ class DataTTLKeeperTimer {
     private final ModuleManager moduleManager;
     private final StorageModuleEsNamingListener namingListener;
     private final String selfAddress;
+    private int traceDataTTL = 90;
     private int minuteMetricDataTTL = 90;
     private int hourMetricDataTTL = 36;
     private int dayMetricDataTTL = 45;
@@ -90,6 +91,7 @@ class DataTTLKeeperTimer {
     TimeBuckets convertTimeBucket(DateTime currentTime) {
         TimeBuckets timeBuckets = new TimeBuckets();
 
+        timeBuckets.traceDataBefore = Long.valueOf(currentTime.plusMinutes(0 - traceDataTTL).toString("yyyyMMddHHmm"));
         timeBuckets.minuteTimeBucketBefore = Long.valueOf(currentTime.plusMinutes(0 - minuteMetricDataTTL).toString("yyyyMMddHHmm"));
         timeBuckets.hourTimeBucketBefore = Long.valueOf(currentTime.plusHours(0 - hourMetricDataTTL).toString("yyyyMMddHH"));
         timeBuckets.dayTimeBucketBefore = Long.valueOf(currentTime.plusDays(0 - dayMetricDataTTL).toString("yyyyMMdd"));
@@ -150,9 +152,9 @@ class DataTTLKeeperTimer {
     }
 
     private void deleteTraceRelatedData(TimeBuckets timeBuckets) {
-        moduleManager.find(StorageModule.NAME).getService(IGlobalTracePersistenceDAO.class).deleteHistory(timeBuckets.minuteTimeBucketBefore);
-        moduleManager.find(StorageModule.NAME).getService(ISegmentDurationPersistenceDAO.class).deleteHistory(timeBuckets.minuteTimeBucketBefore);
-        moduleManager.find(StorageModule.NAME).getService(ISegmentPersistenceDAO.class).deleteHistory(timeBuckets.minuteTimeBucketBefore);
+        moduleManager.find(StorageModule.NAME).getService(IGlobalTracePersistenceDAO.class).deleteHistory(timeBuckets.traceDataBefore);
+        moduleManager.find(StorageModule.NAME).getService(ISegmentDurationPersistenceDAO.class).deleteHistory(timeBuckets.traceDataBefore);
+        moduleManager.find(StorageModule.NAME).getService(ISegmentPersistenceDAO.class).deleteHistory(timeBuckets.traceDataBefore);
 
         moduleManager.find(StorageModule.NAME).getService(IApplicationComponentMinutePersistenceDAO.class).deleteHistory(timeBuckets.minuteTimeBucketBefore);
         moduleManager.find(StorageModule.NAME).getService(IApplicationComponentHourPersistenceDAO.class).deleteHistory(timeBuckets.hourTimeBucketBefore);
@@ -205,6 +207,10 @@ class DataTTLKeeperTimer {
         moduleManager.find(StorageModule.NAME).getService(IServiceReferenceMonthMetricPersistenceDAO.class).deleteHistory(timeBuckets.monthTimeBucketBefore);
     }
 
+    void setTraceDataTTL(int traceDataTTL) {
+        this.traceDataTTL = traceDataTTL == 0 ? 90 : traceDataTTL;
+    }
+
     void setMinuteMetricDataTTL(int minuteMetricDataTTL) {
         this.minuteMetricDataTTL = minuteMetricDataTTL == 0 ? 90 : minuteMetricDataTTL;
     }
@@ -222,6 +228,7 @@ class DataTTLKeeperTimer {
     }
 
     class TimeBuckets {
+        private long traceDataBefore;
         private long minuteTimeBucketBefore;
         private long hourTimeBucketBefore;
         private long dayTimeBucketBefore;
