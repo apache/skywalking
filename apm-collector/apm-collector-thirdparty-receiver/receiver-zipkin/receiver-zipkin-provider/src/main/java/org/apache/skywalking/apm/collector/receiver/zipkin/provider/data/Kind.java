@@ -16,31 +16,11 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.receiver.zipkin.provider;
-
-import org.apache.skywalking.apm.collector.server.jetty.JettyServerConfig;
+package org.apache.skywalking.apm.collector.receiver.zipkin.provider.data;
 
 /**
  * @author wusheng
  */
-public class ZipkinReceiverConfig extends JettyServerConfig {
-    private int expireTime = 1;
-
-    private int maxCacheTime = 1_000_000;
-
-    public int getExpireTime() {
-        return expireTime;
-    }
-
-    public void setExpireTime(int expireTime) {
-        this.expireTime = expireTime;
-    }
-
-    public int getMaxCacheTime() {
-        return maxCacheTime;
-    }
-
-    public void setMaxCacheTime(int maxCacheTime) {
-        this.maxCacheTime = maxCacheTime;
-    }
+public enum Kind {
+    UNKNOWN, SERVER, CLIENT, PRODUCER, CONSUMER
 }

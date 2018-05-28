@@ -16,31 +16,49 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.receiver.zipkin.provider;
-
-import org.apache.skywalking.apm.collector.server.jetty.JettyServerConfig;
+package org.apache.skywalking.apm.collector.receiver.zipkin.provider.data;
 
 /**
  * @author wusheng
  */
-public class ZipkinReceiverConfig extends JettyServerConfig {
-    private int expireTime = 1;
+public class Endpoint {
+    private String serviceName;
 
-    private int maxCacheTime = 1_000_000;
+    private String ipv4;
 
-    public int getExpireTime() {
-        return expireTime;
+    private String ipv6;
+
+    private int port;
+
+    public String getServiceName() {
+        return serviceName;
     }
 
-    public void setExpireTime(int expireTime) {
-        this.expireTime = expireTime;
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 
-    public int getMaxCacheTime() {
-        return maxCacheTime;
+    public String getIpv4() {
+        return ipv4;
     }
 
-    public void setMaxCacheTime(int maxCacheTime) {
-        this.maxCacheTime = maxCacheTime;
+    public void setIpv4(String ipv4) {
+        this.ipv4 = ipv4;
+    }
+
+    public String getIpv6() {
+        return ipv6;
+    }
+
+    public void setIpv6(String ipv6) {
+        this.ipv6 = ipv6;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 }

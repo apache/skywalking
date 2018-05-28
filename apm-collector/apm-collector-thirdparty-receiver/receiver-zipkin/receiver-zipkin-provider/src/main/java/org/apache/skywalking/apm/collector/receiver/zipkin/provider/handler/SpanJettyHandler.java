@@ -18,16 +18,40 @@
 
 package org.apache.skywalking.apm.collector.receiver.zipkin.provider.handler;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.reflect.TypeToken;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.skywalking.apm.collector.receiver.zipkin.provider.ZipkinReceiverConfig;
+import org.apache.skywalking.apm.collector.receiver.zipkin.provider.cache.CacheFactory;
+import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.ZipkinSpan;
 import org.apache.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.apache.skywalking.apm.collector.server.jetty.JettyHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author wusheng
  */
 public class SpanJettyHandler extends JettyHandler {
+    private static final Logger logger = LoggerFactory.getLogger(SpanJettyHandler.class);
+
+    private Gson gson;
+    private Type spanListType;
+    private ZipkinReceiverConfig config;
+
+    public SpanJettyHandler(ZipkinReceiverConfig config) {
+        this.config = config;
+        gson = new Gson();
+        spanListType = new TypeToken<List<ZipkinSpan>>() {
+        }.getType();
+    }
+
     @Override public String pathSpec() {
         return "/api/v2/spans";
     }
@@ -36,7 +60,38 @@ public class SpanJettyHandler extends JettyHandler {
         return null;
     }
 
-    @Override protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException, IOException {
-        return null;
+    protected void doPost(HttpServletRequest req, HttpServletResponse response) {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("utf-8");
+
+        try {
+            BufferedReader br = req.getReader();
+
+            List<ZipkinSpan> spans = gson.fromJson(br, spanListType);
+            spans.forEach(span ->
+                CacheFactory.INSTANCE.get(config).addSpan(span)
+            );
+
+            response.setStatus(202);
+        } catch (Exception e) {
+            response.setStatus(500);
+
+            logger.error(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Zipkin doesn't request a Json format response.
+     * Implement {@link #doPost(HttpServletRequest, HttpServletResponse)} by following zipkin protocol.
+     * Leave this method no implementation.
+     *
+     * @param req
+     * @return
+     * @throws ArgumentsParseException
+     * @throws IOException
+     */
+    @Override
+    protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException, IOException {
+        throw new UnsupportedOperationException();
     }
 }

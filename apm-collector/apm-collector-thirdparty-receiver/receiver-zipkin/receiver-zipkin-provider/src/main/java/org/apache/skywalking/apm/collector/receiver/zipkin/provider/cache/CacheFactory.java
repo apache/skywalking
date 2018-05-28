@@ -16,31 +16,30 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.receiver.zipkin.provider;
+package org.apache.skywalking.apm.collector.receiver.zipkin.provider.cache;
 
-import org.apache.skywalking.apm.collector.server.jetty.JettyServerConfig;
+import org.apache.skywalking.apm.collector.receiver.zipkin.provider.ZipkinReceiverConfig;
+import org.apache.skywalking.apm.collector.receiver.zipkin.provider.cache.caffeine.CaffeineSpanCache;
 
 /**
  * @author wusheng
  */
-public class ZipkinReceiverConfig extends JettyServerConfig {
-    private int expireTime = 1;
+public class CacheFactory {
+    public static final CacheFactory INSTANCE = new CacheFactory();
 
-    private int maxCacheTime = 1_000_000;
+    private ISpanCache implementor;
 
-    public int getExpireTime() {
-        return expireTime;
+    private CacheFactory() {
     }
 
-    public void setExpireTime(int expireTime) {
-        this.expireTime = expireTime;
-    }
-
-    public int getMaxCacheTime() {
-        return maxCacheTime;
-    }
-
-    public void setMaxCacheTime(int maxCacheTime) {
-        this.maxCacheTime = maxCacheTime;
+    public ISpanCache get(ZipkinReceiverConfig config) {
+        if (implementor == null) {
+            synchronized (INSTANCE) {
+                if (implementor == null) {
+                    implementor = new CaffeineSpanCache(config);
+                }
+            }
+        }
+        return implementor;
     }
 }

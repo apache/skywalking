@@ -16,31 +16,30 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.receiver.zipkin.provider;
+package org.apache.skywalking.apm.collector.receiver.zipkin.provider.data;
 
-import org.apache.skywalking.apm.collector.server.jetty.JettyServerConfig;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author wusheng
  */
-public class ZipkinReceiverConfig extends JettyServerConfig {
-    private int expireTime = 1;
+public class ZipkinTrace {
+    private List<ZipkinSpan> spans;
+    private ReentrantLock spanWriteLock;
 
-    private int maxCacheTime = 1_000_000;
-
-    public int getExpireTime() {
-        return expireTime;
+    public ZipkinTrace() {
+        spans = new LinkedList<>();
+        spanWriteLock = new ReentrantLock();
     }
 
-    public void setExpireTime(int expireTime) {
-        this.expireTime = expireTime;
-    }
-
-    public int getMaxCacheTime() {
-        return maxCacheTime;
-    }
-
-    public void setMaxCacheTime(int maxCacheTime) {
-        this.maxCacheTime = maxCacheTime;
+    public void addSpan(ZipkinSpan span) {
+        spanWriteLock.lock();
+        try {
+            spans.add(span);
+        } finally {
+            spanWriteLock.unlock();
+        }
     }
 }

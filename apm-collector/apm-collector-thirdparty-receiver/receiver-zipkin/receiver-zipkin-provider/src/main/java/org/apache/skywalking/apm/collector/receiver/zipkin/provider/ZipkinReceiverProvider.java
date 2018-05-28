@@ -89,6 +89,6 @@ public class ZipkinReceiverProvider extends ModuleProvider {
     }
 
     private void addHandlers(JettyServer jettyServer) {
-        jettyServer.addHandler(new SpanJettyHandler());
+        jettyServer.addHandler(new SpanJettyHandler(config));
     }
 }

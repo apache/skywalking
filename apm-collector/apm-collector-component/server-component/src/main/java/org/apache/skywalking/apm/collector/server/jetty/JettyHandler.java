@@ -43,7 +43,7 @@ public abstract class JettyHandler extends HttpServlet implements ServerHandler 
     public abstract String pathSpec();
 
     @Override
-    protected final void doGet(HttpServletRequest req, HttpServletResponse resp) {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         try {
             reply(resp, doGet(req));
         } catch (ArgumentsParseException | IOException e) {
@@ -58,7 +58,7 @@ public abstract class JettyHandler extends HttpServlet implements ServerHandler 
     protected abstract JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException;
 
     @Override
-    protected final void doPost(HttpServletRequest req, HttpServletResponse resp) {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try {
             reply(resp, doPost(req));
         } catch (ArgumentsParseException | IOException e) {
