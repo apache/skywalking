@@ -51,10 +51,10 @@ public class InstanceHeartBeatEsPersistenceDAO extends EsDAO implements IInstanc
             instance.setId(id);
             instance.setInstanceId(((Number)source.get(InstanceTable.INSTANCE_ID.getName())).intValue());
             instance.setHeartBeatTime(((Number)source.get(InstanceTable.HEARTBEAT_TIME.getName())).longValue());
-            logger.debug("instance id: {} is exists", id);
+            logger.debug("instance id: {} exists", id);
             return instance;
         } else {
-            logger.debug("instance id: {} is not exists", id);
+            logger.debug("instance id: {} not exists", id);
             return null;
         }
     }
