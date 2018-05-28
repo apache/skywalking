@@ -44,8 +44,8 @@ public class XMemcachedMethodInterceptor implements InstanceMethodsAroundInterce
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         String peer = String.valueOf(objInst.getSkyWalkingDynamicField());
         AbstractSpan span = ContextManager.createExitSpan(XMEMCACHED + method.getName(), peer);
-        span.setComponent(ComponentsDefine.MEMCACHED);
-        Tags.DB_TYPE.set(span, ComponentsDefine.MEMCACHED.getName());
+        span.setComponent(ComponentsDefine.XMEMCACHED);
+        Tags.DB_TYPE.set(span, ComponentsDefine.XMEMCACHED.getName());
         SpanLayer.asCache(span);
         Tags.DB_STATEMENT.set(span, method.getName() + " " + allArguments[0]);
     }

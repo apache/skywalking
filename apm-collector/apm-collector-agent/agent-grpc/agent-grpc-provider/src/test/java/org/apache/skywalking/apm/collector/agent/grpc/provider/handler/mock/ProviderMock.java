@@ -84,7 +84,7 @@ class ProviderMock {
         span.setParentSpanId(0);
         span.setStartTime(startTimestamp + 510);
         span.setEndTime(startTimestamp + 1490);
-        span.setComponentId(ComponentsDefine.MONGODB.getId());
+        span.setComponentId(ComponentsDefine.MONGO_DRIVER.getId());
         span.setIsError(true);
 
         if (isPrepare) {

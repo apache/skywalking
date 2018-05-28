@@ -35,7 +35,7 @@ public class JedisMethodInterceptor implements InstanceMethodsAroundInterceptor 
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         String peer = String.valueOf(objInst.getSkyWalkingDynamicField());
         AbstractSpan span = ContextManager.createExitSpan("Jedis/" + method.getName(), peer);
-        span.setComponent(ComponentsDefine.REDIS);
+        span.setComponent(ComponentsDefine.JEDIS);
         Tags.DB_TYPE.set(span, "Redis");
         SpanLayer.asCache(span);
 

@@ -109,7 +109,7 @@ public class MongoDBCollectionMethodInterceptorTest {
 
     private void assertMongoSpan(AbstractTracingSpan span) {
         assertThat(span.getOperationName(), is("MongoDB/insert"));
-        assertThat(SpanHelper.getComponentId(span), is(9));
+        assertThat(SpanHelper.getComponentId(span), is(42));
         List<KeyValuePair> tags = SpanHelper.getTags(span);
         assertThat(tags.get(0).getValue(), is("MongoDB"));
         assertThat(span.isExit(), is(true));
