@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.collector.server.jetty.JettyServerConfig;
 public class ZipkinReceiverConfig extends JettyServerConfig {
     private int expireTime = 1;
 
-    private int maxCacheTime = 1_000_000;
+    private int maxCacheSize = 1_000_000;
 
     public int getExpireTime() {
         return expireTime;
@@ -36,11 +36,11 @@ public class ZipkinReceiverConfig extends JettyServerConfig {
         this.expireTime = expireTime;
     }
 
-    public int getMaxCacheTime() {
-        return maxCacheTime;
+    public int getMaxCacheSize() {
+        return maxCacheSize;
     }
 
-    public void setMaxCacheTime(int maxCacheTime) {
-        this.maxCacheTime = maxCacheTime;
+    public void setMaxCacheSize(int maxCacheSize) {
+        this.maxCacheSize = maxCacheSize;
     }
 }

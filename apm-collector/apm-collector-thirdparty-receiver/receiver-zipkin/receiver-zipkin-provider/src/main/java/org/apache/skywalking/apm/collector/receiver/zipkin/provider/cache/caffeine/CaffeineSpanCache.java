@@ -42,6 +42,7 @@ public class CaffeineSpanCache implements ISpanCache, RemovalListener<String, Zi
         newTraceLock = new ReentrantLock();
         inProcessSpanCache = Caffeine.newBuilder()
             .expireAfterWrite(config.getExpireTime(), TimeUnit.MINUTES)
+            .maximumSize(config.getMaxCacheSize())
             .removalListener(this)
             .build();
     }

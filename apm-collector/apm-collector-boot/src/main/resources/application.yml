@@ -87,8 +87,10 @@ configuration:
 # thermodynamic
     thermodynamicResponseTimeStep: 50
     thermodynamicCountOfResponseTimeSteps: 40
+# TODO: receiver_zipkin need to remove before merge, and only provide this in document.
 receiver_zipkin:
   default:
     host: localhost
     port: 9411
     contextPath: /
+
