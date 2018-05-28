@@ -12,6 +12,8 @@
     * [开启TLS](cn/TLS-CN.md)
     * [命名空间隔离](cn/Namespace-CN.md)
     * [基于Token认证](cn/Token-auth-CN.md)
+  * 孵化特性
+    * [个性化服务过滤](../apm-sniffer/optional-plugins/trace-ignore-plugin/README_CN.md)
   * APM相关介绍资料
     * [OpenTracing中文版](https://github.com/opentracing-contrib/opentracing-specification-zh)
   * Application Toolkit，应用程序工具包
@@ -43,4 +45,4 @@
     * [Kafka消息消费端链路断裂](cn/FAQ/Kafka-plugin-CN.md)
     * [Protoc-Plugin Maven编译时异常](cn/FAQ/Protoc-Plugin-Fails-When-Build-CN.md)
     * [EnhanceRequireObjectCache 类转换异常](cn/FAQ/EnhanceRequireObjectCache-Cast-Exception-CN.md)
-    
+    * [skywalking导入eclipse依赖项目异常](cn/FAQ/Import-Project-Eclipse-RequireItems-Exception.md)

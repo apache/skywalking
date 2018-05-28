@@ -194,7 +194,15 @@ public class ContextManager implements TracingContextListener, BootService, Igno
     }
 
     public static boolean isActive() {
-        return CONTEXT.get() != null;
+        return get() != null;
+    }
+
+    public static RuntimeContext getRuntimeContext() {
+        if (isActive()) {
+            return get().getRuntimeContext();
+        } else {
+            throw new IllegalStateException("No active context");
+        }
     }
 
 }

@@ -123,7 +123,36 @@ Jedis:
 SQLite:
   id: 31
   languages: Java,C#
-
+h2-jdbc-driver:
+  id: 32
+  languages: Java
+mysql-connector-java:
+  id: 33
+  languages: Java
+Spymemcached:
+  id: 35
+  languages: Java
+Xmemcached:
+  id: 36
+  languages: Java
+postgresql-jdbc-driver:
+  id: 37
+  languages: Java
+rocketMQ-producer:
+  id: 38
+  languages: Java
+rocketMQ-consumer:
+  id: 39
+  languages: Java
+kafka-producer:
+  id: 40
+  languages: Java
+kafka-consumer:
+  id: 41
+  languages: Java
+mongodb-driver:
+  id: 42
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -183,6 +212,16 @@ express:
 # e.g.
 # Jedis is a client library in Java for Redis server
 Component-Server-Mappings:
+  mongodb-driver: MongoDB
+  rocketMQ-producer: RocketMQ
+  rocketMQ-consumer: RocketMQ
+  kafka-producer: Kafka
+  kafka-consumer: Kafka
+  postgresql-jdbc-driver: PostgreSQL
+  Xmemcached: Memcached
+  Spymemcached: Memcached
+  h2-jdbc-driver: H2
+  mysql-connector-java: Mysql
   Jedis: Redis
   StackExchange.Redis: Redis
   SqlClient: SqlServer

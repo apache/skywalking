@@ -31,6 +31,25 @@ public class TraceQueryCondition {
     private Duration queryDuration;
     private int minTraceDuration;
     private int maxTraceDuration;
+    private TraceState traceState;
+    private  QueryOrder queryOrder;
+
+    public TraceState getTraceState() {
+        return traceState;
+    }
+
+    public void setTraceState(TraceState traceState) {
+        this.traceState = traceState;
+    }
+
+    public QueryOrder getQueryOrder() {
+        return queryOrder;
+    }
+
+    public void setQueryOrder(QueryOrder queryOrder) {
+        this.queryOrder = queryOrder;
+    }
+
     private Pagination paging;
 
     public int getApplicationId() {
