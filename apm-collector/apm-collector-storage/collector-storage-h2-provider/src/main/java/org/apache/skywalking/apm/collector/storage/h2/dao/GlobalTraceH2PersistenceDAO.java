@@ -55,7 +55,7 @@ public class GlobalTraceH2PersistenceDAO extends H2DAO implements IGlobalTracePe
         H2SqlEntity entity = new H2SqlEntity();
         target.put(GlobalTraceTable.ID.getName(), data.getId());
         target.put(GlobalTraceTable.SEGMENT_ID.getName(), data.getSegmentId());
-        target.put(GlobalTraceTable.TRACE_ID.getName(), data.getGlobalTraceId());
+        target.put(GlobalTraceTable.TRACE_ID.getName(), data.getTraceId());
         target.put(GlobalTraceTable.TIME_BUCKET.getName(), data.getTimeBucket());
         logger.debug("global trace source: {}", target.toString());
 
@@ -65,6 +65,6 @@ public class GlobalTraceH2PersistenceDAO extends H2DAO implements IGlobalTracePe
         return entity;
     }
 
-    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+    @Override public void deleteHistory(Long timeBucketBefore) {
     }
 }

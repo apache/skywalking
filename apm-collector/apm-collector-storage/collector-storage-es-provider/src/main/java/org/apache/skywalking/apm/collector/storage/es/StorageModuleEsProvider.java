@@ -123,16 +123,21 @@ public class StorageModuleEsProvider extends ModuleProvider {
             throw new ModuleStartException(e.getMessage(), e);
         }
 
-        String uuId = UUID.randomUUID().toString();
         ModuleRegisterService moduleRegisterService = getManager().find(ClusterModule.NAME).getService(ModuleRegisterService.class);
-        moduleRegisterService.register(StorageModule.NAME, this.name(), new StorageModuleEsRegistration(uuId, 0));
+
+        StorageModuleEsRegistration esRegistration = new StorageModuleEsRegistration(UUID.randomUUID().toString(), 0);
+        moduleRegisterService.register(StorageModule.NAME, this.name(), esRegistration);
 
         StorageModuleEsNamingListener namingListener = new StorageModuleEsNamingListener();
         ModuleListenerService moduleListenerService = getManager().find(ClusterModule.NAME).getService(ModuleListenerService.class);
         moduleListenerService.addListener(namingListener);
 
-        Integer beforeDay = config.getTtl() == 0 ? 3 : config.getTtl();
-        deleteTimer = new DataTTLKeeperTimer(getManager(), namingListener, uuId + 0, beforeDay);
+        deleteTimer = new DataTTLKeeperTimer(getManager(), namingListener, esRegistration.buildValue().getHostPort());
+        deleteTimer.setTraceDataTTL(config.getTraceDataTTL());
+        deleteTimer.setMinuteMetricDataTTL(config.getMinuteMetricDataTTL());
+        deleteTimer.setHourMetricDataTTL(config.getHourMetricDataTTL());
+        deleteTimer.setDayMetricDataTTL(config.getDayMetricDataTTL());
+        deleteTimer.setMonthMetricDataTTL(config.getMonthMetricDataTTL());
     }
 
     @Override

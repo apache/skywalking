@@ -15,6 +15,7 @@
     * [Add your own component library settings in collector](en/Component-libraries-extend.md)
   * Incubating Features
     * [Abstract](en/Incubating/Abstract.md)
+    * [Support Custom Trace Ignore](../apm-sniffer/optional-plugins/trace-ignore-plugin/README.md)
   * Application Toolkit
     * [Overview](en/Applicaton-toolkit.md)
     * [OpenTracing Tracer](en/Opentracing.md)
@@ -47,5 +48,6 @@
     * [Agent or collector version upgrade](en/FAQ/Upgrade.md)
     * [Protoc plugin fails in maven build](en/FAQ/Protoc-Plugin-Fails-When-Build.md)
     * [EnhanceRequireObjectCache class cast exception](en/FAQ/EnhanceRequireObjectCache-Cast-Exception.md)
+    * [Required items could not be found, when import project into Eclipse](en/FAQ/Import-Project-Eclipse-RequireItems-Exception.md) 
 
     

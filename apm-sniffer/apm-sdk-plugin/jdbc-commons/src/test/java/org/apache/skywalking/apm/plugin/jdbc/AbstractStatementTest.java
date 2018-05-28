@@ -52,7 +52,7 @@ public abstract class AbstractStatementTest {
 
     protected void assertDBSpan(AbstractTracingSpan span, String exceptOperationName) {
         assertThat(span.getOperationName(), is(exceptOperationName));
-        assertThat(SpanHelper.getComponentId(span), is(5));
+        assertThat(SpanHelper.getComponentId(span), is(33));
         List<KeyValuePair> tags = SpanHelper.getTags(span);
         assertThat(tags.get(0).getValue(), is("sql"));
         assertThat(tags.get(1).getValue(), is("test"));

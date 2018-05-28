@@ -51,10 +51,17 @@ public class InstanceHeartBeatEsPersistenceDAO extends EsDAO implements IInstanc
             instance.setId(id);
             instance.setInstanceId(((Number)source.get(InstanceTable.INSTANCE_ID.getName())).intValue());
             instance.setHeartBeatTime(((Number)source.get(InstanceTable.HEARTBEAT_TIME.getName())).longValue());
+<<<<<<< HEAD
             logger.debug("instance id: {} is exists", id);
             return instance;
         } else {
             logger.debug("instance id: {} is not exists", id);
+=======
+            logger.debug("instance id: {} exists", id);
+            return instance;
+        } else {
+            logger.debug("instance id: {} not exists", id);
+>>>>>>> master
             return null;
         }
     }
@@ -69,6 +76,6 @@ public class InstanceHeartBeatEsPersistenceDAO extends EsDAO implements IInstanc
         return getClient().prepareUpdate(InstanceTable.TABLE, data.getId()).setDoc(source);
     }
 
-    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+    @Override public void deleteHistory(Long timeBucketBefore) {
     }
 }
