@@ -19,9 +19,7 @@
 package org.apache.skywalking.apm.collector.receiver.zipkin.provider.handler;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
 import javax.servlet.ServletInputStream;
@@ -29,7 +27,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.ZipkinReceiverConfig;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.cache.CacheFactory;
-import org.apache.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.apache.skywalking.apm.collector.server.jetty.JettyHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,10 +54,7 @@ public class SpanJettyHandler extends JettyHandler {
         return "/api/v2/spans";
     }
 
-    @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {
-        return null;
-    }
-
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) {
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
@@ -89,20 +83,5 @@ public class SpanJettyHandler extends JettyHandler {
 
             logger.error(e.getMessage(), e);
         }
-    }
-
-    /**
-     * Zipkin doesn't request a Json format response.
-     * Implement {@link #doPost(HttpServletRequest, HttpServletResponse)} by following zipkin protocol.
-     * Leave this method no implementation.
-     *
-     * @param req
-     * @return
-     * @throws ArgumentsParseException
-     * @throws IOException
-     */
-    @Override
-    protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException, IOException {
-        throw new UnsupportedOperationException();
     }
 }
