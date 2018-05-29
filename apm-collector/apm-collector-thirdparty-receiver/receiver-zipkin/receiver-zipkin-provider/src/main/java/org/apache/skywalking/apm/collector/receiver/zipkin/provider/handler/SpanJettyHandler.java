@@ -22,7 +22,6 @@ import java.util.List;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.skywalking.apm.collector.analysis.register.define.service.AgentOsInfo;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.RegisterServices;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.ZipkinReceiverConfig;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.cache.CacheFactory;
@@ -76,11 +75,7 @@ public class SpanJettyHandler extends JettyHandler {
                 if (applicationCode != null) {
                     int applicationId = registerServices.getApplicationIDService().getOrCreateForApplicationCode(applicationCode);
                     if (applicationId != 0) {
-                        AgentOsInfo agentOsInfo = new AgentOsInfo();
-                        agentOsInfo.setHostname("N/A");
-                        agentOsInfo.setOsName("N/A");
-                        agentOsInfo.setProcessNo(-1);
-                        registerServices.getInstanceIDService().getOrCreateByAgentUUID(applicationId, applicationCode, System.currentTimeMillis(), agentOsInfo);
+                        registerServices.getOrCreateApplicationInstanceId(applicationId, applicationCode);
                     }
                 }
                 CacheFactory.INSTANCE.get(config).addSpan(span);

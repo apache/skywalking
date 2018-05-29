@@ -43,4 +43,8 @@ public class ZipkinTrace {
             spanWriteLock.unlock();
         }
     }
+
+    public List<Span> getSpans() {
+        return spans;
+    }
 }

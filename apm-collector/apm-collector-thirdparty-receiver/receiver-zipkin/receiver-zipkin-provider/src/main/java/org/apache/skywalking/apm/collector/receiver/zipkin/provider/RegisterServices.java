@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.collector.receiver.zipkin.provider;
 
+import org.apache.skywalking.apm.collector.analysis.register.define.service.AgentOsInfo;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IApplicationIDService;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IInstanceIDService;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.INetworkAddressIDService;
@@ -60,5 +61,18 @@ public class RegisterServices {
 
     public IServiceNameService getServiceNameService() {
         return serviceNameService;
+    }
+
+    /**
+     * @param applicationId
+     * @param agentUUID in zipkin translation, always means application code. Because no UUID for each process.
+     * @return
+     */
+    public int getOrCreateApplicationInstanceId(int applicationId, String agentUUID) {
+        AgentOsInfo agentOsInfo = new AgentOsInfo();
+        agentOsInfo.setHostname("N/A");
+        agentOsInfo.setOsName("N/A");
+        agentOsInfo.setProcessNo(-1);
+        return getInstanceIDService().getOrCreateByAgentUUID(applicationId, agentUUID, System.currentTimeMillis(), agentOsInfo);
     }
 }
