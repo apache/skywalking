@@ -18,6 +18,11 @@
 
 package org.apache.skywalking.apm.collector.receiver.zipkin.provider;
 
+import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegisterModule;
+import org.apache.skywalking.apm.collector.analysis.register.define.service.IApplicationIDService;
+import org.apache.skywalking.apm.collector.analysis.register.define.service.IInstanceIDService;
+import org.apache.skywalking.apm.collector.analysis.register.define.service.INetworkAddressIDService;
+import org.apache.skywalking.apm.collector.analysis.register.define.service.IServiceNameService;
 import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
 import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
@@ -27,6 +32,7 @@ import org.apache.skywalking.apm.collector.jetty.manager.JettyManagerModule;
 import org.apache.skywalking.apm.collector.jetty.manager.service.JettyManagerService;
 import org.apache.skywalking.apm.collector.receiver.zipkin.define.ZipkinReceiverModule;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.handler.SpanJettyHandler;
+import org.apache.skywalking.apm.collector.receiver.zipkin.provider.transform.Zipkin2SkyWalkingTransfer;
 import org.apache.skywalking.apm.collector.server.jetty.JettyServer;
 
 /**
@@ -57,9 +63,16 @@ public class ZipkinReceiverProvider extends ModuleProvider {
     }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
+        ModuleDefine moduleDefine = getManager().find(AnalysisRegisterModule.NAME);
+        RegisterServices registerServices = new RegisterServices(moduleDefine.getService(IApplicationIDService.class),
+            moduleDefine.getService(IInstanceIDService.class),
+            moduleDefine.getService(INetworkAddressIDService.class),
+            moduleDefine.getService(IServiceNameService.class));
+        Zipkin2SkyWalkingTransfer.INSTANCE.setRegisterServices(registerServices);
+
         JettyManagerService managerService = getManager().find(JettyManagerModule.NAME).getService(JettyManagerService.class);
         JettyServer jettyServer = managerService.createIfAbsent(config.getHost(), config.getPort(), config.getContextPath());
-        addHandlers(jettyServer);
+        jettyServer.addHandler(new SpanJettyHandler(config, registerServices));
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
@@ -67,10 +80,6 @@ public class ZipkinReceiverProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {JettyManagerModule.NAME};
-    }
-
-    private void addHandlers(JettyServer jettyServer) {
-        jettyServer.addHandler(new SpanJettyHandler(config));
+        return new String[] {JettyManagerModule.NAME,};
     }
 }

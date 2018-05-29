@@ -19,6 +19,7 @@ package org.apache.skywalking.apm.collector.agent.grpc.provider.handler;
 
 import io.grpc.stub.StreamObserver;
 import org.apache.skywalking.apm.collector.analysis.metric.define.service.IInstanceHeartBeatService;
+import org.apache.skywalking.apm.collector.analysis.register.define.service.AgentOsInfo;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IInstanceIDService;
 import org.apache.skywalking.apm.collector.core.module.MockModule;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -76,7 +77,7 @@ public class InstanceDiscoveryServiceHandlerTest {
                                 .setProcessNo(123456)
                                 .build()
                 ).build();
-        when(instanceIDService.getOrCreateByAgentUUID(anyInt(), anyString(), anyLong(), anyString())).thenReturn(100);
+        when(instanceIDService.getOrCreateByAgentUUID(anyInt(), anyString(), anyLong(), new AgentOsInfo())).thenReturn(100);
         instanceDiscoveryServiceHandler.registerInstance(applicationInstance, new StreamObserver<ApplicationInstanceMapping>() {
             @Override
             public void onNext(ApplicationInstanceMapping applicationInstanceMapping) {

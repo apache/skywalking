@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.collector.receiver.zipkin.provider.transform;
 
+import org.apache.skywalking.apm.collector.receiver.zipkin.provider.RegisterServices;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.ZipkinTrace;
 
 /**
@@ -25,9 +26,14 @@ import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.ZipkinT
  */
 public class Zipkin2SkyWalkingTransfer {
     public static Zipkin2SkyWalkingTransfer INSTANCE = new Zipkin2SkyWalkingTransfer();
-
+    private RegisterServices registerServices;
 
     private Zipkin2SkyWalkingTransfer() {
+    }
+
+    public void setRegisterServices(
+        RegisterServices registerServices) {
+        this.registerServices = registerServices;
     }
 
     public void transfer(ZipkinTrace trace) {
