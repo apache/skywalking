@@ -64,6 +64,7 @@
         <jedis.version>2.9.0</jedis.version>
         <zookeeper.version>3.4.10</zookeeper.version>
         <elasticsearch.client.version>5.5.0</elasticsearch.client.version>
+        <zipkin.version>2.8.4</zipkin.version>
     </properties>
 
     <dependencies>
@@ -236,6 +237,11 @@
                         <artifactId>log4j-core</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>io.zipkin.zipkin2</groupId>
+                <artifactId>zipkin</artifactId>
+                <version>${zipkin.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

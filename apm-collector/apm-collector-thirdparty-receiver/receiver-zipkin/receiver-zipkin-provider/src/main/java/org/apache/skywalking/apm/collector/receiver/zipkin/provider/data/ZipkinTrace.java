@@ -21,12 +21,13 @@ package org.apache.skywalking.apm.collector.receiver.zipkin.provider.data;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
+import zipkin2.Span;
 
 /**
  * @author wusheng
  */
 public class ZipkinTrace {
-    private List<ZipkinSpan> spans;
+    private List<Span> spans;
     private ReentrantLock spanWriteLock;
 
     public ZipkinTrace() {
@@ -34,7 +35,7 @@ public class ZipkinTrace {
         spanWriteLock = new ReentrantLock();
     }
 
-    public void addSpan(ZipkinSpan span) {
+    public void addSpan(Span span) {
         spanWriteLock.lock();
         try {
             spans.add(span);

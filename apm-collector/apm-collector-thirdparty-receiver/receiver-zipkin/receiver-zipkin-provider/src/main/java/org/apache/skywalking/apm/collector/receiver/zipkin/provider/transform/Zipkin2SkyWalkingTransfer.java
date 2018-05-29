@@ -16,29 +16,21 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.receiver.zipkin.provider.data;
+package org.apache.skywalking.apm.collector.receiver.zipkin.provider.transform;
+
+import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.ZipkinTrace;
 
 /**
  * @author wusheng
  */
-public class Annotation {
-    private long timestamp;
+public class Zipkin2SkyWalkingTransfer {
+    public static Zipkin2SkyWalkingTransfer INSTANCE = new Zipkin2SkyWalkingTransfer();
 
-    private String value;
 
-    public long getTimestamp() {
-        return timestamp;
+    private Zipkin2SkyWalkingTransfer() {
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
+    public void transfer(ZipkinTrace trace) {
 
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
     }
 }

@@ -28,8 +28,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.ZipkinReceiverConfig;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.cache.ISpanCache;
-import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.ZipkinSpan;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.ZipkinTrace;
+import org.apache.skywalking.apm.collector.receiver.zipkin.provider.transform.Zipkin2SkyWalkingTransfer;
+import zipkin2.Span;
 
 /**
  * @author wusheng
@@ -51,21 +52,21 @@ public class CaffeineSpanCache implements ISpanCache, RemovalListener<String, Zi
      * Zipkin trace finished by the expired rule.
      *
      * @param key
-     * @param value
+     * @param trace
      * @param cause
      */
     @Override
-    public void onRemoval(@Nullable String key, @Nullable ZipkinTrace value, @Nonnull RemovalCause cause) {
-
+    public void onRemoval(@Nullable String key, @Nullable ZipkinTrace trace, @Nonnull RemovalCause cause) {
+        Zipkin2SkyWalkingTransfer.INSTANCE.transfer(trace);
     }
 
-    @Override public void addSpan(ZipkinSpan span) {
-        ZipkinTrace trace = inProcessSpanCache.getIfPresent(span.getTraceId());
+    @Override public void addSpan(Span span) {
+        ZipkinTrace trace = inProcessSpanCache.getIfPresent(span.traceId());
         if (trace == null) {
             newTraceLock.lock();
             try {
                 trace = new ZipkinTrace();
-                inProcessSpanCache.put(span.getTraceId(), trace);
+                inProcessSpanCache.put(span.traceId(), trace);
             } finally {
                 newTraceLock.unlock();
             }

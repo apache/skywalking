@@ -18,11 +18,11 @@
 
 package org.apache.skywalking.apm.collector.receiver.zipkin.provider.cache;
 
-import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.ZipkinSpan;
+import zipkin2.Span;
 
 /**
  * @author wusheng
  */
 public interface ISpanCache {
-    void addSpan(ZipkinSpan span);
+    void addSpan(Span span);
 }

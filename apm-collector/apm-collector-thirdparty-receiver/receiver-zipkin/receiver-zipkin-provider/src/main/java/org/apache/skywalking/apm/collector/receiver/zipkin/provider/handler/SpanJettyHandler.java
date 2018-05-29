@@ -21,19 +21,20 @@ package org.apache.skywalking.apm.collector.receiver.zipkin.provider.handler;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.ZipkinReceiverConfig;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.cache.CacheFactory;
-import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.ZipkinSpan;
 import org.apache.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.apache.skywalking.apm.collector.server.jetty.JettyHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import zipkin2.Span;
+import zipkin2.codec.SpanBytesDecoder;
 
 /**
  * @author wusheng
@@ -48,7 +49,7 @@ public class SpanJettyHandler extends JettyHandler {
     public SpanJettyHandler(ZipkinReceiverConfig config) {
         this.config = config;
         gson = new Gson();
-        spanListType = new TypeToken<List<ZipkinSpan>>() {
+        spanListType = new TypeToken<List<Span>>() {
         }.getType();
     }
 
@@ -60,15 +61,25 @@ public class SpanJettyHandler extends JettyHandler {
         return null;
     }
 
-    protected void doPost(HttpServletRequest req, HttpServletResponse response) {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) {
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
 
         try {
-            BufferedReader br = req.getReader();
+            String type = request.getHeader("Content-Type");
 
-            List<ZipkinSpan> spans = gson.fromJson(br, spanListType);
-            spans.forEach(span ->
+            SpanBytesDecoder decoder = type != null && type.contains("/x-protobuf")
+                ? SpanBytesDecoder.PROTO3
+                : SpanBytesDecoder.JSON_V2;
+
+            int len = request.getContentLength();
+            ServletInputStream iii = request.getInputStream();
+            byte[] buffer = new byte[len];
+            iii.read(buffer, 0, len);
+
+            List<Span> spanList = decoder.decodeList(buffer);
+
+            spanList.forEach(span ->
                 CacheFactory.INSTANCE.get(config).addSpan(span)
             );
 
