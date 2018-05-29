@@ -37,6 +37,7 @@ import java.util.UUID;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
@@ -77,7 +78,7 @@ public class InstanceDiscoveryServiceHandlerTest {
                                 .setProcessNo(123456)
                                 .build()
                 ).build();
-        when(instanceIDService.getOrCreateByAgentUUID(anyInt(), anyString(), anyLong(), new AgentOsInfo())).thenReturn(100);
+        when(instanceIDService.getOrCreateByAgentUUID(anyInt(), anyString(), anyLong(), anyObject())).thenReturn(100);
         instanceDiscoveryServiceHandler.registerInstance(applicationInstance, new StreamObserver<ApplicationInstanceMapping>() {
             @Override
             public void onNext(ApplicationInstanceMapping applicationInstanceMapping) {
