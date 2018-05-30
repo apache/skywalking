@@ -210,6 +210,46 @@
                             <goal>check</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>install-tomcat6</id>
+                        <inherited>false</inherited>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>mvn</executable>
+                            <arguments>
+                                <argument>install:install-file</argument>
+                                <argument>-Dfile=catalina.jar</argument>
+                                <argument>-DgroupId=org.apache.tomcat.embed</argument>
+                                <argument>-DartifactId=tomcat-embed-core</argument>
+                                <argument>-Dversion=6.0.20</argument>
+                                <argument>-Dpackaging=jar</argument>
+                            </arguments>
+                            <workingDirectory>${project.basedir}/ci-dependencies</workingDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>install-servlet-api</id>
+                        <inherited>false</inherited>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>mvn</executable>
+                            <arguments>
+                                <argument>install:install-file</argument>
+                                <argument>-Dfile=servlet-api.jar</argument>
+                                <argument>-DgroupId=javax.servlet</argument>
+                                <argument>-DartifactId=javax.servlet-api</argument>
+                                <argument>-Dversion=2.5.0</argument>
+                                <argument>-Dpackaging=jar</argument>
+                            </arguments>
+                            <workingDirectory>${project.basedir}/ci-dependencies</workingDirectory>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>

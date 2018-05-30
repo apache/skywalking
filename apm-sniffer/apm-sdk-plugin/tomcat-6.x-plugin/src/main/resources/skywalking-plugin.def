@@ -1,0 +1,1 @@
+tomcat-6.x=org.apache.skywalking.apm.plugin.tomcat6x.define.TomcatInstrumentation
