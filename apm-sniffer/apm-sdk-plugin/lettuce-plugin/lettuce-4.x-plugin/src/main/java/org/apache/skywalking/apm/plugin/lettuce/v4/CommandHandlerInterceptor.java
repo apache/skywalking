@@ -16,24 +16,16 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.httpClient.v4.define;
+package org.apache.skywalking.apm.plugin.lettuce.v4;
 
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
-/**
- * @author zhangxin
- */
-public abstract class HttpClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.httpClient.v4.HttpClientExecuteInterceptor";
+public class CommandHandlerInterceptor implements InstanceConstructorInterceptor {
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return null;
+    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+
     }
 
-    protected String getInstanceMethodsInterceptor() {
-        return INTERCEPT_CLASS;
-    }
 }

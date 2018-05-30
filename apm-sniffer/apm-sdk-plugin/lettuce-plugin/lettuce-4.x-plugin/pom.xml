@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>apm-lettuce-plugin</artifactId>
+        <groupId>org.apache.skywalking</groupId>
+        <version>5.0.0-alpha-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>lettuce-4.x-plugin</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>biz.paluch.redis</groupId>
+            <artifactId>lettuce</artifactId>
+            <version>4.4.0.Final</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+</project>
