@@ -22,6 +22,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.RemovalListener;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.Nonnull;
@@ -33,6 +34,9 @@ import org.apache.skywalking.apm.collector.receiver.zipkin.provider.transform.Zi
 import zipkin2.Span;
 
 /**
+ * NOTICE: FROM my test, Caffeine cache triggers/checks expire only face write/read op.
+ * In order to make trace finish in time, I have to set a timer to write a meaningless trace, for active expire.
+ *
  * @author wusheng
  */
 public class CaffeineSpanCache implements ISpanCache, RemovalListener<String, ZipkinTrace> {
@@ -42,10 +46,15 @@ public class CaffeineSpanCache implements ISpanCache, RemovalListener<String, Zi
     public CaffeineSpanCache(ZipkinReceiverConfig config) {
         newTraceLock = new ReentrantLock();
         inProcessSpanCache = Caffeine.newBuilder()
-            .expireAfterWrite(config.getExpireTime(), TimeUnit.MINUTES)
+            //TODO: uncomment this for real codes.
+            //.expireAfterWrite(config.getExpireTime(), TimeUnit.MINUTES)
+            .expireAfterWrite(10, TimeUnit.SECONDS)
             .maximumSize(config.getMaxCacheSize())
             .removalListener(this)
             .build();
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+            inProcessSpanCache.put("ACTIVE", new ZipkinTrace.TriggerTrace());
+        }, 2, 3, TimeUnit.SECONDS);
     }
 
     /**
@@ -57,6 +66,9 @@ public class CaffeineSpanCache implements ISpanCache, RemovalListener<String, Zi
      */
     @Override
     public void onRemoval(@Nullable String key, @Nullable ZipkinTrace trace, @Nonnull RemovalCause cause) {
+        if (trace instanceof ZipkinTrace.TriggerTrace) {
+            return;
+        }
         Zipkin2SkyWalkingTransfer.INSTANCE.transfer(trace);
     }
 
@@ -65,8 +77,11 @@ public class CaffeineSpanCache implements ISpanCache, RemovalListener<String, Zi
         if (trace == null) {
             newTraceLock.lock();
             try {
-                trace = new ZipkinTrace();
-                inProcessSpanCache.put(span.traceId(), trace);
+                trace = inProcessSpanCache.getIfPresent(span.traceId());
+                if (trace == null) {
+                    trace = new ZipkinTrace();
+                    inProcessSpanCache.put(span.traceId(), trace);
+                }
             } finally {
                 newTraceLock.unlock();
             }

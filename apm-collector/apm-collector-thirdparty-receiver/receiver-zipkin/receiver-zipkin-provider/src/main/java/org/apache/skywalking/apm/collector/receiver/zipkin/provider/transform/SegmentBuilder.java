@@ -23,11 +23,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.RegisterServices;
+import org.apache.skywalking.apm.network.proto.SpanObject;
+import org.apache.skywalking.apm.network.proto.SpanType;
 import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
+import org.apache.skywalking.apm.network.proto.UniqueId;
+import org.eclipse.jetty.util.StringUtil;
 import zipkin2.Span;
 
 /**
@@ -36,6 +41,7 @@ import zipkin2.Span;
 public class SegmentBuilder {
     private Context context;
     private LinkedList<TraceSegmentObject.Builder> segments;
+    private UniqueId traceId;
 
     private SegmentBuilder() {
         segments = new LinkedList<>();
@@ -65,6 +71,7 @@ public class SegmentBuilder {
 
         Span rootSpan = root.get();
         if (rootSpan != null) {
+            builder.traceId = builder.generateTraceOrSegmentId();
             String applicationCode = rootSpan.localServiceName();
             // If root span doesn't include applicationCode, a.k.a local service name,
             // Segment can't be built
@@ -72,34 +79,96 @@ public class SegmentBuilder {
             // :P Hope anyone could provide better solution.
             // Wu Sheng.
             if (StringUtils.isNotEmpty(applicationCode)) {
-                builder.context.addApp(applicationCode, registerServices);
-                builder.scanSpansFromRoot(rootSpan, parentId2SpanListMap, registerServices);
+                try {
+                    builder.context.addApp(applicationCode, registerServices);
+                    SpanObject.Builder rootSpanBuilder = builder.initSpan(null, rootSpan, true);
+                    builder.scanSpansFromRoot(rootSpanBuilder, rootSpan, parentId2SpanListMap, registerServices);
+
+                    builder.context.currentSegment().builder().addSpans(rootSpanBuilder);
+                } finally {
+                    builder.context.removeApp();
+                }
             }
         }
 
         return builder.segments;
     }
 
-    private void scanSpansFromRoot(Span parent, Map<String, List<Span>> parentId2SpanListMap, RegisterServices registerServices) {
+    private void scanSpansFromRoot(SpanObject.Builder parentSegmentSpan, Span parent,
+        Map<String, List<Span>> parentId2SpanListMap,
+        RegisterServices registerServices) throws Exception {
         String parentId = parent.id();
         List<Span> spanList = parentId2SpanListMap.get(parentId);
         for (Span childSpan : spanList) {
+            String localServiceName = childSpan.localServiceName();
+            boolean isNewApp = false;
+            if (StringUtil.isNotBlank(localServiceName)) {
+                if (context.isAppChanged(localServiceName)) {
+                    isNewApp = true;
+                }
+            }
 
+            try {
+                if (isNewApp) {
+                    context.addApp(localServiceName, registerServices);
+                }
+                SpanObject.Builder childSpanBuilder = initSpan(parentSegmentSpan, childSpan, isNewApp);
+
+                scanSpansFromRoot(childSpanBuilder, childSpan, parentId2SpanListMap, registerServices);
+
+                context.currentSegment().builder().addSpans(childSpanBuilder);
+            } finally {
+                if (isNewApp) {
+                    context.removeApp();
+                }
+            }
         }
+    }
+
+    private SpanObject.Builder initSpan(SpanObject.Builder parentSegmentSpan, Span span, boolean isSegmentRoot) {
+        SpanObject.Builder spanBuilder = SpanObject.newBuilder();
+        spanBuilder.setSpanId(context.currentIDs().nextSpanId());
+        if (!isSegmentRoot && parentSegmentSpan != null) {
+            spanBuilder.setParentSpanId(parentSegmentSpan.getSpanId());
+        }
+        Span.Kind kind = span.kind();
+        spanBuilder.setOperationName(span.name());
+        switch (kind) {
+            case CLIENT:
+                spanBuilder.setSpanType(SpanType.Exit);
+                break;
+            case SERVER:
+                spanBuilder.setSpanType(SpanType.Entry);
+                break;
+            case CONSUMER:
+                spanBuilder.setSpanType(SpanType.Entry);
+                break;
+            case PRODUCER:
+                spanBuilder.setSpanType(SpanType.Exit);
+                break;
+            default:
+                spanBuilder.setSpanType(SpanType.Local);
+        }
+        // microseconds in Zipkin -> milliseconds in SkyWalking
+        long startTime = span.timestamp() / 1000;
+        long duration = span.duration() / 1000;
+        spanBuilder.setStartTime(startTime);
+        spanBuilder.setEndTime(startTime + duration);
+
+        return spanBuilder;
     }
 
     /**
      * Context holds the values in build process.
      */
     private class Context {
-        private LinkedList<AppIDAndInstanceID> appContextStack = new LinkedList<>();
-        private LinkedList<TraceSegmentObject.Builder> segments = new LinkedList<>();
+        private LinkedList<Segment> segmentsStack = new LinkedList<>();
 
-        private boolean isAppIdChanged(String applicationCode) {
-            return StringUtils.isNotEmpty(applicationCode) && !applicationCode.equals(currentAppId().applicationCode);
+        private boolean isAppChanged(String applicationCode) {
+            return StringUtils.isNotEmpty(applicationCode) && !applicationCode.equals(currentIDs().applicationCode);
         }
 
-        private TraceSegmentObject.Builder addApp(String applicationCode,
+        private Segment addApp(String applicationCode,
             RegisterServices registerServices) throws Exception {
             int applicationId = waitForExchange(() ->
                     registerServices.getApplicationIDService().getOrCreateForApplicationCode(applicationCode),
@@ -111,19 +180,21 @@ public class SegmentBuilder {
                 10
             );
 
-            appContextStack.add(new AppIDAndInstanceID(applicationCode, applicationId, appInstanceId));
-            TraceSegmentObject.Builder builder = TraceSegmentObject.newBuilder();
-            segments.add(builder);
-            return builder;
+            Segment segment = new Segment(applicationCode, applicationId, appInstanceId);
+            segmentsStack.add(segment);
+            return segment;
         }
 
-        private AppIDAndInstanceID currentAppId() {
-            return appContextStack.getLast();
+        private IDCollection currentIDs() {
+            return segmentsStack.getLast().ids;
         }
 
-        private TraceSegmentObject.Builder removeApp() {
-            appContextStack.removeLast();
-            return segments.removeLast();
+        private Segment currentSegment() {
+            return segmentsStack.getLast();
+        }
+
+        private Segment removeApp() {
+            return segmentsStack.removeLast();
         }
 
         private int waitForExchange(Callable<Integer> callable, int retry) throws Exception {
@@ -139,16 +210,50 @@ public class SegmentBuilder {
         }
     }
 
-    private class AppIDAndInstanceID {
-        private String applicationCode;
-        private int appId;
-        private int instanceId;
+    private class Segment {
+        private TraceSegmentObject.Builder segmentBuilder;
+        private IDCollection ids;
 
-        public AppIDAndInstanceID(String applicationCode, int appId, int instanceId) {
-            this.applicationCode = applicationCode;
-            this.appId = appId;
-            this.instanceId = instanceId;
+        private Segment(String applicationCode, int applicationId, int appInstanceId) {
+            ids = new IDCollection(applicationCode, applicationId, appInstanceId);
+            segmentBuilder = TraceSegmentObject.newBuilder();
+            segmentBuilder.setApplicationId(applicationId);
+            segmentBuilder.setApplicationInstanceId(appInstanceId);
+            segmentBuilder.setTraceSegmentId(generateTraceOrSegmentId());
+        }
+
+        private TraceSegmentObject.Builder builder() {
+            return segmentBuilder;
+        }
+
+        private IDCollection ids() {
+            return ids;
         }
     }
 
+    private class IDCollection {
+        private String applicationCode;
+        private int appId;
+        private int instanceId;
+        private int spanIdSeq;
+
+        private IDCollection(String applicationCode, int appId, int instanceId) {
+            this.applicationCode = applicationCode;
+            this.appId = appId;
+            this.instanceId = instanceId;
+            this.spanIdSeq = 1;
+        }
+
+        private int nextSpanId() {
+            return spanIdSeq++;
+        }
+    }
+
+    private UniqueId generateTraceOrSegmentId() {
+        return UniqueId.newBuilder()
+            .addIdParts(ThreadLocalRandom.current().nextLong())
+            .addIdParts(ThreadLocalRandom.current().nextLong())
+            .addIdParts(ThreadLocalRandom.current().nextLong())
+            .build();
+    }
 }

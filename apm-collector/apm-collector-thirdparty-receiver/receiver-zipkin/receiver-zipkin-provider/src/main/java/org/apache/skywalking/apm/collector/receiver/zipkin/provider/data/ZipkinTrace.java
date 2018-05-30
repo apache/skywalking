@@ -47,4 +47,8 @@ public class ZipkinTrace {
     public List<Span> getSpans() {
         return spans;
     }
+
+    public static class TriggerTrace extends ZipkinTrace {
+
+    }
 }

@@ -73,8 +73,10 @@ public class AgentOsInfo {
         osInfoJson.addProperty("processId", this.getProcessNo());
 
         JsonArray ipv4Array = new JsonArray();
-        for (String ipv4 : this.getIpv4s()) {
-            ipv4Array.add(ipv4);
+        if (this.getIpv4s() != null) {
+            for (String ipv4 : this.getIpv4s()) {
+                ipv4Array.add(ipv4);
+            }
         }
         osInfoJson.add("ipv4s", ipv4Array);
         return osInfoJson.toString();
