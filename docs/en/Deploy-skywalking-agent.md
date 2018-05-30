@@ -1,5 +1,5 @@
 ## Download skywalking agent release version
-- Go to [release page](https://github.com/apache/incubator-skywalking/releases)
+- Go to [release page](http://skywalking.apache.org/downloads/)
 
 ## Deploy skywalking javaagent
 1. Copy the agent package to anywhere you like. The logs, plugins and config are all included in the package.

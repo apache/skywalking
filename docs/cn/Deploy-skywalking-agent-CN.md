@@ -1,5 +1,5 @@
 ## 下载skywalking探针发布版本
-- 前向[发布页面](https://github.com/apache/incubator-skywalking/releases)
+- 前向[发布页面](http://skywalking.apache.org/downloads/)
 
 ## 部署探针
 1. 拷贝skywalking-agent目录到所需位置，探针包含整个目录，请不要改变目录结构

@@ -5,7 +5,7 @@
 - Zookeeper 3.4.10
 
 ## 下载发布版本
-- 前向[发布页面](https://github.com/apache/incubator-skywalking/releases)
+- 前向[发布页面](http://skywalking.apache.org/downloads/)
 
 ## 部署Elasticsearch
 - 修改`elasticsearch.yml`文件
