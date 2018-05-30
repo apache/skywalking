@@ -15,7 +15,7 @@ Apache SkyWalking | [English](README.md)
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
 
 # Abstract
-**SkyWalking** 创建与2015年，提供分布式追踪功能。从5.x开始，项目进化为一个完成功能的[Application Performance Management](https://en.wikipedia.org/wiki/Application_performance_management)系统。
+**SkyWalking** 创建于2015年，提供分布式追踪功能。从5.x开始，项目进化为一个完成功能的[Application Performance Management](https://en.wikipedia.org/wiki/Application_performance_management)系统。
 他被用于追踪、监控和诊断分布式系统，特别是使用微服务架构，云原生或容积技术。提供以下主要功能：
 - 分布式追踪和上下文传输
 - 应用、实例、服务性能指标分析
