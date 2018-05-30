@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InstanceDiscoveryServletHandler extends JettyHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(InstanceDiscoveryServletHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(InstanceDiscoveryServletHandler.class);
 
     private final IInstanceIDService instanceIDService;
     private final Gson gson = new Gson();

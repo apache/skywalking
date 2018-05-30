@@ -18,59 +18,50 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.apm.collector.core.UnexpectedException;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.dao.IGlobalTracePersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
-import org.apache.skywalking.apm.collector.storage.table.global.GlobalTrace;
-import org.apache.skywalking.apm.collector.storage.table.global.GlobalTraceTable;
+import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
+import org.apache.skywalking.apm.collector.storage.table.global.*;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.reindex.BulkByScrollResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
-public class GlobalTraceEsPersistenceDAO extends EsDAO implements IGlobalTracePersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, GlobalTrace> {
-
-    private final Logger logger = LoggerFactory.getLogger(GlobalTraceEsPersistenceDAO.class);
+public class GlobalTraceEsPersistenceDAO extends AbstractPersistenceEsDAO<GlobalTrace> implements IGlobalTracePersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, GlobalTrace> {
 
     public GlobalTraceEsPersistenceDAO(ElasticSearchClient client) {
         super(client);
     }
 
+    @Override protected String tableName() {
+        return GlobalTraceTable.TABLE;
+    }
+
+    @Override protected GlobalTrace esDataToStreamData(Map<String, Object> source) {
+        GlobalTrace globalTrace = new GlobalTrace();
+        globalTrace.setSegmentId((String)source.get(GlobalTraceTable.SEGMENT_ID.getName()));
+        globalTrace.setTraceId((String)source.get(GlobalTraceTable.TRACE_ID.getName()));
+        globalTrace.setTimeBucket(((Number)source.get(GlobalTraceTable.TIME_BUCKET.getName())).longValue());
+        return globalTrace;
+    }
+
+    @Override protected Map<String, Object> esStreamDataToEsData(GlobalTrace streamData) {
+        Map<String, Object> target = new HashMap<>();
+        target.put(GlobalTraceTable.SEGMENT_ID.getName(), streamData.getSegmentId());
+        target.put(GlobalTraceTable.TRACE_ID.getName(), streamData.getTraceId());
+        target.put(GlobalTraceTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
+        return target;
+    }
+
+    @Override protected String timeBucketColumnNameForDelete() {
+        return GlobalTraceTable.TIME_BUCKET.getName();
+    }
+
+    @GraphComputingMetric(name = "/persistence/get/" + GlobalTraceTable.TABLE)
     @Override public GlobalTrace get(String id) {
-        throw new UnexpectedException("There is no need to merge stream data with database data.");
-    }
-
-    @Override public UpdateRequestBuilder prepareBatchUpdate(GlobalTrace data) {
-        throw new UnexpectedException("There is no need to merge stream data with database data.");
-    }
-
-    @Override public IndexRequestBuilder prepareBatchInsert(GlobalTrace data) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(GlobalTraceTable.COLUMN_SEGMENT_ID, data.getSegmentId());
-        source.put(GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID, data.getGlobalTraceId());
-        source.put(GlobalTraceTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
-        logger.debug("global trace source: {}", source.toString());
-        return getClient().prepareIndex(GlobalTraceTable.TABLE, data.getId()).setSource(source);
-    }
-
-    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
-        long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
-        long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
-        BulkByScrollResponse response = getClient().prepareDelete()
-            .filter(QueryBuilders.rangeQuery(GlobalTraceTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket))
-            .source(GlobalTraceTable.TABLE)
-            .get();
-
-        long deleted = response.getDeleted();
-        logger.info("Delete {} rows history from {} index.", deleted, GlobalTraceTable.TABLE);
+        return super.get(id);
     }
 }

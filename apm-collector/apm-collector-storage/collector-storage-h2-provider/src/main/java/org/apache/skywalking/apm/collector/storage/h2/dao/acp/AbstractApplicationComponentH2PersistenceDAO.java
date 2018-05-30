@@ -38,24 +38,24 @@ public abstract class AbstractApplicationComponentH2PersistenceDAO extends Abstr
 
     @Override protected final ApplicationComponent h2DataToStreamData(ResultSet resultSet) throws SQLException {
         ApplicationComponent applicationComponent = new ApplicationComponent();
-        applicationComponent.setId(resultSet.getString(ApplicationComponentTable.COLUMN_ID));
-        applicationComponent.setMetricId(resultSet.getString(ApplicationComponentTable.COLUMN_METRIC_ID));
+        applicationComponent.setId(resultSet.getString(ApplicationComponentTable.ID.getName()));
+        applicationComponent.setMetricId(resultSet.getString(ApplicationComponentTable.METRIC_ID.getName()));
 
-        applicationComponent.setComponentId(resultSet.getInt(ApplicationComponentTable.COLUMN_COMPONENT_ID));
-        applicationComponent.setApplicationId(resultSet.getInt(ApplicationComponentTable.COLUMN_APPLICATION_ID));
-        applicationComponent.setTimeBucket(resultSet.getLong(ApplicationComponentTable.COLUMN_TIME_BUCKET));
+        applicationComponent.setComponentId(resultSet.getInt(ApplicationComponentTable.COMPONENT_ID.getName()));
+        applicationComponent.setApplicationId(resultSet.getInt(ApplicationComponentTable.APPLICATION_ID.getName()));
+        applicationComponent.setTimeBucket(resultSet.getLong(ApplicationComponentTable.TIME_BUCKET.getName()));
         return applicationComponent;
     }
 
     @Override protected final Map<String, Object> streamDataToH2Data(ApplicationComponent streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationComponentTable.COLUMN_ID, streamData.getId());
-        source.put(ApplicationComponentTable.COLUMN_METRIC_ID, streamData.getMetricId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(ApplicationComponentTable.ID.getName(), streamData.getId());
+        target.put(ApplicationComponentTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(ApplicationComponentTable.COLUMN_COMPONENT_ID, streamData.getComponentId());
-        source.put(ApplicationComponentTable.COLUMN_APPLICATION_ID, streamData.getApplicationId());
-        source.put(ApplicationComponentTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
+        target.put(ApplicationComponentTable.COMPONENT_ID.getName(), streamData.getComponentId());
+        target.put(ApplicationComponentTable.APPLICATION_ID.getName(), streamData.getApplicationId());
+        target.put(ApplicationComponentTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
 
-        return source;
+        return target;
     }
 }

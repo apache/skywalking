@@ -19,8 +19,8 @@
 package org.apache.skywalking.apm.collector.analysis.jvm.provider.worker.gc;
 
 import org.apache.skywalking.apm.collector.analysis.jvm.define.graph.WorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorkerProvider;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
@@ -30,9 +30,9 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetric;
 /**
  * @author peng-yongsheng
  */
-public class GCHourMetricPersistenceWorker extends PersistenceWorker<GCMetric> {
+public class GCHourMetricPersistenceWorker extends MergePersistenceWorker<GCMetric> {
 
-    public GCHourMetricPersistenceWorker(ModuleManager moduleManager) {
+    private GCHourMetricPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -49,7 +49,7 @@ public class GCHourMetricPersistenceWorker extends PersistenceWorker<GCMetric> {
         return getModuleManager().find(StorageModule.NAME).getService(IGCHourMetricPersistenceDAO.class);
     }
 
-    public static class Factory extends PersistenceWorkerProvider<GCMetric, GCHourMetricPersistenceWorker> {
+    public static class Factory extends MergePersistenceWorkerProvider<GCMetric, GCHourMetricPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);

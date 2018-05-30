@@ -18,51 +18,70 @@
 
 package org.apache.skywalking.apm.agent.core.remote;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
+import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
+
+import java.util.Arrays;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The <code>CollectorDiscoveryService</code> is responsible for start {@link DiscoveryRestServiceClient}.
  *
  * @author wusheng
  */
+@DefaultImplementor
 public class CollectorDiscoveryService implements BootService {
     private static final ILog logger = LogManager.getLogger(CollectorDiscoveryService.class);
     private ScheduledFuture<?> future;
 
     @Override
-    public void beforeBoot() throws Throwable {
+    public void prepare() {
 
     }
 
     @Override
-    public void boot() throws Throwable {
+    public void boot() {
         DiscoveryRestServiceClient discoveryRestServiceClient = new DiscoveryRestServiceClient();
-        discoveryRestServiceClient.run();
-        future = Executors.newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("CollectorDiscoveryService"))
-            .scheduleAtFixedRate(new RunnableWithExceptionProtection(discoveryRestServiceClient,
-                    new RunnableWithExceptionProtection.CallbackWhenException() {
-                        @Override public void handle(Throwable t) {
+        if (discoveryRestServiceClient.hasNamingServer()) {
+            discoveryRestServiceClient.run();
+            future = Executors.newSingleThreadScheduledExecutor(
+                    new DefaultNamedThreadFactory("CollectorDiscoveryService"))
+                    .scheduleAtFixedRate(new RunnableWithExceptionProtection(discoveryRestServiceClient, new RunnableWithExceptionProtection.CallbackWhenException() {
+                        @Override
+                        public void handle(Throwable t) {
                             logger.error("unexpected exception.", t);
                         }
-                    }), Config.Collector.DISCOVERY_CHECK_INTERVAL,
-                Config.Collector.DISCOVERY_CHECK_INTERVAL, TimeUnit.SECONDS);
+                    }),
+                            Config.Collector.DISCOVERY_CHECK_INTERVAL,
+                            Config.Collector.DISCOVERY_CHECK_INTERVAL,
+                            TimeUnit.SECONDS);
+        } else {
+            if (Config.Collector.DIRECT_SERVERS == null || Config.Collector.DIRECT_SERVERS.trim().length() == 0) {
+                logger.error("Collector server and direct server addresses are both not set.");
+                logger.error("Agent will not uplink any data.");
+                return;
+            }
+            RemoteDownstreamConfig.Collector.GRPC_SERVERS = Arrays.asList(Config.Collector.DIRECT_SERVERS.split(","));
+        }
     }
 
     @Override
-    public void afterBoot() throws Throwable {
+    public void onComplete() throws Throwable {
 
     }
 
     @Override
     public void shutdown() throws Throwable {
-        future.cancel(true);
+        if (future != null) {
+            future.cancel(true);
+        }
     }
 }

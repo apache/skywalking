@@ -44,34 +44,34 @@ public class ServiceAlarmListH2PersistenceDAO extends AbstractPersistenceH2DAO<S
 
     @Override protected ServiceAlarmList h2DataToStreamData(ResultSet resultSet) throws SQLException {
         ServiceAlarmList serviceAlarmList = new ServiceAlarmList();
-        serviceAlarmList.setId(resultSet.getString(ServiceAlarmListTable.COLUMN_ID));
-        serviceAlarmList.setSourceValue(resultSet.getInt(ServiceAlarmListTable.COLUMN_SOURCE_VALUE));
+        serviceAlarmList.setId(resultSet.getString(ServiceAlarmListTable.ID.getName()));
+        serviceAlarmList.setSourceValue(resultSet.getInt(ServiceAlarmListTable.SOURCE_VALUE.getName()));
 
-        serviceAlarmList.setAlarmType(resultSet.getInt(ServiceAlarmListTable.COLUMN_ALARM_TYPE));
+        serviceAlarmList.setAlarmType(resultSet.getInt(ServiceAlarmListTable.ALARM_TYPE.getName()));
 
-        serviceAlarmList.setApplicationId(resultSet.getInt(ServiceAlarmListTable.COLUMN_APPLICATION_ID));
-        serviceAlarmList.setInstanceId(resultSet.getInt(ServiceAlarmListTable.COLUMN_INSTANCE_ID));
-        serviceAlarmList.setServiceId(resultSet.getInt(ServiceAlarmListTable.COLUMN_SERVICE_ID));
+        serviceAlarmList.setApplicationId(resultSet.getInt(ServiceAlarmListTable.APPLICATION_ID.getName()));
+        serviceAlarmList.setInstanceId(resultSet.getInt(ServiceAlarmListTable.INSTANCE_ID.getName()));
+        serviceAlarmList.setServiceId(resultSet.getInt(ServiceAlarmListTable.SERVICE_ID.getName()));
 
-        serviceAlarmList.setTimeBucket(resultSet.getLong(ServiceAlarmListTable.COLUMN_TIME_BUCKET));
-        serviceAlarmList.setAlarmContent(resultSet.getString(ServiceAlarmListTable.COLUMN_ALARM_CONTENT));
+        serviceAlarmList.setTimeBucket(resultSet.getLong(ServiceAlarmListTable.TIME_BUCKET.getName()));
+        serviceAlarmList.setAlarmContent(resultSet.getString(ServiceAlarmListTable.ALARM_CONTENT.getName()));
 
         return serviceAlarmList;
     }
 
     @Override protected Map<String, Object> streamDataToH2Data(ServiceAlarmList streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(ServiceAlarmListTable.COLUMN_SOURCE_VALUE, streamData.getSourceValue());
+        Map<String, Object> target = new HashMap<>();
+        target.put(ServiceAlarmListTable.SOURCE_VALUE.getName(), streamData.getSourceValue());
 
-        source.put(ServiceAlarmListTable.COLUMN_ALARM_TYPE, streamData.getAlarmType());
+        target.put(ServiceAlarmListTable.ALARM_TYPE.getName(), streamData.getAlarmType());
 
-        source.put(ServiceAlarmListTable.COLUMN_APPLICATION_ID, streamData.getApplicationId());
-        source.put(ServiceAlarmListTable.COLUMN_INSTANCE_ID, streamData.getInstanceId());
-        source.put(ServiceAlarmListTable.COLUMN_SERVICE_ID, streamData.getServiceId());
+        target.put(ServiceAlarmListTable.APPLICATION_ID.getName(), streamData.getApplicationId());
+        target.put(ServiceAlarmListTable.INSTANCE_ID.getName(), streamData.getInstanceId());
+        target.put(ServiceAlarmListTable.SERVICE_ID.getName(), streamData.getServiceId());
 
-        source.put(ServiceAlarmListTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
-        source.put(ServiceAlarmListTable.COLUMN_ALARM_CONTENT, streamData.getAlarmContent());
+        target.put(ServiceAlarmListTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
+        target.put(ServiceAlarmListTable.ALARM_CONTENT.getName(), streamData.getAlarmContent());
 
-        return source;
+        return target;
     }
 }

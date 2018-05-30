@@ -17,11 +17,12 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>apm-collector-analysis</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-beta-SNAPSHOT</version>
+        <version>5.0.0-beta2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -31,6 +32,4 @@
         <module>register-define</module>
         <module>register-provider</module>
     </modules>
-
-
 </project>

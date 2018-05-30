@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.collector.storage.es.dao.acp;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponent;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponentTable;
@@ -35,27 +36,32 @@ public abstract class AbstractApplicationComponentEsPersistenceDAO extends Abstr
     }
 
     @Override protected final String timeBucketColumnNameForDelete() {
-        return ApplicationComponentTable.COLUMN_TIME_BUCKET;
+        return ApplicationComponentTable.TIME_BUCKET.getName();
     }
 
     @Override protected final ApplicationComponent esDataToStreamData(Map<String, Object> source) {
         ApplicationComponent applicationComponent = new ApplicationComponent();
-        applicationComponent.setMetricId((String)source.get(ApplicationComponentTable.COLUMN_METRIC_ID));
+        applicationComponent.setMetricId((String)source.get(ApplicationComponentTable.METRIC_ID.getName()));
 
-        applicationComponent.setComponentId(((Number)source.get(ApplicationComponentTable.COLUMN_COMPONENT_ID)).intValue());
-        applicationComponent.setApplicationId(((Number)source.get(ApplicationComponentTable.COLUMN_APPLICATION_ID)).intValue());
-        applicationComponent.setTimeBucket(((Number)source.get(ApplicationComponentTable.COLUMN_TIME_BUCKET)).longValue());
+        applicationComponent.setComponentId(((Number)source.get(ApplicationComponentTable.COMPONENT_ID.getName())).intValue());
+        applicationComponent.setApplicationId(((Number)source.get(ApplicationComponentTable.APPLICATION_ID.getName())).intValue());
+        applicationComponent.setTimeBucket(((Number)source.get(ApplicationComponentTable.TIME_BUCKET.getName())).longValue());
         return applicationComponent;
     }
 
     @Override protected final Map<String, Object> esStreamDataToEsData(ApplicationComponent streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationComponentTable.COLUMN_METRIC_ID, streamData.getMetricId());
+        Map<String, Object> target = new HashMap<>();
+        target.put(ApplicationComponentTable.METRIC_ID.getName(), streamData.getMetricId());
 
-        source.put(ApplicationComponentTable.COLUMN_COMPONENT_ID, streamData.getComponentId());
-        source.put(ApplicationComponentTable.COLUMN_APPLICATION_ID, streamData.getApplicationId());
-        source.put(ApplicationComponentTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
+        target.put(ApplicationComponentTable.COMPONENT_ID.getName(), streamData.getComponentId());
+        target.put(ApplicationComponentTable.APPLICATION_ID.getName(), streamData.getApplicationId());
+        target.put(ApplicationComponentTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
 
-        return source;
+        return target;
+    }
+
+    @GraphComputingMetric(name = "/persistence/get/" + ApplicationComponentTable.TABLE)
+    @Override public final ApplicationComponent get(String id) {
+        return super.get(id);
     }
 }

@@ -18,36 +18,28 @@
 
 package org.apache.skywalking.apm.collector.ui.service;
 
-import java.text.ParseException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
+import org.apache.skywalking.apm.collector.configuration.service.IComponentLibraryCatalogService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationComponentUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMappingUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMetricUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationReferenceMetricUIDAO;
+import org.apache.skywalking.apm.collector.storage.dao.ui.*;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
-import org.apache.skywalking.apm.collector.storage.ui.common.Step;
-import org.apache.skywalking.apm.collector.storage.ui.common.Topology;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.apm.collector.storage.ui.common.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
 public class ApplicationTopologyService {
 
-    private final Logger logger = LoggerFactory.getLogger(ApplicationTopologyService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationTopologyService.class);
 
     private final IApplicationComponentUIDAO applicationComponentUIDAO;
     private final IApplicationMappingUIDAO applicationMappingUIDAO;
     private final IApplicationMetricUIDAO applicationMetricUIDAO;
     private final IApplicationReferenceMetricUIDAO applicationReferenceMetricUIDAO;
+    private final IComponentLibraryCatalogService componentLibraryCatalogService;
     private final ModuleManager moduleManager;
 
     public ApplicationTopologyService(ModuleManager moduleManager) {
@@ -56,10 +48,11 @@ public class ApplicationTopologyService {
         this.applicationMappingUIDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationMappingUIDAO.class);
         this.applicationMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationMetricUIDAO.class);
         this.applicationReferenceMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IApplicationReferenceMetricUIDAO.class);
+        this.componentLibraryCatalogService = moduleManager.find(ConfigurationModule.NAME).getService(IComponentLibraryCatalogService.class);
     }
 
     public Topology getApplicationTopology(Step step, int applicationId, long startTimeBucket,
-        long endTimeBucket, long startSecondTimeBucket, long endSecondTimeBucket) throws ParseException {
+        long endTimeBucket, long startSecondTimeBucket, long endSecondTimeBucket) {
         logger.debug("startTimeBucket: {}, endTimeBucket: {}", startTimeBucket, endTimeBucket);
         List<IApplicationComponentUIDAO.ApplicationComponent> applicationComponents = applicationComponentUIDAO.load(step, startTimeBucket, endTimeBucket);
         List<IApplicationMappingUIDAO.ApplicationMapping> applicationMappings = applicationMappingUIDAO.load(step, startTimeBucket, endTimeBucket);
@@ -73,7 +66,7 @@ public class ApplicationTopologyService {
         });
 
         Map<Integer, String> components = new HashMap<>();
-        applicationComponents.forEach(component -> components.put(component.getApplicationId(), ComponentsDefine.getInstance().getComponentName(component.getComponentId())));
+        applicationComponents.forEach(component -> components.put(component.getApplicationId(), this.componentLibraryCatalogService.getComponentName(component.getComponentId())));
 
         List<IApplicationMetricUIDAO.ApplicationMetric> applicationMetrics = applicationMetricUIDAO.getApplications(step, startTimeBucket, endTimeBucket, MetricSource.Callee);
 

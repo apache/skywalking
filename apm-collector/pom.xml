@@ -17,11 +17,12 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-beta-SNAPSHOT</version>
+        <version>5.0.0-beta2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -29,6 +30,7 @@
 
     <packaging>pom</packaging>
     <modules>
+        <module>apm-collector-instrument</module>
         <module>apm-collector-boot</module>
         <module>apm-collector-ui</module>
         <module>apm-collector-core</module>
@@ -40,37 +42,49 @@
         <module>apm-collector-grpc-manager</module>
         <module>apm-collector-jetty-manager</module>
         <module>apm-collector-remote</module>
-        <module>apm-collector-instrument</module>
         <module>apm-collector-configuration</module>
         <module>apm-collector-agent</module>
         <module>apm-collector-analysis</module>
     </modules>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <slf4j.version>1.7.25</slf4j.version>
+        <log4j.version>2.9.0</log4j.version>
+        <guava.version>19.0</guava.version>
+        <caffeine.version>2.6.2</caffeine.version>
+        <snakeyaml.version>1.18</snakeyaml.version>
+        <byte-buddy.version>1.7.8</byte-buddy.version>
+        <graphql-java-tools.version>4.3.0</graphql-java-tools.version>
+        <gson.version>2.8.1</gson.version>
+        <joda-time.version>2.9.9</joda-time.version>
+        <jetty.version>9.4.2.v20170220</jetty.version>
+        <h2.version>1.4.196</h2.version>
+        <jedis.version>2.9.0</jedis.version>
+        <zookeeper.version>3.4.10</zookeeper.version>
+        <elasticsearch.client.version>5.5.0</elasticsearch.client.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>apm-util</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.25</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>log4j-over-slf4j</artifactId>
-            <version>1.7.25</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.9.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
-            <version>2.9.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.logging.log4j</groupId>
@@ -79,4 +93,149 @@
             </exclusions>
         </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.skywalking</groupId>
+                <artifactId>apm-util</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>log4j-over-slf4j</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.graphql-java</groupId>
+                <artifactId>graphql-java-tools</artifactId>
+                <version>${graphql-java-tools.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy</artifactId>
+                <version>${byte-buddy.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>${gson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>${joda-time.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-servlet</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${h2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>redis.clients</groupId>
+                <artifactId>jedis</artifactId>
+                <version>${jedis.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.elasticsearch.client</groupId>
+                <artifactId>transport</artifactId>
+                <version>${elasticsearch.client.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>snakeyaml</artifactId>
+                        <groupId>org.yaml</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>netty-common</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>netty-transport</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>netty-codec</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>netty-codec-http</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>netty-buffer</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>netty-handler</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>netty-resolver</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.zookeeper</groupId>
+                <artifactId>zookeeper</artifactId>
+                <version>${zookeeper.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>slf4j-api</artifactId>
+                        <groupId>org.slf4j</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>slf4j-log4j12</artifactId>
+                        <groupId>org.slf4j</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.ben-manes.caffeine</groupId>
+                <artifactId>caffeine</artifactId>
+                <version>${caffeine.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>${snakeyaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j-impl</artifactId>
+                <version>${log4j.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-core</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>

@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NetworkAddressRegisterServiceHandler extends NetworkAddressRegisterServiceGrpc.NetworkAddressRegisterServiceImplBase implements GRPCHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(NetworkAddressRegisterServiceHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(NetworkAddressRegisterServiceHandler.class);
 
     private final INetworkAddressIDService networkAddressIDService;
 

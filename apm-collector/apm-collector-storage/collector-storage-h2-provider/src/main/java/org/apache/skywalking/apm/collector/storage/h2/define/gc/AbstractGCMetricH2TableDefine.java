@@ -18,8 +18,7 @@
 
 package org.apache.skywalking.apm.collector.storage.h2.define.gc;
 
-import org.apache.skywalking.apm.collector.storage.h2.base.define.H2ColumnDefine;
-import org.apache.skywalking.apm.collector.storage.h2.base.define.H2TableDefine;
+import org.apache.skywalking.apm.collector.storage.h2.base.define.*;
 import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetricTable;
 
 /**
@@ -27,17 +26,18 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetricTable;
  */
 public abstract class AbstractGCMetricH2TableDefine extends H2TableDefine {
 
-    public AbstractGCMetricH2TableDefine(String name) {
+    AbstractGCMetricH2TableDefine(String name) {
         super(name);
     }
 
     @Override public final void initialize() {
-        addColumn(new H2ColumnDefine(GCMetricTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(GCMetricTable.COLUMN_METRIC_ID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(GCMetricTable.COLUMN_INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(GCMetricTable.COLUMN_PHRASE, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(GCMetricTable.COLUMN_COUNT, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(GCMetricTable.COLUMN_TIMES, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(GCMetricTable.COLUMN_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(GCMetricTable.ID, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(GCMetricTable.METRIC_ID, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(GCMetricTable.INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(GCMetricTable.PHRASE, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(GCMetricTable.COUNT, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(GCMetricTable.DURATION, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(GCMetricTable.TIMES, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(GCMetricTable.TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
     }
 }

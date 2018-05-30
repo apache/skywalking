@@ -24,10 +24,37 @@ import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 
 /**
+ * Interface to be implemented for execute database query operation
+ * from {@link org.apache.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetricTable#TABLE}.
+ *
  * @author peng-yongsheng
+ * @see org.apache.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetricTable
+ * @see org.apache.skywalking.apm.collector.storage.StorageModule
  */
 public interface IApplicationReferenceMetricUIDAO extends DAO {
 
+    /**
+     * Returns aggregated application reference metrics that collected between
+     * start time bucket and end time bucket.
+     *
+     * <p>SQL as: select FRONT_APPLICATION_ID, BEHIND_APPLICATION_ID,
+     * sum(TRANSACTION_CALLS), sum(TRANSACTION_ERROR_CALLS), sum(TRANSACTION_DURATION_SUM), sum(TRANSACTION_ERROR_DURATION_SUM)
+     * from APPLICATION_REFERENCE_METRIC
+     * where TIME_BUCKET ge ${startTimeBucket} and TIME_BUCKET le ${endTimeBucket}
+     * and SOURCE_VALUE = ${metricSource}
+     * and ( FRONT_APPLICATION_ID in (${applicationIds}) or BEHIND_APPLICATION_ID in (${applicationIds}) )
+     * group by FRONT_APPLICATION_ID, BEHIND_APPLICATION_ID
+     * <p>Use {@link org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder#build(Step, String)}
+     * to generate table name which mixed with step name.
+     * <p>Note: ${applicationIds} may not be given
+     *
+     * @param step the step which represent time formats
+     * @param startTimeBucket start time bucket
+     * @param endTimeBucket end time bucket
+     * @param metricSource source of this metric, server side or client side
+     * @param applicationIds source or target application ids,
+     * @return not nullable result list
+     */
     List<ApplicationReferenceMetric> getReferences(Step step, long startTimeBucket, long endTimeBucket,
         MetricSource metricSource, Integer... applicationIds);
 

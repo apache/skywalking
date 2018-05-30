@@ -32,6 +32,6 @@ public class GCMonthMetricEsTableDefine extends AbstractGCMetricEsTableDefine {
     }
 
     @Override public int refreshInterval() {
-        return 1;
+        return 2;
     }
 }

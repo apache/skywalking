@@ -31,19 +31,19 @@ import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterServ
 public class ApplicationMapping extends StreamData {
 
     private static final Column[] STRING_COLUMNS = {
-        new Column(ApplicationMappingTable.COLUMN_ID, new NonMergeOperation()),
-        new Column(ApplicationMappingTable.COLUMN_METRIC_ID, new NonMergeOperation()),
+        new Column(ApplicationMappingTable.ID, new NonMergeOperation()),
+        new Column(ApplicationMappingTable.METRIC_ID, new NonMergeOperation()),
     };
 
     private static final Column[] LONG_COLUMNS = {
-        new Column(ApplicationMappingTable.COLUMN_TIME_BUCKET, new CoverMergeOperation()),
+        new Column(ApplicationMappingTable.TIME_BUCKET, new CoverMergeOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {};
 
     private static final Column[] INTEGER_COLUMNS = {
-        new Column(ApplicationMappingTable.COLUMN_APPLICATION_ID, new CoverMergeOperation()),
-        new Column(ApplicationMappingTable.COLUMN_MAPPING_APPLICATION_ID, new CoverMergeOperation()),
+        new Column(ApplicationMappingTable.APPLICATION_ID, new CoverMergeOperation()),
+        new Column(ApplicationMappingTable.MAPPING_APPLICATION_ID, new CoverMergeOperation()),
     };
 
     private static final Column[] BYTE_COLUMNS = {};

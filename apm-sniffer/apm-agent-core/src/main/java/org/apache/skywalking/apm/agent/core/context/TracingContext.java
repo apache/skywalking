@@ -80,6 +80,11 @@ public class TracingContext implements AbstractTracerContext {
     private int spanIdGenerator;
 
     /**
+     * Runtime context of the tracing context
+     */
+    private RuntimeContext runtimeContext;
+
+    /**
      * Initialize all fields with default value.
      */
     TracingContext() {
@@ -94,7 +99,7 @@ public class TracingContext implements AbstractTracerContext {
      * Inject the context into the given carrier, only when the active span is an exit one.
      *
      * @param carrier to carry the context for crossing process.
-     * @throws IllegalStateException  if the active span isn't an exit one.
+     * @throws IllegalStateException if the active span isn't an exit one.
      * Ref to {@link AbstractTracerContext#inject(ContextCarrier)}
      */
     @Override
@@ -316,7 +321,7 @@ public class TracingContext implements AbstractTracerContext {
      * @param operationName most likely a service name of remote
      * @param remotePeer the network id(ip:port, hostname:port or ip1:port1,ip2,port, etc.)
      * @return the span represent an exit point of this segment.
-     * @see  ExitSpan
+     * @see ExitSpan
      */
     @Override
     public AbstractSpan createExitSpan(final String operationName, final String remotePeer) {
@@ -417,6 +422,14 @@ public class TracingContext implements AbstractTracerContext {
         if (activeSpanStack.isEmpty()) {
             this.finish();
         }
+    }
+
+    @Override
+    public RuntimeContext getRuntimeContext() {
+        if (runtimeContext == null) {
+            runtimeContext = new RuntimeContext();
+        }
+        return runtimeContext;
     }
 
     /**

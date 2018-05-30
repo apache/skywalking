@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.collector.analysis.register.provider;
 
-import java.util.Properties;
 import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegisterModule;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IApplicationIDService;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IInstanceIDService;
@@ -35,9 +34,8 @@ import org.apache.skywalking.apm.collector.analysis.register.provider.service.Se
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.analysis.worker.timer.PersistenceTimer;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
-import org.apache.skywalking.apm.collector.core.module.Module;
-import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
-import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.apache.skywalking.apm.collector.core.module.*;
+import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
 import org.apache.skywalking.apm.collector.remote.RemoteModule;
 import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
@@ -52,35 +50,43 @@ import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
 public class AnalysisRegisterModuleProvider extends ModuleProvider {
 
     public static final String NAME = "default";
+    private final AnalysisRegisterModuleConfig config;
+
+    public AnalysisRegisterModuleProvider() {
+        super();
+        this.config = new AnalysisRegisterModuleConfig();
+    }
 
     @Override public String name() {
         return NAME;
     }
 
-    @Override public Class<? extends Module> module() {
+    @Override public Class<? extends ModuleDefine> module() {
         return AnalysisRegisterModule.class;
     }
 
-    @Override public void prepare(Properties config) throws ServiceNotProvidedException {
+    @Override public ModuleConfig createConfigBeanIfAbsent() {
+        return config;
+    }
+
+    @Override public void prepare() throws ServiceNotProvidedException {
         this.registerServiceImplementation(IApplicationIDService.class, new ApplicationIDService(getManager()));
         this.registerServiceImplementation(IInstanceIDService.class, new InstanceIDService(getManager()));
         this.registerServiceImplementation(IServiceNameService.class, new ServiceNameService(getManager()));
         this.registerServiceImplementation(INetworkAddressIDService.class, new NetworkAddressIDService(getManager()));
     }
 
-    @Override public void start(Properties config) throws ServiceNotProvidedException {
+    @Override public void start() {
         WorkerCreateListener workerCreateListener = new WorkerCreateListener();
 
         graphCreate(workerCreateListener);
 
         registerRemoteData();
 
-        PersistenceTimer persistenceTimer = new PersistenceTimer(AnalysisRegisterModule.NAME);
-        persistenceTimer.start(getManager(), workerCreateListener.getPersistenceWorkers());
+        PersistenceTimer.INSTANCE.start(getManager(), workerCreateListener.getPersistenceWorkers());
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
-
+    @Override public void notifyAfterCompleted() {
     }
 
     @Override public String[] requiredModules() {

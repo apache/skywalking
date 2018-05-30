@@ -71,7 +71,7 @@ public class StatementExecuteMethodsInterceptorTest {
         enhanceRequireCacheObject = new StatementEnhanceInfos(connectionInfo, "SELECT * FROM test", "CallableStatement");
         when(objectInstance.getSkyWalkingDynamicField()).thenReturn(enhanceRequireCacheObject);
         when(method.getName()).thenReturn("executeQuery");
-        when(connectionInfo.getComponent()).thenReturn(ComponentsDefine.H2);
+        when(connectionInfo.getComponent()).thenReturn(ComponentsDefine.H2_JDBC_DRIVER);
         when(connectionInfo.getDBType()).thenReturn("H2");
         when(connectionInfo.getDatabaseName()).thenReturn("test");
         when(connectionInfo.getDatabasePeer()).thenReturn("localhost:3307");

@@ -16,19 +16,18 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.cluster.standalone;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.apache.skywalking.apm.collector.client.Client;
 import org.apache.skywalking.apm.collector.client.ClientException;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
 import org.apache.skywalking.apm.collector.cluster.ClusterModuleListener;
 import org.apache.skywalking.apm.collector.cluster.DataMonitor;
-import org.apache.skywalking.apm.collector.core.CollectorException;
-import org.apache.skywalking.apm.collector.client.Client;
 import org.apache.skywalking.apm.collector.cluster.ModuleRegistration;
+import org.apache.skywalking.apm.collector.core.CollectorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,14 +36,14 @@ import org.slf4j.LoggerFactory;
  */
 public class ClusterStandaloneDataMonitor implements DataMonitor {
 
-    private final Logger logger = LoggerFactory.getLogger(ClusterStandaloneDataMonitor.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClusterStandaloneDataMonitor.class);
 
     private H2Client client;
 
     private Map<String, ClusterModuleListener> listeners;
     private Map<String, ModuleRegistration> registrations;
 
-    public ClusterStandaloneDataMonitor() {
+    ClusterStandaloneDataMonitor() {
         listeners = new LinkedHashMap<>();
         registrations = new LinkedHashMap<>();
     }
@@ -55,18 +54,18 @@ public class ClusterStandaloneDataMonitor implements DataMonitor {
 
     @Override
     public void addListener(ClusterModuleListener listener) {
-        String path = BASE_CATALOG + listener.path();
+        String path = getBaseCatalog() + listener.path();
         logger.info("listener path: {}", path);
         listeners.put(path, listener);
     }
 
     @Override public ClusterModuleListener getListener(String path) {
-        path = BASE_CATALOG + path;
+        path = getBaseCatalog() + path;
         return listeners.get(path);
     }
 
     @Override public void register(String path, ModuleRegistration registration) {
-        registrations.put(BASE_CATALOG + path, registration);
+        registrations.put(getBaseCatalog() + path, registration);
     }
 
     @Override public void createPath(String path) throws ClientException {
@@ -78,6 +77,10 @@ public class ClusterStandaloneDataMonitor implements DataMonitor {
             listeners.get(path).addAddress(value);
             listeners.get(path).serverJoinNotify(value);
         }
+    }
+
+    @Override public String getBaseCatalog() {
+        return "/skywalking";
     }
 
     public void start() throws CollectorException {

@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider;
 
-import java.util.Properties;
 import org.apache.skywalking.apm.collector.analysis.metric.define.AnalysisMetricModule;
 import org.apache.skywalking.apm.collector.analysis.metric.define.service.IInstanceHeartBeatService;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.service.InstanceHeartBeatService;
@@ -30,6 +29,8 @@ import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.appli
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.refmetric.ApplicationReferenceMetricGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global.GlobalTraceGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global.GlobalTraceSpanListener;
+import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global.std.ResponseTimeDistributionGraph;
+import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global.std.ResponseTimeDistributionSpanListener;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.heartbeat.InstanceHeartBeatPersistenceGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.mapping.InstanceMappingGraph;
 import org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.mapping.InstanceMappingSpanListener;
@@ -44,15 +45,20 @@ import org.apache.skywalking.apm.collector.analysis.segment.parser.define.Analys
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParserListenerRegister;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.analysis.worker.timer.PersistenceTimer;
-import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.cache.CacheModule;
+import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
+import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
+import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.apache.skywalking.apm.collector.remote.RemoteModule;
 import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
+import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponent;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMapping;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMetric;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetric;
+import org.apache.skywalking.apm.collector.storage.table.global.ResponseTimeDistribution;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMapping;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetric;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetric;
@@ -65,20 +71,30 @@ import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenc
 public class AnalysisMetricModuleProvider extends ModuleProvider {
 
     public static final String NAME = "default";
+    private final AnalysisMetricModuleConfig config;
+
+    public AnalysisMetricModuleProvider() {
+        super();
+        this.config = new AnalysisMetricModuleConfig();
+    }
 
     @Override public String name() {
         return NAME;
     }
 
-    @Override public Class<? extends Module> module() {
+    @Override public Class<? extends ModuleDefine> module() {
         return AnalysisMetricModule.class;
     }
 
-    @Override public void prepare(Properties config) throws ServiceNotProvidedException {
+    @Override public ModuleConfig createConfigBeanIfAbsent() {
+        return config;
+    }
+
+    @Override public void prepare() throws ServiceNotProvidedException {
         this.registerServiceImplementation(IInstanceHeartBeatService.class, new InstanceHeartBeatService());
     }
 
-    @Override public void start(Properties config) throws ServiceNotProvidedException {
+    @Override public void start() {
         segmentParserListenerRegister();
 
         WorkerCreateListener workerCreateListener = new WorkerCreateListener();
@@ -87,16 +103,14 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
 
         registerRemoteData();
 
-        PersistenceTimer persistenceTimer = new PersistenceTimer(AnalysisMetricModule.NAME);
-        persistenceTimer.start(getManager(), workerCreateListener.getPersistenceWorkers());
+        PersistenceTimer.INSTANCE.start(getManager(), workerCreateListener.getPersistenceWorkers());
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
-
+    @Override public void notifyAfterCompleted() {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {AnalysisSegmentParserModule.NAME};
+        return new String[] {AnalysisSegmentParserModule.NAME, ConfigurationModule.NAME, CacheModule.NAME, StorageModule.NAME};
     }
 
     private void segmentParserListenerRegister() {
@@ -107,6 +121,7 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
         segmentParserListenerRegister.register(new InstanceMappingSpanListener.Factory());
         segmentParserListenerRegister.register(new GlobalTraceSpanListener.Factory());
         segmentParserListenerRegister.register(new SegmentDurationSpanListener.Factory());
+        segmentParserListenerRegister.register(new ResponseTimeDistributionSpanListener.Factory());
     }
 
     private void graphCreate(WorkerCreateListener workerCreateListener) {
@@ -140,6 +155,9 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
         GlobalTraceGraph globalTraceGraph = new GlobalTraceGraph(getManager(), workerCreateListener);
         globalTraceGraph.create();
 
+        ResponseTimeDistributionGraph responseTimeDistributionGraph = new ResponseTimeDistributionGraph(getManager(), workerCreateListener);
+        responseTimeDistributionGraph.create();
+
         SegmentDurationGraph segmentDurationGraph = new SegmentDurationGraph(getManager(), workerCreateListener);
         segmentDurationGraph.create();
 
@@ -158,5 +176,6 @@ public class AnalysisMetricModuleProvider extends ModuleProvider {
         remoteDataRegisterService.register(InstanceReferenceMetric.class, new InstanceReferenceMetric.InstanceCreator());
         remoteDataRegisterService.register(ServiceMetric.class, new ServiceMetric.InstanceCreator());
         remoteDataRegisterService.register(ServiceReferenceMetric.class, new ServiceReferenceMetric.InstanceCreator());
+        remoteDataRegisterService.register(ResponseTimeDistribution.class, new ResponseTimeDistribution.InstanceCreator());
     }
 }

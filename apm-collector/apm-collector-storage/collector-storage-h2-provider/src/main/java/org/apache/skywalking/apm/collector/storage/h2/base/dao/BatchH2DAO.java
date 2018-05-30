@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.h2.base.dao;
 
 import java.sql.Connection;
@@ -26,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
-import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
 import org.apache.skywalking.apm.collector.storage.base.dao.IBatchDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
 import org.slf4j.Logger;
@@ -76,7 +74,7 @@ public class BatchH2DAO extends H2DAO implements IBatchDAO {
                 for (String k : batchSqls.keySet()) {
                     batchSqls.get(k).executeBatch();
                 }
-            } catch (SQLException | H2ClientException e) {
+            } catch (SQLException e) {
                 logger.error(e.getMessage(), e);
             }
             batchSqls.clear();

@@ -143,11 +143,13 @@ class JVMMetricMock {
         GC.Builder newGC = GC.newBuilder();
         newGC.setPhrase(GCPhrase.NEW);
         newGC.setCount(2);
+        newGC.setTime(1000);
         metricBuilder.addGc(newGC);
 
         GC.Builder oldGC = GC.newBuilder();
         oldGC.setPhrase(GCPhrase.OLD);
         oldGC.setCount(4);
+        oldGC.setTime(49);
         metricBuilder.addGc(oldGC);
     }
 

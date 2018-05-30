@@ -18,43 +18,33 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.global;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.FirstSpanListener;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.GlobalTraceIdsListener;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListener;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListenerFactory;
-import org.apache.skywalking.apm.collector.core.graph.Graph;
-import org.apache.skywalking.apm.collector.core.graph.GraphManager;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SegmentCoreInfo;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.*;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
+import org.apache.skywalking.apm.collector.core.graph.*;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.table.global.GlobalTrace;
 import org.apache.skywalking.apm.network.proto.UniqueId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
-public class GlobalTraceSpanListener implements FirstSpanListener, GlobalTraceIdsListener {
+public class GlobalTraceSpanListener implements GlobalTraceIdsListener {
 
-    private final Logger logger = LoggerFactory.getLogger(GlobalTraceSpanListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(GlobalTraceSpanListener.class);
 
-    private List<String> globalTraceIds = new ArrayList<>();
-    private String segmentId;
-    private long timeBucket;
+    private List<String> globalTraceIds = new LinkedList<>();
+    private SegmentCoreInfo segmentCoreInfo;
 
-    @Override
-    public void parseFirst(SpanDecorator spanDecorator, int applicationId, int instanceId,
-        String segmentId) {
-        this.timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
-        this.segmentId = segmentId;
+    @Override public boolean containsPoint(Point point) {
+        return Point.GlobalTraceIds.equals(point);
     }
 
-    @Override public void parseGlobalTraceId(UniqueId uniqueId) {
+    @Override public void parseGlobalTraceId(UniqueId uniqueId, SegmentCoreInfo segmentCoreInfo) {
         StringBuilder globalTraceIdBuilder = new StringBuilder();
         for (int i = 0; i < uniqueId.getIdPartsList().size(); i++) {
             if (i == 0) {
@@ -64,6 +54,7 @@ public class GlobalTraceSpanListener implements FirstSpanListener, GlobalTraceId
             }
         }
         globalTraceIds.add(globalTraceIdBuilder.toString());
+        this.segmentCoreInfo = segmentCoreInfo;
     }
 
     @Override public void build() {
@@ -72,15 +63,17 @@ public class GlobalTraceSpanListener implements FirstSpanListener, GlobalTraceId
         Graph<GlobalTrace> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.GLOBAL_TRACE_GRAPH_ID, GlobalTrace.class);
         for (String globalTraceId : globalTraceIds) {
             GlobalTrace globalTrace = new GlobalTrace();
-            globalTrace.setId(segmentId + Const.ID_SPLIT + globalTraceId);
-            globalTrace.setGlobalTraceId(globalTraceId);
-            globalTrace.setSegmentId(segmentId);
-            globalTrace.setTimeBucket(timeBucket);
+            globalTrace.setId(segmentCoreInfo.getSegmentId() + Const.ID_SPLIT + globalTraceId);
+            globalTrace.setTraceId(globalTraceId);
+            globalTrace.setSegmentId(segmentCoreInfo.getSegmentId());
+            globalTrace.setTimeBucket(segmentCoreInfo.getMinuteTimeBucket());
             graph.start(globalTrace);
         }
     }
 
     public static class Factory implements SpanListenerFactory {
+
+        @GraphComputingMetric(name = "/segment/parse/createSpanListeners/globalTraceSpanListener")
         @Override public SpanListener create(ModuleManager moduleManager) {
             return new GlobalTraceSpanListener();
         }

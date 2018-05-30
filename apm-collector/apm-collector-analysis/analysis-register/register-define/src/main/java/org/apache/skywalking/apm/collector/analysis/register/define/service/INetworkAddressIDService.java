@@ -28,5 +28,5 @@ public interface INetworkAddressIDService extends Service {
 
     int get(String networkAddress);
 
-    void update(int addressId, int spanLayer, int serverType);
+    void update(int addressId, int srcSpanLayer, int serverType);
 }

@@ -73,8 +73,8 @@ public class SnifferConfigInitializer {
         if (StringUtil.isEmpty(Config.Agent.APPLICATION_CODE)) {
             throw new ExceptionInInitializerError("`agent.application_code` is missing.");
         }
-        if (StringUtil.isEmpty(Config.Collector.SERVERS)) {
-            throw new ExceptionInInitializerError("`collector.servers` is missing.");
+        if (StringUtil.isEmpty(Config.Collector.SERVERS) && StringUtil.isEmpty(Config.Collector.DIRECT_SERVERS)) {
+            throw new ExceptionInInitializerError("`collector.direct_servers` and `collector.servers` cannot be empty at the same time.");
         }
 
         IS_INIT_COMPLETED = true;
@@ -102,14 +102,6 @@ public class SnifferConfigInitializer {
             if (prop.getKey().toString().startsWith(ENV_KEY_PREFIX)) {
                 String realKey = prop.getKey().toString().substring(ENV_KEY_PREFIX.length());
                 properties.put(realKey, prop.getValue());
-            }
-        }
-
-        Map<String, String> envs = System.getenv();
-        for (String envKey : envs.keySet()) {
-            if (envKey.startsWith(ENV_KEY_PREFIX)) {
-                String realKey = envKey.substring(ENV_KEY_PREFIX.length());
-                properties.setProperty(realKey, envs.get(envKey));
             }
         }
 

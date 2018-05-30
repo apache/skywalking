@@ -19,20 +19,22 @@
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.refmetric;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.armp.IApplicationReferenceDayMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetric;
+import org.apache.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetricTable;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationReferenceDayMetricPersistenceWorker extends PersistenceWorker<ApplicationReferenceMetric> {
+public class ApplicationReferenceDayMetricPersistenceWorker extends MergePersistenceWorker<ApplicationReferenceMetric> {
 
-    public ApplicationReferenceDayMetricPersistenceWorker(ModuleManager moduleManager) {
+    private ApplicationReferenceDayMetricPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -49,7 +51,7 @@ public class ApplicationReferenceDayMetricPersistenceWorker extends PersistenceW
         return getModuleManager().find(StorageModule.NAME).getService(IApplicationReferenceDayMetricPersistenceDAO.class);
     }
 
-    public static class Factory extends PersistenceWorkerProvider<ApplicationReferenceMetric, ApplicationReferenceDayMetricPersistenceWorker> {
+    public static class Factory extends MergePersistenceWorkerProvider<ApplicationReferenceMetric, ApplicationReferenceDayMetricPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
@@ -63,5 +65,10 @@ public class ApplicationReferenceDayMetricPersistenceWorker extends PersistenceW
         public int queueSize() {
             return 1024;
         }
+    }
+
+    @GraphComputingMetric(name = "/persistence/onWork/" + ApplicationReferenceMetricTable.TABLE + "/day")
+    @Override protected void onWork(ApplicationReferenceMetric input) {
+        super.onWork(input);
     }
 }

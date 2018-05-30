@@ -18,11 +18,9 @@
 
 package org.apache.skywalking.apm.collector.analysis.baseline.computing.provider;
 
-import java.util.Properties;
 import org.apache.skywalking.apm.collector.analysis.baseline.computing.define.AnalysisBaselineComputingModule;
-import org.apache.skywalking.apm.collector.core.module.Module;
-import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
-import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.apache.skywalking.apm.collector.core.module.*;
+import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
 
 /**
  * The <code>AnalysisBaselineComputingModuleProvider</code> is the default implementation of {@link
@@ -32,26 +30,33 @@ import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedExcepti
  */
 public class AnalysisBaselineComputingModuleProvider extends ModuleProvider {
 
-    public static final String NAME = "default";
+    private static final String NAME = "default";
+    private final AnalysisBaselineComputingModuleConfig config;
+
+    public AnalysisBaselineComputingModuleProvider() {
+        super();
+        this.config = new AnalysisBaselineComputingModuleConfig();
+    }
 
     @Override public String name() {
         return NAME;
     }
 
-    @Override public Class<? extends Module> module() {
+    @Override public Class<? extends ModuleDefine> module() {
         return AnalysisBaselineComputingModule.class;
     }
 
-    @Override public void prepare(Properties config) throws ServiceNotProvidedException {
-
+    @Override public ModuleConfig createConfigBeanIfAbsent() {
+        return config;
     }
 
-    @Override public void start(Properties config) throws ServiceNotProvidedException {
-
+    @Override public void prepare() {
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
+    @Override public void start() {
+    }
 
+    @Override public void notifyAfterCompleted() {
     }
 
     @Override public String[] requiredModules() {

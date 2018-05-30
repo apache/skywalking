@@ -16,14 +16,13 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage;
 
 import java.util.List;
-import org.apache.skywalking.apm.collector.core.data.StorageDefineLoader;
 import org.apache.skywalking.apm.collector.client.Client;
-import org.apache.skywalking.apm.collector.core.define.DefineException;
+import org.apache.skywalking.apm.collector.core.data.StorageDefineLoader;
 import org.apache.skywalking.apm.collector.core.data.TableDefine;
+import org.apache.skywalking.apm.collector.core.define.DefineException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +33,12 @@ public abstract class StorageInstaller {
 
     private final Logger logger = LoggerFactory.getLogger(StorageInstaller.class);
 
+    private final boolean isHighPerformanceMode;
+
+    public StorageInstaller(boolean isHighPerformanceMode) {
+        this.isHighPerformanceMode = isHighPerformanceMode;
+    }
+
     public final void install(Client client) throws StorageException {
         StorageDefineLoader defineLoader = new StorageDefineLoader();
         try {
@@ -43,6 +48,7 @@ public abstract class StorageInstaller {
 
             for (TableDefine tableDefine : tableDefines) {
                 tableDefine.initialize();
+                settingHighPerformance(tableDefine);
                 if (!isExists(client, tableDefine)) {
                     logger.info("table: {} not exists", tableDefine.getName());
                     createTable(client, tableDefine);
@@ -51,17 +57,28 @@ public abstract class StorageInstaller {
                     deleteTable(client, tableDefine);
                     createTable(client, tableDefine);
                 }
+                columnCheck(client, tableDefine);
             }
         } catch (DefineException e) {
             throw new StorageInstallException(e.getMessage(), e);
         }
     }
 
+    private void settingHighPerformance(TableDefine tableDefine) {
+        tableDefine.getColumnDefines().forEach(column -> {
+            if (isHighPerformanceMode) {
+                column.getColumnName().useShortName();
+            }
+        });
+    }
+
     protected abstract void defineFilter(List<TableDefine> tableDefines);
 
     protected abstract boolean isExists(Client client, TableDefine tableDefine) throws StorageException;
 
-    protected abstract boolean deleteTable(Client client, TableDefine tableDefine) throws StorageException;
+    protected abstract void columnCheck(Client client, TableDefine tableDefine) throws StorageException;
 
-    protected abstract boolean createTable(Client client, TableDefine tableDefine) throws StorageException;
+    protected abstract void deleteTable(Client client, TableDefine tableDefine) throws StorageException;
+
+    protected abstract void createTable(Client client, TableDefine tableDefine) throws StorageException;
 }

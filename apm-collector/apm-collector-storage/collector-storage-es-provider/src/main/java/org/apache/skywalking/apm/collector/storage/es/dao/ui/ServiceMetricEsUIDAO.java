@@ -62,23 +62,22 @@ public class ServiceMetricEsUIDAO extends EsDAO implements IServiceMetricUIDAO {
 
     @Override
     public List<Integer> getServiceResponseTimeTrend(int serviceId, Step step, List<DurationPoint> durationPoints) {
-        MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet();
         String tableName = TimePyramidTableNameBuilder.build(step, ServiceMetricTable.TABLE);
-
-        durationPoints.forEach(durationPoint -> {
-            String id = durationPoint.getPoint() + Const.ID_SPLIT + serviceId + Const.ID_SPLIT + MetricSource.Callee.getValue();
-            prepareMultiGet.add(tableName, ServiceMetricTable.TABLE_TYPE, id);
+        MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet(durationPoints, new ElasticSearchClient.MultiGetRowHandler<DurationPoint>() {
+            @Override
+            public void accept(DurationPoint durationPoint) {
+                String id = durationPoint.getPoint() + Const.ID_SPLIT + serviceId + Const.ID_SPLIT + MetricSource.Callee.getValue();
+                add(tableName, ServiceMetricTable.TABLE_TYPE, id);
+            }
         });
 
         List<Integer> trends = new LinkedList<>();
         MultiGetResponse multiGetResponse = prepareMultiGet.get();
         for (MultiGetItemResponse response : multiGetResponse.getResponses()) {
             if (response.getResponse().isExists()) {
-                long calls = ((Number)response.getResponse().getSource().get(ServiceMetricTable.COLUMN_TRANSACTION_CALLS)).longValue();
-                long errorCalls = ((Number)response.getResponse().getSource().get(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS)).longValue();
-                long durationSum = ((Number)response.getResponse().getSource().get(ServiceMetricTable.COLUMN_TRANSACTION_DURATION_SUM)).longValue();
-                long errorDurationSum = ((Number)response.getResponse().getSource().get(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM)).longValue();
-                trends.add((int)((durationSum - errorDurationSum) / (calls - errorCalls)));
+                long calls = ((Number)response.getResponse().getSource().get(ServiceMetricTable.TRANSACTION_CALLS.getName())).longValue();
+                long durationSum = ((Number)response.getResponse().getSource().get(ServiceMetricTable.TRANSACTION_DURATION_SUM.getName())).longValue();
+                trends.add((int)(durationSum / calls));
             } else {
                 trends.add(0);
             }
@@ -86,13 +85,15 @@ public class ServiceMetricEsUIDAO extends EsDAO implements IServiceMetricUIDAO {
         return trends;
     }
 
-    @Override public List<Integer> getServiceTPSTrend(int serviceId, Step step, List<DurationPoint> durationPoints) {
-        MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet();
+    @Override
+    public List<Integer> getServiceThroughputTrend(int serviceId, Step step, List<DurationPoint> durationPoints) {
         String tableName = TimePyramidTableNameBuilder.build(step, ServiceMetricTable.TABLE);
-
-        durationPoints.forEach(durationPoint -> {
-            String id = durationPoint.getPoint() + Const.ID_SPLIT + serviceId + Const.ID_SPLIT + MetricSource.Callee.getValue();
-            prepareMultiGet.add(tableName, ServiceMetricTable.TABLE_TYPE, id);
+        MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet(durationPoints, new ElasticSearchClient.MultiGetRowHandler<DurationPoint>() {
+            @Override
+            public void accept(DurationPoint durationPoint) {
+                String id = durationPoint.getPoint() + Const.ID_SPLIT + serviceId + Const.ID_SPLIT + MetricSource.Callee.getValue();
+                add(tableName, ServiceMetricTable.TABLE_TYPE, id);
+            }
         });
 
         List<Integer> trends = new LinkedList<>();
@@ -101,9 +102,9 @@ public class ServiceMetricEsUIDAO extends EsDAO implements IServiceMetricUIDAO {
         int index = 0;
         for (MultiGetItemResponse response : multiGetResponse.getResponses()) {
             if (response.getResponse().isExists()) {
-                long calls = ((Number)response.getResponse().getSource().get(ServiceMetricTable.COLUMN_TRANSACTION_CALLS)).longValue();
-                long secondBetween = durationPoints.get(index).getSecondsBetween();
-                trends.add((int)(calls / secondBetween));
+                long calls = ((Number)response.getResponse().getSource().get(ServiceMetricTable.TRANSACTION_CALLS.getName())).longValue();
+                long minutesBetween = durationPoints.get(index).getMinutesBetween();
+                trends.add((int)(calls / minutesBetween));
             } else {
                 trends.add(0);
             }
@@ -112,21 +113,23 @@ public class ServiceMetricEsUIDAO extends EsDAO implements IServiceMetricUIDAO {
         return trends;
     }
 
-    @Override public List<Integer> getServiceSLATrend(int serviceId, Step step, List<DurationPoint> durationPoints) {
-        MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet();
+    @Override
+    public List<Integer> getServiceSLATrend(int serviceId, Step step, List<DurationPoint> durationPoints) {
         String tableName = TimePyramidTableNameBuilder.build(step, ServiceMetricTable.TABLE);
-
-        durationPoints.forEach(durationPoint -> {
-            String id = durationPoint.getPoint() + Const.ID_SPLIT + serviceId + Const.ID_SPLIT + MetricSource.Callee.getValue();
-            prepareMultiGet.add(tableName, ServiceMetricTable.TABLE_TYPE, id);
+        MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet(durationPoints, new ElasticSearchClient.MultiGetRowHandler<DurationPoint>() {
+            @Override
+            public void accept(DurationPoint durationPoint) {
+                String id = durationPoint.getPoint() + Const.ID_SPLIT + serviceId + Const.ID_SPLIT + MetricSource.Callee.getValue();
+                add(tableName, ServiceMetricTable.TABLE_TYPE, id);
+            }
         });
 
         List<Integer> trends = new LinkedList<>();
         MultiGetResponse multiGetResponse = prepareMultiGet.get();
         for (MultiGetItemResponse response : multiGetResponse.getResponses()) {
             if (response.getResponse().isExists()) {
-                long calls = ((Number)response.getResponse().getSource().get(ServiceMetricTable.COLUMN_TRANSACTION_CALLS)).longValue();
-                long errorCalls = ((Number)response.getResponse().getSource().get(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS)).longValue();
+                long calls = ((Number)response.getResponse().getSource().get(ServiceMetricTable.TRANSACTION_CALLS.getName())).longValue();
+                long errorCalls = ((Number)response.getResponse().getSource().get(ServiceMetricTable.TRANSACTION_ERROR_CALLS.getName())).longValue();
                 trends.add((int)(((calls - errorCalls) / calls)) * 10000);
             } else {
                 trends.add(10000);
@@ -136,7 +139,7 @@ public class ServiceMetricEsUIDAO extends EsDAO implements IServiceMetricUIDAO {
     }
 
     @Override
-    public List<Node> getServicesMetric(Step step, long startTime, long endTime, MetricSource metricSource,
+    public List<Node> getServicesMetric(Step step, long startTimeBucket, long endTimeBucket, MetricSource metricSource,
         Collection<Integer> serviceIds) {
         String tableName = TimePyramidTableNameBuilder.build(step, ServiceMetricTable.TABLE);
 
@@ -145,27 +148,27 @@ public class ServiceMetricEsUIDAO extends EsDAO implements IServiceMetricUIDAO {
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceMetricTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
-        boolQuery.must().add(QueryBuilders.termsQuery(ServiceMetricTable.COLUMN_SERVICE_ID, serviceIds));
-        boolQuery.must().add(QueryBuilders.termQuery(ServiceMetricTable.COLUMN_SOURCE_VALUE, metricSource.getValue()));
+        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceMetricTable.TIME_BUCKET.getName()).gte(startTimeBucket).lte(endTimeBucket));
+        boolQuery.must().add(QueryBuilders.termsQuery(ServiceMetricTable.SERVICE_ID.getName(), serviceIds));
+        boolQuery.must().add(QueryBuilders.termQuery(ServiceMetricTable.SOURCE_VALUE.getName(), metricSource.getValue()));
 
         searchRequestBuilder.setQuery(boolQuery);
         searchRequestBuilder.setSize(0);
 
-        TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(ServiceMetricTable.COLUMN_SERVICE_ID).field(ServiceMetricTable.COLUMN_SERVICE_ID).size(100);
-        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceMetricTable.COLUMN_TRANSACTION_CALLS).field(ServiceMetricTable.COLUMN_TRANSACTION_CALLS));
-        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS).field(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS));
+        TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(ServiceMetricTable.SERVICE_ID.getName()).field(ServiceMetricTable.SERVICE_ID.getName()).size(100);
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceMetricTable.TRANSACTION_CALLS.getName()).field(ServiceMetricTable.TRANSACTION_CALLS.getName()));
+        aggregationBuilder.subAggregation(AggregationBuilders.sum(ServiceMetricTable.TRANSACTION_ERROR_CALLS.getName()).field(ServiceMetricTable.TRANSACTION_ERROR_CALLS.getName()));
 
         searchRequestBuilder.addAggregation(aggregationBuilder);
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
         List<Node> nodes = new LinkedList<>();
-        Terms serviceIdTerms = searchResponse.getAggregations().get(ServiceMetricTable.COLUMN_SERVICE_ID);
+        Terms serviceIdTerms = searchResponse.getAggregations().get(ServiceMetricTable.SERVICE_ID.getName());
         serviceIdTerms.getBuckets().forEach(serviceIdBucket -> {
             int serviceId = serviceIdBucket.getKeyAsNumber().intValue();
 
-            Sum callsSum = serviceIdBucket.getAggregations().get(ServiceMetricTable.COLUMN_TRANSACTION_CALLS);
-            Sum errorCallsSum = serviceIdBucket.getAggregations().get(ServiceMetricTable.COLUMN_TRANSACTION_ERROR_CALLS);
+            Sum callsSum = serviceIdBucket.getAggregations().get(ServiceMetricTable.TRANSACTION_CALLS.getName());
+            Sum errorCallsSum = serviceIdBucket.getAggregations().get(ServiceMetricTable.TRANSACTION_ERROR_CALLS.getName());
 
             ServiceNode serviceNode = new ServiceNode();
             serviceNode.setId(serviceId);
@@ -186,15 +189,15 @@ public class ServiceMetricEsUIDAO extends EsDAO implements IServiceMetricUIDAO {
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceMetricTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
+        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceMetricTable.TIME_BUCKET.getName()).gte(startTimeBucket).lte(endTimeBucket));
         if (applicationId != 0) {
-            boolQuery.must().add(QueryBuilders.termQuery(ServiceMetricTable.COLUMN_APPLICATION_ID, applicationId));
+            boolQuery.must().add(QueryBuilders.termQuery(ServiceMetricTable.APPLICATION_ID.getName(), applicationId));
         }
-        boolQuery.must().add(QueryBuilders.termQuery(ServiceMetricTable.COLUMN_SOURCE_VALUE, metricSource.getValue()));
+        boolQuery.must().add(QueryBuilders.termQuery(ServiceMetricTable.SOURCE_VALUE.getName(), metricSource.getValue()));
 
         searchRequestBuilder.setQuery(boolQuery);
         searchRequestBuilder.setSize(topN * 60);
-        searchRequestBuilder.addSort(SortBuilders.fieldSort(ServiceMetricTable.COLUMN_TRANSACTION_AVERAGE_DURATION).order(SortOrder.DESC));
+        searchRequestBuilder.addSort(SortBuilders.fieldSort(ServiceMetricTable.TRANSACTION_AVERAGE_DURATION.getName()).order(SortOrder.DESC));
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
         SearchHit[] searchHits = searchResponse.getHits().getHits();
@@ -202,12 +205,12 @@ public class ServiceMetricEsUIDAO extends EsDAO implements IServiceMetricUIDAO {
         Set<Integer> serviceIds = new HashSet<>();
         List<ServiceMetric> serviceMetrics = new LinkedList<>();
         for (SearchHit searchHit : searchHits) {
-            int serviceId = ((Number)searchHit.getSource().get(ServiceMetricTable.COLUMN_SERVICE_ID)).intValue();
+            int serviceId = ((Number)searchHit.getSource().get(ServiceMetricTable.SERVICE_ID.getName())).intValue();
             if (!serviceIds.contains(serviceId)) {
                 ServiceMetric serviceMetric = new ServiceMetric();
                 serviceMetric.setId(serviceId);
-                serviceMetric.setCalls(((Number)searchHit.getSource().get(ServiceMetricTable.COLUMN_TRANSACTION_CALLS)).longValue());
-                serviceMetric.setAvgResponseTime(((Number)searchHit.getSource().get(ServiceMetricTable.COLUMN_TRANSACTION_AVERAGE_DURATION)).intValue());
+                serviceMetric.setCalls(((Number)searchHit.getSource().get(ServiceMetricTable.TRANSACTION_CALLS.getName())).longValue());
+                serviceMetric.setAvgResponseTime(((Number)searchHit.getSource().get(ServiceMetricTable.TRANSACTION_AVERAGE_DURATION.getName())).intValue());
                 serviceMetrics.add(serviceMetric);
 
                 serviceIds.add(serviceId);

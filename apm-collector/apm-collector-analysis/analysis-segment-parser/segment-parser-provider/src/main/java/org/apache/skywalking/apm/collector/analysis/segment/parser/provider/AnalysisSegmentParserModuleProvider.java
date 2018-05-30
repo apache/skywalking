@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.collector.analysis.segment.parser.provider;
 
-import java.util.Properties;
 import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegisterModule;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.AnalysisSegmentParserModule;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParseService;
@@ -33,9 +32,9 @@ import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.serv
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.analysis.worker.timer.PersistenceTimer;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
-import org.apache.skywalking.apm.collector.core.module.Module;
-import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
-import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
+import org.apache.skywalking.apm.collector.core.module.*;
+import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 
 /**
@@ -43,18 +42,28 @@ import org.apache.skywalking.apm.collector.storage.StorageModule;
  */
 public class AnalysisSegmentParserModuleProvider extends ModuleProvider {
 
-    public static final String NAME = "default";
+    private static final String NAME = "default";
+    private final AnalysisSegmentParserModuleConfig config;
     private SegmentParserListenerManager listenerManager;
+
+    public AnalysisSegmentParserModuleProvider() {
+        super();
+        this.config = new AnalysisSegmentParserModuleConfig();
+    }
 
     @Override public String name() {
         return NAME;
     }
 
-    @Override public Class<? extends Module> module() {
+    @Override public Class<? extends ModuleDefine> module() {
         return AnalysisSegmentParserModule.class;
     }
 
-    @Override public void prepare(Properties config) throws ServiceNotProvidedException {
+    @Override public ModuleConfig createConfigBeanIfAbsent() {
+        return config;
+    }
+
+    @Override public void prepare() throws ServiceNotProvidedException {
         this.listenerManager = new SegmentParserListenerManager();
         this.registerServiceImplementation(ISegmentParserListenerRegister.class, new SegmentParserListenerRegister(listenerManager));
         this.registerServiceImplementation(ISegmentParseService.class, new SegmentParseService(getManager(), listenerManager));
@@ -63,23 +72,21 @@ public class AnalysisSegmentParserModuleProvider extends ModuleProvider {
         parser.parse(config);
     }
 
-    @Override public void start(Properties config) throws ServiceNotProvidedException {
+    @Override public void start() {
         WorkerCreateListener workerCreateListener = new WorkerCreateListener();
 
         graphCreate(workerCreateListener);
 
-        PersistenceTimer persistenceTimer = new PersistenceTimer(AnalysisSegmentParserModule.NAME);
-        persistenceTimer.start(getManager(), workerCreateListener.getPersistenceWorkers());
+        PersistenceTimer.INSTANCE.start(getManager(), workerCreateListener.getPersistenceWorkers());
 
         SegmentBufferReader.INSTANCE.setSegmentParserListenerManager(listenerManager);
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
-
+    @Override public void notifyAfterCompleted() {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {AnalysisRegisterModule.NAME, CacheModule.NAME, StorageModule.NAME};
+        return new String[] {ConfigurationModule.NAME, StorageModule.NAME, AnalysisRegisterModule.NAME, CacheModule.NAME};
     }
 
     private void graphCreate(WorkerCreateListener workerCreateListener) {

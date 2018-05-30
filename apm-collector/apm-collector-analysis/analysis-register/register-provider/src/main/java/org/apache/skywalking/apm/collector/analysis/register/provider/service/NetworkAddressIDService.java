@@ -29,8 +29,10 @@ import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddress;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * @author peng-yongsheng
@@ -48,28 +50,28 @@ public class NetworkAddressIDService implements INetworkAddressIDService {
     }
 
     private NetworkAddressCacheService getNetworkAddressCacheService() {
-        if (ObjectUtils.isEmpty(networkAddressCacheService)) {
+        if (isNull(networkAddressCacheService)) {
             this.networkAddressCacheService = moduleManager.find(CacheModule.NAME).getService(NetworkAddressCacheService.class);
         }
         return this.networkAddressCacheService;
     }
 
     private IApplicationIDService getApplicationIDService() {
-        if (ObjectUtils.isEmpty(applicationIDService)) {
+        if (isNull(applicationIDService)) {
             this.applicationIDService = moduleManager.find(AnalysisRegisterModule.NAME).getService(IApplicationIDService.class);
         }
         return this.applicationIDService;
     }
 
     private IInstanceIDService getInstanceIDService() {
-        if (ObjectUtils.isEmpty(instanceIDService)) {
+        if (isNull(instanceIDService)) {
             this.instanceIDService = moduleManager.find(AnalysisRegisterModule.NAME).getService(IInstanceIDService.class);
         }
         return this.instanceIDService;
     }
 
     private Graph<NetworkAddress> getNetworkAddressGraph() {
-        if (ObjectUtils.isEmpty(networkAddressGraph)) {
+        if (isNull(networkAddressGraph)) {
             this.networkAddressGraph = GraphManager.INSTANCE.findGraph(GraphIdDefine.NETWORK_ADDRESS_NAME_REGISTER_GRAPH_ID, NetworkAddress.class);
         }
         return this.networkAddressGraph;
@@ -92,7 +94,7 @@ public class NetworkAddressIDService implements INetworkAddressIDService {
             NetworkAddress newNetworkAddress = new NetworkAddress();
             newNetworkAddress.setId(String.valueOf(Const.NONE));
             newNetworkAddress.setNetworkAddress(networkAddress);
-            newNetworkAddress.setSpanLayer(Const.NONE);
+            newNetworkAddress.setSrcSpanLayer(Const.NONE);
             newNetworkAddress.setServerType(Const.NONE);
             newNetworkAddress.setAddressId(Const.NONE);
 
@@ -107,14 +109,23 @@ public class NetworkAddressIDService implements INetworkAddressIDService {
     }
 
     @Override public void update(int addressId, int spanLayer, int serverType) {
-        if (!networkAddressCacheService.compare(addressId, spanLayer, serverType)) {
+        if (!this.compare(addressId, spanLayer, serverType)) {
             NetworkAddress newNetworkAddress = new NetworkAddress();
             newNetworkAddress.setId(String.valueOf(addressId));
-            newNetworkAddress.setSpanLayer(spanLayer);
+            newNetworkAddress.setSrcSpanLayer(spanLayer);
             newNetworkAddress.setServerType(serverType);
             newNetworkAddress.setAddressId(addressId);
 
             getNetworkAddressGraph().start(newNetworkAddress);
         }
+    }
+
+    private boolean compare(int addressId, int spanLayer, int serverType) {
+        NetworkAddress networkAddress = networkAddressCacheService.getAddress(addressId);
+        
+        if (nonNull(networkAddress)) {
+            return spanLayer == networkAddress.getSrcSpanLayer() && serverType == networkAddress.getServerType();
+        }
+        return true;
     }
 }

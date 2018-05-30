@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.collector.analysis.alarm.provider;
 
-import java.util.Properties;
 import org.apache.skywalking.apm.collector.analysis.alarm.define.AnalysisAlarmModule;
 import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.application.ApplicationMetricAlarmGraph;
 import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.application.ApplicationReferenceMetricAlarmGraph;
@@ -30,9 +29,9 @@ import org.apache.skywalking.apm.collector.analysis.metric.define.AnalysisMetric
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.analysis.worker.timer.PersistenceTimer;
 import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
-import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
+import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
-import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.apache.skywalking.apm.collector.remote.RemoteModule;
 import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
@@ -48,19 +47,29 @@ import org.apache.skywalking.apm.collector.storage.table.alarm.ServiceAlarmList;
  */
 public class AnalysisAlarmModuleProvider extends ModuleProvider {
 
+    private final AnalysisAlarmModuleConfig config;
+
+    public AnalysisAlarmModuleProvider() {
+        super();
+        this.config = new AnalysisAlarmModuleConfig();
+    }
+
     @Override public String name() {
         return "default";
     }
 
-    @Override public Class<? extends Module> module() {
+    @Override public Class<? extends ModuleDefine> module() {
         return AnalysisAlarmModule.class;
     }
 
-    @Override public void prepare(Properties config) throws ServiceNotProvidedException {
-
+    @Override public ModuleConfig createConfigBeanIfAbsent() {
+        return config;
     }
 
-    @Override public void start(Properties config) throws ServiceNotProvidedException {
+    @Override public void prepare() {
+    }
+
+    @Override public void start() {
         WorkerCreateListener workerCreateListener = new WorkerCreateListener();
 
         ServiceMetricAlarmGraph serviceMetricAlarmGraph = new ServiceMetricAlarmGraph(getManager(), workerCreateListener);
@@ -83,12 +92,10 @@ public class AnalysisAlarmModuleProvider extends ModuleProvider {
 
         registerRemoteData();
 
-        PersistenceTimer persistenceTimer = new PersistenceTimer(AnalysisAlarmModule.NAME);
-        persistenceTimer.start(getManager(), workerCreateListener.getPersistenceWorkers());
+        PersistenceTimer.INSTANCE.start(getManager(), workerCreateListener.getPersistenceWorkers());
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
-
+    @Override public void notifyAfterCompleted() {
     }
 
     @Override public String[] requiredModules() {

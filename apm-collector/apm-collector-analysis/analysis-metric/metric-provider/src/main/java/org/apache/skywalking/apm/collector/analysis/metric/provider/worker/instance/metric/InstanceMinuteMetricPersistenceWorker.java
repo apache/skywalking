@@ -19,20 +19,22 @@
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.metric;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.imp.IInstanceMinuteMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetric;
+import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetricTable;
 
 /**
  * @author peng-yongsheng
  */
-public class InstanceMinuteMetricPersistenceWorker extends PersistenceWorker<InstanceMetric> {
+public class InstanceMinuteMetricPersistenceWorker extends MergePersistenceWorker<InstanceMetric> {
 
-    public InstanceMinuteMetricPersistenceWorker(ModuleManager moduleManager) {
+    private InstanceMinuteMetricPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -49,7 +51,7 @@ public class InstanceMinuteMetricPersistenceWorker extends PersistenceWorker<Ins
         return getModuleManager().find(StorageModule.NAME).getService(IInstanceMinuteMetricPersistenceDAO.class);
     }
 
-    public static class Factory extends PersistenceWorkerProvider<InstanceMetric, InstanceMinuteMetricPersistenceWorker> {
+    public static class Factory extends MergePersistenceWorkerProvider<InstanceMetric, InstanceMinuteMetricPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
@@ -63,5 +65,10 @@ public class InstanceMinuteMetricPersistenceWorker extends PersistenceWorker<Ins
         public int queueSize() {
             return 1024;
         }
+    }
+
+    @GraphComputingMetric(name = "/persistence/onWork/" + InstanceMetricTable.TABLE + "/minute")
+    @Override protected void onWork(InstanceMetric input) {
+        super.onWork(input);
     }
 }

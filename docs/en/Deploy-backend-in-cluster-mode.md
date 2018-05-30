@@ -37,10 +37,10 @@ cluster:
     sessionTimeout: 100000
 naming:
 # Host and port used for agent config
-    jetty:
-        host: localhost
-        port: 10800
-        context_path: /
+jetty:
+    host: localhost
+    port: 10800
+    contextPath: /
 remote:
   gRPC:
     host: localhost
@@ -53,30 +53,50 @@ agent_jetty:
   jetty:
     host: localhost
     port: 12800
-    context_path: /
+    contextPath: /
 analysis_register:
   default:
 analysis_jvm:
   default:
 analysis_segment_parser:
   default:
-    buffer_file_path: ../buffer/
-    buffer_offset_max_file_size: 10M
-    buffer_segment_max_file_size: 500M
+    bufferFilePath: ../buffer/
+    bufferOffsetMaxFileSize: 10M
+    bufferSegmentMaxFileSize: 500M
 ui:
   jetty:
     host: localhost
     port: 12800
-    context_path: /
+    contextPath: /
 # Config Elasticsearch cluster connection info.
 storage:
   elasticsearch:
-    cluster_name: CollectorDBCluster
-    cluster_transport_sniffer: true
-    cluster_nodes: localhost:9300
-    index_shards_number: 2
-    index_replicas_number: 0
-    ttl: 7
+    clusterName: CollectorDBCluster
+    clusterTransportSniffer: true
+    clusterNodes: localhost:9300
+    indexShardsNumber: 2
+    indexReplicasNumber: 0
+    highPerformanceMode: true
+    # Set a timeout on metric data. After the timeout has expired, the metric data will automatically be deleted.
+    traceDataTTL: 90 # Unit is minute
+    minuteMetricDataTTL: 45 # Unit is minute
+    hourMetricDataTTL: 36 # Unit is hour
+    dayMetricDataTTL: 45 # Unit is day
+    monthMetricDataTTL: 18 # Unit is month
+configuration:
+  default:
+#     namespace: xxxxx
+# alarm threshold
+    applicationApdexThreshold: 2000
+    serviceErrorRateThreshold: 10.00
+    serviceAverageResponseTimeThreshold: 2000
+    instanceErrorRateThreshold: 10.00
+    instanceAverageResponseTimeThreshold: 2000
+    applicationErrorRateThreshold: 10.00
+    applicationAverageResponseTimeThreshold: 2000
+# thermodynamic
+    thermodynamicResponseTimeStep: 50
+    thermodynamicCountOfResponseTimeSteps: 40
 ```
 
 3. Run `bin/collectorService.sh`

@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AlarmAssertWorker<INPUT extends StreamData & Metric, OUTPUT extends StreamData & Alarm> extends AbstractLocalAsyncWorker<INPUT, OUTPUT> {
 
-    private final Logger logger = LoggerFactory.getLogger(AlarmAssertWorker.class);
+    private static final Logger logger = LoggerFactory.getLogger(AlarmAssertWorker.class);
 
     public AlarmAssertWorker(ModuleManager moduleManager) {
         super(moduleManager);

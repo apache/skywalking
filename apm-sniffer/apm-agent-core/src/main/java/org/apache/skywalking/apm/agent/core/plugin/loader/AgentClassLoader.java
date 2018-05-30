@@ -16,16 +16,13 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.plugin.loader;
 
-import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
-import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
-import org.apache.skywalking.apm.agent.core.plugin.PluginBootstrap;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
-
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
@@ -35,6 +32,11 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
+import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.plugin.PluginBootstrap;
 
 /**
  * The <code>AgentClassLoader</code> represents a classloader,
@@ -64,7 +66,13 @@ public class AgentClassLoader extends ClassLoader {
      * @throws AgentPackageNotFoundException
      */
     public static AgentClassLoader initDefaultLoader() throws AgentPackageNotFoundException {
-        DEFAULT_LOADER = new AgentClassLoader(PluginBootstrap.class.getClassLoader());
+        if (DEFAULT_LOADER == null) {
+            synchronized (AgentClassLoader.class) {
+                if (DEFAULT_LOADER == null) {
+                    DEFAULT_LOADER = new AgentClassLoader(PluginBootstrap.class.getClassLoader());
+                }
+            }
+        }
         return getDefault();
     }
 

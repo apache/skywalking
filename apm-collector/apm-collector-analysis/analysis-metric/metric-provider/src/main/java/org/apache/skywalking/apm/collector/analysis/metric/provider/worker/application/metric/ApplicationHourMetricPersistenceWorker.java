@@ -19,20 +19,22 @@
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.metric;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.amp.IApplicationHourMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMetric;
+import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMetricTable;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationHourMetricPersistenceWorker extends PersistenceWorker<ApplicationMetric> {
+public class ApplicationHourMetricPersistenceWorker extends MergePersistenceWorker<ApplicationMetric> {
 
-    public ApplicationHourMetricPersistenceWorker(ModuleManager moduleManager) {
+    private ApplicationHourMetricPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -49,7 +51,7 @@ public class ApplicationHourMetricPersistenceWorker extends PersistenceWorker<Ap
         return true;
     }
 
-    public static class Factory extends PersistenceWorkerProvider<ApplicationMetric, ApplicationHourMetricPersistenceWorker> {
+    public static class Factory extends MergePersistenceWorkerProvider<ApplicationMetric, ApplicationHourMetricPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
@@ -63,5 +65,10 @@ public class ApplicationHourMetricPersistenceWorker extends PersistenceWorker<Ap
         public int queueSize() {
             return 1024;
         }
+    }
+
+    @GraphComputingMetric(name = "/persistence/onWork/" + ApplicationMetricTable.TABLE + "/hour")
+    @Override protected void onWork(ApplicationMetric input) {
+        super.onWork(input);
     }
 }

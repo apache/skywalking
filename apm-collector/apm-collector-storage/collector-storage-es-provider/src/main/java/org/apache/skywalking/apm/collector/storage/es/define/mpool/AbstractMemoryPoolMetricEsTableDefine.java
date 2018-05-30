@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetricTab
  */
 public abstract class AbstractMemoryPoolMetricEsTableDefine extends ElasticSearchTableDefine {
 
-    public AbstractMemoryPoolMetricEsTableDefine(String name) {
+    AbstractMemoryPoolMetricEsTableDefine(String name) {
         super(name);
     }
 
@@ -36,15 +36,15 @@ public abstract class AbstractMemoryPoolMetricEsTableDefine extends ElasticSearc
     }
 
     @Override public final void initialize() {
-        addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.COLUMN_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
-        addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.COLUMN_METRIC_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
-        addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.COLUMN_INSTANCE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.COLUMN_POOL_TYPE, ElasticSearchColumnDefine.Type.Integer.name()));
-        addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.COLUMN_INIT, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.COLUMN_MAX, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.COLUMN_USED, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.COLUMN_COMMITTED, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.COLUMN_TIMES, ElasticSearchColumnDefine.Type.Long.name()));
-        addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.ID, ElasticSearchColumnDefine.Type.Keyword.name()));
+        addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.METRIC_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
+        addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.INSTANCE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.POOL_TYPE, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.INIT, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.MAX, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.USED, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.COMMITTED, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.TIMES, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(MemoryPoolMetricTable.TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
     }
 }

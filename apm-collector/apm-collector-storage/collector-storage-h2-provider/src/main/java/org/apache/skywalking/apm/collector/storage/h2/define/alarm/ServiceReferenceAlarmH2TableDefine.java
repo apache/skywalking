@@ -32,19 +32,19 @@ public class ServiceReferenceAlarmH2TableDefine extends H2TableDefine {
     }
 
     @Override public void initialize() {
-        addColumn(new H2ColumnDefine(ServiceReferenceAlarmTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(ServiceReferenceAlarmTable.COLUMN_FRONT_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(ServiceReferenceAlarmTable.COLUMN_BEHIND_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(ServiceReferenceAlarmTable.COLUMN_FRONT_INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(ServiceReferenceAlarmTable.COLUMN_BEHIND_INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(ServiceReferenceAlarmTable.COLUMN_FRONT_SERVICE_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(ServiceReferenceAlarmTable.COLUMN_BEHIND_SERVICE_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ServiceReferenceAlarmTable.ID, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(ServiceReferenceAlarmTable.FRONT_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ServiceReferenceAlarmTable.BEHIND_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ServiceReferenceAlarmTable.FRONT_INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ServiceReferenceAlarmTable.BEHIND_INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ServiceReferenceAlarmTable.FRONT_SERVICE_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ServiceReferenceAlarmTable.BEHIND_SERVICE_ID, H2ColumnDefine.Type.Int.name()));
 
-        addColumn(new H2ColumnDefine(ServiceReferenceAlarmTable.COLUMN_SOURCE_VALUE, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(ServiceReferenceAlarmTable.COLUMN_ALARM_TYPE, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ServiceReferenceAlarmTable.SOURCE_VALUE, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ServiceReferenceAlarmTable.ALARM_TYPE, H2ColumnDefine.Type.Int.name()));
 
-        addColumn(new H2ColumnDefine(ServiceReferenceAlarmTable.COLUMN_ALARM_CONTENT, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(ServiceReferenceAlarmTable.ALARM_CONTENT, H2ColumnDefine.Type.Varchar.name()));
 
-        addColumn(new H2ColumnDefine(ServiceReferenceAlarmTable.COLUMN_LAST_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceReferenceAlarmTable.LAST_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
     }
 }

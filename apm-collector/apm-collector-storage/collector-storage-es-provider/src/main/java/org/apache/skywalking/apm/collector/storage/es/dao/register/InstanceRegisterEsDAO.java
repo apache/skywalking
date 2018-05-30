@@ -28,7 +28,7 @@ import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.support.WriteRequest;
-import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,44 +43,43 @@ public class InstanceRegisterEsDAO extends EsDAO implements IInstanceRegisterDAO
         super(client);
     }
 
-    @Override public int getMaxInstanceId() {
-        return getMaxId(InstanceTable.TABLE, InstanceTable.COLUMN_INSTANCE_ID);
+    @Override
+    public int getMaxInstanceId() {
+        return getMaxId(InstanceTable.TABLE, InstanceTable.INSTANCE_ID.getName());
     }
 
-    @Override public int getMinInstanceId() {
-        return getMinId(InstanceTable.TABLE, InstanceTable.COLUMN_INSTANCE_ID);
+    @Override
+    public int getMinInstanceId() {
+        return getMinId(InstanceTable.TABLE, InstanceTable.INSTANCE_ID.getName());
     }
 
-    @Override public void save(Instance instance) {
+    @Override
+    public void save(Instance instance) {
         logger.debug("save instance register info, application getApplicationId: {}, agentUUID: {}", instance.getApplicationId(), instance.getAgentUUID());
         ElasticSearchClient client = getClient();
-        Map<String, Object> source = new HashMap<>();
-        source.put(InstanceTable.COLUMN_INSTANCE_ID, instance.getInstanceId());
-        source.put(InstanceTable.COLUMN_APPLICATION_ID, instance.getApplicationId());
-        source.put(InstanceTable.COLUMN_APPLICATION_CODE, instance.getApplicationCode());
-        source.put(InstanceTable.COLUMN_AGENT_UUID, instance.getAgentUUID());
-        source.put(InstanceTable.COLUMN_REGISTER_TIME, TimeBucketUtils.INSTANCE.getSecondTimeBucket(instance.getRegisterTime()));
-        source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, TimeBucketUtils.INSTANCE.getSecondTimeBucket(instance.getHeartBeatTime()));
-        source.put(InstanceTable.COLUMN_OS_INFO, instance.getOsInfo());
-        source.put(InstanceTable.COLUMN_ADDRESS_ID, instance.getAddressId());
-        source.put(InstanceTable.COLUMN_IS_ADDRESS, instance.getIsAddress());
+        Map<String, Object> target = new HashMap<>();
+        target.put(InstanceTable.INSTANCE_ID.getName(), instance.getInstanceId());
+        target.put(InstanceTable.APPLICATION_ID.getName(), instance.getApplicationId());
+        target.put(InstanceTable.APPLICATION_CODE.getName(), instance.getApplicationCode());
+        target.put(InstanceTable.AGENT_UUID.getName(), instance.getAgentUUID());
+        target.put(InstanceTable.REGISTER_TIME.getName(), TimeBucketUtils.INSTANCE.getSecondTimeBucket(instance.getRegisterTime()));
+        target.put(InstanceTable.HEARTBEAT_TIME.getName(), TimeBucketUtils.INSTANCE.getSecondTimeBucket(instance.getHeartBeatTime()));
+        target.put(InstanceTable.OS_INFO.getName(), instance.getOsInfo());
+        target.put(InstanceTable.ADDRESS_ID.getName(), instance.getAddressId());
+        target.put(InstanceTable.IS_ADDRESS.getName(), instance.getIsAddress());
 
-        IndexResponse response = client.prepareIndex(InstanceTable.TABLE, instance.getId()).setSource(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
+        IndexResponse response = client.prepareIndex(InstanceTable.TABLE, instance.getId()).setSource(target).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
         logger.debug("save instance register info, application getApplicationId: {}, agentUUID: {}, status: {}", instance.getApplicationId(), instance.getAgentUUID(), response.status().name());
     }
 
-    @Override public void updateHeartbeatTime(int instanceId, long heartbeatTime) {
-        ElasticSearchClient client = getClient();
-        UpdateRequest updateRequest = new UpdateRequest();
-        updateRequest.index(InstanceTable.TABLE);
-        updateRequest.type(InstanceTable.TABLE_TYPE);
-        updateRequest.id(String.valueOf(instanceId));
-        updateRequest.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
+    @Override
+    public void updateHeartbeatTime(int instanceId, long heartbeatTime) {
+        UpdateRequestBuilder updateRequestBuilder = getClient().prepareUpdate(InstanceTable.TABLE, String.valueOf(instanceId));
+        updateRequestBuilder.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
+        Map<String, Object> target = new HashMap<>();
+        target.put(InstanceTable.HEARTBEAT_TIME.getName(), TimeBucketUtils.INSTANCE.getSecondTimeBucket(heartbeatTime));
+        updateRequestBuilder.setDoc(target);
 
-        Map<String, Object> source = new HashMap<>();
-        source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, TimeBucketUtils.INSTANCE.getSecondTimeBucket(heartbeatTime));
-
-        updateRequest.doc(source);
-        client.update(updateRequest);
+        updateRequestBuilder.get();
     }
 }

@@ -44,40 +44,40 @@ public class ServiceReferenceAlarmH2PersistenceDAO extends AbstractPersistenceH2
 
     @Override protected ServiceReferenceAlarm h2DataToStreamData(ResultSet resultSet) throws SQLException {
         ServiceReferenceAlarm serviceReferenceAlarm = new ServiceReferenceAlarm();
-        serviceReferenceAlarm.setId(resultSet.getString(ServiceReferenceAlarmTable.COLUMN_ID));
-        serviceReferenceAlarm.setSourceValue(resultSet.getInt(ServiceReferenceAlarmTable.COLUMN_SOURCE_VALUE));
+        serviceReferenceAlarm.setId(resultSet.getString(ServiceReferenceAlarmTable.ID.getName()));
+        serviceReferenceAlarm.setSourceValue(resultSet.getInt(ServiceReferenceAlarmTable.SOURCE_VALUE.getName()));
 
-        serviceReferenceAlarm.setAlarmType(resultSet.getInt(ServiceReferenceAlarmTable.COLUMN_ALARM_TYPE));
+        serviceReferenceAlarm.setAlarmType(resultSet.getInt(ServiceReferenceAlarmTable.ALARM_TYPE.getName()));
 
-        serviceReferenceAlarm.setFrontApplicationId(resultSet.getInt(ServiceReferenceAlarmTable.COLUMN_FRONT_APPLICATION_ID));
-        serviceReferenceAlarm.setFrontInstanceId(resultSet.getInt(ServiceReferenceAlarmTable.COLUMN_FRONT_INSTANCE_ID));
-        serviceReferenceAlarm.setFrontServiceId(resultSet.getInt(ServiceReferenceAlarmTable.COLUMN_FRONT_SERVICE_ID));
-        serviceReferenceAlarm.setBehindApplicationId(resultSet.getInt(ServiceReferenceAlarmTable.COLUMN_BEHIND_APPLICATION_ID));
-        serviceReferenceAlarm.setBehindInstanceId(resultSet.getInt(ServiceReferenceAlarmTable.COLUMN_BEHIND_INSTANCE_ID));
-        serviceReferenceAlarm.setBehindServiceId(resultSet.getInt(ServiceReferenceAlarmTable.COLUMN_BEHIND_SERVICE_ID));
+        serviceReferenceAlarm.setFrontApplicationId(resultSet.getInt(ServiceReferenceAlarmTable.FRONT_APPLICATION_ID.getName()));
+        serviceReferenceAlarm.setFrontInstanceId(resultSet.getInt(ServiceReferenceAlarmTable.FRONT_INSTANCE_ID.getName()));
+        serviceReferenceAlarm.setFrontServiceId(resultSet.getInt(ServiceReferenceAlarmTable.FRONT_SERVICE_ID.getName()));
+        serviceReferenceAlarm.setBehindApplicationId(resultSet.getInt(ServiceReferenceAlarmTable.BEHIND_APPLICATION_ID.getName()));
+        serviceReferenceAlarm.setBehindInstanceId(resultSet.getInt(ServiceReferenceAlarmTable.BEHIND_INSTANCE_ID.getName()));
+        serviceReferenceAlarm.setBehindServiceId(resultSet.getInt(ServiceReferenceAlarmTable.BEHIND_SERVICE_ID.getName()));
 
-        serviceReferenceAlarm.setLastTimeBucket(resultSet.getLong(ServiceReferenceAlarmTable.COLUMN_LAST_TIME_BUCKET));
-        serviceReferenceAlarm.setAlarmContent(resultSet.getString(ServiceReferenceAlarmTable.COLUMN_ALARM_CONTENT));
+        serviceReferenceAlarm.setLastTimeBucket(resultSet.getLong(ServiceReferenceAlarmTable.LAST_TIME_BUCKET.getName()));
+        serviceReferenceAlarm.setAlarmContent(resultSet.getString(ServiceReferenceAlarmTable.ALARM_CONTENT.getName()));
 
         return serviceReferenceAlarm;
     }
 
     @Override protected Map<String, Object> streamDataToH2Data(ServiceReferenceAlarm streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(ServiceReferenceAlarmTable.COLUMN_SOURCE_VALUE, streamData.getSourceValue());
+        Map<String, Object> target = new HashMap<>();
+        target.put(ServiceReferenceAlarmTable.SOURCE_VALUE.getName(), streamData.getSourceValue());
 
-        source.put(ServiceReferenceAlarmTable.COLUMN_ALARM_TYPE, streamData.getAlarmType());
+        target.put(ServiceReferenceAlarmTable.ALARM_TYPE.getName(), streamData.getAlarmType());
 
-        source.put(ServiceReferenceAlarmTable.COLUMN_FRONT_APPLICATION_ID, streamData.getFrontApplicationId());
-        source.put(ServiceReferenceAlarmTable.COLUMN_FRONT_INSTANCE_ID, streamData.getFrontInstanceId());
-        source.put(ServiceReferenceAlarmTable.COLUMN_FRONT_SERVICE_ID, streamData.getFrontServiceId());
-        source.put(ServiceReferenceAlarmTable.COLUMN_BEHIND_APPLICATION_ID, streamData.getBehindApplicationId());
-        source.put(ServiceReferenceAlarmTable.COLUMN_BEHIND_INSTANCE_ID, streamData.getBehindInstanceId());
-        source.put(ServiceReferenceAlarmTable.COLUMN_BEHIND_SERVICE_ID, streamData.getBehindServiceId());
+        target.put(ServiceReferenceAlarmTable.FRONT_APPLICATION_ID.getName(), streamData.getFrontApplicationId());
+        target.put(ServiceReferenceAlarmTable.FRONT_INSTANCE_ID.getName(), streamData.getFrontInstanceId());
+        target.put(ServiceReferenceAlarmTable.FRONT_SERVICE_ID.getName(), streamData.getFrontServiceId());
+        target.put(ServiceReferenceAlarmTable.BEHIND_APPLICATION_ID.getName(), streamData.getBehindApplicationId());
+        target.put(ServiceReferenceAlarmTable.BEHIND_INSTANCE_ID.getName(), streamData.getBehindInstanceId());
+        target.put(ServiceReferenceAlarmTable.BEHIND_SERVICE_ID.getName(), streamData.getBehindServiceId());
 
-        source.put(ServiceReferenceAlarmTable.COLUMN_LAST_TIME_BUCKET, streamData.getLastTimeBucket());
-        source.put(ServiceReferenceAlarmTable.COLUMN_ALARM_CONTENT, streamData.getAlarmContent());
+        target.put(ServiceReferenceAlarmTable.LAST_TIME_BUCKET.getName(), streamData.getLastTimeBucket());
+        target.put(ServiceReferenceAlarmTable.ALARM_CONTENT.getName(), streamData.getAlarmContent());
 
-        return source;
+        return target;
     }
 }
