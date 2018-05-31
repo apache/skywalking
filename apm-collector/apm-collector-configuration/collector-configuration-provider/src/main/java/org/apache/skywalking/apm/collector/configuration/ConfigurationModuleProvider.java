@@ -59,6 +59,8 @@ public class ConfigurationModuleProvider extends ModuleProvider {
         int thermodynamicResponseTimeStep = config.getThermodynamicResponseTimeStep() == 0 ? 50 : config.getThermodynamicResponseTimeStep();
         int thermodynamicCountOfResponseTimeSteps = config.getThermodynamicCountOfResponseTimeSteps() == 0 ? 40 : config.getThermodynamicCountOfResponseTimeSteps();
 
+        int workerCacheMaxSize = config.getWorkerCacheMaxSize() == 0 ? 10000 : config.getWorkerCacheMaxSize();
+
         this.registerServiceImplementation(ICollectorConfig.class, new CollectorConfigService(namespace));
         this.registerServiceImplementation(IComponentLibraryCatalogService.class, new ComponentLibraryCatalogService());
         this.registerServiceImplementation(IApdexThresholdService.class, new ApdexThresholdService(applicationApdexThreshold));
@@ -69,6 +71,7 @@ public class ConfigurationModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(IInstanceReferenceAlarmRuleConfig.class, new InstanceReferenceAlarmRuleConfig(instanceErrorRateThreshold, instanceAverageResponseTimeThreshold));
         this.registerServiceImplementation(IApplicationReferenceAlarmRuleConfig.class, new ApplicationReferenceAlarmRuleConfig(applicationErrorRateThreshold, applicationAverageResponseTimeThreshold));
         this.registerServiceImplementation(IResponseTimeDistributionConfigService.class, new ResponseTimeDistributionConfigService(thermodynamicResponseTimeStep, thermodynamicCountOfResponseTimeSteps));
+        this.registerServiceImplementation(IWorkerCacheSizeConfig.class, new WorkerCacheSizeConfigService(workerCacheMaxSize));
     }
 
     @Override public void start() {
