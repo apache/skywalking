@@ -92,3 +92,5 @@ configuration:
 # thermodynamic
     thermodynamicResponseTimeStep: 50
     thermodynamicCountOfResponseTimeSteps: 40
+# max collection's size of worker cache collection, setting it smaller when collector OutOfMemory crashed.
+    workerCacheMaxSize: 10000
