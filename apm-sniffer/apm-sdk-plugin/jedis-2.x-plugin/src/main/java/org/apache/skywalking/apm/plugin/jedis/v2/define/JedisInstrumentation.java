@@ -38,6 +38,7 @@ public class JedisInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
     private static final String ENHANCE_CLASS = "redis.clients.jedis.Jedis";
     private static final String CONSTRUCTOR_WITH_STRING_ARG_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jedis.v2.JedisConstructorWithStringArgInterceptor";
     private static final String CONSTRUCTOR_WITH_SHARD_INFO_ARG_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jedis.v2.JedisConstructorWithShardInfoArgInterceptor";
+    private static final String CONSTRUCTOR_WITH_HOST_AND_PORT_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jedis.v2.JedisClusterConstructorWithHostAndPortArgInterceptor";
     private static final String CONSTRUCTOR_WITH_URI_ARG_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jedis.v2.JedisConstructorWithUriArgInterceptor";
     private static final String JEDIS_METHOD_INTERCET_CLASS = "org.apache.skywalking.apm.plugin.jedis.v2.JedisMethodInterceptor";
 
@@ -68,7 +69,7 @@ public class JedisInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
 
                 @Override
                 public String getConstructorInterceptor() {
-                    return CONSTRUCTOR_WITH_SHARD_INFO_ARG_INTERCEPT_CLASS;
+                    return CONSTRUCTOR_WITH_HOST_AND_PORT_INTERCEPT_CLASS;
                 }
             },
             new ConstructorInterceptPoint() {
