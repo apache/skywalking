@@ -33,14 +33,42 @@ export default class AppTopology extends Base {
     const maxCPM = Math.max(...cpmArray);
     const { nodeSize: { min, max } } = conf;
     const scale = maxCPM > minCPM ? (max - min) / (maxCPM - minCPM) : 0;
+    const eleWithNewUsers = this.supplyUserNode(elements.edges);
     return {
-      ...elements,
-      nodes: nodes.map((_) => {
+      edges: eleWithNewUsers.edges,
+      nodes: nodes.filter(_ => !_.data || _.data.id !== '1').map((_) => {
         return {
           ..._,
           data: {
             ..._.data,
             size: (_.data && _.data.cpm && scale > 0) ? (scale * (_.data.cpm - minCPM)) + min : min,
+          },
+        };
+      }).concat(eleWithNewUsers.nodes),
+    };
+  }
+  supplyUserNode = (edges) => {
+    let i = 0;
+    const nodes = [];
+    return {
+      nodes,
+      edges: edges.map((_) => {
+        if (_.data.source !== '1') {
+          return _;
+        }
+        i += 1;
+        const newId = `USER-${i}`;
+        nodes.push({
+          data: {
+            id: newId,
+            name: 'User',
+            type: 'USER',
+          },
+        });
+        return {
+          data: {
+            ..._.data,
+            source: newId,
           },
         };
       }),
