@@ -153,6 +153,9 @@ kafka-consumer:
 mongodb-driver:
   id: 42
   languages: Java
+SOFARPC:
+  id: 43
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
