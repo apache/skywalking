@@ -48,4 +48,28 @@ public class PathMappingCacheTest {
         Assert.assertEquals("the two value should be equal", pathMappingCache.findPathMapping(m), "org.apache.skywalking.apm.plugin.spring.mvc#toString");
 
     }
+
+    @Test
+    public void testAutoAddPathSeparator() {
+        String rightPath = "/root/sub";
+
+        Object obj = new Object();
+        Method m = obj.getClass().getMethods()[0];
+
+        PathMappingCache cache = new PathMappingCache("root");
+        cache.addPathMapping(m, "sub");
+        Assert.assertEquals(cache.findPathMapping(m), rightPath);
+
+        PathMappingCache cache2 = new PathMappingCache("/root");
+        cache2.addPathMapping(m, "/sub");
+        Assert.assertEquals(cache2.findPathMapping(m), rightPath);
+
+        PathMappingCache cache3 = new PathMappingCache("root");
+        cache3.addPathMapping(m, "/sub");
+        Assert.assertEquals(cache3.findPathMapping(m), rightPath);
+
+        PathMappingCache cache4 = new PathMappingCache("/root");
+        cache4.addPathMapping(m, "sub");
+        Assert.assertEquals(cache4.findPathMapping(m), rightPath);
+    }
 }
