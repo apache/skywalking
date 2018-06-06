@@ -38,7 +38,7 @@ public class PathMappingCache {
     private ConcurrentHashMap<Method, String> methodPathMapping = new ConcurrentHashMap<Method, String>();
 
     public PathMappingCache(String classPath) {
-        if (!classPath.startsWith(PATH_SEPARATOR)) {
+        if (!StringUtil.isEmpty(classPath) && !classPath.startsWith(PATH_SEPARATOR)) {
             classPath = PATH_SEPARATOR + classPath;
         }
         this.classPath = classPath;
