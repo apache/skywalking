@@ -19,6 +19,8 @@
 
 package org.apache.skywalking.apm.plugin.spring.mvc.commons;
 
+import org.apache.skywalking.apm.util.StringUtil;
+
 import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -47,7 +49,7 @@ public class PathMappingCache {
     }
 
     public void addPathMapping(Method method, String methodPath) {
-        if (!methodPath.startsWith(PATH_SEPARATOR)
+        if (!StringUtil.isEmpty(methodPath) && !methodPath.startsWith(PATH_SEPARATOR)
                 && !classPath.endsWith(PATH_SEPARATOR)) {
             methodPath = PATH_SEPARATOR + methodPath;
         }
