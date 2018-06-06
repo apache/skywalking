@@ -45,7 +45,7 @@ public class PathMappingCacheTest {
         Method m = obj.getClass().getMethods()[0];
         pathMappingCache.addPathMapping(m, "#toString");
 
-        Assert.assertEquals("the two value should be equal", pathMappingCache.findPathMapping(m), "org.apache.skywalking.apm.plugin.spring.mvc#toString");
+        Assert.assertEquals("the two value should be equal", pathMappingCache.findPathMapping(m), "/org.apache.skywalking.apm.plugin.spring.mvc/#toString");
 
     }
 
