@@ -139,7 +139,10 @@ public class SegmentBuilder {
         spanBuilder.setOperationName(span.name());
         switch (kind) {
             case CLIENT:
-                spanBuilder.setSpanType(SpanType.Exit);
+                String peer = endpoint2Peer(span.remoteEndpoint());
+                if(peer != null){
+                    spanBuilder.setPeer(peer);
+                }
                 break;
             case SERVER:
                 spanBuilder.setSpanType(SpanType.Entry);
@@ -151,6 +154,10 @@ public class SegmentBuilder {
                 break;
             case PRODUCER:
                 spanBuilder.setSpanType(SpanType.Exit);
+                peer = endpoint2Peer(span.remoteEndpoint());
+                if(peer != null){
+                    spanBuilder.setPeer(peer);
+                }
                 break;
             default:
                 spanBuilder.setSpanType(SpanType.Local);
@@ -162,6 +169,23 @@ public class SegmentBuilder {
         spanBuilder.setEndTime(startTime + duration);
 
         return spanBuilder;
+    }
+
+    private String endpoint2Peer(Endpoint endpoint) {
+        if (endpoint == null) {
+            return null;
+        }
+        String ip = null;
+        if (StringUtils.isNotEmpty(endpoint.ipv4())) {
+            ip = endpoint.ipv4();
+        } else if (StringUtils.isNotEmpty(endpoint.ipv6())) {
+            ip = endpoint.ipv6();
+        }
+        if (StringUtils.isEmpty(ip)) {
+            return null;
+        }
+        int port = endpoint.port();
+        return port == 0 ? ip : ip + ":" + port;
     }
 
     private void buildRef(SpanObject.Builder spanBuilder, Span span, SpanObject.Builder parentSegmentSpan,
