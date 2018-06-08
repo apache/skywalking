@@ -49,5 +49,6 @@
     * [Agent or collector version upgrade](en/FAQ/Upgrade.md)
     * [Protoc plugin fails in maven build](en/FAQ/Protoc-Plugin-Fails-When-Build.md)
     * [EnhanceRequireObjectCache class cast exception](en/FAQ/EnhanceRequireObjectCache-Cast-Exception.md)
+    * [Required items could not be found, when import project into Eclipse](en/FAQ/Import-Project-Eclipse-RequireItems-Exception.md) 
 
     

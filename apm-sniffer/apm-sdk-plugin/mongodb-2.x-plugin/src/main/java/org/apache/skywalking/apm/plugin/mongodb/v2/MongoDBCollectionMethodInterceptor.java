@@ -53,7 +53,7 @@ public class MongoDBCollectionMethodInterceptor implements InstanceMethodsAround
         String remotePeer = (String)objInst.getSkyWalkingDynamicField();
         String operation = method.getName();
         AbstractSpan span = ContextManager.createExitSpan(MONGO_DB_OP_PREFIX + operation, new ContextCarrier(), remotePeer);
-        span.setComponent(ComponentsDefine.MONGODB);
+        span.setComponent(ComponentsDefine.MONGO_DRIVER);
         Tags.DB_TYPE.set(span, DB_TYPE);
         SpanLayer.asDB(span);
 

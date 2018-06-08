@@ -54,7 +54,7 @@ public class ControllerConstructorInterceptorTest {
         Method m = obj.getClass().getMethods()[0];
         cache.addPathMapping(m, "#toString");
 
-        Assert.assertEquals("the two value should be equal", cache.findPathMapping(m), "/test1#toString");
+        Assert.assertEquals("the two value should be equal", cache.findPathMapping(m), "/test1/#toString");
     }
 
     @Test
@@ -67,7 +67,7 @@ public class ControllerConstructorInterceptorTest {
         Method m = obj.getClass().getMethods()[0];
         cache.addPathMapping(m, "#toString");
 
-        Assert.assertEquals("the two value should be equal", cache.findPathMapping(m), "#toString");
+        Assert.assertEquals("the two value should be equal", cache.findPathMapping(m), "/#toString");
     }
 
     @Test
@@ -80,7 +80,7 @@ public class ControllerConstructorInterceptorTest {
         Method m = obj.getClass().getMethods()[0];
         cache.addPathMapping(m, "#toString");
 
-        Assert.assertEquals("the two value should be equal", cache.findPathMapping(m), "/test3#toString");
+        Assert.assertEquals("the two value should be equal", cache.findPathMapping(m), "/test3/#toString");
     }
 
     @RequestMapping(value = "/test1")

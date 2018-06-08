@@ -5,7 +5,7 @@
 - Zookeeper 3.4.10
 
 ## Download released version
-- Go to [released page](https://github.com/apache/incubator-skywalking/releases)
+- Go to [released page](http://skywalking.apache.org/downloads/)
 
 ## Deploy Elasticsearch server
 - Modify `elasticsearch.yml`
@@ -37,10 +37,10 @@ cluster:
     sessionTimeout: 100000
 naming:
 # Host and port used for agent config
-    jetty:
-        host: localhost
-        port: 10800
-        contextPath: /
+jetty:
+    host: localhost
+    port: 10800
+    contextPath: /
 remote:
   gRPC:
     host: localhost
@@ -76,10 +76,17 @@ storage:
     clusterNodes: localhost:9300
     indexShardsNumber: 2
     indexReplicasNumber: 0
-    ttl: 7
+    highPerformanceMode: true
+    # Set a timeout on metric data. After the timeout has expired, the metric data will automatically be deleted.
+    traceDataTTL: 90 # Unit is minute
+    minuteMetricDataTTL: 45 # Unit is minute
+    hourMetricDataTTL: 36 # Unit is hour
+    dayMetricDataTTL: 45 # Unit is day
+    monthMetricDataTTL: 18 # Unit is month
 configuration:
   default:
 #     namespace: xxxxx
+# alarm threshold
     applicationApdexThreshold: 2000
     serviceErrorRateThreshold: 10.00
     serviceAverageResponseTimeThreshold: 2000
@@ -87,6 +94,9 @@ configuration:
     instanceAverageResponseTimeThreshold: 2000
     applicationErrorRateThreshold: 10.00
     applicationAverageResponseTimeThreshold: 2000
+# thermodynamic
+    thermodynamicResponseTimeStep: 50
+    thermodynamicCountOfResponseTimeSteps: 40
 ```
 
 3. Run `bin/collectorService.sh`

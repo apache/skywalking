@@ -35,6 +35,7 @@ class ConfigurationModuleConfig extends ModuleConfig {
     private int applicationAverageResponseTimeThreshold;
     private int thermodynamicResponseTimeStep;
     private int thermodynamicCountOfResponseTimeSteps;
+    private int workerCacheMaxSize;
 
     public String getNamespace() {
         return namespace;
@@ -114,5 +115,13 @@ class ConfigurationModuleConfig extends ModuleConfig {
 
     public void setThermodynamicCountOfResponseTimeSteps(int thermodynamicCountOfResponseTimeSteps) {
         this.thermodynamicCountOfResponseTimeSteps = thermodynamicCountOfResponseTimeSteps;
+    }
+
+    public int getWorkerCacheMaxSize() {
+        return workerCacheMaxSize;
+    }
+
+    public void setWorkerCacheMaxSize(int workerCacheMaxSize) {
+        this.workerCacheMaxSize = workerCacheMaxSize;
     }
 }

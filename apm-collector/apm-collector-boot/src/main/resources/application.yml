@@ -68,7 +68,12 @@ storage:
     indexShardsNumber: 2
     indexReplicasNumber: 0
     highPerformanceMode: true
-    ttl: 7
+    # Set a timeout on metric data. After the timeout has expired, the metric data will automatically be deleted.
+    traceDataTTL: 90 # Unit is minute
+    minuteMetricDataTTL: 90 # Unit is minute
+    hourMetricDataTTL: 36 # Unit is hour
+    dayMetricDataTTL: 45 # Unit is day
+    monthMetricDataTTL: 18 # Unit is month
 #storage:
 #  h2:
 #    url: jdbc:h2:~/memorydb
@@ -87,10 +92,11 @@ configuration:
 # thermodynamic
     thermodynamicResponseTimeStep: 50
     thermodynamicCountOfResponseTimeSteps: 40
+# max collection's size of worker cache collection, setting it smaller when collector OutOfMemory crashed.
+    workerCacheMaxSize: 10000
 # TODO: receiver_zipkin need to remove before merge, and only provide this in document.
 receiver_zipkin:
   default:
     host: localhost
     port: 9411
     contextPath: /
-

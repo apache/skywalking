@@ -31,5 +31,5 @@ public interface IPersistenceDAO<INSERT, UPDATE, STREAM_DATA extends StreamData>
 
     UPDATE prepareBatchUpdate(STREAM_DATA data);
 
-    void deleteHistory(Long startTimestamp, Long endTimestamp);
+    void deleteHistory(Long timeBucketBefore);
 }
