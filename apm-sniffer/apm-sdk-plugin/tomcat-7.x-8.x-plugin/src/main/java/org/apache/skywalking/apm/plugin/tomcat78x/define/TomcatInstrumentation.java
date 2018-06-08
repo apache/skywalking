@@ -37,7 +37,7 @@ public class TomcatInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
     /**
      * Enhance class.
      */
-    private static final String ENHANCE_CLASS = "org.apache.catalina.core.StandardWrapperValve";
+    private static final String ENHANCE_CLASS = "org.apache.catalina.core.StandardHostValve";
 
     /**
      * The intercept class for "invoke" method in the class "org.apache.catalina.core.StandardWrapperValve"
@@ -80,7 +80,7 @@ public class TomcatInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
             },
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("exception");
+                    return named("throwable");
                 }
 
                 @Override public String getMethodsInterceptor() {
