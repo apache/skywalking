@@ -30,19 +30,19 @@ New agent package looks like this：
 - The default logging output folder is `/logs`.
 
 # Deploy agent in Tomcat FAQ
-- Linux Tomcat 7, Tomcat 8
+- Linux Tomcat 7, Tomcat 8  
 Change the first line of `tomcat/bin/catalina.sh`.
 ```shell
 CATALINA_OPTS="$CATALINA_OPTS -javaagent:/path/to/skywalking-agent/skywalking-agent.jar"; export CATALINA_OPTS
 ```
 
-- Windows Tomcat7, Tomcat 8
+- Windows Tomcat 7, Tomcat 8  
 Change the first line of `tomcat/bin/catalina.bat`.
 ```shell
 set "CATALINA_OPTS=-javaagent:/path/to/skywalking-agent/skywalking-agent.jar"
 ```
-- JAR file
-Change the boot command
+- JAR file  
+Add `-javaagent` argument to command line in which you start your app. And make sure to add it before the `-jar` argument. eg:
  ```shell
- java -javaagent:/path/to/skywalking-agent/skywalking-agent.jar -jar yourProject.jar
+ java -javaagent:/path/to/skywalking-agent/skywalking-agent.jar -jar yourApp.jar
  ```

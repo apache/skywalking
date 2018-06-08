@@ -70,20 +70,20 @@ logging.level=DEBUG
 - Log默认使用文件输出，输出到`/logs`目录中
 
 # Tomcat配置探针FAQ
-- Linux Tomcat 7, Tomcat 8
+- Linux Tomcat 7, Tomcat 8  
 修改`tomcat/bin/catalina.sh`，在首行加入如下信息
 ```shell
 CATALINA_OPTS="$CATALINA_OPTS -javaagent:/path/to/skywalking-agent/skywalking-agent.jar"; export CATALINA_OPTS
 ```
 
-- Windows Tomcat7, Tomcat 8
+- Windows Tomcat 7, Tomcat 8  
 修改`tomcat/bin/catalina.bat`，在首行加入如下信息
 ```shell
 set "CATALINA_OPTS=-javaagent:/path/to/skywalking-agent/skywalking-agent.jar"
 ```
-- JAR 部署
-修改启动命令
+- JAR 部署  
+修改启动命令添加启动参数`-javaagent`
  ```shell
- java -javaagent:/path/to/skywalking-agent/skywalking-agent.jar -jar yourProject.jar
+ java -javaagent:/path/to/skywalking-agent/skywalking-agent.jar -jar yourApp.jar
  ```
 
