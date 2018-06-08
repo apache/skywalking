@@ -37,7 +37,7 @@ CATALINA_OPTS="$CATALINA_OPTS -javaagent:/path/to/skywalking-agent/skywalking-ag
 ```
 
 - Windows Tomcat7, Tomcat 8
-Change the first line of `tomcat/bin/catalina.sh`.
+Change the first line of `tomcat/bin/catalina.bat`.
 ```shell
 set "CATALINA_OPTS=-javaagent:E:\apache-tomcat-8.5.20\skywalking-agent\skywalking-agent.jar"
 ```
