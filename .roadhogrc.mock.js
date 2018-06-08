@@ -19,6 +19,7 @@ const proxy = {
   'POST /api/server': getServer,
   'POST /api/service/search': searchService,
   'POST /api/service': getService,
+  'POST /api/service/options': getAllApplication,
   'POST /api/alarm': getAlarm,
   'POST /api/notice': getNoticeAlarm,
   'POST /api/trace/options': getAllApplicationForTrace,

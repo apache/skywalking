@@ -18,7 +18,7 @@
 
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Card, Icon, Radio, Avatar } from 'antd';
+import { Row, Col, Card, Icon, Radio, Avatar, Select } from 'antd';
 import { ChartCard } from '../../components/Charts';
 import { AppTopology } from '../../components/Topology';
 import { Panel } from '../../components/Page';
@@ -27,6 +27,7 @@ import DescriptionList from '../../components/DescriptionList';
 import { redirect } from '../../utils/utils';
 
 const { Description } = DescriptionList;
+const { Option } = Select;
 
 const colResponsiveProps = {
   xs: 24,
@@ -92,18 +93,38 @@ export default class Topology extends PureComponent {
       });
     }
   }
+  handleFilterApplication = (aa) => {
+    this.props.dispatch({
+      type: 'topology/filterApplication',
+      payload: { aa },
+    });
+  }
+  filter = () => {
+    const { topology: { variables: { appRegExps }, data: { getClusterTopology } } } = this.props;
+    if (!appRegExps) {
+      return getClusterTopology;
+    }
+    const nn = getClusterTopology.nodes.filter(_ => appRegExps
+      .findIndex(r => _.name.match(r)) > -1);
+    const cc = getClusterTopology.calls.filter(_ => nn
+      .findIndex(n => n.id === _.source || n.id === _.target) > -1);
+    return {
+      nodes: getClusterTopology.nodes.filter(_ => cc
+        .findIndex(c => c.source === _.id || c.target === _.id) > -1),
+      calls: cc,
+    };
+  }
   renderActions = () => {
     const { data: { appInfo } } = this.props.topology;
     return [
       <Icon type="appstore" onClick={() => redirect(this.props.history, '/monitor/application', { key: appInfo.id, label: appInfo.name })} />,
-      <Icon type="exception" onClick={() => redirect(this.props.history, '/trace', { key: appInfo.id, label: appInfo.name })} />,
+      <Icon type="exception" onClick={() => redirect(this.props.history, '/trace', { values: { applicationId: appInfo.id }, labels: { applicationId: appInfo.name } })} />,
       appInfo.isAlarm ? <Icon type="bell" onClick={() => redirect(this.props.history, '/monitor/alarm')} /> : null,
     ];
   }
-  renderNodeType = () => {
-    const { data } = this.props.topology;
+  renderNodeType = (topologData) => {
     const typeMap = new Map();
-    data.getClusterTopology.nodes.forEach((_) => {
+    topologData.nodes.forEach((_) => {
       if (typeMap.has(_.type)) {
         typeMap.set(_.type, typeMap.get(_.type) + 1);
       } else {
@@ -115,8 +136,9 @@ export default class Topology extends PureComponent {
     return result;
   }
   render() {
-    const { data } = this.props.topology;
+    const { data, variables: { appFilters = [] } } = this.props.topology;
     const { layout = layouts['cose-bilkent'] } = data;
+    const topologData = this.filter();
     return (
       <Panel globalVariables={this.props.globalVariables} onChange={this.handleChange}>
         <Row gutter={8}>
@@ -132,10 +154,10 @@ export default class Topology extends PureComponent {
                 </Radio.Group>
               )}
             >
-              {data.getClusterTopology.nodes.length > 0 ? (
+              {topologData.nodes.length > 0 ? (
                 <AppTopology
                   height={this.props.graphHeight}
-                  elements={data.getClusterTopology}
+                  elements={topologData}
                   onSelectedApplication={this.handleSelectedApplication}
                   layout={layout}
                 />
@@ -154,9 +176,20 @@ export default class Topology extends PureComponent {
             )
             : (
               <Card title="Overview" style={{ height: 672 }}>
+                <Select
+                  mode="tags"
+                  style={{ width: '100%', marginBottom: 20 }}
+                  placeholder="Filter application"
+                  onChange={this.handleFilterApplication}
+                  tokenSeparators={[',']}
+                  value={appFilters}
+                >
+                  {data.getClusterTopology.nodes.filter(_ => _.sla)
+                    .map(_ => <Option key={_.name}>{_.name}</Option>)}
+                </Select>
                 <DescriptionList layout="vertical" >
-                  <Description term="Total">{data.getClusterTopology.nodes.length}</Description>
-                  {this.renderNodeType()}
+                  <Description term="Total">{topologData.nodes.length}</Description>
+                  {this.renderNodeType(topologData)}
                 </DescriptionList>
               </Card>
             )}

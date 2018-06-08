@@ -55,4 +55,32 @@ export default generateModal({
       }
     }
   `,
+  reducers: {
+    filterApplication(preState, { payload: { aa } }) {
+      const { variables } = preState;
+      if (aa.length < 1) {
+        const newVariables = { ...variables };
+        delete newVariables.appRegExps;
+        delete newVariables.appFilters;
+        return {
+          ...preState,
+          variables: newVariables,
+        };
+      }
+      return {
+        ...preState,
+        variables: {
+          ...variables,
+          appFilters: aa,
+          appRegExps: aa.map((a) => {
+            try {
+              return new RegExp(a, 'i');
+            } catch (e) {
+              return null;
+            }
+          }),
+        },
+      };
+    },
+  },
 });

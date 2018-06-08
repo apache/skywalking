@@ -53,6 +53,19 @@ class HeatMap extends Component {
   }
   mapXAxisData = (reducedData, datetime) =>
     reducedData.map((count, i) => ({ datetime, responseTime: i, count }))
+  handlePlotClick = (dtStart, dtEnd, responseTime) => {
+    const removedUnit = responseTime.slice(0, responseTime.indexOf('ms'));
+    let min;
+    let max;
+    if (removedUnit.indexOf('>') === 0) {
+      min = parseInt(removedUnit.slice(1), 10);
+    } else {
+      const value = parseInt(removedUnit, 10);
+      min = value - 100 < 0 ? 0 : value - 100;
+      max = value;
+    }
+    this.props.onClick({ start: dtStart, end: dtEnd }, { min, max });
+  }
   render() {
     const {
       height,
@@ -63,7 +76,7 @@ class HeatMap extends Component {
     if (!nodes || nodes.length < 1) {
       return (<span style={{ display: 'none' }} />);
     }
-    const { display: { range } } = duration;
+    const { display: { range }, raw: { range: rawRange } } = duration;
 
     const source = [];
     let maxResponseTimeOffset = 0;
@@ -118,7 +131,15 @@ class HeatMap extends Component {
     return (
       <div className={styles.chart} style={{ height }}>
         <div>
-          <Chart data={mergeSource} scale={cols} forceFit height={height * 1.4}>
+          <Chart
+            data={mergeSource}
+            scale={cols}
+            forceFit
+            height={height * 1.4}
+            onPlotClick={({ data: { _origin: { datetime, responseTime } } }) =>
+              this.handlePlotClick(rawRange[datetime], rawRange[datetime + 1]
+                , responseTimeAxis[responseTime])}
+          >
             <Axis
               name="datetime"
               grid={{

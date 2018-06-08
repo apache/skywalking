@@ -1,6 +1,6 @@
 {
   "name": "skywalking-ui",
-  "version": "5.0.0-beta",
+  "version": "5.0.0-beta2",
   "description": "A web interface of Apache SkyWalking",
   "homepage": "https://github.com/apache/incubator-skywalking-ui",
   "bugs": {
@@ -80,9 +80,11 @@
     "husky": "^0.14.3",
     "lint-staged": "^6.0.0",
     "mockjs": "^1.0.1-beta3",
+    "npm-license-crawler": "^0.1.8",
     "pro-download": "^1.0.1",
     "redbox-react": "^1.5.0",
     "regenerator-runtime": "^0.11.1",
+    "rimraf": "^2.6.2",
     "roadhog": "^2.1.0",
     "roadhog-api-doc": "^0.3.4",
     "rollbar": "^2.3.4",

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+import moment from 'moment';
 
 export function axis({ display }, data, tranformFunc) {
   return display.range.map((v, i) =>
@@ -28,6 +29,8 @@ export function generateDuration({ from, to }) {
   const lenght = mlist.length;
   const { measureType, step, format, displayFormat } = mlist
     .find((_, index) => ((index + 1 >= lenght) || end.diff(start, _.measureType) > 1));
+  const range = Array.from({ length: end.diff(start, measureType) + 2 },
+    (v, i) => start.clone().add(i, measureType).format(displayFormat));
   return {
     input: {
       start: start.format(format),
@@ -35,12 +38,12 @@ export function generateDuration({ from, to }) {
       step,
     },
     display: {
-      range: Array.from({ length: end.diff(start, measureType) + 1 },
-        (v, i) => start.clone().add(i, measureType).format(displayFormat)),
+      range: range.slice(0, range.length - 1),
     },
     raw: {
       start,
       end,
+      range: range.map(_ => moment(_, displayFormat)),
     },
   };
 }

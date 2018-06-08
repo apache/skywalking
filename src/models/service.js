@@ -16,10 +16,20 @@
  */
 
 
-import { generateModal } from '../utils/models';
+import { generateModal, saveOptionsInState } from '../utils/models';
+import { query } from '../services/graphql';
+
+const optionsQuery = `
+  query ApplicationOption($duration: Duration!) {
+    applicationId: getAllApplication(duration: $duration) {
+      key: id
+      label: name
+    }
+  }
+`;
 
 const dataQuery = `
-  query Service($serviceId: ID!, $duration: Duration!) {
+  query Service($serviceId: ID!, $duration: Duration!, $traceCondition: TraceQueryCondition!) {
     getServiceResponseTimeTrend(serviceId: $serviceId, duration: $duration) {
       trendList
     }
@@ -28,6 +38,17 @@ const dataQuery = `
     }
     getServiceSLATrend(serviceId: $serviceId, duration: $duration) {
       trendList
+    }
+    getTrace(condition: $traceCondition) {
+      traces {
+        key: segmentId
+        operationName
+        duration
+        start
+        isError
+        traceIds
+      }
+      total
     }
     getServiceTopology(serviceId: $serviceId, duration: $duration) {
       nodes {
@@ -52,6 +73,44 @@ const dataQuery = `
   }
 `;
 
+
+const spanQuery = `query Spans($traceId: ID!) {
+  queryTrace(traceId: $traceId) {
+    spans {
+      traceId
+      segmentId
+      spanId
+      parentSpanId
+      refs {
+        traceId
+        parentSegmentId
+        parentSpanId
+        type
+      }
+      applicationCode
+      startTime
+      endTime
+      operationName
+      type
+      peer
+      component
+      isError
+      layer
+      tags {
+        key
+        value
+      }
+      logs {
+        time
+        data {
+          key
+          value
+        }
+      }
+    }
+  }
+}`;
+
 export default generateModal({
   namespace: 'service',
   state: {
@@ -68,8 +127,62 @@ export default generateModal({
       nodes: [],
       calls: [],
     },
+    getTrace: {
+      traces: [],
+      total: 0,
+    },
   },
   dataQuery,
+  optionsQuery,
+  effects: {
+    *fetchSpans({ payload }, { call, put }) {
+      const response = yield call(query, 'spans', { query: spanQuery, variables: payload.variables });
+      yield put({
+        type: 'saveSpans',
+        payload: response,
+        traceId: payload.variables.traceId,
+      });
+    },
+  },
+  reducers: {
+    saveSpans(state, { payload, traceId }) {
+      const { data } = state;
+      return {
+        ...state,
+        data: {
+          ...data,
+          queryTrace: payload.data.queryTrace,
+          currentTraceId: traceId,
+          showTimeline: true,
+        },
+      };
+    },
+    saveAppInfo(preState, { payload: allOptions }) {
+      const rawState = saveOptionsInState(null, preState, { payload: allOptions });
+      const { data } = rawState;
+      if (data.appInfo) {
+        return rawState;
+      }
+      const { variables: { values } } = rawState;
+      return {
+        ...rawState,
+        data: {
+          ...data,
+          appInfo: { applicationId: values.applicationId },
+        },
+      };
+    },
+    hideTimeline(state) {
+      const { data } = state;
+      return {
+        ...state,
+        data: {
+          ...data,
+          showTimeline: false,
+        },
+      };
+    },
+  },
   subscriptions: {
     setup({ history, dispatch }) {
       return history.listen(({ pathname, state }) => {

@@ -50,6 +50,7 @@ export default class AppTopology extends Base {
   supplyUserNode = (edges) => {
     let i = 0;
     const nodes = [];
+    const time = new Date().getTime();
     return {
       nodes,
       edges: edges.map((_) => {
@@ -57,7 +58,7 @@ export default class AppTopology extends Base {
           return _;
         }
         i += 1;
-        const newId = `USER-${i}`;
+        const newId = `USER-${time}-${i}`;
         nodes.push({
           data: {
             id: newId,
@@ -69,6 +70,7 @@ export default class AppTopology extends Base {
           data: {
             ..._.data,
             source: newId,
+            id: `${newId}-${_.data.target}`,
           },
         };
       }),

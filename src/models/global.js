@@ -96,6 +96,7 @@ export default {
           collapsed: true,
           selected: payload,
           display: value.display,
+          raw: value.raw,
         },
         globalVariables: { duration: value.input },
       };

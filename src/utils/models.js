@@ -18,6 +18,61 @@
 
 import { query as queryService } from '../services/graphql';
 
+export function saveOptionsInState(defaultOption, preState, { payload: allOptions }) {
+  if (!allOptions) {
+    return preState;
+  }
+  const { variables } = preState;
+  const { values, labels, options } = variables;
+  const amendOptions = {};
+  const defaultValues = {};
+  const defaultLabels = {};
+  Object.keys(allOptions).forEach((_) => {
+    const thisOptions = allOptions[_];
+    let newOptions = [...thisOptions];
+    if (defaultOption && defaultOption[_]) {
+      newOptions = [defaultOption[_], ...newOptions];
+    }
+    if (!values[_]) {
+      if (defaultOption && defaultOption[_]) {
+        defaultValues[_] = defaultOption[_].key;
+        defaultLabels[_] = defaultOption[_].label;
+      } else if (thisOptions.length > 0) {
+        defaultValues[_] = thisOptions[0].key;
+        defaultLabels[_] = thisOptions[0].label;
+      }
+    }
+    const key = values[_];
+    if (!thisOptions.find(o => o.key === key)) {
+      newOptions = [...newOptions, { key, label: labels[_] }];
+    }
+    amendOptions[_] = newOptions;
+  });
+  variables.options = {
+    ...options,
+    ...allOptions,
+    ...amendOptions,
+  };
+  let newVariables = variables;
+  if (Object.keys(defaultValues).length > 0) {
+    newVariables = {
+      ...variables,
+      values: {
+        ...values,
+        ...defaultValues,
+      },
+      labels: {
+        ...labels,
+        ...defaultLabels,
+      },
+    };
+  }
+  return {
+    ...preState,
+    variables: newVariables,
+  };
+}
+
 export function generateModal({ namespace, dataQuery, optionsQuery, defaultOption, state = {},
   varState = {}, effects = {}, reducers = {}, subscriptions = {} }) {
   return {
@@ -68,59 +123,9 @@ export function generateModal({ namespace, dataQuery, optionsQuery, defaultOptio
       ...effects,
     },
     reducers: {
-      saveOptions(preState, { payload: allOptions }) {
-        if (!allOptions) {
-          return preState;
-        }
-        const { variables } = preState;
-        const { values, labels, options } = variables;
-        const amendOptions = {};
-        const defaultValues = {};
-        const defaultLabels = {};
-        Object.keys(allOptions).forEach((_) => {
-          const thisOptions = allOptions[_];
-          let newOptions = [...thisOptions];
-          if (defaultOption && defaultOption[_]) {
-            newOptions = [defaultOption[_], ...newOptions];
-          }
-          if (!values[_]) {
-            if (defaultOption && defaultOption[_]) {
-              defaultValues[_] = defaultOption[_].key;
-              defaultLabels[_] = defaultOption[_].label;
-            } else if (thisOptions.length > 0) {
-              defaultValues[_] = thisOptions[0].key;
-              defaultLabels[_] = thisOptions[0].label;
-            }
-          }
-          const key = values[_];
-          if (!thisOptions.find(o => o.key === key)) {
-            newOptions = [...newOptions, { key, label: labels[_] }];
-          }
-          amendOptions[_] = newOptions;
-        });
-        variables.options = {
-          ...options,
-          ...allOptions,
-          ...amendOptions,
-        };
-        let newVariables = variables;
-        if (Object.keys(defaultValues).length > 0) {
-          newVariables = {
-            ...variables,
-            values: {
-              ...values,
-              ...defaultValues,
-            },
-            labels: {
-              ...labels,
-              ...defaultLabels,
-            },
-          };
-        }
-        return {
-          ...preState,
-          variables: newVariables,
-        };
+      saveOptions(preState, action) {
+        const raw = saveOptionsInState(defaultOption, preState, action);
+        return raw;
       },
       save(preState, { payload: { variables: { values = {}, options = {}, labels = {} },
         data = {} } }) {

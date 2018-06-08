@@ -35,7 +35,14 @@ export default class Search extends PureComponent {
     fetching: false,
   }
   componentDidMount() {
-    this.originFetchServer('', !this.props.value.key);
+    if (this.props.variables && Object.keys(this.props.variables).length > 0) {
+      this.originFetchServer('', true);
+    }
+  }
+  componentDidUpdate(prevProps) {
+    if (prevProps.variables !== this.props.variables) {
+      this.originFetchServer('', true);
+    }
   }
   fetchServer = (value, isSelectOne) => {
     if (value === undefined) {

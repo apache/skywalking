@@ -156,12 +156,8 @@ export default generateModal({
           dispatch({
             type: 'saveVariables',
             payload: {
-              values: {
-                applicationId: state.key,
-              },
-              labels: {
-                applicationId: state.label,
-              },
+              values: state.values,
+              labels: state.labels,
             },
           });
         }
