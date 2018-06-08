@@ -39,5 +39,11 @@ CATALINA_OPTS="$CATALINA_OPTS -javaagent:/path/to/skywalking-agent/skywalking-ag
 - Tomcat 8
 Change the first line of `tomcat/bin/catalina.sh`.
 ```shell
-set "CATALINA_OPTS=-javaagent:E:\apache-tomcat-8.5.20\skywalking-agent\skywalking-agent.jar"
+set "CATALINA_OPTS=-javaagent:/path/to/skywalking-agent/skywalking-agent.jar"
 ```
+- Spring Boot JAR file
+Change the boot command
+ ```shell
+ java -javaagent:/path/to/skywalking-agent/skywalking-agent.jar -jar youProject.jar
+ ```
+> windows path  eg: `E:\apache-tomcat-8.5.20\skywalking-agent\skywalking-agent.jar`

@@ -79,5 +79,11 @@ CATALINA_OPTS="$CATALINA_OPTS -javaagent:/path/to/skywalking-agent/skywalking-ag
 - Tomcat 8
 修改`tomcat/bin/catalina.sh`，在首行加入如下信息
 ```shell
-set "CATALINA_OPTS=... -javaagent:E:\apache-tomcat-8.5.20\skywalking-agent\skywalking-agent.jar"
+set "CATALINA_OPTS=-javaagent:/path/to/skywalking-agent/skywalking-agent.jar"
 ```
+- Spring Boot JAR 部署
+修改启动命令
+ ```shell
+ java -javaagent:/path/to/skywalking-agent/skywalking-agent.jar -jar youProject.jar
+ ```
+> windows path eg: `E:\apache-tomcat-8.5.20\skywalking-agent\skywalking-agent.jar`
