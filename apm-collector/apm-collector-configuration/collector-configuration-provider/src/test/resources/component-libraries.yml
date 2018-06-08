@@ -124,6 +124,9 @@ Hystrix:
 Jedis:
   id: 30
   languages: Java
+SOFARPC:
+  id: 43
+  languages: Java
 
 
 # Component Server mapping defines the server display names of some components
