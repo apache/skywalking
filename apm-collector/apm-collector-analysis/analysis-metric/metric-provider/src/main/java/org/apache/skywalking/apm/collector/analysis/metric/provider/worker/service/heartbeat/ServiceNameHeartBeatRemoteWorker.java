@@ -16,9 +16,9 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.analysis.register.provider.register;
+package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.heartbeat;
 
-import org.apache.skywalking.apm.collector.analysis.register.define.graph.WorkerIdDefine;
+import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.*;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.remote.service.*;
@@ -27,14 +27,14 @@ import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
 /**
  * @author peng-yongsheng
  */
-public class ServiceNameRegisterRemoteWorker extends AbstractRemoteWorker<ServiceName, ServiceName> {
+public class ServiceNameHeartBeatRemoteWorker extends AbstractRemoteWorker<ServiceName, ServiceName> {
 
-    private ServiceNameRegisterRemoteWorker(ModuleManager moduleManager) {
+    private ServiceNameHeartBeatRemoteWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     @Override public int id() {
-        return WorkerIdDefine.SERVICE_NAME_REGISTER_REMOTE_WORKER;
+        return MetricWorkerIdDefine.SERVICE_NAME_HEART_BEAT_REMOTE_WORKER_ID;
     }
 
     @Override protected void onWork(ServiceName serviceName) {
@@ -42,17 +42,17 @@ public class ServiceNameRegisterRemoteWorker extends AbstractRemoteWorker<Servic
     }
 
     @Override public Selector selector() {
-        return Selector.ForeverFirst;
+        return Selector.HashCode;
     }
 
-    public static class Factory extends AbstractRemoteWorkerProvider<ServiceName, ServiceName, ServiceNameRegisterRemoteWorker> {
+    public static class Factory extends AbstractRemoteWorkerProvider<ServiceName, ServiceName, ServiceNameHeartBeatRemoteWorker> {
 
         public Factory(ModuleManager moduleManager, RemoteSenderService remoteSenderService, int graphId) {
             super(moduleManager, remoteSenderService, graphId);
         }
 
-        @Override public ServiceNameRegisterRemoteWorker workerInstance(ModuleManager moduleManager) {
-            return new ServiceNameRegisterRemoteWorker(moduleManager);
+        @Override public ServiceNameHeartBeatRemoteWorker workerInstance(ModuleManager moduleManager) {
+            return new ServiceNameHeartBeatRemoteWorker(moduleManager);
         }
     }
 }

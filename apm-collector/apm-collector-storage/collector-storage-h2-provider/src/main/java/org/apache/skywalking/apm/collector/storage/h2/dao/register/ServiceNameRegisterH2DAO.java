@@ -18,17 +18,13 @@
 
 package org.apache.skywalking.apm.collector.storage.h2.dao.register;
 
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.skywalking.apm.collector.client.h2.H2Client;
-import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
+import java.util.*;
+import org.apache.skywalking.apm.collector.client.h2.*;
 import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.apache.skywalking.apm.collector.storage.dao.register.IServiceNameRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
-import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
-import org.apache.skywalking.apm.collector.storage.table.register.ServiceNameTable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.apm.collector.storage.table.register.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng, clevertension
@@ -61,6 +57,8 @@ public class ServiceNameRegisterH2DAO extends H2DAO implements IServiceNameRegis
         target.put(ServiceNameTable.APPLICATION_ID.getName(), serviceName.getApplicationId());
         target.put(ServiceNameTable.SERVICE_NAME.getName(), serviceName.getServiceName());
         target.put(ServiceNameTable.SRC_SPAN_TYPE.getName(), serviceName.getSrcSpanType());
+        target.put(ServiceNameTable.REGISTER_TIME.getName(), serviceName.getRegisterTime());
+        target.put(ServiceNameTable.HEARTBEAT_TIME.getName(), serviceName.getHeartBeatTime());
 
         String sql = SqlBuilder.buildBatchInsertSql(ServiceNameTable.TABLE, target.keySet());
         Object[] params = target.values().toArray(new Object[0]);

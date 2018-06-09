@@ -16,22 +16,13 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.table.register;
+package org.apache.skywalking.apm.collector.storage.dao;
 
-import org.apache.skywalking.apm.collector.core.data.ColumnName;
-import org.apache.skywalking.apm.collector.core.data.CommonTable;
+import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
 
 /**
  * @author peng-yongsheng
  */
-public interface InstanceTable extends CommonTable, RegisterColumns {
-    String TABLE = "instance";
-
-    ColumnName APPLICATION_CODE = new ColumnName("application_code", "ac");
-
-    ColumnName AGENT_UUID = new ColumnName("agent_uuid", "iau");
-
-    ColumnName OS_INFO = new ColumnName("os_info", "ioi");
-
-    ColumnName IS_ADDRESS = new ColumnName("is_address", "iia");
+public interface IServiceNameHeartBeatPersistenceDAO<INSERT, UPDATE, STREAM_DATA extends ServiceName> extends IPersistenceDAO<INSERT, UPDATE, STREAM_DATA> {
 }
