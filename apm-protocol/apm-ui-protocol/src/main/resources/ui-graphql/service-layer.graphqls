@@ -30,6 +30,8 @@ type ServiceNode implements Node {
 type ServiceInfo {
     id: ID!
     name: String
+    applicationId: ID!
+    applicationName: String
 }
 
 type ServiceMetric {
