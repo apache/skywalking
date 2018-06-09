@@ -83,6 +83,7 @@ public class ServiceNameServiceEsUIDAO extends EsDAO implements IServiceNameServ
             ServiceInfo serviceInfo = new ServiceInfo();
             serviceInfo.setId(((Number)searchHit.getSource().get(ServiceNameTable.SERVICE_ID.getName())).intValue());
             serviceInfo.setName((String)searchHit.getSource().get(ServiceNameTable.SERVICE_NAME.getName()));
+            serviceInfo.setApplicationId(((Number)searchHit.getSource().get(ServiceNameTable.APPLICATION_ID.getName())).intValue());
             serviceInfos.add(serviceInfo);
         }
         return serviceInfos;

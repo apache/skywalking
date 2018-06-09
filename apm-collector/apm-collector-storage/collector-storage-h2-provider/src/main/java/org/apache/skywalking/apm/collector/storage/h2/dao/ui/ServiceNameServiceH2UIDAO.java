@@ -57,8 +57,8 @@ public class ServiceNameServiceH2UIDAO extends H2DAO implements IServiceNameServ
 
     @Override
     public List<ServiceInfo> searchService(String keyword, int applicationId, long startTimeMillis, int topN) {
-        String dynamicSql = "select {0},{1} from {2} where {3} like ? and {4} = ? and {5} = ? and {6} >= ? limit ?";
-        String sql = SqlBuilder.buildSql(dynamicSql, ServiceNameTable.SERVICE_ID.getName(), ServiceNameTable.SERVICE_NAME.getName(), ServiceNameTable.TABLE, ServiceNameTable.SERVICE_NAME.getName(), ServiceNameTable.SRC_SPAN_TYPE.getName(), ServiceNameTable.APPLICATION_ID.getName(), ServiceNameTable.HEARTBEAT_TIME.getName());
+        String dynamicSql = "select {0},{1},{2} from {3} where {4} like ? and {5} = ? and {6} = ? and {7} >= ? limit ?";
+        String sql = SqlBuilder.buildSql(dynamicSql, ServiceNameTable.SERVICE_ID.getName(), ServiceNameTable.SERVICE_NAME.getName(), ServiceNameTable.APPLICATION_ID.getName(), ServiceNameTable.TABLE, ServiceNameTable.SERVICE_NAME.getName(), ServiceNameTable.SRC_SPAN_TYPE.getName(), ServiceNameTable.APPLICATION_ID.getName(), ServiceNameTable.HEARTBEAT_TIME.getName());
         Object[] params = new Object[] {keyword, SpanType.Entry_VALUE, applicationId, startTimeMillis, topN};
 
         List<ServiceInfo> serviceInfos = new LinkedList<>();
@@ -67,6 +67,7 @@ public class ServiceNameServiceH2UIDAO extends H2DAO implements IServiceNameServ
                 ServiceInfo serviceInfo = new ServiceInfo();
                 serviceInfo.setId(rs.getInt(ServiceNameTable.SERVICE_ID.getName()));
                 serviceInfo.setName(rs.getString(ServiceNameTable.SERVICE_NAME.getName()));
+                serviceInfo.setApplicationId(rs.getInt(ServiceNameTable.APPLICATION_ID.getName()));
                 serviceInfos.add(serviceInfo);
             }
         } catch (SQLException | H2ClientException e) {
