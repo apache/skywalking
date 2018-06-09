@@ -18,11 +18,8 @@
 
 package org.apache.skywalking.apm.collector.storage.table.register;
 
-import org.apache.skywalking.apm.collector.core.data.Column;
-import org.apache.skywalking.apm.collector.core.data.RemoteData;
-import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.data.operator.CoverMergeOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.*;
+import org.apache.skywalking.apm.collector.core.data.operator.*;
 import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 
 /**
@@ -35,7 +32,10 @@ public class ServiceName extends StreamData {
         new Column(ServiceNameTable.SERVICE_NAME, new CoverMergeOperation()),
     };
 
-    private static final Column[] LONG_COLUMNS = {};
+    private static final Column[] LONG_COLUMNS = {
+        new Column(ServiceNameTable.REGISTER_TIME, new NonMergeOperation()),
+        new Column(ServiceNameTable.HEARTBEAT_TIME, new MaxMergeOperation()),
+    };
 
     private static final Column[] DOUBLE_COLUMNS = {};
 
@@ -97,6 +97,22 @@ public class ServiceName extends StreamData {
 
     public void setSrcSpanType(int srcSpanType) {
         setDataInteger(2, srcSpanType);
+    }
+
+    public long getRegisterTime() {
+        return getDataLong(0);
+    }
+
+    public void setRegisterTime(long registerTime) {
+        setDataLong(0, registerTime);
+    }
+
+    public long getHeartBeatTime() {
+        return getDataLong(1);
+    }
+
+    public void setHeartBeatTime(long heartBeatTime) {
+        setDataLong(1, heartBeatTime);
     }
 
     public static class InstanceCreator implements RemoteDataRegisterService.RemoteDataInstanceCreator {

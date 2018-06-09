@@ -16,22 +16,21 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.table.register;
+package org.apache.skywalking.apm.collector.storage.ttl;
 
-import org.apache.skywalking.apm.collector.core.data.ColumnName;
-import org.apache.skywalking.apm.collector.core.data.CommonTable;
+import org.apache.skywalking.apm.collector.core.module.Service;
 
 /**
  * @author peng-yongsheng
  */
-public interface InstanceTable extends CommonTable, RegisterColumns {
-    String TABLE = "instance";
+public interface ITTLConfigService extends Service {
+    int traceDataTTL();
 
-    ColumnName APPLICATION_CODE = new ColumnName("application_code", "ac");
+    int minuteMetricDataTTL();
 
-    ColumnName AGENT_UUID = new ColumnName("agent_uuid", "iau");
+    int hourMetricDataTTL();
 
-    ColumnName OS_INFO = new ColumnName("os_info", "ioi");
+    int dayMetricDataTTL();
 
-    ColumnName IS_ADDRESS = new ColumnName("is_address", "iia");
+    int monthMetricDataTTL();
 }

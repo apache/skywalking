@@ -27,6 +27,7 @@ import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.ui.*;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
+import org.apache.skywalking.apm.collector.storage.ttl.ITTLConfigService;
 import org.apache.skywalking.apm.collector.storage.ui.common.*;
 import org.apache.skywalking.apm.collector.storage.ui.service.*;
 import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
@@ -44,20 +45,27 @@ public class ServiceNameService {
     private final IServiceMetricUIDAO serviceMetricUIDAO;
     private final ServiceNameCacheService serviceNameCacheService;
     private final DateBetweenService dateBetweenService;
+    private final ITTLConfigService configService;
 
     public ServiceNameService(ModuleManager moduleManager) {
         this.serviceNameServiceUIDAO = moduleManager.find(StorageModule.NAME).getService(IServiceNameServiceUIDAO.class);
         this.serviceMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IServiceMetricUIDAO.class);
         this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
+        this.configService = moduleManager.find(StorageModule.NAME).getService(ITTLConfigService.class);
         this.dateBetweenService = new DateBetweenService(moduleManager);
     }
 
     public int getCount() {
-        return serviceNameServiceUIDAO.getCount();
+        return serviceNameServiceUIDAO.getCount(startTimeMillis());
     }
 
-    public List<ServiceInfo> searchService(String keyword, int topN) {
-        return serviceNameServiceUIDAO.searchService(keyword, topN);
+    public List<ServiceInfo> searchService(String keyword, int applicationId, int topN) {
+        return serviceNameServiceUIDAO.searchService(keyword, applicationId, startTimeMillis(), topN);
+    }
+
+    private long startTimeMillis() {
+        int minuteMetricDataTTL = configService.minuteMetricDataTTL();
+        return System.currentTimeMillis() - minuteMetricDataTTL * 60 * 60 * 100;
     }
 
     public ThroughputTrend getServiceThroughputTrend(int serviceId, Step step, long startTimeBucket,
