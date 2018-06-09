@@ -79,7 +79,7 @@ public class ServiceNameServiceTest {
 
     @Test
     public void searchService() {
-        List<ServiceInfo> serviceInfos = serverNameService.searchService("keyword", 10);
+        List<ServiceInfo> serviceInfos = serverNameService.searchService("keyword", 0, 10);
         Assert.assertTrue(serviceInfos.size() == 0);
     }
 

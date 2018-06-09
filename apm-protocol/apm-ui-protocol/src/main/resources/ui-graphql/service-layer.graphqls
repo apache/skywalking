@@ -47,7 +47,7 @@ type TraceItem {
 }
 
 extend type Query {
-    searchService(keyword: String!, topN: Int!): [ServiceInfo!]!
+    searchService(keyword: String!, applicationId: ID!, topN: Int!): [ServiceInfo!]!
     getServiceResponseTimeTrend(serviceId: ID!, duration: Duration!): ResponseTimeTrend
     getServiceThroughputTrend(serviceId: ID!, duration: Duration!): ThroughputTrend
     getServiceSLATrend(serviceId: ID!, duration: Duration!): SLATrend

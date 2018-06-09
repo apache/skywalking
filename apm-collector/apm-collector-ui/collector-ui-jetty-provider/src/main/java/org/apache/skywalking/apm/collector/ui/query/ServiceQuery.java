@@ -56,8 +56,8 @@ public class ServiceQuery implements Query {
         return serviceTopologyService;
     }
 
-    public List<ServiceInfo> searchService(String keyword, int topN) {
-        return getServiceNameService().searchService(keyword, topN);
+    public List<ServiceInfo> searchService(String keyword, int applicationId, int topN) {
+        return getServiceNameService().searchService(keyword, applicationId, topN);
     }
 
     public ResponseTimeTrend getServiceResponseTimeTrend(int serviceId, Duration duration) throws ParseException {

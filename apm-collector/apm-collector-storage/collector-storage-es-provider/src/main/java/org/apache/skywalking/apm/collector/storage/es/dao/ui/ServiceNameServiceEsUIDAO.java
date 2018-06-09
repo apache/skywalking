@@ -20,7 +20,7 @@ package org.apache.skywalking.apm.collector.storage.es.dao.ui;
 
 import java.util.*;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.apm.collector.core.util.StringUtils;
+import org.apache.skywalking.apm.collector.core.util.*;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceNameServiceUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceNameTable;
@@ -39,14 +39,14 @@ public class ServiceNameServiceEsUIDAO extends EsDAO implements IServiceNameServ
         super(client);
     }
 
-    @Override public int getCount() {
+    @Override public int getCount(long startTimeMillis) {
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(ServiceNameTable.TABLE);
         searchRequestBuilder.setTypes(ServiceNameTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         boolQuery.must().add(QueryBuilders.termQuery(ServiceNameTable.SRC_SPAN_TYPE.getName(), SpanType.Entry_VALUE));
-        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceNameTable.HEARTBEAT_TIME.getName()).gte(System.currentTimeMillis() - (1000 * 60 * 60 * 24)));
+        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceNameTable.HEARTBEAT_TIME.getName()).gte(startTimeMillis));
         searchRequestBuilder.setQuery(boolQuery);
 
         searchRequestBuilder.setSize(0);
@@ -55,7 +55,8 @@ public class ServiceNameServiceEsUIDAO extends EsDAO implements IServiceNameServ
         return (int)searchResponse.getHits().getTotalHits();
     }
 
-    @Override public List<ServiceInfo> searchService(String keyword, int topN) {
+    @Override
+    public List<ServiceInfo> searchService(String keyword, int applicationId, long startTimeMillis, int topN) {
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(ServiceNameTable.TABLE);
         searchRequestBuilder.setTypes(ServiceNameTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
@@ -63,7 +64,11 @@ public class ServiceNameServiceEsUIDAO extends EsDAO implements IServiceNameServ
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         boolQuery.must().add(QueryBuilders.termQuery(ServiceNameTable.SRC_SPAN_TYPE.getName(), SpanType.Entry_VALUE));
-        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceNameTable.HEARTBEAT_TIME.getName()).gte(System.currentTimeMillis() - (1000 * 60 * 60 * 24)));
+        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceNameTable.HEARTBEAT_TIME.getName()).gte(startTimeMillis));
+
+        if (applicationId != Const.NONE) {
+            boolQuery.must().add(QueryBuilders.termQuery(ServiceNameTable.APPLICATION_ID.getName(), applicationId));
+        }
 
         if (StringUtils.isNotEmpty(keyword)) {
             boolQuery.must().add(QueryBuilders.matchQuery(ServiceNameTable.SERVICE_NAME.getName(), keyword));

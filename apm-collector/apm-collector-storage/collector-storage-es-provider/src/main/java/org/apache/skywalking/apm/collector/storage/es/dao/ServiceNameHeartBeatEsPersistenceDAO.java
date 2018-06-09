@@ -71,6 +71,6 @@ public class ServiceNameHeartBeatEsPersistenceDAO extends EsDAO implements IServ
         return getClient().prepareUpdate(ServiceNameTable.TABLE, data.getId()).setDoc(source);
     }
 
-    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+    @Override public void deleteHistory(Long timeBucketBefore) {
     }
 }

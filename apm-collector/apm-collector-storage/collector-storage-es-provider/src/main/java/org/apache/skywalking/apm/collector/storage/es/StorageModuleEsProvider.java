@@ -69,6 +69,8 @@ import org.apache.skywalking.apm.collector.storage.es.dao.rtd.*;
 import org.apache.skywalking.apm.collector.storage.es.dao.smp.*;
 import org.apache.skywalking.apm.collector.storage.es.dao.srmp.*;
 import org.apache.skywalking.apm.collector.storage.es.dao.ui.*;
+import org.apache.skywalking.apm.collector.storage.es.ttl.TTLConfigService;
+import org.apache.skywalking.apm.collector.storage.ttl.ITTLConfigService;
 
 /**
  * @author peng-yongsheng
@@ -102,7 +104,9 @@ public class StorageModuleEsProvider extends ModuleProvider {
     @Override public void prepare() throws ServiceNotProvidedException {
         elasticSearchClient = new ElasticSearchClient(config.getClusterName(), config.getClusterTransportSniffer(), config.getClusterNodes(), nameSpace);
 
+        this.registerServiceImplementation(ITTLConfigService.class, new TTLConfigService(config));
         this.registerServiceImplementation(IBatchDAO.class, new BatchEsDAO(elasticSearchClient));
+
         registerCacheDAO();
         registerRegisterDAO();
         registerPersistenceDAO();
@@ -132,12 +136,7 @@ public class StorageModuleEsProvider extends ModuleProvider {
         ModuleListenerService moduleListenerService = getManager().find(ClusterModule.NAME).getService(ModuleListenerService.class);
         moduleListenerService.addListener(namingListener);
 
-        deleteTimer = new DataTTLKeeperTimer(getManager(), namingListener, esRegistration.buildValue().getHostPort());
-        deleteTimer.setTraceDataTTL(config.getTraceDataTTL());
-        deleteTimer.setMinuteMetricDataTTL(config.getMinuteMetricDataTTL());
-        deleteTimer.setHourMetricDataTTL(config.getHourMetricDataTTL());
-        deleteTimer.setDayMetricDataTTL(config.getDayMetricDataTTL());
-        deleteTimer.setMonthMetricDataTTL(config.getMonthMetricDataTTL());
+        deleteTimer = new DataTTLKeeperTimer(getManager(), namingListener, esRegistration.buildValue().getHostPort(), config);
     }
 
     @Override
