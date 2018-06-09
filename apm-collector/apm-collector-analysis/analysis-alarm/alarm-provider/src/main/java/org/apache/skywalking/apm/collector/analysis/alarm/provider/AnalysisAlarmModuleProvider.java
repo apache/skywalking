@@ -85,9 +85,15 @@ public class AnalysisAlarmModuleProvider extends ModuleProvider {
         RemoteDataRegisterService remoteDataRegisterService = getManager().find(RemoteModule.NAME).getService(RemoteDataRegisterService.class);
         remoteDataRegisterService.register(ApplicationAlarm.class, new ApplicationAlarm.InstanceCreator());
         remoteDataRegisterService.register(ApplicationAlarmList.class, new ApplicationAlarmList.InstanceCreator());
+        remoteDataRegisterService.register(ApplicationReferenceAlarm.class, new ApplicationReferenceAlarm.InstanceCreator());
+        remoteDataRegisterService.register(ApplicationReferenceAlarmList.class, new ApplicationReferenceAlarmList.InstanceCreator());
         remoteDataRegisterService.register(InstanceAlarm.class, new InstanceAlarm.InstanceCreator());
         remoteDataRegisterService.register(InstanceAlarmList.class, new InstanceAlarmList.InstanceCreator());
+        remoteDataRegisterService.register(InstanceReferenceAlarm.class, new InstanceReferenceAlarm.InstanceCreator());
+        remoteDataRegisterService.register(InstanceReferenceAlarmList.class, new InstanceReferenceAlarmList.InstanceCreator());
         remoteDataRegisterService.register(ServiceAlarm.class, new ServiceAlarm.InstanceCreator());
         remoteDataRegisterService.register(ServiceAlarmList.class, new ServiceAlarmList.InstanceCreator());
+        remoteDataRegisterService.register(ServiceReferenceAlarm.class, new ServiceReferenceAlarm.InstanceCreator());
+        remoteDataRegisterService.register(ServiceReferenceAlarmList.class, new ServiceReferenceAlarmList.InstanceCreator());
     }
 }
