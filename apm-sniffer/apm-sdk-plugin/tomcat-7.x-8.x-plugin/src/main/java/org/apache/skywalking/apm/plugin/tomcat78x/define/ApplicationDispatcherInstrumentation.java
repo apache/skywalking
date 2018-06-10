@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.jetty.v9.server.define;
+package org.apache.skywalking.apm.plugin.tomcat78x.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -24,24 +24,30 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
+import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * {@link JettyInstrumentation} enhance the <code>handle</code> method in <code>org.eclipse.jetty.server.handler.HandlerList</code>
- * by <code>HandleInterceptor</code>
- *
- * @author zhangxin
- */
-public class JettyInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class ApplicationDispatcherInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "org.eclipse.jetty.server.HttpChannel";
-    private static final String ENHANCE_METHOD = "handle";
-    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.jetty.v9.server.HandleInterceptor";
+    private static final String ENHANCE_CLASS = "org.apache.catalina.core.ApplicationDispatcher";
+    private static final String ENHANCE_METHOD = "forward";
+    public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.tomcat78x.ForwardInterceptor";
 
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[0];
+    @Override
+    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+        return new ConstructorInterceptPoint[]{
+            new ConstructorInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return any();
+                }
+
+                @Override public String getConstructorInterceptor() {
+                    return INTERCEPTOR_CLASS;
+                }
+            }
+        };
     }
 
     @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
@@ -63,6 +69,6 @@ public class JettyInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
     }
 
     @Override protected ClassMatch enhanceClass() {
-        return NameMatch.byName(ENHANCE_CLASS);
+        return byName(ENHANCE_CLASS);
     }
 }

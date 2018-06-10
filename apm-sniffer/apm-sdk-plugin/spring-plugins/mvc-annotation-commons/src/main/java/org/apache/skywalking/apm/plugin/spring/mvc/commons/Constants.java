@@ -39,4 +39,6 @@ public class Constants {
     public static final String RESPONSE_KEY_IN_RUNTIME_CONTEXT = "SW_RESPONSE";
 
     public static final String ISOLATE_STRATEGY_KEY_IN_RUNNING_CONTEXT = "ISOLATE_STRATEGY";
+
+    public static final String FORWARD_REQUEST_FLAG = "SW_FORWARD_REQUEST_FLAG";
 }

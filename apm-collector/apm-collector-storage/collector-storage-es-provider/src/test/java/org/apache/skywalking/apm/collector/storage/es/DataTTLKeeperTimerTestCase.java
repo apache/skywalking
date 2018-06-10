@@ -29,7 +29,7 @@ public class DataTTLKeeperTimerTestCase {
 
     @Test
     public void testConvertTimeBucket() {
-        DataTTLKeeperTimer timer = new DataTTLKeeperTimer(null, null, null);
+        DataTTLKeeperTimer timer = new DataTTLKeeperTimer(null, null, null, new StorageModuleEsConfig());
 
         DateTime currentTime = new DateTime(2018, 5, 26, 15, 5);
         DataTTLKeeperTimer.TimeBuckets timeBuckets = timer.convertTimeBucket(currentTime);

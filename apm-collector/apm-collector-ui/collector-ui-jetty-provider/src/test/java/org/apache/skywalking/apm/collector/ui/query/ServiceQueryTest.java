@@ -18,17 +18,12 @@
 
 package org.apache.skywalking.apm.collector.ui.query;
 
-import org.apache.skywalking.apm.collector.storage.ui.common.Duration;
-import org.apache.skywalking.apm.collector.storage.ui.common.Step;
-import org.apache.skywalking.apm.collector.ui.service.ServiceNameService;
-import org.apache.skywalking.apm.collector.ui.service.ServiceTopologyService;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import java.text.ParseException;
+import org.apache.skywalking.apm.collector.storage.ui.common.*;
+import org.apache.skywalking.apm.collector.ui.service.*;
+import org.junit.*;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
-
-import java.text.ParseException;
 
 /**
  * @author lican
@@ -50,14 +45,14 @@ public class ServiceQueryTest {
 
     @Test
     public void searchService() throws ParseException {
-        serviceQuery.searchService("keyword", -1);
+        serviceQuery.searchService("keyword", 0, -1);
     }
 
     @Test
     public void getServiceResponseTimeTrend() throws ParseException {
         Mockito.when(serviceNameService.getServiceResponseTimeTrend(
-                Mockito.anyInt(), Mockito.anyObject(),
-                Mockito.anyLong(), Mockito.anyLong())
+            Mockito.anyInt(), Mockito.anyObject(),
+            Mockito.anyLong(), Mockito.anyLong())
         ).then(invocation -> {
             Object[] arguments = invocation.getArguments();
             Assert.assertEquals(201701L, arguments[2]);
@@ -74,8 +69,8 @@ public class ServiceQueryTest {
     @Test
     public void getServiceThroughputTrend() throws ParseException {
         Mockito.when(serviceNameService.getServiceThroughputTrend(
-                Mockito.anyInt(), Mockito.anyObject(),
-                Mockito.anyLong(), Mockito.anyLong())
+            Mockito.anyInt(), Mockito.anyObject(),
+            Mockito.anyLong(), Mockito.anyLong())
         ).then(invocation -> {
             Object[] arguments = invocation.getArguments();
             Assert.assertEquals(201701L, arguments[2]);
@@ -92,8 +87,8 @@ public class ServiceQueryTest {
     @Test
     public void getServiceSLATrend() throws ParseException {
         Mockito.when(serviceNameService.getServiceSLATrend(
-                Mockito.anyInt(), Mockito.anyObject(),
-                Mockito.anyLong(), Mockito.anyLong())
+            Mockito.anyInt(), Mockito.anyObject(),
+            Mockito.anyLong(), Mockito.anyLong())
         ).then(invocation -> {
             Object[] arguments = invocation.getArguments();
             Assert.assertEquals(201701L, arguments[2]);
@@ -110,9 +105,9 @@ public class ServiceQueryTest {
     @Test
     public void getServiceTopology() throws ParseException {
         Mockito.when(serviceTopologyService.getServiceTopology(
-                Mockito.anyObject(), Mockito.anyInt(),
-                Mockito.anyLong(), Mockito.anyLong(),
-                Mockito.anyLong(), Mockito.anyLong())
+            Mockito.anyObject(), Mockito.anyInt(),
+            Mockito.anyLong(), Mockito.anyLong(),
+            Mockito.anyLong(), Mockito.anyLong())
         ).then(invocation -> {
             Object[] arguments = invocation.getArguments();
             Assert.assertEquals(201701L, arguments[2]);

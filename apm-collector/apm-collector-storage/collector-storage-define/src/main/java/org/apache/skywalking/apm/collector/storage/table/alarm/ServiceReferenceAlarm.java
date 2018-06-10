@@ -18,10 +18,9 @@
 
 package org.apache.skywalking.apm.collector.storage.table.alarm;
 
-import org.apache.skywalking.apm.collector.core.data.Column;
-import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.data.operator.CoverMergeOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.*;
+import org.apache.skywalking.apm.collector.core.data.operator.*;
+import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 
 /**
  * @author peng-yongsheng
@@ -158,5 +157,11 @@ public class ServiceReferenceAlarm extends StreamData implements Alarm {
     @Override
     public void setAlarmContent(String alarmContent) {
         setDataString(1, alarmContent);
+    }
+
+    public static class InstanceCreator implements RemoteDataRegisterService.RemoteDataInstanceCreator {
+        @Override public RemoteData createInstance() {
+            return new ServiceReferenceAlarm();
+        }
     }
 }
