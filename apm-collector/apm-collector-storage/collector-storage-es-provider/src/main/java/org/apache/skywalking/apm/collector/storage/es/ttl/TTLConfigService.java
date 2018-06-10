@@ -16,46 +16,39 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.storage.ui.service;
+package org.apache.skywalking.apm.collector.storage.es.ttl;
+
+import org.apache.skywalking.apm.collector.storage.es.StorageModuleEsConfig;
+import org.apache.skywalking.apm.collector.storage.ttl.ITTLConfigService;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceInfo {
-    private int id;
-    private String name;
-    private int applicationId;
-    private String applicationName;
+public class TTLConfigService implements ITTLConfigService {
 
-    public int getId() {
-        return id;
+    private StorageModuleEsConfig config;
+
+    public TTLConfigService(StorageModuleEsConfig config) {
+        this.config = config;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    @Override public int traceDataTTL() {
+        return config.getTraceDataTTL();
     }
 
-    public String getName() {
-        return name;
+    @Override public int minuteMetricDataTTL() {
+        return config.getMinuteMetricDataTTL();
     }
 
-    public void setName(String name) {
-        this.name = name;
+    @Override public int hourMetricDataTTL() {
+        return config.getHourMetricDataTTL();
     }
 
-    public int getApplicationId() {
-        return applicationId;
+    @Override public int dayMetricDataTTL() {
+        return config.getDayMetricDataTTL();
     }
 
-    public void setApplicationId(int applicationId) {
-        this.applicationId = applicationId;
-    }
-
-    public String getApplicationName() {
-        return applicationName;
-    }
-
-    public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
+    @Override public int monthMetricDataTTL() {
+        return config.getMonthMetricDataTTL();
     }
 }

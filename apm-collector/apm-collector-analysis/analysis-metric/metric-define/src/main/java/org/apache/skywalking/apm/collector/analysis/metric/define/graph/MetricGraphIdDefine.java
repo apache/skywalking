@@ -38,4 +38,5 @@ public class MetricGraphIdDefine {
     public static final int INSTANCE_MAPPING_GRAPH_ID = 411;
 
     public static final int INSTANCE_HEART_BEAT_PERSISTENCE_GRAPH_ID = 412;
+    public static final int SERVICE_HEART_BEAT_PERSISTENCE_GRAPH_ID = 413;
 }
