@@ -8,6 +8,9 @@
     * [Supported middlewares, frameworks and libraries](Supported-list.md)
       * [How to disable plugins?](en/How-to-disable-plugin.md)
       * [Optional plugins](en/Optional-plugins.md)
+        * [Trace Spring beans](en/agent-optional-plugins/Spring-bean-plugins.md)
+        * [Trace Oracle and Resin](en/agent-optional-plugins/Oracle-Resin-plugins.md)
+        * [[Incubating]Filter traces through custom services](../apm-sniffer/optional-plugins/trace-ignore-plugin/README.md)
   * Advanced Features
     * [Override settings through System.properties](en/Setting-override.md)
     * [Direct uplink and disable naming discovery](en/Direct-uplink.md)
@@ -16,8 +19,7 @@
     * [Token Authentication](en/Token-auth.md)
     * [Add your own component library settings in collector](en/Component-libraries-extend.md)
   * Incubating Features
-    * [Abstract](en/Incubating/Abstract.md)
-    * [Filter traces through custom services](../apm-sniffer/optional-plugins/trace-ignore-plugin/README.md)
+    * [Why are some features in **Incubating**?](en/Incubating/Abstract.md)
   * Application Toolkit
     * [Overview](en/Applicaton-toolkit.md)
     * [Use SkyWalking OpenTracing compatible tracer](en/Opentracing.md)
