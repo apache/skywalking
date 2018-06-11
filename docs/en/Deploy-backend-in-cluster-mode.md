@@ -92,8 +92,7 @@ analysis_segment_parser:
     bufferSegmentMaxFileSize: 500M
 ui:
   jetty:
-    # Stay in `localhost` if UI starts up in default mode.
-    # Change it to OS real network IP(binding required), if deploy collector in different machine.
+    # OS real network IP(binding required), for UI to query from collector.
     host: localhost
     port: 12800
     contextPath: /
@@ -130,17 +129,19 @@ configuration:
     thermodynamicCountOfResponseTimeSteps: 40
 ```
 
-3. Run `bin/collectorService.sh`
-
 ### Deploy UI servers
 
-Run `bin/webappService.sh`.
-
-The config items of UI is saved in `bin/webappService.sh` (`bin\webappService.bat` for windows). Only change if necessary. 
+The config items of UI is saved in `bin/webappService.sh` (`bin\webappService.bat` for windows). 
+Change `collector.ribbon.listOfServers` by following the description, with matching `naming.jetty`. 
 
 | Config                           | Description                                                                                          |
 |----------------------------------|------------------------------------------------------------------------------------------------------|
-| `server.port`                    | Port to listen on                                                                                    |
+| `server.port`                    | Port to listen on. Default: 8080                                                                                 |
 | `collector.ribbon.listOfServers` | Address to access collector naming service.(Consist with `naming.jetty` in `config/application.yml`). Multiple collector addresses are split by ',' |
 
+
+### Start up collector node
+1. Run `bin/startup.sh` to start collector and UI together. 
+2. (Run if don't use 1 to start up)Run `bin/collectorService.sh` when you only want to start up collector.
+3. (Run if don't use 1 to start up)Run `bin/webappService.sh` when you only want to start up UI.
 
