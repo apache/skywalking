@@ -18,6 +18,13 @@
 
 package org.apache.skywalking.apm.collector.receiver.zipkin.provider.transform;
 
+import org.apache.skywalking.apm.collector.core.util.StringUtils;
+import org.apache.skywalking.apm.collector.receiver.zipkin.provider.RegisterServices;
+import org.apache.skywalking.apm.network.proto.*;
+import org.eclipse.jetty.util.StringUtil;
+import zipkin2.Endpoint;
+import zipkin2.Span;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,17 +33,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
-import org.apache.skywalking.apm.collector.core.util.StringUtils;
-import org.apache.skywalking.apm.collector.receiver.zipkin.provider.RegisterServices;
-import org.apache.skywalking.apm.network.proto.RefType;
-import org.apache.skywalking.apm.network.proto.SpanObject;
-import org.apache.skywalking.apm.network.proto.SpanType;
-import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
-import org.apache.skywalking.apm.network.proto.TraceSegmentReference;
-import org.apache.skywalking.apm.network.proto.UniqueId;
-import org.eclipse.jetty.util.StringUtil;
-import zipkin2.Endpoint;
-import zipkin2.Span;
 
 /**
  * @author wusheng
@@ -52,7 +48,7 @@ public class SegmentBuilder {
     }
 
     public static List<TraceSegmentObject.Builder> build(List<Span> traceSpans,
-        RegisterServices registerServices) throws Exception {
+                                                         RegisterServices registerServices) throws Exception {
         SegmentBuilder builder = new SegmentBuilder();
         // This map groups the spans by their parent id, in order to assist to build tree.
         // key: parentId
@@ -98,8 +94,8 @@ public class SegmentBuilder {
     }
 
     private void scanSpansFromRoot(SpanObject.Builder parentSegmentSpan, Span parent,
-        Map<String, List<Span>> parentId2SpanListMap,
-        RegisterServices registerServices) throws Exception {
+                                   Map<String, List<Span>> parentId2SpanListMap,
+                                   RegisterServices registerServices) throws Exception {
         String parentId = parent.id();
         List<Span> spanList = parentId2SpanListMap.get(parentId);
         for (Span childSpan : spanList) {
@@ -129,7 +125,7 @@ public class SegmentBuilder {
     }
 
     private SpanObject.Builder initSpan(SpanObject.Builder parentSegmentSpan, Span parentSpan, Span span,
-        boolean isSegmentRoot) {
+                                        boolean isSegmentRoot) {
         SpanObject.Builder spanBuilder = SpanObject.newBuilder();
         spanBuilder.setSpanId(context.currentIDs().nextSpanId());
         if (!isSegmentRoot && parentSegmentSpan != null) {
@@ -140,7 +136,7 @@ public class SegmentBuilder {
         switch (kind) {
             case CLIENT:
                 String peer = endpoint2Peer(span.remoteEndpoint());
-                if(peer != null){
+                if (peer != null) {
                     spanBuilder.setPeer(peer);
                 }
                 break;
@@ -155,7 +151,7 @@ public class SegmentBuilder {
             case PRODUCER:
                 spanBuilder.setSpanType(SpanType.Exit);
                 peer = endpoint2Peer(span.remoteEndpoint());
-                if(peer != null){
+                if (peer != null) {
                     spanBuilder.setPeer(peer);
                 }
                 break;
@@ -189,7 +185,7 @@ public class SegmentBuilder {
     }
 
     private void buildRef(SpanObject.Builder spanBuilder, Span span, SpanObject.Builder parentSegmentSpan,
-        Span parentSpan) {
+                          Span parentSpan) {
         Segment parentSegment = context.parentSegment();
         if (parentSegment == null) {
             return;
@@ -264,15 +260,15 @@ public class SegmentBuilder {
         }
 
         private Segment addApp(String applicationCode,
-            RegisterServices registerServices) throws Exception {
+                               RegisterServices registerServices) throws Exception {
             int applicationId = waitForExchange(() ->
-                    registerServices.getApplicationIDService().getOrCreateForApplicationCode(applicationCode),
-                10
+                            registerServices.getApplicationIDService().getOrCreateForApplicationCode(applicationCode),
+                    10
             );
 
             int appInstanceId = waitForExchange(() ->
-                    registerServices.getOrCreateApplicationInstanceId(applicationId, applicationCode),
-                10
+                            registerServices.getOrCreateApplicationInstanceId(applicationId, applicationCode),
+                    10
             );
 
             Segment segment = new Segment(applicationCode, applicationId, appInstanceId);
@@ -399,9 +395,9 @@ public class SegmentBuilder {
 
     private UniqueId generateTraceOrSegmentId() {
         return UniqueId.newBuilder()
-            .addIdParts(ThreadLocalRandom.current().nextLong())
-            .addIdParts(ThreadLocalRandom.current().nextLong())
-            .addIdParts(ThreadLocalRandom.current().nextLong())
-            .build();
+                .addIdParts(ThreadLocalRandom.current().nextLong())
+                .addIdParts(ThreadLocalRandom.current().nextLong())
+                .addIdParts(ThreadLocalRandom.current().nextLong())
+                .build();
     }
 }

@@ -18,35 +18,33 @@
 
 package org.apache.skywalking.apm.collector.receiver.zipkin.provider.handler;
 
-import java.util.List;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.RegisterServices;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.ZipkinReceiverConfig;
-import org.apache.skywalking.apm.collector.receiver.zipkin.provider.cache.CacheFactory;
 import org.apache.skywalking.apm.collector.server.jetty.JettyHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import zipkin2.Span;
 import zipkin2.codec.SpanBytesDecoder;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author wusheng
  */
-public class SpanJettyHandler extends JettyHandler {
-    private static final Logger logger = LoggerFactory.getLogger(SpanJettyHandler.class);
+public class SpanV2JettyHandler extends JettyHandler {
+    private static final Logger logger = LoggerFactory.getLogger(SpanV2JettyHandler.class);
 
     private ZipkinReceiverConfig config;
     private RegisterServices registerServices;
 
-    public SpanJettyHandler(ZipkinReceiverConfig config,
-        RegisterServices registerServices) {
+    public SpanV2JettyHandler(ZipkinReceiverConfig config,
+                              RegisterServices registerServices) {
         this.config = config;
         this.registerServices = registerServices;
     }
 
-    @Override public String pathSpec() {
+    @Override
+    public String pathSpec() {
         return "/api/v2/spans";
     }
 
@@ -59,27 +57,11 @@ public class SpanJettyHandler extends JettyHandler {
             String type = request.getHeader("Content-Type");
 
             SpanBytesDecoder decoder = type != null && type.contains("/x-protobuf")
-                ? SpanBytesDecoder.PROTO3
-                : SpanBytesDecoder.JSON_V2;
+                    ? SpanBytesDecoder.PROTO3
+                    : SpanBytesDecoder.JSON_V2;
 
-            int len = request.getContentLength();
-            ServletInputStream iii = request.getInputStream();
-            byte[] buffer = new byte[len];
-            iii.read(buffer, 0, len);
-
-            List<Span> spanList = decoder.decodeList(buffer);
-
-            spanList.forEach(span -> {
-                // In Zipkin, the local service name represents the application owner.
-                String applicationCode = span.localServiceName();
-                if (applicationCode != null) {
-                    int applicationId = registerServices.getApplicationIDService().getOrCreateForApplicationCode(applicationCode);
-                    if (applicationId != 0) {
-                        registerServices.getOrCreateApplicationInstanceId(applicationId, applicationCode);
-                    }
-                }
-                CacheFactory.INSTANCE.get(config).addSpan(span);
-            });
+            SpanProcessor processor = new SpanProcessor();
+            processor.convert(config, decoder, request, registerServices);
 
             response.setStatus(202);
         } catch (Exception e) {

@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.collector.receiver.zipkin.provider.transform;
 import java.util.List;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.RegisterServices;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.ZipkinTrace;
-import org.apache.skywalking.apm.collector.receiver.zipkin.provider.handler.SpanJettyHandler;
+import org.apache.skywalking.apm.collector.receiver.zipkin.provider.handler.SpanV2JettyHandler;
 import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ import zipkin2.Span;
  * @author wusheng
  */
 public class Zipkin2SkyWalkingTransfer {
-    private static final Logger logger = LoggerFactory.getLogger(SpanJettyHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(SpanV2JettyHandler.class);
     public static Zipkin2SkyWalkingTransfer INSTANCE = new Zipkin2SkyWalkingTransfer();
     private RegisterServices registerServices;
 

@@ -64,7 +64,7 @@
         <jedis.version>2.9.0</jedis.version>
         <zookeeper.version>3.4.10</zookeeper.version>
         <elasticsearch.client.version>5.5.0</elasticsearch.client.version>
-        <zipkin.version>2.8.4</zipkin.version>
+        <zipkin.version>2.9.1</zipkin.version>
     </properties>
 
     <dependencies>
