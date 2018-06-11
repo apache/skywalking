@@ -8,7 +8,7 @@
 - Go to [released page](http://skywalking.apache.org/downloads/)
 
 ## Deploy Zookeeper
-Zookeeper is used for collector coordination. Only required you need more than one collector instances.
+Zookeeper is used for collector coordination. Only required if you need more than one collector instances.
 
 Add Zookeeper cluster info in each collector `application.yml`
 ```yml
@@ -20,7 +20,9 @@ cluster:
     sessionTimeout: 100000
 ```
 
-## Deploy Elasticsearch server
+## Deploy ElasticSearch server
+ElasticSearch is using for storage all traces, metrics and alarms.  
+
 - Modify `elasticsearch.yml`
   - Set `cluster.name: CollectorDBCluster`
   - Set `node.name: anyname`, this name can be any, it based on Elasticsearch.
@@ -31,18 +33,20 @@ cluster:
 network.host: 0.0.0.0
 thread_pool.bulk.queue_size: 1000
 ```
-See ElasticSearch Official documents to understand how to deploy cluster.
+See ElasticSearch Official documents to understand how to deploy cluster(Recommend).
 
 - Start Elasticsearch
 
 ### Deploy collector servers
-1. Run `tar -xvf skywalking-dist.tar.gz`
-2. Config collector in cluster mode.
+There are five types of connection for collector cluster.
+1. Agent to collectors by using HTTP, named as `naming`.
+1. Agent to collectors by using gRPC, named as `agent_gRPC`. 
+1. Collector to collector by using gRPC, named as `remote`.
+1. UI to collector by using HTTP, named as `ui`. Don't need to change in most cases.
+1. Optional connection: Agent to collector by using HTTP, named as `agent_jetty`.
 
-Cluster mode depends on Zookeeper register and application discovery capabilities. 
-So, you just need to adjust the IP config items in `config/application.yml`. 
-Change IP and port configs of naming, remote, agent_gRPC, agent_jetty and ui,
-replace them to the real ip or hostname which you want to use for cluster.
+
+The following segment of `application.yml` shows you the detail of each settings.
 
 - `config/application.yml`
 ```
@@ -60,7 +64,7 @@ naming:
     contextPath: /
 remote:
   gRPC:
-    # OS real network IP(binding required), for collector nodes communicate with each other in cluster. collectorN --(gRPC) --> collectorM
+    # OS real network IP(binding required), for collector node to communicate with each other in cluster. collectorN --(gRPC) --> collectorM
     host: localhost 
     port: 11800
 agent_gRPC:
@@ -129,14 +133,13 @@ configuration:
 
 ### Deploy UI servers
 
-1. Run `tar -xvf skywalking-dist.tar.gz`
-2. Config UI in cluster mode.
+Run `bin/webappService.sh`.
 
-The config items of UI is saved in `bin/webappService.sh` (`bin\webappService.bat` for windows).
+The config items of UI is saved in `bin/webappService.sh` (`bin\webappService.bat` for windows). Only change if necessary. 
 
 | Config                           | Description                                                                                          |
 |----------------------------------|------------------------------------------------------------------------------------------------------|
 | `server.port`                    | Port to listen on                                                                                    |
 | `collector.ribbon.listOfServers` | Address to access collector naming service.(Consist with `naming.jetty` in `config/application.yml`). Multiple collector addresses are split by ',' |
 
-3. Run `bin/webappService.sh`
+
