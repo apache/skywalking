@@ -39,7 +39,7 @@ See ElasticSearch Official documents to understand how to deploy cluster(Recomme
 - Start Elasticsearch
 
 ### Set collector
-There are five types of connection for collector cluster.
+There are five types of connection for SkyWalking cluster, related to collector settings.
 1. Agent to collectors by using HTTP, named as `naming`.
 1. Agent to collectors by using gRPC, named as `agent_gRPC`. 
 1. Collector to collector by using gRPC, named as `remote`.
