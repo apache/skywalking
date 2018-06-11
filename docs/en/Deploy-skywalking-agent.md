@@ -23,13 +23,13 @@ New agent package looks like this：
     skywalking-agent.jar
 ```
 
-- Start your application。
+- Start your application.
 
 # Advanced features
 - All plugins are in `/plugins` folder. The plugin jar is active when it is in there. Remove the plugin jar, it disabled.
 - The default logging output folder is `/logs`.
 
-# Deploy agent in Tomcat FAQ
+# Install javaagent FAQs
 - Linux Tomcat 7, Tomcat 8  
 Change the first line of `tomcat/bin/catalina.sh`.
 ```shell

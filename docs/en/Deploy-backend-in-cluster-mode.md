@@ -1,8 +1,9 @@
-## Required of third party softwares
+## Requirements
 - JDK 6+（instruments application can run in jdk6）
 - JDK8  ( SkyWalking collector and SkyWalking WebUI )
 - Elasticsearch 5.x, cluster mode or not
 - Zookeeper 3.4.10
+- OS time(include time zone) of Applications under monitoring, collectors, UIs and your local machine are all correct and same.
 
 ## Download released version
 - Go to [released page](http://skywalking.apache.org/downloads/)
