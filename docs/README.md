@@ -10,7 +10,7 @@
       * [Optional plugins](en/Optional-plugins.md)
         * [Trace Spring beans](en/agent-optional-plugins/Spring-bean-plugins.md)
         * [Trace Oracle and Resin](en/agent-optional-plugins/Oracle-Resin-plugins.md)
-        * [[Incubating]Filter traces through custom services](../apm-sniffer/optional-plugins/trace-ignore-plugin/README.md)
+        * [[**Incubating**] Filter traces through custom services](../apm-sniffer/optional-plugins/trace-ignore-plugin/README.md)
   * Advanced Features
     * [Override settings through System.properties](en/Setting-override.md)
     * [Direct uplink and disable naming discovery](en/Direct-uplink.md)
