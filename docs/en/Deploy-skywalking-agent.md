@@ -1,7 +1,7 @@
 ## Download skywalking agent release version
 - Go to [release page](http://skywalking.apache.org/downloads/)
 
-## Deploy skywalking javaagent
+## Install skywalking javaagent
 1. Copy the agent package to anywhere you like. The logs, plugins and config are all included in the package.
 2. Add -javaagent:/path/to/skywalking-agent/skywalking-agent.jar to VM argument. 
 
