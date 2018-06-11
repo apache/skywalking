@@ -1,7 +1,8 @@
 # Quick start
-1. Download `apache-skywalking-apm-incubating-x.y.z.tar.gz` or `apache-skywalking-apm-incubating-x.y.z.zip`
-1. Deploy Backend
-   - [Standalone Mode](Deploy-backend-in-standalone-mode.md)
-   - [Cluster Mode](Deploy-backend-in-cluster-mode.md)
-1. Deploy Java Agent，[doc](Deploy-skywalking-agent.md)
+Quick start is for end users to start up the SkyWalking quickly in local.
+
+1. Download releases from Apache official website. [Link](http://skywalking.apache.org/downloads/)
+1. Deploy standalone mode backend on local. See [Standalone Mode](Deploy-backend-in-standalone-mode.md)
+1. Deploy Java Agen. [Doc](Deploy-skywalking-agent.md)
+1. Set your OS time(include time zone) correct.
 1. Reboot your applications, and open UI.
