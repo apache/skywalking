@@ -38,7 +38,7 @@ See ElasticSearch Official documents to understand how to deploy cluster(Recomme
 
 - Start Elasticsearch
 
-### Deploy collector servers
+### Set collector
 There are five types of connection for collector cluster.
 1. Agent to collectors by using HTTP, named as `naming`.
 1. Agent to collectors by using gRPC, named as `agent_gRPC`. 
@@ -129,7 +129,7 @@ configuration:
     thermodynamicCountOfResponseTimeSteps: 40
 ```
 
-### Deploy UI servers
+### Set UI
 
 The config items of UI is saved in `bin/webappService.sh` (`bin\webappService.bat` for windows). 
 Change `collector.ribbon.listOfServers` by following the description, with matching `naming.jetty`. 
