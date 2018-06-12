@@ -53,6 +53,6 @@ public class PathMappingCache {
                 && !classPath.endsWith(PATH_SEPARATOR)) {
             methodPath = PATH_SEPARATOR + methodPath;
         }
-        methodPathMapping.put(method, classPath + methodPath);
+        methodPathMapping.put(method, (classPath + methodPath).replace("//","/"));
     }
 }
