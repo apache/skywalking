@@ -19,14 +19,16 @@
 package org.apache.skywalking.apm.collector.ui.service;
 
 import java.text.ParseException;
-import java.util.List;
+import java.util.*;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
-import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
+import org.apache.skywalking.apm.collector.cache.service.*;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
+import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.ui.*;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
-import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
+import org.apache.skywalking.apm.collector.storage.table.register.*;
+import org.apache.skywalking.apm.collector.storage.ttl.ITTLConfigService;
 import org.apache.skywalking.apm.collector.storage.ui.common.*;
 import org.apache.skywalking.apm.collector.storage.ui.service.*;
 import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
@@ -40,24 +42,42 @@ public class ServiceNameService {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceNameService.class);
 
+    private final ApplicationCacheService applicationCacheService;
     private final IServiceNameServiceUIDAO serviceNameServiceUIDAO;
     private final IServiceMetricUIDAO serviceMetricUIDAO;
     private final ServiceNameCacheService serviceNameCacheService;
     private final DateBetweenService dateBetweenService;
+    private final ITTLConfigService configService;
 
     public ServiceNameService(ModuleManager moduleManager) {
+        this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
         this.serviceNameServiceUIDAO = moduleManager.find(StorageModule.NAME).getService(IServiceNameServiceUIDAO.class);
         this.serviceMetricUIDAO = moduleManager.find(StorageModule.NAME).getService(IServiceMetricUIDAO.class);
         this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
+        this.configService = moduleManager.find(StorageModule.NAME).getService(ITTLConfigService.class);
         this.dateBetweenService = new DateBetweenService(moduleManager);
     }
 
     public int getCount() {
-        return serviceNameServiceUIDAO.getCount();
+        return serviceNameServiceUIDAO.getCount(startTimeMillis());
     }
 
-    public List<ServiceInfo> searchService(String keyword, int topN) {
-        return serviceNameServiceUIDAO.searchService(keyword, topN);
+    public List<ServiceInfo> searchService(String keyword, int applicationId, int topN) {
+        List<ServiceInfo> services = serviceNameServiceUIDAO.searchService(keyword, applicationId, startTimeMillis(), topN);
+        services.forEach(service -> {
+            Application application = applicationCacheService.getApplicationById(service.getApplicationId());
+            if (Objects.nonNull(application)) {
+                service.setApplicationName(application.getApplicationCode());
+            } else {
+                service.setApplicationName(Const.EMPTY_STRING);
+            }
+        });
+        return services;
+    }
+
+    private long startTimeMillis() {
+        int minuteMetricDataTTL = configService.minuteMetricDataTTL();
+        return System.currentTimeMillis() - minuteMetricDataTTL * 60 * 60 * 100;
     }
 
     public ThroughputTrend getServiceThroughputTrend(int serviceId, Step step, long startTimeBucket,

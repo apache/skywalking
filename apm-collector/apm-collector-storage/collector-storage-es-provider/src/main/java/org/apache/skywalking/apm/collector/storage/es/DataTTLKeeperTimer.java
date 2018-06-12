@@ -50,17 +50,14 @@ class DataTTLKeeperTimer {
     private final ModuleManager moduleManager;
     private final StorageModuleEsNamingListener namingListener;
     private final String selfAddress;
-    private int traceDataTTL = 90;
-    private int minuteMetricDataTTL = 90;
-    private int hourMetricDataTTL = 36;
-    private int dayMetricDataTTL = 45;
-    private int monthMetricDataTTL = 18;
+    private final StorageModuleEsConfig config;
 
     DataTTLKeeperTimer(ModuleManager moduleManager,
-        StorageModuleEsNamingListener namingListener, String selfAddress) {
+        StorageModuleEsNamingListener namingListener, String selfAddress, StorageModuleEsConfig config) {
         this.moduleManager = moduleManager;
         this.namingListener = namingListener;
         this.selfAddress = selfAddress;
+        this.config = config;
     }
 
     void start() {
@@ -91,11 +88,11 @@ class DataTTLKeeperTimer {
     TimeBuckets convertTimeBucket(DateTime currentTime) {
         TimeBuckets timeBuckets = new TimeBuckets();
 
-        timeBuckets.traceDataBefore = Long.valueOf(currentTime.plusMinutes(0 - traceDataTTL).toString("yyyyMMddHHmm"));
-        timeBuckets.minuteTimeBucketBefore = Long.valueOf(currentTime.plusMinutes(0 - minuteMetricDataTTL).toString("yyyyMMddHHmm"));
-        timeBuckets.hourTimeBucketBefore = Long.valueOf(currentTime.plusHours(0 - hourMetricDataTTL).toString("yyyyMMddHH"));
-        timeBuckets.dayTimeBucketBefore = Long.valueOf(currentTime.plusDays(0 - dayMetricDataTTL).toString("yyyyMMdd"));
-        timeBuckets.monthTimeBucketBefore = Long.valueOf(currentTime.plusMonths(0 - monthMetricDataTTL).toString("yyyyMM"));
+        timeBuckets.traceDataBefore = Long.valueOf(currentTime.plusMinutes(0 - config.getTraceDataTTL()).toString("yyyyMMddHHmm"));
+        timeBuckets.minuteTimeBucketBefore = Long.valueOf(currentTime.plusMinutes(0 - config.getMinuteMetricDataTTL()).toString("yyyyMMddHHmm"));
+        timeBuckets.hourTimeBucketBefore = Long.valueOf(currentTime.plusHours(0 - config.getHourMetricDataTTL()).toString("yyyyMMddHH"));
+        timeBuckets.dayTimeBucketBefore = Long.valueOf(currentTime.plusDays(0 - config.getDayMetricDataTTL()).toString("yyyyMMdd"));
+        timeBuckets.monthTimeBucketBefore = Long.valueOf(currentTime.plusMonths(0 - config.getMonthMetricDataTTL()).toString("yyyyMM"));
 
         return timeBuckets;
     }
@@ -205,26 +202,6 @@ class DataTTLKeeperTimer {
         moduleManager.find(StorageModule.NAME).getService(IServiceReferenceHourMetricPersistenceDAO.class).deleteHistory(timeBuckets.hourTimeBucketBefore);
         moduleManager.find(StorageModule.NAME).getService(IServiceReferenceDayMetricPersistenceDAO.class).deleteHistory(timeBuckets.dayTimeBucketBefore);
         moduleManager.find(StorageModule.NAME).getService(IServiceReferenceMonthMetricPersistenceDAO.class).deleteHistory(timeBuckets.monthTimeBucketBefore);
-    }
-
-    void setTraceDataTTL(int traceDataTTL) {
-        this.traceDataTTL = traceDataTTL == 0 ? 90 : traceDataTTL;
-    }
-
-    void setMinuteMetricDataTTL(int minuteMetricDataTTL) {
-        this.minuteMetricDataTTL = minuteMetricDataTTL == 0 ? 90 : minuteMetricDataTTL;
-    }
-
-    void setHourMetricDataTTL(int hourMetricDataTTL) {
-        this.hourMetricDataTTL = hourMetricDataTTL == 0 ? 36 : hourMetricDataTTL;
-    }
-
-    void setDayMetricDataTTL(int dayMetricDataTTL) {
-        this.dayMetricDataTTL = dayMetricDataTTL == 0 ? 45 : dayMetricDataTTL;
-    }
-
-    void setMonthMetricDataTTL(int monthMetricDataTTL) {
-        this.monthMetricDataTTL = monthMetricDataTTL == 0 ? 18 : monthMetricDataTTL;
     }
 
     class TimeBuckets {
