@@ -16,6 +16,7 @@
   * Incubating Features
     * [Abstract](en/Incubating/Abstract.md)
     * [Support Custom Trace Ignore](../apm-sniffer/optional-plugins/trace-ignore-plugin/README.md)
+    * [Use Sharding JDBC as storage implementor](en/Use-ShardingJDBC-as-storage-implementor.md)
   * Application Toolkit
     * [Overview](en/Applicaton-toolkit.md)
     * [OpenTracing Tracer](en/Opentracing.md)
