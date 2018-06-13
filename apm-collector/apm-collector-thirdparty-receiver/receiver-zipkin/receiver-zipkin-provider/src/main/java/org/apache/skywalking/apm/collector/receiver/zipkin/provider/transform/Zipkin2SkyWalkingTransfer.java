@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.collector.receiver.zipkin.provider.transform;
 
-import java.util.List;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.RegisterServices;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.ZipkinTrace;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.handler.SpanV2JettyHandler;
@@ -27,6 +26,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zipkin2.Span;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * @author wusheng
  */
@@ -34,13 +36,18 @@ public class Zipkin2SkyWalkingTransfer {
     private static final Logger logger = LoggerFactory.getLogger(SpanV2JettyHandler.class);
     public static Zipkin2SkyWalkingTransfer INSTANCE = new Zipkin2SkyWalkingTransfer();
     private RegisterServices registerServices;
+    private List<SegmentListener> listeners = new LinkedList<>();
 
     private Zipkin2SkyWalkingTransfer() {
     }
 
     public void setRegisterServices(
-        RegisterServices registerServices) {
+            RegisterServices registerServices) {
         this.registerServices = registerServices;
+    }
+
+    public void addListener(SegmentListener listener) {
+        listeners.add(listener);
     }
 
     public void transfer(ZipkinTrace trace) {
@@ -49,6 +56,9 @@ public class Zipkin2SkyWalkingTransfer {
         if (traceSpans.size() > 0) {
             try {
                 List<TraceSegmentObject.Builder> builderList = SegmentBuilder.build(traceSpans, registerServices);
+                listeners.forEach(listener -> {
+                    listener.notify(builderList);
+                });
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }

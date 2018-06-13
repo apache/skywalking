@@ -53,18 +53,19 @@ public class SegmentBuilder {
         // This map groups the spans by their parent id, in order to assist to build tree.
         // key: parentId
         // value: span
-        Map<String, List<Span>> parentId2SpanListMap = new HashMap<>();
+        Map<String, List<Span>> childSpanMap = new HashMap<>();
         AtomicReference<Span> root = new AtomicReference<>();
         traceSpans.forEach(span -> {
-            // parent id is null, it is the root span of the trace
             if (span.parentId() == null) {
                 root.set(span);
+            }
+            List<Span> spanList = childSpanMap.get(span.parentId());
+            if (spanList == null) {
+                spanList = new LinkedList<>();
+                spanList.add(span);
+                childSpanMap.put(span.parentId(), spanList);
             } else {
-                List<Span> spanList = parentId2SpanListMap.get(span.parentId());
-                if (spanList == null) {
-                    spanList = new LinkedList<>();
-                    spanList.add(span);
-                }
+                spanList.add(span);
             }
         });
 
@@ -78,15 +79,14 @@ public class SegmentBuilder {
             // :P Hope anyone could provide better solution.
             // Wu Sheng.
             if (StringUtils.isNotEmpty(applicationCode)) {
-                try {
-                    builder.context.addApp(applicationCode, registerServices);
-                    SpanObject.Builder rootSpanBuilder = builder.initSpan(null, null, rootSpan, true);
-                    builder.scanSpansFromRoot(rootSpanBuilder, rootSpan, parentId2SpanListMap, registerServices);
+                builder.context.addApp(applicationCode, registerServices);
 
-                    builder.context.currentSegment().addSpan(rootSpanBuilder);
-                } finally {
-                    builder.context.removeApp();
-                }
+                SpanObject.Builder rootSpanBuilder = builder.initSpan(null, null, rootSpan, true);
+                builder.scanSpansFromRoot(rootSpanBuilder, rootSpan, childSpanMap, registerServices);
+
+                builder.context.currentSegment().addSpan(rootSpanBuilder);
+
+                builder.segments.add(builder.context.removeApp().segmentBuilder);
             }
         }
 
@@ -94,10 +94,14 @@ public class SegmentBuilder {
     }
 
     private void scanSpansFromRoot(SpanObject.Builder parentSegmentSpan, Span parent,
-                                   Map<String, List<Span>> parentId2SpanListMap,
+                                   Map<String, List<Span>> childSpanMap,
                                    RegisterServices registerServices) throws Exception {
         String parentId = parent.id();
-        List<Span> spanList = parentId2SpanListMap.get(parentId);
+        // get child spans by parent span id
+        List<Span> spanList = childSpanMap.get(parentId);
+        if (spanList == null) {
+            return;
+        }
         for (Span childSpan : spanList) {
             String localServiceName = childSpan.localServiceName();
             boolean isNewApp = false;
@@ -113,12 +117,12 @@ public class SegmentBuilder {
                 }
                 SpanObject.Builder childSpanBuilder = initSpan(parentSegmentSpan, parent, childSpan, isNewApp);
 
-                scanSpansFromRoot(childSpanBuilder, childSpan, parentId2SpanListMap, registerServices);
+                scanSpansFromRoot(childSpanBuilder, childSpan, childSpanMap, registerServices);
 
                 context.currentSegment().addSpan(childSpanBuilder);
             } finally {
                 if (isNewApp) {
-                    context.removeApp();
+                    segments.add(context.removeApp().segmentBuilder);
                 }
             }
         }

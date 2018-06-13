@@ -18,22 +18,99 @@
 
 package org.apache.skywalking.apm.collector.receiver.zipkin.provider.transform;
 
-import java.io.UnsupportedEncodingException;
-import java.util.LinkedList;
-import java.util.List;
+import org.apache.skywalking.apm.collector.analysis.register.define.service.AgentOsInfo;
+import org.apache.skywalking.apm.collector.analysis.register.define.service.IApplicationIDService;
+import org.apache.skywalking.apm.collector.analysis.register.define.service.IInstanceIDService;
+import org.apache.skywalking.apm.collector.receiver.zipkin.provider.RegisterServices;
+import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.ZipkinTrace;
+import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesDecoder;
+
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author wusheng
  */
-public class SegmentBuilderTest {
+public class SegmentBuilderTest implements SegmentListener {
+    private Map<String, Integer> applicationInstRegister = new HashMap<>();
+    private Map<String, Integer> applicationRegister = new HashMap<>();
+    private int appIdSeg = 1;
+    private int appInstIdSeq = 1;
+
     @Test
     public void testTransform() throws UnsupportedEncodingException {
+
+        IApplicationIDService applicationIDService = new IApplicationIDService() {
+            @Override
+            public int getOrCreateForApplicationCode(String applicationCode) {
+                String key = "AppCode:" + applicationCode;
+                if (applicationRegister.containsKey(key)) {
+                    return applicationRegister.get(key);
+                } else {
+                    int id = appIdSeg++;
+                    applicationRegister.put(key, id);
+                    return id;
+                }
+            }
+
+            @Override
+            public int getOrCreateForAddressId(int addressId, String networkAddress) {
+                String key = "Address:" + networkAddress;
+                if (applicationRegister.containsKey(key)) {
+                    return applicationRegister.get(key);
+                } else {
+                    int id = appIdSeg++;
+                    applicationRegister.put(key, id);
+                    return id;
+                }
+            }
+        };
+
+        IInstanceIDService instanceIDService = new IInstanceIDService() {
+            @Override
+            public int getOrCreateByAgentUUID(int applicationId, String agentUUID, long registerTime, AgentOsInfo osInfo) {
+                String key = "AppCode:" + applicationId + ",UUID:" + agentUUID;
+                if (applicationInstRegister.containsKey(key)) {
+                    return applicationInstRegister.get(key);
+                } else {
+                    int id = appInstIdSeq++;
+                    applicationInstRegister.put(key, id);
+                    return id;
+                }
+            }
+
+            @Override
+            public int getOrCreateByAddressId(int applicationId, int addressId, long registerTime) {
+                String key = "VitualAppCode:" + applicationId + ",address:" + addressId;
+                if (applicationInstRegister.containsKey(key)) {
+                    return applicationInstRegister.get(key);
+                } else {
+                    int id = appInstIdSeq++;
+                    applicationInstRegister.put(key, id);
+                    return id;
+                }
+            }
+        };
+        RegisterServices services = new RegisterServices(applicationIDService, instanceIDService, null, null);
+
+        Zipkin2SkyWalkingTransfer.INSTANCE.addListener(this);
+        Zipkin2SkyWalkingTransfer.INSTANCE.setRegisterServices(services);
+
         List<Span> spanList = buildSpringSleuthExampleTrace();
         Assert.assertEquals(3, spanList.size());
+
+        ZipkinTrace trace = new ZipkinTrace();
+        spanList.forEach(span -> trace.addSpan(span));
+
+        Zipkin2SkyWalkingTransfer.INSTANCE.transfer(trace);
     }
 
     private List<Span> buildSpringSleuthExampleTrace() throws UnsupportedEncodingException {
@@ -46,5 +123,10 @@ public class SegmentBuilderTest {
         spans.add(SpanBytesDecoder.JSON_V2.decodeOne(span.getBytes("UTF-8")));
 
         return SpanBytesDecoder.JSON_V2.decodeList(spans.toString().getBytes("UTF-8"));
+    }
+
+    @Override
+    public void notify(List<TraceSegmentObject.Builder> segments) {
+        Assert.assertEquals(2, segments.size());
     }
 }
