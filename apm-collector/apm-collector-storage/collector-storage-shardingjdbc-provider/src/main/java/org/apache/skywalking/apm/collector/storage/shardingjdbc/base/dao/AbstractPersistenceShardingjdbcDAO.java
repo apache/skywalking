@@ -30,7 +30,6 @@ import org.apache.skywalking.apm.collector.client.shardingjdbc.ShardingjdbcClien
 import org.apache.skywalking.apm.collector.client.shardingjdbc.ShardingjdbcClientException;
 import org.apache.skywalking.apm.collector.core.data.CommonTable;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.apache.skywalking.apm.collector.storage.shardingjdbc.base.define.ShardingjdbcSqlEntity;

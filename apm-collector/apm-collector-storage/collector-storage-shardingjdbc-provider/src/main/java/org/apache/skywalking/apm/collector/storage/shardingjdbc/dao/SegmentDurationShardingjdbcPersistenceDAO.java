@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.collector.storage.shardingjdbc.dao;
 
 import java.util.*;
 import org.apache.skywalking.apm.collector.client.shardingjdbc.*;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentDurationPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.shardingjdbc.base.dao.ShardingjdbcDAO;
