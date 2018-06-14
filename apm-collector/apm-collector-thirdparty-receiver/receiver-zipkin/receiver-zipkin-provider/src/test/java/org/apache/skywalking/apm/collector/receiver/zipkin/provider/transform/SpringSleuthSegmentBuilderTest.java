@@ -23,7 +23,10 @@ import org.apache.skywalking.apm.collector.analysis.register.define.service.IApp
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IInstanceIDService;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.RegisterServices;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.ZipkinTrace;
+import org.apache.skywalking.apm.network.proto.SpanObject;
+import org.apache.skywalking.apm.network.proto.SpanType;
 import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
+import org.apache.skywalking.apm.network.proto.TraceSegmentReference;
 import org.junit.Assert;
 import org.junit.Test;
 import zipkin2.Span;
@@ -38,14 +41,14 @@ import java.util.Map;
 /**
  * @author wusheng
  */
-public class SegmentBuilderTest implements SegmentListener {
+public class SpringSleuthSegmentBuilderTest implements SegmentListener {
     private Map<String, Integer> applicationInstRegister = new HashMap<>();
     private Map<String, Integer> applicationRegister = new HashMap<>();
     private int appIdSeg = 1;
     private int appInstIdSeq = 1;
 
     @Test
-    public void testTransform() throws UnsupportedEncodingException {
+    public void testTransform() throws Exception {
 
         IApplicationIDService applicationIDService = new IApplicationIDService() {
             @Override
@@ -127,5 +130,58 @@ public class SegmentBuilderTest implements SegmentListener {
     @Override
     public void notify(List<TraceSegmentObject.Builder> segments) {
         Assert.assertEquals(2, segments.size());
+        TraceSegmentObject.Builder builder = segments.get(0);
+        TraceSegmentObject.Builder builder1 = segments.get(1);
+        TraceSegmentObject.Builder front, end;
+        if (builder.getApplicationId() == applicationRegister.get("AppCode:frontend")) {
+            front = builder;
+            end = builder1;
+            Assert.assertEquals(applicationRegister.get("AppCode:backend").longValue(), builder1.getApplicationId());
+        } else if (builder.getApplicationId() == applicationRegister.get("AppCode:backend")) {
+            end = builder;
+            front = builder1;
+            Assert.assertEquals(applicationRegister.get("AppCode:frontend").longValue(), builder1.getApplicationId());
+        } else {
+            Assert.fail("Can't find frontend and backend applications. ");
+            return;
+        }
+
+        Assert.assertEquals(2, front.getSpansCount());
+        Assert.assertEquals(1, end.getSpansCount());
+
+        front.getSpansList().forEach(spanObject -> {
+            if (spanObject.getSpanId() == 1) {
+                // span id = 1, means incoming http of frontend
+                Assert.assertEquals(SpanType.Entry, spanObject.getSpanType());
+                Assert.assertEquals("get /", spanObject.getOperationName());
+                Assert.assertEquals(1, spanObject.getSpanId());
+                Assert.assertEquals(0, spanObject.getParentSpanId());
+            } else if (spanObject.getSpanId() == 2) {
+                Assert.assertEquals("192.168.72.220", spanObject.getPeer());
+                Assert.assertEquals(SpanType.Exit, spanObject.getSpanType());
+                Assert.assertEquals(2, spanObject.getSpanId());
+                Assert.assertEquals(1, spanObject.getParentSpanId());
+            } else {
+                Assert.fail("Only two spans expected");
+            }
+            Assert.assertTrue(spanObject.getTagsCount() > 0);
+        });
+
+        SpanObject spanObject = end.getSpans(0);
+
+        Assert.assertEquals(1, spanObject.getRefsCount());
+        TraceSegmentReference spanObjectRef = spanObject.getRefs(0);
+        Assert.assertEquals("get /", spanObjectRef.getEntryServiceName());
+        Assert.assertEquals("get /", spanObjectRef.getParentServiceName());
+        Assert.assertEquals("192.168.72.220", spanObjectRef.getNetworkAddress());
+        Assert.assertEquals(2, spanObjectRef.getParentSpanId());
+        Assert.assertEquals(front.getTraceSegmentId(), spanObjectRef.getParentTraceSegmentId());
+
+        Assert.assertTrue(spanObject.getTagsCount() > 0);
+
+        Assert.assertEquals("get /api", spanObject.getOperationName());
+        Assert.assertEquals(1, spanObject.getSpanId());
+        Assert.assertEquals(0, spanObject.getParentSpanId());
+        Assert.assertEquals(SpanType.Entry, spanObject.getSpanType());
     }
 }

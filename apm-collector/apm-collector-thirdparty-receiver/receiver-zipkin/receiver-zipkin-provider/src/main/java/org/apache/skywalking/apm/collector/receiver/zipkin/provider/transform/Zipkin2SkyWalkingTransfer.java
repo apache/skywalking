@@ -33,7 +33,6 @@ import java.util.List;
  * @author wusheng
  */
 public class Zipkin2SkyWalkingTransfer {
-    private static final Logger logger = LoggerFactory.getLogger(SpanV2JettyHandler.class);
     public static Zipkin2SkyWalkingTransfer INSTANCE = new Zipkin2SkyWalkingTransfer();
     private RegisterServices registerServices;
     private List<SegmentListener> listeners = new LinkedList<>();
@@ -50,18 +49,15 @@ public class Zipkin2SkyWalkingTransfer {
         listeners.add(listener);
     }
 
-    public void transfer(ZipkinTrace trace) {
+    public void transfer(ZipkinTrace trace) throws Exception {
         List<Span> traceSpans = trace.getSpans();
 
         if (traceSpans.size() > 0) {
-            try {
-                List<TraceSegmentObject.Builder> builderList = SegmentBuilder.build(traceSpans, registerServices);
-                listeners.forEach(listener -> {
-                    listener.notify(builderList);
-                });
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-            }
+            List<TraceSegmentObject.Builder> builderList = SegmentBuilder.build(traceSpans, registerServices);
+            listeners.forEach(listener -> {
+                listener.notify(builderList);
+            });
+
         }
     }
 }

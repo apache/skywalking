@@ -22,16 +22,19 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.RemovalListener;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.ZipkinReceiverConfig;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.cache.ISpanCache;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.ZipkinTrace;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.transform.Zipkin2SkyWalkingTransfer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import zipkin2.Span;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * NOTICE: FROM my test, Caffeine cache triggers/checks expire only face write/read op.
@@ -40,18 +43,19 @@ import zipkin2.Span;
  * @author wusheng
  */
 public class CaffeineSpanCache implements ISpanCache, RemovalListener<String, ZipkinTrace> {
+    private static final Logger logger = LoggerFactory.getLogger(CaffeineSpanCache.class);
     private Cache<String, ZipkinTrace> inProcessSpanCache;
     private ReentrantLock newTraceLock;
 
     public CaffeineSpanCache(ZipkinReceiverConfig config) {
         newTraceLock = new ReentrantLock();
         inProcessSpanCache = Caffeine.newBuilder()
-            //TODO: uncomment this for real codes.
-            //.expireAfterWrite(config.getExpireTime(), TimeUnit.MINUTES)
-            .expireAfterWrite(10, TimeUnit.SECONDS)
-            .maximumSize(config.getMaxCacheSize())
-            .removalListener(this)
-            .build();
+                //TODO: uncomment this for real codes.
+                //.expireAfterWrite(config.getExpireTime(), TimeUnit.MINUTES)
+                .expireAfterWrite(10, TimeUnit.SECONDS)
+                .maximumSize(config.getMaxCacheSize())
+                .removalListener(this)
+                .build();
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             inProcessSpanCache.put("ACTIVE", new ZipkinTrace.TriggerTrace());
         }, 2, 3, TimeUnit.SECONDS);
@@ -69,10 +73,15 @@ public class CaffeineSpanCache implements ISpanCache, RemovalListener<String, Zi
         if (trace instanceof ZipkinTrace.TriggerTrace) {
             return;
         }
-        Zipkin2SkyWalkingTransfer.INSTANCE.transfer(trace);
+        try {
+            Zipkin2SkyWalkingTransfer.INSTANCE.transfer(trace);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
     }
 
-    @Override public void addSpan(Span span) {
+    @Override
+    public void addSpan(Span span) {
         ZipkinTrace trace = inProcessSpanCache.getIfPresent(span.traceId());
         if (trace == null) {
             newTraceLock.lock();

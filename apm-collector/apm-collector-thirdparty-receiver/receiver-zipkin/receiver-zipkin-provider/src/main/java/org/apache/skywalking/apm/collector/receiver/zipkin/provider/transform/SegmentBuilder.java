@@ -211,13 +211,6 @@ public class SegmentBuilder {
 
     private void buildRef(SpanObject.Builder spanBuilder, Span span, SpanObject.Builder parentSegmentSpan,
                           Span parentSpan) {
-        if (span.shared() != null && span.shared()) {
-            // using same span id in client and server for RPC
-            // SkyWalking will build both sides of span
-            ClientSideSpan clientSideSpan = clientPartSpan.get(span.id());
-            parentSegmentSpan = clientSideSpan.getBuilder();
-            parentSpan = clientSideSpan.getSpan();
-        }
         Segment parentSegment = context.parentSegment();
         if (parentSegment == null) {
             return;
@@ -227,18 +220,18 @@ public class SegmentBuilder {
             return;
         }
 
+        if (span.shared() != null && span.shared()) {
+            // using same span id in client and server for RPC
+            // SkyWalking will build both sides of span
+            ClientSideSpan clientSideSpan = clientPartSpan.get(span.id());
+            parentSegmentSpan = clientSideSpan.getBuilder();
+            parentSpan = clientSideSpan.getSpan();
+        }
+
         String ip = null;
         int port = 0;
         Endpoint serverEndpoint = span.localEndpoint();
         Endpoint clientEndpoint = parentSpan.remoteEndpoint();
-        if (serverEndpoint != null) {
-            if (StringUtils.isNotEmpty(serverEndpoint.ipv4())) {
-                ip = serverEndpoint.ipv4();
-            } else if (StringUtils.isNotEmpty(serverEndpoint.ipv6())) {
-                ip = serverEndpoint.ipv6();
-            }
-        }
-
         if (clientEndpoint != null) {
             if (StringUtil.isBlank(ip)) {
                 if (StringUtils.isNotEmpty(clientEndpoint.ipv4())) {
@@ -249,6 +242,14 @@ public class SegmentBuilder {
                 port = clientEndpoint.port();
             }
         }
+        if (serverEndpoint != null) {
+            if (StringUtils.isNotEmpty(serverEndpoint.ipv4())) {
+                ip = serverEndpoint.ipv4();
+            } else if (StringUtils.isNotEmpty(serverEndpoint.ipv6())) {
+                ip = serverEndpoint.ipv6();
+            }
+        }
+
         if (StringUtil.isBlank(ip)) {
             //The IP is the most important for building the ref at both sides.
             return;
@@ -272,9 +273,9 @@ public class SegmentBuilder {
         refBuilder.setParentTraceSegmentId(parentSegment.builder().getTraceSegmentId());
         int parentServiceId = parentSegment.getEntryServiceId();
         if (parentServiceId == 0) {
-            refBuilder.setParentServiceId(parentServiceId);
-        } else {
             refBuilder.setParentServiceName(parentSegment.getEntryServiceName());
+        } else {
+            refBuilder.setParentServiceId(parentServiceId);
         }
         refBuilder.setRefType(RefType.CrossProcess);
 
