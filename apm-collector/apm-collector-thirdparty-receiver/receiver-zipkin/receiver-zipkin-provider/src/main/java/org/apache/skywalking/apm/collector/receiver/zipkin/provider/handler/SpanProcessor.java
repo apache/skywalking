@@ -47,6 +47,7 @@ public class SpanProcessor {
                     registerServices.getOrCreateApplicationInstanceId(applicationId, applicationCode);
                 }
             }
+
             CacheFactory.INSTANCE.get(config).addSpan(span);
         });
     }

@@ -39,12 +39,14 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class SegmentBuilder {
     private Context context;
-    private LinkedList<TraceSegmentObject.Builder> segments;
+    private LinkedList<Segment> segments;
+    private Map<String, ClientSideSpan> clientPartSpan;
     private UniqueId traceId;
 
     private SegmentBuilder() {
         segments = new LinkedList<>();
         context = new Context();
+        clientPartSpan = new HashMap<>();
     }
 
     public static List<TraceSegmentObject.Builder> build(List<Span> traceSpans,
@@ -82,15 +84,18 @@ public class SegmentBuilder {
                 builder.context.addApp(applicationCode, registerServices);
 
                 SpanObject.Builder rootSpanBuilder = builder.initSpan(null, null, rootSpan, true);
+                builder.context.currentSegment().addSpan(rootSpanBuilder);
                 builder.scanSpansFromRoot(rootSpanBuilder, rootSpan, childSpanMap, registerServices);
 
-                builder.context.currentSegment().addSpan(rootSpanBuilder);
-
-                builder.segments.add(builder.context.removeApp().segmentBuilder);
+                builder.segments.add(builder.context.removeApp());
             }
         }
 
-        return builder.segments;
+        List<TraceSegmentObject.Builder> builders = new LinkedList<>();
+        builder.segments.forEach(segment -> {
+            builders.add(segment.freeze());
+        });
+        return builders;
     }
 
     private void scanSpansFromRoot(SpanObject.Builder parentSegmentSpan, Span parent,
@@ -117,12 +122,12 @@ public class SegmentBuilder {
                 }
                 SpanObject.Builder childSpanBuilder = initSpan(parentSegmentSpan, parent, childSpan, isNewApp);
 
+                context.currentSegment().addSpan(childSpanBuilder);
                 scanSpansFromRoot(childSpanBuilder, childSpan, childSpanMap, registerServices);
 
-                context.currentSegment().addSpan(childSpanBuilder);
             } finally {
                 if (isNewApp) {
-                    segments.add(context.removeApp().segmentBuilder);
+                    segments.add(context.removeApp());
                 }
             }
         }
@@ -137,12 +142,16 @@ public class SegmentBuilder {
         }
         Span.Kind kind = span.kind();
         spanBuilder.setOperationName(span.name());
+        ClientSideSpan clientSideSpan;
         switch (kind) {
             case CLIENT:
+                spanBuilder.setSpanType(SpanType.Exit);
                 String peer = endpoint2Peer(span.remoteEndpoint());
                 if (peer != null) {
                     spanBuilder.setPeer(peer);
                 }
+                clientSideSpan = new ClientSideSpan(span, spanBuilder);
+                clientPartSpan.put(span.id(), clientSideSpan);
                 break;
             case SERVER:
                 spanBuilder.setSpanType(SpanType.Entry);
@@ -158,6 +167,8 @@ public class SegmentBuilder {
                 if (peer != null) {
                     spanBuilder.setPeer(peer);
                 }
+                clientSideSpan = new ClientSideSpan(span, spanBuilder);
+                clientPartSpan.put(span.id(), clientSideSpan);
                 break;
             default:
                 spanBuilder.setSpanType(SpanType.Local);
@@ -167,6 +178,16 @@ public class SegmentBuilder {
         long duration = span.duration() / 1000;
         spanBuilder.setStartTime(startTime);
         spanBuilder.setEndTime(startTime + duration);
+
+        span.tags().forEach((tagKey, tagValue) -> spanBuilder.addTags(
+                KeyWithStringValue.newBuilder().setKey(tagKey).setValue(tagValue).build())
+        );
+
+        span.annotations().forEach(annotation ->
+                spanBuilder.addLogs(LogMessage.newBuilder().setTime(annotation.timestamp() / 1000).addData(
+                        KeyWithStringValue.newBuilder().setKey("zipkin.annotation").setValue(annotation.value()).build()
+                ))
+        );
 
         return spanBuilder;
     }
@@ -190,6 +211,13 @@ public class SegmentBuilder {
 
     private void buildRef(SpanObject.Builder spanBuilder, Span span, SpanObject.Builder parentSegmentSpan,
                           Span parentSpan) {
+        if (span.shared() != null && span.shared()) {
+            // using same span id in client and server for RPC
+            // SkyWalking will build both sides of span
+            ClientSideSpan clientSideSpan = clientPartSpan.get(span.id());
+            parentSegmentSpan = clientSideSpan.getBuilder();
+            parentSpan = clientSideSpan.getSpan();
+        }
         Segment parentSegment = context.parentSegment();
         if (parentSegment == null) {
             return;
@@ -343,17 +371,24 @@ public class SegmentBuilder {
         }
 
         private void addSpan(SpanObject.Builder spanBuilder) {
-            if (entryServiceId == 0 && StringUtils.isEmpty(entryServiceName)) {
+            String operationName = spanBuilder.getOperationName();
+            if (entryServiceId == 0 && StringUtils.isNotEmpty(operationName)) {
                 if (SpanType.Entry == spanBuilder.getSpanType()) {
-                    entryServiceId = spanBuilder.getOperationNameId();
-                    entryServiceName = spanBuilder.getOperationName();
+                    if (StringUtils.isNotEmpty(operationName)) {
+                        entryServiceName = operationName;
+                    } else {
+                        entryServiceId = spanBuilder.getOperationNameId();
+                    }
                 }
             }
 
             // init by root span
-            if (spanBuilder.getSpanId() == 1 && entryServiceId == 0 && StringUtils.isEmpty(entryServiceName)) {
-                entryServiceId = spanBuilder.getOperationNameId();
-                entryServiceName = spanBuilder.getOperationName();
+            if (spanBuilder.getSpanId() == 1 && entryServiceId == 0) {
+                if (StringUtils.isNotEmpty(operationName)) {
+                    entryServiceName = operationName;
+                } else {
+                    entryServiceId = spanBuilder.getOperationNameId();
+                }
             }
 
             spans.add(spanBuilder);
@@ -403,5 +438,23 @@ public class SegmentBuilder {
                 .addIdParts(ThreadLocalRandom.current().nextLong())
                 .addIdParts(ThreadLocalRandom.current().nextLong())
                 .build();
+    }
+
+    private class ClientSideSpan {
+        private Span span;
+        private SpanObject.Builder builder;
+
+        public ClientSideSpan(Span span, SpanObject.Builder builder) {
+            this.span = span;
+            this.builder = builder;
+        }
+
+        public Span getSpan() {
+            return span;
+        }
+
+        public SpanObject.Builder getBuilder() {
+            return builder;
+        }
     }
 }

@@ -26,7 +26,6 @@ import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.ZipkinT
 import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesDecoder;
 
