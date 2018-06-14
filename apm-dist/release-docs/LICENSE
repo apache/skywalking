@@ -244,6 +244,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     Apache: httpcomponents 4.x.x: http://hc.apache.org/index.html, Apache 2.0
     Apache: commons-logging 1.1.3: https://github.com/apache/commons-logging, Apache 2.0
     Apache: commons-codec 1.10: https://github.com/apache/commons-codec, Apache 2.0
+    Apache: commons-dbcp 1.4: https://github.com/apache/commons-dbcp, Apache 2.0
     Apache: commons-pool 2.4.2: https://github.com/apache/commons-pool, Apache 2.0
     Apache: commons-lang 3.6: https://github.com/apache/commons-lang, Apache 2.0
     Apache: lucene 6.6.0: https://github.com/apache/lucene-solr/tree/master/lucene, Apache 2.0
@@ -255,6 +256,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     Apache: commons-configuration 1.8: https://github.com/apache/commons-configuration, Apache 2.0
     Apache: commons-io 2.4: https://github.com/apache/commons-io, Apache 2.0
     Apache: tomcat 8.5.27: https://github.com/apache/tomcat/tree/trunk, Apache 2.0
+    Apache: groovy 2.4.5-indy: https://github.com/apache/groovy, Apache 2.0
     netty 5.5.0: https://github.com/netty/netty/blob/4.1/LICENSE.txt, Apache 2.0
     annotations 13.0: http://www.jetbrains.org, Apache 2.0
     compiler 0.9.3: https://github.com/spullara/mustache.java, Apache 2.0
@@ -288,6 +290,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     zuul-core 1.3.0: https://github.com/Netflix/zuul, Apache 2.0
     ben-manes caffeine 2.6.2: https://github.com/ben-manes/caffeine, Apache 2.0
     zipkin 2.9.1: https://github.com/openzipkin/zipkin, Apache 2.0
+    sharding-jdbc-core 2.0.3: https://github.com/sharding-sphere/sharding-sphere, Apache 2.0
 
 ========================================================================
 MIT licenses
