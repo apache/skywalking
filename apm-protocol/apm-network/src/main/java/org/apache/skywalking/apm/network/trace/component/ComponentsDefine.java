@@ -59,7 +59,7 @@ public class ComponentsDefine {
     public static final OfficialComponent GRPC = new OfficialComponent(23, "GRPC");
 
     public static final OfficialComponent ELASTIC_JOB = new OfficialComponent(24, "ElasticJob");
-  
+
     public static final OfficialComponent HTTP_ASYNC_CLIENT = new OfficialComponent(26, "httpasyncclient");
 
     public static final OfficialComponent SERVICECOMB = new OfficialComponent(28, "ServiceComb");
@@ -90,6 +90,8 @@ public class ComponentsDefine {
 
     public static final OfficialComponent MONGO_DRIVER = new OfficialComponent(42, "mongodb-driver");
 
+    public static final OfficialComponent SOFARPC =  new OfficialComponent(43, "SOFARPC");
+
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
     private String[] components;
@@ -99,7 +101,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[43];
+        components = new String[44];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -132,6 +134,7 @@ public class ComponentsDefine {
         addComponent(KAFKA_PRODUCER);
         addComponent(KAFKA_CONSUMER);
         addComponent(MONGO_DRIVER);
+        addComponent(SOFARPC);
     }
 
     private void addComponent(OfficialComponent component) {

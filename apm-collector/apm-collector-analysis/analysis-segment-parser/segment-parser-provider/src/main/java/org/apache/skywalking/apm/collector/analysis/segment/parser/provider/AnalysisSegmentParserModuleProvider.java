@@ -20,21 +20,16 @@ package org.apache.skywalking.apm.collector.analysis.segment.parser.provider;
 
 import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegisterModule;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.AnalysisSegmentParserModule;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParseService;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParserListenerRegister;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.buffer.BufferFileConfig;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.buffer.SegmentBufferReader;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.SegmentParserListenerManager;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.SegmentPersistenceGraph;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.*;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.buffer.*;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.*;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.standardization.SegmentStandardizationGraph;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.service.SegmentParseService;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.service.SegmentParserListenerRegister;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.service.*;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.analysis.worker.timer.PersistenceTimer;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
 import org.apache.skywalking.apm.collector.core.module.*;
-import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 
 /**
@@ -90,10 +85,7 @@ public class AnalysisSegmentParserModuleProvider extends ModuleProvider {
     }
 
     private void graphCreate(WorkerCreateListener workerCreateListener) {
-        SegmentPersistenceGraph segmentPersistenceGraph = new SegmentPersistenceGraph(getManager(), workerCreateListener);
-        segmentPersistenceGraph.create();
-
-        SegmentStandardizationGraph segmentStandardizationGraph = new SegmentStandardizationGraph(getManager(), workerCreateListener);
-        segmentStandardizationGraph.create();
+        new SegmentPersistenceGraph(getManager(), workerCreateListener).create();
+        new SegmentStandardizationGraph(getManager(), workerCreateListener).create();
     }
 }

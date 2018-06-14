@@ -16,11 +16,11 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.remote;
 
 import io.grpc.Channel;
 import io.grpc.stub.StreamObserver;
+import java.util.List;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
@@ -35,8 +35,6 @@ import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.apm.network.proto.Downstream;
 import org.apache.skywalking.apm.network.proto.TraceSegmentServiceGrpc;
 import org.apache.skywalking.apm.network.proto.UpstreamSegment;
-
-import java.util.List;
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Buffer.BUFFER_SIZE;
 import static org.apache.skywalking.apm.agent.core.conf.Config.Buffer.CHANNEL_SIZE;
@@ -122,9 +120,8 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
             }
             upstreamSegmentStreamObserver.onCompleted();
 
-            if (status.wait4Finish(TIMEOUT)) {
-                segmentUplinkedCounter += data.size();
-            }
+            status.wait4Finish();
+            segmentUplinkedCounter += data.size();
         } else {
             segmentAbandonedCounter += data.size();
         }
