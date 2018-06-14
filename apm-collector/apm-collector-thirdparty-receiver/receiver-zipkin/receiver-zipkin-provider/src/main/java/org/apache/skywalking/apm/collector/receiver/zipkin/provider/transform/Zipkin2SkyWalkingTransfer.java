@@ -20,10 +20,7 @@ package org.apache.skywalking.apm.collector.receiver.zipkin.provider.transform;
 
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.RegisterServices;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.ZipkinTrace;
-import org.apache.skywalking.apm.collector.receiver.zipkin.provider.handler.SpanV2JettyHandler;
 import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import zipkin2.Span;
 
 import java.util.LinkedList;
