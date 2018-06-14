@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ServiceReferenceShardingjdbcMetricUIDAO extends ShardingjdbcDAO implements IServiceReferenceMetricUIDAO {
     
-    private final Logger logger = LoggerFactory.getLogger(ServiceReferenceShardingjdbcMetricUIDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceReferenceShardingjdbcMetricUIDAO.class);
     private static final String SERVICE_REFERENCE_FRONT_SQL = "select {0}, sum({1}) as {1}, sum({2}) as {2}, sum({3}) as {3}, sum({4}) as {4} from {5} where {6} >= ? and {6} <= ? and {7} = ? and {8} = ? group by {0} limit 100";
     private static final String SERVICE_REFERENCE_BEHIND_SQL = "select {0}, sum({1}) as {1}, sum({2}) as {2}, sum({3}) as {3}, sum({4}) as {4} from {5} where {6} >= ? and {6} <= ? and {7} = ? and {8} = ? group by {8} limit 100";
 

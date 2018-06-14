@@ -74,8 +74,7 @@ public class SegmentDurationShardingjdbcPersistenceDAO extends ShardingjdbcDAO i
         String dynamicSql = "delete from {0} where {1} <= ?";
         String sql = SqlBuilder.buildSql(dynamicSql, SegmentDurationTable.TABLE, SegmentDurationTable.TIME_BUCKET.getName());
         
-        long timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(timeBucketBefore);
-        Object[] params = new Object[] {timeBucket};
+        Object[] params = new Object[] {timeBucketBefore};
         
         try {
             client.execute(sql, params);

@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractPersistenceShardingjdbcDAO<STREAM_DATA extends StreamData> extends ShardingjdbcDAO implements IPersistenceDAO<ShardingjdbcSqlEntity, ShardingjdbcSqlEntity, STREAM_DATA> {
 
-    private final Logger logger = LoggerFactory.getLogger(AbstractPersistenceShardingjdbcDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractPersistenceShardingjdbcDAO.class);
 
     public AbstractPersistenceShardingjdbcDAO(ShardingjdbcClient client) {
         super(client);
@@ -106,8 +106,7 @@ public abstract class AbstractPersistenceShardingjdbcDAO<STREAM_DATA extends Str
         String dynamicSql = "delete from {0} where {1} <= ?";
         String sql = SqlBuilder.buildSql(dynamicSql, tableName(), timeBucketColumnNameForDelete());
         
-        long timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(timeBucketBefore);
-        Object[] params = new Object[] {timeBucket};
+        Object[] params = new Object[] {timeBucketBefore};
         
         try {
             client.execute(sql, params);

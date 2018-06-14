@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ApplicationComponentShardingjdbcUIDAO extends ShardingjdbcDAO implements IApplicationComponentUIDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(ApplicationComponentShardingjdbcUIDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationComponentShardingjdbcUIDAO.class);
     private static final String APPLICATION_COMPONENT_SQL = "select {0}, {1} from {2} where {3} >= ? and {3} <= ? group by {0}, {1} limit 100";
 
     public ApplicationComponentShardingjdbcUIDAO(ShardingjdbcClient client) {

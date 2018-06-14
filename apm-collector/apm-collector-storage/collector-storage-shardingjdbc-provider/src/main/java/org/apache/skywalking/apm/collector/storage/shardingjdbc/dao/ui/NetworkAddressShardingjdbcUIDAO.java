@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NetworkAddressShardingjdbcUIDAO extends ShardingjdbcDAO implements INetworkAddressUIDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(NetworkAddressShardingjdbcUIDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(NetworkAddressShardingjdbcUIDAO.class);
 
     public NetworkAddressShardingjdbcUIDAO(ShardingjdbcClient client) {
         super(client);

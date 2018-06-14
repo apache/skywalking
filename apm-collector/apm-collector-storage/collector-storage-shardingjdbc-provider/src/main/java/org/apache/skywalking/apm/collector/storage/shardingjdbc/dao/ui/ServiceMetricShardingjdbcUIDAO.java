@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ServiceMetricShardingjdbcUIDAO extends ShardingjdbcDAO implements IServiceMetricUIDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(ServiceMetricShardingjdbcUIDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceMetricShardingjdbcUIDAO.class);
     private static final String SERVICE_METRIC_GET_SQL = "select {0}, sum({1}) as {1}, sum({2}) as {2} from {3} where {4} >= ? and {4} <= ? and {5} = ? and {0} in (?) group by {0} limit 100";
     private static final String SLOW_SERVICE_GET_SQL = "select {0}, {1}, {2} from {3} where {4} >= ? and {4} <= ? and {5} = ? and {6} = ? order by {2} desc limit ?";
 

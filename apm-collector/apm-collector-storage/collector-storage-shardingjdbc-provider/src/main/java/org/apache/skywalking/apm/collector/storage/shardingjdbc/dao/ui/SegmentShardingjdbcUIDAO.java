@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * @author linjiaqi
  */
 public class SegmentShardingjdbcUIDAO extends ShardingjdbcDAO implements ISegmentUIDAO {
-    private final Logger logger = LoggerFactory.getLogger(SegmentShardingjdbcUIDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(SegmentShardingjdbcUIDAO.class);
     private static final String GET_SEGMENT_SQL = "select {0} from {1} where {2} = ?";
 
     public SegmentShardingjdbcUIDAO(ShardingjdbcClient client) {

@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InstanceMetricShardingjdbcUIDAO extends ShardingjdbcDAO implements IInstanceMetricUIDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(InstanceMetricShardingjdbcUIDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(InstanceMetricShardingjdbcUIDAO.class);
     private static final String GET_THROUGHPUT_METRIC_SQL = "select {1}, sum({2}) as {2} from {3} where {4} >= ? and {4} <= ? and {5} = ? and {1} = ? group by {0} order by {2} desc limit ?";
     private static final String GET_TPS_METRIC_SQL = "select * from {0} where {1} = ?";
 

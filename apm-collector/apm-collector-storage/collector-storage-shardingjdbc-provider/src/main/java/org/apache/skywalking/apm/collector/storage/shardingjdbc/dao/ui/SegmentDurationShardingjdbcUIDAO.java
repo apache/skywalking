@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SegmentDurationShardingjdbcUIDAO extends ShardingjdbcDAO implements ISegmentDurationUIDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(SegmentDurationShardingjdbcUIDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(SegmentDurationShardingjdbcUIDAO.class);
 
     public SegmentDurationShardingjdbcUIDAO(ShardingjdbcClient client) {
         super(client);

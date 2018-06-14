@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ServiceAlarmShardingjdbcUIDAO extends ShardingjdbcDAO implements IServiceAlarmUIDAO {
     
-    private final Logger logger = LoggerFactory.getLogger(ServiceAlarmShardingjdbcUIDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceAlarmShardingjdbcUIDAO.class);
     private static final String SERVICE_ALARM_SQL = "select {0}, {1}, {2}, {3} from {4} where {2} >= ? and {2} <= ? and {1} like ? limit ?, ?";
 
     public ServiceAlarmShardingjdbcUIDAO(ShardingjdbcClient client) {

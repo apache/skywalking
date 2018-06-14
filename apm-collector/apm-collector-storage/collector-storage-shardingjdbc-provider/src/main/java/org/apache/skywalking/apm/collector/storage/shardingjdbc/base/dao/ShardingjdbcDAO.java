@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class ShardingjdbcDAO extends AbstractDAO<ShardingjdbcClient> {
 
-    private final Logger logger = LoggerFactory.getLogger(ShardingjdbcDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(ShardingjdbcDAO.class);
 
     public ShardingjdbcDAO(ShardingjdbcClient client) {
         super(client);

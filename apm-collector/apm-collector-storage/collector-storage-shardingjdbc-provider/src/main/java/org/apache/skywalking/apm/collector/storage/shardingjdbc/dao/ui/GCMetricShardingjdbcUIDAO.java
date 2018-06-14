@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  */
 public class GCMetricShardingjdbcUIDAO extends ShardingjdbcDAO implements IGCMetricUIDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(GCMetricShardingjdbcUIDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(GCMetricShardingjdbcUIDAO.class);
     private static final String GET_GC_METRIC_SQL = "select * from {0} where {1} = ?";
 
     public GCMetricShardingjdbcUIDAO(ShardingjdbcClient client) {

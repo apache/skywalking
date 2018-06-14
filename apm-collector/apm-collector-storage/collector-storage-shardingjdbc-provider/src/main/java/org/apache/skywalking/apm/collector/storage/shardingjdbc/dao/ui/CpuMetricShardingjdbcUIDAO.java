@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * @author linjiaqi
  */
 public class CpuMetricShardingjdbcUIDAO extends ShardingjdbcDAO implements ICpuMetricUIDAO {
-    private final Logger logger = LoggerFactory.getLogger(CpuMetricShardingjdbcUIDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(CpuMetricShardingjdbcUIDAO.class);
     private static final String GET_CPU_METRIC_SQL = "select * from {0} where {1} = ?";
 
     public CpuMetricShardingjdbcUIDAO(ShardingjdbcClient client) {

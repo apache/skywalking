@@ -43,7 +43,7 @@ import java.util.List;
  */
 public class ApplicationMetricShardingjdbcUIDAO extends ShardingjdbcDAO implements IApplicationMetricUIDAO {
     
-    private final Logger logger = LoggerFactory.getLogger(ApplicationMetricShardingjdbcUIDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationMetricShardingjdbcUIDAO.class);
     private static final String APPLICATION_THROUGHPUT_TOPN_SQL = "select {0}, sum({1}) as {1} from {2} where {3} >= ? and {3} <= ? and {4} = ? group by {0} order by {1} desc limit ?";
     private static final String APPLICATION_GET_SQL = "select {0}, sum({1}) as {1}, sum({2}) as {2}, sum({3}) as {3}, sum({4}) as {4}, sum({5}) as {5}, sum({6}) as {6}, sum({7}) as {7} from {8} " +
             "where {9} >= ? and {9} <= ? and {10} = ? group by {0} limit 100";

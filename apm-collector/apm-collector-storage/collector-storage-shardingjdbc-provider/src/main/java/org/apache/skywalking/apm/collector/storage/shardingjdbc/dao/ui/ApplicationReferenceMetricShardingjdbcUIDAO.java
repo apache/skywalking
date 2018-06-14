@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ApplicationReferenceMetricShardingjdbcUIDAO extends ShardingjdbcDAO implements IApplicationReferenceMetricUIDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(ApplicationReferenceMetricShardingjdbcUIDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationReferenceMetricShardingjdbcUIDAO.class);
     private static final String APPLICATION_REFERENCE_SQL_ONE = "select {7}, {8}, sum({0}) as {0}, sum({1}) as {1}, sum({2}) as {2}, " +
         "sum({3}) as {3} from {4} where {5} >= ? and {5} <= ? and {6} = ? and {7} in (?) group by {7}, {8} limit 100";
     private static final String APPLICATION_REFERENCE_SQL_TWO = "select {7}, {8}, sum({0}) as {0}, sum({1}) as {1}, sum({2}) as {2}, " +

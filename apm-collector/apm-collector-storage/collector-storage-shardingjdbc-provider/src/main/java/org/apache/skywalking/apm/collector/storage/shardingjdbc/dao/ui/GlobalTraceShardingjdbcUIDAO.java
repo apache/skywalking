@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public class GlobalTraceShardingjdbcUIDAO extends ShardingjdbcDAO implements IGlobalTraceUIDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(GlobalTraceShardingjdbcUIDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(GlobalTraceShardingjdbcUIDAO.class);
 
     private static final String GET_GLOBAL_TRACE_ID_SQL = "select {0} from {1} where {2} = ? limit 10";
     private static final String GET_SEGMENT_IDS_SQL = "select {0} from {1} where {2} = ? limit 10";

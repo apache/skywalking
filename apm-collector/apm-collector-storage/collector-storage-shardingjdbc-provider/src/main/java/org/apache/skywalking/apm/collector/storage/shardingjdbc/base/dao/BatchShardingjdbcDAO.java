@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 public class BatchShardingjdbcDAO extends ShardingjdbcDAO implements IBatchDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(BatchShardingjdbcDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(BatchShardingjdbcDAO.class);
 
     public BatchShardingjdbcDAO(ShardingjdbcClient client) {
         super(client);

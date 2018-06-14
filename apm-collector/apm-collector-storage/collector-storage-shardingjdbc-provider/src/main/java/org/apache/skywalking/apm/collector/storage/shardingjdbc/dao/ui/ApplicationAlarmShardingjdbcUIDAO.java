@@ -44,7 +44,7 @@ import java.util.List;
  */
 public class ApplicationAlarmShardingjdbcUIDAO extends ShardingjdbcDAO implements IApplicationAlarmUIDAO {
     
-    private final Logger logger = LoggerFactory.getLogger(ApplicationAlarmShardingjdbcUIDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationAlarmShardingjdbcUIDAO.class);
     private static final String APPLICATION_ALARM_SQL = "select {0}, {1}, {2}, {3} from {4} where {2} >= ? and {2} <= ? and {1} like ? and {0} in (?) limit ?, ?";
 
     public ApplicationAlarmShardingjdbcUIDAO(ShardingjdbcClient client) {

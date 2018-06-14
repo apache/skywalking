@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ServiceNameServiceShardingjdbcUIDAO extends ShardingjdbcDAO implements IServiceNameServiceUIDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(ServiceNameServiceShardingjdbcUIDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceNameServiceShardingjdbcUIDAO.class);
 
     public ServiceNameServiceShardingjdbcUIDAO(ShardingjdbcClient client) {
         super(client);

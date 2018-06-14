@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ApplicationAlarmListShardingjdbcUIDAO extends ShardingjdbcDAO implements IApplicationAlarmListUIDAO {
     
-    private final Logger logger = LoggerFactory.getLogger(ApplicationAlarmListShardingjdbcUIDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationAlarmListShardingjdbcUIDAO.class);
     private static final String APPLICATION_ALARM_LIST_SQL = "select {0}, {1}, count({1}) as cnt from {2} where {0} >= ? and {0} <= ? group by {0}, {1} limit 100";
 
     public ApplicationAlarmListShardingjdbcUIDAO(ShardingjdbcClient client) {

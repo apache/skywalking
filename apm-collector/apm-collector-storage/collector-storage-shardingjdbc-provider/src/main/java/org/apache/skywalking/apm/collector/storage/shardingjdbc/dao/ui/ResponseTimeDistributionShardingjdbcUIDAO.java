@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ResponseTimeDistributionShardingjdbcUIDAO extends ShardingjdbcDAO implements IResponseTimeDistributionUIDAO {
     
-    private final Logger logger = LoggerFactory.getLogger(ResponseTimeDistributionShardingjdbcUIDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(ResponseTimeDistributionShardingjdbcUIDAO.class);
     private static final String RESPONSE_TIME_DISTRIBUTION_SQL = "select {0}, {1}, {2} from {3} where {4} = ?";
 
     public ResponseTimeDistributionShardingjdbcUIDAO(ShardingjdbcClient client) {
