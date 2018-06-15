@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.collector.receiver.zipkin.provider.transform;
 
+import org.apache.skywalking.apm.collector.analysis.metric.define.service.IInstanceHeartBeatService;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.AgentOsInfo;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IApplicationIDService;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IInstanceIDService;
@@ -106,6 +107,12 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
 
         Zipkin2SkyWalkingTransfer.INSTANCE.addListener(this);
         Zipkin2SkyWalkingTransfer.INSTANCE.setRegisterServices(services);
+        Zipkin2SkyWalkingTransfer.INSTANCE.setInstanceHeartBeatService(new IInstanceHeartBeatService() {
+            @Override
+            public void heartBeat(int instanceId, long heartBeatTime) {
+
+            }
+        });
 
         List<Span> spanList = buildSpringSleuthExampleTrace();
         Assert.assertEquals(3, spanList.size());
@@ -152,17 +159,17 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
         Assert.assertEquals(1, end.getSpansCount());
 
         front.getSpansList().forEach(spanObject -> {
-            if (spanObject.getSpanId() == 1) {
+            if (spanObject.getSpanId() == 0) {
                 // span id = 1, means incoming http of frontend
                 Assert.assertEquals(SpanType.Entry, spanObject.getSpanType());
                 Assert.assertEquals("get /", spanObject.getOperationName());
-                Assert.assertEquals(1, spanObject.getSpanId());
-                Assert.assertEquals(0, spanObject.getParentSpanId());
-            } else if (spanObject.getSpanId() == 2) {
+                Assert.assertEquals(0, spanObject.getSpanId());
+                Assert.assertEquals(-1, spanObject.getParentSpanId());
+            } else if (spanObject.getSpanId() == 1) {
                 Assert.assertEquals("192.168.72.220", spanObject.getPeer());
                 Assert.assertEquals(SpanType.Exit, spanObject.getSpanType());
-                Assert.assertEquals(2, spanObject.getSpanId());
-                Assert.assertEquals(1, spanObject.getParentSpanId());
+                Assert.assertEquals(1, spanObject.getSpanId());
+                Assert.assertEquals(0, spanObject.getParentSpanId());
             } else {
                 Assert.fail("Only two spans expected");
             }
@@ -173,17 +180,17 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
 
         Assert.assertEquals(1, spanObject.getRefsCount());
         TraceSegmentReference spanObjectRef = spanObject.getRefs(0);
-        Assert.assertEquals("get /", spanObjectRef.getEntryServiceName());
-        Assert.assertEquals("get /", spanObjectRef.getParentServiceName());
+        Assert.assertEquals("get", spanObjectRef.getEntryServiceName());
+        Assert.assertEquals("get", spanObjectRef.getParentServiceName());
         Assert.assertEquals("192.168.72.220", spanObjectRef.getNetworkAddress());
-        Assert.assertEquals(2, spanObjectRef.getParentSpanId());
+        Assert.assertEquals(1, spanObjectRef.getParentSpanId());
         Assert.assertEquals(front.getTraceSegmentId(), spanObjectRef.getParentTraceSegmentId());
 
         Assert.assertTrue(spanObject.getTagsCount() > 0);
 
         Assert.assertEquals("get /api", spanObject.getOperationName());
-        Assert.assertEquals(1, spanObject.getSpanId());
-        Assert.assertEquals(0, spanObject.getParentSpanId());
+        Assert.assertEquals(0, spanObject.getSpanId());
+        Assert.assertEquals(-1, spanObject.getParentSpanId());
         Assert.assertEquals(SpanType.Entry, spanObject.getSpanType());
     }
 }
