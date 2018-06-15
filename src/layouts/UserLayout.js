@@ -25,29 +25,15 @@ import styles from './UserLayout.less';
 import logo from '../assets/sw-2.png';
 import { getRoutes } from '../utils/utils';
 
-const links = [{
-  key: 'help',
-  title: 'Help',
-  href: '',
-}, {
-  key: 'privacy',
-  title: 'Privacy',
-  href: '',
-}, {
-  key: 'terms',
-  title: 'Terms',
-  href: '',
-}];
-
-const copyright = <div>Copyright <Icon type="copyright" /> 2018 Apache SkyWalking</div>;
+const copyright = <div>Copyright <Icon type="copyright" /> 2017 - 2018 The Apache Software Foundation, Licensed under the Apache License, Version 2.0.</div>;
 
 class UserLayout extends React.PureComponent {
   getPageTitle() {
     const { routerData, location } = this.props;
     const { pathname } = location;
-    let title = 'Ant Design Pro';
+    let title = 'SkyWalking';
     if (routerData[pathname] && routerData[pathname].name) {
-      title = `${routerData[pathname].name} - Ant Design Pro`;
+      title = `${routerData[pathname].name} - SkyWalking`;
     }
     return title;
   }
@@ -64,7 +50,7 @@ class UserLayout extends React.PureComponent {
                   <span className={styles.title}>Apache SkyWalking</span>
                 </Link>
               </div>
-              <div className={styles.desc}>Apache SkyWalking Opensource APM System</div>
+              <div className={styles.desc}>Apache SkyWalking APM System</div>
             </div>
             <Switch>
               {getRoutes(match.path, routerData).map(item =>
@@ -80,7 +66,7 @@ class UserLayout extends React.PureComponent {
               <Redirect exact from="/user" to="/user/login" />
             </Switch>
           </div>
-          <GlobalFooter links={links} copyright={copyright} />
+          <GlobalFooter copyright={copyright} />
         </div>
       </DocumentTitle>
     );

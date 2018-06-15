@@ -15,12 +15,20 @@
  * limitations under the License.
  */
 
+import React from 'react';
+import classNames from 'classnames';
+import { Button, Form } from 'antd';
+import styles from './index.less';
 
-// use localStorage to store the authority info, which might be sent from server in actual project.
-export function getAuthority() {
-  return localStorage.getItem('skywalking-authority');
-}
+const FormItem = Form.Item;
 
-export function setAuthority(authority) {
-  return localStorage.setItem('skywalking-authority', authority);
-}
+const LoginSubmit = ({ className, ...rest }) => {
+  const clsString = classNames(styles.submit, className);
+  return (
+    <FormItem>
+      <Button size="large" className={clsString} type="primary" htmlType="submit" {...rest} />
+    </FormItem>
+  );
+};
+
+export default LoginSubmit;

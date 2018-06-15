@@ -17,7 +17,7 @@
 
 
 import React, { PureComponent } from 'react';
-import { Layout, Icon, Tag, Divider } from 'antd';
+import { Layout, Icon, Tag, Divider, Dropdown, Avatar, Menu } from 'antd';
 import moment from 'moment';
 import groupBy from 'lodash/groupBy';
 import Debounce from 'lodash-decorators/debounce';
@@ -75,9 +75,17 @@ export default class GlobalHeader extends PureComponent {
       collapsed, notices: { applicationAlarmList, serverAlarmList },
       logo, selectedDuration, fetching, isMonitor,
       onDurationToggle, onDurationReload, onRedirect: redirect,
+      onMenuClick,
     } = this.props;
     const applications = applicationAlarmList.items.map(_ => ({ ..._, datetime: _.startTime }));
     const servers = serverAlarmList.items.map(_ => ({ ..._, datetime: _.startTime }));
+    const menu = (
+      <Menu className={styles.menu} selectedKeys={[]} onClick={onMenuClick}>
+        <Menu.Item key="logout">
+          <Icon type="logout" />Logout
+        </Menu.Item>
+      </Menu>
+    );
     return (
       <Header className={styles.header}>
         <Link to="/" className={styles.logo} key="logo">
@@ -118,15 +126,20 @@ export default class GlobalHeader extends PureComponent {
                 list={applications}
                 title="Application"
                 emptyText="No alarm"
-                emptyImage="https://gw.alipayobjects.com/zos/rmsportal/wAhyIChODzsoKIOBHcBk.svg"
+                emptyImage="alarm-backgroud.png"
               />
               <NoticeIcon.Tab
                 list={servers}
                 title="Server"
                 emptyText="No alarm"
-                emptyImage="https://gw.alipayobjects.com/zos/rmsportal/wAhyIChODzsoKIOBHcBk.svg"
+                emptyImage="alarm-backgroud.png"
               />
             </NoticeIcon>
+            <Dropdown overlay={menu}>
+              <span className={`${styles.action} ${styles.account}`}>
+                <Avatar size="small" className={styles.avatar} icon="user" />
+              </span>
+            </Dropdown>
           </div>
         ) : null}
       </Header>

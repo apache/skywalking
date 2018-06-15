@@ -25,6 +25,20 @@ const proxy = {
   'POST /api/trace/options': getAllApplicationForTrace,
   'POST /api/trace': getTrace,
   'POST /api/spans': getSpans,
+  'POST /api/login/account': (req, res) => {
+    const { password, userName } = req.body;
+    if (password === '888888' && userName === 'admin') {
+      res.send({
+        status: 'ok',
+        currentAuthority: 'admin',
+      });
+      return;
+    }
+    res.send({
+      status: 'error',
+      currentAuthority: 'guest',
+    });
+  },
 };
 
 export default noMock ? {} : delay(proxy, 1000);

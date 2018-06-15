@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,12 +15,47 @@
  * limitations under the License.
  */
 
+@import '~antd/lib/style/themes/default.less';
 
-// use localStorage to store the authority info, which might be sent from server in actual project.
-export function getAuthority() {
-  return localStorage.getItem('skywalking-authority');
-}
+.login {
+  .tabs {
+    padding: 0 2px;
+    margin: 0 -2px;
+    :global {
+      .ant-tabs-tab {
+        font-size: 16px;
+        line-height: 24px;
+      }
+      .ant-input-affix-wrapper .ant-input:not(:first-child) {
+        padding-left: 34px;
+      }
+    }
+  }
 
-export function setAuthority(authority) {
-  return localStorage.setItem('skywalking-authority', authority);
+  :global {
+    .ant-tabs .ant-tabs-bar {
+      border-bottom: 0;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .ant-form-item {
+      margin-bottom: 24px;
+    }
+  }
+
+  .prefixIcon {
+    font-size: @font-size-base;
+    color: @disabled-color;
+  }
+
+  .getCaptcha {
+    display: block;
+    width: 100%;
+  }
+
+  .submit {
+    width: 100%;
+    margin-top: 24px;
+  }
 }

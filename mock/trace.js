@@ -68,9 +68,9 @@ export default {
                 'type|1': ['Local', 'Entry', 'Exit'],
                 'component|1': ['MySQL', 'H2', 'Spring'],
                 peer: '@ip',
-                'tags|1-5': [{ key: 'db.type', value: 'aa' }],
+                tags: [{ key: 'db.type', value: 'aa' }],
                 'logs|2-10': [{ 'time|+1': 1516151345000,
-                  'data|3-8': [
+                  data: [
                     { key: 'db.type', value: 'aa' },
                     { key: 'stack', value: 'java.lang.NullPointerException\nat com.a.eye.skywalking.test.cache.jedis.JedisServiceManager.findWithException(JedisServiceManager.java:52)\nat com.a.eye.skywalking.test.cache.CacheServiceImpl.findCacheWithException(CacheServiceImpl.java:49)\nat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\nat sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\nat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\nat java.lang.reflect.Method.invoke(Method.java:498)\nat com.weibo.api.motan.rpc.DefaultProvider.invoke(DefaultProvider.java:57)\nat com.weibo.api.motan.rpc.AbstractProvider.call(AbstractProvider.java:47)\nat com.weibo.api.motan.transport.ProviderMessageRouter.call$original$lqua0xlp(ProviderMessageRouter.java:96)\nat com.weibo.api.motan.transport.ProviderMessageRouter.call$original$lqua0xlp$accessor$Z7aeEkAP(ProviderMessageRouter.java)\nat com.weibo.api.motan.transport.ProviderMessageRouter$auxiliary$l8uIZjFs.call(Unknown Source)\nat org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstMethodsInter.intercept(InstMethodsInter.java:93)\nat com.weibo.api.motan.transport.ProviderMessageRouter.call(ProviderMessageRouter.java)\nat com.weibo.api.motan.transport.ProviderProtectedMessageRouter.call(ProviderProtectedMessageRouter.java:79)\nat com.weibo.api.motan.transport.ProviderMessageRouter.handle(ProviderMessageRouter.java:91)\nat com.weibo.api.motan.transport.support.DefaultRpcHeartbeatFactory$HeartMessageHandleWrapper.handle(DefaultRpcHeartbeatFactory.java:82)\nat com.weibo.api.motan.transport.netty.NettyChannelHandler.processRequest(NettyChannelHandler.java:139)\nat com.weibo.api.motan.transport.netty.NettyChannelHandler.access$000(NettyChannelHandler.java:47)\nat com.weibo.api.motan.transport.netty.NettyChannelHandler$1.run(NettyChannelHandler.java:116)\nat java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)\nat java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)\nat java.lang.Thread.run(Thread.java:745)\n' },
                   ] }],
@@ -87,7 +87,7 @@ export default {
                 'type|1': ['Local', 'Entry', 'Exit'],
                 'component|1': ['MySQL', 'H2', 'Spring'],
                 peer: '@ip',
-                'tags|1-5': [{ key: 'db.type', value: 'aa' }],
+                tags: [{ key: 'db.type', value: 'aa' }],
                 'isError|1': true,
               },
               {
@@ -101,7 +101,7 @@ export default {
                 'type|1': ['Local', 'Entry', 'Exit'],
                 'component|1': ['MySQL', 'H2', 'Spring'],
                 peer: '@ip',
-                'tags|1-5': [{ key: 'db.type', value: 'aa' }],
+                tags: [{ key: 'db.type', value: 'aa' }],
                 'isError|1': true,
               },
               {
@@ -115,7 +115,7 @@ export default {
                 'type|1': ['Local', 'Entry', 'Exit'],
                 'component|1': ['MySQL', 'H2', 'Spring'],
                 peer: '@ip',
-                'tags|1-5': [{ key: 'db.type', value: 'aa' }],
+                tags: [{ key: 'db.type', value: 'aa' }],
                 'isError|1': true,
               },
               {
@@ -129,7 +129,7 @@ export default {
                 'type|1': ['Exit'],
                 'component|1': ['RockerMQ'],
                 peer: '@ip',
-                'tags|1-5': [{ key: 'producer', value: 'tt' }],
+                tags: [{ key: 'producer', value: 'tt' }],
                 'isError|1': true,
               },
               {
@@ -142,7 +142,7 @@ export default {
                 'type|1': ['Entry'],
                 'component|1': ['RockerMQ'],
                 peer: '@ip',
-                'tags|1-5': [{ key: 'consumer', value: 'tt' }],
+                tags: [{ key: 'consumer', value: 'tt' }],
                 refs: [
                   {
                     parentSpanId: 5,
@@ -161,7 +161,7 @@ export default {
                 'type|1': ['Entry'],
                 'component|1': ['Kafka'],
                 peer: '@ip',
-                'tags|1-5': [{ key: 'consumer', value: 'tt' }],
+                tags: [{ key: 'consumer', value: 'tt' }],
                 refs: [
                   {
                     traceId: 121212,
@@ -173,6 +173,11 @@ export default {
                   },
                 ],
                 'isError|1': true,
+                'logs|2-10': [{ 'time|+1': 1516151345000,
+                  data: [
+                    { key: 'db.type', value: 'aa' },
+                    { key: 'stack', value: 'java.lang.NullPointerException\nat com.a.eye.skywalking.test.cache.jedis.JedisServiceManager.findWithException(JedisServiceManager.java:52)\nat com.a.eye.skywalking.test.cache.CacheServiceImpl.findCacheWithException(CacheServiceImpl.java:49)\nat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\nat sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\nat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\nat java.lang.reflect.Method.invoke(Method.java:498)\nat com.weibo.api.motan.rpc.DefaultProvider.invoke(DefaultProvider.java:57)\nat com.weibo.api.motan.rpc.AbstractProvider.call(AbstractProvider.java:47)\nat com.weibo.api.motan.transport.ProviderMessageRouter.call$original$lqua0xlp(ProviderMessageRouter.java:96)\nat com.weibo.api.motan.transport.ProviderMessageRouter.call$original$lqua0xlp$accessor$Z7aeEkAP(ProviderMessageRouter.java)\nat com.weibo.api.motan.transport.ProviderMessageRouter$auxiliary$l8uIZjFs.call(Unknown Source)\nat org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstMethodsInter.intercept(InstMethodsInter.java:93)\nat com.weibo.api.motan.transport.ProviderMessageRouter.call(ProviderMessageRouter.java)\nat com.weibo.api.motan.transport.ProviderProtectedMessageRouter.call(ProviderProtectedMessageRouter.java:79)\nat com.weibo.api.motan.transport.ProviderMessageRouter.handle(ProviderMessageRouter.java:91)\nat com.weibo.api.motan.transport.support.DefaultRpcHeartbeatFactory$HeartMessageHandleWrapper.handle(DefaultRpcHeartbeatFactory.java:82)\nat com.weibo.api.motan.transport.netty.NettyChannelHandler.processRequest(NettyChannelHandler.java:139)\nat com.weibo.api.motan.transport.netty.NettyChannelHandler.access$000(NettyChannelHandler.java:47)\nat com.weibo.api.motan.transport.netty.NettyChannelHandler$1.run(NettyChannelHandler.java:116)\nat java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)\nat java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)\nat java.lang.Thread.run(Thread.java:745)\n' },
+                  ] }],
               },
             ],
           },

@@ -69,7 +69,6 @@ export default {
       return {
         ...state,
         status: payload.status,
-        type: payload.type,
       };
     },
   },

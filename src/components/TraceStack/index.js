@@ -17,14 +17,13 @@
 
 
 import React, { PureComponent } from 'react';
-import { Tag, List, Tabs, Card, Row, Col, Badge } from 'antd';
+import { Tag, List, Card, Row, Col, Badge, Button } from 'antd';
 import * as d3 from 'd3';
 import moment from 'moment';
 import { formatDuration } from '../../utils/time';
 import DescriptionList from '../../components/DescriptionList';
 import styles from './index.less';
 
-const { TabPane } = Tabs;
 const { Description } = DescriptionList;
 
 const colors = [
@@ -46,8 +45,8 @@ class TraceStack extends PureComponent {
     idMap: {},
     colorMap: {},
     bap: [],
-    visible: false,
     span: {},
+    key: 'tags',
   }
   componentWillMount() {
     const { spans } = this.props;
@@ -70,6 +69,9 @@ class TraceStack extends PureComponent {
     this.drawAxis();
     this.displayData();
     window.addEventListener('resize', this.resize);
+  }
+  onTabChange = (key, type) => {
+    this.setState({ [type]: key });
   }
   buildNode = (span) => {
     const { nodes, idMap } = this.state;
@@ -152,19 +154,20 @@ class TraceStack extends PureComponent {
       const beginY = index * height;
       positionMap[spanSegId] = { x: beginX, y: beginY };
       const rectHeight = height - margin;
+      const position = { width, top: beginY, left: beginX };
       const container = bar.append('rect').attr('spanSegId', spanSegId).attr('x', -5).attr('y', beginY - 5)
         .attr('width', width + 10)
         .attr('height', rectHeight + 10)
         .attr('class', styles.backgroudHide)
         .on('mouseover', () => { this.selectTimeline(container, true); })
         .on('mouseout', () => { this.selectTimeline(container, false); })
-        .on('click', () => { this.showSpanModal(node); });
+        .on('click', () => { this.showSpanModal(node, position, container); });
 
       bar.append('rect').attr('x', beginX).attr('y', beginY).attr('width', rectWith)
         .attr('height', rectHeight)
         .on('mouseover', () => { this.selectTimeline(container, true); })
         .on('mouseout', () => { this.selectTimeline(container, false); })
-        .on('click', () => { this.showSpanModal(node); })
+        .on('click', () => { this.showSpanModal(node, position, container); })
         .style('fill', colorMap[applicationCode]);
 
       bar.append('text')
@@ -173,7 +176,7 @@ class TraceStack extends PureComponent {
         .attr('class', styles.rectText)
         .on('mouseover', () => { this.selectTimeline(container, true); })
         .on('mouseout', () => { this.selectTimeline(container, false); })
-        .on('click', () => { this.showSpanModal(node); })
+        .on('click', () => { this.showSpanModal(node, position, container); })
         .text(`${content} ${formatDuration(duration)}`);
       if (node.isError) {
         bar.append('svg:image')
@@ -209,21 +212,21 @@ class TraceStack extends PureComponent {
           svgContainer.append('line').attr('x1', parentLeftBottomX - offX).attr('y1', parentLeftBottomY - offY).attr('class', styles.connlines)
             .on('mouseover', () => { this.selectTimeline(container, true); })
             .on('mouseout', () => { this.selectTimeline(container, false); })
-            .on('click', () => { this.showSpanModal(node); })
+            .on('click', () => { this.showSpanModal(node, position, container); })
             .attr('x2', parentLeftBottomX)
             .attr('y2', parentLeftBottomY - offY);
 
           svgContainer.append('line').attr('x1', parentLeftBottomX - offX).attr('y1', parentLeftBottomY - offY).attr('class', styles.connlines)
             .on('mouseover', () => { this.selectTimeline(container, true); })
             .on('mouseout', () => { this.selectTimeline(container, false); })
-            .on('click', () => { this.showSpanModal(node); })
+            .on('click', () => { this.showSpanModal(node, position, container); })
             .attr('x2', parentLeftBottomX - offX)
             .attr('y2', selfMiddleY);
 
           svgContainer.append('line').attr('x1', parentLeftBottomX - offX).attr('y1', selfMiddleY).attr('class', styles.connlines)
             .on('mouseover', () => { this.selectTimeline(container, true); })
             .on('mouseout', () => { this.selectTimeline(container, false); })
-            .on('click', () => { this.showSpanModal(node); })
+            .on('click', () => { this.showSpanModal(node, position, container); })
             .attr('x2', selfMiddleX - 5)
             .attr('y2', selfMiddleY)
             .attr('marker-end', 'url(#arrow)');
@@ -231,14 +234,14 @@ class TraceStack extends PureComponent {
           svgContainer.append('line').attr('x1', parentLeftBottomX).attr('y1', parentLeftBottomY).attr('class', styles.connlines)
             .on('mouseover', () => { this.selectTimeline(container, true); })
             .on('mouseout', () => { this.selectTimeline(container, false); })
-            .on('click', () => { this.showSpanModal(node); })
+            .on('click', () => { this.showSpanModal(node, position, container); })
             .attr('x2', parentLeftBottomX)
             .attr('y2', selfMiddleY);
 
           svgContainer.append('line').attr('x1', parentLeftBottomX).attr('y1', selfMiddleY).attr('class', styles.connlines)
             .on('mouseover', () => { this.selectTimeline(container, true); })
             .on('mouseout', () => { this.selectTimeline(container, false); })
-            .on('click', () => { this.showSpanModal(node); })
+            .on('click', () => { this.showSpanModal(node, position, container); })
             .attr('x2', selfMiddleX - 5)
             .attr('y2', selfMiddleY)
             .attr('marker-end', 'url(#arrow)');
@@ -247,13 +250,34 @@ class TraceStack extends PureComponent {
     });
   }
   selectTimeline = (container, isOver) => {
+    if (this.state.container === container) {
+      return;
+    }
     container.attr('class', isOver ? styles.backgroud : styles.backgroudHide);
   }
-  showSpanModal = (span) => {
+  showSpanModal = (span, position, container) => {
+    const { container: old } = this.state;
+    if (old) {
+      old.attr('class', styles.backgroudHide);
+    }
+    container.attr('class', styles.backgroudSelected);
     this.setState({
       ...this.state,
-      visible: true,
       span,
+      key: 'tags',
+      position,
+      container,
+    });
+  }
+  hideSpanModal = () => {
+    const { container: old } = this.state;
+    if (old) {
+      old.attr('class', styles.backgroudHide);
+    }
+    this.setState({
+      ...this.state,
+      span: {},
+      container: undefined,
     });
   }
   resize = () => {
@@ -268,6 +292,7 @@ class TraceStack extends PureComponent {
     this.duration.innerHTML = '';
     this.drawAxis();
     this.displayData();
+    this.setState({ ...this.state, span: {} });
   }
   renderTitle = (items) => {
     return (
@@ -286,11 +311,16 @@ class TraceStack extends PureComponent {
     );
   }
   render() {
-    const { colorMap, span = {} } = this.state;
+    const { colorMap, span = {}, position = { width: 100, top: 0 } } = this.state;
     const legendButtons = Object.keys(colorMap).map(key =>
       (<Tag color={colorMap[key]} key={key}>{key}</Tag>));
-    let data;
+    const tabList = [];
+    const contentList = {};
     if (span.content) {
+      tabList.push({
+        key: 'tags',
+        tab: 'Tags',
+      });
       const base = [
         {
           title: 'span type',
@@ -309,10 +339,19 @@ class TraceStack extends PureComponent {
           content: `${span.isError}`,
         },
       ];
-      data = base.concat(span.tags.map(t => ({ title: t.key, content: t.value })));
+      const data = base.concat(span.tags.map(t => ({ title: t.key, content: t.value })));
+      contentList.tags = (
+        <DescriptionList layout="vertical">
+          {data.map(_ =>
+            <Description key={_.title} term={_.title}>{_.content}</Description>)}
+        </DescriptionList>);
     }
-    const logs = span.logs ? (
-      <TabPane tab="Logs" key={2}>
+    if (span.logs) {
+      tabList.push({
+        key: 'logs',
+        tab: 'Logs',
+      });
+      contentList.logs = (
         <List
           itemLayout="horizontal"
           dataSource={span.logs}
@@ -334,16 +373,34 @@ class TraceStack extends PureComponent {
               />
             </List.Item>
           )}
-        />
-      </TabPane>
-    ) : null;
-    const relatedTraces = (span.parentSpanSegId || !span.refs) ? null : (
-      <TabPane tab="Related Trace" key={3}>
+        />);
+    }
+    if (!span.parentSpanSegId && span.refs) {
+      tabList.push({
+        key: 'relatedTraces',
+        tab: 'Related Trace',
+      });
+      contentList.relatedTraces = (
         <DescriptionList layout="vertical">
           {span.refs.map(_ => <Description key={_.type} term={_.type}>{_.traceId}</Description>)}
-        </DescriptionList>
-      </TabPane>
-    );
+        </DescriptionList>);
+    }
+    const { top, left, width } = position;
+
+    const toolTipStyle = { position: 'absolute', top: top + 86 };
+    if (contentList.logs) {
+      toolTipStyle.left = 0;
+      toolTipStyle.width = width;
+    } else {
+      const right = width - left;
+      if (left * 2 > width) {
+        toolTipStyle.right = right;
+        toolTipStyle.maxWidth = left;
+      } else {
+        toolTipStyle.left = left;
+        toolTipStyle.maxWidth = right;
+      }
+    }
     return (
       <div className={styles.stack}>
         <div style={{ paddingBottom: 10 }}>
@@ -351,12 +408,10 @@ class TraceStack extends PureComponent {
         </div>
         <div className={styles.duration} ref={(el) => { this.duration = el; }} />
         <div ref={(el) => { this.axis = el; }} />
-        {data ? (
+        {tabList.length > 0 ? (
           <Card
             type="inner"
-            title={span.content}
-          >
-            {this.renderTitle([
+            title={this.renderTitle([
               {
                 name: 'Start Time',
                 count: `${moment(span.startTime).format(timeFormat)}`,
@@ -366,16 +421,12 @@ class TraceStack extends PureComponent {
                 count: `${formatDuration(span.duration)}`,
               },
             ])}
-            <Tabs defaultActiveKey="1">
-              <TabPane tab="Tags" key="1">
-                <DescriptionList layout="vertical">
-                  {data.map(_ =>
-                    <Description key={_.title} term={_.title}>{_.content}</Description>)}
-                </DescriptionList>
-              </TabPane>
-              {logs}
-              {relatedTraces}
-            </Tabs>
+            tabList={tabList}
+            onTabChange={(key) => { this.onTabChange(key, 'key'); }}
+            style={toolTipStyle}
+            extra={<Button type="primary" shape="circle" icon="close" ghost onClick={this.hideSpanModal} />}
+          >
+            {contentList[this.state.key]}
           </Card>
         ) : null}
       </div>
