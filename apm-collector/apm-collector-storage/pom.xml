@@ -32,6 +32,7 @@
         <module>collector-storage-define</module>
         <module>collector-storage-es-provider</module>
         <module>collector-storage-h2-provider</module>
+        <module>collector-storage-shardingjdbc-provider</module>
     </modules>
 
     <dependencies>
