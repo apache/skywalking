@@ -23,6 +23,8 @@ import org.apache.skywalking.apm.collector.analysis.register.define.service.IApp
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IInstanceIDService;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.INetworkAddressIDService;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IServiceNameService;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.AnalysisSegmentParserModule;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParseService;
 import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
 import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
@@ -73,6 +75,10 @@ public class ZipkinReceiverProvider extends ModuleProvider {
         JettyManagerService managerService = getManager().find(JettyManagerModule.NAME).getService(JettyManagerService.class);
         JettyServer jettyServer = managerService.createIfAbsent(config.getHost(), config.getPort(), config.getContextPath());
         jettyServer.addHandler(new SpanV2JettyHandler(config, registerServices));
+
+        ISegmentParseService segmentParseService = getManager().find(AnalysisSegmentParserModule.NAME).getService(ISegmentParseService.class);
+        Receiver2AnalysisBridge bridge = new Receiver2AnalysisBridge(segmentParseService);
+        Zipkin2SkyWalkingTransfer.INSTANCE.addListener(bridge);
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
@@ -80,6 +86,6 @@ public class ZipkinReceiverProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {JettyManagerModule.NAME,};
+        return new String[] {JettyManagerModule.NAME, AnalysisSegmentParserModule.NAME};
     }
 }

@@ -19,8 +19,8 @@
 package org.apache.skywalking.apm.collector.receiver.zipkin.provider.transform;
 
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.RegisterServices;
+import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.SkyWalkingTrace;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.ZipkinTrace;
-import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
 import zipkin2.Span;
 
 import java.util.LinkedList;
@@ -50,10 +50,11 @@ public class Zipkin2SkyWalkingTransfer {
         List<Span> traceSpans = trace.getSpans();
 
         if (traceSpans.size() > 0) {
-            List<TraceSegmentObject.Builder> builderList = SegmentBuilder.build(traceSpans, registerServices);
-            listeners.forEach(listener -> {
-                listener.notify(builderList);
-            });
+            SkyWalkingTrace skyWalkingTrace = SegmentBuilder.build(traceSpans, registerServices);
+
+            listeners.forEach(listener ->
+                    listener.notify(skyWalkingTrace)
+            );
 
         }
     }

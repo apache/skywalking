@@ -22,6 +22,7 @@ import org.apache.skywalking.apm.collector.analysis.register.define.service.Agen
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IApplicationIDService;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IInstanceIDService;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.RegisterServices;
+import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.SkyWalkingTrace;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.ZipkinTrace;
 import org.apache.skywalking.apm.network.proto.SpanObject;
 import org.apache.skywalking.apm.network.proto.SpanType;
@@ -128,7 +129,8 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
     }
 
     @Override
-    public void notify(List<TraceSegmentObject.Builder> segments) {
+    public void notify(SkyWalkingTrace trace) {
+        List<TraceSegmentObject.Builder> segments = trace.getSegmentList();
         Assert.assertEquals(2, segments.size());
         TraceSegmentObject.Builder builder = segments.get(0);
         TraceSegmentObject.Builder builder1 = segments.get(1);

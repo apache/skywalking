@@ -18,10 +18,8 @@
 
 package org.apache.skywalking.apm.collector.receiver.zipkin.provider.transform;
 
-import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
-
-import java.util.List;
+import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.SkyWalkingTrace;
 
 public interface SegmentListener {
-    void notify(List<TraceSegmentObject.Builder> segments);
+    void notify(SkyWalkingTrace trace);
 }

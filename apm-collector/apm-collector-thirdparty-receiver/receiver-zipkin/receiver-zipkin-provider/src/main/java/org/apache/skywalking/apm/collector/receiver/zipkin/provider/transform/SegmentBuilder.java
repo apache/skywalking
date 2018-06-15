@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.collector.receiver.zipkin.provider.transform;
 
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.RegisterServices;
+import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.SkyWalkingTrace;
 import org.apache.skywalking.apm.network.proto.*;
 import org.eclipse.jetty.util.StringUtil;
 import zipkin2.Endpoint;
@@ -41,7 +42,6 @@ public class SegmentBuilder {
     private Context context;
     private LinkedList<Segment> segments;
     private Map<String, ClientSideSpan> clientPartSpan;
-    private UniqueId traceId;
 
     private SegmentBuilder() {
         segments = new LinkedList<>();
@@ -49,8 +49,8 @@ public class SegmentBuilder {
         clientPartSpan = new HashMap<>();
     }
 
-    public static List<TraceSegmentObject.Builder> build(List<Span> traceSpans,
-                                                         RegisterServices registerServices) throws Exception {
+    public static SkyWalkingTrace build(List<Span> traceSpans,
+                                        RegisterServices registerServices) throws Exception {
         SegmentBuilder builder = new SegmentBuilder();
         // This map groups the spans by their parent id, in order to assist to build tree.
         // key: parentId
@@ -73,7 +73,6 @@ public class SegmentBuilder {
 
         Span rootSpan = root.get();
         if (rootSpan != null) {
-            builder.traceId = builder.generateTraceOrSegmentId();
             String applicationCode = rootSpan.localServiceName();
             // If root span doesn't include applicationCode, a.k.a local service name,
             // Segment can't be built
@@ -91,11 +90,11 @@ public class SegmentBuilder {
             }
         }
 
-        List<TraceSegmentObject.Builder> builders = new LinkedList<>();
+        List<TraceSegmentObject.Builder> segmentBuilders = new LinkedList<>();
         builder.segments.forEach(segment -> {
-            builders.add(segment.freeze());
+            segmentBuilders.add(segment.freeze());
         });
-        return builders;
+        return new SkyWalkingTrace(builder.generateTraceOrSegmentId(), segmentBuilders);
     }
 
     private void scanSpansFromRoot(SpanObject.Builder parentSegmentSpan, Span parent,
