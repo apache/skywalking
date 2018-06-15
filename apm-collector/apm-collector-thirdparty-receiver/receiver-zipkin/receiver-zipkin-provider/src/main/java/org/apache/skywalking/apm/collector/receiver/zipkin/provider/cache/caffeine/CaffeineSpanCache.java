@@ -77,6 +77,7 @@ public class CaffeineSpanCache implements ISpanCache, RemovalListener<String, Zi
             Zipkin2SkyWalkingTransfer.INSTANCE.transfer(trace);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
+            logger.warn("Zipkin trace:" + trace);
         }
     }
 

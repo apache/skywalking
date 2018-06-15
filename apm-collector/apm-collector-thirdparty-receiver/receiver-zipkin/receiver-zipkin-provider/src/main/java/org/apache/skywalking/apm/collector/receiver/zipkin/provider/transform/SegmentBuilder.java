@@ -424,7 +424,7 @@ public class SegmentBuilder {
             this.applicationCode = applicationCode;
             this.appId = appId;
             this.instanceId = instanceId;
-            this.spanIdSeq = 1;
+            this.spanIdSeq = 0;
         }
 
         private int nextSpanId() {

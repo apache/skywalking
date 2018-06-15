@@ -18,10 +18,11 @@
 
 package org.apache.skywalking.apm.collector.receiver.zipkin.provider.data;
 
+import zipkin2.Span;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
-import zipkin2.Span;
 
 /**
  * @author wusheng
@@ -48,7 +49,15 @@ public class ZipkinTrace {
         return spans;
     }
 
+    @Override
+    public String toString() {
+        return "ZipkinTrace{" +
+                "spans=" + spans +
+                '}';
+    }
+
     public static class TriggerTrace extends ZipkinTrace {
+
 
     }
 }
