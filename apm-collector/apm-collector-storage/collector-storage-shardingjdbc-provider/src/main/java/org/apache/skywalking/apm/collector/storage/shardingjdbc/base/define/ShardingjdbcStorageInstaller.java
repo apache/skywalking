@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ShardingjdbcStorageInstaller extends StorageInstaller {
 
-    private final Logger logger = LoggerFactory.getLogger(ShardingjdbcStorageInstaller.class);
+    private static final Logger logger = LoggerFactory.getLogger(ShardingjdbcStorageInstaller.class);
 
     public ShardingjdbcStorageInstaller(boolean isHighPerformanceMode) {
         super(isHighPerformanceMode);
