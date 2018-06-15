@@ -38,6 +38,9 @@ Apache SkyWalking | [English](README.md)
 - 现代化Web UI
 - 日志集成
 - 应用、实例和服务的告警
+- [**Incubating**]支持接口其他探针的数据
+  - 接受Zipkin v1 v2格式数据，采用JSON, Thrift, Protobuf序列化方式。Powered by [OpenZipkin](https://github.com/openzipkin/zipkin) libs 
+  - 接受Jaeger 使用 [Zipkin Thrift 或 JSON v1/v2 格式](https://github.com/jaegertracing/jaeger#backwards-compatibility-with-zipkin)
 
 # Document
 - [英文文档](docs/README.md)

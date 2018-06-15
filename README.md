@@ -40,6 +40,9 @@ including:
 - Modern and cool Web UI
 - Log integration
 - Alarm for slow or unstable(low SLA) application, instance and service 
+- [**Incubating**]Support accepting other tracer data formats.
+  - Zipkin JSON, Thrift, Protobuf v1 and v2 formats, powered by [OpenZipkin](https://github.com/openzipkin/zipkin) libs
+  - Jaeger in [Zipkin Thrift or JSON v1/v2 formats](https://github.com/jaegertracing/jaeger#backwards-compatibility-with-zipkin)
 
 # Document
 - [Documents in English](docs/README.md)

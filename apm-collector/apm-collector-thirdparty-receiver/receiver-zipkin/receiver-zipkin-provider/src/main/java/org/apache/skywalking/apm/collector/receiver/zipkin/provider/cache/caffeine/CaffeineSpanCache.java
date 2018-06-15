@@ -50,9 +50,7 @@ public class CaffeineSpanCache implements ISpanCache, RemovalListener<String, Zi
     public CaffeineSpanCache(ZipkinReceiverConfig config) {
         newTraceLock = new ReentrantLock();
         inProcessSpanCache = Caffeine.newBuilder()
-                //TODO: uncomment this for real codes.
-                //.expireAfterWrite(config.getExpireTime(), TimeUnit.MINUTES)
-                .expireAfterWrite(10, TimeUnit.SECONDS)
+                .expireAfterWrite(config.getExpireTime(), TimeUnit.SECONDS)
                 .maximumSize(config.getMaxCacheSize())
                 .removalListener(this)
                 .build();
