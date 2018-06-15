@@ -43,7 +43,7 @@ import io.shardingjdbc.core.api.config.ShardingRuleConfiguration;
  */
 public class ShardingjdbcClient implements Client {
 
-    private final Logger logger = LoggerFactory.getLogger(ShardingjdbcClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(ShardingjdbcClient.class);
     
     private Map<String, ShardingjdbcClientConfig> shardingjdbcClientConfig;
     
