@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.apm.collector.receiver.zipkin.provider;
 
+import org.apache.skywalking.apm.collector.analysis.metric.define.AnalysisMetricModule;
+import org.apache.skywalking.apm.collector.analysis.metric.define.service.IInstanceHeartBeatService;
 import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegisterModule;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IApplicationIDService;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IInstanceIDService;
@@ -25,11 +27,7 @@ import org.apache.skywalking.apm.collector.analysis.register.define.service.INet
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IServiceNameService;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.AnalysisSegmentParserModule;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParseService;
-import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
-import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
-import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
-import org.apache.skywalking.apm.collector.core.module.ModuleStartException;
-import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.apache.skywalking.apm.collector.core.module.*;
 import org.apache.skywalking.apm.collector.jetty.manager.JettyManagerModule;
 import org.apache.skywalking.apm.collector.jetty.manager.service.JettyManagerService;
 import org.apache.skywalking.apm.collector.receiver.zipkin.define.ZipkinReceiverModule;
@@ -70,7 +68,9 @@ public class ZipkinReceiverProvider extends ModuleProvider {
             moduleDefine.getService(IInstanceIDService.class),
             moduleDefine.getService(INetworkAddressIDService.class),
             moduleDefine.getService(IServiceNameService.class));
+        IInstanceHeartBeatService instanceHeartBeatService = getManager().find(AnalysisMetricModule.NAME).getService(IInstanceHeartBeatService.class);
         Zipkin2SkyWalkingTransfer.INSTANCE.setRegisterServices(registerServices);
+        Zipkin2SkyWalkingTransfer.INSTANCE.setInstanceHeartBeatService(instanceHeartBeatService);
 
         JettyManagerService managerService = getManager().find(JettyManagerModule.NAME).getService(JettyManagerService.class);
         JettyServer jettyServer = managerService.createIfAbsent(config.getHost(), config.getPort(), config.getContextPath());
@@ -86,6 +86,6 @@ public class ZipkinReceiverProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {JettyManagerModule.NAME, AnalysisSegmentParserModule.NAME};
+        return new String[] {JettyManagerModule.NAME, AnalysisSegmentParserModule.NAME, AnalysisMetricModule.NAME};
     }
 }

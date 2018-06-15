@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.collector.receiver.zipkin.provider.transform;
 
+import org.apache.skywalking.apm.collector.analysis.metric.define.service.IInstanceHeartBeatService;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.RegisterServices;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.SkyWalkingTrace;
@@ -50,7 +51,8 @@ public class SegmentBuilder {
     }
 
     public static SkyWalkingTrace build(List<Span> traceSpans,
-                                        RegisterServices registerServices) throws Exception {
+                                        RegisterServices registerServices,
+                                        IInstanceHeartBeatService instanceHeartBeatService) throws Exception {
         SegmentBuilder builder = new SegmentBuilder();
         // This map groups the spans by their parent id, in order to assist to build tree.
         // key: parentId
@@ -92,7 +94,9 @@ public class SegmentBuilder {
 
         List<TraceSegmentObject.Builder> segmentBuilders = new LinkedList<>();
         builder.segments.forEach(segment -> {
-            segmentBuilders.add(segment.freeze());
+            TraceSegmentObject.Builder traceSegmentBuilder = segment.freeze();
+            segmentBuilders.add(traceSegmentBuilder);
+            instanceHeartBeatService.heartBeat(traceSegmentBuilder.getApplicationInstanceId(), segment.getEndTime());
         });
         return new SkyWalkingTrace(builder.generateTraceOrSegmentId(), segmentBuilders);
     }
@@ -136,6 +140,11 @@ public class SegmentBuilder {
                                         boolean isSegmentRoot) {
         SpanObject.Builder spanBuilder = SpanObject.newBuilder();
         spanBuilder.setSpanId(context.currentIDs().nextSpanId());
+        if (isSegmentRoot) {
+            // spanId = -1, means no parent span
+            // spanId is considered unique, and from a positive sequence in each segment.
+            spanBuilder.setParentSpanId(-1);
+        }
         if (!isSegmentRoot && parentSegmentSpan != null) {
             spanBuilder.setParentSpanId(parentSegmentSpan.getSpanId());
         }
@@ -356,6 +365,7 @@ public class SegmentBuilder {
         private int entryServiceId = 0;
         private String entryServiceName = null;
         private List<SpanObject.Builder> spans;
+        private long endTime = 0;
 
         private Segment(String applicationCode, int applicationId, int appInstanceId) {
             ids = new IDCollection(applicationCode, applicationId, appInstanceId);
@@ -392,6 +402,9 @@ public class SegmentBuilder {
             }
 
             spans.add(spanBuilder);
+            if (spanBuilder.getEndTime() > endTime) {
+                endTime = spanBuilder.getEndTime();
+            }
         }
 
         public int getEntryServiceId() {
@@ -411,6 +424,10 @@ public class SegmentBuilder {
                 segmentBuilder.addSpans(span);
             }
             return segmentBuilder;
+        }
+
+        public long getEndTime() {
+            return endTime;
         }
     }
 

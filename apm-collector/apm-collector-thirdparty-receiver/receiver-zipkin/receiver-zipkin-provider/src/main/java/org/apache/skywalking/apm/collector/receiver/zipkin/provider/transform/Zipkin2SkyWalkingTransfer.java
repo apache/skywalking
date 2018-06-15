@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.collector.receiver.zipkin.provider.transform;
 
+import org.apache.skywalking.apm.collector.analysis.metric.define.service.IInstanceHeartBeatService;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.RegisterServices;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.SkyWalkingTrace;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.ZipkinTrace;
@@ -32,6 +33,7 @@ import java.util.List;
 public class Zipkin2SkyWalkingTransfer {
     public static Zipkin2SkyWalkingTransfer INSTANCE = new Zipkin2SkyWalkingTransfer();
     private RegisterServices registerServices;
+    private IInstanceHeartBeatService instanceHeartBeatService;
     private List<SegmentListener> listeners = new LinkedList<>();
 
     private Zipkin2SkyWalkingTransfer() {
@@ -42,6 +44,10 @@ public class Zipkin2SkyWalkingTransfer {
         this.registerServices = registerServices;
     }
 
+    public void setInstanceHeartBeatService(IInstanceHeartBeatService instanceHeartBeatService) {
+        this.instanceHeartBeatService = instanceHeartBeatService;
+    }
+
     public void addListener(SegmentListener listener) {
         listeners.add(listener);
     }
@@ -50,7 +56,7 @@ public class Zipkin2SkyWalkingTransfer {
         List<Span> traceSpans = trace.getSpans();
 
         if (traceSpans.size() > 0) {
-            SkyWalkingTrace skyWalkingTrace = SegmentBuilder.build(traceSpans, registerServices);
+            SkyWalkingTrace skyWalkingTrace = SegmentBuilder.build(traceSpans, registerServices, instanceHeartBeatService);
 
             listeners.forEach(listener ->
                     listener.notify(skyWalkingTrace)
