@@ -195,6 +195,9 @@ Pomelo.EntityFrameworkCore.MySql:
 Npgsql.EntityFrameworkCore.PostgreSQL:
   id: 3012
   languages: C#
+AspNet:
+  id: 3013
+  languages: C#
 
 # NoeJS components
 # [4000, 5000) for Node.js agent
