@@ -22,7 +22,7 @@
     <parent>
         <artifactId>apm-collector</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-beta-SNAPSHOT</version>
+        <version>5.0.0-beta2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -146,6 +146,11 @@
             <artifactId>collector-storage-h2-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>collector-storage-shardingjdbc-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- storage provider -->
         <!-- remote provider -->
         <dependency>
@@ -217,6 +222,7 @@
                     <excludes>
                         <exclude>application.yml</exclude>
                         <exclude>log4j2.xml</exclude>
+                        <exclude>component-libraries.yml</exclude>
                     </excludes>
                 </configuration>
             </plugin>

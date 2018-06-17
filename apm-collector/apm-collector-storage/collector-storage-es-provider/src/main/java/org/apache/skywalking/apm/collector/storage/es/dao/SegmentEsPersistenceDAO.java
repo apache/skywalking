@@ -18,62 +18,48 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
-import org.apache.skywalking.apm.collector.storage.table.segment.Segment;
-import org.apache.skywalking.apm.collector.storage.table.segment.SegmentTable;
+import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
+import org.apache.skywalking.apm.collector.storage.table.segment.*;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.reindex.BulkByScrollResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
-public class SegmentEsPersistenceDAO extends EsDAO implements ISegmentPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, Segment> {
-
-    private static final Logger logger = LoggerFactory.getLogger(SegmentEsPersistenceDAO.class);
+public class SegmentEsPersistenceDAO extends AbstractPersistenceEsDAO<Segment> implements ISegmentPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, Segment> {
 
     public SegmentEsPersistenceDAO(ElasticSearchClient client) {
         super(client);
     }
 
-    @Override
-    public Segment get(String id) {
-        return null;
+    @Override protected String tableName() {
+        return SegmentTable.TABLE;
     }
 
-    @Override
-    public UpdateRequestBuilder prepareBatchUpdate(Segment data) {
-        return null;
+    @Override protected Segment esDataToStreamData(Map<String, Object> source) {
+        Segment segment = new Segment();
+        segment.setDataBinary(Base64.getDecoder().decode((String)source.get(SegmentTable.DATA_BINARY.getName())));
+        segment.setTimeBucket(((Number)source.get(SegmentTable.TIME_BUCKET.getName())).longValue());
+        return segment;
     }
 
-    @Override
-    public IndexRequestBuilder prepareBatchInsert(Segment data) {
+    @Override protected Map<String, Object> esStreamDataToEsData(Segment streamData) {
         Map<String, Object> target = new HashMap<>();
-        target.put(SegmentTable.DATA_BINARY.getName(), new String(Base64.getEncoder().encode(data.getDataBinary())));
-        target.put(SegmentTable.TIME_BUCKET.getName(), data.getTimeBucket());
-        logger.debug("segment source: {}", target.toString());
-        return getClient().prepareIndex(SegmentTable.TABLE, data.getId()).setSource(target);
+        target.put(SegmentTable.DATA_BINARY.getName(), new String(Base64.getEncoder().encode(streamData.getDataBinary())));
+        target.put(SegmentTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
+        return target;
     }
 
-    @Override
-    public void deleteHistory(Long startTimestamp, Long endTimestamp) {
-        long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
-        long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
-        BulkByScrollResponse response = getClient().prepareDelete(
-            QueryBuilders.rangeQuery(SegmentTable.TIME_BUCKET.getName()).gte(startTimeBucket).lte(endTimeBucket),
-            SegmentTable.TABLE)
-            .get();
+    @Override protected String timeBucketColumnNameForDelete() {
+        return SegmentTable.TIME_BUCKET.getName();
+    }
 
-        long deleted = response.getDeleted();
-        logger.info("Delete {} rows history from {} index.", deleted, SegmentTable.TABLE);
+    @GraphComputingMetric(name = "/persistence/get/" + SegmentTable.TABLE)
+    @Override public Segment get(String id) {
+        return super.get(id);
     }
 }

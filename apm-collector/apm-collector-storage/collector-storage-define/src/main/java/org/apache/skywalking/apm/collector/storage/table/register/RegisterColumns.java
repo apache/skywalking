@@ -31,4 +31,8 @@ public interface RegisterColumns {
     ColumnName SERVICE_ID = new ColumnName("service_id", "si");
 
     ColumnName ADDRESS_ID = new ColumnName("address_id", "ni");
+
+    ColumnName REGISTER_TIME = new ColumnName("register_time", "rt");
+
+    ColumnName HEARTBEAT_TIME = new ColumnName("heartbeat_time", "ht");
 }

@@ -18,11 +18,8 @@
 
 package org.apache.skywalking.apm.collector.storage.table.register;
 
-import org.apache.skywalking.apm.collector.core.data.Column;
-import org.apache.skywalking.apm.collector.core.data.RemoteData;
-import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.data.operator.CoverMergeOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.*;
+import org.apache.skywalking.apm.collector.core.data.operator.*;
 import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 
 /**
@@ -39,7 +36,7 @@ public class Instance extends StreamData {
 
     private static final Column[] LONG_COLUMNS = {
         new Column(InstanceTable.REGISTER_TIME, new CoverMergeOperation()),
-        new Column(InstanceTable.HEARTBEAT_TIME, new CoverMergeOperation()),
+        new Column(InstanceTable.HEARTBEAT_TIME, new MaxMergeOperation()),
     };
 
     private static final Column[] DOUBLE_COLUMNS = {};

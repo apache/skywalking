@@ -27,7 +27,7 @@
 1. 在IntelliJ Terminal中，执行`mvn compile -Dmaven.test.skip=true`进行编译
 1. 设置gRPC的自动生成代码目录，为源码目录
   - **apm-protocol/apm-network/target/generated-sources/protobuf**目录下的`grpc-java`和`java`目录
-  - **apm-collector/apm-collector-remote/apm-remote-grpc-provider/target/protobuf**目录下的`grpc-java`和`java`目录
+  - **apm-collector/apm-collector-remote/apm-remote-grpc-provider/target/generated-sources/protobuf**目录下的`grpc-java`和`java`目录
 
 ## 编译Resin-3， Resin-4 和 Oracle JDBC 驱动插件
 为了遵守Apache关于协议（License）的相关要求，不符合Apache相关要求的类库所对应的Plugin不会自动编译。如需编译对应的插件，

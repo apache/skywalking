@@ -18,16 +18,14 @@
 
 package org.apache.skywalking.apm.collector.ui.query;
 
+import java.text.ParseException;
+import java.util.List;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.ui.common.*;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
 import org.apache.skywalking.apm.collector.ui.graphql.Query;
-import org.apache.skywalking.apm.collector.ui.service.ServiceNameService;
-import org.apache.skywalking.apm.collector.ui.service.ServiceTopologyService;
+import org.apache.skywalking.apm.collector.ui.service.*;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
-
-import java.text.ParseException;
-import java.util.List;
 
 import static java.util.Objects.isNull;
 
@@ -58,8 +56,8 @@ public class ServiceQuery implements Query {
         return serviceTopologyService;
     }
 
-    public List<ServiceInfo> searchService(String keyword, int topN) throws ParseException {
-        return getServiceNameService().searchService(keyword, topN);
+    public List<ServiceInfo> searchService(String keyword, int applicationId, int topN) {
+        return getServiceNameService().searchService(keyword, applicationId, topN);
     }
 
     public ResponseTimeTrend getServiceResponseTimeTrend(int serviceId, Duration duration) throws ParseException {
@@ -81,7 +79,7 @@ public class ServiceQuery implements Query {
         return getServiceNameService().getServiceSLATrend(serviceId, duration.getStep(), startTimeBucket, endTimeBucket);
     }
 
-    public Topology getServiceTopology(int serviceId, Duration duration) throws ParseException {
+    public Topology getServiceTopology(int serviceId, Duration duration) {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
