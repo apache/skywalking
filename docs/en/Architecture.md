@@ -79,4 +79,24 @@ _Example of the process flow between client lib and collector cluster_
 
 
 ## Collector Cluster Discovery
-When collectors are running in cluster mode, collector must discovery each other
+When collectors are running in cluster mode, collector must discovery each other in some way. In default, SkyWalking uses
+Zookeeper to coordinate and as register center for instance discovery.
+
+Through the above section([Multiple connection ways](#multiple-connection-ways)), client lib will not use the Zookeeper to find cluster. And we suggest the client shouldn't do it in that way. Because the cluster discovery mechanism is switchable, 
+provided by modulization core. Relying on that breaks the switchable capability.
+
+We hope the community provides more implementor to do cluster discovery, such as Eureka, Consul, Kubernate.
+
+
+## Streaming Mode
+Streaming mode likes a lightweight storm/spark implementation, which allows using APIs to build streaming process graph(DAG),
+and the input/output data contracts of each node.
+
+New module can find and extend the existed process graph. 
+
+There are three cases in processing
+1. Synchronizing process. Tranditional method invocation.
+1. Asynchronizing process, a.k.a batch process based on Queue buffer.
+1. Remote process. Aggregate metrices across collector. In that way, selector is defined in node to decide 
+how to find the collector in cluster. (HashCode, Rolling, ForeverFirst are the three ways supported)
+
