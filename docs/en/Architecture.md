@@ -109,3 +109,11 @@ and group query.
 
 Right now, we supported ElasticSearch as primary implementor, H2 for preview, and MySQL Relational Database cluster managed
 by ShardingShpere project. 
+
+# Web UI
+Besides the principles in collector design, UI is another core component in SkyWalking. It is based on React, Antd and Zuul
+proxy to provide collector cluster discovery, query dispatch and visualziation.
+
+Web UI shares the similiar process flow as client's `1.naming then 2.uplink` mechanism in [Multiple connection ways](#multiple-connection-ways) section. The only difference is that, replace the uplink with GraphQL query protocol in HTTP binding at `ui/jetty/host,port`.
+
+In default distribution package, Web UI uses `localhost:10800` to do naming query for collector cluster `ui/jetty/host,port`s.
