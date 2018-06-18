@@ -78,3 +78,5 @@ _Example of the process flow between client lib and collector cluster_
 ```
 
 
+## Collector Cluster Discovery
+When collectors are running in cluster mode, collector must discovery each other
