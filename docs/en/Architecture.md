@@ -3,6 +3,8 @@
 For APM, agent or SDKs are just the technical details about how to instrument the libs. 
 Manual or auto are nothing about the architecture, so in this document, we will consider them as a client lib only.
 
+<img src="https://skywalkingtest.github.io/page-resources/5.0/architecture.png"/>
+
 ## Basic Principles
 The basic design principles of SkyWalking architecture are **easy to maintain, controllable and streaming**. 
 
