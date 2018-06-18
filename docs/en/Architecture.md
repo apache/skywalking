@@ -100,3 +100,12 @@ There are three cases in processing
 1. Remote process. Aggregate metrices across collector. In that way, selector is defined in node to decide 
 how to find the collector in cluster. (HashCode, Rolling, ForeverFirst are the three ways supported)
 
+By having these features, collector cluster runs like as a streaming net, to aggregate the metrics and don't rely on the
+storage implementor to support writing the same metric id concurrently.
+
+## Swtichable Storage Implementors
+Because streaming mode takes care of the concurrent, storage implementor responsibilities are provide high speed write,
+and group query.
+
+Right now, we supported ElasticSearch as primary implementor, H2 for preview, and MySQL Relational Database cluster managed
+by ShardingShpere project. 
