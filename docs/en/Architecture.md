@@ -4,11 +4,11 @@ For APM, agent or SDKs are just the technical details about how to instrument th
 Manual or auto are nothing about the architecture, so in this document, we will consider them as a client lib only.
 
 ## Basic Principles
-The basic design principles of SkyWalking architecture are **easy to maintain, controllable and stream process module**. 
+The basic design principles of SkyWalking architecture are **easy to maintain, controllable and streaming**. 
 
 In order to achieve these goals, SkyWalking backend provides the following designs.
 1. Modulization design.
-1. Multiple connection ways for clients sides.
+1. Multiple connection ways for client side.
 1. Collector cluster discovery mechanism
 1. Streaming mode.
 1. Swtichable storage implementors.
