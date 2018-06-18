@@ -1,6 +1,6 @@
 # Architecture Design
 ## Background
-For APM, agent or SDKs are just about the technical details about how to instrument the libs. 
+For APM, agent or SDKs are just the technical details about how to instrument the libs. 
 Manual or auto are nothing about the architecture, so in this document, we will consider them as a client lib only.
 
 ## Basic Principles
