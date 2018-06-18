@@ -10,3 +10,4 @@ List some typical incubating features
 1. New storage implementor in collector, such as: ElasticSearch HTTP, MySQL...
 1. New module provided in collector.
 1. New optional plugins in agent.
+1. New features/services in collector, as the integration.
