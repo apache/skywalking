@@ -52,4 +52,29 @@ naming:
 ```
 
 ## Multiple connection ways
-There are two major connection ways from client to collectors.
+First of all, the collector provides two types of connections, also two protocols(HTTP and gRPC). These two are
+1. Naming service in HTTP, which returns the all available collectors in the backend cluster.
+1. Uplink service in gRPC(primary in SkyWalking native agents) and HTTP, which uplinks traces and metrics to collector.
+Each client will only send monitoring data(traces and metrics) to a single collector. Attempt to connect other if the connected one offline.
+
+Such as in SkyWalking Java agent
+1. `collector.servers` means the naming service, which maps to `naming/jetty/ip:port` of collector, in HTTP. 
+1. `collector.direct_servers` means setting Uplink service directly, and using gRPC to send monitoring data.
+
+
+_Example of the process flow between client lib and collector cluster_
+```
+         Client lib                         Collector1             Collector2              Collector3
+ (Set collector.servers=Collector2)              (Collector 1,2,3 constitute the cluster)
+             |
+             +-----------> naming service ---------------------------->|
+                                                                       |
+             |<------- receive gRPC IP:Port(s) of Collector 1,2,3---<--|
+             |
+             |Select a random gRPC service
+             |For example collector 3
+             |
+             |------------------------->Uplink gRPC service----------------------------------->|
+```
+
+
