@@ -201,6 +201,9 @@ Npgsql.EntityFrameworkCore.PostgreSQL:
 InMemoryDatabase:
   id: 3014
   languages: C#
+AspNet:
+  id: 3015
+  languages: C#
 
 # NoeJS components
 # [4000, 5000) for Node.js agent
