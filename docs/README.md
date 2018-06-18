@@ -21,6 +21,7 @@
   * Incubating Features
     * [Why are some features in **Incubating**?](en/Incubating/Abstract.md)
     * [Use Sharding JDBC as storage implementor](en/Use-ShardingJDBC-as-storage-implementor.md)
+    * [Receive Zipkin span data format](../apm-collector/apm-collector-thirdparty-receiver/receiver-zipkin/docs/README.md)
   * Application Toolkit
     * [Overview](en/Applicaton-toolkit.md)
     * [Use SkyWalking OpenTracing compatible tracer](en/Opentracing.md)
