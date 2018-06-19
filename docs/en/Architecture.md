@@ -116,5 +116,5 @@ by ShardingShpere project.
 Besides the principles in collector design, UI is another core component in SkyWalking. It is based on React, Antd and Zuul
 proxy to provide collector cluster discovery, query dispatch and visualziation.
 
-Web UI shares the similiar process flow as client's `1.naming then 2.uplink` mechanism in [Multiple connection ways](#multiple-connection-ways) section. The only difference is that, replace the uplink with GraphQL query protocol in HTTP binding at the host and port under `ui/jetty/` in yaml definition(default:`localhost:10800`).
+Web UI shares the similiar process flow as client's `1.naming then 2.uplink` mechanism in [Multiple connection ways](#multiple-connection-ways) section. The only difference is that, replace the uplink with GraphQL query protocol in HTTP binding at the host and port under `ui/jetty/` in yaml definition(default:`localhost:12800`).
 
