@@ -146,6 +146,11 @@
             <artifactId>collector-storage-h2-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>collector-storage-shardingjdbc-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- storage provider -->
         <!-- remote provider -->
         <dependency>
@@ -180,6 +185,12 @@
             <version>${project.version}</version>
         </dependency>
         <!-- alarm provider -->
+        <!-- zipkin receiver-->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>receiver-zipkin-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- instrument provided dependency -->
         <dependency>

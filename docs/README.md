@@ -3,28 +3,35 @@
 
   * Getting Started
     * [Quick start](en/Quick-start.md)
+    * [Install javaagent](en/Deploy-skywalking-agent.md)
+    * [Deploy backend in cluster mode](en/Deploy-backend-in-cluster-mode.md)
     * [Supported middlewares, frameworks and libraries](Supported-list.md)
       * [How to disable plugins?](en/How-to-disable-plugin.md)
       * [Optional plugins](en/Optional-plugins.md)
+        * [Trace Spring beans](en/agent-optional-plugins/Spring-bean-plugins.md)
+        * [Trace Oracle and Resin](en/agent-optional-plugins/Oracle-Resin-plugins.md)
+        * [[**Incubating**] Filter traces through custom services](../apm-sniffer/optional-plugins/trace-ignore-plugin/README.md)
+  * [Architecture Design](en/Architecture.md)
   * Advanced Features
-    * [Override settings through System.properties or System.env](en/Setting-override.md)
+    * [Override settings through System.properties](en/Setting-override.md)
     * [Direct uplink and disable naming discovery](en/Direct-uplink.md)
     * [Open TLS](en/TLS.md)
     * [Namespace Isolation](en/Namespace.md)
     * [Token Authentication](en/Token-auth.md)
     * [Add your own component library settings in collector](en/Component-libraries-extend.md)
   * Incubating Features
-    * [Abstract](en/Incubating/Abstract.md)
-    * [Support Custom Trace Ignore](../apm-sniffer/optional-plugins/trace-ignore-plugin/README.md)
+    * [Why are some features in **Incubating**?](en/Incubating/Abstract.md)
+    * [Use Sharding JDBC as storage implementor](en/Use-ShardingJDBC-as-storage-implementor.md)
+    * [Receive Zipkin span data format](../apm-collector/apm-collector-thirdparty-receiver/receiver-zipkin/docs/README.md)
   * Application Toolkit
     * [Overview](en/Applicaton-toolkit.md)
-    * [OpenTracing Tracer](en/Opentracing.md)
-    * Logging
+    * [Use SkyWalking OpenTracing compatible tracer](en/Opentracing.md)
+    * Integration with log frameworks
       * [log4j](en/Application-toolkit-log4j-1.x.md)
       * [log4j2](en/Application-toolkit-log4j-2.x.md)
       * [logback](en/Application-toolkit-logback-1.x.md)
-    * [Trace](en/Application-toolkit-trace.md)
-    * [Propagate Context across Thread](en/Application-toolkit-trace-cross-thread.md)
+    * [Trace by SkyWalking manual APIs](en/Application-toolkit-trace.md)
+    * [Trace across threads](en/Application-toolkit-trace-cross-thread.md)
   * Testing
     * [Plugin Test](https://github.com/SkywalkingTest/agent-integration-test-report)
     * [Java Agent Performance Test](https://skywalkingtest.github.io/Agent-Benchmarks/)

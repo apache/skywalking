@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.collector.core.module.Service;
  * @author peng-yongsheng
  */
 public interface IInstanceIDService extends Service {
-    int getOrCreateByAgentUUID(int applicationId, String agentUUID, long registerTime, String osInfo);
+    int getOrCreateByAgentUUID(int applicationId, String agentUUID, long registerTime, AgentOsInfo osInfo);
 
     int getOrCreateByAddressId(int applicationId, int addressId, long registerTime);
 }

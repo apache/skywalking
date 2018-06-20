@@ -24,12 +24,12 @@ import com.google.gson.JsonElement;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.skywalking.apm.collector.server.jetty.ArgumentsParseException;
-import org.apache.skywalking.apm.collector.server.jetty.JettyHandler;
+import org.apache.skywalking.apm.collector.server.jetty.JettyJsonHandler;
 
 /**
  * @author peng-yongsheng
  */
-public class UIJettyNamingHandler extends JettyHandler {
+public class UIJettyNamingHandler extends JettyJsonHandler {
 
     private final UIJettyNamingListener namingListener;
 

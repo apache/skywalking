@@ -19,19 +19,36 @@
 package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import java.util.*;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.*;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.ReferenceDecorator;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SegmentCoreInfo;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SegmentDecorator;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.graph.GraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.*;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParseService;
+<<<<<<< HEAD
 import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.standardization.*;
+=======
+import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.standardization.ReferenceIdExchanger;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.standardization.SegmentStandardization;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.standardization.SpanIdExchanger;
+import org.apache.skywalking.apm.collector.core.UnexpectedException;
+>>>>>>> master
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
-import org.apache.skywalking.apm.collector.core.graph.*;
+import org.apache.skywalking.apm.collector.core.graph.Graph;
+import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.table.segment.Segment;
-import org.apache.skywalking.apm.network.proto.*;
-import org.slf4j.*;
+import org.apache.skywalking.apm.network.proto.SpanType;
+import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
+import org.apache.skywalking.apm.network.proto.UniqueId;
+import org.apache.skywalking.apm.network.proto.UpstreamSegment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author peng-yongsheng
@@ -184,7 +201,7 @@ public class SegmentParse {
     private void notifyExitListener(SpanDecorator spanDecorator) {
         spanListeners.forEach(listener -> {
             if (listener.containsPoint(SpanListener.Point.Exit)) {
-                ((ExitSpanListener)listener).parseExit(spanDecorator, segmentCoreInfo);
+                ((ExitSpanListener) listener).parseExit(spanDecorator, segmentCoreInfo);
             }
         });
     }
@@ -193,7 +210,7 @@ public class SegmentParse {
     private void notifyEntryListener(SpanDecorator spanDecorator) {
         spanListeners.forEach(listener -> {
             if (listener.containsPoint(SpanListener.Point.Entry)) {
-                ((EntrySpanListener)listener).parseEntry(spanDecorator, segmentCoreInfo);
+                ((EntrySpanListener) listener).parseEntry(spanDecorator, segmentCoreInfo);
             }
         });
     }
@@ -202,7 +219,7 @@ public class SegmentParse {
     private void notifyLocalListener(SpanDecorator spanDecorator) {
         spanListeners.forEach(listener -> {
             if (listener.containsPoint(SpanListener.Point.Local)) {
-                ((LocalSpanListener)listener).parseLocal(spanDecorator, segmentCoreInfo);
+                ((LocalSpanListener) listener).parseLocal(spanDecorator, segmentCoreInfo);
             }
         });
     }
@@ -211,7 +228,7 @@ public class SegmentParse {
     private void notifyFirstListener(SpanDecorator spanDecorator) {
         spanListeners.forEach(listener -> {
             if (listener.containsPoint(SpanListener.Point.First)) {
-                ((FirstSpanListener)listener).parseFirst(spanDecorator, segmentCoreInfo);
+                ((FirstSpanListener) listener).parseFirst(spanDecorator, segmentCoreInfo);
             }
         });
     }
@@ -220,7 +237,7 @@ public class SegmentParse {
     private void notifyGlobalsListener(UniqueId uniqueId) {
         spanListeners.forEach(listener -> {
             if (listener.containsPoint(SpanListener.Point.GlobalTraceIds)) {
-                ((GlobalTraceIdsListener)listener).parseGlobalTraceId(uniqueId, segmentCoreInfo);
+                ((GlobalTraceIdsListener) listener).parseGlobalTraceId(uniqueId, segmentCoreInfo);
             }
         });
     }
@@ -229,4 +246,5 @@ public class SegmentParse {
     private void createSpanListeners() {
         listenerManager.getSpanListenerFactories().forEach(spanListenerFactory -> spanListeners.add(spanListenerFactory.create(moduleManager)));
     }
+
 }

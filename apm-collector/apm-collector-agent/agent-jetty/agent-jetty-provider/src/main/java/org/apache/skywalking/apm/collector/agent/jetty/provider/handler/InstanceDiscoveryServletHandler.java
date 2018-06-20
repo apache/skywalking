@@ -24,17 +24,18 @@ import com.google.gson.JsonObject;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegisterModule;
+import org.apache.skywalking.apm.collector.analysis.register.define.service.AgentOsInfo;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IInstanceIDService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.server.jetty.ArgumentsParseException;
-import org.apache.skywalking.apm.collector.server.jetty.JettyHandler;
+import org.apache.skywalking.apm.collector.server.jetty.JettyJsonHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
-public class InstanceDiscoveryServletHandler extends JettyHandler {
+public class InstanceDiscoveryServletHandler extends JettyJsonHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(InstanceDiscoveryServletHandler.class);
 
@@ -66,9 +67,10 @@ public class InstanceDiscoveryServletHandler extends JettyHandler {
             int applicationId = instance.get(APPLICATION_ID).getAsInt();
             String agentUUID = instance.get(AGENT_UUID).getAsString();
             long registerTime = instance.get(REGISTER_TIME).getAsLong();
-            JsonObject osInfo = instance.get(OS_INFO).getAsJsonObject();
+            JsonObject osInfoJson = instance.get(OS_INFO).getAsJsonObject();
+            AgentOsInfo osInfo = gson.fromJson(osInfoJson, AgentOsInfo.class);
 
-            int instanceId = instanceIDService.getOrCreateByAgentUUID(applicationId, agentUUID, registerTime, osInfo.toString());
+            int instanceId = instanceIDService.getOrCreateByAgentUUID(applicationId, agentUUID, registerTime, osInfo);
             responseJson.addProperty(APPLICATION_ID, applicationId);
             responseJson.addProperty(INSTANCE_ID, instanceId);
         } catch (IOException e) {
