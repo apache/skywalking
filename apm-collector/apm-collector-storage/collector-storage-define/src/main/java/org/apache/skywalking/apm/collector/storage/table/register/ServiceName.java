@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.collector.storage.table.register;
 
 import org.apache.skywalking.apm.collector.core.data.*;
+import org.apache.skywalking.apm.collector.core.data.column.*;
 import org.apache.skywalking.apm.collector.core.data.operator.*;
 import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 
@@ -27,28 +28,24 @@ import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterServ
  */
 public class ServiceName extends StreamData {
 
-    private static final Column[] STRING_COLUMNS = {
-        new Column(ServiceNameTable.ID, new NonMergeOperation()),
-        new Column(ServiceNameTable.SERVICE_NAME, new CoverMergeOperation()),
+    private static final StringColumn[] STRING_COLUMNS = {
+        new StringColumn(ServiceNameTable.ID, new NonMergeOperation()),
+        new StringColumn(ServiceNameTable.SERVICE_NAME, new CoverMergeOperation()),
     };
 
-    private static final Column[] LONG_COLUMNS = {
-        new Column(ServiceNameTable.REGISTER_TIME, new NonMergeOperation()),
-        new Column(ServiceNameTable.HEARTBEAT_TIME, new MaxMergeOperation()),
+    private static final LongColumn[] LONG_COLUMNS = {
+        new LongColumn(ServiceNameTable.REGISTER_TIME, new NonMergeOperation()),
+        new LongColumn(ServiceNameTable.HEARTBEAT_TIME, new MaxMergeOperation()),
     };
 
-    private static final Column[] DOUBLE_COLUMNS = {};
-
-    private static final Column[] INTEGER_COLUMNS = {
-        new Column(ServiceNameTable.APPLICATION_ID, new CoverMergeOperation()),
-        new Column(ServiceNameTable.SERVICE_ID, new CoverMergeOperation()),
-        new Column(ServiceNameTable.SRC_SPAN_TYPE, new CoverMergeOperation()),
+    private static final IntegerColumn[] INTEGER_COLUMNS = {
+        new IntegerColumn(ServiceNameTable.APPLICATION_ID, new CoverMergeOperation()),
+        new IntegerColumn(ServiceNameTable.SERVICE_ID, new CoverMergeOperation()),
+        new IntegerColumn(ServiceNameTable.SRC_SPAN_TYPE, new CoverMergeOperation()),
     };
-
-    private static final Column[] BYTE_COLUMNS = {};
 
     public ServiceName() {
-        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
+        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, new DoubleColumn[0]);
     }
 
     @Override public String getId() {

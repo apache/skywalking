@@ -30,6 +30,14 @@ public interface Data {
 
     int getDataIntegersCount();
 
+    int getDataStringListsCount();
+
+    int getDataLongListsCount();
+
+    int getDataDoubleListsCount();
+
+    int getDataIntegerListsCount();
+
     int getDataBytesCount();
 
     void setDataString(int position, String value);
@@ -49,6 +57,14 @@ public interface Data {
     Double getDataDouble(int position);
 
     Integer getDataInteger(int position);
+
+    StringLinkedList getDataStringList(int position);
+
+    LongLinkedList getDataLongList(int position);
+
+    DoubleLinkedList getDataDoubleList(int position);
+
+    IntegerLinkedList getDataIntegerList(int position);
 
     byte[] getDataBytes(int position);
 }

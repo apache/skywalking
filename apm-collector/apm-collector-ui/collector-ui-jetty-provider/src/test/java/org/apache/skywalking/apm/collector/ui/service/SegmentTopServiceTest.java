@@ -83,7 +83,7 @@ public class SegmentTopServiceTest {
         BasicTrace basicTrace = new BasicTrace();
         basicTrace.setDuration(12);
         basicTrace.setError(false);
-        basicTrace.setOperationName("test");
+        basicTrace.getOperationName().add("test");
         basicTrace.setSegmentId("segmentId");
         basicTrace.setStart(System.currentTimeMillis());
         basicTrace.setTraceIds(Collections.singletonList("traceId"));

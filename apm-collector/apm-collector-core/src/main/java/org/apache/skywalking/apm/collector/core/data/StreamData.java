@@ -18,12 +18,14 @@
 
 package org.apache.skywalking.apm.collector.core.data;
 
+import com.sun.istack.internal.NotNull;
+import org.apache.skywalking.apm.collector.core.data.column.*;
 import org.apache.skywalking.apm.collector.core.queue.EndOfBatchContext;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class StreamData extends AbstractData implements RemoteData, QueueData {
+public abstract class StreamData extends AbstractData implements QueueData {
 
     private EndOfBatchContext endOfBatchContext;
 
@@ -35,9 +37,23 @@ public abstract class StreamData extends AbstractData implements RemoteData, Que
         this.endOfBatchContext = context;
     }
 
-    public StreamData(Column[] stringColumns, Column[] longColumns, Column[] doubleColumns,
-        Column[] integerColumns, Column[] byteColumns) {
-        super(stringColumns, longColumns, doubleColumns, integerColumns, byteColumns);
+    public StreamData(@NotNull StringColumn[] stringColumns, @NotNull LongColumn[] longColumns,
+        @NotNull IntegerColumn[] integerColumns,
+        @NotNull DoubleColumn[] doubleColumns, @NotNull StringListColumn[] stringListColumns,
+        @NotNull LongListColumn[] longListColumns,
+        @NotNull IntegerListColumn[] integerListColumns, @NotNull DoubleListColumn[] doubleListColumns) {
+        super(stringColumns, longColumns, integerColumns, doubleColumns, new ByteColumn[0], stringListColumns, longListColumns, integerListColumns, doubleListColumns);
+    }
+
+    public StreamData(@NotNull StringColumn[] stringColumns, @NotNull LongColumn[] longColumns,
+        @NotNull IntegerColumn[] integerColumns, @NotNull DoubleColumn[] doubleColumns) {
+        super(stringColumns, longColumns, integerColumns, doubleColumns, new ByteColumn[0], new StringListColumn[0], new LongListColumn[0], new IntegerListColumn[0], new DoubleListColumn[0]);
+    }
+
+    public StreamData(@NotNull StringColumn[] stringColumns, @NotNull LongColumn[] longColumns,
+        @NotNull IntegerColumn[] integerColumns, @NotNull DoubleColumn[] doubleColumns,
+        @NotNull ByteColumn[] byteColumns) {
+        super(stringColumns, longColumns, integerColumns, doubleColumns, byteColumns, new StringListColumn[0], new LongListColumn[0], new IntegerListColumn[0], new DoubleListColumn[0]);
     }
 
     @Override public final String selectKey() {
