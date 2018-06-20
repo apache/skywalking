@@ -26,4 +26,4 @@ collector:
 security:
   user:
     admin:
-      password: 111
+      password: admin

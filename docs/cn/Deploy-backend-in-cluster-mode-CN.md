@@ -109,11 +109,14 @@ configuration:
 1. 解压安装包 `tar -xvf skywalking-dist.tar.gz`，windows用户可以选择zip包
 2. 配置UI集群模式.
 
-UI的配置信息保存在 `bin/webappService.sh` 中 ( windows为`bin\webappService.bat`).
+UI的配置信息保存在 `webapp/webapp.yml` 中.
 
 | 配置项                            | 描述                                                                             |
 |----------------------------------|----------------------------------------------------------------------------------|
 | `server.port`                    | 监听端口                                                                          |
 | `collector.ribbon.listOfServers` | collector命名服务地址.(与 `config/application.yml` 中的`naming.jetty`配置保持相同 )，多个Collector地址以`,`分割 |
+| `collector.path`                 | Collector查询uri. 默认: /graphql                                                                          |
+| `collector.ribbon.ReadTimeout`   | 查询超时时间. 默认: 10 秒                                                                                   |
+| `security.user.*`                | 登录用户名/密码. 默认: admin/admin                                                                          |
 
 3. 运行 `bin/webappService.sh`
