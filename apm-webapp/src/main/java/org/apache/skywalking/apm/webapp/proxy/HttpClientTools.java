@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.webapp.tools;
+package org.apache.skywalking.apm.webapp.proxy;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;

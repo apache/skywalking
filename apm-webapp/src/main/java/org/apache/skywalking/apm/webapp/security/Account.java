@@ -16,19 +16,16 @@
  *
  */
 
-package org.apache.skywalking.apm.webapp;
+package org.apache.skywalking.apm.webapp.security;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.web.support.SpringBootServletInitializer;
-import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
+/**
+ * Account of Login.
+ * 
+ * @author gaohongtao
+ */
+public interface Account {
 
-@SpringBootApplication
-@EnableZuulProxy
-public class ApplicationStartUp extends SpringBootServletInitializer {
+    String userName();
 
-    public static void main(String[] args) {
-        SpringApplication.run(ApplicationStartUp.class, args);
-    }
-    
+    String password();
 }

@@ -16,21 +16,22 @@
  *
  */
 
-package org.apache.skywalking.apm.webapp.config;
+package org.apache.skywalking.apm.webapp.security;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
+import java.io.BufferedReader;
+import java.io.StringReader;
+import org.junit.Test;
 
-/**
- * @author peng-yongsheng
- */
-@Configuration
-public class UIConfig {
-    
-    @Value("${collector.path}")
-    private String rewritePath;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.*;
 
-    public String getRewritePath() {
-        return rewritePath;
+public class ReaderAccountTest {
+
+    @Test
+    public void assertNewReaderAccount() {
+        Account account = ReaderAccount.newReaderAccount(new BufferedReader(new StringReader("{\"userName\": \"admin\", \"password\":\"888888\"}")));
+        assertThat(account.userName(), is("admin"));
+        assertThat(account.password(), is("888888"));
     }
+    
 }
