@@ -16,19 +16,35 @@
  *
  */
 
-package org.apache.skywalking.apm.webapp;
+package org.apache.skywalking.apm.webapp.security;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.web.support.SpringBootServletInitializer;
-import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import java.io.BufferedReader;
 
-@SpringBootApplication
-@EnableZuulProxy
-public class ApplicationStartUp extends SpringBootServletInitializer {
+/**
+ * A container of login information.
+ * 
+ * @author gaohongtao
+ */
+class ReaderAccount implements Account {
 
-    public static void main(String[] args) {
-        SpringApplication.run(ApplicationStartUp.class, args);
+    private final static Gson GSON = new GsonBuilder().disableHtmlEscaping()
+        .setLenient().create();
+    
+    private String userName;
+    
+    private String password;
+    
+    static ReaderAccount newReaderAccount(final BufferedReader accountReader) {
+        return GSON.fromJson(accountReader, ReaderAccount.class);
     }
     
+    public String userName() {
+        return userName;
+    }
+    
+    public String password() {
+        return password;
+    }
 }

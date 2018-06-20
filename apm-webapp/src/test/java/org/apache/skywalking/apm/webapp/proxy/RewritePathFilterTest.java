@@ -16,50 +16,45 @@
  *
  */
 
-package org.apache.skywalking.apm.webapp.tools;
+package org.apache.skywalking.apm.webapp.proxy;
 
-import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
+import org.junit.Before;
+import org.junit.Test;
 
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.*;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_DECORATION_FILTER_ORDER;
 
-/**
- * Rewrite url to rewritePath
- *
- * @author gaohongtao
- */
-public class RewritePathFilter extends ZuulFilter {
+public class RewritePathFilterTest {
 
-    private static final String REQUEST_URI = "requestURI";
+    private RewritePathFilter filter = new RewritePathFilter();
 
-    private static final int ORDER = PRE_DECORATION_FILTER_ORDER + 1;
-
-    public RewritePathFilter(String rewritePath) {
-        this.rewritePath = rewritePath;
+    @Before
+    public void init() {
+        filter.setPath("/graphql");
     }
 
-    private final String rewritePath;
-
-    @Override
-    public int filterOrder() {
-        return ORDER;
+    @Test
+    public void filterOrder() {
+        assertThat(filter.filterOrder(), is(PRE_DECORATION_FILTER_ORDER + 2));
     }
 
-    @Override
-    public String filterType() {
-        return "pre";
+    @Test
+    public void filterType() {
+        assertThat(filter.filterType(), is("pre"));
     }
 
-    @Override
-    public boolean shouldFilter() {
-        RequestContext ctx = RequestContext.getCurrentContext();
-        return ctx.containsKey(REQUEST_URI);
+    @Test
+    public void shouldFilter() {
+        assertFalse(filter.shouldFilter());
+        RequestContext.getCurrentContext().set("requestURI");
+        assertTrue(filter.shouldFilter());
     }
 
-    @Override
-    public Object run() {
-        RequestContext ctx = RequestContext.getCurrentContext();
-        ctx.set(REQUEST_URI, rewritePath);
-        return null;
+    @Test
+    public void run() {
+        filter.run();
+        assertThat(RequestContext.getCurrentContext().get("requestURI"), is("/graphql"));
     }
 }

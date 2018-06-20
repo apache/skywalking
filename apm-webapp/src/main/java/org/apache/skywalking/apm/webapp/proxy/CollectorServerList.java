@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.webapp.tools;
+package org.apache.skywalking.apm.webapp.proxy;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;

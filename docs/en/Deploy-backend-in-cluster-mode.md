@@ -131,14 +131,16 @@ configuration:
 
 ### Set UI
 
-The config items of UI is saved in `bin/webappService.sh` (`bin\webappService.bat` for windows). 
+The config items of UI is saved in `webapp/webapp.yml`. 
 Change `collector.ribbon.listOfServers` by following the description, with matching `naming.jetty`. 
 
 | Config                           | Description                                                                                          |
 |----------------------------------|------------------------------------------------------------------------------------------------------|
 | `server.port`                    | Port to listen on. Default: 8080                                                                                 |
 | `collector.ribbon.listOfServers` | Address to access collector naming service.(Consist with `naming.jetty` in `config/application.yml`). Multiple collector addresses are split by ',' |
-
+| `collector.path`                 | Collector query uri. Default: /graphql                                                                           |
+| `collector.ribbon.ReadTimeout`   | Query timeout. Default: 10 seconds                                                                               |
+| `security.user.*`                | Login username/password. Default: admin/admin                                                                    |
 
 ### Start up collector node
 1. Run `bin/startup.sh` to start collector and UI together. 
