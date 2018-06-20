@@ -14,7 +14,7 @@ class ReaderAccount implements Account {
     private final static Gson GSON = new GsonBuilder().disableHtmlEscaping()
         .setLenient().create();
     
-    private String username;
+    private String userName;
     
     private String password;
     
@@ -23,7 +23,7 @@ class ReaderAccount implements Account {
     }
     
     public String userName() {
-        return username;
+        return userName;
     }
     
     public String password() {

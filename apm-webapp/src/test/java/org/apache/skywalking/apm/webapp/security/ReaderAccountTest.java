@@ -11,7 +11,7 @@ public class ReaderAccountTest {
 
     @Test
     public void assertNewReaderAccount() {
-        Account account = ReaderAccount.newReaderAccount(new BufferedReader(new StringReader("{\"username\": \"admin\", \"password\":\"888888\"}")));
+        Account account = ReaderAccount.newReaderAccount(new BufferedReader(new StringReader("{\"userName\": \"admin\", \"password\":\"888888\"}")));
         assertThat(account.userName(), is("admin"));
         assertThat(account.password(), is("888888"));
     }

@@ -34,9 +34,8 @@ _RUNJAVA=${JAVA_HOME}/bin/java
 [ -z "$JAVA_HOME" ] && _RUNJAVA=java
 
 eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} -jar ${JAR_PATH}/skywalking-webapp.jar \
-         --server.port=8080 --collector.ribbon.listOfServers=127.0.0.1:10800 \
+         --spring.config.location=${JAR_PATH}/webapp.yml \
          --logging.file=${LOG_FILE_LOCATION} \
-         --collector.ribbon.ReadTimeout=10000 \
         2>${WEBAPP_LOG_DIR}/webapp-console.log 1> /dev/null &"
 
 if [ $? -eq 0 ]; then

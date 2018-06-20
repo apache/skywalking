@@ -44,7 +44,7 @@ public class LoginTest {
 
     @Test
     public void assertSuccessLogin() throws IOException {
-        when(request.getReader()).thenReturn(new BufferedReader(new StringReader("{\"username\": \"admin\", \"password\":\"admin\"}")));
+        when(request.getReader()).thenReturn(new BufferedReader(new StringReader("{\"userName\": \"admin\", \"password\":\"admin\"}")));
         loginFilter.run();
         assertHeaderAndStatusCode();
         verify(ctx).setResponseBody("{\"status\":\"ok\",\"currentAuthority\":\"admin\"}");
@@ -52,7 +52,7 @@ public class LoginTest {
     
     @Test
     public void assertFailLogin() throws IOException {
-        when(request.getReader()).thenReturn(new BufferedReader(new StringReader("{\"username\": \"admin\", \"password\":\"888888\"}")));
+        when(request.getReader()).thenReturn(new BufferedReader(new StringReader("{\"userName\": \"admin\", \"password\":\"888888\"}")));
         loginFilter.run();
         assertHeaderAndStatusCode();
         verify(ctx).setResponseBody("{\"status\":\"error\",\"currentAuthority\":\"guest\"}");
