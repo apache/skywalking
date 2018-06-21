@@ -36,7 +36,7 @@ export default {
           queryBasicTraces: {
             'traces|20': [{
               key: '@id',
-              operationName: '@url(200)',
+              'operationName|1-2': ['@word(100)'],
               duration: '@natural(100, 5000)',
               start: function() { // eslint-disable-line
                 offset = offset + 3600000; // eslint-disable-line

@@ -26,7 +26,10 @@ import createHistory from 'history/createHashHistory';
 import createLoading from 'dva-loading';
 import 'moment/locale/zh-cn';
 
+import 'ant-design-pro/dist/ant-design-pro.css';
+
 import './index.less';
+
 // 1. Initialize
 const app = dva({
   history: createHistory(),

@@ -159,7 +159,7 @@ export default class Trace extends PureComponent {
     return (
       <Chart
         data={dv}
-        height={432}
+        height={680}
         forceFit
         scale={{
           startTime: {

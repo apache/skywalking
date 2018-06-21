@@ -19,6 +19,7 @@
 import React, { PureComponent } from 'react';
 import { List, Avatar, Button } from 'antd';
 import moment from 'moment';
+import Ellipsis from 'ant-design-pro/lib/Ellipsis';
 import styles from './index.less';
 
 
@@ -35,7 +36,7 @@ class TraceList extends PureComponent {
           }}
         />
         <div className={styles.mainInfo}>
-          <span>{opName}</span>
+          <Ellipsis length={100} tooltip style={{ width: 'initial' }}>{opName.join(' ')}</Ellipsis>
           <span className={styles.duration}>{`${duration}ms`}</span>
         </div>
       </div>);
