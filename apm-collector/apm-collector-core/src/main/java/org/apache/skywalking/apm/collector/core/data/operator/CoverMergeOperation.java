@@ -18,12 +18,13 @@
 
 package org.apache.skywalking.apm.collector.core.data.operator;
 
-import org.apache.skywalking.apm.collector.core.data.MergeOperation;
+import org.apache.skywalking.apm.collector.core.data.*;
 
 /**
  * @author peng-yongsheng
  */
 public class CoverMergeOperation implements MergeOperation {
+
     @Override public String operate(String newValue, String oldValue) {
         return newValue;
     }
@@ -41,6 +42,22 @@ public class CoverMergeOperation implements MergeOperation {
     }
 
     @Override public byte[] operate(byte[] newValue, byte[] oldValue) {
+        return newValue;
+    }
+
+    @Override public StringLinkedList operate(StringLinkedList newValue, StringLinkedList oldValue) {
+        return newValue;
+    }
+
+    @Override public LongLinkedList operate(LongLinkedList newValue, LongLinkedList oldValue) {
+        return newValue;
+    }
+
+    @Override public IntegerLinkedList operate(IntegerLinkedList newValue, IntegerLinkedList oldValue) {
+        return newValue;
+    }
+
+    @Override public DoubleLinkedList operate(DoubleLinkedList newValue, DoubleLinkedList oldValue) {
         return newValue;
     }
 }

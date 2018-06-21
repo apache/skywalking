@@ -39,7 +39,27 @@ message RemoteData {
     repeated double dataDoubles = 3;
     repeated int32 dataIntegers = 4;
     repeated bool dataBooleans = 5;
+    repeated StringList dataStringLists = 6;
+    repeated LongList dataLongLists = 7;
+    repeated DoubleList dataDoubleLists = 8;
+    repeated IntegerList dataIntegerLists = 9;
 }
 
 message Empty {
+}
+
+message StringList {
+    repeated string value = 1;
+}
+
+message LongList {
+    repeated int64 value = 1;
+}
+
+message DoubleList {
+    repeated double value = 1;
+}
+
+message IntegerList {
+    repeated int32 value = 1;
 }

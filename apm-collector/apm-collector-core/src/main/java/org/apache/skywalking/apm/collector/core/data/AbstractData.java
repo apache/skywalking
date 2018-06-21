@@ -18,82 +18,141 @@
 
 package org.apache.skywalking.apm.collector.core.data;
 
+import org.apache.skywalking.apm.collector.core.data.column.*;
+
 import static java.util.Objects.nonNull;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class AbstractData {
-    private String[] dataStrings;
-    private Long[] dataLongs;
-    private Double[] dataDoubles;
-    private Integer[] dataIntegers;
-    private byte[][] dataBytes;
-    private final Column[] stringColumns;
-    private final Column[] longColumns;
-    private final Column[] doubleColumns;
-    private final Column[] integerColumns;
-    private final Column[] byteColumns;
+public abstract class AbstractData implements RemoteData {
+    private final String[] dataStrings;
+    private final Long[] dataLongs;
+    private final Double[] dataDoubles;
+    private final Integer[] dataIntegers;
+    private final byte[][] dataBytes;
 
-    public AbstractData(Column[] stringColumns, Column[] longColumns, Column[] doubleColumns,
-        Column[] integerColumns, Column[] byteColumns) {
-        this.dataStrings = new String[stringColumns.length];
-        this.dataLongs = new Long[longColumns.length];
-        this.dataDoubles = new Double[doubleColumns.length];
-        this.dataIntegers = new Integer[integerColumns.length];
-        this.dataBytes = new byte[byteColumns.length][];
+    private final StringLinkedList[] dataStringLists;
+    private final LongLinkedList[] dataLongLists;
+    private final DoubleLinkedList[] dataDoubleLists;
+    private final IntegerLinkedList[] dataIntegerLists;
+
+    private final StringColumn[] stringColumns;
+    private final LongColumn[] longColumns;
+    private final IntegerColumn[] integerColumns;
+    private final DoubleColumn[] doubleColumns;
+    private final ByteColumn[] byteColumns;
+
+    private final StringListColumn[] stringListColumns;
+    private final LongListColumn[] longListColumns;
+    private final IntegerListColumn[] integerListColumns;
+    private final DoubleListColumn[] doubleListColumns;
+
+    AbstractData(StringColumn[] stringColumns, LongColumn[] longColumns,
+        IntegerColumn[] integerColumns,
+        DoubleColumn[] doubleColumns, ByteColumn[] byteColumns,
+        StringListColumn[] stringListColumns,
+        LongListColumn[] longListColumns,
+        IntegerListColumn[] integerListColumns, DoubleListColumn[] doubleListColumns) {
         this.stringColumns = stringColumns;
         this.longColumns = longColumns;
-        this.doubleColumns = doubleColumns;
         this.integerColumns = integerColumns;
+        this.doubleColumns = doubleColumns;
         this.byteColumns = byteColumns;
+
+        this.stringListColumns = stringListColumns;
+        this.longListColumns = longListColumns;
+        this.integerListColumns = integerListColumns;
+        this.doubleListColumns = doubleListColumns;
+
+        this.dataStrings = new String[stringColumns.length];
+        this.dataLongs = new Long[longColumns.length];
+        this.dataIntegers = new Integer[integerColumns.length];
+        this.dataDoubles = new Double[doubleColumns.length];
+        this.dataBytes = new byte[byteColumns.length][];
+
+        this.dataStringLists = new StringLinkedList[stringListColumns.length];
+        for (int i = 0; i < this.dataStringLists.length; i++) {
+            this.dataStringLists[i] = new StringLinkedList();
+        }
+
+        this.dataLongLists = new LongLinkedList[longListColumns.length];
+        for (int i = 0; i < this.dataLongLists.length; i++) {
+            this.dataLongLists[i] = new LongLinkedList();
+        }
+
+        this.dataIntegerLists = new IntegerLinkedList[integerListColumns.length];
+        for (int i = 0; i < this.dataIntegerLists.length; i++) {
+            this.dataIntegerLists[i] = new IntegerLinkedList();
+        }
+
+        this.dataDoubleLists = new DoubleLinkedList[doubleListColumns.length];
+        for (int i = 0; i < this.dataDoubleLists.length; i++) {
+            this.dataDoubleLists[i] = new DoubleLinkedList();
+        }
     }
 
-    public final int getDataStringsCount() {
+    @Override public final int getDataStringsCount() {
         return dataStrings.length;
     }
 
-    public final int getDataLongsCount() {
+    @Override public final int getDataLongsCount() {
         return dataLongs.length;
     }
 
-    public final int getDataDoublesCount() {
+    @Override public final int getDataDoublesCount() {
         return dataDoubles.length;
     }
 
-    public final int getDataIntegersCount() {
+    @Override public final int getDataIntegersCount() {
         return dataIntegers.length;
     }
 
-    public final int getDataBytesCount() {
+    @Override public final int getDataBytesCount() {
         return dataBytes.length;
     }
 
-    public final void setDataString(int position, String value) {
+    @Override public int getDataStringListsCount() {
+        return dataStringLists.length;
+    }
+
+    @Override public int getDataLongListsCount() {
+        return dataLongLists.length;
+    }
+
+    @Override public int getDataDoubleListsCount() {
+        return dataDoubleLists.length;
+    }
+
+    @Override public int getDataIntegerListsCount() {
+        return dataIntegerLists.length;
+    }
+
+    @Override public final void setDataString(int position, String value) {
         dataStrings[position] = value;
     }
 
-    public final void setDataLong(int position, Long value) {
+    @Override public final void setDataLong(int position, Long value) {
         dataLongs[position] = value;
     }
 
-    public final void setDataDouble(int position, Double value) {
+    @Override public final void setDataDouble(int position, Double value) {
         dataDoubles[position] = value;
     }
 
-    public final void setDataInteger(int position, Integer value) {
+    @Override public final void setDataInteger(int position, Integer value) {
         dataIntegers[position] = value;
     }
 
-    public final void setDataBytes(int position, byte[] dataBytes) {
+    @Override public final void setDataBytes(int position, byte[] dataBytes) {
         this.dataBytes[position] = dataBytes;
     }
 
-    public final String getDataString(int position) {
+    @Override public final String getDataString(int position) {
         return dataStrings[position];
     }
 
-    public final Long getDataLong(int position) {
+    @Override public final Long getDataLong(int position) {
         if (position + 1 > dataLongs.length) {
             throw new IndexOutOfBoundsException();
         } else if (dataLongs[position] == null) {
@@ -103,7 +162,7 @@ public abstract class AbstractData {
         }
     }
 
-    public final Double getDataDouble(int position) {
+    @Override public final Double getDataDouble(int position) {
         if (position + 1 > dataDoubles.length) {
             throw new IndexOutOfBoundsException();
         } else if (dataDoubles[position] == null) {
@@ -113,7 +172,7 @@ public abstract class AbstractData {
         }
     }
 
-    public final Integer getDataInteger(int position) {
+    @Override public final Integer getDataInteger(int position) {
         if (position + 1 > dataIntegers.length) {
             throw new IndexOutOfBoundsException();
         } else if (dataIntegers[position] == null) {
@@ -123,8 +182,40 @@ public abstract class AbstractData {
         }
     }
 
-    public final byte[] getDataBytes(int position) {
+    @Override public final byte[] getDataBytes(int position) {
         return dataBytes[position];
+    }
+
+    @Override public StringLinkedList getDataStringList(int position) {
+        if (position + 1 > dataStringLists.length) {
+            throw new IndexOutOfBoundsException();
+        } else {
+            return dataStringLists[position];
+        }
+    }
+
+    @Override public LongLinkedList getDataLongList(int position) {
+        if (position + 1 > dataLongLists.length) {
+            throw new IndexOutOfBoundsException();
+        } else {
+            return dataLongLists[position];
+        }
+    }
+
+    @Override public DoubleLinkedList getDataDoubleList(int position) {
+        if (position + 1 > dataDoubleLists.length) {
+            throw new IndexOutOfBoundsException();
+        } else {
+            return dataDoubleLists[position];
+        }
+    }
+
+    @Override public IntegerLinkedList getDataIntegerList(int position) {
+        if (position + 1 > dataIntegerLists.length) {
+            throw new IndexOutOfBoundsException();
+        } else {
+            return dataIntegerLists[position];
+        }
     }
 
     public final void mergeAndFormulaCalculateData(AbstractData newData) {
@@ -152,6 +243,22 @@ public abstract class AbstractData {
         for (int i = 0; i < byteColumns.length; i++) {
             byte[] byteData = byteColumns[i].getMergeOperation().operate(newData.getDataBytes(i), this.getDataBytes(i));
             this.dataBytes[i] = byteData;
+        }
+        for (int i = 0; i < stringListColumns.length; i++) {
+            StringLinkedList stringListData = stringListColumns[i].getMergeOperation().operate(newData.getDataStringList(i), this.getDataStringList(i));
+            this.dataStringLists[i] = stringListData;
+        }
+        for (int i = 0; i < longListColumns.length; i++) {
+            LongLinkedList longListData = longListColumns[i].getMergeOperation().operate(newData.getDataLongList(i), this.getDataLongList(i));
+            this.dataLongLists[i] = longListData;
+        }
+        for (int i = 0; i < doubleListColumns.length; i++) {
+            DoubleLinkedList doubleListData = doubleListColumns[i].getMergeOperation().operate(newData.getDataDoubleList(i), this.getDataDoubleList(i));
+            this.dataDoubleLists[i] = doubleListData;
+        }
+        for (int i = 0; i < integerListColumns.length; i++) {
+            IntegerLinkedList integerListData = integerListColumns[i].getMergeOperation().operate(newData.getDataIntegerList(i), this.getDataIntegerList(i));
+            this.dataIntegerLists[i] = integerListData;
         }
     }
 

@@ -18,11 +18,9 @@
 
 package org.apache.skywalking.apm.collector.storage.table.register;
 
-import org.apache.skywalking.apm.collector.core.data.Column;
-import org.apache.skywalking.apm.collector.core.data.RemoteData;
-import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.data.operator.CoverMergeOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.*;
+import org.apache.skywalking.apm.collector.core.data.column.*;
+import org.apache.skywalking.apm.collector.core.data.operator.*;
 import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 
 /**
@@ -30,26 +28,20 @@ import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterServ
  */
 public class NetworkAddress extends StreamData {
 
-    private static final Column[] STRING_COLUMNS = {
-        new Column(NetworkAddressTable.ID, new NonMergeOperation()),
-        new Column(NetworkAddressTable.NETWORK_ADDRESS, new NonMergeOperation()),
+    private static final StringColumn[] STRING_COLUMNS = {
+        new StringColumn(NetworkAddressTable.ID, new NonMergeOperation()),
+        new StringColumn(NetworkAddressTable.NETWORK_ADDRESS, new NonMergeOperation()),
     };
 
-    private static final Column[] LONG_COLUMNS = {
+    private static final IntegerColumn[] INTEGER_COLUMNS = {
+        new IntegerColumn(NetworkAddressTable.ADDRESS_ID, new NonMergeOperation()),
+        new IntegerColumn(NetworkAddressTable.SRC_SPAN_LAYER, new CoverMergeOperation()),
+        new IntegerColumn(NetworkAddressTable.SERVER_TYPE, new CoverMergeOperation()),
     };
-
-    private static final Column[] DOUBLE_COLUMNS = {};
-
-    private static final Column[] INTEGER_COLUMNS = {
-        new Column(NetworkAddressTable.ADDRESS_ID, new NonMergeOperation()),
-        new Column(NetworkAddressTable.SRC_SPAN_LAYER, new CoverMergeOperation()),
-        new Column(NetworkAddressTable.SERVER_TYPE, new CoverMergeOperation()),
-    };
-
-    private static final Column[] BYTE_COLUMNS = {};
 
     public NetworkAddress() {
-        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
+        super(STRING_COLUMNS, new LongColumn[0], INTEGER_COLUMNS, new DoubleColumn[0], new StringListColumn[0], new LongListColumn[0], new IntegerListColumn[0], new DoubleListColumn[0]);
+
     }
 
     @Override public String getId() {

@@ -18,35 +18,10 @@
 
 package org.apache.skywalking.apm.collector.core.data;
 
+import java.util.LinkedList;
+
 /**
  * @author peng-yongsheng
  */
-public class Column {
-    private final ColumnName columnName;
-    private final MergeOperation mergeOperation;
-    private final FormulaOperation formulaOperation;
-
-    public Column(ColumnName columnName, MergeOperation mergeOperation) {
-        this.columnName = columnName;
-        this.mergeOperation = mergeOperation;
-        this.formulaOperation = null;
-    }
-
-    public Column(ColumnName columnName, MergeOperation mergeOperation, FormulaOperation formulaOperation) {
-        this.columnName = columnName;
-        this.mergeOperation = mergeOperation;
-        this.formulaOperation = formulaOperation;
-    }
-
-    public ColumnName getColumnName() {
-        return columnName;
-    }
-
-    MergeOperation getMergeOperation() {
-        return mergeOperation;
-    }
-
-    FormulaOperation getFormulaOperation() {
-        return formulaOperation;
-    }
+public class IntegerLinkedList extends LinkedList<Integer> {
 }

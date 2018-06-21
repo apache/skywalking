@@ -18,41 +18,39 @@
 
 package org.apache.skywalking.apm.collector.storage.table.segment;
 
-import org.apache.skywalking.apm.collector.core.data.Column;
-import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.data.operator.CoverMergeOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.*;
+import org.apache.skywalking.apm.collector.core.data.column.*;
+import org.apache.skywalking.apm.collector.core.data.operator.*;
 
 /**
  * @author peng-yongsheng
  */
 public class SegmentDuration extends StreamData {
 
-    private static final Column[] STRING_COLUMNS = {
-        new Column(SegmentDurationTable.ID, new NonMergeOperation()),
-        new Column(SegmentDurationTable.SEGMENT_ID, new CoverMergeOperation()),
-        new Column(SegmentDurationTable.SERVICE_NAME, new CoverMergeOperation()),
-        new Column(SegmentDurationTable.TRACE_ID, new CoverMergeOperation()),
+    private static final StringColumn[] STRING_COLUMNS = {
+        new StringColumn(SegmentDurationTable.ID, new NonMergeOperation()),
+        new StringColumn(SegmentDurationTable.SEGMENT_ID, new CoverMergeOperation()),
+        new StringColumn(SegmentDurationTable.TRACE_ID, new CoverMergeOperation()),
     };
 
-    private static final Column[] LONG_COLUMNS = {
-        new Column(SegmentDurationTable.DURATION, new CoverMergeOperation()),
-        new Column(SegmentDurationTable.START_TIME, new CoverMergeOperation()),
-        new Column(SegmentDurationTable.END_TIME, new CoverMergeOperation()),
-        new Column(SegmentDurationTable.TIME_BUCKET, new CoverMergeOperation()),
+    private static final LongColumn[] LONG_COLUMNS = {
+        new LongColumn(SegmentDurationTable.DURATION, new CoverMergeOperation()),
+        new LongColumn(SegmentDurationTable.START_TIME, new CoverMergeOperation()),
+        new LongColumn(SegmentDurationTable.END_TIME, new CoverMergeOperation()),
+        new LongColumn(SegmentDurationTable.TIME_BUCKET, new CoverMergeOperation()),
     };
 
-    private static final Column[] DOUBLE_COLUMNS = {};
-
-    private static final Column[] INTEGER_COLUMNS = {
-        new Column(SegmentDurationTable.APPLICATION_ID, new CoverMergeOperation()),
-        new Column(SegmentDurationTable.IS_ERROR, new CoverMergeOperation()),
+    private static final IntegerColumn[] INTEGER_COLUMNS = {
+        new IntegerColumn(SegmentDurationTable.APPLICATION_ID, new CoverMergeOperation()),
+        new IntegerColumn(SegmentDurationTable.IS_ERROR, new CoverMergeOperation()),
     };
 
-    private static final Column[] BYTE_COLUMNS = {};
+    private static final StringListColumn[] STRING_LIST_COLUMNS = {
+        new StringListColumn(SegmentDurationTable.SERVICE_NAME, new CoverMergeOperation()),
+    };
 
     public SegmentDuration() {
-        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
+        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, new DoubleColumn[0], STRING_LIST_COLUMNS, new LongListColumn[0], new IntegerListColumn[0], new DoubleListColumn[0]);
     }
 
     @Override public String getId() {
@@ -79,20 +77,16 @@ public class SegmentDuration extends StreamData {
         setDataString(1, segmentId);
     }
 
-    public String getServiceName() {
+    public String getTraceId() {
         return getDataString(2);
     }
 
-    public void setServiceName(String serviceName) {
-        setDataString(2, serviceName);
-    }
-
-    public String getTraceId() {
-        return getDataString(3);
-    }
-
     public void setTraceId(String traceId) {
-        setDataString(3, traceId);
+        setDataString(2, traceId);
+    }
+
+    public StringLinkedList getServiceName() {
+        return getDataStringList(0);
     }
 
     public Long getDuration() {
