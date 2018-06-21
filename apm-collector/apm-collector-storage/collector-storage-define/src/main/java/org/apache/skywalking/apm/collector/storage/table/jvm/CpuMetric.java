@@ -18,39 +18,35 @@
 
 package org.apache.skywalking.apm.collector.storage.table.jvm;
 
-import org.apache.skywalking.apm.collector.core.data.Column;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.data.operator.AddMergeOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.CoverMergeOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.column.*;
+import org.apache.skywalking.apm.collector.core.data.operator.*;
 
 /**
  * @author peng-yongsheng
  */
 public class CpuMetric extends StreamData {
 
-    private static final Column[] STRING_COLUMNS = {
-        new Column(CpuMetricTable.ID, new NonMergeOperation()),
-        new Column(CpuMetricTable.METRIC_ID, new NonMergeOperation()),
+    private static final StringColumn[] STRING_COLUMNS = {
+        new StringColumn(CpuMetricTable.ID, new NonMergeOperation()),
+        new StringColumn(CpuMetricTable.METRIC_ID, new NonMergeOperation()),
     };
 
-    private static final Column[] LONG_COLUMNS = {
-        new Column(CpuMetricTable.TIMES, new AddMergeOperation()),
-        new Column(CpuMetricTable.TIME_BUCKET, new CoverMergeOperation()),
+    private static final LongColumn[] LONG_COLUMNS = {
+        new LongColumn(CpuMetricTable.TIMES, new AddMergeOperation()),
+        new LongColumn(CpuMetricTable.TIME_BUCKET, new CoverMergeOperation()),
     };
 
-    private static final Column[] DOUBLE_COLUMNS = {
-        new Column(CpuMetricTable.USAGE_PERCENT, new AddMergeOperation()),
+    private static final DoubleColumn[] DOUBLE_COLUMNS = {
+        new DoubleColumn(CpuMetricTable.USAGE_PERCENT, new AddMergeOperation()),
     };
 
-    private static final Column[] INTEGER_COLUMNS = {
-        new Column(CpuMetricTable.INSTANCE_ID, new CoverMergeOperation()),
+    private static final IntegerColumn[] INTEGER_COLUMNS = {
+        new IntegerColumn(CpuMetricTable.INSTANCE_ID, new CoverMergeOperation()),
     };
-
-    private static final Column[] BYTE_COLUMNS = {};
 
     public CpuMetric() {
-        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
+        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, DOUBLE_COLUMNS);
     }
 
     @Override public String getId() {

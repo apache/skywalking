@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
+import com.google.gson.Gson;
 import java.util.*;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentDurationPersistenceDAO;
@@ -35,6 +36,8 @@ import org.slf4j.*;
 public class SegmentDurationEsPersistenceDAO extends EsDAO implements ISegmentDurationPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, SegmentDuration> {
 
     private final Logger logger = LoggerFactory.getLogger(SegmentDurationEsPersistenceDAO.class);
+
+    private final Gson gson = new Gson();
 
     public SegmentDurationEsPersistenceDAO(ElasticSearchClient client) {
         super(client);
@@ -55,7 +58,7 @@ public class SegmentDurationEsPersistenceDAO extends EsDAO implements ISegmentDu
         Map<String, Object> target = new HashMap<>();
         target.put(SegmentDurationTable.SEGMENT_ID.getName(), data.getSegmentId());
         target.put(SegmentDurationTable.APPLICATION_ID.getName(), data.getApplicationId());
-        target.put(SegmentDurationTable.SERVICE_NAME.getName(), data.getServiceName());
+        target.put(SegmentDurationTable.SERVICE_NAME.getName(), gson.toJson(data.getServiceName()));
         target.put(SegmentDurationTable.DURATION.getName(), data.getDuration());
         target.put(SegmentDurationTable.START_TIME.getName(), data.getStartTime());
         target.put(SegmentDurationTable.END_TIME.getName(), data.getEndTime());
