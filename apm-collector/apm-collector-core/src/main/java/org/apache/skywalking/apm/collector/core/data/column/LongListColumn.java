@@ -16,27 +16,20 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.core.data;
+package org.apache.skywalking.apm.collector.core.data.column;
+
+import org.apache.skywalking.apm.collector.core.data.*;
 
 /**
  * @author peng-yongsheng
  */
-public interface MergeOperation extends Operation {
-    String operate(String newValue, String oldValue);
+public class LongListColumn extends Column {
 
-    Long operate(Long newValue, Long oldValue);
+    public LongListColumn(ColumnName columnName, MergeOperation mergeOperation) {
+        super(columnName, mergeOperation);
+    }
 
-    Integer operate(Integer newValue, Integer oldValue);
-
-    Double operate(Double newValue, Double oldValue);
-
-    byte[] operate(byte[] newValue, byte[] oldValue);
-
-    StringLinkedList operate(StringLinkedList newValue, StringLinkedList oldValue);
-
-    LongLinkedList operate(LongLinkedList newValue, LongLinkedList oldValue);
-
-    IntegerLinkedList operate(IntegerLinkedList newValue, IntegerLinkedList oldValue);
-
-    DoubleLinkedList operate(DoubleLinkedList newValue, DoubleLinkedList oldValue);
+    public LongListColumn(ColumnName columnName, MergeOperation mergeOperation, FormulaOperation formulaOperation) {
+        super(columnName, mergeOperation, formulaOperation);
+    }
 }

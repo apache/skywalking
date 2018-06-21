@@ -141,7 +141,8 @@ public class SegmentDurationShardingjdbcUIDAO extends ShardingjdbcDAO implements
                 basicTrace.setSegmentId(rs.getString(SegmentDurationTable.SEGMENT_ID.getName()));
                 basicTrace.setDuration(rs.getInt(SegmentDurationTable.DURATION.getName()));
                 basicTrace.setStart(rs.getLong(SegmentDurationTable.START_TIME.getName()));
-                basicTrace.setOperationName(rs.getString(SegmentDurationTable.SERVICE_NAME.getName()));
+                //TODO linjiaqi operation name was changed to contains multiple values
+                //basicTrace.setOperationName(rs.getString(SegmentDurationTable.SERVICE_NAME.getName()));
                 basicTrace.setError(BooleanUtils.valueToBoolean(rs.getInt(SegmentDurationTable.IS_ERROR.getName())));
                 traceBrief.getTraces().add(basicTrace);
                 cnt++;

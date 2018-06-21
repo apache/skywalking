@@ -18,7 +18,8 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao.ui;
 
-import java.util.List;
+import com.google.gson.Gson;
+import java.util.*;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.util.*;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentDurationUIDAO;
@@ -34,6 +35,8 @@ import org.elasticsearch.search.sort.SortOrder;
  * @author peng-yongsheng
  */
 public class SegmentDurationEsUIDAO extends EsDAO implements ISegmentDurationUIDAO {
+
+    private final Gson gson = new Gson();
 
     public SegmentDurationEsUIDAO(ElasticSearchClient client) {
         super(client);
@@ -102,7 +105,12 @@ public class SegmentDurationEsUIDAO extends EsDAO implements ISegmentDurationUID
 
             basicTrace.setSegmentId((String)searchHit.getSource().get(SegmentDurationTable.SEGMENT_ID.getName()));
             basicTrace.setStart(((Number)searchHit.getSource().get(SegmentDurationTable.START_TIME.getName())).longValue());
-            basicTrace.setOperationName((String)searchHit.getSource().get(SegmentDurationTable.SERVICE_NAME.getName()));
+
+            String serviceNameJsonStr = (String)searchHit.getSource().get(SegmentDurationTable.SERVICE_NAME.getName());
+            if (StringUtils.isNotEmpty(serviceNameJsonStr)) {
+                List serviceNames = gson.fromJson(serviceNameJsonStr, LinkedList.class);
+                basicTrace.getOperationName().addAll(serviceNames);
+            }
             basicTrace.setDuration(((Number)searchHit.getSource().get(SegmentDurationTable.DURATION.getName())).intValue());
             basicTrace.setError(BooleanUtils.valueToBoolean(((Number)searchHit.getSource().get(SegmentDurationTable.IS_ERROR.getName())).intValue()));
             traceBrief.getTraces().add(basicTrace);

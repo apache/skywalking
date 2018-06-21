@@ -23,7 +23,7 @@ type TraceBrief {
 # Trace basic info
 type BasicTrace {
    segmentId: String!
-   operationName: String!
+   operationNames: [String!]!
    duration: Int!
    start: String!
    isError: Boolean

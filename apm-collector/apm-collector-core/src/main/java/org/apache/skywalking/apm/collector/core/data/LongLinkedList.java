@@ -18,25 +18,10 @@
 
 package org.apache.skywalking.apm.collector.core.data;
 
+import java.util.LinkedList;
+
 /**
  * @author peng-yongsheng
  */
-public interface MergeOperation extends Operation {
-    String operate(String newValue, String oldValue);
-
-    Long operate(Long newValue, Long oldValue);
-
-    Integer operate(Integer newValue, Integer oldValue);
-
-    Double operate(Double newValue, Double oldValue);
-
-    byte[] operate(byte[] newValue, byte[] oldValue);
-
-    StringLinkedList operate(StringLinkedList newValue, StringLinkedList oldValue);
-
-    LongLinkedList operate(LongLinkedList newValue, LongLinkedList oldValue);
-
-    IntegerLinkedList operate(IntegerLinkedList newValue, IntegerLinkedList oldValue);
-
-    DoubleLinkedList operate(DoubleLinkedList newValue, DoubleLinkedList oldValue);
+public class LongLinkedList extends LinkedList<Long> {
 }

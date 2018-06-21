@@ -18,12 +18,13 @@
 
 package org.apache.skywalking.apm.collector.core.data;
 
+import org.apache.skywalking.apm.collector.core.data.column.*;
 import org.apache.skywalking.apm.collector.core.queue.EndOfBatchContext;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class StreamData extends AbstractData implements RemoteData, QueueData {
+public abstract class StreamData extends AbstractData implements QueueData {
 
     private EndOfBatchContext endOfBatchContext;
 
@@ -35,9 +36,23 @@ public abstract class StreamData extends AbstractData implements RemoteData, Que
         this.endOfBatchContext = context;
     }
 
-    public StreamData(Column[] stringColumns, Column[] longColumns, Column[] doubleColumns,
-        Column[] integerColumns, Column[] byteColumns) {
-        super(stringColumns, longColumns, doubleColumns, integerColumns, byteColumns);
+    public StreamData(StringColumn[] stringColumns, LongColumn[] longColumns,
+        IntegerColumn[] integerColumns,
+        DoubleColumn[] doubleColumns, StringListColumn[] stringListColumns,
+        LongListColumn[] longListColumns,
+        IntegerListColumn[] integerListColumns, DoubleListColumn[] doubleListColumns) {
+        super(stringColumns, longColumns, integerColumns, doubleColumns, new ByteColumn[0], stringListColumns, longListColumns, integerListColumns, doubleListColumns);
+    }
+
+    public StreamData(StringColumn[] stringColumns, LongColumn[] longColumns,
+        IntegerColumn[] integerColumns, DoubleColumn[] doubleColumns) {
+        super(stringColumns, longColumns, integerColumns, doubleColumns, new ByteColumn[0], new StringListColumn[0], new LongListColumn[0], new IntegerListColumn[0], new DoubleListColumn[0]);
+    }
+
+    public StreamData(StringColumn[] stringColumns, LongColumn[] longColumns,
+        IntegerColumn[] integerColumns, DoubleColumn[] doubleColumns,
+        ByteColumn[] byteColumns) {
+        super(stringColumns, longColumns, integerColumns, doubleColumns, byteColumns, new StringListColumn[0], new LongListColumn[0], new IntegerListColumn[0], new DoubleListColumn[0]);
     }
 
     @Override public final String selectKey() {

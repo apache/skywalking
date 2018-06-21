@@ -23,6 +23,7 @@ package org.apache.skywalking.apm.collector.analysis.segment.parser.define.decor
  */
 public class SegmentCoreInfo {
     private String segmentId;
+    private String traceId;
     private int applicationId;
     private int applicationInstanceId;
     private long startTime;
@@ -84,5 +85,13 @@ public class SegmentCoreInfo {
 
     public void setMinuteTimeBucket(long minuteTimeBucket) {
         this.minuteTimeBucket = minuteTimeBucket;
+    }
+
+    public String getTraceId() {
+        return traceId;
+    }
+
+    public void setTraceId(String traceId) {
+        this.traceId = traceId;
     }
 }

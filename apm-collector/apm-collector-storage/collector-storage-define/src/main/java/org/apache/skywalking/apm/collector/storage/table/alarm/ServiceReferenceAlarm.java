@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.collector.storage.table.alarm;
 
 import org.apache.skywalking.apm.collector.core.data.*;
+import org.apache.skywalking.apm.collector.core.data.column.*;
 import org.apache.skywalking.apm.collector.core.data.operator.*;
 import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 
@@ -27,32 +28,28 @@ import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterServ
  */
 public class ServiceReferenceAlarm extends StreamData implements Alarm {
 
-    private static final Column[] STRING_COLUMNS = {
-        new Column(ServiceReferenceAlarmTable.ID, new NonMergeOperation()),
-        new Column(ServiceReferenceAlarmTable.ALARM_CONTENT, new CoverMergeOperation()),
+    private static final StringColumn[] STRING_COLUMNS = {
+        new StringColumn(ServiceReferenceAlarmTable.ID, new NonMergeOperation()),
+        new StringColumn(ServiceReferenceAlarmTable.ALARM_CONTENT, new CoverMergeOperation()),
     };
 
-    private static final Column[] LONG_COLUMNS = {
-        new Column(ServiceReferenceAlarmTable.LAST_TIME_BUCKET, new CoverMergeOperation()),
+    private static final LongColumn[] LONG_COLUMNS = {
+        new LongColumn(ServiceReferenceAlarmTable.LAST_TIME_BUCKET, new CoverMergeOperation()),
     };
 
-    private static final Column[] DOUBLE_COLUMNS = {};
-
-    private static final Column[] INTEGER_COLUMNS = {
-        new Column(ServiceReferenceAlarmTable.ALARM_TYPE, new NonMergeOperation()),
-        new Column(ServiceReferenceAlarmTable.SOURCE_VALUE, new NonMergeOperation()),
-        new Column(ServiceReferenceAlarmTable.FRONT_APPLICATION_ID, new NonMergeOperation()),
-        new Column(ServiceReferenceAlarmTable.BEHIND_APPLICATION_ID, new NonMergeOperation()),
-        new Column(ServiceReferenceAlarmTable.FRONT_INSTANCE_ID, new NonMergeOperation()),
-        new Column(ServiceReferenceAlarmTable.BEHIND_INSTANCE_ID, new NonMergeOperation()),
-        new Column(ServiceReferenceAlarmTable.FRONT_SERVICE_ID, new NonMergeOperation()),
-        new Column(ServiceReferenceAlarmTable.BEHIND_SERVICE_ID, new NonMergeOperation()),
+    private static final IntegerColumn[] INTEGER_COLUMNS = {
+        new IntegerColumn(ServiceReferenceAlarmTable.ALARM_TYPE, new NonMergeOperation()),
+        new IntegerColumn(ServiceReferenceAlarmTable.SOURCE_VALUE, new NonMergeOperation()),
+        new IntegerColumn(ServiceReferenceAlarmTable.FRONT_APPLICATION_ID, new NonMergeOperation()),
+        new IntegerColumn(ServiceReferenceAlarmTable.BEHIND_APPLICATION_ID, new NonMergeOperation()),
+        new IntegerColumn(ServiceReferenceAlarmTable.FRONT_INSTANCE_ID, new NonMergeOperation()),
+        new IntegerColumn(ServiceReferenceAlarmTable.BEHIND_INSTANCE_ID, new NonMergeOperation()),
+        new IntegerColumn(ServiceReferenceAlarmTable.FRONT_SERVICE_ID, new NonMergeOperation()),
+        new IntegerColumn(ServiceReferenceAlarmTable.BEHIND_SERVICE_ID, new NonMergeOperation()),
     };
-
-    private static final Column[] BYTE_COLUMNS = {};
 
     public ServiceReferenceAlarm() {
-        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
+        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, new DoubleColumn[0]);
     }
 
     @Override public String getId() {
