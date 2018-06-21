@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.collector.core.data;
 
-import com.sun.istack.internal.NotNull;
 import org.apache.skywalking.apm.collector.core.data.column.*;
 
 import static java.util.Objects.nonNull;
@@ -49,12 +48,12 @@ public abstract class AbstractData implements RemoteData {
     private final IntegerListColumn[] integerListColumns;
     private final DoubleListColumn[] doubleListColumns;
 
-    AbstractData(@NotNull StringColumn[] stringColumns, @NotNull LongColumn[] longColumns,
-        @NotNull IntegerColumn[] integerColumns,
-        @NotNull DoubleColumn[] doubleColumns, @NotNull ByteColumn[] byteColumns,
-        @NotNull StringListColumn[] stringListColumns,
-        @NotNull LongListColumn[] longListColumns,
-        @NotNull IntegerListColumn[] integerListColumns, @NotNull DoubleListColumn[] doubleListColumns) {
+    AbstractData(StringColumn[] stringColumns, LongColumn[] longColumns,
+        IntegerColumn[] integerColumns,
+        DoubleColumn[] doubleColumns, ByteColumn[] byteColumns,
+        StringListColumn[] stringListColumns,
+        LongListColumn[] longListColumns,
+        IntegerListColumn[] integerListColumns, DoubleListColumn[] doubleListColumns) {
         this.stringColumns = stringColumns;
         this.longColumns = longColumns;
         this.integerColumns = integerColumns;

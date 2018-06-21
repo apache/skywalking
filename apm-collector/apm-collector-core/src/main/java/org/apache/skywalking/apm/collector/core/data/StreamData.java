@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.collector.core.data;
 
-import com.sun.istack.internal.NotNull;
 import org.apache.skywalking.apm.collector.core.data.column.*;
 import org.apache.skywalking.apm.collector.core.queue.EndOfBatchContext;
 
@@ -37,22 +36,22 @@ public abstract class StreamData extends AbstractData implements QueueData {
         this.endOfBatchContext = context;
     }
 
-    public StreamData(@NotNull StringColumn[] stringColumns, @NotNull LongColumn[] longColumns,
-        @NotNull IntegerColumn[] integerColumns,
-        @NotNull DoubleColumn[] doubleColumns, @NotNull StringListColumn[] stringListColumns,
-        @NotNull LongListColumn[] longListColumns,
-        @NotNull IntegerListColumn[] integerListColumns, @NotNull DoubleListColumn[] doubleListColumns) {
+    public StreamData(StringColumn[] stringColumns, LongColumn[] longColumns,
+        IntegerColumn[] integerColumns,
+        DoubleColumn[] doubleColumns, StringListColumn[] stringListColumns,
+        LongListColumn[] longListColumns,
+        IntegerListColumn[] integerListColumns, DoubleListColumn[] doubleListColumns) {
         super(stringColumns, longColumns, integerColumns, doubleColumns, new ByteColumn[0], stringListColumns, longListColumns, integerListColumns, doubleListColumns);
     }
 
-    public StreamData(@NotNull StringColumn[] stringColumns, @NotNull LongColumn[] longColumns,
-        @NotNull IntegerColumn[] integerColumns, @NotNull DoubleColumn[] doubleColumns) {
+    public StreamData(StringColumn[] stringColumns, LongColumn[] longColumns,
+        IntegerColumn[] integerColumns, DoubleColumn[] doubleColumns) {
         super(stringColumns, longColumns, integerColumns, doubleColumns, new ByteColumn[0], new StringListColumn[0], new LongListColumn[0], new IntegerListColumn[0], new DoubleListColumn[0]);
     }
 
-    public StreamData(@NotNull StringColumn[] stringColumns, @NotNull LongColumn[] longColumns,
-        @NotNull IntegerColumn[] integerColumns, @NotNull DoubleColumn[] doubleColumns,
-        @NotNull ByteColumn[] byteColumns) {
+    public StreamData(StringColumn[] stringColumns, LongColumn[] longColumns,
+        IntegerColumn[] integerColumns, DoubleColumn[] doubleColumns,
+        ByteColumn[] byteColumns) {
         super(stringColumns, longColumns, integerColumns, doubleColumns, byteColumns, new StringListColumn[0], new LongListColumn[0], new IntegerListColumn[0], new DoubleListColumn[0]);
     }
 
