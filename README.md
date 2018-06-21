@@ -1,4 +1,4 @@
-Apache SkyWalking | [中文](README_ZH.md)
+Apache SkyWalking
 ==========
 
 <img src="https://skywalkingtest.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
@@ -40,6 +40,9 @@ including:
 - Modern and cool Web UI
 - Log integration
 - Alarm for slow or unstable(low SLA) application, instance and service 
+- [**Incubating**] Support accepting other tracer data formats.
+  - Zipkin JSON, Thrift, Protobuf v1 and v2 formats, powered by [OpenZipkin](https://github.com/openzipkin/zipkin) libs
+  - Jaeger in [Zipkin Thrift or JSON v1/v2 formats](https://github.com/jaegertracing/jaeger#backwards-compatibility-with-zipkin)
 
 # Document
 - [Documents in English](docs/README.md)
@@ -53,7 +56,6 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 
 # Live Demo
 - Host in Beijing. [goto](http://49.4.12.44:8080/)
-- Host in HK. [goto](http://159.138.0.181:8080/)
 
 # Screenshot
 <img src="https://skywalkingtest.github.io/page-resources/5.0.0-beta/Dashboard.png"/>
@@ -61,11 +63,8 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 
 - [See all screenshots](/docs/Screenshots.md)
 
-# Test reports
-- Automatic integration test reports
-  - [Java Agent test report](https://github.com/SkywalkingTest/agent-integration-test-report)
-- Performance test reports
-  - [Java Agent test report](https://skywalkingtest.github.io/Agent-Benchmarks/)
+# Compiling project
+Follow this [document](https://github.com/apache/incubator-skywalking/blob/master/docs/en/How-to-build.md).
 
 # Contact Us
 * Submit an issue

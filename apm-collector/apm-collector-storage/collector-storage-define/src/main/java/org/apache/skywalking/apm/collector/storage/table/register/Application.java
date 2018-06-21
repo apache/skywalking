@@ -18,11 +18,9 @@
 
 package org.apache.skywalking.apm.collector.storage.table.register;
 
-import org.apache.skywalking.apm.collector.core.data.Column;
-import org.apache.skywalking.apm.collector.core.data.RemoteData;
-import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.data.operator.CoverMergeOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.*;
+import org.apache.skywalking.apm.collector.core.data.column.*;
+import org.apache.skywalking.apm.collector.core.data.operator.*;
 import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 
 /**
@@ -30,25 +28,19 @@ import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterServ
  */
 public class Application extends StreamData {
 
-    private static final Column[] STRING_COLUMNS = {
-        new Column(ApplicationTable.ID, new NonMergeOperation()),
-        new Column(ApplicationTable.APPLICATION_CODE, new CoverMergeOperation()),
+    private static final StringColumn[] STRING_COLUMNS = {
+        new StringColumn(ApplicationTable.ID, new NonMergeOperation()),
+        new StringColumn(ApplicationTable.APPLICATION_CODE, new CoverMergeOperation()),
     };
 
-    private static final Column[] LONG_COLUMNS = {};
-
-    private static final Column[] DOUBLE_COLUMNS = {};
-
-    private static final Column[] INTEGER_COLUMNS = {
-        new Column(ApplicationTable.APPLICATION_ID, new CoverMergeOperation()),
-        new Column(ApplicationTable.ADDRESS_ID, new CoverMergeOperation()),
-        new Column(ApplicationTable.IS_ADDRESS, new CoverMergeOperation()),
+    private static final IntegerColumn[] INTEGER_COLUMNS = {
+        new IntegerColumn(ApplicationTable.APPLICATION_ID, new CoverMergeOperation()),
+        new IntegerColumn(ApplicationTable.ADDRESS_ID, new CoverMergeOperation()),
+        new IntegerColumn(ApplicationTable.IS_ADDRESS, new CoverMergeOperation()),
     };
-
-    private static final Column[] BYTE_COLUMNS = {};
 
     public Application() {
-        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
+        super(STRING_COLUMNS, new LongColumn[0], INTEGER_COLUMNS, new DoubleColumn[0], new StringListColumn[0], new LongListColumn[0], new IntegerListColumn[0], new DoubleListColumn[0]);
     }
 
     @Override public String getId() {

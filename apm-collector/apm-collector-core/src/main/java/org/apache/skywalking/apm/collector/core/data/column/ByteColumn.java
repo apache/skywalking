@@ -16,21 +16,20 @@
  *
  */
 
-package org.apache.skywalking.apm.webapp.config;
+package org.apache.skywalking.apm.collector.core.data.column;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
+import org.apache.skywalking.apm.collector.core.data.*;
 
 /**
  * @author peng-yongsheng
  */
-@Configuration
-public class UIConfig {
-    
-    @Value("${collector.path}")
-    private String rewritePath;
+public class ByteColumn extends Column {
 
-    public String getRewritePath() {
-        return rewritePath;
+    public ByteColumn(ColumnName columnName, MergeOperation mergeOperation) {
+        super(columnName, mergeOperation);
+    }
+
+    public ByteColumn(ColumnName columnName, MergeOperation mergeOperation, FormulaOperation formulaOperation) {
+        super(columnName, mergeOperation, formulaOperation);
     }
 }

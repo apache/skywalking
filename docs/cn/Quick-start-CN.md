@@ -5,3 +5,4 @@
    1. [集群模式](Deploy-backend-in-cluster-mode-CN.md)
 1. 部署 Java Agent，[doc](Deploy-skywalking-agent-CN.md)
 1. 重启并访问系统功能，查看UI即可。
+1. 登录页面的默认用户名/密码是`admin/admin`。

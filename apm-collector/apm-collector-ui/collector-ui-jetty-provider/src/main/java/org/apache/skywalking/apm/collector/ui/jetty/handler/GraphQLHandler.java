@@ -39,7 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
 import org.apache.skywalking.apm.collector.server.jetty.ArgumentsParseException;
-import org.apache.skywalking.apm.collector.server.jetty.JettyHandler;
+import org.apache.skywalking.apm.collector.server.jetty.JettyJsonHandler;
 import org.apache.skywalking.apm.collector.storage.ui.application.ApplicationNode;
 import org.apache.skywalking.apm.collector.storage.ui.application.ConjecturalNode;
 import org.apache.skywalking.apm.collector.storage.ui.common.VisualUserNode;
@@ -60,7 +60,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public class GraphQLHandler extends JettyHandler {
+public class GraphQLHandler extends JettyJsonHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GraphQLHandler.class);
 

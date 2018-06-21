@@ -19,14 +19,16 @@
 
 package org.apache.skywalking.apm.plugin.spymemcached.v2.define;
 
-import java.util.List;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
+
+import java.util.List;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
@@ -42,8 +44,8 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 public class MemcachedInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "net.spy.memcached.MemcachedClient";
-    private static final String CONSTRUCTOR_WITH_INETSOCKETADDRESS_LIST_ARG_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.spymemcached.MemcachedConstructorWithInetSocketAddressListArgInterceptor";
-    private static final String METHOD_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.spymemcached.MemcachedMethodInterceptor";
+    private static final String CONSTRUCTOR_WITH_INETSOCKETADDRESS_LIST_ARG_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.spymemcached.v2.MemcachedConstructorWithInetSocketAddressListArgInterceptor";
+    private static final String METHOD_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.spymemcached.v2.MemcachedMethodInterceptor";
 
     @Override
     public ClassMatch enhanceClass() {

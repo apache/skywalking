@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.collector.analysis.register.provider.service;
 
 import org.apache.skywalking.apm.collector.analysis.register.define.graph.GraphIdDefine;
+import org.apache.skywalking.apm.collector.analysis.register.define.service.AgentOsInfo;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IInstanceIDService;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
@@ -71,7 +72,7 @@ public class InstanceIDService implements IInstanceIDService {
         return applicationCacheService;
     }
 
-    @Override public int getOrCreateByAgentUUID(int applicationId, String agentUUID, long registerTime, String osInfo) {
+    @Override public int getOrCreateByAgentUUID(int applicationId, String agentUUID, long registerTime, AgentOsInfo osInfo) {
         logger.debug("get or getOrCreate instance id by agent UUID, application id: {}, agentUUID: {}, registerTime: {}, osInfo: {}", applicationId, agentUUID, registerTime, osInfo);
         int instanceId = getInstanceCacheService().getInstanceIdByAgentUUID(applicationId, agentUUID);
 
@@ -84,7 +85,7 @@ public class InstanceIDService implements IInstanceIDService {
             instance.setRegisterTime(registerTime);
             instance.setHeartBeatTime(registerTime);
             instance.setInstanceId(0);
-            instance.setOsInfo(osInfo);
+            instance.setOsInfo(osInfo.toString());
             instance.setIsAddress(BooleanUtils.FALSE);
             instance.setAddressId(Const.NONE);
 

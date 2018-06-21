@@ -185,6 +185,12 @@
             <version>${project.version}</version>
         </dependency>
         <!-- alarm provider -->
+        <!-- zipkin receiver-->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>receiver-zipkin-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- instrument provided dependency -->
         <dependency>

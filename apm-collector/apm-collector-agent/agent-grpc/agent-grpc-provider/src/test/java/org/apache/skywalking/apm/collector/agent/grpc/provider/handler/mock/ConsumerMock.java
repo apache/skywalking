@@ -20,12 +20,7 @@ package org.apache.skywalking.apm.collector.agent.grpc.provider.handler.mock;
 
 import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
-import org.apache.skywalking.apm.network.proto.SpanLayer;
-import org.apache.skywalking.apm.network.proto.SpanObject;
-import org.apache.skywalking.apm.network.proto.SpanType;
-import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
-import org.apache.skywalking.apm.network.proto.UniqueId;
-import org.apache.skywalking.apm.network.proto.UpstreamSegment;
+import org.apache.skywalking.apm.network.proto.*;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
@@ -47,30 +42,14 @@ class ConsumerMock {
         segment.setTraceSegmentId(segmentId);
         segment.setApplicationId(-1);
         segment.setApplicationInstanceId(2);
-        segment.addSpans(createExitSpan(startTimestamp, isPrepare));
         segment.addSpans(createEntrySpan(startTimestamp, isPrepare));
+        segment.addSpans(createLocalSpan(startTimestamp, isPrepare));
+        segment.addSpans(createMqEntrySpan(startTimestamp, isPrepare));
+        segment.addSpans(createExitSpan(startTimestamp, isPrepare));
+        segment.addSpans(createMqEntrySpan2(startTimestamp, isPrepare));
+        segment.addSpans(createExitSpan2(startTimestamp, isPrepare));
 
         return segment.build().toByteString();
-    }
-
-    private SpanObject.Builder createExitSpan(long startTimestamp, boolean isPrepare) {
-        SpanObject.Builder span = SpanObject.newBuilder();
-        span.setSpanId(1);
-        span.setSpanType(SpanType.Exit);
-        span.setSpanLayer(SpanLayer.RPCFramework);
-        span.setParentSpanId(0);
-        span.setStartTime(startTimestamp + 10);
-        span.setEndTime(startTimestamp + 1990);
-        span.setComponentId(ComponentsDefine.DUBBO.getId());
-        if (isPrepare) {
-            span.setPeer("172.25.0.4:20880");
-            span.setOperationName("org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()");
-        } else {
-            span.setOperationNameId(-1);
-            span.setPeerId(-1);
-        }
-        span.setIsError(false);
-        return span;
     }
 
     private SpanObject.Builder createEntrySpan(long startTimestamp, boolean isPrepare) {
@@ -86,6 +65,98 @@ class ConsumerMock {
             span.setOperationName("/dubbox-case/case/dubbox-rest");
         } else {
             span.setOperationNameId(2);
+        }
+        span.setIsError(false);
+        return span;
+    }
+
+    private SpanObject.Builder createLocalSpan(long startTimestamp, boolean isPrepare) {
+        SpanObject.Builder span = SpanObject.newBuilder();
+        span.setSpanId(1);
+        span.setSpanType(SpanType.Local);
+        span.setParentSpanId(0);
+        span.setStartTime(startTimestamp + 100);
+        span.setEndTime(startTimestamp + 1900);
+        if (isPrepare) {
+            span.setOperationName("org.apache.skywalking.Local.do");
+        } else {
+            span.setOperationNameId(2);
+        }
+        span.setIsError(false);
+        return span;
+    }
+
+    private SpanObject.Builder createMqEntrySpan(long startTimestamp, boolean isPrepare) {
+        SpanObject.Builder span = SpanObject.newBuilder();
+        span.setSpanId(2);
+        span.setSpanType(SpanType.Entry);
+        span.setSpanLayer(SpanLayer.MQ);
+        span.setParentSpanId(1);
+        span.setStartTime(startTimestamp + 110);
+        span.setEndTime(startTimestamp + 1800);
+        span.setComponentId(ComponentsDefine.ROCKET_MQ_CONSUMER.getId());
+        if (isPrepare) {
+            span.setOperationName("org.apache.skywalking.RocketMQ");
+        } else {
+            span.setOperationNameId(2);
+        }
+        span.setIsError(false);
+        return span;
+    }
+
+    private SpanObject.Builder createExitSpan(long startTimestamp, boolean isPrepare) {
+        SpanObject.Builder span = SpanObject.newBuilder();
+        span.setSpanId(3);
+        span.setSpanType(SpanType.Exit);
+        span.setSpanLayer(SpanLayer.RPCFramework);
+        span.setParentSpanId(2);
+        span.setStartTime(startTimestamp + 120);
+        span.setEndTime(startTimestamp + 1780);
+        span.setComponentId(ComponentsDefine.DUBBO.getId());
+        if (isPrepare) {
+            span.setPeer("172.25.0.4:20880");
+            span.setOperationName("org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()");
+        } else {
+            span.setOperationNameId(-1);
+            span.setPeerId(-1);
+        }
+        span.setIsError(false);
+        return span;
+    }
+
+    private SpanObject.Builder createMqEntrySpan2(long startTimestamp, boolean isPrepare) {
+        SpanObject.Builder span = SpanObject.newBuilder();
+        span.setSpanId(4);
+        span.setSpanType(SpanType.Entry);
+        span.setSpanLayer(SpanLayer.MQ);
+        span.setParentSpanId(1);
+        span.setStartTime(startTimestamp + 110);
+        span.setEndTime(startTimestamp + 1800);
+        span.setComponentId(ComponentsDefine.ROCKET_MQ_CONSUMER.getId());
+        if (isPrepare) {
+            span.setOperationName("org.apache.skywalking.RocketMQ");
+        } else {
+            span.setOperationNameId(2);
+        }
+        span.setIsError(false);
+        return span;
+    }
+
+    private SpanObject.Builder createExitSpan2(long startTimestamp, boolean isPrepare) {
+        SpanObject.Builder span = SpanObject.newBuilder();
+        span.setSpanId(5);
+        span.setSpanType(SpanType.Exit);
+        span.setSpanLayer(SpanLayer.RPCFramework);
+        span.setParentSpanId(4);
+        span.setStartTime(startTimestamp + 120);
+        span.setEndTime(startTimestamp + 1780);
+        span.setComponentId(ComponentsDefine.DUBBO.getId());
+        if (isPrepare) {
+            span.setPeer("172.25.0.4:20880");
+            span.setOperationName("org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()");
+        } else {
+            span.setOperationNameId(-1);
+            span.setPeerId(-1);
         }
         span.setIsError(false);
         return span;

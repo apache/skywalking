@@ -25,7 +25,6 @@ import org.apache.skywalking.apm.collector.analysis.segment.parser.define.graph.
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.*;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParseService;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.standardization.*;
-import org.apache.skywalking.apm.collector.core.UnexpectedException;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.graph.*;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -109,7 +108,6 @@ public class SegmentParse {
         segmentCoreInfo.setApplicationId(segmentDecorator.getApplicationId());
         segmentCoreInfo.setApplicationInstanceId(segmentDecorator.getApplicationInstanceId());
 
-        int entrySpanCount = 0;
         for (int i = 0; i < segmentDecorator.getSpansCount(); i++) {
             SpanDecorator spanDecorator = segmentDecorator.getSpans(i);
 
@@ -124,10 +122,6 @@ public class SegmentParse {
                 }
             }
 
-            if (SpanType.Entry.equals(spanDecorator.getSpanType())) {
-                entrySpanCount++;
-            }
-
             if (segmentCoreInfo.getStartTime() > spanDecorator.getStartTime()) {
                 segmentCoreInfo.setStartTime(spanDecorator.getStartTime());
             }
@@ -135,10 +129,6 @@ public class SegmentParse {
                 segmentCoreInfo.setEndTime(spanDecorator.getEndTime());
             }
             segmentCoreInfo.setError(spanDecorator.getIsError() || segmentCoreInfo.isError());
-
-            if (entrySpanCount > 1) {
-                throw new UnexpectedException("This segment contains multiple entry span.");
-            }
         }
 
         long minuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(segmentCoreInfo.getStartTime());

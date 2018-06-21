@@ -11,6 +11,7 @@
         * [Trace Spring beans](en/agent-optional-plugins/Spring-bean-plugins.md)
         * [Trace Oracle and Resin](en/agent-optional-plugins/Oracle-Resin-plugins.md)
         * [[**Incubating**] Filter traces through custom services](../apm-sniffer/optional-plugins/trace-ignore-plugin/README.md)
+  * [Architecture Design](en/Architecture.md)
   * Advanced Features
     * [Override settings through System.properties](en/Setting-override.md)
     * [Direct uplink and disable naming discovery](en/Direct-uplink.md)
@@ -21,6 +22,7 @@
   * Incubating Features
     * [Why are some features in **Incubating**?](en/Incubating/Abstract.md)
     * [Use Sharding JDBC as storage implementor](en/Use-ShardingJDBC-as-storage-implementor.md)
+    * [Receive Zipkin span data format](../apm-collector/apm-collector-thirdparty-receiver/receiver-zipkin/docs/README.md)
   * Application Toolkit
     * [Overview](en/Applicaton-toolkit.md)
     * [Use SkyWalking OpenTracing compatible tracer](en/Opentracing.md)
