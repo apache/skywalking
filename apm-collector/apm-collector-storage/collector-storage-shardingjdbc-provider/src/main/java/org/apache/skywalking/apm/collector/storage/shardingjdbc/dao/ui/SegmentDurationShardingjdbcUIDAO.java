@@ -24,8 +24,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
+import com.google.gson.Gson;
 import org.apache.skywalking.apm.collector.client.shardingjdbc.ShardingjdbcClient;
 import org.apache.skywalking.apm.collector.client.shardingjdbc.ShardingjdbcClientException;
 import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
@@ -47,6 +49,8 @@ import org.slf4j.LoggerFactory;
 public class SegmentDurationShardingjdbcUIDAO extends ShardingjdbcDAO implements ISegmentDurationUIDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(SegmentDurationShardingjdbcUIDAO.class);
+
+    private final Gson gson = new Gson();
 
     public SegmentDurationShardingjdbcUIDAO(ShardingjdbcClient client) {
         super(client);
@@ -141,8 +145,11 @@ public class SegmentDurationShardingjdbcUIDAO extends ShardingjdbcDAO implements
                 basicTrace.setSegmentId(rs.getString(SegmentDurationTable.SEGMENT_ID.getName()));
                 basicTrace.setDuration(rs.getInt(SegmentDurationTable.DURATION.getName()));
                 basicTrace.setStart(rs.getLong(SegmentDurationTable.START_TIME.getName()));
-                //TODO linjiaqi operation name was changed to contains multiple values
-                //basicTrace.setOperationName(rs.getString(SegmentDurationTable.SERVICE_NAME.getName()));
+                String serviceNameJsonStr = rs.getString(SegmentDurationTable.SERVICE_NAME.getName());
+                if (StringUtils.isNotEmpty(serviceNameJsonStr)) {
+                    List serviceNames = gson.fromJson(serviceNameJsonStr, LinkedList.class);
+                    basicTrace.getOperationName().addAll(serviceNames);
+                }
                 basicTrace.setError(BooleanUtils.valueToBoolean(rs.getInt(SegmentDurationTable.IS_ERROR.getName())));
                 traceBrief.getTraces().add(basicTrace);
                 cnt++;

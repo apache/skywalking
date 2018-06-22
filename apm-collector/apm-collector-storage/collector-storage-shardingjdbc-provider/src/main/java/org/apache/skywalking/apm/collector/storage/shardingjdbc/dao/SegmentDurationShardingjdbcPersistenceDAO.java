@@ -19,6 +19,8 @@
 package org.apache.skywalking.apm.collector.storage.shardingjdbc.dao;
 
 import java.util.*;
+
+import com.google.gson.Gson;
 import org.apache.skywalking.apm.collector.client.shardingjdbc.*;
 import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentDurationPersistenceDAO;
@@ -33,6 +35,8 @@ import org.slf4j.*;
 public class SegmentDurationShardingjdbcPersistenceDAO extends ShardingjdbcDAO implements ISegmentDurationPersistenceDAO<ShardingjdbcSqlEntity, ShardingjdbcSqlEntity, SegmentDuration> {
 
     private static final Logger logger = LoggerFactory.getLogger(SegmentDurationShardingjdbcPersistenceDAO.class);
+
+    private final Gson gson = new Gson();
 
     public SegmentDurationShardingjdbcPersistenceDAO(ShardingjdbcClient client) {
         super(client);
@@ -49,7 +53,7 @@ public class SegmentDurationShardingjdbcPersistenceDAO extends ShardingjdbcDAO i
         target.put(SegmentDurationTable.ID.getName(), data.getId());
         target.put(SegmentDurationTable.SEGMENT_ID.getName(), data.getSegmentId());
         target.put(SegmentDurationTable.APPLICATION_ID.getName(), data.getApplicationId());
-        target.put(SegmentDurationTable.SERVICE_NAME.getName(), data.getServiceName());
+        target.put(SegmentDurationTable.SERVICE_NAME.getName(), gson.toJson(data.getServiceName()));
         target.put(SegmentDurationTable.DURATION.getName(), data.getDuration());
         target.put(SegmentDurationTable.START_TIME.getName(), data.getStartTime());
         target.put(SegmentDurationTable.END_TIME.getName(), data.getEndTime());
