@@ -24,7 +24,6 @@ import com.google.gson.reflect.TypeToken;
 import graphql.*;
 import graphql.schema.GraphQLSchema;
 import java.io.*;
-import java.lang.reflect.Type;
 import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -91,10 +90,8 @@ public class GraphQLHandler extends JettyJsonHandler {
 
         JsonObject requestJson = gson.fromJson(request.toString(), JsonObject.class);
 
-        Type mapType = new TypeToken<Map<String, Object>>() {
-        }.getType();
-
-        return execute(requestJson.get(QUERY).getAsString(), gson.fromJson(requestJson.get(VARIABLES), mapType));
+        return execute(requestJson.get(QUERY).getAsString(), gson.fromJson(requestJson.get(VARIABLES), new TypeToken<Map<String, Object>>() {
+        }.getType()));
     }
 
     private JsonObject execute(String request, Map<String, Object> variables) {

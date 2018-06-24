@@ -59,7 +59,6 @@ public class TopologyBuilderTest {
         alarmService = mock(AlarmService.class);
         dateBetweenService = mock(DateBetweenService.class);
         Whitebox.setInternalState(topologyBuilder, "applicationCacheService", applicationCacheService);
-        Whitebox.setInternalState(topologyBuilder, "alarmService", alarmService);
         Whitebox.setInternalState(topologyBuilder, "dateBetweenService", dateBetweenService);
         duration = new Duration();
         duration.setEnd("2018-02");
