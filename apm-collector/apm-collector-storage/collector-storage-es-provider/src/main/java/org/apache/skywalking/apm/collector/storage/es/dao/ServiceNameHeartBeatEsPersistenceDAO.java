@@ -43,18 +43,24 @@ public class ServiceNameHeartBeatEsPersistenceDAO extends EsDAO implements IServ
 
     @GraphComputingMetric(name = "/persistence/get/" + ServiceNameTable.TABLE + "/heartbeat")
     @Override public ServiceName get(String id) {
-        GetResponse getResponse = getClient().prepareGet(ServiceNameTable.TABLE, id).get();
+        String[] includeSources = {ServiceNameTable.HEARTBEAT_TIME.getName()};
+        GetResponse getResponse = getClient().prepareGet(ServiceNameTable.TABLE, id).setFetchSource(includeSources, null).get();
         if (getResponse.isExists()) {
             Map<String, Object> source = getResponse.getSource();
 
             ServiceName serviceName = new ServiceName();
             serviceName.setId(id);
-            serviceName.setServiceId(((Number)source.get(ServiceNameTable.SERVICE_ID.getName())).intValue());
+            serviceName.setServiceId(Integer.valueOf(id));
             serviceName.setHeartBeatTime(((Number)source.get(ServiceNameTable.HEARTBEAT_TIME.getName())).longValue());
-            logger.debug("service id: {} is exists", id);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("service id: {} is exists", id);
+            }
             return serviceName;
         } else {
-            logger.debug("service id: {} is not exists", id);
+            if (logger.isDebugEnabled()) {
+                logger.debug("service id: {} is not exists", id);
+            }
             return null;
         }
     }
@@ -64,7 +70,9 @@ public class ServiceNameHeartBeatEsPersistenceDAO extends EsDAO implements IServ
     }
 
     @Override public UpdateRequestBuilder prepareBatchUpdate(ServiceName data) {
-        logger.info("service name heart beat, service id: {}, heart beat time: {}", data.getId(), data.getHeartBeatTime());
+        if (logger.isDebugEnabled()) {
+            logger.debug("service name heart beat, service id: {}, heart beat time: {}", data.getId(), data.getHeartBeatTime());
+        }
 
         Map<String, Object> source = new HashMap<>();
         source.put(ServiceNameTable.HEARTBEAT_TIME.getName(), data.getHeartBeatTime());

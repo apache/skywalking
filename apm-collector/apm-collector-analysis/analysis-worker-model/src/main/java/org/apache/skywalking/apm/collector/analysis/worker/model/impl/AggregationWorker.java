@@ -18,22 +18,20 @@
 
 package org.apache.skywalking.apm.collector.analysis.worker.model.impl;
 
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.*;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.data.MergeDataCache;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
 public abstract class AggregationWorker<INPUT extends StreamData, OUTPUT extends StreamData> extends AbstractLocalAsyncWorker<INPUT, OUTPUT> {
 
-    private final Logger logger = LoggerFactory.getLogger(AggregationWorker.class);
+    private static final Logger logger = LoggerFactory.getLogger(AggregationWorker.class);
 
-    private MergeDataCache<OUTPUT> mergeDataCache;
+    private final MergeDataCache<OUTPUT> mergeDataCache;
     private int messageNum;
 
     public AggregationWorker(ModuleManager moduleManager) {
@@ -52,12 +50,9 @@ public abstract class AggregationWorker<INPUT extends StreamData, OUTPUT extends
         messageNum++;
         aggregate(output);
 
-        if (messageNum >= 100) {
+        if (messageNum >= 1000 || message.getEndOfBatchContext().isEndOfBatch()) {
             sendToNext();
             messageNum = 0;
-        }
-        if (message.getEndOfBatchContext().isEndOfBatch()) {
-            sendToNext();
         }
     }
 
@@ -70,8 +65,12 @@ public abstract class AggregationWorker<INPUT extends StreamData, OUTPUT extends
                 throw new WorkerException(e.getMessage(), e);
             }
         }
+
         mergeDataCache.getLast().collection().forEach((String id, OUTPUT data) -> {
-            logger.debug(data.toString());
+            if (logger.isDebugEnabled()) {
+                logger.debug(data.toString());
+            }
+
             onNext(data);
         });
         mergeDataCache.finishReadingLast();

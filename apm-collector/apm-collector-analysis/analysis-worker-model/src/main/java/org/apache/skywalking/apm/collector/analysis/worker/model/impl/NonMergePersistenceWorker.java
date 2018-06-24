@@ -30,7 +30,7 @@ import org.slf4j.*;
  */
 public abstract class NonMergePersistenceWorker<INPUT_AND_OUTPUT extends StreamData> extends PersistenceWorker<INPUT_AND_OUTPUT, NonMergeDataCollection<INPUT_AND_OUTPUT>> {
 
-    private final Logger logger = LoggerFactory.getLogger(NonMergePersistenceWorker.class);
+    private static final Logger logger = LoggerFactory.getLogger(NonMergePersistenceWorker.class);
 
     private final NonMergeDataCache<INPUT_AND_OUTPUT> mergeDataCache;
 

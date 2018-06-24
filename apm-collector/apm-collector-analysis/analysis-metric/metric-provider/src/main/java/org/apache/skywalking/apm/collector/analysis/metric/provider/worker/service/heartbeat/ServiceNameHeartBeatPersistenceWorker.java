@@ -61,7 +61,7 @@ public class ServiceNameHeartBeatPersistenceWorker extends MergePersistenceWorke
 
         @Override
         public int queueSize() {
-            return 1024;
+            return 4096;
         }
     }
 

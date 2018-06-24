@@ -51,7 +51,10 @@ public class ApplicationMappingSpanListener implements EntrySpanListener {
     }
 
     @Override public void parseEntry(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
-        logger.debug("application mapping listener parse reference");
+        if (logger.isDebugEnabled()) {
+            logger.debug("application mapping listener parse reference");
+        }
+
         if (!spanDecorator.getSpanLayer().equals(SpanLayer.MQ)) {
             if (spanDecorator.getRefsCount() > 0) {
                 for (int i = 0; i < spanDecorator.getRefsCount(); i++) {
@@ -73,10 +76,16 @@ public class ApplicationMappingSpanListener implements EntrySpanListener {
     }
 
     @Override public void build() {
-        logger.debug("application mapping listener build");
+        if (logger.isDebugEnabled()) {
+            logger.debug("application mapping listener build");
+        }
+
         Graph<ApplicationMapping> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.APPLICATION_MAPPING_GRAPH_ID, ApplicationMapping.class);
         applicationMappings.forEach(applicationMapping -> {
-            logger.debug("push to application mapping aggregation worker, id: {}", applicationMapping.getId());
+            if (logger.isDebugEnabled()) {
+                logger.debug("push to application mapping aggregation worker, id: {}", applicationMapping.getId());
+            }
+
             graph.start(applicationMapping);
         });
     }

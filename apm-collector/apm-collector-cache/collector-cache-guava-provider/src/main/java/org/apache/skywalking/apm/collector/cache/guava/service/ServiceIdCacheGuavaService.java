@@ -37,7 +37,7 @@ public class ServiceIdCacheGuavaService implements ServiceIdCacheService {
 
     private final Logger logger = LoggerFactory.getLogger(ServiceIdCacheGuavaService.class);
 
-    private final Cache<String, Integer> serviceIdCache = CacheBuilder.newBuilder().maximumSize(10000).build();
+    private final Cache<String, Integer> serviceIdCache = CacheBuilder.newBuilder().maximumSize(1000000).build();
 
     private final ModuleManager moduleManager;
     private IServiceNameCacheDAO serviceNameCacheDAO;

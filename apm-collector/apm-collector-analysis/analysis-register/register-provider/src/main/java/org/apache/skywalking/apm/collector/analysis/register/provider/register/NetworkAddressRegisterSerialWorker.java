@@ -19,17 +19,14 @@
 package org.apache.skywalking.apm.collector.analysis.register.provider.register;
 
 import org.apache.skywalking.apm.collector.analysis.register.define.graph.WorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.*;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.NetworkAddressCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.register.INetworkAddressRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddress;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -51,8 +48,11 @@ public class NetworkAddressRegisterSerialWorker extends AbstractLocalAsyncWorker
         return WorkerIdDefine.NETWORK_ADDRESS_REGISTER_SERIAL_WORKER;
     }
 
-    @Override protected void onWork(NetworkAddress networkAddress) throws WorkerException {
-        logger.debug("register network address, address: {}", networkAddress.getNetworkAddress());
+    @Override protected void onWork(NetworkAddress networkAddress) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("register network address, address: {}", networkAddress.getNetworkAddress());
+        }
+
         if (networkAddress.getAddressId() == 0) {
             int addressId = networkAddressCacheService.getAddressId(networkAddress.getNetworkAddress());
 

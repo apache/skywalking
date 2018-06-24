@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RemoteWorkerRef<INPUT extends RemoteData, OUTPUT extends RemoteData> extends WorkerRef<INPUT, OUTPUT> {
 
-    private final Logger logger = LoggerFactory.getLogger(RemoteWorkerRef.class);
+    private static final Logger logger = LoggerFactory.getLogger(RemoteWorkerRef.class);
 
     private final AbstractRemoteWorker<INPUT, OUTPUT> remoteWorker;
     private final RemoteSenderService remoteSenderService;

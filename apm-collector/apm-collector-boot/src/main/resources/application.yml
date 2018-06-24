@@ -73,7 +73,7 @@ storage:
     clusterName: CollectorDBCluster
     clusterTransportSniffer: true
     clusterNodes: localhost:9300
-    indexShardsNumber: 2
+    indexShardsNumber: 1
     indexReplicasNumber: 0
     highPerformanceMode: true
     # Set a timeout on metric data. After the timeout has expired, the metric data will automatically be deleted.
@@ -101,10 +101,9 @@ configuration:
     thermodynamicResponseTimeStep: 50
     thermodynamicCountOfResponseTimeSteps: 40
     # max collection's size of worker cache collection, setting it smaller when collector OutOfMemory crashed.
-    workerCacheMaxSize: 10000
+    workerCacheMaxSize: 5000
 #receiver_zipkin:
 #  default:
 #    host: localhost
 #    port: 9411
 #    contextPath: /
-#
