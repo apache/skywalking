@@ -23,7 +23,7 @@ import java.util.List;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.UnexpectedException;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
-import org.apache.skywalking.apm.collector.core.util.*;
+import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
 import org.apache.skywalking.apm.collector.storage.base.dao.IBatchDAO;
 import org.elasticsearch.action.bulk.*;
 import org.elasticsearch.action.index.IndexRequestBuilder;
@@ -45,31 +45,13 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
     private final int flushInterval;
     private final int concurrentRequests;
 
-    public BatchProcessEsDAO(ElasticSearchClient client) {
+    public BatchProcessEsDAO(ElasticSearchClient client, int bulkActions, int bulkSize, int flushInterval,
+        int concurrentRequests) {
         super(client);
-        if (StringUtils.isNotEmpty(System.getProperty("bulkActions"))) {
-            this.bulkActions = Integer.valueOf(System.getProperty("bulkActions"));
-        } else {
-            this.bulkActions = 2000;
-        }
-
-        if (StringUtils.isNotEmpty(System.getProperty("bulkSize"))) {
-            this.bulkSize = Integer.valueOf(System.getProperty("bulkSize"));
-        } else {
-            this.bulkSize = 20;
-        }
-
-        if (StringUtils.isNotEmpty(System.getProperty("flushInterval"))) {
-            this.flushInterval = Integer.valueOf(System.getProperty("flushInterval"));
-        } else {
-            this.flushInterval = 10;
-        }
-
-        if (StringUtils.isNotEmpty(System.getProperty("concurrentRequests"))) {
-            this.concurrentRequests = Integer.valueOf(System.getProperty("concurrentRequests"));
-        } else {
-            this.concurrentRequests = 4;
-        }
+        this.bulkActions = bulkActions;
+        this.bulkSize = bulkSize;
+        this.flushInterval = flushInterval;
+        this.concurrentRequests = concurrentRequests;
     }
 
     @GraphComputingMetric(name = "/persistence/batchPersistence/")

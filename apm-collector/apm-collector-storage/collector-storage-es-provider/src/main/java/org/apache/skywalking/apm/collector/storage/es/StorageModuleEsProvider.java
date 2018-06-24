@@ -105,7 +105,7 @@ public class StorageModuleEsProvider extends ModuleProvider {
         elasticSearchClient = new ElasticSearchClient(config.getClusterName(), config.getClusterTransportSniffer(), config.getClusterNodes(), nameSpace);
 
         this.registerServiceImplementation(ITTLConfigService.class, new TTLConfigService(config));
-        this.registerServiceImplementation(IBatchDAO.class, new BatchProcessEsDAO(elasticSearchClient));
+        this.registerServiceImplementation(IBatchDAO.class, new BatchProcessEsDAO(elasticSearchClient, config.getBulkActions(), config.getBulkSize(), config.getFlushInterval(), config.getConcurrentRequests()));
 
         registerCacheDAO();
         registerRegisterDAO();
