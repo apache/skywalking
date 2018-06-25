@@ -82,10 +82,10 @@ public class SegmentParse {
                 buildSegment(segmentCoreInfo.getSegmentId(), segmentDecorator.toByteArray());
                 return true;
             }
-        } catch (InvalidProtocolBufferException e) {
+        } catch (Throwable e) {
             logger.error(e.getMessage(), e);
+            return true;
         }
-        return false;
     }
 
     @GraphComputingMetric(name = "/segment/parse/parseBinarySegment")
