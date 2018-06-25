@@ -48,7 +48,7 @@ import org.apache.skywalking.apm.collector.storage.dao.rtd.*;
 import org.apache.skywalking.apm.collector.storage.dao.smp.*;
 import org.apache.skywalking.apm.collector.storage.dao.srmp.*;
 import org.apache.skywalking.apm.collector.storage.dao.ui.*;
-import org.apache.skywalking.apm.collector.storage.es.base.dao.BatchEsDAO;
+import org.apache.skywalking.apm.collector.storage.es.base.dao.BatchProcessEsDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.define.ElasticSearchStorageInstaller;
 import org.apache.skywalking.apm.collector.storage.es.dao.*;
 import org.apache.skywalking.apm.collector.storage.es.dao.acp.*;
@@ -105,7 +105,7 @@ public class StorageModuleEsProvider extends ModuleProvider {
         elasticSearchClient = new ElasticSearchClient(config.getClusterName(), config.getClusterTransportSniffer(), config.getClusterNodes(), nameSpace);
 
         this.registerServiceImplementation(ITTLConfigService.class, new TTLConfigService(config));
-        this.registerServiceImplementation(IBatchDAO.class, new BatchEsDAO(elasticSearchClient));
+        this.registerServiceImplementation(IBatchDAO.class, new BatchProcessEsDAO(elasticSearchClient, config.getBulkActions(), config.getBulkSize(), config.getFlushInterval(), config.getConcurrentRequests()));
 
         registerCacheDAO();
         registerRegisterDAO();

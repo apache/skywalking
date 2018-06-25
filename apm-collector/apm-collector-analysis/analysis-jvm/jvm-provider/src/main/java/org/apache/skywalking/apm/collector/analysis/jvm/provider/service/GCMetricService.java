@@ -34,7 +34,7 @@ import static java.util.Objects.isNull;
  */
 public class GCMetricService implements IGCMetricService {
 
-    private final Logger logger = LoggerFactory.getLogger(GCMetricService.class);
+    private static final Logger logger = LoggerFactory.getLogger(GCMetricService.class);
 
     private Graph<GCMetric> gcMetricGraph;
 
@@ -59,7 +59,9 @@ public class GCMetricService implements IGCMetricService {
         gcMetric.setTimes(1L);
         gcMetric.setTimeBucket(timeBucket);
 
-        logger.debug("push to gc metric graph, id: {}", gcMetric.getId());
+        if (logger.isDebugEnabled()) {
+            logger.debug("push to gc metric graph, id: {}", gcMetric.getId());
+        }
         getGcMetricGraph().start(gcMetric);
     }
 }

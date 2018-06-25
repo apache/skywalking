@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
+import java.io.IOException;
 import java.util.*;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
@@ -26,6 +27,7 @@ import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersisten
 import org.apache.skywalking.apm.collector.storage.table.segment.*;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
+import org.elasticsearch.common.xcontent.*;
 
 /**
  * @author peng-yongsheng
@@ -47,11 +49,11 @@ public class SegmentEsPersistenceDAO extends AbstractPersistenceEsDAO<Segment> i
         return segment;
     }
 
-    @Override protected Map<String, Object> esStreamDataToEsData(Segment streamData) {
-        Map<String, Object> target = new HashMap<>();
-        target.put(SegmentTable.DATA_BINARY.getName(), new String(Base64.getEncoder().encode(streamData.getDataBinary())));
-        target.put(SegmentTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
-        return target;
+    @Override protected XContentBuilder esStreamDataToEsData(Segment streamData) throws IOException {
+        return XContentFactory.jsonBuilder().startObject()
+            .field(SegmentTable.DATA_BINARY.getName(), new String(Base64.getEncoder().encode(streamData.getDataBinary())))
+            .field(SegmentTable.TIME_BUCKET.getName(), streamData.getTimeBucket())
+            .endObject();
     }
 
     @Override protected String timeBucketColumnNameForDelete() {

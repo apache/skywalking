@@ -32,7 +32,7 @@ import static java.util.Objects.nonNull;
  */
 public abstract class MergePersistenceWorker<INPUT_AND_OUTPUT extends StreamData> extends PersistenceWorker<INPUT_AND_OUTPUT, MergeDataCollection<INPUT_AND_OUTPUT>> {
 
-    private final Logger logger = LoggerFactory.getLogger(MergePersistenceWorker.class);
+    private static final Logger logger = LoggerFactory.getLogger(MergePersistenceWorker.class);
 
     private final MergeDataCache<INPUT_AND_OUTPUT> mergeDataCache;
 
@@ -46,22 +46,21 @@ public abstract class MergePersistenceWorker<INPUT_AND_OUTPUT extends StreamData
     }
 
     @Override protected List<Object> prepareBatch(MergeDataCollection<INPUT_AND_OUTPUT> collection) {
-        List<Object> insertBatchCollection = new LinkedList<>();
-        List<Object> updateBatchCollection = new LinkedList<>();
+        List<Object> batchCollection = new LinkedList<>();
         collection.collection().forEach((id, data) -> {
             if (needMergeDBData()) {
                 INPUT_AND_OUTPUT dbData = persistenceDAO().get(id);
                 if (nonNull(dbData)) {
                     dbData.mergeAndFormulaCalculateData(data);
                     try {
-                        updateBatchCollection.add(persistenceDAO().prepareBatchUpdate(dbData));
+                        batchCollection.add(persistenceDAO().prepareBatchUpdate(dbData));
                         onNext(dbData);
                     } catch (Throwable t) {
                         logger.error(t.getMessage(), t);
                     }
                 } else {
                     try {
-                        insertBatchCollection.add(persistenceDAO().prepareBatchInsert(data));
+                        batchCollection.add(persistenceDAO().prepareBatchInsert(data));
                         onNext(data);
                     } catch (Throwable t) {
                         logger.error(t.getMessage(), t);
@@ -69,7 +68,7 @@ public abstract class MergePersistenceWorker<INPUT_AND_OUTPUT extends StreamData
                 }
             } else {
                 try {
-                    insertBatchCollection.add(persistenceDAO().prepareBatchInsert(data));
+                    batchCollection.add(persistenceDAO().prepareBatchInsert(data));
                     onNext(data);
                 } catch (Throwable t) {
                     logger.error(t.getMessage(), t);
@@ -77,8 +76,7 @@ public abstract class MergePersistenceWorker<INPUT_AND_OUTPUT extends StreamData
             }
         });
 
-        insertBatchCollection.addAll(updateBatchCollection);
-        return insertBatchCollection;
+        return batchCollection;
     }
 
     @Override protected void cacheData(INPUT_AND_OUTPUT input) {

@@ -67,9 +67,11 @@ public class ServiceReferenceMetric extends StreamData implements Metric {
         new IntegerColumn(ServiceReferenceMetricTable.BEHIND_APPLICATION_ID, new NonMergeOperation()),
     };
 
-    public ServiceReferenceMetric() {
-        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, new DoubleColumn[0], new StringListColumn[0], new LongListColumn[0], new IntegerListColumn[0], new DoubleListColumn[0]);
+    private static final DoubleColumn[] DOUBLE_COLUMNS = {
+    };
 
+    public ServiceReferenceMetric() {
+        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, DOUBLE_COLUMNS);
     }
 
     @Override public String getId() {

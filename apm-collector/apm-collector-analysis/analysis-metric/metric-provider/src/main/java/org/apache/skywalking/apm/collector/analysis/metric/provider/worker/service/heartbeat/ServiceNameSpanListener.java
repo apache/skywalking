@@ -32,7 +32,7 @@ import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
  */
 public class ServiceNameSpanListener implements EntrySpanListener, ExitSpanListener, LocalSpanListener {
 
-    private List<ServiceName> serviceNames;
+    private final List<ServiceName> serviceNames;
 
     private ServiceNameSpanListener() {
         this.serviceNames = new LinkedList<>();

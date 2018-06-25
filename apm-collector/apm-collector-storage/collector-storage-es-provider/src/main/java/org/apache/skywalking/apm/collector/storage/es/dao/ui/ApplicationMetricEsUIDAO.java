@@ -104,7 +104,7 @@ public class ApplicationMetricEsUIDAO extends EsDAO implements IApplicationMetri
         boolQuery.must().add(QueryBuilders.rangeQuery(ApplicationMetricTable.TIME_BUCKET.getName()).gte(startTimeBucket).lte(endTimeBucket));
         boolQuery.must().add(QueryBuilders.termQuery(ApplicationMetricTable.SOURCE_VALUE.getName(), metricSource.getValue()));
 
-        searchRequestBuilder.setQuery(boolQuery);
+        searchRequestBuilder.setPostFilter(boolQuery);
         searchRequestBuilder.setSize(0);
 
         TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(ApplicationMetricTable.APPLICATION_ID.getName()).field(ApplicationMetricTable.APPLICATION_ID.getName()).size(100);

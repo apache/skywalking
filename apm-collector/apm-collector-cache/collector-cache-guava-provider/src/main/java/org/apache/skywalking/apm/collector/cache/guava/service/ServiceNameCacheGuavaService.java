@@ -18,18 +18,15 @@
 
 package org.apache.skywalking.apm.collector.cache.guava.service;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.*;
 import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.cache.IServiceNameCacheDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
+import static java.util.Objects.*;
 
 /**
  * @author peng-yongsheng
@@ -38,7 +35,7 @@ public class ServiceNameCacheGuavaService implements ServiceNameCacheService {
 
     private final Logger logger = LoggerFactory.getLogger(ServiceNameCacheGuavaService.class);
 
-    private final Cache<Integer, ServiceName> serviceCache = CacheBuilder.newBuilder().maximumSize(10000).build();
+    private final Cache<Integer, ServiceName> serviceCache = CacheBuilder.newBuilder().maximumSize(1000000).build();
 
     private final ModuleManager moduleManager;
     private IServiceNameCacheDAO serviceNameCacheDAO;
@@ -66,6 +63,8 @@ public class ServiceNameCacheGuavaService implements ServiceNameCacheService {
             serviceName = getServiceNameCacheDAO().get(serviceId);
             if (nonNull(serviceName)) {
                 serviceCache.put(serviceId, serviceName);
+            } else {
+                logger.warn("Service id {} is not in cache and persistent storage.", serviceId);
             }
         }
 
