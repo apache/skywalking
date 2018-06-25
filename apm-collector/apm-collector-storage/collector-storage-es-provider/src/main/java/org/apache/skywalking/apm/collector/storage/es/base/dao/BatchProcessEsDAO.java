@@ -107,6 +107,7 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
                 public void afterBulk(long executionId,
                     BulkRequest request,
                     Throwable failure) {
+                    logger.error("{} data bulk failed, reason: {}", request.numberOfActions(), failure);
                 }
             })
             .setBulkActions(bulkActions)

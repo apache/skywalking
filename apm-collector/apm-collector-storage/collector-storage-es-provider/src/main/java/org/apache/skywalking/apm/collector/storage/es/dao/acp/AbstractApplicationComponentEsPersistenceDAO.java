@@ -18,13 +18,13 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao.acp;
 
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
-import org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponent;
-import org.apache.skywalking.apm.collector.storage.table.application.ApplicationComponentTable;
+import org.apache.skywalking.apm.collector.storage.table.application.*;
+import org.elasticsearch.common.xcontent.*;
 
 /**
  * @author peng-yongsheng
@@ -49,15 +49,14 @@ public abstract class AbstractApplicationComponentEsPersistenceDAO extends Abstr
         return applicationComponent;
     }
 
-    @Override protected final Map<String, Object> esStreamDataToEsData(ApplicationComponent streamData) {
-        Map<String, Object> target = new HashMap<>();
-        target.put(ApplicationComponentTable.METRIC_ID.getName(), streamData.getMetricId());
+    @Override protected final XContentBuilder esStreamDataToEsData(ApplicationComponent streamData) throws IOException {
+        return XContentFactory.jsonBuilder().startObject()
+            .field(ApplicationComponentTable.METRIC_ID.getName(), streamData.getMetricId())
 
-        target.put(ApplicationComponentTable.COMPONENT_ID.getName(), streamData.getComponentId());
-        target.put(ApplicationComponentTable.APPLICATION_ID.getName(), streamData.getApplicationId());
-        target.put(ApplicationComponentTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
-
-        return target;
+            .field(ApplicationComponentTable.COMPONENT_ID.getName(), streamData.getComponentId())
+            .field(ApplicationComponentTable.APPLICATION_ID.getName(), streamData.getApplicationId())
+            .field(ApplicationComponentTable.TIME_BUCKET.getName(), streamData.getTimeBucket())
+            .endObject();
     }
 
     @GraphComputingMetric(name = "/persistence/get/" + ApplicationComponentTable.TABLE)

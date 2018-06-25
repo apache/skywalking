@@ -48,7 +48,7 @@ public enum PersistenceTimer {
         this.persistenceWorkers.addAll(persistenceWorkers);
         //TODO timer value config
 //        final long timeInterval = EsConfig.Es.Persistence.Timer.VALUE * 1000;
-        final long timeInterval = 10;
+        final long timeInterval = 3;
         IBatchDAO batchDAO = moduleManager.find(StorageModule.NAME).getService(IBatchDAO.class);
 
         if (!isStarted) {
@@ -84,6 +84,9 @@ public enum PersistenceTimer {
                 }
             });
 
+            if (debug) {
+                logger.info("build batch persistence duration: {} ms", System.currentTimeMillis() - startTime);
+            }
             batchDAO.batchPersistence(batchAllCollection);
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
@@ -94,8 +97,7 @@ public enum PersistenceTimer {
         }
 
         if (debug) {
-            long endTime = System.currentTimeMillis();
-            logger.info("batch persistence duration: {} ms", endTime - startTime);
+            logger.info("batch persistence duration: {} ms", System.currentTimeMillis() - startTime);
         }
     }
 }

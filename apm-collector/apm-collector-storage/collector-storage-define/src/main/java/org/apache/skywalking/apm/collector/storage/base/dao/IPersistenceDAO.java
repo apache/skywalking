@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.collector.storage.base.dao;
 
+import java.io.IOException;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
 
 /**
@@ -27,9 +28,9 @@ public interface IPersistenceDAO<INSERT, UPDATE, STREAM_DATA extends StreamData>
 
     STREAM_DATA get(String id);
 
-    INSERT prepareBatchInsert(STREAM_DATA data);
+    INSERT prepareBatchInsert(STREAM_DATA data) throws IOException;
 
-    UPDATE prepareBatchUpdate(STREAM_DATA data);
+    UPDATE prepareBatchUpdate(STREAM_DATA data) throws IOException;
 
     void deleteHistory(Long timeBucketBefore);
 }

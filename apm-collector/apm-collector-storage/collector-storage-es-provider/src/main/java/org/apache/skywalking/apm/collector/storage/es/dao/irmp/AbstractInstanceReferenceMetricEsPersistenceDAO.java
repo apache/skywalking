@@ -18,14 +18,14 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao.irmp;
 
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.es.MetricTransformUtil;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
-import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetric;
-import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetricTable;
+import org.apache.skywalking.apm.collector.storage.table.instance.*;
+import org.elasticsearch.common.xcontent.*;
 
 /**
  * @author peng-yongsheng
@@ -54,17 +54,18 @@ public abstract class AbstractInstanceReferenceMetricEsPersistenceDAO extends Ab
         return instanceReferenceMetric;
     }
 
-    @Override protected final Map<String, Object> esStreamDataToEsData(InstanceReferenceMetric streamData) {
-        Map<String, Object> target = new HashMap<>();
-        target.put(InstanceReferenceMetricTable.METRIC_ID.getName(), streamData.getMetricId());
-
-        target.put(InstanceReferenceMetricTable.FRONT_APPLICATION_ID.getName(), streamData.getFrontApplicationId());
-        target.put(InstanceReferenceMetricTable.BEHIND_APPLICATION_ID.getName(), streamData.getBehindApplicationId());
-        target.put(InstanceReferenceMetricTable.FRONT_INSTANCE_ID.getName(), streamData.getFrontInstanceId());
-        target.put(InstanceReferenceMetricTable.BEHIND_INSTANCE_ID.getName(), streamData.getBehindInstanceId());
+    @Override
+    protected final XContentBuilder esStreamDataToEsData(InstanceReferenceMetric streamData) throws IOException {
+        XContentBuilder target = XContentFactory.jsonBuilder().startObject()
+            .field(InstanceReferenceMetricTable.METRIC_ID.getName(), streamData.getMetricId())
+            .field(InstanceReferenceMetricTable.FRONT_APPLICATION_ID.getName(), streamData.getFrontApplicationId())
+            .field(InstanceReferenceMetricTable.BEHIND_APPLICATION_ID.getName(), streamData.getBehindApplicationId())
+            .field(InstanceReferenceMetricTable.FRONT_INSTANCE_ID.getName(), streamData.getFrontInstanceId())
+            .field(InstanceReferenceMetricTable.BEHIND_INSTANCE_ID.getName(), streamData.getBehindInstanceId());
 
         MetricTransformUtil.INSTANCE.esStreamDataToEsData(streamData, target);
 
+        target.endObject();
         return target;
     }
 

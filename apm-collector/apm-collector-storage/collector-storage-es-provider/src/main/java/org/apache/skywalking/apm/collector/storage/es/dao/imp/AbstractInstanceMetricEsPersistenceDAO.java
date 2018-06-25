@@ -18,14 +18,14 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao.imp;
 
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.es.MetricTransformUtil;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
-import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetric;
-import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMetricTable;
+import org.apache.skywalking.apm.collector.storage.table.instance.*;
+import org.elasticsearch.common.xcontent.*;
 
 /**
  * @author peng-yongsheng
@@ -52,14 +52,15 @@ public abstract class AbstractInstanceMetricEsPersistenceDAO extends AbstractPer
         return instanceMetric;
     }
 
-    @Override protected final Map<String, Object> esStreamDataToEsData(InstanceMetric streamData) {
-        Map<String, Object> target = new HashMap<>();
-        target.put(InstanceMetricTable.METRIC_ID.getName(), streamData.getMetricId());
-        target.put(InstanceMetricTable.APPLICATION_ID.getName(), streamData.getApplicationId());
-        target.put(InstanceMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId());
+    @Override protected final XContentBuilder esStreamDataToEsData(InstanceMetric streamData) throws IOException {
+        XContentBuilder target = XContentFactory.jsonBuilder().startObject()
+            .field(InstanceMetricTable.METRIC_ID.getName(), streamData.getMetricId())
+            .field(InstanceMetricTable.APPLICATION_ID.getName(), streamData.getApplicationId())
+            .field(InstanceMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId());
 
         MetricTransformUtil.INSTANCE.esStreamDataToEsData(streamData, target);
 
+        target.endObject();
         return target;
     }
 

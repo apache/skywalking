@@ -80,7 +80,7 @@ storage:
     bulkActions: 2000 # Execute the bulk every 2000 requests
     bulkSize: 20 # flush the bulk every 20mb
     flushInterval: 10 # flush the bulk every 10 seconds whatever the number of requests
-    concurrentRequests: 4 # the number of concurrent requests
+    concurrentRequests: 2 # the number of concurrent requests
     # Set a timeout on metric data. After the timeout has expired, the metric data will automatically be deleted.
     traceDataTTL: 90 # Unit is minute
     minuteMetricDataTTL: 90 # Unit is minute
@@ -106,7 +106,7 @@ configuration:
     thermodynamicResponseTimeStep: 50
     thermodynamicCountOfResponseTimeSteps: 40
     # max collection's size of worker cache collection, setting it smaller when collector OutOfMemory crashed.
-    workerCacheMaxSize: 5000
+    workerCacheMaxSize: 10000
 #receiver_zipkin:
 #  default:
 #    host: localhost

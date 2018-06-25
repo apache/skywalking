@@ -36,7 +36,7 @@ public class StorageModuleEsConfig extends ElasticSearchClientConfig {
     private int bulkActions = 2000;
     private int bulkSize = 20;
     private int flushInterval = 10;
-    private int concurrentRequests = 4;
+    private int concurrentRequests = 2;
 
     int getIndexShardsNumber() {
         return indexShardsNumber;
@@ -131,6 +131,6 @@ public class StorageModuleEsConfig extends ElasticSearchClientConfig {
     }
 
     public void setConcurrentRequests(int concurrentRequests) {
-        this.concurrentRequests = concurrentRequests == 0 ? 4 : concurrentRequests;
+        this.concurrentRequests = concurrentRequests == 0 ? 2 : concurrentRequests;
     }
 }
