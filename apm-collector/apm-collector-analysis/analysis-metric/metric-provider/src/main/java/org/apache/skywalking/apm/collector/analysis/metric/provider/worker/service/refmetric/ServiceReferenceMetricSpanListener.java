@@ -148,7 +148,10 @@ public class ServiceReferenceMetricSpanListener implements EntrySpanListener, Ex
     }
 
     @Override public void build() {
-        logger.debug("service reference listener build");
+        if (logger.isDebugEnabled()) {
+            logger.debug("service reference listener build");
+        }
+
         Graph<ServiceReferenceMetric> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.SERVICE_REFERENCE_METRIC_GRAPH_ID, ServiceReferenceMetric.class);
         entryReferenceMetric.forEach(serviceReferenceMetric -> {
             String metricId = serviceReferenceMetric.getFrontServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getBehindServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getSourceValue();
@@ -157,7 +160,10 @@ public class ServiceReferenceMetricSpanListener implements EntrySpanListener, Ex
             serviceReferenceMetric.setId(id);
             serviceReferenceMetric.setMetricId(metricId);
             serviceReferenceMetric.setTimeBucket(minuteTimeBucket);
-            logger.debug("push to service reference aggregation worker, id: {}", serviceReferenceMetric.getId());
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("push to service reference aggregation worker, id: {}", serviceReferenceMetric.getId());
+            }
 
             graph.start(serviceReferenceMetric);
         });

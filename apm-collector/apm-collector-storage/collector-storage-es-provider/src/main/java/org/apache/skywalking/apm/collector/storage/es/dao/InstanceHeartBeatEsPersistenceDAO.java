@@ -18,7 +18,8 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
-import java.util.*;
+import java.io.IOException;
+import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.UnexpectedException;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
@@ -28,6 +29,7 @@ import org.apache.skywalking.apm.collector.storage.table.register.*;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
+import org.elasticsearch.common.xcontent.*;
 import org.slf4j.*;
 
 /**
@@ -63,9 +65,11 @@ public class InstanceHeartBeatEsPersistenceDAO extends EsDAO implements IInstanc
         throw new UnexpectedException("Received an instance heart beat message under instance id= " + data.getId() + " , which doesn't exist.");
     }
 
-    @Override public UpdateRequestBuilder prepareBatchUpdate(Instance data) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(InstanceTable.HEARTBEAT_TIME.getName(), data.getHeartBeatTime());
+    @Override public UpdateRequestBuilder prepareBatchUpdate(Instance data) throws IOException {
+        XContentBuilder source = XContentFactory.jsonBuilder().startObject()
+            .field(InstanceTable.HEARTBEAT_TIME.getName(), data.getHeartBeatTime())
+            .endObject();
+        
         return getClient().prepareUpdate(InstanceTable.TABLE, data.getId()).setDoc(source);
     }
 

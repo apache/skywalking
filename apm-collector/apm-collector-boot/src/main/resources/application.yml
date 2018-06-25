@@ -76,6 +76,11 @@ storage:
     indexShardsNumber: 2
     indexReplicasNumber: 0
     highPerformanceMode: true
+    # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
+    bulkActions: 2000 # Execute the bulk every 2000 requests
+    bulkSize: 20 # flush the bulk every 20mb
+    flushInterval: 10 # flush the bulk every 10 seconds whatever the number of requests
+    concurrentRequests: 2 # the number of concurrent requests
     # Set a timeout on metric data. After the timeout has expired, the metric data will automatically be deleted.
     traceDataTTL: 90 # Unit is minute
     minuteMetricDataTTL: 90 # Unit is minute
@@ -107,4 +112,3 @@ configuration:
 #    host: localhost
 #    port: 9411
 #    contextPath: /
-#

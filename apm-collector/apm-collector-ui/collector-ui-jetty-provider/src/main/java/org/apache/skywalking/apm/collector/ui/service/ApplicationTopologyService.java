@@ -75,7 +75,7 @@ public class ApplicationTopologyService {
 
         TopologyBuilder builder = new TopologyBuilder(moduleManager);
 
-        Topology topology = builder.build(applicationComponents, applicationMappings, applicationMetrics, callerReferenceMetric, calleeReferenceMetric, step, startTimeBucket, endTimeBucket, startSecondTimeBucket, endSecondTimeBucket);
+        Topology topology = builder.build(applicationComponents, applicationMappings, applicationMetrics, callerReferenceMetric, calleeReferenceMetric, startSecondTimeBucket, endSecondTimeBucket);
 
         Set<Integer> nodeIds = new HashSet<>();
         topology.getCalls().forEach(call -> {

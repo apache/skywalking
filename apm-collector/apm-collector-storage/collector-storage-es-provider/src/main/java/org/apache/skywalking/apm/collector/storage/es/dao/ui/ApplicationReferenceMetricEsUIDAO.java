@@ -71,7 +71,7 @@ public class ApplicationReferenceMetricEsUIDAO extends EsDAO implements IApplica
             boolQuery.must().add(applicationBoolQuery);
         }
 
-        searchRequestBuilder.setQuery(boolQuery);
+        searchRequestBuilder.setPostFilter(boolQuery);
         searchRequestBuilder.setSize(0);
 
         return buildMetrics(searchRequestBuilder);

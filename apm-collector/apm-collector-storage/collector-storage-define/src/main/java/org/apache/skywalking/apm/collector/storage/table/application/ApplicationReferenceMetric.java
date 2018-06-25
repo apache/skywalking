@@ -64,8 +64,11 @@ public class ApplicationReferenceMetric extends StreamData implements Metric {
         new IntegerColumn(ApplicationReferenceMetricTable.BEHIND_APPLICATION_ID, new NonMergeOperation()),
     };
 
+    private static final DoubleColumn[] DOUBLE_COLUMNS = {
+    };
+
     public ApplicationReferenceMetric() {
-        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, new DoubleColumn[0]);
+        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, DOUBLE_COLUMNS);
     }
 
     @Override public String getId() {

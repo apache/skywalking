@@ -19,19 +19,15 @@
 package org.apache.skywalking.apm.collector.instrument;
 
 import java.lang.reflect.Method;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import net.bytebuddy.implementation.bind.annotation.AllArguments;
-import net.bytebuddy.implementation.bind.annotation.Origin;
-import net.bytebuddy.implementation.bind.annotation.RuntimeType;
-import net.bytebuddy.implementation.bind.annotation.SuperCall;
-import net.bytebuddy.implementation.bind.annotation.This;
+import java.util.concurrent.*;
+import net.bytebuddy.implementation.bind.annotation.*;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 
 /**
  * @author wu-sheng
  */
 public class ServiceMetricTracing {
+
     private volatile ConcurrentHashMap<Method, ServiceMetric> metrics = new ConcurrentHashMap<>();
 
     ServiceMetricTracing() {

@@ -36,7 +36,7 @@ import org.apache.skywalking.apm.collector.storage.table.application.Application
 public class ApplicationComponentSpanListener implements EntrySpanListener, ExitSpanListener {
 
     private final ApplicationCacheService applicationCacheService;
-    private List<ApplicationComponent> applicationComponents = new LinkedList<>();
+    private final List<ApplicationComponent> applicationComponents = new LinkedList<>();
 
     private ApplicationComponentSpanListener(ModuleManager moduleManager) {
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);

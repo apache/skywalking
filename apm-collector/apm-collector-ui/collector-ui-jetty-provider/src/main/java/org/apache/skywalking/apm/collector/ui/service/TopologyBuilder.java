@@ -28,7 +28,6 @@ import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.*;
 import org.apache.skywalking.apm.collector.storage.dao.ui.*;
 import org.apache.skywalking.apm.collector.storage.table.register.Application;
-import org.apache.skywalking.apm.collector.storage.ui.alarm.Alarm;
 import org.apache.skywalking.apm.collector.storage.ui.application.*;
 import org.apache.skywalking.apm.collector.storage.ui.common.*;
 import org.apache.skywalking.apm.collector.ui.utils.*;
@@ -44,14 +43,12 @@ class TopologyBuilder {
     private final ApplicationCacheService applicationCacheService;
     private final ServerService serverService;
     private final DateBetweenService dateBetweenService;
-    private final AlarmService alarmService;
     private final IComponentLibraryCatalogService componentLibraryCatalogService;
 
     TopologyBuilder(ModuleManager moduleManager) {
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
         this.serverService = new ServerService(moduleManager);
         this.dateBetweenService = new DateBetweenService(moduleManager);
-        this.alarmService = new AlarmService(moduleManager);
         this.componentLibraryCatalogService = moduleManager.find(ConfigurationModule.NAME).getService(IComponentLibraryCatalogService.class);
     }
 
@@ -60,17 +57,17 @@ class TopologyBuilder {
         List<IApplicationMetricUIDAO.ApplicationMetric> applicationMetrics,
         List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> callerReferenceMetric,
         List<IApplicationReferenceMetricUIDAO.ApplicationReferenceMetric> calleeReferenceMetric,
-        Step step, long startTimeBucket, long endTimeBucket, long startSecondTimeBucket, long endSecondTimeBucket) {
+        long startSecondTimeBucket, long endSecondTimeBucket) {
         Map<Integer, String> nodeCompMap = buildNodeCompMap(applicationComponents);
         Map<Integer, String> conjecturalNodeCompMap = buildConjecturalNodeCompMap(applicationComponents);
         Map<Integer, Integer> mappings = changeMapping2Map(applicationMappings);
-
         filterZeroSourceOrTargetReference(callerReferenceMetric);
         filterZeroSourceOrTargetReference(calleeReferenceMetric);
-
         calleeReferenceMetric = calleeReferenceMetricFilter(calleeReferenceMetric);
 
         List<Node> nodes = new LinkedList<>();
+        Map<Integer, Integer> applicationMinuteBetweenMap = new HashMap<>();
+        Map<Integer, Integer> numberOfServer = new HashMap<>();
         applicationMetrics.forEach(applicationMetric -> {
             int applicationId = applicationMetric.getId();
             Application application = applicationCacheService.getApplicationById(applicationId);
@@ -81,23 +78,14 @@ class TopologyBuilder {
 
             applicationNode.setSla(SLACalculator.INSTANCE.calculate(applicationMetric.getErrorCalls(), applicationMetric.getCalls()));
             try {
-                applicationNode.setCpm(applicationMetric.getCalls() / dateBetweenService.minutesBetween(applicationId, startSecondTimeBucket, endSecondTimeBucket));
+                applicationNode.setCpm(applicationMetric.getCalls() / getApplicationMinuteBetween(applicationMinuteBetweenMap, applicationId, startSecondTimeBucket, endSecondTimeBucket));
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
             }
             applicationNode.setAvgResponseTime(applicationMetric.getDurations() / applicationMetric.getCalls());
             applicationNode.setApdex(ApdexCalculator.INSTANCE.calculate(applicationMetric.getSatisfiedCount(), applicationMetric.getToleratingCount(), applicationMetric.getFrustratedCount()));
             applicationNode.setAlarm(false);
-            try {
-                Alarm alarm = alarmService.loadApplicationAlarmList(Const.EMPTY_STRING, applicationId, step, startTimeBucket, endTimeBucket, 1, 0);
-                if (alarm.getItems().size() > 0) {
-                    applicationNode.setAlarm(true);
-                }
-            } catch (ParseException e) {
-                logger.error(e.getMessage(), e);
-            }
-
-            applicationNode.setNumOfServer(serverService.getAllServer(applicationId, startSecondTimeBucket, endSecondTimeBucket).size());
+            applicationNode.setNumOfServer(getNumberOfServer(numberOfServer, applicationId, startSecondTimeBucket, endSecondTimeBucket));
             nodes.add(applicationNode);
         });
 
@@ -139,7 +127,7 @@ class TopologyBuilder {
             call.setAlert(false);
             call.setCallType(nodeCompMap.get(referenceMetric.getTarget()));
             try {
-                call.setCpm(referenceMetric.getCalls() / dateBetweenService.minutesBetween(source.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket));
+                call.setCpm(referenceMetric.getCalls() / getApplicationMinuteBetween(applicationMinuteBetweenMap, source.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket));
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
             }
@@ -186,7 +174,7 @@ class TopologyBuilder {
                 call.setCallType(nodeCompMap.get(referenceMetric.getTarget()));
             }
             try {
-                call.setCpm(referenceMetric.getCalls() / dateBetweenService.minutesBetween(target.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket));
+                call.setCpm(referenceMetric.getCalls() / getApplicationMinuteBetween(applicationMinuteBetweenMap, target.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket));
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
             }
@@ -255,6 +243,30 @@ class TopologyBuilder {
             if (applicationReferenceMetric.getSource() == 0 || applicationReferenceMetric.getTarget() == 0) {
                 referenceMetric.remove(i);
             }
+        }
+    }
+
+    private int getApplicationMinuteBetween(Map<Integer, Integer> applicationMinuteBetweenMap, int applicationId,
+        long startSecondTimeBucket,
+        long endSecondTimeBucket) throws ParseException {
+        if (applicationMinuteBetweenMap.containsKey(applicationId)) {
+            return applicationMinuteBetweenMap.get(applicationId);
+        } else {
+            int applicationMinuteBetween = dateBetweenService.minutesBetween(applicationId, startSecondTimeBucket, endSecondTimeBucket);
+            applicationMinuteBetweenMap.put(applicationId, applicationMinuteBetween);
+            return applicationMinuteBetween;
+        }
+    }
+
+    private int getNumberOfServer(Map<Integer, Integer> numberOfServerMap, int applicationId,
+        long startSecondTimeBucket,
+        long endSecondTimeBucket) {
+        if (numberOfServerMap.containsKey(applicationId)) {
+            return numberOfServerMap.get(applicationId);
+        } else {
+            int numberOfServer = serverService.getAllServer(applicationId, startSecondTimeBucket, endSecondTimeBucket).size();
+            numberOfServerMap.put(applicationId, numberOfServer);
+            return numberOfServer;
         }
     }
 }

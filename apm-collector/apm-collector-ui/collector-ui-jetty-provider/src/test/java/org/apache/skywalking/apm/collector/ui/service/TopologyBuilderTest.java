@@ -59,7 +59,6 @@ public class TopologyBuilderTest {
         alarmService = mock(AlarmService.class);
         dateBetweenService = mock(DateBetweenService.class);
         Whitebox.setInternalState(topologyBuilder, "applicationCacheService", applicationCacheService);
-        Whitebox.setInternalState(topologyBuilder, "alarmService", alarmService);
         Whitebox.setInternalState(topologyBuilder, "dateBetweenService", dateBetweenService);
         duration = new Duration();
         duration.setEnd("2018-02");
@@ -129,7 +128,7 @@ public class TopologyBuilderTest {
             return alarm;
         });
         when(dateBetweenService.minutesBetween(anyInt(), anyLong(), anyLong())).then(invocation -> 20L);
-        Topology topology = topologyBuilder.build(applicationComponents, applicationMappings, applicationMetrics, callerReferenceMetric, calleeReferenceMetric, duration.getStep(), startTimeBucket, endTimeBucket, startSecondTimeBucket, endSecondTimeBucket);
+        Topology topology = topologyBuilder.build(applicationComponents, applicationMappings, applicationMetrics, callerReferenceMetric, calleeReferenceMetric, startSecondTimeBucket, endSecondTimeBucket);
         Assert.assertNotNull(topology);
     }
 

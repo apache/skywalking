@@ -49,7 +49,7 @@ public class ServiceNameAggregationWorker extends AggregationWorker<ServiceName,
         }
 
         @Override public int queueSize() {
-            return 256;
+            return 4096;
         }
     }
 

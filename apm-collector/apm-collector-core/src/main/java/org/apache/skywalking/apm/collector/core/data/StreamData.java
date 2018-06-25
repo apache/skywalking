@@ -26,6 +26,16 @@ import org.apache.skywalking.apm.collector.core.queue.EndOfBatchContext;
  */
 public abstract class StreamData extends AbstractData implements QueueData {
 
+    private static final ByteColumn[] BYTE_COLUMNS = {};
+
+    private static final StringListColumn[] STRING_LIST_COLUMNS = {};
+
+    private static final LongListColumn[] LONG_LIST_COLUMNS = {};
+
+    private static final IntegerListColumn[] INTEGER_LIST_COLUMNS = {};
+
+    private static final DoubleListColumn[] DOUBLE_LIST_COLUMNS = {};
+
     private EndOfBatchContext endOfBatchContext;
 
     @Override public final EndOfBatchContext getEndOfBatchContext() {
@@ -41,18 +51,18 @@ public abstract class StreamData extends AbstractData implements QueueData {
         DoubleColumn[] doubleColumns, StringListColumn[] stringListColumns,
         LongListColumn[] longListColumns,
         IntegerListColumn[] integerListColumns, DoubleListColumn[] doubleListColumns) {
-        super(stringColumns, longColumns, integerColumns, doubleColumns, new ByteColumn[0], stringListColumns, longListColumns, integerListColumns, doubleListColumns);
+        super(stringColumns, longColumns, integerColumns, doubleColumns, BYTE_COLUMNS, stringListColumns, longListColumns, integerListColumns, doubleListColumns);
     }
 
     public StreamData(StringColumn[] stringColumns, LongColumn[] longColumns,
         IntegerColumn[] integerColumns, DoubleColumn[] doubleColumns) {
-        super(stringColumns, longColumns, integerColumns, doubleColumns, new ByteColumn[0], new StringListColumn[0], new LongListColumn[0], new IntegerListColumn[0], new DoubleListColumn[0]);
+        super(stringColumns, longColumns, integerColumns, doubleColumns, BYTE_COLUMNS, STRING_LIST_COLUMNS, LONG_LIST_COLUMNS, INTEGER_LIST_COLUMNS, DOUBLE_LIST_COLUMNS);
     }
 
     public StreamData(StringColumn[] stringColumns, LongColumn[] longColumns,
         IntegerColumn[] integerColumns, DoubleColumn[] doubleColumns,
         ByteColumn[] byteColumns) {
-        super(stringColumns, longColumns, integerColumns, doubleColumns, byteColumns, new StringListColumn[0], new LongListColumn[0], new IntegerListColumn[0], new DoubleListColumn[0]);
+        super(stringColumns, longColumns, integerColumns, doubleColumns, byteColumns, STRING_LIST_COLUMNS, LONG_LIST_COLUMNS, INTEGER_LIST_COLUMNS, DOUBLE_LIST_COLUMNS);
     }
 
     @Override public final String selectKey() {

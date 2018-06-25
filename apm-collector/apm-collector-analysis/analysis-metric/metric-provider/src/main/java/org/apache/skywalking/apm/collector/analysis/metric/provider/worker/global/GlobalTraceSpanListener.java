@@ -37,7 +37,7 @@ public class GlobalTraceSpanListener implements GlobalTraceIdsListener {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalTraceSpanListener.class);
 
-    private List<String> globalTraceIds = new LinkedList<>();
+    private final List<String> globalTraceIds = new LinkedList<>();
     private SegmentCoreInfo segmentCoreInfo;
 
     @Override public boolean containsPoint(Point point) {
@@ -58,17 +58,19 @@ public class GlobalTraceSpanListener implements GlobalTraceIdsListener {
     }
 
     @Override public void build() {
-        logger.debug("global trace listener build");
+        if (logger.isDebugEnabled()) {
+            logger.debug("global trace listener build");
+        }
 
         Graph<GlobalTrace> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.GLOBAL_TRACE_GRAPH_ID, GlobalTrace.class);
-        for (String globalTraceId : globalTraceIds) {
+        globalTraceIds.forEach(globalTraceId -> {
             GlobalTrace globalTrace = new GlobalTrace();
             globalTrace.setId(segmentCoreInfo.getSegmentId() + Const.ID_SPLIT + globalTraceId);
             globalTrace.setTraceId(globalTraceId);
             globalTrace.setSegmentId(segmentCoreInfo.getSegmentId());
             globalTrace.setTimeBucket(segmentCoreInfo.getMinuteTimeBucket());
             graph.start(globalTrace);
-        }
+        });
     }
 
     public static class Factory implements SpanListenerFactory {

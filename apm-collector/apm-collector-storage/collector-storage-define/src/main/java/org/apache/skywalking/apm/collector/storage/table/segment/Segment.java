@@ -39,8 +39,14 @@ public class Segment extends StreamData {
         new ByteColumn(SegmentTable.DATA_BINARY, new CoverMergeOperation()),
     };
 
+    private static final IntegerColumn[] INTEGER_COLUMNS = {
+    };
+
+    private static final DoubleColumn[] DOUBLE_COLUMNS = {
+    };
+
     public Segment() {
-        super(STRING_COLUMNS, LONG_COLUMNS, new IntegerColumn[0], new DoubleColumn[0], BYTE_COLUMNS);
+        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, DOUBLE_COLUMNS, BYTE_COLUMNS);
     }
 
     @Override public String getId() {
