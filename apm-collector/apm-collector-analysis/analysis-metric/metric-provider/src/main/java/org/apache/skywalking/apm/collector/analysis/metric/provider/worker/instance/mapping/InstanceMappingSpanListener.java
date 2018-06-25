@@ -43,7 +43,10 @@ public class InstanceMappingSpanListener implements EntrySpanListener {
     }
 
     @Override public void parseEntry(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
-        logger.debug("instance mapping listener parse reference");
+        if (logger.isDebugEnabled()) {
+            logger.debug("instance mapping listener parse reference");
+        }
+
         if (spanDecorator.getRefsCount() > 0) {
             for (int i = 0; i < spanDecorator.getRefsCount(); i++) {
                 InstanceMapping instanceMapping = new InstanceMapping();
@@ -60,10 +63,16 @@ public class InstanceMappingSpanListener implements EntrySpanListener {
     }
 
     @Override public void build() {
-        logger.debug("instance mapping listener build");
+        if (logger.isDebugEnabled()) {
+            logger.debug("instance mapping listener build");
+        }
+
         Graph<InstanceMapping> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.INSTANCE_MAPPING_GRAPH_ID, InstanceMapping.class);
         instanceMappings.forEach(instanceMapping -> {
-            logger.debug("push to instance mapping aggregation worker, id: {}", instanceMapping.getId());
+            if (logger.isDebugEnabled()) {
+                logger.debug("push to instance mapping aggregation worker, id: {}", instanceMapping.getId());
+            }
+
             graph.start(instanceMapping);
         });
     }

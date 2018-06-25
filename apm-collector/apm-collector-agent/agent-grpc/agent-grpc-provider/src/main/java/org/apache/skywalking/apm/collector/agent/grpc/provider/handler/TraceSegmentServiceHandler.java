@@ -44,7 +44,10 @@ public class TraceSegmentServiceHandler extends TraceSegmentServiceGrpc.TraceSeg
     @Override public StreamObserver<UpstreamSegment> collect(StreamObserver<Downstream> responseObserver) {
         return new StreamObserver<UpstreamSegment>() {
             @Override public void onNext(UpstreamSegment segment) {
-                logger.debug("receive segment");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("receive segment");
+                }
+
                 segmentParseService.parse(segment, ISegmentParseService.Source.Agent);
 
                 if (debug) {

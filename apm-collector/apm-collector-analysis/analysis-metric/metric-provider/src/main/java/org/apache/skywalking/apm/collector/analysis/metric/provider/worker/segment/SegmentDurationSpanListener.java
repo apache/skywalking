@@ -76,7 +76,11 @@ public class SegmentDurationSpanListener implements FirstSpanListener, EntrySpan
 
     @Override public void build() {
         Graph<SegmentDuration> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.SEGMENT_DURATION_GRAPH_ID, SegmentDuration.class);
-        logger.debug("segment duration listener build");
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("segment duration listener build");
+        }
+
         if (entryOperationNameIds.size() == 0) {
             segmentDuration.getServiceName().add(serviceNameCacheService.get(firstOperationNameId).getServiceName());
         } else {

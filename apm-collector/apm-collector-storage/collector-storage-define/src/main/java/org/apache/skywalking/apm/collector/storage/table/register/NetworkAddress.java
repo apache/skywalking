@@ -39,9 +39,14 @@ public class NetworkAddress extends StreamData {
         new IntegerColumn(NetworkAddressTable.SERVER_TYPE, new CoverMergeOperation()),
     };
 
-    public NetworkAddress() {
-        super(STRING_COLUMNS, new LongColumn[0], INTEGER_COLUMNS, new DoubleColumn[0], new StringListColumn[0], new LongListColumn[0], new IntegerListColumn[0], new DoubleListColumn[0]);
+    private static final LongColumn[] LONG_COLUMNS = {
+    };
 
+    private static final DoubleColumn[] DOUBLE_COLUMNS = {
+    };
+
+    public NetworkAddress() {
+        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, DOUBLE_COLUMNS);
     }
 
     @Override public String getId() {

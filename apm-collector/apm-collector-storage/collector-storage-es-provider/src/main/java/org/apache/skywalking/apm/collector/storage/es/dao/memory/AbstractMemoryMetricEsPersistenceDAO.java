@@ -18,13 +18,13 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao.memory;
 
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
-import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetric;
-import org.apache.skywalking.apm.collector.storage.table.jvm.MemoryMetricTable;
+import org.apache.skywalking.apm.collector.storage.table.jvm.*;
+import org.elasticsearch.common.xcontent.*;
 
 /**
  * @author peng-yongsheng
@@ -56,20 +56,19 @@ public abstract class AbstractMemoryMetricEsPersistenceDAO extends AbstractPersi
         return memoryMetric;
     }
 
-    @Override protected final Map<String, Object> esStreamDataToEsData(MemoryMetric streamData) {
-        Map<String, Object> target = new HashMap<>();
-        target.put(MemoryMetricTable.METRIC_ID.getName(), streamData.getMetricId());
+    @Override protected final XContentBuilder esStreamDataToEsData(MemoryMetric streamData) throws IOException {
+        return XContentFactory.jsonBuilder().startObject()
+            .field(MemoryMetricTable.METRIC_ID.getName(), streamData.getMetricId())
 
-        target.put(MemoryMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId());
-        target.put(MemoryMetricTable.IS_HEAP.getName(), streamData.getIsHeap());
-        target.put(MemoryMetricTable.INIT.getName(), streamData.getInit());
-        target.put(MemoryMetricTable.MAX.getName(), streamData.getMax());
-        target.put(MemoryMetricTable.USED.getName(), streamData.getUsed());
-        target.put(MemoryMetricTable.COMMITTED.getName(), streamData.getCommitted());
-        target.put(MemoryMetricTable.TIMES.getName(), streamData.getTimes());
-        target.put(MemoryMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
-
-        return target;
+            .field(MemoryMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId())
+            .field(MemoryMetricTable.IS_HEAP.getName(), streamData.getIsHeap())
+            .field(MemoryMetricTable.INIT.getName(), streamData.getInit())
+            .field(MemoryMetricTable.MAX.getName(), streamData.getMax())
+            .field(MemoryMetricTable.USED.getName(), streamData.getUsed())
+            .field(MemoryMetricTable.COMMITTED.getName(), streamData.getCommitted())
+            .field(MemoryMetricTable.TIMES.getName(), streamData.getTimes())
+            .field(MemoryMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket())
+            .endObject();
     }
 
     @GraphComputingMetric(name = "/persistence/get/" + MemoryMetricTable.TABLE)

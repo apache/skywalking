@@ -109,7 +109,10 @@ public enum SegmentBufferReader {
         }
 
         for (File dataFile : dataFiles) {
-            logger.debug("Reading segment buffer data file, file name: {}", dataFile.getAbsolutePath());
+            if (logger.isDebugEnabled()) {
+                logger.debug("Reading segment buffer data file, file name: {}", dataFile.getAbsolutePath());
+            }
+
             OffsetManager.INSTANCE.setReadOffset(dataFile.getName(), 0);
             if (!read(dataFile, 0)) {
                 break;
@@ -137,7 +140,11 @@ public enum SegmentBufferReader {
 
                 final int serialized = upstreamSegment.getSerializedSize();
                 readFileOffset = readFileOffset + CodedOutputStream.computeUInt32SizeNoTag(serialized) + serialized;
-                logger.debug("read segment buffer from file: {}, offset: {}, file length: {}", readFile.getName(), readFileOffset, readFile.length());
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug("read segment buffer from file: {}, offset: {}, file length: {}", readFile.getName(), readFileOffset, readFile.length());
+                }
+
                 OffsetManager.INSTANCE.setReadOffset(readFileOffset);
             }
 

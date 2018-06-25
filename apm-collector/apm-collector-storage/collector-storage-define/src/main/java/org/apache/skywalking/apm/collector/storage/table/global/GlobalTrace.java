@@ -37,8 +37,14 @@ public class GlobalTrace extends StreamData {
         new LongColumn(GlobalTraceTable.TIME_BUCKET, new CoverMergeOperation()),
     };
 
+    private static final IntegerColumn[] INTEGER_COLUMNS = {
+    };
+
+    private static final DoubleColumn[] DOUBLE_COLUMNS = {
+    };
+
     public GlobalTrace() {
-        super(STRING_COLUMNS, LONG_COLUMNS, new IntegerColumn[0], new DoubleColumn[0]);
+        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, DOUBLE_COLUMNS);
     }
 
     @Override public String getId() {

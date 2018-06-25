@@ -47,8 +47,11 @@ public class Instance extends StreamData {
         new IntegerColumn(InstanceTable.IS_ADDRESS, new CoverMergeOperation()),
     };
 
+    private static final DoubleColumn[] DOUBLE_COLUMNS = {
+    };
+
     public Instance() {
-        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, new DoubleColumn[0]);
+        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, DOUBLE_COLUMNS);
     }
 
     @Override public String getId() {

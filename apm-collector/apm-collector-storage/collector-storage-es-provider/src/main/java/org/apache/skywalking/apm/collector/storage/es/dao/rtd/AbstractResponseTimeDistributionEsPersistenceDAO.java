@@ -18,13 +18,13 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao.rtd;
 
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
-import org.apache.skywalking.apm.collector.storage.table.global.ResponseTimeDistribution;
-import org.apache.skywalking.apm.collector.storage.table.global.ResponseTimeDistributionTable;
+import org.apache.skywalking.apm.collector.storage.table.global.*;
+import org.elasticsearch.common.xcontent.*;
 
 /**
  * @author peng-yongsheng
@@ -53,19 +53,19 @@ public abstract class AbstractResponseTimeDistributionEsPersistenceDAO extends A
         return responseTimeDistribution;
     }
 
-    @Override protected final Map<String, Object> esStreamDataToEsData(ResponseTimeDistribution streamData) {
-        Map<String, Object> target = new HashMap<>();
-        target.put(ResponseTimeDistributionTable.METRIC_ID.getName(), streamData.getMetricId());
+    @Override
+    protected final XContentBuilder esStreamDataToEsData(ResponseTimeDistribution streamData) throws IOException {
+        return XContentFactory.jsonBuilder().startObject()
+            .field(ResponseTimeDistributionTable.METRIC_ID.getName(), streamData.getMetricId())
 
-        target.put(ResponseTimeDistributionTable.STEP.getName(), streamData.getStep());
+            .field(ResponseTimeDistributionTable.STEP.getName(), streamData.getStep())
 
-        target.put(ResponseTimeDistributionTable.CALLS.getName(), streamData.getCalls());
-        target.put(ResponseTimeDistributionTable.ERROR_CALLS.getName(), streamData.getErrorCalls());
-        target.put(ResponseTimeDistributionTable.SUCCESS_CALLS.getName(), streamData.getSuccessCalls());
+            .field(ResponseTimeDistributionTable.CALLS.getName(), streamData.getCalls())
+            .field(ResponseTimeDistributionTable.ERROR_CALLS.getName(), streamData.getErrorCalls())
+            .field(ResponseTimeDistributionTable.SUCCESS_CALLS.getName(), streamData.getSuccessCalls())
 
-        target.put(ResponseTimeDistributionTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
-
-        return target;
+            .field(ResponseTimeDistributionTable.TIME_BUCKET.getName(), streamData.getTimeBucket())
+            .endObject();
     }
 
     @GraphComputingMetric(name = "/persistence/get/" + ResponseTimeDistributionTable.TABLE)

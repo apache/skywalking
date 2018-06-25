@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.collector.core.data.*;
  * @author peng-yongsheng
  */
 public class NonMergeOperation implements MergeOperation {
+
     @Override public String operate(String newValue, String oldValue) {
         return oldValue;
     }

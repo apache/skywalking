@@ -46,7 +46,10 @@ public class NetworkAddressRegisterServiceHandler extends NetworkAddressRegister
 
     @Override
     public void batchRegister(NetworkAddresses request, StreamObserver<NetworkAddressMappings> responseObserver) {
-        logger.debug("register application");
+        if (logger.isDebugEnabled()) {
+            logger.debug("register application");
+        }
+
         ProtocolStringList addressesList = request.getAddressesList();
 
         NetworkAddressMappings.Builder builder = NetworkAddressMappings.newBuilder();
