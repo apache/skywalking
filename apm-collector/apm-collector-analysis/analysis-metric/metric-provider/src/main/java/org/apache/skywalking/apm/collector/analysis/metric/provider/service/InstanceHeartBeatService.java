@@ -51,7 +51,9 @@ public class InstanceHeartBeatService implements IInstanceHeartBeatService {
         instance.setHeartBeatTime(TimeBucketUtils.INSTANCE.getSecondTimeBucket(heartBeatTime));
         instance.setInstanceId(instanceId);
 
-        logger.debug("push to instance heart beat persistence worker, id: {}", instance.getId());
+        if (logger.isDebugEnabled()) {
+            logger.debug("push to instance heart beat persistence worker, id: {}", instance.getId());
+        }
         getHeartBeatGraph().start(instance);
     }
 }

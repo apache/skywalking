@@ -46,8 +46,11 @@ public class MemoryMetric extends StreamData {
         new IntegerColumn(MemoryMetricTable.IS_HEAP, new CoverMergeOperation()),
     };
 
+    private static final DoubleColumn[] DOUBLE_COLUMNS = {
+    };
+
     public MemoryMetric() {
-        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, new DoubleColumn[0]);
+        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, DOUBLE_COLUMNS);
     }
 
     @Override public String getId() {

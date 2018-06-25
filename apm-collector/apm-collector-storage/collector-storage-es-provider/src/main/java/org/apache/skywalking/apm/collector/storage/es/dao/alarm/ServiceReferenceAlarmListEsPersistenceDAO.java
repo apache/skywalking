@@ -18,16 +18,16 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao.alarm;
 
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.dao.alarm.IServiceReferenceAlarmListPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
-import org.apache.skywalking.apm.collector.storage.table.alarm.ServiceReferenceAlarmList;
-import org.apache.skywalking.apm.collector.storage.table.alarm.ServiceReferenceAlarmListTable;
+import org.apache.skywalking.apm.collector.storage.table.alarm.*;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
+import org.elasticsearch.common.xcontent.*;
 
 /**
  * @author peng-yongsheng
@@ -59,21 +59,21 @@ public class ServiceReferenceAlarmListEsPersistenceDAO extends AbstractPersisten
         return serviceReferenceAlarmList;
     }
 
-    @Override protected Map<String, Object> esStreamDataToEsData(ServiceReferenceAlarmList streamData) {
-        Map<String, Object> target = new HashMap<>();
-        target.put(ServiceReferenceAlarmListTable.FRONT_APPLICATION_ID.getName(), streamData.getFrontApplicationId());
-        target.put(ServiceReferenceAlarmListTable.BEHIND_APPLICATION_ID.getName(), streamData.getBehindApplicationId());
-        target.put(ServiceReferenceAlarmListTable.FRONT_INSTANCE_ID.getName(), streamData.getFrontInstanceId());
-        target.put(ServiceReferenceAlarmListTable.BEHIND_INSTANCE_ID.getName(), streamData.getBehindInstanceId());
-        target.put(ServiceReferenceAlarmListTable.FRONT_SERVICE_ID.getName(), streamData.getFrontServiceId());
-        target.put(ServiceReferenceAlarmListTable.BEHIND_SERVICE_ID.getName(), streamData.getBehindServiceId());
-        target.put(ServiceReferenceAlarmListTable.SOURCE_VALUE.getName(), streamData.getSourceValue());
+    @Override protected XContentBuilder esStreamDataToEsData(ServiceReferenceAlarmList streamData) throws IOException {
+        return XContentFactory.jsonBuilder().startObject()
+            .field(ServiceReferenceAlarmListTable.FRONT_APPLICATION_ID.getName(), streamData.getFrontApplicationId())
+            .field(ServiceReferenceAlarmListTable.BEHIND_APPLICATION_ID.getName(), streamData.getBehindApplicationId())
+            .field(ServiceReferenceAlarmListTable.FRONT_INSTANCE_ID.getName(), streamData.getFrontInstanceId())
+            .field(ServiceReferenceAlarmListTable.BEHIND_INSTANCE_ID.getName(), streamData.getBehindInstanceId())
+            .field(ServiceReferenceAlarmListTable.FRONT_SERVICE_ID.getName(), streamData.getFrontServiceId())
+            .field(ServiceReferenceAlarmListTable.BEHIND_SERVICE_ID.getName(), streamData.getBehindServiceId())
+            .field(ServiceReferenceAlarmListTable.SOURCE_VALUE.getName(), streamData.getSourceValue())
 
-        target.put(ServiceReferenceAlarmListTable.ALARM_TYPE.getName(), streamData.getAlarmType());
-        target.put(ServiceReferenceAlarmListTable.ALARM_CONTENT.getName(), streamData.getAlarmContent());
+            .field(ServiceReferenceAlarmListTable.ALARM_TYPE.getName(), streamData.getAlarmType())
+            .field(ServiceReferenceAlarmListTable.ALARM_CONTENT.getName(), streamData.getAlarmContent())
 
-        target.put(ServiceReferenceAlarmListTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
-        return target;
+            .field(ServiceReferenceAlarmListTable.TIME_BUCKET.getName(), streamData.getTimeBucket())
+            .endObject();
     }
 
     @Override protected String timeBucketColumnNameForDelete() {

@@ -176,7 +176,7 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         timeBoolQuery.should().add(boolQuery2);
 
         boolQuery.must().add(timeBoolQuery);
-        searchRequestBuilder.setQuery(boolQuery);
+        searchRequestBuilder.setPostFilter(boolQuery);
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
         SearchHit[] searchHits = searchResponse.getHits().getHits();
@@ -190,7 +190,7 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
         searchRequestBuilder.setSize(1);
 
-        searchRequestBuilder.setQuery(QueryBuilders.termQuery(InstanceTable.APPLICATION_ID.getName(), applicationId));
+        searchRequestBuilder.setPostFilter(QueryBuilders.termQuery(InstanceTable.APPLICATION_ID.getName(), applicationId));
         searchRequestBuilder.addSort(SortBuilders.fieldSort(InstanceTable.REGISTER_TIME.getName()).order(SortOrder.ASC));
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
@@ -210,7 +210,7 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
         searchRequestBuilder.setSize(1);
 
-        searchRequestBuilder.setQuery(QueryBuilders.termQuery(InstanceTable.APPLICATION_ID.getName(), applicationId));
+        searchRequestBuilder.setPostFilter(QueryBuilders.termQuery(InstanceTable.APPLICATION_ID.getName(), applicationId));
         searchRequestBuilder.addSort(SortBuilders.fieldSort(InstanceTable.HEARTBEAT_TIME.getName()).order(SortOrder.DESC));
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();

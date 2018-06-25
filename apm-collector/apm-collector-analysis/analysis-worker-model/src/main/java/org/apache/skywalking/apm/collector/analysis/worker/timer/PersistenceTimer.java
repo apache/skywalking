@@ -62,29 +62,42 @@ public enum PersistenceTimer {
 
     @SuppressWarnings("unchecked")
     private void extractDataAndSave(IBatchDAO batchDAO, List<PersistenceWorker> persistenceWorkers) {
-        logger.debug("Extract data and save");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Extract data and save");
+        }
+
         long startTime = System.currentTimeMillis();
         try {
             List batchAllCollection = new LinkedList();
             persistenceWorkers.forEach((PersistenceWorker worker) -> {
-                logger.debug("extract {} worker data and save", worker.getClass().getName());
+                if (logger.isDebugEnabled()) {
+                    logger.debug("extract {} worker data and save", worker.getClass().getName());
+                }
+
                 if (worker.flushAndSwitch()) {
                     List<?> batchCollection = worker.buildBatchCollection();
-                    logger.debug("extract {} worker data size: {}", worker.getClass().getName(), batchCollection.size());
+
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("extract {} worker data size: {}", worker.getClass().getName(), batchCollection.size());
+                    }
                     batchAllCollection.addAll(batchCollection);
                 }
             });
 
+            if (debug) {
+                logger.info("build batch persistence duration: {} ms", System.currentTimeMillis() - startTime);
+            }
             batchDAO.batchPersistence(batchAllCollection);
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         } finally {
-            logger.debug("persistence data save finish");
+            if (logger.isDebugEnabled()) {
+                logger.debug("persistence data save finish");
+            }
         }
 
         if (debug) {
-            long endTime = System.currentTimeMillis();
-            logger.info("batch persistence duration: {} ms", endTime - startTime);
+            logger.info("batch persistence duration: {} ms", System.currentTimeMillis() - startTime);
         }
     }
 }

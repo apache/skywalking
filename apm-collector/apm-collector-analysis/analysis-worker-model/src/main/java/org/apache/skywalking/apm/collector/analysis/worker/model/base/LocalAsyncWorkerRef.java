@@ -18,23 +18,21 @@
 
 package org.apache.skywalking.apm.collector.analysis.worker.model.base;
 
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import org.apache.skywalking.apm.collector.core.annotations.trace.BatchParameter;
 import org.apache.skywalking.apm.collector.core.data.QueueData;
 import org.apache.skywalking.apm.collector.core.graph.NodeProcessor;
 import org.apache.skywalking.apm.collector.core.queue.EndOfBatchContext;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
 public class LocalAsyncWorkerRef<INPUT extends QueueData, OUTPUT extends QueueData> extends WorkerRef<INPUT, OUTPUT> implements IConsumer<INPUT> {
 
-    private final Logger logger = LoggerFactory.getLogger(LocalAsyncWorkerRef.class);
+    private static final Logger logger = LoggerFactory.getLogger(LocalAsyncWorkerRef.class);
 
     private DataCarrier<INPUT> dataCarrier;
 

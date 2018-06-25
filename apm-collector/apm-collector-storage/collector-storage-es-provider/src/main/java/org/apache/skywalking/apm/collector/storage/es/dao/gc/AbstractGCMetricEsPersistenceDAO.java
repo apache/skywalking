@@ -18,11 +18,13 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao.gc;
 
-import java.util.*;
+import java.io.IOException;
+import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
 import org.apache.skywalking.apm.collector.storage.table.jvm.*;
+import org.elasticsearch.common.xcontent.*;
 
 /**
  * @author peng-yongsheng
@@ -53,18 +55,17 @@ public abstract class AbstractGCMetricEsPersistenceDAO extends AbstractPersisten
         return gcMetric;
     }
 
-    @Override protected final Map<String, Object> esStreamDataToEsData(GCMetric streamData) {
-        Map<String, Object> target = new HashMap<>();
-        target.put(GCMetricTable.METRIC_ID.getName(), streamData.getMetricId());
+    @Override protected final XContentBuilder esStreamDataToEsData(GCMetric streamData) throws IOException {
+        return XContentFactory.jsonBuilder().startObject()
+            .field(GCMetricTable.METRIC_ID.getName(), streamData.getMetricId())
 
-        target.put(GCMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId());
-        target.put(GCMetricTable.PHRASE.getName(), streamData.getPhrase());
-        target.put(GCMetricTable.COUNT.getName(), streamData.getCount());
-        target.put(GCMetricTable.TIMES.getName(), streamData.getTimes());
-        target.put(GCMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
-        target.put(GCMetricTable.DURATION.getName(), streamData.getDuration());
-
-        return target;
+            .field(GCMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId())
+            .field(GCMetricTable.PHRASE.getName(), streamData.getPhrase())
+            .field(GCMetricTable.COUNT.getName(), streamData.getCount())
+            .field(GCMetricTable.TIMES.getName(), streamData.getTimes())
+            .field(GCMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket())
+            .field(GCMetricTable.DURATION.getName(), streamData.getDuration())
+            .endObject();
     }
 
     @GraphComputingMetric(name = "/persistence/get/" + GCMetricTable.TABLE)

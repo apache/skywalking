@@ -18,16 +18,16 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao.alarm;
 
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.dao.alarm.IServiceAlarmListPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
-import org.apache.skywalking.apm.collector.storage.table.alarm.ServiceAlarmList;
-import org.apache.skywalking.apm.collector.storage.table.alarm.ServiceAlarmListTable;
+import org.apache.skywalking.apm.collector.storage.table.alarm.*;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
+import org.elasticsearch.common.xcontent.*;
 
 /**
  * @author peng-yongsheng
@@ -56,18 +56,18 @@ public class ServiceAlarmListEsPersistenceDAO extends AbstractPersistenceEsDAO<S
         return serviceAlarmList;
     }
 
-    @Override protected Map<String, Object> esStreamDataToEsData(ServiceAlarmList streamData) {
-        Map<String, Object> target = new HashMap<>();
-        target.put(ServiceAlarmListTable.APPLICATION_ID.getName(), streamData.getApplicationId());
-        target.put(ServiceAlarmListTable.INSTANCE_ID.getName(), streamData.getInstanceId());
-        target.put(ServiceAlarmListTable.SERVICE_ID.getName(), streamData.getServiceId());
-        target.put(ServiceAlarmListTable.SOURCE_VALUE.getName(), streamData.getSourceValue());
+    @Override protected XContentBuilder esStreamDataToEsData(ServiceAlarmList streamData) throws IOException {
+        return XContentFactory.jsonBuilder().startObject()
+            .field(ServiceAlarmListTable.APPLICATION_ID.getName(), streamData.getApplicationId())
+            .field(ServiceAlarmListTable.INSTANCE_ID.getName(), streamData.getInstanceId())
+            .field(ServiceAlarmListTable.SERVICE_ID.getName(), streamData.getServiceId())
+            .field(ServiceAlarmListTable.SOURCE_VALUE.getName(), streamData.getSourceValue())
 
-        target.put(ServiceAlarmListTable.ALARM_TYPE.getName(), streamData.getAlarmType());
-        target.put(ServiceAlarmListTable.ALARM_CONTENT.getName(), streamData.getAlarmContent());
+            .field(ServiceAlarmListTable.ALARM_TYPE.getName(), streamData.getAlarmType())
+            .field(ServiceAlarmListTable.ALARM_CONTENT.getName(), streamData.getAlarmContent())
 
-        target.put(ServiceAlarmListTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
-        return target;
+            .field(ServiceAlarmListTable.TIME_BUCKET.getName(), streamData.getTimeBucket())
+            .endObject();
     }
 
     @Override protected String timeBucketColumnNameForDelete() {

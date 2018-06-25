@@ -18,10 +18,8 @@
 
 package org.apache.skywalking.apm.collector.instrument.tools;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -36,20 +34,13 @@ class ReportFormatter {
         logger.info(System.lineSeparator() + "Formatted report: ");
 
         report.getMetrics().forEach(metric -> {
-            String[] subMetricNames = metric.getMetricName().split("/");
-
-            String metricName = "";
-            for (String subMetricName : subMetricNames) {
-                if (subMetricName != null && !subMetricName.equals("")) {
-                    metricName = metricName + "/" + subMetricName;
-
-                    if (!metricMap.containsKey(metricName)) {
-                        Metric newMetric = new Metric();
-                        newMetric.setMetricName(metricName);
-                        metricMap.put(metricName, newMetric);
-                    }
-                    metricMap.get(metricName).merge(metric);
-                }
+            if (metricMap.containsKey(metric.getMetricName())) {
+                Metric existMetric = metricMap.get(metric.getMetricName());
+                existMetric.setTotal(existMetric.getTotal() + metric.getTotal());
+                existMetric.setCalls(existMetric.getCalls() + metric.getCalls());
+                existMetric.setAvg(existMetric.getTotal() / existMetric.getCalls());
+            } else {
+                metricMap.put(metric.getMetricName(), metric);
             }
         });
 

@@ -44,8 +44,11 @@ public class ServiceName extends StreamData {
         new IntegerColumn(ServiceNameTable.SRC_SPAN_TYPE, new CoverMergeOperation()),
     };
 
+    private static final DoubleColumn[] DOUBLE_COLUMNS = {
+    };
+
     public ServiceName() {
-        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, new DoubleColumn[0]);
+        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, DOUBLE_COLUMNS);
     }
 
     @Override public String getId() {

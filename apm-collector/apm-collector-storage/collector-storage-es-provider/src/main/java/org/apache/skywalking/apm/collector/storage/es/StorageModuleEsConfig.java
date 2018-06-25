@@ -33,6 +33,10 @@ public class StorageModuleEsConfig extends ElasticSearchClientConfig {
     private int hourMetricDataTTL = 36;
     private int dayMetricDataTTL = 45;
     private int monthMetricDataTTL = 18;
+    private int bulkActions = 2000;
+    private int bulkSize = 20;
+    private int flushInterval = 10;
+    private int concurrentRequests = 2;
 
     int getIndexShardsNumber() {
         return indexShardsNumber;
@@ -96,5 +100,37 @@ public class StorageModuleEsConfig extends ElasticSearchClientConfig {
 
     void setMonthMetricDataTTL(int monthMetricDataTTL) {
         this.monthMetricDataTTL = monthMetricDataTTL == 0 ? 18 : monthMetricDataTTL;
+    }
+
+    public int getBulkActions() {
+        return bulkActions;
+    }
+
+    public void setBulkActions(int bulkActions) {
+        this.bulkActions = bulkActions == 0 ? 2000 : bulkActions;
+    }
+
+    public int getBulkSize() {
+        return bulkSize;
+    }
+
+    public void setBulkSize(int bulkSize) {
+        this.bulkSize = bulkSize == 0 ? 20 : bulkSize;
+    }
+
+    public int getFlushInterval() {
+        return flushInterval;
+    }
+
+    public void setFlushInterval(int flushInterval) {
+        this.flushInterval = flushInterval == 0 ? 10 : flushInterval;
+    }
+
+    public int getConcurrentRequests() {
+        return concurrentRequests;
+    }
+
+    public void setConcurrentRequests(int concurrentRequests) {
+        this.concurrentRequests = concurrentRequests == 0 ? 2 : concurrentRequests;
     }
 }

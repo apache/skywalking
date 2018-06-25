@@ -62,7 +62,9 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
             int componentId = componentLibraryCatalogService.getComponentId(standardBuilder.getComponent());
 
             if (componentId == 0) {
-                logger.debug("component: {} in application: {} exchange failed", standardBuilder.getComponent(), applicationId);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("component: {} in application: {} exchange failed", standardBuilder.getComponent(), applicationId);
+                }
                 return false;
             } else {
                 standardBuilder.toBuilder();
@@ -75,7 +77,9 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
             int peerId = networkAddressIDService.getOrCreate(standardBuilder.getPeer());
 
             if (peerId == 0) {
-                logger.debug("peer: {} in application: {} exchange failed", standardBuilder.getPeer(), applicationId);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("peer: {} in application: {} exchange failed", standardBuilder.getPeer(), applicationId);
+                }
                 return false;
             } else {
                 standardBuilder.toBuilder();
@@ -93,7 +97,9 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
             int operationNameId = serviceNameService.getOrCreate(applicationId, standardBuilder.getSpanTypeValue(), operationName);
 
             if (operationNameId == 0) {
-                logger.debug("service name: {} from application id: {} exchange failed", operationName, applicationId);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("service name: {} from application id: {} exchange failed", operationName, applicationId);
+                }
                 return false;
             } else {
                 standardBuilder.toBuilder();

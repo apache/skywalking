@@ -18,7 +18,8 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
-import java.util.*;
+import java.io.IOException;
+import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.UnexpectedException;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
@@ -28,6 +29,7 @@ import org.apache.skywalking.apm.collector.storage.table.register.*;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
+import org.elasticsearch.common.xcontent.*;
 import org.slf4j.*;
 
 /**
@@ -43,18 +45,24 @@ public class ServiceNameHeartBeatEsPersistenceDAO extends EsDAO implements IServ
 
     @GraphComputingMetric(name = "/persistence/get/" + ServiceNameTable.TABLE + "/heartbeat")
     @Override public ServiceName get(String id) {
-        GetResponse getResponse = getClient().prepareGet(ServiceNameTable.TABLE, id).get();
+        String[] includeSources = {ServiceNameTable.HEARTBEAT_TIME.getName()};
+        GetResponse getResponse = getClient().prepareGet(ServiceNameTable.TABLE, id).setFetchSource(includeSources, null).get();
         if (getResponse.isExists()) {
             Map<String, Object> source = getResponse.getSource();
 
             ServiceName serviceName = new ServiceName();
             serviceName.setId(id);
-            serviceName.setServiceId(((Number)source.get(ServiceNameTable.SERVICE_ID.getName())).intValue());
+            serviceName.setServiceId(Integer.valueOf(id));
             serviceName.setHeartBeatTime(((Number)source.get(ServiceNameTable.HEARTBEAT_TIME.getName())).longValue());
-            logger.debug("service id: {} is exists", id);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("service id: {} is exists", id);
+            }
             return serviceName;
         } else {
-            logger.debug("service id: {} is not exists", id);
+            if (logger.isDebugEnabled()) {
+                logger.debug("service id: {} is not exists", id);
+            }
             return null;
         }
     }
@@ -63,11 +71,15 @@ public class ServiceNameHeartBeatEsPersistenceDAO extends EsDAO implements IServ
         throw new UnexpectedException("Received an service name heart beat message under service id= " + data.getId() + " , which doesn't exist.");
     }
 
-    @Override public UpdateRequestBuilder prepareBatchUpdate(ServiceName data) {
-        logger.info("service name heart beat, service id: {}, heart beat time: {}", data.getId(), data.getHeartBeatTime());
+    @Override public UpdateRequestBuilder prepareBatchUpdate(ServiceName data) throws IOException {
+        if (logger.isDebugEnabled()) {
+            logger.debug("service name heart beat, service id: {}, heart beat time: {}", data.getId(), data.getHeartBeatTime());
+        }
 
-        Map<String, Object> source = new HashMap<>();
-        source.put(ServiceNameTable.HEARTBEAT_TIME.getName(), data.getHeartBeatTime());
+        XContentBuilder source = XContentFactory.jsonBuilder().startObject()
+            .field(ServiceNameTable.HEARTBEAT_TIME.getName(), data.getHeartBeatTime())
+            .endObject();
+
         return getClient().prepareUpdate(ServiceNameTable.TABLE, data.getId()).setDoc(source);
     }
 

@@ -36,7 +36,7 @@ import org.slf4j.*;
  */
 public abstract class PersistenceWorker<INPUT_AND_OUTPUT extends StreamData, COLLECTION extends Collection> extends AbstractLocalAsyncWorker<INPUT_AND_OUTPUT, INPUT_AND_OUTPUT> {
 
-    private final Logger logger = LoggerFactory.getLogger(PersistenceWorker.class);
+    private static final Logger logger = LoggerFactory.getLogger(PersistenceWorker.class);
 
     private final IBatchDAO batchDAO;
     private final int blockBatchPersistenceSize;
