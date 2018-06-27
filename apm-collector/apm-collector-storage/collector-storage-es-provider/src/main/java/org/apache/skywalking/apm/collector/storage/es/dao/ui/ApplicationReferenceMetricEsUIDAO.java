@@ -56,8 +56,8 @@ public class ApplicationReferenceMetricEsUIDAO extends EsDAO implements IApplica
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(ApplicationReferenceMetricTable.TIME_BUCKET.getName()).gte(startTimeBucket).lte(endTimeBucket));
-        boolQuery.must().add(QueryBuilders.termQuery(ApplicationReferenceMetricTable.SOURCE_VALUE.getName(), metricSource.getValue()));
+        boolQuery.filter().add(QueryBuilders.rangeQuery(ApplicationReferenceMetricTable.TIME_BUCKET.getName()).gte(startTimeBucket).lte(endTimeBucket));
+        boolQuery.filter().add(QueryBuilders.termQuery(ApplicationReferenceMetricTable.SOURCE_VALUE.getName(), metricSource.getValue()));
 
         if (CollectionUtils.isNotEmpty(applicationIds)) {
             BoolQueryBuilder applicationBoolQuery = QueryBuilders.boolQuery();
@@ -71,7 +71,7 @@ public class ApplicationReferenceMetricEsUIDAO extends EsDAO implements IApplica
             boolQuery.must().add(applicationBoolQuery);
         }
 
-        searchRequestBuilder.setPostFilter(boolQuery);
+        searchRequestBuilder.setQuery(boolQuery);
         searchRequestBuilder.setSize(0);
 
         return buildMetrics(searchRequestBuilder);
