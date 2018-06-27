@@ -36,7 +36,7 @@ class TraceList extends PureComponent {
           }}
         />
         <div className={styles.mainInfo}>
-          <Ellipsis length={100} tooltip style={{ width: 'initial' }}>{opName.join(' ')}</Ellipsis>
+          <Ellipsis length={100} tooltip style={{ width: 'initial' }}>{(opName && opName.length > 0) ? opName.join(' ') : '' }</Ellipsis>
           <span className={styles.duration}>{`${duration}ms`}</span>
         </div>
       </div>);
