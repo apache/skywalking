@@ -72,7 +72,7 @@ class TraceList extends PureComponent {
                 style={{ backgroundColor: item.isError ? '#fde3cf' : '#1890ff', color: item.isError ? '#f56a00' : null, verticalAlign: 'middle' }}
                 icon={item.isError ? 'close' : 'check'}
               />}
-              title={this.renderOperationName(item.operationName, item.duration,
+              title={this.renderOperationName(item.operationNames, item.duration,
                 item.isError, maxDuration)}
               description={this.renderDescription(item.start, item.traceIds)}
             />
