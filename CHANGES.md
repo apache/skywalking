@@ -29,8 +29,10 @@ Release Notes.
 #### Collector Changes
   - Topology query optimization for more than 100 apps.
   - Tolerate unsupported segments.
-  - Support multiple service names.
-  - Process segments batch insert in multiple threads.
+  - Support Integer Array, Long Array, String Array, Double Array in streaming data model.
+  - Support multiple entry span and multiple service name in one segment durtaion record.
+  - Use BulkProcessor to control the linear writing of data by multiple threads.
+  - Determine the log is enabled for the DEBUG level before printing message.
   - Add `static` modifier to Logger. 
   - Add AspNet component.
   - Filter inactive service in query.
