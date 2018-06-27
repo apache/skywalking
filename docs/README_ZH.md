@@ -1,6 +1,8 @@
 ## 中文文档
 [![EN doc](https://img.shields.io/badge/document-English-blue.svg)](README.md)
 
+注：中文文档由社区志愿者提供，官方文档以英文为准。
+
   * 快速入门
     * [快速入门](cn/Quick-start-CN.md)
     * [中间件，框架与类库支持列表](Supported-list.md)
