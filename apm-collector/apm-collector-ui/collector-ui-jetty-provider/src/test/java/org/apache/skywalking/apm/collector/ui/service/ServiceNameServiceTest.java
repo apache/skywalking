@@ -106,9 +106,9 @@ public class ServiceNameServiceTest {
         when(serviceMetricUIDAO.getSlowService(anyInt(), anyObject(), anyLong(), anyLong(), anyInt(), anyObject())).then(invocation -> {
             ServiceMetric serviceMetric = new ServiceMetric();
             serviceMetric.setCalls(200901);
-            serviceMetric.setName("test");
+            serviceMetric.getService().setName("test");
             serviceMetric.setAvgResponseTime(100);
-            serviceMetric.setId(1);
+            serviceMetric.getService().setId(1);
             return Collections.singletonList(serviceMetric);
         });
         when(dateBetweenService.minutesBetween(anyInt(), anyLong(), anyLong())).then(invocation -> 20L);

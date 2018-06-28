@@ -208,7 +208,8 @@ public class ServiceMetricEsUIDAO extends EsDAO implements IServiceMetricUIDAO {
             int serviceId = ((Number)searchHit.getSource().get(ServiceMetricTable.SERVICE_ID.getName())).intValue();
             if (!serviceIds.contains(serviceId)) {
                 ServiceMetric serviceMetric = new ServiceMetric();
-                serviceMetric.setId(serviceId);
+                serviceMetric.getService().setId(serviceId);
+                serviceMetric.getService().setApplicationId(serviceId);
                 serviceMetric.setCalls(((Number)searchHit.getSource().get(ServiceMetricTable.TRANSACTION_CALLS.getName())).longValue());
                 serviceMetric.setAvgResponseTime(((Number)searchHit.getSource().get(ServiceMetricTable.TRANSACTION_AVERAGE_DURATION.getName())).intValue());
                 serviceMetrics.add(serviceMetric);
