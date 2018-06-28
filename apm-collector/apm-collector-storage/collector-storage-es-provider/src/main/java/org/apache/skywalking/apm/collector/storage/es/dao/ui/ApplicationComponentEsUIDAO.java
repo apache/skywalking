@@ -52,7 +52,7 @@ public class ApplicationComponentEsUIDAO extends EsDAO implements IApplicationCo
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
         searchRequestBuilder.setTypes(ApplicationComponentTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-        searchRequestBuilder.setPostFilter(QueryBuilders.rangeQuery(ApplicationComponentTable.TIME_BUCKET.getName()).gte(startTimeBucket).lte(endTimeBucket));
+        searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(ApplicationComponentTable.TIME_BUCKET.getName()).gte(startTimeBucket).lte(endTimeBucket));
         searchRequestBuilder.setSize(0);
 
         searchRequestBuilder.addAggregation(AggregationBuilders.terms(ApplicationComponentTable.COMPONENT_ID.getName()).field(ApplicationComponentTable.COMPONENT_ID.getName()).size(100)
