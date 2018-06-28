@@ -111,6 +111,8 @@ export default class Service extends PureComponent {
           applicationId: values.applicationId,
           operationName: serviceName,
           queryDuration: variables.duration,
+          traceState: 'ALL',
+          queryOrder: 'BY_DURATION',
           paging: {
             pageNum: 1,
             pageSize: 20,
@@ -137,7 +139,7 @@ export default class Service extends PureComponent {
     const { service, duration } = this.props;
     const { variables: { values }, data } = service;
     const { getServiceResponseTimeTrend, getServiceThroughputTrend,
-      getServiceSLATrend, getServiceTopology, getTrace } = data;
+      getServiceSLATrend, getServiceTopology, queryBasicTraces } = data;
     if (!values.serviceId) {
       return null;
     }
@@ -191,7 +193,7 @@ export default class Service extends PureComponent {
               title="Top 20 Slow Traces"
             >
               <TraceList
-                data={getTrace.traces}
+                data={queryBasicTraces.traces}
                 onClickTraceTag={this.handleShowTrace}
                 loading={this.props.loading}
               />

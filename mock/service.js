@@ -37,14 +37,14 @@ export default {
     res.json(mockjs.mock(
       {
         data: {
-          getTrace: () => {
+          queryBasicTraces: () => {
             let offset = 0;
             let duration = 2500;
             return mockjs.mock(
               {
                 'traces|20': [{
                   key: '@id',
-                  operationName: '200://wgmb.ev/jcknolzq',
+                  operationNames: ['200://wgmb.ev/jcknolzq'],
                   duration: () => {
                     duration -= 100;
                     return duration;

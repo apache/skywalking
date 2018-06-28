@@ -36,7 +36,7 @@ class TraceList extends PureComponent {
           }}
         />
         <div className={styles.mainInfo}>
-          <Ellipsis length={100} tooltip style={{ width: 'initial' }}>{opName.join(' ')}</Ellipsis>
+          <Ellipsis length={100} tooltip style={{ width: 'initial' }}>{(opName && opName.length > 0) ? opName.join(' ') : '' }</Ellipsis>
           <span className={styles.duration}>{`${duration}ms`}</span>
         </div>
       </div>);
@@ -72,7 +72,7 @@ class TraceList extends PureComponent {
                 style={{ backgroundColor: item.isError ? '#fde3cf' : '#1890ff', color: item.isError ? '#f56a00' : null, verticalAlign: 'middle' }}
                 icon={item.isError ? 'close' : 'check'}
               />}
-              title={this.renderOperationName(item.operationName, item.duration,
+              title={this.renderOperationName(item.operationNames, item.duration,
                 item.isError, maxDuration)}
               description={this.renderDescription(item.start, item.traceIds)}
             />

@@ -34,7 +34,7 @@ const dataQuery = `
     queryBasicTraces(condition: $condition) {
       traces {
         key: segmentId
-        operationName
+        operationNames
         duration
         start
         isError

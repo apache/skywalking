@@ -39,7 +39,7 @@ const dataQuery = `
     getServiceSLATrend(serviceId: $serviceId, duration: $duration) {
       trendList
     }
-    getTrace(condition: $traceCondition) {
+    queryBasicTraces(condition: $traceCondition) {
       traces {
         key: segmentId
         operationName
@@ -127,7 +127,7 @@ export default generateModal({
       nodes: [],
       calls: [],
     },
-    getTrace: {
+    queryBasicTraces: {
       traces: [],
       total: 0,
     },
