@@ -115,9 +115,9 @@ public class ApplicationServiceTest {
         when(serviceMetricUIDAO.getSlowService(anyInt(), anyObject(), anyLong(), anyLong(), anyInt(), anyObject())).then(invocation -> {
             ServiceMetric serviceMetric = new ServiceMetric();
             serviceMetric.setCalls(200900);
-            serviceMetric.setName("test");
+            serviceMetric.getService().setName("test");
             serviceMetric.setAvgResponseTime(100);
-            serviceMetric.setId(1);
+            serviceMetric.getService().setId(1);
             return Collections.singletonList(serviceMetric);
         });
         when(serviceNameCacheService.get(anyInt())).then(invocation -> {
@@ -125,8 +125,9 @@ public class ApplicationServiceTest {
             serviceName.setServiceName("serviceName");
             return serviceName;
         });
+        mockCache();
         when(dateBetweenService.minutesBetween(anyInt(), anyLong(), anyLong())).then(invocation -> 20L);
-        List<ServiceMetric> slowService = applicationService.getSlowService(-1, duration.getStep(), startTimeBucket, endTimeBucket, startSecondTimeBucket, endSecondTimeBucket, 10);
+        List<ServiceMetric> slowService = applicationService.getSlowService(1, duration.getStep(), startTimeBucket, endTimeBucket, startSecondTimeBucket, endSecondTimeBucket, 10);
         Assert.assertTrue(slowService.get(0).getCpm() > 0);
     }
 
