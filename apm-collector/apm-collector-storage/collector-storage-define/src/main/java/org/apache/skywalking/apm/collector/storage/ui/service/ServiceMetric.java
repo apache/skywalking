@@ -22,26 +22,21 @@ package org.apache.skywalking.apm.collector.storage.ui.service;
  * @author peng-yongsheng
  */
 public class ServiceMetric {
-    private int id;
-    private String name;
+    private ServiceInfo service;
     private long calls;
     private int avgResponseTime;
     private int cpm;
 
-    public int getId() {
-        return id;
+    public ServiceMetric() {
+        this.service = new ServiceInfo();
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public ServiceInfo getService() {
+        return service;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public void setService(ServiceInfo service) {
+        this.service = service;
     }
 
     public int getAvgResponseTime() {
