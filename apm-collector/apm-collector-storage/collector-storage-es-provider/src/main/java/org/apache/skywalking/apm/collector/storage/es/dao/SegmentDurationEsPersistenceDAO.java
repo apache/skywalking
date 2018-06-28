@@ -56,7 +56,7 @@ public class SegmentDurationEsPersistenceDAO extends EsDAO implements ISegmentDu
         XContentBuilder target = XContentFactory.jsonBuilder().startObject()
             .field(SegmentDurationTable.SEGMENT_ID.getName(), data.getSegmentId())
             .field(SegmentDurationTable.APPLICATION_ID.getName(), data.getApplicationId())
-            .array(SegmentDurationTable.SERVICE_NAME.getName(), data.getServiceName())
+            .field(SegmentDurationTable.SERVICE_NAME.getName(), data.getServiceName())
             .field(SegmentDurationTable.DURATION.getName(), data.getDuration())
             .field(SegmentDurationTable.START_TIME.getName(), data.getStartTime())
             .field(SegmentDurationTable.END_TIME.getName(), data.getEndTime())
