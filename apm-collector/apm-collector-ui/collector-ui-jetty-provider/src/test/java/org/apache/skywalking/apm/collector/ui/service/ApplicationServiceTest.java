@@ -125,8 +125,9 @@ public class ApplicationServiceTest {
             serviceName.setServiceName("serviceName");
             return serviceName;
         });
+        mockCache();
         when(dateBetweenService.minutesBetween(anyInt(), anyLong(), anyLong())).then(invocation -> 20L);
-        List<ServiceMetric> slowService = applicationService.getSlowService(-1, duration.getStep(), startTimeBucket, endTimeBucket, startSecondTimeBucket, endSecondTimeBucket, 10);
+        List<ServiceMetric> slowService = applicationService.getSlowService(1, duration.getStep(), startTimeBucket, endTimeBucket, startSecondTimeBucket, endSecondTimeBucket, 10);
         Assert.assertTrue(slowService.get(0).getCpm() > 0);
     }
 

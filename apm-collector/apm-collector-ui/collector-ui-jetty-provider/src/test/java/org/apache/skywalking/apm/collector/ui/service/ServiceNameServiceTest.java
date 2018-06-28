@@ -19,7 +19,7 @@ package org.apache.skywalking.apm.collector.ui.service;
 
 import java.text.ParseException;
 import java.util.*;
-import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
+import org.apache.skywalking.apm.collector.cache.service.*;
 import org.apache.skywalking.apm.collector.core.module.*;
 import org.apache.skywalking.apm.collector.storage.dao.ui.*;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
@@ -42,6 +42,7 @@ public class ServiceNameServiceTest {
     private IServiceNameServiceUIDAO serviceNameServiceUIDAO;
     private IServiceMetricUIDAO serviceMetricUIDAO;
     private ServiceNameCacheService serviceNameCacheService;
+    private ApplicationCacheService applicationCacheService;
     private DateBetweenService dateBetweenService;
     private ServiceNameService serverNameService;
     private Duration duration;
@@ -56,9 +57,11 @@ public class ServiceNameServiceTest {
         when(moduleManager.find(anyString())).then(invocation -> new MockModule());
         serverNameService = new ServiceNameService(moduleManager);
         serviceNameCacheService = mock(ServiceNameCacheService.class);
+        applicationCacheService = mock(ApplicationCacheService.class);
         serviceMetricUIDAO = mock(IServiceMetricUIDAO.class);
         dateBetweenService = mock(DateBetweenService.class);
         Whitebox.setInternalState(serverNameService, "serviceNameCacheService", serviceNameCacheService);
+        Whitebox.setInternalState(serverNameService, "applicationCacheService", applicationCacheService);
         Whitebox.setInternalState(serverNameService, "serviceMetricUIDAO", serviceMetricUIDAO);
         Whitebox.setInternalState(serverNameService, "dateBetweenService", dateBetweenService);
         duration = new Duration();
@@ -108,6 +111,7 @@ public class ServiceNameServiceTest {
             serviceMetric.setCalls(200901);
             serviceMetric.getService().setName("test");
             serviceMetric.setAvgResponseTime(100);
+            serviceMetric.getService().setApplicationId(1);
             serviceMetric.getService().setId(1);
             return Collections.singletonList(serviceMetric);
         });
@@ -121,7 +125,15 @@ public class ServiceNameServiceTest {
         Mockito.when(serviceNameCacheService.get(anyInt())).then(invocation -> {
             ServiceName serviceName = new ServiceName();
             serviceName.setServiceName("test_name");
+            serviceName.setApplicationId(1);
             return serviceName;
+        });
+
+        Mockito.when(applicationCacheService.getApplicationById(anyInt())).then(invocation -> {
+            org.apache.skywalking.apm.collector.storage.table.register.Application application = new org.apache.skywalking.apm.collector.storage.table.register.Application();
+            application.setApplicationId(1);
+            application.setApplicationCode("test");
+            return application;
         });
     }
 }
