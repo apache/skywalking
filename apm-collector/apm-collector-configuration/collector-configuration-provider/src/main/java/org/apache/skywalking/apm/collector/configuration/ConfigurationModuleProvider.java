@@ -49,11 +49,11 @@ public class ConfigurationModuleProvider extends ModuleProvider {
     @Override public void prepare() throws ServiceNotProvidedException {
         String namespace = StringUtils.isNotEmpty(config.getNamespace()) ? config.getNamespace() : Const.EMPTY_STRING;
         int applicationApdexThreshold = config.getApplicationApdexThreshold() == 0 ? 2000 : config.getApplicationApdexThreshold();
-        double serviceErrorRateThreshold = config.getServiceErrorRateThreshold() == 0 ? 10.00 : config.getServiceErrorRateThreshold();
+        double serviceErrorRateThreshold = config.getServiceErrorRateThreshold() == 0 ? 0.10 : config.getServiceErrorRateThreshold() / 100;
         int serviceAverageResponseTimeThreshold = config.getServiceAverageResponseTimeThreshold() == 0 ? 2000 : config.getServiceAverageResponseTimeThreshold();
-        double instanceErrorRateThreshold = config.getInstanceErrorRateThreshold() == 0 ? 10.00 : config.getInstanceErrorRateThreshold();
+        double instanceErrorRateThreshold = config.getInstanceErrorRateThreshold() == 0 ? 0.10 : config.getInstanceErrorRateThreshold() / 100;
         int instanceAverageResponseTimeThreshold = config.getInstanceAverageResponseTimeThreshold() == 0 ? 2000 : config.getInstanceAverageResponseTimeThreshold();
-        double applicationErrorRateThreshold = config.getApplicationErrorRateThreshold() == 0 ? 10.00 : config.getApplicationErrorRateThreshold();
+        double applicationErrorRateThreshold = config.getApplicationErrorRateThreshold() == 0 ? 0.10 : config.getApplicationErrorRateThreshold() / 100;
         int applicationAverageResponseTimeThreshold = config.getApplicationAverageResponseTimeThreshold() == 0 ? 2000 : config.getApplicationAverageResponseTimeThreshold();
 
         int thermodynamicResponseTimeStep = config.getThermodynamicResponseTimeStep() == 0 ? 50 : config.getThermodynamicResponseTimeStep();
