@@ -180,6 +180,21 @@ export function generateModal({ namespace, dataQuery, optionsQuery, defaultOptio
           },
         };
       },
+      initVariables(preState, { payload: { values: variableValues, labels = {} } }) {
+        const { variables: preVariables } = preState;
+        return {
+          ...preState,
+          variables: {
+            ...preVariables,
+            values: {
+              ...variableValues,
+            },
+            labels: {
+              ...labels,
+            },
+          },
+        };
+      },
       ...reducers,
     },
     subscriptions: {
