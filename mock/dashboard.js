@@ -48,7 +48,7 @@ export default {
             },
             responseTimeStep: 50,
           },
-          'getTopNSlowService|10': [{ 'key|+1': 1, label: '@url', 'value|200-1000': 1 }],
+          'getTopNSlowService|10': [{ service: { 'key|+1': 1, label: '@url', 'applicationId|+1': 1, applicationName: '@name' }, 'value|200-1000': 1 }],
           'getTopNApplicationThroughput|10': [{ 'key|+1': 1, label: '@name', 'value|100-10000': 1 }],
         },
       }

@@ -31,8 +31,12 @@ const optionsQuery = `
 const dataQuery = `
   query Application($applicationId: ID!, $duration: Duration!) {
     getSlowService(applicationId: $applicationId, duration: $duration, topN: 10) {
-      key: id
-      label: name
+      service {
+        key: id
+        label: name
+        applicationId
+        applicationName
+      }
       value: avgResponseTime
     }
     getServerThroughput(applicationId: $applicationId, duration: $duration, topN: 999999) {

@@ -164,6 +164,9 @@ export default generateModal({
         return rawState;
       }
       const { variables: { values } } = rawState;
+      if (!values.applicationId) {
+        return rawState;
+      }
       return {
         ...rawState,
         data: {
@@ -187,15 +190,25 @@ export default generateModal({
     setup({ history, dispatch }) {
       return history.listen(({ pathname, state }) => {
         if (pathname === '/monitor/service' && state) {
+          console.info(state);
           dispatch({
             type: 'saveVariables',
             payload: {
               values: {
                 serviceId: state.key,
+                applicationId: state.applicationId,
               },
               labels: {
                 serviceId: state.label,
+                applicationId: state.applicationName,
               },
+            },
+          });
+          dispatch({
+            type: 'saveData',
+            payload: {
+              appInfo: { applicationId: state.applicationId },
+              serviceInfo: { key: state.key, label: state.label },
             },
           });
         }

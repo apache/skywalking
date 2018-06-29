@@ -36,7 +36,7 @@ export default class Search extends PureComponent {
   }
   componentDidMount() {
     if (this.props.variables && Object.keys(this.props.variables).length > 0) {
-      this.originFetchServer('', true);
+      this.originFetchServer('', !this.props.value.key);
     }
   }
   componentDidUpdate(prevProps) {
@@ -49,6 +49,7 @@ export default class Search extends PureComponent {
       return;
     }
     const { url, query, variables = {}, transform } = this.props;
+    console.info(variables);
     this.lastFetchId += 1;
     const fetchId = this.lastFetchId;
     this.setState({ data: [], fetching: true });
