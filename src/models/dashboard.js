@@ -55,8 +55,12 @@ export default generateModal({
         responseTimeStep
       }
       getTopNSlowService(duration: $duration, topN: 10) {
-        key: id
-        label: name
+        service {
+          key: id
+          label: name
+          applicationId
+          applicationName
+        }
         value: avgResponseTime
       }
       getTopNApplicationThroughput(duration: $duration, topN: 10) {

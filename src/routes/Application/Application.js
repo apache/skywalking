@@ -200,9 +200,12 @@ export default class Application extends PureComponent {
                 bodyStyle={{ padding: '0px 10px' }}
               >
                 <RankList
-                  data={data.getSlowService}
+                  data={data.getSlowService.map(_ => ({ ..._.service, value: _.value }))}
                   renderValue={_ => `${_.value} ms`}
-                  onClick={(key, item) => redirect(this.props.history, '/monitor/service', { key, label: item.label })}
+                  onClick={(key, item) => redirect(this.props.history, '/monitor/service', { key,
+                    label: item.label,
+                    applicationId: item.applicationId,
+                    applicationName: item.applicationName })}
                 />
               </Card>
             </Col>

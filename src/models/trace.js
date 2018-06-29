@@ -153,10 +153,11 @@ export default generateModal({
     setup({ history, dispatch }) {
       return history.listen(({ pathname, state }) => {
         if (pathname === '/trace' && state) {
+          const { traceState = 'ALL', queryOrder = 'BY_START_TIME' } = state;
           dispatch({
-            type: 'saveVariables',
+            type: 'initVariables',
             payload: {
-              values: state.values,
+              values: { ...state.values, traceState, queryOrder },
               labels: state.labels,
             },
           });

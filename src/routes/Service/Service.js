@@ -99,7 +99,7 @@ export default class Service extends PureComponent {
     if (!values.applicationId) {
       return;
     }
-    const { key: serviceId, label: serviceName } = variables;
+    const { key: serviceId, label: serviceName, duration } = variables;
     if (!serviceId) {
       return;
     }
@@ -107,10 +107,11 @@ export default class Service extends PureComponent {
       type: 'service/fetchData',
       payload: { variables: {
         serviceId,
+        duration,
         traceCondition: {
           applicationId: values.applicationId,
           operationName: serviceName,
-          queryDuration: variables.duration,
+          queryDuration: duration,
           traceState: 'ALL',
           queryOrder: 'BY_DURATION',
           paging: {
