@@ -86,14 +86,16 @@ public class ApplicationService {
         long startSecondTimeBucket, long endSecondTimeBucket, Integer topN) {
         List<ServiceMetric> slowServices = serviceMetricUIDAO.getSlowService(applicationId, step, startTimeBucket, endTimeBucket, topN, MetricSource.Callee);
         slowServices.forEach(slowService -> {
-            ServiceName serviceName = serviceNameCacheService.get(slowService.getId());
+            ServiceName serviceName = serviceNameCacheService.get(slowService.getService().getId());
 
             try {
                 slowService.setCpm((int)(slowService.getCalls() / dateBetweenService.minutesBetween(serviceName.getApplicationId(), startSecondTimeBucket, endSecondTimeBucket)));
             } catch (ParseException e) {
                 logger.error(e.getMessage(), e);
             }
-            slowService.setName(serviceName.getServiceName());
+            slowService.getService().setApplicationId(serviceName.getApplicationId());
+            slowService.getService().setApplicationName(applicationCacheService.getApplicationById(serviceName.getApplicationId()).getApplicationCode());
+            slowService.getService().setName(serviceName.getServiceName());
         });
         return slowServices;
     }
