@@ -68,6 +68,7 @@ public class NIWSServerListTest {
             }
         }
     }
+
     @Test
     public void serverListClass() throws ClassNotFoundException {
         for (String serverListClassName : serverListClassNames.values()) {
