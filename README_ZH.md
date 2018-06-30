@@ -59,7 +59,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
   - 密码： admin
 
 # Screenshot
-<img src="https://skywalkingtest.github.io/page-resources/5.0.0-beta/Dashboard.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-beta2/Dashboard.png"/>
 
 
 - [查看所有系统截图](/docs/Screenshots.md)
