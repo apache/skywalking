@@ -80,9 +80,10 @@ export default class Alarm extends PureComponent {
   }
   handleChange = (variables) => {
     const type = variables.alarmType.charAt(0) + variables.alarmType.slice(1).toLowerCase();
+    const { paging = defaultPaging } = variables;
     this.props.dispatch({
       type: 'alarm/fetchData',
-      payload: { variables, reducer: `save${type}AlarmList` },
+      payload: { variables: { ...variables, paging }, reducer: `save${type}AlarmList` },
     });
   }
   renderList = ({ items, total }) => {
