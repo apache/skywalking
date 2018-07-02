@@ -28,6 +28,7 @@ Release Notes.
 
 #### Collector Changes
   - Topology query optimization for more than 100 apps.
+  - Error rate alarm is not triggered.
   - Tolerate unsupported segments.
   - Support Integer Array, Long Array, String Array, Double Array in streaming data model.
   - Support multiple entry span and multiple service name in one segment durtaion record.

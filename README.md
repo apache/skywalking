@@ -56,9 +56,11 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 
 # Live Demo
 - Host in Beijing. [goto](http://49.4.12.44:8080/)
+  - Username: admin
+  - Password: admin
 
 # Screenshot
-<img src="https://skywalkingtest.github.io/page-resources/5.0.0-beta/Dashboard.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-beta2/Dashboard.png"/>
 
 
 - [See all screenshots](/docs/Screenshots.md)

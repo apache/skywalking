@@ -55,9 +55,11 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 
 # Live Demo
 - 北京服务器. [前往](http://49.4.12.44:8080/)
+  - 用户名： admin
+  - 密码： admin
 
 # Screenshot
-<img src="https://skywalkingtest.github.io/page-resources/5.0.0-beta/Dashboard.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-beta2/Dashboard.png"/>
 
 
 - [查看所有系统截图](/docs/Screenshots.md)
