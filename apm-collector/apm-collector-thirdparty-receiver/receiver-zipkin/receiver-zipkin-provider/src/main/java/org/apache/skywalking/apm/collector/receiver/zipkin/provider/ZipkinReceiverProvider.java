@@ -31,6 +31,7 @@ import org.apache.skywalking.apm.collector.core.module.*;
 import org.apache.skywalking.apm.collector.jetty.manager.JettyManagerModule;
 import org.apache.skywalking.apm.collector.jetty.manager.service.JettyManagerService;
 import org.apache.skywalking.apm.collector.receiver.zipkin.define.ZipkinReceiverModule;
+import org.apache.skywalking.apm.collector.receiver.zipkin.provider.handler.SpanV1JettyHandler;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.handler.SpanV2JettyHandler;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.transform.Zipkin2SkyWalkingTransfer;
 import org.apache.skywalking.apm.collector.server.jetty.JettyServer;
@@ -74,6 +75,7 @@ public class ZipkinReceiverProvider extends ModuleProvider {
 
         JettyManagerService managerService = getManager().find(JettyManagerModule.NAME).getService(JettyManagerService.class);
         JettyServer jettyServer = managerService.createIfAbsent(config.getHost(), config.getPort(), config.getContextPath());
+        jettyServer.addHandler(new SpanV1JettyHandler(config, registerServices));
         jettyServer.addHandler(new SpanV2JettyHandler(config, registerServices));
 
         ISegmentParseService segmentParseService = getManager().find(AnalysisSegmentParserModule.NAME).getService(ISegmentParseService.class);
