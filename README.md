@@ -3,7 +3,7 @@ Apache SkyWalking
 
 <img src="https://skywalkingtest.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
 
-**SkyWalking**: APM (application performance monitor) tool for distributed systems, especially designed for 
+**SkyWalking**: an observability analysis platform, also an APM(application performance monitor) system, especially designed for 
 microservices, cloud native and container-based (Docker, Kubernetes, Mesos) architectures.
 
 [![GitHub stars](https://img.shields.io/github/stars/apache/incubator-skywalking.svg?style=for-the-badge&label=Stars&logo=github)](https://github.com/apache/incubator-skywalking)
@@ -16,40 +16,44 @@ microservices, cloud native and container-based (Docker, Kubernetes, Mesos) arch
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
 
 # Abstract
-**SkyWalking** started as a distributed tracing system in 2015. From 5.x, it evolved to the fully functional [Application Performance Management](https://en.wikipedia.org/wiki/Application_performance_management) 
-system. It is used for tracing, monitoring, diagnose distributed systems, especially based on microservices, cloud native and container,
-including:
-- Distributed tracing and context propagation
-- Application, instance, service metrics analysis
-- Root cause analysis
-- Application topology map analysis
-- Application and service dependency analysis
-- Slow service detected
-- Performance optimization
+**SkyWalking** provides the observability and analysis platform, including monitoring, tracing, diagnosing capabilities for distributed system.
 
-# Core features
-- Multiple languages instrumentation agent or libraries 
-  - Native Java auto instrumentation agent. Trace and monitor your cluster without changing any source codes
-  - Community instrumentation agent or libraries
+- Service, service instance, endpoint metrics analysis
+- Root cause analysis
+- Service topology map analysis
+- Service, service instance and endpoint dependency analysis
+- Slow services and endpoints detected
+- Performance optimization
+- Distributed tracing and context propagation
+- Alarm
+
+<img src="https://skywalkingtest.github.io/page-resources/6_overview.png"/>
+
+
+SkyWalking provides multiple probes to collect data from different sources.
+- SkyWalking native instrument agents or SDKs
+  - Auto instrument agents
+    * Java. Included in official release.
     * [.NET Core](https://github.com/OpenSkywalking/skywalking-netcore) 
     * [Node.js](https://github.com/OpenSkywalking/skywalking-nodejs)
-- Multiple storage backends: ElasticSearch, H2
-- [OpenTracing](http://opentracing.io/) compatible
-  - Native Java auto instrumentation agent could work with OpenTracing APIs in the same context
-- Lightweight and powerful backend aggregation and analysis capabilities
-- Modern and cool Web UI
-- Log integration
-- Alarm for slow or unstable(low SLA) application, instance and service 
-- [**Incubating**] Support accepting other tracer data formats.
+  - SDKs
+    * OpenCensus with SkyWalking exporter.
+- Service mesh control panel or data panel probes.
+  - Istio mixer adaptor.
+  - Linkerd.
+- 3rd party data tracing format.
   - Zipkin JSON, Thrift, Protobuf v1 and v2 formats, powered by [OpenZipkin](https://github.com/openzipkin/zipkin) libs
-  - Jaeger in [Zipkin Thrift or JSON v1/v2 formats](https://github.com/jaegertracing/jaeger#backwards-compatibility-with-zipkin)
+  - Jaeger in [Zipkin Thrift or JSON v1/v2 formats](https://github.com/jaegertracing/jaeger#backwards-compatibility-with-zipkin).
+
+# Recommend and typical usages
+1. All service are under SkyWalking native agents or SDKs monitoring.
+2. Service mesh probes.
+3. Service mesh probes + distributed tracing(SkyWalking's or 3rd-party's).
+
 
 # Document
 - [Documents in English](docs/README.md)
-- [Documents in Chinese](docs/README_ZH.md)
 
-# 5.x Architecture
-<img src="https://skywalkingtest.github.io/page-resources/5.0/architecture.png"/>
 
 # Code of conduct
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wusheng@apache.org.
