@@ -208,7 +208,8 @@ public class ServiceMetricShardingjdbcUIDAO extends ShardingjdbcDAO implements I
                 int serviceId = rs.getInt(ServiceMetricTable.SERVICE_ID.getName());
                 if (!serviceIds.contains(serviceId)) {
                     ServiceMetric serviceMetric = new ServiceMetric();
-                    serviceMetric.setId(serviceId);
+                    serviceMetric.getService().setId(serviceId);
+                    serviceMetric.getService().setApplicationId(applicationId);
                     serviceMetric.setCalls(rs.getLong(ServiceMetricTable.TRANSACTION_CALLS.getName()));
                     serviceMetric.setAvgResponseTime(rs.getInt(ServiceMetricTable.TRANSACTION_AVERAGE_DURATION.getName()));
                     serviceMetrics.add(serviceMetric);

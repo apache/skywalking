@@ -18,26 +18,18 @@
 
 package org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.ui;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.apache.skywalking.apm.collector.client.shardingjdbc.ShardingjdbcClient;
-import org.apache.skywalking.apm.collector.client.shardingjdbc.ShardingjdbcClientException;
+import java.sql.*;
+import java.util.*;
+import org.apache.skywalking.apm.collector.client.shardingjdbc.*;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.apache.skywalking.apm.collector.storage.dao.ui.IGCMetricUIDAO;
 import org.apache.skywalking.apm.collector.storage.shardingjdbc.base.dao.ShardingjdbcDAO;
 import org.apache.skywalking.apm.collector.storage.table.jvm.GCMetricTable;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
-import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
-import org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder;
+import org.apache.skywalking.apm.collector.storage.utils.*;
 import org.apache.skywalking.apm.network.proto.GCPhrase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author linjiaqi
@@ -69,15 +61,15 @@ public class GCMetricShardingjdbcUIDAO extends ShardingjdbcDAO implements IGCMet
         durationPoints.forEach(durationPoint -> {
             String id = durationPoint.getPoint() + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + gcPhrase;
             try (
-                    ResultSet rs = client.executeQuery(sql, new String[] {id});
-                    Statement statement = rs.getStatement();
-                    Connection conn = statement.getConnection();
-                ) {
+                ResultSet rs = client.executeQuery(sql, new String[] {id});
+                Statement statement = rs.getStatement();
+                Connection conn = statement.getConnection();
+            ) {
                 if (rs.next()) {
                     long count = rs.getLong(GCMetricTable.COUNT.getName());
                     long duration = rs.getLong(GCMetricTable.DURATION.getName());
                     long times = rs.getLong(GCMetricTable.TIMES.getName());
-                    gcTrends.add(new Trend((int)(count / times), (int)(duration / times)));
+                    gcTrends.add(new Trend((int)count, (int)(duration / times)));
                 } else {
                     gcTrends.add(new Trend(0, 0));
                 }
