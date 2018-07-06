@@ -52,7 +52,7 @@ public class ApplicationMappingEsUIDAO extends EsDAO implements IApplicationMapp
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(tableName);
         searchRequestBuilder.setTypes(ApplicationMappingTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-        searchRequestBuilder.setPostFilter(QueryBuilders.rangeQuery(ApplicationMappingTable.TIME_BUCKET.getName()).gte(startTimeBucket).lte(endTimeBucket));
+        searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(ApplicationMappingTable.TIME_BUCKET.getName()).gte(startTimeBucket).lte(endTimeBucket));
         searchRequestBuilder.setSize(0);
 
         searchRequestBuilder.addAggregation(
