@@ -1,6 +1,6 @@
 # Observability Analysis Platform
 OAP(Observability Analysis Platform) is a new concept, which starts in SkyWalking 6.x. OAP replaces the 
-old SkyWalking collectors. The capabilities of the platform are following.
+old SkyWalking whole backend. The capabilities of the platform are following.
 
 ## OAP capabilities
 <img src="https://skywalkingtest.github.io/page-resources/6_overview.png"/>
@@ -54,87 +54,101 @@ METRIC_NAME = from(SCOPE.(* | [FIELD][,FIELD ...]))
 **SCOPE** in (`All`, `Service`, `ServiceInstance`, `Endpoint`, `ServiceRelation`, `ServiceInstanceRelation`, `EndpointRelation`).
 
 #### Field
-- SCOPE `All`, 
-1. endpoint. Represent the endpoint path of each request.
-1. latency. Represent how much time of each request.
-1. status. Represent whether success or fail of the request.
-1. responseCode. Represent the response code of HTTP response, if this request is the HTTP call.
+By using Aggregation Function, the requests will group by time and **Group Key(s)** in each scope.
 
-All details in `All` scope will group together.
+- SCOPE `All`
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| endpoint  | Represent the endpoint path of each request.  |   | string |
+| latency  | Represent how much time of each request. |   |  int(in ms)  |
+| status  | Represent whether success or fail of the request.  |   | bool(true for success)  |
+| responseCode | Represent the response code of HTTP response, if this request is the HTTP call. e.g. 200, 404, 302| | int |
+
 
 - SCOPE `Service`
 
 Calculate the metric data from each request of the service. 
-1. id. Represent the unique id of the service, usually a number. **Group by this in default**.
-1. name. Represent the name of the service.
-1. serviceInstanceName. Represent the name of the service instance id referred.
-1. endpointName. Represent the name of the endpoint, such a full path of HTTP URI.
-1. latency. Represent how much time of each request.
-1. status. Represent whether success or fail of the request.
-1. responseCode. Represent the response code of HTTP response, if this request is the HTTP call.
-1. type. Represent the type of each request. Such as: Database, HTTP, RPC, gRPC.
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| id | Represent the unique id of the service | yes | int |
+| name | Represent the name of the service | | string |
+| serviceInstanceName | Represent the name of the service instance id referred | | string |
+| endpointName | Represent the name of the endpoint, such a full path of HTTP URI | | string |
+| latency | Represent how much time of each request. | | int |
+| status | Represent whether success or fail of the request. | | bool(true for success)  |
+| responseCode | Represent the response code of HTTP response, if this request is the HTTP call | | int|
+| type | Represent the type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
 
 - SCOPE `ServiceInstance`
 
 Calculate the metric data from each request of the service instance. 
-1. id. Represent the unique id of the service, usually a number. **Group by this in default**.
-1. name. Represent the name of the service instance. Such as `ip:port@Service Name`. 
-**Notice**: current native agent uses `processId@Service name` as instance name, which is useless 
-when you want to setup a filter in aggregation. 
-1. serviceName. Represent the name of the service.
-1. endpointName. Represent the name of the endpoint, such a full path of HTTP URI.
-1. latency. Represent how much time of each request.
-1. status. Represent whether success or fail of the request.
-1. responseCode. Represent the response code of HTTP response, if this request is the HTTP call.
-1. type. Represent the type of each request. Such as: Database, HTTP, RPC, gRPC.
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| id | Represent the unique id of the service, usually a number. | yes | int |
+| name |  Represent the name of the service instance. Such as `ip:port@Service Name`.  **Notice**: current native agent uses `processId@Service name` as instance name, which is useless when you want to setup a filter in aggregation. | | string|
+| serviceName | Represent the name of the service. | | string |
+| endpointName | Represent the name of the endpoint, such a full path of HTTP URI. | | string|
+| latency | Represent how much time of each request. | | int |
+| status | Represent whether success or fail of the request. | | bool(true for success) |
+| responseCode | Represent the response code of HTTP response, if this request is the HTTP call. | | int |
+| type | Represent the type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
 
 - SCOPE `Endpoint`
 
 Calculate the metric data from each request of the endpoint in the service. 
-1. id. Represent the unique id of the endpoint, usually a number. **Group by this in default**.
-1. name. Represent the name of the endpoint, such a full path of HTTP URI.
-1. serviceName. Represent the name of the service.
-1. serviceInstanceName. Represent the name of the service instance id referred.
-1. latency. Represent how much time of each request.
-1. status. Represent whether success or fail of the request.
-1. responseCode. Represent the response code of HTTP response, if this request is the HTTP call.
-1. type. Represent the type of each request. Such as: Database, HTTP, RPC, gRPC.
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| id | Represent the unique id of the endpoint, usually a number. | yes | int |
+| name | Represent the name of the endpoint, such a full path of HTTP URI. | | string |
+| serviceName | Represent the name of the service. | | string |
+| serviceInstanceName | Represent the name of the service instance id referred. | | string |
+| latency | Represent how much time of each request. | | int |
+| status | Represent whether success or fail of the request.| | bool(true for success) |
+| responseCode | Represent the response code of HTTP response, if this request is the HTTP call. | | int |
+| type | Represent the type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
 
 - SCOPE `ServiceRelation`
 
 Calculate the metric data from each request between one service and the other service
-1. sourceServiceId. Represent the id of the source service.
-1. sourceServiceName. Represent the name of the source service.
-1. sourceServiceInstanceName. Represent the name of the source service instance.
-1. destServiceId. Represent the id of the destination service.
-1. destServiceName. Represent the name of the destination service.
-1. destServiceInstanceName. Represent the name of the destination service instance.
-1. endpoint. Represent the endpoint used in this call.
-1. latency. Represent how much time of each request.
-1. status. Represent whether success or fail of the request.
-1. responseCode. Represent the response code of HTTP response, if this request is the HTTP call.
-1. type. Represent the type of the remote call. Such as: Database, HTTP, RPC, gRPC.
-1. detectPoint. Represent where is the relation detected. Values: client, server, proxy.
 
-Group by `sourceServiceId`, `destServiceId` and `detectPoint`.
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| sourceServiceId | Represent the id of the source service. | yes | int |
+| sourceServiceName | Represent the name of the source service. | | string |
+| sourceServiceInstanceName | Represent the name of the source service instance. | | string |
+| destServiceId | Represent the id of the destination service. | yes | string |
+| destServiceName | Represent the name of the destination service. | | string |
+| destServiceInstanceName | Represent the name of the destination service instance.| | string|
+| endpoint | Represent the endpoint used in this call. | | string
+| latency | Represent how much time of each request. | | int |
+| status | Represent whether success or fail of the request.| | bool(true for success) |
+| responseCode | Represent the response code of HTTP response, if this request is the HTTP call. | | int |
+| type | Represent the type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
+| detectPoint | Represent where is the relation detected. Values: client, server, proxy. | yes | enum|
+
 
 - SCOPE `ServiceInstanceRelation`
 
 Calculate the metric data from each request between one service instance and the other service instance
-1. sourceServiceName. Represent the name of the source service.
-1. sourceServiceInstanceId. Represent the id of the source service instance.
-1. sourceServiceInstanceName. Represent the name of the source service instance.
-1. destServiceName. Represent the name of the destination service.
-1. destServiceInstanceId. Represent the id of the destination service instance.
-1. destServiceInstanceName. Represent the name of the destination service instance.
-1. endpoint. Represent the endpoint used in this call.
-1. latency. Represent how much time of each request.
-1. status. Represent whether success or fail of the request.
-1. responseCode. Represent the response code of HTTP response, if this request is the HTTP call.
-1. type. Represent the type of the remote call. Such as: Database, HTTP, RPC, gRPC.
-1. detectPoint. Represent where is the relation detected. Values: client, server, proxy.
 
-Group by `sourceServiceInstanceId`, `destServiceInstanceId` and `detectPoint`. 
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| sourceServiceInstanceId | Represent the id of the source service instance. | yes | int|
+| sourceServiceName | Represent the name of the source service. | | string |
+| sourceServiceInstanceName | Represent the name of the source service instance. | | string |
+| destServiceName | Represent the name of the destination service. | | |
+| destServiceInstanceId | Represent the id of the destination service instance. | yes | int| 
+| destServiceInstanceName | Represent the name of the destination service instance. | | string |
+| endpoint | Represent the endpoint used in this call. | | string
+| latency | Represent how much time of each request. | | int |
+| status | Represent whether success or fail of the request.| | bool(true for success) |
+| responseCode | Represent the response code of HTTP response, if this request is the HTTP call. | | int |
+| type | Represent the type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
+| detectPoint | Represent where is the relation detected. Values: client, server, proxy. | yes | enum|
 
 - SCOPE `EndpointRelation`
 
@@ -143,18 +157,17 @@ This relation is hard to detect, also depends on tracing lib to propagate the pr
 So `EndpointRelation` scope aggregation effects only in service under tracing by SkyWalking native agents, 
 including auto instrument agents(like Java, .NET), OpenCensus SkyWalking exporter implementation or others propagate tracing context in SkyWalking spec.
 
-1. endpointId. Represent the id of the endpoint as parent in the dependency.
-1. endpoint. Represent the endpoint as parent in the dependency.
-1. childEndpointId. Represent the id of the endpoint being used by the parent endpoint in (1)
-1. childEndpoint. Represent the endpoint being used by the parent endpoint in (2)
-1. rpcLatency. Represent the latency of the RPC from some codes in the endpoint to the childEndpoint. Exclude the latency caused by the endpoint(1) itself.
-1. status. Represent whether success or fail of the request.
-1. responseCode. Represent the response code of HTTP response, if this request is the HTTP call.
-1. type. Represent the type of the remote call. Such as: Database, HTTP, RPC, gRPC.
-1. detectPoint. Represent where is the relation detected. Values: client, server, proxy.
-
-Group by `endpointId`, `childEndpointId` and `detectPoint`.
-
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| endpointId | Represent the id of the endpoint as parent in the dependency. | yes | int |
+| endpoint | Represent the endpoint as parent in the dependency.| | string| 
+| childEndpointId | Represent the id of the endpoint being used by the parent endpoint in row(1) | yes | int| 
+| childEndpoint| Represent the endpoint being used by the parent endpoint in row(2) | | string |
+| rpcLatency | Represent the latency of the RPC from some codes in the endpoint to the childEndpoint. Exclude the latency caused by the endpoint(1) itself.
+| status | Represent whether success or fail of the request.| | bool(true for success) |
+| responseCode | Represent the response code of HTTP response, if this request is the HTTP call. | | int |
+| type | Represent the type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
+| detectPoint | Represent where is the relation detected. Values: client, server, proxy. | yes | enum|
 
 #### Filter
 Use filter to build the conditions for the value of fields, by using field name and expression.
@@ -164,9 +177,13 @@ The default functions are provided by SkyWalking OAP core, and could implement m
 
 Provided functions
 - `avg`
+- `p99`
+- `p90`
+- `p75`
+- `p50`
 - `percent`
-- `sum`
 - `histogram`
+- `sum`
 
 #### Metric name
 The metric name for storage implementor, alarm and query modules. The type inference supported by core.
