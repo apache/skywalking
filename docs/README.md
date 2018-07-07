@@ -1,6 +1,13 @@
 ## Documents
-[![cn doc](https://img.shields.io/badge/document-中文-blue.svg)](README_ZH.md)
 
+  * [SkyWalking Platform Overview](en/OAP/README.md)
+  * Use application agents
+  * Use service mesh probes
+  * Deploy OAP backend
+  
+We will begin to build our new documents for our new 6 version. Below it is 5.x document, wait for reformat.  
+----------------------------  
+  
   * Getting Started
     * [Quick start](en/Quick-start.md)
     * [Install javaagent](en/Deploy-skywalking-agent.md)
@@ -11,7 +18,6 @@
         * [Trace Spring beans](en/agent-optional-plugins/Spring-bean-plugins.md)
         * [Trace Oracle and Resin](en/agent-optional-plugins/Oracle-Resin-plugins.md)
         * [[**Incubating**] Filter traces through custom services](../apm-sniffer/optional-plugins/trace-ignore-plugin/README.md)
-  * [Architecture Design](en/Architecture.md)
   * Advanced Features
     * [Override settings through System.properties](en/Setting-override.md)
     * [Direct uplink and disable naming discovery](en/Direct-uplink.md)
