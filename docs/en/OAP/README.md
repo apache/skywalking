@@ -170,20 +170,24 @@ including auto instrument agents(like Java, .NET), OpenCensus SkyWalking exporte
 | detectPoint | Represent where is the relation detected. Values: client, server, proxy. | yes | enum|
 
 #### Filter
-Use filter to build the conditions for the value of fields, by using field name and expression.
+Use filter to build the conditions for the value of fields, by using field name and expression. 
+
+The expressions support to link by `and`, `or` and `(...)`. 
+The OPs support `=`, `!=`, `>`, `<`, `in (v1, v2, ...`, `like "%..."`, with type detection based of field type. Trigger compile
+ or code generation error if incompatible. 
 
 #### Aggregation Function
-The default functions are provided by SkyWalking OAP core, and could implement more.
+The default functions are provided by SkyWalking OAP core, and could implement more. 
 
 Provided functions
-- `avg`
-- `p99`
-- `p90`
-- `p75`
-- `p50`
-- `percent`
-- `histogram`
-- `sum`
+- `avg()`. The average value. The field type must be number.
+- `p99()`. The 99% of the given values should be greater or equal. The field type must be number.
+- `p90()`. The 90% of the given values should be greater or equal. The field type must be number.
+- `p75()`. The 75% of the given values should be greater or equal. The field type must be number.
+- `p50()`. The 75% of the given values should be greater or equal. The field type must be number.
+- `percent()`. The percentage of selected by filter in the whole given data. No type requirement.
+- `histogram(start, step)`. Group the given value by the given step, begin with the start value.
+- `sum()`. The sum number of selected by filter. No type requirement.
 
 #### Metric name
 The metric name for storage implementor, alarm and query modules. The type inference supported by core.
