@@ -142,5 +142,6 @@ UI的配置项保存在`webapp/webapp.yml`中.
 
 ### 启动 collector 节点
 1. 使用 `bin/startup.sh`同时启动collector和UI
+不使用第一种方式启动,需要单独启动,参考2,3
 2. 单独启动collector,运行 `bin/collectorService.sh`
 3. 单独启动UI,运行 `bin/webappService.sh`
