@@ -1,18 +1,18 @@
 
 >new version
 # 快速开始
-Quick start is for end users to start up the SkyWalking quickly in local.
+快速启动是为了让终端用户在本地快速启动SkyWalking.
 
-1. Download releases from Apache official website. [Link](http://skywalking.apache.org/downloads/)
-1. Deploy backend on local. See [collector in standalone mode doc](Deploy-backend-in-standalone-mode.md)
-1. Install Java Agent. [Doc](Deploy-skywalking-agent.md)
-1. Set your OS time(include time zone) correct.
-1. Reboot your applications, and open UI.
-1. Default username/password for the login page is `admin/admin`.
+1. 从Apache官方网站下载发布版本. [Link](http://skywalking.apache.org/downloads/)
+1. 本地部署后台. See [collector 单机模式文档](Deploy-backend-in-standalone-mode.md)
+1. 安装 Java Agent. [Doc](Deploy-skywalking-agent.md)
+1. 设置你的系统时间（包括时区）是否正确.
+1. 重新启动你的应用程序，然后打开UI.
+1. 登录页面的默认用户名/密码是 `admin/admin`.
 
-If you want to deploy SkyWalking in server or cloud as a cluster, please following these two documents:
-1. [Install javaagent](Deploy-skywalking-agent.md)
-1. [Deploy backend in cluster mode](Deploy-backend-in-cluster-mode.md)
+如果您想将SkyWalking作为集群部署在服务器或云中，请遵循这两个文档:
+1. [安装 javaagent](Deploy-skywalking-agent.md)
+1. [集群模式部署后台](Deploy-backend-in-cluster-mode.md)
 
 
 
