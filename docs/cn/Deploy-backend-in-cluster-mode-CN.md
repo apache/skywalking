@@ -57,23 +57,23 @@ cluster:
 naming:
 # Host and port used for agent config
   jetty:
-    #用于agent发现collector集群,host必须要系统真实网络ip地址. agent --(HTTP)--> collector
+    # 配置agent发现collector集群,host必须要系统真实网络ip地址. agent --(HTTP)--> collector
     host: localhost 
     port: 10800
     contextPath: /
 remote:
   gRPC:
-    #用于collector节点在集群中相互通信,host必须要系统真实网络ip地址. collectorN --(gRPC) --> collectorM
+    # 配置collector节点在集群中相互通信,host必须要系统真实网络ip地址. collectorN --(gRPC) --> collectorM
     host: localhost 
     port: 11800
 agent_gRPC:
   gRPC:
-    #用于agent上传(链路跟踪和指标)数据到collector,host必须要系统真实网络ip地址. agent--(gRPC)--> collector
+    # 配置agent上传(链路跟踪和指标)数据到collector,host必须要系统真实网络ip地址. agent--(gRPC)--> collector
     host: localhost
     port: 11800
 agent_jetty:
   jetty:
-    #用于agent上传(链路跟踪和指标)数据到collector,host必须要系统真实网络ip地址. agent--(HTTP)--> collector
+    # 配置agent上传(链路跟踪和指标)数据到collector,host必须要系统真实网络ip地址. agent--(HTTP)--> collector
     # SkyWalking native Java/.Net/node.js agents don't use this.
     # Open this for other implementor.
     host: localhost
@@ -90,11 +90,11 @@ analysis_segment_parser:
     bufferSegmentMaxFileSize: 500M
 ui:
   jetty:
-    #用于UI访问collector,host必须要系统真实网络ip地址.
+    # 配置UI访问collector,host必须要系统真实网络ip地址.
     host: localhost
     port: 12800
     contextPath: /
-# Config Elasticsearch cluster connection info.
+# 配置Elasticsearch 集群连接信息
 storage:
   elasticsearch:
     clusterName: CollectorDBCluster
@@ -103,17 +103,16 @@ storage:
     indexShardsNumber: 2
     indexReplicasNumber: 0
     highPerformanceMode: true
-    # Set an expired for metric/trace data. After the timeout has expired, the metric/trace data will be deleted automatically.
-    traceDataTTL: 90 # Unit is minute
-    minuteMetricDataTTL: 45 # Unit is minute
-    hourMetricDataTTL: 36 # Unit is hour
-    dayMetricDataTTL: 45 # Unit is day
-    monthMetricDataTTL: 18 # Unit is month
+    # 设置统计指标数据的失效时间，当指标数据失效时系统将数据自动删除.
+    traceDataTTL: 90 # 单位为分
+    minuteMetricDataTTL: 45 # 单位为分
+    hourMetricDataTTL: 36 # 单位为小时
+    dayMetricDataTTL: 45 # 单位为天
+    monthMetricDataTTL: 18 # 单位为月
 configuration:
   default:
     # namespace: xxxxx
-    
-    # alarm threshold
+    # 告警阀值
     applicationApdexThreshold: 2000
     serviceErrorRateThreshold: 10.00
     serviceAverageResponseTimeThreshold: 2000
@@ -122,7 +121,7 @@ configuration:
     applicationErrorRateThreshold: 10.00
     applicationAverageResponseTimeThreshold: 2000
     
-    # thermodynamic
+    # 热力图配置，修改配置后需要删除热力指标统计表，由系统重建
     thermodynamicResponseTimeStep: 50
     thermodynamicCountOfResponseTimeSteps: 40
 ```
