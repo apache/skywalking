@@ -11,7 +11,7 @@
 1. 登录页面的默认用户名/密码是 `admin/admin`.
 
 如果您想将SkyWalking作为集群部署在服务器或云中，请遵循这两个文档:
-1. [安装 javaagent](Deploy-skywalking-agent.md)
+1. [安装 java agent](Deploy-skywalking-agent.md)
 1. [集群模式部署后台](Deploy-backend-in-cluster-mode.md)
 
 
