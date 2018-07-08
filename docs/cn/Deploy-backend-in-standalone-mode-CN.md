@@ -13,7 +13,7 @@
 ## 下载发布版本
 - 前向[Releases页面](http://skywalking.apache.org/downloads/)
 
-## 快速开始
+## 快速入门
 如果端口8080,10800,11800,12800不被占用，你可以直接解压tar / unzip,然后启动。
 
 - 部署 ElasticSearch.

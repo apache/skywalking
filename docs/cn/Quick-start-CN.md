@@ -1,4 +1,4 @@
-# 快速开始
+# 快速入门
 快速启动是为了让终端用户在本地快速启动SkyWalking.
 
 1. 从Apache官方网站下载release版本. [Link](http://skywalking.apache.org/downloads/)
