@@ -2,15 +2,23 @@
 Concepts and Designs help you to learn and understand the SkyWalking and the landscape.
 
 - What is SkyWalking?
-  - [Overview](overview.md). Provides a high-level description and introduction, including the problems it solves.
+  - [Overview and Core concepts](overview.md). Provides a high-level description and introduction, including the problems it solves.
   - [Project Goals](project-goals.md). Provides the goals, which SkyWalking is trying to focus and provide features about them.
+
+After you read the above documents, you should understand the SkyWalking basic goals. Now, you can choose which following parts 
+you are interested, then dive in.   
+
 - Probe
   - [Introduction](probe-introduction.md). Lead readers to understand what the probe is, how many different probes existed and 
 why need them.
   - [Service auto instrument agent](service-agent.md). Introduce what the auto instrument agents do and which languages does
 SkyWalking already support. 
   - [Manual instrument SDK](manual-sdk.md). Introduce the role of the manual instrument SDKs in SkyWalking ecosystem.
-- Observability Analysis Platform Backend
-  - [Overview](oap-overview.md). Provides a high level introduction about the OAP backend.
+  - [Service Mesh probe](service-mesh-probe.md). Introduce why and how SkyWalking receive telemetry data from Service mesh and proxy probe.
+  - [Zipkin receiver](zipkin.md). Helps you to know the purposes of receiving other libs data. Also how to process this kind of data format.
+- Backend
+  - [Overview](backend-overview.md). Provides a high level introduction about the OAP backend.
   - [Observability Analysis Language](oal.md). Introduces the core languages, which is designed for aggregation behaviour definition.
   - [Query in OAP](query-oap.md). Introduces how to query data from backend, whether a simple metric data or topology map, even trace or log.
+- UI
+  - [Overview](ui-overview.md).
