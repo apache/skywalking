@@ -1,38 +1,4 @@
-# Observability Analysis Platform
-OAP(Observability Analysis Platform) is a new concept, which starts in SkyWalking 6.x. OAP replaces the 
-old SkyWalking whole backend. The capabilities of the platform are following.
-
-## OAP capabilities
-<img src="https://skywalkingtest.github.io/page-resources/6_overview.png"/>
-
-In SkyWalking 6 series, OAP accepts data from more sources, which belongs two groups: **Tracing** and **Metric**.
-
-- **Tracing**. Including, SkyWalking native data formats. Zipkin v1,v2 data formats and Jaeger data formats.
-- **Metric**. SkyWalking integrates with Service Mesh platforms, such as Istio, Envoy, Linkerd, to provide observability from data panel 
-or control panel. Also, SkyWalking native agents can run in metric mode, which highly improve the 
-performance.
-
-At the same time by using any integration solution provided, such as SkyWalking log plugin or toolkits, 
-SkyWalking provides visualization integration for binding tracing and logging together by using the 
-trace id and span id.
-
-As usual, all services provided by gRPC and HTTP protocol to make integration easier for unsupported ecosystem.
-
-## Tracing in OAP
-Tracing in OAP has two ways to process.
-1. Traditional way in SkyWalking 5 series. Format tracing data in SkyWalking trace segment and span formats, 
-even for Zipkin data format. The AOP analysis the segments to get metrics, and push the metric data into
-the streaming aggregation.
-1. Consider tracing as some kinds of logging only. Just provide save and visualization capabilities for trace. 
-
-## Metric in OAP
-Metric in OAP is totally new feature in 6 series. Build observability for a distributed system based on metric of connected nodes.
-No tracing data is required.
-
-Metric data are aggregated inside AOP cluster in streaming mode. See below about [Observability Analysis Language](#observability-analysis-language),
-which provides the easy way to do aggregation and analysis in script style. 
-
-### Observability Analysis Language
+# Observability Analysis Language
 Provide OAL(Observability Analysis Language) to analysis incoming data in streaming mode. 
 
 OAL focuses on metric in Service, Service Instance and Endpoint. Because of that, the language is easy to 
@@ -41,7 +7,7 @@ learn and use.
 Considering performance, reading and debugging, OAL is defined as a compile language. 
 The OAL scrips will be compiled to normal Java codes in package stage.
 
-#### Grammar
+## Grammar
 Scripts should be named as `*.oal`
 ```
 
@@ -50,10 +16,10 @@ METRIC_NAME = from(SCOPE.(* | [FIELD][,FIELD ...]))
 .FUNCTION([PARAM][, PARAM ...])
 ```
 
-#### Scope
+## Scope
 **SCOPE** in (`All`, `Service`, `ServiceInstance`, `Endpoint`, `ServiceRelation`, `ServiceInstanceRelation`, `EndpointRelation`).
 
-#### Field
+## Field
 By using Aggregation Function, the requests will group by time and **Group Key(s)** in each scope.
 
 - SCOPE `All`
@@ -169,14 +135,14 @@ including auto instrument agents(like Java, .NET), OpenCensus SkyWalking exporte
 | type | Represent the type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
 | detectPoint | Represent where is the relation detected. Values: client, server, proxy. | yes | enum|
 
-#### Filter
+## Filter
 Use filter to build the conditions for the value of fields, by using field name and expression. 
 
 The expressions support to link by `and`, `or` and `(...)`. 
 The OPs support `=`, `!=`, `>`, `<`, `in (v1, v2, ...`, `like "%..."`, with type detection based of field type. Trigger compile
  or code generation error if incompatible. 
 
-#### Aggregation Function
+## Aggregation Function
 The default functions are provided by SkyWalking OAP core, and could implement more. 
 
 Provided functions
@@ -189,15 +155,15 @@ Provided functions
 - `histogram(start, step)`. Group the given value by the given step, begin with the start value.
 - `sum()`. The sum number of selected by filter. No type requirement.
 
-#### Metric name
+## Metric name
 The metric name for storage implementor, alarm and query modules. The type inference supported by core.
 
-#### Group
+## Group
 All metric data will be grouped by Scope.ID and min-level TimeBucket. 
 
 - In `Endpoint` scope, the Scope.ID = Endpoint id (the unique id based on service and its Endpoint)
 
-#### Examples
+## Examples
 ```
 // Caculate p99 of both Endpoint1 and Endpoint2
 Endpoint_p99 = from(Endpoint.latency).filter(name in ("Endpoint1", "Endpoint2")).summary(0.99)
@@ -224,84 +190,3 @@ Endpoint_500 = from(Endpoint.*).filter(responseCode like "5%").percent()
 // Caculate the sum of calls for each service.
 EndpointCalls = from(Endpoint.*).sum()
 ```
-
-## Query in OAP
-Query is the core feature of OAP for visualization and other higher system. The query matches the metric type.
-
-There are two types of query provided.
-1. Hard codes query implementor
-1. Metric style query of implementor
-
-### Hard codes
-Hard codes query implementor, is for complex logic query, such as: topology map, dependency map, which 
-most likely relate to mapping mechanism of the node relationship.
-
-Even so, hard codes implementors are based on metric style query too, just need extra codes to assemble the 
-results.
-
-### Metric style query
-Metric style query is based on the given scope and metric name in oal scripts.
-
-Metric style query provided in two ways
-- GraphQL way. UI uses this directly, and assembles the pages.
-- API way. Most for `Hard codes query implementor` to do extra works.
-
-#### Grammar
-```
-Metric.Scope(SCOPE).Func(METRIC_NAME [, PARAM ...])
-```
-
-#### Scope
-**SCOPE** in (`All`, `Service`, `ServiceInst`, `Endpoint`, `ServiceRelation`, `ServiceInstRelation`, `EndpointRelation`).
-
-#### Metric name
-Metric name is defined in oal script. Such as **EndpointCalls** is the name defined by `EndpointCalls = from(Endpoint.*).sum()`.
-
-#### Metric Query Function
-Metric Query Functions match the Aggregation Function in most cases, but include some order or filter features.
-Try to keep the name as same as the aggregation functions.
-
-Provided functions
-- `top`
-- `trend`
-- `histogram`
-- `sum`
-
-#### Example
-For `avg` aggregate func, `top` match it, also with parameter[1] of result size and parameter[2] of order
-```
-# for Service_avg = from(Service.latency).avg()
-Metric.Scope("Service").topn("Service_avg", 10, "desc")
-```
-
-## Project structure overview
-This overview shows maven modules AOP provided.
-```
-- SkyWalking Project
-    - apm-commons
-    - ...
-    - apm-oap
-        - oap-receiver
-            - receiver-skywalking
-            - receiver-zipkin
-            - ...
-        - oap-discovery
-            - discovery-naming
-            - discovery-zookeeper
-            - discovery-standalone
-            - ...
-        - oap-register
-            - register-skywalking
-            - ...
-        - oap-analysis
-            - analysis-trace
-            - analysis-metric
-            - analysis-log
-        - oap-web
-        - oap-libs
-            - cache-lib
-            - remote-lib
-            - storage-lib
-            - client-lib
-            - server-lib
- ```
