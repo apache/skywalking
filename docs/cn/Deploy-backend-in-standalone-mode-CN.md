@@ -1,7 +1,7 @@
 # 用途说明
 单机模式collector不支持集群部署,它使用本地H2数据库。主要用于：预览、功能测试、演示和低压力系统。
 
-如果你在低吞吐量监控方案中使用SkyWalking，并且不想部署群集，至少将存储实现从H2切换到Elasticsearch
+如果在生产或者真实环境中(非本地demo) 部署SkyWalking，至少应该切换到Elasticsearch作为存储.
 
 **在5.0.0-alpha版本中，暂不提供H2实现, 所以在启动之前,必须先部署ElasticSearch**
 
@@ -11,7 +11,7 @@
 - Elasticsearch 5.x(集群模式或不使用)
 
 ## 下载发布版本
-- 前向[Releases页面](http://skywalking.apache.org/downloads/)
+- 前向[发布页面下载](http://skywalking.apache.org/downloads/)
 
 ## 快速入门
 如果端口8080,10800,11800,12800不被占用，你可以直接解压tar / unzip,然后启动。
