@@ -16,40 +16,39 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.core.util;
+package org.apache.skywalking.oap.cluster.plugin.zookeeper;
 
-import java.util.*;
+import org.apache.skywalking.oap.library.module.ModuleConfig;
 
 /**
  * @author peng-yongsheng
  */
-public class CollectionUtils {
+class ClusterModuleZookeeperConfig extends ModuleConfig {
+    private String hostPort;
+    private int baseSleepTimeMs;
+    private int maxRetries;
 
-    public static boolean isEmpty(Map map) {
-        return map == null || map.size() == 0;
+    public String getHostPort() {
+        return hostPort;
     }
 
-    public static boolean isEmpty(List list) {
-        return list == null || list.size() == 0;
+    public void setHostPort(String hostPort) {
+        this.hostPort = hostPort;
     }
 
-    public static boolean isEmpty(Set set) {
-        return set == null || set.size() == 0;
+    public int getBaseSleepTimeMs() {
+        return baseSleepTimeMs;
     }
 
-    public static boolean isNotEmpty(List list) {
-        return !isEmpty(list);
+    public void setBaseSleepTimeMs(int baseSleepTimeMs) {
+        this.baseSleepTimeMs = baseSleepTimeMs;
     }
 
-    public static boolean isNotEmpty(Set set) {
-        return !isEmpty(set);
+    public int getMaxRetries() {
+        return maxRetries;
     }
 
-    public static boolean isNotEmpty(Map map) {
-        return !isEmpty(map);
-    }
-
-    public static <T> boolean isNotEmpty(T[] array) {
-        return array != null && array.length > 0;
+    public void setMaxRetries(int maxRetries) {
+        this.maxRetries = maxRetries;
     }
 }

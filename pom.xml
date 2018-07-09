@@ -66,6 +66,7 @@
         <module>apm-webapp</module>
         <module>apm-dist</module>
         <module>apm-checkstyle</module>
+        <module>apm-oap</module>
     </modules>
     <packaging>pom</packaging>
 

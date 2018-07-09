@@ -16,40 +16,36 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.core.util;
-
-import java.util.*;
+package org.apache.skywalking.oap.library.module;
 
 /**
- * @author peng-yongsheng
+ * @author wu-sheng
  */
-public class CollectionUtils {
+public class TestModuleProvider extends ModuleProvider {
 
-    public static boolean isEmpty(Map map) {
-        return map == null || map.size() == 0;
+    static final String NAME = "TestModuleProvider";
+
+    @Override public String name() {
+        return NAME;
     }
 
-    public static boolean isEmpty(List list) {
-        return list == null || list.size() == 0;
+    @Override public Class<? extends ModuleDefine> module() {
+        return TestModule.class;
     }
 
-    public static boolean isEmpty(Set set) {
-        return set == null || set.size() == 0;
+    @Override public ModuleConfig createConfigBeanIfAbsent() {
+        return null;
     }
 
-    public static boolean isNotEmpty(List list) {
-        return !isEmpty(list);
+    @Override public void prepare() {
     }
 
-    public static boolean isNotEmpty(Set set) {
-        return !isEmpty(set);
+    @Override public void start() {
     }
 
-    public static boolean isNotEmpty(Map map) {
-        return !isEmpty(map);
+    @Override public void notifyAfterCompleted() {
     }
 
-    public static <T> boolean isNotEmpty(T[] array) {
-        return array != null && array.length > 0;
+    class Config {
     }
 }

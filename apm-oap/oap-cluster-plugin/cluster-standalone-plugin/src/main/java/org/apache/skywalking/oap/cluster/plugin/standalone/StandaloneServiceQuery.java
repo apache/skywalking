@@ -16,40 +16,26 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.core.util;
+package org.apache.skywalking.oap.cluster.plugin.standalone;
 
 import java.util.*;
+import org.apache.skywalking.oap.core.cluster.*;
 
 /**
  * @author peng-yongsheng
  */
-public class CollectionUtils {
+public class StandaloneServiceQuery implements ServiceQuery {
 
-    public static boolean isEmpty(Map map) {
-        return map == null || map.size() == 0;
+    private final StandaloneServiceManager serviceManager;
+
+    StandaloneServiceQuery(StandaloneServiceManager serviceManager) {
+        this.serviceManager = serviceManager;
     }
 
-    public static boolean isEmpty(List list) {
-        return list == null || list.size() == 0;
-    }
-
-    public static boolean isEmpty(Set set) {
-        return set == null || set.size() == 0;
-    }
-
-    public static boolean isNotEmpty(List list) {
-        return !isEmpty(list);
-    }
-
-    public static boolean isNotEmpty(Set set) {
-        return !isEmpty(set);
-    }
-
-    public static boolean isNotEmpty(Map map) {
-        return !isEmpty(map);
-    }
-
-    public static <T> boolean isNotEmpty(T[] array) {
-        return array != null && array.length > 0;
+    @Override
+    public List<InstanceDetails> query(String moduleName, String providerName) {
+        List<InstanceDetails> instanceDetails = new ArrayList<>(1);
+        instanceDetails.add(serviceManager.get(moduleName, providerName));
+        return instanceDetails;
     }
 }

@@ -16,40 +16,10 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.core.util;
-
-import java.util.*;
+package org.apache.skywalking.oap.library.module;
 
 /**
- * @author peng-yongsheng
+ * @author wu-sheng
  */
-public class CollectionUtils {
-
-    public static boolean isEmpty(Map map) {
-        return map == null || map.size() == 0;
-    }
-
-    public static boolean isEmpty(List list) {
-        return list == null || list.size() == 0;
-    }
-
-    public static boolean isEmpty(Set set) {
-        return set == null || set.size() == 0;
-    }
-
-    public static boolean isNotEmpty(List list) {
-        return !isEmpty(list);
-    }
-
-    public static boolean isNotEmpty(Set set) {
-        return !isEmpty(set);
-    }
-
-    public static boolean isNotEmpty(Map map) {
-        return !isEmpty(map);
-    }
-
-    public static <T> boolean isNotEmpty(T[] array) {
-        return array != null && array.length > 0;
-    }
+public class ModuleBBusiness2Impl implements BaseModuleB.ServiceBBusiness2 {
 }
