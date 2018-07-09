@@ -3,9 +3,7 @@ OAP(Observability Analysis Platform) is a new concept, which starts in SkyWalkin
 old SkyWalking whole backend. The capabilities of the platform are following.
 
 ## OAP capabilities
-<img src="https://skywalkingtest.github.io/page-resources/6_overview.png"/>
-
-In SkyWalking 6 series, OAP accepts data from more sources, which belongs two groups: **Tracing** and **Metric**.
+OAP accepts data from more sources, which belongs two groups: **Tracing** and **Metric**.
 
 - **Tracing**. Including, SkyWalking native data formats. Zipkin v1,v2 data formats and Jaeger data formats.
 - **Metric**. SkyWalking integrates with Service Mesh platforms, such as Istio, Envoy, Linkerd, to provide observability from data panel 
