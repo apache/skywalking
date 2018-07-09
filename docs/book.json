@@ -1,0 +1,10 @@
+{
+  "root": "./docs",
+  "title": "Apache SkyWalking 6 Documents",
+  "links": {
+    "sidebar" : {
+      "Home": "http://skywalking.apache.org/",
+      "GitHub": "https://github.com/apache/incubator-skywalking"
+    }
+  }
+}
