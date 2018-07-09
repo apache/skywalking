@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.cluster.plugin.zookeeper;
 
 import org.apache.skywalking.oap.library.module.ModuleConfig;
+import org.apache.skywalking.oap.library.util.StringUtils;
 
 /**
  * @author peng-yongsheng
@@ -29,7 +30,7 @@ class ClusterModuleZookeeperConfig extends ModuleConfig {
     private int maxRetries;
 
     public String getHostPort() {
-        return hostPort;
+        return StringUtils.isNotEmpty(hostPort) ? hostPort : "localhost:2181";
     }
 
     public void setHostPort(String hostPort) {
@@ -37,7 +38,7 @@ class ClusterModuleZookeeperConfig extends ModuleConfig {
     }
 
     public int getBaseSleepTimeMs() {
-        return baseSleepTimeMs;
+        return baseSleepTimeMs > 0 ? baseSleepTimeMs : 1000;
     }
 
     public void setBaseSleepTimeMs(int baseSleepTimeMs) {
@@ -45,7 +46,7 @@ class ClusterModuleZookeeperConfig extends ModuleConfig {
     }
 
     public int getMaxRetries() {
-        return maxRetries;
+        return maxRetries > 0 ? maxRetries : 3;
     }
 
     public void setMaxRetries(int maxRetries) {

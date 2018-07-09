@@ -16,28 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.cluster.plugin.zookeeper;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import org.apache.curator.x.discovery.ServiceInstance;
-import org.apache.curator.x.discovery.details.InstanceSerializer;
-import org.apache.skywalking.oap.core.cluster.InstanceDetails;
+package org.apache.skywalking.oap.library.util;
 
 /**
  * @author peng-yongsheng
  */
-public class SWInstanceSerializer implements InstanceSerializer<InstanceDetails> {
+public class StringUtils {
 
-    private final Gson gson = new Gson();
+    public static final String EMPTY_STRING = "";
 
-    @Override public byte[] serialize(ServiceInstance<InstanceDetails> instance) throws Exception {
-        return gson.toJson(instance).getBytes();
+    public static boolean isEmpty(Object str) {
+        return str == null || EMPTY_STRING.equals(str);
     }
 
-    @Override public ServiceInstance<InstanceDetails> deserialize(byte[] bytes) throws Exception {
-        System.out.println(new String(bytes));
-        return gson.fromJson(new String(bytes), new TypeToken<ServiceInstance<InstanceDetails>>() {
-        }.getType());
+    public static boolean isNotEmpty(Object str) {
+        return !isEmpty(str);
     }
 }

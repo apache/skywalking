@@ -32,7 +32,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <compiler.version>1.8</compiler.version>
+        <curator.version>4.0.1</curator.version>
     </properties>
 
     <dependencies>
@@ -48,7 +48,7 @@
         <dependency>
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-x-discovery</artifactId>
-            <version>4.0.1</version>
+            <version>${curator.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.google.guava</groupId>
@@ -60,20 +60,18 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-test</artifactId>
+            <version>2.12.0</version>
+            <!--<version>${curator.version}</version>-->
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>${compiler.version}</source>
-                    <target>${compiler.version}</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-                <version>3.6.1</version>
-            </plugin>
-        </plugins>
-    </build>
 </project>

@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.cluster.plugin.zookeeper;
 import java.util.UUID;
 import org.apache.curator.x.discovery.*;
 import org.apache.skywalking.oap.core.cluster.*;
+import org.apache.skywalking.oap.library.util.StringUtils;
 
 /**
  * @author peng-yongsheng
@@ -46,8 +47,8 @@ public class ZookeeperServiceRegister implements ServiceRegister {
                 .id(UUID.randomUUID().toString())
                 .address(instanceDetails.getHost())
                 .port(instanceDetails.getPort())
-                .uriSpec(new UriSpec(instanceDetails.getContextPath()))
-                .payload(new InstanceDetails())
+//                .uriSpec(new UriSpec(StringUtils.isEmpty(instanceDetails.getContextPath()) ? StringUtils.EMPTY_STRING : instanceDetails.getContextPath()))
+                .payload(instanceDetails)
                 .build();
 
             serviceDiscovery.registerService(thisInstance);
@@ -59,6 +60,7 @@ public class ZookeeperServiceRegister implements ServiceRegister {
 
             cacheManager.put(name, serviceCache);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new ServiceRegisterException(e.getMessage());
         }
     }
