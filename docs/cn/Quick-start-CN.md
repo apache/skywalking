@@ -4,7 +4,7 @@
 1. 从Apache官方网站下载release版本. [Link](http://skywalking.apache.org/downloads/)
 1. 本地部署后台. See [collector 单机模式文档](Deploy-backend-in-standalone-mode-CN.md)
 1. 部署 Java Agent. [Doc](Deploy-skywalking-agent-CN.md)
-1. 设置你的系统时间（包括时区）是否正确.
+1. 设置正确的系统时间（包括时区）.
 1. 重新启动你的应用程序，然后打开UI.
 1. 登录页面的默认用户名/密码是 `admin/admin`.
 

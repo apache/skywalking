@@ -6,7 +6,7 @@
 - 被监控应用的宿主服务器系统时间(包含时区)与collectors,UIs部署的宿主服务器时间设置正确且相同
 
 ## 下载发布版本
-- 前向[released页面](http://skywalking.apache.org/downloads/)
+- 前向[发布页面下载](http://skywalking.apache.org/downloads/)
 
 ## 部署 Zookeeper
 Zookeeper用于collector协作,仅在需要多个collector实例时才需要.
@@ -14,9 +14,9 @@ Zookeeper用于collector协作,仅在需要多个collector实例时才需要.
 在每个collector实例的`application.yml`中添加Zookeeper集群配置
 ```yml
 cluster:
-# The Zookeeper cluster for collector cluster management.
+# zk用于管理collector集群协作.
   zookeeper:
-    # multiple instances should be separated by comma.
+    # 多个zk连接地址用逗号分隔.
     hostPort: localhost:2181
     sessionTimeout: 100000
 ```
