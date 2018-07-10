@@ -15,10 +15,11 @@ why need them.
 SkyWalking already support. 
   - [Manual instrument SDK](manual-sdk.md). Introduce the role of the manual instrument SDKs in SkyWalking ecosystem.
   - [Service Mesh probe](service-mesh-probe.md). Introduce why and how SkyWalking receive telemetry data from Service mesh and proxy probe.
-  - [Zipkin receiver](zipkin.md). Helps you to know the purposes of receiving other libs data. Also how to process this kind of data format.
 - Backend
   - [Overview](backend-overview.md). Provides a high level introduction about the OAP backend.
   - [Observability Analysis Language](oal.md). Introduces the core languages, which is designed for aggregation behaviour definition.
   - [Query in OAP](query-oap.md). Introduces how to query data from backend, whether a simple metric data or topology map, even trace or log.
+  - [Receiver for other tracers](trace-receiver.md). Helps you to know the purposes of receiving other libs(such as Zipkin, Jeager, OpenCensus) data. 
+Also how to process this kind of data format.
 - UI
   - [Overview](ui-overview.md).
