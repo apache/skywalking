@@ -29,28 +29,6 @@ microservices, cloud native and container-based (Docker, Kubernetes, Mesos) arch
 
 <img src="https://skywalkingtest.github.io/page-resources/6_overview.png"/>
 
-
-SkyWalking provides multiple probes to collect data from different sources.
-- SkyWalking native instrument agents or SDKs
-  - Auto instrument agents
-    * Java. Included in official release.
-    * [.NET Core](https://github.com/OpenSkywalking/skywalking-netcore) 
-    * [Node.js](https://github.com/OpenSkywalking/skywalking-nodejs)
-  - SDKs
-    * OpenCensus with SkyWalking exporter.
-- Service mesh control panel or data panel probes.
-  - Istio mixer adaptor.
-  - Linkerd.
-- 3rd party data tracing format.
-  - Zipkin JSON, Thrift, Protobuf v1 and v2 formats, powered by [OpenZipkin](https://github.com/openzipkin/zipkin) libs
-  - Jaeger in [Zipkin Thrift or JSON v1/v2 formats](https://github.com/jaegertracing/jaeger#backwards-compatibility-with-zipkin).
-
-# Recommend and typical usages
-1. All service are under SkyWalking native agents or SDKs monitoring.
-2. Service mesh probes.
-3. Service mesh probes + distributed tracing(SkyWalking's or 3rd-party's).
-
-
 # Document
 - [Documents in English](docs/README.md)
 

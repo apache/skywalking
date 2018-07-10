@@ -79,14 +79,14 @@ Uplink the JVM metrics, including PermSize, HeapSize, CPU, Memory, etc., every s
 [gRPC service define](https://github.com/apache/incubator-skywalking-data-collect-protocol/blob/v1.1.1/TraceSegmentService.proto)
 
 - UniqueId represents segmentId and globalTraceId. It have 3 parts(Longs), 1) applicationInstanceId, 2) ThreadId, 3) Timestamp + 10000 + seq(seq is in [0, 100000) )
-- Span data please refs to [Plugin Development Guide](Plugin-Development-Guide.md)
+- Span data please refs to [Plugin Development Guide](../setup/service-agent/java-agent/Plugin-Development-Guide.md)
 - Id and name both exist, please use id if possible.
   - operationNameId/operationName 
   - networkAddress/networkAddressId
   - entryServiceName/entryServiceId
   - parentServiceName/parentServiceId
   - peerId/peer
-- componentIds are defined in backend, [here](../../apm-protocol/apm-network/src/main/java/org/apache/skywalking/apm/network/trace/component/ComponentsDefine.java)
+- componentIds are defined in backend, [here](../../../apm-protocol/apm-network/src/main/java/org/apache/skywalking/apm/network/trace/component/ComponentsDefine.java)
 
 # HTTP JSON Services
 All HTTP Services match the gRPC services, just adjust use short keys.
