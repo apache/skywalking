@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.curator.x.discovery.ServiceCache;
 import org.apache.skywalking.oap.server.core.cluster.InstanceDetails;
 
@@ -30,7 +31,7 @@ public class ServiceCacheManager {
     private final Map<String, ServiceCache<InstanceDetails>> serviceCacheMap;
 
     public ServiceCacheManager() {
-        this.serviceCacheMap = new HashMap<>();
+        this.serviceCacheMap = new ConcurrentHashMap<>();
     }
 
     public void put(String name, ServiceCache<InstanceDetails> cache) {

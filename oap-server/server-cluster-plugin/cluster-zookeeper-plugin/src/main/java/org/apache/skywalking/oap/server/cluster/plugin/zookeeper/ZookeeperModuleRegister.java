@@ -36,7 +36,7 @@ public class ZookeeperModuleRegister implements ModuleRegister {
         this.cacheManager = cacheManager;
     }
 
-    @Override public void register(String moduleName, String providerName,
+    @Override public synchronized void register(String moduleName, String providerName,
         InstanceDetails instanceDetails) throws ServiceRegisterException {
         try {
             String name = NodeNameBuilder.build(moduleName, providerName);

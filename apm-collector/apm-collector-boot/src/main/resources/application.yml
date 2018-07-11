@@ -14,10 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cluster:
-  zookeeper:
-    hostPort: localhost:2181
-    sessionTimeout: 100000
+#cluster:
+#  zookeeper:
+#    hostPort: localhost:2181
+#    sessionTimeout: 100000
 naming:
   jetty:
     #OS real network IP(binding required), for agent to find collector cluster
