@@ -829,3 +829,10 @@ grants independently of ICOT any specific warranty to the user in
 writing, such person, organization or entity, will also be exempted
 from and not be held liable to the user for any such damages as noted
 above as far as the program is concerned.
+
+------
+
+This product bundles icons/fonts from the ant-design project,
+https://github.com/ant-design/antd-init/tree/master/examples/local-iconfont
+Licensed under the MIT license, confirmed by ant-design team member.
+https://github.com/ant-design/ant-design/issues/10243
