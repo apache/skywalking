@@ -59,7 +59,9 @@ public class ClusterModuleZookeeperProviderTestCase {
         moduleRegister.register("ModuleA", "ProviderA", instanceDetails);
 
         List<InstanceDetails> detailsList = moduleQuery.query("ModuleA", "ProviderA");
-        detailsList.forEach(instanceDetails1 -> System.out.println(instanceDetails1.getHost()));
+        Assert.assertEquals(1, detailsList.size());
+        Assert.assertEquals("ProviderAHost", detailsList.get(0).getHost());
+        Assert.assertEquals(1000, detailsList.get(0).getPort());
     }
 
     @After
