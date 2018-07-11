@@ -290,7 +290,7 @@ y -1.
 
 Thank you everyone for taking the time to review the release and help us. 
 
-I will procedd to publish the release and send ANNOUNCE.
+I will process to publish the release and send ANNOUNCE.
 ```
 
 ## Publish release
@@ -307,7 +307,7 @@ enter your apache password
 3. Public download URLs under `http://www.apache.org/dyn/closer.cgi/incubator/skywalking/x.y.z`.
 4. Public KEYS, sigs and sha512 URLs under `https://www.apache.org/dist/incubator/skywalking/xxxx`
 5. Re-tag on GitHub, tag `x.y.z-RCx` as `x.y.z`, and publish a GitHub release based on this tag.
-5. Send ANNOUNCE mail to `announce@incubator.apache.org`.
+5. Send ANNOUNCE mail to `general@incubator.apache.org`.
 ```
 Mail title: [ANNOUNCE] Release Apache SkyWalking (incubating) version x.y.z
 
@@ -319,6 +319,8 @@ Apache SkyWalking (incubating) Team is glad to announce the first release of Apa
 SkyWalking: APM (application performance monitor) tool for distributed systems, 
 especially designed for microservices, cloud native and container-based (Docker, Kubernetes, Mesos) architectures. 
 Underlying technology is a distributed tracing system.
+
+Vote Thread: 
 
 Download Links : http://skywalking.apache.org/downloads/
 
