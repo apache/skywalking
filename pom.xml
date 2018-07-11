@@ -172,6 +172,8 @@
                         <!-- UI style check files -->
                         <exclude>**/skywalking-ui/.eslintrc</exclude>
                         <exclude>**/skywalking-ui/.stylelintrc</exclude>
+                        <!-- UI icon files -->
+                        <exclude>**/skywalking-ui/public/font/iconfont/**</exclude>
 
                         <!-- git files -->
                         <exclude>**/.gitignore</exclude>
