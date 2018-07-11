@@ -12,7 +12,7 @@
       * [可选插件](cn/Optional-plugins-CN.md)
         * [Spring beans 插件](cn/agent-optional-plugins-CN/Spring-bean-plugins-CN.md)
         * [Oracle and Resin 插件](cn/agent-optional-plugins-CN/Oracle-Resin-plugins-CN.md)
-        * [[**支持**] 自定义配置忽略追踪信息](../apm-sniffer/optional-plugins/trace-ignore-plugin/README_CN.md)
+        * [[**孵化特性**] 自定义配置忽略追踪信息](../apm-sniffer/optional-plugins/trace-ignore-plugin/README_CN.md)
   * 高级特性
     * [通过系统启动参数进行覆盖配置](cn/Setting-override-CN.md)
     * [服务直连(Direct uplink)及禁用名称服务(naming service)](cn/Direct-uplink-CN.md)
