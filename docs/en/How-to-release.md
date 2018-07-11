@@ -43,7 +43,7 @@ mvn release:prepare -DautoVersionSubmodules=true
 ```
 mvn release:perform -DskipTests -Ptravis-ci-submodule
 ```
-1. Set version number as x.y.z, and tag as x.y.z(RCx). `x` in `RCx` is based the number of attempts release, aka `RELEASE_ROUND` in this doc, and starts with 1.
+1. Set version number as x.y.z, and tag as x.y.z-RCx. `x` in `RCx` is based the number of attempts release, aka `RELEASE_ROUND` in this doc, and starts with 1.
 1. The release will automatically be inserted into a temporary staging repository for you.
 
 ## Build and sign the source code package
@@ -71,7 +71,7 @@ with .asc, .sha512, .md5
 
 ## Upload to Apache svn
 1. Use ApacheId to login `https://dist.apache.org/repos/dist/dev/incubator/skywalking/`
-1. Create folder, named by release version and round, such as: x.y.z(RCx)
+1. Create folder, named by release version and round, such as: x.y.z-RCx
 1. Upload Source code package to the folder with .asc, .sha512
     * Package name: apache-skywalking-incubating-x.y.z-src.tar.gz
     * See Section "Build and sign the source code package" for more details 
@@ -112,7 +112,7 @@ Maven 2 staging repository:
 
 Release Tag :
 
- * (Git Tag) x.y.z(RCx)
+ * (Git Tag) x.y.z-RCx
 
 Release CommitID :
 
@@ -165,7 +165,7 @@ Maven 2 staging repository:
 
 Release Tag :
 
- * (Git Tag) x.y.z(RCx)
+ * (Git Tag) x.y.z-RCx
 
 Release CommitID :
 
@@ -247,7 +247,7 @@ Maven 2 staging repository:
 
 Release Tag :
 
- * (Git Tag) x.y.z(RCx)
+ * (Git Tag) x.y.z-RCx
 
 Release CommitID :
 
@@ -297,7 +297,7 @@ I will procedd to publish the release and send ANNOUNCE.
 1. Move source codes tar balls and distributions to `https://dist.apache.org/repos/dist/release/incubator/skywalking/`.
 ```
 > export SVN_EDITOR=vim
-> svn mv https://dist.apache.org/repos/dist/dev/incubator/skywalking/x.y.z(RCx) https://dist.apache.org/repos/dist/release/incubator/skywalking
+> svn mv https://dist.apache.org/repos/dist/dev/incubator/skywalking/x.y.z-RCx https://dist.apache.org/repos/dist/release/incubator/skywalking
 ....
 enter your apache password
 ....
@@ -306,7 +306,7 @@ enter your apache password
 2. Do release in nexus staging repo.
 3. Public download URLs under `http://www.apache.org/dyn/closer.cgi/incubator/skywalking/x.y.z`.
 4. Public KEYS, sigs and sha512 URLs under `https://www.apache.org/dist/incubator/skywalking/xxxx`
-5. Re-tag on GitHub, tag `x.y.z(RCx)` as `x.y.z`, and publish a GitHub release based on this tag.
+5. Re-tag on GitHub, tag `x.y.z-RCx` as `x.y.z`, and publish a GitHub release based on this tag.
 5. Send ANNOUNCE mail to `announce@incubator.apache.org`.
 ```
 Mail title: [ANNOUNCE] Release Apache SkyWalking (incubating) version x.y.z
