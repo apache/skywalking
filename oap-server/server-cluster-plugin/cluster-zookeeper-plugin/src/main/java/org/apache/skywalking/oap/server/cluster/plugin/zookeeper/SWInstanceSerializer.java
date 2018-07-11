@@ -36,7 +36,6 @@ public class SWInstanceSerializer implements InstanceSerializer<InstanceDetails>
     }
 
     @Override public ServiceInstance<InstanceDetails> deserialize(byte[] bytes) throws Exception {
-        System.out.println(new String(bytes));
         return gson.fromJson(new String(bytes), new TypeToken<ServiceInstance<InstanceDetails>>() {
         }.getType());
     }

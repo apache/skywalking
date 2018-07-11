@@ -58,6 +58,7 @@
     </developers>
 
     <modules>
+        <module>oap-server</module>
         <module>apm-commons</module>
         <module>apm-sniffer</module>
         <module>apm-application-toolkit</module>
@@ -66,7 +67,6 @@
         <module>apm-webapp</module>
         <module>apm-dist</module>
         <module>apm-checkstyle</module>
-        <module>oap-server</module>
     </modules>
     <packaging>pom</packaging>
 
