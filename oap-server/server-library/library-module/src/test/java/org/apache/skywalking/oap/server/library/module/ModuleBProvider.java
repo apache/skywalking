@@ -16,40 +16,38 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.core.util;
-
-import java.util.*;
+package org.apache.skywalking.oap.server.library.module;
 
 /**
- * @author peng-yongsheng
+ * @author wu-sheng, peng-yongsheng
  */
-public class CollectionUtils {
+public class ModuleBProvider extends ModuleProvider {
 
-    public static boolean isEmpty(Map map) {
-        return map == null || map.size() == 0;
+    static final String NAME = "ModuleBProvider";
+
+    @Override public String name() {
+        return NAME;
     }
 
-    public static boolean isEmpty(List list) {
-        return list == null || list.size() == 0;
+    @Override public ModuleConfig createConfigBeanIfAbsent() {
+        return null;
     }
 
-    public static boolean isEmpty(Set set) {
-        return set == null || set.size() == 0;
+    @Override public Class<? extends ModuleDefine> module() {
+        return BaseModuleB.class;
     }
 
-    public static boolean isNotEmpty(List list) {
-        return !isEmpty(list);
+    @Override public void prepare() throws ServiceNotProvidedException {
+        this.registerServiceImplementation(BaseModuleB.ServiceBBusiness1.class, new ModuleBBusiness1Impl());
+        this.registerServiceImplementation(BaseModuleB.ServiceBBusiness2.class, new ModuleBBusiness2Impl());
     }
 
-    public static boolean isNotEmpty(Set set) {
-        return !isEmpty(set);
+    @Override public void start() {
     }
 
-    public static boolean isNotEmpty(Map map) {
-        return !isEmpty(map);
+    @Override public void notifyAfterCompleted() {
     }
 
-    public static <T> boolean isNotEmpty(T[] array) {
-        return array != null && array.length > 0;
+    class Config {
     }
 }

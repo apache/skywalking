@@ -16,40 +16,27 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.core.util;
+package org.apache.skywalking.oap.server.cluster.plugin.standalone;
 
 import java.util.*;
+import org.apache.skywalking.oap.server.core.cluster.InstanceDetails;
 
 /**
  * @author peng-yongsheng
  */
-public class CollectionUtils {
+public class StandaloneServiceManager {
 
-    public static boolean isEmpty(Map map) {
-        return map == null || map.size() == 0;
+    private final Map<String, InstanceDetails> instanceDetailsMap;
+
+    public StandaloneServiceManager() {
+        this.instanceDetailsMap = new HashMap<>();
     }
 
-    public static boolean isEmpty(List list) {
-        return list == null || list.size() == 0;
+    public void put(String moduleName, String providerName, InstanceDetails instanceDetails) {
+        instanceDetailsMap.put(moduleName + "/" + providerName, instanceDetails);
     }
 
-    public static boolean isEmpty(Set set) {
-        return set == null || set.size() == 0;
-    }
-
-    public static boolean isNotEmpty(List list) {
-        return !isEmpty(list);
-    }
-
-    public static boolean isNotEmpty(Set set) {
-        return !isEmpty(set);
-    }
-
-    public static boolean isNotEmpty(Map map) {
-        return !isEmpty(map);
-    }
-
-    public static <T> boolean isNotEmpty(T[] array) {
-        return array != null && array.length > 0;
+    public InstanceDetails get(String moduleName, String providerName) {
+        return instanceDetailsMap.get(moduleName + "/" + providerName);
     }
 }

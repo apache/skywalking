@@ -16,40 +16,22 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.core.util;
+package org.apache.skywalking.oap.server.core.cluster;
 
-import java.util.*;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
  * @author peng-yongsheng
  */
-public class CollectionUtils {
+public class ClusterModule extends ModuleDefine {
 
-    public static boolean isEmpty(Map map) {
-        return map == null || map.size() == 0;
+    public static final String NAME = "cluster";
+
+    @Override public String name() {
+        return NAME;
     }
 
-    public static boolean isEmpty(List list) {
-        return list == null || list.size() == 0;
-    }
-
-    public static boolean isEmpty(Set set) {
-        return set == null || set.size() == 0;
-    }
-
-    public static boolean isNotEmpty(List list) {
-        return !isEmpty(list);
-    }
-
-    public static boolean isNotEmpty(Set set) {
-        return !isEmpty(set);
-    }
-
-    public static boolean isNotEmpty(Map map) {
-        return !isEmpty(map);
-    }
-
-    public static <T> boolean isNotEmpty(T[] array) {
-        return array != null && array.length > 0;
+    @Override public Class[] services() {
+        return new Class[] {ModuleRegister.class, ModuleQuery.class};
     }
 }
