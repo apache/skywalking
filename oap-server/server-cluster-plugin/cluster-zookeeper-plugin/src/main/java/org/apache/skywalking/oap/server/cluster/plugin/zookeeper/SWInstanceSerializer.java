@@ -16,40 +16,27 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.core.util;
+package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 
-import java.util.*;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import org.apache.curator.x.discovery.ServiceInstance;
+import org.apache.curator.x.discovery.details.InstanceSerializer;
+import org.apache.skywalking.oap.server.core.cluster.InstanceDetails;
 
 /**
  * @author peng-yongsheng
  */
-public class CollectionUtils {
+public class SWInstanceSerializer implements InstanceSerializer<InstanceDetails> {
 
-    public static boolean isEmpty(Map map) {
-        return map == null || map.size() == 0;
+    private final Gson gson = new Gson();
+
+    @Override public byte[] serialize(ServiceInstance<InstanceDetails> instance) throws Exception {
+        return gson.toJson(instance).getBytes();
     }
 
-    public static boolean isEmpty(List list) {
-        return list == null || list.size() == 0;
-    }
-
-    public static boolean isEmpty(Set set) {
-        return set == null || set.size() == 0;
-    }
-
-    public static boolean isNotEmpty(List list) {
-        return !isEmpty(list);
-    }
-
-    public static boolean isNotEmpty(Set set) {
-        return !isEmpty(set);
-    }
-
-    public static boolean isNotEmpty(Map map) {
-        return !isEmpty(map);
-    }
-
-    public static <T> boolean isNotEmpty(T[] array) {
-        return array != null && array.length > 0;
+    @Override public ServiceInstance<InstanceDetails> deserialize(byte[] bytes) throws Exception {
+        return gson.fromJson(new String(bytes), new TypeToken<ServiceInstance<InstanceDetails>>() {
+        }.getType());
     }
 }

@@ -16,7 +16,8 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.core.util;
+
+package org.apache.skywalking.oap.server.library.util;
 
 import java.util.*;
 

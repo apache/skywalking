@@ -16,40 +16,29 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.core.util;
+package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import org.apache.curator.x.discovery.ServiceCache;
+import org.apache.skywalking.oap.server.core.cluster.InstanceDetails;
 
 /**
  * @author peng-yongsheng
  */
-public class CollectionUtils {
+public class ServiceCacheManager {
 
-    public static boolean isEmpty(Map map) {
-        return map == null || map.size() == 0;
+    private final Map<String, ServiceCache<InstanceDetails>> serviceCacheMap;
+
+    public ServiceCacheManager() {
+        this.serviceCacheMap = new ConcurrentHashMap<>();
     }
 
-    public static boolean isEmpty(List list) {
-        return list == null || list.size() == 0;
+    public void put(String name, ServiceCache<InstanceDetails> cache) {
+        serviceCacheMap.put(name, cache);
     }
 
-    public static boolean isEmpty(Set set) {
-        return set == null || set.size() == 0;
-    }
-
-    public static boolean isNotEmpty(List list) {
-        return !isEmpty(list);
-    }
-
-    public static boolean isNotEmpty(Set set) {
-        return !isEmpty(set);
-    }
-
-    public static boolean isNotEmpty(Map map) {
-        return !isEmpty(map);
-    }
-
-    public static <T> boolean isNotEmpty(T[] array) {
-        return array != null && array.length > 0;
+    public ServiceCache<InstanceDetails> get(String name) {
+        return serviceCacheMap.get(name);
     }
 }

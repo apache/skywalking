@@ -16,40 +16,23 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.core.util;
+package org.apache.skywalking.oap.server.cluster.plugin.standalone;
 
-import java.util.*;
+import org.apache.skywalking.oap.server.core.cluster.*;
 
 /**
  * @author peng-yongsheng
  */
-public class CollectionUtils {
+public class StandaloneModuleRegister implements ModuleRegister {
 
-    public static boolean isEmpty(Map map) {
-        return map == null || map.size() == 0;
+    private final StandaloneServiceManager serviceManager;
+
+    StandaloneModuleRegister(StandaloneServiceManager serviceManager) {
+        this.serviceManager = serviceManager;
     }
 
-    public static boolean isEmpty(List list) {
-        return list == null || list.size() == 0;
-    }
-
-    public static boolean isEmpty(Set set) {
-        return set == null || set.size() == 0;
-    }
-
-    public static boolean isNotEmpty(List list) {
-        return !isEmpty(list);
-    }
-
-    public static boolean isNotEmpty(Set set) {
-        return !isEmpty(set);
-    }
-
-    public static boolean isNotEmpty(Map map) {
-        return !isEmpty(map);
-    }
-
-    public static <T> boolean isNotEmpty(T[] array) {
-        return array != null && array.length > 0;
+    @Override public void register(String moduleName, String providerName,
+        InstanceDetails instanceDetails) {
+        serviceManager.put(moduleName, providerName, instanceDetails);
     }
 }
