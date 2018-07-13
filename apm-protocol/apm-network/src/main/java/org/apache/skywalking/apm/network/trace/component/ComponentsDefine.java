@@ -92,6 +92,8 @@ public class ComponentsDefine {
 
     public static final OfficialComponent SOFARPC =  new OfficialComponent(43, "SOFARPC");
 
+    public static final OfficialComponent ELASTICSEARCH =  new OfficialComponent(44, "SOFARPC");
+
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
     private String[] components;
@@ -101,7 +103,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[44];
+        components = new String[45];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
