@@ -156,6 +156,12 @@ mongodb-driver:
 SOFARPC:
   id: 43
   languages: Java
+Elasticsearch:
+  id: 44
+  languages: Java
+transport-client:
+  id: 45
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -238,4 +244,5 @@ Component-Server-Mappings:
   EntityFrameworkCore.Sqlite: SQLite
   Pomelo.EntityFrameworkCore.MySql: Mysql
   Npgsql.EntityFrameworkCore.PostgreSQL: PostgreSQL
+  transport-client: Elasticsearch
 
