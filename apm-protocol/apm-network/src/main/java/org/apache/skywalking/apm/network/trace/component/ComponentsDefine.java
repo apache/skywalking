@@ -92,7 +92,7 @@ public class ComponentsDefine {
 
     public static final OfficialComponent SOFARPC =  new OfficialComponent(43, "SOFARPC");
 
-    public static final OfficialComponent ELASTICSEARCH =  new OfficialComponent(44, "SOFARPC");
+    public static final OfficialComponent ELASTICSEARCH =  new OfficialComponent(44, "elasticsearch");
 
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
