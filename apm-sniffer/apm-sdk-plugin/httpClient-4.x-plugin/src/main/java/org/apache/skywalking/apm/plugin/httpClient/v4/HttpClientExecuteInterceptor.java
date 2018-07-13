@@ -60,21 +60,23 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
 
     @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        if (allArguments[0] == null || allArguments[1] == null || ret == null) {
+        if (allArguments[0] == null || allArguments[1] == null) {
             return ret;
         }
 
-        HttpResponse response = (HttpResponse)ret;
-        StatusLine responseStatusLine = response.getStatusLine();
-        if (responseStatusLine != null) {
-            int statusCode = responseStatusLine.getStatusCode();
-            AbstractSpan span = ContextManager.activeSpan();
-            if (statusCode >= 400) {
-                span.errorOccurred();
-                Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
+        if (ret != null) {
+            HttpResponse response = (HttpResponse)ret;
+            StatusLine responseStatusLine = response.getStatusLine();
+            if (responseStatusLine != null) {
+                int statusCode = responseStatusLine.getStatusCode();
+                AbstractSpan span = ContextManager.activeSpan();
+                if (statusCode >= 400) {
+                    span.errorOccurred();
+                    Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
+                }
             }
         }
-
+        
         ContextManager.stopSpan();
         return ret;
     }
