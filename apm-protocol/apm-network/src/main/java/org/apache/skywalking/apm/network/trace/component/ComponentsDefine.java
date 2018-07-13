@@ -137,6 +137,7 @@ public class ComponentsDefine {
         addComponent(KAFKA_CONSUMER);
         addComponent(MONGO_DRIVER);
         addComponent(SOFARPC);
+        addComponent(ELASTICSEARCH);
     }
 
     private void addComponent(OfficialComponent component) {
