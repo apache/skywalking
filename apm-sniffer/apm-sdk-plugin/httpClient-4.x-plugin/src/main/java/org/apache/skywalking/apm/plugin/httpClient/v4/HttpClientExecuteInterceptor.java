@@ -18,23 +18,14 @@
 
 package org.apache.skywalking.apm.plugin.httpClient.v4;
 
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
-import org.apache.skywalking.apm.agent.core.context.CarrierItem;
-import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.tag.Tags;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-
 import java.lang.reflect.Method;
 import java.net.URL;
+import org.apache.http.*;
+import org.apache.skywalking.apm.agent.core.context.*;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
+import org.apache.skywalking.apm.agent.core.context.trace.*;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.*;
+import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -73,16 +64,19 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
             return ret;
         }
 
-        HttpResponse response = (HttpResponse)ret;
-        StatusLine responseStatusLine = response.getStatusLine();
-        if (responseStatusLine != null) {
-            int statusCode = responseStatusLine.getStatusCode();
-            AbstractSpan span = ContextManager.activeSpan();
-            if (statusCode >= 400) {
-                span.errorOccurred();
-                Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
+        if (ret != null) {
+            HttpResponse response = (HttpResponse)ret;
+            StatusLine responseStatusLine = response.getStatusLine();
+            if (responseStatusLine != null) {
+                int statusCode = responseStatusLine.getStatusCode();
+                AbstractSpan span = ContextManager.activeSpan();
+                if (statusCode >= 400) {
+                    span.errorOccurred();
+                    Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
+                }
             }
         }
+        
         ContextManager.stopSpan();
         return ret;
     }
