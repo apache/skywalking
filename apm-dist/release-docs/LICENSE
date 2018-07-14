@@ -378,6 +378,7 @@ MIT licenses
 antv/data-set	0.8.6:	https://github.com/antvis/data-set	MIT
 add-dom-event-listener  1.0.2:  https://github.com/yiminghe/add-dom-event-listener      MIT
 antd    3.2.2:  https://github.com/ant-design/ant-design        MIT
+iconfont(from antd): https://github.com/ant-design/antd-init/tree/master/examples/local-iconfont   MIT
 ant-design-pro  1.3.0:  https://github.com/ant-design/ant-design-pro    MIT     , declare license in package.json only.
 async-validator 1.8.2:  https://github.com/yiminghe/async-validator     MIT
 babel/polyfill	7.0.0-beta.42:	https://github.com/babel/babel/tree/master/packages/babel-polyfill	MIT	, declare license in package.json only.
