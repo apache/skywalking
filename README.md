@@ -3,7 +3,7 @@ Apache SkyWalking
 
 <img src="https://skywalkingtest.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
 
-**SkyWalking**: an observability analysis platform, also an APM(application performance monitor) system, especially designed for 
+**SkyWalking**: an APM(application performance monitor) system, especially designed for 
 microservices, cloud native and container-based (Docker, Kubernetes, Mesos) architectures.
 
 [![GitHub stars](https://img.shields.io/github/stars/apache/incubator-skywalking.svg?style=for-the-badge&label=Stars&logo=github)](https://github.com/apache/incubator-skywalking)
@@ -16,7 +16,8 @@ microservices, cloud native and container-based (Docker, Kubernetes, Mesos) arch
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
 
 # Abstract
-**SkyWalking** provides the observability and analysis platform, including monitoring, tracing, diagnosing capabilities for distributed system.
+**SkyWalking** is an open source APM system, including monitoring, tracing, diagnosing capabilities for distributed system. 
+The core features are following.
 
 - Service, service instance, endpoint metrics analysis
 - Root cause analysis
@@ -27,7 +28,9 @@ microservices, cloud native and container-based (Docker, Kubernetes, Mesos) arch
 - Distributed tracing and context propagation
 - Alarm
 
+
 <img src="https://skywalkingtest.github.io/page-resources/6_overview.png"/>
+
 
 # Document
 - [Documents in English](docs/README.md)
