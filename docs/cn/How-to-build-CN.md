@@ -29,9 +29,16 @@
   - **apm-protocol/apm-network/target/generated-sources/protobuf**目录下的`grpc-java`和`java`目录
   - **apm-collector/apm-collector-remote/apm-remote-grpc-provider/target/generated-sources/protobuf**目录下的`grpc-java`和`java`目录
   
+## 在IntelliJ IDEA中编译工程
+上述步骤在命令行中，能够很好的编译工程，但导入到编译器中的工程依然会有一些报错，我们需要进行几步简单的操作。
+1. 在IntelliJ Terminal中，执行`mvn compile -Dmaven.test.skip=true`进行编译
+1. 设置gRPC的自动生成代码目录，为源码目录
+  - **apm-protocol/apm-network/target/generated-sources/protobuf**目录下的`grpc-java`和`java`目录
+  - **apm-collector/apm-collector-remote/apm-remote-grpc-provider/target/generated-sources/protobuf**目录下的`grpc-java`和`java`目录
+  
 ## 在Eclipse IDE中编译工程
 1. 导入incubator-skywalking maven工程
-2. 在主目录incubator-skywalking/pom.xml文件中添加如下两个plugin配置，首先进行多源码目录支持
+2. 在主目录incubator-skywalking/pom.xml文件中添加如下两个plugin配置，首先配置多源码目录支持，在build/plugins节点下添加如下配置：
 ```
     <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -39,23 +46,23 @@
         <version>1.8</version>
         <executions>
             <execution>
-            <id>add-source</id>
-            <phase>generate-sources</phase>
-            <goals>
-                <goal>add-source</goal>
-            </goals>
-            <configuration>
-                <sources>
-                    <source>src/java/main</source>
-                    <source>apm-protocol/apm-network/target/generated-sources/protobuf</source>
-                    <source>apm-collector/apm-collector-remote/collector-remote-grpc-provider/target/generated-sources/protobuf</source>
-               </sources>
-            </configuration>
-        </execution>
+                <id>add-source</id>
+                <phase>generate-sources</phase>
+                <goals>
+                    <goal>add-source</goal>
+                </goals>
+                <configuration>
+                    <sources>
+                        <source>src/java/main</source>
+                        <source>apm-protocol/apm-network/target/generated-sources/protobuf</source>
+                        <source>apm-collector/apm-collector-remote/collector-remote-grpc-provider/target/generated-sources/protobuf</source>
+                   </sources>
+                </configuration>
+            </execution>
         </executions>
     </plugin>
 ```
-其次需要支持多source目录，但eclipse的m2e插件还没支持到execution的解决配置：
+其次需要支持多source目录，但eclipse的m2e插件还没支持到execution，需要在在build节点下添加如下配置：
 ```
 <pluginManagement>
     <plugins>
@@ -66,24 +73,24 @@ only. It has no influence on the Maven build itself. -->
             <artifactId>lifecycle-mapping</artifactId>
             <version>1.0.0</version>
             <configuration>
-                <lifecycleMappingMetadata>
-		    <pluginExecutions>
-		        <pluginExecution>
-			    <pluginExecutionFilter>
-			        <groupId>org.codehaus.mojo</groupId>
-			        <artifactId>build-helper-maven-plugin</artifactId>
-			        <versionRange>[1.8,)</versionRange>
-			        <goals>
-				    <goal>add-source</goal>
-				</goals>
-				</pluginExecutionFilter>
-				<action>
-				    <ignore></ignore>
-				</action>
-			    </pluginExecution>
-		   </pluginExecutions>
-               </lifecycleMappingMetadata>
-          </configuration>
+				<lifecycleMappingMetadata>
+					<pluginExecutions>
+						<pluginExecution>
+							<pluginExecutionFilter>
+								<groupId>org.codehaus.mojo</groupId>
+								<artifactId>build-helper-maven-plugin</artifactId>
+								<versionRange>[1.8,)</versionRange>
+								<goals>
+									<goal>add-source</goal>
+								</goals>
+							</pluginExecutionFilter>
+							<action>
+								<ignore></ignore>
+							</action>
+						</pluginExecution>
+					</pluginExecutions>
+				</lifecycleMappingMetadata>
+            </configuration>
        </plugin>
     </plugins>
 </pluginManagement>
