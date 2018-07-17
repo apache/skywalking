@@ -28,7 +28,7 @@ This document helps people to compile and build the project in your maven and se
     
 ## Setup your Eclipse IDE
 1. Import the project as a maven project
-2. Add the following two plugin configurations to the incubator-skywalking/pom.xml file of the home directory,At first：Multi source directory support
+2. Add the following two plugin configurations to the incubator-skywalking/pom.xml file of the home directory,At first: Multi source directory support, you need add the following configuration under the build/plugings node:
 ```
 <plugin>
 	<groupId>org.codehaus.mojo</groupId>
@@ -52,36 +52,33 @@ This document helps people to compile and build the project in your maven and se
 	</executions>
 </plugin>
 ```
-and second：Support for multi source directory, but eclipse's M2e plug-in does not support execution's solution configuration.
+Second: Support for multi source directory, but eclipse's M2e plug-in does not support execution's solution configuration,So you need add the following configuration under the build node:
 ```
 <pluginManagement>
     <plugins>
     <!--This plugin's configuration is used to store Eclipse m2e settings 
-only. It has no influence on the Maven build itself. -->
+    only. It has no influence on the Maven build itself. -->
         <plugin>
             <groupId>org.eclipse.m2e</groupId>
             <artifactId>lifecycle-mapping</artifactId>
             <version>1.0.0</version>
             <configuration>
                 <lifecycleMappingMetadata>
-		    <pluginExecutions>
-		        <pluginExecution>
-			    <pluginExecutionFilter>
-			        <groupId>org.codehaus.mojo</groupId>
-			        <artifactId>build-helper-maven-plugin</artifactId>
-			        <versionRange>[1.8,)</versionRange>
-			        <goals>
-				    <goal>add-source</goal>
-				</goals>
-				</pluginExecutionFilter>
-				<action>
-				    <ignore></ignore>
-				</action>
-			    </pluginExecution>
-		   </pluginExecutions>
-               </lifecycleMappingMetadata>
-          </configuration>
-       </plugin>
+                    <pluginExecutions>
+                        <pluginExecution>
+                            <pluginExecutionFilter>
+                                <groupId>org.codehaus.mojo</groupId>
+                                <artifactId>build-helper-maven-plugin</artifactId>
+                                <versionRange>[1.8,)</versionRange>
+                                <goals>
+                                    <goal>add-source</goal>
+                                </goals>
+                            </pluginExecutionFilter>
+                        </pluginExecution>
+                    </pluginExecutions>
+                </lifecycleMappingMetadata>
+            </configuration>
+        </plugin>
     </plugins>
 </pluginManagement>
 ```
