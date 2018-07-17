@@ -42,11 +42,11 @@ This document helps people to compile and build the project in your maven and se
 			<goal>add-source</goal>
 		</goals>
 		<configuration>
-			<sources>
-				<source>src/java/main</source>
-				<source>apm-protocol/apm-network/target/generated-sources/protobuf</source>
-				<source>apm-collector/apm-collector-remote/collector-remote-grpc-provider/target/generated-sources/protobuf</source>
-		   </sources>
+		    <sources>
+			<source>src/java/main</source>
+			<source>apm-protocol/apm-network/target/generated-sources/protobuf</source>
+			<source>apm-collector/apm-collector-remote/collector-remote-grpc-provider/target/generated-sources/protobuf</source>
+		    </sources>
 		</configuration>
 	</execution>
 	</executions>
