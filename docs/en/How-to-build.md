@@ -28,8 +28,7 @@ This document helps people to compile and build the project in your maven and se
     
 ## Setup your Eclipse IDE
 1. Import the project as a maven project
-2. Add the following two plugin configurations to the incubator-skywalking/pom.xml file of the home directory	
-   First：Multi source directory support
+2. Add the following two plugin configurations to the incubator-skywalking/pom.xml file of the home directory,At first：Multi source directory support
 ```
 <plugin>
 	<groupId>org.codehaus.mojo</groupId>
@@ -53,7 +52,7 @@ This document helps people to compile and build the project in your maven and se
 	</executions>
 </plugin>
 ```
-   Second：Support for multi source directory, but eclipse's M2e plug-in does not support execution's solution configuration.
+and second：Support for multi source directory, but eclipse's M2e plug-in does not support execution's solution configuration.
 ```
 <pluginManagement>
     <plugins>
