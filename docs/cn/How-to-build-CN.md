@@ -94,6 +94,7 @@ only. It has no influence on the Maven build itself. -->
 <dependency>
     <groupId>com.google.guava</groupId>
     <artifactId>guava</artifactId>
+    <version>24.0-jre</version>
 </dependency>
 ```
 4.执行`mvn compile -Dmaven.test.skip=true`进行编译
