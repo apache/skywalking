@@ -30,8 +30,8 @@
   - **apm-collector/apm-collector-remote/apm-remote-grpc-provider/target/generated-sources/protobuf**目录下的`grpc-java`和`java`目录
   
 ## 在Eclipse IDE中编译工程
-1.导入incubator-skywalking maven工程
-2.在主目录incubator-skywalking/pom.xml文件中添加如下两个plugin配置
+1. 导入incubator-skywalking maven工程
+2. 在主目录incubator-skywalking/pom.xml文件中添加如下两个plugin配置
   --1):多源码目录支持
 ```
     <plugin>
@@ -89,7 +89,7 @@ only. It has no influence on the Maven build itself. -->
     </plugins>
 </pluginManagement>
  ```
-3.修改apm-collector-remote/collector-remote-grpc-provider/pom.xml文件，添加google guava的依赖
+3. 修改apm-collector-remote/collector-remote-grpc-provider/pom.xml文件，添加google guava的依赖
  ```
 <dependency>
     <groupId>com.google.guava</groupId>
@@ -97,9 +97,9 @@ only. It has no influence on the Maven build itself. -->
     <version>24.0-jre</version>
 </dependency>
 ```
-4.执行`mvn compile -Dmaven.test.skip=true`进行编译
-5.执行maven update,切记去掉勾选 Clean projects选项(会清掉complie生成的proto转化Java文件)
-6.mvn compile 编译collector-remote-grpc-provider和apm-protocol工程并Refresh
+4. 执行`mvn compile -Dmaven.test.skip=true`进行编译
+5. 执行maven update,切记去掉勾选 Clean projects选项(会清掉complie生成的proto转化Java文件)
+6. mvn compile 编译collector-remote-grpc-provider和apm-protocol工程并Refresh
 
 ## 编译Resin-3， Resin-4 和 Oracle JDBC 驱动插件
 为了遵守Apache关于协议（License）的相关要求，不符合Apache相关要求的类库所对应的Plugin不会自动编译。如需编译对应的插件，
