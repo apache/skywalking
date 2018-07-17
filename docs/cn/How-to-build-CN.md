@@ -65,34 +65,31 @@
 其次需要支持多source目录，但eclipse的m2e插件还没支持到execution，需要在在build节点下添加如下配置：
 ```
 <pluginManagement>
-    <plugins>
-    <!--This plugin's configuration is used to store Eclipse m2e settings 
-only. It has no influence on the Maven build itself. -->
-        <plugin>
-            <groupId>org.eclipse.m2e</groupId>
-            <artifactId>lifecycle-mapping</artifactId>
-            <version>1.0.0</version>
-            <configuration>
-				<lifecycleMappingMetadata>
-					<pluginExecutions>
-						<pluginExecution>
-							<pluginExecutionFilter>
-								<groupId>org.codehaus.mojo</groupId>
-								<artifactId>build-helper-maven-plugin</artifactId>
-								<versionRange>[1.8,)</versionRange>
-								<goals>
-									<goal>add-source</goal>
-								</goals>
-							</pluginExecutionFilter>
-							<action>
-								<ignore></ignore>
-							</action>
-						</pluginExecution>
-					</pluginExecutions>
-				</lifecycleMappingMetadata>
-            </configuration>
-       </plugin>
-    </plugins>
+	<plugins>
+	<!--This plugin's configuration is used to store Eclipse m2e settings 
+	only. It has no influence on the Maven build itself. -->
+		<plugin>
+			<groupId>org.eclipse.m2e</groupId>
+			<artifactId>lifecycle-mapping</artifactId>
+			<version>1.0.0</version>
+				<configuration>
+					<lifecycleMappingMetadata>
+						<pluginExecutions>
+							<pluginExecution>
+								<pluginExecutionFilter>
+									<groupId>org.codehaus.mojo</groupId>
+									<artifactId>build-helper-maven-plugin</artifactId>
+									<versionRange>[1.8,)</versionRange>
+									<goals>
+										<goal>add-source</goal>
+									</goals>
+								</pluginExecutionFilter>
+							</pluginExecution>
+						</pluginExecutions>
+					</lifecycleMappingMetadata>
+				</configuration>
+			</plugin>
+	</plugins>
 </pluginManagement>
  ```
 3. 修改apm-collector-remote/collector-remote-grpc-provider/pom.xml文件，添加google guava的依赖
