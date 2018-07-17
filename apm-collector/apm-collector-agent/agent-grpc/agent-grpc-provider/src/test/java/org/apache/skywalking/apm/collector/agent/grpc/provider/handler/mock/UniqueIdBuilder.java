@@ -19,7 +19,7 @@
 package org.apache.skywalking.apm.collector.agent.grpc.provider.handler.mock;
 
 import java.util.concurrent.atomic.AtomicLong;
-import org.apache.skywalking.apm.network.proto.UniqueId;
+import org.apache.skywalking.apm.network.language.agent.UniqueId;
 
 /**
  * @author peng-yongsheng

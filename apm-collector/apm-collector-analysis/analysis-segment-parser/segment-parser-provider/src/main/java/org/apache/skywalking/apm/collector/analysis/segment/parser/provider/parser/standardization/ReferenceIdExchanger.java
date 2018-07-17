@@ -28,7 +28,7 @@ import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputing
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
-import org.apache.skywalking.apm.network.proto.SpanType;
+import org.apache.skywalking.apm.network.language.agent.SpanType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

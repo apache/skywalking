@@ -24,8 +24,7 @@ import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.ids.ID;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
-import org.apache.skywalking.apm.network.proto.RefType;
-import org.apache.skywalking.apm.network.proto.TraceSegmentReference;
+import org.apache.skywalking.apm.network.language.agent.*;
 
 /**
  * {@link TraceSegmentRef} is like a pointer, which ref to another {@link TraceSegment},

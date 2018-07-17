@@ -39,7 +39,7 @@ public interface IGCMetricUIDAO extends DAO {
      * duration, which represents by the DurationPoint list in the `step` Unit.
      * <p>SQL as: select COUNT, TIMES, DURATION from GC_METRIC where ID in (durationPoints), rule of
      * ID generation is "${durationPoint}_${instanceId}_${gcPhrase}",
-     * {@link org.apache.skywalking.apm.network.proto.GCPhrase#NEW_VALUE}
+     * {@link org.apache.skywalking.apm.network.language.agent.GCPhrase#NEW_VALUE}
      * <p>The young generation GC count
      * <p>The average young generation GC average duration formula is "DURATION / TIMES".
      * <p>Every element in return list must match DurationPoint list, which also means that,
@@ -54,7 +54,7 @@ public interface IGCMetricUIDAO extends DAO {
      * @param durationPoints the time points in the time span
      * @return every duration points average young generation GC count and duration metrics.
      * @see org.apache.skywalking.apm.collector.storage.ui.common.Step
-     * @see org.apache.skywalking.apm.network.proto.GCPhrase
+     * @see org.apache.skywalking.apm.network.language.agent.GCPhrase
      */
     List<Trend> getYoungGCTrend(int instanceId, Step step, List<DurationPoint> durationPoints);
 
@@ -63,7 +63,7 @@ public interface IGCMetricUIDAO extends DAO {
      * duration, which represents by the DurationPoint list in the `step` Unit.
      * <p>SQL as: select COUNT, TIMES, DURATION from GC_METRIC where ID in (durationPoints), rule of
      * ID generation is "${durationPoint}_${instanceId}_${gcPhrase}",
-     * {@link org.apache.skywalking.apm.network.proto.GCPhrase#OLD_VALUE}
+     * {@link org.apache.skywalking.apm.network.language.agent.GCPhrase#OLD_VALUE}
      * <p>The old generation GC count
      * <p>The average old generation GC average duration formula is "DURATION / TIMES".
      * <p>Every element in return list must match DurationPoint list, which also means that,
@@ -78,7 +78,7 @@ public interface IGCMetricUIDAO extends DAO {
      * @param durationPoints the time points in the time span
      * @return every duration points average old generation GC count and duration metrics.
      * @see org.apache.skywalking.apm.collector.storage.ui.common.Step
-     * @see org.apache.skywalking.apm.network.proto.GCPhrase
+     * @see org.apache.skywalking.apm.network.language.agent.GCPhrase
      */
     List<Trend> getOldGCTrend(int instanceId, Step step, List<DurationPoint> durationPoints);
 

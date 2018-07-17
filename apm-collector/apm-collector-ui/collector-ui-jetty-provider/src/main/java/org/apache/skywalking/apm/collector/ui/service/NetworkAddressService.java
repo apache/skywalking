@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.collector.ui.service;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.ui.INetworkAddressUIDAO;
-import org.apache.skywalking.apm.network.proto.SpanLayer;
+import org.apache.skywalking.apm.network.language.agent.SpanLayer;
 
 /**
  * @author peng-yongsheng

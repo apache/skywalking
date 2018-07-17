@@ -24,11 +24,11 @@ import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegi
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IServiceNameService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.server.grpc.GRPCHandler;
-import org.apache.skywalking.apm.network.proto.ServiceNameCollection;
-import org.apache.skywalking.apm.network.proto.ServiceNameDiscoveryServiceGrpc;
-import org.apache.skywalking.apm.network.proto.ServiceNameElement;
-import org.apache.skywalking.apm.network.proto.ServiceNameMappingCollection;
-import org.apache.skywalking.apm.network.proto.ServiceNameMappingElement;
+import org.apache.skywalking.apm.network.language.agent.ServiceNameCollection;
+import org.apache.skywalking.apm.network.language.agent.ServiceNameDiscoveryServiceGrpc;
+import org.apache.skywalking.apm.network.language.agent.ServiceNameElement;
+import org.apache.skywalking.apm.network.language.agent.ServiceNameMappingCollection;
+import org.apache.skywalking.apm.network.language.agent.ServiceNameMappingElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -30,7 +30,7 @@ import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
-import org.apache.skywalking.apm.network.proto.SpanLayer;
+import org.apache.skywalking.apm.network.language.agent.SpanLayer;
 import org.slf4j.*;
 
 import static java.util.Objects.nonNull;

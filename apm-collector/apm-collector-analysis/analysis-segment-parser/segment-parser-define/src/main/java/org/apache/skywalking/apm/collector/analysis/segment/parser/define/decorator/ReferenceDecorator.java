@@ -19,9 +19,9 @@
 
 package org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator;
 
-import org.apache.skywalking.apm.network.proto.RefType;
-import org.apache.skywalking.apm.network.proto.TraceSegmentReference;
-import org.apache.skywalking.apm.network.proto.UniqueId;
+import org.apache.skywalking.apm.network.language.agent.RefType;
+import org.apache.skywalking.apm.network.language.agent.TraceSegmentReference;
+import org.apache.skywalking.apm.network.language.agent.UniqueId;
 
 /**
  * @author peng-yongsheng

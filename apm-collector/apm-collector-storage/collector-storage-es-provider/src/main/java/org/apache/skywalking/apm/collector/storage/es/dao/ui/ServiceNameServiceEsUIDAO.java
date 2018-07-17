@@ -25,7 +25,7 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceNameServiceUID
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceNameTable;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
-import org.apache.skywalking.apm.network.proto.SpanType;
+import org.apache.skywalking.apm.network.language.agent.SpanType;
 import org.elasticsearch.action.search.*;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;

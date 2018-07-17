@@ -21,9 +21,9 @@ package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.ser
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Base64;
 import java.util.List;
-import org.apache.skywalking.apm.network.proto.SpanObject;
-import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
-import org.apache.skywalking.apm.network.proto.UniqueId;
+import org.apache.skywalking.apm.network.language.agent.SpanObject;
+import org.apache.skywalking.apm.network.language.agent.TraceSegmentObject;
+import org.apache.skywalking.apm.network.language.agent.UniqueId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

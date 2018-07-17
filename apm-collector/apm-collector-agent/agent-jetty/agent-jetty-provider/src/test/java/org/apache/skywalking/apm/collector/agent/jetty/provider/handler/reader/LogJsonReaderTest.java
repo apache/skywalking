@@ -20,7 +20,7 @@ package org.apache.skywalking.apm.collector.agent.jetty.provider.handler.reader;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.apache.skywalking.apm.network.proto.LogMessage;
+import org.apache.skywalking.apm.network.language.agent.LogMessage;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

@@ -20,7 +20,7 @@ package org.apache.skywalking.apm.collector.agent.grpc.provider.handler.mock;
 
 import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
-import org.apache.skywalking.apm.network.proto.*;
+import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**

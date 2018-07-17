@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.IGlobalTraceUIDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentUIDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Application;
 import org.apache.skywalking.apm.collector.storage.ui.trace.Trace;
-import org.apache.skywalking.apm.network.proto.*;
+import org.apache.skywalking.apm.network.language.agent.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

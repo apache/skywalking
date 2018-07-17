@@ -19,7 +19,7 @@ package org.apache.skywalking.apm.collector.agent.jetty.provider.handler.reader;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.apache.skywalking.apm.network.proto.UniqueId;
+import org.apache.skywalking.apm.network.language.agent.UniqueId;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

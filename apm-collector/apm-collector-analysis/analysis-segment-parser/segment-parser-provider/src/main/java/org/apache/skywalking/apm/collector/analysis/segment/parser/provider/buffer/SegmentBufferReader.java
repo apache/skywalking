@@ -33,7 +33,7 @@ import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
-import org.apache.skywalking.apm.network.proto.UpstreamSegment;
+import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

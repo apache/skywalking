@@ -22,7 +22,7 @@ import org.apache.skywalking.apm.collector.analysis.metric.define.service.IInsta
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.RegisterServices;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.SkyWalkingTrace;
-import org.apache.skywalking.apm.network.proto.*;
+import org.apache.skywalking.apm.network.language.agent.*;
 import org.eclipse.jetty.util.StringUtil;
 import zipkin2.Endpoint;
 import zipkin2.Span;

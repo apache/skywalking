@@ -20,14 +20,14 @@ package org.apache.skywalking.apm.collector.agent.grpc.provider.handler.mock;
 
 import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
-import org.apache.skywalking.apm.network.proto.RefType;
-import org.apache.skywalking.apm.network.proto.SpanLayer;
-import org.apache.skywalking.apm.network.proto.SpanObject;
-import org.apache.skywalking.apm.network.proto.SpanType;
-import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
-import org.apache.skywalking.apm.network.proto.TraceSegmentReference;
-import org.apache.skywalking.apm.network.proto.UniqueId;
-import org.apache.skywalking.apm.network.proto.UpstreamSegment;
+import org.apache.skywalking.apm.network.language.agent.RefType;
+import org.apache.skywalking.apm.network.language.agent.SpanLayer;
+import org.apache.skywalking.apm.network.language.agent.SpanObject;
+import org.apache.skywalking.apm.network.language.agent.SpanType;
+import org.apache.skywalking.apm.network.language.agent.TraceSegmentObject;
+import org.apache.skywalking.apm.network.language.agent.TraceSegmentReference;
+import org.apache.skywalking.apm.network.language.agent.UniqueId;
+import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**

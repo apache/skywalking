@@ -35,9 +35,7 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelListener;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus;
-import org.apache.skywalking.apm.network.proto.JVMMetric;
-import org.apache.skywalking.apm.network.proto.JVMMetrics;
-import org.apache.skywalking.apm.network.proto.JVMMetricsServiceGrpc;
+import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
 import java.util.LinkedList;

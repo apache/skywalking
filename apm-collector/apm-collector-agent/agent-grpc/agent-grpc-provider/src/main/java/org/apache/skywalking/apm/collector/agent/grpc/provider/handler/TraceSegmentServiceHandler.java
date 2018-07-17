@@ -23,7 +23,7 @@ import org.apache.skywalking.apm.collector.analysis.segment.parser.define.Analys
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParseService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.server.grpc.GRPCHandler;
-import org.apache.skywalking.apm.network.proto.*;
+import org.apache.skywalking.apm.network.language.agent.*;
 import org.slf4j.*;
 
 /**

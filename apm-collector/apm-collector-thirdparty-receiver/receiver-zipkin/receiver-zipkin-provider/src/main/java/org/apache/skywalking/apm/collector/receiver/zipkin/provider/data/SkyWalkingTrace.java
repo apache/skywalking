@@ -18,9 +18,9 @@
 
 package org.apache.skywalking.apm.collector.receiver.zipkin.provider.data;
 
-import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
-import org.apache.skywalking.apm.network.proto.UniqueId;
-import org.apache.skywalking.apm.network.proto.UpstreamSegment;
+import org.apache.skywalking.apm.network.language.agent.TraceSegmentObject;
+import org.apache.skywalking.apm.network.language.agent.UniqueId;
+import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 
 import java.util.LinkedList;
 import java.util.List;

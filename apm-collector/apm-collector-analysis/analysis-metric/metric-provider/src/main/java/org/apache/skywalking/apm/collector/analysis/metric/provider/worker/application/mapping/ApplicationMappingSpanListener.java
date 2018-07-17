@@ -29,7 +29,7 @@ import org.apache.skywalking.apm.collector.core.graph.*;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMapping;
-import org.apache.skywalking.apm.network.proto.SpanLayer;
+import org.apache.skywalking.apm.network.language.agent.SpanLayer;
 import org.slf4j.*;
 
 /**

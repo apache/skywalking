@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.collector.agent.jetty.provider.handler.reader;
 
 import com.google.gson.stream.JsonReader;
 import java.io.IOException;
-import org.apache.skywalking.apm.network.proto.LogMessage;
+import org.apache.skywalking.apm.network.language.agent.LogMessage;
 
 /**
  * @author peng-yongsheng

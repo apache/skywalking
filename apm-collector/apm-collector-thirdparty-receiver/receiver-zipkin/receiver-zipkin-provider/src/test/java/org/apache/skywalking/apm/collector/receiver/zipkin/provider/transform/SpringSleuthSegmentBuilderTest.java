@@ -25,10 +25,10 @@ import org.apache.skywalking.apm.collector.analysis.register.define.service.IIns
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.RegisterServices;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.SkyWalkingTrace;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.ZipkinTrace;
-import org.apache.skywalking.apm.network.proto.SpanObject;
-import org.apache.skywalking.apm.network.proto.SpanType;
-import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
-import org.apache.skywalking.apm.network.proto.TraceSegmentReference;
+import org.apache.skywalking.apm.network.language.agent.SpanObject;
+import org.apache.skywalking.apm.network.language.agent.SpanType;
+import org.apache.skywalking.apm.network.language.agent.TraceSegmentObject;
+import org.apache.skywalking.apm.network.language.agent.TraceSegmentReference;
 import org.junit.Assert;
 import org.junit.Test;
 import zipkin2.Span;
