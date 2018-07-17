@@ -72,23 +72,23 @@
 			<groupId>org.eclipse.m2e</groupId>
 			<artifactId>lifecycle-mapping</artifactId>
 			<version>1.0.0</version>
-				<configuration>
-					<lifecycleMappingMetadata>
-						<pluginExecutions>
-							<pluginExecution>
-								<pluginExecutionFilter>
-									<groupId>org.codehaus.mojo</groupId>
-									<artifactId>build-helper-maven-plugin</artifactId>
-									<versionRange>[1.8,)</versionRange>
-									<goals>
-										<goal>add-source</goal>
-									</goals>
-								</pluginExecutionFilter>
-							</pluginExecution>
-						</pluginExecutions>
-					</lifecycleMappingMetadata>
-				</configuration>
-			</plugin>
+			<configuration>
+				<lifecycleMappingMetadata>
+					<pluginExecutions>
+						<pluginExecution>
+							<pluginExecutionFilter>
+								<groupId>org.codehaus.mojo</groupId>
+								<artifactId>build-helper-maven-plugin</artifactId>
+								<versionRange>[1.8,)</versionRange>
+								<goals>
+									<goal>add-source</goal>
+								</goals>
+							</pluginExecutionFilter>
+						</pluginExecution>
+					</pluginExecutions>
+				</lifecycleMappingMetadata>
+			</configuration>
+		</plugin>
 	</plugins>
 </pluginManagement>
  ```
