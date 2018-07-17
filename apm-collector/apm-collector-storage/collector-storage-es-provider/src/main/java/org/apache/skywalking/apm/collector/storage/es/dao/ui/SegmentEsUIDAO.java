@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.segment.SegmentTable;
-import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
+import org.apache.skywalking.apm.network.language.agent.TraceSegmentObject;
 import org.elasticsearch.action.get.GetResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

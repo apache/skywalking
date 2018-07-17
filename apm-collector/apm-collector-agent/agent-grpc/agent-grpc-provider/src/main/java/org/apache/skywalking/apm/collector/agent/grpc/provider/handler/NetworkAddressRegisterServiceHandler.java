@@ -24,10 +24,10 @@ import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegi
 import org.apache.skywalking.apm.collector.analysis.register.define.service.INetworkAddressIDService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.server.grpc.GRPCHandler;
-import org.apache.skywalking.apm.network.proto.KeyWithIntegerValue;
-import org.apache.skywalking.apm.network.proto.NetworkAddressMappings;
-import org.apache.skywalking.apm.network.proto.NetworkAddressRegisterServiceGrpc;
-import org.apache.skywalking.apm.network.proto.NetworkAddresses;
+import org.apache.skywalking.apm.network.language.agent.KeyWithIntegerValue;
+import org.apache.skywalking.apm.network.language.agent.NetworkAddressMappings;
+import org.apache.skywalking.apm.network.language.agent.NetworkAddressRegisterServiceGrpc;
+import org.apache.skywalking.apm.network.language.agent.NetworkAddresses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

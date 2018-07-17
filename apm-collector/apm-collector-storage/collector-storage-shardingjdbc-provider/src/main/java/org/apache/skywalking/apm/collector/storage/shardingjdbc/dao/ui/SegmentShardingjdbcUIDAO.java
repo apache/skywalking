@@ -32,7 +32,7 @@ import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentUIDAO;
 import org.apache.skywalking.apm.collector.storage.shardingjdbc.base.dao.ShardingjdbcDAO;
 import org.apache.skywalking.apm.collector.storage.table.segment.SegmentTable;
-import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
+import org.apache.skywalking.apm.network.language.agent.TraceSegmentObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

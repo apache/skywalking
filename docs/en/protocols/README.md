@@ -30,49 +30,6 @@ the following key info:
 1. Protocol. HTTP, gRPC
 1. DetectPoint. In Service Mesh sidecar, `client` or `server`. In normal L7 proxy, value is `proxy`.
 
-```proto
-syntax = "proto3";
-
-option java_multiple_files = true;
-option java_package = "org.apache.skywalking.apm.network.servicemesh";
-
-service ServiceMeshMetricService {
-    rpc collect(stream serviceMeshMetric) returns (Downstream) {
-    }
-}
-
-message serviceMeshMetric {
-    string sourceServiceName = 1;
-    int32 sourceServiceId = 2;
-    string sourceServiceInstance = 3;
-    int32 sourceServiceInstanceId = 4;
-    string destServiceName = 5;
-    int32 destServiceId = 6;
-    string destServiceInstance = 7;
-    int32 destServiceInstanceId = 8;
-    string endpoint = 9;
-    int32 latency = 10;
-    int32 responseCode = 11;
-    bool status = 12;
-    Protocol protocol = 13;
-    DetectPoint detectPoint = 14;
-}
-
-enum Protocol {
-    HTTP = 0;
-    gRPC = 1;
-}
-
-enum DetectPoint {
-    client = 0;
-    server = 1;
-    proxy = 2;
-}
-
-message Downstream {
-}
-
-```
 
 ### 3rd-party instrument protocol
 3rd-party instrument protocols are not defined by SkyWalking. They are just protocols/formats, which SkyWalking is compatible and

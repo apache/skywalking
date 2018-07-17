@@ -28,7 +28,7 @@ import java.net.UnknownHostException;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.skywalking.apm.network.proto.OSInfo;
+import org.apache.skywalking.apm.network.language.agent.*;
 
 /**
  * @author wusheng

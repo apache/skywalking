@@ -26,12 +26,12 @@ import org.apache.skywalking.apm.collector.analysis.register.define.service.Agen
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IInstanceIDService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.server.grpc.GRPCHandler;
-import org.apache.skywalking.apm.network.proto.ApplicationInstance;
-import org.apache.skywalking.apm.network.proto.ApplicationInstanceHeartbeat;
-import org.apache.skywalking.apm.network.proto.ApplicationInstanceMapping;
-import org.apache.skywalking.apm.network.proto.Downstream;
-import org.apache.skywalking.apm.network.proto.InstanceDiscoveryServiceGrpc;
-import org.apache.skywalking.apm.network.proto.OSInfo;
+import org.apache.skywalking.apm.network.language.agent.ApplicationInstance;
+import org.apache.skywalking.apm.network.language.agent.ApplicationInstanceHeartbeat;
+import org.apache.skywalking.apm.network.language.agent.ApplicationInstanceMapping;
+import org.apache.skywalking.apm.network.language.agent.Downstream;
+import org.apache.skywalking.apm.network.language.agent.InstanceDiscoveryServiceGrpc;
+import org.apache.skywalking.apm.network.language.agent.OSInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

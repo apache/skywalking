@@ -23,10 +23,10 @@ import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegi
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IApplicationIDService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.server.grpc.GRPCHandler;
-import org.apache.skywalking.apm.network.proto.Application;
-import org.apache.skywalking.apm.network.proto.ApplicationMapping;
-import org.apache.skywalking.apm.network.proto.ApplicationRegisterServiceGrpc;
-import org.apache.skywalking.apm.network.proto.KeyWithIntegerValue;
+import org.apache.skywalking.apm.network.language.agent.Application;
+import org.apache.skywalking.apm.network.language.agent.ApplicationMapping;
+import org.apache.skywalking.apm.network.language.agent.ApplicationRegisterServiceGrpc;
+import org.apache.skywalking.apm.network.language.agent.KeyWithIntegerValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

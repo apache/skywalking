@@ -25,7 +25,7 @@ import org.apache.skywalking.apm.collector.storage.dao.ui.INetworkAddressUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddressTable;
 import org.apache.skywalking.apm.collector.storage.ui.overview.ConjecturalApp;
-import org.apache.skywalking.apm.network.proto.SpanLayer;
+import org.apache.skywalking.apm.network.language.agent.SpanLayer;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;

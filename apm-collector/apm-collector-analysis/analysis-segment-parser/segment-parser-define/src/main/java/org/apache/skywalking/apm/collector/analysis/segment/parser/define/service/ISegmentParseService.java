@@ -19,7 +19,7 @@
 package org.apache.skywalking.apm.collector.analysis.segment.parser.define.service;
 
 import org.apache.skywalking.apm.collector.core.module.Service;
-import org.apache.skywalking.apm.network.proto.UpstreamSegment;
+import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 
 /**
  * @author peng-yongsheng

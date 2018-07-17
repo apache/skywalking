@@ -23,9 +23,9 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.skywalking.apm.network.proto.Downstream;
-import org.apache.skywalking.apm.network.proto.TraceSegmentServiceGrpc;
-import org.apache.skywalking.apm.network.proto.UpstreamSegment;
+import org.apache.skywalking.apm.network.language.agent.Downstream;
+import org.apache.skywalking.apm.network.language.agent.TraceSegmentServiceGrpc;
+import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

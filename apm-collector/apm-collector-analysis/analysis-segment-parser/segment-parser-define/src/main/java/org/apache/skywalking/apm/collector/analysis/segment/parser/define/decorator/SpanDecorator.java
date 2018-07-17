@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator;
 
-import org.apache.skywalking.apm.network.proto.*;
+import org.apache.skywalking.apm.network.language.agent.*;
 
 import static java.util.Objects.isNull;
 

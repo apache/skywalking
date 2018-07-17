@@ -22,7 +22,7 @@ import java.io.*;
 import java.nio.channels.FileLock;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.*;
-import org.apache.skywalking.apm.network.proto.UpstreamSegment;
+import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 import org.slf4j.*;
 
 /**

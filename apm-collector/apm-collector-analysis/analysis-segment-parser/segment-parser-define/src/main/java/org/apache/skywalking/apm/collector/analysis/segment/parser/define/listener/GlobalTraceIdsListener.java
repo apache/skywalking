@@ -19,7 +19,7 @@
 package org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener;
 
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SegmentCoreInfo;
-import org.apache.skywalking.apm.network.proto.UniqueId;
+import org.apache.skywalking.apm.network.language.agent.UniqueId;
 
 /**
  * @author peng-yongsheng

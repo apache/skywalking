@@ -20,7 +20,7 @@ package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.par
 
 import org.apache.skywalking.apm.collector.core.data.QueueData;
 import org.apache.skywalking.apm.collector.core.queue.EndOfBatchContext;
-import org.apache.skywalking.apm.network.proto.UpstreamSegment;
+import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 
 /**
  * @author peng-yongsheng

@@ -22,7 +22,7 @@ import org.apache.skywalking.apm.collector.analysis.segment.parser.define.servic
 import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.SegmentParse;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.SegmentParserListenerManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.network.proto.UpstreamSegment;
+import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 
 /**
  * @author peng-yongsheng

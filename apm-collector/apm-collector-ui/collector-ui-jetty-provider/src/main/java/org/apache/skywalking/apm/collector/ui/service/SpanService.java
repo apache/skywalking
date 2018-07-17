@@ -31,10 +31,10 @@ import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentUIDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
-import org.apache.skywalking.apm.network.proto.KeyWithStringValue;
-import org.apache.skywalking.apm.network.proto.LogMessage;
-import org.apache.skywalking.apm.network.proto.SpanObject;
-import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
+import org.apache.skywalking.apm.network.language.agent.KeyWithStringValue;
+import org.apache.skywalking.apm.network.language.agent.LogMessage;
+import org.apache.skywalking.apm.network.language.agent.SpanObject;
+import org.apache.skywalking.apm.network.language.agent.TraceSegmentObject;
 
 /**
  * @author peng-yongsheng

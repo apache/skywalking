@@ -20,7 +20,7 @@ package org.apache.skywalking.apm.collector.agent.jetty.provider.handler.reader;
 
 import com.google.gson.stream.JsonReader;
 import java.io.IOException;
-import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
+import org.apache.skywalking.apm.network.language.agent.TraceSegmentObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

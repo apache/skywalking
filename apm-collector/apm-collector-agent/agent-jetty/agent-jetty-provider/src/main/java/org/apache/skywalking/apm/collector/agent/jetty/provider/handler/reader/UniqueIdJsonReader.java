@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.collector.agent.jetty.provider.handler.reader;
 
 import com.google.gson.stream.JsonReader;
 import java.io.IOException;
-import org.apache.skywalking.apm.network.proto.UniqueId;
+import org.apache.skywalking.apm.network.language.agent.UniqueId;
 
 /**
  * @author peng-yongsheng

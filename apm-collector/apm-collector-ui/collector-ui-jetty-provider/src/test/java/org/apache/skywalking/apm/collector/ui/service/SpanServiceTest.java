@@ -23,10 +23,10 @@ import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService
 import org.apache.skywalking.apm.collector.core.module.MockModule;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentUIDAO;
-import org.apache.skywalking.apm.network.proto.KeyWithStringValue;
-import org.apache.skywalking.apm.network.proto.LogMessage;
-import org.apache.skywalking.apm.network.proto.SpanObject;
-import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
+import org.apache.skywalking.apm.network.language.agent.KeyWithStringValue;
+import org.apache.skywalking.apm.network.language.agent.LogMessage;
+import org.apache.skywalking.apm.network.language.agent.SpanObject;
+import org.apache.skywalking.apm.network.language.agent.TraceSegmentObject;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

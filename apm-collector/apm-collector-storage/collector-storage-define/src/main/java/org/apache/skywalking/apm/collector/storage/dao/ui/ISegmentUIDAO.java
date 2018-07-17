@@ -19,7 +19,7 @@
 package org.apache.skywalking.apm.collector.storage.dao.ui;
 
 import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
-import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
+import org.apache.skywalking.apm.network.language.agent.TraceSegmentObject;
 
 /**
  * Interface to be implemented for execute database query operation

@@ -25,7 +25,7 @@ import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IMemoryPo
 import org.apache.skywalking.apm.collector.analysis.metric.define.service.IInstanceHeartBeatService;
 import org.apache.skywalking.apm.collector.core.module.MockModule;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.network.proto.*;
+import org.apache.skywalking.apm.network.language.agent.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
