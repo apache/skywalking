@@ -40,27 +40,27 @@
 1. 导入incubator-skywalking maven工程
 2. 在主目录incubator-skywalking/pom.xml文件中添加如下两个plugin配置，首先配置多源码目录支持，在build/plugins节点下添加如下配置：
 ```
-    <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <version>1.8</version>
-        <executions>
-            <execution>
-                <id>add-source</id>
-                <phase>generate-sources</phase>
-                <goals>
-                    <goal>add-source</goal>
-                </goals>
-                <configuration>
-                    <sources>
-                        <source>src/java/main</source>
-                        <source>apm-protocol/apm-network/target/generated-sources/protobuf</source>
-                        <source>apm-collector/apm-collector-remote/collector-remote-grpc-provider/target/generated-sources/protobuf</source>
-                   </sources>
-                </configuration>
-            </execution>
-        </executions>
-    </plugin>
+<plugin>
+    <groupId>org.codehaus.mojo</groupId>
+    <artifactId>build-helper-maven-plugin</artifactId>
+    <version>1.8</version>
+    <executions>
+        <execution>
+            <id>add-source</id>
+            <phase>generate-sources</phase>
+            <goals>
+                <goal>add-source</goal>
+            </goals>
+            <configuration>
+                <sources>
+                    <source>src/java/main</source>
+                    <source>apm-protocol/apm-network/target/generated-sources/protobuf</source>
+                    <source>apm-collector/apm-collector-remote/collector-remote-grpc-provider/target/generated-sources/protobuf</source>
+               </sources>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
 ```
 其次需要支持多source目录，但eclipse的m2e插件还没支持到execution，需要在在build节点下添加如下配置：
 ```
