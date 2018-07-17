@@ -28,8 +28,8 @@ This document helps people to compile and build the project in your maven and se
     
 ## Setup your Eclipse IDE
 1. Import the project as a maven project
-2. Add the following two plugin configurations to the incubator-skywalking/pom.xml file of the home directory
-  --1):Multi source directory support
+2. Add the following two plugin configurations to the incubator-skywalking/pom.xml file of the home directory	
+   --1):Multi source directory support
 ```
 <plugin>
 	<groupId>org.codehaus.mojo</groupId>
