@@ -32,7 +32,7 @@
 ## 在Eclipse IDE中编译工程
 1. 导入incubator-skywalking maven工程
 2. 在主目录incubator-skywalking/pom.xml文件中添加如下两个plugin配置
-    --1). :多源码目录支持
+   --1):多源码目录支持
 ```
     <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -56,7 +56,7 @@
         </executions>
     </plugin>
 ```
-   --2). :支持多source目录，但eclipse的m2e插件还没支持到execution的解决配置
+   --2):支持多source目录，但eclipse的m2e插件还没支持到execution的解决配置
 ```
 <pluginManagement>
     <plugins>
