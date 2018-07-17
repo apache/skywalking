@@ -34,73 +34,67 @@
 2.在主目录incubator-skywalking/pom.xml文件中添加如下两个plugin配置
   --1):多源码目录支持
 ```
-		<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>1.8</version>
-				<executions>
-					<execution>
-						<id>add-source</id>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>add-source</goal>
-						</goals>
-						<configuration>
-							<sources>
-								<source>src/java/main</source>
-								<source>apm-protocol/apm-network/target/generated-sources/protobuf</source>
-								<source>apm-collector/apm-collector-remote/collector-remote-grpc-provider/target/generated-sources/protobuf</source>
-							</sources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
+    <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>1.8</version>
+        <executions>
+            <execution>
+            <id>add-source</id>
+            <phase>generate-sources</phase>
+            <goals>
+                <goal>add-source</goal>
+            </goals>
+            <configuration>
+                <sources>
+                    <source>src/java/main</source>
+                    <source>apm-protocol/apm-network/target/generated-sources/protobuf</source>
+                    <source>apm-collector/apm-collector-remote/collector-remote-grpc-provider/target/generated-sources/protobuf</source>
+               </sources>
+            </configuration>
+        </execution>
+        </executions>
+    </plugin>
 ```
   --2):支持多source目录，但eclipse的m2e插件还没支持到execution的解决配置
 ```
-   <pluginManagement>
-			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings 
-					only. It has no influence on the Maven build itself. -->
-				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>
-											org.codehaus.mojo
-										</groupId>
-										<artifactId>
-											build-helper-maven-plugin
-										</artifactId>
-										<versionRange>
-											[1.8,)
-										</versionRange>
-										<goals>
-											<goal>add-source</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore></ignore>
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
+<pluginManagement>
+    <plugins>
+    <!--This plugin's configuration is used to store Eclipse m2e settings 
+only. It has no influence on the Maven build itself. -->
+        <plugin>
+            <groupId>org.eclipse.m2e</groupId>
+            <artifactId>lifecycle-mapping</artifactId>
+            <version>1.0.0</version>
+            <configuration>
+                <lifecycleMappingMetadata>
+		    <pluginExecutions>
+		        <pluginExecution>
+			    <pluginExecutionFilter>
+			        <groupId>org.codehaus.mojo</groupId>
+			        <artifactId>build-helper-maven-plugin</artifactId>
+			        <versionRange>[1.8,)</versionRange>
+			        <goals>
+				    <goal>add-source</goal>
+				</goals>
+				</pluginExecutionFilter>
+				<action>
+				    <ignore></ignore>
+				</action>
+			    </pluginExecution>
+		   </pluginExecutions>
+               </lifecycleMappingMetadata>
+          </configuration>
+       </plugin>
+    </plugins>
+</pluginManagement>
  ```
 3.修改apm-collector-remote/collector-remote-grpc-provider/pom.xml文件，添加google guava的依赖
  ```
-    <dependency>
-	    <groupId>com.google.guava</groupId>
-	    <artifactId>guava</artifactId>
-	</dependency>
+<dependency>
+    <groupId>com.google.guava</groupId>
+    <artifactId>guava</artifactId>
+</dependency>
 ```
 4.执行`mvn compile -Dmaven.test.skip=true`进行编译
 5.执行maven update,切记去掉勾选 Clean projects选项(会清掉complie生成的proto转化Java文件)
