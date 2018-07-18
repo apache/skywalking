@@ -18,69 +18,15 @@
 
 package org.apache.skywalking.oap.server.library.module;
 
-import java.util.*;
-
 /**
- * The <code>ModuleManager</code> takes charge of all {@link ModuleDefine}s in collector.
- *
- * @author wu-sheng, peng-yongsheng
+ * @author peng-yongsheng
  */
-public class ModuleManager {
-    private boolean isInPrepareStage = true;
-    private final Map<String, ModuleDefine> loadedModules = new HashMap<>();
+public interface ModuleManager {
 
-    /**
-     * Init the given modules
-     */
-    public void init(
-        ApplicationConfiguration applicationConfiguration) throws ModuleNotFoundException, ProviderNotFoundException, ServiceNotProvidedException, ModuleConfigException, DuplicateProviderException, ModuleStartException {
-        String[] moduleNames = applicationConfiguration.moduleList();
-        ServiceLoader<ModuleDefine> moduleServiceLoader = ServiceLoader.load(ModuleDefine.class);
-        List<String> moduleList = new LinkedList<>(Arrays.asList(moduleNames));
-        for (ModuleDefine module : moduleServiceLoader) {
-            for (String moduleName : moduleNames) {
-                if (moduleName.equals(module.name())) {
-                    ModuleDefine newInstance;
-                    try {
-                        newInstance = module.getClass().newInstance();
-                    } catch (InstantiationException | IllegalAccessException e) {
-                        throw new ModuleNotFoundException(e);
-                    }
+    void init(
+        ModuleDefine moduleDefine) throws ServiceNotProvidedException, ModuleConfigException, ProviderNotFoundException;
 
-                    newInstance.prepare(this, applicationConfiguration.getModuleConfiguration(moduleName));
-                    loadedModules.put(moduleName, newInstance);
-                    moduleList.remove(moduleName);
-                }
-            }
-        }
-        // Finish prepare stage
-        isInPrepareStage = false;
+    void start() throws ServiceNotProvidedException, ModuleConfigException, ProviderNotFoundException, ModuleStartException;
 
-        if (moduleList.size() > 0) {
-            throw new ModuleNotFoundException(moduleList.toString() + " missing.");
-        }
-
-        for (ModuleDefine module : loadedModules.values()) {
-            module.provider().start();
-            module.provider().notifyAfterCompleted();
-        }
-    }
-
-    public boolean has(String moduleName) {
-        return loadedModules.get(moduleName) != null;
-    }
-
-    public ModuleDefine find(String moduleName) throws ModuleNotFoundRuntimeException {
-        assertPreparedStage();
-        ModuleDefine module = loadedModules.get(moduleName);
-        if (module != null)
-            return module;
-        throw new ModuleNotFoundRuntimeException(moduleName + " missing.");
-    }
-
-    private void assertPreparedStage() {
-        if (isInPrepareStage) {
-            throw new AssertionError("Still in preparing stage.");
-        }
-    }
+    ModuleDefine find(String moduleName) throws ModuleNotFoundRuntimeException;
 }

@@ -26,3 +26,12 @@ cluster:
 #    host: localhost
 #    port: 10800
 #    contextPath: /
+core:
+  default:
+    restHost: localhost
+    restPort: 12800
+    restContextPath: /
+    gRPCHost: localhost
+    gRPCPort: 11800
+storage:
+  elasticsearch:
