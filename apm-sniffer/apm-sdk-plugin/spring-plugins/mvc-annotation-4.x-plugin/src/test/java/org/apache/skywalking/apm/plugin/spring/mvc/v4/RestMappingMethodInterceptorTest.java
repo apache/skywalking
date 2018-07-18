@@ -306,6 +306,8 @@ public class RestMappingMethodInterceptorTest {
         @Override
         public Object getSkyWalkingDynamicField() {
             value.setPathMappingCache(new PathMappingCache("/test"));
+            value.setHttpResponse(response);
+            value.setNativeWebRequest(nativeWebRequest);
             return value;
         }
 
