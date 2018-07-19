@@ -116,7 +116,7 @@ public abstract class ModuleProvider {
         }
     }
 
-    @SuppressWarnings("unchecked") <T extends Service> T getService(
+    public @SuppressWarnings("unchecked") <T extends Service> T getService(
         Class<T> serviceType) throws ServiceNotProvidedException {
         Service serviceImpl = services.get(serviceType);
         if (serviceImpl != null) {
