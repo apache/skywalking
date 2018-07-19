@@ -19,14 +19,12 @@
 package org.apache.skywalking.oap.server.library.module;
 
 /**
- * @author wu-sheng, peng-yongsheng
+ * @author wu-sheng
  */
 public class ModuleBProvider extends ModuleProvider {
 
-    static final String NAME = "ModuleBProvider";
-
     @Override public String name() {
-        return NAME;
+        return "P-B";
     }
 
     @Override public ModuleConfig createConfigBeanIfAbsent() {
@@ -46,6 +44,10 @@ public class ModuleBProvider extends ModuleProvider {
     }
 
     @Override public void notifyAfterCompleted() {
+    }
+
+    @Override public String[] requiredModules() {
+        return new String[0];
     }
 
     class Config {

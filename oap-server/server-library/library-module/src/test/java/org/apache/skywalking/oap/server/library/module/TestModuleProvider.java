@@ -22,11 +22,8 @@ package org.apache.skywalking.oap.server.library.module;
  * @author wu-sheng
  */
 public class TestModuleProvider extends ModuleProvider {
-
-    static final String NAME = "TestModuleProvider";
-
     @Override public String name() {
-        return NAME;
+        return "TestModule-Provider";
     }
 
     @Override public Class<? extends ModuleDefine> module() {
@@ -44,6 +41,10 @@ public class TestModuleProvider extends ModuleProvider {
     }
 
     @Override public void notifyAfterCompleted() {
+    }
+
+    @Override public String[] requiredModules() {
+        return new String[] {"BaseA", "BaseB"};
     }
 
     class Config {
