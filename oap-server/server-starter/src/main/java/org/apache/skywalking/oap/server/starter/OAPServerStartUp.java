@@ -19,28 +19,30 @@
 package org.apache.skywalking.oap.server.starter;
 
 import java.util.concurrent.TimeUnit;
-import org.apache.skywalking.oap.server.library.module.*;
-import org.apache.skywalking.oap.server.starter.config.*;
+import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
+import org.apache.skywalking.oap.server.starter.config.ApplicationConfigLoader;
 import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
-public class OAPBootStartUp {
+public class OAPServerStartUp {
 
-    private static final Logger logger = LoggerFactory.getLogger(OAPBootStartUp.class);
+    private static final Logger logger = LoggerFactory.getLogger(OAPServerStartUp.class);
 
     public static void main(String[] args) {
         ApplicationConfigLoader configLoader = new ApplicationConfigLoader();
-        ModuleManager manager = new ModuleManager();
+
         try {
             ApplicationConfiguration applicationConfiguration = configLoader.load();
-            manager.init(applicationConfiguration);
-        } catch (ConfigFileNotFoundException | ModuleNotFoundException | ProviderNotFoundException | ServiceNotProvidedException | ModuleConfigException | ModuleStartException | DuplicateProviderException e) {
+            ModuleManagerImpl moduleManager = new ModuleManagerImpl(applicationConfiguration);
+            moduleManager.start();
+        } catch (Throwable e) {
             logger.error(e.getMessage(), e);
             System.exit(1);
         }
 
+        logger.info("OAP server start up successful.");
         try {
             TimeUnit.MINUTES.sleep(5);
         } catch (InterruptedException e) {

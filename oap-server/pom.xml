@@ -30,9 +30,11 @@
     <artifactId>oap-server</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>server-cluster-plugin</module>
-        <module>server-library</module>
         <module>server-core</module>
+        <module>server-receiver-plugin</module>
+        <module>server-cluster-plugin</module>
+        <module>server-storage-plugin</module>
+        <module>server-library</module>
         <module>server-starter</module>
     </modules>
 
@@ -45,6 +47,13 @@
         <gson.version>2.8.1</gson.version>
         <graphql-java-tools.version>4.3.0</graphql-java-tools.version>
         <zookeeper.version>3.4.10</zookeeper.version>
+        <grpc.version>1.10.0</grpc.version>
+        <jetty.version>9.4.2.v20170220</jetty.version>
+        <lombok.version>1.18.0</lombok.version>
+        <h2.version>1.4.196</h2.version>
+        <shardingjdbc.version>2.0.3</shardingjdbc.version>
+        <commons-dbcp.version>1.4</commons-dbcp.version>
+        <elasticsearch.version>6.3.1</elasticsearch.version>
     </properties>
 
     <dependencies>
@@ -73,6 +82,10 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
         </dependency>
     </dependencies>
 
@@ -109,48 +122,19 @@
                 <version>${gson.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${h2.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
                 <version>${joda-time.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.elasticsearch.client</groupId>
-                <artifactId>transport</artifactId>
-                <version>${elasticsearch.client.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>snakeyaml</artifactId>
-                        <groupId>org.yaml</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>netty-common</artifactId>
-                        <groupId>io.netty</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>netty-transport</artifactId>
-                        <groupId>io.netty</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>netty-codec</artifactId>
-                        <groupId>io.netty</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>netty-codec-http</artifactId>
-                        <groupId>io.netty</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>netty-buffer</artifactId>
-                        <groupId>io.netty</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>netty-handler</artifactId>
-                        <groupId>io.netty</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>netty-resolver</artifactId>
-                        <groupId>io.netty</groupId>
-                    </exclusion>
-                </exclusions>
+                <artifactId>elasticsearch-rest-client</artifactId>
+                <version>${elasticsearch.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.zookeeper</groupId>
@@ -187,6 +171,58 @@
                         <artifactId>log4j-core</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-core</artifactId>
+                <version>${grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-netty</artifactId>
+                <version>${grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-protobuf</artifactId>
+                <version>${grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-stub</artifactId>
+                <version>${grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-testing</artifactId>
+                <version>${grpc.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-servlet</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.shardingjdbc</groupId>
+                <artifactId>sharding-jdbc-core</artifactId>
+                <version>${shardingjdbc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-dbcp</groupId>
+                <artifactId>commons-dbcp</artifactId>
+                <version>${commons-dbcp.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

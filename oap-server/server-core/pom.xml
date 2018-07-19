@@ -28,10 +28,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>server-core</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>core-cluster</module>
-    </modules>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
@@ -42,6 +39,21 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>library-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>library-server</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-network</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-datacarrier</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

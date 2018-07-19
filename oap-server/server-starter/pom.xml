@@ -37,6 +37,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
+            <artifactId>server-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- cluster module -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>cluster-standalone-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -45,10 +51,27 @@
             <artifactId>cluster-zookeeper-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- cluster module -->
+
+        <!-- receiver module -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>library-util</artifactId>
+            <artifactId>skywalking-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- receiver module -->
+
+        <!-- storage module -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>storage-h2-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>storage-elasticsearch-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- storage module -->
     </dependencies>
 </project>
