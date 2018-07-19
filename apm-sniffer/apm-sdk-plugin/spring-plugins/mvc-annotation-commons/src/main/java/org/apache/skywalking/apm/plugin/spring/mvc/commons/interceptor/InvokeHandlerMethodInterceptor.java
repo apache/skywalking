@@ -19,21 +19,18 @@
 package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
 import java.lang.reflect.Method;
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-
-import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.REQUEST_KEY_IN_RUNTIME_CONTEXT;
-import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESPONSE_KEY_IN_RUNTIME_CONTEXT;
+import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
 
 public class InvokeHandlerMethodInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
         if (allArguments[2] instanceof EnhancedInstance) {
-            ContextManager.getRuntimeContext().put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, allArguments[1]);
-            ContextManager.getRuntimeContext().put(REQUEST_KEY_IN_RUNTIME_CONTEXT, allArguments[0]);
+            ((EnhanceRequireObjectCache)((EnhancedInstance)allArguments[2]).getSkyWalkingDynamicField()).setHttpResponse((HttpServletResponse)allArguments[1]);
         }
     }
 
