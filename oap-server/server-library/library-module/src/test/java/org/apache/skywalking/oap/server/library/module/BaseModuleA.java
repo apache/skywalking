@@ -16,28 +16,26 @@
  *
  */
 
+
 package org.apache.skywalking.oap.server.library.module;
 
 /**
- * @author wu-sheng, peng-yongsheng
+ * @author wu-sheng
  */
 public class BaseModuleA extends ModuleDefine {
-
-    static final String NAME = "BaseModuleA";
-
     @Override public String name() {
-        return NAME;
+        return "BaseA";
     }
 
-    @Override public Class[] services() {
+    @Override public Class<? extends Service>[] services() {
         return new Class[] {ServiceABusiness1.class, ServiceABusiness2.class};
     }
 
-    public interface ServiceABusiness1 {
+    public interface ServiceABusiness1 extends Service {
         void print();
     }
 
-    public interface ServiceABusiness2 {
+    public interface ServiceABusiness2 extends Service {
 
     }
 }
