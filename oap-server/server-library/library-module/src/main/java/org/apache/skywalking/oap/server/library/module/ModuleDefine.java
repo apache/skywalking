@@ -50,7 +50,7 @@ public abstract class ModuleDefine {
      * @param configuration of this module
      * @throws ProviderNotFoundException when even don't find a single one providers.
      */
-    void prepare(ModuleManager moduleManager,
+    public void prepare(ModuleManager moduleManager,
         ApplicationConfiguration.ModuleConfiguration configuration) throws ProviderNotFoundException, ServiceNotProvidedException, ModuleConfigException {
         ServiceLoader<ModuleProvider> moduleProviderLoader = ServiceLoader.load(ModuleProvider.class);
         if (configuration.providerList().length != 1) {
@@ -119,7 +119,7 @@ public abstract class ModuleDefine {
         throw new NoSuchFieldException();
     }
 
-    final ModuleProvider provider() {
+    public final ModuleProvider provider() {
         return moduleProvider;
     }
 

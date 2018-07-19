@@ -31,7 +31,8 @@
     <packaging>pom</packaging>
     <modules>
         <module>library-module</module>
+        <module>library-server</module>
         <module>library-util</module>
+        <module>library-client</module>
     </modules>
-
 </project>

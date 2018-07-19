@@ -33,7 +33,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>core-cluster</artifactId>
+            <artifactId>server-core</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

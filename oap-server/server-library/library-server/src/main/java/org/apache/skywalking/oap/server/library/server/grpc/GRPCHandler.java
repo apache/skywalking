@@ -16,14 +16,12 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.cluster;
+package org.apache.skywalking.oap.server.library.server.grpc;
+
+import org.apache.skywalking.oap.server.library.server.ServerHandler;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceRegisterException extends Exception {
-
-    public ServiceRegisterException(String message) {
-        super(message);
-    }
+public interface GRPCHandler extends ServerHandler {
 }
