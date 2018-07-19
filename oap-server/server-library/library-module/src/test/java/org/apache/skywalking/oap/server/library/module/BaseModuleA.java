@@ -33,11 +33,11 @@ public class BaseModuleA extends ModuleDefine {
         return new Class[] {ServiceABusiness1.class, ServiceABusiness2.class};
     }
 
-    public interface ServiceABusiness1 extends Service {
+    public interface ServiceABusiness1 {
         void print();
     }
 
-    public interface ServiceABusiness2 extends Service {
+    public interface ServiceABusiness2 {
 
     }
 }

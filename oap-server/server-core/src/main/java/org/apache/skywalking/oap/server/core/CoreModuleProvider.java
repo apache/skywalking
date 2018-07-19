@@ -89,4 +89,9 @@ public class CoreModuleProvider extends ModuleProvider {
         restServerInstance.setContextPath(moduleConfig.getRestContextPath());
         this.getManager().find(ClusterModule.NAME).getService(ModuleRegister.class).register(CoreModule.NAME, "rest", restServerInstance);
     }
+
+    @Override
+    public String[] requiredModules() {
+        return new String[0];
+    }
 }

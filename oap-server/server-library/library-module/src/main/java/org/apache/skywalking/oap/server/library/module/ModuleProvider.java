@@ -18,7 +18,8 @@
 
 package org.apache.skywalking.oap.server.library.module;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The <code>ModuleProvider</code> is an implementation of a {@link ModuleDefine}.
@@ -55,7 +56,7 @@ public abstract class ModuleProvider {
     /**
      * @return the module name
      */
-    public abstract Class module();
+    public abstract Class<? extends ModuleDefine> module();
 
     /**
      * @return ModuleConfig
@@ -76,6 +77,11 @@ public abstract class ModuleProvider {
      * This callback executes after all modules start up successfully.
      */
     public abstract void notifyAfterCompleted() throws ServiceNotProvidedException;
+
+    /**
+     * @return module names which does this module require?
+     */
+    public abstract String[] requiredModules();
 
     /**
      * Register a implementation for the service of this module provider.
@@ -110,8 +116,7 @@ public abstract class ModuleProvider {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public <T extends Service> T getService(
+    @SuppressWarnings("unchecked") <T extends Service> T getService(
         Class<T> serviceType) throws ServiceNotProvidedException {
         Service serviceImpl = services.get(serviceType);
         if (serviceImpl != null) {

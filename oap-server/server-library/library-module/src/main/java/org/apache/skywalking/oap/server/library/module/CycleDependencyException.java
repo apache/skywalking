@@ -16,22 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.cluster;
 
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+package org.apache.skywalking.oap.server.library.module;
 
 /**
- * @author peng-yongsheng
+ * @author wu-sheng
  */
-public class ClusterModule extends ModuleDefine {
-
-    public static final String NAME = "cluster";
-
-    @Override public String name() {
-        return NAME;
-    }
-
-    @Override public Class[] services() {
-        return new Class[] {ModuleRegister.class, ModuleQuery.class};
+public class CycleDependencyException extends RuntimeException {
+    public CycleDependencyException(String message) {
+        super(message);
     }
 }

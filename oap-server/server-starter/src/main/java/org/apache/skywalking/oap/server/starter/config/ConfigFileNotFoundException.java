@@ -16,7 +16,9 @@
  *
  */
 
+
 package org.apache.skywalking.oap.server.starter.config;
+
 
 /**
  * @author peng-yongsheng
