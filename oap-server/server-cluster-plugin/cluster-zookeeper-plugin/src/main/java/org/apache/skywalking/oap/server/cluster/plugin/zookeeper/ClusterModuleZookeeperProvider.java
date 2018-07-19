@@ -83,4 +83,9 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
 
     @Override public void notifyAfterCompleted() {
     }
+
+    @Override
+    public String[] requiredModules() {
+        return new String[0];
+    }
 }

@@ -53,7 +53,7 @@ public class ModuleAProvider extends ModuleProvider {
     @Override public void notifyAfterCompleted() {
     }
 
-    public class Config extends ModuleConfig {
+    public class Config {
         private String host;
 
         public String getHost() {

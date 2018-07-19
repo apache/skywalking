@@ -18,9 +18,9 @@
 
 package org.apache.skywalking.oap.server.starter;
 
-import java.util.concurrent.TimeUnit;
-import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
+import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.starter.config.ApplicationConfigLoader;
+import org.apache.skywalking.oap.server.starter.config.ConfigFileNotFoundException;
 import org.slf4j.*;
 
 /**
@@ -32,21 +32,13 @@ public class OAPServerStartUp {
 
     public static void main(String[] args) {
         ApplicationConfigLoader configLoader = new ApplicationConfigLoader();
-
+        ModuleManager manager = new ModuleManager();
         try {
             ApplicationConfiguration applicationConfiguration = configLoader.load();
-            ModuleManagerImpl moduleManager = new ModuleManagerImpl(applicationConfiguration);
-            moduleManager.start();
-        } catch (Throwable e) {
+            manager.init(applicationConfiguration);
+        } catch (ConfigFileNotFoundException | ModuleNotFoundException | ProviderNotFoundException | ServiceNotProvidedException | ModuleConfigException | ModuleStartException e) {
             logger.error(e.getMessage(), e);
             System.exit(1);
-        }
-
-        logger.info("OAP server start up successful.");
-        try {
-            TimeUnit.MINUTES.sleep(5);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
     }
 }

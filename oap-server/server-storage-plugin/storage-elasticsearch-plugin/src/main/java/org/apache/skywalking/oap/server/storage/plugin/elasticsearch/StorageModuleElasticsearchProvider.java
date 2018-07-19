@@ -36,24 +36,35 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         this.storageConfig = new StorageModuleElasticsearchConfig();
     }
 
-    @Override public String name() {
+    @Override
+    public String name() {
         return "elasticsearch";
     }
 
-    @Override public Class module() {
+    @Override
+    public Class module() {
         return StorageModule.class;
     }
 
-    @Override public ModuleConfig createConfigBeanIfAbsent() {
+    @Override
+    public ModuleConfig createConfigBeanIfAbsent() {
         return storageConfig;
     }
 
-    @Override public void prepare() throws ServiceNotProvidedException {
+    @Override
+    public void prepare() throws ServiceNotProvidedException {
     }
 
-    @Override public void start() throws ModuleStartException {
+    @Override
+    public void start() throws ModuleStartException {
     }
 
-    @Override public void notifyAfterCompleted() {
+    @Override
+    public void notifyAfterCompleted() {
+    }
+
+    @Override
+    public String[] requiredModules() {
+        return new String[0];
     }
 }

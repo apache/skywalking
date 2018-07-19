@@ -23,10 +23,6 @@ package org.apache.skywalking.oap.server.library.module;
  */
 public class ModuleConfigException extends Exception {
 
-    public ModuleConfigException(String message) {
-        super(message);
-    }
-
     public ModuleConfigException(String message, Throwable cause) {
         super(message, cause);
     }
