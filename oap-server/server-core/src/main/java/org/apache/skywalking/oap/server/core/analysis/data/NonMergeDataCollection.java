@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.data;
 
-import java.util.Collection;
 import java.util.*;
 
 /**
