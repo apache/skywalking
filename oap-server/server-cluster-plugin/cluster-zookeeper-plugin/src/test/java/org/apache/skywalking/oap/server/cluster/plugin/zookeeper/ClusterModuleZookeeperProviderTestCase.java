@@ -67,7 +67,7 @@ public class ClusterModuleZookeeperProviderTestCase {
 
         for (int i = 0; i < 20; i++) {
             List<RemoteInstance> detailsList = clusterNodesQuery.queryRemoteNodes();
-            if(detailsList.size() == 0){
+            if (detailsList.size() == 0) {
                 Thread.sleep(500);
                 continue;
             }

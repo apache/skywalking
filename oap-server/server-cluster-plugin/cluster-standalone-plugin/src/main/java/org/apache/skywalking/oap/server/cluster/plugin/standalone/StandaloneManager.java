@@ -18,16 +18,14 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.standalone;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * A cluster manager simulator. Work in memory only.
- * Also return the current instance.
+ * A cluster manager simulator. Work in memory only. Also return the current instance.
  *
  * @author peng-yongsheng, Wu Sheng
  */
@@ -35,14 +33,13 @@ public class StandaloneManager implements ClusterNodesQuery, ClusterRegister {
 
     private volatile RemoteInstance remoteInstance;
 
-
     @Override public void registerRemote(RemoteInstance remoteInstance) {
         this.remoteInstance = remoteInstance;
     }
 
     @Override
     public List<RemoteInstance> queryRemoteNodes() {
-        if(remoteInstance == null){
+        if (remoteInstance == null) {
             return new ArrayList(0);
         }
         ArrayList remoteList = new ArrayList(1);
