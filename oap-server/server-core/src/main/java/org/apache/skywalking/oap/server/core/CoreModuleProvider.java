@@ -18,14 +18,24 @@
 
 package org.apache.skywalking.oap.server.core;
 
-import org.apache.skywalking.oap.server.core.cluster.*;
-import org.apache.skywalking.oap.server.core.receiver.*;
-import org.apache.skywalking.oap.server.core.server.*;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
+import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
+import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
+import org.apache.skywalking.oap.server.core.receiver.SourceReceiver;
+import org.apache.skywalking.oap.server.core.receiver.SourceReceiverImpl;
+import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
+import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegisterImpl;
+import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
+import org.apache.skywalking.oap.server.core.server.JettyHandlerRegisterImpl;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyServer;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
@@ -68,26 +78,22 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(SourceReceiver.class, new SourceReceiverImpl());
     }
 
-    @Override public void start() throws ModuleStartException {
+    @Override public void start() {
+
+    }
+
+    @Override public void notifyAfterCompleted() throws ModuleStartException{
         try {
             grpcServer.start();
             jettyServer.start();
         } catch (ServerException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
-    }
 
-    @Override public void notifyAfterCompleted() {
-        InstanceDetails gRPCServerInstance = new InstanceDetails();
+        RemoteInstance gRPCServerInstance = new RemoteInstance();
         gRPCServerInstance.setHost(moduleConfig.getGRPCHost());
         gRPCServerInstance.setPort(moduleConfig.getGRPCPort());
-        this.getManager().find(ClusterModule.NAME).getService(ModuleRegister.class).register(CoreModule.NAME, "gRPC", gRPCServerInstance);
-
-        InstanceDetails restServerInstance = new InstanceDetails();
-        restServerInstance.setHost(moduleConfig.getRestHost());
-        restServerInstance.setPort(moduleConfig.getRestPort());
-        restServerInstance.setContextPath(moduleConfig.getRestContextPath());
-        this.getManager().find(ClusterModule.NAME).getService(ModuleRegister.class).register(CoreModule.NAME, "rest", restServerInstance);
+        this.getManager().find(ClusterModule.NAME).getService(ClusterRegister.class).registerRemote(gRPCServerInstance);
     }
 
     @Override

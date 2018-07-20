@@ -32,6 +32,6 @@ public class ClusterModule extends ModuleDefine {
     }
 
     @Override public Class[] services() {
-        return new Class[] {ModuleRegister.class, ModuleQuery.class};
+        return new Class[] {ClusterRegister.class, ClusterNodesQuery.class};
     }
 }

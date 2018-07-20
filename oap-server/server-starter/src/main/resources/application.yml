@@ -15,17 +15,12 @@
 # limitations under the License.
 
 cluster:
-  zookeeper:
-    hostPort: localhost:2181
-    # Retry Policy
-    baseSleepTimeMs: 1000 # initial amount of time to wait between retries
-    maxRetries: 3 # max number of times to retry
-#naming:
-#  jetty:
-#    #OS real network IP(binding required), for agent to find collector cluster
-#    host: localhost
-#    port: 10800
-#    contextPath: /
+   standalone:
+#  zookeeper:
+#    hostPort: localhost:2181
+#    # Retry Policy
+#    baseSleepTimeMs: 1000 # initial amount of time to wait between retries
+#    maxRetries: 3 # max number of times to retry
 core:
   default:
     restHost: localhost

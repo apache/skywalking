@@ -21,9 +21,16 @@ package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 import java.io.IOException;
 import java.util.List;
 import org.apache.curator.test.TestingServer;
-import org.apache.skywalking.oap.server.core.cluster.*;
-import org.apache.skywalking.oap.server.library.module.*;
-import org.junit.*;
+import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
+import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
+import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
+import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author peng-yongsheng
@@ -39,7 +46,7 @@ public class ClusterModuleZookeeperProviderTestCase {
     }
 
     @Test
-    public void testStart() throws ServiceNotProvidedException, ModuleStartException, ServiceRegisterException {
+    public void testStart() throws ServiceNotProvidedException, ModuleStartException, ServiceRegisterException, InterruptedException {
         ClusterModuleZookeeperProvider provider = new ClusterModuleZookeeperProvider();
         ClusterModuleZookeeperConfig moduleConfig = (ClusterModuleZookeeperConfig)provider.createConfigBeanIfAbsent();
         moduleConfig.setHostPort(server.getConnectString());
@@ -49,19 +56,26 @@ public class ClusterModuleZookeeperProviderTestCase {
         provider.prepare();
         provider.start();
 
-        ModuleRegister moduleRegister = provider.getService(ModuleRegister.class);
-        ModuleQuery moduleQuery = provider.getService(ModuleQuery.class);
+        ClusterRegister moduleRegister = provider.getService(ClusterRegister.class);
+        ClusterNodesQuery clusterNodesQuery = provider.getService(ClusterNodesQuery.class);
 
-        InstanceDetails instanceDetails = new InstanceDetails();
-        instanceDetails.setHost("ProviderAHost");
-        instanceDetails.setPort(1000);
+        RemoteInstance remoteInstance = new RemoteInstance();
+        remoteInstance.setHost("ProviderAHost");
+        remoteInstance.setPort(1000);
 
-        moduleRegister.register("ModuleA", "ProviderA", instanceDetails);
+        moduleRegister.registerRemote(remoteInstance);
 
-        List<InstanceDetails> detailsList = moduleQuery.query("ModuleA", "ProviderA");
-        Assert.assertEquals(1, detailsList.size());
-        Assert.assertEquals("ProviderAHost", detailsList.get(0).getHost());
-        Assert.assertEquals(1000, detailsList.get(0).getPort());
+        for (int i = 0; i < 20; i++) {
+            List<RemoteInstance> detailsList = clusterNodesQuery.queryRemoteNodes();
+            if(detailsList.size() == 0){
+                Thread.sleep(500);
+                continue;
+            }
+            Assert.assertEquals(1, detailsList.size());
+            Assert.assertEquals("ProviderAHost", detailsList.get(0).getHost());
+            Assert.assertEquals(1000, detailsList.get(0).getPort());
+        }
+
     }
 
     @After

@@ -16,38 +16,22 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.cluster;
+package org.apache.skywalking.oap.server.cluster.plugin.standalone;
 
-/**
- * @author peng-yongsheng
- */
-public class InstanceDetails {
+import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
+import org.junit.Assert;
+import org.junit.Test;
 
-    private String host;
-    private int port;
-    private String contextPath;
+public class StandaloneManagerTest {
+    @Test
+    public void test(){
+        StandaloneManager standaloneManager = new StandaloneManager();
+        RemoteInstance remote1 = new RemoteInstance();
+        RemoteInstance remote2 = new RemoteInstance();
 
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public String getContextPath() {
-        return contextPath;
-    }
-
-    public void setContextPath(String contextPath) {
-        this.contextPath = contextPath;
+        standaloneManager.registerRemote(remote1);
+        Assert.assertEquals(remote1, standaloneManager.queryRemoteNodes().get(0));
+        standaloneManager.registerRemote(remote2);
+        Assert.assertEquals(remote2, standaloneManager.queryRemoteNodes().get(0));
     }
 }

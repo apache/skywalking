@@ -63,7 +63,7 @@ class BootstrapFlow {
         }
     }
 
-    void notifyAfterCompleted() throws ServiceNotProvidedException {
+    void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
         for (ModuleProvider provider : startupSequence) {
             provider.notifyAfterCompleted();
         }
