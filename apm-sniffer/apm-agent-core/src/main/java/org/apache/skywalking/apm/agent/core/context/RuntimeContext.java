@@ -20,6 +20,8 @@ package org.apache.skywalking.apm.agent.core.context;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
 /**
  * RuntimeContext is alive during the tracing context.
@@ -27,12 +29,19 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * In most cases, it means it only stays in a single thread for context propagation.
  *
- * @author wusheng
+ * @author wusheng, ascrutae
  */
 public class RuntimeContext {
+    private ILog logger = LogManager.getLogger(RuntimeContext.class);
+    private final ThreadLocal<RuntimeContext> contextThreadLocal;
     private Map context = new ConcurrentHashMap(0);
 
+    public RuntimeContext(ThreadLocal<RuntimeContext> contextThreadLocal) {
+        this.contextThreadLocal = contextThreadLocal;
+    }
+
     public void put(Object key, Object value) {
+        logger.debug("Storage Key[{}] into runtime context.", key);
         context.put(key, value);
     }
 
@@ -42,5 +51,14 @@ public class RuntimeContext {
 
     public <T> T get(Object key, Class<T> type) {
         return (T)context.get(key);
+    }
+
+    public void remove(Object key) {
+        logger.debug("Remove Key[{}] from runtime context.", key);
+        context.remove(key);
+
+        if (context.isEmpty()) {
+            contextThreadLocal.remove();
+        }
     }
 }

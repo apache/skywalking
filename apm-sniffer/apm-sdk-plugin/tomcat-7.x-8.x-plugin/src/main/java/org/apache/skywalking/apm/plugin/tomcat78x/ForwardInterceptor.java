@@ -31,8 +31,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 
 public class ForwardInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 
-    private static final String FORWARD_REQUEST_FLAG = "SW_FORWARD_REQUEST_FLAG";
-
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
@@ -41,7 +39,7 @@ public class ForwardInterceptor implements InstanceMethodsAroundInterceptor, Ins
             Map<String, String> eventMap = new HashMap<String, String>();
             eventMap.put("forward-url", (String)objInst.getSkyWalkingDynamicField());
             abstractTracingSpan.log(System.currentTimeMillis(), eventMap);
-            ContextManager.getRuntimeContext().put(FORWARD_REQUEST_FLAG, true);
+            ContextManager.getRuntimeContext().put(Constants.FORWARD_REQUEST_FLAG, true);
         }
     }
 
