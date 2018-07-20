@@ -82,7 +82,7 @@ public class CoreModuleProvider extends ModuleProvider {
 
     }
 
-    @Override public void notifyAfterCompleted() throws ModuleStartException{
+    @Override public void notifyAfterCompleted() throws ModuleStartException {
         try {
             grpcServer.start();
             jettyServer.start();

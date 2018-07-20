@@ -24,7 +24,7 @@ import org.junit.Test;
 
 public class StandaloneManagerTest {
     @Test
-    public void test(){
+    public void test() {
         StandaloneManager standaloneManager = new StandaloneManager();
         RemoteInstance remote1 = new RemoteInstance();
         RemoteInstance remote2 = new RemoteInstance();
