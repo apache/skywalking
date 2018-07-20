@@ -16,26 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.server.cluster.plugin.standalone;
+package org.apache.skywalking.oap.server.core.cluster;
 
-import java.util.*;
-import org.apache.skywalking.oap.server.core.cluster.*;
+import org.apache.skywalking.oap.server.library.module.Service;
+
+import java.util.List;
 
 /**
  * @author peng-yongsheng
  */
-public class StandaloneModuleQuery implements ModuleQuery {
+public interface ClusterNodesQuery extends Service {
 
-    private final StandaloneServiceManager serviceManager;
-
-    StandaloneModuleQuery(StandaloneServiceManager serviceManager) {
-        this.serviceManager = serviceManager;
-    }
-
-    @Override
-    public List<InstanceDetails> query(String moduleName, String providerName) {
-        List<InstanceDetails> instanceDetails = new ArrayList<>(1);
-        instanceDetails.add(serviceManager.get(moduleName, providerName));
-        return instanceDetails;
-    }
+    List<RemoteInstance> queryRemoteNodes();
 }

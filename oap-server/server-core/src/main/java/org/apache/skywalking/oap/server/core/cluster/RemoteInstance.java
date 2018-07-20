@@ -16,17 +16,29 @@
  *
  */
 
-package org.apache.skywalking.oap.server.cluster.plugin.standalone;
-
-import org.apache.skywalking.oap.server.core.cluster.*;
+package org.apache.skywalking.oap.server.core.cluster;
 
 /**
  * @author peng-yongsheng
  */
-public class StandaloneRegister implements ModuleRegister {
+public class RemoteInstance {
 
-    @Override public void register(String moduleName, String providerName,
-        InstanceDetails instanceDetails) throws ServiceRegisterException {
+    private String host;
+    private int port;
 
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 }

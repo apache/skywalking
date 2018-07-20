@@ -16,23 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.cluster.plugin.standalone;
+package org.apache.skywalking.oap.server.core.cluster;
 
-import org.apache.skywalking.oap.server.core.cluster.*;
+import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
  * @author peng-yongsheng
  */
-public class StandaloneModuleRegister implements ModuleRegister {
+public interface ClusterRegister extends Service {
 
-    private final StandaloneServiceManager serviceManager;
-
-    StandaloneModuleRegister(StandaloneServiceManager serviceManager) {
-        this.serviceManager = serviceManager;
-    }
-
-    @Override public void register(String moduleName, String providerName,
-        InstanceDetails instanceDetails) {
-        serviceManager.put(moduleName, providerName, instanceDetails);
-    }
+    void registerRemote(RemoteInstance remoteInstance) throws ServiceRegisterException;
 }

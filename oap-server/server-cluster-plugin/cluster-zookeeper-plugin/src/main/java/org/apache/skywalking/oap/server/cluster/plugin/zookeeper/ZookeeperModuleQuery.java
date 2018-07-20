@@ -19,26 +19,27 @@
 package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 
 import java.util.*;
+import org.apache.curator.x.discovery.ServiceCache;
 import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.skywalking.oap.server.core.cluster.*;
 
 /**
- * @author peng-yongsheng
+ * @author peng-yongsheng, Wu Sheng
  */
-public class ZookeeperModuleQuery implements ModuleQuery {
+public class ZookeeperModuleQuery implements ClusterNodesQuery {
 
-    private final ServiceCacheManager cacheManager;
+    private final ServiceCache<RemoteInstance> serviceCache;
 
-    ZookeeperModuleQuery(ServiceCacheManager cacheManager) {
-        this.cacheManager = cacheManager;
+    ZookeeperModuleQuery(ServiceCache<RemoteInstance> serviceCache) {
+        this.serviceCache = serviceCache;
     }
 
     @Override
-    public List<InstanceDetails> query(String moduleName, String providerName) throws ServiceRegisterException {
-        List<ServiceInstance<InstanceDetails>> serviceInstances = cacheManager.get(NodeNameBuilder.build(moduleName, providerName)).getInstances();
+    public List<RemoteInstance> queryRemoteNodes() throws ServiceRegisterException {
+        List<ServiceInstance<RemoteInstance>> serviceInstances = serviceCache.getInstances();
 
-        List<InstanceDetails> instanceDetails = new ArrayList<>(serviceInstances.size());
-        serviceInstances.forEach(serviceInstance -> instanceDetails.add(serviceInstance.getPayload()));
-        return instanceDetails;
+        List<RemoteInstance> remoteInstanceDetails = new ArrayList<>(serviceInstances.size());
+        serviceInstances.forEach(serviceInstance -> remoteInstanceDetails.add(serviceInstance.getPayload()));
+        return remoteInstanceDetails;
     }
 }

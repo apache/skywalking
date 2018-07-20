@@ -48,7 +48,6 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
     @Override public ApplicationConfiguration load() throws ConfigFileNotFoundException {
         ApplicationConfiguration configuration = new ApplicationConfiguration();
         this.loadConfig(configuration);
-        this.loadDefaultConfig(configuration);
         this.overrideConfigBySystemEnv(configuration);
         return configuration;
     }
@@ -76,31 +75,6 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
                         });
                     } else {
                         logger.warn("Get a module define from application.yml, but no provider define, use default, module name: {}", moduleName);
-                    }
-                });
-            }
-        } catch (FileNotFoundException e) {
-            throw new ConfigFileNotFoundException(e.getMessage(), e);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private void loadDefaultConfig(ApplicationConfiguration configuration) throws ConfigFileNotFoundException {
-        try {
-            Reader applicationReader = ResourceUtils.read("application-default.yml");
-            Map<String, Map<String, Map<String, ?>>> moduleConfig = yaml.loadAs(applicationReader, Map.class);
-            if (CollectionUtils.isNotEmpty(moduleConfig)) {
-                moduleConfig.forEach((moduleName, providerConfig) -> {
-                    if (!configuration.has(moduleName)) {
-                        logger.warn("The {} module did't define in application.yml, use default", moduleName);
-                        ApplicationConfiguration.ModuleConfiguration moduleConfiguration = configuration.addModule(moduleName);
-                        providerConfig.forEach((name, propertiesConfig) -> {
-                            Properties properties = new Properties();
-                            if (propertiesConfig != null) {
-                                propertiesConfig.forEach(properties::put);
-                            }
-                            moduleConfiguration.addProviderConfiguration(name, properties);
-                        });
                     }
                 });
             }

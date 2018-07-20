@@ -22,21 +22,21 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.curator.x.discovery.details.InstanceSerializer;
-import org.apache.skywalking.oap.server.core.cluster.InstanceDetails;
+import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 
 /**
  * @author peng-yongsheng
  */
-public class SWInstanceSerializer implements InstanceSerializer<InstanceDetails> {
+public class SWInstanceSerializer implements InstanceSerializer<RemoteInstance> {
 
     private final Gson gson = new Gson();
 
-    @Override public byte[] serialize(ServiceInstance<InstanceDetails> instance) throws Exception {
+    @Override public byte[] serialize(ServiceInstance<RemoteInstance> instance) throws Exception {
         return gson.toJson(instance).getBytes();
     }
 
-    @Override public ServiceInstance<InstanceDetails> deserialize(byte[] bytes) throws Exception {
-        return gson.fromJson(new String(bytes), new TypeToken<ServiceInstance<InstanceDetails>>() {
+    @Override public ServiceInstance<RemoteInstance> deserialize(byte[] bytes) throws Exception {
+        return gson.fromJson(new String(bytes), new TypeToken<ServiceInstance<RemoteInstance>>() {
         }.getType());
     }
 }

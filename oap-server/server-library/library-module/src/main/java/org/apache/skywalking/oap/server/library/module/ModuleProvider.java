@@ -66,7 +66,7 @@ public abstract class ModuleProvider {
     /**
      * In prepare stage, the module should initialize things which are irrelative other modules.
      */
-    public abstract void prepare() throws ServiceNotProvidedException;
+    public abstract void prepare() throws ServiceNotProvidedException, ModuleStartException;
 
     /**
      * In start stage, the module has been ready for interop.
@@ -76,7 +76,7 @@ public abstract class ModuleProvider {
     /**
      * This callback executes after all modules start up successfully.
      */
-    public abstract void notifyAfterCompleted() throws ServiceNotProvidedException;
+    public abstract void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException;
 
     /**
      * @return module names which does this module require?

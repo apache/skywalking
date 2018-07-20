@@ -19,15 +19,27 @@
 package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 
 import org.apache.curator.RetryPolicy;
-import org.apache.curator.framework.*;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.apache.curator.x.discovery.*;
-import org.apache.skywalking.oap.server.core.cluster.*;
-import org.apache.skywalking.oap.server.library.module.*;
-import org.slf4j.*;
+import org.apache.curator.x.discovery.ServiceCache;
+import org.apache.curator.x.discovery.ServiceDiscovery;
+import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
+import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
+import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
+import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
+import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * @author peng-yongsheng
+ * Use Zookeeper to manage all instances in SkyWalking cluster.
+ *
+ * @author peng-yongsheng, Wu Sheng
  */
 public class ClusterModuleZookeeperProvider extends ModuleProvider {
 
@@ -35,15 +47,13 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
 
     private static final String BASE_PATH = "/skywalking";
 
-    private final ServiceCacheManager cacheManager;
     private final ClusterModuleZookeeperConfig config;
     private CuratorFramework client;
-    private ServiceDiscovery<InstanceDetails> serviceDiscovery;
+    private ServiceDiscovery<RemoteInstance> serviceDiscovery;
 
     public ClusterModuleZookeeperProvider() {
         super();
         this.config = new ClusterModuleZookeeperConfig();
-        this.cacheManager = new ServiceCacheManager();
     }
 
     @Override public String name() {
@@ -58,27 +68,35 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
         return config;
     }
 
-    @Override public void prepare() throws ServiceNotProvidedException {
+    @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(config.getBaseSleepTimeMs(), config.getMaxRetries());
         client = CuratorFrameworkFactory.newClient(config.getHostPort(), retryPolicy);
 
-        serviceDiscovery = ServiceDiscoveryBuilder.builder(InstanceDetails.class).client(client)
+        serviceDiscovery = ServiceDiscoveryBuilder.builder(RemoteInstance.class).client(client)
             .basePath(BASE_PATH)
             .watchInstances(true)
             .serializer(new SWInstanceSerializer()).build();
 
-        this.registerServiceImplementation(ModuleRegister.class, new ZookeeperModuleRegister(serviceDiscovery, cacheManager));
-        this.registerServiceImplementation(ModuleQuery.class, new ZookeeperModuleQuery(cacheManager));
-    }
-
-    @Override public void start() throws ModuleStartException {
+        String remoteName = "remote";
+        ServiceCache<RemoteInstance> serviceCache = serviceDiscovery.serviceCacheBuilder()
+            .name(remoteName)
+            .build();
         try {
             client.start();
             client.blockUntilConnected();
             serviceDiscovery.start();
+
+            serviceCache.start();
         } catch (Exception e) {
+            logger.error(e.getMessage(), e);
             throw new ModuleStartException(e.getMessage(), e);
         }
+
+        this.registerServiceImplementation(ClusterRegister.class, new ZookeeperNodeRegister(serviceDiscovery, remoteName));
+        this.registerServiceImplementation(ClusterNodesQuery.class, new ZookeeperModuleQuery(serviceCache));
+    }
+
+    @Override public void start() {
     }
 
     @Override public void notifyAfterCompleted() {
