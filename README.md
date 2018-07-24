@@ -84,7 +84,7 @@ Follow this [document](https://github.com/apache/incubator-skywalking/blob/maste
 
 <p align="center">
 <a href="https://openapm.io"><img src="https://openapm.io/static/media/openapm_logo.svg" width="100"/></a> 
-  <br/>Our project enriches the <a href="https://openapm.io">OpenAPM Landscap!
+  <br/>Our project enriches the <a href="https://openapm.io">OpenAPM Landscape!</a>
 </p>
 
 # License
