@@ -174,9 +174,7 @@ public class RequestMappingMethodInterceptorTest {
 
         @Override
         public Object getSkyWalkingDynamicField() {
-
             value.setPathMappingCache(new PathMappingCache("/test"));
-
             return value;
         }
 
