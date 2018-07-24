@@ -21,12 +21,15 @@ package org.apache.skywalking.apm.plugin.spring.mvc.v4;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants;
 
 public final class SpringTestCaseHelper {
 
     public final static void createCaseHandler(HttpServletRequest request, HttpServletResponse response,
         CaseHandler a) throws Throwable {
         ContextManager.createLocalSpan("For-Test");
+        ContextManager.getRuntimeContext().put(Constants.REQUEST_KEY_IN_RUNTIME_CONTEXT, request);
+        ContextManager.getRuntimeContext().put(Constants.RESPONSE_KEY_IN_RUNTIME_CONTEXT, response);
         a.handleCase();
         ContextManager.stopSpan();
     }

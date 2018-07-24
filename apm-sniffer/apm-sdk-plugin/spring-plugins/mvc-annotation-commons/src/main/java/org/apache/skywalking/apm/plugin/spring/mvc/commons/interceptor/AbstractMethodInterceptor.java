@@ -32,11 +32,10 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.FORWARD_REQUEST_FLAG;
-import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.ISOLATE_STRATEGY_KEY_IN_RUNNING_CONTEXT;
+import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.REQUEST_KEY_IN_RUNTIME_CONTEXT;
+import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESPONSE_KEY_IN_RUNTIME_CONTEXT;
 
 /**
  * the abstract method inteceptor
@@ -65,12 +64,8 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
             requestURL = pathMappingCache.findPathMapping(method);
         }
 
-        String hystrixIsolateStrategy = (String)ContextManager.getRuntimeContext().get(ISOLATE_STRATEGY_KEY_IN_RUNNING_CONTEXT);
-        HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
-
-        if (hystrixIsolateStrategy != null) {
-            ContextManager.createLocalSpan(requestURL);
-        } else if (request != null) {
+        HttpServletRequest request = (HttpServletRequest)ContextManager.getRuntimeContext().get(REQUEST_KEY_IN_RUNTIME_CONTEXT);
+        if (request != null) {
             ContextCarrier contextCarrier = new ContextCarrier();
             CarrierItem next = contextCarrier.items();
             while (next.hasNext()) {
@@ -98,12 +93,9 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
             return ret;
         }
 
-        String hystrixIsolateStrategy = (String)ContextManager.getRuntimeContext().get(ISOLATE_STRATEGY_KEY_IN_RUNNING_CONTEXT);
-        HttpServletResponse response = ((EnhanceRequireObjectCache)objInst.getSkyWalkingDynamicField()).getHttpServletResponse();
+        HttpServletResponse response = (HttpServletResponse)ContextManager.getRuntimeContext().get(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
         try {
-            if (hystrixIsolateStrategy != null) {
-                ContextManager.stopSpan();
-            } else if (response != null) {
+            if (response != null) {
                 AbstractSpan span = ContextManager.activeSpan();
                 if (response.getStatus() >= 400) {
                     span.errorOccurred();
@@ -112,7 +104,8 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                 ContextManager.stopSpan();
             }
         } finally {
-            ((EnhanceRequireObjectCache)objInst.getSkyWalkingDynamicField()).clearRequestAndResponse();
+            ContextManager.getRuntimeContext().remove(REQUEST_KEY_IN_RUNTIME_CONTEXT);
+            ContextManager.getRuntimeContext().remove(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
         }
 
         return ret;
