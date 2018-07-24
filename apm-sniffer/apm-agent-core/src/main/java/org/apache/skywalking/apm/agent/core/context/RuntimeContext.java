@@ -18,10 +18,11 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.conf.RuntimeContextConfiguration;
 
 /**
  * RuntimeContext is alive during the tracing context.
@@ -32,7 +33,6 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
  * @author wusheng, ascrutae
  */
 public class RuntimeContext {
-    private ILog logger = LogManager.getLogger(RuntimeContext.class);
     private final ThreadLocal<RuntimeContext> contextThreadLocal;
     private Map context = new ConcurrentHashMap(0);
 
@@ -41,7 +41,6 @@ public class RuntimeContext {
     }
 
     public void put(Object key, Object value) {
-        logger.debug("Storage Key[{}] into runtime context.", key);
         context.put(key, value);
     }
 
@@ -54,11 +53,30 @@ public class RuntimeContext {
     }
 
     public void remove(Object key) {
-        logger.debug("Remove Key[{}] from runtime context.", key);
         context.remove(key);
 
         if (context.isEmpty()) {
             contextThreadLocal.remove();
+        }
+    }
+
+    public RuntimeContextSnapshot capture() {
+        Map runtimeContextMap = new HashMap();
+        for (String key : RuntimeContextConfiguration.NEED_PROPAGATE_CONTEXT_KEY) {
+            Object value = this.get(key);
+            if (value != null) {
+                runtimeContextMap.put(key, value);
+            }
+        }
+
+        return new RuntimeContextSnapshot(runtimeContextMap);
+    }
+
+    public void accept(RuntimeContextSnapshot snapshot) {
+        Iterator<Map.Entry> iterator = snapshot.iterator();
+        while (iterator.hasNext()) {
+            Map.Entry runtimeContextItem = iterator.next();
+            ContextManager.getRuntimeContext().put(runtimeContextItem.getKey(), runtimeContextItem.getValue());
         }
     }
 }

@@ -67,7 +67,7 @@ public class HystrixPluginsInstrumentation extends ClassInstanceMethodsEnhancePl
                 }
 
                 @Override public boolean isOverrideArgs() {
-                    return true;
+                    return false;
                 }
             }
         };

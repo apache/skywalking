@@ -20,12 +20,10 @@
 package org.apache.skywalking.apm.plugin.hystrix.v1;
 
 import com.netflix.hystrix.strategy.concurrency.HystrixConcurrencyStrategy;
-import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 import org.apache.skywalking.apm.agent.core.conf.RuntimeContextConfiguration;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.RuntimeContext;
+import org.apache.skywalking.apm.agent.core.context.RuntimeContextSnapshot;
 
 public class SWHystrixConcurrencyStrategyWrapper extends HystrixConcurrencyStrategy {
 
@@ -38,37 +36,26 @@ public class SWHystrixConcurrencyStrategyWrapper extends HystrixConcurrencyStrat
 
     @Override
     public <T> Callable<T> wrapCallable(Callable<T> callable) {
-        RuntimeContext runtimeContext = ContextManager.getRuntimeContext();
-        Map runtimeContextMap = new ConcurrentHashMap();
-        for (String key : RuntimeContextConfiguration.NEED_PROPAGATE_CONTEXT_KEY) {
-            Object value = runtimeContext.get(key);
-            if (value != null) {
-                runtimeContextMap.put(key, value);
-            }
-        }
-
-        return new WrappedCallable<T>(runtimeContextMap, super.wrapCallable(callable));
+        return new WrappedCallable<T>(ContextManager.getRuntimeContext().capture(), super.wrapCallable(callable));
     }
 
     static class WrappedCallable<T> implements Callable<T> {
 
-        private final Map<String, Object> runtimeContext;
+        private final RuntimeContextSnapshot contextSnapshot;
         private final Callable<T> target;
 
-        WrappedCallable(Map<String, Object> runtimeContext, Callable<T> target) {
-            this.runtimeContext = runtimeContext;
+        WrappedCallable(RuntimeContextSnapshot contextSnapshot, Callable<T> target) {
+            this.contextSnapshot = contextSnapshot;
             this.target = target;
         }
 
         @Override public T call() throws Exception {
             try {
-                for (Map.Entry<String, Object> entry : runtimeContext.entrySet()) {
-                    ContextManager.getRuntimeContext().put(entry.getKey(), entry.getValue());
-                }
+                ContextManager.getRuntimeContext().accept(contextSnapshot);
                 return target.call();
             } finally {
                 for (String key : RuntimeContextConfiguration.NEED_PROPAGATE_CONTEXT_KEY) {
-                    runtimeContext.remove(key);
+                    ContextManager.getRuntimeContext().remove(key);
                 }
             }
         }
