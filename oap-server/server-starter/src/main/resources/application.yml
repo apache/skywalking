@@ -30,3 +30,5 @@ core:
     gRPCPort: 11800
 storage:
   elasticsearch:
+service-mesh:
+  default:
