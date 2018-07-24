@@ -22,7 +22,6 @@ import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.apache.curator.x.discovery.ServiceCache;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
@@ -77,23 +76,18 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
             .watchInstances(true)
             .serializer(new SWInstanceSerializer()).build();
 
-        String remoteName = "remote";
-        ServiceCache<RemoteInstance> serviceCache = serviceDiscovery.serviceCacheBuilder()
-            .name(remoteName)
-            .build();
         try {
             client.start();
             client.blockUntilConnected();
             serviceDiscovery.start();
-
-            serviceCache.start();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             throw new ModuleStartException(e.getMessage(), e);
         }
 
-        this.registerServiceImplementation(ClusterRegister.class, new ZookeeperNodeRegister(serviceDiscovery, remoteName));
-        this.registerServiceImplementation(ClusterNodesQuery.class, new ZookeeperModuleQuery(serviceCache));
+        ZookeeperCoordinator coordinator = new ZookeeperCoordinator(serviceDiscovery);
+        this.registerServiceImplementation(ClusterRegister.class, coordinator);
+        this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
     }
 
     @Override public void start() {
