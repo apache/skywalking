@@ -18,9 +18,13 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import org.apache.curator.x.discovery.ServiceCache;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceInstance;
+import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
@@ -30,21 +34,23 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public class ZookeeperNodeRegister implements ClusterRegister {
-    private static final Logger logger = LoggerFactory.getLogger(ZookeeperNodeRegister.class);
+public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery {
+    private static final Logger logger = LoggerFactory.getLogger(ZookeeperCoordinator.class);
 
     private final ServiceDiscovery<RemoteInstance> serviceDiscovery;
-    private final String nodeName;
+    private volatile ServiceCache<RemoteInstance> serviceCache;
+    private volatile RemoteInstance selfInstance;
 
-    ZookeeperNodeRegister(ServiceDiscovery<RemoteInstance> serviceDiscovery, String nodeName) {
+    ZookeeperCoordinator(ServiceDiscovery<RemoteInstance> serviceDiscovery) {
         this.serviceDiscovery = serviceDiscovery;
-        this.nodeName = nodeName;
     }
 
     @Override public synchronized void registerRemote(RemoteInstance remoteInstance) throws ServiceRegisterException {
         try {
+            String remoteNamePath = "remote";
+
             ServiceInstance<RemoteInstance> thisInstance = ServiceInstance.<RemoteInstance>builder()
-                .name(nodeName)
+                .name(remoteNamePath)
                 .id(UUID.randomUUID().toString())
                 .address(remoteInstance.getHost())
                 .port(remoteInstance.getPort())
@@ -52,9 +58,32 @@ public class ZookeeperNodeRegister implements ClusterRegister {
                 .build();
 
             serviceDiscovery.registerService(thisInstance);
+
+            serviceCache = serviceDiscovery.serviceCacheBuilder()
+                .name(remoteNamePath)
+                .build();
+
+            serviceCache.start();
+
+            this.selfInstance = remoteInstance;
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
             throw new ServiceRegisterException(e.getMessage());
         }
+    }
+
+    @Override public List<RemoteInstance> queryRemoteNodes() {
+        List<ServiceInstance<RemoteInstance>> serviceInstances = serviceCache.getInstances();
+
+        List<RemoteInstance> remoteInstanceDetails = new ArrayList<>(serviceInstances.size());
+        serviceInstances.forEach(serviceInstance -> {
+            RemoteInstance instance = serviceInstance.getPayload();
+            if (instance.equals(selfInstance)) {
+                instance.setSelf(true);
+            } else {
+                instance.setSelf(false);
+            }
+            remoteInstanceDetails.add(instance);
+        });
+        return remoteInstanceDetails;
     }
 }

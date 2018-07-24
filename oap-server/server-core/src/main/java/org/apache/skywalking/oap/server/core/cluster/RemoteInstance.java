@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.cluster;
 
+import java.util.Objects;
+
 /**
  * @author peng-yongsheng
  */
@@ -25,6 +27,7 @@ public class RemoteInstance {
 
     private String host;
     private int port;
+    private boolean self = false;
 
     public String getHost() {
         return host;
@@ -40,5 +43,28 @@ public class RemoteInstance {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public boolean isSelf() {
+        return self;
+    }
+
+    public void setSelf(boolean self) {
+        this.self = self;
+    }
+
+    @Override public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        RemoteInstance instance = (RemoteInstance)o;
+        return port == instance.port &&
+            Objects.equals(host, instance.host);
+    }
+
+    @Override public int hashCode() {
+
+        return Objects.hash(host, port);
     }
 }
