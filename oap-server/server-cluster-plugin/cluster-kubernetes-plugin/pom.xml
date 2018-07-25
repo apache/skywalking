@@ -21,30 +21,30 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>oap-server</artifactId>
+        <artifactId>server-cluster-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
         <version>6.0.0-alpha-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>server-cluster-plugin</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>cluster-zookeeper-plugin</module>
-        <module>cluster-standalone-plugin</module>
-        <module>cluster-kubernetes-plugin</module>
-    </modules>
+    <artifactId>cluster-kubernetes-plugin</artifactId>
+    <packaging>jar</packaging>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>library-module</artifactId>
+            <artifactId>server-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>library-util</artifactId>
-            <version>${project.version}</version>
+            <groupId>io.kubernetes</groupId>
+            <artifactId>client-java</artifactId>
         </dependency>
     </dependencies>
+
+
 </project>

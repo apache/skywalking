@@ -54,6 +54,8 @@
         <shardingjdbc.version>2.0.3</shardingjdbc.version>
         <commons-dbcp.version>1.4</commons-dbcp.version>
         <elasticsearch.version>6.3.1</elasticsearch.version>
+        <joda-time.version>2.9.9</joda-time.version>
+        <kubernetes.version>2.0.0</kubernetes.version>
     </properties>
 
     <dependencies>
@@ -223,6 +225,11 @@
                 <groupId>commons-dbcp</groupId>
                 <artifactId>commons-dbcp</artifactId>
                 <version>${commons-dbcp.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.kubernetes</groupId>
+                <artifactId>client-java</artifactId>
+                <version>${kubernetes.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
