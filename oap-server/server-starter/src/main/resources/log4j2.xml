@@ -17,7 +17,7 @@
   ~
   -->
 
-<Configuration status="info">
+<Configuration status="INFO">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout charset="UTF-8" pattern="%d - %c -%-4r [%t] %-5p %x - %m%n"/>
@@ -27,10 +27,8 @@
         <logger name="org.eclipse.jetty" level="INFO"/>
         <logger name="org.apache.zookeeper" level="INFO"/>
         <logger name="org.elasticsearch.common.network.IfConfig" level="INFO"/>
-        <logger name="org.apache.skywalking.apm.collector.agent.grpc.provider.handler.JVMMetricsServiceHandler" level="INFO"/>
-        <logger name="org.apache.skywalking.apm.collector.analysis.worker.timer.PersistenceTimer" level="INFO"/>
         <logger name="io.grpc.netty" level="INFO"/>
-        <Root level="info">
+        <Root level="INFO">
             <AppenderRef ref="Console"/>
         </Root>
     </Loggers>
