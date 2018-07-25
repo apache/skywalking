@@ -19,6 +19,8 @@
 package org.apache.skywalking.aop.server.receiver.mesh.provider;
 
 import org.apache.skywalking.aop.server.receiver.mesh.module.MeshReceiverModule;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
@@ -39,10 +41,11 @@ public class MeshReceiverProvider extends ModuleProvider {
     }
 
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-
     }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
+        GRPCHandlerRegister service = getManager().find(CoreModule.NAME).getService(GRPCHandlerRegister.class);
+        service.addHandler(new MeshGRPCHandler());
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
@@ -50,6 +53,6 @@ public class MeshReceiverProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[0];
+        return new String[]{CoreModule.NAME};
     }
 }
