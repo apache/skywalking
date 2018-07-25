@@ -29,6 +29,16 @@ public class RemoteInstance {
     private int port;
     private boolean self = false;
 
+    public RemoteInstance() {
+
+    }
+
+    public RemoteInstance(String host, int port, boolean self) {
+        this.host = host;
+        this.port = port;
+        this.self = self;
+    }
+
     public String getHost() {
         return host;
     }
