@@ -18,34 +18,24 @@
 
 package org.apache.skywalking.oap.server.core.analysis.endpoint;
 
-import lombok.Getter;
-import org.apache.skywalking.oap.server.core.analysis.AvgIndicate;
+import org.apache.skywalking.oap.server.core.analysis.indicator.AvgIndicator;
 
 /**
  * @author peng-yongsheng
  */
-public class EndpointAvgIndicate extends AvgIndicate {
+public class EndpointLatencyAvgIndicator extends AvgIndicator {
 
-    @Getter private final int id;
+    private final int id;
 
-    public EndpointAvgIndicate(int id, long timeBucket) {
+    public EndpointLatencyAvgIndicator(long timeBucket, int id) {
         super(timeBucket);
         this.id = id;
-    }
-
-    public void setLatency(long latency) {
-        setValue(latency);
-    }
-
-    public long getLatency() {
-        return getValue();
     }
 
     @Override public int hashCode() {
         int result = 17;
         result = 31 * result + id;
-        //TODO How?
-//        result = 31 * result + getTimeBucket();
+        result = 31 * result + (int)getTimeBucket();
         return result;
     }
 
@@ -57,10 +47,10 @@ public class EndpointAvgIndicate extends AvgIndicate {
         if (getClass() != obj.getClass())
             return false;
 
-        EndpointAvgIndicate indicate = (EndpointAvgIndicate)obj;
-        if (id != indicate.id)
+        EndpointLatencyAvgIndicator indicator = (EndpointLatencyAvgIndicator)obj;
+        if (id != indicator.id)
             return false;
-        if (getTimeBucket() != indicate.getTimeBucket())
+        if (getTimeBucket() != indicator.getTimeBucket())
             return false;
 
         return true;

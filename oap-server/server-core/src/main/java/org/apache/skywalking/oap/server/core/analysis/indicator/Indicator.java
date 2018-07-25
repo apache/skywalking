@@ -16,33 +16,21 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.function;
+package org.apache.skywalking.oap.server.core.analysis.indicator;
 
-import org.apache.skywalking.oap.server.core.analysis.operator.AverageOperator;
+import lombok.Getter;
+import org.apache.skywalking.oap.server.core.analysis.data.StreamData;
 
 /**
  * @author peng-yongsheng
  */
-public class AverageFunction implements Function<AverageOperator> {
+public abstract class Indicator extends StreamData {
 
-    private static AverageFunction INSTANCE;
+    @Getter private final long timeBucket;
 
-    private AverageFunction() {
+    public Indicator(long timeBucket) {
+        this.timeBucket = timeBucket;
     }
 
-    public static AverageFunction getInstance() {
-        if (INSTANCE == null)
-            INSTANCE = new AverageFunction();
-
-        return INSTANCE;
-    }
-
-    @Override public FunctionType type() {
-        return FunctionType.Average;
-    }
-
-    @Override public void combine(AverageOperator opX, AverageOperator opY) {
-        opX.setValue(opX.getValue() + opY.getValue());
-        opX.setCount(opX.getCount() + opY.getCount());
-    }
+    public abstract void combine(Indicator indicator);
 }

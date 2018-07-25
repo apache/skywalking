@@ -16,11 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.operator;
+package org.apache.skywalking.oap.server.core.analysis.indicator.annotation;
+
+import java.lang.annotation.*;
 
 /**
  * @author peng-yongsheng
  */
-public interface Indicator {
-    int hashCode();
+@Target(ElementType.PARAMETER)
+@Retention(RetentionPolicy.SOURCE)
+public @interface OperatorCount {
 }

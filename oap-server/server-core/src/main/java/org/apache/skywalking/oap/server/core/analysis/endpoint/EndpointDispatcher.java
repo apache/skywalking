@@ -26,10 +26,10 @@ import org.apache.skywalking.oap.server.core.receiver.Endpoint;
  */
 public class EndpointDispatcher implements SourceDispatcher<Endpoint> {
 
-    private final EndpointAvgAggregator avgAggregator;
+    private final EndpointLatencyAvgAggregator avgAggregator;
 
     public EndpointDispatcher() {
-        this.avgAggregator = new EndpointAvgAggregator();
+        this.avgAggregator = new EndpointLatencyAvgAggregator();
     }
 
     @Override public void dispatch(Endpoint source) {
@@ -37,9 +37,8 @@ public class EndpointDispatcher implements SourceDispatcher<Endpoint> {
     }
 
     private void avg(Endpoint source) {
-        EndpointAvgIndicate indicate = new EndpointAvgIndicate(source.getId(), source.getTimeBucket());
-        indicate.setLatency(source.getLatency());
-
-        avgAggregator.in(indicate);
+        EndpointLatencyAvgIndicator indicator = new EndpointLatencyAvgIndicator(source.getTimeBucket(), source.getId());
+        indicator.combine(source.getLatency(), 1);
+        avgAggregator.in(indicator);
     }
 }

@@ -16,14 +16,29 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.operator;
+package org.apache.skywalking.oap.server.core.analysis.indicator;
+
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.*;
 
 /**
  * @author peng-yongsheng
  */
-public interface ValueOperator extends Operator {
+public abstract class AvgIndicator extends Indicator {
 
-    void setValue(long value);
+    private long summation;
+    private int count;
 
-    long getValue();
+    public AvgIndicator(long timeBucket) {
+        super(timeBucket);
+    }
+
+    public void combine(@SourceFrom long summation, @OperatorCount int count) {
+        this.summation += summation;
+        this.count += count;
+    }
+
+    @Override public void combine(Indicator indicator) {
+        AvgIndicator avgIndicator = (AvgIndicator)indicator;
+        combine(avgIndicator.summation, avgIndicator.count);
+    }
 }

@@ -16,24 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis;
+package org.apache.skywalking.oap.server.core.analysis.endpoint;
 
-import lombok.*;
+import org.apache.skywalking.oap.server.core.analysis.AbstractAggregator;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class AvgIndicate extends Indicate {
+public class EndpointLatencyAvgAggregator extends AbstractAggregator<EndpointLatencyAvgIndicator> {
 
-    @Setter @Getter private long times;
-    @Setter @Getter private long value;
+    private static final Logger logger = LoggerFactory.getLogger(EndpointLatencyAvgAggregator.class);
 
-    public AvgIndicate(long timeBucket) {
-        super(timeBucket);
-        this.times = 1;
-    }
+    @Override protected void onNext(EndpointLatencyAvgIndicator data) {
 
-    public long getAvg() {
-        return value / times;
     }
 }
