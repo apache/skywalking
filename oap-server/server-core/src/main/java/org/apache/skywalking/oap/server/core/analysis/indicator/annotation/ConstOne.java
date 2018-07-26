@@ -25,5 +25,5 @@ import java.lang.annotation.*;
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.SOURCE)
-public @interface OperatorCount {
+public @interface ConstOne {
 }
