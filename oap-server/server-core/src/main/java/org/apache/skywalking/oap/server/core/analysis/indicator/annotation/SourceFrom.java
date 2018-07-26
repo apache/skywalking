@@ -16,19 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.endpoint;
+package org.apache.skywalking.oap.server.core.analysis.indicator.annotation;
 
-import org.apache.skywalking.oap.server.core.analysis.AbstractAggregator;
-import org.slf4j.*;
+import java.lang.annotation.*;
 
 /**
  * @author peng-yongsheng
  */
-public class EndpointAvgAggregator extends AbstractAggregator<EndpointAvgIndicate> {
-
-    private static final Logger logger = LoggerFactory.getLogger(EndpointAvgAggregator.class);
-
-    @Override protected void onNext(EndpointAvgIndicate data) {
-
-    }
+@Target(ElementType.PARAMETER)
+@Retention(RetentionPolicy.SOURCE)
+public @interface SourceFrom {
 }

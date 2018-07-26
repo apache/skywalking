@@ -18,27 +18,17 @@
 
 package org.apache.skywalking.oap.server.core.analysis.endpoint;
 
-import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.receiver.Endpoint;
+import org.apache.skywalking.oap.server.core.analysis.AbstractAggregator;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
-public class EndpointDispatcher implements SourceDispatcher<Endpoint> {
+public class EndpointLatencyAvgAggregator extends AbstractAggregator<EndpointLatencyAvgIndicator> {
 
-    private final EndpointLatencyAvgAggregator avgAggregator;
+    private static final Logger logger = LoggerFactory.getLogger(EndpointLatencyAvgAggregator.class);
 
-    public EndpointDispatcher() {
-        this.avgAggregator = new EndpointLatencyAvgAggregator();
-    }
+    @Override protected void onNext(EndpointLatencyAvgIndicator data) {
 
-    @Override public void dispatch(Endpoint source) {
-        avg(source);
-    }
-
-    private void avg(Endpoint source) {
-        EndpointLatencyAvgIndicator indicator = new EndpointLatencyAvgIndicator(source.getTimeBucket(), source.getId());
-        indicator.combine(source.getLatency(), 1);
-        avgAggregator.in(indicator);
     }
 }

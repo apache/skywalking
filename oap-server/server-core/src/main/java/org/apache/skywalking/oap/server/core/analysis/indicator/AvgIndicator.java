@@ -16,24 +16,31 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis;
+package org.apache.skywalking.oap.server.core.analysis.indicator;
 
-import lombok.*;
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.*;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class AvgIndicate extends Indicate {
+@IndicatorType
+public abstract class AvgIndicator extends Indicator {
 
-    @Setter @Getter private long times;
-    @Setter @Getter private long value;
+    private long summation;
+    private int count;
 
-    public AvgIndicate(long timeBucket) {
+    public AvgIndicator(long timeBucket) {
         super(timeBucket);
-        this.times = 1;
     }
 
-    public long getAvg() {
-        return value / times;
+    @Entrance
+    public void combine(@SourceFrom long summation, @ConstOne int count) {
+        this.summation += summation;
+        this.count += count;
+    }
+
+    @Override public void combine(Indicator indicator) {
+        AvgIndicator avgIndicator = (AvgIndicator)indicator;
+        combine(avgIndicator.summation, avgIndicator.count);
     }
 }
