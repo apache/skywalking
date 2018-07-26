@@ -21,7 +21,7 @@
     * [基于Token认证](cn/Token-auth-CN.md)
     * [添加自定义组件库](cn/Component-libraries-extend-CN.md)
   * 孵化特性
-    * [个性化服务过滤](../apm-sniffer/optional-plugins/trace-ignore-plugin/README_CN.md)
+    * [孵化特性的由来?](cn/Incubating/Abstract-CN.md)
     * [使用Shardingjdbc作为存储实现](cn/Use-ShardingJDBC-as-storage-implementor-CN.md)
   * APM相关介绍资料
     * [OpenTracing中文版](https://github.com/opentracing-contrib/opentracing-specification-zh)
