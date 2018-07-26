@@ -16,29 +16,21 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.endpoint;
+package org.apache.skywalking.oap.server.core.analysis.indicator;
 
-import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.receiver.Endpoint;
+import lombok.Getter;
+import org.apache.skywalking.oap.server.core.analysis.data.StreamData;
 
 /**
  * @author peng-yongsheng
  */
-public class EndpointDispatcher implements SourceDispatcher<Endpoint> {
+public abstract class Indicator extends StreamData {
 
-    private final EndpointLatencyAvgAggregator avgAggregator;
+    @Getter private final long timeBucket;
 
-    public EndpointDispatcher() {
-        this.avgAggregator = new EndpointLatencyAvgAggregator();
+    public Indicator(long timeBucket) {
+        this.timeBucket = timeBucket;
     }
 
-    @Override public void dispatch(Endpoint source) {
-        avg(source);
-    }
-
-    private void avg(Endpoint source) {
-        EndpointLatencyAvgIndicator indicator = new EndpointLatencyAvgIndicator(source.getTimeBucket(), source.getId());
-        indicator.combine(source.getLatency(), 1);
-        avgAggregator.in(indicator);
-    }
+    public abstract void combine(Indicator indicator);
 }

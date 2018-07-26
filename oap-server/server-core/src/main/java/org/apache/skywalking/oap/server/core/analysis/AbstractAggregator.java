@@ -22,12 +22,13 @@ import java.util.*;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.analysis.data.*;
+import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class AbstractAggregator<INPUT extends StreamData> {
+public abstract class AbstractAggregator<INPUT extends Indicator> {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractAggregator.class);
 
@@ -81,7 +82,7 @@ public abstract class AbstractAggregator<INPUT extends StreamData> {
     private void aggregate(INPUT message) {
         mergeDataCache.writing();
         if (mergeDataCache.containsKey(message)) {
-//            mergeDataCache.get(message).mergeAndFormulaCalculateData(message);
+            mergeDataCache.get(message).combine(message);
         } else {
             mergeDataCache.put(message);
         }

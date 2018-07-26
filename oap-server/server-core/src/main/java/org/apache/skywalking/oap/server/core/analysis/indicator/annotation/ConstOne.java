@@ -16,19 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis;
+package org.apache.skywalking.oap.server.core.analysis.indicator.annotation;
 
-import lombok.Getter;
-import org.apache.skywalking.oap.server.core.analysis.data.StreamData;
+import java.lang.annotation.*;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class Indicate extends StreamData {
-
-    @Getter private final long timeBucket;
-
-    public Indicate(long timeBucket) {
-        this.timeBucket = timeBucket;
-    }
+@Target(ElementType.PARAMETER)
+@Retention(RetentionPolicy.SOURCE)
+public @interface ConstOne {
 }

@@ -16,29 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.endpoint;
+package org.apache.skywalking.oap.server.core.analysis.indicator.annotation;
 
-import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.receiver.Endpoint;
+import java.lang.annotation.*;
 
 /**
  * @author peng-yongsheng
  */
-public class EndpointDispatcher implements SourceDispatcher<Endpoint> {
-
-    private final EndpointLatencyAvgAggregator avgAggregator;
-
-    public EndpointDispatcher() {
-        this.avgAggregator = new EndpointLatencyAvgAggregator();
-    }
-
-    @Override public void dispatch(Endpoint source) {
-        avg(source);
-    }
-
-    private void avg(Endpoint source) {
-        EndpointLatencyAvgIndicator indicator = new EndpointLatencyAvgIndicator(source.getTimeBucket(), source.getId());
-        indicator.combine(source.getLatency(), 1);
-        avgAggregator.in(indicator);
-    }
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.SOURCE)
+public @interface Entrance {
 }
