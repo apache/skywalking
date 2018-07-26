@@ -37,13 +37,6 @@ public class IgnoredTracerContext implements AbstractTracerContext {
 
     private int stackDepth;
 
-    /**
-     * Runtime context of the ignored context
-     *
-     * The context should work even no trace, in order to avoid the unexpected status.
-     */
-    private RuntimeContext runtimeContext;
-
     public IgnoredTracerContext() {
         this.stackDepth = 0;
     }
@@ -100,13 +93,6 @@ public class IgnoredTracerContext implements AbstractTracerContext {
         if (stackDepth == 0) {
             ListenerManager.notifyFinish(this);
         }
-    }
-
-    @Override public RuntimeContext getRuntimeContext() {
-        if (runtimeContext == null) {
-            runtimeContext = new RuntimeContext();
-        }
-        return runtimeContext;
     }
 
     public static class ListenerManager {
