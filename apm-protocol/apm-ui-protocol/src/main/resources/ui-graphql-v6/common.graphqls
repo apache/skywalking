@@ -60,6 +60,11 @@ enum Step {
     SECOND
 }
 
+enum Order {
+    ASC
+    DES
+}
+
 input Pagination {
     # pageNum starts in 1, the default is 1.
     pageNum: Int
@@ -68,3 +73,12 @@ input Pagination {
     needTotal: Boolean
 }
 
+enum Language {
+    # For not language based agent, the language is impossible to tell.
+    UNKNOWN
+    JAVA
+    DOTNET
+    NODEJS
+    PYTHON
+    RUBY
+}

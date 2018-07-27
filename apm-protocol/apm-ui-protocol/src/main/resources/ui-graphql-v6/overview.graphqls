@@ -34,12 +34,35 @@ type Service {
 }
 
 type ServiceInstance {
+    id: ID!
+    name: String!
+    attributes: [Attribute!]!
+    language: Language!
+}
 
+type Attribute {
+    name: String!
+    value: String!
+}
+
+type Endpoint {
+    id: ID!
+    name: String!
 }
 
 extend type Query {
     getGlobalBrief(duration: Duration!): ClusterBrief
     getAlarmTrend(duration: Duration!): AlarmTrend
 
-    getAllService(duration: Duration!): [Service!]!
+    # Service related meta info.
+    getAllServices(duration: Duration!): [Service!]!
+    searchServices(duration: Duration!, keyword: String!): [Service!]!
+
+    # Service intance query
+    getServiceInstances(duration: Duration!, id: ID!): [ServiceInstance!]!
+
+    # Endpoint query
+    # Consider there are huge numbers of endpoint,
+    # must use endpoint owner's service id, keyword and top N filter to do query.
+    searchEndpoint(keyword: String!, serviceId: ID!, topNFilter: MetricTopNCondition!): [Endpoint!]!
 }
