@@ -23,12 +23,6 @@ input MetricCondition {
     # Id in this metric type.
     # In the above case, the id should be endpoint id.
     id: ID
-    topN: TopN
-}
-
-# TopN filter
-input TopN {
-    n: Int!
 }
 
 type LinearIntValues {
@@ -60,7 +54,21 @@ type Thermodynamic {
     axisYStep: Int!
 }
 
+# Match the metric by name, order by metric value(such as: avg, percent)
+input MetricTopNCondition {
+    name: String!
+    topN: Int!
+    order: Order!
+}
+
+type MetricEntity {
+    name: String!
+    id: ID!
+    value: Int!
+}
+
 extend type Query {
     getLinearIntValues(metric: MetricCondition!, duration: Duration!): LinearIntValues
     getThermodynamic(metric: MetricCondition!, duration: Duration!): Thermodynamic
+    getTopN(metric: MetricTopNCondition!): [MetricEntity!]!
 }
