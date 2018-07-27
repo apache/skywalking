@@ -78,7 +78,7 @@ Follow this [document](https://github.com/apache/incubator-skywalking/blob/maste
 * QQ Group: 392443393
 
 # Use cases
-<img src="https://skywalkingtest.github.io/page-resources/users/users-2018-07-27.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/users/users-2018-07-27-2.png"/>
 
 - [Use case list](docs/use-case-list.md)
 - [Submit new use case to us.](https://github.com/apache/incubator-skywalking/issues/443)
