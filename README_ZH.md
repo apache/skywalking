@@ -73,7 +73,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 * [Gitter](https://gitter.im/openskywalking/Lobby)
 * QQ群: 392443393
 
-# Users
+# Use cases
 <img src="https://skywalkingtest.github.io/page-resources/users/users-2018-07-27-2.png"/>
 
 - [用户案例](docs/use-case-list.md)
