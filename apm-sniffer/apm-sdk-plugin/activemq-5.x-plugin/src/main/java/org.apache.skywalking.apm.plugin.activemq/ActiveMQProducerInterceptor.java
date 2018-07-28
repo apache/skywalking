@@ -39,21 +39,26 @@ public class ActiveMQProducerInterceptor implements InstanceMethodsAroundInterce
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         ContextCarrier contextCarrier = new ContextCarrier();
-        ActiveMQDestination activeMQDestination = (ActiveMQDestination) allArguments[0];
+        ActiveMQDestination activeMQDestination = (ActiveMQDestination) allArguments[0]; //topic://TestTopic queue://TestQueue
         Message message = (Message)  allArguments[1];
         String url = ActiveMQInfo.URL;
-        AbstractSpan activeSpan = ContextManager.createExitSpan(OPERATE_NAME_PREFIX + activeMQDestination.getPhysicalName() + PRODUCER_OPERATE_NAME_SUFFIX, contextCarrier, url);
 
+        AbstractSpan activeSpan = ContextManager.createExitSpan(OPERATE_NAME_PREFIX + activeMQDestination.getPhysicalName() + PRODUCER_OPERATE_NAME_SUFFIX, contextCarrier, url);
+        CarrierItem next = contextCarrier.items();
         Tags.MQ_BROKER.set(activeSpan,url);
-        Tags.MQ_QUEUE.set(activeSpan,activeMQDestination.getPhysicalName());
+        if (activeMQDestination.getDestinationType() == 1 || activeMQDestination.getDestinationType() == 5) {
+            Tags.MQ_QUEUE.set(activeSpan,activeMQDestination.getPhysicalName());
+        } else if (activeMQDestination.getDestinationType() == 2 || activeMQDestination.getDestinationType() == 6) {
+            Tags.MQ_TOPIC.set(activeSpan,activeMQDestination.getPhysicalName());
+        }
         SpanLayer.asMQ(activeSpan);
         activeSpan.setComponent(ComponentsDefine.ACTIVEMQ_PRODUCER);
-        CarrierItem next = contextCarrier.items();
 
         while (next.hasNext()) {
             next = next.next();
             message.setStringProperty(next.getHeadKey(),next.getHeadValue());
         }
+
 
     }
 

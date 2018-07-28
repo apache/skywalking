@@ -27,9 +27,9 @@ public class ActiveMQConnectionFactoryConstructorInterceptor  implements Instanc
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         if (allArguments[2].equals(URI.class)) {
-            ActiveMQInfo.URL = allArguments[2].toString();
+            ActiveMQInfo.URL = allArguments[2].toString().split("//")[2];
         } else {
-            ActiveMQInfo.URL = allArguments[2].toString();
+            ActiveMQInfo.URL = allArguments[2].toString().split("//")[2];
         }
 
 

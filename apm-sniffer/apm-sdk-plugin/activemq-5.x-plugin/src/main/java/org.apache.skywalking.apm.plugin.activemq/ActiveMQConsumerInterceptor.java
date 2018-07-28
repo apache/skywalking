@@ -41,13 +41,16 @@ public class ActiveMQConsumerInterceptor implements InstanceMethodsAroundInterce
         ContextCarrier contextCarrier = new ContextCarrier();
         String url = ActiveMQInfo.URL;
         MessageDispatch messageDispatch = (MessageDispatch) allArguments[0];
-        AbstractSpan activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + messageDispatch.getDestination().getPhysicalName() + CONSUMER_OPERATE_NAME_SUFFIX, null).start(System.currentTimeMillis());
 
+        AbstractSpan activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + messageDispatch.getDestination().getPhysicalName() + CONSUMER_OPERATE_NAME_SUFFIX, null).start(System.currentTimeMillis());
+        Tags.MQ_BROKER.set(activeSpan, url);
+        if (messageDispatch.getDestination().getDestinationType() == 1 ||  messageDispatch.getDestination().getDestinationType() == 5) {
+            Tags.MQ_QUEUE.set(activeSpan, messageDispatch.getDestination().getPhysicalName());
+        } else if (messageDispatch.getDestination().getDestinationType() == 2 ||  messageDispatch.getDestination().getDestinationType() == 6) {
+            Tags.MQ_TOPIC.set(activeSpan, messageDispatch.getDestination().getPhysicalName());
+        }
         activeSpan.setComponent(ComponentsDefine.ACTIVEMQ_CONSUMER);
         SpanLayer.asMQ(activeSpan);
-        Tags.MQ_BROKER.set(activeSpan, url);
-        Tags.MQ_QUEUE.set(activeSpan, messageDispatch.getDestination().getPhysicalName());
-
 
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
