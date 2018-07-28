@@ -77,10 +77,11 @@ Follow this [document](https://github.com/apache/incubator-skywalking/blob/maste
 * [Gitter](https://gitter.im/openskywalking/Lobby)
 * QQ Group: 392443393
 
-# Users
-<img src="https://skywalkingtest.github.io/page-resources/users/users-2018-06-07.png"/>
+# Use cases
+<img src="https://skywalkingtest.github.io/page-resources/users/users-2018-07-27-2.png"/>
 
-[Submit new user case to us.](https://github.com/apache/incubator-skywalking/issues/443)
+- [Use case list](docs/use-case-list.md)
+- [Submit new use case to us.](https://github.com/apache/incubator-skywalking/issues/443)
 
 <p align="center">
 <a href="https://openapm.io"><img src="https://openapm.io/static/media/openapm_logo.svg" width="100"/></a> 
