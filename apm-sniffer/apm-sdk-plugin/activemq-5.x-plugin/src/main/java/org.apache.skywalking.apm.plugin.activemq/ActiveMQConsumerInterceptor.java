@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.activemq;
 
+import org.apache.activemq.command.MessageDispatch;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -29,7 +30,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-import javax.jms.Message;
 import java.lang.reflect.Method;
 
 public class ActiveMQConsumerInterceptor implements InstanceMethodsAroundInterceptor {
@@ -39,20 +39,20 @@ public class ActiveMQConsumerInterceptor implements InstanceMethodsAroundInterce
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         ContextCarrier contextCarrier = new ContextCarrier();
-//        String url = ContextManager.getRuntimeContext().get("activemq-url").toString();
-        Message message = (Message) allArguments[0];
-        AbstractSpan activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + "test" + CONSUMER_OPERATE_NAME_SUFFIX, null).start(System.currentTimeMillis());
+        String url = ActiveMQInfo.URL;
+        MessageDispatch messageDispatch = (MessageDispatch) allArguments[0];
+        AbstractSpan activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + messageDispatch.getDestination().getPhysicalName() + CONSUMER_OPERATE_NAME_SUFFIX, null).start(System.currentTimeMillis());
 
         activeSpan.setComponent(ComponentsDefine.ACTIVEMQ_CONSUMER);
         SpanLayer.asMQ(activeSpan);
-        Tags.MQ_BROKER.set(activeSpan, "failover://tcp://localhost:61616");
-        Tags.MQ_QUEUE.set(activeSpan, "test");
+        Tags.MQ_BROKER.set(activeSpan, url);
+        Tags.MQ_QUEUE.set(activeSpan, messageDispatch.getDestination().getPhysicalName());
 
 
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            next.setHeadValue(message.getStringProperty(next.getHeadKey()));
+            next.setHeadValue(messageDispatch.getMessage().getProperty(next.getHeadKey()).toString());
         }
         ContextManager.extract(contextCarrier);
 

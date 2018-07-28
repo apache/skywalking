@@ -41,7 +41,6 @@ public class ActiveMQProducerInterceptor implements InstanceMethodsAroundInterce
         ContextCarrier contextCarrier = new ContextCarrier();
         ActiveMQDestination activeMQDestination = (ActiveMQDestination) allArguments[0];
         Message message = (Message)  allArguments[1];
-//        String url = ContextManager.getRuntimeContext().get("activemq-url").toString();
         String url = ActiveMQInfo.URL;
         AbstractSpan activeSpan = ContextManager.createExitSpan(OPERATE_NAME_PREFIX + activeMQDestination.getPhysicalName() + PRODUCER_OPERATE_NAME_SUFFIX, contextCarrier, url);
 
