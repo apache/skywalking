@@ -37,7 +37,6 @@ public class ActiveMQConsumerInstrumentation extends ClassInstanceMethodsEnhance
     public static final String ENHANCE_CLASS_CONSUMER = "org.apache.activemq.ActiveMQMessageConsumer";
     public static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.activemq.ActiveMQConnectionFactoryConstructorInterceptor";
     public static final String ENHANCE_METHOD_DISPATCH = "dispatch";
-    public static final String ENHANCE_METHOD_MESSAGE = "createActiveMQMessage";
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
@@ -60,8 +59,6 @@ public class ActiveMQConsumerInstrumentation extends ClassInstanceMethodsEnhance
                     @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
                         return named(ENHANCE_METHOD_DISPATCH);
                     }
-
-
                     @Override public String getMethodsInterceptor() {
                         return INTERCEPTOR_CLASS;
                     }
