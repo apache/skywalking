@@ -39,7 +39,7 @@ public class ActiveMQProducerInterceptor implements InstanceMethodsAroundInterce
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         ContextCarrier contextCarrier = new ContextCarrier();
-        ActiveMQDestination activeMQDestination = (ActiveMQDestination) allArguments[0]; //topic://TestTopic queue://TestQueue
+        ActiveMQDestination activeMQDestination = (ActiveMQDestination) allArguments[0];
         Message message = (Message)  allArguments[1];
         String url = ActiveMQInfo.URL;
 
