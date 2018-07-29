@@ -22,7 +22,7 @@ import org.apache.skywalking.oap.server.core.analysis.indicator.define.*;
 import org.apache.skywalking.oap.server.core.analysis.worker.define.*;
 import org.apache.skywalking.oap.server.core.cluster.*;
 import org.apache.skywalking.oap.server.core.receiver.*;
-import org.apache.skywalking.oap.server.core.remote.RemoteServiceHandler;
+import org.apache.skywalking.oap.server.core.remote.*;
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
 import org.apache.skywalking.oap.server.core.server.*;
 import org.apache.skywalking.oap.server.library.module.*;
@@ -79,6 +79,7 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(WorkerMapper.class, workerMapper);
 
         this.registerServiceImplementation(RemoteClientManager.class, new RemoteClientManager(getManager()));
+        this.registerServiceImplementation(RemoteSenderService.class, new RemoteSenderService(getManager()));
     }
 
     @Override public void start() throws ModuleStartException {
