@@ -21,17 +21,10 @@ package org.apache.skywalking.apm.plugin.activemq;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
-import java.net.URI;
 
 public class ActiveMQConnectionFactoryConstructorInterceptor  implements InstanceConstructorInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        if (allArguments[2].equals(URI.class)) {
-            ActiveMQInfo.URL = allArguments[2].toString().split("//")[2];
-        } else {
-            ActiveMQInfo.URL = allArguments[2].toString().split("//")[2];
-        }
-
-
+        ActiveMQInfo.URL = allArguments[2].toString().split("//")[2];
     }
 }

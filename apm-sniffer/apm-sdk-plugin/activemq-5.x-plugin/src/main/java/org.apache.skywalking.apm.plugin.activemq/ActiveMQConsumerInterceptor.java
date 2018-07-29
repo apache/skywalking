@@ -42,16 +42,21 @@ public class ActiveMQConsumerInterceptor implements InstanceMethodsAroundInterce
         String url = ActiveMQInfo.URL;
         MessageDispatch messageDispatch = (MessageDispatch) allArguments[0];
 
-        AbstractSpan activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + messageDispatch.getDestination().getPhysicalName() + CONSUMER_OPERATE_NAME_SUFFIX, null).start(System.currentTimeMillis());
-        Tags.MQ_BROKER.set(activeSpan, url);
+        AbstractSpan activeSpan = null;
+
         if (messageDispatch.getDestination().getDestinationType() == 1 ||  messageDispatch.getDestination().getDestinationType() == 5) {
+            activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + "QUEUE/" + messageDispatch.getDestination().getPhysicalName() + CONSUMER_OPERATE_NAME_SUFFIX, null).start(System.currentTimeMillis());
+            Tags.MQ_BROKER.set(activeSpan, url);
             Tags.MQ_QUEUE.set(activeSpan, messageDispatch.getDestination().getPhysicalName());
         } else if (messageDispatch.getDestination().getDestinationType() == 2 ||  messageDispatch.getDestination().getDestinationType() == 6) {
+            activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + "TOPIC/" + messageDispatch.getDestination().getPhysicalName() + CONSUMER_OPERATE_NAME_SUFFIX, null).start(System.currentTimeMillis());
+            Tags.MQ_BROKER.set(activeSpan, url);
             Tags.MQ_TOPIC.set(activeSpan, messageDispatch.getDestination().getPhysicalName());
+
         }
+
         activeSpan.setComponent(ComponentsDefine.ACTIVEMQ_CONSUMER);
         SpanLayer.asMQ(activeSpan);
-
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
@@ -61,6 +66,7 @@ public class ActiveMQConsumerInterceptor implements InstanceMethodsAroundInterce
 
 
     }
+
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {

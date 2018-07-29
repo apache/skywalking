@@ -43,12 +43,15 @@ public class ActiveMQProducerInterceptor implements InstanceMethodsAroundInterce
         Message message = (Message)  allArguments[1];
         String url = ActiveMQInfo.URL;
 
-        AbstractSpan activeSpan = ContextManager.createExitSpan(OPERATE_NAME_PREFIX + activeMQDestination.getPhysicalName() + PRODUCER_OPERATE_NAME_SUFFIX, contextCarrier, url);
+        AbstractSpan activeSpan = null;
         CarrierItem next = contextCarrier.items();
-        Tags.MQ_BROKER.set(activeSpan,url);
         if (activeMQDestination.getDestinationType() == 1 || activeMQDestination.getDestinationType() == 5) {
-            Tags.MQ_QUEUE.set(activeSpan,activeMQDestination.getPhysicalName());
+            activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + "QUEUE/" + activeMQDestination.getPhysicalName() + PRODUCER_OPERATE_NAME_SUFFIX, null).start(System.currentTimeMillis());
+            Tags.MQ_BROKER.set(activeSpan, url);
+            Tags.MQ_QUEUE.set(activeSpan, activeMQDestination.getPhysicalName());
         } else if (activeMQDestination.getDestinationType() == 2 || activeMQDestination.getDestinationType() == 6) {
+            activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + "TOPIC/" + activeMQDestination.getPhysicalName() + PRODUCER_OPERATE_NAME_SUFFIX, null).start(System.currentTimeMillis());
+            Tags.MQ_BROKER.set(activeSpan, url);
             Tags.MQ_TOPIC.set(activeSpan,activeMQDestination.getPhysicalName());
         }
         SpanLayer.asMQ(activeSpan);
