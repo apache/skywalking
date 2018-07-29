@@ -52,7 +52,7 @@ public class ClusterModuleZookeeperProviderTestCase {
         ClusterRegister moduleRegister = provider.getService(ClusterRegister.class);
         ClusterNodesQuery clusterNodesQuery = provider.getService(ClusterNodesQuery.class);
 
-        RemoteInstance remoteInstance = new RemoteInstance("ProviderAHost", 1000);
+        RemoteInstance remoteInstance = new RemoteInstance("ProviderAHost", 1000, true);
 
         moduleRegister.registerRemote(remoteInstance);
 

@@ -35,6 +35,7 @@ public class StandaloneManager implements ClusterNodesQuery, ClusterRegister {
 
     @Override public void registerRemote(RemoteInstance remoteInstance) {
         this.remoteInstance = remoteInstance;
+        this.remoteInstance.setSelf(true);
     }
 
     @Override

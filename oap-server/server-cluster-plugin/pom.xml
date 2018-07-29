@@ -32,6 +32,7 @@
     <modules>
         <module>cluster-zookeeper-plugin</module>
         <module>cluster-standalone-plugin</module>
+        <module>cluster-kubernetes-plugin</module>
     </modules>
 
     <dependencies>

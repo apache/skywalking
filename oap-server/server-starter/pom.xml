@@ -56,7 +56,7 @@
         <!-- receiver module -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>skywalking-receiver-plugin</artifactId>
+            <artifactId>mesh-receiver-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- receiver module -->

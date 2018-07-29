@@ -25,8 +25,8 @@ public class StandaloneManagerTest {
     @Test
     public void test() {
         StandaloneManager standaloneManager = new StandaloneManager();
-        RemoteInstance remote1 = new RemoteInstance("A", 100);
-        RemoteInstance remote2 = new RemoteInstance("B", 100);
+        RemoteInstance remote1 = new RemoteInstance("A", 100, true);
+        RemoteInstance remote2 = new RemoteInstance("B", 100, false);
 
         standaloneManager.registerRemote(remote1);
         Assert.assertEquals(remote1, standaloneManager.queryRemoteNodes().get(0));

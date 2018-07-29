@@ -30,8 +30,9 @@
     <artifactId>server-receiver-plugin</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>skywalking-receiver-plugin</module>
+        <module>skywalking-trace-receiver-plugin</module>
         <module>zipkin-receiver-plugin</module>
+        <module>skywalking-mesh-receiver-plugin</module>
     </modules>
 
     <dependencies>

@@ -14,7 +14,7 @@ Also, we said that the most auto instrument agents are VM based, but actually, y
 runtime.
 
 ## What are limits?
-Auto instrument is so cool, then you can create those in compiling time, that you don't depend on VM features, then is there
+Auto instrument is so cool, also you can create those in compiling time, that you don't depend on VM features, then is there
 any limit?
 
 The answer definitely **YES**. And they are:
@@ -27,7 +27,7 @@ by agent plugin developers. So, there is always a supported list in this kind of
 Like [SkyWalking Java agent supported list](../setup/service-agent/java-agent/Supported-list.md).
 
 - **Across thread can't be supported all the time**. Like we said about **in process propagation**, most codes
-run in a single thread per request. But in some other scenarios, they do things in different threads, such as 
+run in a single thread per request, especially business codes. But in some other scenarios, they do things in different threads, such as 
 job assignment, task pool or batch process. Or some languages provide coroutine or similar thing like `Goroutine`, then 
 developer could run async process with low payload, even been encouraged. In those cases, auto instrument will face problems. 
 
