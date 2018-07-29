@@ -16,40 +16,38 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.endpoint;
+package org.apache.skywalking.oap.server.core.remote.client;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.analysis.worker.define.WorkerMapper;
-import org.apache.skywalking.oap.server.core.receiver.Endpoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
  * @author peng-yongsheng
  */
-public class EndpointDispatcher implements SourceDispatcher<Endpoint> {
+public class SelfRemoteClient implements RemoteClient {
 
     private final ModuleManager moduleManager;
-    private EndpointLatencyAvgAggregateWorker avgAggregator;
+    private final String host;
+    private final int port;
 
-    public EndpointDispatcher(ModuleManager moduleManager) {
+    public SelfRemoteClient(ModuleManager moduleManager, String host, int port) {
         this.moduleManager = moduleManager;
+        this.host = host;
+        this.port = port;
     }
 
-    @Override public void dispatch(Endpoint source) {
-        avg(source);
+    @Override public String getHost() {
+        return host;
     }
 
-    private void avg(Endpoint source) {
-        if (avgAggregator == null) {
-            WorkerMapper workerMapper = moduleManager.find(CoreModule.NAME).getService(WorkerMapper.class);
-            avgAggregator = (EndpointLatencyAvgAggregateWorker)workerMapper.findInstanceByClass(EndpointLatencyAvgAggregateWorker.class);
-        }
+    @Override public int getPort() {
+        return port;
+    }
 
-        EndpointLatencyAvgIndicator indicator = new EndpointLatencyAvgIndicator();
-        indicator.setId(source.getId());
-        indicator.setTimeBucket(source.getTimeBucket());
-        indicator.combine(source.getLatency(), 1);
-        avgAggregator.in(indicator);
+    @Override public void push(int nextWorkerId, Indicator indicator) {
+        WorkerMapper workerMapper = moduleManager.find(CoreModule.NAME).getService(WorkerMapper.class);
+        workerMapper.findInstanceById(nextWorkerId).in(indicator);
     }
 }

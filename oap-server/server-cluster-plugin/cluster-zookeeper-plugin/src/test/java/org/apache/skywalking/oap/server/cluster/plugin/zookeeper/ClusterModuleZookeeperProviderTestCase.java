@@ -21,16 +21,9 @@ package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 import java.io.IOException;
 import java.util.List;
 import org.apache.curator.test.TestingServer;
-import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
-import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
-import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
-import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
-import org.apache.skywalking.oap.server.library.module.ModuleStartException;
-import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.skywalking.oap.server.core.cluster.*;
+import org.apache.skywalking.oap.server.library.module.*;
+import org.junit.*;
 
 /**
  * @author peng-yongsheng
@@ -59,9 +52,7 @@ public class ClusterModuleZookeeperProviderTestCase {
         ClusterRegister moduleRegister = provider.getService(ClusterRegister.class);
         ClusterNodesQuery clusterNodesQuery = provider.getService(ClusterNodesQuery.class);
 
-        RemoteInstance remoteInstance = new RemoteInstance();
-        remoteInstance.setHost("ProviderAHost");
-        remoteInstance.setPort(1000);
+        RemoteInstance remoteInstance = new RemoteInstance("ProviderAHost", 1000);
 
         moduleRegister.registerRemote(remoteInstance);
 

@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.receiver;
 
 import org.apache.skywalking.oap.server.core.analysis.DispatcherManager;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
  * @author peng-yongsheng
@@ -27,8 +28,8 @@ public class SourceReceiverImpl implements SourceReceiver {
 
     private final DispatcherManager dispatcherManager;
 
-    public SourceReceiverImpl() {
-        this.dispatcherManager = new DispatcherManager();
+    public SourceReceiverImpl(ModuleManager moduleManager) {
+        this.dispatcherManager = new DispatcherManager(moduleManager);
     }
 
     @Override public void receive(Source source) {

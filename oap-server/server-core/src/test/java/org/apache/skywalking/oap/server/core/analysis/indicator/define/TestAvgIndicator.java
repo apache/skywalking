@@ -16,11 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.remote;
+package org.apache.skywalking.oap.server.core.analysis.indicator.define;
+
+import lombok.*;
+import org.apache.skywalking.oap.server.core.analysis.indicator.AvgIndicator;
+import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 
 /**
  * @author peng-yongsheng
  */
-public enum Selector {
-    HashCode, Rolling, ForeverFirst
+public class TestAvgIndicator extends AvgIndicator {
+
+    @Setter @Getter private int id;
+
+    @Override public RemoteData.Builder serialize() {
+        return null;
+    }
+
+    @Override public void deserialize(RemoteData remoteData) {
+    }
 }
