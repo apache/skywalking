@@ -18,18 +18,20 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker.define;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
+import java.io.*;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.worker.Worker;
 import org.apache.skywalking.oap.server.library.module.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
 public class WorkerMapper implements Service {
+
+    private static final Logger logger = LoggerFactory.getLogger(WorkerMapper.class);
 
     private int id = 0;
     private final ModuleManager moduleManager;
@@ -48,13 +50,26 @@ public class WorkerMapper implements Service {
 
     @SuppressWarnings(value = "unchecked")
     public void load() throws WorkerDefineLoadException {
-        URL url = Resources.getResource("META-INF/defines/worker.def");
-
         try {
-            List<String> lines = Resources.readLines(url, Charsets.UTF_8);
+            List<String> workerClasses = new LinkedList<>();
 
-            for (String line : lines) {
-                Class<Worker> workerClass = (Class<Worker>)Class.forName(line);
+            Enumeration<URL> urlEnumeration = this.getClass().getClassLoader().getResources("META-INF/defines/worker.def");
+            while (urlEnumeration.hasMoreElements()) {
+                URL definitionFileURL = urlEnumeration.nextElement();
+                logger.info("Load worker definition file url: {}", definitionFileURL.getPath());
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(definitionFileURL.openStream()));
+                Properties properties = new Properties();
+                properties.load(bufferedReader);
+
+                Enumeration defineItem = properties.propertyNames();
+                while (defineItem.hasMoreElements()) {
+                    String fullNameClass = (String)defineItem.nextElement();
+                    workerClasses.add(fullNameClass);
+                }
+            }
+
+            for (String workerClassName : workerClasses) {
+                Class<Worker> workerClass = (Class<Worker>)Class.forName(workerClassName);
                 id++;
                 classKeyMapping.put(workerClass, id);
                 idKeyMapping.put(id, workerClass);
@@ -62,6 +77,7 @@ public class WorkerMapper implements Service {
                 Constructor<Worker> constructor = workerClass.getDeclaredConstructor(ModuleManager.class);
                 Worker worker = constructor.newInstance(moduleManager);
                 classKeyInstanceMapping.put(workerClass, worker);
+                idKeyInstanceMapping.put(id, worker);
             }
         } catch (Exception e) {
             throw new WorkerDefineLoadException(e.getMessage(), e);

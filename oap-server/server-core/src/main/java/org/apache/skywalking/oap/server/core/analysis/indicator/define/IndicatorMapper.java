@@ -18,18 +18,19 @@
 
 package org.apache.skywalking.oap.server.core.analysis.indicator.define;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.library.module.Service;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
 public class IndicatorMapper implements Service {
+
+    private static final Logger logger = LoggerFactory.getLogger(IndicatorMapper.class);
 
     private int id = 0;
     private final Map<Class<Indicator>, Integer> classKeyMapping;
@@ -42,13 +43,26 @@ public class IndicatorMapper implements Service {
 
     @SuppressWarnings(value = "unchecked")
     public void load() throws IndicatorDefineLoadException {
-        URL url = Resources.getResource("META-INF/defines/indicator.def");
-
         try {
-            List<String> lines = Resources.readLines(url, Charsets.UTF_8);
+            List<String> indicatorClasses = new LinkedList<>();
 
-            for (String line : lines) {
-                Class<Indicator> indicatorClass = (Class<Indicator>)Class.forName(line);
+            Enumeration<URL> urlEnumeration = this.getClass().getClassLoader().getResources("META-INF/defines/indicator.def");
+            while (urlEnumeration.hasMoreElements()) {
+                URL definitionFileURL = urlEnumeration.nextElement();
+                logger.info("Load indicator definition file url: {}", definitionFileURL.getPath());
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(definitionFileURL.openStream()));
+                Properties properties = new Properties();
+                properties.load(bufferedReader);
+
+                Enumeration defineItem = properties.propertyNames();
+                while (defineItem.hasMoreElements()) {
+                    String fullNameClass = (String)defineItem.nextElement();
+                    indicatorClasses.add(fullNameClass);
+                }
+            }
+
+            for (String indicatorClassName : indicatorClasses) {
+                Class<Indicator> indicatorClass = (Class<Indicator>)Class.forName(indicatorClassName);
                 id++;
                 classKeyMapping.put(indicatorClass, id);
                 idKeyMapping.put(id, indicatorClass);
