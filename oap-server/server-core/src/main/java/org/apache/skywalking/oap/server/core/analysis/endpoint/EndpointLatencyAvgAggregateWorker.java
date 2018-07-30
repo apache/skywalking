@@ -16,41 +16,27 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.client.grpc;
+package org.apache.skywalking.oap.server.core.analysis.endpoint;
 
-import io.grpc.*;
-import lombok.Getter;
-import org.apache.skywalking.oap.server.library.client.Client;
+import org.apache.skywalking.oap.server.core.analysis.worker.AbstractAggregatorWorker;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
-public class GRPCClient implements Client {
+public class EndpointLatencyAvgAggregateWorker extends AbstractAggregatorWorker<EndpointLatencyAvgIndicator> {
 
-    @Getter private final String host;
+    private static final Logger logger = LoggerFactory.getLogger(EndpointLatencyAvgAggregateWorker.class);
 
-    @Getter private final int port;
+    private final EndpointLatencyAvgRemoteWorker remoter;
 
-    private ManagedChannel channel;
-
-    public GRPCClient(String host, int port) {
-        this.host = host;
-        this.port = port;
+    public EndpointLatencyAvgAggregateWorker(ModuleManager moduleManager) {
+        super(moduleManager);
+        this.remoter = new EndpointLatencyAvgRemoteWorker(moduleManager);
     }
 
-    @Override public void initialize() {
-        channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build();
-    }
-
-    @Override public void shutdown() {
-        channel.shutdownNow();
-    }
-
-    public ManagedChannel getChannel() {
-        return channel;
-    }
-
-    @Override public String toString() {
-        return host + ":" + port;
+    @Override protected void onNext(EndpointLatencyAvgIndicator data) {
+        remoter.in(data);
     }
 }

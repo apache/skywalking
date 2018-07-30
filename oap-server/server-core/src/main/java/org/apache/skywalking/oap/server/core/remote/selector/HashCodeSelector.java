@@ -16,11 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.data;
+package org.apache.skywalking.oap.server.core.remote.selector;
+
+import java.util.List;
+import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import org.apache.skywalking.oap.server.core.remote.client.RemoteClient;
 
 /**
  * @author peng-yongsheng
  */
-public interface RemoteData {
-    String selectKey();
+public class HashCodeSelector implements RemoteClientSelector {
+
+    @Override public RemoteClient select(List<RemoteClient> clients, Indicator indicator) {
+        int size = clients.size();
+        int selectIndex = Math.abs(indicator.hashCode()) % size;
+        return clients.get(selectIndex);
+    }
 }

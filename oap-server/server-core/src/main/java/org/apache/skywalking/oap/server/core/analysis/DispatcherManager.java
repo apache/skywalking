@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.endpoint.EndpointDispatcher;
 import org.apache.skywalking.oap.server.core.receiver.Scope;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.slf4j.*;
 
 /**
@@ -32,9 +33,9 @@ public class DispatcherManager {
 
     private Map<Scope, SourceDispatcher> dispatcherMap;
 
-    public DispatcherManager() {
+    public DispatcherManager(ModuleManager moduleManager) {
         this.dispatcherMap = new HashMap<>();
-        this.dispatcherMap.put(Scope.Endpoint, new EndpointDispatcher());
+        this.dispatcherMap.put(Scope.Endpoint, new EndpointDispatcher(moduleManager));
     }
 
     public SourceDispatcher getDispatcher(Scope scope) {

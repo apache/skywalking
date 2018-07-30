@@ -16,41 +16,13 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.client.grpc;
+package org.apache.skywalking.oap.server.core.remote;
 
-import io.grpc.*;
-import lombok.Getter;
-import org.apache.skywalking.oap.server.library.client.Client;
+import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 
 /**
  * @author peng-yongsheng
  */
-public class GRPCClient implements Client {
-
-    @Getter private final String host;
-
-    @Getter private final int port;
-
-    private ManagedChannel channel;
-
-    public GRPCClient(String host, int port) {
-        this.host = host;
-        this.port = port;
-    }
-
-    @Override public void initialize() {
-        channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build();
-    }
-
-    @Override public void shutdown() {
-        channel.shutdownNow();
-    }
-
-    public ManagedChannel getChannel() {
-        return channel;
-    }
-
-    @Override public String toString() {
-        return host + ":" + port;
-    }
+public interface Deserializable {
+    void deserialize(RemoteData remoteData);
 }

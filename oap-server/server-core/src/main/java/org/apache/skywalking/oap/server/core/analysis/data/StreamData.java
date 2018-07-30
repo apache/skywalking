@@ -18,10 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.analysis.data;
 
+import org.apache.skywalking.oap.server.core.remote.*;
+
 /**
  * @author peng-yongsheng
  */
-public abstract class StreamData implements QueueData {
+public abstract class StreamData implements QueueData, Serializable, Deserializable {
 
     private EndOfBatchContext endOfBatchContext;
 

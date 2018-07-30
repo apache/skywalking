@@ -19,7 +19,11 @@
 package org.apache.skywalking.oap.server.core;
 
 import java.util.*;
+import org.apache.skywalking.oap.server.core.analysis.indicator.define.IndicatorMapper;
+import org.apache.skywalking.oap.server.core.analysis.worker.define.WorkerMapper;
 import org.apache.skywalking.oap.server.core.receiver.SourceReceiver;
+import org.apache.skywalking.oap.server.core.remote.RemoteSenderService;
+import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
 import org.apache.skywalking.oap.server.core.server.*;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
@@ -38,6 +42,7 @@ public class CoreModule extends ModuleDefine {
         List<Class> classes = new ArrayList<>();
         addServerInterface(classes);
         addReceiverInterface(classes);
+        addInsideService(classes);
 
         return classes.toArray(new Class[] {});
     }
@@ -45,6 +50,13 @@ public class CoreModule extends ModuleDefine {
     private void addServerInterface(List<Class> classes) {
         classes.add(GRPCHandlerRegister.class);
         classes.add(JettyHandlerRegister.class);
+    }
+
+    private void addInsideService(List<Class> classes) {
+        classes.add(IndicatorMapper.class);
+        classes.add(WorkerMapper.class);
+        classes.add(RemoteClientManager.class);
+        classes.add(RemoteSenderService.class);
     }
 
     private void addReceiverInterface(List<Class> classes) {

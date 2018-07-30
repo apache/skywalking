@@ -16,41 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.client.grpc;
+package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import io.grpc.*;
-import lombok.Getter;
-import org.apache.skywalking.oap.server.library.client.Client;
+import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
  * @author peng-yongsheng
  */
-public class GRPCClient implements Client {
+public abstract class AbstractPersistentWorker<INPUT extends Indicator> extends Worker<INPUT> {
 
-    @Getter private final String host;
-
-    @Getter private final int port;
-
-    private ManagedChannel channel;
-
-    public GRPCClient(String host, int port) {
-        this.host = host;
-        this.port = port;
+    public AbstractPersistentWorker(ModuleManager moduleManager) {
     }
 
-    @Override public void initialize() {
-        channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build();
-    }
+    @Override public final void in(INPUT input) {
 
-    @Override public void shutdown() {
-        channel.shutdownNow();
-    }
-
-    public ManagedChannel getChannel() {
-        return channel;
-    }
-
-    @Override public String toString() {
-        return host + ":" + port;
     }
 }

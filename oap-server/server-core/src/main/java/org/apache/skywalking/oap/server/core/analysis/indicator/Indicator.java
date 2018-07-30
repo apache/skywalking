@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.indicator;
 
-import lombok.Getter;
+import lombok.*;
 import org.apache.skywalking.oap.server.core.analysis.data.StreamData;
 
 /**
@@ -26,11 +26,7 @@ import org.apache.skywalking.oap.server.core.analysis.data.StreamData;
  */
 public abstract class Indicator extends StreamData {
 
-    @Getter private final long timeBucket;
-
-    public Indicator(long timeBucket) {
-        this.timeBucket = timeBucket;
-    }
+    @Getter @Setter private long timeBucket;
 
     public abstract void combine(Indicator indicator);
 }
