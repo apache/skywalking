@@ -2,7 +2,7 @@
 [Zipkin](http://zipkin.io/)接收器提供了接受Zipkin格式的span数据功能.SkyWalking可以分析、聚合并且将数据展示到可视化界面.因此,用户不需要了解SkyWalking的自动采集探针(Java, .NET, node.js)是如何工作的,或者这些用户因为某些原因不想改变已有的采集方式，例如Zipkin的集成工作已经完成.
 
 Zipkin接受器在SkyWalking中仅仅只是一个可选特性,即使到目前为止它依然是[孵化特性]
-(../../../../docs/en/Incubating/Abstract-CN.md).
+(../../../../docs/cn/Incubating/Abstract-CN.md).
 
 ## 局限性
 作为孵化功能,它仍是一个原型.所以它包含以下几点局限：
