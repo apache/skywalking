@@ -35,8 +35,6 @@ public class MeshGRPCHandler extends ServiceMeshMetricServiceGrpc.ServiceMeshMet
                 if (logger.isDebugEnabled()) {
                     logger.debug("Received mesh metric: {}", metric);
                 }
-
-
             }
 
             @Override public void onError(Throwable throwable) {

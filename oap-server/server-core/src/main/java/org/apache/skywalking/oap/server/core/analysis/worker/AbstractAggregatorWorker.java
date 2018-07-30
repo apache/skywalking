@@ -16,35 +16,36 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis;
+package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.util.*;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.analysis.data.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class AbstractAggregator<INPUT extends Indicator> {
+public abstract class AbstractAggregatorWorker<INPUT extends Indicator> extends Worker<INPUT> {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractAggregator.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractAggregatorWorker.class);
 
     private final DataCarrier<INPUT> dataCarrier;
     private final MergeDataCache<INPUT> mergeDataCache;
     private int messageNum;
 
-    public AbstractAggregator() {
+    public AbstractAggregatorWorker(ModuleManager moduleManager) {
         this.mergeDataCache = new MergeDataCache<>();
         this.dataCarrier = new DataCarrier<>(1, 10000);
         this.dataCarrier.consume(new AggregatorConsumer(this), 1);
     }
 
-    public void in(INPUT message) {
-        message.setEndOfBatchContext(new EndOfBatchContext(false));
-        dataCarrier.produce(message);
+    @Override public final void in(INPUT input) {
+        input.setEndOfBatchContext(new EndOfBatchContext(false));
+        dataCarrier.produce(input);
     }
 
     private void onWork(INPUT message) {
@@ -91,9 +92,9 @@ public abstract class AbstractAggregator<INPUT extends Indicator> {
 
     private class AggregatorConsumer implements IConsumer<INPUT> {
 
-        private final AbstractAggregator<INPUT> aggregator;
+        private final AbstractAggregatorWorker<INPUT> aggregator;
 
-        private AggregatorConsumer(AbstractAggregator<INPUT> aggregator) {
+        private AggregatorConsumer(AbstractAggregatorWorker<INPUT> aggregator) {
             this.aggregator = aggregator;
         }
 

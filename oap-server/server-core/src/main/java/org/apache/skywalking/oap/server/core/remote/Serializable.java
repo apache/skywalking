@@ -16,19 +16,13 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.endpoint;
+package org.apache.skywalking.oap.server.core.remote;
 
-import org.apache.skywalking.oap.server.core.analysis.AbstractAggregator;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 
 /**
  * @author peng-yongsheng
  */
-public class EndpointLatencyAvgAggregator extends AbstractAggregator<EndpointLatencyAvgIndicator> {
-
-    private static final Logger logger = LoggerFactory.getLogger(EndpointLatencyAvgAggregator.class);
-
-    @Override protected void onNext(EndpointLatencyAvgIndicator data) {
-
-    }
+public interface Serializable {
+    RemoteData.Builder serialize();
 }

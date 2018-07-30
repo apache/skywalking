@@ -18,24 +18,18 @@
 
 package org.apache.skywalking.oap.server.core;
 
-import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
-import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
-import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
-import org.apache.skywalking.oap.server.core.receiver.SourceReceiver;
-import org.apache.skywalking.oap.server.core.receiver.SourceReceiverImpl;
-import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
-import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegisterImpl;
-import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
-import org.apache.skywalking.oap.server.core.server.JettyHandlerRegisterImpl;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
-import org.apache.skywalking.oap.server.library.module.ModuleProvider;
-import org.apache.skywalking.oap.server.library.module.ModuleStartException;
-import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.apache.skywalking.oap.server.core.analysis.indicator.define.*;
+import org.apache.skywalking.oap.server.core.analysis.worker.define.*;
+import org.apache.skywalking.oap.server.core.cluster.*;
+import org.apache.skywalking.oap.server.core.receiver.*;
+import org.apache.skywalking.oap.server.core.remote.*;
+import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
+import org.apache.skywalking.oap.server.core.server.*;
+import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyServer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -47,17 +41,21 @@ public class CoreModuleProvider extends ModuleProvider {
     private final CoreModuleConfig moduleConfig;
     private GRPCServer grpcServer;
     private JettyServer jettyServer;
+    private final IndicatorMapper indicatorMapper;
+    private final WorkerMapper workerMapper;
 
     public CoreModuleProvider() {
         super();
         this.moduleConfig = new CoreModuleConfig();
+        this.indicatorMapper = new IndicatorMapper();
+        this.workerMapper = new WorkerMapper(getManager());
     }
 
     @Override public String name() {
         return "default";
     }
 
-    @Override public Class module() {
+    @Override public Class<? extends ModuleDefine> module() {
         return CoreModule.class;
     }
 
@@ -75,11 +73,24 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(GRPCHandlerRegister.class, new GRPCHandlerRegisterImpl(grpcServer));
         this.registerServiceImplementation(JettyHandlerRegister.class, new JettyHandlerRegisterImpl(jettyServer));
 
-        this.registerServiceImplementation(SourceReceiver.class, new SourceReceiverImpl());
+        this.registerServiceImplementation(SourceReceiver.class, new SourceReceiverImpl(getManager()));
+
+        this.registerServiceImplementation(IndicatorMapper.class, indicatorMapper);
+        this.registerServiceImplementation(WorkerMapper.class, workerMapper);
+
+        this.registerServiceImplementation(RemoteClientManager.class, new RemoteClientManager(getManager()));
+        this.registerServiceImplementation(RemoteSenderService.class, new RemoteSenderService(getManager()));
     }
 
-    @Override public void start() {
+    @Override public void start() throws ModuleStartException {
+        grpcServer.addHandler(new RemoteServiceHandler(getManager()));
 
+        try {
+            indicatorMapper.load();
+            workerMapper.load();
+        } catch (IndicatorDefineLoadException | WorkerDefineLoadException e) {
+            throw new ModuleStartException(e.getMessage(), e);
+        }
     }
 
     @Override public void notifyAfterCompleted() throws ModuleStartException {
@@ -90,9 +101,7 @@ public class CoreModuleProvider extends ModuleProvider {
             throw new ModuleStartException(e.getMessage(), e);
         }
 
-        RemoteInstance gRPCServerInstance = new RemoteInstance();
-        gRPCServerInstance.setHost(moduleConfig.getGRPCHost());
-        gRPCServerInstance.setPort(moduleConfig.getGRPCPort());
+        RemoteInstance gRPCServerInstance = new RemoteInstance(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort(), true);
         this.getManager().find(ClusterModule.NAME).getService(ClusterRegister.class).registerRemote(gRPCServerInstance);
     }
 
