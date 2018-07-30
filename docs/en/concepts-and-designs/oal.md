@@ -102,7 +102,7 @@ Calculate the metric data if the service instance is a JVM and collected by java
 | used | See JVM document | | long |
 | committed | See JVM document | | long |
 
-- SCOPE `Endpoint`
+### SCOPE `Endpoint`
 
 Calculate the metric data from each request of the endpoint in the service. 
 
