@@ -23,11 +23,6 @@ type ClusterBrief {
     numOfMQ: Int!
 }
 
-# Query the trend of alarm rate based on the given duration
-type AlarmTrend {
-    numOfAlarmRate: [Int]!
-}
-
 type Service {
     id: ID!
     name: String!
@@ -52,7 +47,6 @@ type Endpoint {
 
 extend type Query {
     getGlobalBrief(duration: Duration!): ClusterBrief
-    getAlarmTrend(duration: Duration!): AlarmTrend
 
     # Service related meta info.
     getAllServices(duration: Duration!): [Service!]!
@@ -64,5 +58,5 @@ extend type Query {
     # Endpoint query
     # Consider there are huge numbers of endpoint,
     # must use endpoint owner's service id, keyword and top N filter to do query.
-    searchEndpoint(keyword: String!, serviceId: ID!, topNFilter: MetricTopNCondition!): [Endpoint!]!
+    searchEndpoint(keyword: String!, serviceId: ID!, topN: Int!): [Endpoint!]!
 }

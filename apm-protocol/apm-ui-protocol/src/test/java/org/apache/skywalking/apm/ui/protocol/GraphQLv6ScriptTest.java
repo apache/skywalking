@@ -38,9 +38,10 @@ public class GraphQLv6ScriptTest {
         typeRegistry.merge(schemaParser.parse(loadSchema("common.graphqls")));
         typeRegistry.merge(schemaParser.parse(loadSchema("trace.graphqls")));
         typeRegistry.merge(schemaParser.parse(loadSchema("metric.graphqls")));
-        typeRegistry.merge(schemaParser.parse(loadSchema("overview.graphqls")));
+        typeRegistry.merge(schemaParser.parse(loadSchema("metadata.graphqls")));
         typeRegistry.merge(schemaParser.parse(loadSchema("topology.graphqls")));
-        typeRegistry.merge(schemaParser.parse(loadSchema("jvm.graphqls")));
+        typeRegistry.merge(schemaParser.parse(loadSchema("alarm.graphqls")));
+        typeRegistry.merge(schemaParser.parse(loadSchema("aggregation.graphqls")));
         RuntimeWiring wiring = buildRuntimeWiring();
         assertTrue(schemaGenerator.makeExecutableSchema(typeRegistry, wiring).getAllTypesAsList().size() > 0);
     }

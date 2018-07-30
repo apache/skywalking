@@ -14,28 +14,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-type CPUTrend {
-    cost: [Int!]!
+#  the trend alarm trigger times
+type AlarmTrend {
+    numOfAlarm: [Int]!
 }
 
-# The gc trend represents the numbers and time of Garbage Collector execution
-type GCTrend {
-    youngGCCount: [Int!]!
-    oldGCount: [Int!]!
-    youngGCTime: [Int!]!
-    oldGCTime: [Int!]!
+type AlarmMessage {
+    scope: Scope!
+    id: ID!
+    message: String!
 }
 
-# The memory used and max limit in heap and noheap space.
-type MemoryTrend {
-    heap: [Int!]!
-    maxHeap: [Int!]!
-    noheap: [Int!]!
-    maxNoheap: [Int!]!
+type Alarms {
+    msgs: [AlarmMessage!]!
+    total: Int!
 }
 
 extend type Query {
-    getJVMCPUTrend(serviceInstanceId: ID!, duration: Duration!): CPUTrend
-    getJVMGCTrend(serviceInstanceId: ID!, duration: Duration!): GCTrend
-    getJVMMemoryTrend(serviceInstanceId: ID!, duration: Duration!): MemoryTrend
+    getAlarmTrend(duration: Duration!): AlarmTrend!
+    getAlarm(duration: Duration!, scope: Scope, paging: Pagination!): Alarms
 }
