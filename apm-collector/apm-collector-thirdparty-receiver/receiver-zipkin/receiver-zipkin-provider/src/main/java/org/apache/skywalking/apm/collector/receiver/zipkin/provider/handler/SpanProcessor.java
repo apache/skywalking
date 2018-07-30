@@ -21,36 +21,28 @@ package org.apache.skywalking.apm.collector.receiver.zipkin.provider.handler;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.RegisterServices;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.ZipkinReceiverConfig;
 import org.apache.skywalking.apm.collector.receiver.zipkin.provider.cache.CacheFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesDecoder;
 
-import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 public class SpanProcessor {
-    private final Logger logger = LoggerFactory.getLogger(SpanProcessor.class);
-
     void convert(ZipkinReceiverConfig config, SpanBytesDecoder decoder, HttpServletRequest request, RegisterServices registerServices) throws IOException {
-        int len = request.getContentLength();
-        ServletInputStream iii = request.getInputStream();
-        byte[] buffer = new byte[len];
-
-        int readCntTotal = 0;
+        InputStream inputStream = getInputStream(request);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        byte[] buffer = new byte[2048];
         int readCntOnce;
-        while (readCntTotal < len) {
-            readCntOnce = iii.read(buffer, readCntTotal, len - readCntTotal);
-            if (readCntOnce <= 0) {
-                logger.error("Receive spans data failed.");
-                throw new IOException();
-            }
-            readCntTotal += readCntOnce;
+
+        while ((readCntOnce = inputStream.read(buffer)) >= 0) {
+            out.write(buffer, 0, readCntOnce);
         }
 
-        List<Span> spanList = decoder.decodeList(buffer);
+        List<Span> spanList = decoder.decodeList(out.toByteArray());
 
         spanList.forEach(span -> {
             // In Zipkin, the local service name represents the application owner.
@@ -64,5 +56,18 @@ public class SpanProcessor {
 
             CacheFactory.INSTANCE.get(config).addSpan(span);
         });
+    }
+
+    private InputStream getInputStream(HttpServletRequest request) throws IOException {
+        InputStream requestInStream;
+
+        String headEncoding = request.getHeader("accept-encoding");
+        if (headEncoding != null && (headEncoding.indexOf("gzip") != -1)) {
+            requestInStream = new GZIPInputStream(request.getInputStream());
+        } else {
+            requestInStream = request.getInputStream();
+        }
+
+        return requestInStream;
     }
 }
