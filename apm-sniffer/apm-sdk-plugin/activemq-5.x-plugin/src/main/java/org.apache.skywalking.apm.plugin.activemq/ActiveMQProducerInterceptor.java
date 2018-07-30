@@ -41,7 +41,7 @@ public class ActiveMQProducerInterceptor implements InstanceMethodsAroundInterce
         ContextCarrier contextCarrier = new ContextCarrier();
         ActiveMQDestination activeMQDestination = (ActiveMQDestination) allArguments[0];
         Message message = (Message)  allArguments[1];
-        String url = ActiveMQInfo.URL;
+        String url = (String) objInst.getSkyWalkingDynamicField();
 
         AbstractSpan activeSpan = null;
         CarrierItem next = contextCarrier.items();

@@ -39,7 +39,7 @@ public class ActiveMQConsumerInterceptor implements InstanceMethodsAroundInterce
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         ContextCarrier contextCarrier = new ContextCarrier();
-        String url = ActiveMQInfo.URL;
+        String url =  (String) objInst.getSkyWalkingDynamicField();
         MessageDispatch messageDispatch = (MessageDispatch) allArguments[0];
 
         AbstractSpan activeSpan = null;

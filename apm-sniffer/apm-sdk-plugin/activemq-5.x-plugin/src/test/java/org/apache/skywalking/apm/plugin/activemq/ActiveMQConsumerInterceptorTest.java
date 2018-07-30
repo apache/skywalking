@@ -19,38 +19,28 @@
 
 package org.apache.skywalking.apm.plugin.activemq;
 
-import org.apache.activemq.ActiveMQMessageProducer;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.Message;
 import org.apache.activemq.command.MessageDispatch;
 import org.apache.activemq.command.Response;
 import org.apache.activemq.state.CommandVisitor;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
 import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
-import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.junit.*;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
-
-import javax.jms.Destination;
 import javax.jms.JMSException;
 import java.io.IOException;
-import java.util.Enumeration;
-import java.util.HashMap;
+
 import java.util.List;
 
-import static org.apache.skywalking.apm.network.trace.component.ComponentsDefine.ACTIVEMQ_PRODUCER;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -124,11 +114,22 @@ public class ActiveMQConsumerInterceptorTest {
         }
     }
 
+    private EnhancedInstance enhancedInstance = new EnhancedInstance() {
+        @Override
+        public Object getSkyWalkingDynamicField() {
+            return "localhost:60601";
+        }
+
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
+        }
+    };
+
     @Before
     public void setUp() throws IOException {
         activeMQConsumerInterceptor = new ActiveMQConsumerInterceptor();
         messageDispatch = new MessageDispatch();
-        ActiveMQInfo.URL = "localhost:60601";
+
         Des des = new Des();
         des.setPhysicalName("test");
         messageDispatch.setDestination(des);
@@ -141,8 +142,8 @@ public class ActiveMQConsumerInterceptorTest {
 
     @Test
     public void testConsumerWithoutMessage() throws Throwable {
-        activeMQConsumerInterceptor.beforeMethod(null, null, arguments , null,null);
-        activeMQConsumerInterceptor.afterMethod(null, null, arguments, null, null);
+        activeMQConsumerInterceptor.beforeMethod(enhancedInstance,null,arguments,null,null);
+        activeMQConsumerInterceptor.afterMethod(enhancedInstance, null, arguments, null, null);
 
         List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
         Assert.assertThat(traceSegments.size(), is(1));

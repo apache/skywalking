@@ -20,13 +20,13 @@ package org.apache.skywalking.apm.plugin.activemq.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.activemq.ActiveMQSession;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch;
 
-import java.net.URL;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
@@ -36,14 +36,14 @@ public class ActiveMQProducerInstrumentation extends ClassInstanceMethodsEnhance
     public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.activemq.ActiveMQProducerInterceptor";
     public static final String ENHANCE_CLASS_PRODUCER = "org.apache.activemq.ActiveMQMessageProducer";
     public static final String ENHANCE_CLASS_CONNECTIONFACTORY = "org.apache.activemq.ActiveMQConnectionFactory";
-    public static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.activemq.ActiveMQConnectionFactoryConstructorInterceptor";
+    public static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.activemq.ActiveMQConsumerAndProducerConstructorInterceptor";
     public static final String ENHANCE_METHOD = "send";
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                     @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                        return takesArgument(2,String.class).or(takesArgument(2,URL.class));
+                        return takesArgument(0,ActiveMQSession.class);
                     }
 
                     @Override public String getConstructorInterceptor() {

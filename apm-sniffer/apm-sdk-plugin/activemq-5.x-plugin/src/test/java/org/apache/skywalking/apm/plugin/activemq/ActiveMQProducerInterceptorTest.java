@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.apache.activemq.ActiveMQMessageProducer;
 import org.apache.activemq.command.ActiveMQDestination;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -72,8 +73,6 @@ public class ActiveMQProducerInterceptorTest {
     private Message message;
 
 
-    @Mock
-    private EnhancedInstance enhancedInstance;
 
     private  class  MQDestination extends ActiveMQDestination {
 
@@ -321,6 +320,16 @@ public class ActiveMQProducerInterceptorTest {
         }
     }
 
+    private EnhancedInstance enhancedInstance = new EnhancedInstance() {
+        @Override
+        public Object getSkyWalkingDynamicField() {
+            return "localhost:60601";
+        }
+
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
+        }
+    };
 
 
     @Before
@@ -330,7 +339,6 @@ public class ActiveMQProducerInterceptorTest {
         mqDestination.setPhysicalName("test");
         message = new Msg();
         arguments = new Object[] {mqDestination, message};
-        ActiveMQInfo.URL = "localhost:60601";
         argumentType = new Class[] {ActiveMQMessageProducer.class};
 
     }
