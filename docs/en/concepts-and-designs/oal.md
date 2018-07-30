@@ -54,7 +54,7 @@ Calculate the metric data from each request of the service instance.
 
 | Name | Remarks | Group Key | Type | 
 |---|---|---|---|
-| id | Represent the unique id of the service, usually a number. | yes | int |
+| id | Represent the unique id of the service instance, usually a number. | yes | int |
 | name |  Represent the name of the service instance. Such as `ip:port@Service Name`.  **Notice**: current native agent uses `processId@Service name` as instance name, which is useless when you want to setup a filter in aggregation. | | string|
 | serviceName | Represent the name of the service. | | string |
 | endpointName | Represent the name of the endpoint, such a full path of HTTP URI. | | string|
@@ -71,7 +71,7 @@ Calculate the metric data if the service instance is a JVM and collected by java
 
 | Name | Remarks | Group Key | Type | 
 |---|---|---|---|
-| id | Represent the unique id of the service, usually a number. | yes | int |
+| id | Represent the unique id of the service instance, usually a number. | yes | int |
 | name |  Represent the name of the service instance. Such as `ip:port@Service Name`.  **Notice**: current native agent uses `processId@Service name` as instance name, which is useless when you want to setup a filter in aggregation. | | string|
 | serviceName | Represent the name of the service. | | string |
 | use_percent | Represent how much percent of cpu time cost| | double|
@@ -80,7 +80,7 @@ Calculate the metric data if the service instance is a JVM and collected by java
 
 | Name | Remarks | Group Key | Type | 
 |---|---|---|---|
-| id | Represent the unique id of the service, usually a number. | yes | int |
+| id | Represent the unique id of the service instance, usually a number. | yes | int |
 | name |  Represent the name of the service instance. Such as `ip:port@Service Name`.  **Notice**: current native agent uses `processId@Service name` as instance name, which is useless when you want to setup a filter in aggregation. | | string|
 | serviceName | Represent the name of the service. | | string |
 | isHeap | Represent this value the memory metric values are heap or not | | bool |
@@ -93,7 +93,7 @@ Calculate the metric data if the service instance is a JVM and collected by java
 
 | Name | Remarks | Group Key | Type | 
 |---|---|---|---|
-| id | Represent the unique id of the service, usually a number. | yes | int |
+| id | Represent the unique id of the service instance, usually a number. | yes | int |
 | name |  Represent the name of the service instance. Such as `ip:port@Service Name`.  **Notice**: current native agent uses `processId@Service name` as instance name, which is useless when you want to setup a filter in aggregation. | | string|
 | serviceName | Represent the name of the service. | | string |
 | poolType | Include CODE_CACHE_USAGE, NEWGEN_USAGE, OLDGEN_USAGE, SURVIVOR_USAGE, PERMGEN_USAGE, METASPACE_USAGE based on different version of JVM. | | enum |
