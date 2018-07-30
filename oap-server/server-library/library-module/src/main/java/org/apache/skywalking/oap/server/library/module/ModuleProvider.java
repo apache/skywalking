@@ -18,8 +18,7 @@
 
 package org.apache.skywalking.oap.server.library.module;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * The <code>ModuleProvider</code> is an implementation of a {@link ModuleDefine}.

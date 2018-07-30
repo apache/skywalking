@@ -16,41 +16,26 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.client.grpc;
+package org.apache.skywalking.oap.server.core.analysis.endpoint;
 
-import io.grpc.*;
-import lombok.Getter;
-import org.apache.skywalking.oap.server.library.client.Client;
+import org.apache.skywalking.oap.server.core.analysis.worker.AbstractRemoteWorker;
+import org.apache.skywalking.oap.server.core.remote.selector.Selector;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
  * @author peng-yongsheng
  */
-public class GRPCClient implements Client {
+public class EndpointLatencyAvgRemoteWorker extends AbstractRemoteWorker<EndpointLatencyAvgIndicator> {
 
-    @Getter private final String host;
-
-    @Getter private final int port;
-
-    private ManagedChannel channel;
-
-    public GRPCClient(String host, int port) {
-        this.host = host;
-        this.port = port;
+    public EndpointLatencyAvgRemoteWorker(ModuleManager moduleManager) {
+        super(moduleManager);
     }
 
-    @Override public void initialize() {
-        channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build();
+    @Override public Selector selector() {
+        return Selector.HashCode;
     }
 
-    @Override public void shutdown() {
-        channel.shutdownNow();
-    }
-
-    public ManagedChannel getChannel() {
-        return channel;
-    }
-
-    @Override public String toString() {
-        return host + ":" + port;
+    @Override public Class nextWorkerClass() {
+        return EndpointLatencyAvgPersistentWorker.class;
     }
 }
