@@ -186,7 +186,7 @@ public class SegmentBuilder {
         // Some implement of zipkin client not include duration field in its report
         // package when duration's value be 0ms, Causing a null pointer exception here.
         Long durationObj = span.duration();
-        long duration = (durationObj == null) ? 1 : durationObj.longValue() / 1000;
+        long duration = (durationObj == null) ? 0 : durationObj.longValue() / 1000;
         spanBuilder.setStartTime(startTime);
         spanBuilder.setEndTime(startTime + duration);
 
