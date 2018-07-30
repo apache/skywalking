@@ -33,7 +33,7 @@ By using Aggregation Function, the requests will group by time and **Group Key(s
 | responseCode | Represent the response code of HTTP response, if this request is the HTTP call. e.g. 200, 404, 302| | int |
 
 
-- SCOPE `Service`
+### SCOPE `Service`
 
 Calculate the metric data from each request of the service. 
 
@@ -48,7 +48,7 @@ Calculate the metric data from each request of the service.
 | responseCode | Represent the response code of HTTP response, if this request is the HTTP call | | int|
 | type | Represent the type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
 
-- SCOPE `ServiceInstance`
+### SCOPE `ServiceInstance`
 
 Calculate the metric data from each request of the service instance. 
 
@@ -63,7 +63,7 @@ Calculate the metric data from each request of the service instance.
 | responseCode | Represent the response code of HTTP response, if this request is the HTTP call. | | int |
 | type | Represent the type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
 
-- Secondary scopes of `ServiceInstance` 
+#### Secondary scopes of `ServiceInstance` 
 
 Calculate the metric data if the service instance is a JVM and collected by javaagent.
 
@@ -117,7 +117,7 @@ Calculate the metric data from each request of the endpoint in the service.
 | responseCode | Represent the response code of HTTP response, if this request is the HTTP call. | | int |
 | type | Represent the type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
 
-- SCOPE `ServiceRelation`
+### SCOPE `ServiceRelation`
 
 Calculate the metric data from each request between one service and the other service
 
@@ -137,7 +137,7 @@ Calculate the metric data from each request between one service and the other se
 | detectPoint | Represent where is the relation detected. Values: client, server, proxy. | yes | enum|
 
 
-- SCOPE `ServiceInstanceRelation`
+### SCOPE `ServiceInstanceRelation`
 
 Calculate the metric data from each request between one service instance and the other service instance
 
@@ -156,7 +156,7 @@ Calculate the metric data from each request between one service instance and the
 | type | Represent the type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
 | detectPoint | Represent where is the relation detected. Values: client, server, proxy. | yes | enum|
 
-- SCOPE `EndpointRelation`
+### SCOPE `EndpointRelation`
 
 Calculate the metric data of the dependency between one endpoint and the other endpoint. 
 This relation is hard to detect, also depends on tracing lib to propagate the prev endpoint. 
