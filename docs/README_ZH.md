@@ -23,6 +23,7 @@
   * 孵化特性
     * [孵化特性的由来?](cn/Incubating/Abstract-CN.md)
     * [使用Shardingjdbc作为存储实现](cn/Use-ShardingJDBC-as-storage-implementor-CN.md)
+    * [接受Zipkin格式的span数据](../apm-collector/apm-collector-thirdparty-receiver/receiver-zipkin/docs/README-CN.md)
   * APM相关介绍资料
     * [OpenTracing中文版](https://github.com/opentracing-contrib/opentracing-specification-zh)
   * Application Toolkit，应用程序工具包
