@@ -17,7 +17,8 @@ METRIC_NAME = from(SCOPE.(* | [FIELD][,FIELD ...]))
 ```
 
 ## Scope
-**SCOPE** in (`All`, `Service`, `ServiceInstance`, `Endpoint`, `ServiceRelation`, `ServiceInstanceRelation`, `EndpointRelation`).
+Primary **SCOPE**s are `All`, `Service`, `ServiceInstance`, `Endpoint`, `ServiceRelation`, `ServiceInstanceRelation`, `EndpointRelation`.
+Also there are some secondary scopes, which belongs to one primary scope. 
 
 ## Field
 By using Aggregation Function, the requests will group by time and **Group Key(s)** in each scope.
@@ -61,6 +62,45 @@ Calculate the metric data from each request of the service instance.
 | status | Represent whether success or fail of the request. | | bool(true for success) |
 | responseCode | Represent the response code of HTTP response, if this request is the HTTP call. | | int |
 | type | Represent the type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
+
+- Secondary scopes of `ServiceInstance` 
+
+Calculate the metric data if the service instance is a JVM and collected by javaagent.
+
+1. SCOPE `ServiceInstance_JVM_CPU`
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| id | Represent the unique id of the service, usually a number. | yes | int |
+| name |  Represent the name of the service instance. Such as `ip:port@Service Name`.  **Notice**: current native agent uses `processId@Service name` as instance name, which is useless when you want to setup a filter in aggregation. | | string|
+| serviceName | Represent the name of the service. | | string |
+| use_percent | Represent how much percent of cpu time cost| | double|
+
+2. SCOPE `ServiceInstance_JVM_Memory`
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| id | Represent the unique id of the service, usually a number. | yes | int |
+| name |  Represent the name of the service instance. Such as `ip:port@Service Name`.  **Notice**: current native agent uses `processId@Service name` as instance name, which is useless when you want to setup a filter in aggregation. | | string|
+| serviceName | Represent the name of the service. | | string |
+| isHeap | Represent this value the memory metric values are heap or not | | bool |
+| init | See JVM document | | long |
+| max | See JVM document | | long |
+| used | See JVM document | | long |
+| committed | See JVM document | | long |
+
+3. SCOPE `ServiceInstance_JVM_Memory_Pool`
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| id | Represent the unique id of the service, usually a number. | yes | int |
+| name |  Represent the name of the service instance. Such as `ip:port@Service Name`.  **Notice**: current native agent uses `processId@Service name` as instance name, which is useless when you want to setup a filter in aggregation. | | string|
+| serviceName | Represent the name of the service. | | string |
+| poolType | Include CODE_CACHE_USAGE, NEWGEN_USAGE, OLDGEN_USAGE, SURVIVOR_USAGE, PERMGEN_USAGE, METASPACE_USAGE based on different version of JVM. | | enum |
+| init | See JVM document | | long |
+| max | See JVM document | | long |
+| used | See JVM document | | long |
+| committed | See JVM document | | long |
 
 - SCOPE `Endpoint`
 
