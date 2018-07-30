@@ -18,19 +18,16 @@
 
 package org.apache.skywalking.oap.server.core.analysis.endpoint;
 
+import lombok.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.AvgIndicator;
+import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 
 /**
  * @author peng-yongsheng
  */
 public class EndpointLatencyAvgIndicator extends AvgIndicator {
 
-    private final int id;
-
-    public EndpointLatencyAvgIndicator(long timeBucket, int id) {
-        super(timeBucket);
-        this.id = id;
-    }
+    @Setter @Getter private int id;
 
     @Override public int hashCode() {
         int result = 17;
@@ -54,5 +51,23 @@ public class EndpointLatencyAvgIndicator extends AvgIndicator {
             return false;
 
         return true;
+    }
+
+    @Override public RemoteData.Builder serialize() {
+        RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
+        remoteBuilder.setDataIntegers(0, getId());
+        remoteBuilder.setDataIntegers(1, getCount());
+
+        remoteBuilder.setDataLongs(0, getTimeBucket());
+        remoteBuilder.setDataLongs(1, getSummation());
+        return remoteBuilder;
+    }
+
+    @Override public void deserialize(RemoteData remoteData) {
+        setId(remoteData.getDataIntegers(0));
+        setCount(remoteData.getDataIntegers(1));
+
+        setTimeBucket(remoteData.getDataLongs(0));
+        setSummation(remoteData.getDataLongs(1));
     }
 }

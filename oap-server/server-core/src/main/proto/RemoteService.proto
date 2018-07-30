@@ -16,16 +16,28 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.indicator.annotation;
+syntax = "proto3";
 
-import java.lang.annotation.*;
-import org.apache.skywalking.oap.server.core.remote.selector.Selector;
+option java_multiple_files = true;
+option java_package = "org.apache.skywalking.oap.server.core.remote.grpc.proto";
 
-/**
- * @author peng-yongsheng
- */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.SOURCE)
-public @interface IndicatorType {
-    Selector selector();
+service RemoteService {
+    rpc call (stream RemoteMessage) returns (Empty) {
+    }
+}
+
+message RemoteMessage {
+    int32 nextWorkerId = 1;
+    int32 indicatorId = 2;
+    RemoteData remoteData = 3;
+}
+
+message RemoteData {
+    repeated string dataStrings = 1;
+    repeated int64 dataLongs = 2;
+    repeated double dataDoubles = 3;
+    repeated int32 dataIntegers = 4;
+}
+
+message Empty {
 }

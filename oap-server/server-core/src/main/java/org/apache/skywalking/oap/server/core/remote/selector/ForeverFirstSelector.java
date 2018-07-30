@@ -16,41 +16,24 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.client.grpc;
+package org.apache.skywalking.oap.server.core.remote.selector;
 
-import io.grpc.*;
-import lombok.Getter;
-import org.apache.skywalking.oap.server.library.client.Client;
+import java.util.List;
+import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import org.apache.skywalking.oap.server.core.remote.client.RemoteClient;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
-public class GRPCClient implements Client {
+public class ForeverFirstSelector implements RemoteClientSelector {
 
-    @Getter private final String host;
+    private static final Logger logger = LoggerFactory.getLogger(ForeverFirstSelector.class);
 
-    @Getter private final int port;
-
-    private ManagedChannel channel;
-
-    public GRPCClient(String host, int port) {
-        this.host = host;
-        this.port = port;
-    }
-
-    @Override public void initialize() {
-        channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build();
-    }
-
-    @Override public void shutdown() {
-        channel.shutdownNow();
-    }
-
-    public ManagedChannel getChannel() {
-        return channel;
-    }
-
-    @Override public String toString() {
-        return host + ":" + port;
+    @Override public RemoteClient select(List<RemoteClient> clients, Indicator indicator) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("clients size: {}", clients.size());
+        }
+        return clients.get(0);
     }
 }
