@@ -185,7 +185,7 @@ public class ActiveMQConsumerAndProducerConstructorInterceptorTest {
     public void setUp() throws Exception {
         TransportTest transport =  new TransportTest();
         transport.setRemoteAddress("tcp://127.0.0.1:61616");
-        idGenerator =new  IdGenerator("aaa");
+        idGenerator = new  IdGenerator("aaa");
         jmsStats = new JMSStatsImpl();
         activeMQConnection = new TestConnection(transport,idGenerator,idGenerator,jmsStats);
         sessionId = new SessionId();
@@ -193,7 +193,7 @@ public class ActiveMQConsumerAndProducerConstructorInterceptorTest {
     }
 
     @Test
-    public void TestActiveMQConsumerAndProducerConstructorInterceptor(){
+    public void TestActiveMQConsumerAndProducerConstructorInterceptor() {
         activeMQConsumerAndProducerConstructorInterceptor = new ActiveMQConsumerAndProducerConstructorInterceptor();
         activeMQConsumerAndProducerConstructorInterceptor.onConstruct(enhancedInstance,new Object[] {activeMQSession});
         assertThat((String) enhancedInstance.getSkyWalkingDynamicField(), is("127.0.0.1:61616"));

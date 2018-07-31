@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.plugin.activemq.define;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.activemq.ActiveMQSession;
+import org.apache.activemq.command.MessageDispatch;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
@@ -55,7 +56,7 @@ public class ActiveMQConsumerInstrumentation extends ClassInstanceMethodsEnhance
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                     @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named(ENHANCE_METHOD_DISPATCH);
+                        return named(ENHANCE_METHOD_DISPATCH).and(takesArgument(0,MessageDispatch.class));
                     }
                     @Override public String getMethodsInterceptor() {
                         return INTERCEPTOR_CLASS;

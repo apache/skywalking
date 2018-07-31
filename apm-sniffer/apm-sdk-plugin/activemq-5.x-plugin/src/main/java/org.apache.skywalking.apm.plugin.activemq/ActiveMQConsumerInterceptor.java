@@ -38,23 +38,23 @@ public class ActiveMQConsumerInterceptor implements InstanceMethodsAroundInterce
     public static final String CONSUMER_OPERATE_NAME_SUFFIX = "/Consumer";
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        ContextCarrier contextCarrier = new ContextCarrier();
         String url =  (String) objInst.getSkyWalkingDynamicField();
         MessageDispatch messageDispatch = (MessageDispatch) allArguments[0];
 
         AbstractSpan activeSpan = null;
 
         if (messageDispatch.getDestination().getDestinationType() == 1 ||  messageDispatch.getDestination().getDestinationType() == 5) {
-            activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + "QUEUE/" + messageDispatch.getDestination().getPhysicalName() + CONSUMER_OPERATE_NAME_SUFFIX, null).start(System.currentTimeMillis());
+            activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + "Queue/" + messageDispatch.getDestination().getPhysicalName() + CONSUMER_OPERATE_NAME_SUFFIX, null).start(System.currentTimeMillis());
             Tags.MQ_BROKER.set(activeSpan, url);
             Tags.MQ_QUEUE.set(activeSpan, messageDispatch.getDestination().getPhysicalName());
         } else if (messageDispatch.getDestination().getDestinationType() == 2 ||  messageDispatch.getDestination().getDestinationType() == 6) {
-            activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + "TOPIC/" + messageDispatch.getDestination().getPhysicalName() + CONSUMER_OPERATE_NAME_SUFFIX, null).start(System.currentTimeMillis());
+            activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + "Topic/" + messageDispatch.getDestination().getPhysicalName() + CONSUMER_OPERATE_NAME_SUFFIX, null).start(System.currentTimeMillis());
             Tags.MQ_BROKER.set(activeSpan, url);
             Tags.MQ_TOPIC.set(activeSpan, messageDispatch.getDestination().getPhysicalName());
 
         }
 
+        ContextCarrier contextCarrier = new ContextCarrier();
         activeSpan.setComponent(ComponentsDefine.ACTIVEMQ_CONSUMER);
         SpanLayer.asMQ(activeSpan);
         CarrierItem next = contextCarrier.items();

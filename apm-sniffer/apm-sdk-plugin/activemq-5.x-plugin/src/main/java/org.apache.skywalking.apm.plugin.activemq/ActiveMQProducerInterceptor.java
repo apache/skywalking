@@ -43,14 +43,15 @@ public class ActiveMQProducerInterceptor implements InstanceMethodsAroundInterce
         Message message = (Message)  allArguments[1];
         String url = (String) objInst.getSkyWalkingDynamicField();
 
+
         AbstractSpan activeSpan = null;
         CarrierItem next = contextCarrier.items();
         if (activeMQDestination.getDestinationType() == 1 || activeMQDestination.getDestinationType() == 5) {
-            activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + "QUEUE/" + activeMQDestination.getPhysicalName() + PRODUCER_OPERATE_NAME_SUFFIX, null).start(System.currentTimeMillis());
+            activeSpan = ContextManager.createExitSpan(OPERATE_NAME_PREFIX + "Queue/" + activeMQDestination.getPhysicalName() + PRODUCER_OPERATE_NAME_SUFFIX, contextCarrier, url);
             Tags.MQ_BROKER.set(activeSpan, url);
             Tags.MQ_QUEUE.set(activeSpan, activeMQDestination.getPhysicalName());
         } else if (activeMQDestination.getDestinationType() == 2 || activeMQDestination.getDestinationType() == 6) {
-            activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + "TOPIC/" + activeMQDestination.getPhysicalName() + PRODUCER_OPERATE_NAME_SUFFIX, null).start(System.currentTimeMillis());
+            activeSpan = ContextManager.createExitSpan(OPERATE_NAME_PREFIX + "Topic/" + activeMQDestination.getPhysicalName() + PRODUCER_OPERATE_NAME_SUFFIX, contextCarrier, url);
             Tags.MQ_BROKER.set(activeSpan, url);
             Tags.MQ_TOPIC.set(activeSpan,activeMQDestination.getPhysicalName());
         }
@@ -59,7 +60,7 @@ public class ActiveMQProducerInterceptor implements InstanceMethodsAroundInterce
 
         while (next.hasNext()) {
             next = next.next();
-            message.setStringProperty(next.getHeadKey(),next.getHeadValue());
+            message.setStringProperty(next.getHeadKey(),next.getHeadValue().getBytes().toString());
         }
 
 
