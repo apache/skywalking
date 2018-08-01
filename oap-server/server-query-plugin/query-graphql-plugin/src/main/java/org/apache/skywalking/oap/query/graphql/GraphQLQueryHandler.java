@@ -34,8 +34,6 @@ import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.oap.server.library.server.jetty.ArgumentsParseException;
-
 import org.apache.skywalking.oap.server.library.server.jetty.JettyJsonHandler;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.slf4j.Logger;
@@ -63,11 +61,11 @@ public class GraphQLQueryHandler extends JettyJsonHandler {
         return path;
     }
 
-    @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {
+    @Override protected JsonElement doGet(HttpServletRequest req) {
         throw new UnsupportedOperationException("GraphQL only supports POST method");
     }
 
-    @Override protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException, IOException {
+    @Override protected JsonElement doPost(HttpServletRequest req) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(req.getInputStream()));
         String line;
         StringBuilder request = new StringBuilder();
