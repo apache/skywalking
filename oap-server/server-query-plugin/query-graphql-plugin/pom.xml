@@ -21,65 +21,46 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>oap-server</artifactId>
+        <artifactId>server-query-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
         <version>6.0.0-alpha-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>server-starter</artifactId>
-    <packaging>jar</packaging>
+    <artifactId>query-graphql-plugin</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>library-module</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>library-util</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>server-core</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- cluster module -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>cluster-standalone-plugin</artifactId>
+            <artifactId>apm-ui-protocol</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>cluster-zookeeper-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <!-- cluster module -->
-
-        <!-- receiver module -->
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>mesh-receiver-provider</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <!-- receiver module -->
-
-        <!-- storage module -->
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>storage-h2-plugin</artifactId>
-            <version>${project.version}</version>
+            <groupId>com.graphql-java</groupId>
+            <artifactId>graphql-java</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>storage-elasticsearch-plugin</artifactId>
-            <version>${project.version}</version>
+            <groupId>com.graphql-java</groupId>
+            <artifactId>graphql-java-tools</artifactId>
         </dependency>
-        <!-- storage module -->
-
-        <!-- query module -->
         <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>query-graphql-plugin</artifactId>
-            <version>${project.version}</version>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
         </dependency>
-        <!-- query module -->
     </dependencies>
 </project>
