@@ -71,7 +71,7 @@ ui:
 storage:
   elasticsearch:
     clusterName: CollectorDBCluster
-    clusterTransportSniffer: false
+    clusterTransportSniffer: true
     clusterNodes: localhost:9300
     indexShardsNumber: 2
     indexReplicasNumber: 0
