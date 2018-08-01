@@ -70,9 +70,9 @@ ui:
     contextPath: /
 storage:
   elasticsearch:
-    clusterName: docker-cluster
+    clusterName: CollectorDBCluster
     clusterTransportSniffer: false
-    clusterNodes: tututech.f3322.net:9300
+    clusterNodes: localhost:9300
     indexShardsNumber: 2
     indexReplicasNumber: 0
     highPerformanceMode: true
