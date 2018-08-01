@@ -360,6 +360,6 @@ public class ActiveMQProducerInterceptorTest {
         SpanAssert.assertTag(span, 1, "test");
         SpanAssert.assertComponent(span, ACTIVEMQ_PRODUCER);
         SpanAssert.assertLayer(span, SpanLayer.MQ);
-        assertThat(span.getOperationName(), is("ActiveMQ/QUEUE/test/Producer"));
+        assertThat(span.getOperationName(), is("ActiveMQ/Queue/test/Producer"));
     }
 }
