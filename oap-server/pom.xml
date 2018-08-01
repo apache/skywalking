@@ -36,6 +36,7 @@
         <module>server-storage-plugin</module>
         <module>server-library</module>
         <module>server-starter</module>
+        <module>server-query-plugin</module>
     </modules>
 
     <properties>
@@ -56,6 +57,8 @@
         <elasticsearch.version>6.3.1</elasticsearch.version>
         <joda-time.version>2.9.9</joda-time.version>
         <kubernetes.version>2.0.0</kubernetes.version>
+        <graphql-java.version>8.0</graphql-java.version>
+        <graphql-java-tools.version>5.2.3</graphql-java-tools.version>
     </properties>
 
     <dependencies>
@@ -230,6 +233,16 @@
                 <groupId>io.kubernetes</groupId>
                 <artifactId>client-java</artifactId>
                 <version>${kubernetes.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.graphql-java</groupId>
+                <artifactId>graphql-java</artifactId>
+                <version>${graphql-java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.graphql-java</groupId>
+                <artifactId>graphql-java-tools</artifactId>
+                <version>${graphql-java-tools.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

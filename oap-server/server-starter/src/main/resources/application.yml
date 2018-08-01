@@ -37,3 +37,6 @@ storage:
   elasticsearch:
 service-mesh:
   default:
+query:
+  graphql:
+    path: /graphql
