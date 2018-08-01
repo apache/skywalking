@@ -21,8 +21,14 @@ package org.apache.skywalking.oap.query.graphql;
 import com.coxautodev.graphql.tools.SchemaParser;
 import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
+import org.apache.skywalking.oap.query.graphql.resolver.AggregationQuery;
+import org.apache.skywalking.oap.query.graphql.resolver.AlarmQuery;
+import org.apache.skywalking.oap.query.graphql.resolver.MetadataQuery;
+import org.apache.skywalking.oap.query.graphql.resolver.MetricQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.Mutation;
 import org.apache.skywalking.oap.query.graphql.resolver.Query;
+import org.apache.skywalking.oap.query.graphql.resolver.TopologyQuery;
+import org.apache.skywalking.oap.query.graphql.resolver.TraceQuery;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.QueryModule;
 import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
@@ -59,6 +65,18 @@ public class GraphQLQueryProvider extends ModuleProvider {
         GraphQLSchema schema = SchemaParser.newParser()
             .file("ui-graphql-v6/common.graphqls")
             .resolvers(new Query(), new Mutation())
+            .file("ui-graphql-v6/metadata.graphqls")
+            .resolvers(new MetadataQuery())
+            .file("ui-graphql-v6/metric.graphqls")
+            .resolvers(new MetricQuery())
+            .file("ui-graphql-v6/topology.graphqls")
+            .resolvers(new TopologyQuery())
+            .file("ui-graphql-v6/trace.graphqls")
+            .resolvers(new TraceQuery())
+            .file("ui-graphql-v6/aggregation.graphqls")
+            .resolvers(new AggregationQuery())
+            .file("ui-graphql-v6/alarm.graphqls")
+            .resolvers(new AlarmQuery())
             .build()
             .makeExecutableSchema();
         this.graphQL = GraphQL.newGraphQL(schema).build();

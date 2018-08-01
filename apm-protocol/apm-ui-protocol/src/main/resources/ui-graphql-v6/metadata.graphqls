@@ -57,6 +57,6 @@ extend type Query {
 
     # Endpoint query
     # Consider there are huge numbers of endpoint,
-    # must use endpoint owner's service id, keyword and top N filter to do query.
-    searchEndpoint(keyword: String!, serviceId: ID!, topN: Int!): [Endpoint!]!
+    # must use endpoint owner's service id, keyword and limit filter to do query.
+    searchEndpoint(keyword: String!, serviceId: ID!, limit: Int!): [Endpoint!]!
 }

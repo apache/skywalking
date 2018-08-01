@@ -41,5 +41,5 @@ type TopNEntity {
 # All aggregation queries require backend or/and storage do aggregation in query time.
 extend type Query {
     # TopN is an aggregation query.
-    getTopN(metric: TopNCondition!): [TopNEntity!]!
+    getTopN(condition: TopNCondition!): [TopNEntity!]!
 }
