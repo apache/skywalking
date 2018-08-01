@@ -167,7 +167,7 @@ public class ActiveMQConsumerAndProducerConstructorInterceptorTest {
         }
     }
 
-    private  ActiveMQConsumerAndProducerConstructorInterceptor activeMQConsumerAndProducerConstructorInterceptor;
+    private  ActiveMQConsumerConstructorInterceptor activeMQConsumerAndProducerConstructorInterceptor;
 
     private EnhancedInstance enhancedInstance = new EnhancedInstance() {
         private String test;
@@ -194,7 +194,7 @@ public class ActiveMQConsumerAndProducerConstructorInterceptorTest {
 
     @Test
     public void TestActiveMQConsumerAndProducerConstructorInterceptor() {
-        activeMQConsumerAndProducerConstructorInterceptor = new ActiveMQConsumerAndProducerConstructorInterceptor();
+        activeMQConsumerAndProducerConstructorInterceptor = new ActiveMQConsumerConstructorInterceptor();
         activeMQConsumerAndProducerConstructorInterceptor.onConstruct(enhancedInstance,new Object[] {activeMQSession});
         assertThat((String) enhancedInstance.getSkyWalkingDynamicField(), is("127.0.0.1:61616"));
     }

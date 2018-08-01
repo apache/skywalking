@@ -4,7 +4,7 @@ import org.apache.activemq.ActiveMQSession;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
-public class ActiveMQConsumerAndProducerConstructorInterceptor  implements InstanceConstructorInterceptor {
+public class ActiveMQConsumerConstructorInterceptor implements InstanceConstructorInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         ActiveMQSession session = (ActiveMQSession)allArguments[0];

@@ -38,18 +38,17 @@ public class ActiveMQProducerInterceptor implements InstanceMethodsAroundInterce
     public static final String PRODUCER_OPERATE_NAME_SUFFIX = "/Producer";
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+
         ContextCarrier contextCarrier = new ContextCarrier();
         ActiveMQDestination activeMQDestination = (ActiveMQDestination) allArguments[0];
         Message message = (Message)  allArguments[1];
         String url = (String) objInst.getSkyWalkingDynamicField();
-
-
         AbstractSpan activeSpan = null;
-        CarrierItem next = contextCarrier.items();
         if (activeMQDestination.getDestinationType() == 1 || activeMQDestination.getDestinationType() == 5) {
             activeSpan = ContextManager.createExitSpan(OPERATE_NAME_PREFIX + "Queue/" + activeMQDestination.getPhysicalName() + PRODUCER_OPERATE_NAME_SUFFIX, contextCarrier, url);
-            Tags.MQ_BROKER.set(activeSpan, url);
-            Tags.MQ_QUEUE.set(activeSpan, activeMQDestination.getPhysicalName());
+            Tags.MQ_BROKER.set(activeSpan,url);
+            Tags.MQ_QUEUE.set(activeSpan,activeMQDestination.getPhysicalName());
+
         } else if (activeMQDestination.getDestinationType() == 2 || activeMQDestination.getDestinationType() == 6) {
             activeSpan = ContextManager.createExitSpan(OPERATE_NAME_PREFIX + "Topic/" + activeMQDestination.getPhysicalName() + PRODUCER_OPERATE_NAME_SUFFIX, contextCarrier, url);
             Tags.MQ_BROKER.set(activeSpan, url);
@@ -57,12 +56,12 @@ public class ActiveMQProducerInterceptor implements InstanceMethodsAroundInterce
         }
         SpanLayer.asMQ(activeSpan);
         activeSpan.setComponent(ComponentsDefine.ACTIVEMQ_PRODUCER);
+        CarrierItem next = contextCarrier.items();
 
         while (next.hasNext()) {
             next = next.next();
-            message.setStringProperty(next.getHeadKey(),next.getHeadValue().getBytes().toString());
+            message.setStringProperty(next.getHeadKey(),next.getHeadValue());
         }
-
 
     }
 

@@ -21,20 +21,20 @@ package org.apache.skywalking.apm.plugin.activemq.define;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.activemq.ActiveMQSession;
-import org.apache.activemq.command.MessageDispatch;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch;
+
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
-import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 public class ActiveMQConsumerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.activemq.ActiveMQConsumerInterceptor";
     public static final String ENHANCE_CLASS_CONSUMER = "org.apache.activemq.ActiveMQMessageConsumer";
-    public static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.activemq.ActiveMQConsumerAndProducerConstructorInterceptor";
+    public static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.activemq.ActiveMQConsumerConstructorInterceptor";
     public static final String ENHANCE_METHOD_DISPATCH = "dispatch";
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -56,8 +56,10 @@ public class ActiveMQConsumerInstrumentation extends ClassInstanceMethodsEnhance
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                     @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named(ENHANCE_METHOD_DISPATCH).and(takesArgument(0,MessageDispatch.class));
+                        return named(ENHANCE_METHOD_DISPATCH);
                     }
+
+
                     @Override public String getMethodsInterceptor() {
                         return INTERCEPTOR_CLASS;
                     }
@@ -71,6 +73,6 @@ public class ActiveMQConsumerInstrumentation extends ClassInstanceMethodsEnhance
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byName(ENHANCE_CLASS_CONSUMER);
+        return MultiClassNameMatch.byMultiClassMatch(ENHANCE_CLASS_CONSUMER);
     }
 }
