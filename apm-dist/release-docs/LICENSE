@@ -299,6 +299,7 @@ The text of each license is the standard Apache 2.0 license.
     ben-manes caffeine 2.6.2: https://github.com/ben-manes/caffeine, Apache 2.0
     zipkin 2.9.1: https://github.com/openzipkin/zipkin, Apache 2.0
     sharding-jdbc-core 2.0.3: https://github.com/sharding-sphere/sharding-sphere, Apache 2.0
+    kubernetes-client 2.0.0: https://github.com/kubernetes-client/java, Apache 2.0
 
 ========================================================================
 MIT licenses
