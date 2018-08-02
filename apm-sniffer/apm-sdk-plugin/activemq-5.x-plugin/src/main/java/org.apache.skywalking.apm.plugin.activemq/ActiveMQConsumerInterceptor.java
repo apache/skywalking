@@ -32,6 +32,9 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
+/**
+ * @author withlin
+ */
 public class ActiveMQConsumerInterceptor implements InstanceMethodsAroundInterceptor {
 
     public static final String OPERATE_NAME_PREFIX = "ActiveMQ/";

@@ -30,6 +30,11 @@ import org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 
+/**
+ * {@link ActiveMQConsumerInstrumentation} presents that skywalking intercepts {@link org.apache.activemq.ActiveMQMessageConsumer}.
+ *
+ * @author withlin
+ */
 public class ActiveMQConsumerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.activemq.ActiveMQConsumerInterceptor";
     public static final String ENHANCE_CLASS_CONSUMER = "org.apache.activemq.ActiveMQMessageConsumer";
