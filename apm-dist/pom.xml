@@ -38,12 +38,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>apm-collector-boot</artifactId>
+            <artifactId>server-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>apm-collector-boot</artifactId>
+            <artifactId>apm-webapp</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
