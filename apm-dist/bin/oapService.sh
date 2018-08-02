@@ -18,33 +18,33 @@
 
 PRG="$0"
 PRGDIR=`dirname "$PRG"`
-[ -z "$COLLECTOR_HOME" ] && COLLECTOR_HOME=`cd "$PRGDIR/.." >/dev/null; pwd`
+[ -z "$OAP_HOME" ] && OAP_HOME=`cd "$PRGDIR/.." >/dev/null; pwd`
 
-COLLECT_LOG_DIR="${COLLECTOR_HOME}/logs"
+OAP_LOG_DIR="${OAP_HOME}/logs"
 JAVA_OPTS=" -Xms256M -Xmx512M"
 
-if [ ! -d "${COLLECTOR_HOME}/logs" ]; then
-    mkdir -p "${COLLECT_LOG_DIR}"
+if [ ! -d "${OAP_HOME}/logs" ]; then
+    mkdir -p "${OAP_LOG_DIR}"
 fi
 
 _RUNJAVA=${JAVA_HOME}/bin/java
 [ -z "$JAVA_HOME" ] && _RUNJAVA=java
 
-CLASSPATH="$COLLECTOR_HOME/config:$CLASSPATH"
-for i in "$COLLECTOR_HOME"/collector-libs/*.jar
+CLASSPATH="$OAP_HOME/config:$CLASSPATH"
+for i in "$OAP_HOME"/oap-libs/*.jar
 do
     CLASSPATH="$i:$CLASSPATH"
 done
 
-COLLECTOR_OPTIONS=" -Dcollector.logDir=${COLLECT_LOG_DIR}"
+OAP_OPTIONS=" -Doap.logDir=${OAP_LOG_DIR}"
 
-eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} ${COLLECTOR_OPTIONS} -classpath $CLASSPATH org.apache.skywalking.apm.collector.boot.CollectorBootStartUp \
-        2>${COLLECT_LOG_DIR}/collector.log 1> /dev/null &"
+eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} ${OAP_OPTIONS} -classpath $CLASSPATH org.apache.skywalking.oap.server.starter.OAPServerStartUp \
+        2>${OAP_LOG_DIR}/oap.log 1> /dev/null &"
 
 if [ $? -eq 0 ]; then
     sleep 1
-	echo "SkyWalking Collector started successfully!"
+	echo "SkyWalking OAP started successfully!"
 else
-	echo "SkyWalking Collector started failure!"
+	echo "SkyWalking OAP started failure!"
 	exit 1
 fi
