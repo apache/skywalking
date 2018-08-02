@@ -33,7 +33,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
 /**
  * {@link ActiveMQConsumerInstrumentation} presents that skywalking intercepts {@link org.apache.activemq.ActiveMQMessageConsumer}.
  *
- * @author withlin
+ * @author withlin 
  */
 public class ActiveMQConsumerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.activemq.ActiveMQConsumerInterceptor";
