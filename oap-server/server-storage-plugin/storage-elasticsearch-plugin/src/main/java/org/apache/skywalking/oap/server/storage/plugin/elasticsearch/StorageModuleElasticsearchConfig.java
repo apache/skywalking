@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch;
 
+import lombok.*;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
@@ -25,6 +26,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
  */
 public class StorageModuleElasticsearchConfig extends ModuleConfig {
 
+    @Setter @Getter private String nameSpace;
+    @Setter @Getter private String clusterNodes;
     private int indexShardsNumber;
     private int indexReplicasNumber;
     private boolean highPerformanceMode;

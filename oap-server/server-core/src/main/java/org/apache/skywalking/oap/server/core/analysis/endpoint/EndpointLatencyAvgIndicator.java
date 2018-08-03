@@ -18,16 +18,33 @@
 
 package org.apache.skywalking.oap.server.core.analysis.endpoint;
 
+import java.util.*;
 import lombok.*;
-import org.apache.skywalking.oap.server.core.analysis.indicator.AvgIndicator;
+import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
  * @author peng-yongsheng
  */
 public class EndpointLatencyAvgIndicator extends AvgIndicator {
 
-    @Setter @Getter private int id;
+    private static final String NAME = "endpoint_latency_avg";
+    private static final String ID = "id";
+    private static final String SERVICE_ID = "service_id";
+    private static final String SERVICE_INSTANCE_ID = "service_instance_id";
+
+    @Setter @Getter @Column(columnName = ID) private int id;
+    @Setter @Getter @Column(columnName = SERVICE_ID) private int serviceId;
+    @Setter @Getter @Column(columnName = SERVICE_INSTANCE_ID) private int serviceInstanceId;
+
+    @Override public String name() {
+        return NAME;
+    }
+
+    @Override public String id() {
+        return String.valueOf(id);
+    }
 
     @Override public int hashCode() {
         int result = 17;
@@ -56,18 +73,49 @@ public class EndpointLatencyAvgIndicator extends AvgIndicator {
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
         remoteBuilder.setDataIntegers(0, getId());
-        remoteBuilder.setDataIntegers(1, getCount());
+        remoteBuilder.setDataIntegers(1, getServiceId());
+        remoteBuilder.setDataIntegers(2, getServiceInstanceId());
+        remoteBuilder.setDataIntegers(3, getCount());
 
         remoteBuilder.setDataLongs(0, getTimeBucket());
         remoteBuilder.setDataLongs(1, getSummation());
+        remoteBuilder.setDataLongs(2, getValue());
+
         return remoteBuilder;
     }
 
     @Override public void deserialize(RemoteData remoteData) {
         setId(remoteData.getDataIntegers(0));
-        setCount(remoteData.getDataIntegers(1));
+        setServiceId(remoteData.getDataIntegers(1));
+        setServiceInstanceId(remoteData.getDataIntegers(2));
+        setCount(remoteData.getDataIntegers(3));
 
         setTimeBucket(remoteData.getDataLongs(0));
         setSummation(remoteData.getDataLongs(1));
+        setValue(remoteData.getDataLongs(2));
+    }
+
+    @Override public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put(ID, id);
+        map.put(SERVICE_ID, serviceId);
+        map.put(SERVICE_INSTANCE_ID, serviceInstanceId);
+        map.put(COUNT, getCount());
+        map.put(SUMMATION, getSummation());
+        map.put(VALUE, getValue());
+        map.put(TIME_BUCKET, getTimeBucket());
+        return map;
+    }
+
+    @Override public Indicator newOne(Map<String, Object> dbMap) {
+        EndpointLatencyAvgIndicator indicator = new EndpointLatencyAvgIndicator();
+        indicator.setId((Integer)dbMap.get(ID));
+        indicator.setServiceId((Integer)dbMap.get(SERVICE_ID));
+        indicator.setServiceInstanceId((Integer)dbMap.get(SERVICE_INSTANCE_ID));
+        indicator.setCount((Integer)dbMap.get(COUNT));
+        indicator.setSummation((Long)dbMap.get(SUMMATION));
+        indicator.setValue((Long)dbMap.get(VALUE));
+        indicator.setTimeBucket((Long)dbMap.get(TIME_BUCKET));
+        return indicator;
     }
 }

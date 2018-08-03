@@ -18,15 +18,27 @@
 
 package org.apache.skywalking.oap.server.core.analysis.indicator;
 
+import java.util.Map;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.analysis.data.StreamData;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
  * @author peng-yongsheng
  */
 public abstract class Indicator extends StreamData {
 
-    @Getter @Setter private long timeBucket;
+    protected static final String TIME_BUCKET = "time_bucket";
+
+    @Getter @Setter @Column(columnName = TIME_BUCKET) private long timeBucket;
+
+    public abstract String id();
 
     public abstract void combine(Indicator indicator);
+
+    public abstract String name();
+
+    public abstract Map<String, Object> toMap();
+
+    public abstract Indicator newOne(Map<String, Object> dbMap);
 }

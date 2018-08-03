@@ -21,8 +21,10 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 import java.util.*;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.data.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import org.apache.skywalking.oap.server.core.analysis.worker.define.WorkerMapper;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.slf4j.*;
 
@@ -33,11 +35,14 @@ public abstract class AbstractAggregatorWorker<INPUT extends Indicator> extends 
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractAggregatorWorker.class);
 
+    private Worker worker;
+    private final ModuleManager moduleManager;
     private final DataCarrier<INPUT> dataCarrier;
     private final MergeDataCache<INPUT> mergeDataCache;
     private int messageNum;
 
     public AbstractAggregatorWorker(ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
         this.mergeDataCache = new MergeDataCache<>();
         this.dataCarrier = new DataCarrier<>(1, 10000);
         this.dataCarrier.consume(new AggregatorConsumer(this), 1);
@@ -78,7 +83,15 @@ public abstract class AbstractAggregatorWorker<INPUT extends Indicator> extends 
         mergeDataCache.finishReadingLast();
     }
 
-    protected abstract void onNext(INPUT data);
+    private void onNext(INPUT data) {
+        if (worker == null) {
+            WorkerMapper workerMapper = moduleManager.find(CoreModule.NAME).getService(WorkerMapper.class);
+            worker = workerMapper.findInstanceByClass(nextWorkerClass());
+        }
+        worker.in(data);
+    }
+
+    public abstract Class nextWorkerClass();
 
     private void aggregate(INPUT message) {
         mergeDataCache.writing();

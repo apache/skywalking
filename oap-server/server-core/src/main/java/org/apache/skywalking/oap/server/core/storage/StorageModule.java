@@ -32,6 +32,6 @@ public class StorageModule extends ModuleDefine {
     }
 
     @Override public Class[] services() {
-        return new Class[] {};
+        return new Class[] {IBatchDAO.class, IPersistenceDAO.class};
     }
 }

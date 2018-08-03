@@ -29,4 +29,8 @@ public class EndpointLatencyAvgPersistentWorker extends AbstractPersistentWorker
     public EndpointLatencyAvgPersistentWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
+
+    @Override protected boolean needMergeDBData() {
+        return true;
+    }
 }

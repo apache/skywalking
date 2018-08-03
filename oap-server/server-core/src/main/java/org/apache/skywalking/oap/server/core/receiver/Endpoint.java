@@ -20,10 +20,12 @@ package org.apache.skywalking.oap.server.core.receiver;
 
 import lombok.*;
 import org.apache.skywalking.apm.network.language.agent.SpanLayer;
+import org.apache.skywalking.oap.server.core.receiver.annotation.SourceType;
 
 /**
  * @author peng-yongsheng
  */
+@SourceType
 public class Endpoint extends Source {
     @Override public Scope scope() {
         return Scope.Endpoint;
@@ -31,7 +33,9 @@ public class Endpoint extends Source {
 
     @Getter @Setter private int id;
     @Getter @Setter private String name;
+    @Getter @Setter private int serviceId;
     @Getter @Setter private String serviceName;
+    @Getter @Setter private int serviceInstanceId;
     @Getter @Setter private String serviceInstanceName;
     @Getter @Setter private int latency;
     @Getter @Setter private boolean status;

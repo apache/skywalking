@@ -21,15 +21,21 @@ package org.apache.skywalking.oap.server.core.analysis.indicator;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.*;
 import org.apache.skywalking.oap.server.core.remote.selector.Selector;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
  * @author peng-yongsheng
  */
-@IndicatorType(selector = Selector.HashCode)
+@IndicatorType(selector = Selector.HashCode, needMerge = true)
 public abstract class AvgIndicator extends Indicator {
 
-    @Getter @Setter private long summation;
-    @Getter @Setter private int count;
+    protected static final String SUMMATION = "summation";
+    protected static final String COUNT = "count";
+    protected static final String VALUE = "value";
+
+    @Getter @Setter @Column(columnName = SUMMATION) private long summation;
+    @Getter @Setter @Column(columnName = COUNT) private int count;
+    @Getter @Setter @Column(columnName = VALUE) private long value;
 
     @Entrance
     public final void combine(@SourceFrom long summation, @ConstOne int count) {
