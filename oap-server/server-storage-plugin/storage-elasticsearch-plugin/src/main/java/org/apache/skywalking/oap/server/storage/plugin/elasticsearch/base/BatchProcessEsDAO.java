@@ -61,10 +61,10 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
         if (CollectionUtils.isNotEmpty(batchCollection)) {
             batchCollection.forEach(builder -> {
                 if (builder instanceof IndexRequest) {
-                    this.bulkProcessor.add(((IndexRequest)builder));
+                    this.bulkProcessor.add((IndexRequest)builder);
                 }
                 if (builder instanceof UpdateRequest) {
-                    this.bulkProcessor.add(((UpdateRequest)builder));
+                    this.bulkProcessor.add((UpdateRequest)builder);
                 }
             });
         }
