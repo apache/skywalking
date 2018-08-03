@@ -40,3 +40,6 @@ storage:
     indexReplicasNumber: 0
 service-mesh:
   default:
+query:
+  graphql:
+    path: /graphql

@@ -1,9 +1,9 @@
 # Protocols
 There are two types of protocols list here. 
 
-- **Probe Protocol**. Include the descriptions and definitions about how agent send collected metric data and traces, also the formats of each entities.
+- [**Probe Protocol**](#probe-protocols). Include the descriptions and definitions about how agent send collected metric data and traces, also the formats of each entities.
 
-- **Query Protocol**. The backend provide query capability to SkyWalking own UI and others. These queries are based on GraphQL.
+- [**Query Protocol**](#query-protocol). The backend provide query capability to SkyWalking own UI and others. These queries are based on GraphQL.
 
 ## Probe Protocols
 They also related to the probe group, for understand that, look [Concepts and Designs](../concepts-and-designs/README.md) document.
@@ -36,3 +36,20 @@ the following key info:
 could receive from their existed libraries. SkyWalking starts with supporting Zipkin v1, v2 data formats.
 
 Backend is based on modulization principle, so very easy to extend a new receiver to support new protocol/format.
+
+## Query Protocol
+Query protocol follows GraphQL grammar, provides data query capabilities, which depends on your analysis metrics.
+
+There are 5 dimensionality data is provided.
+1. Metadata. Metadata includes the brief info of the whole under monitoring services and their instances, endpoints, etc.
+Use multiple ways to query this meta data.
+1. Metric. Metric query targets all the objects defined in [OAL script](../concepts-and-designs/oal.md). You could get the 
+metric data in linear or thermodynamic matrix formats based on the aggregation functions in script. 
+1. Aggregation. Aggregation query means the metric data need a secondary aggregation in query stage, which makes the query 
+interfaces have some different arguments. Such as, `TopN` list of services is a very typical aggregation query, 
+metric stream aggregation just calculates the metric values of each service, but the expected list needs ordering metric data
+by the values.
+1. Trace. Query distributed traces by this.
+1. Alarm. Through alarm query, you can have alarm trend and details.
+
+The actual query GraphQL scrips could be found in [here](../../../apm-protocol/apm-ui-protocol/src/main/resources/ui-graphql-v6).  

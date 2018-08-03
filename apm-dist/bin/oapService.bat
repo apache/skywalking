@@ -17,12 +17,12 @@
 @echo off
 
 setlocal
-set COLLECTOR_PROCESS_TITLE=Skywalking-Collector
-set COLLECTOR_HOME=%~dp0%..
-set COLLECTOR_OPTS="-Xms256M -Xmx512M -Dcollector.logDir=%COLLECTOR_HOME%\logs"
+set OAP_PROCESS_TITLE=Skywalking-Collector
+set OAP_HOME=%~dp0%..
+set OAP_OPTS="-Xms256M -Xmx512M -Doap.logDir=%OAP_HOME%\logs"
 
-set CLASSPATH=%COLLECTOR_HOME%\config;.;
-set CLASSPATH=%COLLECTOR_HOME%\collector-libs\*;%CLASSPATH%
+set CLASSPATH=%OAP_HOME%\config;.;
+set CLASSPATH=%OAP_HOME%\oap-libs\*;%CLASSPATH%
 
 if defined JAVA_HOME (
  set _EXECJAVA="%JAVA_HOME%\bin\java"
@@ -33,5 +33,5 @@ if not defined JAVA_HOME (
  set _EXECJAVA=java
 )
 
-start "%COLLECTOR_PROCESS_TITLE%" %_EXECJAVA% "%COLLECTOR_OPTS%" -cp "%CLASSPATH%" org.apache.skywalking.apm.collector.boot.CollectorBootStartUp
+start "%OAP_PROCESS_TITLE%" %_EXECJAVA% "%OAP_OPTS%" -cp "%CLASSPATH%" org.apache.skywalking.oap.server.starter.OAPServerStartUp
 endlocal
