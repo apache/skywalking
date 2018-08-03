@@ -77,7 +77,7 @@ public class ServiceNameService {
 
     private long startTimeMillis() {
         int minuteMetricDataTTL = configService.minuteMetricDataTTL();
-        return System.currentTimeMillis() - minuteMetricDataTTL * 60 * 60 * 100;
+        return System.currentTimeMillis() - minuteMetricDataTTL * 60 * 1000L;
     }
 
     public ThroughputTrend getServiceThroughputTrend(int serviceId, Step step, long startTimeBucket,
