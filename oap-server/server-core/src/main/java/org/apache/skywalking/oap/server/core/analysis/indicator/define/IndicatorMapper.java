@@ -79,4 +79,8 @@ public class IndicatorMapper implements Service {
     public Class<Indicator> findClassById(int id) {
         return idKeyMapping.get(id);
     }
+
+    public Collection<Class<Indicator>> indicatorClasses() {
+        return idKeyMapping.values();
+    }
 }

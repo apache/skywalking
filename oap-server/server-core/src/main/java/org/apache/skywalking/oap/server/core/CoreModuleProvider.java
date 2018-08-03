@@ -48,7 +48,7 @@ public class CoreModuleProvider extends ModuleProvider {
         super();
         this.moduleConfig = new CoreModuleConfig();
         this.indicatorMapper = new IndicatorMapper();
-        this.workerMapper = new WorkerMapper(getManager());
+        this.workerMapper = new WorkerMapper();
     }
 
     @Override public String name() {
@@ -87,7 +87,7 @@ public class CoreModuleProvider extends ModuleProvider {
 
         try {
             indicatorMapper.load();
-            workerMapper.load();
+            workerMapper.load(getManager());
         } catch (IndicatorDefineLoadException | WorkerDefineLoadException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }

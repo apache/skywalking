@@ -34,14 +34,12 @@ public class WorkerMapper implements Service {
     private static final Logger logger = LoggerFactory.getLogger(WorkerMapper.class);
 
     private int id = 0;
-    private final ModuleManager moduleManager;
     private final Map<Class<Worker>, Integer> classKeyMapping;
     private final Map<Integer, Class<Worker>> idKeyMapping;
     private final Map<Class<Worker>, Worker> classKeyInstanceMapping;
     private final Map<Integer, Worker> idKeyInstanceMapping;
 
-    public WorkerMapper(ModuleManager moduleManager) {
-        this.moduleManager = moduleManager;
+    public WorkerMapper() {
         this.classKeyMapping = new HashMap<>();
         this.idKeyMapping = new HashMap<>();
         this.classKeyInstanceMapping = new HashMap<>();
@@ -49,7 +47,7 @@ public class WorkerMapper implements Service {
     }
 
     @SuppressWarnings(value = "unchecked")
-    public void load() throws WorkerDefineLoadException {
+    public void load(ModuleManager moduleManager) throws WorkerDefineLoadException {
         try {
             List<String> workerClasses = new LinkedList<>();
 

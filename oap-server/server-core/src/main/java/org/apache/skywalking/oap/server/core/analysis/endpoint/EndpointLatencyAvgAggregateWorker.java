@@ -20,23 +20,17 @@ package org.apache.skywalking.oap.server.core.analysis.endpoint;
 
 import org.apache.skywalking.oap.server.core.analysis.worker.AbstractAggregatorWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
 public class EndpointLatencyAvgAggregateWorker extends AbstractAggregatorWorker<EndpointLatencyAvgIndicator> {
 
-    private static final Logger logger = LoggerFactory.getLogger(EndpointLatencyAvgAggregateWorker.class);
-
-    private final EndpointLatencyAvgRemoteWorker remoter;
-
     public EndpointLatencyAvgAggregateWorker(ModuleManager moduleManager) {
         super(moduleManager);
-        this.remoter = new EndpointLatencyAvgRemoteWorker(moduleManager);
     }
 
-    @Override protected void onNext(EndpointLatencyAvgIndicator data) {
-        remoter.in(data);
+    @Override public Class nextWorkerClass() {
+        return EndpointLatencyAvgRemoteWorker.class;
     }
 }

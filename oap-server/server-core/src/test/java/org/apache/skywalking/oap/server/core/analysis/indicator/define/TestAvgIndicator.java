@@ -18,8 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.analysis.indicator.define;
 
+import java.util.Map;
 import lombok.*;
-import org.apache.skywalking.oap.server.core.analysis.indicator.AvgIndicator;
+import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 
 /**
@@ -34,5 +35,21 @@ public class TestAvgIndicator extends AvgIndicator {
     }
 
     @Override public void deserialize(RemoteData remoteData) {
+    }
+
+    @Override public String id() {
+        return null;
+    }
+
+    @Override public String name() {
+        return null;
+    }
+
+    @Override public Map<String, Object> toMap() {
+        return null;
+    }
+
+    @Override public Indicator newOne(Map<String, Object> dbMap) {
+        return null;
     }
 }
