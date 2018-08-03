@@ -92,6 +92,8 @@ public class ComponentsDefine {
 
     public static final OfficialComponent SOFARPC =  new OfficialComponent(43, "SOFARPC");
 
+    public static final OfficialComponent UNDERTOW =  new OfficialComponent(45, "Undertow");
+
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
     private String[] components;
@@ -101,7 +103,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[44];
+        components = new String[46];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -135,6 +137,7 @@ public class ComponentsDefine {
         addComponent(KAFKA_CONSUMER);
         addComponent(MONGO_DRIVER);
         addComponent(SOFARPC);
+        addComponent(UNDERTOW);
     }
 
     private void addComponent(OfficialComponent component) {
