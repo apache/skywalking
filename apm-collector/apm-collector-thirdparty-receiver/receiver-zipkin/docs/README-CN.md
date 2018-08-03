@@ -9,7 +9,7 @@ Zipkin接受器在SkyWalking中仅仅只是一个可选特性,即使到目前为
 
 1. 不要在同一分布式系统中使用SkyWalking原生探针和Zipkin的类库。考虑到Zipkin和SkyWalking的HEADER不是共享/可互操作的，它们的两个不会相互传播context.这会导致已跟踪的链接中断
 1. 不支持集群模式.
-1. 基于链路跟踪的分析将在特定时间内完成的.默认是不能超过2分钟.在分析阶段SkyWalking使用了更复杂的header和context来兼容处理Zipkin格式的数据.
+1. 在进行链路分析时，基于链路会在制定时间内结束。默认链路执行时间不超过2分钟。SkyWalking使用了更复杂的header和context结构，来避免zipkin分析时的这个问题.
 
 ## 打开Zipkin接收器
 Zipkin接收器是一个可选模块，默认是关闭.要打开它,在collector的application.yml配置文件中修改下面的配置项
