@@ -15,17 +15,15 @@
  * limitations under the License.
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.patch;
-
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
 
 /**
  * {@link AopExpressionMatchInterceptor} check if the method is match the enhanced method
@@ -42,30 +40,33 @@ public class AopExpressionMatchInterceptor implements StaticMethodsAroundInterce
     }
 
     @Override
-    public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, MethodInterceptResult result) {
+    public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+        MethodInterceptResult result) {
 
     }
 
     @Override
-    public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Object ret) {
-        Method targetAopMethod = (Method) allArguments[1];
-        Class<?> targetAopClass = (Class<?>) allArguments[2];
-        if (EnhancedInstance.class.isAssignableFrom(targetAopClass) && isEnhancedMethod(targetAopMethod)) {
+    public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+        Object ret) {
+        Method targetAopMethod = (Method)allArguments[1];
+        Class<?> targetAopClass = (Class<?>)allArguments[2];
+        if (targetAopClass != null && EnhancedInstance.class.isAssignableFrom(targetAopClass) && isEnhancedMethod(targetAopMethod)) {
             return false;
         }
         return ret;
     }
 
     @Override
-    public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Throwable t) {
+    public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+        Throwable t) {
 
     }
 
     private boolean isEnhancedMethod(Method targetMethod) {
         for (Method method : methods) {
             if (method.getName().equals(targetMethod.getName())
-                    && method.getReturnType().equals(targetMethod.getReturnType())
-                    && equalParamTypes(method.getParameterTypes(), targetMethod.getParameterTypes())) {
+                && method.getReturnType().equals(targetMethod.getReturnType())
+                && equalParamTypes(method.getParameterTypes(), targetMethod.getParameterTypes())) {
                 return true;
             }
         }

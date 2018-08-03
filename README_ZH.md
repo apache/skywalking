@@ -29,7 +29,7 @@ Apache SkyWalking | [English](README.md)
 - 多语言探针或类库
   - Java自动探针，追踪和监控程序时，不需要修改源码。
   - 社区提供的其他多语言探针
-    * [.NET Core](https://github.com/OpenSkywalking/skywalking-netcore) 
+    * [.NET Core](https://github.com/OpenSkywalking/skywalking-netcore)
     * [Node.js](https://github.com/OpenSkywalking/skywalking-nodejs)
 - 多种后端存储： ElasticSearch， H2
 - 支持[OpenTracing](http://opentracing.io/)
@@ -39,7 +39,7 @@ Apache SkyWalking | [English](README.md)
 - 日志集成
 - 应用、实例和服务的告警
 - [**Incubating**]支持接口其他探针的数据
-  - 接受Zipkin v1 v2格式数据，采用JSON, Thrift, Protobuf序列化方式。Powered by [OpenZipkin](https://github.com/openzipkin/zipkin) libs 
+  - 接受Zipkin v1 v2格式数据，采用JSON, Thrift, Protobuf序列化方式。Powered by [OpenZipkin](https://github.com/openzipkin/zipkin) libs
   - 接受Jaeger 使用 [Zipkin Thrift 或 JSON v1/v2 格式](https://github.com/jaegertracing/jaeger#backwards-compatibility-with-zipkin)
 
 # Document
@@ -73,10 +73,10 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 * [Gitter](https://gitter.im/openskywalking/Lobby)
 * QQ群: 392443393
 
-# Use cases
+# Users
 <img src="https://skywalkingtest.github.io/page-resources/users/users-2018-07-27-2.png"/>
 
-- [用户案例](docs/use-case-list.md)
+- [用户案例](docs/users-list.md)
 - [报告新的用户案例](https://github.com/apache/incubator-skywalking/issues/443)
 
 
