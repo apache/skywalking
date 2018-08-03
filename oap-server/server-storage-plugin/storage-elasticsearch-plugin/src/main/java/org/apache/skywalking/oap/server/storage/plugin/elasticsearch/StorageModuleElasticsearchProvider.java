@@ -18,8 +18,11 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch;
 
-import org.apache.skywalking.oap.server.core.storage.StorageModule;
+import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.library.client.NameSpace;
+import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.*;
 import org.slf4j.*;
 
 /**
@@ -29,11 +32,14 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(StorageModuleElasticsearchProvider.class);
 
-    private final StorageModuleElasticsearchConfig storageConfig;
+    private final StorageModuleElasticsearchConfig config;
+    private final NameSpace nameSpace;
+    private ElasticSearchClient elasticSearchClient;
 
     public StorageModuleElasticsearchProvider() {
         super();
-        this.storageConfig = new StorageModuleElasticsearchConfig();
+        this.config = new StorageModuleElasticsearchConfig();
+        this.nameSpace = new NameSpace();
     }
 
     @Override
@@ -42,21 +48,34 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
     }
 
     @Override
-    public Class module() {
+    public Class<? extends ModuleDefine> module() {
         return StorageModule.class;
     }
 
     @Override
     public ModuleConfig createConfigBeanIfAbsent() {
-        return storageConfig;
+        return config;
     }
 
     @Override
     public void prepare() throws ServiceNotProvidedException {
+        elasticSearchClient = new ElasticSearchClient(config.getClusterNodes(), nameSpace);
+
+        this.registerServiceImplementation(IBatchDAO.class, new BatchProcessEsDAO(elasticSearchClient, config.getBulkActions(), config.getBulkSize(), config.getFlushInterval(), config.getConcurrentRequests()));
+        this.registerServiceImplementation(IPersistenceDAO.class, new PersistenceEsDAO(elasticSearchClient, nameSpace));
     }
 
     @Override
     public void start() throws ModuleStartException {
+        try {
+            nameSpace.setNameSpace(config.getNameSpace());
+            elasticSearchClient.initialize();
+
+            StorageEsInstaller installer = new StorageEsInstaller(getManager(), config.getIndexShardsNumber(), config.getIndexReplicasNumber());
+            installer.install(elasticSearchClient);
+        } catch (StorageException e) {
+            throw new ModuleStartException(e.getMessage(), e);
+        }
     }
 
     @Override

@@ -18,18 +18,119 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
+import java.util.*;
+import org.apache.skywalking.oap.server.core.analysis.data.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.slf4j.*;
+
+import static java.util.Objects.nonNull;
 
 /**
  * @author peng-yongsheng
  */
 public abstract class AbstractPersistentWorker<INPUT extends Indicator> extends Worker<INPUT> {
 
+    private static final Logger logger = LoggerFactory.getLogger(AbstractPersistentWorker.class);
+
+    private final MergeDataCache<INPUT> mergeDataCache;
+    private final IBatchDAO batchDAO;
+    private final IPersistenceDAO<?, ?, INPUT> persistenceDAO;
+    private final int blockBatchPersistenceSize = 1000;
+
     public AbstractPersistentWorker(ModuleManager moduleManager) {
+        this.mergeDataCache = new MergeDataCache<>();
+        this.batchDAO = moduleManager.find(StorageModule.NAME).getService(IBatchDAO.class);
+        this.persistenceDAO = moduleManager.find(StorageModule.NAME).getService(IPersistenceDAO.class);
+    }
+
+    public final Window<MergeDataCollection<INPUT>> getCache() {
+        return mergeDataCache;
     }
 
     @Override public final void in(INPUT input) {
+        if (getCache().currentCollectionSize() >= blockBatchPersistenceSize) {
+            try {
+                if (getCache().trySwitchPointer()) {
+                    getCache().switchPointer();
 
+                    List<?> collection = buildBatchCollection();
+                    batchDAO.batchPersistence(collection);
+                }
+            } finally {
+                getCache().trySwitchPointerFinally();
+            }
+        }
+        cacheData(input);
     }
+
+    public final List<?> buildBatchCollection() {
+        List<?> batchCollection = new LinkedList<>();
+        try {
+            while (getCache().getLast().isWriting()) {
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    logger.warn("thread wake up");
+                }
+            }
+
+            if (getCache().getLast().collection() != null) {
+                batchCollection = prepareBatch(getCache().getLast());
+            }
+        } finally {
+            getCache().finishReadingLast();
+        }
+        return batchCollection;
+    }
+
+    private List<Object> prepareBatch(MergeDataCollection<INPUT> collection) {
+        List<Object> batchCollection = new LinkedList<>();
+        collection.collection().forEach((id, data) -> {
+            if (needMergeDBData()) {
+                INPUT dbData = null;
+                try {
+                    dbData = persistenceDAO.get(data);
+                } catch (Throwable t) {
+                    logger.error(t.getMessage(), t);
+                }
+                if (nonNull(dbData)) {
+                    dbData.combine(data);
+                    try {
+                        batchCollection.add(persistenceDAO.prepareBatchUpdate(dbData));
+                    } catch (Throwable t) {
+                        logger.error(t.getMessage(), t);
+                    }
+                } else {
+                    try {
+                        batchCollection.add(persistenceDAO.prepareBatchInsert(data));
+                    } catch (Throwable t) {
+                        logger.error(t.getMessage(), t);
+                    }
+                }
+            } else {
+                try {
+                    batchCollection.add(persistenceDAO.prepareBatchInsert(data));
+                } catch (Throwable t) {
+                    logger.error(t.getMessage(), t);
+                }
+            }
+        });
+
+        return batchCollection;
+    }
+
+    private void cacheData(INPUT input) {
+        mergeDataCache.writing();
+        if (mergeDataCache.containsKey(input)) {
+            mergeDataCache.get(input).combine(input);
+        } else {
+            mergeDataCache.put(input);
+        }
+
+        mergeDataCache.finishWriting();
+    }
+
+    protected abstract boolean needMergeDBData();
 }

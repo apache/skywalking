@@ -28,4 +28,6 @@ import org.apache.skywalking.oap.server.core.remote.selector.Selector;
 @Retention(RetentionPolicy.SOURCE)
 public @interface IndicatorType {
     Selector selector();
+
+    boolean needMerge();
 }

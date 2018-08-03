@@ -18,11 +18,9 @@
 
 package org.apache.skywalking.oap.server.library.module;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.reflect.Field;
 import java.util.*;
+import org.slf4j.*;
 
 /**
  * A module definition.
@@ -31,7 +29,7 @@ import java.util.*;
  */
 public abstract class ModuleDefine {
 
-    private final Logger logger = LoggerFactory.getLogger(ModuleDefine.class);
+    private static final Logger logger = LoggerFactory.getLogger(ModuleDefine.class);
 
     private LinkedList<ModuleProvider> loadedProviders = new LinkedList<>();
 
@@ -128,7 +126,7 @@ public abstract class ModuleDefine {
         return loadedProviders;
     }
 
-    final ModuleProvider provider() throws DuplicateProviderException {
+    public final ModuleProvider provider() throws DuplicateProviderException {
         if (loadedProviders.size() > 1) {
             throw new DuplicateProviderException(this.name() + " module exist " + loadedProviders.size() + " providers");
         }

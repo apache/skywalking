@@ -35,5 +35,8 @@ core:
     gRPCPort: 11800
 storage:
   elasticsearch:
+    clusterNodes: localhost:9200
+    indexShardsNumber: 2
+    indexReplicasNumber: 0
 service-mesh:
   default:
