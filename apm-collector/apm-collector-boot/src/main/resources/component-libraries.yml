@@ -156,6 +156,9 @@ mongodb-driver:
 SOFARPC:
   id: 43
   languages: Java
+Undertow:
+  id: 45
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
