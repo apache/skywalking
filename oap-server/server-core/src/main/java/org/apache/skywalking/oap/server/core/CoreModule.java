@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.core;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.define.IndicatorMapper;
 import org.apache.skywalking.oap.server.core.analysis.worker.define.WorkerMapper;
-import org.apache.skywalking.oap.server.core.receiver.SourceReceiver;
+import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.remote.RemoteSenderService;
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
 import org.apache.skywalking.oap.server.core.server.*;
