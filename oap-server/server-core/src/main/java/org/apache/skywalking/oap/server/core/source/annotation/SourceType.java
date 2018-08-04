@@ -16,29 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.receiver;
+package org.apache.skywalking.oap.server.core.source.annotation;
 
-import lombok.*;
-import org.apache.skywalking.apm.network.language.agent.SpanLayer;
-import org.apache.skywalking.oap.server.core.receiver.annotation.SourceType;
+import java.lang.annotation.*;
 
 /**
  * @author peng-yongsheng
  */
-@SourceType
-public class Endpoint extends Source {
-    @Override public Scope scope() {
-        return Scope.Endpoint;
-    }
-
-    @Getter @Setter private int id;
-    @Getter @Setter private String name;
-    @Getter @Setter private int serviceId;
-    @Getter @Setter private String serviceName;
-    @Getter @Setter private int serviceInstanceId;
-    @Getter @Setter private String serviceInstanceName;
-    @Getter @Setter private int latency;
-    @Getter @Setter private boolean status;
-    @Getter @Setter private int responseCode;
-    @Getter @Setter private SpanLayer type;
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.SOURCE)
+public @interface SourceType {
 }

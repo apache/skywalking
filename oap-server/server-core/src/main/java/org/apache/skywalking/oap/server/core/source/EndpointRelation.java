@@ -16,11 +16,28 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.receiver;
+package org.apache.skywalking.oap.server.core.source;
+
+import lombok.*;
+import org.apache.skywalking.apm.network.language.agent.*;
 
 /**
  * @author peng-yongsheng
  */
-public enum Scope {
-    All, Service, ServiceInstance, Endpoint, ServiceRelation, ServiceInstanceRelation, EndpointRelation
+public class EndpointRelation extends Source {
+
+    @Override public Scope scope() {
+        return Scope.EndpointRelation;
+    }
+
+    @Getter @Setter private int endpointId;
+    @Getter @Setter private String endpoint;
+    @Getter @Setter private int childEndpointId;
+    @Getter @Setter private String childEndpoint;
+    @Getter @Setter private int rpcLatency;
+    @Getter @Setter private boolean status;
+    @Getter @Setter private int responseCode;
+    @Getter @Setter private SpanLayer type;
+    @Getter @Setter private SpanType detectPoint;
 }
+
