@@ -156,11 +156,20 @@ mongodb-driver:
 SOFARPC:
   id: 43
   languages: Java
-Elasticsearch:
+ActiveMQ:
   id: 44
   languages: Java
-transport-client:
+activemq-producer:
   id: 45
+  languages: Java
+activemq-consumer:
+  id: 46
+  languages: Java
+Elasticsearch:
+  id: 47
+  languages: Java
+transport-client:
+  id: 48
   languages: Java
 
 # .NET/.NET Core components
@@ -229,6 +238,8 @@ Component-Server-Mappings:
   rocketMQ-consumer: RocketMQ
   kafka-producer: Kafka
   kafka-consumer: Kafka
+  activemq-producer: ActiveMQ
+  activemq-consumer: ActiveMQ
   postgresql-jdbc-driver: PostgreSQL
   Xmemcached: Memcached
   Spymemcached: Memcached
@@ -245,4 +256,3 @@ Component-Server-Mappings:
   Pomelo.EntityFrameworkCore.MySql: Mysql
   Npgsql.EntityFrameworkCore.PostgreSQL: PostgreSQL
   transport-client: Elasticsearch
-

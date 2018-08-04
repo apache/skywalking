@@ -58,6 +58,7 @@
         <module>hystrix-1.x-plugin</module>
         <module>sofarpc-plugin</module>
         <module>elasticsearch-5.x-plugin</module>
+        <module>activemq-5.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
