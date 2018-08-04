@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis;
 
-import org.apache.skywalking.oap.server.core.receiver.Source;
+import org.apache.skywalking.oap.server.core.source.Source;
 
 /**
  * @author peng-yongsheng

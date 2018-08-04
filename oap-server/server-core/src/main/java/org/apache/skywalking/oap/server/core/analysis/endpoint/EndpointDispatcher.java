@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis.endpoint;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.worker.define.WorkerMapper;
-import org.apache.skywalking.oap.server.core.receiver.Endpoint;
+import org.apache.skywalking.oap.server.core.source.Endpoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**

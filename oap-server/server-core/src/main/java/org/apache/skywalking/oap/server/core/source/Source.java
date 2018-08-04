@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.receiver;
+package org.apache.skywalking.oap.server.core.source;
 
 import lombok.*;
 

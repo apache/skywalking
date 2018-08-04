@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.receiver;
+package org.apache.skywalking.oap.server.core.source;
 
 import org.apache.skywalking.oap.server.core.analysis.DispatcherManager;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;

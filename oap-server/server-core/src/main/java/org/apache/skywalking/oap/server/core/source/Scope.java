@@ -16,14 +16,11 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.receiver.annotation;
-
-import java.lang.annotation.*;
+package org.apache.skywalking.oap.server.core.source;
 
 /**
  * @author peng-yongsheng
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.SOURCE)
-public @interface SourceType {
+public enum Scope {
+    All, Service, ServiceInstance, Endpoint, ServiceRelation, ServiceInstanceRelation, EndpointRelation
 }
