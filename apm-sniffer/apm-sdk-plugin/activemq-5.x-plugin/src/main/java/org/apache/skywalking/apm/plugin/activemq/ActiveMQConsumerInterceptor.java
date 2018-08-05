@@ -39,17 +39,21 @@ public class ActiveMQConsumerInterceptor implements InstanceMethodsAroundInterce
 
     public static final String OPERATE_NAME_PREFIX = "ActiveMQ/";
     public static final String CONSUMER_OPERATE_NAME_SUFFIX = "/Consumer";
+    public static final byte QUEUE_TYPE = 1;
+    public static final byte TOPIC_TYPE = 2;
+    public static final byte TEMP_TOPIC_TYPE = 6;
+    public static final byte TEMP_QUEUE_TYPE = 5;
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         ContextCarrier contextCarrier = new ContextCarrier();
         String url = (String) objInst.getSkyWalkingDynamicField();
         MessageDispatch messageDispatch = (MessageDispatch) allArguments[0];
         AbstractSpan activeSpan = null;
-        if (messageDispatch.getDestination().getDestinationType() == 1 ||  messageDispatch.getDestination().getDestinationType() == 5) {
+        if (messageDispatch.getDestination().getDestinationType() == QUEUE_TYPE ||  messageDispatch.getDestination().getDestinationType() == TEMP_QUEUE_TYPE) {
             activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + "Queue/" + messageDispatch.getDestination().getPhysicalName() + CONSUMER_OPERATE_NAME_SUFFIX, null).start(System.currentTimeMillis());
             Tags.MQ_BROKER.set(activeSpan, url);
             Tags.MQ_QUEUE.set(activeSpan, messageDispatch.getDestination().getPhysicalName());
-        } else if (messageDispatch.getDestination().getDestinationType() == 2 ||  messageDispatch.getDestination().getDestinationType() == 6) {
+        } else if (messageDispatch.getDestination().getDestinationType() == TOPIC_TYPE ||  messageDispatch.getDestination().getDestinationType() == TEMP_TOPIC_TYPE) {
             activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + "Topic/" + messageDispatch.getDestination().getPhysicalName() + CONSUMER_OPERATE_NAME_SUFFIX, null).start(System.currentTimeMillis());
             Tags.MQ_BROKER.set(activeSpan, url);
             Tags.MQ_TOPIC.set(activeSpan, messageDispatch.getDestination().getPhysicalName());
