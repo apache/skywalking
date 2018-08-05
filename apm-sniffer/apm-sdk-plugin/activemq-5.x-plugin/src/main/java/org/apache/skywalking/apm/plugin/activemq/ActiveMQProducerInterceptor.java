@@ -39,6 +39,10 @@ import java.lang.reflect.Method;
 public class ActiveMQProducerInterceptor implements InstanceMethodsAroundInterceptor {
     public static final String OPERATE_NAME_PREFIX = "ActiveMQ/";
     public static final String PRODUCER_OPERATE_NAME_SUFFIX = "/Producer";
+    public static final byte QUEUE_TYPE = 1;
+    public static final byte TOPIC_TYPE = 2;
+    public static final byte TEMP_TOPIC_TYPE = 6;
+    public static final byte TEMP_QUEUE_TYPE = 5;
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
 
@@ -47,12 +51,12 @@ public class ActiveMQProducerInterceptor implements InstanceMethodsAroundInterce
         Message message = (Message)  allArguments[1];
         String url = (String) objInst.getSkyWalkingDynamicField();
         AbstractSpan activeSpan = null;
-        if (activeMQDestination.getDestinationType() == 1 || activeMQDestination.getDestinationType() == 5) {
+        if (activeMQDestination.getDestinationType() == QUEUE_TYPE || activeMQDestination.getDestinationType() == TEMP_QUEUE_TYPE) {
             activeSpan = ContextManager.createExitSpan(OPERATE_NAME_PREFIX + "Queue/" + activeMQDestination.getPhysicalName() + PRODUCER_OPERATE_NAME_SUFFIX, contextCarrier, url);
             Tags.MQ_BROKER.set(activeSpan,url);
             Tags.MQ_QUEUE.set(activeSpan,activeMQDestination.getPhysicalName());
 
-        } else if (activeMQDestination.getDestinationType() == 2 || activeMQDestination.getDestinationType() == 6) {
+        } else if (activeMQDestination.getDestinationType() == TOPIC_TYPE || activeMQDestination.getDestinationType() == TEMP_TOPIC_TYPE) {
             activeSpan = ContextManager.createExitSpan(OPERATE_NAME_PREFIX + "Topic/" + activeMQDestination.getPhysicalName() + PRODUCER_OPERATE_NAME_SUFFIX, contextCarrier, url);
             Tags.MQ_BROKER.set(activeSpan, url);
             Tags.MQ_TOPIC.set(activeSpan,activeMQDestination.getPhysicalName());
