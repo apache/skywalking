@@ -40,14 +40,15 @@ public class PlainListenableActionFutureInterceptor implements InstanceMethodsAr
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                              Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+        AbstractSpan span = ContextManager.createLocalSpan(ELASTICSEARCH_DB_OP_PREFIX + BASE_FUTURE_METHOD);
+        span.setComponent(ComponentsDefine.TRANSPORT_CLIENT);
+        Tags.DB_TYPE.set(span, DB_TYPE);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                               Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        AbstractSpan span = ContextManager.createLocalSpan(ELASTICSEARCH_DB_OP_PREFIX + BASE_FUTURE_METHOD);
-        span.setComponent(ComponentsDefine.TRANSPORT_CLIENT);
-        Tags.DB_TYPE.set(span, DB_TYPE);
+        AbstractSpan span = ContextManager.activeSpan();
         if (ret instanceof SearchResponse) {
             SearchResponse response = (SearchResponse) ret;
             span.tag(ES_TOOK_MILLIS, Long.toString(response.getTookInMillis()));
