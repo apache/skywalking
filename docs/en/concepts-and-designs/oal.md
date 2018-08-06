@@ -102,6 +102,17 @@ Calculate the metric data if the service instance is a JVM and collected by java
 | used | See JVM document | | long |
 | committed | See JVM document | | long |
 
+4. SCOPE `ServiceInstance_JVM_GC`
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| id | Represent the unique id of the service instance, usually a number. | yes | int |
+| name |  Represent the name of the service instance. Such as `ip:port@Service Name`.  **Notice**: current native agent uses `processId@Service name` as instance name, which is useless when you want to setup a filter in aggregation. | | string|
+| serviceName | Represent the name of the service. | | string |
+| phrase | Include NEW and OLD | | Enum |
+| time | GC time cost | | long |
+| count | Count of GC op | | long |
+
 ### SCOPE `Endpoint`
 
 Calculate the metric data from each request of the endpoint in the service. 
