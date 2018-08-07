@@ -307,7 +307,7 @@ enter your apache password
 3. Public download URLs under `http://www.apache.org/dyn/closer.cgi/incubator/skywalking/x.y.z`.
 4. Public KEYS, sigs and sha512 URLs under `https://www.apache.org/dist/incubator/skywalking/xxxx`
 5. Re-tag on GitHub, tag `x.y.z-RCx` as `x.y.z`, and publish a GitHub release based on this tag.
-5. Send ANNOUNCE mail to `general@incubator.apache.org`.
+5. Send ANNOUNCE mail to `general@incubator.apache.org` and `dev@skywalking.apache.org`.
 ```
 Mail title: [ANNOUNCE] Release Apache SkyWalking (incubating) version x.y.z
 

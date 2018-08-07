@@ -3,10 +3,10 @@ Setup based on which kind of probes are you going to use. If you don't understan
 
 ## Language agents in Service 
   - Install agents
-    - [Java agent](service-agent/java-agent/README.md). Introduce how to install java agent to your application, without change any codes.
+    - [Java agent](service-agent/java-agent/README.md). Introduce how to install java agent to your service, without change any codes.
     - [.NET Core agent](https://github.com/OpenSkywalking/skywalking-netcore). See .NET Core agent project document for more details.
     - [Node.js agent](https://github.com/OpenSkywalking/skywalking-nodejs). See Node.js server side agent project document for more details.
-  - [Setup backend](service-agent/backend-setup.md). Set the backend for language agents scenario.
+  - [Setup backend](backend/backend-language-agent-setup.md). Set the backend for language agents scenario.
   
 ## On Service Mesh
   - Istio

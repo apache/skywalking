@@ -1,6 +1,6 @@
 # Setup java agent
-1. Find `agent` folder in SkyWalking 
-2. Add `-javaagent:/path/to/skywalking-agent/skywalking-agent.jar` to VM argument. 
+1. Find `agent` folder in SkyWalking release package
+2. Add `-javaagent:/path/to/skywalking-package/agent/skywalking-agent.jar` to JVM argument. And make sure to add it before the `-jar` argument.
 
 New agent package looks like this：
 ```
@@ -39,7 +39,7 @@ Change the first line of `tomcat/bin/catalina.bat`.
 set "CATALINA_OPTS=-javaagent:/path/to/skywalking-agent/skywalking-agent.jar"
 ```
 - JAR file  
-Add `-javaagent` argument to command line in which you start your app. And make sure to add it before the `-jar` argument. eg:
+Add `-javaagent` argument to command line in which you start your app. eg:
  ```shell
  java -javaagent:/path/to/skywalking-agent/skywalking-agent.jar -jar yourApp.jar
  ```
@@ -56,20 +56,16 @@ Now, we have the following known plugins.
 * [Filter traces through custom services](agent-optional-plugins/trace-ignore-plugin.md)
 
 ## Advanced Features
-* [Override settings through System.properties](en/java-agent/Setting-override.md)
-* [Direct uplink and disable naming discovery](en/java-agent/Direct-uplink.md)
-* [Open TLS](en/java-agent/TLS.md)
-* [Namespace Isolation](en/java-agent/Namespace.md)
-* [Token Authentication](en/java-agent/Token-auth.md)
-* Application Toolkit
-    * [Overview](en/java-agent/Applicaton-toolkit.md)
-    * [Use SkyWalking OpenTracing compatible tracer](en/java-agent/Opentracing.md)
-    * Integration with log frameworks
-      * [log4j](en/java-agent/Application-toolkit-log4j-1.x.md)
-      * [log4j2](en/java-agent/Application-toolkit-log4j-2.x.md)
-      * [logback](en/java-agent/Application-toolkit-logback-1.x.md)
-    * [Trace by SkyWalking manual APIs](en/java-agent/Application-toolkit-trace.md)
-    * [Trace across threads](en/java-agent/Application-toolkit-trace-cross-thread.md)
+* Set the settings through system properties for config file override. Read [setting override](Setting-override.md).
+* Use gRPC TLS to link backend. See [open TLS](TLS.md)
+* Monitor a big cluster by different SkyWalking services. Use [Namespace](Namespace.md) to isolate the context propagation. 
+* Set client [token](Token-auth.md) if backend open [token authentication](../../backend/backend-token-auth.md).
+* Application Toolkit, are a collection of libraries, provided by skywalking APM. Using them, you have a bridge between your application and skywalking APM agent. 
+    * If you want to use OpenTracing Java APIs, try [SkyWalking OpenTracing compatible tracer](Opentracing.md). More details you could find at http://opentracing.io
+    * If you want to print trace context(e.g. traceId) in your logs, choose the log frameworks, [log4j](Application-toolkit-log4j-1.x.md), 
+[log4j2](Application-toolkit-log4j-2.x.md), [logback](Application-toolkit-logback-1.x.md)
+    * If you want to use annotations or SkyWalking native APIs to read context, try [SkyWalking manual APIs](Application-toolkit-trace.md)
+    * If you want to continue traces across thread manually, use [across thread solution APIs](Application-toolkit-trace-cross-thread.md).
 
 # Test
 If you are interested in plugin compatible tests or agent performance, see the following reports.
