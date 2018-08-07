@@ -1,31 +1,16 @@
 # Token Authentication
-## Supported version
-5.0.0-beta +
-
-## How need token authentication after we have TLS?
-TLS is about transport security, which makes sure the network can be trusted. 
-The token authentication is about monitoring application data **can be trusted**.
 
 ## Token 
 In current version, Token is considered as a simple string.
 
 ### Set Token
-1. Set token in agent.config file
+Set token in agent.config file
 ```properties
 # Authentication active is based on backend setting, see application.yml for more details.
 agent.authentication = xxxx
 ```
 
-2. Set token in application.yml file
-```yaml
-agent_gRPC:
-  gRPC:
-    host: localhost
-    port: 11800
-
-    #Set your own token to active auth
-    authentication: xxxxxx
-```
+Meanwhile, open the [backend token authentication](../../backend/backend-token-auth.md).
 
 ## Authentication fails
 The Collector verifies every request from agent, allowed only the token match.
