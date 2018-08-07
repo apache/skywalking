@@ -18,20 +18,13 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.core.source.Scope;
 
 /**
  * @author peng-yongsheng
  */
-public class StorageModule extends ModuleDefine {
+public interface IRegisterLockDAO extends DAO {
+    boolean tryLock(Scope scope, int timeout);
 
-    public static final String NAME = "storage";
-
-    @Override public String name() {
-        return NAME;
-    }
-
-    @Override public Class[] services() {
-        return new Class[] {IBatchDAO.class, IPersistenceDAO.class, IRegisterLockDAO.class};
-    }
+    void releaseLock(Scope scope);
 }

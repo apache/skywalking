@@ -23,6 +23,7 @@ import org.apache.skywalking.oap.server.library.client.NameSpace;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.*;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.lock.*;
 import org.slf4j.*;
 
 /**
@@ -63,6 +64,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
         this.registerServiceImplementation(IBatchDAO.class, new BatchProcessEsDAO(elasticSearchClient, config.getBulkActions(), config.getBulkSize(), config.getFlushInterval(), config.getConcurrentRequests()));
         this.registerServiceImplementation(IPersistenceDAO.class, new PersistenceEsDAO(elasticSearchClient, nameSpace));
+        this.registerServiceImplementation(IRegisterLockDAO.class, new RegisterLockDAOImpl(elasticSearchClient));
     }
 
     @Override
@@ -73,6 +75,9 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
             StorageEsInstaller installer = new StorageEsInstaller(getManager(), config.getIndexShardsNumber(), config.getIndexReplicasNumber());
             installer.install(elasticSearchClient);
+
+            RegisterLockInstaller lockInstaller = new RegisterLockInstaller(elasticSearchClient);
+            lockInstaller.install();
         } catch (StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
