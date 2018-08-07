@@ -1,4 +1,4 @@
-# Use cases
+# Users
 
 All use cases are reported through direct message/mail or [online issue](https://github.com/apache/incubator-skywalking/issues/443), 
 if any entity(company or orgnization) has any doubt, please contact us by [any official channel](../README.md#contact-us).
