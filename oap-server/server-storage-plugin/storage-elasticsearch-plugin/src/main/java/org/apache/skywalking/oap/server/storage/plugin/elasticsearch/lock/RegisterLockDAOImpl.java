@@ -54,6 +54,7 @@ public class RegisterLockDAOImpl extends EsDAO implements IRegisterLockDAO {
                     lock(id, timeout, version);
                 } else {
                     TimeUnit.SECONDS.sleep(1);
+                    return false;
                 }
             }
         } catch (Throwable t) {
