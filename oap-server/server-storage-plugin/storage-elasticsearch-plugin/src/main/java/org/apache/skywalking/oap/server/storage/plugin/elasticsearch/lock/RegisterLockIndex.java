@@ -16,22 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage;
-
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.lock;
 
 /**
  * @author peng-yongsheng
  */
-public class StorageModule extends ModuleDefine {
+public class RegisterLockIndex {
 
-    public static final String NAME = "storage";
-
-    @Override public String name() {
-        return NAME;
-    }
-
-    @Override public Class[] services() {
-        return new Class[] {IBatchDAO.class, IPersistenceDAO.class, IRegisterLockDAO.class};
-    }
+    public static final String NAME = "register_lock";
+    public static final String COLUMN_EXPIRE = "expire";
+    public static final String COLUMN_LOCKABLE = "lockable";
 }

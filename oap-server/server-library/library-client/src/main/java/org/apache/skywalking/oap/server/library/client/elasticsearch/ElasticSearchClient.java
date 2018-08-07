@@ -33,6 +33,7 @@ import org.elasticsearch.action.bulk.*;
 import org.elasticsearch.action.get.*;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.*;
+import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.*;
 import org.elasticsearch.common.settings.Settings;
@@ -92,8 +93,7 @@ public class ElasticSearchClient implements Client {
         CreateIndexRequest request = new CreateIndexRequest(indexName);
         request.settings(settings);
         request.mapping(TYPE, mappingBuilder);
-        CreateIndexResponse response;
-        response = client.indices().create(request);
+        CreateIndexResponse response = client.indices().create(request);
         logger.info("create {} index finished, isAcknowledged: {}", indexName, response.isAcknowledged());
         return response.isAcknowledged();
     }
@@ -126,6 +126,27 @@ public class ElasticSearchClient implements Client {
         indexName = formatIndexName(indexName);
         GetRequest request = new GetRequest(indexName, TYPE, id);
         return client.get(request);
+    }
+
+    public void forceInsert(String indexName, String id, XContentBuilder source) throws IOException {
+        IndexRequest request = prepareInsert(indexName, id, source);
+        request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
+        client.index(request);
+    }
+
+    public void forceUpdate(String indexName, String id, XContentBuilder source, long version) throws IOException {
+        indexName = formatIndexName(indexName);
+        UpdateRequest request = prepareUpdate(indexName, id, source);
+        request.version(version);
+        request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
+        client.update(request);
+    }
+
+    public void forceUpdate(String indexName, String id, XContentBuilder source) throws IOException {
+        indexName = formatIndexName(indexName);
+        UpdateRequest request = prepareUpdate(indexName, id, source);
+        request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
+        client.update(request);
     }
 
     public IndexRequest prepareInsert(String indexName, String id, XContentBuilder source) {
