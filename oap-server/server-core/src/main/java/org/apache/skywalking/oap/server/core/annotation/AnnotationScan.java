@@ -46,7 +46,7 @@ public class AnnotationScan {
 
             for (AnnotationListener listener : listeners) {
                 if (aClass.isAnnotationPresent(listener.annotation())) {
-                    listener.ownerClass(aClass);
+                    listener.notify(aClass);
                 }
             }
         }

@@ -41,7 +41,7 @@ public class WorkerAnnotationListener implements AnnotationListener {
         return Worker.class;
     }
 
-    @Override public void ownerClass(Class aClass) {
+    @Override public void notify(Class aClass) {
         logger.info("The owner class of worker annotation, class name: {}", aClass.getName());
 
         workerClasses.add(aClass);

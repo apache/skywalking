@@ -43,7 +43,7 @@ public class StorageAnnotationListener implements AnnotationListener, IModelGett
         return StorageEntity.class;
     }
 
-    @Override public void ownerClass(Class aClass) {
+    @Override public void notify(Class aClass) {
         logger.info("The owner class of storage annotation, class name: {}", aClass.getName());
 
         List<ModelColumn> modelColumns = new LinkedList<>();

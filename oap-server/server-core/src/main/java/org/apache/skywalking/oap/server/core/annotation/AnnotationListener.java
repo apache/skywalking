@@ -27,5 +27,5 @@ public interface AnnotationListener {
 
     Class<? extends Annotation> annotation();
 
-    void ownerClass(Class aClass);
+    void notify(Class aClass);
 }

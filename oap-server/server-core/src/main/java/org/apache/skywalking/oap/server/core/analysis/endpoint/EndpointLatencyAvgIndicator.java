@@ -29,10 +29,11 @@ import org.apache.skywalking.oap.server.core.storage.annotation.*;
  * @author peng-yongsheng
  */
 @StreamData
-@StorageEntity(name = "endpoint_latency_avg")
+@StorageEntity(name = EndpointLatencyAvgIndicator.NAME)
 public class EndpointLatencyAvgIndicator extends AvgIndicator {
 
-    private static final String NAME = "endpoint_latency_avg";
+    public static final String NAME = "endpoint_latency_avg";
+
     private static final String ID = "id";
     private static final String SERVICE_ID = "service_id";
     private static final String SERVICE_INSTANCE_ID = "service_instance_id";

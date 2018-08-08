@@ -41,7 +41,7 @@ public class StreamAnnotationListener implements AnnotationListener {
         return StreamData.class;
     }
 
-    @Override public void ownerClass(Class aClass) {
+    @Override public void notify(Class aClass) {
         logger.info("The owner class of stream data annotation, class name: {}", aClass.getName());
 
         streamClasses.add(aClass);
