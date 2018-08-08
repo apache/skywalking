@@ -16,21 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.indicator.define;
+package org.apache.skywalking.oap.server.core.remote.annotation;
 
-import org.junit.*;
+import java.lang.annotation.*;
 
 /**
  * @author peng-yongsheng
  */
-public class IndicatorMapperTestCase {
-
-    @Test
-    public void test() throws IndicatorDefineLoadException {
-        IndicatorMapper mapper = new IndicatorMapper();
-        mapper.load();
-
-        Assert.assertEquals(1, mapper.findIdByClass(TestAvgIndicator.class));
-        Assert.assertEquals(TestAvgIndicator.class, mapper.findClassById(1));
-    }
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface StreamData {
 }

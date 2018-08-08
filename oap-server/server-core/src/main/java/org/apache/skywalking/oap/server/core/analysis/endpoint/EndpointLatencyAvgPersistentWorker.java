@@ -19,11 +19,13 @@
 package org.apache.skywalking.oap.server.core.analysis.endpoint;
 
 import org.apache.skywalking.oap.server.core.analysis.worker.AbstractPersistentWorker;
+import org.apache.skywalking.oap.server.core.worker.annotation.Worker;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
  * @author peng-yongsheng
  */
+@Worker
 public class EndpointLatencyAvgPersistentWorker extends AbstractPersistentWorker<EndpointLatencyAvgIndicator> {
 
     public EndpointLatencyAvgPersistentWorker(ModuleManager moduleManager) {

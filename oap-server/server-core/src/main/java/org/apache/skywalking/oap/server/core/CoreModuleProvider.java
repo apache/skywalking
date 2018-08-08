@@ -18,13 +18,17 @@
 
 package org.apache.skywalking.oap.server.core;
 
-import org.apache.skywalking.oap.server.core.analysis.indicator.define.*;
-import org.apache.skywalking.oap.server.core.analysis.worker.define.*;
+import java.io.IOException;
+import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
 import org.apache.skywalking.oap.server.core.cluster.*;
 import org.apache.skywalking.oap.server.core.remote.*;
+import org.apache.skywalking.oap.server.core.remote.annotation.*;
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
 import org.apache.skywalking.oap.server.core.server.*;
 import org.apache.skywalking.oap.server.core.source.*;
+import org.apache.skywalking.oap.server.core.storage.annotation.StorageAnnotationListener;
+import org.apache.skywalking.oap.server.core.storage.model.IModelGetter;
+import org.apache.skywalking.oap.server.core.worker.annotation.*;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
@@ -41,14 +45,22 @@ public class CoreModuleProvider extends ModuleProvider {
     private final CoreModuleConfig moduleConfig;
     private GRPCServer grpcServer;
     private JettyServer jettyServer;
-    private final IndicatorMapper indicatorMapper;
-    private final WorkerMapper workerMapper;
+    private final AnnotationScan annotationScan;
+    private final StorageAnnotationListener storageAnnotationListener;
+    private final StreamAnnotationListener streamAnnotationListener;
+    private final WorkerAnnotationListener workerAnnotationListener;
+    private final StreamDataAnnotationContainer streamDataAnnotationContainer;
+    private final WorkerAnnotationContainer workerAnnotationContainer;
 
     public CoreModuleProvider() {
         super();
         this.moduleConfig = new CoreModuleConfig();
-        this.indicatorMapper = new IndicatorMapper();
-        this.workerMapper = new WorkerMapper();
+        this.annotationScan = new AnnotationScan();
+        this.storageAnnotationListener = new StorageAnnotationListener();
+        this.streamAnnotationListener = new StreamAnnotationListener();
+        this.workerAnnotationListener = new WorkerAnnotationListener();
+        this.streamDataAnnotationContainer = new StreamDataAnnotationContainer();
+        this.workerAnnotationContainer = new WorkerAnnotationContainer();
     }
 
     @Override public String name() {
@@ -75,20 +87,27 @@ public class CoreModuleProvider extends ModuleProvider {
 
         this.registerServiceImplementation(SourceReceiver.class, new SourceReceiverImpl(getManager()));
 
-        this.registerServiceImplementation(IndicatorMapper.class, indicatorMapper);
-        this.registerServiceImplementation(WorkerMapper.class, workerMapper);
+        this.registerServiceImplementation(StreamDataClassGetter.class, streamDataAnnotationContainer);
+        this.registerServiceImplementation(WorkerAnnotationContainer.class, workerAnnotationContainer);
 
         this.registerServiceImplementation(RemoteClientManager.class, new RemoteClientManager(getManager()));
         this.registerServiceImplementation(RemoteSenderService.class, new RemoteSenderService(getManager()));
+        this.registerServiceImplementation(IModelGetter.class, storageAnnotationListener);
+
+        annotationScan.registerListener(storageAnnotationListener);
+        annotationScan.registerListener(streamAnnotationListener);
+        annotationScan.registerListener(workerAnnotationListener);
     }
 
     @Override public void start() throws ModuleStartException {
         grpcServer.addHandler(new RemoteServiceHandler(getManager()));
 
         try {
-            indicatorMapper.load();
-            workerMapper.load(getManager());
-        } catch (IndicatorDefineLoadException | WorkerDefineLoadException e) {
+            annotationScan.scan(() -> {
+                streamDataAnnotationContainer.generate(streamAnnotationListener.getStreamClasses());
+                workerAnnotationContainer.load(getManager(), workerAnnotationListener.getWorkerClasses());
+            });
+        } catch (WorkerDefineLoadException | IOException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
     }

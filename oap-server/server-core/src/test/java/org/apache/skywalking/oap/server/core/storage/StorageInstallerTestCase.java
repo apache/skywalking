@@ -20,8 +20,8 @@ package org.apache.skywalking.oap.server.core.storage;
 
 import java.util.LinkedList;
 import org.apache.skywalking.oap.server.core.*;
-import org.apache.skywalking.oap.server.core.analysis.indicator.define.*;
-import org.apache.skywalking.oap.server.core.storage.define.TableDefine;
+import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataAnnotationContainer;
+import org.apache.skywalking.oap.server.core.storage.model.*;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.junit.Test;
@@ -34,8 +34,8 @@ import org.powermock.reflect.Whitebox;
 public class StorageInstallerTestCase {
 
     @Test
-    public void testInstall() throws StorageException, DuplicateProviderException, ServiceNotProvidedException, IndicatorDefineLoadException {
-        IndicatorMapper indicatorMapper = new IndicatorMapper();
+    public void testInstall() throws StorageException, ServiceNotProvidedException {
+        StreamDataAnnotationContainer streamDataAnnotationContainer = new StreamDataAnnotationContainer();
         CoreModuleProvider moduleProvider = Mockito.mock(CoreModuleProvider.class);
         CoreModule moduleDefine = Mockito.spy(CoreModule.class);
         ModuleManager moduleManager = Mockito.mock(ModuleManager.class);
@@ -44,33 +44,33 @@ public class StorageInstallerTestCase {
         moduleProviders.add(moduleProvider);
 
         Mockito.when(moduleManager.find(CoreModule.NAME)).thenReturn(moduleDefine);
-        Mockito.when(moduleProvider.getService(IndicatorMapper.class)).thenReturn(indicatorMapper);
+        Mockito.when(moduleProvider.getService(StreamDataAnnotationContainer.class)).thenReturn(streamDataAnnotationContainer);
 
-        indicatorMapper.load();
+//        streamDataAnnotationContainer.generate();
 
-        TestStorageInstaller installer = new TestStorageInstaller(moduleManager);
-        installer.install(null);
+//        TestStorageInstaller installer = new TestStorageInstaller(moduleManager);
+//        installer.install(null);
     }
 
-    class TestStorageInstaller extends StorageInstaller {
+    class TestStorageInstaller extends ModelInstaller {
 
         public TestStorageInstaller(ModuleManager moduleManager) {
             super(moduleManager);
         }
 
-        @Override protected boolean isExists(Client client, TableDefine tableDefine) throws StorageException {
+        @Override protected boolean isExists(Client client, Model tableDefine) throws StorageException {
             return false;
         }
 
-        @Override protected void columnCheck(Client client, TableDefine tableDefine) throws StorageException {
+        @Override protected void columnCheck(Client client, Model tableDefine) throws StorageException {
 
         }
 
-        @Override protected void deleteTable(Client client, TableDefine tableDefine) throws StorageException {
+        @Override protected void deleteTable(Client client, Model tableDefine) throws StorageException {
 
         }
 
-        @Override protected void createTable(Client client, TableDefine tableDefine) throws StorageException {
+        @Override protected void createTable(Client client, Model tableDefine) throws StorageException {
 
         }
     }

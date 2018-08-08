@@ -16,22 +16,12 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.data;
-
-import org.apache.skywalking.oap.server.core.remote.*;
+package org.apache.skywalking.oap.server.core.storage.model;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class StreamData implements QueueData, Serializable, Deserializable {
+public interface DataTypeMapping {
 
-    private EndOfBatchContext endOfBatchContext;
-
-    @Override public final EndOfBatchContext getEndOfBatchContext() {
-        return this.endOfBatchContext;
-    }
-
-    @Override public final void setEndOfBatchContext(EndOfBatchContext context) {
-        this.endOfBatchContext = context;
-    }
+    String transform(Class<?> type);
 }

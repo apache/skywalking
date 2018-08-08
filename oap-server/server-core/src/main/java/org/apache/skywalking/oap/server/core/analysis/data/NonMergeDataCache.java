@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.analysis.data;
 
+import org.apache.skywalking.oap.server.core.remote.data.StreamData;
+
 /**
  * @author peng-yongsheng
  */

@@ -16,14 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.worker;
-
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+package org.apache.skywalking.oap.server.core.worker.annotation;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class Worker<INPUT extends Indicator> {
+public class WorkerDefineLoadException extends RuntimeException {
 
-    public abstract void in(INPUT input);
+    public WorkerDefineLoadException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

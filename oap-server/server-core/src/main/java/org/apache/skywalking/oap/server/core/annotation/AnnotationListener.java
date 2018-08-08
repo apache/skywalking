@@ -16,27 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.define;
+package org.apache.skywalking.oap.server.core.annotation;
 
-import java.util.List;
+import java.lang.annotation.Annotation;
 
 /**
  * @author peng-yongsheng
  */
-public class TableDefine {
-    private final String name;
-    private final List<ColumnDefine> columnDefines;
+public interface AnnotationListener {
 
-    public TableDefine(String name, List<ColumnDefine> columnDefines) {
-        this.name = name;
-        this.columnDefines = columnDefines;
-    }
+    Class<? extends Annotation> annotation();
 
-    public final String getName() {
-        return name;
-    }
-
-    public final List<ColumnDefine> getColumnDefines() {
-        return columnDefines;
-    }
+    void notify(Class aClass);
 }

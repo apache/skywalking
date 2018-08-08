@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.oap.server.library.util;
 
 import java.util.*;

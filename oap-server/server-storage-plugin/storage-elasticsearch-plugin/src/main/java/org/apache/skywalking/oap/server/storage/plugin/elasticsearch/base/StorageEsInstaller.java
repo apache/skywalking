@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.io.IOException;
 import org.apache.skywalking.oap.server.core.storage.*;
-import org.apache.skywalking.oap.server.core.storage.define.*;
+import org.apache.skywalking.oap.server.core.storage.model.*;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -31,7 +31,7 @@ import org.slf4j.*;
 /**
  * @author peng-yongsheng
  */
-public class StorageEsInstaller extends StorageInstaller {
+public class StorageEsInstaller extends ModelInstaller {
 
     private static final Logger logger = LoggerFactory.getLogger(StorageEsInstaller.class);
 
@@ -46,7 +46,7 @@ public class StorageEsInstaller extends StorageInstaller {
         this.mapping = new ColumnTypeEsMapping();
     }
 
-    @Override protected boolean isExists(Client client, TableDefine tableDefine) throws StorageException {
+    @Override protected boolean isExists(Client client, Model tableDefine) throws StorageException {
         ElasticSearchClient esClient = (ElasticSearchClient)client;
         try {
             return esClient.isExistsIndex(tableDefine.getName());
@@ -55,11 +55,11 @@ public class StorageEsInstaller extends StorageInstaller {
         }
     }
 
-    @Override protected void columnCheck(Client client, TableDefine tableDefine) throws StorageException {
+    @Override protected void columnCheck(Client client, Model tableDefine) throws StorageException {
 
     }
 
-    @Override protected void deleteTable(Client client, TableDefine tableDefine) throws StorageException {
+    @Override protected void deleteTable(Client client, Model tableDefine) throws StorageException {
         ElasticSearchClient esClient = (ElasticSearchClient)client;
 
         try {
@@ -71,7 +71,7 @@ public class StorageEsInstaller extends StorageInstaller {
         }
     }
 
-    @Override protected void createTable(Client client, TableDefine tableDefine) throws StorageException {
+    @Override protected void createTable(Client client, Model tableDefine) throws StorageException {
         ElasticSearchClient esClient = (ElasticSearchClient)client;
 
         // mapping
@@ -107,7 +107,7 @@ public class StorageEsInstaller extends StorageInstaller {
             .build();
     }
 
-    private XContentBuilder createMappingBuilder(TableDefine tableDefine) throws IOException {
+    private XContentBuilder createMappingBuilder(Model tableDefine) throws IOException {
         XContentBuilder mappingBuilder = XContentFactory.jsonBuilder()
             .startObject()
             .startObject("_all")
@@ -115,7 +115,7 @@ public class StorageEsInstaller extends StorageInstaller {
             .endObject()
             .startObject("properties");
 
-        for (ColumnDefine columnDefine : tableDefine.getColumnDefines()) {
+        for (ModelColumn columnDefine : tableDefine.getColumns()) {
             mappingBuilder
                 .startObject(columnDefine.getColumnName().getName())
                 .field("type", mapping.transform(columnDefine.getType()))

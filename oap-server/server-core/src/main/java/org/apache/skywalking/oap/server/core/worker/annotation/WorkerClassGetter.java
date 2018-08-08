@@ -16,14 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.indicator.define;
+package org.apache.skywalking.oap.server.core.worker.annotation;
+
+import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
+import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
  * @author peng-yongsheng
  */
-public class IndicatorDefineLoadException extends Exception {
-
-    public IndicatorDefineLoadException(String message, Throwable cause) {
-        super(message, cause);
-    }
+public interface WorkerClassGetter extends Service {
+    Class<AbstractWorker> getClassById(int workerId);
 }

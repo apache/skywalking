@@ -19,11 +19,12 @@
 package org.apache.skywalking.oap.server.core.remote;
 
 import io.grpc.stub.StreamObserver;
+import java.util.Objects;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
-import org.apache.skywalking.oap.server.core.analysis.indicator.define.IndicatorMapper;
-import org.apache.skywalking.oap.server.core.analysis.worker.define.WorkerMapper;
+import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
+import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.*;
+import org.apache.skywalking.oap.server.core.worker.annotation.WorkerClassGetter;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.slf4j.*;
@@ -35,24 +36,33 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
 
     private static final Logger logger = LoggerFactory.getLogger(RemoteServiceHandler.class);
 
-    private final IndicatorMapper indicatorMapper;
-    private final WorkerMapper workerMapper;
+    private final ModuleManager moduleManager;
+    private StreamDataClassGetter streamDataClassGetter;
+    private WorkerClassGetter workerClassGetter;
 
     public RemoteServiceHandler(ModuleManager moduleManager) {
-        this.indicatorMapper = moduleManager.find(CoreModule.NAME).getService(IndicatorMapper.class);
-        this.workerMapper = moduleManager.find(CoreModule.NAME).getService(WorkerMapper.class);
+        this.moduleManager = moduleManager;
     }
 
     @Override public StreamObserver<RemoteMessage> call(StreamObserver<Empty> responseObserver) {
+        if (Objects.isNull(streamDataClassGetter)) {
+            streamDataClassGetter = moduleManager.find(CoreModule.NAME).getService(StreamDataClassGetter.class);
+        }
+        if (Objects.isNull(streamDataClassGetter)) {
+            workerClassGetter = moduleManager.find(CoreModule.NAME).getService(WorkerClassGetter.class);
+        }
+
         return new StreamObserver<RemoteMessage>() {
             @Override public void onNext(RemoteMessage message) {
-                int indicatorId = message.getIndicatorId();
+                int streamDataId = message.getStreamDataId();
                 int nextWorkerId = message.getNextWorkerId();
                 RemoteData remoteData = message.getRemoteData();
 
-                Class<Indicator> indicatorClass = indicatorMapper.findClassById(indicatorId);
+                Class<StreamData> streamDataClass = streamDataClassGetter.findClassById(streamDataId);
                 try {
-                    indicatorClass.newInstance().deserialize(remoteData);
+                    StreamData streamData = streamDataClass.newInstance();
+                    streamData.deserialize(remoteData);
+                    workerClassGetter.getClassById(nextWorkerId).newInstance().in(streamData);
                 } catch (InstantiationException | IllegalAccessException e) {
                     logger.warn(e.getMessage());
                 }

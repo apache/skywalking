@@ -16,25 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.define;
+package org.apache.skywalking.oap.server.core.storage.model;
+
+import java.util.List;
+import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
  * @author peng-yongsheng
  */
-public class ColumnDefine {
-    private final ColumnName columnName;
-    private final Class<?> type;
-
-    public ColumnDefine(ColumnName columnName, Class<?> type) {
-        this.columnName = columnName;
-        this.type = type;
-    }
-
-    public final ColumnName getColumnName() {
-        return columnName;
-    }
-
-    public final Class<?> getType() {
-        return type;
-    }
+public interface IModelGetter extends Service {
+    List<Model> getModels();
 }

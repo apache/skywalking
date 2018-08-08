@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.core.remote;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.client.*;
 import org.apache.skywalking.oap.server.core.remote.selector.*;
 import org.apache.skywalking.oap.server.library.module.*;
@@ -41,20 +41,20 @@ public class RemoteSenderService implements Service {
         this.rollingSelector = new RollingSelector();
     }
 
-    public void send(int nextWorkId, Indicator indicator, Selector selector) {
+    public void send(int nextWorkId, StreamData streamData, Selector selector) {
         RemoteClientManager clientManager = moduleManager.find(CoreModule.NAME).getService(RemoteClientManager.class);
 
         RemoteClient remoteClient;
         switch (selector) {
             case HashCode:
-                remoteClient = hashCodeSelector.select(clientManager.getRemoteClient(), indicator);
-                remoteClient.push(nextWorkId, indicator);
+                remoteClient = hashCodeSelector.select(clientManager.getRemoteClient(), streamData);
+                remoteClient.push(nextWorkId, streamData);
             case Rolling:
-                remoteClient = rollingSelector.select(clientManager.getRemoteClient(), indicator);
-                remoteClient.push(nextWorkId, indicator);
+                remoteClient = rollingSelector.select(clientManager.getRemoteClient(), streamData);
+                remoteClient.push(nextWorkId, streamData);
             case ForeverFirst:
-                remoteClient = foreverFirstSelector.select(clientManager.getRemoteClient(), indicator);
-                remoteClient.push(nextWorkId, indicator);
+                remoteClient = foreverFirstSelector.select(clientManager.getRemoteClient(), streamData);
+                remoteClient.push(nextWorkId, streamData);
         }
     }
 }
