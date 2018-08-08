@@ -19,12 +19,12 @@
 package org.apache.skywalking.oap.server.core.remote.selector;
 
 import java.util.List;
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClient;
 
 /**
  * @author peng-yongsheng
  */
 public interface RemoteClientSelector {
-    RemoteClient select(List<RemoteClient> clients, Indicator indicator);
+    RemoteClient select(List<RemoteClient> clients, StreamData streamData);
 }

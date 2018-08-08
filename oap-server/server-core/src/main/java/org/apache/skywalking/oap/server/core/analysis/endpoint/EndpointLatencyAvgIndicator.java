@@ -21,12 +21,15 @@ package org.apache.skywalking.oap.server.core.analysis.endpoint;
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.*;
+import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.*;
 
 /**
  * @author peng-yongsheng
  */
+@StreamData
+@StorageEntity(name = "endpoint_latency_avg")
 public class EndpointLatencyAvgIndicator extends AvgIndicator {
 
     private static final String NAME = "endpoint_latency_avg";

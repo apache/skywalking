@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.indicator.define;
 
+import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataAnnotationContainer;
 import org.junit.*;
 
 /**
@@ -26,9 +27,9 @@ import org.junit.*;
 public class IndicatorMapperTestCase {
 
     @Test
-    public void test() throws IndicatorDefineLoadException {
-        IndicatorMapper mapper = new IndicatorMapper();
-        mapper.load();
+    public void test() {
+        StreamDataAnnotationContainer mapper = new StreamDataAnnotationContainer();
+//        mapper.load();
 
         Assert.assertEquals(1, mapper.findIdByClass(TestAvgIndicator.class));
         Assert.assertEquals(TestAvgIndicator.class, mapper.findClassById(1));

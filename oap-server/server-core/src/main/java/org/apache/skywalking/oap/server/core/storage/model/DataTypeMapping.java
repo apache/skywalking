@@ -16,14 +16,12 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.worker.define;
+package org.apache.skywalking.oap.server.core.storage.model;
 
 /**
  * @author peng-yongsheng
  */
-public class WorkerDefineLoadException extends Exception {
+public interface DataTypeMapping {
 
-    public WorkerDefineLoadException(String message, Throwable cause) {
-        super(message, cause);
-    }
+    String transform(Class<?> type);
 }

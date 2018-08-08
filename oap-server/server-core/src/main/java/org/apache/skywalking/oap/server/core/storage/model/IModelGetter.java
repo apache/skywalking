@@ -16,14 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.indicator.define;
+package org.apache.skywalking.oap.server.core.storage.model;
+
+import java.util.List;
+import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
  * @author peng-yongsheng
  */
-public class IndicatorDefineLoadException extends Exception {
-
-    public IndicatorDefineLoadException(String message, Throwable cause) {
-        super(message, cause);
-    }
+public interface IModelGetter extends Service {
+    List<Model> getModels();
 }

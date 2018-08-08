@@ -35,11 +35,14 @@ public class RegisterLockDAOImpl extends EsDAO implements IRegisterLockDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(RegisterLockDAOImpl.class);
 
-    public RegisterLockDAOImpl(ElasticSearchClient client) {
+    private final int timeout;
+
+    public RegisterLockDAOImpl(ElasticSearchClient client, int timeout) {
         super(client);
+        this.timeout = timeout;
     }
 
-    @Override public boolean tryLock(Scope scope, int timeout) {
+    @Override public boolean tryLock(Scope scope) {
         String id = String.valueOf(scope.ordinal());
         try {
             GetResponse response = getClient().get(RegisterLockIndex.NAME, id);

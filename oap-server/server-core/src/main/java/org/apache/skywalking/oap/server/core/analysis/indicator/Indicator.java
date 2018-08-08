@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.indicator;
 
 import java.util.Map;
 import lombok.*;
-import org.apache.skywalking.oap.server.core.analysis.data.StreamData;
+import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**

@@ -16,25 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.define;
+package org.apache.skywalking.oap.server.core.annotation;
+
+import java.lang.annotation.Annotation;
 
 /**
  * @author peng-yongsheng
  */
-public class ColumnDefine {
-    private final ColumnName columnName;
-    private final Class<?> type;
+public interface AnnotationListener {
 
-    public ColumnDefine(ColumnName columnName, Class<?> type) {
-        this.columnName = columnName;
-        this.type = type;
-    }
+    Class<? extends Annotation> annotation();
 
-    public final ColumnName getColumnName() {
-        return columnName;
-    }
-
-    public final Class<?> getType() {
-        return type;
-    }
+    void ownerClass(Class aClass);
 }

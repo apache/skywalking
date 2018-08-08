@@ -16,26 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
+package org.apache.skywalking.oap.server.core.storage.annotation;
 
-import org.apache.skywalking.oap.server.core.storage.model.DataTypeMapping;
+import java.lang.annotation.*;
 
 /**
  * @author peng-yongsheng
  */
-public class ColumnTypeEsMapping implements DataTypeMapping {
-
-    @Override public String transform(Class<?> type) {
-        if (Integer.class.equals(type) || int.class.equals(type)) {
-            return "integer";
-        } else if (Long.class.equals(type) || long.class.equals(type)) {
-            return "long";
-        } else if (Double.class.equals(type) || double.class.equals(type)) {
-            return "double";
-        } else if (String.class.equals(type)) {
-            return "text";
-        } else {
-            throw new IllegalArgumentException("Unsupported data type: " + type.getName());
-        }
-    }
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface StorageEntity {
+    String name();
 }

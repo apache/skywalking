@@ -23,9 +23,9 @@ import java.util.List;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.BufferStrategy;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
-import org.apache.skywalking.oap.server.core.analysis.indicator.define.IndicatorMapper;
+import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
+import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataAnnotationContainer;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.*;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
 import org.slf4j.*;
@@ -39,23 +39,23 @@ public class GRPCRemoteClient implements RemoteClient, Comparable<GRPCRemoteClie
 
     private final GRPCClient client;
     private final DataCarrier<RemoteMessage> carrier;
-    private final IndicatorMapper indicatorMapper;
+    private final StreamDataAnnotationContainer streamDataMapper;
 
-    public GRPCRemoteClient(IndicatorMapper indicatorMapper, RemoteInstance remoteInstance, int channelSize,
+    public GRPCRemoteClient(StreamDataAnnotationContainer streamDataMapper, RemoteInstance remoteInstance, int channelSize,
         int bufferSize) {
-        this.indicatorMapper = indicatorMapper;
+        this.streamDataMapper = streamDataMapper;
         this.client = new GRPCClient(remoteInstance.getHost(), remoteInstance.getPort());
         this.carrier = new DataCarrier<>(channelSize, bufferSize);
         this.carrier.setBufferStrategy(BufferStrategy.BLOCKING);
         this.carrier.consume(new RemoteMessageConsumer(), 1);
     }
 
-    @Override public void push(int nextWorkerId, Indicator indicator) {
-        int indicatorId = indicatorMapper.findIdByClass(indicator.getClass());
+    @Override public void push(int nextWorkerId, StreamData streamData) {
+        int streamDataId = streamDataMapper.findIdByClass(streamData.getClass());
         RemoteMessage.Builder builder = RemoteMessage.newBuilder();
         builder.setNextWorkerId(nextWorkerId);
-        builder.setIndicatorId(indicatorId);
-        builder.setRemoteData(indicator.serialize());
+        builder.setStreamDataId(streamDataId);
+        builder.setRemoteData(streamData.serialize());
 
         this.carrier.produce(builder.build());
     }

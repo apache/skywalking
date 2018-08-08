@@ -16,27 +16,34 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.define;
+package org.apache.skywalking.oap.server.core.remote.annotation;
 
-import java.util.List;
+import java.lang.annotation.Annotation;
+import java.util.*;
+import lombok.Getter;
+import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
-public class TableDefine {
-    private final String name;
-    private final List<ColumnDefine> columnDefines;
+public class StreamAnnotationListener implements AnnotationListener {
 
-    public TableDefine(String name, List<ColumnDefine> columnDefines) {
-        this.name = name;
-        this.columnDefines = columnDefines;
+    private static final Logger logger = LoggerFactory.getLogger(StreamAnnotationListener.class);
+
+    @Getter private final List<Class> streamClasses;
+
+    public StreamAnnotationListener() {
+        this.streamClasses = new LinkedList<>();
     }
 
-    public final String getName() {
-        return name;
+    @Override public Class<? extends Annotation> annotation() {
+        return StreamData.class;
     }
 
-    public final List<ColumnDefine> getColumnDefines() {
-        return columnDefines;
+    @Override public void ownerClass(Class aClass) {
+        logger.info("The owner class of stream data annotation, class name: {}", aClass.getName());
+
+        streamClasses.add(aClass);
     }
 }

@@ -19,8 +19,8 @@
 package org.apache.skywalking.oap.server.core.remote.client;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
-import org.apache.skywalking.oap.server.core.analysis.worker.define.WorkerMapper;
+import org.apache.skywalking.oap.server.core.remote.data.StreamData;
+import org.apache.skywalking.oap.server.core.worker.annotation.WorkerAnnotationContainer;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
@@ -46,8 +46,8 @@ public class SelfRemoteClient implements RemoteClient {
         return port;
     }
 
-    @Override public void push(int nextWorkerId, Indicator indicator) {
-        WorkerMapper workerMapper = moduleManager.find(CoreModule.NAME).getService(WorkerMapper.class);
-        workerMapper.findInstanceById(nextWorkerId).in(indicator);
+    @Override public void push(int nextWorkerId, StreamData streamData) {
+        WorkerAnnotationContainer workerMapper = moduleManager.find(CoreModule.NAME).getService(WorkerAnnotationContainer.class);
+        workerMapper.findInstanceById(nextWorkerId).in(streamData);
     }
 }

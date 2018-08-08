@@ -16,22 +16,34 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.data;
+package org.apache.skywalking.oap.server.core.worker.annotation;
 
-import org.apache.skywalking.oap.server.core.remote.*;
+import java.lang.annotation.Annotation;
+import java.util.*;
+import lombok.Getter;
+import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class StreamData implements QueueData, Serializable, Deserializable {
+public class WorkerAnnotationListener implements AnnotationListener {
 
-    private EndOfBatchContext endOfBatchContext;
+    private static final Logger logger = LoggerFactory.getLogger(WorkerAnnotationListener.class);
 
-    @Override public final EndOfBatchContext getEndOfBatchContext() {
-        return this.endOfBatchContext;
+    @Getter private final List<Class> workerClasses;
+
+    public WorkerAnnotationListener() {
+        this.workerClasses = new LinkedList<>();
     }
 
-    @Override public final void setEndOfBatchContext(EndOfBatchContext context) {
-        this.endOfBatchContext = context;
+    @Override public Class<? extends Annotation> annotation() {
+        return Worker.class;
+    }
+
+    @Override public void ownerClass(Class aClass) {
+        logger.info("The owner class of worker annotation, class name: {}", aClass.getName());
+
+        workerClasses.add(aClass);
     }
 }

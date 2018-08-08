@@ -16,26 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.define;
+package org.apache.skywalking.oap.server.core.worker.annotation;
 
 /**
  * @author peng-yongsheng
  */
-public class ColumnName {
-    private final String fullName;
-    private final String shortName;
-    private boolean useShortName = false;
+public class WorkerDefineLoadException extends RuntimeException {
 
-    public ColumnName(String fullName, String shortName) {
-        this.fullName = fullName;
-        this.shortName = shortName;
-    }
-
-    public String getName() {
-        return useShortName ? shortName : fullName;
-    }
-
-    public void useShortName() {
-        this.useShortName = true;
+    public WorkerDefineLoadException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

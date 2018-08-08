@@ -16,14 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.worker;
+package org.apache.skywalking.oap.server.core.remote.annotation;
 
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import java.lang.annotation.*;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class Worker<INPUT extends Indicator> {
-
-    public abstract void in(INPUT input);
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface StreamData {
 }
