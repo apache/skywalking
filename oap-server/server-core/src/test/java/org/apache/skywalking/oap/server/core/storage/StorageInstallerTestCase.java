@@ -48,8 +48,8 @@ public class StorageInstallerTestCase {
 
 //        streamDataAnnotationContainer.generate();
 
-        TestStorageInstaller installer = new TestStorageInstaller(moduleManager);
-        installer.install(null);
+//        TestStorageInstaller installer = new TestStorageInstaller(moduleManager);
+//        installer.install(null);
     }
 
     class TestStorageInstaller extends ModelInstaller {
