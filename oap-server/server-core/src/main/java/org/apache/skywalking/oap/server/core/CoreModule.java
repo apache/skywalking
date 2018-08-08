@@ -19,12 +19,13 @@
 package org.apache.skywalking.oap.server.core;
 
 import java.util.*;
-import org.apache.skywalking.oap.server.core.analysis.indicator.define.IndicatorMapper;
-import org.apache.skywalking.oap.server.core.analysis.worker.define.WorkerMapper;
-import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.remote.RemoteSenderService;
+import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
 import org.apache.skywalking.oap.server.core.server.*;
+import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.core.storage.model.IModelGetter;
+import org.apache.skywalking.oap.server.core.worker.annotation.WorkerAnnotationContainer;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
@@ -53,8 +54,9 @@ public class CoreModule extends ModuleDefine {
     }
 
     private void addInsideService(List<Class> classes) {
-        classes.add(IndicatorMapper.class);
-        classes.add(WorkerMapper.class);
+        classes.add(IModelGetter.class);
+        classes.add(StreamDataClassGetter.class);
+        classes.add(WorkerAnnotationContainer.class);
         classes.add(RemoteClientManager.class);
         classes.add(RemoteSenderService.class);
     }

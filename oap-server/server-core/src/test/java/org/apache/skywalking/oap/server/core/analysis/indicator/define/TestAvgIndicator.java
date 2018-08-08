@@ -34,14 +34,14 @@ public class TestAvgIndicator extends AvgIndicator {
         return null;
     }
 
+    @Override public String name() {
+        return null;
+    }
+
     @Override public void deserialize(RemoteData remoteData) {
     }
 
     @Override public String id() {
-        return null;
-    }
-
-    @Override public String name() {
         return null;
     }
 

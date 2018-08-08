@@ -28,7 +28,7 @@ service RemoteService {
 
 message RemoteMessage {
     int32 nextWorkerId = 1;
-    int32 indicatorId = 2;
+    int32 streamDataId = 2;
     RemoteData remoteData = 3;
 }
 

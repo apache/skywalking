@@ -16,26 +16,34 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.define;
+package org.apache.skywalking.oap.server.core.remote.annotation;
+
+import java.lang.annotation.Annotation;
+import java.util.*;
+import lombok.Getter;
+import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
-public class ColumnName {
-    private final String fullName;
-    private final String shortName;
-    private boolean useShortName = false;
+public class StreamAnnotationListener implements AnnotationListener {
 
-    public ColumnName(String fullName, String shortName) {
-        this.fullName = fullName;
-        this.shortName = shortName;
+    private static final Logger logger = LoggerFactory.getLogger(StreamAnnotationListener.class);
+
+    @Getter private final List<Class> streamClasses;
+
+    public StreamAnnotationListener() {
+        this.streamClasses = new LinkedList<>();
     }
 
-    public String getName() {
-        return useShortName ? shortName : fullName;
+    @Override public Class<? extends Annotation> annotation() {
+        return StreamData.class;
     }
 
-    public void useShortName() {
-        this.useShortName = true;
+    @Override public void notify(Class aClass) {
+        logger.info("The owner class of stream data annotation, class name: {}", aClass.getName());
+
+        streamClasses.add(aClass);
     }
 }

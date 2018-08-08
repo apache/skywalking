@@ -16,14 +16,34 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.worker.define;
+package org.apache.skywalking.oap.server.core.worker.annotation;
+
+import java.lang.annotation.Annotation;
+import java.util.*;
+import lombok.Getter;
+import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
-public class WorkerDefineLoadException extends Exception {
+public class WorkerAnnotationListener implements AnnotationListener {
 
-    public WorkerDefineLoadException(String message, Throwable cause) {
-        super(message, cause);
+    private static final Logger logger = LoggerFactory.getLogger(WorkerAnnotationListener.class);
+
+    @Getter private final List<Class> workerClasses;
+
+    public WorkerAnnotationListener() {
+        this.workerClasses = new LinkedList<>();
+    }
+
+    @Override public Class<? extends Annotation> annotation() {
+        return Worker.class;
+    }
+
+    @Override public void notify(Class aClass) {
+        logger.info("The owner class of worker annotation, class name: {}", aClass.getName());
+
+        workerClasses.add(aClass);
     }
 }

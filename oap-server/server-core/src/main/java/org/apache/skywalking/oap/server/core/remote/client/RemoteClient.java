@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.remote.client;
 
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 
 /**
  * @author peng-yongsheng
@@ -29,5 +29,5 @@ public interface RemoteClient {
 
     int getPort();
 
-    void push(int nextWorkerId, Indicator indicator);
+    void push(int nextWorkerId, StreamData streamData);
 }

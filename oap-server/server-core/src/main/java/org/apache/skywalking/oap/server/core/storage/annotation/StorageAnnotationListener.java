@@ -18,35 +18,48 @@
 
 package org.apache.skywalking.oap.server.core.storage.annotation;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
-import org.apache.skywalking.oap.server.core.storage.define.*;
+import lombok.Getter;
+import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
+import org.apache.skywalking.oap.server.core.storage.model.*;
 import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
-public class ColumnAnnotationRetrieval {
+public class StorageAnnotationListener implements AnnotationListener, IModelGetter {
 
-    private static final Logger logger = LoggerFactory.getLogger(ColumnAnnotationRetrieval.class);
+    private static final Logger logger = LoggerFactory.getLogger(StorageAnnotationListener.class);
 
-    public List<ColumnDefine> retrieval(Class<Indicator> indicatorClass) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Retrieval column annotation from class {}", indicatorClass.getName());
-        }
-        List<ColumnDefine> columnDefines = new LinkedList<>();
-        retrieval(indicatorClass, columnDefines);
-        return columnDefines;
+    @Getter private final List<Model> models;
+
+    public StorageAnnotationListener() {
+        this.models = new LinkedList<>();
     }
 
-    private void retrieval(Class clazz, List<ColumnDefine> columnDefines) {
+    @Override public Class<? extends Annotation> annotation() {
+        return StorageEntity.class;
+    }
+
+    @Override public void notify(Class aClass) {
+        logger.info("The owner class of storage annotation, class name: {}", aClass.getName());
+
+        List<ModelColumn> modelColumns = new LinkedList<>();
+        retrieval(aClass, modelColumns);
+
+        StorageEntity annotation = (StorageEntity)aClass.getAnnotation(StorageEntity.class);
+        models.add(new Model(annotation.name(), modelColumns));
+    }
+
+    private void retrieval(Class clazz, List<ModelColumn> modelColumns) {
         Field[] fields = clazz.getDeclaredFields();
 
         for (Field field : fields) {
             if (field.isAnnotationPresent(Column.class)) {
                 Column column = field.getAnnotation(Column.class);
-                columnDefines.add(new ColumnDefine(new ColumnName(column.columnName(), column.columnName()), field.getType()));
+                modelColumns.add(new ModelColumn(new ColumnName(column.columnName(), column.columnName()), field.getType()));
                 if (logger.isDebugEnabled()) {
                     logger.debug("The field named {} with the {} type", column.columnName(), field.getType());
                 }
@@ -54,7 +67,7 @@ public class ColumnAnnotationRetrieval {
         }
 
         if (Objects.nonNull(clazz.getSuperclass())) {
-            retrieval(clazz.getSuperclass(), columnDefines);
+            retrieval(clazz.getSuperclass(), modelColumns);
         }
     }
 }

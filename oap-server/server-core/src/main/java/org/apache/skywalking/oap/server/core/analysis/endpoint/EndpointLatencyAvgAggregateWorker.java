@@ -19,11 +19,13 @@
 package org.apache.skywalking.oap.server.core.analysis.endpoint;
 
 import org.apache.skywalking.oap.server.core.analysis.worker.AbstractAggregatorWorker;
+import org.apache.skywalking.oap.server.core.worker.annotation.Worker;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
  * @author peng-yongsheng
  */
+@Worker
 public class EndpointLatencyAvgAggregateWorker extends AbstractAggregatorWorker<EndpointLatencyAvgIndicator> {
 
     public EndpointLatencyAvgAggregateWorker(ModuleManager moduleManager) {

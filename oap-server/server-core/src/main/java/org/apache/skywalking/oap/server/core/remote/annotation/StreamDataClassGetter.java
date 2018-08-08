@@ -16,12 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.define;
+package org.apache.skywalking.oap.server.core.remote.annotation;
+
+import org.apache.skywalking.oap.server.core.remote.data.StreamData;
+import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
  * @author peng-yongsheng
  */
-public interface ColumnTypeMapping {
+public interface StreamDataClassGetter extends Service {
 
-    String transform(Class<?> type);
+    Class<StreamData> findClassById(int id);
 }

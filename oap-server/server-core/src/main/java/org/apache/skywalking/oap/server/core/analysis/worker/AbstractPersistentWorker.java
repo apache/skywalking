@@ -22,6 +22,7 @@ import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.data.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.slf4j.*;
 
@@ -30,7 +31,7 @@ import static java.util.Objects.nonNull;
 /**
  * @author peng-yongsheng
  */
-public abstract class AbstractPersistentWorker<INPUT extends Indicator> extends Worker<INPUT> {
+public abstract class AbstractPersistentWorker<INPUT extends Indicator> extends AbstractWorker<INPUT> {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractPersistentWorker.class);
 

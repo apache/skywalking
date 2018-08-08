@@ -20,22 +20,23 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
-import org.apache.skywalking.oap.server.core.analysis.worker.define.WorkerMapper;
+import org.apache.skywalking.oap.server.core.worker.annotation.WorkerAnnotationContainer;
 import org.apache.skywalking.oap.server.core.remote.RemoteSenderService;
 import org.apache.skywalking.oap.server.core.remote.selector.Selector;
+import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class AbstractRemoteWorker<INPUT extends Indicator> extends Worker<INPUT> {
+public abstract class AbstractRemoteWorker<INPUT extends Indicator> extends AbstractWorker<INPUT> {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractRemoteWorker.class);
 
     private final ModuleManager moduleManager;
     private RemoteSenderService remoteSender;
-    private WorkerMapper workerMapper;
+    private WorkerAnnotationContainer workerMapper;
 
     public AbstractRemoteWorker(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
@@ -46,7 +47,7 @@ public abstract class AbstractRemoteWorker<INPUT extends Indicator> extends Work
             remoteSender = moduleManager.find(CoreModule.NAME).getService(RemoteSenderService.class);
         }
         if (workerMapper == null) {
-            workerMapper = moduleManager.find(CoreModule.NAME).getService(WorkerMapper.class);
+            workerMapper = moduleManager.find(CoreModule.NAME).getService(WorkerAnnotationContainer.class);
         }
 
         try {

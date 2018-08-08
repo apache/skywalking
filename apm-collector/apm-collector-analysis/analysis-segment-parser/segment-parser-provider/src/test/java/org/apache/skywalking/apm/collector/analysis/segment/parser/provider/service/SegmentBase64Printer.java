@@ -19,13 +19,9 @@
 package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.service;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import java.util.Base64;
-import java.util.List;
-import org.apache.skywalking.apm.network.language.agent.SpanObject;
-import org.apache.skywalking.apm.network.language.agent.TraceSegmentObject;
-import org.apache.skywalking.apm.network.language.agent.UniqueId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.*;
+import org.apache.skywalking.apm.network.language.agent.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -35,8 +31,11 @@ public class SegmentBase64Printer {
     private static final Logger LOGGER = LoggerFactory.getLogger(SegmentBase64Printer.class);
 
     public static void main(String[] args) throws InvalidProtocolBufferException {
-        String segmentBase64 = "CgoKCJbf2NPCLBAQEiAQ////////////ARiV39jTwiwg2+7Y08IsMNQPWANgARIlCAEYn9/Y08IsILns2NPCLDCUyAJA////////////AVABWAJgAxInCAIQARif39jTwiwguezY08IsMJTIAkD///////////8BUAFYAmADEicIAxACGJ/f2NPCLCC57NjTwiwwlMgCQP///////////wFQAVgCYAMSJwgEEAMYn9/Y08IsILns2NPCLDCUyAJA////////////AVABWAJgAxInCAUQBBif39jTwiwguezY08IsMJTIAkD///////////8BUAFYAmADEicIBhAFGJ/f2NPCLCC57NjTwiwwlMgCQP///////////wFQAVgCYAMSJwgHEAYYn9/Y08IsILns2NPCLDCUyAJA////////////AVABWAJgAxInCAgQBxif39jTwiwguezY08IsMJTIAkD///////////8BUAFYAmADEicICRAIGJ/f2NPCLCC57NjTwiwwlMgCQP///////////wFQAVgCYAMSJwgKEAkYn9/Y08IsILns2NPCLDCUyAJA////////////AVABWAJgAxInCAsQChif39jTwiwguezY08IsMJTIAkD///////////8BUAFYAmADEicIDBALGJ/f2NPCLCC57NjTwiwwlMgCQP///////////wFQAVgCYAMSJwgNEAwYn9/Y08IsILns2NPCLDCUyAJA////////////AVABWAJgAxInCA4QDRif39jTwiwguezY08IsMJTIAkD///////////8BUAFYAmADEvMCCA8QDhif39jTwiwguezY08IsMJTIAkD///////////8BUAFYAmADggHIAhKhAQoNZXJyb3IgbWVzc2FnZRKPAVtJTkZPXSBCdWlsZGluZyBqYXI6IC9Vc2Vycy9wZW5neXM1L2NvZGUvc2t5LXdhbGtpbmcvY29sbGVjdG9yLXBlcmZvcm1hbmNlLXRlc3QvdGFyZ2V0L2NvbGxlY3Rvci1wZXJmb3JtYW5jZS10ZXN0LTEuMC1qYXItd2l0aC1kZXBlbmRlbmNpZXMuamFyEqEBCg1lcnJvciBtZXNzYWdlEo8BW0lORk9dIEJ1aWxkaW5nIGphcjogL1VzZXJzL3Blbmd5czUvY29kZS9za3ktd2Fsa2luZy9jb2xsZWN0b3ItcGVyZm9ybWFuY2UtdGVzdC90YXJnZXQvY29sbGVjdG9yLXBlcmZvcm1hbmNlLXRlc3QtMS4wLWphci13aXRoLWRlcGVuZGVuY2llcy5qYXIS8wIIEBAPGJ/f2NPCLCC57NjTwiwwlMgCQP///////////wFQAVgCYAOCAcgCEqEBCg1lcnJvciBtZXNzYWdlEo8BW0lORk9dIEJ1aWxkaW5nIGphcjogL1VzZXJzL3Blbmd5czUvY29kZS9za3ktd2Fsa2luZy9jb2xsZWN0b3ItcGVyZm9ybWFuY2UtdGVzdC90YXJnZXQvY29sbGVjdG9yLXBlcmZvcm1hbmNlLXRlc3QtMS4wLWphci13aXRoLWRlcGVuZGVuY2llcy5qYXISoQEKDWVycm9yIG1lc3NhZ2USjwFbSU5GT10gQnVpbGRpbmcgamFyOiAvVXNlcnMvcGVuZ3lzNS9jb2RlL3NreS13YWxraW5nL2NvbGxlY3Rvci1wZXJmb3JtYW5jZS10ZXN0L3RhcmdldC9jb2xsZWN0b3ItcGVyZm9ybWFuY2UtdGVzdC0xLjAtamFyLXdpdGgtZGVwZW5kZW5jaWVzLmphchLzAggREBAYn9/Y08IsILns2NPCLDCUyAJA////////////AVABWAJgA4IByAISoQEKDWVycm9yIG1lc3NhZ2USjwFbSU5GT10gQnVpbGRpbmcgamFyOiAvVXNlcnMvcGVuZ3lzNS9jb2RlL3NreS13YWxraW5nL2NvbGxlY3Rvci1wZXJmb3JtYW5jZS10ZXN0L3RhcmdldC9jb2xsZWN0b3ItcGVyZm9ybWFuY2UtdGVzdC0xLjAtamFyLXdpdGgtZGVwZW5kZW5jaWVzLmphchKhAQoNZXJyb3IgbWVzc2FnZRKPAVtJTkZPXSBCdWlsZGluZyBqYXI6IC9Vc2Vycy9wZW5neXM1L2NvZGUvc2t5LXdhbGtpbmcvY29sbGVjdG9yLXBlcmZvcm1hbmNlLXRlc3QvdGFyZ2V0L2NvbGxlY3Rvci1wZXJmb3JtYW5jZS10ZXN0LTEuMC1qYXItd2l0aC1kZXBlbmRlbmNpZXMuamFyEvMCCBIQERif39jTwiwguezY08IsMJTIAkD///////////8BUAFYAmADggHIAhKhAQoNZXJyb3IgbWVzc2FnZRKPAVtJTkZPXSBCdWlsZGluZyBqYXI6IC9Vc2Vycy9wZW5neXM1L2NvZGUvc2t5LXdhbGtpbmcvY29sbGVjdG9yLXBlcmZvcm1hbmNlLXRlc3QvdGFyZ2V0L2NvbGxlY3Rvci1wZXJmb3JtYW5jZS10ZXN0LTEuMC1qYXItd2l0aC1kZXBlbmRlbmNpZXMuamFyEqEBCg1lcnJvciBtZXNzYWdlEo8BW0lORk9dIEJ1aWxkaW5nIGphcjogL1VzZXJzL3Blbmd5czUvY29kZS9za3ktd2Fsa2luZy9jb2xsZWN0b3ItcGVyZm9ybWFuY2UtdGVzdC90YXJnZXQvY29sbGVjdG9yLXBlcmZvcm1hbmNlLXRlc3QtMS4wLWphci13aXRoLWRlcGVuZGVuY2llcy5qYXIS8wIIExASGJ/f2NPCLCC57NjTwiwwlMgCQP///////////wFQAVgCYAOCAcgCEqEBCg1lcnJvciBtZXNzYWdlEo8BW0lORk9dIEJ1aWxkaW5nIGphcjogL1VzZXJzL3Blbmd5czUvY29kZS9za3ktd2Fsa2luZy9jb2xsZWN0b3ItcGVyZm9ybWFuY2UtdGVzdC90YXJnZXQvY29sbGVjdG9yLXBlcmZvcm1hbmNlLXRlc3QtMS4wLWphci13aXRoLWRlcGVuZGVuY2llcy5qYXISoQEKDWVycm9yIG1lc3NhZ2USjwFbSU5GT10gQnVpbGRpbmcgamFyOiAvVXNlcnMvcGVuZ3lzNS9jb2RlL3NreS13YWxraW5nL2NvbGxlY3Rvci1wZXJmb3JtYW5jZS10ZXN0L3RhcmdldC9jb2xsZWN0b3ItcGVyZm9ybWFuY2UtdGVzdC0xLjAtamFyLXdpdGgtZGVwZW5kZW5jaWVzLmphchLzAggUEBMYn9/Y08IsILns2NPCLDCUyAJA////////////AVABWAJgA4IByAISoQEKDWVycm9yIG1lc3NhZ2USjwFbSU5GT10gQnVpbGRpbmcgamFyOiAvVXNlcnMvcGVuZ3lzNS9jb2RlL3NreS13YWxraW5nL2NvbGxlY3Rvci1wZXJmb3JtYW5jZS10ZXN0L3RhcmdldC9jb2xsZWN0b3ItcGVyZm9ybWFuY2UtdGVzdC0xLjAtamFyLXdpdGgtZGVwZW5kZW5jaWVzLmphchKhAQoNZXJyb3IgbWVzc2FnZRKPAVtJTkZPXSBCdWlsZGluZyBqYXI6IC9Vc2Vycy9wZW5neXM1L2NvZGUvc2t5LXdhbGtpbmcvY29sbGVjdG9yLXBlcmZvcm1hbmNlLXRlc3QvdGFyZ2V0L2NvbGxlY3Rvci1wZXJmb3JtYW5jZS10ZXN0LTEuMC1qYXItd2l0aC1kZXBlbmRlbmNpZXMuamFyGP7//////////wEgCA==";
-        byte[] binarySegment = Base64.getDecoder().decode(segmentBase64);
+        if (args.length == 0) {
+            return;
+        }
+
+        byte[] binarySegment = Base64.getDecoder().decode(args[0]);
         TraceSegmentObject segmentObject = TraceSegmentObject.parseFrom(binarySegment);
 
         UniqueId segmentId = segmentObject.getTraceSegmentId();

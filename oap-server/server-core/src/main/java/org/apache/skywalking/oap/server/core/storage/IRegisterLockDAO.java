@@ -24,7 +24,7 @@ import org.apache.skywalking.oap.server.core.source.Scope;
  * @author peng-yongsheng
  */
 public interface IRegisterLockDAO extends DAO {
-    boolean tryLock(Scope scope, int timeout);
+    boolean tryLock(Scope scope);
 
     void releaseLock(Scope scope);
 }
