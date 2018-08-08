@@ -65,7 +65,7 @@ public class GCMetricH2UIDAO extends H2DAO implements IGCMetricUIDAO {
                     long count = rs.getLong(GCMetricTable.COUNT.getName());
                     long duration = rs.getLong(GCMetricTable.DURATION.getName());
                     long times = rs.getLong(GCMetricTable.TIMES.getName());
-                    gcTrends.add(new Trend((int)(count / times), (int)(duration / times)));
+                    gcTrends.add(new Trend((int)count, (int)(duration / times)));
                 } else {
                     gcTrends.add(new Trend(0, 0));
                 }

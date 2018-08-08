@@ -44,8 +44,11 @@ public class ResponseTimeDistribution extends StreamData {
         new IntegerColumn(ResponseTimeDistributionTable.STEP, new NonMergeOperation()),
     };
 
+    private static final DoubleColumn[] DOUBLE_COLUMNS = {
+    };
+
     public ResponseTimeDistribution() {
-        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, new DoubleColumn[0]);
+        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, DOUBLE_COLUMNS);
     }
 
     @Override public String getId() {

@@ -20,14 +20,10 @@ package org.apache.skywalking.apm.collector.instrument;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 import org.apache.skywalking.apm.collector.core.annotations.trace.BatchParameter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author wusheng, peng-yongsheng
@@ -61,8 +57,8 @@ public enum MetricTree implements Runnable {
             logBuffer.append("##################################################################################################################").append(lineSeparator);
             logBuffer.append("#                                             Collector Service Report                                           #").append(lineSeparator);
             logBuffer.append("##################################################################################################################").append(lineSeparator);
-            metrics.forEach((MetricNode metric) -> metric.toOutput(new ReportWriter() {
 
+            metrics.forEach((MetricNode metric) -> metric.toOutput(new ReportWriter() {
                 @Override public void writeMetricName(String name) {
                     logBuffer.append(name).append(lineSeparator);
                 }

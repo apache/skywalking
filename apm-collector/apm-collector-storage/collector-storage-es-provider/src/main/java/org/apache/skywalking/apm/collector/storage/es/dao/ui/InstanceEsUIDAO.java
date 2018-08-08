@@ -160,16 +160,16 @@ public class InstanceEsUIDAO extends EsDAO implements IInstanceUIDAO {
         searchRequestBuilder.setSize(1000);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.termQuery(InstanceTable.APPLICATION_ID.getName(), applicationId));
-        boolQuery.must().add(QueryBuilders.termQuery(InstanceTable.IS_ADDRESS.getName(), BooleanUtils.FALSE));
+        boolQuery.filter().add(QueryBuilders.termQuery(InstanceTable.APPLICATION_ID.getName(), applicationId));
+        boolQuery.filter().add(QueryBuilders.termQuery(InstanceTable.IS_ADDRESS.getName(), BooleanUtils.FALSE));
 
         BoolQueryBuilder boolQuery1 = QueryBuilders.boolQuery();
-        boolQuery1.must().add(QueryBuilders.rangeQuery(InstanceTable.HEARTBEAT_TIME.getName()).gte(endSecondTimeBucket));
-        boolQuery1.must().add(QueryBuilders.rangeQuery(InstanceTable.REGISTER_TIME.getName()).lte(endSecondTimeBucket));
+        boolQuery1.filter().add(QueryBuilders.rangeQuery(InstanceTable.HEARTBEAT_TIME.getName()).gte(endSecondTimeBucket));
+        boolQuery1.filter().add(QueryBuilders.rangeQuery(InstanceTable.REGISTER_TIME.getName()).lte(endSecondTimeBucket));
 
         BoolQueryBuilder boolQuery2 = QueryBuilders.boolQuery();
-        boolQuery2.must().add(QueryBuilders.rangeQuery(InstanceTable.REGISTER_TIME.getName()).lte(endSecondTimeBucket));
-        boolQuery2.must().add(QueryBuilders.rangeQuery(InstanceTable.HEARTBEAT_TIME.getName()).gte(startSecondTimeBucket));
+        boolQuery2.filter().add(QueryBuilders.rangeQuery(InstanceTable.REGISTER_TIME.getName()).lte(endSecondTimeBucket));
+        boolQuery2.filter().add(QueryBuilders.rangeQuery(InstanceTable.HEARTBEAT_TIME.getName()).gte(startSecondTimeBucket));
 
         BoolQueryBuilder timeBoolQuery = QueryBuilders.boolQuery();
         timeBoolQuery.should().add(boolQuery1);

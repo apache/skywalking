@@ -1,9 +1,73 @@
- Changes by Version
- ==================
- Release Notes.
+Changes by Version
+==================
+Release Notes.
+
+5.0.0-beta2
+------------------
+
+#### UI -> Collector GraphQL query protocol
+  - Add order and status in trace query. 
+
+#### Agent Changes
+  - Add SOFA plugin.
+  - Add witness class for Kafka plugin.
+  - Add RuntimeContext in Context.
+  - Fix RuntimeContext fail in Tomcat plugin. 
+  - Fix incompatible for `getPropertyDescriptors` in Spring core. 
+  - Fix spymemcached plugin bug.
+  - Fix database URL parser bug.
+  - Fix `StringIndexOutOfBoundsException` when mysql jdbc url without databaseName。
+  - Fix duplicate slash in Spring MVC plugin bug.
+  - Fix namespace bug.
+  - Fix NPE in Okhttp plugin when connect failed.
+  - FIx `MalformedURLException` in httpClientComponent plugin. 
+  - Remove unused dependencies in Dubbo plugin.
+  - Remove gRPC timeout to avoid out of memory leak.
+  - Rewrite Async http client plugin.
+  - [Incubating] Add trace custom ignore optional plugin. 
+
+#### Collector Changes
+  - Topology query optimization for more than 100 apps.
+  - Error rate alarm is not triggered.
+  - Tolerate unsupported segments.
+  - Support Integer Array, Long Array, String Array, Double Array in streaming data model.
+  - Support multiple entry span and multiple service name in one segment durtaion record.
+  - Use BulkProcessor to control the linear writing of data by multiple threads.
+  - Determine the log is enabled for the DEBUG level before printing message.
+  - Add `static` modifier to Logger. 
+  - Add AspNet component.
+  - Filter inactive service in query.
+  - Support to query service based on Application.
+  - Fix `RemoteDataMappingIdNotFoundException`
+  - Exclude component-libaries.xml file in collector-*.jar, make sure it is in `/conf` only. 
+  - Separate a single TTL in minute to in minute, hour, day, month metric and trace.
+  - Add order and status in trace query. 
+  - Add folder lock to buffer folder.
+  - Modify operationName search from `match` to `match_phrase`.
+  - [Incubating] Add Zipkin span receiver. Support analysis Zipkin v1/v2 formats.
+  - [Incubating] Support sharding-sphere as storage implementor.
   
- 5.0.0-beta
- ------------------
+#### UI Changes
+  - Support login and access control.
+  - Add new webapp.yml configuration file.
+  - Modify webapp startup script.
+  - Link to trace query from Thermodynamic graph
+  - Add application selector in service view.
+  - Add order and status in trace query.
+  
+#### Documents
+  - Add architecture design doc.
+  - Reformat deploy document. 
+  - Adjust Tomcat deploy document.
+  - Remove all Apache licenses files in dist release packages.
+  - Update user cases.
+  - Update UI licenses.
+  - Add incubating sections in doc.
+
+[Issues and Pull requests](https://github.com/apache/incubator-skywalking/milestone/28)
+  
+5.0.0-beta
+------------------
  
 #### UI -> Collector GraphQL query protocol
   - Replace all tps to throughtput/cpm(calls per min)
@@ -62,10 +126,10 @@
    - Add a FAQ about, `Agent or collector version upgrade`.
    - Sync all English document to Chinese.
  
-  [Issues and Pull requests](https://github.com/apache/incubator-skywalking/milestone/24)
+[Issues and Pull requests](https://github.com/apache/incubator-skywalking/milestone/24)
  
- 5.0.0-alpha
- ------------------
+5.0.0-alpha
+------------------
  
 #### Agent -> Collector protocol
  - Remove C++ keywords

@@ -18,7 +18,8 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
-import java.util.*;
+import java.io.IOException;
+import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.dao.IGlobalTracePersistenceDAO;
@@ -26,6 +27,7 @@ import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersisten
 import org.apache.skywalking.apm.collector.storage.table.global.*;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
+import org.elasticsearch.common.xcontent.*;
 
 /**
  * @author peng-yongsheng
@@ -48,12 +50,13 @@ public class GlobalTraceEsPersistenceDAO extends AbstractPersistenceEsDAO<Global
         return globalTrace;
     }
 
-    @Override protected Map<String, Object> esStreamDataToEsData(GlobalTrace streamData) {
-        Map<String, Object> target = new HashMap<>();
-        target.put(GlobalTraceTable.SEGMENT_ID.getName(), streamData.getSegmentId());
-        target.put(GlobalTraceTable.TRACE_ID.getName(), streamData.getTraceId());
-        target.put(GlobalTraceTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
-        return target;
+    @Override protected XContentBuilder esStreamDataToEsData(GlobalTrace streamData) throws IOException {
+        return XContentFactory.jsonBuilder()
+            .startObject()
+            .field(GlobalTraceTable.SEGMENT_ID.getName(), streamData.getSegmentId())
+            .field(GlobalTraceTable.TRACE_ID.getName(), streamData.getTraceId())
+            .field(GlobalTraceTable.TIME_BUCKET.getName(), streamData.getTimeBucket())
+            .endObject();
     }
 
     @Override protected String timeBucketColumnNameForDelete() {

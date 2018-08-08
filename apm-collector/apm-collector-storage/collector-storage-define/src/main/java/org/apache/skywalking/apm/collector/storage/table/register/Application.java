@@ -39,8 +39,14 @@ public class Application extends StreamData {
         new IntegerColumn(ApplicationTable.IS_ADDRESS, new CoverMergeOperation()),
     };
 
+    private static final LongColumn[] LONG_COLUMNS = {
+    };
+
+    private static final DoubleColumn[] DOUBLE_COLUMNS = {
+    };
+
     public Application() {
-        super(STRING_COLUMNS, new LongColumn[0], INTEGER_COLUMNS, new DoubleColumn[0], new StringListColumn[0], new LongListColumn[0], new IntegerListColumn[0], new DoubleListColumn[0]);
+        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, DOUBLE_COLUMNS);
     }
 
     @Override public String getId() {

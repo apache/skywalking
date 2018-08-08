@@ -22,7 +22,7 @@
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>5.0.0-beta2-SNAPSHOT</version>
+    <version>5.0.0-RC-SNAPSHOT</version>
 
     <parent>
         <groupId>org.apache</groupId>
@@ -172,6 +172,8 @@
                         <!-- UI style check files -->
                         <exclude>**/skywalking-ui/.eslintrc</exclude>
                         <exclude>**/skywalking-ui/.stylelintrc</exclude>
+                        <!-- UI icon files -->
+                        <exclude>**/skywalking-ui/public/font/iconfont/**</exclude>
 
                         <!-- git files -->
                         <exclude>**/.gitignore</exclude>

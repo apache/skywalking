@@ -18,13 +18,13 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao.alarm;
 
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
-import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmList;
-import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmListTable;
+import org.apache.skywalking.apm.collector.storage.table.alarm.*;
+import org.elasticsearch.common.xcontent.*;
 
 /**
  * @author peng-yongsheng
@@ -52,17 +52,17 @@ public abstract class AbstractApplicationAlarmListEsPersistenceDAO extends Abstr
         return applicationAlarmList;
     }
 
-    @Override protected final Map<String, Object> esStreamDataToEsData(ApplicationAlarmList streamData) {
-        Map<String, Object> target = new HashMap<>();
-        target.put(ApplicationAlarmListTable.METRIC_ID.getName(), streamData.getMetricId());
-        target.put(ApplicationAlarmListTable.APPLICATION_ID.getName(), streamData.getApplicationId());
-        target.put(ApplicationAlarmListTable.SOURCE_VALUE.getName(), streamData.getSourceValue());
+    @Override protected final XContentBuilder esStreamDataToEsData(ApplicationAlarmList streamData) throws IOException {
+        return XContentFactory.jsonBuilder().startObject()
+            .field(ApplicationAlarmListTable.METRIC_ID.getName(), streamData.getMetricId())
+            .field(ApplicationAlarmListTable.APPLICATION_ID.getName(), streamData.getApplicationId())
+            .field(ApplicationAlarmListTable.SOURCE_VALUE.getName(), streamData.getSourceValue())
 
-        target.put(ApplicationAlarmListTable.ALARM_TYPE.getName(), streamData.getAlarmType());
-        target.put(ApplicationAlarmListTable.ALARM_CONTENT.getName(), streamData.getAlarmContent());
+            .field(ApplicationAlarmListTable.ALARM_TYPE.getName(), streamData.getAlarmType())
+            .field(ApplicationAlarmListTable.ALARM_CONTENT.getName(), streamData.getAlarmContent())
 
-        target.put(ApplicationAlarmListTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
-        return target;
+            .field(ApplicationAlarmListTable.TIME_BUCKET.getName(), streamData.getTimeBucket())
+            .endObject();
     }
 
     @GraphComputingMetric(name = "/persistence/get/" + ApplicationAlarmListTable.TABLE)

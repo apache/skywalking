@@ -60,8 +60,11 @@ public class InstanceMetric extends StreamData implements Metric {
         new IntegerColumn(InstanceMetricTable.INSTANCE_ID, new CoverMergeOperation()),
     };
 
+    private static final DoubleColumn[] DOUBLE_COLUMNS = {
+    };
+
     public InstanceMetric() {
-        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, new DoubleColumn[0]);
+        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, DOUBLE_COLUMNS);
     }
 
     @Override public String getId() {

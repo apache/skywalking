@@ -18,14 +18,14 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
-import com.google.gson.Gson;
-import java.util.*;
+import java.io.IOException;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentDurationPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.segment.*;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
+import org.elasticsearch.common.xcontent.*;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.slf4j.*;
@@ -35,9 +35,7 @@ import org.slf4j.*;
  */
 public class SegmentDurationEsPersistenceDAO extends EsDAO implements ISegmentDurationPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, SegmentDuration> {
 
-    private final Logger logger = LoggerFactory.getLogger(SegmentDurationEsPersistenceDAO.class);
-
-    private final Gson gson = new Gson();
+    private static final Logger logger = LoggerFactory.getLogger(SegmentDurationEsPersistenceDAO.class);
 
     public SegmentDurationEsPersistenceDAO(ElasticSearchClient client) {
         super(client);
@@ -54,16 +52,18 @@ public class SegmentDurationEsPersistenceDAO extends EsDAO implements ISegmentDu
     }
 
     @Override
-    public IndexRequestBuilder prepareBatchInsert(SegmentDuration data) {
-        Map<String, Object> target = new HashMap<>();
-        target.put(SegmentDurationTable.SEGMENT_ID.getName(), data.getSegmentId());
-        target.put(SegmentDurationTable.APPLICATION_ID.getName(), data.getApplicationId());
-        target.put(SegmentDurationTable.SERVICE_NAME.getName(), gson.toJson(data.getServiceName()));
-        target.put(SegmentDurationTable.DURATION.getName(), data.getDuration());
-        target.put(SegmentDurationTable.START_TIME.getName(), data.getStartTime());
-        target.put(SegmentDurationTable.END_TIME.getName(), data.getEndTime());
-        target.put(SegmentDurationTable.IS_ERROR.getName(), data.getIsError());
-        target.put(SegmentDurationTable.TIME_BUCKET.getName(), data.getTimeBucket());
+    public IndexRequestBuilder prepareBatchInsert(SegmentDuration data) throws IOException {
+        XContentBuilder target = XContentFactory.jsonBuilder().startObject()
+            .field(SegmentDurationTable.SEGMENT_ID.getName(), data.getSegmentId())
+            .field(SegmentDurationTable.APPLICATION_ID.getName(), data.getApplicationId())
+            .field(SegmentDurationTable.SERVICE_NAME.getName(), data.getServiceName())
+            .field(SegmentDurationTable.DURATION.getName(), data.getDuration())
+            .field(SegmentDurationTable.START_TIME.getName(), data.getStartTime())
+            .field(SegmentDurationTable.END_TIME.getName(), data.getEndTime())
+            .field(SegmentDurationTable.IS_ERROR.getName(), data.getIsError())
+            .field(SegmentDurationTable.TIME_BUCKET.getName(), data.getTimeBucket())
+            .endObject();
+
         return getClient().prepareIndex(SegmentDurationTable.TABLE, data.getId()).setSource(target);
     }
 

@@ -156,7 +156,15 @@ mongodb-driver:
 SOFARPC:
   id: 43
   languages: Java
-
+ActiveMQ:
+  id: 44
+  languages: Java
+activemq-producer:
+  id: 45
+  languages: Java
+activemq-consumer:
+  id: 46
+  languages: Java
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
 AspNetCore:
@@ -223,6 +231,8 @@ Component-Server-Mappings:
   rocketMQ-consumer: RocketMQ
   kafka-producer: Kafka
   kafka-consumer: Kafka
+  activemq-producer: ActiveMQ
+  activemq-consumer: ActiveMQ
   postgresql-jdbc-driver: PostgreSQL
   Xmemcached: Memcached
   Spymemcached: Memcached

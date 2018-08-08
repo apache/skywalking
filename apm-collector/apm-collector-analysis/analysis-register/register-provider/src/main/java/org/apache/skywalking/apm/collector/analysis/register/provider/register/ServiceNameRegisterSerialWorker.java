@@ -50,7 +50,10 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker<Se
     }
 
     @Override protected void onWork(ServiceName serviceName) {
-        logger.debug("register service name: {}, application id: {}", serviceName.getServiceName(), serviceName.getApplicationId());
+        if (logger.isDebugEnabled()) {
+            logger.debug("register service name: {}, application id: {}", serviceName.getServiceName(), serviceName.getApplicationId());
+        }
+
         int serviceId = serviceIdCacheService.get(serviceName.getApplicationId(), serviceName.getSrcSpanType(), serviceName.getServiceName());
         if (serviceId == 0) {
             long now = System.currentTimeMillis();

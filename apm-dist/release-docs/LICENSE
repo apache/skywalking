@@ -378,6 +378,8 @@ MIT licenses
 antv/data-set	0.8.6:	https://github.com/antvis/data-set	MIT
 add-dom-event-listener  1.0.2:  https://github.com/yiminghe/add-dom-event-listener      MIT
 antd    3.2.2:  https://github.com/ant-design/ant-design        MIT
+iconfont(from antd): https://github.com/ant-design/antd-init/tree/master/examples/local-iconfont   MIT
+ant-design-pro  1.3.0:  https://github.com/ant-design/ant-design-pro    MIT     , declare license in package.json only.
 async-validator 1.8.2:  https://github.com/yiminghe/async-validator     MIT
 babel/polyfill	7.0.0-beta.42:	https://github.com/babel/babel/tree/master/packages/babel-polyfill	MIT	, declare license in package.json only.
 babel/runtime   7.0.0-beta.42: https://github.com/babel/babel/tree/master/packages/babel-runtime       MIT , declare license in package.json only.
@@ -430,6 +432,7 @@ rc-animate      2.4.4:  https://github.com/react-component/animate      MIT
 rc-calendar     9.5.0:  https://github.com/react-component/calendar     MIT
 rc-checkbox     2.1.5:  https://github.com/react-component/checkbox     MIT
 rc-drawer-menu  0.5.5:  https://github.com/ant-motion/drawer-menu       MIT
+rc-dropdown     2.1.0:  https://github.com/react-component/dropdown     MIT
 rc-form 2.1.7:  https://github.com/react-component/form MIT
 rc-input-number 4.0.2:  https://github.com/react-component/input-number MIT
 rc-menu 6.2.6:  https://github.com/react-component/menu MIT
