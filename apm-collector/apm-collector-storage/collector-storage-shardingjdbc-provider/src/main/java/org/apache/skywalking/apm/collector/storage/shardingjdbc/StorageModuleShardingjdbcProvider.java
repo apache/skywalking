@@ -204,6 +204,8 @@ import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.srmp.Service
 import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.srmp.ServiceReferenceMonthMetricShardingjdbcPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.ui.*;
 import org.apache.skywalking.apm.collector.storage.shardingjdbc.strategy.ShardingjdbcStrategy;
+import org.apache.skywalking.apm.collector.storage.shardingjdbc.ttl.TTLConfigService;
+import org.apache.skywalking.apm.collector.storage.ttl.ITTLConfigService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -244,7 +246,8 @@ public class StorageModuleShardingjdbcProvider extends ModuleProvider {
         Map<String, ShardingjdbcClientConfig> shardingjdbcClientConfigs = createShardingjdbcClientConfigs();
         ShardingRuleConfiguration shardingRuleConfig = createShardingRule(shardingjdbcClientConfigs.size());
         shardingjdbcClient = new ShardingjdbcClient(shardingjdbcClientConfigs, shardingRuleConfig);
-        
+    
+        this.registerServiceImplementation(ITTLConfigService.class, new TTLConfigService(config));
         this.registerServiceImplementation(IBatchDAO.class, new BatchShardingjdbcDAO(shardingjdbcClient));
         registerCacheDAO();
         registerRegisterDAO();
