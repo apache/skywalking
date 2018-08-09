@@ -231,7 +231,8 @@
                         <exclude>skywalking-ui/package.json</exclude>
                         <exclude>skywalking-ui/package-lock.json</exclude>
 
-                        <exclude>oap-server/server-receiver-plugin/istio-telemetry-receiver-provider/src/main/proto/**/*.proto</exclude>
+                        <!-- Proto files of Istio and gogoproto projects -->
+                        <exclude>**/src/main/proto/gogoproto/gogo.proto</exclude>
                     </excludes>
                 </configuration>
                 <executions>
