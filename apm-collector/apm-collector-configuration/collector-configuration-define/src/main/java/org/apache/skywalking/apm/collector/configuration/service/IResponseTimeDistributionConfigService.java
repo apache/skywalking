@@ -28,4 +28,12 @@ public interface IResponseTimeDistributionConfigService extends Service {
     int getResponseTimeStep();
 
     int getCountOfResponseTimeSteps();
+
+    /**
+     * Equals to getResponseTimeStep() * getCountOfResponseTimeSteps() ,just for economizes computing resources
+     *
+     * @return
+     */
+    int getTotalTimeOfResponseTimeSteps();
+
 }
