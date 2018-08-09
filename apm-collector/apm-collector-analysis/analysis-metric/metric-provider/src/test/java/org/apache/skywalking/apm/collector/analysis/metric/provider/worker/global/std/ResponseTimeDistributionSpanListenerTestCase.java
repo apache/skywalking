@@ -42,6 +42,7 @@ public class ResponseTimeDistributionSpanListenerTestCase {
         IResponseTimeDistributionConfigService service = Mockito.mock(IResponseTimeDistributionConfigService.class);
         Mockito.when(service.getResponseTimeStep()).thenReturn(50);
         Mockito.when(service.getCountOfResponseTimeSteps()).thenReturn(40);
+        Mockito.when(service.getTotalTimeOfResponseTimeSteps()).thenReturn(2050);
 
         ModuleDefine module = Mockito.mock(ModuleDefine.class);
         Whitebox.setInternalState(module, "loadedProviders", loadedProviders);
