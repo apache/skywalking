@@ -21,31 +21,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>oap-server</artifactId>
+        <artifactId>skywalking-istio-telemetry-receiver-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
         <version>6.0.0-alpha-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>server-receiver-plugin</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>skywalking-trace-receiver-plugin</module>
-        <module>zipkin-receiver-plugin</module>
-        <module>skywalking-mesh-receiver-plugin</module>
-        <module>skywalking-istio-telemetry-receiver-plugin</module>
-    </modules>
+    <artifactId>istio-telemetry-receiver-module</artifactId>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>library-module</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>library-util</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
+
 </project>
