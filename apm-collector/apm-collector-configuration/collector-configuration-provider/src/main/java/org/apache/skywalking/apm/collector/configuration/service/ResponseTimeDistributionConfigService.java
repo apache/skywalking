@@ -25,10 +25,12 @@ public class ResponseTimeDistributionConfigService implements IResponseTimeDistr
 
     private final int responseTimeStep;
     private final int countOfResponseTimeSteps;
+    private final int totalTimeOfResponseTimeSteps;
 
     public ResponseTimeDistributionConfigService(int responseTimeStep, int countOfResponseTimeSteps) {
         this.responseTimeStep = responseTimeStep;
         this.countOfResponseTimeSteps = countOfResponseTimeSteps + 1;
+        this.totalTimeOfResponseTimeSteps = this.responseTimeStep * this.countOfResponseTimeSteps;
     }
 
     @Override public int getResponseTimeStep() {
@@ -37,5 +39,10 @@ public class ResponseTimeDistributionConfigService implements IResponseTimeDistr
 
     @Override public int getCountOfResponseTimeSteps() {
         return countOfResponseTimeSteps;
+    }
+
+    @Override
+    public int getTotalTimeOfResponseTimeSteps() {
+        return totalTimeOfResponseTimeSteps;
     }
 }

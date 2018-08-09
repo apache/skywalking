@@ -73,15 +73,16 @@ public class ResponseTimeDistributionSpanListener implements FirstSpanListener {
     }
 
     int getStep(int duration) {
-        int countOfResponseTimeSteps = configService.getResponseTimeStep() * configService.getCountOfResponseTimeSteps();
         int responseTimeStep = configService.getResponseTimeStep();
+        int countOfResponseTimeSteps = configService.getCountOfResponseTimeSteps();
+        int totalTimeOfResponseTimeSteps = configService.getTotalTimeOfResponseTimeSteps();
 
-        if (duration > countOfResponseTimeSteps) {
-            return countOfResponseTimeSteps / responseTimeStep;
+        if (duration > totalTimeOfResponseTimeSteps) {
+            return countOfResponseTimeSteps;
         } else if (duration <= responseTimeStep) {
             return 0;
         } else {
-            return (int)Math.ceil((double)duration / (double)responseTimeStep) - 1;
+            return (int) Math.ceil((double) duration / (double) responseTimeStep) - 1;
         }
     }
 
