@@ -231,9 +231,7 @@
                         <exclude>skywalking-ui/package.json</exclude>
                         <exclude>skywalking-ui/package-lock.json</exclude>
 
-                        <exclude>apm-protocols/apm-network/src/main/proto/gogoproto/*.proto</exclude>
-                        <exclude>apm-protocols/apm-network/src/main/proto/mixer/*.proto</exclude>
-                        <exclude>apm-protocols/apm-network/src/main/proto/mixer/*.proto</exclude>
+                        <exclude>oap-server/server-receiver-plugin/istio-telemetry-receiver-provider/src/main/proto/**/*.proto</exclude>
                     </excludes>
                 </configuration>
                 <executions>
