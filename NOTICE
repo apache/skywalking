@@ -9,3 +9,20 @@ from the ant-design project,
 https://github.com/ant-design/antd-init/tree/master/examples/local-iconfont
 Licensed under the MIT license, confirmed by ant-design team member.
 https://github.com/ant-design/ant-design/issues/10243
+
+This product bundles the following proto files
+1. apm-protocol/apm-network/src/main/proto/service-mesh-probe/istio-metric.proto
+2. apm-protocol/apm-network/src/main/proto/policy/v1beta1/type.proto
+3. apm-protocol/apm-network/src/main/proto/policy/v1beta1/value_type.proto
+4. apm-protocol/apm-network/src/main/proto/mixer/adapter/model/v1beta1/extensions.proto
+5. apm-protocol/apm-network/src/main/proto/mixer/adapter/model/v1beta1/report.proto
+from the istio projects,
+https://github.com/istio/istio
+https://github.com/istio/api
+Licensed under the Apache 2.0 license.
+
+This product bundles the following proto file
+1. apm-protocol/apm-network/src/main/proto/gogoproto/gogo.proto
+from the gogo/protobuf project,
+https://github.com/gogo/protobuf
+Licensed under the BSD-3-Clause license.

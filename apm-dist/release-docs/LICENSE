@@ -300,6 +300,8 @@ The text of each license is the standard Apache 2.0 license.
     zipkin 2.9.1: https://github.com/openzipkin/zipkin, Apache 2.0
     sharding-jdbc-core 2.0.3: https://github.com/sharding-sphere/sharding-sphere, Apache 2.0
     kubernetes-client 2.0.0: https://github.com/kubernetes-client/java, Apache 2.0
+    proto files from istio/istio: https://github.com/istio/istio  Apache 2.0
+    proto files from istio/api: https://github.com/istio/api      Apache 2.0
 
 ========================================================================
 MIT licenses
@@ -329,6 +331,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     Google: protobuf-java 3.4.0: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
     Google: protobuf-java-util 3.4.0: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
     reflectasm 1.11.3: https://github.com/EsotericSoftware/reflectasm , BSD-3-Clause
+    gogo-protobuf, proto files: https://github.com/gogo/protobuf  BSD-3-Clause
 
 ========================================================================
 MPL 2.0 licenses

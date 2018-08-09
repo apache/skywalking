@@ -209,3 +209,6 @@
    licenses.
 
    iconfont(from antd): https://github.com/ant-design/antd-init/tree/master/examples/local-iconfont   MIT
+   proto files from istio/istio: https://github.com/istio/istio  Apache 2.0
+   proto files from istio/api: https://github.com/istio/api      Apache 2.0
+   proto files from gogo/protobuf: https://github.com/gogo/protobuf  BSD-3
