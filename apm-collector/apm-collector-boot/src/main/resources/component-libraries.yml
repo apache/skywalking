@@ -156,8 +156,17 @@ mongodb-driver:
 SOFARPC:
   id: 43
   languages: Java
-Undertow:
+ActiveMQ:
+  id: 44
+  languages: Java
+activemq-producer:
   id: 45
+  languages: Java
+activemq-consumer:
+  id: 46
+  languages: Java
+Undertow:
+  id: 47
   languages: Java
 
 # .NET/.NET Core components

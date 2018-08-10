@@ -16,24 +16,19 @@
  *
  */
 
-package org.apache.skywalking.apm.collector.configuration.service;
+package org.apache.skywalking.apm.plugin.activemq;
 
-import org.apache.skywalking.apm.collector.core.module.Service;
+import org.apache.activemq.ActiveMQSession;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
 /**
- * @author peng-yongsheng
+ * @author withlin
  */
-public interface IResponseTimeDistributionConfigService extends Service {
-
-    int getResponseTimeStep();
-
-    int getCountOfResponseTimeSteps();
-
-    /**
-     * Equals to getResponseTimeStep() * getCountOfResponseTimeSteps() ,just for economizes computing resources
-     *
-     * @return
-     */
-    int getTotalTimeOfResponseTimeSteps();
-
+public class ActiveMQProducerConstructorInterceptor implements InstanceConstructorInterceptor {
+    @Override
+    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+        ActiveMQSession session = (ActiveMQSession)allArguments[0];
+        objInst.setSkyWalkingDynamicField(session.getConnection().getTransport().getRemoteAddress().split("//")[1]);
+    }
 }
