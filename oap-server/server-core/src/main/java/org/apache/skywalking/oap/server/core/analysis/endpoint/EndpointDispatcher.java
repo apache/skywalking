@@ -18,38 +18,24 @@
 
 package org.apache.skywalking.oap.server.core.analysis.endpoint;
 
-import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.worker.annotation.WorkerAnnotationContainer;
+import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
 import org.apache.skywalking.oap.server.core.source.Endpoint;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
  * @author peng-yongsheng
  */
 public class EndpointDispatcher implements SourceDispatcher<Endpoint> {
 
-    private final ModuleManager moduleManager;
-    private EndpointLatencyAvgAggregateWorker avgAggregator;
-
-    public EndpointDispatcher(ModuleManager moduleManager) {
-        this.moduleManager = moduleManager;
-    }
-
     @Override public void dispatch(Endpoint source) {
         avg(source);
     }
 
     private void avg(Endpoint source) {
-        if (avgAggregator == null) {
-            WorkerAnnotationContainer workerMapper = moduleManager.find(CoreModule.NAME).getService(WorkerAnnotationContainer.class);
-            avgAggregator = (EndpointLatencyAvgAggregateWorker)workerMapper.findInstanceByClass(EndpointLatencyAvgAggregateWorker.class);
-        }
-
         EndpointLatencyAvgIndicator indicator = new EndpointLatencyAvgIndicator();
         indicator.setId(source.getId());
         indicator.setTimeBucket(source.getTimeBucket());
         indicator.combine(source.getLatency(), 1);
-        avgAggregator.in(indicator);
+        IndicatorProcess.INSTANCE.in(indicator);
     }
 }

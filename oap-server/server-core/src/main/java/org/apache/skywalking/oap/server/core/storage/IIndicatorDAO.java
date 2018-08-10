@@ -24,13 +24,13 @@ import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 /**
  * @author peng-yongsheng
  */
-public interface IPersistenceDAO<INSERT, UPDATE, INPUT extends Indicator> extends DAO {
+public interface IIndicatorDAO<INSERT, UPDATE> extends DAO {
 
-    INPUT get(INPUT input) throws IOException;
+    Indicator get(String modelName, Indicator indicator) throws IOException;
 
-    INSERT prepareBatchInsert(INPUT input) throws IOException;
+    INSERT prepareBatchInsert(String modelName, Indicator indicator) throws IOException;
 
-    UPDATE prepareBatchUpdate(INPUT input) throws IOException;
+    UPDATE prepareBatchUpdate(String modelName, Indicator indicator) throws IOException;
 
-    void deleteHistory(Long timeBucketBefore);
+    void deleteHistory(String modelName, Long timeBucketBefore);
 }

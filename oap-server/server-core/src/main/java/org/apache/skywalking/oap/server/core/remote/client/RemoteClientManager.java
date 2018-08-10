@@ -20,8 +20,8 @@ package org.apache.skywalking.oap.server.core.remote.client;
 
 import java.util.*;
 import java.util.concurrent.*;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataAnnotationContainer;
 import org.apache.skywalking.oap.server.core.cluster.*;
+import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataAnnotationContainer;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.slf4j.*;
 
@@ -96,7 +96,7 @@ public class RemoteClientManager implements Service {
                 client = currentClientsMap.get(address);
             } else {
                 if (remoteInstance.isSelf()) {
-                    client = new SelfRemoteClient(moduleManager, remoteInstance.getHost(), remoteInstance.getPort());
+                    client = new SelfRemoteClient(remoteInstance.getHost(), remoteInstance.getPort());
                 } else {
                     client = new GRPCRemoteClient(indicatorMapper, remoteInstance, 1, 3000);
                 }

@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core;
 
 import java.io.IOException;
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorTypeListener;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
 import org.apache.skywalking.oap.server.core.cluster.*;
 import org.apache.skywalking.oap.server.core.remote.*;
@@ -28,7 +29,6 @@ import org.apache.skywalking.oap.server.core.server.*;
 import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.core.storage.annotation.StorageAnnotationListener;
 import org.apache.skywalking.oap.server.core.storage.model.IModelGetter;
-import org.apache.skywalking.oap.server.core.worker.annotation.*;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
@@ -48,9 +48,7 @@ public class CoreModuleProvider extends ModuleProvider {
     private final AnnotationScan annotationScan;
     private final StorageAnnotationListener storageAnnotationListener;
     private final StreamAnnotationListener streamAnnotationListener;
-    private final WorkerAnnotationListener workerAnnotationListener;
     private final StreamDataAnnotationContainer streamDataAnnotationContainer;
-    private final WorkerAnnotationContainer workerAnnotationContainer;
 
     public CoreModuleProvider() {
         super();
@@ -58,9 +56,7 @@ public class CoreModuleProvider extends ModuleProvider {
         this.annotationScan = new AnnotationScan();
         this.storageAnnotationListener = new StorageAnnotationListener();
         this.streamAnnotationListener = new StreamAnnotationListener();
-        this.workerAnnotationListener = new WorkerAnnotationListener();
         this.streamDataAnnotationContainer = new StreamDataAnnotationContainer();
-        this.workerAnnotationContainer = new WorkerAnnotationContainer();
     }
 
     @Override public String name() {
@@ -85,10 +81,9 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(GRPCHandlerRegister.class, new GRPCHandlerRegisterImpl(grpcServer));
         this.registerServiceImplementation(JettyHandlerRegister.class, new JettyHandlerRegisterImpl(jettyServer));
 
-        this.registerServiceImplementation(SourceReceiver.class, new SourceReceiverImpl(getManager()));
+        this.registerServiceImplementation(SourceReceiver.class, new SourceReceiverImpl());
 
         this.registerServiceImplementation(StreamDataClassGetter.class, streamDataAnnotationContainer);
-        this.registerServiceImplementation(WorkerAnnotationContainer.class, workerAnnotationContainer);
 
         this.registerServiceImplementation(RemoteClientManager.class, new RemoteClientManager(getManager()));
         this.registerServiceImplementation(RemoteSenderService.class, new RemoteSenderService(getManager()));
@@ -96,7 +91,7 @@ public class CoreModuleProvider extends ModuleProvider {
 
         annotationScan.registerListener(storageAnnotationListener);
         annotationScan.registerListener(streamAnnotationListener);
-        annotationScan.registerListener(workerAnnotationListener);
+        annotationScan.registerListener(new IndicatorTypeListener(getManager()));
     }
 
     @Override public void start() throws ModuleStartException {
@@ -105,9 +100,8 @@ public class CoreModuleProvider extends ModuleProvider {
         try {
             annotationScan.scan(() -> {
                 streamDataAnnotationContainer.generate(streamAnnotationListener.getStreamClasses());
-                workerAnnotationContainer.load(getManager(), workerAnnotationListener.getWorkerClasses());
             });
-        } catch (WorkerDefineLoadException | IOException e) {
+        } catch (IOException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
     }

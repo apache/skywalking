@@ -19,15 +19,11 @@
 package org.apache.skywalking.oap.server.core.analysis.indicator.annotation;
 
 import java.lang.annotation.*;
-import org.apache.skywalking.oap.server.core.remote.selector.Selector;
 
 /**
  * @author peng-yongsheng
  */
 @Target(ElementType.TYPE)
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface IndicatorType {
-    Selector selector();
-
-    boolean needMerge();
 }

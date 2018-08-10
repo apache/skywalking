@@ -21,8 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 import java.io.IOException;
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
-import org.apache.skywalking.oap.server.core.storage.IPersistenceDAO;
-import org.apache.skywalking.oap.server.library.client.NameSpace;
+import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
@@ -32,48 +31,46 @@ import org.elasticsearch.common.xcontent.*;
 /**
  * @author peng-yongsheng
  */
-public class PersistenceEsDAO implements IPersistenceDAO<IndexRequest, UpdateRequest, Indicator> {
+public class IndicatorEsDAO extends EsDAO implements IIndicatorDAO<IndexRequest, UpdateRequest> {
 
-    private final ElasticSearchClient client;
-    private final NameSpace nameSpace;
+    private final StorageBuilder<Indicator> storageBuilder;
 
-    public PersistenceEsDAO(ElasticSearchClient client, NameSpace nameSpace) {
-        this.client = client;
-        this.nameSpace = nameSpace;
+    public IndicatorEsDAO(ElasticSearchClient client, StorageBuilder<Indicator> storageBuilder) {
+        super(client);
+        this.storageBuilder = storageBuilder;
     }
 
-    @Override public Indicator get(Indicator input) throws IOException {
-        GetResponse response = client.get(nameSpace.getNameSpace() + "_" + input.name(), input.id());
+    @Override public Indicator get(String modelName, Indicator indicator) throws IOException {
+        GetResponse response = getClient().get(modelName, indicator.id());
         if (response.isExists()) {
-            return input.newOne(response.getSource());
+            return storageBuilder.map2Data(response.getSource());
         } else {
             return null;
         }
     }
 
-    @Override public IndexRequest prepareBatchInsert(Indicator input) throws IOException {
-        Map<String, Object> objectMap = input.toMap();
+    @Override public IndexRequest prepareBatchInsert(String modelName, Indicator indicator) throws IOException {
+        Map<String, Object> objectMap = storageBuilder.data2Map(indicator);
 
         XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
         for (String key : objectMap.keySet()) {
             builder.field(key, objectMap.get(key));
         }
         builder.endObject();
-        return client.prepareInsert(nameSpace.getNameSpace() + "_" + input.name(), input.id(), builder);
+        return getClient().prepareInsert(modelName, indicator.id(), builder);
     }
 
-    @Override public UpdateRequest prepareBatchUpdate(Indicator input) throws IOException {
-        Map<String, Object> objectMap = input.toMap();
+    @Override public UpdateRequest prepareBatchUpdate(String modelName, Indicator indicator) throws IOException {
+        Map<String, Object> objectMap = storageBuilder.data2Map(indicator);
 
         XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
         for (String key : objectMap.keySet()) {
             builder.field(key, objectMap.get(key));
         }
         builder.endObject();
-        return client.prepareUpdate(nameSpace.getNameSpace() + "_" + input.name(), input.id(), builder);
+        return getClient().prepareUpdate(modelName, indicator.id(), builder);
     }
 
-    @Override public void deleteHistory(Long timeBucketBefore) {
-
+    @Override public void deleteHistory(String modelName, Long timeBucketBefore) {
     }
 }
