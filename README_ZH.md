@@ -74,9 +74,9 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 * QQ群: 392443393
 
 # Users
-<img src="https://skywalkingtest.github.io/page-resources/users/users-2018-07-27-2.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/users/users-2018-08-12.png"/>
 
-- [用户案例](docs/users-list.md)
+- [用户案例](docs/users.md)
 - [报告新的用户案例](https://github.com/apache/incubator-skywalking/issues/443)
 
 

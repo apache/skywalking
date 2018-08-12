@@ -1,7 +1,7 @@
 # Use cases
 
-All use cases are reported through direct message/mail or [online issue](https://github.com/apache/incubator-skywalking/issues/443), 
-if any entity(company or orgnization) has any doubt, please contact us by [any official channel](../README.md#contact-us).
+All uses are reported through direct message/mail or [online issue](https://github.com/apache/incubator-skywalking/issues/443), 
+if any entity(company or organization) has any doubt, please contact us by [any official channel](../README.md#contact-us).
 
 - 300.cn 中企动力科技股份有限公司 http://www.300.cn/
 - 4499.com 四三九九网络股份有限公司. http://www.4399.com/
