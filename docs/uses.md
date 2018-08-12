@@ -1,4 +1,4 @@
-# Use cases
+# Uses
 
 All uses are reported through direct message/mail or [online issue](https://github.com/apache/incubator-skywalking/issues/443), 
 if any entity(company or organization) has any doubt, please contact us by [any official channel](../README.md#contact-us).
