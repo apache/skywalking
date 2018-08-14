@@ -24,6 +24,6 @@ import java.lang.annotation.*;
  * @author peng-yongsheng
  */
 @Target(ElementType.METHOD)
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface Entrance {
 }
