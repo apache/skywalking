@@ -96,7 +96,7 @@ public class EndpointLatencyAvgIndicator extends AvgIndicator {
         setValue(remoteData.getDataLongs(2));
     }
 
-    static class Builder implements StorageBuilder<EndpointLatencyAvgIndicator> {
+    public static class Builder implements StorageBuilder<EndpointLatencyAvgIndicator> {
 
         @Override public EndpointLatencyAvgIndicator map2Data(Map<String, Object> dbMap) {
             EndpointLatencyAvgIndicator indicator = new EndpointLatencyAvgIndicator();

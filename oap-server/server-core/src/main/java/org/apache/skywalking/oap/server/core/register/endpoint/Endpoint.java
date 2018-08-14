@@ -97,7 +97,7 @@ public class Endpoint extends RegisterSource {
         setName(remoteData.getDataStrings(1));
     }
 
-    static class Builder implements StorageBuilder<Endpoint> {
+    public static class Builder implements StorageBuilder<Endpoint> {
 
         @Override public Endpoint map2Data(Map<String, Object> dbMap) {
             Endpoint endpoint = new Endpoint();
