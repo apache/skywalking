@@ -16,14 +16,21 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.worker.annotation;
+package org.apache.skywalking.oap.server.core.storage;
+
+import java.io.IOException;
+import org.apache.skywalking.oap.server.core.register.RegisterSource;
 
 /**
  * @author peng-yongsheng
  */
-public class WorkerDefineLoadException extends RuntimeException {
+public interface IRegisterDAO extends DAO {
 
-    public WorkerDefineLoadException(String message, Throwable cause) {
-        super(message, cause);
-    }
+    int max(String modelName) throws IOException;
+
+    RegisterSource get(String modelName, String id) throws IOException;
+
+    void forceInsert(String modelName, RegisterSource source) throws IOException;
+
+    void forceUpdate(String modelName, RegisterSource source) throws IOException;
 }

@@ -24,7 +24,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.*;
-import org.apache.skywalking.oap.server.core.worker.annotation.WorkerClassGetter;
+import org.apache.skywalking.oap.server.core.worker.WorkerInstances;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.slf4j.*;
@@ -38,7 +38,6 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
 
     private final ModuleManager moduleManager;
     private StreamDataClassGetter streamDataClassGetter;
-    private WorkerClassGetter workerClassGetter;
 
     public RemoteServiceHandler(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
@@ -47,9 +46,6 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
     @Override public StreamObserver<RemoteMessage> call(StreamObserver<Empty> responseObserver) {
         if (Objects.isNull(streamDataClassGetter)) {
             streamDataClassGetter = moduleManager.find(CoreModule.NAME).getService(StreamDataClassGetter.class);
-        }
-        if (Objects.isNull(streamDataClassGetter)) {
-            workerClassGetter = moduleManager.find(CoreModule.NAME).getService(WorkerClassGetter.class);
         }
 
         return new StreamObserver<RemoteMessage>() {
@@ -62,7 +58,7 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
                 try {
                     StreamData streamData = streamDataClass.newInstance();
                     streamData.deserialize(remoteData);
-                    workerClassGetter.getClassById(nextWorkerId).newInstance().in(streamData);
+                    WorkerInstances.INSTANCES.get(nextWorkerId).in(streamData);
                 } catch (InstantiationException | IllegalAccessException e) {
                     logger.warn(e.getMessage());
                 }

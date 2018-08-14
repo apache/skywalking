@@ -16,23 +16,11 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.endpoint;
-
-import org.apache.skywalking.oap.server.core.analysis.worker.AbstractPersistentWorker;
-import org.apache.skywalking.oap.server.core.worker.annotation.Worker;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+package org.apache.skywalking.oap.server.core.storage.annotation;
 
 /**
  * @author peng-yongsheng
  */
-@Worker
-public class EndpointLatencyAvgPersistentWorker extends AbstractPersistentWorker<EndpointLatencyAvgIndicator> {
-
-    public EndpointLatencyAvgPersistentWorker(ModuleManager moduleManager) {
-        super(moduleManager);
-    }
-
-    @Override protected boolean needMergeDBData() {
-        return true;
-    }
+public enum Query {
+    Term, Match
 }

@@ -49,8 +49,8 @@ public class StorageAnnotationListener implements AnnotationListener, IModelGett
         List<ModelColumn> modelColumns = new LinkedList<>();
         retrieval(aClass, modelColumns);
 
-        StorageEntity annotation = (StorageEntity)aClass.getAnnotation(StorageEntity.class);
-        models.add(new Model(annotation.name(), modelColumns));
+        String modelName = StorageEntityAnnotationUtils.getModelName(aClass);
+        models.add(new Model(modelName, modelColumns));
     }
 
     private void retrieval(Class clazz, List<ModelColumn> modelColumns) {

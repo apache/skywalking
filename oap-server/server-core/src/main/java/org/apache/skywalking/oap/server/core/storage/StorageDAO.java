@@ -16,28 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.endpoint;
+package org.apache.skywalking.oap.server.core.storage;
 
-import org.apache.skywalking.oap.server.core.analysis.worker.AbstractRemoteWorker;
-import org.apache.skywalking.oap.server.core.remote.selector.Selector;
-import org.apache.skywalking.oap.server.core.worker.annotation.Worker;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
  * @author peng-yongsheng
  */
-@Worker
-public class EndpointLatencyAvgRemoteWorker extends AbstractRemoteWorker<EndpointLatencyAvgIndicator> {
+public interface StorageDAO extends Service {
 
-    public EndpointLatencyAvgRemoteWorker(ModuleManager moduleManager) {
-        super(moduleManager);
-    }
-
-    @Override public Selector selector() {
-        return Selector.HashCode;
-    }
-
-    @Override public Class nextWorkerClass() {
-        return EndpointLatencyAvgPersistentWorker.class;
-    }
+    IIndicatorDAO newIndicatorDao(StorageBuilder<Indicator> storageBuilder);
 }
