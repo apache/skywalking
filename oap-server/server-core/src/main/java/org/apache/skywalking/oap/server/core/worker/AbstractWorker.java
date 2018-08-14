@@ -18,10 +18,18 @@
 
 package org.apache.skywalking.oap.server.core.worker;
 
+import lombok.Getter;
+
 /**
  * @author peng-yongsheng
  */
 public abstract class AbstractWorker<INPUT> {
+
+    @Getter private final int workerId;
+
+    public AbstractWorker(int workerId) {
+        this.workerId = workerId;
+    }
 
     public abstract void in(INPUT input);
 }

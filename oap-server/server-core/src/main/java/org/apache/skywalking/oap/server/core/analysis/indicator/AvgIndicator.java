@@ -20,13 +20,12 @@ package org.apache.skywalking.oap.server.core.analysis.indicator;
 
 import lombok.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.*;
-import org.apache.skywalking.oap.server.core.remote.selector.Selector;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
  * @author peng-yongsheng
  */
-@IndicatorType(selector = Selector.HashCode, needMerge = true)
+@IndicatorOperator
 public abstract class AvgIndicator extends Indicator {
 
     protected static final String SUMMATION = "summation";

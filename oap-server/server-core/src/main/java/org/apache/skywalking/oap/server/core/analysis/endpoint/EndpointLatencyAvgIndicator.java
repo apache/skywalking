@@ -20,19 +20,20 @@ package org.apache.skywalking.oap.server.core.analysis.endpoint;
 
 import java.util.*;
 import lombok.*;
-import org.apache.skywalking.oap.server.core.analysis.indicator.*;
+import org.apache.skywalking.oap.server.core.analysis.indicator.AvgIndicator;
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
 
 /**
  * @author peng-yongsheng
  */
+@IndicatorType
 @StreamData
-@StorageEntity(name = EndpointLatencyAvgIndicator.NAME)
+@StorageEntity(name = "endpoint_latency_avg", builder = EndpointLatencyAvgIndicator.Builder.class)
 public class EndpointLatencyAvgIndicator extends AvgIndicator {
-
-    public static final String NAME = "endpoint_latency_avg";
 
     private static final String ID = "id";
     private static final String SERVICE_ID = "service_id";
@@ -41,10 +42,6 @@ public class EndpointLatencyAvgIndicator extends AvgIndicator {
     @Setter @Getter @Column(columnName = ID) private int id;
     @Setter @Getter @Column(columnName = SERVICE_ID) private int serviceId;
     @Setter @Getter @Column(columnName = SERVICE_INSTANCE_ID) private int serviceInstanceId;
-
-    @Override public String name() {
-        return NAME;
-    }
 
     @Override public String id() {
         return String.valueOf(id);
@@ -99,27 +96,30 @@ public class EndpointLatencyAvgIndicator extends AvgIndicator {
         setValue(remoteData.getDataLongs(2));
     }
 
-    @Override public Map<String, Object> toMap() {
-        Map<String, Object> map = new HashMap<>();
-        map.put(ID, id);
-        map.put(SERVICE_ID, serviceId);
-        map.put(SERVICE_INSTANCE_ID, serviceInstanceId);
-        map.put(COUNT, getCount());
-        map.put(SUMMATION, getSummation());
-        map.put(VALUE, getValue());
-        map.put(TIME_BUCKET, getTimeBucket());
-        return map;
-    }
+    public static class Builder implements StorageBuilder<EndpointLatencyAvgIndicator> {
 
-    @Override public Indicator newOne(Map<String, Object> dbMap) {
-        EndpointLatencyAvgIndicator indicator = new EndpointLatencyAvgIndicator();
-        indicator.setId((Integer)dbMap.get(ID));
-        indicator.setServiceId((Integer)dbMap.get(SERVICE_ID));
-        indicator.setServiceInstanceId((Integer)dbMap.get(SERVICE_INSTANCE_ID));
-        indicator.setCount((Integer)dbMap.get(COUNT));
-        indicator.setSummation((Long)dbMap.get(SUMMATION));
-        indicator.setValue((Long)dbMap.get(VALUE));
-        indicator.setTimeBucket((Long)dbMap.get(TIME_BUCKET));
-        return indicator;
+        @Override public EndpointLatencyAvgIndicator map2Data(Map<String, Object> dbMap) {
+            EndpointLatencyAvgIndicator indicator = new EndpointLatencyAvgIndicator();
+            indicator.setId((Integer)dbMap.get(ID));
+            indicator.setServiceId((Integer)dbMap.get(SERVICE_ID));
+            indicator.setServiceInstanceId((Integer)dbMap.get(SERVICE_INSTANCE_ID));
+            indicator.setCount((Integer)dbMap.get(COUNT));
+            indicator.setSummation((Long)dbMap.get(SUMMATION));
+            indicator.setValue((Long)dbMap.get(VALUE));
+            indicator.setTimeBucket((Long)dbMap.get(TIME_BUCKET));
+            return indicator;
+        }
+
+        @Override public Map<String, Object> data2Map(EndpointLatencyAvgIndicator storageData) {
+            Map<String, Object> map = new HashMap<>();
+            map.put(ID, storageData.getId());
+            map.put(SERVICE_ID, storageData.getServiceId());
+            map.put(SERVICE_INSTANCE_ID, storageData.getServiceInstanceId());
+            map.put(COUNT, storageData.getCount());
+            map.put(SUMMATION, storageData.getSummation());
+            map.put(VALUE, storageData.getValue());
+            map.put(TIME_BUCKET, storageData.getTimeBucket());
+            return map;
+        }
     }
 }

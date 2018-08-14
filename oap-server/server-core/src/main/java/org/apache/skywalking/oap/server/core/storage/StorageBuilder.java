@@ -18,20 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import java.util.Map;
 
 /**
  * @author peng-yongsheng
  */
-public class StorageModule extends ModuleDefine {
+public interface StorageBuilder<T extends StorageData> {
 
-    public static final String NAME = "storage";
+    T map2Data(Map<String, Object> dbMap);
 
-    @Override public String name() {
-        return NAME;
-    }
-
-    @Override public Class[] services() {
-        return new Class[] {IBatchDAO.class, StorageDAO.class, IRegisterLockDAO.class};
-    }
+    Map<String, Object> data2Map(T storageData);
 }

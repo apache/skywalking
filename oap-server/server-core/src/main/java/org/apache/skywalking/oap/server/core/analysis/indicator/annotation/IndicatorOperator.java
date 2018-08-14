@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.worker.annotation;
+package org.apache.skywalking.oap.server.core.analysis.indicator.annotation;
 
 import java.lang.annotation.*;
 
@@ -25,5 +25,5 @@ import java.lang.annotation.*;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Worker {
+public @interface IndicatorOperator {
 }

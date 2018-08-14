@@ -23,8 +23,12 @@ import java.lang.annotation.*;
 /**
  * @author peng-yongsheng
  */
-@Target(ElementType.FIELD)
+@Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Column {
     String columnName();
+
+    boolean matchQuery() default false;
+
+    boolean termQuery() default true;
 }

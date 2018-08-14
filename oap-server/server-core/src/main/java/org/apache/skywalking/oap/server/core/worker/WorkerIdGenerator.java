@@ -16,22 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage;
-
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+package org.apache.skywalking.oap.server.core.worker;
 
 /**
  * @author peng-yongsheng
  */
-public class StorageModule extends ModuleDefine {
+public enum WorkerIdGenerator {
+    INSTANCES;
 
-    public static final String NAME = "storage";
+    private int workerId = 0;
 
-    @Override public String name() {
-        return NAME;
-    }
-
-    @Override public Class[] services() {
-        return new Class[] {IBatchDAO.class, StorageDAO.class, IRegisterLockDAO.class};
+    public synchronized int generate() {
+        return workerId++;
     }
 }

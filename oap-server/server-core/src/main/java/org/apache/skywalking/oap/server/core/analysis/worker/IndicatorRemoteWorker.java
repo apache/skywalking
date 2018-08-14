@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
-import org.apache.skywalking.oap.server.core.worker.annotation.WorkerAnnotationContainer;
 import org.apache.skywalking.oap.server.core.remote.RemoteSenderService;
 import org.apache.skywalking.oap.server.core.remote.selector.Selector;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
@@ -30,35 +29,24 @@ import org.slf4j.*;
 /**
  * @author peng-yongsheng
  */
-public abstract class AbstractRemoteWorker<INPUT extends Indicator> extends AbstractWorker<INPUT> {
+public class IndicatorRemoteWorker extends AbstractWorker<Indicator> {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractRemoteWorker.class);
+    private static final Logger logger = LoggerFactory.getLogger(IndicatorRemoteWorker.class);
 
-    private final ModuleManager moduleManager;
-    private RemoteSenderService remoteSender;
-    private WorkerAnnotationContainer workerMapper;
+    private final AbstractWorker<Indicator> nextWorker;
+    private final RemoteSenderService remoteSender;
 
-    public AbstractRemoteWorker(ModuleManager moduleManager) {
-        this.moduleManager = moduleManager;
+    IndicatorRemoteWorker(int workerId, ModuleManager moduleManager, AbstractWorker<Indicator> nextWorker) {
+        super(workerId);
+        this.remoteSender = moduleManager.find(CoreModule.NAME).getService(RemoteSenderService.class);
+        this.nextWorker = nextWorker;
     }
 
-    @Override public final void in(INPUT input) {
-        if (remoteSender == null) {
-            remoteSender = moduleManager.find(CoreModule.NAME).getService(RemoteSenderService.class);
-        }
-        if (workerMapper == null) {
-            workerMapper = moduleManager.find(CoreModule.NAME).getService(WorkerAnnotationContainer.class);
-        }
-
+    @Override public final void in(Indicator indicator) {
         try {
-            int nextWorkerId = workerMapper.findIdByClass(nextWorkerClass());
-            remoteSender.send(nextWorkerId, input, selector());
+            remoteSender.send(nextWorker.getWorkerId(), indicator, Selector.HashCode);
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
     }
-
-    public abstract Class nextWorkerClass();
-
-    public abstract Selector selector();
 }

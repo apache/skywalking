@@ -31,26 +31,31 @@ import static java.util.Objects.nonNull;
 /**
  * @author peng-yongsheng
  */
-public abstract class AbstractPersistentWorker<INPUT extends Indicator> extends AbstractWorker<INPUT> {
+public class IndicatorPersistentWorker extends AbstractWorker<Indicator> {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractPersistentWorker.class);
+    private static final Logger logger = LoggerFactory.getLogger(IndicatorPersistentWorker.class);
 
-    private final MergeDataCache<INPUT> mergeDataCache;
+    private final String modelName;
+    private final MergeDataCache<Indicator> mergeDataCache;
     private final IBatchDAO batchDAO;
-    private final IPersistenceDAO<?, ?, INPUT> persistenceDAO;
-    private final int blockBatchPersistenceSize = 1000;
+    private final IIndicatorDAO indicatorDAO;
+    private final int blockBatchPersistenceSize;
 
-    public AbstractPersistentWorker(ModuleManager moduleManager) {
+    IndicatorPersistentWorker(int workerId, String modelName, int batchSize, ModuleManager moduleManager,
+        IIndicatorDAO indicatorDAO) {
+        super(workerId);
+        this.modelName = modelName;
+        this.blockBatchPersistenceSize = batchSize;
         this.mergeDataCache = new MergeDataCache<>();
         this.batchDAO = moduleManager.find(StorageModule.NAME).getService(IBatchDAO.class);
-        this.persistenceDAO = moduleManager.find(StorageModule.NAME).getService(IPersistenceDAO.class);
+        this.indicatorDAO = indicatorDAO;
     }
 
-    public final Window<MergeDataCollection<INPUT>> getCache() {
+    public final Window<MergeDataCollection<Indicator>> getCache() {
         return mergeDataCache;
     }
 
-    @Override public final void in(INPUT input) {
+    @Override public final void in(Indicator input) {
         if (getCache().currentCollectionSize() >= blockBatchPersistenceSize) {
             try {
                 if (getCache().trySwitchPointer()) {
@@ -86,33 +91,25 @@ public abstract class AbstractPersistentWorker<INPUT extends Indicator> extends 
         return batchCollection;
     }
 
-    private List<Object> prepareBatch(MergeDataCollection<INPUT> collection) {
+    private List<Object> prepareBatch(MergeDataCollection<Indicator> collection) {
         List<Object> batchCollection = new LinkedList<>();
         collection.collection().forEach((id, data) -> {
-            if (needMergeDBData()) {
-                INPUT dbData = null;
+            Indicator dbData = null;
+            try {
+                dbData = indicatorDAO.get(modelName, data);
+            } catch (Throwable t) {
+                logger.error(t.getMessage(), t);
+            }
+            if (nonNull(dbData)) {
+                dbData.combine(data);
                 try {
-                    dbData = persistenceDAO.get(data);
+                    batchCollection.add(indicatorDAO.prepareBatchUpdate(modelName, dbData));
                 } catch (Throwable t) {
                     logger.error(t.getMessage(), t);
                 }
-                if (nonNull(dbData)) {
-                    dbData.combine(data);
-                    try {
-                        batchCollection.add(persistenceDAO.prepareBatchUpdate(dbData));
-                    } catch (Throwable t) {
-                        logger.error(t.getMessage(), t);
-                    }
-                } else {
-                    try {
-                        batchCollection.add(persistenceDAO.prepareBatchInsert(data));
-                    } catch (Throwable t) {
-                        logger.error(t.getMessage(), t);
-                    }
-                }
             } else {
                 try {
-                    batchCollection.add(persistenceDAO.prepareBatchInsert(data));
+                    batchCollection.add(indicatorDAO.prepareBatchInsert(modelName, data));
                 } catch (Throwable t) {
                     logger.error(t.getMessage(), t);
                 }
@@ -122,7 +119,7 @@ public abstract class AbstractPersistentWorker<INPUT extends Indicator> extends 
         return batchCollection;
     }
 
-    private void cacheData(INPUT input) {
+    private void cacheData(Indicator input) {
         mergeDataCache.writing();
         if (mergeDataCache.containsKey(input)) {
             mergeDataCache.get(input).combine(input);
@@ -132,6 +129,4 @@ public abstract class AbstractPersistentWorker<INPUT extends Indicator> extends 
 
         mergeDataCache.finishWriting();
     }
-
-    protected abstract boolean needMergeDBData();
 }

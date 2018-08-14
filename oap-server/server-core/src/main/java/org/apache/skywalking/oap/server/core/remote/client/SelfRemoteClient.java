@@ -18,22 +18,18 @@
 
 package org.apache.skywalking.oap.server.core.remote.client;
 
-import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
-import org.apache.skywalking.oap.server.core.worker.annotation.WorkerAnnotationContainer;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.core.worker.WorkerInstances;
 
 /**
  * @author peng-yongsheng
  */
 public class SelfRemoteClient implements RemoteClient {
 
-    private final ModuleManager moduleManager;
     private final String host;
     private final int port;
 
-    public SelfRemoteClient(ModuleManager moduleManager, String host, int port) {
-        this.moduleManager = moduleManager;
+    public SelfRemoteClient(String host, int port) {
         this.host = host;
         this.port = port;
     }
@@ -47,7 +43,6 @@ public class SelfRemoteClient implements RemoteClient {
     }
 
     @Override public void push(int nextWorkerId, StreamData streamData) {
-        WorkerAnnotationContainer workerMapper = moduleManager.find(CoreModule.NAME).getService(WorkerAnnotationContainer.class);
-        workerMapper.findInstanceById(nextWorkerId).in(streamData);
+        WorkerInstances.INSTANCES.get(nextWorkerId).in(streamData);
     }
 }

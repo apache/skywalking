@@ -16,22 +16,29 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage;
+package org.apache.skywalking.oap.server.core.analysis.indicator.annotation;
 
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import java.lang.annotation.Annotation;
+import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
+import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
  * @author peng-yongsheng
  */
-public class StorageModule extends ModuleDefine {
+public class IndicatorTypeListener implements AnnotationListener {
 
-    public static final String NAME = "storage";
+    private final ModuleManager moduleManager;
 
-    @Override public String name() {
-        return NAME;
+    public IndicatorTypeListener(ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
     }
 
-    @Override public Class[] services() {
-        return new Class[] {IBatchDAO.class, StorageDAO.class, IRegisterLockDAO.class};
+    @Override public Class<? extends Annotation> annotation() {
+        return IndicatorType.class;
+    }
+
+    @Override public void notify(Class aClass) {
+        IndicatorProcess.INSTANCE.create(moduleManager, aClass);
     }
 }

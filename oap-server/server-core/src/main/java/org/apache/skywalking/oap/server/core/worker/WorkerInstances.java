@@ -16,23 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.endpoint;
+package org.apache.skywalking.oap.server.core.worker;
 
-import org.apache.skywalking.oap.server.core.analysis.worker.AbstractAggregatorWorker;
-import org.apache.skywalking.oap.server.core.worker.annotation.Worker;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import java.util.*;
 
 /**
  * @author peng-yongsheng
  */
-@Worker
-public class EndpointLatencyAvgAggregateWorker extends AbstractAggregatorWorker<EndpointLatencyAvgIndicator> {
+public enum WorkerInstances {
+    INSTANCES;
 
-    public EndpointLatencyAvgAggregateWorker(ModuleManager moduleManager) {
-        super(moduleManager);
+    private Map<Integer, AbstractWorker> instances = new HashMap<>();
+
+    public void put(int workerId, AbstractWorker instance) {
+        instances.put(workerId, instance);
     }
 
-    @Override public Class nextWorkerClass() {
-        return EndpointLatencyAvgRemoteWorker.class;
+    public AbstractWorker get(int workerId) {
+        return instances.get(workerId);
     }
 }

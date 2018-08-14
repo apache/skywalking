@@ -18,20 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
-
 /**
  * @author peng-yongsheng
  */
-public class StorageModule extends ModuleDefine {
-
-    public static final String NAME = "storage";
-
-    @Override public String name() {
-        return NAME;
-    }
-
-    @Override public Class[] services() {
-        return new Class[] {IBatchDAO.class, StorageDAO.class, IRegisterLockDAO.class};
-    }
+public interface StorageData {
+    String id();
 }

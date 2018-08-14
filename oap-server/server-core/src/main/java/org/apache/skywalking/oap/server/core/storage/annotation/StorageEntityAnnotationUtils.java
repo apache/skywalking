@@ -18,16 +18,29 @@
 
 package org.apache.skywalking.oap.server.core.storage.annotation;
 
-import java.lang.annotation.*;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 
 /**
  * @author peng-yongsheng
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface StorageEntity {
-    String name();
+public class StorageEntityAnnotationUtils {
 
-    Class<? extends StorageBuilder> builder();
+    public static String getModelName(Class aClass) {
+        if (aClass.isAnnotationPresent(StorageEntity.class)) {
+            StorageEntity annotation = (StorageEntity)aClass.getAnnotation(StorageEntity.class);
+            return annotation.name();
+        } else {
+            throw new UnexpectedException("");
+        }
+    }
+
+    public static Class<? extends StorageBuilder> getBuilder(Class aClass) {
+        if (aClass.isAnnotationPresent(StorageEntity.class)) {
+            StorageEntity annotation = (StorageEntity)aClass.getAnnotation(StorageEntity.class);
+            return annotation.builder();
+        } else {
+            throw new UnexpectedException("");
+        }
+    }
 }

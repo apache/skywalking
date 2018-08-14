@@ -21,44 +21,41 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 import java.util.*;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
-import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.data.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
-import org.apache.skywalking.oap.server.core.worker.annotation.WorkerAnnotationContainer;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class AbstractAggregatorWorker<INPUT extends Indicator> extends AbstractWorker<INPUT> {
+public class IndicatorAggregateWorker extends AbstractWorker<Indicator> {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractAggregatorWorker.class);
+    private static final Logger logger = LoggerFactory.getLogger(IndicatorAggregateWorker.class);
 
-    private AbstractWorker worker;
-    private final ModuleManager moduleManager;
-    private final DataCarrier<INPUT> dataCarrier;
-    private final MergeDataCache<INPUT> mergeDataCache;
+    private AbstractWorker<Indicator> nextWorker;
+    private final DataCarrier<Indicator> dataCarrier;
+    private final MergeDataCache<Indicator> mergeDataCache;
     private int messageNum;
 
-    public AbstractAggregatorWorker(ModuleManager moduleManager) {
-        this.moduleManager = moduleManager;
+    IndicatorAggregateWorker(int workerId, AbstractWorker<Indicator> nextWorker) {
+        super(workerId);
+        this.nextWorker = nextWorker;
         this.mergeDataCache = new MergeDataCache<>();
         this.dataCarrier = new DataCarrier<>(1, 10000);
         this.dataCarrier.consume(new AggregatorConsumer(this), 1);
     }
 
-    @Override public final void in(INPUT input) {
-        input.setEndOfBatchContext(new EndOfBatchContext(false));
-        dataCarrier.produce(input);
+    @Override public final void in(Indicator indicator) {
+        indicator.setEndOfBatchContext(new EndOfBatchContext(false));
+        dataCarrier.produce(indicator);
     }
 
-    private void onWork(INPUT message) {
+    private void onWork(Indicator indicator) {
         messageNum++;
-        aggregate(message);
+        aggregate(indicator);
 
-        if (messageNum >= 1000 || message.getEndOfBatchContext().isEndOfBatch()) {
+        if (messageNum >= 1000 || indicator.getEndOfBatchContext().isEndOfBatch()) {
             sendToNext();
             messageNum = 0;
         }
@@ -74,41 +71,31 @@ public abstract class AbstractAggregatorWorker<INPUT extends Indicator> extends 
             }
         }
 
-        mergeDataCache.getLast().collection().forEach((INPUT key, INPUT data) -> {
+        mergeDataCache.getLast().collection().forEach((Indicator key, Indicator data) -> {
             if (logger.isDebugEnabled()) {
                 logger.debug(data.toString());
             }
 
-            onNext(data);
+            nextWorker.in(data);
         });
         mergeDataCache.finishReadingLast();
     }
 
-    private void onNext(INPUT data) {
-        if (worker == null) {
-            WorkerAnnotationContainer workerMapper = moduleManager.find(CoreModule.NAME).getService(WorkerAnnotationContainer.class);
-            worker = workerMapper.findInstanceByClass(nextWorkerClass());
-        }
-        worker.in(data);
-    }
-
-    public abstract Class nextWorkerClass();
-
-    private void aggregate(INPUT message) {
+    private void aggregate(Indicator indicator) {
         mergeDataCache.writing();
-        if (mergeDataCache.containsKey(message)) {
-            mergeDataCache.get(message).combine(message);
+        if (mergeDataCache.containsKey(indicator)) {
+            mergeDataCache.get(indicator).combine(indicator);
         } else {
-            mergeDataCache.put(message);
+            mergeDataCache.put(indicator);
         }
         mergeDataCache.finishWriting();
     }
 
-    private class AggregatorConsumer implements IConsumer<INPUT> {
+    private class AggregatorConsumer implements IConsumer<Indicator> {
 
-        private final AbstractAggregatorWorker<INPUT> aggregator;
+        private final IndicatorAggregateWorker aggregator;
 
-        private AggregatorConsumer(AbstractAggregatorWorker<INPUT> aggregator) {
+        private AggregatorConsumer(IndicatorAggregateWorker aggregator) {
             this.aggregator = aggregator;
         }
 
@@ -116,21 +103,21 @@ public abstract class AbstractAggregatorWorker<INPUT extends Indicator> extends 
 
         }
 
-        @Override public void consume(List<INPUT> data) {
-            Iterator<INPUT> inputIterator = data.iterator();
+        @Override public void consume(List<Indicator> data) {
+            Iterator<Indicator> inputIterator = data.iterator();
 
             int i = 0;
             while (inputIterator.hasNext()) {
-                INPUT input = inputIterator.next();
+                Indicator indicator = inputIterator.next();
                 i++;
                 if (i == data.size()) {
-                    input.getEndOfBatchContext().setEndOfBatch(true);
+                    indicator.getEndOfBatchContext().setEndOfBatch(true);
                 }
-                aggregator.onWork(input);
+                aggregator.onWork(indicator);
             }
         }
 
-        @Override public void onError(List<INPUT> data, Throwable t) {
+        @Override public void onError(List<Indicator> data, Throwable t) {
             logger.error(t.getMessage(), t);
         }
 
