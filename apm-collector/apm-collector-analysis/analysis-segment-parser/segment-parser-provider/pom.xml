@@ -21,7 +21,7 @@
     <parent>
         <artifactId>analysis-segment-parser</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-beta-SNAPSHOT</version>
+        <version>5.0.0-RC-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -29,6 +29,11 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>collector-configuration-define</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>segment-parser-define</artifactId>

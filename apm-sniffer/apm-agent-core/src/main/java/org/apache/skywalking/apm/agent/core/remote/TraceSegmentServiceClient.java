@@ -16,22 +16,22 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.remote;
 
-import io.grpc.ManagedChannel;
+import io.grpc.Channel;
 import io.grpc.stub.StreamObserver;
 import java.util.List;
-import org.apache.skywalking.apm.agent.core.context.TracingContext;
-import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
+import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.context.TracingContext;
 import org.apache.skywalking.apm.agent.core.context.TracingContextListener;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
-import org.apache.skywalking.apm.commons.datacarrier.buffer.BufferStrategy;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
+import org.apache.skywalking.apm.commons.datacarrier.buffer.BufferStrategy;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.apm.network.proto.Downstream;
 import org.apache.skywalking.apm.network.proto.TraceSegmentServiceGrpc;
 import org.apache.skywalking.apm.network.proto.UpstreamSegment;
@@ -43,6 +43,7 @@ import static org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus.CONN
 /**
  * @author wusheng
  */
+@DefaultImplementor
 public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSegment>, TracingContextListener, GRPCChannelListener {
     private static final ILog logger = LogManager.getLogger(TraceSegmentServiceClient.class);
     private static final int TIMEOUT = 30 * 1000;
@@ -55,7 +56,7 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
 
     @Override
-    public void beforeBoot() throws Throwable {
+    public void prepare() throws Throwable {
         ServiceManager.INSTANCE.findService(GRPCChannelManager.class).addChannelListener(this);
     }
 
@@ -70,7 +71,7 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
     }
 
     @Override
-    public void afterBoot() throws Throwable {
+    public void onComplete() throws Throwable {
         TracingContext.ListenerManager.add(this);
     }
 
@@ -119,9 +120,8 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
             }
             upstreamSegmentStreamObserver.onCompleted();
 
-            if (status.wait4Finish(TIMEOUT)) {
-                segmentUplinkedCounter += data.size();
-            }
+            status.wait4Finish();
+            segmentUplinkedCounter += data.size();
         } else {
             segmentAbandonedCounter += data.size();
         }
@@ -169,7 +169,7 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
     @Override
     public void statusChanged(GRPCChannelStatus status) {
         if (CONNECTED.equals(status)) {
-            ManagedChannel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getManagedChannel();
+            Channel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getChannel();
             serviceStub = TraceSegmentServiceGrpc.newStub(channel);
         }
         this.status = status;

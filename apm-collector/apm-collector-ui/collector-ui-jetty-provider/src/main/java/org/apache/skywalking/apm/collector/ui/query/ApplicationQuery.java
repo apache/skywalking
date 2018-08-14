@@ -21,17 +21,15 @@ package org.apache.skywalking.apm.collector.ui.query;
 import java.text.ParseException;
 import java.util.List;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.ui.application.Application;
-import org.apache.skywalking.apm.collector.storage.ui.common.Duration;
-import org.apache.skywalking.apm.collector.storage.ui.common.Topology;
+import org.apache.skywalking.apm.collector.storage.ui.common.*;
 import org.apache.skywalking.apm.collector.storage.ui.server.AppServerInfo;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceMetric;
 import org.apache.skywalking.apm.collector.ui.graphql.Query;
-import org.apache.skywalking.apm.collector.ui.service.ApplicationService;
-import org.apache.skywalking.apm.collector.ui.service.ApplicationTopologyService;
-import org.apache.skywalking.apm.collector.ui.service.ServerService;
+import org.apache.skywalking.apm.collector.ui.service.*;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
+
+import static java.util.Objects.isNull;
 
 /**
  * @author peng-yongsheng
@@ -48,27 +46,27 @@ public class ApplicationQuery implements Query {
     }
 
     private ApplicationService getApplicationService() {
-        if (ObjectUtils.isEmpty(applicationService)) {
+        if (isNull(applicationService)) {
             this.applicationService = new ApplicationService(moduleManager);
         }
         return applicationService;
     }
 
     private ApplicationTopologyService getApplicationTopologyService() {
-        if (ObjectUtils.isEmpty(applicationTopologyService)) {
+        if (isNull(applicationTopologyService)) {
             this.applicationTopologyService = new ApplicationTopologyService(moduleManager);
         }
         return applicationTopologyService;
     }
 
     private ServerService getServerService() {
-        if (ObjectUtils.isEmpty(serverService)) {
+        if (isNull(serverService)) {
             this.serverService = new ServerService(moduleManager);
         }
         return serverService;
     }
 
-    public List<Application> getAllApplication(Duration duration) throws ParseException {
+    public List<Application> getAllApplication(Duration duration) {
         long startSecondTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(duration.getStep(), duration.getStart());
         long endSecondTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(duration.getStep(), duration.getEnd());
 
@@ -86,7 +84,7 @@ public class ApplicationQuery implements Query {
     }
 
     public List<ServiceMetric> getSlowService(int applicationId, Duration duration,
-        Integer topN) throws ParseException {
+        Integer topN) {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 

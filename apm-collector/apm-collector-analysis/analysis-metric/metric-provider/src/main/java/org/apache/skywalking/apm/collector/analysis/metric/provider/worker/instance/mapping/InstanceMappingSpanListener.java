@@ -18,66 +18,68 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.instance.mapping;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.EntrySpanListener;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.FirstSpanListener;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListener;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListenerFactory;
-import org.apache.skywalking.apm.collector.core.graph.Graph;
-import org.apache.skywalking.apm.collector.core.graph.GraphManager;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.*;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.*;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
+import org.apache.skywalking.apm.collector.core.graph.*;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMapping;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
-public class InstanceMappingSpanListener implements FirstSpanListener, EntrySpanListener {
+public class InstanceMappingSpanListener implements EntrySpanListener {
 
-    private final Logger logger = LoggerFactory.getLogger(InstanceMappingSpanListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(InstanceMappingSpanListener.class);
 
     private List<InstanceMapping> instanceMappings = new LinkedList<>();
-    private long timeBucket;
 
-    @Override public void parseEntry(SpanDecorator spanDecorator, int applicationId, int instanceId, String segmentId) {
-        logger.debug("instance mapping listener parse reference");
+    @Override public boolean containsPoint(Point point) {
+        return Point.Entry.equals(point);
+    }
+
+    @Override public void parseEntry(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("instance mapping listener parse reference");
+        }
+
         if (spanDecorator.getRefsCount() > 0) {
             for (int i = 0; i < spanDecorator.getRefsCount(); i++) {
                 InstanceMapping instanceMapping = new InstanceMapping();
-                instanceMapping.setApplicationId(applicationId);
-                instanceMapping.setInstanceId(instanceId);
+                instanceMapping.setApplicationId(segmentCoreInfo.getApplicationId());
+                instanceMapping.setInstanceId(segmentCoreInfo.getApplicationInstanceId());
                 instanceMapping.setAddressId(spanDecorator.getRefs(i).getNetworkAddressId());
-                String metricId = String.valueOf(instanceId) + Const.ID_SPLIT + String.valueOf(instanceMapping.getAddressId());
+                String metricId = String.valueOf(segmentCoreInfo.getApplicationInstanceId()) + Const.ID_SPLIT + String.valueOf(instanceMapping.getAddressId());
                 instanceMapping.setMetricId(metricId);
+                instanceMapping.setId(segmentCoreInfo.getMinuteTimeBucket() + Const.ID_SPLIT + instanceMapping.getMetricId());
+                instanceMapping.setTimeBucket(segmentCoreInfo.getMinuteTimeBucket());
                 instanceMappings.add(instanceMapping);
             }
         }
     }
 
-    @Override
-    public void parseFirst(SpanDecorator spanDecorator, int applicationId, int instanceId,
-        String segmentId) {
-        timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
-    }
-
     @Override public void build() {
-        logger.debug("instance mapping listener build");
+        if (logger.isDebugEnabled()) {
+            logger.debug("instance mapping listener build");
+        }
+
         Graph<InstanceMapping> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.INSTANCE_MAPPING_GRAPH_ID, InstanceMapping.class);
         instanceMappings.forEach(instanceMapping -> {
-            instanceMapping.setId(timeBucket + Const.ID_SPLIT + instanceMapping.getMetricId());
-            instanceMapping.setTimeBucket(timeBucket);
-            logger.debug("push to instance mapping aggregation worker, id: {}", instanceMapping.getId());
+            if (logger.isDebugEnabled()) {
+                logger.debug("push to instance mapping aggregation worker, id: {}", instanceMapping.getId());
+            }
+
             graph.start(instanceMapping);
         });
     }
 
     public static class Factory implements SpanListenerFactory {
+
+        @GraphComputingMetric(name = "/segment/parse/createSpanListeners/instanceMappingSpanListener")
         @Override public SpanListener create(ModuleManager moduleManager) {
             return new InstanceMappingSpanListener();
         }

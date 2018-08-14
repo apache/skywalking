@@ -24,7 +24,7 @@ HTTP GET
 
 ### 协议内容
 - 请求
-GET操作：http://collectorIp:port/agent/grpc 。 其中`/agent/grpc`是默认值，如需修改，需要参考collector相关配置。
+GET操作：http://collectorIp:port/agent/gRPC 。 其中`/agent/gRPC`是默认值，如需修改，需要参考collector相关配置。
 
 - 返回
 JSON数组，数组的每个元素，为一个有效的gRPC服务地址。
@@ -209,7 +209,7 @@ HTTP JSON服务, 属性名与gRPC对应，属性解释详见gRPC协议说明，�
               "eii": 2, //entryApplicationInstanceId, 入口的实例编号
               "esi": 0, //entryServiceId, 入口的服务编号
               "esn": "/dubbox-case/case/dubbox-rest", //entryServiceName, 入口的服务名词
-              "rn": 0 //RefType, 调用方式（CrossProcess，CrossThread）
+              "rv": 0 //RefTypeValue, 调用方式（CrossProcess，CrossThread）
             }
           ],
           "to": [ //KeyWithStringValue
@@ -222,13 +222,13 @@ HTTP JSON服务, 属性名与gRPC对应，属性解释详见gRPC协议说明，�
               "v": "GET"
             }
           ],
-          "lo": { //LogMessage
-            "t": 1501858094726,
-            "d": [
-                "k": "NullPointException",
-                "v": "Error Stack"
-            }
-          }
+          "lo": [{
+                  "ti": 1501858094726,
+                  "ld": [{ 
+                          "k": "NullPointException",
+                          "v": "Error Stack"
+                      }]
+             }]
         },
         {
           "si": 1,

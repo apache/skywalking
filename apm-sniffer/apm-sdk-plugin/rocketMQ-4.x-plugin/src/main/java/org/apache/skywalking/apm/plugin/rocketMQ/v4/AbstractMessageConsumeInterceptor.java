@@ -52,7 +52,7 @@ public abstract class AbstractMessageConsumeInterceptor implements InstanceMetho
         ContextCarrier contextCarrier = getContextCarrierFromMessage(msgs.get(0));
         AbstractSpan span = ContextManager.createEntrySpan(COMSUMER_OPERATION_NAME_PREFIX + msgs.get(0).getTopic() + "/Consumer", contextCarrier);
 
-        span.setComponent(ComponentsDefine.ROCKET_MQ);
+        span.setComponent(ComponentsDefine.ROCKET_MQ_CONSUMER);
         SpanLayer.asMQ(span);
         for (int i = 1; i < msgs.size(); i++) {
             ContextManager.extract(getContextCarrierFromMessage(msgs.get(i)));

@@ -23,34 +23,44 @@ import org.apache.skywalking.apm.collector.analysis.segment.parser.define.Analys
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParseService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.server.grpc.GRPCHandler;
-import org.apache.skywalking.apm.network.proto.Downstream;
-import org.apache.skywalking.apm.network.proto.TraceSegmentServiceGrpc;
-import org.apache.skywalking.apm.network.proto.UpstreamSegment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.apm.network.proto.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
 public class TraceSegmentServiceHandler extends TraceSegmentServiceGrpc.TraceSegmentServiceImplBase implements GRPCHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(TraceSegmentServiceHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(TraceSegmentServiceHandler.class);
 
     private final ISegmentParseService segmentParseService;
+    private final Boolean debug;
 
     public TraceSegmentServiceHandler(ModuleManager moduleManager) {
         this.segmentParseService = moduleManager.find(AnalysisSegmentParserModule.NAME).getService(ISegmentParseService.class);
+        this.debug = System.getProperty("debug") != null;
     }
 
     @Override public StreamObserver<UpstreamSegment> collect(StreamObserver<Downstream> responseObserver) {
         return new StreamObserver<UpstreamSegment>() {
             @Override public void onNext(UpstreamSegment segment) {
-                logger.debug("receive segment");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("receive segment");
+                }
+
                 segmentParseService.parse(segment, ISegmentParseService.Source.Agent);
+
+                if (debug) {
+                    long count = SegmentCounter.INSTANCE.incrementAndGet();
+                    if (count % 100000 == 0) {
+                        logger.info("received segment count: {}", count);
+                    }
+                }
             }
 
             @Override public void onError(Throwable throwable) {
                 logger.error(throwable.getMessage(), throwable);
+                responseObserver.onCompleted();
             }
 
             @Override public void onCompleted() {

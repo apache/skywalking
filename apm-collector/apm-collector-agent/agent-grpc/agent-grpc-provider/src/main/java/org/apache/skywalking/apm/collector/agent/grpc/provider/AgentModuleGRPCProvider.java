@@ -19,8 +19,6 @@
 package org.apache.skywalking.apm.collector.agent.grpc.provider;
 
 import java.io.File;
-import java.util.Properties;
-
 import org.apache.skywalking.apm.collector.agent.grpc.define.AgentGRPCModule;
 import org.apache.skywalking.apm.collector.agent.grpc.provider.handler.ApplicationRegisterServiceHandler;
 import org.apache.skywalking.apm.collector.agent.grpc.provider.handler.InstanceDiscoveryServiceHandler;
@@ -35,14 +33,17 @@ import org.apache.skywalking.apm.collector.analysis.segment.parser.define.Analys
 import org.apache.skywalking.apm.collector.cluster.ClusterModule;
 import org.apache.skywalking.apm.collector.cluster.service.ModuleListenerService;
 import org.apache.skywalking.apm.collector.cluster.service.ModuleRegisterService;
-import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
+import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.apache.skywalking.apm.collector.core.util.Const;
+import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.grpc.manager.GRPCManagerModule;
 import org.apache.skywalking.apm.collector.grpc.manager.service.GRPCManagerService;
 import org.apache.skywalking.apm.collector.naming.NamingModule;
 import org.apache.skywalking.apm.collector.naming.service.NamingHandlerRegisterService;
-import org.apache.skywalking.apm.collector.server.Server;
+import org.apache.skywalking.apm.collector.server.grpc.GRPCServer;
 import org.eclipse.jetty.util.StringUtil;
 
 /**
@@ -51,10 +52,12 @@ import org.eclipse.jetty.util.StringUtil;
 public class AgentModuleGRPCProvider extends ModuleProvider {
 
     public static final String NAME = "gRPC";
-    private static final String HOST = "host";
-    private static final String PORT = "port";
-    private static final String SSL_CERT_CHAIN_FILEPATH = "ssl_cert_chain_file";
-    private static final String SSL_PRIVATE_KEY_FILE = "ssl_private_key_file";
+    private final AgentModuleGRPCConfig config;
+
+    public AgentModuleGRPCProvider() {
+        super();
+        this.config = new AgentModuleGRPCConfig();
+    }
 
     @Override
     public String name() {
@@ -62,21 +65,27 @@ public class AgentModuleGRPCProvider extends ModuleProvider {
     }
 
     @Override
-    public Class<? extends Module> module() {
+    public Class<? extends ModuleDefine> module() {
         return AgentGRPCModule.class;
     }
 
-    @Override
-    public void prepare(Properties config) throws ServiceNotProvidedException {
-
+    @Override public ModuleConfig createConfigBeanIfAbsent() {
+        return config;
     }
 
     @Override
-    public void start(Properties config) throws ServiceNotProvidedException {
-        String host = config.getProperty(HOST);
-        Integer port = (Integer) config.get(PORT);
-        String sslCertChainFilePath = config.getProperty(SSL_CERT_CHAIN_FILEPATH);
-        String sslPrivateKeyFilePath = config.getProperty(SSL_PRIVATE_KEY_FILE);
+    public void prepare() {
+    }
+
+    @Override
+    public void start() throws ServiceNotProvidedException {
+        String host = config.getHost();
+        Integer port = config.getPort();
+        String sslCertChainFilePath = config.getSslCertChainFilePath();
+        String sslPrivateKeyFilePath = config.getSslPrivateKeyFilePath();
+        String authentication = StringUtils.isNotEmpty(config.getAuthentication()) ? config.getAuthentication() : Const.EMPTY_STRING;
+
+        AuthenticationSimpleChecker.INSTANCE.setExpectedToken(authentication);
         File sslCertChainFile = null;
         File sslPrivateKeyFile = null;
         if (StringUtil.isNotBlank(sslCertChainFilePath)) {
@@ -103,7 +112,7 @@ public class AgentModuleGRPCProvider extends ModuleProvider {
         namingHandlerRegisterService.register(new AgentGRPCNamingHandler(namingListener));
 
         GRPCManagerService managerService = getManager().find(GRPCManagerModule.NAME).getService(GRPCManagerService.class);
-        Server gRPCServer;
+        GRPCServer gRPCServer;
         if (sslCertChainFile != null && sslPrivateKeyFile != null) {
             gRPCServer = managerService.createIfAbsent(host, port, sslCertChainFile, sslPrivateKeyFile);
         } else {
@@ -114,21 +123,20 @@ public class AgentModuleGRPCProvider extends ModuleProvider {
     }
 
     @Override
-    public void notifyAfterCompleted() throws ServiceNotProvidedException {
-
+    public void notifyAfterCompleted() {
     }
 
     @Override
     public String[] requiredModules() {
-        return new String[]{ClusterModule.NAME, NamingModule.NAME, GRPCManagerModule.NAME, AnalysisSegmentParserModule.NAME, AnalysisMetricModule.NAME};
+        return new String[] {ClusterModule.NAME, NamingModule.NAME, GRPCManagerModule.NAME, AnalysisSegmentParserModule.NAME, AnalysisMetricModule.NAME};
     }
 
-    private void addHandlers(Server gRPCServer) {
-        gRPCServer.addHandler(new ApplicationRegisterServiceHandler(getManager()));
-        gRPCServer.addHandler(new InstanceDiscoveryServiceHandler(getManager()));
-        gRPCServer.addHandler(new ServiceNameDiscoveryServiceHandler(getManager()));
-        gRPCServer.addHandler(new JVMMetricsServiceHandler(getManager()));
-        gRPCServer.addHandler(new TraceSegmentServiceHandler(getManager()));
-        gRPCServer.addHandler(new NetworkAddressRegisterServiceHandler(getManager()));
+    private void addHandlers(GRPCServer gRPCServer) {
+        AuthenticationSimpleChecker.INSTANCE.build(gRPCServer, new ApplicationRegisterServiceHandler(getManager()));
+        AuthenticationSimpleChecker.INSTANCE.build(gRPCServer, new InstanceDiscoveryServiceHandler(getManager()));
+        AuthenticationSimpleChecker.INSTANCE.build(gRPCServer, new ServiceNameDiscoveryServiceHandler(getManager()));
+        AuthenticationSimpleChecker.INSTANCE.build(gRPCServer, new JVMMetricsServiceHandler(getManager()));
+        AuthenticationSimpleChecker.INSTANCE.build(gRPCServer, new TraceSegmentServiceHandler(getManager()));
+        AuthenticationSimpleChecker.INSTANCE.build(gRPCServer, new NetworkAddressRegisterServiceHandler(getManager()));
     }
 }

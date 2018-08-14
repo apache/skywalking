@@ -18,107 +18,70 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao.alarm;
 
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.Map;
-
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.dao.alarm.IServiceReferenceAlarmPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
-import org.apache.skywalking.apm.collector.storage.table.alarm.ServiceReferenceAlarm;
-import org.apache.skywalking.apm.collector.storage.table.alarm.ServiceReferenceAlarmTable;
-import org.elasticsearch.action.get.GetResponse;
+import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
+import org.apache.skywalking.apm.collector.storage.table.alarm.*;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.reindex.BulkByScrollResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.elasticsearch.common.xcontent.*;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceReferenceAlarmEsPersistenceDAO extends EsDAO implements IServiceReferenceAlarmPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, ServiceReferenceAlarm> {
-
-    private final Logger logger = LoggerFactory.getLogger(ServiceReferenceAlarmEsPersistenceDAO.class);
+public class ServiceReferenceAlarmEsPersistenceDAO extends AbstractPersistenceEsDAO<ServiceReferenceAlarm> implements IServiceReferenceAlarmPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, ServiceReferenceAlarm> {
 
     public ServiceReferenceAlarmEsPersistenceDAO(ElasticSearchClient client) {
         super(client);
     }
 
-    @Override
-    public ServiceReferenceAlarm get(String id) {
-        GetResponse getResponse = getClient().prepareGet(ServiceReferenceAlarmTable.TABLE, id).get();
-        if (getResponse.isExists()) {
-            ServiceReferenceAlarm serviceReferenceAlarm = new ServiceReferenceAlarm();
-            serviceReferenceAlarm.setId(id);
-            Map<String, Object> source = getResponse.getSource();
-            serviceReferenceAlarm.setFrontApplicationId(((Number) source.get(ServiceReferenceAlarmTable.COLUMN_FRONT_APPLICATION_ID)).intValue());
-            serviceReferenceAlarm.setBehindApplicationId(((Number) source.get(ServiceReferenceAlarmTable.COLUMN_BEHIND_APPLICATION_ID)).intValue());
-            serviceReferenceAlarm.setFrontInstanceId(((Number) source.get(ServiceReferenceAlarmTable.COLUMN_FRONT_INSTANCE_ID)).intValue());
-            serviceReferenceAlarm.setBehindInstanceId(((Number) source.get(ServiceReferenceAlarmTable.COLUMN_BEHIND_INSTANCE_ID)).intValue());
-            serviceReferenceAlarm.setFrontServiceId(((Number) source.get(ServiceReferenceAlarmTable.COLUMN_FRONT_SERVICE_ID)).intValue());
-            serviceReferenceAlarm.setBehindServiceId(((Number) source.get(ServiceReferenceAlarmTable.COLUMN_BEHIND_SERVICE_ID)).intValue());
-            serviceReferenceAlarm.setSourceValue(((Number) source.get(ServiceReferenceAlarmTable.COLUMN_SOURCE_VALUE)).intValue());
-
-            serviceReferenceAlarm.setAlarmType(((Number) source.get(ServiceReferenceAlarmTable.COLUMN_ALARM_TYPE)).intValue());
-            serviceReferenceAlarm.setAlarmContent((String) source.get(ServiceReferenceAlarmTable.COLUMN_ALARM_CONTENT));
-
-            serviceReferenceAlarm.setLastTimeBucket(((Number) source.get(ServiceReferenceAlarmTable.COLUMN_LAST_TIME_BUCKET)).longValue());
-            return serviceReferenceAlarm;
-        } else {
-            return null;
-        }
+    @Override protected String tableName() {
+        return ServiceReferenceAlarmTable.TABLE;
     }
 
-    @Override
-    public IndexRequestBuilder prepareBatchInsert(ServiceReferenceAlarm data) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(ServiceReferenceAlarmTable.COLUMN_FRONT_APPLICATION_ID, data.getFrontApplicationId());
-        source.put(ServiceReferenceAlarmTable.COLUMN_BEHIND_APPLICATION_ID, data.getBehindApplicationId());
-        source.put(ServiceReferenceAlarmTable.COLUMN_FRONT_INSTANCE_ID, data.getFrontInstanceId());
-        source.put(ServiceReferenceAlarmTable.COLUMN_BEHIND_INSTANCE_ID, data.getBehindInstanceId());
-        source.put(ServiceReferenceAlarmTable.COLUMN_FRONT_SERVICE_ID, data.getFrontServiceId());
-        source.put(ServiceReferenceAlarmTable.COLUMN_BEHIND_SERVICE_ID, data.getBehindServiceId());
-        source.put(ServiceReferenceAlarmTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
+    @Override protected ServiceReferenceAlarm esDataToStreamData(Map<String, Object> source) {
+        ServiceReferenceAlarm serviceReferenceAlarm = new ServiceReferenceAlarm();
+        serviceReferenceAlarm.setFrontApplicationId(((Number)source.get(ServiceReferenceAlarmTable.FRONT_APPLICATION_ID.getName())).intValue());
+        serviceReferenceAlarm.setBehindApplicationId(((Number)source.get(ServiceReferenceAlarmTable.BEHIND_APPLICATION_ID.getName())).intValue());
+        serviceReferenceAlarm.setFrontInstanceId(((Number)source.get(ServiceReferenceAlarmTable.FRONT_INSTANCE_ID.getName())).intValue());
+        serviceReferenceAlarm.setBehindInstanceId(((Number)source.get(ServiceReferenceAlarmTable.BEHIND_INSTANCE_ID.getName())).intValue());
+        serviceReferenceAlarm.setFrontServiceId(((Number)source.get(ServiceReferenceAlarmTable.FRONT_SERVICE_ID.getName())).intValue());
+        serviceReferenceAlarm.setBehindServiceId(((Number)source.get(ServiceReferenceAlarmTable.BEHIND_SERVICE_ID.getName())).intValue());
+        serviceReferenceAlarm.setSourceValue(((Number)source.get(ServiceReferenceAlarmTable.SOURCE_VALUE.getName())).intValue());
 
-        source.put(ServiceReferenceAlarmTable.COLUMN_ALARM_TYPE, data.getAlarmType());
-        source.put(ServiceReferenceAlarmTable.COLUMN_ALARM_CONTENT, data.getAlarmContent());
+        serviceReferenceAlarm.setAlarmType(((Number)source.get(ServiceReferenceAlarmTable.ALARM_TYPE.getName())).intValue());
+        serviceReferenceAlarm.setAlarmContent((String)source.get(ServiceReferenceAlarmTable.ALARM_CONTENT.getName()));
 
-        source.put(ServiceReferenceAlarmTable.COLUMN_LAST_TIME_BUCKET, data.getLastTimeBucket());
-
-        return getClient().prepareIndex(ServiceReferenceAlarmTable.TABLE, data.getId()).setSource(source);
+        serviceReferenceAlarm.setLastTimeBucket(((Number)source.get(ServiceReferenceAlarmTable.LAST_TIME_BUCKET.getName())).longValue());
+        return serviceReferenceAlarm;
     }
 
-    @Override
-    public UpdateRequestBuilder prepareBatchUpdate(ServiceReferenceAlarm data) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(ServiceReferenceAlarmTable.COLUMN_FRONT_APPLICATION_ID, data.getFrontApplicationId());
-        source.put(ServiceReferenceAlarmTable.COLUMN_BEHIND_APPLICATION_ID, data.getBehindApplicationId());
-        source.put(ServiceReferenceAlarmTable.COLUMN_FRONT_INSTANCE_ID, data.getFrontInstanceId());
-        source.put(ServiceReferenceAlarmTable.COLUMN_BEHIND_INSTANCE_ID, data.getBehindInstanceId());
-        source.put(ServiceReferenceAlarmTable.COLUMN_FRONT_SERVICE_ID, data.getFrontServiceId());
-        source.put(ServiceReferenceAlarmTable.COLUMN_BEHIND_SERVICE_ID, data.getBehindServiceId());
-        source.put(ServiceReferenceAlarmTable.COLUMN_SOURCE_VALUE, data.getSourceValue());
+    @Override protected XContentBuilder esStreamDataToEsData(ServiceReferenceAlarm streamData) throws IOException {
+        return XContentFactory.jsonBuilder().startObject()
+            .field(ServiceReferenceAlarmTable.FRONT_APPLICATION_ID.getName(), streamData.getFrontApplicationId())
+            .field(ServiceReferenceAlarmTable.BEHIND_APPLICATION_ID.getName(), streamData.getBehindApplicationId())
+            .field(ServiceReferenceAlarmTable.FRONT_INSTANCE_ID.getName(), streamData.getFrontInstanceId())
+            .field(ServiceReferenceAlarmTable.BEHIND_INSTANCE_ID.getName(), streamData.getBehindInstanceId())
+            .field(ServiceReferenceAlarmTable.FRONT_SERVICE_ID.getName(), streamData.getFrontServiceId())
+            .field(ServiceReferenceAlarmTable.BEHIND_SERVICE_ID.getName(), streamData.getBehindServiceId())
+            .field(ServiceReferenceAlarmTable.SOURCE_VALUE.getName(), streamData.getSourceValue())
 
-        source.put(ServiceReferenceAlarmTable.COLUMN_ALARM_TYPE, data.getAlarmType());
-        source.put(ServiceReferenceAlarmTable.COLUMN_ALARM_CONTENT, data.getAlarmContent());
+            .field(ServiceReferenceAlarmTable.ALARM_TYPE.getName(), streamData.getAlarmType())
+            .field(ServiceReferenceAlarmTable.ALARM_CONTENT.getName(), streamData.getAlarmContent())
 
-        source.put(ServiceReferenceAlarmTable.COLUMN_LAST_TIME_BUCKET, data.getLastTimeBucket());
-
-        return getClient().prepareUpdate(ServiceReferenceAlarmTable.TABLE, data.getId()).setDoc(source);
+            .field(ServiceReferenceAlarmTable.LAST_TIME_BUCKET.getName(), streamData.getLastTimeBucket())
+            .endObject();
     }
 
-    @Override
-    public void deleteHistory(Long startTimestamp, Long endTimestamp) {
-        long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
-        long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
-        BulkByScrollResponse response = getClient().prepareDelete(
-                QueryBuilders.rangeQuery(ServiceReferenceAlarmTable.COLUMN_LAST_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket),
-                ServiceReferenceAlarmTable.TABLE)
-                .get();
+    @Override protected String timeBucketColumnNameForDelete() {
+        return ServiceReferenceAlarmTable.LAST_TIME_BUCKET.getName();
+    }
 
-        long deleted = response.getDeleted();
-        logger.info("Delete {} rows history from {} index.", deleted, ServiceReferenceAlarmTable.TABLE);
+    @GraphComputingMetric(name = "/persistence/get/" + ServiceReferenceAlarmTable.TABLE)
+    @Override public ServiceReferenceAlarm get(String id) {
+        return super.get(id);
     }
 }

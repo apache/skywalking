@@ -37,7 +37,7 @@ public class SegmentStandardizationWorker extends AbstractLocalAsyncWorker<Segme
 
     private static final Logger logger = LoggerFactory.getLogger(SegmentStandardizationWorker.class);
 
-    public SegmentStandardizationWorker(ModuleManager moduleManager) {
+    private SegmentStandardizationWorker(ModuleManager moduleManager) {
         super(moduleManager);
         SegmentBufferManager.INSTANCE.initialize(moduleManager);
     }

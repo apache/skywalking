@@ -16,23 +16,22 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.cluster.standalone;
 
-import java.util.Properties;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
+import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
 import org.apache.skywalking.apm.collector.cluster.ClusterModule;
+import org.apache.skywalking.apm.collector.cluster.service.ModuleListenerService;
 import org.apache.skywalking.apm.collector.cluster.service.ModuleRegisterService;
+import org.apache.skywalking.apm.collector.cluster.standalone.service.StandaloneModuleListenerService;
+import org.apache.skywalking.apm.collector.cluster.standalone.service.StandaloneModuleRegisterService;
 import org.apache.skywalking.apm.collector.core.CollectorException;
 import org.apache.skywalking.apm.collector.core.UnexpectedException;
+import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
+import org.apache.skywalking.apm.collector.core.module.ModuleConfig;
 import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
 import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
-import org.apache.skywalking.apm.collector.cluster.service.ModuleListenerService;
-import org.apache.skywalking.apm.collector.cluster.standalone.service.StandaloneModuleListenerService;
-import org.apache.skywalking.apm.collector.cluster.standalone.service.StandaloneModuleRegisterService;
-import org.apache.skywalking.apm.collector.core.module.Module;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,35 +40,39 @@ import org.slf4j.LoggerFactory;
  */
 public class ClusterModuleStandaloneProvider extends ModuleProvider {
 
-    private final Logger logger = LoggerFactory.getLogger(ClusterModuleStandaloneProvider.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClusterModuleStandaloneProvider.class);
 
-    private static final String URL = "url";
-    private static final String USER_NAME = "user_name";
-
+    private final ClusterModuleStandaloneConfig config;
     private H2Client h2Client;
     private ClusterStandaloneDataMonitor dataMonitor;
+
+    public ClusterModuleStandaloneProvider() {
+        super();
+        this.config = new ClusterModuleStandaloneConfig();
+    }
 
     @Override public String name() {
         return "standalone";
     }
 
-    @Override public Class<? extends Module> module() {
+    @Override public Class<? extends ModuleDefine> module() {
         return ClusterModule.class;
     }
 
-    @Override public void prepare(Properties config) throws ServiceNotProvidedException {
-        this.dataMonitor = new ClusterStandaloneDataMonitor();
+    @Override public ModuleConfig createConfigBeanIfAbsent() {
+        return config;
+    }
 
-        final String url = config.getProperty(URL);
-        final String userName = config.getProperty(USER_NAME);
-        h2Client = new H2Client(url, userName, Const.EMPTY_STRING);
+    @Override public void prepare() throws ServiceNotProvidedException {
+        this.dataMonitor = new ClusterStandaloneDataMonitor();
+        h2Client = new H2Client(config.getUrl(), config.getUserName(), Const.EMPTY_STRING);
         this.dataMonitor.setClient(h2Client);
 
         this.registerServiceImplementation(ModuleListenerService.class, new StandaloneModuleListenerService(dataMonitor));
         this.registerServiceImplementation(ModuleRegisterService.class, new StandaloneModuleRegisterService(dataMonitor));
     }
 
-    @Override public void start(Properties config) throws ServiceNotProvidedException {
+    @Override public void start() {
         try {
             h2Client.initialize();
         } catch (H2ClientException e) {
@@ -77,7 +80,7 @@ public class ClusterModuleStandaloneProvider extends ModuleProvider {
         }
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
+    @Override public void notifyAfterCompleted() {
         try {
             dataMonitor.start();
         } catch (CollectorException e) {

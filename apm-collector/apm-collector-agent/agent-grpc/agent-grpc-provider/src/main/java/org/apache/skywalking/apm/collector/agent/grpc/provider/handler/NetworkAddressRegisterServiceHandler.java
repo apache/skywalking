@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NetworkAddressRegisterServiceHandler extends NetworkAddressRegisterServiceGrpc.NetworkAddressRegisterServiceImplBase implements GRPCHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(NetworkAddressRegisterServiceHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(NetworkAddressRegisterServiceHandler.class);
 
     private final INetworkAddressIDService networkAddressIDService;
 
@@ -46,7 +46,10 @@ public class NetworkAddressRegisterServiceHandler extends NetworkAddressRegister
 
     @Override
     public void batchRegister(NetworkAddresses request, StreamObserver<NetworkAddressMappings> responseObserver) {
-        logger.debug("register application");
+        if (logger.isDebugEnabled()) {
+            logger.debug("register application");
+        }
+
         ProtocolStringList addressesList = request.getAddressesList();
 
         NetworkAddressMappings.Builder builder = NetworkAddressMappings.newBuilder();

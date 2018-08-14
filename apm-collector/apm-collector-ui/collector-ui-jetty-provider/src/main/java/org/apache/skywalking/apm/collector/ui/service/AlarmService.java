@@ -18,41 +18,30 @@
 
 package org.apache.skywalking.apm.collector.ui.service;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import java.text.ParseException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
-import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
-import org.apache.skywalking.apm.collector.cache.service.ServiceNameCacheService;
+import org.apache.skywalking.apm.collector.cache.service.*;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationAlarmListUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationAlarmUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IApplicationMappingUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceAlarmUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IInstanceUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IServiceAlarmUIDAO;
-import org.apache.skywalking.apm.collector.storage.table.register.Instance;
-import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
+import org.apache.skywalking.apm.collector.storage.dao.ui.*;
+import org.apache.skywalking.apm.collector.storage.table.register.*;
 import org.apache.skywalking.apm.collector.storage.ui.alarm.Alarm;
 import org.apache.skywalking.apm.collector.storage.ui.application.Application;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.storage.ui.overview.AlarmTrend;
 import org.apache.skywalking.apm.collector.storage.utils.DurationPoint;
 import org.apache.skywalking.apm.collector.ui.utils.DurationUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
 public class AlarmService {
 
-    private final Logger logger = LoggerFactory.getLogger(AlarmService.class);
+    private static final Logger logger = LoggerFactory.getLogger(AlarmService.class);
 
     private final Gson gson = new Gson();
     private final IInstanceUIDAO instanceDAO;
@@ -77,13 +66,24 @@ public class AlarmService {
         this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
     }
 
-    public Alarm loadApplicationAlarmList(String keyword, Step step, long startTimeBucket, long endTimeBucket,
-        int limit, int from) throws ParseException {
+    public Alarm loadApplicationAlarmList(String keyword, int applicationId, Step step, long startTimeBucket,
+        long endTimeBucket, int limit, int from) throws ParseException {
         logger.debug("keyword: {}, startTimeBucket: {}, endTimeBucket: {}, limit: {}, from: {}", keyword, startTimeBucket, endTimeBucket, limit, from);
-        Alarm alarm = applicationAlarmUIDAO.loadAlarmList(keyword, startTimeBucket, endTimeBucket, limit, from);
         List<IApplicationMappingUIDAO.ApplicationMapping> applicationMappings = applicationMappingUIDAO.load(step, startTimeBucket, endTimeBucket);
         Map<Integer, Integer> mappings = new HashMap<>();
-        applicationMappings.forEach(applicationMapping -> mappings.put(applicationMapping.getMappingApplicationId(), applicationMapping.getApplicationId()));
+
+        List<Integer> applicationIds = new LinkedList<>();
+        if (applicationId != 0) {
+            applicationIds.add(applicationId);
+        }
+        applicationMappings.forEach(applicationMapping -> {
+            mappings.put(applicationMapping.getMappingApplicationId(), applicationMapping.getApplicationId());
+            if (applicationMapping.getApplicationId() == applicationId) {
+                applicationIds.add(applicationMapping.getMappingApplicationId());
+            }
+        });
+
+        Alarm alarm = applicationAlarmUIDAO.loadAlarmList(keyword, applicationIds, startTimeBucket, endTimeBucket, limit, from);
 
         alarm.getItems().forEach(item -> {
             String applicationCode = applicationCacheService.getApplicationById(mappings.getOrDefault(item.getId(), item.getId())).getApplicationCode();

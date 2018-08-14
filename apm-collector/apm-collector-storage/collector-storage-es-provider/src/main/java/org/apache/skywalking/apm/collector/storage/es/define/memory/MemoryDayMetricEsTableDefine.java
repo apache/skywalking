@@ -32,6 +32,6 @@ public class MemoryDayMetricEsTableDefine extends AbstractMemoryMetricEsTableDef
     }
 
     @Override public int refreshInterval() {
-        return 1;
+        return 2;
     }
 }

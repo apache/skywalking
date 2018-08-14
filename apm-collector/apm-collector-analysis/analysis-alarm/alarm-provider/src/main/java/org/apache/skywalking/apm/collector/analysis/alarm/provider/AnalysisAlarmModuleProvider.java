@@ -18,77 +18,63 @@
 
 package org.apache.skywalking.apm.collector.analysis.alarm.provider;
 
-import java.util.Properties;
 import org.apache.skywalking.apm.collector.analysis.alarm.define.AnalysisAlarmModule;
-import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.application.ApplicationMetricAlarmGraph;
-import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.application.ApplicationReferenceMetricAlarmGraph;
-import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.instance.InstanceMetricAlarmGraph;
-import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.instance.InstanceReferenceMetricAlarmGraph;
-import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.service.ServiceMetricAlarmGraph;
-import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.service.ServiceReferenceMetricAlarmGraph;
+import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.application.*;
+import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.instance.*;
+import org.apache.skywalking.apm.collector.analysis.alarm.provider.worker.service.*;
 import org.apache.skywalking.apm.collector.analysis.metric.define.AnalysisMetricModule;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerCreateListener;
 import org.apache.skywalking.apm.collector.analysis.worker.timer.PersistenceTimer;
 import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
-import org.apache.skywalking.apm.collector.core.module.Module;
-import org.apache.skywalking.apm.collector.core.module.ModuleProvider;
-import org.apache.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.apache.skywalking.apm.collector.core.module.*;
 import org.apache.skywalking.apm.collector.remote.RemoteModule;
 import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarm;
-import org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmList;
-import org.apache.skywalking.apm.collector.storage.table.alarm.InstanceAlarm;
-import org.apache.skywalking.apm.collector.storage.table.alarm.InstanceAlarmList;
-import org.apache.skywalking.apm.collector.storage.table.alarm.ServiceAlarm;
-import org.apache.skywalking.apm.collector.storage.table.alarm.ServiceAlarmList;
+import org.apache.skywalking.apm.collector.storage.table.alarm.*;
 
 /**
  * @author peng-yongsheng
  */
 public class AnalysisAlarmModuleProvider extends ModuleProvider {
 
+    private final AnalysisAlarmModuleConfig config;
+
+    public AnalysisAlarmModuleProvider() {
+        super();
+        this.config = new AnalysisAlarmModuleConfig();
+    }
+
     @Override public String name() {
         return "default";
     }
 
-    @Override public Class<? extends Module> module() {
+    @Override public Class<? extends ModuleDefine> module() {
         return AnalysisAlarmModule.class;
     }
 
-    @Override public void prepare(Properties config) throws ServiceNotProvidedException {
-
+    @Override public ModuleConfig createConfigBeanIfAbsent() {
+        return config;
     }
 
-    @Override public void start(Properties config) throws ServiceNotProvidedException {
+    @Override public void prepare() {
+    }
+
+    @Override public void start() {
         WorkerCreateListener workerCreateListener = new WorkerCreateListener();
 
-        ServiceMetricAlarmGraph serviceMetricAlarmGraph = new ServiceMetricAlarmGraph(getManager(), workerCreateListener);
-        serviceMetricAlarmGraph.create();
-
-        InstanceMetricAlarmGraph instanceMetricAlarmGraph = new InstanceMetricAlarmGraph(getManager(), workerCreateListener);
-        instanceMetricAlarmGraph.create();
-
-        ApplicationMetricAlarmGraph applicationMetricAlarmGraph = new ApplicationMetricAlarmGraph(getManager(), workerCreateListener);
-        applicationMetricAlarmGraph.create();
-
-        ServiceReferenceMetricAlarmGraph serviceReferenceMetricAlarmGraph = new ServiceReferenceMetricAlarmGraph(getManager(), workerCreateListener);
-        serviceReferenceMetricAlarmGraph.create();
-
-        InstanceReferenceMetricAlarmGraph instanceReferenceMetricAlarmGraph = new InstanceReferenceMetricAlarmGraph(getManager(), workerCreateListener);
-        instanceReferenceMetricAlarmGraph.create();
-
-        ApplicationReferenceMetricAlarmGraph applicationReferenceMetricAlarmGraph = new ApplicationReferenceMetricAlarmGraph(getManager(), workerCreateListener);
-        applicationReferenceMetricAlarmGraph.create();
+        new ServiceMetricAlarmGraph(getManager(), workerCreateListener).create();
+        new InstanceMetricAlarmGraph(getManager(), workerCreateListener).create();
+        new ApplicationMetricAlarmGraph(getManager(), workerCreateListener).create();
+        new ServiceReferenceMetricAlarmGraph(getManager(), workerCreateListener).create();
+        new InstanceReferenceMetricAlarmGraph(getManager(), workerCreateListener).create();
+        new ApplicationReferenceMetricAlarmGraph(getManager(), workerCreateListener).create();
 
         registerRemoteData();
 
-        PersistenceTimer persistenceTimer = new PersistenceTimer(AnalysisAlarmModule.NAME);
-        persistenceTimer.start(getManager(), workerCreateListener.getPersistenceWorkers());
+        PersistenceTimer.INSTANCE.start(getManager(), workerCreateListener.getPersistenceWorkers());
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
-
+    @Override public void notifyAfterCompleted() {
     }
 
     @Override public String[] requiredModules() {
@@ -99,10 +85,15 @@ public class AnalysisAlarmModuleProvider extends ModuleProvider {
         RemoteDataRegisterService remoteDataRegisterService = getManager().find(RemoteModule.NAME).getService(RemoteDataRegisterService.class);
         remoteDataRegisterService.register(ApplicationAlarm.class, new ApplicationAlarm.InstanceCreator());
         remoteDataRegisterService.register(ApplicationAlarmList.class, new ApplicationAlarmList.InstanceCreator());
+        remoteDataRegisterService.register(ApplicationReferenceAlarm.class, new ApplicationReferenceAlarm.InstanceCreator());
+        remoteDataRegisterService.register(ApplicationReferenceAlarmList.class, new ApplicationReferenceAlarmList.InstanceCreator());
         remoteDataRegisterService.register(InstanceAlarm.class, new InstanceAlarm.InstanceCreator());
         remoteDataRegisterService.register(InstanceAlarmList.class, new InstanceAlarmList.InstanceCreator());
+        remoteDataRegisterService.register(InstanceReferenceAlarm.class, new InstanceReferenceAlarm.InstanceCreator());
+        remoteDataRegisterService.register(InstanceReferenceAlarmList.class, new InstanceReferenceAlarmList.InstanceCreator());
         remoteDataRegisterService.register(ServiceAlarm.class, new ServiceAlarm.InstanceCreator());
         remoteDataRegisterService.register(ServiceAlarmList.class, new ServiceAlarmList.InstanceCreator());
-
+        remoteDataRegisterService.register(ServiceReferenceAlarm.class, new ServiceReferenceAlarm.InstanceCreator());
+        remoteDataRegisterService.register(ServiceReferenceAlarmList.class, new ServiceReferenceAlarmList.InstanceCreator());
     }
 }

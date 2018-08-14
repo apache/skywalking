@@ -18,17 +18,13 @@
 
 package org.apache.skywalking.apm.collector.storage.h2.dao.register;
 
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.skywalking.apm.collector.client.h2.H2Client;
-import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
+import java.util.*;
+import org.apache.skywalking.apm.collector.client.h2.*;
 import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.apache.skywalking.apm.collector.storage.dao.register.IServiceNameRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
-import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
-import org.apache.skywalking.apm.collector.storage.table.register.ServiceNameTable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.apm.collector.storage.table.register.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng, clevertension
@@ -43,27 +39,29 @@ public class ServiceNameRegisterH2DAO extends H2DAO implements IServiceNameRegis
 
     @Override
     public int getMaxServiceId() {
-        return getMaxId(ServiceNameTable.TABLE, ServiceNameTable.COLUMN_SERVICE_ID);
+        return getMaxId(ServiceNameTable.TABLE, ServiceNameTable.SERVICE_ID.getName());
     }
 
     @Override
     public int getMinServiceId() {
-        return getMinId(ServiceNameTable.TABLE, ServiceNameTable.COLUMN_SERVICE_ID);
+        return getMinId(ServiceNameTable.TABLE, ServiceNameTable.SERVICE_ID.getName());
     }
 
     @Override
     public void save(ServiceName serviceName) {
         logger.debug("save service name register info, application getApplicationId: {}, service name: {}", serviceName.getId(), serviceName.getServiceName());
         H2Client client = getClient();
-        Map<String, Object> source = new HashMap<>();
-        source.put(ServiceNameTable.COLUMN_ID, serviceName.getId());
-        source.put(ServiceNameTable.COLUMN_SERVICE_ID, serviceName.getServiceId());
-        source.put(ServiceNameTable.COLUMN_APPLICATION_ID, serviceName.getApplicationId());
-        source.put(ServiceNameTable.COLUMN_SERVICE_NAME, serviceName.getServiceName());
-        source.put(ServiceNameTable.COLUMN_SRC_SPAN_TYPE, serviceName.getSrcSpanType());
+        Map<String, Object> target = new HashMap<>();
+        target.put(ServiceNameTable.ID.getName(), serviceName.getId());
+        target.put(ServiceNameTable.SERVICE_ID.getName(), serviceName.getServiceId());
+        target.put(ServiceNameTable.APPLICATION_ID.getName(), serviceName.getApplicationId());
+        target.put(ServiceNameTable.SERVICE_NAME.getName(), serviceName.getServiceName());
+        target.put(ServiceNameTable.SRC_SPAN_TYPE.getName(), serviceName.getSrcSpanType());
+        target.put(ServiceNameTable.REGISTER_TIME.getName(), serviceName.getRegisterTime());
+        target.put(ServiceNameTable.HEARTBEAT_TIME.getName(), serviceName.getHeartBeatTime());
 
-        String sql = SqlBuilder.buildBatchInsertSql(ServiceNameTable.TABLE, source.keySet());
-        Object[] params = source.values().toArray(new Object[0]);
+        String sql = SqlBuilder.buildBatchInsertSql(ServiceNameTable.TABLE, target.keySet());
+        Object[] params = target.values().toArray(new Object[0]);
         try {
             client.execute(sql, params);
         } catch (H2ClientException e) {

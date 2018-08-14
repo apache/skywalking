@@ -17,13 +17,11 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>servicecomb-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-alpha-SNAPSHOT</version>
+        <version>5.0.0-RC-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -38,23 +36,10 @@
         <dependency>
             <groupId>org.apache.servicecomb</groupId>
             <artifactId>java-chassis-core</artifactId>
-            <version>1.0.0-m1-SNAPSHOT</version>
+            <version>1.0.0-m1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
-    <!-- TODO: need to delete -->
-    <repositories>
-        <repository>
-            <id>apache-servicecomb</id>
-            <url>
-                https://repository.apache.org/content/repositories/snapshots
-            </url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-        </repository>
-    </repositories>
     <build>
         <plugins>
             <plugin>

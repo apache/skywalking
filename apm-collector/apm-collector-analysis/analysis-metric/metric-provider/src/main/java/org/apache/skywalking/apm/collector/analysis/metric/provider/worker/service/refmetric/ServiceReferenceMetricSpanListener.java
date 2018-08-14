@@ -18,61 +18,52 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.service.refmetric;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.ReferenceDecorator;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.SpanDecorator;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.EntrySpanListener;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.ExitSpanListener;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.FirstSpanListener;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListener;
-import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.SpanListenerFactory;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.*;
+import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.*;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
-import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
-import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
-import org.apache.skywalking.apm.collector.core.graph.Graph;
-import org.apache.skywalking.apm.collector.core.graph.GraphManager;
+import org.apache.skywalking.apm.collector.cache.service.*;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
+import org.apache.skywalking.apm.collector.core.graph.*;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.table.MetricSource;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
 import org.apache.skywalking.apm.network.proto.SpanLayer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
+
+import static java.util.Objects.nonNull;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceReferenceMetricSpanListener implements FirstSpanListener, EntrySpanListener, ExitSpanListener {
+public class ServiceReferenceMetricSpanListener implements EntrySpanListener, ExitSpanListener {
 
-    private final Logger logger = LoggerFactory.getLogger(ServiceReferenceMetricSpanListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceReferenceMetricSpanListener.class);
 
     private final InstanceCacheService instanceCacheService;
     private final ApplicationCacheService applicationCacheService;
     private final List<ServiceReferenceMetric> entryReferenceMetric;
     private List<ServiceReferenceMetric> exitReferenceMetric;
     private SpanDecorator entrySpanDecorator;
-    private long timeBucket;
+    private long minuteTimeBucket;
 
-    ServiceReferenceMetricSpanListener(ModuleManager moduleManager) {
+    private ServiceReferenceMetricSpanListener(ModuleManager moduleManager) {
         this.entryReferenceMetric = new LinkedList<>();
         this.exitReferenceMetric = new LinkedList<>();
         this.instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
         this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
     }
 
-    @Override
-    public void parseFirst(SpanDecorator spanDecorator, int applicationId, int instanceId,
-        String segmentId) {
-        this.timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
+    @Override public boolean containsPoint(Point point) {
+        return Point.Entry.equals(point) || Point.Exit.equals(point);
     }
 
     @Override
-    public void parseEntry(SpanDecorator spanDecorator, int applicationId, int instanceId,
-        String segmentId) {
+    public void parseEntry(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
+        this.minuteTimeBucket = segmentCoreInfo.getMinuteTimeBucket();
+
         if (spanDecorator.getRefsCount() > 0) {
             for (int i = 0; i < spanDecorator.getRefsCount(); i++) {
                 ReferenceDecorator reference = spanDecorator.getRefs(i);
@@ -89,8 +80,8 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
                     serviceReferenceMetric.setFrontApplicationId(instanceCacheService.getApplicationId(reference.getParentApplicationInstanceId()));
                 }
                 serviceReferenceMetric.setBehindServiceId(spanDecorator.getOperationNameId());
-                serviceReferenceMetric.setBehindInstanceId(instanceId);
-                serviceReferenceMetric.setBehindApplicationId(applicationId);
+                serviceReferenceMetric.setBehindInstanceId(segmentCoreInfo.getApplicationInstanceId());
+                serviceReferenceMetric.setBehindApplicationId(segmentCoreInfo.getApplicationId());
                 serviceReferenceMetric.setSourceValue(MetricSource.Callee.getValue());
                 calculateDuration(serviceReferenceMetric, spanDecorator);
                 entryReferenceMetric.add(serviceReferenceMetric);
@@ -101,8 +92,8 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
             serviceReferenceMetric.setFrontInstanceId(Const.NONE_INSTANCE_ID);
             serviceReferenceMetric.setFrontApplicationId(Const.NONE_APPLICATION_ID);
             serviceReferenceMetric.setBehindServiceId(spanDecorator.getOperationNameId());
-            serviceReferenceMetric.setBehindInstanceId(instanceId);
-            serviceReferenceMetric.setBehindApplicationId(applicationId);
+            serviceReferenceMetric.setBehindInstanceId(segmentCoreInfo.getApplicationInstanceId());
+            serviceReferenceMetric.setBehindApplicationId(segmentCoreInfo.getApplicationId());
             serviceReferenceMetric.setSourceValue(MetricSource.Callee.getValue());
 
             calculateDuration(serviceReferenceMetric, spanDecorator);
@@ -111,7 +102,7 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
         this.entrySpanDecorator = spanDecorator;
     }
 
-    @Override public void parseExit(SpanDecorator spanDecorator, int applicationId, int instanceId, String segmentId) {
+    @Override public void parseExit(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
         ServiceReferenceMetric serviceReferenceMetric = new ServiceReferenceMetric();
 
         int peerId = spanDecorator.getPeerId();
@@ -119,8 +110,8 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
         int behindInstanceId = instanceCacheService.getInstanceIdByAddressId(behindApplicationId, peerId);
 
         serviceReferenceMetric.setFrontServiceId(Const.NONE_SERVICE_ID);
-        serviceReferenceMetric.setFrontInstanceId(instanceId);
-        serviceReferenceMetric.setFrontApplicationId(applicationId);
+        serviceReferenceMetric.setFrontInstanceId(segmentCoreInfo.getApplicationInstanceId());
+        serviceReferenceMetric.setFrontApplicationId(segmentCoreInfo.getApplicationId());
         serviceReferenceMetric.setBehindServiceId(spanDecorator.getOperationNameId());
         serviceReferenceMetric.setBehindInstanceId(behindInstanceId);
         serviceReferenceMetric.setBehindApplicationId(behindApplicationId);
@@ -157,38 +148,46 @@ public class ServiceReferenceMetricSpanListener implements FirstSpanListener, En
     }
 
     @Override public void build() {
-        logger.debug("service reference listener build");
+        if (logger.isDebugEnabled()) {
+            logger.debug("service reference listener build");
+        }
+
         Graph<ServiceReferenceMetric> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.SERVICE_REFERENCE_METRIC_GRAPH_ID, ServiceReferenceMetric.class);
         entryReferenceMetric.forEach(serviceReferenceMetric -> {
             String metricId = serviceReferenceMetric.getFrontServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getBehindServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getSourceValue();
-            String id = timeBucket + Const.ID_SPLIT + metricId;
+            String id = minuteTimeBucket + Const.ID_SPLIT + metricId;
 
             serviceReferenceMetric.setId(id);
             serviceReferenceMetric.setMetricId(metricId);
-            serviceReferenceMetric.setTimeBucket(timeBucket);
-            logger.debug("push to service reference aggregation worker, id: {}", serviceReferenceMetric.getId());
+            serviceReferenceMetric.setTimeBucket(minuteTimeBucket);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("push to service reference aggregation worker, id: {}", serviceReferenceMetric.getId());
+            }
 
             graph.start(serviceReferenceMetric);
         });
 
         exitReferenceMetric.forEach(serviceReferenceMetric -> {
-            if (ObjectUtils.isNotEmpty(entrySpanDecorator)) {
+            if (nonNull(entrySpanDecorator)) {
                 serviceReferenceMetric.setFrontServiceId(entrySpanDecorator.getOperationNameId());
             } else {
                 serviceReferenceMetric.setFrontServiceId(Const.NONE_SERVICE_ID);
             }
 
             String metricId = serviceReferenceMetric.getFrontServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getBehindServiceId() + Const.ID_SPLIT + serviceReferenceMetric.getSourceValue();
-            String id = timeBucket + Const.ID_SPLIT + metricId;
+            String id = minuteTimeBucket + Const.ID_SPLIT + metricId;
             serviceReferenceMetric.setId(id);
             serviceReferenceMetric.setMetricId(metricId);
-            serviceReferenceMetric.setTimeBucket(timeBucket);
+            serviceReferenceMetric.setTimeBucket(minuteTimeBucket);
 
             graph.start(serviceReferenceMetric);
         });
     }
 
     public static class Factory implements SpanListenerFactory {
+
+        @GraphComputingMetric(name = "/segment/parse/createSpanListeners/serviceReferenceMetricSpanListener")
         @Override public SpanListener create(ModuleManager moduleManager) {
             return new ServiceReferenceMetricSpanListener(moduleManager);
         }

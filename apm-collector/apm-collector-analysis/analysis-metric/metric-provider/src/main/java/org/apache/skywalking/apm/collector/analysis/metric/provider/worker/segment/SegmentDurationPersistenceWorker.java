@@ -19,20 +19,20 @@
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.segment;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.*;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentDurationPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.table.segment.SegmentDuration;
+import org.apache.skywalking.apm.collector.storage.table.segment.*;
 
 /**
  * @author peng-yongsheng
  */
-public class SegmentDurationPersistenceWorker extends PersistenceWorker<SegmentDuration> {
+public class SegmentDurationPersistenceWorker extends NonMergePersistenceWorker<SegmentDuration> {
 
-    SegmentDurationPersistenceWorker(ModuleManager moduleManager) {
+    private SegmentDurationPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -49,7 +49,7 @@ public class SegmentDurationPersistenceWorker extends PersistenceWorker<SegmentD
         return getModuleManager().find(StorageModule.NAME).getService(ISegmentDurationPersistenceDAO.class);
     }
 
-    public static class Factory extends PersistenceWorkerProvider<SegmentDuration, SegmentDurationPersistenceWorker> {
+    public static class Factory extends NonMergePersistenceWorkerProvider<SegmentDuration, SegmentDurationPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
@@ -63,5 +63,10 @@ public class SegmentDurationPersistenceWorker extends PersistenceWorker<SegmentD
         public int queueSize() {
             return 1024;
         }
+    }
+
+    @GraphComputingMetric(name = "/persistence/onWork/" + SegmentDurationTable.TABLE)
+    @Override protected void onWork(SegmentDuration input) {
+        super.onWork(input);
     }
 }

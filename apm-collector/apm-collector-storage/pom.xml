@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm-collector</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-beta-SNAPSHOT</version>
+        <version>5.0.0-RC-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -31,6 +31,7 @@
         <module>collector-storage-define</module>
         <module>collector-storage-es-provider</module>
         <module>collector-storage-h2-provider</module>
+        <module>collector-storage-shardingjdbc-provider</module>
     </modules>
 
     <dependencies>
@@ -42,6 +43,11 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>client-component</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>collector-configuration-define</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

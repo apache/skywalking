@@ -18,14 +18,14 @@
 
 package org.apache.skywalking.apm.collector.storage.table.jvm;
 
-import org.apache.skywalking.apm.collector.core.data.CommonTable;
+import org.apache.skywalking.apm.collector.core.data.ColumnName;
+import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
 
 /**
  * @author peng-yongsheng
  */
-public class CpuMetricTable extends CommonTable {
-    public static final String TABLE = "cpu_metric";
-    public static final String COLUMN_INSTANCE_ID = "instance_id";
-    public static final String COLUMN_USAGE_PERCENT = "usage_percent";
-    public static final String COLUMN_TIMES = "times";
+public interface CpuMetricTable extends InstanceTable {
+    String TABLE = "cpu_metric";
+
+    ColumnName USAGE_PERCENT = new ColumnName("usage_percent", "up");
 }

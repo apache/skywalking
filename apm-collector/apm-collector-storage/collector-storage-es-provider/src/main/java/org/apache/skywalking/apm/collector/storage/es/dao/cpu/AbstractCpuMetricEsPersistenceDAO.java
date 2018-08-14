@@ -18,12 +18,13 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao.cpu;
 
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
-import org.apache.skywalking.apm.collector.storage.table.jvm.CpuMetric;
-import org.apache.skywalking.apm.collector.storage.table.jvm.CpuMetricTable;
+import org.apache.skywalking.apm.collector.storage.table.jvm.*;
+import org.elasticsearch.common.xcontent.*;
 
 /**
  * @author peng-yongsheng
@@ -35,31 +36,35 @@ public abstract class AbstractCpuMetricEsPersistenceDAO extends AbstractPersiste
     }
 
     @Override protected final String timeBucketColumnNameForDelete() {
-        return CpuMetricTable.COLUMN_TIME_BUCKET;
+        return CpuMetricTable.TIME_BUCKET.getName();
     }
 
     @Override protected final CpuMetric esDataToStreamData(Map<String, Object> source) {
         CpuMetric cpuMetric = new CpuMetric();
-        cpuMetric.setMetricId((String)source.get(CpuMetricTable.COLUMN_METRIC_ID));
+        cpuMetric.setMetricId((String)source.get(CpuMetricTable.METRIC_ID.getName()));
 
-        cpuMetric.setInstanceId(((Number)source.get(CpuMetricTable.COLUMN_INSTANCE_ID)).intValue());
+        cpuMetric.setInstanceId(((Number)source.get(CpuMetricTable.INSTANCE_ID.getName())).intValue());
 
-        cpuMetric.setUsagePercent(((Number)source.get(CpuMetricTable.COLUMN_USAGE_PERCENT)).doubleValue());
-        cpuMetric.setTimes(((Number)source.get(CpuMetricTable.COLUMN_TIMES)).longValue());
-        cpuMetric.setTimeBucket(((Number)source.get(CpuMetricTable.COLUMN_TIME_BUCKET)).longValue());
+        cpuMetric.setUsagePercent(((Number)source.get(CpuMetricTable.USAGE_PERCENT.getName())).doubleValue());
+        cpuMetric.setTimes(((Number)source.get(CpuMetricTable.TIMES.getName())).longValue());
+        cpuMetric.setTimeBucket(((Number)source.get(CpuMetricTable.TIME_BUCKET.getName())).longValue());
 
         return cpuMetric;
     }
 
-    @Override protected final Map<String, Object> esStreamDataToEsData(CpuMetric streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(CpuMetricTable.COLUMN_METRIC_ID, streamData.getMetricId());
+    @Override protected final XContentBuilder esStreamDataToEsData(CpuMetric streamData) throws IOException {
+        return XContentFactory.jsonBuilder().startObject()
+            .field(CpuMetricTable.METRIC_ID.getName(), streamData.getMetricId())
 
-        source.put(CpuMetricTable.COLUMN_INSTANCE_ID, streamData.getInstanceId());
-        source.put(CpuMetricTable.COLUMN_USAGE_PERCENT, streamData.getUsagePercent());
-        source.put(CpuMetricTable.COLUMN_TIMES, streamData.getTimes());
-        source.put(CpuMetricTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
+            .field(CpuMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId())
+            .field(CpuMetricTable.USAGE_PERCENT.getName(), streamData.getUsagePercent())
+            .field(CpuMetricTable.TIMES.getName(), streamData.getTimes())
+            .field(CpuMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket())
+            .endObject();
+    }
 
-        return source;
+    @GraphComputingMetric(name = "/persistence/get/" + CpuMetricTable.TABLE)
+    @Override public final CpuMetric get(String id) {
+        return super.get(id);
     }
 }

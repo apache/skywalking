@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ApplicationRegisterServiceHandler extends ApplicationRegisterServiceGrpc.ApplicationRegisterServiceImplBase implements GRPCHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(ApplicationRegisterServiceHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationRegisterServiceHandler.class);
 
     private final IApplicationIDService applicationIDService;
 
@@ -45,7 +45,9 @@ public class ApplicationRegisterServiceHandler extends ApplicationRegisterServic
 
     @Override
     public void applicationCodeRegister(Application request, StreamObserver<ApplicationMapping> responseObserver) {
-        logger.debug("register application");
+        if (logger.isDebugEnabled()) {
+            logger.debug("register application");
+        }
 
         ApplicationMapping.Builder builder = ApplicationMapping.newBuilder();
         String applicationCode = request.getApplicationCode();

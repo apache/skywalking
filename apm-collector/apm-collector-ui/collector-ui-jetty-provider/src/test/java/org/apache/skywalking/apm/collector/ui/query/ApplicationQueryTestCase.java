@@ -18,14 +18,17 @@
 
 package org.apache.skywalking.apm.collector.ui.query;
 
-import java.text.ParseException;
 import org.apache.skywalking.apm.collector.storage.ui.common.Duration;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 import org.apache.skywalking.apm.collector.ui.service.ApplicationService;
+import org.apache.skywalking.apm.collector.ui.service.ApplicationTopologyService;
+import org.apache.skywalking.apm.collector.ui.service.ServerService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
+
+import java.text.ParseException;
 
 /**
  * @author peng-yongsheng
@@ -37,7 +40,6 @@ public class ApplicationQueryTestCase {
         ApplicationQuery query = new ApplicationQuery(null);
         ApplicationService applicationService = Mockito.mock(ApplicationService.class);
         Whitebox.setInternalState(query, "applicationService", applicationService);
-
         Mockito.when(applicationService.getApplications(Mockito.anyLong(), Mockito.anyLong())).then(invocation -> {
             Object[] arguments = invocation.getArguments();
             Assert.assertEquals(20170100000000L, arguments[0]);
@@ -136,4 +138,91 @@ public class ApplicationQueryTestCase {
 
         query.getAllApplication(duration);
     }
+
+
+    @Test
+    public void testGetSlowByMonthDuration() throws ParseException {
+        ApplicationQuery query = new ApplicationQuery(null);
+        ApplicationService applicationService = Mockito.mock(ApplicationService.class);
+        Whitebox.setInternalState(query, "applicationService", applicationService);
+        Mockito.when(applicationService.getSlowService(
+                Mockito.anyInt(), Mockito.anyObject(),
+                Mockito.anyLong(), Mockito.anyLong(),
+                Mockito.anyLong(), Mockito.anyLong(),
+                Mockito.anyInt())
+        ).then(invocation -> {
+            Object[] arguments = invocation.getArguments();
+            Assert.assertEquals(201701L, arguments[2]);
+            Assert.assertEquals(201701L, arguments[3]);
+            Assert.assertEquals(20170100000000L, arguments[4]);
+            Assert.assertEquals(20170199999999L, arguments[5]);
+            return null;
+        });
+
+        Duration duration = new Duration();
+        duration.setStart("2017-01");
+        duration.setEnd("2017-01");
+        // the step in exchangeToTimeBucket and startTimeDurationToSecondTimeBucket and endTimeDurationToSecondTimeBucket has its own testcase,so here wo give
+        // one step is enough.
+        duration.setStep(Step.MONTH);
+
+        query.getSlowService(-1, duration, -1);
+    }
+
+    @Test
+    public void testGetServerThroughput() throws ParseException {
+        ApplicationQuery query = new ApplicationQuery(null);
+        ServerService serverService = Mockito.mock(ServerService.class);
+        Whitebox.setInternalState(query, "serverService", serverService);
+
+        Mockito.when(serverService.getServerThroughput(
+                Mockito.anyInt(), Mockito.anyObject(),
+                Mockito.anyLong(), Mockito.anyLong(),
+                Mockito.anyLong(), Mockito.anyLong(),
+                Mockito.anyInt())
+        ).then(invocation -> {
+            Object[] arguments = invocation.getArguments();
+            Assert.assertEquals(201701L, arguments[2]);
+            Assert.assertEquals(201702L, arguments[3]);
+            Assert.assertEquals(20170100000000L, arguments[4]);
+            Assert.assertEquals(20170299999999L, arguments[5]);
+            return null;
+        });
+
+        Duration duration = new Duration();
+        duration.setStart("2017-01");
+        duration.setEnd("2017-02");
+        duration.setStep(Step.MONTH);
+
+        query.getServerThroughput(-1, duration, -1);
+    }
+
+    @Test
+    public void testGetApplicationTopology() throws ParseException {
+        ApplicationQuery query = new ApplicationQuery(null);
+        ApplicationTopologyService applicationTopologyService = Mockito.mock(ApplicationTopologyService.class);
+        Whitebox.setInternalState(query, "applicationTopologyService", applicationTopologyService);
+
+        Mockito.when(
+                applicationTopologyService.getApplicationTopology(
+                        Mockito.anyObject(), Mockito.anyInt(),
+                        Mockito.anyLong(), Mockito.anyLong(),
+                        Mockito.anyLong(), Mockito.anyLong())
+        ).then(invocation -> {
+            Object[] arguments = invocation.getArguments();
+            Assert.assertEquals(201701L, arguments[2]);
+            Assert.assertEquals(201703L, arguments[3]);
+            Assert.assertEquals(20170100000000L, arguments[4]);
+            Assert.assertEquals(20170399999999L, arguments[5]);
+            return null;
+        });
+
+        Duration duration = new Duration();
+        duration.setStart("2017-01");
+        duration.setEnd("2017-03");
+        duration.setStep(Step.MONTH);
+
+        query.getApplicationTopology(-1, duration);
+    }
+
 }

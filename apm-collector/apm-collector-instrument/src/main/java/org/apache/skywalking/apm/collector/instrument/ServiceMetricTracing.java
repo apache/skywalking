@@ -16,44 +16,53 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.instrument;
 
 import java.lang.reflect.Method;
-import java.util.concurrent.Callable;
-import net.bytebuddy.implementation.bind.annotation.AllArguments;
-import net.bytebuddy.implementation.bind.annotation.Origin;
-import net.bytebuddy.implementation.bind.annotation.RuntimeType;
-import net.bytebuddy.implementation.bind.annotation.SuperCall;
-import net.bytebuddy.implementation.bind.annotation.This;
+import java.util.concurrent.*;
+import net.bytebuddy.implementation.bind.annotation.*;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 
 /**
  * @author wu-sheng
  */
 public class ServiceMetricTracing {
-    private MetricCollector.ServiceMetric serviceMetric;
 
-    public ServiceMetricTracing(String module, String provider, String service) {
-        serviceMetric = MetricCollector.INSTANCE.registerService(module, provider, service);
+    private volatile ConcurrentHashMap<Method, ServiceMetric> metrics = new ConcurrentHashMap<>();
+
+    ServiceMetricTracing() {
     }
 
     @RuntimeType
-    public Object intercept(@This Object obj,
-        @AllArguments Object[] allArguments,
+    public Object intercept(
+        @This Object inst,
         @SuperCall Callable<?> zuper,
+        @AllArguments Object[] allArguments,
         @Origin Method method
     ) throws Throwable {
+        ServiceMetric metric = this.metrics.get(method);
+        if (metric == null) {
+            GraphComputingMetric annotation = method.getAnnotation(GraphComputingMetric.class);
+            String metricName = annotation.name();
+            synchronized (inst) {
+                MetricTree.MetricNode metricNode = MetricTree.INSTANCE.lookup(metricName);
+                ServiceMetric serviceMetric = metricNode.getMetric(method);
+                metrics.put(method, serviceMetric);
+                metric = serviceMetric;
+            }
+        }
         boolean occurError = false;
-        long startNano = System.nanoTime();
-        long endNano;
+        long startNanosecond = System.nanoTime();
+        long endNanosecond;
         try {
             return zuper.call();
         } catch (Throwable t) {
             occurError = true;
             throw t;
         } finally {
-            endNano = System.nanoTime();
-            serviceMetric.trace(method, endNano - startNano, occurError);
+            endNanosecond = System.nanoTime();
+
+            metric.trace(endNanosecond - startNanosecond, occurError, allArguments);
         }
     }
 }

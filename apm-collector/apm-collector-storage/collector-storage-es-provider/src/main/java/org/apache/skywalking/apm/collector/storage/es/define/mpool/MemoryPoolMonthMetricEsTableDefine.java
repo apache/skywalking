@@ -32,6 +32,6 @@ public class MemoryPoolMonthMetricEsTableDefine extends AbstractMemoryPoolMetric
     }
 
     @Override public int refreshInterval() {
-        return 1;
+        return 2;
     }
 }

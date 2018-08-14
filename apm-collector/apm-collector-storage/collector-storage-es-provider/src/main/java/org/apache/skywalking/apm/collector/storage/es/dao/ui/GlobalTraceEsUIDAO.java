@@ -47,7 +47,7 @@ public class GlobalTraceEsUIDAO extends EsDAO implements IGlobalTraceUIDAO {
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(GlobalTraceTable.TABLE);
         searchRequestBuilder.setTypes(GlobalTraceTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-        searchRequestBuilder.setQuery(QueryBuilders.termQuery(GlobalTraceTable.COLUMN_SEGMENT_ID, segmentId));
+        searchRequestBuilder.setQuery(QueryBuilders.termQuery(GlobalTraceTable.SEGMENT_ID.getName(), segmentId));
         searchRequestBuilder.setSize(10);
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
@@ -55,7 +55,7 @@ public class GlobalTraceEsUIDAO extends EsDAO implements IGlobalTraceUIDAO {
         List<String> globalTraceIds = new ArrayList<>();
         SearchHit[] searchHits = searchResponse.getHits().getHits();
         for (SearchHit searchHit : searchHits) {
-            String globalTraceId = (String)searchHit.getSource().get(GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID);
+            String globalTraceId = (String)searchHit.getSource().get(GlobalTraceTable.TRACE_ID.getName());
             logger.debug("segmentId: {}, global trace id: {}", segmentId, globalTraceId);
             globalTraceIds.add(globalTraceId);
         }
@@ -66,7 +66,7 @@ public class GlobalTraceEsUIDAO extends EsDAO implements IGlobalTraceUIDAO {
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(GlobalTraceTable.TABLE);
         searchRequestBuilder.setTypes(GlobalTraceTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-        searchRequestBuilder.setQuery(QueryBuilders.termQuery(GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID, globalTraceId));
+        searchRequestBuilder.setQuery(QueryBuilders.termQuery(GlobalTraceTable.TRACE_ID.getName(), globalTraceId));
         searchRequestBuilder.setSize(10);
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
@@ -74,7 +74,7 @@ public class GlobalTraceEsUIDAO extends EsDAO implements IGlobalTraceUIDAO {
         List<String> segmentIds = new ArrayList<>();
         SearchHit[] searchHits = searchResponse.getHits().getHits();
         for (SearchHit searchHit : searchHits) {
-            String segmentId = (String)searchHit.getSource().get(GlobalTraceTable.COLUMN_SEGMENT_ID);
+            String segmentId = (String)searchHit.getSource().get(GlobalTraceTable.SEGMENT_ID.getName());
             logger.debug("segmentId: {}, global trace id: {}", segmentId, globalTraceId);
             segmentIds.add(segmentId);
         }

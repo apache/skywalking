@@ -20,10 +20,13 @@ package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.inst
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
 import org.apache.skywalking.apm.collector.analysis.worker.model.impl.AggregationWorker;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetric;
+import org.apache.skywalking.apm.collector.storage.table.instance.InstanceReferenceMetricTable;
 import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenceMetric;
 
 /**
@@ -31,7 +34,7 @@ import org.apache.skywalking.apm.collector.storage.table.service.ServiceReferenc
  */
 public class InstanceReferenceMinuteMetricAggregationWorker extends AggregationWorker<ServiceReferenceMetric, InstanceReferenceMetric> {
 
-    public InstanceReferenceMinuteMetricAggregationWorker(ModuleManager moduleManager) {
+    private InstanceReferenceMinuteMetricAggregationWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -62,14 +65,14 @@ public class InstanceReferenceMinuteMetricAggregationWorker extends AggregationW
         instanceReferenceMetric.setTransactionErrorDurationSum(serviceReferenceMetric.getTransactionErrorDurationSum());
 
         instanceReferenceMetric.setBusinessTransactionCalls(serviceReferenceMetric.getBusinessTransactionCalls());
-        instanceReferenceMetric.setBusinessTransactionErrorCalls(instanceReferenceMetric.getBusinessTransactionErrorCalls());
-        instanceReferenceMetric.setBusinessTransactionDurationSum(instanceReferenceMetric.getBusinessTransactionDurationSum());
-        instanceReferenceMetric.setBusinessTransactionErrorDurationSum(instanceReferenceMetric.getBusinessTransactionErrorDurationSum());
+        instanceReferenceMetric.setBusinessTransactionErrorCalls(serviceReferenceMetric.getBusinessTransactionErrorCalls());
+        instanceReferenceMetric.setBusinessTransactionDurationSum(serviceReferenceMetric.getBusinessTransactionDurationSum());
+        instanceReferenceMetric.setBusinessTransactionErrorDurationSum(serviceReferenceMetric.getBusinessTransactionErrorDurationSum());
 
-        instanceReferenceMetric.setMqTransactionCalls(instanceReferenceMetric.getMqTransactionCalls());
-        instanceReferenceMetric.setMqTransactionErrorCalls(instanceReferenceMetric.getMqTransactionErrorCalls());
-        instanceReferenceMetric.setMqTransactionDurationSum(instanceReferenceMetric.getMqTransactionDurationSum());
-        instanceReferenceMetric.setMqTransactionErrorDurationSum(instanceReferenceMetric.getMqTransactionErrorDurationSum());
+        instanceReferenceMetric.setMqTransactionCalls(serviceReferenceMetric.getMqTransactionCalls());
+        instanceReferenceMetric.setMqTransactionErrorCalls(serviceReferenceMetric.getMqTransactionErrorCalls());
+        instanceReferenceMetric.setMqTransactionDurationSum(serviceReferenceMetric.getMqTransactionDurationSum());
+        instanceReferenceMetric.setMqTransactionErrorDurationSum(serviceReferenceMetric.getMqTransactionErrorDurationSum());
 
         instanceReferenceMetric.setTimeBucket(serviceReferenceMetric.getTimeBucket());
         return instanceReferenceMetric;
@@ -89,5 +92,10 @@ public class InstanceReferenceMinuteMetricAggregationWorker extends AggregationW
         public int queueSize() {
             return 1024;
         }
+    }
+
+    @GraphComputingMetric(name = "/aggregate/onWork/" + InstanceReferenceMetricTable.TABLE)
+    @Override protected void onWork(ServiceReferenceMetric message) throws WorkerException {
+        super.onWork(message);
     }
 }

@@ -27,38 +27,38 @@ import org.apache.skywalking.apm.collector.storage.table.application.Application
  */
 public abstract class AbstractApplicationMetricH2TableDefine extends H2TableDefine {
 
-    public AbstractApplicationMetricH2TableDefine(String name) {
+    AbstractApplicationMetricH2TableDefine(String name) {
         super(name);
     }
 
     @Override public final void initialize() {
-        addColumn(new H2ColumnDefine(ApplicationMetricTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(ApplicationMetricTable.COLUMN_METRIC_ID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(ApplicationMetricTable.COLUMN_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(ApplicationMetricTable.COLUMN_SOURCE_VALUE, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ApplicationMetricTable.ID, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(ApplicationMetricTable.METRIC_ID, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(ApplicationMetricTable.APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ApplicationMetricTable.SOURCE_VALUE, H2ColumnDefine.Type.Int.name()));
 
-        addColumn(new H2ColumnDefine(ApplicationMetricTable.COLUMN_TRANSACTION_CALLS, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_CALLS, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(ApplicationMetricTable.COLUMN_TRANSACTION_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(ApplicationMetricTable.COLUMN_TRANSACTION_ERROR_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(ApplicationMetricTable.COLUMN_TRANSACTION_AVERAGE_DURATION, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationMetricTable.TRANSACTION_CALLS, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationMetricTable.TRANSACTION_ERROR_CALLS, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationMetricTable.TRANSACTION_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationMetricTable.TRANSACTION_ERROR_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationMetricTable.TRANSACTION_AVERAGE_DURATION, H2ColumnDefine.Type.Bigint.name()));
 
-        addColumn(new H2ColumnDefine(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_CALLS, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_CALLS, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_ERROR_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(ApplicationMetricTable.COLUMN_BUSINESS_TRANSACTION_AVERAGE_DURATION, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationMetricTable.BUSINESS_TRANSACTION_CALLS, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationMetricTable.BUSINESS_TRANSACTION_ERROR_CALLS, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationMetricTable.BUSINESS_TRANSACTION_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationMetricTable.BUSINESS_TRANSACTION_ERROR_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationMetricTable.BUSINESS_TRANSACTION_AVERAGE_DURATION, H2ColumnDefine.Type.Bigint.name()));
 
-        addColumn(new H2ColumnDefine(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_CALLS, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_ERROR_CALLS, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_ERROR_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(ApplicationMetricTable.COLUMN_MQ_TRANSACTION_AVERAGE_DURATION, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationMetricTable.MQ_TRANSACTION_CALLS, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationMetricTable.MQ_TRANSACTION_ERROR_CALLS, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationMetricTable.MQ_TRANSACTION_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationMetricTable.MQ_TRANSACTION_ERROR_DURATION_SUM, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationMetricTable.MQ_TRANSACTION_AVERAGE_DURATION, H2ColumnDefine.Type.Bigint.name()));
 
-        addColumn(new H2ColumnDefine(ApplicationMetricTable.COLUMN_SATISFIED_COUNT, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(ApplicationMetricTable.COLUMN_TOLERATING_COUNT, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(ApplicationMetricTable.COLUMN_FRUSTRATED_COUNT, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationMetricTable.SATISFIED_COUNT, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationMetricTable.TOLERATING_COUNT, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationMetricTable.FRUSTRATED_COUNT, H2ColumnDefine.Type.Bigint.name()));
 
-        addColumn(new H2ColumnDefine(ApplicationMetricTable.COLUMN_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationMetricTable.TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
     }
 }

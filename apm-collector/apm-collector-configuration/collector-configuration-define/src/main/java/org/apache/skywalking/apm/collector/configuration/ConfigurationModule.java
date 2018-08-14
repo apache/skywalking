@@ -18,20 +18,13 @@
 
 package org.apache.skywalking.apm.collector.configuration;
 
-import org.apache.skywalking.apm.collector.configuration.service.IApdexThresholdService;
-import org.apache.skywalking.apm.collector.configuration.service.IApplicationAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.IApplicationReferenceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.ICollectorConfig;
-import org.apache.skywalking.apm.collector.configuration.service.IInstanceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.IInstanceReferenceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.IServiceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.configuration.service.IServiceReferenceAlarmRuleConfig;
-import org.apache.skywalking.apm.collector.core.module.Module;
+import org.apache.skywalking.apm.collector.configuration.service.*;
+import org.apache.skywalking.apm.collector.core.module.ModuleDefine;
 
 /**
  * @author peng-yongsheng
  */
-public class ConfigurationModule extends Module {
+public class ConfigurationModule extends ModuleDefine {
 
     public static final String NAME = "configuration";
 
@@ -44,6 +37,7 @@ public class ConfigurationModule extends Module {
             ICollectorConfig.class,
             IApdexThresholdService.class,
             IServiceAlarmRuleConfig.class, IInstanceAlarmRuleConfig.class, IApplicationAlarmRuleConfig.class,
-            IServiceReferenceAlarmRuleConfig.class, IInstanceReferenceAlarmRuleConfig.class, IApplicationReferenceAlarmRuleConfig.class};
+            IServiceReferenceAlarmRuleConfig.class, IInstanceReferenceAlarmRuleConfig.class, IApplicationReferenceAlarmRuleConfig.class,
+            IComponentLibraryCatalogService.class, IResponseTimeDistributionConfigService.class, IWorkerCacheSizeConfig.class};
     }
 }

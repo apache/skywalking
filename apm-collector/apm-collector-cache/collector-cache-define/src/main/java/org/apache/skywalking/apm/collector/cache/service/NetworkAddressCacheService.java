@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.collector.cache.service;
 
 import org.apache.skywalking.apm.collector.core.module.Service;
+import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddress;
 
 /**
  * @author peng-yongsheng
@@ -26,7 +27,5 @@ import org.apache.skywalking.apm.collector.core.module.Service;
 public interface NetworkAddressCacheService extends Service {
     int getAddressId(String networkAddress);
 
-    String getAddress(int addressId);
-
-    boolean compare(int addressId, int spanLayer, int serverType);
+    NetworkAddress getAddress(int addressId);
 }

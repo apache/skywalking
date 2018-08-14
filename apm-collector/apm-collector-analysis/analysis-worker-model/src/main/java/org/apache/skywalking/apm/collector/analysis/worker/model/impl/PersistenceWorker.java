@@ -18,67 +18,68 @@
 
 package org.apache.skywalking.apm.collector.analysis.worker.model.impl;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.data.DataCache;
+import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
+import org.apache.skywalking.apm.collector.configuration.service.IWorkerCacheSizeConfig;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
+import org.apache.skywalking.apm.collector.core.cache.Collection;
+import org.apache.skywalking.apm.collector.core.cache.*;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.base.dao.IBatchDAO;
-import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.apm.collector.storage.base.dao.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class PersistenceWorker<INPUT_AND_OUTPUT extends StreamData> extends AbstractLocalAsyncWorker<INPUT_AND_OUTPUT, INPUT_AND_OUTPUT> {
+public abstract class PersistenceWorker<INPUT_AND_OUTPUT extends StreamData, COLLECTION extends Collection> extends AbstractLocalAsyncWorker<INPUT_AND_OUTPUT, INPUT_AND_OUTPUT> {
 
-    private final Logger logger = LoggerFactory.getLogger(PersistenceWorker.class);
+    private static final Logger logger = LoggerFactory.getLogger(PersistenceWorker.class);
 
-    private final DataCache<INPUT_AND_OUTPUT> dataCache;
     private final IBatchDAO batchDAO;
+    private final int blockBatchPersistenceSize;
 
-    public PersistenceWorker(ModuleManager moduleManager) {
+    PersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
-        this.dataCache = new DataCache<>();
         this.batchDAO = moduleManager.find(StorageModule.NAME).getService(IBatchDAO.class);
+        this.blockBatchPersistenceSize = moduleManager.find(ConfigurationModule.NAME).getService(IWorkerCacheSizeConfig.class).cacheSize();
     }
 
-    public final void flushAndSwitch() {
+    public boolean flushAndSwitch() {
+        boolean isSwitch;
         try {
-            if (dataCache.trySwitchPointer()) {
-                dataCache.switchPointer();
+            if (isSwitch = getCache().trySwitchPointer()) {
+                getCache().switchPointer();
             }
         } finally {
-            dataCache.trySwitchPointerFinally();
+            getCache().trySwitchPointerFinally();
         }
+        return isSwitch;
     }
 
-    @Override protected final void onWork(INPUT_AND_OUTPUT input) throws WorkerException {
-        if (dataCache.currentCollectionSize() >= 5000) {
+    @Override protected void onWork(INPUT_AND_OUTPUT input) {
+        if (getCache().currentCollectionSize() >= blockBatchPersistenceSize) {
             try {
-                if (dataCache.trySwitchPointer()) {
-                    dataCache.switchPointer();
+                if (getCache().trySwitchPointer()) {
+                    getCache().switchPointer();
 
                     List<?> collection = buildBatchCollection();
                     batchDAO.batchPersistence(collection);
                 }
             } finally {
-                dataCache.trySwitchPointerFinally();
+                getCache().trySwitchPointerFinally();
             }
         }
-        aggregate(input);
+        cacheData(input);
     }
 
-    public final List<?> buildBatchCollection() throws WorkerException {
+    @GraphComputingMetric(name = "/persistence/buildBatchCollection/")
+    public final List<?> buildBatchCollection() {
         List<?> batchCollection = new LinkedList<>();
         try {
-            while (dataCache.getLast().isWriting()) {
+            while (getCache().getLast().isWriting()) {
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException e) {
@@ -86,63 +87,22 @@ public abstract class PersistenceWorker<INPUT_AND_OUTPUT extends StreamData> ext
                 }
             }
 
-            if (dataCache.getLast().collection() != null) {
-                batchCollection = prepareBatch(dataCache.getLast().collection());
+            if (getCache().getLast().collection() != null) {
+                batchCollection = prepareBatch(getCache().getLast());
             }
         } finally {
-            dataCache.finishReadingLast();
+            getCache().finishReadingLast();
         }
         return batchCollection;
     }
 
-    private List<Object> prepareBatch(Map<String, INPUT_AND_OUTPUT> dataMap) {
-        List<Object> insertBatchCollection = new LinkedList<>();
-        List<Object> updateBatchCollection = new LinkedList<>();
-        dataMap.forEach((id, data) -> {
-            if (needMergeDBData()) {
-                INPUT_AND_OUTPUT dbData = persistenceDAO().get(id);
-                if (ObjectUtils.isNotEmpty(dbData)) {
-                    dbData.mergeAndFormulaCalculateData(data);
-                    try {
-                        updateBatchCollection.add(persistenceDAO().prepareBatchUpdate(dbData));
-                        onNext(dbData);
-                    } catch (Throwable t) {
-                        logger.error(t.getMessage(), t);
-                    }
-                } else {
-                    try {
-                        insertBatchCollection.add(persistenceDAO().prepareBatchInsert(data));
-                        onNext(data);
-                    } catch (Throwable t) {
-                        logger.error(t.getMessage(), t);
-                    }
-                }
-            } else {
-                try {
-                    insertBatchCollection.add(persistenceDAO().prepareBatchInsert(data));
-                    onNext(data);
-                } catch (Throwable t) {
-                    logger.error(t.getMessage(), t);
-                }
-            }
-        });
+    protected abstract List<Object> prepareBatch(COLLECTION collection);
 
-        insertBatchCollection.addAll(updateBatchCollection);
-        return insertBatchCollection;
-    }
-
-    private void aggregate(INPUT_AND_OUTPUT input) {
-        dataCache.writing();
-        if (dataCache.containsKey(input.getId())) {
-            dataCache.get(input.getId()).mergeAndFormulaCalculateData(input);
-        } else {
-            dataCache.put(input.getId(), input);
-        }
-
-        dataCache.finishWriting();
-    }
+    protected abstract Window<COLLECTION> getCache();
 
     protected abstract IPersistenceDAO<?, ?, INPUT_AND_OUTPUT> persistenceDAO();
 
     protected abstract boolean needMergeDBData();
+
+    protected abstract void cacheData(INPUT_AND_OUTPUT input);
 }

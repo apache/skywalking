@@ -22,7 +22,7 @@
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>5.0.0-beta-SNAPSHOT</version>
+    <version>5.0.0-RC-SNAPSHOT</version>
 
     <parent>
         <groupId>org.apache</groupId>
@@ -42,6 +42,7 @@
         </developer>
         <developer>
             <name>Peng Yongsheng</name>
+            <email>8082209@qq.com</email>
             <url>https://github.com/peng-yongsheng</url>
             <roles>
                 <role>PMC member</role>
@@ -171,6 +172,8 @@
                         <!-- UI style check files -->
                         <exclude>**/skywalking-ui/.eslintrc</exclude>
                         <exclude>**/skywalking-ui/.stylelintrc</exclude>
+                        <!-- UI icon files -->
+                        <exclude>**/skywalking-ui/public/font/iconfont/**</exclude>
 
                         <!-- git files -->
                         <exclude>**/.gitignore</exclude>
@@ -273,6 +276,11 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.7.9</version>
+                <configuration>
+                    <excludes>
+                        <exclude>*MethodAccess</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
@@ -289,7 +297,7 @@
                     <dependency>
                         <groupId>org.apache.skywalking</groupId>
                         <artifactId>apm-checkstyle</artifactId>
-                        <version>${project.version}</version>
+                        <version>5.0.0-beta</version>
                     </dependency>
                 </dependencies>
                 <executions>

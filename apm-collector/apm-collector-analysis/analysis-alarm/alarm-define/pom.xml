@@ -21,11 +21,10 @@
     <parent>
         <artifactId>analysis-alarm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-beta-SNAPSHOT</version>
+        <version>5.0.0-RC-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>alarm-define</artifactId>
     <packaging>jar</packaging>
-
 </project>

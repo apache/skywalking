@@ -18,12 +18,9 @@
 
 package org.apache.skywalking.apm.agent.core.remote;
 
-import io.grpc.ManagedChannel;
-import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import io.grpc.Channel;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
+import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
@@ -37,20 +34,18 @@ import org.apache.skywalking.apm.agent.core.dictionary.OperationNameDictionary;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.os.OSUtil;
-import org.apache.skywalking.apm.network.proto.Application;
-import org.apache.skywalking.apm.network.proto.ApplicationInstance;
-import org.apache.skywalking.apm.network.proto.ApplicationInstanceHeartbeat;
-import org.apache.skywalking.apm.network.proto.ApplicationInstanceMapping;
-import org.apache.skywalking.apm.network.proto.ApplicationMapping;
-import org.apache.skywalking.apm.network.proto.ApplicationRegisterServiceGrpc;
-import org.apache.skywalking.apm.network.proto.InstanceDiscoveryServiceGrpc;
-import org.apache.skywalking.apm.network.proto.NetworkAddressRegisterServiceGrpc;
-import org.apache.skywalking.apm.network.proto.ServiceNameDiscoveryServiceGrpc;
+import org.apache.skywalking.apm.network.proto.*;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
+
+import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author wusheng
  */
+@DefaultImplementor
 public class AppAndServiceRegisterClient implements BootService, GRPCChannelListener, Runnable, TracingContextListener {
     private static final ILog logger = LogManager.getLogger(AppAndServiceRegisterClient.class);
     private static final String PROCESS_UUID = UUID.randomUUID().toString().replaceAll("-", "");
@@ -66,7 +61,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
     @Override
     public void statusChanged(GRPCChannelStatus status) {
         if (GRPCChannelStatus.CONNECTED.equals(status)) {
-            ManagedChannel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getManagedChannel();
+            Channel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getChannel();
             applicationRegisterServiceBlockingStub = ApplicationRegisterServiceGrpc.newBlockingStub(channel);
             instanceDiscoveryServiceBlockingStub = InstanceDiscoveryServiceGrpc.newBlockingStub(channel);
             serviceNameDiscoveryServiceBlockingStub = ServiceNameDiscoveryServiceGrpc.newBlockingStub(channel);
@@ -80,7 +75,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
     }
 
     @Override
-    public void beforeBoot() throws Throwable {
+    public void prepare() throws Throwable {
         ServiceManager.INSTANCE.findService(GRPCChannelManager.class).addChannelListener(this);
     }
 
@@ -96,7 +91,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
     }
 
     @Override
-    public void afterBoot() throws Throwable {
+    public void onComplete() throws Throwable {
         TracingContext.ListenerManager.add(this);
     }
 

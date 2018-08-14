@@ -23,4 +23,10 @@ package org.apache.skywalking.apm.collector.analysis.segment.parser.define.liste
  */
 public interface SpanListener {
     void build();
+
+    boolean containsPoint(Point point);
+
+    enum Point {
+        Entry, Exit, Local, First, GlobalTraceIds
+    }
 }

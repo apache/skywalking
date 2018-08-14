@@ -23,10 +23,27 @@ import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
 import org.apache.skywalking.apm.collector.storage.ui.common.Step;
 
 /**
+ * Interface to be implemented for execute database query operation
+ * from {@link org.apache.skywalking.apm.collector.storage.table.alarm.ApplicationAlarmListTable#TABLE}.
+ *
  * @author peng-yongsheng
+ * @see org.apache.skywalking.apm.collector.storage.StorageModule
  */
 public interface IApplicationAlarmListUIDAO extends DAO {
 
+    /**
+     * <p>SQL as: select TIME_BUCKET, APPLICATION_ID, count(APPLICATION_ID) from APPLICATION_ALARM_LIST
+     * where TIME_BUCKET ge ${startTimeBucket} and TIME_BUCKET le ${endTimeBucket}
+     * group by TIME_BUCKET, APPLICATION_ID
+     *
+     * <p>Use {@link org.apache.skywalking.apm.collector.storage.utils.TimePyramidTableNameBuilder#build(Step, String)}
+     * to generate table name which mixed with step name.
+     *
+     * @param step the step which represent time formats
+     * @param startTimeBucket start time bucket
+     * @param endTimeBucket end time bucket
+     * @return not nullable result list
+     */
     List<AlarmTrend> getAlarmedApplicationNum(Step step, long startTimeBucket, long endTimeBucket);
 
     class AlarmTrend {

@@ -42,10 +42,7 @@ public class MemoryPoolMetricPersistenceGraph {
         Node<MemoryPoolMetric, MemoryPoolMetric> bridgeNode = GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.MEMORY_POOL_METRIC_PERSISTENCE_GRAPH_ID, MemoryPoolMetric.class)
             .addNode(new MemoryPoolMetricBridgeNode());
 
-        bridgeNode.addNext(new MemoryPoolSecondMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
-
-        bridgeNode.addNext(new MemoryPoolMinuteMetricTransformNode())
-            .addNext(new MemoryPoolMinuteMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+        bridgeNode.addNext(new MemoryPoolMinuteMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
         bridgeNode.addNext(new MemoryPoolHourMetricTransformNode())
             .addNext(new MemoryPoolHourMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));

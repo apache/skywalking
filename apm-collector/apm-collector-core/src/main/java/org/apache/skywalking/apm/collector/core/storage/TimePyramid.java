@@ -22,7 +22,7 @@ package org.apache.skywalking.apm.collector.core.storage;
  * @author peng-yongsheng
  */
 public enum TimePyramid {
-    Second(0, "second"), Minute(1, "minute"), Hour(2, "hour"), Day(3, "day"), Month(4, "month");
+    Minute(1, "minute"), Hour(2, "hour"), Day(3, "day"), Month(4, "month");
 
     private final int value;
     private final String name;

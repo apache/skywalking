@@ -32,8 +32,6 @@ public interface Server {
 
     void start() throws ServerException;
 
-    void addHandler(ServerHandler handler);
-
     boolean isSSLOpen();
 
     boolean isStatusEqual(Server target);

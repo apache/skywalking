@@ -22,14 +22,14 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.apache.skywalking.apm.collector.cache.service.NetworkAddressCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.cache.INetworkAddressCacheDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.Objects.isNull;
 
 /**
  * @author peng-yongsheng
@@ -38,7 +38,7 @@ public class NetworkAddressCacheGuavaService implements NetworkAddressCacheServi
 
     private final Logger logger = LoggerFactory.getLogger(NetworkAddressCacheGuavaService.class);
 
-    private final Cache<String, Integer> addressCache = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(5000).build();
+    private final Cache<String, Integer> addressCache = CacheBuilder.newBuilder().initialCapacity(1000).maximumSize(5000).build();
 
     private final ModuleManager moduleManager;
     private INetworkAddressCacheDAO networkAddressCacheDAO;
@@ -48,7 +48,7 @@ public class NetworkAddressCacheGuavaService implements NetworkAddressCacheServi
     }
 
     private INetworkAddressCacheDAO getNetworkAddressCacheDAO() {
-        if (ObjectUtils.isEmpty(networkAddressCacheDAO)) {
+        if (isNull(networkAddressCacheDAO)) {
             this.networkAddressCacheDAO = moduleManager.find(StorageModule.NAME).getService(INetworkAddressCacheDAO.class);
         }
         return this.networkAddressCacheDAO;
@@ -72,38 +72,22 @@ public class NetworkAddressCacheGuavaService implements NetworkAddressCacheServi
         return addressId;
     }
 
-    private final Cache<Integer, String> idCache = CacheBuilder.newBuilder().maximumSize(5000).build();
+    private final Cache<Integer, NetworkAddress> idCache = CacheBuilder.newBuilder().initialCapacity(1000).maximumSize(5000).build();
 
-    public String getAddress(int addressId) {
-        String networkAddress = Const.EMPTY_STRING;
+    public NetworkAddress getAddress(int addressId) {
+        NetworkAddress networkAddress = null;
         try {
             networkAddress = idCache.get(addressId, () -> getNetworkAddressCacheDAO().getAddressById(addressId));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
 
-        if (StringUtils.isEmpty(networkAddress)) {
+        if (isNull(networkAddress)) {
             networkAddress = getNetworkAddressCacheDAO().getAddressById(addressId);
             if (StringUtils.isNotEmpty(networkAddress)) {
                 idCache.put(addressId, networkAddress);
             }
         }
         return networkAddress;
-    }
-
-    private final Cache<Integer, NetworkAddress> addressObjCache = CacheBuilder.newBuilder().maximumSize(5000).build();
-
-    @Override public boolean compare(int addressId, int spanLayer, int serverType) {
-        try {
-            NetworkAddress address = addressObjCache.get(addressId, () -> getNetworkAddressCacheDAO().getAddress(addressId));
-            if (ObjectUtils.isNotEmpty(address)) {
-                if (spanLayer != address.getSpanLayer() || serverType != address.getServerType()) {
-                    return false;
-                }
-            }
-        } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
-        }
-        return true;
     }
 }

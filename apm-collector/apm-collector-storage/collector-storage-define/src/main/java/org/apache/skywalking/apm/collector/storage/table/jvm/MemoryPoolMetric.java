@@ -18,45 +18,39 @@
 
 package org.apache.skywalking.apm.collector.storage.table.jvm;
 
-import org.apache.skywalking.apm.collector.core.data.Column;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.data.operator.AddMergeOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.CoverMergeOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.MaxMergeOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.MinMergeOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.column.*;
+import org.apache.skywalking.apm.collector.core.data.operator.*;
 
 /**
  * @author peng-yongsheng
  */
 public class MemoryPoolMetric extends StreamData {
 
-    private static final Column[] STRING_COLUMNS = {
-        new Column(MemoryPoolMetricTable.COLUMN_ID, new NonMergeOperation()),
-        new Column(MemoryPoolMetricTable.COLUMN_METRIC_ID, new NonMergeOperation()),
+    private static final StringColumn[] STRING_COLUMNS = {
+        new StringColumn(MemoryPoolMetricTable.ID, new NonMergeOperation()),
+        new StringColumn(MemoryPoolMetricTable.METRIC_ID, new NonMergeOperation()),
     };
 
-    private static final Column[] LONG_COLUMNS = {
-        new Column(MemoryPoolMetricTable.COLUMN_INIT, new MinMergeOperation()),
-        new Column(MemoryPoolMetricTable.COLUMN_MAX, new MaxMergeOperation()),
-        new Column(MemoryPoolMetricTable.COLUMN_USED, new AddMergeOperation()),
-        new Column(MemoryPoolMetricTable.COLUMN_COMMITTED, new AddMergeOperation()),
-        new Column(MemoryPoolMetricTable.COLUMN_TIMES, new AddMergeOperation()),
-        new Column(MemoryPoolMetricTable.COLUMN_TIME_BUCKET, new NonMergeOperation()),
+    private static final LongColumn[] LONG_COLUMNS = {
+        new LongColumn(MemoryPoolMetricTable.INIT, new MinMergeOperation()),
+        new LongColumn(MemoryPoolMetricTable.MAX, new MaxMergeOperation()),
+        new LongColumn(MemoryPoolMetricTable.USED, new AddMergeOperation()),
+        new LongColumn(MemoryPoolMetricTable.COMMITTED, new AddMergeOperation()),
+        new LongColumn(MemoryPoolMetricTable.TIMES, new AddMergeOperation()),
+        new LongColumn(MemoryPoolMetricTable.TIME_BUCKET, new NonMergeOperation()),
     };
 
-    private static final Column[] DOUBLE_COLUMNS = {
+    private static final IntegerColumn[] INTEGER_COLUMNS = {
+        new IntegerColumn(MemoryPoolMetricTable.INSTANCE_ID, new NonMergeOperation()),
+        new IntegerColumn(MemoryPoolMetricTable.POOL_TYPE, new CoverMergeOperation()),
     };
 
-    private static final Column[] INTEGER_COLUMNS = {
-        new Column(MemoryPoolMetricTable.COLUMN_INSTANCE_ID, new NonMergeOperation()),
-        new Column(MemoryPoolMetricTable.COLUMN_POOL_TYPE, new CoverMergeOperation()),
+    private static final DoubleColumn[] DOUBLE_COLUMNS = {
     };
-
-    private static final Column[] BYTE_COLUMNS = {};
 
     public MemoryPoolMetric() {
-        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
+        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, DOUBLE_COLUMNS);
     }
 
     @Override public String getId() {

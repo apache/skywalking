@@ -42,10 +42,7 @@ public class GCMetricPersistenceGraph {
         Node<GCMetric, GCMetric> bridgeNode = GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.GC_METRIC_PERSISTENCE_GRAPH_ID, GCMetric.class)
             .addNode(new GCMetricBridgeNode());
 
-        bridgeNode.addNext(new GCSecondMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
-
-        bridgeNode.addNext(new GCMinuteMetricTransformNode())
-            .addNext(new GCMinuteMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+        bridgeNode.addNext(new GCMinuteMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
         bridgeNode.addNext(new GCHourMetricTransformNode())
             .addNext(new GCHourMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));

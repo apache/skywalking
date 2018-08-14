@@ -18,12 +18,13 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao.impp;
 
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
-import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMapping;
-import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMappingTable;
+import org.apache.skywalking.apm.collector.storage.table.instance.*;
+import org.elasticsearch.common.xcontent.*;
 
 /**
  * @author peng-yongsheng
@@ -35,29 +36,33 @@ public abstract class AbstractInstanceMappingEsPersistenceDAO extends AbstractPe
     }
 
     @Override protected final String timeBucketColumnNameForDelete() {
-        return InstanceMappingTable.COLUMN_TIME_BUCKET;
+        return InstanceMappingTable.TIME_BUCKET.getName();
     }
 
     @Override protected final InstanceMapping esDataToStreamData(Map<String, Object> source) {
         InstanceMapping instanceMapping = new InstanceMapping();
-        instanceMapping.setMetricId((String)source.get(InstanceMappingTable.COLUMN_METRIC_ID));
+        instanceMapping.setMetricId((String)source.get(InstanceMappingTable.METRIC_ID.getName()));
 
-        instanceMapping.setApplicationId(((Number)source.get(InstanceMappingTable.COLUMN_APPLICATION_ID)).intValue());
-        instanceMapping.setInstanceId(((Number)source.get(InstanceMappingTable.COLUMN_INSTANCE_ID)).intValue());
-        instanceMapping.setAddressId(((Number)source.get(InstanceMappingTable.COLUMN_ADDRESS_ID)).intValue());
-        instanceMapping.setTimeBucket(((Number)source.get(InstanceMappingTable.COLUMN_TIME_BUCKET)).longValue());
+        instanceMapping.setApplicationId(((Number)source.get(InstanceMappingTable.APPLICATION_ID.getName())).intValue());
+        instanceMapping.setInstanceId(((Number)source.get(InstanceMappingTable.INSTANCE_ID.getName())).intValue());
+        instanceMapping.setAddressId(((Number)source.get(InstanceMappingTable.ADDRESS_ID.getName())).intValue());
+        instanceMapping.setTimeBucket(((Number)source.get(InstanceMappingTable.TIME_BUCKET.getName())).longValue());
         return instanceMapping;
     }
 
-    @Override protected final Map<String, Object> esStreamDataToEsData(InstanceMapping streamData) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(InstanceMappingTable.COLUMN_METRIC_ID, streamData.getMetricId());
+    @Override protected final XContentBuilder esStreamDataToEsData(InstanceMapping streamData) throws IOException {
+        return XContentFactory.jsonBuilder().startObject()
+            .field(InstanceMappingTable.METRIC_ID.getName(), streamData.getMetricId())
 
-        source.put(InstanceMappingTable.COLUMN_APPLICATION_ID, streamData.getApplicationId());
-        source.put(InstanceMappingTable.COLUMN_INSTANCE_ID, streamData.getInstanceId());
-        source.put(InstanceMappingTable.COLUMN_ADDRESS_ID, streamData.getAddressId());
-        source.put(InstanceMappingTable.COLUMN_TIME_BUCKET, streamData.getTimeBucket());
+            .field(InstanceMappingTable.APPLICATION_ID.getName(), streamData.getApplicationId())
+            .field(InstanceMappingTable.INSTANCE_ID.getName(), streamData.getInstanceId())
+            .field(InstanceMappingTable.ADDRESS_ID.getName(), streamData.getAddressId())
+            .field(InstanceMappingTable.TIME_BUCKET.getName(), streamData.getTimeBucket())
+            .endObject();
+    }
 
-        return source;
+    @GraphComputingMetric(name = "/persistence/get/" + InstanceMappingTable.TABLE)
+    @Override public final InstanceMapping get(String id) {
+        return super.get(id);
     }
 }

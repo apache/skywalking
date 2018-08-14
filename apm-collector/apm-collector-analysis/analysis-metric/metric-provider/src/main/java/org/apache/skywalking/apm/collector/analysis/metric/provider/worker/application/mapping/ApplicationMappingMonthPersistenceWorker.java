@@ -19,20 +19,22 @@
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.application.mapping;
 
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricWorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.impl.PersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorker;
+import org.apache.skywalking.apm.collector.analysis.worker.model.impl.MergePersistenceWorkerProvider;
+import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.ampp.IApplicationMappingMonthPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMapping;
+import org.apache.skywalking.apm.collector.storage.table.application.ApplicationMappingTable;
 
 /**
  * @author peng-yongsheng
  */
-public class ApplicationMappingMonthPersistenceWorker extends PersistenceWorker<ApplicationMapping> {
+public class ApplicationMappingMonthPersistenceWorker extends MergePersistenceWorker<ApplicationMapping> {
 
-    ApplicationMappingMonthPersistenceWorker(ModuleManager moduleManager) {
+    private ApplicationMappingMonthPersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -49,7 +51,7 @@ public class ApplicationMappingMonthPersistenceWorker extends PersistenceWorker<
         return getModuleManager().find(StorageModule.NAME).getService(IApplicationMappingMonthPersistenceDAO.class);
     }
 
-    public static class Factory extends PersistenceWorkerProvider<ApplicationMapping, ApplicationMappingMonthPersistenceWorker> {
+    public static class Factory extends MergePersistenceWorkerProvider<ApplicationMapping, ApplicationMappingMonthPersistenceWorker> {
 
         public Factory(ModuleManager moduleManager) {
             super(moduleManager);
@@ -63,5 +65,10 @@ public class ApplicationMappingMonthPersistenceWorker extends PersistenceWorker<
         public int queueSize() {
             return 1024;
         }
+    }
+
+    @GraphComputingMetric(name = "/persistence/onWork/" + ApplicationMappingTable.TABLE + "/month")
+    @Override protected void onWork(ApplicationMapping input) {
+        super.onWork(input);
     }
 }

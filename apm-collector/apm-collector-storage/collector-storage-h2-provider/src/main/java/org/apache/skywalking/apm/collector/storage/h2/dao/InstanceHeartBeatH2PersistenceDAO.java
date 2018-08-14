@@ -18,30 +18,23 @@
 
 package org.apache.skywalking.apm.collector.storage.h2.dao;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.apache.skywalking.apm.collector.client.h2.H2Client;
-import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
+import java.sql.*;
+import java.util.*;
+import org.apache.skywalking.apm.collector.client.h2.*;
 import org.apache.skywalking.apm.collector.core.UnexpectedException;
 import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceHeartBeatPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
-import org.apache.skywalking.apm.collector.storage.table.register.Instance;
-import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.apm.collector.storage.table.register.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng, clevertension
  */
 public class InstanceHeartBeatH2PersistenceDAO extends H2DAO implements IInstanceHeartBeatPersistenceDAO<H2SqlEntity, H2SqlEntity, Instance> {
 
-    private final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatH2PersistenceDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatH2PersistenceDAO.class);
 
     public InstanceHeartBeatH2PersistenceDAO(H2Client client) {
         super(client);
@@ -51,14 +44,14 @@ public class InstanceHeartBeatH2PersistenceDAO extends H2DAO implements IInstanc
 
     @Override public Instance get(String id) {
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_INSTANCE_HEARTBEAT_SQL, InstanceTable.TABLE, InstanceTable.COLUMN_INSTANCE_ID);
+        String sql = SqlBuilder.buildSql(GET_INSTANCE_HEARTBEAT_SQL, InstanceTable.TABLE, InstanceTable.INSTANCE_ID.getName());
         Object[] params = new Object[] {id};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
                 Instance instance = new Instance();
                 instance.setId(id);
-                instance.setInstanceId(rs.getInt(InstanceTable.COLUMN_INSTANCE_ID));
-                instance.setHeartBeatTime(rs.getLong(InstanceTable.COLUMN_HEARTBEAT_TIME));
+                instance.setInstanceId(rs.getInt(InstanceTable.INSTANCE_ID.getName()));
+                instance.setHeartBeatTime(rs.getLong(InstanceTable.HEARTBEAT_TIME.getName()));
                 return instance;
             }
         } catch (SQLException | H2ClientException e) {
@@ -73,16 +66,16 @@ public class InstanceHeartBeatH2PersistenceDAO extends H2DAO implements IInstanc
 
     @Override public H2SqlEntity prepareBatchUpdate(Instance data) {
         H2SqlEntity entity = new H2SqlEntity();
-        Map<String, Object> source = new HashMap<>();
-        source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, data.getHeartBeatTime());
-        String sql = SqlBuilder.buildBatchUpdateSql(InstanceTable.TABLE, source.keySet(), InstanceTable.COLUMN_INSTANCE_ID);
+        Map<String, Object> target = new HashMap<>();
+        target.put(InstanceTable.HEARTBEAT_TIME.getName(), data.getHeartBeatTime());
+        String sql = SqlBuilder.buildBatchUpdateSql(InstanceTable.TABLE, target.keySet(), InstanceTable.INSTANCE_ID.getName());
         entity.setSql(sql);
-        List<Object> params = new ArrayList<>(source.values());
+        List<Object> params = new ArrayList<>(target.values());
         params.add(data.getId());
         entity.setParams(params.toArray(new Object[0]));
         return entity;
     }
 
-    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+    @Override public void deleteHistory(Long timeBucketBefore) {
     }
 }

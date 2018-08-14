@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.collector.storage.ui.common.Node;
 public class ApplicationNode extends Node {
 
     private int sla;
-    private long callsPerSec;
+    private long cpm;
     private long avgResponseTime;
     private int apdex;
     private boolean isAlarm;
@@ -42,12 +42,12 @@ public class ApplicationNode extends Node {
         this.sla = sla;
     }
 
-    public long getCallsPerSec() {
-        return callsPerSec;
+    public long getCpm() {
+        return cpm;
     }
 
-    public void setCallsPerSec(long callsPerSec) {
-        this.callsPerSec = callsPerSec;
+    public void setCpm(long cpm) {
+        this.cpm = cpm;
     }
 
     public long getAvgResponseTime() {

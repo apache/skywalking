@@ -18,20 +18,15 @@
 
 package org.apache.skywalking.apm.collector.remote.grpc.service;
 
-import org.apache.skywalking.apm.collector.client.ClientException;
 import org.apache.skywalking.apm.collector.client.grpc.GRPCClient;
 import org.apache.skywalking.apm.collector.remote.service.RemoteClient;
 import org.apache.skywalking.apm.collector.remote.service.RemoteClientService;
 import org.apache.skywalking.apm.collector.remote.service.RemoteDataIDGetter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class GRPCRemoteClientService implements RemoteClientService {
-
-    private final Logger logger = LoggerFactory.getLogger(GRPCRemoteClientService.class);
 
     private final RemoteDataIDGetter remoteDataIDGetter;
 
@@ -41,11 +36,7 @@ public class GRPCRemoteClientService implements RemoteClientService {
 
     @Override public RemoteClient create(String host, int port, int channelSize, int bufferSize) {
         GRPCClient client = new GRPCClient(host, port);
-        try {
-            client.initialize();
-        } catch (ClientException e) {
-            logger.error(e.getMessage(), e);
-        }
+        client.initialize();
         return new GRPCRemoteClient(client, remoteDataIDGetter, channelSize, bufferSize);
     }
 }

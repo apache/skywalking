@@ -28,16 +28,16 @@ import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegi
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IServiceNameService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.server.jetty.ArgumentsParseException;
-import org.apache.skywalking.apm.collector.server.jetty.JettyHandler;
+import org.apache.skywalking.apm.collector.server.jetty.JettyJsonHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceNameDiscoveryServiceHandler extends JettyHandler {
+public class ServiceNameDiscoveryServiceHandler extends JettyJsonHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(ServiceNameDiscoveryServiceHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceNameDiscoveryServiceHandler.class);
 
     private final IServiceNameService serviceNameService;
     private final Gson gson = new Gson();

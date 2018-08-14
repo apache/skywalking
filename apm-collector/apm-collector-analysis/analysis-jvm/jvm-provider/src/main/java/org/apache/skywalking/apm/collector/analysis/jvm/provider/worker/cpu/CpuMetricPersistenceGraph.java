@@ -42,10 +42,7 @@ public class CpuMetricPersistenceGraph {
         Node<CpuMetric, CpuMetric> bridgeNode = GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.CPU_METRIC_PERSISTENCE_GRAPH_ID, CpuMetric.class)
             .addNode(new CpuMetricBridgeNode());
 
-        bridgeNode.addNext(new CpuSecondMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
-
-        bridgeNode.addNext(new CpuMinuteMetricTransformNode())
-            .addNext(new CpuMinuteMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
+        bridgeNode.addNext(new CpuMinuteMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));
 
         bridgeNode.addNext(new CpuHourMetricTransformNode())
             .addNext(new CpuHourMetricPersistenceWorker.Factory(moduleManager).create(workerCreateListener));

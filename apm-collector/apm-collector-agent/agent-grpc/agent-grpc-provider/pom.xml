@@ -21,11 +21,14 @@
     <parent>
         <artifactId>agent-grpc</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-beta-SNAPSHOT</version>
+        <version>5.0.0-RC-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>agent-grpc-provider</artifactId>
+    <properties>
+        <grpc.version>1.10.0</grpc.version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -67,6 +70,18 @@
             <groupId>org.apache.skywalking</groupId>
             <artifactId>register-define</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-testing</artifactId>
+            <version>${grpc.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>mockito-core</artifactId>
+                    <groupId>org.mockito</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 </project>

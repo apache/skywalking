@@ -20,22 +20,15 @@ package org.apache.skywalking.apm.collector.storage.es.dao.ui;
 
 import java.util.List;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
-import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
-import org.apache.skywalking.apm.collector.core.util.StringUtils;
+import org.apache.skywalking.apm.collector.core.util.*;
 import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentDurationUIDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.apache.skywalking.apm.collector.storage.table.segment.SegmentDurationTable;
-import org.apache.skywalking.apm.collector.storage.ui.trace.BasicTrace;
-import org.apache.skywalking.apm.collector.storage.ui.trace.TraceBrief;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.RangeQueryBuilder;
+import org.apache.skywalking.apm.collector.storage.ui.trace.*;
+import org.elasticsearch.action.search.*;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.sort.SortOrder;
 
 /**
  * @author peng-yongsheng
@@ -48,7 +41,8 @@ public class SegmentDurationEsUIDAO extends EsDAO implements ISegmentDurationUID
 
     @Override
     public TraceBrief loadTop(long startSecondTimeBucket, long endSecondTimeBucket, long minDuration, long maxDuration,
-        String operationName, int applicationId, int limit, int from, String... segmentIds) {
+        String operationName, int applicationId, int limit, int from, TraceState traceState, QueryOrder queryOrder,
+        String... segmentIds) {
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(SegmentDurationTable.TABLE);
         searchRequestBuilder.setTypes(SegmentDurationTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
@@ -57,12 +51,11 @@ public class SegmentDurationEsUIDAO extends EsDAO implements ISegmentDurationUID
         List<QueryBuilder> mustQueryList = boolQueryBuilder.must();
 
         if (startSecondTimeBucket != 0 && endSecondTimeBucket != 0) {
-            //TODO second
-            mustQueryList.add(QueryBuilders.rangeQuery(SegmentDurationTable.COLUMN_TIME_BUCKET).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
+            mustQueryList.add(QueryBuilders.rangeQuery(SegmentDurationTable.TIME_BUCKET.getName()).gte(startSecondTimeBucket).lte(endSecondTimeBucket));
         }
 
         if (minDuration != 0 || maxDuration != 0) {
-            RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery(SegmentDurationTable.COLUMN_DURATION);
+            RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery(SegmentDurationTable.DURATION.getName());
             if (minDuration != 0) {
                 rangeQueryBuilder.gte(minDuration);
             }
@@ -72,15 +65,30 @@ public class SegmentDurationEsUIDAO extends EsDAO implements ISegmentDurationUID
             boolQueryBuilder.must().add(rangeQueryBuilder);
         }
         if (StringUtils.isNotEmpty(operationName)) {
-            mustQueryList.add(QueryBuilders.matchQuery(SegmentDurationTable.COLUMN_SERVICE_NAME, operationName));
+            mustQueryList.add(QueryBuilders.matchPhraseQuery(SegmentDurationTable.SERVICE_NAME.getName(), operationName));
         }
         if (CollectionUtils.isNotEmpty(segmentIds)) {
-            boolQueryBuilder.must().add(QueryBuilders.termsQuery(SegmentDurationTable.COLUMN_SEGMENT_ID, segmentIds));
+            boolQueryBuilder.must().add(QueryBuilders.termsQuery(SegmentDurationTable.SEGMENT_ID.getName(), segmentIds));
         }
         if (applicationId != 0) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentDurationTable.COLUMN_APPLICATION_ID, applicationId));
+            boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentDurationTable.APPLICATION_ID.getName(), applicationId));
         }
-
+        switch (traceState) {
+            case ERROR:
+                mustQueryList.add(QueryBuilders.matchQuery(SegmentDurationTable.IS_ERROR.getName(), BooleanUtils.TRUE));
+                break;
+            case SUCCESS:
+                mustQueryList.add(QueryBuilders.matchQuery(SegmentDurationTable.IS_ERROR.getName(), BooleanUtils.FALSE));
+                break;
+        }
+        switch (queryOrder) {
+            case BY_START_TIME:
+                searchRequestBuilder.addSort(SegmentDurationTable.START_TIME.getName(), SortOrder.DESC);
+                break;
+            case BY_DURATION:
+                searchRequestBuilder.addSort(SegmentDurationTable.DURATION.getName(), SortOrder.DESC);
+                break;
+        }
         searchRequestBuilder.setSize(limit);
         searchRequestBuilder.setFrom(from);
 
@@ -92,11 +100,11 @@ public class SegmentDurationEsUIDAO extends EsDAO implements ISegmentDurationUID
         for (SearchHit searchHit : searchResponse.getHits().getHits()) {
             BasicTrace basicTrace = new BasicTrace();
 
-            basicTrace.setSegmentId((String)searchHit.getSource().get(SegmentDurationTable.COLUMN_SEGMENT_ID));
-            basicTrace.setStart(((Number)searchHit.getSource().get(SegmentDurationTable.COLUMN_START_TIME)).longValue());
-            basicTrace.setOperationName((String)searchHit.getSource().get(SegmentDurationTable.COLUMN_SERVICE_NAME));
-            basicTrace.setDuration(((Number)searchHit.getSource().get(SegmentDurationTable.COLUMN_DURATION)).intValue());
-            basicTrace.setError(BooleanUtils.valueToBoolean(((Number)searchHit.getSource().get(SegmentDurationTable.COLUMN_IS_ERROR)).intValue()));
+            basicTrace.setSegmentId((String)searchHit.getSource().get(SegmentDurationTable.SEGMENT_ID.getName()));
+            basicTrace.setStart(((Number)searchHit.getSource().get(SegmentDurationTable.START_TIME.getName())).longValue());
+            basicTrace.getOperationName().addAll((List)searchHit.getSource().get(SegmentDurationTable.SERVICE_NAME.getName()));
+            basicTrace.setDuration(((Number)searchHit.getSource().get(SegmentDurationTable.DURATION.getName())).intValue());
+            basicTrace.setError(BooleanUtils.valueToBoolean(((Number)searchHit.getSource().get(SegmentDurationTable.IS_ERROR.getName())).intValue()));
             traceBrief.getTraces().add(basicTrace);
         }
 

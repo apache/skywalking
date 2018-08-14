@@ -19,18 +19,15 @@
 package org.apache.skywalking.apm.collector.storage.es.base.define;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.*;
 import org.apache.skywalking.apm.collector.client.Client;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.apm.collector.core.data.ColumnDefine;
-import org.apache.skywalking.apm.collector.core.data.TableDefine;
-import org.apache.skywalking.apm.collector.storage.StorageInstaller;
+import org.apache.skywalking.apm.collector.core.data.*;
+import org.apache.skywalking.apm.collector.storage.*;
+import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
-import org.elasticsearch.index.IndexNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.elasticsearch.common.xcontent.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -42,7 +39,9 @@ public class ElasticSearchStorageInstaller extends StorageInstaller {
     private final int indexShardsNumber;
     private final int indexReplicasNumber;
 
-    public ElasticSearchStorageInstaller(int indexShardsNumber, int indexReplicasNumber) {
+    public ElasticSearchStorageInstaller(int indexShardsNumber, int indexReplicasNumber,
+        boolean isHighPerformanceMode) {
+        super(isHighPerformanceMode);
         this.indexShardsNumber = indexShardsNumber;
         this.indexReplicasNumber = indexReplicasNumber;
     }
@@ -56,9 +55,29 @@ public class ElasticSearchStorageInstaller extends StorageInstaller {
         }
     }
 
-    @Override protected boolean createTable(Client client, TableDefine tableDefine) {
+    @Override protected void columnCheck(Client client, TableDefine tableDefine) throws StorageException {
         ElasticSearchClient esClient = (ElasticSearchClient)client;
         ElasticSearchTableDefine esTableDefine = (ElasticSearchTableDefine)tableDefine;
+
+        for (ColumnDefine columnDefine : tableDefine.getColumnDefines()) {
+            GetFieldMappingsResponse.FieldMappingMetaData metaData = esClient.prepareGetMappings(esTableDefine.getName(), columnDefine.getColumnName().getName());
+
+            if (Objects.nonNull(metaData)) {
+                Map field = (Map)metaData.sourceAsMap().get(columnDefine.getColumnName().getName());
+                if (!columnDefine.getType().toLowerCase().equals(field.get("type"))) {
+                    throw new StorageInstallException("Field named " + columnDefine.getColumnName().getName() + "'s type not match the definition. Expect: "
+                        + columnDefine.getType().toLowerCase() + ", actual: " + field.get("type"));
+                }
+            } else {
+                throw new StorageInstallException("Field named " + columnDefine.getColumnName().getName() + " in " + tableDefine.getName() + " index not found.");
+            }
+        }
+    }
+
+    @Override protected void createTable(Client client, TableDefine tableDefine) throws StorageException {
+        ElasticSearchClient esClient = (ElasticSearchClient)client;
+        ElasticSearchTableDefine esTableDefine = (ElasticSearchTableDefine)tableDefine;
+
         // mapping
         XContentBuilder mappingBuilder = null;
 
@@ -72,7 +91,10 @@ public class ElasticSearchStorageInstaller extends StorageInstaller {
 
         boolean isAcknowledged = esClient.createIndex(esTableDefine.getName(), esTableDefine.type(), settings, mappingBuilder);
         logger.info("create {} index with type of {} finished, isAcknowledged: {}", esTableDefine.getName(), esTableDefine.type(), isAcknowledged);
-        return isAcknowledged;
+
+        if (!isAcknowledged) {
+            throw new StorageInstallException("create " + esTableDefine.getName() + " index failure, ");
+        }
     }
 
     private Settings createSettingBuilder(ElasticSearchTableDefine tableDefine) {
@@ -80,7 +102,6 @@ public class ElasticSearchStorageInstaller extends StorageInstaller {
             .put("index.number_of_shards", indexShardsNumber)
             .put("index.number_of_replicas", indexReplicasNumber)
             .put("index.refresh_interval", String.valueOf(tableDefine.refreshInterval()) + "s")
-
             .put("analysis.analyzer.collector_analyzer.type", "stop")
             .build();
     }
@@ -88,6 +109,9 @@ public class ElasticSearchStorageInstaller extends StorageInstaller {
     private XContentBuilder createMappingBuilder(ElasticSearchTableDefine tableDefine) throws IOException {
         XContentBuilder mappingBuilder = XContentFactory.jsonBuilder()
             .startObject()
+            .startObject("_all")
+            .field("enabled", false)
+            .endObject()
             .startObject("properties");
 
         for (ColumnDefine columnDefine : tableDefine.getColumnDefines()) {
@@ -95,13 +119,13 @@ public class ElasticSearchStorageInstaller extends StorageInstaller {
 
             if (ElasticSearchColumnDefine.Type.Text.name().toLowerCase().equals(elasticSearchColumnDefine.getType().toLowerCase())) {
                 mappingBuilder
-                    .startObject(elasticSearchColumnDefine.getName())
+                    .startObject(elasticSearchColumnDefine.getColumnName().getName())
                     .field("type", elasticSearchColumnDefine.getType().toLowerCase())
                     .field("analyzer", "collector_analyzer")
                     .endObject();
             } else {
                 mappingBuilder
-                    .startObject(elasticSearchColumnDefine.getName())
+                    .startObject(elasticSearchColumnDefine.getColumnName().getName())
                     .field("type", elasticSearchColumnDefine.getType().toLowerCase())
                     .endObject();
             }
@@ -114,14 +138,12 @@ public class ElasticSearchStorageInstaller extends StorageInstaller {
         return mappingBuilder;
     }
 
-    @Override protected boolean deleteTable(Client client, TableDefine tableDefine) {
+    @Override protected void deleteTable(Client client, TableDefine tableDefine) throws StorageException {
         ElasticSearchClient esClient = (ElasticSearchClient)client;
-        try {
-            return esClient.deleteIndex(tableDefine.getName());
-        } catch (IndexNotFoundException e) {
-            logger.info("{} index not found", tableDefine.getName());
+
+        if (!esClient.deleteIndex(tableDefine.getName())) {
+            throw new StorageInstallException(tableDefine.getName() + " index delete failure.");
         }
-        return false;
     }
 
     @Override protected boolean isExists(Client client, TableDefine tableDefine) {

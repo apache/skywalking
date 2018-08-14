@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.storage.h2.base.dao;
 
 import java.sql.Connection;
@@ -26,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
-import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
 import org.apache.skywalking.apm.collector.storage.base.dao.IBatchDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
 import org.slf4j.Logger;
@@ -37,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class BatchH2DAO extends H2DAO implements IBatchDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(BatchH2DAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(BatchH2DAO.class);
 
     public BatchH2DAO(H2Client client) {
         super(client);
@@ -46,7 +44,10 @@ public class BatchH2DAO extends H2DAO implements IBatchDAO {
     @Override
     public void batchPersistence(List<?> batchCollection) {
         if (batchCollection != null && batchCollection.size() > 0) {
-            logger.debug("the batch collection size is {}", batchCollection.size());
+            if (logger.isDebugEnabled()) {
+                logger.debug("the batch collection size is {}", batchCollection.size());
+            }
+
             Connection conn;
             final Map<String, PreparedStatement> batchSqls = new HashMap<>();
             try {
@@ -65,7 +66,10 @@ public class BatchH2DAO extends H2DAO implements IBatchDAO {
 
                     Object[] params = e.getParams();
                     if (params != null) {
-                        logger.debug("the sql is {}, params size is {}, params: {}", e.getSql(), params.length, params);
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("the sql is {}, params size is {}, params: {}", e.getSql(), params.length, params);
+                        }
+
                         for (int i = 0; i < params.length; i++) {
                             ps.setObject(i + 1, params[i]);
                         }
@@ -76,7 +80,7 @@ public class BatchH2DAO extends H2DAO implements IBatchDAO {
                 for (String k : batchSqls.keySet()) {
                     batchSqls.get(k).executeBatch();
                 }
-            } catch (SQLException | H2ClientException e) {
+            } catch (SQLException e) {
                 logger.error(e.getMessage(), e);
             }
             batchSqls.clear();

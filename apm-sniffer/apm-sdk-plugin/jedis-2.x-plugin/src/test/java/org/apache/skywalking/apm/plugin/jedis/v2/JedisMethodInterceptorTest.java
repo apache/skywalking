@@ -128,7 +128,7 @@ public class JedisMethodInterceptorTest {
     private void assertRedisSpan(AbstractTracingSpan span) {
         assertThat(span.getOperationName(), is("Jedis/set"));
         assertThat(span.isExit(), is(true));
-        assertThat(SpanHelper.getComponentId(span), is(7));
+        assertThat(SpanHelper.getComponentId(span), is(30));
         List<KeyValuePair> tags = SpanHelper.getTags(span);
         assertThat(tags.get(0).getValue(), is("Redis"));
         assertThat(tags.get(1).getValue(), is("set OperationKey"));

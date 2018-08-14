@@ -22,7 +22,7 @@ acquire the list periodically.
 
 ### HTTP GET
 - Input
-GET：http://collectorIp:port/agent/grpc 
+GET：http://collectorIp:port/agent/gRPC 
 
 - Output
 JSON Array. Each element in the array ia a valid gRPC service address.
@@ -186,7 +186,7 @@ Input：
               "eii": 2, //entryApplicationInstanceId
               "esi": 0, //entryServiceId
               "esn": "/dubbox-case/case/dubbox-rest", //entryServiceName
-              "rn": 0 //RefType
+              "rv": 0 //RefTypeValue
             }
           ],
           "to": [ //KeyWithStringValue
@@ -199,13 +199,13 @@ Input：
               "v": "GET"
             }
           ],
-          "lo": { //LogMessage
-            "t": 1501858094726,
-            "d": [
-                "k": "NullPointException",
-                "v": "Error Stack"
-            }
-          }
+          "lo": [{
+                "ti": 1501858094726,
+                "ld": [{ 
+                        "k": "NullPointException",
+                        "v": "Error Stack"
+                    }]
+           }]
         },
         {
           "si": 1,

@@ -19,24 +19,20 @@
 package org.apache.skywalking.apm.collector.analysis.register.provider.register;
 
 import org.apache.skywalking.apm.collector.analysis.register.define.graph.WorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractRemoteWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractRemoteWorkerProvider;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.*;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.remote.service.RemoteSenderService;
-import org.apache.skywalking.apm.collector.remote.service.Selector;
+import org.apache.skywalking.apm.collector.remote.service.*;
 import org.apache.skywalking.apm.collector.storage.table.register.Application;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
 public class ApplicationRegisterRemoteWorker extends AbstractRemoteWorker<Application, Application> {
 
-    private final Logger logger = LoggerFactory.getLogger(ApplicationRegisterRemoteWorker.class);
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationRegisterRemoteWorker.class);
 
-    public ApplicationRegisterRemoteWorker(ModuleManager moduleManager) {
+    private ApplicationRegisterRemoteWorker(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
@@ -44,8 +40,11 @@ public class ApplicationRegisterRemoteWorker extends AbstractRemoteWorker<Applic
         return WorkerIdDefine.APPLICATION_REGISTER_REMOTE_WORKER;
     }
 
-    @Override protected void onWork(Application message) throws WorkerException {
-        logger.debug("application code: {}", message.getApplicationCode());
+    @Override protected void onWork(Application message) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("application code: {}", message.getApplicationCode());
+        }
+
         onNext(message);
     }
 

@@ -21,31 +21,21 @@ package org.apache.skywalking.apm.collector.agent.grpc.provider.handler;
 import io.grpc.stub.StreamObserver;
 import java.util.List;
 import org.apache.skywalking.apm.collector.analysis.jvm.define.AnalysisJVMModule;
-import org.apache.skywalking.apm.collector.analysis.jvm.define.service.ICpuMetricService;
-import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IGCMetricService;
-import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IMemoryMetricService;
-import org.apache.skywalking.apm.collector.analysis.jvm.define.service.IMemoryPoolMetricService;
+import org.apache.skywalking.apm.collector.analysis.jvm.define.service.*;
 import org.apache.skywalking.apm.collector.analysis.metric.define.AnalysisMetricModule;
 import org.apache.skywalking.apm.collector.analysis.metric.define.service.IInstanceHeartBeatService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.server.grpc.GRPCHandler;
-import org.apache.skywalking.apm.network.proto.CPU;
-import org.apache.skywalking.apm.network.proto.Downstream;
-import org.apache.skywalking.apm.network.proto.GC;
-import org.apache.skywalking.apm.network.proto.JVMMetrics;
-import org.apache.skywalking.apm.network.proto.JVMMetricsServiceGrpc;
-import org.apache.skywalking.apm.network.proto.Memory;
-import org.apache.skywalking.apm.network.proto.MemoryPool;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.apm.network.proto.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
 public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsServiceImplBase implements GRPCHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(JVMMetricsServiceHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(JVMMetricsServiceHandler.class);
 
     private final ICpuMetricService cpuMetricService;
     private final IGCMetricService gcMetricService;
@@ -63,14 +53,17 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
 
     @Override public void collect(JVMMetrics request, StreamObserver<Downstream> responseObserver) {
         int instanceId = request.getApplicationInstanceId();
-        logger.debug("receive the jvm metric from application instance, id: {}", instanceId);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("receive the jvm metric from application instance, id: {}", instanceId);
+        }
 
         request.getMetricsList().forEach(metric -> {
-            long time = TimeBucketUtils.INSTANCE.getSecondTimeBucket(metric.getTime());
-            sendToCpuMetricService(instanceId, time, metric.getCpu());
-            sendToMemoryMetricService(instanceId, time, metric.getMemoryList());
-            sendToMemoryPoolMetricService(instanceId, time, metric.getMemoryPoolList());
-            sendToGCMetricService(instanceId, time, metric.getGcList());
+            long minuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(metric.getTime());
+            sendToCpuMetricService(instanceId, minuteTimeBucket, metric.getCpu());
+            sendToMemoryMetricService(instanceId, minuteTimeBucket, metric.getMemoryList());
+            sendToMemoryPoolMetricService(instanceId, minuteTimeBucket, metric.getMemoryPoolList());
+            sendToGCMetricService(instanceId, minuteTimeBucket, metric.getGcList());
             sendToInstanceHeartBeatService(instanceId, metric.getTime());
         });
 

@@ -19,29 +19,26 @@
 package org.apache.skywalking.apm.collector.analysis.register.provider.register;
 
 import org.apache.skywalking.apm.collector.analysis.register.define.graph.WorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.*;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.NetworkAddressCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.register.INetworkAddressRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.NetworkAddress;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
 public class NetworkAddressRegisterSerialWorker extends AbstractLocalAsyncWorker<NetworkAddress, NetworkAddress> {
 
-    private final Logger logger = LoggerFactory.getLogger(NetworkAddressRegisterSerialWorker.class);
+    private static final Logger logger = LoggerFactory.getLogger(NetworkAddressRegisterSerialWorker.class);
 
     private final INetworkAddressRegisterDAO networkAddressRegisterDAO;
     private final NetworkAddressCacheService networkAddressCacheService;
 
-    NetworkAddressRegisterSerialWorker(ModuleManager moduleManager) {
+    private NetworkAddressRegisterSerialWorker(ModuleManager moduleManager) {
         super(moduleManager);
         this.networkAddressRegisterDAO = getModuleManager().find(StorageModule.NAME).getService(INetworkAddressRegisterDAO.class);
         this.networkAddressCacheService = getModuleManager().find(CacheModule.NAME).getService(NetworkAddressCacheService.class);
@@ -51,8 +48,11 @@ public class NetworkAddressRegisterSerialWorker extends AbstractLocalAsyncWorker
         return WorkerIdDefine.NETWORK_ADDRESS_REGISTER_SERIAL_WORKER;
     }
 
-    @Override protected void onWork(NetworkAddress networkAddress) throws WorkerException {
-        logger.debug("register network address, address: {}", networkAddress.getNetworkAddress());
+    @Override protected void onWork(NetworkAddress networkAddress) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("register network address, address: {}", networkAddress.getNetworkAddress());
+        }
+
         if (networkAddress.getAddressId() == 0) {
             int addressId = networkAddressCacheService.getAddressId(networkAddress.getNetworkAddress());
 
@@ -63,7 +63,7 @@ public class NetworkAddressRegisterSerialWorker extends AbstractLocalAsyncWorker
                     newNetworkAddress = new NetworkAddress();
                     newNetworkAddress.setId("-1");
                     newNetworkAddress.setAddressId(-1);
-                    newNetworkAddress.setSpanLayer(networkAddress.getSpanLayer());
+                    newNetworkAddress.setSrcSpanLayer(networkAddress.getSrcSpanLayer());
                     newNetworkAddress.setNetworkAddress(networkAddress.getNetworkAddress());
                 } else {
                     int max = networkAddressRegisterDAO.getMaxNetworkAddressId();
@@ -72,13 +72,13 @@ public class NetworkAddressRegisterSerialWorker extends AbstractLocalAsyncWorker
                     newNetworkAddress = new NetworkAddress();
                     newNetworkAddress.setId(String.valueOf(addressId));
                     newNetworkAddress.setAddressId(addressId);
-                    newNetworkAddress.setSpanLayer(networkAddress.getSpanLayer());
+                    newNetworkAddress.setSrcSpanLayer(networkAddress.getSrcSpanLayer());
                     newNetworkAddress.setNetworkAddress(networkAddress.getNetworkAddress());
                 }
                 networkAddressRegisterDAO.save(newNetworkAddress);
             }
         } else {
-            networkAddressRegisterDAO.update(networkAddress.getId(), networkAddress.getSpanLayer(), networkAddress.getServerType());
+            networkAddressRegisterDAO.update(networkAddress.getId(), networkAddress.getSrcSpanLayer(), networkAddress.getServerType());
         }
     }
 

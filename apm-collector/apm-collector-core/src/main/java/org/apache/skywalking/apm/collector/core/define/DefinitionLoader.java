@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.core.define;
 
 import java.io.BufferedReader;
@@ -37,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DefinitionLoader<D> implements Iterable<D> {
 
-    private final Logger logger = LoggerFactory.getLogger(DefinitionLoader.class);
+    private static final Logger logger = LoggerFactory.getLogger(DefinitionLoader.class);
 
     private final Class<D> definition;
     private final DefinitionFile definitionFile;

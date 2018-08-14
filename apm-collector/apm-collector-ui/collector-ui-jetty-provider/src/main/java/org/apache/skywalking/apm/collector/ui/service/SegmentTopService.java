@@ -20,20 +20,18 @@ package org.apache.skywalking.apm.collector.ui.service;
 
 import java.util.List;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.StringUtils;
+import org.apache.skywalking.apm.collector.core.util.*;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
-import org.apache.skywalking.apm.collector.storage.dao.ui.IGlobalTraceUIDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ui.ISegmentDurationUIDAO;
-import org.apache.skywalking.apm.collector.storage.ui.trace.TraceBrief;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.apm.collector.storage.dao.ui.*;
+import org.apache.skywalking.apm.collector.storage.ui.trace.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
 public class SegmentTopService {
 
-    private final Logger logger = LoggerFactory.getLogger(SegmentTopService.class);
+    private static final Logger logger = LoggerFactory.getLogger(SegmentTopService.class);
 
     private final ISegmentDurationUIDAO segmentDurationUIDAO;
     private final IGlobalTraceUIDAO globalTraceUIDAO;
@@ -45,18 +43,21 @@ public class SegmentTopService {
 
     public TraceBrief loadTop(long startSecondTimeBucket, long endSecondTimeBucket, long minDuration, long maxDuration,
         String operationName,
-        String traceId, int applicationId, int limit, int from) {
+        String traceId, int applicationId, int limit, int from, TraceState traceState, QueryOrder queryOrder) {
         logger.debug("startSecondTimeBucket: {}, endSecondTimeBucket: {}, minDuration: {}, " +
-                "maxDuration: {}, operationName: {}, traceId: {}, applicationId: {}, limit: {}, from: {}",
+                "maxDuration: {}, operationName: {}, traceId: {}, applicationId: {}, limit: {}, from: {}, traceState: {}, queryOrder: {}",
             startSecondTimeBucket, endSecondTimeBucket, minDuration,
-            maxDuration, operationName, traceId, applicationId, limit, from);
+            maxDuration, operationName, traceId, applicationId, limit, from, traceState, queryOrder);
 
         TraceBrief traceBrief;
         if (StringUtils.isNotEmpty(traceId)) {
             List<String> segmentIds = globalTraceUIDAO.getSegmentIds(traceId);
-            traceBrief = segmentDurationUIDAO.loadTop(startSecondTimeBucket, endSecondTimeBucket, minDuration, maxDuration, operationName, applicationId, limit, from, segmentIds.toArray(new String[0]));
+            if (CollectionUtils.isEmpty(segmentIds)) {
+                return new TraceBrief();
+            }
+            traceBrief = segmentDurationUIDAO.loadTop(startSecondTimeBucket, endSecondTimeBucket, minDuration, maxDuration, operationName, applicationId, limit, from, traceState, queryOrder, segmentIds.toArray(new String[0]));
         } else {
-            traceBrief = segmentDurationUIDAO.loadTop(startSecondTimeBucket, endSecondTimeBucket, minDuration, maxDuration, operationName, applicationId, limit, from);
+            traceBrief = segmentDurationUIDAO.loadTop(startSecondTimeBucket, endSecondTimeBucket, minDuration, maxDuration, operationName, applicationId, limit, from, traceState, queryOrder);
         }
 
         traceBrief.getTraces().forEach(trace -> {

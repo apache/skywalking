@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.collector.analysis.register.provider.service;
 
 import org.apache.skywalking.apm.collector.analysis.register.define.graph.GraphIdDefine;
+import org.apache.skywalking.apm.collector.analysis.register.define.service.AgentOsInfo;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IInstanceIDService;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ApplicationCacheService;
@@ -28,17 +29,18 @@ import org.apache.skywalking.apm.collector.core.graph.GraphManager;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
 import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.Objects.isNull;
 
 /**
  * @author peng-yongsheng
  */
 public class InstanceIDService implements IInstanceIDService {
 
-    private final Logger logger = LoggerFactory.getLogger(InstanceIDService.class);
+    private static final Logger logger = LoggerFactory.getLogger(InstanceIDService.class);
 
     private final ModuleManager moduleManager;
     private InstanceCacheService instanceCacheService;
@@ -50,28 +52,31 @@ public class InstanceIDService implements IInstanceIDService {
     }
 
     private InstanceCacheService getInstanceCacheService() {
-        if (ObjectUtils.isEmpty(instanceCacheService)) {
+        if (isNull(instanceCacheService)) {
             instanceCacheService = moduleManager.find(CacheModule.NAME).getService(InstanceCacheService.class);
         }
         return instanceCacheService;
     }
 
     private Graph<Instance> getInstanceRegisterGraph() {
-        if (ObjectUtils.isEmpty(instanceRegisterGraph)) {
+        if (isNull(instanceRegisterGraph)) {
             this.instanceRegisterGraph = GraphManager.INSTANCE.createIfAbsent(GraphIdDefine.INSTANCE_REGISTER_GRAPH_ID, Instance.class);
         }
         return instanceRegisterGraph;
     }
 
     private ApplicationCacheService getApplicationCacheService() {
-        if (ObjectUtils.isEmpty(applicationCacheService)) {
+        if (isNull(applicationCacheService)) {
             this.applicationCacheService = moduleManager.find(CacheModule.NAME).getService(ApplicationCacheService.class);
         }
         return applicationCacheService;
     }
 
-    @Override public int getOrCreateByAgentUUID(int applicationId, String agentUUID, long registerTime, String osInfo) {
-        logger.debug("get or getOrCreate instance id by agent UUID, application id: {}, agentUUID: {}, registerTime: {}, osInfo: {}", applicationId, agentUUID, registerTime, osInfo);
+    @Override public int getOrCreateByAgentUUID(int applicationId, String agentUUID, long registerTime, AgentOsInfo osInfo) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("get or getOrCreate instance id by agent UUID, application id: {}, agentUUID: {}, registerTime: {}, osInfo: {}", applicationId, agentUUID, registerTime, osInfo);
+        }
+
         int instanceId = getInstanceCacheService().getInstanceIdByAgentUUID(applicationId, agentUUID);
 
         if (instanceId == 0) {
@@ -83,7 +88,7 @@ public class InstanceIDService implements IInstanceIDService {
             instance.setRegisterTime(registerTime);
             instance.setHeartBeatTime(registerTime);
             instance.setInstanceId(0);
-            instance.setOsInfo(osInfo);
+            instance.setOsInfo(osInfo.toString());
             instance.setIsAddress(BooleanUtils.FALSE);
             instance.setAddressId(Const.NONE);
 
@@ -93,7 +98,10 @@ public class InstanceIDService implements IInstanceIDService {
     }
 
     @Override public int getOrCreateByAddressId(int applicationId, int addressId, long registerTime) {
-        logger.debug("get or getOrCreate instance id by address id, application id: {}, address id: {}, registerTime: {}", applicationId, addressId, registerTime);
+        if (logger.isDebugEnabled()) {
+            logger.debug("get or getOrCreate instance id by address id, application id: {}, address id: {}, registerTime: {}", applicationId, addressId, registerTime);
+        }
+
         int instanceId = getInstanceCacheService().getInstanceIdByAddressId(applicationId, addressId);
 
         if (instanceId == 0) {

@@ -22,23 +22,24 @@ import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGr
 import org.apache.skywalking.apm.collector.analysis.metric.define.service.IInstanceHeartBeatService;
 import org.apache.skywalking.apm.collector.core.graph.Graph;
 import org.apache.skywalking.apm.collector.core.graph.GraphManager;
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.Objects.isNull;
 
 /**
  * @author peng-yongsheng
  */
 public class InstanceHeartBeatService implements IInstanceHeartBeatService {
 
-    private final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatService.class);
+    private static final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatService.class);
 
     private Graph<Instance> heartBeatGraph;
 
     private Graph<Instance> getHeartBeatGraph() {
-        if (ObjectUtils.isEmpty(heartBeatGraph)) {
+        if (isNull(heartBeatGraph)) {
             this.heartBeatGraph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.INSTANCE_HEART_BEAT_PERSISTENCE_GRAPH_ID, Instance.class);
         }
         return heartBeatGraph;
@@ -50,7 +51,9 @@ public class InstanceHeartBeatService implements IInstanceHeartBeatService {
         instance.setHeartBeatTime(TimeBucketUtils.INSTANCE.getSecondTimeBucket(heartBeatTime));
         instance.setInstanceId(instanceId);
 
-        logger.debug("push to instance heart beat persistence worker, id: {}", instance.getId());
+        if (logger.isDebugEnabled()) {
+            logger.debug("push to instance heart beat persistence worker, id: {}", instance.getId());
+        }
         getHeartBeatGraph().start(instance);
     }
 }

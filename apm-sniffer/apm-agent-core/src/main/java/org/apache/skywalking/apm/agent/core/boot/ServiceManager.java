@@ -16,16 +16,18 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.boot;
 
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.plugin.loader.AgentClassLoader;
 
 /**
  * The <code>ServiceManager</code> bases on {@link ServiceLoader},
@@ -42,9 +44,9 @@ public enum ServiceManager {
     public void boot() {
         bootedServices = loadAllServices();
 
-        beforeBoot();
+        prepare();
         startup();
-        afterBoot();
+        onComplete();
     }
 
     public void shutdown() {
@@ -59,18 +61,52 @@ public enum ServiceManager {
 
     private Map<Class, BootService> loadAllServices() {
         Map<Class, BootService> bootedServices = new LinkedHashMap<Class, BootService>();
-        Iterator<BootService> serviceIterator = load().iterator();
+        List<BootService> allServices = new LinkedList<BootService>();
+        load(allServices);
+        Iterator<BootService> serviceIterator = allServices.iterator();
         while (serviceIterator.hasNext()) {
             BootService bootService = serviceIterator.next();
-            bootedServices.put(bootService.getClass(), bootService);
+
+            Class<? extends BootService> bootServiceClass = bootService.getClass();
+            boolean isDefaultImplementor = bootServiceClass.isAnnotationPresent(DefaultImplementor.class);
+            if (isDefaultImplementor) {
+                if (!bootedServices.containsKey(bootServiceClass)) {
+                    bootedServices.put(bootServiceClass, bootService);
+                } else {
+                    //ignore the default service
+                }
+            } else {
+                OverrideImplementor overrideImplementor = bootServiceClass.getAnnotation(OverrideImplementor.class);
+                if (overrideImplementor == null) {
+                    if (!bootedServices.containsKey(bootServiceClass)) {
+                        bootedServices.put(bootServiceClass, bootService);
+                    } else {
+                        throw new ServiceConflictException("Duplicate service define for :" + bootServiceClass);
+                    }
+                } else {
+                    Class<? extends BootService> targetService = overrideImplementor.value();
+                    if (bootedServices.containsKey(targetService)) {
+                        boolean presentDefault = bootedServices.get(targetService).getClass().isAnnotationPresent(DefaultImplementor.class);
+                        if (presentDefault) {
+                            bootedServices.put(targetService, bootService);
+                        } else {
+                            throw new ServiceConflictException("Service " + bootServiceClass + " overrides conflict, " +
+                                "exist more than one service want to override :" + targetService);
+                        }
+                    } else {
+                        bootedServices.put(targetService, bootService);
+                    }
+                }
+            }
+
         }
         return bootedServices;
     }
 
-    private void beforeBoot() {
+    private void prepare() {
         for (BootService service : bootedServices.values()) {
             try {
-                service.beforeBoot();
+                service.prepare();
             } catch (Throwable e) {
                 logger.error(e, "ServiceManager try to pre-start [{}] fail.", service.getClass().getName());
             }
@@ -87,10 +123,10 @@ public enum ServiceManager {
         }
     }
 
-    private void afterBoot() {
+    private void onComplete() {
         for (BootService service : bootedServices.values()) {
             try {
-                service.afterBoot();
+                service.onComplete();
             } catch (Throwable e) {
                 logger.error(e, "Service [{}] AfterBoot process fails.", service.getClass().getName());
             }
@@ -108,7 +144,10 @@ public enum ServiceManager {
         return (T)bootedServices.get(serviceClass);
     }
 
-    ServiceLoader<BootService> load() {
-        return ServiceLoader.load(BootService.class);
+    void load(List<BootService> allServices) {
+        Iterator<BootService> iterator = ServiceLoader.load(BootService.class, AgentClassLoader.getDefault()).iterator();
+        while (iterator.hasNext()) {
+            allServices.add(iterator.next());
+        }
     }
 }

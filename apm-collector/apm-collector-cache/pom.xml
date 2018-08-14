@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm-collector</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-beta-SNAPSHOT</version>
+        <version>5.0.0-RC-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -30,6 +30,7 @@
     <modules>
         <module>collector-cache-define</module>
         <module>collector-cache-guava-provider</module>
+        <module>collector-cache-caffeine-provider</module>
     </modules>
 
     <dependencies>

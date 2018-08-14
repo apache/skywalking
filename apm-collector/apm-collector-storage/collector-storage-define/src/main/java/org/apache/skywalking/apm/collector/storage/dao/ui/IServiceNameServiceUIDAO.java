@@ -23,10 +23,41 @@ import org.apache.skywalking.apm.collector.storage.base.dao.DAO;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceInfo;
 
 /**
+ * Interface to be implemented for execute database query operation
+ * from {@link org.apache.skywalking.apm.collector.storage.table.register.ServiceNameTable#TABLE}.
+ *
  * @author peng-yongsheng
+ * @see org.apache.skywalking.apm.collector.storage.table.register.ServiceNameTable
+ * @see org.apache.skywalking.apm.collector.storage.StorageModule
  */
 public interface IServiceNameServiceUIDAO extends DAO {
-    int getCount();
 
-    List<ServiceInfo> searchService(String keyword, int topN);
+    /**
+     * Returns count of service name which register by entry span.
+     *
+     * <p>SQL as: select count(SERVICE_NAME) from SERVICE_NAME
+     * where SRC_SPAN_TYPE = SpanType.Entry_VALUE
+     * and HEARTBEAT_TIME ge ${startTimeMillis}
+     *
+     * @param startTimeMillis service heart beat time after given data
+     * @return count of service names
+     */
+    int getCount(long startTimeMillis);
+
+    /**
+     * <p>SQL as: select SERVICE_ID, SERVICE_NAME from SERVICE_NAME
+     * where SRC_SPAN_TYPE = SpanType.Entry_VALUE
+     * and SERVICE_NAME like '%{keyword}%'
+     * and APPLICATION_ID = ${applicationId}
+     * and HEARTBEAT_TIME ge ${startTimeMillis}
+     *
+     * <p> Note: keyword might not given
+     *
+     * @param keyword fuzzy query condition
+     * @param applicationId the owner id of this service
+     * @param startTimeMillis service heart beat time after given data
+     * @param topN how many rows should return
+     * @return not nullable result list
+     */
+    List<ServiceInfo> searchService(String keyword, int applicationId, long startTimeMillis, int topN);
 }

@@ -32,14 +32,14 @@ public abstract class AbstractApplicationAlarmListH2TableDefine extends H2TableD
     }
 
     @Override public void initialize() {
-        addColumn(new H2ColumnDefine(ApplicationAlarmListTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(ApplicationAlarmListTable.COLUMN_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ApplicationAlarmListTable.ID, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(ApplicationAlarmListTable.APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
 
-        addColumn(new H2ColumnDefine(ApplicationAlarmListTable.COLUMN_SOURCE_VALUE, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(ApplicationAlarmListTable.COLUMN_ALARM_TYPE, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ApplicationAlarmListTable.SOURCE_VALUE, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ApplicationAlarmListTable.ALARM_TYPE, H2ColumnDefine.Type.Int.name()));
 
-        addColumn(new H2ColumnDefine(ApplicationAlarmListTable.COLUMN_ALARM_CONTENT, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(ApplicationAlarmListTable.ALARM_CONTENT, H2ColumnDefine.Type.Varchar.name()));
 
-        addColumn(new H2ColumnDefine(ApplicationAlarmListTable.COLUMN_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ApplicationAlarmListTable.TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
     }
 }

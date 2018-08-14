@@ -18,19 +18,18 @@
 
 package org.apache.skywalking.apm.collector.storage.es.base.dao;
 
+import java.io.IOException;
+import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
+import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Map;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -48,7 +47,7 @@ public abstract class AbstractPersistenceEsDAO<STREAM_DATA extends StreamData> e
     protected abstract String tableName();
 
     @Override
-    public final STREAM_DATA get(String id) {
+    public STREAM_DATA get(String id) {
         GetResponse getResponse = getClient().prepareGet(tableName(), id).get();
         if (getResponse.isExists()) {
             STREAM_DATA streamData = esDataToStreamData(getResponse.getSource());
@@ -59,30 +58,28 @@ public abstract class AbstractPersistenceEsDAO<STREAM_DATA extends StreamData> e
         }
     }
 
-    protected abstract Map<String, Object> esStreamDataToEsData(STREAM_DATA streamData);
+    protected abstract XContentBuilder esStreamDataToEsData(STREAM_DATA streamData) throws IOException;
 
     @Override
-    public final IndexRequestBuilder prepareBatchInsert(STREAM_DATA streamData) {
-        Map<String, Object> source = esStreamDataToEsData(streamData);
+    public final IndexRequestBuilder prepareBatchInsert(STREAM_DATA streamData) throws IOException {
+        XContentBuilder source = esStreamDataToEsData(streamData);
         return getClient().prepareIndex(tableName(), streamData.getId()).setSource(source);
     }
 
     @Override
-    public final UpdateRequestBuilder prepareBatchUpdate(STREAM_DATA streamData) {
-        Map<String, Object> source = esStreamDataToEsData(streamData);
+    public final UpdateRequestBuilder prepareBatchUpdate(STREAM_DATA streamData) throws IOException {
+        XContentBuilder source = esStreamDataToEsData(streamData);
         return getClient().prepareUpdate(tableName(), streamData.getId()).setDoc(source);
     }
 
     protected abstract String timeBucketColumnNameForDelete();
 
     @Override
-    public final void deleteHistory(Long startTimestamp, Long endTimestamp) {
-        long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
-        long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
+    public final void deleteHistory(Long timeBucketBefore) {
         BulkByScrollResponse response = getClient().prepareDelete(
-                QueryBuilders.rangeQuery(timeBucketColumnNameForDelete()).gte(startTimeBucket).lte(endTimeBucket),
-                tableName())
-                .get();
+            QueryBuilders.rangeQuery(timeBucketColumnNameForDelete()).lte(timeBucketBefore),
+            tableName())
+            .get();
 
         long deleted = response.getDeleted();
         logger.info("Delete {} rows history from {} index.", deleted, tableName());

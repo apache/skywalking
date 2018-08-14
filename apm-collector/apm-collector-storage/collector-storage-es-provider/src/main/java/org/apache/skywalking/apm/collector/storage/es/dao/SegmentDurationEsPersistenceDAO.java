@@ -18,28 +18,24 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import java.io.IOException;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentDurationPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
-import org.apache.skywalking.apm.collector.storage.table.segment.SegmentDuration;
-import org.apache.skywalking.apm.collector.storage.table.segment.SegmentDurationTable;
+import org.apache.skywalking.apm.collector.storage.table.segment.*;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
+import org.elasticsearch.common.xcontent.*;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
 public class SegmentDurationEsPersistenceDAO extends EsDAO implements ISegmentDurationPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder, SegmentDuration> {
 
-    private final Logger logger = LoggerFactory.getLogger(SegmentDurationEsPersistenceDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(SegmentDurationEsPersistenceDAO.class);
 
     public SegmentDurationEsPersistenceDAO(ElasticSearchClient client) {
         super(client);
@@ -56,29 +52,26 @@ public class SegmentDurationEsPersistenceDAO extends EsDAO implements ISegmentDu
     }
 
     @Override
-    public IndexRequestBuilder prepareBatchInsert(SegmentDuration data) {
-        logger.debug("segment cost prepareBatchInsert, getApplicationId: {}", data.getId());
-        Map<String, Object> source = new HashMap<>();
-        source.put(SegmentDurationTable.COLUMN_SEGMENT_ID, data.getSegmentId());
-        source.put(SegmentDurationTable.COLUMN_APPLICATION_ID, data.getApplicationId());
-        source.put(SegmentDurationTable.COLUMN_SERVICE_NAME, data.getServiceName());
-        source.put(SegmentDurationTable.COLUMN_DURATION, data.getDuration());
-        source.put(SegmentDurationTable.COLUMN_START_TIME, data.getStartTime());
-        source.put(SegmentDurationTable.COLUMN_END_TIME, data.getEndTime());
-        source.put(SegmentDurationTable.COLUMN_IS_ERROR, data.getIsError());
-        source.put(SegmentDurationTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
-        logger.debug("segment cost source: {}", source.toString());
-        return getClient().prepareIndex(SegmentDurationTable.TABLE, data.getId()).setSource(source);
+    public IndexRequestBuilder prepareBatchInsert(SegmentDuration data) throws IOException {
+        XContentBuilder target = XContentFactory.jsonBuilder().startObject()
+            .field(SegmentDurationTable.SEGMENT_ID.getName(), data.getSegmentId())
+            .field(SegmentDurationTable.APPLICATION_ID.getName(), data.getApplicationId())
+            .field(SegmentDurationTable.SERVICE_NAME.getName(), data.getServiceName())
+            .field(SegmentDurationTable.DURATION.getName(), data.getDuration())
+            .field(SegmentDurationTable.START_TIME.getName(), data.getStartTime())
+            .field(SegmentDurationTable.END_TIME.getName(), data.getEndTime())
+            .field(SegmentDurationTable.IS_ERROR.getName(), data.getIsError())
+            .field(SegmentDurationTable.TIME_BUCKET.getName(), data.getTimeBucket())
+            .endObject();
+
+        return getClient().prepareIndex(SegmentDurationTable.TABLE, data.getId()).setSource(target);
     }
 
-    @Override
-    public void deleteHistory(Long startTimestamp, Long endTimestamp) {
-        long startTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(startTimestamp);
-        long endTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(endTimestamp);
+    @Override public void deleteHistory(Long timeBucketBefore) {
         BulkByScrollResponse response = getClient().prepareDelete(
-                QueryBuilders.rangeQuery(SegmentDurationTable.COLUMN_TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket),
-                SegmentDurationTable.TABLE)
-                .get();
+            QueryBuilders.rangeQuery(SegmentDurationTable.TIME_BUCKET.getName()).lte(timeBucketBefore * 100),
+            SegmentDurationTable.TABLE)
+            .get();
 
         long deleted = response.getDeleted();
         logger.info("Delete {} rows history from {} index.", deleted, SegmentDurationTable.TABLE);

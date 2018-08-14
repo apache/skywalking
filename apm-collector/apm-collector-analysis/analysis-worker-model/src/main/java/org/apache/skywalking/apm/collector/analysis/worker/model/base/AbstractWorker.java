@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractWorker<INPUT, OUTPUT> implements NodeProcessor<INPUT, OUTPUT> {
 
-    private final Logger logger = LoggerFactory.getLogger(AbstractWorker.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractWorker.class);
 
     private final ModuleManager moduleManager;
 

@@ -38,7 +38,9 @@ public class HystrixCommandRunInterceptor implements InstanceMethodsAroundInterc
 
         AbstractSpan activeSpan = ContextManager.createLocalSpan(enhanceRequireObjectCache.getOperationNamePrefix() + "/Execution");
         activeSpan.setComponent(ComponentsDefine.HYSTRIX);
-        ContextManager.continued(snapshot);
+        if (snapshot != null) {
+            ContextManager.continued(snapshot);
+        }
         // Because of `fall back` method running in other thread. so we need capture concurrent span for tracing.
         enhanceRequireObjectCache.setContextSnapshot(ContextManager.capture());
     }

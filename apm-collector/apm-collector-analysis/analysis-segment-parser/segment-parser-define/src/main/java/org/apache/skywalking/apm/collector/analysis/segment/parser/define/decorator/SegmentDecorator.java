@@ -18,9 +18,10 @@
 
 package org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator;
 
-import org.apache.skywalking.apm.collector.core.util.ObjectUtils;
 import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
 import org.apache.skywalking.apm.network.proto.UniqueId;
+
+import static java.util.Objects.isNull;
 
 /**
  * @author peng-yongsheng
@@ -53,7 +54,7 @@ public class SegmentDecorator implements StandardBuilder {
     }
 
     public SpanDecorator getSpans(int index) {
-        if (ObjectUtils.isEmpty(spanDecorators[index])) {
+        if (isNull(spanDecorators[index])) {
             if (isOrigin) {
                 spanDecorators[index] = new SpanDecorator(segmentObject.getSpans(index), this);
             } else {
