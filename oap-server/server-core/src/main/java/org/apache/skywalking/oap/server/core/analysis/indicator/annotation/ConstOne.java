@@ -24,6 +24,6 @@ import java.lang.annotation.*;
  * @author peng-yongsheng
  */
 @Target(ElementType.PARAMETER)
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface ConstOne {
 }
