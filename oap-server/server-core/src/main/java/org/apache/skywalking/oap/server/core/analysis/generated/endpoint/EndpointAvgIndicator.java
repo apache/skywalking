@@ -74,10 +74,9 @@ public class EndpointAvgIndicator extends AvgIndicator {
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
 
-        remoteBuilder.setDataLongs(0, getTimeBucket());
-        remoteBuilder.setDataLongs(1, getSummation());
-        remoteBuilder.setDataLongs(2, getValue());
-        remoteBuilder.setDataLongs(3, getTimeBucket());
+        remoteBuilder.setDataLongs(0, getSummation());
+        remoteBuilder.setDataLongs(1, getValue());
+        remoteBuilder.setDataLongs(2, getTimeBucket());
 
 
         remoteBuilder.setDataIntegers(0, getId());
@@ -90,10 +89,9 @@ public class EndpointAvgIndicator extends AvgIndicator {
 
     @Override public void deserialize(RemoteData remoteData) {
 
-        setTimeBucket(remoteData.getDataLongs(0));
-        setSummation(remoteData.getDataLongs(1));
-        setValue(remoteData.getDataLongs(2));
-        setTimeBucket(remoteData.getDataLongs(3));
+        setSummation(remoteData.getDataLongs(0));
+        setValue(remoteData.getDataLongs(1));
+        setTimeBucket(remoteData.getDataLongs(2));
 
 
         setId(remoteData.getDataIntegers(0));
