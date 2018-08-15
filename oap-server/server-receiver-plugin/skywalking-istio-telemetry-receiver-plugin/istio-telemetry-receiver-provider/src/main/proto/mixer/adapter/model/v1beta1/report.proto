@@ -17,6 +17,8 @@ syntax = "proto3";
 package istio.mixer.adapter.model.v1beta1;
 
 option go_package="istio.io/api/mixer/adapter/model/v1beta1";
+option java_package = "io.istio.api.mixer.adapter.model.v1beta1";
+option java_outer_classname = "ReportProto";
 
 import "gogoproto/gogo.proto";
 

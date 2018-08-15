@@ -51,6 +51,8 @@ storage:
     monthMetricDataTTL: 18 # Unit is month
 service-mesh:
   default:
+istio-telemetry:
+  default:
 query:
   graphql:
     path: /graphql
