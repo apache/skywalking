@@ -54,6 +54,9 @@ import "mixer/adapter/model/v1beta1/report.proto";
 import "policy/v1beta1/value_type.proto";
 import "policy/v1beta1/type.proto";
 
+option java_package = "io.istio";
+option java_outer_classname = "IstioMetricProto";
+
 option (istio.mixer.adapter.model.v1beta1.template_variety) = TEMPLATE_VARIETY_REPORT;
 option (istio.mixer.adapter.model.v1beta1.template_name) = "metric";
 
