@@ -32,11 +32,11 @@ public class SnifferConfigInitializerTest {
     @Test
     public void testLoadConfigFromJavaAgentDir() throws AgentPackageNotFoundException, ConfigNotFoundException {
         System.setProperty("skywalking.agent.application_code", "testApp");
-        System.setProperty("skywalking.collector.servers", "127.0.0.1:8090");
+        System.setProperty("skywalking.collector.backend_service", "127.0.0.1:8090");
         System.setProperty("skywalking.logging.level", "info");
         SnifferConfigInitializer.initialize();
         assertThat(Config.Agent.APPLICATION_CODE, is("testApp"));
-        assertThat(Config.Collector.SERVERS, is("127.0.0.1:8090"));
+        assertThat(Config.Collector.BACKEND_SERVICE, is("127.0.0.1:8090"));
         assertThat(Config.Logging.LEVEL, is(LogLevel.INFO));
     }
 
