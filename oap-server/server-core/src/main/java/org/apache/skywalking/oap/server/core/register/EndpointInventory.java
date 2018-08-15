@@ -16,12 +16,11 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.register.endpoint;
+package org.apache.skywalking.oap.server.core.register;
 
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
@@ -31,8 +30,8 @@ import org.apache.skywalking.oap.server.core.storage.annotation.*;
  * @author peng-yongsheng
  */
 @StreamData
-@StorageEntity(name = "endpoint", builder = Endpoint.Builder.class)
-public class Endpoint extends RegisterSource {
+@StorageEntity(name = "endpoint_inventory", builder = EndpointInventory.Builder.class)
+public class EndpointInventory extends RegisterSource {
 
     private static final String SERVICE_ID = "service_id";
     private static final String NAME = "name";
@@ -62,7 +61,7 @@ public class Endpoint extends RegisterSource {
         if (getClass() != obj.getClass())
             return false;
 
-        Endpoint source = (Endpoint)obj;
+        EndpointInventory source = (EndpointInventory)obj;
         if (serviceId != source.getServiceId())
             return false;
         if (name.equals(source.getName()))
@@ -97,20 +96,20 @@ public class Endpoint extends RegisterSource {
         setName(remoteData.getDataStrings(1));
     }
 
-    public static class Builder implements StorageBuilder<Endpoint> {
+    public static class Builder implements StorageBuilder<EndpointInventory> {
 
-        @Override public Endpoint map2Data(Map<String, Object> dbMap) {
-            Endpoint endpoint = new Endpoint();
-            endpoint.setSequence((Integer)dbMap.get(SEQUENCE));
-            endpoint.setServiceId((Integer)dbMap.get(SERVICE_ID));
-            endpoint.setName((String)dbMap.get(NAME));
-            endpoint.setSrcSpanType((Integer)dbMap.get(SRC_SPAN_TYPE));
-            endpoint.setRegisterTime((Long)dbMap.get(REGISTER_TIME));
-            endpoint.setHeartbeatTime((Long)dbMap.get(HEARTBEAT_TIME));
-            return endpoint;
+        @Override public EndpointInventory map2Data(Map<String, Object> dbMap) {
+            EndpointInventory endpointInventory = new EndpointInventory();
+            endpointInventory.setSequence((Integer)dbMap.get(SEQUENCE));
+            endpointInventory.setServiceId((Integer)dbMap.get(SERVICE_ID));
+            endpointInventory.setName((String)dbMap.get(NAME));
+            endpointInventory.setSrcSpanType((Integer)dbMap.get(SRC_SPAN_TYPE));
+            endpointInventory.setRegisterTime((Long)dbMap.get(REGISTER_TIME));
+            endpointInventory.setHeartbeatTime((Long)dbMap.get(HEARTBEAT_TIME));
+            return endpointInventory;
         }
 
-        @Override public Map<String, Object> data2Map(Endpoint storageData) {
+        @Override public Map<String, Object> data2Map(EndpointInventory storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(SEQUENCE, storageData.getSequence());
             map.put(SERVICE_ID, storageData.getServiceId());

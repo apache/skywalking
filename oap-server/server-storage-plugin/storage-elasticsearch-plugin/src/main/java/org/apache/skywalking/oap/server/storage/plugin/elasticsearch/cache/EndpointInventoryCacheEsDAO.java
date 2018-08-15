@@ -19,8 +19,8 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache;
 
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.core.register.endpoint.Endpoint;
-import org.apache.skywalking.oap.server.core.storage.cache.IEndpointCacheDAO;
+import org.apache.skywalking.oap.server.core.register.EndpointInventory;
+import org.apache.skywalking.oap.server.core.storage.cache.IEndpointInventoryCacheDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.elasticsearch.action.get.GetResponse;
@@ -28,9 +28,9 @@ import org.elasticsearch.action.get.GetResponse;
 /**
  * @author peng-yongsheng
  */
-public class EndpointCacheEsDAO extends EsDAO implements IEndpointCacheDAO {
+public class EndpointInventoryCacheEsDAO extends EsDAO implements IEndpointInventoryCacheDAO {
 
-    public EndpointCacheEsDAO(ElasticSearchClient client) {
+    public EndpointInventoryCacheEsDAO(ElasticSearchClient client) {
         super(client);
     }
 
@@ -47,7 +47,7 @@ public class EndpointCacheEsDAO extends EsDAO implements IEndpointCacheDAO {
         }
     }
 
-    @Override public Endpoint get(int sequence) {
+    @Override public EndpointInventory get(int sequence) {
         return null;
     }
 }
