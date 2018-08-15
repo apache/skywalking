@@ -18,15 +18,15 @@
 
 package org.apache.skywalking.oap.server.core.storage.cache;
 
-import org.apache.skywalking.oap.server.core.register.endpoint.Endpoint;
+import org.apache.skywalking.oap.server.core.register.EndpointInventory;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 
 /**
  * @author peng-yongsheng
  */
-public interface IEndpointCacheDAO extends DAO {
+public interface IEndpointInventoryCacheDAO extends DAO {
 
     int get(String id);
 
-    Endpoint get(int sequence);
+    EndpointInventory get(int sequence);
 }

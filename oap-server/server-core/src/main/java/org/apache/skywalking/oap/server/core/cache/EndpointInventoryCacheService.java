@@ -20,9 +20,9 @@ package org.apache.skywalking.oap.server.core.cache;
 
 import com.google.common.cache.*;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.register.endpoint.Endpoint;
+import org.apache.skywalking.oap.server.core.register.EndpointInventory;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.cache.IEndpointCacheDAO;
+import org.apache.skywalking.oap.server.core.storage.cache.IEndpointInventoryCacheDAO;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.slf4j.*;
 
@@ -31,20 +31,20 @@ import static java.util.Objects.*;
 /**
  * @author peng-yongsheng
  */
-public class EndpointCacheService implements Service {
+public class EndpointInventoryCacheService implements Service {
 
-    private static final Logger logger = LoggerFactory.getLogger(EndpointCacheService.class);
+    private static final Logger logger = LoggerFactory.getLogger(EndpointInventoryCacheService.class);
 
     private final ModuleManager moduleManager;
-    private IEndpointCacheDAO cacheDAO;
+    private IEndpointInventoryCacheDAO cacheDAO;
 
-    public EndpointCacheService(ModuleManager moduleManager) {
+    public EndpointInventoryCacheService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
     }
 
     private final Cache<String, Integer> idCache = CacheBuilder.newBuilder().initialCapacity(1000).maximumSize(1000000).build();
 
-    private final Cache<Integer, Endpoint> sequenceCache = CacheBuilder.newBuilder().initialCapacity(1000).maximumSize(1000000).build();
+    private final Cache<Integer, EndpointInventory> sequenceCache = CacheBuilder.newBuilder().initialCapacity(1000).maximumSize(1000000).build();
 
     public int get(int serviceId, String serviceName, int srcSpanType) {
         String id = serviceId + Const.ID_SPLIT + serviceName + Const.ID_SPLIT + srcSpanType;
@@ -66,29 +66,29 @@ public class EndpointCacheService implements Service {
         return endpointId;
     }
 
-    public Endpoint get(int endpointId) {
-        Endpoint endpoint = null;
+    public EndpointInventory get(int endpointId) {
+        EndpointInventory endpointInventory = null;
         try {
-            endpoint = sequenceCache.get(endpointId, () -> getCacheDAO().get(endpointId));
+            endpointInventory = sequenceCache.get(endpointId, () -> getCacheDAO().get(endpointId));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
 
-        if (isNull(endpoint)) {
-            endpoint = getCacheDAO().get(endpointId);
-            if (nonNull(endpoint)) {
-                sequenceCache.put(endpointId, endpoint);
+        if (isNull(endpointInventory)) {
+            endpointInventory = getCacheDAO().get(endpointId);
+            if (nonNull(endpointInventory)) {
+                sequenceCache.put(endpointId, endpointInventory);
             } else {
-                logger.warn("Endpoint id {} is not in cache and persistent storage.", endpointId);
+                logger.warn("EndpointInventory id {} is not in cache and persistent storage.", endpointId);
             }
         }
 
-        return endpoint;
+        return endpointInventory;
     }
 
-    private IEndpointCacheDAO getCacheDAO() {
+    private IEndpointInventoryCacheDAO getCacheDAO() {
         if (isNull(cacheDAO)) {
-            cacheDAO = moduleManager.find(StorageModule.NAME).getService(IEndpointCacheDAO.class);
+            cacheDAO = moduleManager.find(StorageModule.NAME).getService(IEndpointInventoryCacheDAO.class);
         }
         return cacheDAO;
     }
