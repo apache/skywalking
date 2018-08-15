@@ -44,11 +44,13 @@ public class IstioTelemetryGRPCHandler extends HandleMetricServiceGrpc.HandleMet
 
     @Override public void handleMetric(IstioMetricProto.HandleMetricRequest request,
         StreamObserver<ReportProto.ReportResult> responseObserver) {
-        for (IstioMetricProto.InstanceMsg i : request.getInstancesList()) {
+        if (logger.isDebugEnabled()) {
             logger.debug("Received msg {}", request);
+        }
+        for (IstioMetricProto.InstanceMsg i : request.getInstancesList()) {
             String requestMethod = string(i, "requestMethod");
-            String requestPath = string(i,"requestPath");
-            String requestScheme = string(i,"requestScheme");
+            String requestPath = string(i, "requestPath");
+            String requestScheme = string(i, "requestScheme");
             long responseCode = int64(i, "responseCode");
             String reporter = string(i, "reporter");
             String protocol = string(i, "apiProtocol");
