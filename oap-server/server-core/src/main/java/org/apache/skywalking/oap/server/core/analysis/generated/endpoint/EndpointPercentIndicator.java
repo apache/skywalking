@@ -74,10 +74,9 @@ public class EndpointPercentIndicator extends PercentIndicator {
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
 
-        remoteBuilder.setDataLongs(0, getTimeBucket());
-        remoteBuilder.setDataLongs(1, getTotal());
-        remoteBuilder.setDataLongs(2, getMatch());
-        remoteBuilder.setDataLongs(3, getTimeBucket());
+        remoteBuilder.setDataLongs(0, getTotal());
+        remoteBuilder.setDataLongs(1, getMatch());
+        remoteBuilder.setDataLongs(2, getTimeBucket());
 
 
         remoteBuilder.setDataIntegers(0, getId());
@@ -90,10 +89,9 @@ public class EndpointPercentIndicator extends PercentIndicator {
 
     @Override public void deserialize(RemoteData remoteData) {
 
-        setTimeBucket(remoteData.getDataLongs(0));
-        setTotal(remoteData.getDataLongs(1));
-        setMatch(remoteData.getDataLongs(2));
-        setTimeBucket(remoteData.getDataLongs(3));
+        setTotal(remoteData.getDataLongs(0));
+        setMatch(remoteData.getDataLongs(1));
+        setTimeBucket(remoteData.getDataLongs(2));
 
 
         setId(remoteData.getDataIntegers(0));
