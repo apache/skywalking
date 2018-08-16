@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.server.core;
 
 import java.util.*;
+import org.apache.skywalking.oap.server.core.cache.*;
+import org.apache.skywalking.oap.server.core.register.service.*;
 import org.apache.skywalking.oap.server.core.remote.RemoteSenderService;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
@@ -43,6 +45,8 @@ public class CoreModule extends ModuleDefine {
         addServerInterface(classes);
         addReceiverInterface(classes);
         addInsideService(classes);
+        addRegisterService(classes);
+        addCacheService(classes);
 
         return classes.toArray(new Class[] {});
     }
@@ -57,6 +61,16 @@ public class CoreModule extends ModuleDefine {
         classes.add(StreamDataClassGetter.class);
         classes.add(RemoteClientManager.class);
         classes.add(RemoteSenderService.class);
+    }
+
+    private void addRegisterService(List<Class> classes) {
+        classes.add(IEndpointInventoryRegister.class);
+        classes.add(IServiceInventoryRegister.class);
+    }
+
+    private void addCacheService(List<Class> classes) {
+        classes.add(ServiceInventoryCache.class);
+        classes.add(EndpointInventoryCache.class);
     }
 
     private void addReceiverInterface(List<Class> classes) {

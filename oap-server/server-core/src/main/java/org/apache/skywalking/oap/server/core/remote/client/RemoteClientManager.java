@@ -20,8 +20,9 @@ package org.apache.skywalking.oap.server.core.remote.client;
 
 import java.util.*;
 import java.util.concurrent.*;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.*;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataAnnotationContainer;
+import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.slf4j.*;
 
@@ -33,7 +34,7 @@ public class RemoteClientManager implements Service {
     private static final Logger logger = LoggerFactory.getLogger(RemoteClientManager.class);
 
     private final ModuleManager moduleManager;
-    private StreamDataAnnotationContainer indicatorMapper;
+    private StreamDataClassGetter streamDataClassGetter;
     private ClusterNodesQuery clusterNodesQuery;
     private final List<RemoteClient> clientsA;
     private final List<RemoteClient> clientsB;
@@ -48,11 +49,14 @@ public class RemoteClientManager implements Service {
 
     public void start() {
         this.clusterNodesQuery = moduleManager.find(ClusterModule.NAME).getService(ClusterNodesQuery.class);
-        this.indicatorMapper = moduleManager.find(ClusterModule.NAME).getService(StreamDataAnnotationContainer.class);
+        this.streamDataClassGetter = moduleManager.find(CoreModule.NAME).getService(StreamDataClassGetter.class);
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::refresh, 1, 2, TimeUnit.SECONDS);
     }
 
     private void refresh() {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Refresh remote nodes collection.");
+        }
         List<RemoteInstance> instanceList = clusterNodesQuery.queryRemoteNodes();
         Collections.sort(instanceList);
 
@@ -98,7 +102,7 @@ public class RemoteClientManager implements Service {
                 if (remoteInstance.isSelf()) {
                     client = new SelfRemoteClient(remoteInstance.getHost(), remoteInstance.getPort());
                 } else {
-                    client = new GRPCRemoteClient(indicatorMapper, remoteInstance, 1, 3000);
+                    client = new GRPCRemoteClient(streamDataClassGetter, remoteInstance, 1, 3000);
                 }
             }
             getFreeClients().add(client);

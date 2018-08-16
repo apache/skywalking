@@ -55,6 +55,8 @@ public class RegisterDistinctWorker extends AbstractWorker<RegisterSource> {
         messageNum++;
 
         if (!sources.containsKey(source)) {
+            sources.put(source, source);
+        } else {
             sources.get(source).combine(source);
         }
 

@@ -16,17 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.remote.annotation;
+package org.apache.skywalking.oap.server.core.register.service;
 
-import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
  * @author peng-yongsheng
  */
-public interface StreamDataClassGetter extends Service {
+public interface IEndpointInventoryRegister extends Service {
 
-    int findIdByClass(Class streamDataClass);
+    int getOrCreate(int serviceId, String endpointName, int srcSpanType);
 
-    Class<StreamData> findClassById(int id);
+    int get(int serviceId, String endpointName, int srcSpanType);
 }

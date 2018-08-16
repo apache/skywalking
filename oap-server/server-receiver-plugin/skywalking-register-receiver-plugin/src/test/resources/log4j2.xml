@@ -17,20 +17,14 @@
   ~
   -->
 
-<Configuration status="INFO">
+<Configuration status="DEBUG">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout charset="UTF-8" pattern="%d - %c -%-4r [%t] %-5p %x - %m%n"/>
         </Console>
     </Appenders>
     <Loggers>
-        <logger name="org.eclipse.jetty" level="INFO"/>
-        <logger name="org.apache.zookeeper" level="INFO"/>
-        <logger name="org.elasticsearch.common.network.IfConfig" level="INFO"/>
-        <logger name="io.grpc.netty" level="INFO"/>
-        <logger name="org.apache.skywalking.oap.server.receiver.istio.telemetry" level="DEBUG"/>
-        <logger name="org.apache.skywalking.oap.server.core.remote" level="DEBUG"/>
-        <Root level="INFO">
+        <Root level="DEBUG">
             <AppenderRef ref="Console"/>
         </Root>
     </Loggers>

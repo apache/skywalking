@@ -53,23 +53,24 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
         if (!sources.containsKey(registerSource)) {
             sources.put(registerSource, registerSource);
         }
+
         if (registerSource.getEndOfBatchContext().isEndOfBatch()) {
 
             if (registerLockDAO.tryLock(scope)) {
                 try {
                     sources.values().forEach(source -> {
                         try {
-                            RegisterSource newSource = registerDAO.get(modelName, registerSource.id());
+                            RegisterSource newSource = registerDAO.get(modelName, source.id());
                             if (Objects.nonNull(newSource)) {
                                 newSource.combine(newSource);
-                                int sequence = registerDAO.max(modelName);
-                                newSource.setSequence(sequence);
-                                registerDAO.forceInsert(modelName, newSource);
-                            } else {
                                 registerDAO.forceUpdate(modelName, newSource);
+                            } else {
+                                int sequence = registerDAO.max(modelName);
+                                source.setSequence(sequence);
+                                registerDAO.forceInsert(modelName, source);
                             }
                         } catch (Throwable t) {
-                            logger.error(t.getMessage());
+                            logger.error(t.getMessage(), t);
                         }
                     });
                 } finally {

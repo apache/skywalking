@@ -17,21 +17,24 @@
   ~
   -->
 
-<Configuration status="INFO">
-    <Appenders>
-        <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout charset="UTF-8" pattern="%d - %c -%-4r [%t] %-5p %x - %m%n"/>
-        </Console>
-    </Appenders>
-    <Loggers>
-        <logger name="org.eclipse.jetty" level="INFO"/>
-        <logger name="org.apache.zookeeper" level="INFO"/>
-        <logger name="org.elasticsearch.common.network.IfConfig" level="INFO"/>
-        <logger name="io.grpc.netty" level="INFO"/>
-        <logger name="org.apache.skywalking.oap.server.receiver.istio.telemetry" level="DEBUG"/>
-        <logger name="org.apache.skywalking.oap.server.core.remote" level="DEBUG"/>
-        <Root level="INFO">
-            <AppenderRef ref="Console"/>
-        </Root>
-    </Loggers>
-</Configuration>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>server-receiver-plugin</artifactId>
+        <groupId>org.apache.skywalking</groupId>
+        <version>6.0.0-alpha-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>skywalking-register-receiver-plugin</artifactId>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-network</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+</project>

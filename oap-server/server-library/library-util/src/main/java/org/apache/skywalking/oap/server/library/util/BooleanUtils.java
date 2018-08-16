@@ -16,17 +16,31 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.remote.annotation;
-
-import org.apache.skywalking.oap.server.core.remote.data.StreamData;
-import org.apache.skywalking.oap.server.library.module.Service;
+package org.apache.skywalking.oap.server.library.util;
 
 /**
  * @author peng-yongsheng
  */
-public interface StreamDataClassGetter extends Service {
+public class BooleanUtils {
 
-    int findIdByClass(Class streamDataClass);
+    public static final int TRUE = 1;
+    public static final int FALSE = 0;
 
-    Class<StreamData> findClassById(int id);
+    public static boolean valueToBoolean(int value) {
+        if (TRUE == value) {
+            return true;
+        } else if (FALSE == value) {
+            return false;
+        } else {
+            throw new RuntimeException("Boolean value error, must be 0 or 1");
+        }
+    }
+
+    public static int booleanToValue(Boolean booleanValue) {
+        if (booleanValue) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
 }
