@@ -27,7 +27,7 @@ import io.istio.api.policy.v1beta1.TypeProto;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
-import org.apache.skywalking.apm.network.servicemesh.DetectPoint;
+import org.apache.skywalking.apm.network.common.DetectPoint;
 import org.apache.skywalking.apm.network.servicemesh.Protocol;
 import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
 import org.slf4j.Logger;

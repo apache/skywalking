@@ -111,8 +111,9 @@ Input：
 
 
 ## Deprecated services
-**Deprecated service**(s) are the gRPC service name SkyWalking used before. In SkyWalking v6, in order to match the common 
-concepts in CloudNative world. There services are still supported at this moment, but it will be removed at Feb. 2019.
+**Deprecated service**(s) are the gRPC services SkyWalking used before. In SkyWalking v6, in order to match the common 
+concepts in CloudNative world, these services are deprecated. 
+Although there services are still supported at this moment, but it will be removed after 6 months later(Feb. 2019).
 
 ## ~~Application Register Service~~
 **Deprecated service** 
