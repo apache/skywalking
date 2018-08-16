@@ -6,3 +6,11 @@ Also learn to build the project, even to release the official Apache version(If 
 - [Apache Release Guide](How-to-release.md). Apache license allows everyone to redistribute if you keep our licenses and NOTICE
 in your redistribution. This document introduces to the committer team about doing official Apache version release, to avoid 
 breaking any Apache rule.
+
+## Project Extensions
+SkyWalking project supports many ways to extends existing features. If you are interesting in these ways,
+read the following guides.
+
+- [Java agent plugin development guide](../setup/service-agent/java-agent/Plugin-Development-Guide.md).
+This guide helps you to develop SkyWalking agent plugin to support more frameworks. Both open source plugin
+and private plugin developer should read this. 
