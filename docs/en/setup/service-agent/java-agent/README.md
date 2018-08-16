@@ -67,6 +67,10 @@ Now, we have the following known plugins.
     * If you want to use annotations or SkyWalking native APIs to read context, try [SkyWalking manual APIs](Application-toolkit-trace.md)
     * If you want to continue traces across thread manually, use [across thread solution APIs](Application-toolkit-trace-cross-thread.md).
 
+## Plugin Development Guide
+SkyWalking java agent supports plugin to extend [the supported list](Supported-list.md). Please follow 
+our [Plugin Development Guide](Plugin-Development-Guide.md).
+
 # Test
 If you are interested in plugin compatible tests or agent performance, see the following reports.
 * [Plugin Test](https://github.com/SkywalkingTest/agent-integration-test-report)
