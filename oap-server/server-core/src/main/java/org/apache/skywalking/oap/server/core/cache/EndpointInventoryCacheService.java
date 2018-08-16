@@ -42,9 +42,9 @@ public class EndpointInventoryCacheService implements Service {
         this.moduleManager = moduleManager;
     }
 
-    private final Cache<String, Integer> idCache = CacheBuilder.newBuilder().initialCapacity(1000).maximumSize(1000000).build();
+    private final Cache<String, Integer> idCache = CacheBuilder.newBuilder().initialCapacity(1000).maximumSize(100000).build();
 
-    private final Cache<Integer, EndpointInventory> sequenceCache = CacheBuilder.newBuilder().initialCapacity(1000).maximumSize(1000000).build();
+    private final Cache<Integer, EndpointInventory> sequenceCache = CacheBuilder.newBuilder().initialCapacity(1000).maximumSize(100000).build();
 
     public int get(int serviceId, String serviceName, int srcSpanType) {
         String id = serviceId + Const.ID_SPLIT + serviceName + Const.ID_SPLIT + srcSpanType;

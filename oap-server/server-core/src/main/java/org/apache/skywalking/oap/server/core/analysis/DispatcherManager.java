@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.core.analysis;
 
 import java.util.*;
-import org.apache.skywalking.oap.server.core.analysis.endpoint.EndpointDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.generated.endpoint.EndpointDispatcher;
 import org.apache.skywalking.oap.server.core.source.Scope;
 import org.slf4j.*;
 
