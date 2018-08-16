@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.agent.core.remote;
 import io.grpc.Channel;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,7 +33,6 @@ import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
@@ -49,6 +49,7 @@ public class GRPCChannelManager implements BootService, Runnable {
     private volatile boolean reconnect = true;
     private Random random = new Random();
     private List<GRPCChannelListener> listeners = Collections.synchronizedList(new LinkedList<GRPCChannelListener>());
+    private volatile List<String> grpcServers;
 
     @Override
     public void prepare() throws Throwable {
@@ -57,6 +58,12 @@ public class GRPCChannelManager implements BootService, Runnable {
 
     @Override
     public void boot() throws Throwable {
+        if (Config.Collector.BACKEND_SERVICE.trim().length() == 0) {
+            logger.error("Collector server addresses are not set.");
+            logger.error("Agent will not uplink any data.");
+            return;
+        }
+        grpcServers = Arrays.asList(Config.Collector.BACKEND_SERVICE.split(","));
         connectCheckFuture = Executors
             .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("GRPCChannelManager"))
             .scheduleAtFixedRate(new RunnableWithExceptionProtection(this, new RunnableWithExceptionProtection.CallbackWhenException() {
@@ -85,11 +92,11 @@ public class GRPCChannelManager implements BootService, Runnable {
     public void run() {
         logger.debug("Selected collector grpc service running, reconnect:{}.", reconnect);
         if (reconnect) {
-            if (RemoteDownstreamConfig.Collector.GRPC_SERVERS.size() > 0) {
+            if (grpcServers.size() > 0) {
                 String server = "";
                 try {
-                    int index = Math.abs(random.nextInt()) % RemoteDownstreamConfig.Collector.GRPC_SERVERS.size();
-                    server = RemoteDownstreamConfig.Collector.GRPC_SERVERS.get(index);
+                    int index = Math.abs(random.nextInt()) % grpcServers.size();
+                    server = grpcServers.get(index);
                     String[] ipAndPort = server.split(":");
 
                     managedChannel = GRPCChannel.newBuilder(ipAndPort[0], Integer.parseInt(ipAndPort[1]))

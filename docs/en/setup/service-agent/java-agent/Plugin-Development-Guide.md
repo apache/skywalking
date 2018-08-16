@@ -157,10 +157,8 @@ SpanLayer is the catalog of span. Here are 5 values:
 1. HTTP
 1. MQ
 
-Component IDs are defined and protected by SkyWalking project, 0 -> 10000 IDs are reserved. If you want to contribute
-a new plugin, you can ask for an official ID, after your pull request approved and automatic test cases accepted by PMC.
-Please use > 10000 ID, if you are going to develop a private plugin or don't intend to contribute the plugin to community,
-to avoid the ID conflict.
+Component IDs are defined and reserved by SkyWalking project.
+For component name/ID extension, please follow [component library setting document](../../backend/Component-library-settings.md).
 
 ## Develop a plugin
 ### Abstract
