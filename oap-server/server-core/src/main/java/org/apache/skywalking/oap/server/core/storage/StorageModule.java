@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
+import org.apache.skywalking.oap.server.core.storage.cache.*;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
@@ -32,6 +33,6 @@ public class StorageModule extends ModuleDefine {
     }
 
     @Override public Class[] services() {
-        return new Class[] {IBatchDAO.class, StorageDAO.class, IRegisterLockDAO.class};
+        return new Class[] {IBatchDAO.class, StorageDAO.class, IRegisterLockDAO.class, IEndpointInventoryCacheDAO.class, IServiceInventoryCacheDAO.class};
     }
 }

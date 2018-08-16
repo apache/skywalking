@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.lock;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
@@ -47,8 +48,10 @@ public class RegisterLockDAOImpl extends EsDAO implements IRegisterLockDAO {
         try {
             GetResponse response = getClient().get(RegisterLockIndex.NAME, id);
             if (response.isExists()) {
-                long expire = response.getField(RegisterLockIndex.COLUMN_EXPIRE).getValue();
-                boolean lockable = response.getField(RegisterLockIndex.COLUMN_LOCKABLE).getValue();
+                Map<String, Object> source = response.getSource();
+
+                long expire = (long)source.get(RegisterLockIndex.COLUMN_EXPIRE);
+                boolean lockable = (boolean)source.get(RegisterLockIndex.COLUMN_LOCKABLE);
                 long version = response.getVersion();
 
                 if (lockable) {

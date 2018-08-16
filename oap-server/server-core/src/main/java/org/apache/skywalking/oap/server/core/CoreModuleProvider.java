@@ -21,8 +21,10 @@ package org.apache.skywalking.oap.server.core;
 import java.io.IOException;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorTypeListener;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
+import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.cluster.*;
 import org.apache.skywalking.oap.server.core.register.annotation.InventoryTypeListener;
+import org.apache.skywalking.oap.server.core.register.service.*;
 import org.apache.skywalking.oap.server.core.remote.*;
 import org.apache.skywalking.oap.server.core.remote.annotation.*;
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
@@ -46,6 +48,7 @@ public class CoreModuleProvider extends ModuleProvider {
     private final CoreModuleConfig moduleConfig;
     private GRPCServer grpcServer;
     private JettyServer jettyServer;
+    private RemoteClientManager remoteClientManager;
     private final AnnotationScan annotationScan;
     private final StorageAnnotationListener storageAnnotationListener;
     private final StreamAnnotationListener streamAnnotationListener;
@@ -86,18 +89,27 @@ public class CoreModuleProvider extends ModuleProvider {
 
         this.registerServiceImplementation(StreamDataClassGetter.class, streamDataAnnotationContainer);
 
-        this.registerServiceImplementation(RemoteClientManager.class, new RemoteClientManager(getManager()));
         this.registerServiceImplementation(RemoteSenderService.class, new RemoteSenderService(getManager()));
         this.registerServiceImplementation(IModelGetter.class, storageAnnotationListener);
+
+        this.registerServiceImplementation(ServiceInventoryCache.class, new ServiceInventoryCache(getManager()));
+        this.registerServiceImplementation(IServiceInventoryRegister.class, new ServiceInventoryRegister(getManager()));
+
+        this.registerServiceImplementation(EndpointInventoryCache.class, new EndpointInventoryCache(getManager()));
+        this.registerServiceImplementation(IEndpointInventoryRegister.class, new EndpointInventoryRegister(getManager()));
 
         annotationScan.registerListener(storageAnnotationListener);
         annotationScan.registerListener(streamAnnotationListener);
         annotationScan.registerListener(new IndicatorTypeListener(getManager()));
         annotationScan.registerListener(new InventoryTypeListener(getManager()));
+
+        this.remoteClientManager = new RemoteClientManager(getManager());
+        this.registerServiceImplementation(RemoteClientManager.class, remoteClientManager);
     }
 
     @Override public void start() throws ModuleStartException {
         grpcServer.addHandler(new RemoteServiceHandler(getManager()));
+        remoteClientManager.start();
 
         try {
             annotationScan.scan(() -> {

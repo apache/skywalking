@@ -49,6 +49,8 @@ storage:
     hourMetricDataTTL: 36 # Unit is hour
     dayMetricDataTTL: 45 # Unit is day
     monthMetricDataTTL: 18 # Unit is month
+receiver-register:
+  default:
 service-mesh:
   default:
 istio-telemetry:

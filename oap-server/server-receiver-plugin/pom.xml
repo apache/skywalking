@@ -34,9 +34,15 @@
         <module>zipkin-receiver-plugin</module>
         <module>skywalking-mesh-receiver-plugin</module>
         <module>skywalking-istio-telemetry-receiver-plugin</module>
+        <module>skywalking-register-receiver-plugin</module>
     </modules>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>server-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>library-module</artifactId>

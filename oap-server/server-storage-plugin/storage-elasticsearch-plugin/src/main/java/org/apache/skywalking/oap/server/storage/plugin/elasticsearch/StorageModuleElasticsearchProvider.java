@@ -19,10 +19,12 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch;
 
 import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.cache.*;
 import org.apache.skywalking.oap.server.library.client.NameSpace;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.*;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache.*;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.lock.*;
 import org.slf4j.*;
 
@@ -65,6 +67,9 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         this.registerServiceImplementation(IBatchDAO.class, new BatchProcessEsDAO(elasticSearchClient, config.getBulkActions(), config.getBulkSize(), config.getFlushInterval(), config.getConcurrentRequests()));
         this.registerServiceImplementation(StorageDAO.class, new StorageEsDAO(elasticSearchClient));
         this.registerServiceImplementation(IRegisterLockDAO.class, new RegisterLockDAOImpl(elasticSearchClient, 1000));
+
+        this.registerServiceImplementation(IServiceInventoryCacheDAO.class, new ServiceInventoryCacheEsDAO(elasticSearchClient));
+        this.registerServiceImplementation(IEndpointInventoryCacheDAO.class, new EndpointInventoryCacheEsDAO(elasticSearchClient));
     }
 
     @Override
