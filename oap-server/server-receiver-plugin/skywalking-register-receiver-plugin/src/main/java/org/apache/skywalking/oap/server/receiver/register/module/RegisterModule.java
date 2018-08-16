@@ -16,17 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.remote.annotation;
+package org.apache.skywalking.oap.server.receiver.register.module;
 
-import org.apache.skywalking.oap.server.core.remote.data.StreamData;
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
  * @author peng-yongsheng
  */
-public interface StreamDataClassGetter extends Service {
+public class RegisterModule extends ModuleDefine {
 
-    int findIdByClass(Class streamDataClass);
+    @Override public String name() {
+        return "receiver-register";
+    }
 
-    Class<StreamData> findClassById(int id);
+    @Override public Class[] services() {
+        return new Class[0];
+    }
 }

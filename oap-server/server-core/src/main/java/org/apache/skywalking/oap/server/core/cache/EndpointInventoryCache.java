@@ -31,25 +31,25 @@ import static java.util.Objects.*;
 /**
  * @author peng-yongsheng
  */
-public class EndpointInventoryCacheService implements Service {
+public class EndpointInventoryCache implements Service {
 
-    private static final Logger logger = LoggerFactory.getLogger(EndpointInventoryCacheService.class);
+    private static final Logger logger = LoggerFactory.getLogger(EndpointInventoryCache.class);
 
     private final ModuleManager moduleManager;
     private IEndpointInventoryCacheDAO cacheDAO;
 
-    public EndpointInventoryCacheService(ModuleManager moduleManager) {
+    public EndpointInventoryCache(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
     }
 
-    private final Cache<String, Integer> idCache = CacheBuilder.newBuilder().initialCapacity(1000).maximumSize(100000).build();
+    private final Cache<String, Integer> idCache = CacheBuilder.newBuilder().initialCapacity(5000).maximumSize(100000).build();
 
-    private final Cache<Integer, EndpointInventory> sequenceCache = CacheBuilder.newBuilder().initialCapacity(1000).maximumSize(100000).build();
+    private final Cache<Integer, EndpointInventory> sequenceCache = CacheBuilder.newBuilder().initialCapacity(5000).maximumSize(100000).build();
 
     public int get(int serviceId, String serviceName, int srcSpanType) {
         String id = serviceId + Const.ID_SPLIT + serviceName + Const.ID_SPLIT + srcSpanType;
 
-        int endpointId = 0;
+        int endpointId = Const.NONE;
 
         try {
             endpointId = idCache.get(id, () -> getCacheDAO().get(id));
@@ -57,9 +57,9 @@ public class EndpointInventoryCacheService implements Service {
             logger.error(e.getMessage(), e);
         }
 
-        if (serviceId == 0) {
+        if (serviceId == Const.NONE) {
             endpointId = getCacheDAO().get(id);
-            if (endpointId != 0) {
+            if (endpointId != Const.NONE) {
                 idCache.put(id, endpointId);
             }
         }

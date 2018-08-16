@@ -23,9 +23,9 @@ import java.util.List;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.BufferStrategy;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
-import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataAnnotationContainer;
+import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
+import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.*;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
 import org.slf4j.*;
@@ -39,11 +39,11 @@ public class GRPCRemoteClient implements RemoteClient, Comparable<GRPCRemoteClie
 
     private final GRPCClient client;
     private final DataCarrier<RemoteMessage> carrier;
-    private final StreamDataAnnotationContainer streamDataMapper;
+    private final StreamDataClassGetter streamDataClassGetter;
 
-    public GRPCRemoteClient(StreamDataAnnotationContainer streamDataMapper, RemoteInstance remoteInstance, int channelSize,
+    public GRPCRemoteClient(StreamDataClassGetter streamDataClassGetter, RemoteInstance remoteInstance, int channelSize,
         int bufferSize) {
-        this.streamDataMapper = streamDataMapper;
+        this.streamDataClassGetter = streamDataClassGetter;
         this.client = new GRPCClient(remoteInstance.getHost(), remoteInstance.getPort());
         this.carrier = new DataCarrier<>(channelSize, bufferSize);
         this.carrier.setBufferStrategy(BufferStrategy.BLOCKING);
@@ -51,7 +51,7 @@ public class GRPCRemoteClient implements RemoteClient, Comparable<GRPCRemoteClie
     }
 
     @Override public void push(int nextWorkerId, StreamData streamData) {
-        int streamDataId = streamDataMapper.findIdByClass(streamData.getClass());
+        int streamDataId = streamDataClassGetter.findIdByClass(streamData.getClass());
         RemoteMessage.Builder builder = RemoteMessage.newBuilder();
         builder.setNextWorkerId(nextWorkerId);
         builder.setStreamDataId(streamDataId);

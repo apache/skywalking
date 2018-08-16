@@ -49,7 +49,7 @@ public class StreamDataAnnotationContainer implements StreamDataClassGetter {
         }
     }
 
-    public int findIdByClass(Class streamDataClass) {
+    @Override public int findIdByClass(Class streamDataClass) {
         return classMap.get(streamDataClass);
     }
 

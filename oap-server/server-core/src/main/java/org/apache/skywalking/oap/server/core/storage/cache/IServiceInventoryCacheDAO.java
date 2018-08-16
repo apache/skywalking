@@ -16,17 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.remote.annotation;
+package org.apache.skywalking.oap.server.core.storage.cache;
 
-import org.apache.skywalking.oap.server.core.remote.data.StreamData;
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.core.register.ServiceInventory;
+import org.apache.skywalking.oap.server.core.storage.DAO;
 
 /**
  * @author peng-yongsheng
  */
-public interface StreamDataClassGetter extends Service {
+public interface IServiceInventoryCacheDAO extends DAO {
 
-    int findIdByClass(Class streamDataClass);
+    int get(String id);
 
-    Class<StreamData> findClassById(int id);
+    ServiceInventory get(int sequence);
+
+    int getServiceIdByAddressId(int addressId);
 }
