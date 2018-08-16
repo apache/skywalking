@@ -16,26 +16,22 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.endpoint;
+package org.apache.skywalking.oap.server.core.register.annotation;
 
-import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
-import org.apache.skywalking.oap.server.core.source.Endpoint;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.source.Scope;
 
 /**
  * @author peng-yongsheng
  */
-public class EndpointDispatcher implements SourceDispatcher<Endpoint> {
+public class InventoryAnnotationUtils {
 
-    @Override public void dispatch(Endpoint source) {
-        avg(source);
-    }
-
-    private void avg(Endpoint source) {
-        EndpointLatencyAvgIndicator indicator = new EndpointLatencyAvgIndicator();
-        indicator.setId(source.getId());
-        indicator.setTimeBucket(source.getTimeBucket());
-        indicator.combine(source.getLatency(), 1);
-        IndicatorProcess.INSTANCE.in(indicator);
+    public static Scope getScope(Class aClass) {
+        if (aClass.isAnnotationPresent(InventoryType.class)) {
+            InventoryType annotation = (InventoryType)aClass.getAnnotation(InventoryType.class);
+            return annotation.scope();
+        } else {
+            throw new UnexpectedException("");
+        }
     }
 }

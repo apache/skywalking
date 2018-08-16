@@ -16,18 +16,29 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage;
+package org.apache.skywalking.oap.server.core.register.annotation;
 
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
-import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.library.module.Service;
+import java.lang.annotation.Annotation;
+import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
+import org.apache.skywalking.oap.server.core.register.worker.InventoryProcess;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
  * @author peng-yongsheng
  */
-public interface StorageDAO extends Service {
+public class InventoryTypeListener implements AnnotationListener {
 
-    IIndicatorDAO newIndicatorDao(StorageBuilder<Indicator> storageBuilder);
+    private final ModuleManager moduleManager;
 
-    IRegisterDAO newRegisterDao(StorageBuilder<RegisterSource> storageBuilder);
+    public InventoryTypeListener(ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
+    }
+
+    @Override public Class<? extends Annotation> annotation() {
+        return InventoryType.class;
+    }
+
+    @Override public void notify(Class aClass) {
+        InventoryProcess.INSTANCE.create(moduleManager, aClass);
+    }
 }
