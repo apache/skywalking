@@ -5,9 +5,19 @@ There are two types of protocols list here.
 
 - [**Query Protocol**](#query-protocol). The backend provide query capability to SkyWalking own UI and others. These queries are based on GraphQL.
 
+
 ## Probe Protocols
 They also related to the probe group, for understand that, look [Concepts and Designs](../concepts-and-designs/README.md) document.
-These groups are **Language based native agent protocol**, **Service Mesh protocol** and **3rd-party instrument protocol**.  
+These groups are **Language based native agent protocol**, **Service Mesh protocol** and **3rd-party instrument protocol**.
+
+## Register Protocol
+Include service, service instance, network address and endpoint meta data register.
+Purposes of register are
+1. For service, network address and endpoint, register returns the unique ID of register object, usually an integer. Probe
+can use that to represent the literal String for data compression. Further, some protocols accept IDs only.
+1. For service instance, register returns a new unique ID for every new instance. Every service instance register must contain the 
+service ID.
+ 
 
 
 ### Language based native agent protocol
