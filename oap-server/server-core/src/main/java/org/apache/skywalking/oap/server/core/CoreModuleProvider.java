@@ -22,6 +22,7 @@ import java.io.IOException;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorTypeListener;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
 import org.apache.skywalking.oap.server.core.cluster.*;
+import org.apache.skywalking.oap.server.core.register.annotation.InventoryTypeListener;
 import org.apache.skywalking.oap.server.core.remote.*;
 import org.apache.skywalking.oap.server.core.remote.annotation.*;
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
@@ -92,6 +93,7 @@ public class CoreModuleProvider extends ModuleProvider {
         annotationScan.registerListener(storageAnnotationListener);
         annotationScan.registerListener(streamAnnotationListener);
         annotationScan.registerListener(new IndicatorTypeListener(getManager()));
+        annotationScan.registerListener(new InventoryTypeListener(getManager()));
     }
 
     @Override public void start() throws ModuleStartException {

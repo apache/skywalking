@@ -16,18 +16,22 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage;
+package org.apache.skywalking.oap.server.core.register.annotation;
 
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
-import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.source.Scope;
 
 /**
  * @author peng-yongsheng
  */
-public interface StorageDAO extends Service {
+public class InventoryAnnotationUtils {
 
-    IIndicatorDAO newIndicatorDao(StorageBuilder<Indicator> storageBuilder);
-
-    IRegisterDAO newRegisterDao(StorageBuilder<RegisterSource> storageBuilder);
+    public static Scope getScope(Class aClass) {
+        if (aClass.isAnnotationPresent(InventoryType.class)) {
+            InventoryType annotation = (InventoryType)aClass.getAnnotation(InventoryType.class);
+            return annotation.scope();
+        } else {
+            throw new UnexpectedException("");
+        }
+    }
 }
