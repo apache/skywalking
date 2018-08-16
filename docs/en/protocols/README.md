@@ -23,7 +23,7 @@ service ID.
 ### Language based native agent protocol
 This protocol is combined from two parts:
 * [Cross Process Propagation Headers Protocol](Skywalking-Cross-Process-Propagation-Headers-Protocol-v1.md) is for in-wire propagation.
-which is usually used to carrier the necessary info to build trace.
+By following this protocol, the trace segments in different processes could be linked.
 * [SkyWalking Trace Data Protocol](Trace-Data-Protocol.md) define the communication way and format between agent and backend.
 
 
