@@ -23,9 +23,8 @@ import org.apache.skywalking.oap.server.library.module.Service;
 /**
  * @author peng-yongsheng
  */
-public interface IServiceInventoryRegister extends Service {
+public interface INetworkAddressInventoryRegister extends Service {
+    int getOrCreate(String networkAddress);
 
-    int getOrCreate(String serviceName);
-
-    int getOrCreate(int addressId);
+    int get(String networkAddress);
 }

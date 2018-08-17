@@ -26,9 +26,9 @@ import org.apache.skywalking.oap.server.core.storage.DAO;
  */
 public interface IServiceInventoryCacheDAO extends DAO {
 
-    int get(String id);
+    int getServiceId(String serviceName);
 
-    ServiceInventory get(int sequence);
+    int getServiceId(int addressId);
 
-    int getServiceIdByAddressId(int addressId);
+    ServiceInventory get(int serviceId);
 }

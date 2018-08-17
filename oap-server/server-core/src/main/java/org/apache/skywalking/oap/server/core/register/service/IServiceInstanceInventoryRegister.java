@@ -23,9 +23,9 @@ import org.apache.skywalking.oap.server.library.module.Service;
 /**
  * @author peng-yongsheng
  */
-public interface IServiceInventoryRegister extends Service {
+public interface IServiceInstanceInventoryRegister extends Service {
 
-    int getOrCreate(String serviceName);
+    int getOrCreate(int serviceId, String serviceInstanceName, long registerTime);
 
-    int getOrCreate(int addressId);
+    int getOrCreate(int serviceId, int addressId, long registerTime);
 }

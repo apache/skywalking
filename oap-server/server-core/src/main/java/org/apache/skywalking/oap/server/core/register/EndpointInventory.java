@@ -43,18 +43,21 @@ public class EndpointInventory extends RegisterSource {
     private static final String SRC_SPAN_TYPE = "src_span_type";
 
     @Setter @Getter @Column(columnName = SERVICE_ID) private int serviceId;
-    @Setter @Getter @Column(columnName = NAME, matchQuery = true) private String name;
+    @Setter @Getter @Column(columnName = NAME, matchQuery = true) private String name = Const.EMPTY_STRING;
     @Setter @Getter @Column(columnName = SRC_SPAN_TYPE) private int srcSpanType;
 
+    public static String buildId(int serviceId, String endpointName) {
+        return serviceId + Const.ID_SPLIT + endpointName;
+    }
+
     @Override public String id() {
-        return String.valueOf(serviceId) + Const.ID_SPLIT + name + Const.ID_SPLIT + String.valueOf(srcSpanType);
+        return buildId(serviceId, name);
     }
 
     @Override public int hashCode() {
         int result = 17;
         result = 31 * result + serviceId;
         result = 31 * result + name.hashCode();
-        result = 31 * result + srcSpanType;
         return result;
     }
 
@@ -70,8 +73,6 @@ public class EndpointInventory extends RegisterSource {
         if (serviceId != source.getServiceId())
             return false;
         if (name.equals(source.getName()))
-            return false;
-        if (srcSpanType != source.getSrcSpanType())
             return false;
 
         return true;
@@ -98,20 +99,20 @@ public class EndpointInventory extends RegisterSource {
         setRegisterTime(remoteData.getDataLongs(0));
         setHeartbeatTime(remoteData.getDataLongs(1));
 
-        setName(remoteData.getDataStrings(1));
+        setName(remoteData.getDataStrings(0));
     }
 
     public static class Builder implements StorageBuilder<EndpointInventory> {
 
         @Override public EndpointInventory map2Data(Map<String, Object> dbMap) {
-            EndpointInventory endpointInventory = new EndpointInventory();
-            endpointInventory.setSequence((Integer)dbMap.get(SEQUENCE));
-            endpointInventory.setServiceId((Integer)dbMap.get(SERVICE_ID));
-            endpointInventory.setName((String)dbMap.get(NAME));
-            endpointInventory.setSrcSpanType((Integer)dbMap.get(SRC_SPAN_TYPE));
-            endpointInventory.setRegisterTime((Long)dbMap.get(REGISTER_TIME));
-            endpointInventory.setHeartbeatTime((Long)dbMap.get(HEARTBEAT_TIME));
-            return endpointInventory;
+            EndpointInventory inventory = new EndpointInventory();
+            inventory.setSequence((Integer)dbMap.get(SEQUENCE));
+            inventory.setServiceId((Integer)dbMap.get(SERVICE_ID));
+            inventory.setName((String)dbMap.get(NAME));
+            inventory.setSrcSpanType((Integer)dbMap.get(SRC_SPAN_TYPE));
+            inventory.setRegisterTime((Long)dbMap.get(REGISTER_TIME));
+            inventory.setHeartbeatTime((Long)dbMap.get(HEARTBEAT_TIME));
+            return inventory;
         }
 
         @Override public Map<String, Object> data2Map(EndpointInventory storageData) {

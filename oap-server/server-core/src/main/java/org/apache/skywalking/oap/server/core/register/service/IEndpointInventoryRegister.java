@@ -27,5 +27,5 @@ public interface IEndpointInventoryRegister extends Service {
 
     int getOrCreate(int serviceId, String endpointName, int srcSpanType);
 
-    int get(int serviceId, String endpointName, int srcSpanType);
+    int get(int serviceId, String endpointName);
 }

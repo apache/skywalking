@@ -64,13 +64,17 @@ public class CoreModule extends ModuleDefine {
     }
 
     private void addRegisterService(List<Class> classes) {
-        classes.add(IEndpointInventoryRegister.class);
         classes.add(IServiceInventoryRegister.class);
+        classes.add(IServiceInstanceInventoryRegister.class);
+        classes.add(IEndpointInventoryRegister.class);
+        classes.add(INetworkAddressInventoryRegister.class);
     }
 
     private void addCacheService(List<Class> classes) {
         classes.add(ServiceInventoryCache.class);
+        classes.add(ServiceInstanceInventoryCache.class);
         classes.add(EndpointInventoryCache.class);
+        classes.add(NetworkAddressInventoryCache.class);
     }
 
     private void addReceiverInterface(List<Class> classes) {
