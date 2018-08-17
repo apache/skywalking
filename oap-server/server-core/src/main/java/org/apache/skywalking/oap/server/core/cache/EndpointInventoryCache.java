@@ -42,25 +42,31 @@ public class EndpointInventoryCache implements Service {
         this.moduleManager = moduleManager;
     }
 
-    private final Cache<String, Integer> idCache = CacheBuilder.newBuilder().initialCapacity(5000).maximumSize(100000).build();
+    private final Cache<String, Integer> endpointNameCache = CacheBuilder.newBuilder().initialCapacity(5000).maximumSize(100000).build();
 
-    private final Cache<Integer, EndpointInventory> sequenceCache = CacheBuilder.newBuilder().initialCapacity(5000).maximumSize(100000).build();
+    private final Cache<Integer, EndpointInventory> endpointIdCache = CacheBuilder.newBuilder().initialCapacity(5000).maximumSize(100000).build();
 
-    public int get(int serviceId, String serviceName, int srcSpanType) {
-        String id = serviceId + Const.ID_SPLIT + serviceName + Const.ID_SPLIT + srcSpanType;
+    private IEndpointInventoryCacheDAO getCacheDAO() {
+        if (isNull(cacheDAO)) {
+            cacheDAO = moduleManager.find(StorageModule.NAME).getService(IEndpointInventoryCacheDAO.class);
+        }
+        return cacheDAO;
+    }
+    
+    public int getEndpointId(int serviceId, String endpointName) {
+        String id = EndpointInventory.buildId(serviceId, endpointName);
 
         int endpointId = Const.NONE;
-
         try {
-            endpointId = idCache.get(id, () -> getCacheDAO().get(id));
+            endpointId = endpointNameCache.get(EndpointInventory.buildId(serviceId, endpointName), () -> getCacheDAO().getEndpointId(serviceId, endpointName));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
 
         if (serviceId == Const.NONE) {
-            endpointId = getCacheDAO().get(id);
+            endpointId = getCacheDAO().getEndpointId(serviceId, endpointName);
             if (endpointId != Const.NONE) {
-                idCache.put(id, endpointId);
+                endpointNameCache.put(id, endpointId);
             }
         }
         return endpointId;
@@ -69,7 +75,7 @@ public class EndpointInventoryCache implements Service {
     public EndpointInventory get(int endpointId) {
         EndpointInventory endpointInventory = null;
         try {
-            endpointInventory = sequenceCache.get(endpointId, () -> getCacheDAO().get(endpointId));
+            endpointInventory = endpointIdCache.get(endpointId, () -> getCacheDAO().get(endpointId));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
@@ -77,19 +83,12 @@ public class EndpointInventoryCache implements Service {
         if (isNull(endpointInventory)) {
             endpointInventory = getCacheDAO().get(endpointId);
             if (nonNull(endpointInventory)) {
-                sequenceCache.put(endpointId, endpointInventory);
+                endpointIdCache.put(endpointId, endpointInventory);
             } else {
                 logger.warn("EndpointInventory id {} is not in cache and persistent storage.", endpointId);
             }
         }
 
         return endpointInventory;
-    }
-
-    private IEndpointInventoryCacheDAO getCacheDAO() {
-        if (isNull(cacheDAO)) {
-            cacheDAO = moduleManager.find(StorageModule.NAME).getService(IEndpointInventoryCacheDAO.class);
-        }
-        return cacheDAO;
     }
 }

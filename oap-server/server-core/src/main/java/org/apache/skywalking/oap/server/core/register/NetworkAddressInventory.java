@@ -27,47 +27,32 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
-import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 
 /**
  * @author peng-yongsheng
  */
-@InventoryType(scope = Scope.Service)
+@InventoryType(scope = Scope.NetworkAddress)
 @StreamData
-@StorageEntity(name = ServiceInventory.MODEL_NAME, builder = ServiceInventory.Builder.class)
-public class ServiceInventory extends RegisterSource {
+@StorageEntity(name = NetworkAddressInventory.MODEL_NAME, builder = NetworkAddressInventory.Builder.class)
+public class NetworkAddressInventory extends RegisterSource {
 
-    public static final String MODEL_NAME = "service_inventory";
+    public static final String MODEL_NAME = "network_address_inventory";
 
     private static final String NAME = "name";
-    private static final String IS_ADDRESS = "is_address";
-    private static final String ADDRESS_ID = "address_id";
 
     @Setter @Getter @Column(columnName = NAME, matchQuery = true) private String name = Const.EMPTY_STRING;
-    @Setter @Getter @Column(columnName = IS_ADDRESS) private int isAddress;
-    @Setter @Getter @Column(columnName = ADDRESS_ID) private int addressId;
 
-    public static String buildId(String serviceName) {
-        return serviceName + Const.ID_SPLIT + BooleanUtils.FALSE + Const.ID_SPLIT + Const.NONE;
-    }
-
-    public static String buildId(int addressId) {
-        return BooleanUtils.TRUE + Const.ID_SPLIT + addressId;
+    public static String buildId(String networkAddress) {
+        return networkAddress;
     }
 
     @Override public String id() {
-        if (BooleanUtils.TRUE == isAddress) {
-            return buildId(addressId);
-        } else {
-            return buildId(name);
-        }
+        return buildId(name);
     }
 
     @Override public int hashCode() {
         int result = 17;
         result = 31 * result + name.hashCode();
-        result = 31 * result + isAddress;
-        result = 31 * result + addressId;
         return result;
     }
 
@@ -79,12 +64,8 @@ public class ServiceInventory extends RegisterSource {
         if (getClass() != obj.getClass())
             return false;
 
-        ServiceInventory source = (ServiceInventory)obj;
+        NetworkAddressInventory source = (NetworkAddressInventory)obj;
         if (name.equals(source.getName()))
-            return false;
-        if (isAddress != source.getIsAddress())
-            return false;
-        if (addressId != source.getAddressId())
             return false;
 
         return true;
@@ -93,8 +74,6 @@ public class ServiceInventory extends RegisterSource {
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
         remoteBuilder.setDataIntegers(0, getSequence());
-        remoteBuilder.setDataIntegers(1, isAddress);
-        remoteBuilder.setDataIntegers(2, addressId);
 
         remoteBuilder.setDataLongs(0, getRegisterTime());
         remoteBuilder.setDataLongs(1, getHeartbeatTime());
@@ -105,8 +84,6 @@ public class ServiceInventory extends RegisterSource {
 
     @Override public void deserialize(RemoteData remoteData) {
         setSequence(remoteData.getDataIntegers(0));
-        setIsAddress(remoteData.getDataIntegers(1));
-        setAddressId(remoteData.getDataIntegers(2));
 
         setRegisterTime(remoteData.getDataLongs(0));
         setHeartbeatTime(remoteData.getDataLongs(1));
@@ -114,25 +91,21 @@ public class ServiceInventory extends RegisterSource {
         setName(remoteData.getDataStrings(0));
     }
 
-    public static class Builder implements StorageBuilder<ServiceInventory> {
+    public static class Builder implements StorageBuilder<NetworkAddressInventory> {
 
-        @Override public ServiceInventory map2Data(Map<String, Object> dbMap) {
-            ServiceInventory inventory = new ServiceInventory();
+        @Override public NetworkAddressInventory map2Data(Map<String, Object> dbMap) {
+            NetworkAddressInventory inventory = new NetworkAddressInventory();
             inventory.setSequence((Integer)dbMap.get(SEQUENCE));
-            inventory.setIsAddress((Integer)dbMap.get(IS_ADDRESS));
             inventory.setName((String)dbMap.get(NAME));
-            inventory.setAddressId((Integer)dbMap.get(ADDRESS_ID));
             inventory.setRegisterTime((Long)dbMap.get(REGISTER_TIME));
             inventory.setHeartbeatTime((Long)dbMap.get(HEARTBEAT_TIME));
             return inventory;
         }
 
-        @Override public Map<String, Object> data2Map(ServiceInventory storageData) {
+        @Override public Map<String, Object> data2Map(NetworkAddressInventory storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(SEQUENCE, storageData.getSequence());
-            map.put(IS_ADDRESS, storageData.getIsAddress());
             map.put(NAME, storageData.getName());
-            map.put(ADDRESS_ID, storageData.getAddressId());
             map.put(REGISTER_TIME, storageData.getRegisterTime());
             map.put(HEARTBEAT_TIME, storageData.getHeartbeatTime());
             return map;

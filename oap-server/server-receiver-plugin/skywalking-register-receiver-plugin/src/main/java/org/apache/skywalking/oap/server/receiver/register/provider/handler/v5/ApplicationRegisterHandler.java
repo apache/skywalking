@@ -47,7 +47,7 @@ public class ApplicationRegisterHandler extends ApplicationRegisterServiceGrpc.A
 
         ApplicationMapping.Builder builder = ApplicationMapping.newBuilder();
         String serviceName = request.getApplicationCode();
-        int serviceId = serviceInventoryRegister.getOrCreateByServiceName(serviceName);
+        int serviceId = serviceInventoryRegister.getOrCreate(serviceName);
 
         if (serviceId != Const.NONE) {
             KeyWithIntegerValue value = KeyWithIntegerValue.newBuilder().setKey(serviceName).setValue(serviceId).build();

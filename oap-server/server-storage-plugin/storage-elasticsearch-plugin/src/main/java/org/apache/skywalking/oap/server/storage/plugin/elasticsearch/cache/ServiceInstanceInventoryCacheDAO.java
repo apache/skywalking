@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache;
 
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.*;
-import org.apache.skywalking.oap.server.core.storage.cache.IEndpointInventoryCacheDAO;
+import org.apache.skywalking.oap.server.core.storage.cache.IServiceInstanceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.elasticsearch.action.get.GetResponse;
@@ -33,22 +33,26 @@ import org.slf4j.*;
 /**
  * @author peng-yongsheng
  */
-public class EndpointInventoryCacheEsDAO extends EsDAO implements IEndpointInventoryCacheDAO {
+public class ServiceInstanceInventoryCacheDAO extends EsDAO implements IServiceInstanceInventoryCacheDAO {
 
-    private static final Logger logger = LoggerFactory.getLogger(EndpointInventoryCacheEsDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceInstanceInventoryCacheDAO.class);
 
-    private final EndpointInventory.Builder builder = new EndpointInventory.Builder();
+    private final ServiceInstanceInventory.Builder builder = new ServiceInstanceInventory.Builder();
 
-    public EndpointInventoryCacheEsDAO(ElasticSearchClient client) {
+    public ServiceInstanceInventoryCacheDAO(ElasticSearchClient client) {
         super(client);
     }
 
-    @Override public int getEndpointId(int serviceId, String endpointName) {
+    @Override public int getServiceId(int serviceInstanceId) {
         try {
-            String id = EndpointInventory.buildId(serviceId, endpointName);
-            GetResponse response = getClient().get(EndpointInventory.MODEL_NAME, id);
-            if (response.isExists()) {
-                return response.getField(RegisterSource.SEQUENCE).getValue();
+            SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+            searchSourceBuilder.query(QueryBuilders.termQuery(ServiceInstanceInventory.SEQUENCE, serviceInstanceId));
+            searchSourceBuilder.size(1);
+
+            SearchResponse response = getClient().search(ServiceInstanceInventory.MODEL_NAME, searchSourceBuilder);
+            if (response.getHits().totalHits == 1) {
+                SearchHit searchHit = response.getHits().getAt(0);
+                return builder.map2Data(searchHit.getSourceAsMap()).getServiceId();
             } else {
                 return Const.NONE;
             }
@@ -58,22 +62,27 @@ public class EndpointInventoryCacheEsDAO extends EsDAO implements IEndpointInven
         }
     }
 
-    @Override public EndpointInventory get(int endpointId) {
-        try {
-            SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-            searchSourceBuilder.query(QueryBuilders.termQuery(EndpointInventory.SEQUENCE, endpointId));
-            searchSourceBuilder.size(1);
+    @Override public int getServiceInstanceId(int serviceId, String serviceInstanceName) {
+        String id = ServiceInstanceInventory.buildId(serviceId, serviceInstanceName);
+        return get(id);
+    }
 
-            SearchResponse response = getClient().search(EndpointInventory.MODEL_NAME, searchSourceBuilder);
-            if (response.getHits().totalHits == 1) {
-                SearchHit searchHit = response.getHits().getAt(0);
-                return builder.map2Data(searchHit.getSourceAsMap());
+    @Override public int getServiceInstanceId(int serviceId, int addressId) {
+        String id = ServiceInstanceInventory.buildId(serviceId, addressId);
+        return get(id);
+    }
+
+    private int get(String id) {
+        try {
+            GetResponse response = getClient().get(ServiceInstanceInventory.MODEL_NAME, id);
+            if (response.isExists()) {
+                return response.getField(RegisterSource.SEQUENCE).getValue();
             } else {
-                return null;
+                return Const.NONE;
             }
         } catch (Throwable e) {
             logger.error(e.getMessage());
-            return null;
+            return Const.NONE;
         }
     }
 }

@@ -49,7 +49,7 @@ public class ServiceNameDiscoveryHandler extends ServiceNameDiscoveryServiceGrpc
             int serviceId = serviceNameElement.getApplicationId();
             String endpointName = serviceNameElement.getServiceName();
             int srcSpanType = serviceNameElement.getSrcSpanTypeValue();
-            int endpointId = inventoryService.get(serviceId, endpointName, srcSpanType);
+            int endpointId = inventoryService.getOrCreate(serviceId, endpointName, srcSpanType);
 
             if (endpointId != Const.NONE) {
                 ServiceNameMappingElement.Builder mappingElement = ServiceNameMappingElement.newBuilder();

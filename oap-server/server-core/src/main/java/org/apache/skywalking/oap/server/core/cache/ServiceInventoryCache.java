@@ -34,9 +34,9 @@ public class ServiceInventoryCache implements Service {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceInventoryCache.class);
 
-    private final Cache<String, Integer> idCache = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(1000).build();
-    private final Cache<Integer, ServiceInventory> sequenceCache = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(1000).build();
-    private final Cache<Integer, Integer> addressIdCache = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(1000).build();
+    private final Cache<String, Integer> serviceNameCache = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(1000).build();
+    private final Cache<String, Integer> addressIdCache = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(1000).build();
+    private final Cache<Integer, ServiceInventory> serviceIdCache = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(1000).build();
 
     private final ModuleManager moduleManager;
     private IServiceInventoryCacheDAO cacheDAO;
@@ -52,18 +52,35 @@ public class ServiceInventoryCache implements Service {
         return this.cacheDAO;
     }
 
-    public int get(String serviceName) {
+    public int getServiceId(String serviceName) {
         int serviceId = 0;
         try {
-            serviceId = idCache.get(serviceName, () -> getCacheDAO().get(serviceName));
+            serviceId = serviceNameCache.get(ServiceInventory.buildId(serviceName), () -> getCacheDAO().getServiceId(serviceName));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
 
         if (serviceId == 0) {
-            serviceId = getCacheDAO().get(serviceName);
+            serviceId = getCacheDAO().getServiceId(serviceName);
             if (serviceId != 0) {
-                idCache.put(serviceName, serviceId);
+                serviceNameCache.put(ServiceInventory.buildId(serviceName), serviceId);
+            }
+        }
+        return serviceId;
+    }
+
+    public int getServiceId(int addressId) {
+        int serviceId = 0;
+        try {
+            serviceId = addressIdCache.get(ServiceInventory.buildId(addressId), () -> getCacheDAO().getServiceId(addressId));
+        } catch (Throwable e) {
+            logger.error(e.getMessage(), e);
+        }
+
+        if (serviceId == 0) {
+            serviceId = getCacheDAO().getServiceId(addressId);
+            if (serviceId != 0) {
+                addressIdCache.put(ServiceInventory.buildId(addressId), serviceId);
             }
         }
         return serviceId;
@@ -72,7 +89,7 @@ public class ServiceInventoryCache implements Service {
     public ServiceInventory get(int serviceId) {
         ServiceInventory serviceInventory = null;
         try {
-            serviceInventory = sequenceCache.get(serviceId, () -> getCacheDAO().get(serviceId));
+            serviceInventory = serviceIdCache.get(serviceId, () -> getCacheDAO().get(serviceId));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
@@ -80,26 +97,9 @@ public class ServiceInventoryCache implements Service {
         if (isNull(serviceInventory)) {
             serviceInventory = getCacheDAO().get(serviceId);
             if (nonNull(serviceInventory)) {
-                sequenceCache.put(serviceId, serviceInventory);
+                serviceIdCache.put(serviceId, serviceInventory);
             }
         }
         return serviceInventory;
-    }
-
-    public int getServiceIdByAddressId(int addressId) {
-        int serviceId = 0;
-        try {
-            serviceId = addressIdCache.get(addressId, () -> getCacheDAO().getServiceIdByAddressId(addressId));
-        } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
-        }
-
-        if (serviceId == 0) {
-            serviceId = getCacheDAO().getServiceIdByAddressId(addressId);
-            if (serviceId != 0) {
-                addressIdCache.put(addressId, serviceId);
-            }
-        }
-        return serviceId;
     }
 }

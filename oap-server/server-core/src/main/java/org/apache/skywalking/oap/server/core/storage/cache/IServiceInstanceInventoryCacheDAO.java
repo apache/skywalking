@@ -16,16 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.register.service;
+package org.apache.skywalking.oap.server.core.storage.cache;
 
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.core.storage.DAO;
 
 /**
  * @author peng-yongsheng
  */
-public interface IServiceInventoryRegister extends Service {
+public interface IServiceInstanceInventoryCacheDAO extends DAO {
 
-    int getOrCreate(String serviceName);
+    int getServiceId(int serviceInstanceId);
 
-    int getOrCreate(int addressId);
+    int getServiceInstanceId(int serviceId, String serviceInstanceName);
+
+    int getServiceInstanceId(int serviceId, int addressId);
 }

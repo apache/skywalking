@@ -22,5 +22,5 @@ package org.apache.skywalking.oap.server.core.source;
  * @author peng-yongsheng
  */
 public enum Scope {
-    All, Service, ServiceInstance, Endpoint, ServiceRelation, ServiceInstanceRelation, EndpointRelation
+    All, Service, ServiceInstance, Endpoint, ServiceRelation, ServiceInstanceRelation, EndpointRelation, NetworkAddress
 }

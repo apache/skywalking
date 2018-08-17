@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache;
 
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.*;
-import org.apache.skywalking.oap.server.core.storage.cache.IEndpointInventoryCacheDAO;
+import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressInventoryCacheDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.elasticsearch.action.get.GetResponse;
@@ -33,20 +33,20 @@ import org.slf4j.*;
 /**
  * @author peng-yongsheng
  */
-public class EndpointInventoryCacheEsDAO extends EsDAO implements IEndpointInventoryCacheDAO {
+public class NetworkAddressInventoryCacheEsDAO extends EsDAO implements INetworkAddressInventoryCacheDAO {
 
-    private static final Logger logger = LoggerFactory.getLogger(EndpointInventoryCacheEsDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(NetworkAddressInventoryCacheEsDAO.class);
 
-    private final EndpointInventory.Builder builder = new EndpointInventory.Builder();
+    private final NetworkAddressInventory.Builder builder = new NetworkAddressInventory.Builder();
 
-    public EndpointInventoryCacheEsDAO(ElasticSearchClient client) {
+    public NetworkAddressInventoryCacheEsDAO(ElasticSearchClient client) {
         super(client);
     }
 
-    @Override public int getEndpointId(int serviceId, String endpointName) {
+    @Override public int getAddressId(String networkAddress) {
         try {
-            String id = EndpointInventory.buildId(serviceId, endpointName);
-            GetResponse response = getClient().get(EndpointInventory.MODEL_NAME, id);
+            String id = NetworkAddressInventory.buildId(networkAddress);
+            GetResponse response = getClient().get(NetworkAddressInventory.MODEL_NAME, id);
             if (response.isExists()) {
                 return response.getField(RegisterSource.SEQUENCE).getValue();
             } else {
@@ -58,13 +58,13 @@ public class EndpointInventoryCacheEsDAO extends EsDAO implements IEndpointInven
         }
     }
 
-    @Override public EndpointInventory get(int endpointId) {
+    @Override public NetworkAddressInventory get(int addressId) {
         try {
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-            searchSourceBuilder.query(QueryBuilders.termQuery(EndpointInventory.SEQUENCE, endpointId));
+            searchSourceBuilder.query(QueryBuilders.termQuery(NetworkAddressInventory.SEQUENCE, addressId));
             searchSourceBuilder.size(1);
 
-            SearchResponse response = getClient().search(EndpointInventory.MODEL_NAME, searchSourceBuilder);
+            SearchResponse response = getClient().search(NetworkAddressInventory.MODEL_NAME, searchSourceBuilder);
             if (response.getHits().totalHits == 1) {
                 SearchHit searchHit = response.getHits().getAt(0);
                 return builder.map2Data(searchHit.getSourceAsMap());

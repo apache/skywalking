@@ -18,11 +18,16 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache;
 
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.*;
 
 /**
@@ -32,29 +37,52 @@ public class ServiceInventoryCacheEsDAO extends EsDAO implements IServiceInvento
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceInventoryCacheEsDAO.class);
 
+    private final ServiceInventory.Builder builder = new ServiceInventory.Builder();
+
     public ServiceInventoryCacheEsDAO(ElasticSearchClient client) {
         super(client);
     }
 
-    @Override public int get(String id) {
+    @Override public int getServiceId(String serviceName) {
+        String id = ServiceInventory.buildId(serviceName);
+        return get(id);
+    }
+
+    @Override public int getServiceId(int addressId) {
+        String id = ServiceInventory.buildId(addressId);
+        return get(id);
+    }
+
+    private int get(String id) {
         try {
             GetResponse response = getClient().get(ServiceInventory.MODEL_NAME, id);
             if (response.isExists()) {
                 return response.getField(RegisterSource.SEQUENCE).getValue();
             } else {
-                return 0;
+                return Const.NONE;
             }
         } catch (Throwable e) {
             logger.error(e.getMessage());
-            return 0;
+            return Const.NONE;
         }
     }
 
-    @Override public ServiceInventory get(int sequence) {
-        return null;
-    }
+    @Override public ServiceInventory get(int serviceId) {
+        try {
+            SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+            searchSourceBuilder.query(QueryBuilders.termQuery(ServiceInventory.SEQUENCE, serviceId));
+            searchSourceBuilder.size(1);
 
-    @Override public int getServiceIdByAddressId(int addressId) {
-        return 0;
+            SearchResponse response = getClient().search(ServiceInventory.MODEL_NAME, searchSourceBuilder);
+            if (response.getHits().totalHits == 1) {
+                SearchHit searchHit = response.getHits().getAt(0);
+                return builder.map2Data(searchHit.getSourceAsMap());
+            } else {
+                return null;
+            }
+        } catch (Throwable e) {
+            logger.error(e.getMessage());
+            return null;
+        }
     }
 }

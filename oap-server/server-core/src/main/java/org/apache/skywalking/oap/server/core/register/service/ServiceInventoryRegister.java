@@ -46,14 +46,32 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
         return serviceInventoryCache;
     }
 
-    @Override public int getOrCreateByServiceName(String serviceName) {
-        int serviceId = getServiceInventoryCache().get(serviceName);
+    @Override public int getOrCreate(String serviceName) {
+        int serviceId = getServiceInventoryCache().getServiceId(serviceName);
 
         if (serviceId == Const.NONE) {
             ServiceInventory serviceInventory = new ServiceInventory();
             serviceInventory.setName(serviceName);
             serviceInventory.setAddressId(Const.NONE);
             serviceInventory.setIsAddress(BooleanUtils.FALSE);
+
+            long now = System.currentTimeMillis();
+            serviceInventory.setRegisterTime(now);
+            serviceInventory.setHeartbeatTime(now);
+
+            InventoryProcess.INSTANCE.in(serviceInventory);
+        }
+        return serviceId;
+    }
+
+    @Override public int getOrCreate(int addressId) {
+        int serviceId = getServiceInventoryCache().getServiceId(addressId);
+
+        if (serviceId == Const.NONE) {
+            ServiceInventory serviceInventory = new ServiceInventory();
+            serviceInventory.setName(Const.EMPTY_STRING);
+            serviceInventory.setAddressId(addressId);
+            serviceInventory.setIsAddress(BooleanUtils.TRUE);
 
             long now = System.currentTimeMillis();
             serviceInventory.setRegisterTime(now);

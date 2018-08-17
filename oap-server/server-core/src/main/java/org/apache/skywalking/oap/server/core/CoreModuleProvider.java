@@ -95,8 +95,14 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(ServiceInventoryCache.class, new ServiceInventoryCache(getManager()));
         this.registerServiceImplementation(IServiceInventoryRegister.class, new ServiceInventoryRegister(getManager()));
 
+        this.registerServiceImplementation(ServiceInstanceInventoryCache.class, new ServiceInstanceInventoryCache(getManager()));
+        this.registerServiceImplementation(IServiceInstanceInventoryRegister.class, new ServiceInstanceInventoryRegister(getManager()));
+
         this.registerServiceImplementation(EndpointInventoryCache.class, new EndpointInventoryCache(getManager()));
         this.registerServiceImplementation(IEndpointInventoryRegister.class, new EndpointInventoryRegister(getManager()));
+
+        this.registerServiceImplementation(NetworkAddressInventoryCache.class, new NetworkAddressInventoryCache(getManager()));
+        this.registerServiceImplementation(INetworkAddressInventoryRegister.class, new NetworkAddressInventoryRegister(getManager()));
 
         annotationScan.registerListener(storageAnnotationListener);
         annotationScan.registerListener(streamAnnotationListener);
