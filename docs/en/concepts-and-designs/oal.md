@@ -67,16 +67,16 @@ Calculate the metric data from each request of the service instance.
 
 Calculate the metric data if the service instance is a JVM and collected by javaagent.
 
-1. SCOPE `ServiceInstance_JVM_CPU`
+1. SCOPE `ServiceInstanceJVMCPU`
 
 | Name | Remarks | Group Key | Type | 
 |---|---|---|---|
 | id | Represent the unique id of the service instance, usually a number. | yes | int |
 | name |  Represent the name of the service instance. Such as `ip:port@Service Name`.  **Notice**: current native agent uses `processId@Service name` as instance name, which is useless when you want to setup a filter in aggregation. | | string|
 | serviceName | Represent the name of the service. | | string |
-| use_percent | Represent how much percent of cpu time cost| | double|
+| usePercent | Represent how much percent of cpu time cost| | double|
 
-2. SCOPE `ServiceInstance_JVM_Memory`
+2. SCOPE `ServiceInstanceJVMMemory`
 
 | Name | Remarks | Group Key | Type | 
 |---|---|---|---|
@@ -89,7 +89,7 @@ Calculate the metric data if the service instance is a JVM and collected by java
 | used | See JVM document | | long |
 | committed | See JVM document | | long |
 
-3. SCOPE `ServiceInstance_JVM_Memory_Pool`
+3. SCOPE `ServiceInstanceJVMMemoryPool`
 
 | Name | Remarks | Group Key | Type | 
 |---|---|---|---|
@@ -102,7 +102,7 @@ Calculate the metric data if the service instance is a JVM and collected by java
 | used | See JVM document | | long |
 | committed | See JVM document | | long |
 
-4. SCOPE `ServiceInstance_JVM_GC`
+4. SCOPE `ServiceInstanceJVMGC`
 
 | Name | Remarks | Group Key | Type | 
 |---|---|---|---|
