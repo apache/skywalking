@@ -48,14 +48,14 @@ public class EndpointInventoryRegister implements IEndpointInventoryRegister {
         return cacheService;
     }
 
-    @Override public int getOrCreate(int serviceId, String endpointName, int srcSpanType) {
+    @Override public int getOrCreate(int serviceId, String endpointName, int detectPoint) {
         int endpointId = getCacheService().getEndpointId(serviceId, endpointName);
 
         if (endpointId == Const.NONE) {
             EndpointInventory endpointInventory = new EndpointInventory();
             endpointInventory.setServiceId(serviceId);
             endpointInventory.setName(endpointName);
-            endpointInventory.setSrcSpanType(srcSpanType);
+            endpointInventory.setDetectPoint(detectPoint);
 
             long now = System.currentTimeMillis();
             endpointInventory.setRegisterTime(now);

@@ -40,11 +40,11 @@ public class EndpointInventory extends RegisterSource {
 
     private static final String SERVICE_ID = "service_id";
     private static final String NAME = "name";
-    private static final String SRC_SPAN_TYPE = "src_span_type";
+    private static final String DETECT_POINT = "detect_point";
 
     @Setter @Getter @Column(columnName = SERVICE_ID) private int serviceId;
     @Setter @Getter @Column(columnName = NAME, matchQuery = true) private String name = Const.EMPTY_STRING;
-    @Setter @Getter @Column(columnName = SRC_SPAN_TYPE) private int srcSpanType;
+    @Setter @Getter @Column(columnName = DETECT_POINT) private int detectPoint;
 
     public static String buildId(int serviceId, String endpointName) {
         return serviceId + Const.ID_SPLIT + endpointName;
@@ -82,7 +82,7 @@ public class EndpointInventory extends RegisterSource {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
         remoteBuilder.setDataIntegers(0, getSequence());
         remoteBuilder.setDataIntegers(1, serviceId);
-        remoteBuilder.setDataIntegers(2, srcSpanType);
+        remoteBuilder.setDataIntegers(2, detectPoint);
 
         remoteBuilder.setDataLongs(0, getRegisterTime());
         remoteBuilder.setDataLongs(1, getHeartbeatTime());
@@ -94,7 +94,7 @@ public class EndpointInventory extends RegisterSource {
     @Override public void deserialize(RemoteData remoteData) {
         setSequence(remoteData.getDataIntegers(0));
         setServiceId(remoteData.getDataIntegers(1));
-        setSrcSpanType(remoteData.getDataIntegers(2));
+        setDetectPoint(remoteData.getDataIntegers(2));
 
         setRegisterTime(remoteData.getDataLongs(0));
         setHeartbeatTime(remoteData.getDataLongs(1));
@@ -109,7 +109,7 @@ public class EndpointInventory extends RegisterSource {
             inventory.setSequence((Integer)dbMap.get(SEQUENCE));
             inventory.setServiceId((Integer)dbMap.get(SERVICE_ID));
             inventory.setName((String)dbMap.get(NAME));
-            inventory.setSrcSpanType((Integer)dbMap.get(SRC_SPAN_TYPE));
+            inventory.setDetectPoint((Integer)dbMap.get(DETECT_POINT));
             inventory.setRegisterTime((Long)dbMap.get(REGISTER_TIME));
             inventory.setHeartbeatTime((Long)dbMap.get(HEARTBEAT_TIME));
             return inventory;
@@ -120,7 +120,7 @@ public class EndpointInventory extends RegisterSource {
             map.put(SEQUENCE, storageData.getSequence());
             map.put(SERVICE_ID, storageData.getServiceId());
             map.put(NAME, storageData.getName());
-            map.put(SRC_SPAN_TYPE, storageData.getSrcSpanType());
+            map.put(DETECT_POINT, storageData.getDetectPoint());
             map.put(REGISTER_TIME, storageData.getRegisterTime());
             map.put(HEARTBEAT_TIME, storageData.getHeartbeatTime());
             return map;

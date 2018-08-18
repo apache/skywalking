@@ -25,7 +25,7 @@ import org.apache.skywalking.oap.server.library.module.Service;
  */
 public interface IEndpointInventoryRegister extends Service {
 
-    int getOrCreate(int serviceId, String endpointName, int srcSpanType);
+    int getOrCreate(int serviceId, String endpointName, int detectPoint);
 
     int get(int serviceId, String endpointName);
 }
