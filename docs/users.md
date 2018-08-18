@@ -6,6 +6,7 @@ if any entity(company or organization) has any doubt, please contact us by [any 
 - 300.cn 中企动力科技股份有限公司 http://www.300.cn/
 - 4499.com 四三九九网络股份有限公司. http://www.4399.com/
 - AsiaInfo Inc. http://www.asiainfo.com.cn/
+- Autohome. 汽车之家. http://www.autohome.com.cn
 - Baixing.com 百姓网 http://www.baixing.com/
 - Bizsaas.cn 北京商云科技发展有限公司. http://www.bizsaas.cn/
 - Chehejia Automotive. 北京车和家信息技术有限责任公司. https://www.chehejia.com/
