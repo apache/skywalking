@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.cache;
 
 import com.google.common.cache.*;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInventoryCacheDAO;
@@ -53,16 +54,16 @@ public class ServiceInventoryCache implements Service {
     }
 
     public int getServiceId(String serviceName) {
-        int serviceId = 0;
+        int serviceId = Const.NONE;
         try {
             serviceId = serviceNameCache.get(ServiceInventory.buildId(serviceName), () -> getCacheDAO().getServiceId(serviceName));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
 
-        if (serviceId == 0) {
+        if (serviceId == Const.NONE) {
             serviceId = getCacheDAO().getServiceId(serviceName);
-            if (serviceId != 0) {
+            if (serviceId != Const.NONE) {
                 serviceNameCache.put(ServiceInventory.buildId(serviceName), serviceId);
             }
         }
@@ -70,16 +71,16 @@ public class ServiceInventoryCache implements Service {
     }
 
     public int getServiceId(int addressId) {
-        int serviceId = 0;
+        int serviceId = Const.NONE;
         try {
             serviceId = addressIdCache.get(ServiceInventory.buildId(addressId), () -> getCacheDAO().getServiceId(addressId));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
 
-        if (serviceId == 0) {
+        if (serviceId == Const.NONE) {
             serviceId = getCacheDAO().getServiceId(addressId);
-            if (serviceId != 0) {
+            if (serviceId != Const.NONE) {
                 addressIdCache.put(ServiceInventory.buildId(addressId), serviceId);
             }
         }

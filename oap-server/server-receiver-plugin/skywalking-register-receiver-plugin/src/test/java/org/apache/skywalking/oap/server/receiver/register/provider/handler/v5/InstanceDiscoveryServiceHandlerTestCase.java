@@ -25,19 +25,29 @@ import org.slf4j.*;
 /**
  * @author peng-yongsheng
  */
-public class ApplicationRegisterHandlerTestCase {
+public class InstanceDiscoveryServiceHandlerTestCase {
 
-    private static final Logger logger = LoggerFactory.getLogger(ApplicationRegisterHandlerTestCase.class);
+    private static final Logger logger = LoggerFactory.getLogger(InstanceDiscoveryServiceHandlerTestCase.class);
 
     public static void main(String[] args) {
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
 
-        ApplicationRegisterServiceGrpc.ApplicationRegisterServiceBlockingStub stub = ApplicationRegisterServiceGrpc.newBlockingStub(channel);
+        InstanceDiscoveryServiceGrpc.InstanceDiscoveryServiceBlockingStub stub = InstanceDiscoveryServiceGrpc.newBlockingStub(channel);
 
-        Application.Builder application = Application.newBuilder();
-        application.setApplicationCode("dubbox-consumer");
+        ApplicationInstance.Builder applicationInstance = ApplicationInstance.newBuilder();
+        applicationInstance.setApplicationId(1);
+        applicationInstance.setAgentUUID("Test");
+        applicationInstance.setRegisterTime(System.currentTimeMillis());
 
-        ApplicationMapping applicationMapping = stub.applicationCodeRegister(application.build());
-        logger.info("application id: {}", applicationMapping.getApplication().getValue());
+        OSInfo.Builder osInfo = OSInfo.newBuilder();
+        osInfo.setOsName("mac os");
+        osInfo.setHostname("pengys");
+        osInfo.setProcessNo(1);
+        osInfo.addIpv4S("10.0.0.1");
+        osInfo.addIpv4S("10.0.0.2");
+        applicationInstance.setOsinfo(osInfo);
+
+        ApplicationInstanceMapping instanceMapping = stub.registerInstance(applicationInstance.build());
+        logger.info("application id: {}, application instance id: {}", instanceMapping.getApplicationId(), instanceMapping.getApplicationInstanceId());
     }
 }

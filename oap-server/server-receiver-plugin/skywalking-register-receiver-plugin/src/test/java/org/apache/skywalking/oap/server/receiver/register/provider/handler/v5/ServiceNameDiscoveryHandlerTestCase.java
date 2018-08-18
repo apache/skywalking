@@ -41,8 +41,9 @@ public class ServiceNameDiscoveryHandlerTestCase {
         serviceNameCollection.addElements(serviceNameElement);
 
         ServiceNameMappingCollection collection = stub.discovery(serviceNameCollection.build());
+
         for (ServiceNameMappingElement element : collection.getElementsList()) {
-            logger.debug("service id: {}", element.getServiceId());
+            logger.info("service id: {}", element.getServiceId());
         }
     }
 }

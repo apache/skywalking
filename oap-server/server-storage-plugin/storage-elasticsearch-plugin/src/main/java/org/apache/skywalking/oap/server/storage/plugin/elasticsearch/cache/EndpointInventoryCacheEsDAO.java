@@ -48,7 +48,7 @@ public class EndpointInventoryCacheEsDAO extends EsDAO implements IEndpointInven
             String id = EndpointInventory.buildId(serviceId, endpointName);
             GetResponse response = getClient().get(EndpointInventory.MODEL_NAME, id);
             if (response.isExists()) {
-                return response.getField(RegisterSource.SEQUENCE).getValue();
+                return (int)response.getSource().getOrDefault(RegisterSource.SEQUENCE, 0);
             } else {
                 return Const.NONE;
             }

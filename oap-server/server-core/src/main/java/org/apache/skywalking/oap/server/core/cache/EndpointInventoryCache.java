@@ -52,18 +52,18 @@ public class EndpointInventoryCache implements Service {
         }
         return cacheDAO;
     }
-    
+
     public int getEndpointId(int serviceId, String endpointName) {
         String id = EndpointInventory.buildId(serviceId, endpointName);
 
         int endpointId = Const.NONE;
         try {
-            endpointId = endpointNameCache.get(EndpointInventory.buildId(serviceId, endpointName), () -> getCacheDAO().getEndpointId(serviceId, endpointName));
+            endpointId = endpointNameCache.get(id, () -> getCacheDAO().getEndpointId(serviceId, endpointName));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
 
-        if (serviceId == Const.NONE) {
+        if (endpointId == Const.NONE) {
             endpointId = getCacheDAO().getEndpointId(serviceId, endpointName);
             if (endpointId != Const.NONE) {
                 endpointNameCache.put(id, endpointId);

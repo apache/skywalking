@@ -48,6 +48,7 @@ public class RegisterLockInstaller {
             putIfAbsent(Scope.Endpoint.ordinal());
             putIfAbsent(Scope.ServiceInstance.ordinal());
             putIfAbsent(Scope.Service.ordinal());
+            putIfAbsent(Scope.NetworkAddress.ordinal());
         } catch (IOException e) {
             throw new StorageException(e.getMessage());
         }

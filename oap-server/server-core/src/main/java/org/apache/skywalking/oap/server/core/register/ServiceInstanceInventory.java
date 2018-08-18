@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.register;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
@@ -40,13 +42,13 @@ public class ServiceInstanceInventory extends RegisterSource {
     public static final String MODEL_NAME = "service_instance_inventory";
 
     public static final String NAME = "name";
-    public static final String SERVICE_ID = "service_id";
-    public static final String IS_ADDRESS = "is_address";
-    public static final String ADDRESS_ID = "address_id";
+    private static final String SERVICE_ID = "service_id";
+    private static final String IS_ADDRESS = "is_address";
+    private static final String ADDRESS_ID = "address_id";
     private static final String OS_NAME = "os_name";
     private static final String HOST_NAME = "host_name";
     private static final String PROCESS_NO = "process_no";
-    private static final String IPV4 = "ipv4";
+    private static final String IPV4S = "ipv4s";
 
     @Setter @Getter @Column(columnName = NAME, matchQuery = true) private String name = Const.EMPTY_STRING;
     @Setter @Getter @Column(columnName = SERVICE_ID) private int serviceId;
@@ -55,7 +57,7 @@ public class ServiceInstanceInventory extends RegisterSource {
     @Setter @Getter @Column(columnName = OS_NAME) private String osName;
     @Setter @Getter @Column(columnName = HOST_NAME) private String hostName;
     @Setter @Getter @Column(columnName = PROCESS_NO) private int processNo;
-    @Setter @Getter @Column(columnName = IPV4) private String ipv4;
+    @Setter @Getter @Column(columnName = IPV4S) private String ipv4s;
 
     public static String buildId(int serviceId, String serviceInstanceName) {
         return serviceId + Const.ID_SPLIT + serviceInstanceName + Const.ID_SPLIT + BooleanUtils.FALSE + Const.ID_SPLIT + Const.NONE;
@@ -117,7 +119,7 @@ public class ServiceInstanceInventory extends RegisterSource {
         remoteBuilder.setDataStrings(0, name);
         remoteBuilder.setDataStrings(1, osName);
         remoteBuilder.setDataStrings(2, hostName);
-        remoteBuilder.setDataStrings(3, ipv4);
+        remoteBuilder.setDataStrings(3, ipv4s);
         return remoteBuilder;
     }
 
@@ -134,7 +136,7 @@ public class ServiceInstanceInventory extends RegisterSource {
         setName(remoteData.getDataStrings(0));
         setOsName(remoteData.getDataStrings(1));
         setHostName(remoteData.getDataStrings(2));
-        setIpv4(remoteData.getDataStrings(3));
+        setIpv4s(remoteData.getDataStrings(3));
     }
 
     public static class Builder implements StorageBuilder<ServiceInstanceInventory> {
@@ -153,7 +155,7 @@ public class ServiceInstanceInventory extends RegisterSource {
             inventory.setName((String)dbMap.get(NAME));
             inventory.setOsName((String)dbMap.get(OS_NAME));
             inventory.setHostName((String)dbMap.get(HOST_NAME));
-            inventory.setIpv4((String)dbMap.get(IPV4));
+            inventory.setIpv4s((String)dbMap.get(IPV4S));
             return inventory;
         }
 
@@ -171,8 +173,30 @@ public class ServiceInstanceInventory extends RegisterSource {
             map.put(NAME, storageData.getName());
             map.put(OS_NAME, storageData.getOsName());
             map.put(HOST_NAME, storageData.getHostName());
-            map.put(IPV4, storageData.getIpv4());
+            map.put(IPV4S, storageData.getIpv4s());
             return map;
+        }
+    }
+
+    public static class AgentOsInfo {
+        @Setter @Getter private String osName;
+        @Setter @Getter private String hostname;
+        @Setter @Getter private int processNo;
+        @Getter private List<String> ipv4s;
+
+        public AgentOsInfo() {
+            this.ipv4s = new ArrayList<>();
+        }
+
+        public static String ipv4sSerialize(List<String> ipv4) {
+            Gson gson = new Gson();
+            return gson.toJson(ipv4);
+        }
+
+        public static List<String> ipv4sDeserialize(String ipv4s) {
+            Gson gson = new Gson();
+            return gson.fromJson(ipv4s, new TypeToken<List<String>>() {
+            }.getType());
         }
     }
 }
