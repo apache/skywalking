@@ -80,7 +80,7 @@ Follow this [document](https://github.com/apache/incubator-skywalking/blob/maste
 # Users
 <img src="https://skywalkingtest.github.io/page-resources/users/users-2018-08-12.png"/>
 
-- [Users list](docs/uses.md)
+- [Users list](docs/users.md)
 - [Submit new user to us.](https://github.com/apache/incubator-skywalking/issues/443)
 
 <p align="center">
