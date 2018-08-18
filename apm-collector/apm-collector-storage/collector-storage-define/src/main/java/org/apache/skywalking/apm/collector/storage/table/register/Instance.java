@@ -18,11 +18,9 @@
 
 package org.apache.skywalking.apm.collector.storage.table.register;
 
-import org.apache.skywalking.apm.collector.core.data.Column;
-import org.apache.skywalking.apm.collector.core.data.RemoteData;
-import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.data.operator.CoverMergeOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.*;
+import org.apache.skywalking.apm.collector.core.data.column.*;
+import org.apache.skywalking.apm.collector.core.data.operator.*;
 import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 
 /**
@@ -30,31 +28,30 @@ import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterServ
  */
 public class Instance extends StreamData {
 
-    private static final Column[] STRING_COLUMNS = {
-        new Column(InstanceTable.ID, new NonMergeOperation()),
-        new Column(InstanceTable.AGENT_UUID, new CoverMergeOperation()),
-        new Column(InstanceTable.OS_INFO, new CoverMergeOperation()),
-        new Column(InstanceTable.APPLICATION_CODE, new CoverMergeOperation()),
+    private static final StringColumn[] STRING_COLUMNS = {
+        new StringColumn(InstanceTable.ID, new NonMergeOperation()),
+        new StringColumn(InstanceTable.AGENT_UUID, new CoverMergeOperation()),
+        new StringColumn(InstanceTable.OS_INFO, new CoverMergeOperation()),
+        new StringColumn(InstanceTable.APPLICATION_CODE, new CoverMergeOperation()),
     };
 
-    private static final Column[] LONG_COLUMNS = {
-        new Column(InstanceTable.REGISTER_TIME, new CoverMergeOperation()),
-        new Column(InstanceTable.HEARTBEAT_TIME, new CoverMergeOperation()),
+    private static final LongColumn[] LONG_COLUMNS = {
+        new LongColumn(InstanceTable.REGISTER_TIME, new CoverMergeOperation()),
+        new LongColumn(InstanceTable.HEARTBEAT_TIME, new MaxMergeOperation()),
     };
 
-    private static final Column[] DOUBLE_COLUMNS = {};
-
-    private static final Column[] INTEGER_COLUMNS = {
-        new Column(InstanceTable.APPLICATION_ID, new CoverMergeOperation()),
-        new Column(InstanceTable.INSTANCE_ID, new CoverMergeOperation()),
-        new Column(InstanceTable.ADDRESS_ID, new CoverMergeOperation()),
-        new Column(InstanceTable.IS_ADDRESS, new CoverMergeOperation()),
+    private static final IntegerColumn[] INTEGER_COLUMNS = {
+        new IntegerColumn(InstanceTable.APPLICATION_ID, new CoverMergeOperation()),
+        new IntegerColumn(InstanceTable.INSTANCE_ID, new CoverMergeOperation()),
+        new IntegerColumn(InstanceTable.ADDRESS_ID, new CoverMergeOperation()),
+        new IntegerColumn(InstanceTable.IS_ADDRESS, new CoverMergeOperation()),
     };
 
-    private static final Column[] BYTE_COLUMNS = {};
+    private static final DoubleColumn[] DOUBLE_COLUMNS = {
+    };
 
     public Instance() {
-        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
+        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, DOUBLE_COLUMNS);
     }
 
     @Override public String getId() {

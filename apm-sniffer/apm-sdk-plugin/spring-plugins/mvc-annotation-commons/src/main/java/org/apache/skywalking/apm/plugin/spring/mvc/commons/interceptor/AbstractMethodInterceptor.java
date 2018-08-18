@@ -33,7 +33,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
 
-import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.ISOLATE_STRATEGY_KEY_IN_RUNNING_CONTEXT;
+import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.FORWARD_REQUEST_FLAG;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.REQUEST_KEY_IN_RUNTIME_CONTEXT;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESPONSE_KEY_IN_RUNTIME_CONTEXT;
 
@@ -46,6 +46,16 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
+
+        Boolean forwardRequestFlag = (Boolean)ContextManager.getRuntimeContext().get(FORWARD_REQUEST_FLAG);
+        /**
+         * Spring MVC plugin do nothing if current request is forward request.
+         * Ref: https://github.com/apache/incubator-skywalking/pull/1325
+         */
+        if (forwardRequestFlag != null && forwardRequestFlag) {
+            return;
+        }
+
         EnhanceRequireObjectCache pathMappingCache = (EnhanceRequireObjectCache)objInst.getSkyWalkingDynamicField();
         String requestURL = pathMappingCache.findPathMapping(method);
         if (requestURL == null) {
@@ -54,12 +64,8 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
             requestURL = pathMappingCache.findPathMapping(method);
         }
 
-        String hystrixIsolateStrategy = (String)ContextManager.getRuntimeContext().get(ISOLATE_STRATEGY_KEY_IN_RUNNING_CONTEXT);
         HttpServletRequest request = (HttpServletRequest)ContextManager.getRuntimeContext().get(REQUEST_KEY_IN_RUNTIME_CONTEXT);
-
-        if (hystrixIsolateStrategy != null) {
-            ContextManager.createLocalSpan(requestURL);
-        } else if (request != null) {
+        if (request != null) {
             ContextCarrier contextCarrier = new ContextCarrier();
             CarrierItem next = contextCarrier.items();
             while (next.hasNext()) {
@@ -78,18 +84,28 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        String hystrixIsolateStrategy = (String)ContextManager.getRuntimeContext().get(ISOLATE_STRATEGY_KEY_IN_RUNNING_CONTEXT);
-        HttpServletResponse response = (HttpServletResponse)ContextManager.getRuntimeContext().get(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
+        Boolean forwardRequestFlag = (Boolean)ContextManager.getRuntimeContext().get(FORWARD_REQUEST_FLAG);
+        /**
+         * Spring MVC plugin do nothing if current request is forward request.
+         * Ref: https://github.com/apache/incubator-skywalking/pull/1325
+         */
+        if (forwardRequestFlag != null && forwardRequestFlag) {
+            return ret;
+        }
 
-        if (hystrixIsolateStrategy != null) {
-            ContextManager.stopSpan();
-        } else if (response != null) {
-            AbstractSpan span = ContextManager.activeSpan();
-            if (response.getStatus() >= 400) {
-                span.errorOccurred();
-                Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
+        HttpServletResponse response = (HttpServletResponse)ContextManager.getRuntimeContext().get(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
+        try {
+            if (response != null) {
+                AbstractSpan span = ContextManager.activeSpan();
+                if (response.getStatus() >= 400) {
+                    span.errorOccurred();
+                    Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
+                }
+                ContextManager.stopSpan();
             }
-            ContextManager.stopSpan();
+        } finally {
+            ContextManager.getRuntimeContext().remove(REQUEST_KEY_IN_RUNTIME_CONTEXT);
+            ContextManager.getRuntimeContext().remove(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
         }
 
         return ret;

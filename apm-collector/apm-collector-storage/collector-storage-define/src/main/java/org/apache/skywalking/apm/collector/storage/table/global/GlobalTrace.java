@@ -18,35 +18,33 @@
 
 package org.apache.skywalking.apm.collector.storage.table.global;
 
-import org.apache.skywalking.apm.collector.core.data.Column;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.data.operator.CoverMergeOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.column.*;
+import org.apache.skywalking.apm.collector.core.data.operator.*;
 
 /**
  * @author peng-yongsheng
  */
 public class GlobalTrace extends StreamData {
 
-    private static final Column[] STRING_COLUMNS = {
-        new Column(GlobalTraceTable.ID, new NonMergeOperation()),
-        new Column(GlobalTraceTable.SEGMENT_ID, new CoverMergeOperation()),
-        new Column(GlobalTraceTable.TRACE_ID, new CoverMergeOperation()),
+    private static final StringColumn[] STRING_COLUMNS = {
+        new StringColumn(GlobalTraceTable.ID, new NonMergeOperation()),
+        new StringColumn(GlobalTraceTable.SEGMENT_ID, new CoverMergeOperation()),
+        new StringColumn(GlobalTraceTable.TRACE_ID, new CoverMergeOperation()),
     };
 
-    private static final Column[] LONG_COLUMNS = {
-        new Column(GlobalTraceTable.TIME_BUCKET, new CoverMergeOperation()),
+    private static final LongColumn[] LONG_COLUMNS = {
+        new LongColumn(GlobalTraceTable.TIME_BUCKET, new CoverMergeOperation()),
     };
 
-    private static final Column[] DOUBLE_COLUMNS = {};
-
-    private static final Column[] INTEGER_COLUMNS = {
+    private static final IntegerColumn[] INTEGER_COLUMNS = {
     };
 
-    private static final Column[] BYTE_COLUMNS = {};
+    private static final DoubleColumn[] DOUBLE_COLUMNS = {
+    };
 
     public GlobalTrace() {
-        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
+        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, DOUBLE_COLUMNS);
     }
 
     @Override public String getId() {
@@ -73,11 +71,11 @@ public class GlobalTrace extends StreamData {
         setDataString(1, segmentId);
     }
 
-    public String getGlobalTraceId() {
+    public String getTraceId() {
         return getDataString(2);
     }
 
-    public void setGlobalTraceId(String globalTraceId) {
+    public void setTraceId(String globalTraceId) {
         setDataString(2, globalTraceId);
     }
 

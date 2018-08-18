@@ -19,19 +19,15 @@
 package org.apache.skywalking.apm.collector.analysis.register.provider.register;
 
 import org.apache.skywalking.apm.collector.analysis.register.define.graph.WorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.*;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.InstanceCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.BooleanUtils;
-import org.apache.skywalking.apm.collector.core.util.Const;
+import org.apache.skywalking.apm.collector.core.util.*;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.register.IInstanceRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.Instance;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -53,8 +49,10 @@ public class InstanceRegisterSerialWorker extends AbstractLocalAsyncWorker<Insta
         return WorkerIdDefine.INSTANCE_REGISTER_SERIAL_WORKER;
     }
 
-    @Override protected void onWork(Instance instance) throws WorkerException {
-        logger.debug("register instance, application id: {}, agentUUID: {}", instance.getApplicationId(), instance.getAgentUUID());
+    @Override protected void onWork(Instance instance) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("register instance, application id: {}, agentUUID: {}", instance.getApplicationId(), instance.getAgentUUID());
+        }
 
         int instanceId;
         if (BooleanUtils.valueToBoolean(instance.getIsAddress())) {

@@ -18,11 +18,9 @@
 
 package org.apache.skywalking.apm.collector.storage.table.application;
 
-import org.apache.skywalking.apm.collector.core.data.Column;
-import org.apache.skywalking.apm.collector.core.data.RemoteData;
-import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.data.operator.CoverMergeOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.*;
+import org.apache.skywalking.apm.collector.core.data.column.*;
+import org.apache.skywalking.apm.collector.core.data.operator.*;
 import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 
 /**
@@ -30,26 +28,25 @@ import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterServ
  */
 public class ApplicationMapping extends StreamData {
 
-    private static final Column[] STRING_COLUMNS = {
-        new Column(ApplicationMappingTable.ID, new NonMergeOperation()),
-        new Column(ApplicationMappingTable.METRIC_ID, new NonMergeOperation()),
+    private static final StringColumn[] STRING_COLUMNS = {
+        new StringColumn(ApplicationMappingTable.ID, new NonMergeOperation()),
+        new StringColumn(ApplicationMappingTable.METRIC_ID, new NonMergeOperation()),
     };
 
-    private static final Column[] LONG_COLUMNS = {
-        new Column(ApplicationMappingTable.TIME_BUCKET, new CoverMergeOperation()),
+    private static final LongColumn[] LONG_COLUMNS = {
+        new LongColumn(ApplicationMappingTable.TIME_BUCKET, new CoverMergeOperation()),
     };
 
-    private static final Column[] DOUBLE_COLUMNS = {};
-
-    private static final Column[] INTEGER_COLUMNS = {
-        new Column(ApplicationMappingTable.APPLICATION_ID, new CoverMergeOperation()),
-        new Column(ApplicationMappingTable.MAPPING_APPLICATION_ID, new CoverMergeOperation()),
+    private static final IntegerColumn[] INTEGER_COLUMNS = {
+        new IntegerColumn(ApplicationMappingTable.APPLICATION_ID, new CoverMergeOperation()),
+        new IntegerColumn(ApplicationMappingTable.MAPPING_APPLICATION_ID, new CoverMergeOperation()),
     };
 
-    private static final Column[] BYTE_COLUMNS = {};
+    private static final DoubleColumn[] DOUBLE_COLUMNS = {
+    };
 
     public ApplicationMapping() {
-        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
+        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, DOUBLE_COLUMNS);
     }
 
     @Override public String getId() {

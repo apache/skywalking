@@ -31,10 +31,6 @@ public interface InstanceTable extends CommonTable, RegisterColumns {
 
     ColumnName AGENT_UUID = new ColumnName("agent_uuid", "iau");
 
-    ColumnName REGISTER_TIME = new ColumnName("register_time", "irt");
-
-    ColumnName HEARTBEAT_TIME = new ColumnName("heartbeat_time", "iht");
-
     ColumnName OS_INFO = new ColumnName("os_info", "ioi");
 
     ColumnName IS_ADDRESS = new ColumnName("is_address", "iia");

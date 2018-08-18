@@ -70,19 +70,19 @@ public class H2URLParser extends AbstractURLParser {
     public ConnectionInfo parse() {
         int[] databaseNameRangeIndex = fetchDatabaseNameRangeIndexFromURLForH2FileMode();
         if (databaseNameRangeIndex != null) {
-            return new ConnectionInfo(ComponentsDefine.H2, H2_DB_TYPE, LOCALHOST, -1, fetchDatabaseNameFromURL(databaseNameRangeIndex));
+            return new ConnectionInfo(ComponentsDefine.H2_JDBC_DRIVER, H2_DB_TYPE, LOCALHOST, -1, fetchDatabaseNameFromURL(databaseNameRangeIndex));
         }
 
         databaseNameRangeIndex = fetchDatabaseNameRangeIndexFromURLForH2MemMode();
         if (databaseNameRangeIndex != null) {
-            return new ConnectionInfo(ComponentsDefine.H2, H2_DB_TYPE, LOCALHOST, -1, fetchDatabaseNameFromURL(databaseNameRangeIndex));
+            return new ConnectionInfo(ComponentsDefine.H2_JDBC_DRIVER, H2_DB_TYPE, LOCALHOST, -1, fetchDatabaseNameFromURL(databaseNameRangeIndex));
         }
 
         String[] hostAndPort = fetchDatabaseHostsFromURL().split(":");
         if (hostAndPort.length == 1) {
-            return new ConnectionInfo(ComponentsDefine.H2, H2_DB_TYPE, hostAndPort[0], DEFAULT_PORT, fetchDatabaseNameFromURL());
+            return new ConnectionInfo(ComponentsDefine.H2_JDBC_DRIVER, H2_DB_TYPE, hostAndPort[0], DEFAULT_PORT, fetchDatabaseNameFromURL());
         } else {
-            return new ConnectionInfo(ComponentsDefine.H2, H2_DB_TYPE, hostAndPort[0], Integer.valueOf(hostAndPort[1]), fetchDatabaseNameFromURL());
+            return new ConnectionInfo(ComponentsDefine.H2_JDBC_DRIVER, H2_DB_TYPE, hostAndPort[0], Integer.valueOf(hostAndPort[1]), fetchDatabaseNameFromURL());
         }
     }
 

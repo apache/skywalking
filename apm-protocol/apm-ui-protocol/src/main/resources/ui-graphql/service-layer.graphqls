@@ -30,11 +30,12 @@ type ServiceNode implements Node {
 type ServiceInfo {
     id: ID!
     name: String
+    applicationId: ID!
+    applicationName: String
 }
 
 type ServiceMetric {
-    id: ID!
-    name: String
+    service: ServiceInfo!
     # The unit is millisecond.
     avgResponseTime: Int!
     cpm: Int!
@@ -47,7 +48,7 @@ type TraceItem {
 }
 
 extend type Query {
-    searchService(keyword: String!, topN: Int!): [ServiceInfo!]!
+    searchService(keyword: String!, applicationId: ID!, topN: Int!): [ServiceInfo!]!
     getServiceResponseTimeTrend(serviceId: ID!, duration: Duration!): ResponseTimeTrend
     getServiceThroughputTrend(serviceId: ID!, duration: Duration!): ThroughputTrend
     getServiceSLATrend(serviceId: ID!, duration: Duration!): SLATrend

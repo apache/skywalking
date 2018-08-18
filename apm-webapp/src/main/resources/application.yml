@@ -27,4 +27,9 @@ collector:
   path: /graphql
   ribbon:
     listOfServers: 127.0.0.1:10800
-    NIWSServerListClassName: org.apache.skywalking.apm.webapp.tools.CollectorServerList
+    NIWSServerListClassName: org.apache.skywalking.apm.webapp.proxy.CollectorServerList
+
+security:
+  user:
+    admin:
+      password: admin

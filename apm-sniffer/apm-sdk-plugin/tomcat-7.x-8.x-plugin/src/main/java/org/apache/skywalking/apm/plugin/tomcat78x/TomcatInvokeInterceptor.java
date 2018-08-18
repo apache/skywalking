@@ -81,6 +81,7 @@ public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor
             Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
         }
         ContextManager.stopSpan();
+        ContextManager.getRuntimeContext().remove(Constants.FORWARD_REQUEST_FLAG);
         return ret;
     }
 

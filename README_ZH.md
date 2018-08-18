@@ -15,7 +15,7 @@ Apache SkyWalking | [English](README.md)
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
 
 # Abstract
-**SkyWalking** 创建与2015年，提供分布式追踪功能。从5.x开始，项目进化为一个完成功能的[Application Performance Management](https://en.wikipedia.org/wiki/Application_performance_management)系统。
+**SkyWalking** 创建于2015年，提供分布式追踪功能。从5.x开始，项目进化为一个完成功能的[Application Performance Management](https://en.wikipedia.org/wiki/Application_performance_management)系统。
 他被用于追踪、监控和诊断分布式系统，特别是使用微服务架构，云原生或容积技术。提供以下主要功能：
 - 分布式追踪和上下文传输
 - 应用、实例、服务性能指标分析
@@ -29,7 +29,7 @@ Apache SkyWalking | [English](README.md)
 - 多语言探针或类库
   - Java自动探针，追踪和监控程序时，不需要修改源码。
   - 社区提供的其他多语言探针
-    * [.NET Core](https://github.com/OpenSkywalking/skywalking-netcore) 
+    * [.NET Core](https://github.com/OpenSkywalking/skywalking-netcore)
     * [Node.js](https://github.com/OpenSkywalking/skywalking-nodejs)
 - 多种后端存储： ElasticSearch， H2
 - 支持[OpenTracing](http://opentracing.io/)
@@ -38,6 +38,9 @@ Apache SkyWalking | [English](README.md)
 - 现代化Web UI
 - 日志集成
 - 应用、实例和服务的告警
+- [**Incubating**]支持接口其他探针的数据
+  - 接受Zipkin v1 v2格式数据，采用JSON, Thrift, Protobuf序列化方式。Powered by [OpenZipkin](https://github.com/openzipkin/zipkin) libs
+  - 接受Jaeger 使用 [Zipkin Thrift 或 JSON v1/v2 格式](https://github.com/jaegertracing/jaeger#backwards-compatibility-with-zipkin)
 
 # Document
 - [英文文档](docs/README.md)
@@ -52,30 +55,30 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 
 # Live Demo
 - 北京服务器. [前往](http://49.4.12.44:8080/)
-- 香港服务器. [前往](http://159.138.0.181:8080/)
+  - 用户名： admin
+  - 密码： admin
 
 # Screenshot
-<img src="https://skywalkingtest.github.io/page-resources/5.0.0-beta/Dashboard.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-beta2/Dashboard.png"/>
 
 
 - [查看所有系统截图](/docs/Screenshots.md)
 
-# Test reports
-- 自动化集成测试报告
-  - [Java探针测试报告](https://github.com/SkywalkingTest/agent-integration-test-report)
-- 性能测试报告
-  - [Java探针测试报告](https://skywalkingtest.github.io/Agent-Benchmarks/)
-
-# Users
-<img src="https://skywalkingtest.github.io/page-resources/users/users-2018-04-18.png"/>
-
-[报告新的用户案例](https://github.com/apache/incubator-skywalking/issues/443)
+# Compiling project
+查看[编译指南](https://github.com/apache/incubator-skywalking/blob/master/docs/cn/How-to-build-CN.md)
 
 # Contact Us
 * 直接提交Issue
 - 订阅邮件列表: dev@skywalking.apache.org
 * [Gitter](https://gitter.im/openskywalking/Lobby)
 * QQ群: 392443393
+
+# Users
+<img src="https://skywalkingtest.github.io/page-resources/users/users-2018-08-12.png"/>
+
+- [用户案例](docs/users.md)
+- [报告新的用户案例](https://github.com/apache/incubator-skywalking/issues/443)
+
 
 # License
 [Apache 2.0 License.](/LICENSE)

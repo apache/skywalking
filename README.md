@@ -1,9 +1,9 @@
-Apache SkyWalking | [中文](README_ZH.md)
+Apache SkyWalking
 ==========
 
 <img src="https://skywalkingtest.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
 
-**SkyWalking**: APM (application performance monitor) tool for distributed systems, especially designed for 
+**SkyWalking**: APM (application performance monitor) tool for distributed systems, especially designed for
 microservices, cloud native and container-based (Docker, Kubernetes, Mesos) architectures.
 
 [![GitHub stars](https://img.shields.io/github/stars/apache/incubator-skywalking.svg?style=for-the-badge&label=Stars&logo=github)](https://github.com/apache/incubator-skywalking)
@@ -16,7 +16,7 @@ microservices, cloud native and container-based (Docker, Kubernetes, Mesos) arch
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
 
 # Abstract
-**SkyWalking** started as a distributed tracing system in 2015. From 5.x, it evolved to the fully functional [Application Performance Management](https://en.wikipedia.org/wiki/Application_performance_management) 
+**SkyWalking** started as a distributed tracing system in 2015. From 5.x, it evolved to the fully functional [Application Performance Management](https://en.wikipedia.org/wiki/Application_performance_management)
 system. It is used for tracing, monitoring, diagnose distributed systems, especially based on microservices, cloud native and container,
 including:
 - Distributed tracing and context propagation
@@ -28,10 +28,10 @@ including:
 - Performance optimization
 
 # Core features
-- Multiple languages instrumentation agent or libraries 
+- Multiple languages instrumentation agent or libraries
   - Native Java auto instrumentation agent. Trace and monitor your cluster without changing any source codes
   - Community instrumentation agent or libraries
-    * [.NET Core](https://github.com/OpenSkywalking/skywalking-netcore) 
+    * [.NET Core](https://github.com/OpenSkywalking/skywalking-netcore)
     * [Node.js](https://github.com/OpenSkywalking/skywalking-nodejs)
 - Multiple storage backends: ElasticSearch, H2
 - [OpenTracing](http://opentracing.io/) compatible
@@ -39,7 +39,13 @@ including:
 - Lightweight and powerful backend aggregation and analysis capabilities
 - Modern and cool Web UI
 - Log integration
-- Alarm for slow or unstable(low SLA) application, instance and service 
+- Alarm for slow or unstable(low SLA) application, instance and service
+- [**Incubating**] Support accepting other tracer data formats.
+  - Zipkin JSON, Thrift, Protobuf v1 and v2 formats, powered by [OpenZipkin](https://github.com/openzipkin/zipkin) libs
+  - Jaeger in [Zipkin Thrift or JSON v1/v2 formats](https://github.com/jaegertracing/jaeger#backwards-compatibility-with-zipkin)
+
+# Announcement
+After SkyWalking 5.0.0-beta2 released, all core features have been provided. For 5 series, we are trying to make them stable from now. At the same time, we have already begun our works for 6 series, in branch `6.0`. It will be a long way to have the first alpha release for it. So if you want to take part in the challengeable works, welcome, but don't consider to use that. Please read the [6.0 documents](https://github.com/apache/incubator-skywalking/blob/6.0/docs/README.md) first.
 
 # Document
 - [Documents in English](docs/README.md)
@@ -53,19 +59,17 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 
 # Live Demo
 - Host in Beijing. [goto](http://49.4.12.44:8080/)
-- Host in HK. [goto](http://159.138.0.181:8080/)
+  - Username: admin
+  - Password: admin
 
 # Screenshot
-<img src="https://skywalkingtest.github.io/page-resources/5.0.0-beta/Dashboard.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/5.0.0-beta2/Dashboard.png"/>
 
 
 - [See all screenshots](/docs/Screenshots.md)
 
-# Test reports
-- Automatic integration test reports
-  - [Java Agent test report](https://github.com/SkywalkingTest/agent-integration-test-report)
-- Performance test reports
-  - [Java Agent test report](https://skywalkingtest.github.io/Agent-Benchmarks/)
+# Compiling project
+Follow this [document](https://github.com/apache/incubator-skywalking/blob/master/docs/en/How-to-build.md).
 
 # Contact Us
 * Submit an issue
@@ -74,9 +78,15 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 * QQ Group: 392443393
 
 # Users
-<img src="https://skywalkingtest.github.io/page-resources/users/users-2018-04-18.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/users/users-2018-08-12.png"/>
 
-[Submit new user case to us.](https://github.com/apache/incubator-skywalking/issues/443)
+- [Users list](docs/users.md)
+- [Submit new user to us.](https://github.com/apache/incubator-skywalking/issues/443)
+
+<p align="center">
+<a href="https://openapm.io"><img src="https://openapm.io/static/media/openapm_logo.svg" width="100"/></a>
+  <br/>Our project enriches the <a href="https://openapm.io">OpenAPM Landscape!</a>
+</p>
 
 # License
 [Apache 2.0 License.](/LICENSE)

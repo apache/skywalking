@@ -18,12 +18,23 @@
 
 package org.apache.skywalking.apm.collector.core.data;
 
+import org.apache.skywalking.apm.collector.core.data.column.*;
 import org.apache.skywalking.apm.collector.core.queue.EndOfBatchContext;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class StreamData extends AbstractData implements RemoteData, QueueData {
+public abstract class StreamData extends AbstractData implements QueueData {
+
+    private static final ByteColumn[] BYTE_COLUMNS = {};
+
+    private static final StringListColumn[] STRING_LIST_COLUMNS = {};
+
+    private static final LongListColumn[] LONG_LIST_COLUMNS = {};
+
+    private static final IntegerListColumn[] INTEGER_LIST_COLUMNS = {};
+
+    private static final DoubleListColumn[] DOUBLE_LIST_COLUMNS = {};
 
     private EndOfBatchContext endOfBatchContext;
 
@@ -35,9 +46,23 @@ public abstract class StreamData extends AbstractData implements RemoteData, Que
         this.endOfBatchContext = context;
     }
 
-    public StreamData(Column[] stringColumns, Column[] longColumns, Column[] doubleColumns,
-        Column[] integerColumns, Column[] byteColumns) {
-        super(stringColumns, longColumns, doubleColumns, integerColumns, byteColumns);
+    public StreamData(StringColumn[] stringColumns, LongColumn[] longColumns,
+        IntegerColumn[] integerColumns,
+        DoubleColumn[] doubleColumns, StringListColumn[] stringListColumns,
+        LongListColumn[] longListColumns,
+        IntegerListColumn[] integerListColumns, DoubleListColumn[] doubleListColumns) {
+        super(stringColumns, longColumns, integerColumns, doubleColumns, BYTE_COLUMNS, stringListColumns, longListColumns, integerListColumns, doubleListColumns);
+    }
+
+    public StreamData(StringColumn[] stringColumns, LongColumn[] longColumns,
+        IntegerColumn[] integerColumns, DoubleColumn[] doubleColumns) {
+        super(stringColumns, longColumns, integerColumns, doubleColumns, BYTE_COLUMNS, STRING_LIST_COLUMNS, LONG_LIST_COLUMNS, INTEGER_LIST_COLUMNS, DOUBLE_LIST_COLUMNS);
+    }
+
+    public StreamData(StringColumn[] stringColumns, LongColumn[] longColumns,
+        IntegerColumn[] integerColumns, DoubleColumn[] doubleColumns,
+        ByteColumn[] byteColumns) {
+        super(stringColumns, longColumns, integerColumns, doubleColumns, byteColumns, STRING_LIST_COLUMNS, LONG_LIST_COLUMNS, INTEGER_LIST_COLUMNS, DOUBLE_LIST_COLUMNS);
     }
 
     @Override public final String selectKey() {

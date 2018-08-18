@@ -18,23 +18,16 @@
 
 package org.apache.skywalking.apm.collector.storage.h2.dao;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.apache.skywalking.apm.collector.client.h2.H2Client;
-import org.apache.skywalking.apm.collector.client.h2.H2ClientException;
+import java.sql.*;
+import java.util.*;
+import org.apache.skywalking.apm.collector.client.h2.*;
 import org.apache.skywalking.apm.collector.core.UnexpectedException;
 import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceHeartBeatPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
-import org.apache.skywalking.apm.collector.storage.table.register.Instance;
-import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.apm.collector.storage.table.register.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng, clevertension
@@ -83,6 +76,6 @@ public class InstanceHeartBeatH2PersistenceDAO extends H2DAO implements IInstanc
         return entity;
     }
 
-    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+    @Override public void deleteHistory(Long timeBucketBefore) {
     }
 }

@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.apm.plugin.httpClient.v4;
 
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -32,9 +35,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-
-import java.lang.reflect.Method;
-import java.net.URL;
 
 public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -52,7 +52,8 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
             "https".equals(httpHost.getSchemeName().toLowerCase()) ? 443 : 80);
 
         String uri = httpRequest.getRequestLine().getUri();
-        String operationName = uri.startsWith("http") ? new URL(uri).getPath() : uri;
+        String requestURI = getRequestURI(uri);
+        String operationName = uri.startsWith("http") ? requestURI : uri;
         AbstractSpan span = ContextManager.createExitSpan(operationName, contextCarrier, remotePeer);
 
         span.setComponent(ComponentsDefine.HTTPCLIENT);
@@ -73,16 +74,19 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
             return ret;
         }
 
-        HttpResponse response = (HttpResponse)ret;
-        StatusLine responseStatusLine = response.getStatusLine();
-        if (responseStatusLine != null) {
-            int statusCode = responseStatusLine.getStatusCode();
-            AbstractSpan span = ContextManager.activeSpan();
-            if (statusCode >= 400) {
-                span.errorOccurred();
-                Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
+        if (ret != null) {
+            HttpResponse response = (HttpResponse)ret;
+            StatusLine responseStatusLine = response.getStatusLine();
+            if (responseStatusLine != null) {
+                int statusCode = responseStatusLine.getStatusCode();
+                AbstractSpan span = ContextManager.activeSpan();
+                if (statusCode >= 400) {
+                    span.errorOccurred();
+                    Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
+                }
             }
         }
+
         ContextManager.stopSpan();
         return ret;
     }
@@ -92,5 +96,10 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         AbstractSpan activeSpan = ContextManager.activeSpan();
         activeSpan.errorOccurred();
         activeSpan.log(t);
+    }
+
+    private String getRequestURI(String uri) throws MalformedURLException {
+        String requestPath = new URL(uri).getPath();
+        return requestPath != null && requestPath.length() > 0 ? requestPath : "/";
     }
 }

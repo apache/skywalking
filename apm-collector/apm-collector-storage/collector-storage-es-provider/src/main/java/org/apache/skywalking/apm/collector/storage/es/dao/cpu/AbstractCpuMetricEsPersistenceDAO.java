@@ -18,13 +18,13 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao.cpu;
 
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
-import org.apache.skywalking.apm.collector.storage.table.jvm.CpuMetric;
-import org.apache.skywalking.apm.collector.storage.table.jvm.CpuMetricTable;
+import org.apache.skywalking.apm.collector.storage.table.jvm.*;
+import org.elasticsearch.common.xcontent.*;
 
 /**
  * @author peng-yongsheng
@@ -52,16 +52,15 @@ public abstract class AbstractCpuMetricEsPersistenceDAO extends AbstractPersiste
         return cpuMetric;
     }
 
-    @Override protected final Map<String, Object> esStreamDataToEsData(CpuMetric streamData) {
-        Map<String, Object> target = new HashMap<>();
-        target.put(CpuMetricTable.METRIC_ID.getName(), streamData.getMetricId());
+    @Override protected final XContentBuilder esStreamDataToEsData(CpuMetric streamData) throws IOException {
+        return XContentFactory.jsonBuilder().startObject()
+            .field(CpuMetricTable.METRIC_ID.getName(), streamData.getMetricId())
 
-        target.put(CpuMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId());
-        target.put(CpuMetricTable.USAGE_PERCENT.getName(), streamData.getUsagePercent());
-        target.put(CpuMetricTable.TIMES.getName(), streamData.getTimes());
-        target.put(CpuMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
-
-        return target;
+            .field(CpuMetricTable.INSTANCE_ID.getName(), streamData.getInstanceId())
+            .field(CpuMetricTable.USAGE_PERCENT.getName(), streamData.getUsagePercent())
+            .field(CpuMetricTable.TIMES.getName(), streamData.getTimes())
+            .field(CpuMetricTable.TIME_BUCKET.getName(), streamData.getTimeBucket())
+            .endObject();
     }
 
     @GraphComputingMetric(name = "/persistence/get/" + CpuMetricTable.TABLE)

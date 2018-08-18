@@ -18,7 +18,8 @@
 
 package org.apache.skywalking.apm.collector.storage.table.jvm;
 
-import org.apache.skywalking.apm.collector.core.data.*;
+import org.apache.skywalking.apm.collector.core.data.StreamData;
+import org.apache.skywalking.apm.collector.core.data.column.*;
 import org.apache.skywalking.apm.collector.core.data.operator.*;
 
 /**
@@ -26,30 +27,28 @@ import org.apache.skywalking.apm.collector.core.data.operator.*;
  */
 public class GCMetric extends StreamData {
 
-    private static final Column[] STRING_COLUMNS = {
-        new Column(GCMetricTable.ID, new NonMergeOperation()),
-        new Column(GCMetricTable.METRIC_ID, new NonMergeOperation()),
+    private static final StringColumn[] STRING_COLUMNS = {
+        new StringColumn(GCMetricTable.ID, new NonMergeOperation()),
+        new StringColumn(GCMetricTable.METRIC_ID, new NonMergeOperation()),
     };
 
-    private static final Column[] LONG_COLUMNS = {
-        new Column(GCMetricTable.COUNT, new AddMergeOperation()),
-        new Column(GCMetricTable.TIMES, new AddMergeOperation()),
-        new Column(GCMetricTable.TIME_BUCKET, new CoverMergeOperation()),
-        new Column(GCMetricTable.DURATION, new AddMergeOperation()),
+    private static final LongColumn[] LONG_COLUMNS = {
+        new LongColumn(GCMetricTable.COUNT, new AddMergeOperation()),
+        new LongColumn(GCMetricTable.TIMES, new AddMergeOperation()),
+        new LongColumn(GCMetricTable.TIME_BUCKET, new CoverMergeOperation()),
+        new LongColumn(GCMetricTable.DURATION, new AddMergeOperation()),
     };
 
-    private static final Column[] DOUBLE_COLUMNS = {
+    private static final IntegerColumn[] INTEGER_COLUMNS = {
+        new IntegerColumn(GCMetricTable.INSTANCE_ID, new CoverMergeOperation()),
+        new IntegerColumn(GCMetricTable.PHRASE, new CoverMergeOperation()),
     };
 
-    private static final Column[] INTEGER_COLUMNS = {
-        new Column(GCMetricTable.INSTANCE_ID, new CoverMergeOperation()),
-        new Column(GCMetricTable.PHRASE, new CoverMergeOperation()),
+    private static final DoubleColumn[] DOUBLE_COLUMNS = {
     };
-
-    private static final Column[] BYTE_COLUMNS = {};
 
     public GCMetric() {
-        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
+        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, DOUBLE_COLUMNS);
     }
 
     @Override public String getId() {

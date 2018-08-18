@@ -17,12 +17,11 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>apm-collector</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-beta2-SNAPSHOT</version>
+        <version>5.0.0-RC-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -146,6 +145,11 @@
             <artifactId>collector-storage-h2-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>collector-storage-shardingjdbc-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- storage provider -->
         <!-- remote provider -->
         <dependency>
@@ -180,6 +184,12 @@
             <version>${project.version}</version>
         </dependency>
         <!-- alarm provider -->
+        <!-- zipkin receiver-->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>receiver-zipkin-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- instrument provided dependency -->
         <dependency>
@@ -217,6 +227,7 @@
                     <excludes>
                         <exclude>application.yml</exclude>
                         <exclude>log4j2.xml</exclude>
+                        <exclude>component-libraries.yml</exclude>
                     </excludes>
                 </configuration>
             </plugin>

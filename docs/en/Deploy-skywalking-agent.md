@@ -1,7 +1,7 @@
 ## Download skywalking agent release version
-- Go to [release page](https://github.com/apache/incubator-skywalking/releases)
+- Go to [release page](http://skywalking.apache.org/downloads/)
 
-## Deploy skywalking javaagent
+## Install skywalking javaagent
 1. Copy the agent package to anywhere you like. The logs, plugins and config are all included in the package.
 2. Add -javaagent:/path/to/skywalking-agent/skywalking-agent.jar to VM argument. 
 
@@ -23,21 +23,26 @@ New agent package looks like this：
     skywalking-agent.jar
 ```
 
-- Start your application。
+- Start your application.
 
 # Advanced features
 - All plugins are in `/plugins` folder. The plugin jar is active when it is in there. Remove the plugin jar, it disabled.
 - The default logging output folder is `/logs`.
 
-# Deploy agent in Tomcat FAQ
-- Tomcat 7
+# Install javaagent FAQs
+- Linux Tomcat 7, Tomcat 8  
 Change the first line of `tomcat/bin/catalina.sh`.
 ```shell
 CATALINA_OPTS="$CATALINA_OPTS -javaagent:/path/to/skywalking-agent/skywalking-agent.jar"; export CATALINA_OPTS
 ```
 
-- Tomcat 8
-Change the first line of `tomcat/bin/catalina.sh`.
+- Windows Tomcat 7, Tomcat 8  
+Change the first line of `tomcat/bin/catalina.bat`.
 ```shell
-set "CATALINA_OPTS=-javaagent:E:\apache-tomcat-8.5.20\skywalking-agent\skywalking-agent.jar"
+set "CATALINA_OPTS=-javaagent:/path/to/skywalking-agent/skywalking-agent.jar"
 ```
+- JAR file  
+Add `-javaagent` argument to command line in which you start your app. And make sure to add it before the `-jar` argument. eg:
+ ```shell
+ java -javaagent:/path/to/skywalking-agent/skywalking-agent.jar -jar yourApp.jar
+ ```

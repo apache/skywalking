@@ -215,6 +215,16 @@ Apache 2.0 licenses
 The following components are provided under the Apache License. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
+    Apache: groovy 2.4.5-indy: https://github.com/apache/groovy, Apache 2.0
+    Apache: httpcomponents 4.x.x: http://hc.apache.org/index.html, Apache 2.0
+
+========================================================================
+Apache 2.0 licenses
+========================================================================
+
+The following components are provided under the Apache License. See project link for details.
+The text of each license is the standard Apache 2.0 license.
+
     raphw (byte-buddy) 1.7.9: http://bytebuddy.net/ , Apache 2.0
     Google: grpc 1.8.0: https://grpc.io/ , Apache 2.0
     Google: gprc-java 1.8.0: https://github.com/grpc/grpc-java, Apache 2.0
@@ -241,9 +251,9 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     Spring Boot 1.5.10: https://spring.io/, Apache 2.0
     Spring Cloud Config 1.4.1: https://github.com/spring-cloud/spring-cloud-config, Apache-2.0
     Spring Cloud Netflix Zuul 1.3.0: https://github.com/spring-cloud/spring-cloud-netflix, Apache 2.0
-    Apache: httpcomponents 4.x.x: http://hc.apache.org/index.html, Apache 2.0
     Apache: commons-logging 1.1.3: https://github.com/apache/commons-logging, Apache 2.0
     Apache: commons-codec 1.10: https://github.com/apache/commons-codec, Apache 2.0
+    Apache: commons-dbcp 1.4: https://github.com/apache/commons-dbcp, Apache 2.0
     Apache: commons-pool 2.4.2: https://github.com/apache/commons-pool, Apache 2.0
     Apache: commons-lang 3.6: https://github.com/apache/commons-lang, Apache 2.0
     Apache: lucene 6.6.0: https://github.com/apache/lucene-solr/tree/master/lucene, Apache 2.0
@@ -287,6 +297,8 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     validation-api 1.1.0.Final: http://beanvalidation.org/licensing/, Apache 2.0
     zuul-core 1.3.0: https://github.com/Netflix/zuul, Apache 2.0
     ben-manes caffeine 2.6.2: https://github.com/ben-manes/caffeine, Apache 2.0
+    zipkin 2.9.1: https://github.com/openzipkin/zipkin, Apache 2.0
+    sharding-jdbc-core 2.0.3: https://github.com/sharding-sphere/sharding-sphere, Apache 2.0
 
 ========================================================================
 MIT licenses
@@ -366,6 +378,8 @@ MIT licenses
 antv/data-set	0.8.6:	https://github.com/antvis/data-set	MIT
 add-dom-event-listener  1.0.2:  https://github.com/yiminghe/add-dom-event-listener      MIT
 antd    3.2.2:  https://github.com/ant-design/ant-design        MIT
+iconfont(from antd): https://github.com/ant-design/antd-init/tree/master/examples/local-iconfont   MIT
+ant-design-pro  1.3.0:  https://github.com/ant-design/ant-design-pro    MIT     , declare license in package.json only.
 async-validator 1.8.2:  https://github.com/yiminghe/async-validator     MIT
 babel/polyfill	7.0.0-beta.42:	https://github.com/babel/babel/tree/master/packages/babel-polyfill	MIT	, declare license in package.json only.
 babel/runtime   7.0.0-beta.42: https://github.com/babel/babel/tree/master/packages/babel-runtime       MIT , declare license in package.json only.
@@ -418,6 +432,7 @@ rc-animate      2.4.4:  https://github.com/react-component/animate      MIT
 rc-calendar     9.5.0:  https://github.com/react-component/calendar     MIT
 rc-checkbox     2.1.5:  https://github.com/react-component/checkbox     MIT
 rc-drawer-menu  0.5.5:  https://github.com/ant-motion/drawer-menu       MIT
+rc-dropdown     2.1.0:  https://github.com/react-component/dropdown     MIT
 rc-form 2.1.7:  https://github.com/react-component/form MIT
 rc-input-number 4.0.2:  https://github.com/react-component/input-number MIT
 rc-menu 6.2.6:  https://github.com/react-component/menu MIT

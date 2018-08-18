@@ -17,12 +17,11 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-beta2-SNAPSHOT</version>
+        <version>5.0.0-RC-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -45,6 +44,7 @@
         <module>apm-collector-configuration</module>
         <module>apm-collector-agent</module>
         <module>apm-collector-analysis</module>
+        <module>apm-collector-thirdparty-receiver</module>
     </modules>
 
     <properties>
@@ -63,6 +63,9 @@
         <jedis.version>2.9.0</jedis.version>
         <zookeeper.version>3.4.10</zookeeper.version>
         <elasticsearch.client.version>5.5.0</elasticsearch.client.version>
+        <zipkin.version>2.9.1</zipkin.version>
+        <shardingjdbc.version>2.0.3</shardingjdbc.version>
+        <commons-dbcp.version>1.4</commons-dbcp.version>
     </properties>
 
     <dependencies>
@@ -211,6 +214,16 @@
                 </exclusions>
             </dependency>
             <dependency>
+                <groupId>io.shardingjdbc</groupId>
+                <artifactId>sharding-jdbc-core</artifactId>
+                <version>${shardingjdbc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-dbcp</groupId>
+                <artifactId>commons-dbcp</artifactId>
+                <version>${commons-dbcp.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
@@ -235,6 +248,11 @@
                         <artifactId>log4j-core</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>io.zipkin.zipkin2</groupId>
+                <artifactId>zipkin</artifactId>
+                <version>${zipkin.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

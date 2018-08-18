@@ -24,6 +24,8 @@ package org.apache.skywalking.apm.collector.storage.ui.service;
 public class ServiceInfo {
     private int id;
     private String name;
+    private int applicationId;
+    private String applicationName;
 
     public int getId() {
         return id;
@@ -39,5 +41,21 @@ public class ServiceInfo {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getApplicationId() {
+        return applicationId;
+    }
+
+    public void setApplicationId(int applicationId) {
+        this.applicationId = applicationId;
+    }
+
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 }

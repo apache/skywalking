@@ -18,24 +18,19 @@
 
 package org.apache.skywalking.apm.collector.agent.jetty.provider.handler;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegisterModule;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.INetworkAddressIDService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.server.jetty.ArgumentsParseException;
-import org.apache.skywalking.apm.collector.server.jetty.JettyHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.apm.collector.server.jetty.JettyJsonHandler;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
-public class NetworkAddressRegisterServletHandler extends JettyHandler {
+public class NetworkAddressRegisterServletHandler extends JettyJsonHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(NetworkAddressRegisterServletHandler.class);
 
@@ -52,17 +47,21 @@ public class NetworkAddressRegisterServletHandler extends JettyHandler {
         return "/networkAddress/register";
     }
 
-    @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {
+    @Override protected JsonElement doGet(HttpServletRequest req) {
         throw new UnsupportedOperationException();
     }
 
-    @Override protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException {
+    @Override protected JsonElement doPost(HttpServletRequest req) {
         JsonArray responseArray = new JsonArray();
         try {
             JsonArray networkAddresses = gson.fromJson(req.getReader(), JsonArray.class);
             for (int i = 0; i < networkAddresses.size(); i++) {
                 String networkAddress = networkAddresses.get(i).getAsString();
-                logger.debug("network address register, network address: {}", networkAddress);
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug("network address register, network address: {}", networkAddress);
+                }
+
                 int addressId = networkAddressIDService.get(networkAddress);
                 JsonObject mapping = new JsonObject();
                 mapping.addProperty(ADDRESS_ID, addressId);

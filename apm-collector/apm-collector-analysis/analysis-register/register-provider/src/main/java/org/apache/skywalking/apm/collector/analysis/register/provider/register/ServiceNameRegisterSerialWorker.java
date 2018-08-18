@@ -19,9 +19,7 @@
 package org.apache.skywalking.apm.collector.analysis.register.provider.register;
 
 import org.apache.skywalking.apm.collector.analysis.register.define.graph.WorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorkerProvider;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.*;
 import org.apache.skywalking.apm.collector.cache.CacheModule;
 import org.apache.skywalking.apm.collector.cache.service.ServiceIdCacheService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -29,8 +27,7 @@ import org.apache.skywalking.apm.collector.core.util.Const;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.dao.register.IServiceNameRegisterDAO;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -52,10 +49,14 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker<Se
         return WorkerIdDefine.SERVICE_NAME_REGISTER_SERIAL_WORKER;
     }
 
-    @Override protected void onWork(ServiceName serviceName) throws WorkerException {
-        logger.debug("register service name: {}, application id: {}", serviceName.getServiceName(), serviceName.getApplicationId());
+    @Override protected void onWork(ServiceName serviceName) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("register service name: {}, application id: {}", serviceName.getServiceName(), serviceName.getApplicationId());
+        }
+
         int serviceId = serviceIdCacheService.get(serviceName.getApplicationId(), serviceName.getSrcSpanType(), serviceName.getServiceName());
         if (serviceId == 0) {
+            long now = System.currentTimeMillis();
             ServiceName newServiceName;
 
             int min = serviceNameRegisterDAO.getMinServiceId();
@@ -66,6 +67,8 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker<Se
                 noneServiceName.setServiceId(Const.NONE_SERVICE_ID);
                 noneServiceName.setServiceName(Const.NONE_SERVICE_NAME);
                 noneServiceName.setSrcSpanType(Const.SPAN_TYPE_VIRTUAL);
+                noneServiceName.setRegisterTime(now);
+                noneServiceName.setHeartBeatTime(now);
                 serviceNameRegisterDAO.save(noneServiceName);
 
                 newServiceName = new ServiceName();
@@ -74,6 +77,8 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker<Se
                 newServiceName.setServiceId(-1);
                 newServiceName.setSrcSpanType(serviceName.getSrcSpanType());
                 newServiceName.setServiceName(serviceName.getServiceName());
+                newServiceName.setRegisterTime(now);
+                newServiceName.setHeartBeatTime(now);
             } else {
                 int max = serviceNameRegisterDAO.getMaxServiceId();
                 serviceId = IdAutoIncrement.INSTANCE.increment(min, max);
@@ -84,6 +89,8 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker<Se
                 newServiceName.setServiceId(serviceId);
                 newServiceName.setSrcSpanType(serviceName.getSrcSpanType());
                 newServiceName.setServiceName(serviceName.getServiceName());
+                newServiceName.setRegisterTime(now);
+                newServiceName.setHeartBeatTime(now);
             }
             serviceNameRegisterDAO.save(newServiceName);
         }

@@ -18,14 +18,14 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao.armp;
 
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.es.MetricTransformUtil;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
-import org.apache.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetric;
-import org.apache.skywalking.apm.collector.storage.table.application.ApplicationReferenceMetricTable;
+import org.apache.skywalking.apm.collector.storage.table.application.*;
+import org.elasticsearch.common.xcontent.*;
 
 /**
  * @author peng-yongsheng
@@ -56,19 +56,21 @@ public abstract class AbstractApplicationReferenceMetricEsPersistenceDAO extends
         return applicationReferenceMetric;
     }
 
-    @Override protected final Map<String, Object> esStreamDataToEsData(ApplicationReferenceMetric streamData) {
-        Map<String, Object> target = new HashMap<>();
-        target.put(ApplicationReferenceMetricTable.METRIC_ID.getName(), streamData.getMetricId());
+    @Override
+    protected final XContentBuilder esStreamDataToEsData(ApplicationReferenceMetric streamData) throws IOException {
+        XContentBuilder target = XContentFactory.jsonBuilder().startObject()
+            .field(ApplicationReferenceMetricTable.METRIC_ID.getName(), streamData.getMetricId())
 
-        target.put(ApplicationReferenceMetricTable.FRONT_APPLICATION_ID.getName(), streamData.getFrontApplicationId());
-        target.put(ApplicationReferenceMetricTable.BEHIND_APPLICATION_ID.getName(), streamData.getBehindApplicationId());
+            .field(ApplicationReferenceMetricTable.FRONT_APPLICATION_ID.getName(), streamData.getFrontApplicationId())
+            .field(ApplicationReferenceMetricTable.BEHIND_APPLICATION_ID.getName(), streamData.getBehindApplicationId())
+
+            .field(ApplicationReferenceMetricTable.SATISFIED_COUNT.getName(), streamData.getSatisfiedCount())
+            .field(ApplicationReferenceMetricTable.TOLERATING_COUNT.getName(), streamData.getToleratingCount())
+            .field(ApplicationReferenceMetricTable.FRUSTRATED_COUNT.getName(), streamData.getFrustratedCount());
 
         MetricTransformUtil.INSTANCE.esStreamDataToEsData(streamData, target);
 
-        target.put(ApplicationReferenceMetricTable.SATISFIED_COUNT.getName(), streamData.getSatisfiedCount());
-        target.put(ApplicationReferenceMetricTable.TOLERATING_COUNT.getName(), streamData.getToleratingCount());
-        target.put(ApplicationReferenceMetricTable.FRUSTRATED_COUNT.getName(), streamData.getFrustratedCount());
-
+        target.endObject();
         return target;
     }
 

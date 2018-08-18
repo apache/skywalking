@@ -60,6 +60,11 @@ public final class Tags {
     public static final StringTag DB_BIND_VARIABLES = new StringTag("db.bind_vars");
 
     /**
+     * MQ_QUEUE records the queue name of message-middleware
+     */
+    public static final StringTag MQ_QUEUE = new StringTag("mq.queue");
+
+    /**
      * MQ_BROKER records the broker address of message-middleware
      */
     public static final StringTag MQ_BROKER = new StringTag("mq.broker");

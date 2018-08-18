@@ -18,17 +18,14 @@
 
 package org.apache.skywalking.apm.collector.storage.h2.dao;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import org.apache.skywalking.apm.collector.client.h2.H2Client;
 import org.apache.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.apache.skywalking.apm.collector.storage.dao.ISegmentDurationPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.apache.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
-import org.apache.skywalking.apm.collector.storage.table.segment.SegmentDuration;
-import org.apache.skywalking.apm.collector.storage.table.segment.SegmentDurationTable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.apm.collector.storage.table.segment.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng, clevertension
@@ -70,6 +67,6 @@ public class SegmentDurationH2PersistenceDAO extends H2DAO implements ISegmentDu
         return null;
     }
 
-    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+    @Override public void deleteHistory(Long timeBucketBefore) {
     }
 }

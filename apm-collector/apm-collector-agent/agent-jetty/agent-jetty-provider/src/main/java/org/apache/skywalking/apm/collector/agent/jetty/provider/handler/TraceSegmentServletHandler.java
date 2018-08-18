@@ -20,23 +20,19 @@ package org.apache.skywalking.apm.collector.agent.jetty.provider.handler;
 
 import com.google.gson.JsonElement;
 import com.google.gson.stream.JsonReader;
-import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.*;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.skywalking.apm.collector.agent.jetty.provider.handler.reader.TraceSegment;
-import org.apache.skywalking.apm.collector.agent.jetty.provider.handler.reader.TraceSegmentJsonReader;
+import org.apache.skywalking.apm.collector.agent.jetty.provider.handler.reader.*;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.AnalysisSegmentParserModule;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParseService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.server.jetty.ArgumentsParseException;
-import org.apache.skywalking.apm.collector.server.jetty.JettyHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.apm.collector.server.jetty.JettyJsonHandler;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
-public class TraceSegmentServletHandler extends JettyHandler {
+public class TraceSegmentServletHandler extends JettyJsonHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(TraceSegmentServletHandler.class);
 
@@ -50,18 +46,22 @@ public class TraceSegmentServletHandler extends JettyHandler {
         return "/segments";
     }
 
-    @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {
+    @Override protected JsonElement doGet(HttpServletRequest req) {
         throw new UnsupportedOperationException();
     }
 
-    @Override protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException {
-        logger.debug("receive stream segment");
+    @Override protected JsonElement doPost(HttpServletRequest req) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("receive stream segment");
+        }
+
         try {
             BufferedReader bufferedReader = req.getReader();
             read(bufferedReader);
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
+        
         return null;
     }
 

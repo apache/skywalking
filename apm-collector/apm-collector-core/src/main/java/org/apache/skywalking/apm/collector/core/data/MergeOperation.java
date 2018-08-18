@@ -26,9 +26,17 @@ public interface MergeOperation extends Operation {
 
     Long operate(Long newValue, Long oldValue);
 
-    Double operate(Double newValue, Double oldValue);
-
     Integer operate(Integer newValue, Integer oldValue);
 
+    Double operate(Double newValue, Double oldValue);
+
     byte[] operate(byte[] newValue, byte[] oldValue);
+
+    StringLinkedList operate(StringLinkedList newValue, StringLinkedList oldValue);
+
+    LongLinkedList operate(LongLinkedList newValue, LongLinkedList oldValue);
+
+    IntegerLinkedList operate(IntegerLinkedList newValue, IntegerLinkedList oldValue);
+
+    DoubleLinkedList operate(DoubleLinkedList newValue, DoubleLinkedList oldValue);
 }

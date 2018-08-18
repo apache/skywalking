@@ -75,5 +75,10 @@
             <outputDirectory>/webapp</outputDirectory>
             <fileMode>0644</fileMode>
         </file>
+        <file>
+            <source>${project.basedir}/../apm-webapp/src/main/assembly/webapp.yml</source>
+            <outputDirectory>/webapp</outputDirectory>
+            <fileMode>0644</fileMode>
+        </file>
     </files>
 </assembly>

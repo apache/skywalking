@@ -18,12 +18,11 @@
 
 package org.apache.skywalking.apm.collector.agent.grpc.provider.handler;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import io.grpc.stub.StreamObserver;
 import org.apache.skywalking.apm.collector.analysis.metric.define.AnalysisMetricModule;
 import org.apache.skywalking.apm.collector.analysis.metric.define.service.IInstanceHeartBeatService;
 import org.apache.skywalking.apm.collector.analysis.register.define.AnalysisRegisterModule;
+import org.apache.skywalking.apm.collector.analysis.register.define.service.AgentOsInfo;
 import org.apache.skywalking.apm.collector.analysis.register.define.service.IInstanceIDService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.server.grpc.GRPCHandler;
@@ -54,7 +53,14 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
     @Override
     public void registerInstance(ApplicationInstance request,
         StreamObserver<ApplicationInstanceMapping> responseObserver) {
-        int instanceId = instanceIDService.getOrCreateByAgentUUID(request.getApplicationId(), request.getAgentUUID(), request.getRegisterTime(), buildOsInfo(request.getOsinfo()));
+        OSInfo osinfo = request.getOsinfo();
+        AgentOsInfo agentOsInfo = new AgentOsInfo();
+        agentOsInfo.setHostname(osinfo.getHostname());
+        agentOsInfo.setOsName(osinfo.getOsName());
+        agentOsInfo.setProcessNo(osinfo.getProcessNo());
+        agentOsInfo.setIpv4s(osinfo.getIpv4SList());
+
+        int instanceId = instanceIDService.getOrCreateByAgentUUID(request.getApplicationId(), request.getAgentUUID(), request.getRegisterTime(), agentOsInfo);
         ApplicationInstanceMapping.Builder builder = ApplicationInstanceMapping.newBuilder();
         builder.setApplicationId(request.getApplicationId());
         builder.setApplicationInstanceId(instanceId);
@@ -68,19 +74,5 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
         this.instanceHeartBeatService.heartBeat(instanceId, heartBeatTime);
         responseObserver.onNext(Downstream.getDefaultInstance());
         responseObserver.onCompleted();
-    }
-
-    private String buildOsInfo(OSInfo osinfo) {
-        JsonObject osInfoJson = new JsonObject();
-        osInfoJson.addProperty("osName", osinfo.getOsName());
-        osInfoJson.addProperty("hostName", osinfo.getHostname());
-        osInfoJson.addProperty("processId", osinfo.getProcessNo());
-
-        JsonArray ipv4Array = new JsonArray();
-        for (String ipv4 : osinfo.getIpv4SList()) {
-            ipv4Array.add(ipv4);
-        }
-        osInfoJson.add("ipv4s", ipv4Array);
-        return osInfoJson.toString();
     }
 }

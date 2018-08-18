@@ -20,12 +20,13 @@ package org.apache.skywalking.apm.collector.analysis.worker.model.impl;
 
 import java.util.*;
 import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractLocalAsyncWorker;
+import org.apache.skywalking.apm.collector.configuration.ConfigurationModule;
+import org.apache.skywalking.apm.collector.configuration.service.IWorkerCacheSizeConfig;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.cache.Collection;
 import org.apache.skywalking.apm.collector.core.cache.*;
 import org.apache.skywalking.apm.collector.core.data.StreamData;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.core.util.StringUtils;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.*;
 import org.slf4j.*;
@@ -35,7 +36,7 @@ import org.slf4j.*;
  */
 public abstract class PersistenceWorker<INPUT_AND_OUTPUT extends StreamData, COLLECTION extends Collection> extends AbstractLocalAsyncWorker<INPUT_AND_OUTPUT, INPUT_AND_OUTPUT> {
 
-    private final Logger logger = LoggerFactory.getLogger(PersistenceWorker.class);
+    private static final Logger logger = LoggerFactory.getLogger(PersistenceWorker.class);
 
     private final IBatchDAO batchDAO;
     private final int blockBatchPersistenceSize;
@@ -43,12 +44,7 @@ public abstract class PersistenceWorker<INPUT_AND_OUTPUT extends StreamData, COL
     PersistenceWorker(ModuleManager moduleManager) {
         super(moduleManager);
         this.batchDAO = moduleManager.find(StorageModule.NAME).getService(IBatchDAO.class);
-
-        if (StringUtils.isNotEmpty(System.getProperty("batchSize"))) {
-            this.blockBatchPersistenceSize = Integer.valueOf(System.getProperty("batchSize"));
-        } else {
-            this.blockBatchPersistenceSize = 500000;
-        }
+        this.blockBatchPersistenceSize = moduleManager.find(ConfigurationModule.NAME).getService(IWorkerCacheSizeConfig.class).cacheSize();
     }
 
     public boolean flushAndSwitch() {

@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.collector.analysis.metric.provider.worker.segment;
 
+import java.util.*;
 import org.apache.skywalking.apm.collector.analysis.metric.define.graph.MetricGraphIdDefine;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.decorator.*;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.*;
@@ -39,11 +40,12 @@ public class SegmentDurationSpanListener implements FirstSpanListener, EntrySpan
 
     private final SegmentDuration segmentDuration;
     private final ServiceNameCacheService serviceNameCacheService;
-    private int entryOperationNameId = 0;
+    private Set<Integer> entryOperationNameIds;
     private int firstOperationNameId = 0;
 
     private SegmentDurationSpanListener(ModuleManager moduleManager) {
         this.segmentDuration = new SegmentDuration();
+        this.entryOperationNameIds = new HashSet<>();
         this.serviceNameCacheService = moduleManager.find(CacheModule.NAME).getService(ServiceNameCacheService.class);
     }
 
@@ -56,6 +58,7 @@ public class SegmentDurationSpanListener implements FirstSpanListener, EntrySpan
         long timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(segmentCoreInfo.getStartTime());
 
         segmentDuration.setId(segmentCoreInfo.getSegmentId());
+        segmentDuration.setTraceId(segmentCoreInfo.getTraceId());
         segmentDuration.setSegmentId(segmentCoreInfo.getSegmentId());
         segmentDuration.setApplicationId(segmentCoreInfo.getApplicationId());
         segmentDuration.setDuration(segmentCoreInfo.getEndTime() - segmentCoreInfo.getStartTime());
@@ -68,16 +71,20 @@ public class SegmentDurationSpanListener implements FirstSpanListener, EntrySpan
     }
 
     @Override public void parseEntry(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
-        entryOperationNameId = spanDecorator.getOperationNameId();
+        entryOperationNameIds.add(spanDecorator.getOperationNameId());
     }
 
     @Override public void build() {
         Graph<SegmentDuration> graph = GraphManager.INSTANCE.findGraph(MetricGraphIdDefine.SEGMENT_DURATION_GRAPH_ID, SegmentDuration.class);
-        logger.debug("segment duration listener build");
-        if (entryOperationNameId == 0) {
-            segmentDuration.setServiceName(serviceNameCacheService.get(firstOperationNameId).getServiceName());
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("segment duration listener build");
+        }
+
+        if (entryOperationNameIds.size() == 0) {
+            segmentDuration.getServiceName().add(serviceNameCacheService.get(firstOperationNameId).getServiceName());
         } else {
-            segmentDuration.setServiceName(serviceNameCacheService.get(entryOperationNameId).getServiceName());
+            entryOperationNameIds.forEach(entryOperationNameId -> segmentDuration.getServiceName().add(serviceNameCacheService.get(entryOperationNameId).getServiceName()));
         }
 
         graph.start(segmentDuration);
