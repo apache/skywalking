@@ -18,9 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.register.service;
 
-import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryProcess;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInstanceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
@@ -44,12 +45,13 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
 
     private IServiceInstanceInventoryCacheDAO getCacheDAO() {
         if (isNull(cacheDAO)) {
-            cacheDAO = moduleManager.find(CoreModule.NAME).getService(IServiceInstanceInventoryCacheDAO.class);
+            cacheDAO = moduleManager.find(StorageModule.NAME).getService(IServiceInstanceInventoryCacheDAO.class);
         }
         return cacheDAO;
     }
 
-    @Override public int getOrCreate(int serviceId, String serviceInstanceName, long registerTime) {
+    @Override public int getOrCreate(int serviceId, String serviceInstanceName, long registerTime,
+        ServiceInstanceInventory.AgentOsInfo osInfo) {
         if (logger.isDebugEnabled()) {
             logger.debug("Get or create service instance by service instance name, service id: {}, service instance name: {}, registerTime: {}", serviceId, serviceInstanceName, registerTime);
         }
@@ -65,6 +67,11 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
 
             serviceInstanceInventory.setRegisterTime(registerTime);
             serviceInstanceInventory.setHeartbeatTime(registerTime);
+
+            serviceInstanceInventory.setOsName(osInfo.getOsName());
+            serviceInstanceInventory.setHostName(osInfo.getHostname());
+            serviceInstanceInventory.setProcessNo(osInfo.getProcessNo());
+            serviceInstanceInventory.setIpv4s(ServiceInstanceInventory.AgentOsInfo.ipv4sSerialize(osInfo.getIpv4s()));
 
             InventoryProcess.INSTANCE.in(serviceInstanceInventory);
         }

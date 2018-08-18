@@ -25,19 +25,22 @@ import org.slf4j.*;
 /**
  * @author peng-yongsheng
  */
-public class ApplicationRegisterHandlerTestCase {
+public class NetworkAddressRegisterServiceHandlerTestCase {
 
-    private static final Logger logger = LoggerFactory.getLogger(ApplicationRegisterHandlerTestCase.class);
+    private static final Logger logger = LoggerFactory.getLogger(NetworkAddressRegisterServiceHandlerTestCase.class);
 
     public static void main(String[] args) {
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
 
-        ApplicationRegisterServiceGrpc.ApplicationRegisterServiceBlockingStub stub = ApplicationRegisterServiceGrpc.newBlockingStub(channel);
+        NetworkAddressRegisterServiceGrpc.NetworkAddressRegisterServiceBlockingStub stub = NetworkAddressRegisterServiceGrpc.newBlockingStub(channel);
 
-        Application.Builder application = Application.newBuilder();
-        application.setApplicationCode("dubbox-consumer");
+        NetworkAddresses.Builder networkAddresses = NetworkAddresses.newBuilder();
+        networkAddresses.addAddresses("127.0.0.1:8080");
 
-        ApplicationMapping applicationMapping = stub.applicationCodeRegister(application.build());
-        logger.info("application id: {}", applicationMapping.getApplication().getValue());
+        NetworkAddressMappings addressMappings = stub.batchRegister(networkAddresses.build());
+
+        for (KeyWithIntegerValue value : addressMappings.getAddressIdsList()) {
+            logger.info("key: {}, value: {}", value.getKey(), value.getValue());
+        }
     }
 }

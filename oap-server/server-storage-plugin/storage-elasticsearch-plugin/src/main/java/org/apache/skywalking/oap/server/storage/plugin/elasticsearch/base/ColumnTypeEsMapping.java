@@ -33,7 +33,7 @@ public class ColumnTypeEsMapping implements DataTypeMapping {
         } else if (Double.class.equals(type) || double.class.equals(type)) {
             return "double";
         } else if (String.class.equals(type)) {
-            return "text";
+            return "keyword";
         } else {
             throw new IllegalArgumentException("Unsupported data type: " + type.getName());
         }

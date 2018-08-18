@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.register.service;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
 import org.apache.skywalking.oap.server.core.register.EndpointInventory;
+import org.apache.skywalking.oap.server.core.register.worker.InventoryProcess;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.slf4j.*;
 
@@ -59,6 +60,8 @@ public class EndpointInventoryRegister implements IEndpointInventoryRegister {
             long now = System.currentTimeMillis();
             endpointInventory.setRegisterTime(now);
             endpointInventory.setHeartbeatTime(now);
+
+            InventoryProcess.INSTANCE.in(endpointInventory);
         }
         return endpointId;
     }

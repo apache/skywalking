@@ -47,7 +47,9 @@ public class RegisterModuleProvider extends ModuleProvider {
     @Override public void start() {
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(CoreModule.NAME).getService(GRPCHandlerRegister.class);
         grpcHandlerRegister.addHandler(new ApplicationRegisterHandler(getManager()));
+        grpcHandlerRegister.addHandler(new InstanceDiscoveryServiceHandler(getManager()));
         grpcHandlerRegister.addHandler(new ServiceNameDiscoveryHandler(getManager()));
+        grpcHandlerRegister.addHandler(new NetworkAddressRegisterServiceHandler(getManager()));
     }
 
     @Override public void notifyAfterCompleted() {

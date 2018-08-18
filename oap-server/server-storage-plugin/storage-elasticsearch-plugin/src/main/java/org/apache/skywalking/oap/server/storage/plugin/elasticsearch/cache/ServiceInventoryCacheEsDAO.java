@@ -57,7 +57,7 @@ public class ServiceInventoryCacheEsDAO extends EsDAO implements IServiceInvento
         try {
             GetResponse response = getClient().get(ServiceInventory.MODEL_NAME, id);
             if (response.isExists()) {
-                return response.getField(RegisterSource.SEQUENCE).getValue();
+                return (int)response.getSource().getOrDefault(RegisterSource.SEQUENCE, 0);
             } else {
                 return Const.NONE;
             }

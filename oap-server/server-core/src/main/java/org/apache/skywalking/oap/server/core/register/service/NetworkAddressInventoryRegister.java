@@ -81,6 +81,7 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
             long now = System.currentTimeMillis();
             newNetworkAddress.setRegisterTime(now);
             newNetworkAddress.setHeartbeatTime(now);
+
             InventoryProcess.INSTANCE.in(newNetworkAddress);
         }
 

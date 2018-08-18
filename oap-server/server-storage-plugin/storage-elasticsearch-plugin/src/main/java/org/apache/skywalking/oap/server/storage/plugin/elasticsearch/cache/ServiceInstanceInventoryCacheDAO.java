@@ -76,7 +76,7 @@ public class ServiceInstanceInventoryCacheDAO extends EsDAO implements IServiceI
         try {
             GetResponse response = getClient().get(ServiceInstanceInventory.MODEL_NAME, id);
             if (response.isExists()) {
-                return response.getField(RegisterSource.SEQUENCE).getValue();
+                return (int)response.getSource().getOrDefault(RegisterSource.SEQUENCE, 0);
             } else {
                 return Const.NONE;
             }

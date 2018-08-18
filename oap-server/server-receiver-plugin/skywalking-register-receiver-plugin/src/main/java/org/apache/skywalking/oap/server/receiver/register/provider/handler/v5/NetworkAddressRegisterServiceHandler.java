@@ -18,10 +18,11 @@
 
 package org.apache.skywalking.oap.server.receiver.register.provider.handler.v5;
 
+import com.google.protobuf.ProtocolStringList;
 import io.grpc.stub.StreamObserver;
 import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.oap.server.core.*;
-import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
+import org.apache.skywalking.oap.server.core.register.service.INetworkAddressInventoryRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.slf4j.*;
@@ -29,29 +30,32 @@ import org.slf4j.*;
 /**
  * @author peng-yongsheng
  */
-public class ApplicationRegisterHandler extends ApplicationRegisterServiceGrpc.ApplicationRegisterServiceImplBase implements GRPCHandler {
+public class NetworkAddressRegisterServiceHandler extends NetworkAddressRegisterServiceGrpc.NetworkAddressRegisterServiceImplBase implements GRPCHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(ApplicationRegisterHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(NetworkAddressRegisterServiceHandler.class);
 
-    private final IServiceInventoryRegister serviceInventoryRegister;
+    private final INetworkAddressInventoryRegister networkAddressInventoryRegister;
 
-    public ApplicationRegisterHandler(ModuleManager moduleManager) {
-        serviceInventoryRegister = moduleManager.find(CoreModule.NAME).getService(IServiceInventoryRegister.class);
+    public NetworkAddressRegisterServiceHandler(ModuleManager moduleManager) {
+        this.networkAddressInventoryRegister = moduleManager.find(CoreModule.NAME).getService(INetworkAddressInventoryRegister.class);
     }
 
     @Override
-    public void applicationCodeRegister(Application request, StreamObserver<ApplicationMapping> responseObserver) {
+    public void batchRegister(NetworkAddresses request, StreamObserver<NetworkAddressMappings> responseObserver) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Register application, application code: {}", request.getApplicationCode());
+            logger.debug("register application");
         }
 
-        ApplicationMapping.Builder builder = ApplicationMapping.newBuilder();
-        String serviceName = request.getApplicationCode();
-        int serviceId = serviceInventoryRegister.getOrCreate(serviceName);
+        ProtocolStringList addressesList = request.getAddressesList();
 
-        if (serviceId != Const.NONE) {
-            KeyWithIntegerValue value = KeyWithIntegerValue.newBuilder().setKey(serviceName).setValue(serviceId).build();
-            builder.setApplication(value);
+        NetworkAddressMappings.Builder builder = NetworkAddressMappings.newBuilder();
+        for (String networkAddress : addressesList) {
+            int addressId = networkAddressInventoryRegister.getOrCreate(networkAddress);
+
+            if (addressId != Const.NONE) {
+                KeyWithIntegerValue value = KeyWithIntegerValue.newBuilder().setKey(networkAddress).setValue(addressId).build();
+                builder.addAddressIds(value);
+            }
         }
         responseObserver.onNext(builder.build());
         responseObserver.onCompleted();

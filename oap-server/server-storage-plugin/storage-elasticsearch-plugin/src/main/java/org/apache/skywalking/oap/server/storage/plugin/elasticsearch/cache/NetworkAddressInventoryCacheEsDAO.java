@@ -48,7 +48,7 @@ public class NetworkAddressInventoryCacheEsDAO extends EsDAO implements INetwork
             String id = NetworkAddressInventory.buildId(networkAddress);
             GetResponse response = getClient().get(NetworkAddressInventory.MODEL_NAME, id);
             if (response.isExists()) {
-                return response.getField(RegisterSource.SEQUENCE).getValue();
+                return (int)response.getSource().getOrDefault(RegisterSource.SEQUENCE, 0);
             } else {
                 return Const.NONE;
             }
