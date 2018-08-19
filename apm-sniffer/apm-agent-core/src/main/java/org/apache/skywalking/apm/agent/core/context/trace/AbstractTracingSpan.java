@@ -149,7 +149,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         }
         LogDataEntity.Builder builder = new LogDataEntity.Builder();
         for (Map.Entry<String, ?> entry : fields.entrySet()) {
-            builder.add(new KeyValuePair(entry.getKey(), entry.getValue().toString()));
+            builder.add(new KeyValuePair(entry.getKey(), String.valueOf(entry.getValue())));
         }
         logs.add(builder.build(timestampMicroseconds));
         return this;
