@@ -1,5 +1,9 @@
 sudo: required
 
+cache:
+  directories:
+  - "$HOME/.m2"
+
 language: java
 before_install:
   - mkdir ci-dependencies
