@@ -224,6 +224,9 @@ express:
 Egg:
   id: 4003
   languages: Node.js
+Koa:
+  id: 4004
+  languages: Node.js
 
 # Component Server mapping defines the server display names of some components
 # e.g.
