@@ -2,7 +2,7 @@
 Concepts and Designs help you to learn and understand the SkyWalking and the landscape.
 
 - What is SkyWalking?
-  - [Overview and Core concepts](overview.md). Provides a high-level description and introduction, including the problems it solves.
+  - [Overview and Core concepts](overview.md). Provides a high-level description and introduction, including the problems the project solves.
   - [Project Goals](project-goals.md). Provides the goals, which SkyWalking is trying to focus and provide features about them.
 
 After you read the above documents, you should understand the SkyWalking basic goals. Now, you can choose which following parts 
@@ -19,7 +19,5 @@ SkyWalking already support.
   - [Overview](backend-overview.md). Provides a high level introduction about the OAP backend.
   - [Observability Analysis Language](oal.md). Introduces the core languages, which is designed for aggregation behaviour definition.
   - [Query in OAP](query-oap.md). Introduces how to query data from backend, whether a simple metric data or topology map, even trace or log.
-  - [Receiver for other tracers](trace-receiver.md). Helps you to know the purposes of receiving other libs(such as Zipkin, Jeager, OpenCensus) data. 
-Also how to process this kind of data format.
 - UI
   - [Overview](ui-overview.md).
