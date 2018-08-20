@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.core.source;
 
 import lombok.*;
-import org.apache.skywalking.apm.network.language.agent.SpanLayer;
 import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
 
 /**
@@ -40,5 +39,5 @@ public class Endpoint extends Source {
     @Getter @Setter private int latency;
     @Getter @Setter private boolean status;
     @Getter @Setter private int responseCode;
-    @Getter @Setter private SpanLayer type;
+    @Getter @Setter private RequestType type;
 }

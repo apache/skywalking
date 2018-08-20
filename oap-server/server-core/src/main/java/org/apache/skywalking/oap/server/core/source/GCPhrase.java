@@ -16,27 +16,11 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.indicator.define;
-
-import lombok.*;
-import org.apache.skywalking.oap.server.core.analysis.indicator.AvgIndicator;
-import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
+package org.apache.skywalking.oap.server.core.source;
 
 /**
  * @author peng-yongsheng
  */
-public class TestAvgIndicator extends AvgIndicator {
-
-    @Setter @Getter private int id;
-
-    @Override public RemoteData.Builder serialize() {
-        return null;
-    }
-
-    @Override public void deserialize(RemoteData remoteData) {
-    }
-
-    @Override public String id() {
-        return null;
-    }
+public enum GCPhrase {
+    NEW, OLD
 }

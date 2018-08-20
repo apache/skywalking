@@ -16,44 +16,30 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.generated.endpoint;
+package org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancejvmgc;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
-import org.apache.skywalking.oap.server.core.source.Endpoint;
+import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMGC;
 
 /**
  * This class is auto generated. Please don't change this class manually.
  *
  * @author Observability Analysis Language code generator
  */
-public class EndpointDispatcher implements SourceDispatcher<Endpoint> {
+public class ServiceInstanceJVMGCDispatcher implements SourceDispatcher<ServiceInstanceJVMGC> {
 
-    @Override public void dispatch(Endpoint source) {
-        doEndpointAvg(source);
-        doEndpointPercent(source);
+    @Override public void dispatch(ServiceInstanceJVMGC source) {
+        doInstanceJvmGcTime(source);
     }
 
-    private void doEndpointAvg(Endpoint source) {
-        EndpointAvgIndicator indicator = new EndpointAvgIndicator();
+    private void doInstanceJvmGcTime(ServiceInstanceJVMGC source) {
+    InstanceJvmGcTimeIndicator indicator = new InstanceJvmGcTimeIndicator();
 
         indicator.setTimeBucket(source.getTimeBucket());
         indicator.setId(source.getId());
-        indicator.setServiceId(source.getServiceId());
         indicator.setServiceInstanceId(source.getServiceInstanceId());
-        indicator.combine(source.getLatency(), 1);
+        indicator.combine(source.getTime(), 1);
         IndicatorProcess.INSTANCE.in(indicator);
     }
-
-    private void doEndpointPercent(Endpoint source) {
-        EndpointPercentIndicator indicator = new EndpointPercentIndicator();
-
-        indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setId(source.getId());
-        indicator.setServiceId(source.getServiceId());
-        indicator.setServiceInstanceId(source.getServiceInstanceId());
-        indicator.combine(new org.apache.skywalking.oap.server.core.analysis.indicator.expression.BooleanBinaryMatch(), source.isStatus(), true);
-        IndicatorProcess.INSTANCE.in(indicator);
-    }
-
 }

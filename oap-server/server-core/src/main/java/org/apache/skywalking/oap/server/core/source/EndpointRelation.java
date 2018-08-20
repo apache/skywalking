@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.core.source;
 
 import lombok.*;
-import org.apache.skywalking.apm.network.language.agent.*;
 
 /**
  * @author peng-yongsheng
@@ -37,7 +36,7 @@ public class EndpointRelation extends Source {
     @Getter @Setter private int rpcLatency;
     @Getter @Setter private boolean status;
     @Getter @Setter private int responseCode;
-    @Getter @Setter private SpanLayer type;
-    @Getter @Setter private SpanType detectPoint;
+    @Getter @Setter private RequestType type;
+    @Getter @Setter private DetectPoint detectPoint;
 }
 

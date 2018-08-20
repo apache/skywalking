@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.generated.endpoint;
+package org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancejvmmemory;
 
 import java.util.*;
 import lombok.*;
@@ -35,11 +35,10 @@ import org.apache.skywalking.oap.server.core.storage.annotation.*;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "endpoint_avg", builder = EndpointAvgIndicator.Builder.class)
-public class EndpointAvgIndicator extends LongAvgIndicator {
+@StorageEntity(name = "instance_jvm_memory_max", builder = InstanceJvmMemoryMaxIndicator.Builder.class)
+public class InstanceJvmMemoryMaxIndicator extends LongAvgIndicator {
 
     @Setter @Getter @Column(columnName = "id") private int id;
-    @Setter @Getter @Column(columnName = "service_id") private int serviceId;
     @Setter @Getter @Column(columnName = "service_instance_id") private int serviceInstanceId;
 
     @Override public String id() {
@@ -63,7 +62,7 @@ public class EndpointAvgIndicator extends LongAvgIndicator {
         if (getClass() != obj.getClass())
             return false;
 
-        EndpointAvgIndicator indicator = (EndpointAvgIndicator)obj;
+        InstanceJvmMemoryMaxIndicator indicator = (InstanceJvmMemoryMaxIndicator)obj;
         if (id != indicator.id)
             return false;
         if (getTimeBucket() != indicator.getTimeBucket())
@@ -81,9 +80,8 @@ public class EndpointAvgIndicator extends LongAvgIndicator {
 
 
         remoteBuilder.setDataIntegers(0, getId());
-        remoteBuilder.setDataIntegers(1, getServiceId());
-        remoteBuilder.setDataIntegers(2, getServiceInstanceId());
-        remoteBuilder.setDataIntegers(3, getCount());
+        remoteBuilder.setDataIntegers(1, getServiceInstanceId());
+        remoteBuilder.setDataIntegers(2, getCount());
 
         return remoteBuilder;
     }
@@ -96,17 +94,15 @@ public class EndpointAvgIndicator extends LongAvgIndicator {
 
 
         setId(remoteData.getDataIntegers(0));
-        setServiceId(remoteData.getDataIntegers(1));
-        setServiceInstanceId(remoteData.getDataIntegers(2));
-        setCount(remoteData.getDataIntegers(3));
+        setServiceInstanceId(remoteData.getDataIntegers(1));
+        setCount(remoteData.getDataIntegers(2));
     }
 
-    public static class Builder implements StorageBuilder<EndpointAvgIndicator> {
+    public static class Builder implements StorageBuilder<InstanceJvmMemoryMaxIndicator> {
 
-        @Override public Map<String, Object> data2Map(EndpointAvgIndicator storageData) {
+        @Override public Map<String, Object> data2Map(InstanceJvmMemoryMaxIndicator storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put("id", storageData.getId());
-            map.put("service_id", storageData.getServiceId());
             map.put("service_instance_id", storageData.getServiceInstanceId());
             map.put("summation", storageData.getSummation());
             map.put("count", storageData.getCount());
@@ -115,10 +111,9 @@ public class EndpointAvgIndicator extends LongAvgIndicator {
             return map;
         }
 
-        @Override public EndpointAvgIndicator map2Data(Map<String, Object> dbMap) {
-            EndpointAvgIndicator indicator = new EndpointAvgIndicator();
+        @Override public InstanceJvmMemoryMaxIndicator map2Data(Map<String, Object> dbMap) {
+            InstanceJvmMemoryMaxIndicator indicator = new InstanceJvmMemoryMaxIndicator();
             indicator.setId(((Number)dbMap.get("id")).intValue());
-            indicator.setServiceId(((Number)dbMap.get("service_id")).intValue());
             indicator.setServiceInstanceId(((Number)dbMap.get("service_instance_id")).intValue());
             indicator.setSummation(((Number)dbMap.get("summation")).longValue());
             indicator.setCount(((Number)dbMap.get("count")).intValue());

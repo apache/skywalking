@@ -20,6 +20,10 @@ package org.apache.skywalking.oap.server.core.analysis;
 
 import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.generated.endpoint.EndpointDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancejvmcpu.ServiceInstanceJVMCPUDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancejvmgc.ServiceInstanceJVMGCDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancejvmmemory.ServiceInstanceJVMMemoryDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancejvmmemorypool.ServiceInstanceJVMMemoryPoolDispatcher;
 import org.apache.skywalking.oap.server.core.source.Scope;
 import org.slf4j.*;
 
@@ -35,6 +39,11 @@ public class DispatcherManager {
     public DispatcherManager() {
         this.dispatcherMap = new HashMap<>();
         this.dispatcherMap.put(Scope.Endpoint, new EndpointDispatcher());
+
+        this.dispatcherMap.put(Scope.ServiceInstanceJVMCPU, new ServiceInstanceJVMCPUDispatcher());
+        this.dispatcherMap.put(Scope.ServiceInstanceJVMGC, new ServiceInstanceJVMGCDispatcher());
+        this.dispatcherMap.put(Scope.ServiceInstanceJVMMemory, new ServiceInstanceJVMMemoryDispatcher());
+        this.dispatcherMap.put(Scope.ServiceInstanceJVMMemoryPool, new ServiceInstanceJVMMemoryPoolDispatcher());
     }
 
     public SourceDispatcher getDispatcher(Scope scope) {

@@ -16,28 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
+package org.apache.skywalking.oap.server.core.source;
 
-import org.junit.*;
+import lombok.*;
+import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
 
 /**
  * @author peng-yongsheng
  */
-public class ElasticSearchColumnTypeMappingTestCase {
-
-    @Test
-    public void test() {
-        ColumnTypeEsMapping mapping = new ColumnTypeEsMapping();
-
-        Assert.assertEquals("integer", mapping.transform(int.class));
-        Assert.assertEquals("integer", mapping.transform(Integer.class));
-
-        Assert.assertEquals("long", mapping.transform(long.class));
-        Assert.assertEquals("long", mapping.transform(Long.class));
-
-        Assert.assertEquals("double", mapping.transform(double.class));
-        Assert.assertEquals("double", mapping.transform(Double.class));
-
-        Assert.assertEquals("keyword", mapping.transform(String.class));
+@SourceType
+public class ServiceInstanceJVMCPU extends Source {
+    @Override public Scope scope() {
+        return Scope.ServiceInstanceJVMCPU;
     }
+
+    @Getter @Setter private int id;
+    @Getter @Setter private String name;
+    @Getter @Setter private String serviceName;
+    @Getter @Setter private int serviceInstanceId;
+    @Getter @Setter private double usePercent;
 }

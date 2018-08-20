@@ -16,28 +16,27 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
+package org.apache.skywalking.oap.server.core.analysis.indicator.define;
 
-import org.junit.*;
+import lombok.*;
+import org.apache.skywalking.oap.server.core.analysis.indicator.LongAvgIndicator;
+import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 
 /**
  * @author peng-yongsheng
  */
-public class ElasticSearchColumnTypeMappingTestCase {
+public class TestLongAvgIndicator extends LongAvgIndicator {
 
-    @Test
-    public void test() {
-        ColumnTypeEsMapping mapping = new ColumnTypeEsMapping();
+    @Setter @Getter private int id;
 
-        Assert.assertEquals("integer", mapping.transform(int.class));
-        Assert.assertEquals("integer", mapping.transform(Integer.class));
+    @Override public RemoteData.Builder serialize() {
+        return null;
+    }
 
-        Assert.assertEquals("long", mapping.transform(long.class));
-        Assert.assertEquals("long", mapping.transform(Long.class));
+    @Override public void deserialize(RemoteData remoteData) {
+    }
 
-        Assert.assertEquals("double", mapping.transform(double.class));
-        Assert.assertEquals("double", mapping.transform(Double.class));
-
-        Assert.assertEquals("keyword", mapping.transform(String.class));
+    @Override public String id() {
+        return null;
     }
 }

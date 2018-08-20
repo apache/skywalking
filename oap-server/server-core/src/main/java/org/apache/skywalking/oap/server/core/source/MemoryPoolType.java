@@ -16,28 +16,11 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
-
-import org.junit.*;
+package org.apache.skywalking.oap.server.core.source;
 
 /**
  * @author peng-yongsheng
  */
-public class ElasticSearchColumnTypeMappingTestCase {
-
-    @Test
-    public void test() {
-        ColumnTypeEsMapping mapping = new ColumnTypeEsMapping();
-
-        Assert.assertEquals("integer", mapping.transform(int.class));
-        Assert.assertEquals("integer", mapping.transform(Integer.class));
-
-        Assert.assertEquals("long", mapping.transform(long.class));
-        Assert.assertEquals("long", mapping.transform(Long.class));
-
-        Assert.assertEquals("double", mapping.transform(double.class));
-        Assert.assertEquals("double", mapping.transform(Double.class));
-
-        Assert.assertEquals("keyword", mapping.transform(String.class));
-    }
+public enum MemoryPoolType {
+    CODE_CACHE_USAGE, NEWGEN_USAGE, OLDGEN_USAGE, SURVIVOR_USAGE, PERMGEN_USAGE, METASPACE_USAGE
 }
