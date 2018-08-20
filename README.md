@@ -31,6 +31,10 @@ The core features are following.
 
 <img src="https://skywalkingtest.github.io/page-resources/6_overview.png"/>
 
+SkyWalking supports to collect telemetry (traces and metrics) data from different sources, 
+in order to provide more options
+for different scenarios. For better understanding, read our documents.
+
 
 # Document
 - [Documents in English](docs/README.md)
