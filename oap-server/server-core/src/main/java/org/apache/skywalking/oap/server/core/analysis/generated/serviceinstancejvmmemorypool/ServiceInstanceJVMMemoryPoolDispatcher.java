@@ -34,7 +34,7 @@ public class ServiceInstanceJVMMemoryPoolDispatcher implements SourceDispatcher<
     }
 
     private void doInstanceJvmMemoryPoolMax(ServiceInstanceJVMMemoryPool source) {
-    InstanceJvmMemoryPoolMaxIndicator indicator = new InstanceJvmMemoryPoolMaxIndicator();
+        InstanceJvmMemoryPoolMaxIndicator indicator = new InstanceJvmMemoryPoolMaxIndicator();
 
         indicator.setTimeBucket(source.getTimeBucket());
         indicator.setId(source.getId());
