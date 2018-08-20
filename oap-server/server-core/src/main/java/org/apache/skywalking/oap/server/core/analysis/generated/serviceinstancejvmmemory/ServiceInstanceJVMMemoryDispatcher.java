@@ -34,7 +34,7 @@ public class ServiceInstanceJVMMemoryDispatcher implements SourceDispatcher<Serv
     }
 
     private void doInstanceJvmMemoryMax(ServiceInstanceJVMMemory source) {
-    InstanceJvmMemoryMaxIndicator indicator = new InstanceJvmMemoryMaxIndicator();
+        InstanceJvmMemoryMaxIndicator indicator = new InstanceJvmMemoryMaxIndicator();
 
         indicator.setTimeBucket(source.getTimeBucket());
         indicator.setId(source.getId());

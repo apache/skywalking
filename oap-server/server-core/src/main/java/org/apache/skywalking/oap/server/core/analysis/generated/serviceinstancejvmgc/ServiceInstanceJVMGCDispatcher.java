@@ -34,7 +34,7 @@ public class ServiceInstanceJVMGCDispatcher implements SourceDispatcher<ServiceI
     }
 
     private void doInstanceJvmGcTime(ServiceInstanceJVMGC source) {
-    InstanceJvmGcTimeIndicator indicator = new InstanceJvmGcTimeIndicator();
+        InstanceJvmGcTimeIndicator indicator = new InstanceJvmGcTimeIndicator();
 
         indicator.setTimeBucket(source.getTimeBucket());
         indicator.setId(source.getId());
