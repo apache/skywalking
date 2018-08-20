@@ -122,8 +122,11 @@ public class IndicatorPersistentWorker extends AbstractWorker<Indicator> {
     private void cacheData(Indicator input) {
         mergeDataCache.writing();
         if (mergeDataCache.containsKey(input)) {
-            mergeDataCache.get(input).combine(input);
+            Indicator indicator = mergeDataCache.get(input);
+            indicator.combine(input);
+            indicator.calculate();
         } else {
+            input.calculate();
             mergeDataCache.put(input);
         }
 
