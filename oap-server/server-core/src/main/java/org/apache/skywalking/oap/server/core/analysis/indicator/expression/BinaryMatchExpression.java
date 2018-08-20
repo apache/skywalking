@@ -28,12 +28,14 @@ public abstract class BinaryMatchExpression {
     protected Object left;
     protected Object right;
 
-    public void setLeft(Object left) {
+    public BinaryMatchExpression setLeft(Object left) {
         this.left = left;
+        return this;
     }
 
-    public void setRight(Object right) {
+    public BinaryMatchExpression setRight(Object right) {
         this.right = right;
+        return this;
     }
 
     public abstract boolean match();

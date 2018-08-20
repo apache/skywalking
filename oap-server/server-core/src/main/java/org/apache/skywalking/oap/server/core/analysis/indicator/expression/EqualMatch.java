@@ -22,7 +22,7 @@ package org.apache.skywalking.oap.server.core.analysis.indicator.expression;
  *
  * @author wusheng
  */
-public class BooleanBinaryMatch extends BinaryMatchExpression {
+public class EqualMatch extends BinaryMatchExpression {
     @Override public boolean match() {
         return left == right;
     }
