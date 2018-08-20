@@ -23,6 +23,9 @@ even for Zipkin data format. The AOP analysis the segments to get metrics, and p
 the streaming aggregation.
 1. Consider tracing as some kinds of logging only. Just provide save and visualization capabilities for trace. 
 
+Also, SkyWalking accepts trace formats from other project, such as Zipkin, Jeager, OpenCensus.
+These formats could be processed in the two ways too.
+
 ## Metric in OAP
 Metric in OAP is totally new feature in 6 series. Build observability for a distributed system based on metric of connected nodes.
 No tracing data is required.
