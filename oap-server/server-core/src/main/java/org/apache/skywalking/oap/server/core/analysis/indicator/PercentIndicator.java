@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.indicator;
 
 import lombok.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.*;
-import org.apache.skywalking.oap.server.core.analysis.indicator.expression.BooleanBinaryMatch;
+import org.apache.skywalking.oap.server.core.analysis.indicator.expression.EqualMatch;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
@@ -37,7 +37,7 @@ public abstract class PercentIndicator extends Indicator {
     @Getter @Setter @Column(columnName = MATCH) private long match;
 
     @Entrance
-    public final void combine(@Expression BooleanBinaryMatch expression, @ExpressionArg0 Object leftValue,
+    public final void combine(@Expression EqualMatch expression, @ExpressionArg0 Object leftValue,
         @ExpressionArg1 Object rightValue) {
         expression.setLeft(leftValue);
         expression.setRight(rightValue);
