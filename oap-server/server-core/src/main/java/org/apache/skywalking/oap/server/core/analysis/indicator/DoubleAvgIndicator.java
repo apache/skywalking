@@ -20,39 +20,34 @@ package org.apache.skywalking.oap.server.core.analysis.indicator;
 
 import lombok.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.*;
-import org.apache.skywalking.oap.server.core.analysis.indicator.expression.BooleanBinaryMatch;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
- * @author wusheng
+ * @author peng-yongsheng
  */
 @IndicatorOperator
-public abstract class PercentIndicator extends Indicator {
-    protected static final String TOTAL = "total";
-    protected static final String MATCH = "match";
-    protected static final String PERCENTAGE = "percentage";
+public abstract class DoubleAvgIndicator extends Indicator {
 
-    @Getter @Setter @Column(columnName = TOTAL) private long total;
-    @Getter @Setter @Column(columnName = PERCENTAGE) private int percentage;
-    @Getter @Setter @Column(columnName = MATCH) private long match;
+    protected static final String SUMMATION = "summation";
+    protected static final String COUNT = "count";
+    protected static final String VALUE = "value";
+
+    @Getter @Setter @Column(columnName = SUMMATION) private double summation;
+    @Getter @Setter @Column(columnName = COUNT) private int count;
+    @Getter @Setter @Column(columnName = VALUE) private double value;
 
     @Entrance
-    public final void combine(@Expression BooleanBinaryMatch expression, @ExpressionArg0 Object leftValue,
-        @ExpressionArg1 Object rightValue) {
-        expression.setLeft(leftValue);
-        expression.setRight(rightValue);
-        if (expression.match()) {
-            match++;
-        }
-        total++;
+    public final void combine(@SourceFrom double summation, @ConstOne int count) {
+        this.summation += summation;
+        this.count += count;
     }
 
     @Override public final void combine(Indicator indicator) {
-        total += ((PercentIndicator)indicator).total;
-        match += ((PercentIndicator)indicator).match;
+        DoubleAvgIndicator avgIndicator = (DoubleAvgIndicator)indicator;
+        combine(avgIndicator.summation, avgIndicator.count);
     }
 
-    @Override public void calculate() {
-        percentage = (int)(match / total);
+    @Override public final void calculate() {
+        this.value = this.summation / this.count;
     }
 }

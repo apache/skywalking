@@ -16,18 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.generated.service;
+package org.apache.skywalking.oap.server.receiver.jvm.module;
 
-import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.source.Service;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
- * This class is auto generated. Please don't change this class manually.
- *
- * @author Observability Analysis Language code generator
+ * @author peng-yongsheng
  */
-public class ServiceDispatcher implements SourceDispatcher<Service> {
-    @Override public void dispatch(Service source) {
+public class JVMModule extends ModuleDefine {
+
+    @Override public String name() {
+        return "receiver-jvm";
     }
 
+    @Override public Class[] services() {
+        return new Class[0];
+    }
 }

@@ -18,14 +18,24 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import lombok.*;
 import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
 
 /**
- * @author wusheng
+ * @author wusheng, peng-yongsheng
  */
 @SourceType
 public class Service extends Source {
     @Override public Scope scope() {
         return Scope.Service;
     }
+
+    @Getter @Setter private int id;
+    @Getter @Setter private String name;
+    @Getter @Setter private String serviceInstanceName;
+    @Getter @Setter private String endpointName;
+    @Getter @Setter private int latency;
+    @Getter @Setter private boolean status;
+    @Getter @Setter private int responseCode;
+    @Getter @Setter private RequestType type;
 }

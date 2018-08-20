@@ -35,12 +35,18 @@
         <module>skywalking-mesh-receiver-plugin</module>
         <module>skywalking-istio-telemetry-receiver-plugin</module>
         <module>skywalking-register-receiver-plugin</module>
+        <module>skywalking-jvm-receiver-plugin</module>
     </modules>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>server-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-network</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -20,12 +20,13 @@ package org.apache.skywalking.oap.server.core.analysis.generated.endpoint;
 
 import java.util.*;
 import lombok.*;
-import org.apache.skywalking.oap.server.core.analysis.indicator.*;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.indicator.PercentIndicator;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.annotation.*;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.annotation.*;
 
 /**
  * This class is auto generated. Please don't change this class manually.
@@ -42,7 +43,9 @@ public class EndpointPercentIndicator extends PercentIndicator {
     @Setter @Getter @Column(columnName = "service_instance_id") private int serviceInstanceId;
 
     @Override public String id() {
-        return String.valueOf(id);
+        String splitJointId = String.valueOf(getTimeBucket());
+        splitJointId += Const.ID_SPLIT + String.valueOf(id);
+        return splitJointId;
     }
 
     @Override public int hashCode() {
@@ -51,7 +54,6 @@ public class EndpointPercentIndicator extends PercentIndicator {
         result = 31 * result + (int)getTimeBucket();
         return result;
     }
-
 
     @Override public boolean equals(Object obj) {
         if (this == obj)
@@ -69,7 +71,6 @@ public class EndpointPercentIndicator extends PercentIndicator {
 
         return true;
     }
-
 
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
@@ -116,13 +117,13 @@ public class EndpointPercentIndicator extends PercentIndicator {
 
         @Override public EndpointPercentIndicator map2Data(Map<String, Object> dbMap) {
             EndpointPercentIndicator indicator = new EndpointPercentIndicator();
-            indicator.setId((int)dbMap.get("id"));
-            indicator.setServiceId((int)dbMap.get("service_id"));
-            indicator.setServiceInstanceId((int)dbMap.get("service_instance_id"));
-            indicator.setTotal((long)dbMap.get("total"));
-            indicator.setPercentage((int)dbMap.get("percentage"));
-            indicator.setMatch((long)dbMap.get("match"));
-            indicator.setTimeBucket((long)dbMap.get("time_bucket"));
+            indicator.setId(((Number)dbMap.get("id")).intValue());
+            indicator.setServiceId(((Number)dbMap.get("service_id")).intValue());
+            indicator.setServiceInstanceId(((Number)dbMap.get("service_instance_id")).intValue());
+            indicator.setTotal(((Number)dbMap.get("total")).longValue());
+            indicator.setPercentage(((Number)dbMap.get("percentage")).intValue());
+            indicator.setMatch(((Number)dbMap.get("match")).longValue());
+            indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
             return indicator;
         }
     }

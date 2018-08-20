@@ -35,4 +35,6 @@ public abstract class Indicator extends StreamData implements StorageData {
     public abstract String id();
 
     public abstract void combine(Indicator indicator);
+
+    public abstract void calculate();
 }
