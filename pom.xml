@@ -143,6 +143,16 @@
     </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <!-- mvn -N io.takari:maven:wrapper -Dmaven=3.5.4 -->
+                <plugin>
+                    <groupId>io.takari</groupId>
+                    <artifactId>maven</artifactId>
+                    <version>0.6.1</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.rat</groupId>
@@ -203,6 +213,9 @@
                         <!-- web UI dependencies descriptions -->
                         <exclude>skywalking-ui/package.json</exclude>
                         <exclude>skywalking-ui/package-lock.json</exclude>
+
+                        <!-- Maven Wrapper generated files -->
+                        <exclude>.mvn/wrapper/maven-wrapper.properties</exclude>
                     </excludes>
                 </configuration>
                 <executions>
