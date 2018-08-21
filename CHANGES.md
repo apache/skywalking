@@ -11,9 +11,11 @@ Release Notes.
   - Add a new way to transmit the Request and Response, to avoid bugs in Hytrix scenarios.
   - Fix HTTPComponent client v4 operation name is empty.
   - Fix 2 possible NPEs in Spring plugin.
+  - Fix a possible span leak in SpringMVC plugin.
   
 #### Collector Changes
   - Add GZip support for Zipkin receiver.
+  - Add new component IDs for nodejs.
   - Fix Zipkin span receiver may miss data in request.
   - Optimize codes in heatmap calculation. Reduce unnecessary divide.
   - Fix NPE in Alarm content generation.
