@@ -100,6 +100,19 @@ public abstract class ConnectionInstrumentation extends ClassInstanceMethodsEnha
                 @Override public boolean isOverrideArgs() {
                     return false;
                 }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("setCatalog");
+                }
+
+                @Override public String getMethodsInterceptor() {
+                    return "org.apache.skywalking.apm.plugin.jdbc.mysql.SetCatalogInterceptor";
+                }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
+                }
             }
         };
 

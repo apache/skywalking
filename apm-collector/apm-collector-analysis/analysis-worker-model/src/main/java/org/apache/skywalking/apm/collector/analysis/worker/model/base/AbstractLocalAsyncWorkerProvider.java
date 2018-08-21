@@ -39,7 +39,7 @@ public abstract class AbstractLocalAsyncWorkerProvider<INPUT extends QueueData, 
         workerCreateListener.addWorker(localAsyncWorker);
 
         LocalAsyncWorkerRef<INPUT, OUTPUT> localAsyncWorkerRef = new LocalAsyncWorkerRef<>(localAsyncWorker);
-        DataCarrier<INPUT> dataCarrier = new DataCarrier<>(1, 8192 * 2);
+        DataCarrier<INPUT> dataCarrier = new DataCarrier<>(1, 10000);
         localAsyncWorkerRef.setQueueEventHandler(dataCarrier);
         dataCarrier.consume(localAsyncWorkerRef, 1);
         return localAsyncWorkerRef;

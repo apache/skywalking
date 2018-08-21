@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.collector.core.data.operator;
 
-import org.apache.skywalking.apm.collector.core.data.MergeOperation;
+import org.apache.skywalking.apm.collector.core.data.*;
 
 /**
  * @author peng-yongsheng
@@ -54,6 +54,22 @@ public class MaxMergeOperation implements MergeOperation {
     }
 
     @Override public byte[] operate(byte[] newValue, byte[] oldValue) {
-        throw new UnsupportedOperationException("not support byte maximum operation");
+        throw new UnsupportedOperationException("not support byte array maximum operation");
+    }
+
+    @Override public StringLinkedList operate(StringLinkedList newValue, StringLinkedList oldValue) {
+        throw new UnsupportedOperationException("not support string list maximum operation");
+    }
+
+    @Override public LongLinkedList operate(LongLinkedList newValue, LongLinkedList oldValue) {
+        throw new UnsupportedOperationException("not support long list maximum operation");
+    }
+
+    @Override public IntegerLinkedList operate(IntegerLinkedList newValue, IntegerLinkedList oldValue) {
+        throw new UnsupportedOperationException("not support integer list maximum operation");
+    }
+
+    @Override public DoubleLinkedList operate(DoubleLinkedList newValue, DoubleLinkedList oldValue) {
+        throw new UnsupportedOperationException("not support double list maximum operation");
     }
 }

@@ -18,20 +18,19 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao;
 
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.UnexpectedException;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.dao.IInstanceHeartBeatPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.EsDAO;
-import org.apache.skywalking.apm.collector.storage.table.register.Instance;
-import org.apache.skywalking.apm.collector.storage.table.register.InstanceTable;
+import org.apache.skywalking.apm.collector.storage.table.register.*;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.elasticsearch.common.xcontent.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -54,10 +53,10 @@ public class InstanceHeartBeatEsPersistenceDAO extends EsDAO implements IInstanc
             instance.setId(id);
             instance.setInstanceId(((Number)source.get(InstanceTable.INSTANCE_ID.getName())).intValue());
             instance.setHeartBeatTime(((Number)source.get(InstanceTable.HEARTBEAT_TIME.getName())).longValue());
-            logger.debug("getApplicationId: {} is exists", id);
+            logger.debug("instance id: {} exists", id);
             return instance;
         } else {
-            logger.debug("getApplicationId: {} is not exists", id);
+            logger.debug("instance id: {} not exists", id);
             return null;
         }
     }
@@ -66,12 +65,14 @@ public class InstanceHeartBeatEsPersistenceDAO extends EsDAO implements IInstanc
         throw new UnexpectedException("Received an instance heart beat message under instance id= " + data.getId() + " , which doesn't exist.");
     }
 
-    @Override public UpdateRequestBuilder prepareBatchUpdate(Instance data) {
-        Map<String, Object> source = new HashMap<>();
-        source.put(InstanceTable.HEARTBEAT_TIME.getName(), data.getHeartBeatTime());
+    @Override public UpdateRequestBuilder prepareBatchUpdate(Instance data) throws IOException {
+        XContentBuilder source = XContentFactory.jsonBuilder().startObject()
+            .field(InstanceTable.HEARTBEAT_TIME.getName(), data.getHeartBeatTime())
+            .endObject();
+        
         return getClient().prepareUpdate(InstanceTable.TABLE, data.getId()).setDoc(source);
     }
 
-    @Override public void deleteHistory(Long startTimestamp, Long endTimestamp) {
+    @Override public void deleteHistory(Long timeBucketBefore) {
     }
 }

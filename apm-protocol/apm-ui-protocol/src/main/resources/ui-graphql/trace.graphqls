@@ -23,7 +23,7 @@ type TraceBrief {
 # Trace basic info
 type BasicTrace {
    segmentId: String!
-   operationName: String!
+   operationNames: [String!]!
    duration: Int!
    start: String!
    isError: Boolean
@@ -42,7 +42,15 @@ input TraceQueryCondition {
   minTraceDuration: Int
   # The max time of trace
   maxTraceDuration: Int
+  traceState: TraceState!
+  queryOrder: QueryOrder!
   paging: Pagination!
+}
+
+enum TraceState {
+  ALL
+  SUCCESS
+  ERROR
 }
 
 enum QueryOrder {

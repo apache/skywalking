@@ -25,7 +25,6 @@ import org.apache.skywalking.apm.collector.analysis.segment.parser.define.graph.
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.listener.*;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParseService;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.standardization.*;
-import org.apache.skywalking.apm.collector.core.UnexpectedException;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.core.graph.*;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
@@ -42,7 +41,7 @@ public class SegmentParse {
     private static final Logger logger = LoggerFactory.getLogger(SegmentParse.class);
 
     private final ModuleManager moduleManager;
-    private List<SpanListener> spanListeners;
+    private final List<SpanListener> spanListeners;
     private final SegmentParserListenerManager listenerManager;
     private final SegmentCoreInfo segmentCoreInfo;
 
@@ -66,22 +65,27 @@ public class SegmentParse {
             SegmentDecorator segmentDecorator = new SegmentDecorator(segmentObject);
 
             if (!preBuild(traceIds, segmentDecorator)) {
-                logger.debug("This segment id exchange not success, write to buffer file, id: {}", segmentCoreInfo.getSegmentId());
+                if (logger.isDebugEnabled()) {
+                    logger.debug("This segment id exchange not success, write to buffer file, id: {}", segmentCoreInfo.getSegmentId());
+                }
 
                 if (source.equals(ISegmentParseService.Source.Agent)) {
                     writeToBufferFile(segmentCoreInfo.getSegmentId(), segment);
                 }
                 return false;
             } else {
-                logger.debug("This segment id exchange success, id: {}", segmentCoreInfo.getSegmentId());
+                if (logger.isDebugEnabled()) {
+                    logger.debug("This segment id exchange success, id: {}", segmentCoreInfo.getSegmentId());
+                }
+
                 notifyListenerToBuild();
                 buildSegment(segmentCoreInfo.getSegmentId(), segmentDecorator.toByteArray());
                 return true;
             }
-        } catch (InvalidProtocolBufferException e) {
+        } catch (Throwable e) {
             logger.error(e.getMessage(), e);
+            return true;
         }
-        return false;
     }
 
     @GraphComputingMetric(name = "/segment/parse/parseBinarySegment")
@@ -109,7 +113,6 @@ public class SegmentParse {
         segmentCoreInfo.setApplicationId(segmentDecorator.getApplicationId());
         segmentCoreInfo.setApplicationInstanceId(segmentDecorator.getApplicationInstanceId());
 
-        int entrySpanCount = 0;
         for (int i = 0; i < segmentDecorator.getSpansCount(); i++) {
             SpanDecorator spanDecorator = segmentDecorator.getSpans(i);
 
@@ -124,10 +127,6 @@ public class SegmentParse {
                 }
             }
 
-            if (SpanType.Entry.equals(spanDecorator.getSpanType())) {
-                entrySpanCount++;
-            }
-
             if (segmentCoreInfo.getStartTime() > spanDecorator.getStartTime()) {
                 segmentCoreInfo.setStartTime(spanDecorator.getStartTime());
             }
@@ -135,10 +134,6 @@ public class SegmentParse {
                 segmentCoreInfo.setEndTime(spanDecorator.getEndTime());
             }
             segmentCoreInfo.setError(spanDecorator.getIsError() || segmentCoreInfo.isError());
-
-            if (entrySpanCount > 1) {
-                throw new UnexpectedException("This segment contains multiple entry span.");
-            }
         }
 
         long minuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(segmentCoreInfo.getStartTime());
@@ -177,7 +172,10 @@ public class SegmentParse {
 
     @GraphComputingMetric(name = "/segment/parse/bufferFile/write")
     private void writeToBufferFile(String id, UpstreamSegment upstreamSegment) {
-        logger.debug("push to segment buffer write worker, id: {}", id);
+        if (logger.isDebugEnabled()) {
+            logger.debug("push to segment buffer write worker, id: {}", id);
+        }
+
         SegmentStandardization standardization = new SegmentStandardization(id);
         standardization.setUpstreamSegment(upstreamSegment);
         Graph<SegmentStandardization> graph = GraphManager.INSTANCE.findGraph(GraphIdDefine.SEGMENT_STANDARDIZATION_GRAPH_ID, SegmentStandardization.class);

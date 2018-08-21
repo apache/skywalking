@@ -47,20 +47,17 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         final HttpHost httpHost = (HttpHost)allArguments[0];
         HttpRequest httpRequest = (HttpRequest)allArguments[1];
         final ContextCarrier contextCarrier = new ContextCarrier();
-        AbstractSpan span = null;
 
         String remotePeer = httpHost.getHostName() + ":" + (httpHost.getPort() > 0 ? httpHost.getPort() :
             "https".equals(httpHost.getSchemeName().toLowerCase()) ? 443 : 80);
 
-        try {
-            URL url = new URL(httpRequest.getRequestLine().getUri());
-            span = ContextManager.createExitSpan(url.getPath(), contextCarrier, remotePeer);
-        } catch (MalformedURLException e) {
-            throw e;
-        }
+        String uri = httpRequest.getRequestLine().getUri();
+        String requestURI = getRequestURI(uri);
+        String operationName = uri.startsWith("http") ? requestURI : uri;
+        AbstractSpan span = ContextManager.createExitSpan(operationName, contextCarrier, remotePeer);
 
         span.setComponent(ComponentsDefine.HTTPCLIENT);
-        Tags.URL.set(span, httpRequest.getRequestLine().getUri());
+        Tags.URL.set(span, uri);
         Tags.HTTP.METHOD.set(span, httpRequest.getRequestLine().getMethod());
         SpanLayer.asHttp(span);
 
@@ -77,16 +74,19 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
             return ret;
         }
 
-        HttpResponse response = (HttpResponse)ret;
-        StatusLine responseStatusLine = response.getStatusLine();
-        if (responseStatusLine != null) {
-            int statusCode = responseStatusLine.getStatusCode();
-            AbstractSpan span = ContextManager.activeSpan();
-            if (statusCode >= 400) {
-                span.errorOccurred();
-                Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
+        if (ret != null) {
+            HttpResponse response = (HttpResponse)ret;
+            StatusLine responseStatusLine = response.getStatusLine();
+            if (responseStatusLine != null) {
+                int statusCode = responseStatusLine.getStatusCode();
+                AbstractSpan span = ContextManager.activeSpan();
+                if (statusCode >= 400) {
+                    span.errorOccurred();
+                    Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
+                }
             }
         }
+
         ContextManager.stopSpan();
         return ret;
     }
@@ -96,5 +96,10 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         AbstractSpan activeSpan = ContextManager.activeSpan();
         activeSpan.errorOccurred();
         activeSpan.log(t);
+    }
+
+    private String getRequestURI(String uri) throws MalformedURLException {
+        String requestPath = new URL(uri).getPath();
+        return requestPath != null && requestPath.length() > 0 ? requestPath : "/";
     }
 }

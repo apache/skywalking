@@ -59,7 +59,7 @@ public class SegmentPersistenceWorker extends NonMergePersistenceWorker<Segment>
 
         @Override
         public int queueSize() {
-            return 1024;
+            return 2048;
         }
     }
 }

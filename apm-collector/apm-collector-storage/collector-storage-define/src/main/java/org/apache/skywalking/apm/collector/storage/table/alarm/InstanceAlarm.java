@@ -18,11 +18,9 @@
 
 package org.apache.skywalking.apm.collector.storage.table.alarm;
 
-import org.apache.skywalking.apm.collector.core.data.Column;
-import org.apache.skywalking.apm.collector.core.data.RemoteData;
-import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.data.operator.CoverMergeOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.*;
+import org.apache.skywalking.apm.collector.core.data.column.*;
+import org.apache.skywalking.apm.collector.core.data.operator.*;
 import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 
 /**
@@ -30,28 +28,27 @@ import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterServ
  */
 public class InstanceAlarm extends StreamData implements Alarm {
 
-    private static final Column[] STRING_COLUMNS = {
-        new Column(InstanceAlarmTable.ID, new NonMergeOperation()),
-        new Column(InstanceAlarmTable.ALARM_CONTENT, new CoverMergeOperation()),
+    private static final StringColumn[] STRING_COLUMNS = {
+        new StringColumn(InstanceAlarmTable.ID, new NonMergeOperation()),
+        new StringColumn(InstanceAlarmTable.ALARM_CONTENT, new CoverMergeOperation()),
     };
 
-    private static final Column[] LONG_COLUMNS = {
-        new Column(InstanceAlarmTable.LAST_TIME_BUCKET, new CoverMergeOperation()),
+    private static final LongColumn[] LONG_COLUMNS = {
+        new LongColumn(InstanceAlarmTable.LAST_TIME_BUCKET, new CoverMergeOperation()),
     };
 
-    private static final Column[] DOUBLE_COLUMNS = {};
-
-    private static final Column[] INTEGER_COLUMNS = {
-        new Column(InstanceAlarmTable.ALARM_TYPE, new NonMergeOperation()),
-        new Column(InstanceAlarmTable.SOURCE_VALUE, new NonMergeOperation()),
-        new Column(InstanceAlarmTable.APPLICATION_ID, new NonMergeOperation()),
-        new Column(InstanceAlarmTable.INSTANCE_ID, new NonMergeOperation()),
+    private static final IntegerColumn[] INTEGER_COLUMNS = {
+        new IntegerColumn(InstanceAlarmTable.ALARM_TYPE, new NonMergeOperation()),
+        new IntegerColumn(InstanceAlarmTable.SOURCE_VALUE, new NonMergeOperation()),
+        new IntegerColumn(InstanceAlarmTable.APPLICATION_ID, new NonMergeOperation()),
+        new IntegerColumn(InstanceAlarmTable.INSTANCE_ID, new NonMergeOperation()),
     };
 
-    private static final Column[] BYTE_COLUMNS = {};
+    private static final DoubleColumn[] DOUBLE_COLUMNS = {
+    };
 
     public InstanceAlarm() {
-        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
+        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, DOUBLE_COLUMNS);
     }
 
     @Override public String getId() {

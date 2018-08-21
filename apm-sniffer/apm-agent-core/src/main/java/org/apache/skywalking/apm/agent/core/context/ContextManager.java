@@ -42,6 +42,7 @@ import org.apache.skywalking.apm.util.StringUtil;
 public class ContextManager implements TracingContextListener, BootService, IgnoreTracerContextListener {
     private static final ILog logger = LogManager.getLogger(ContextManager.class);
     private static ThreadLocal<AbstractTracerContext> CONTEXT = new ThreadLocal<AbstractTracerContext>();
+    private static ThreadLocal<RuntimeContext> RUNTIME_CONTEXT = new ThreadLocal<RuntimeContext>();
     private static ContextManagerExtendService EXTEND_SERVICE;
 
     private static AbstractTracerContext getOrCreate(String operationName, boolean forceSampling) {
@@ -194,7 +195,16 @@ public class ContextManager implements TracingContextListener, BootService, Igno
     }
 
     public static boolean isActive() {
-        return CONTEXT.get() != null;
+        return get() != null;
     }
 
+    public static RuntimeContext getRuntimeContext() {
+        RuntimeContext runtimeContext = RUNTIME_CONTEXT.get();
+        if (runtimeContext == null) {
+            runtimeContext = new RuntimeContext(RUNTIME_CONTEXT);
+            RUNTIME_CONTEXT.set(runtimeContext);
+        }
+
+        return runtimeContext;
+    }
 }

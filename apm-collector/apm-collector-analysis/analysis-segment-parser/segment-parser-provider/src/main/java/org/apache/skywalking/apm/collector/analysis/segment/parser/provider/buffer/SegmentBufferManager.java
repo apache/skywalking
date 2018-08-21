@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.buffer;
 
 import java.io.*;
+import java.nio.channels.FileLock;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.*;
 import org.apache.skywalking.apm.network.proto.UpstreamSegment;
@@ -40,11 +41,14 @@ public enum SegmentBufferManager {
         try {
             OffsetManager.INSTANCE.initialize();
             if (new File(BufferFileConfig.BUFFER_PATH).mkdirs()) {
+                tryLock();
                 newDataFile();
             } else if (BufferFileConfig.BUFFER_FILE_CLEAN_WHEN_RESTART) {
                 deleteFiles();
+                tryLock();
                 newDataFile();
             } else {
+                tryLock();
                 String writeFileName = OffsetManager.INSTANCE.getWriteFileName();
                 if (StringUtils.isNotEmpty(writeFileName)) {
                     File dataFile = new File(BufferFileConfig.BUFFER_PATH + writeFileName);
@@ -77,8 +81,26 @@ public enum SegmentBufferManager {
         }
     }
 
+    private void tryLock() {
+        logger.info("try to lock buffer directory.");
+        FileLock lock = null;
+
+        try {
+            lock = new FileOutputStream(BufferFileConfig.BUFFER_PATH + "lock").getChannel().tryLock();
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+        }
+
+        if (lock == null) {
+            throw new RuntimeException("The buffer directory is reading or writing by another thread.");
+        }
+    }
+
     private void newDataFile() throws IOException {
-        logger.debug("getOrCreate new segment buffer file");
+        if (logger.isDebugEnabled()) {
+            logger.debug("getOrCreate new segment buffer file");
+        }
+
         String timeBucket = String.valueOf(TimeBucketUtils.INSTANCE.getSecondTimeBucket(System.currentTimeMillis()));
         String writeFileName = DATA_FILE_PREFIX + "_" + timeBucket + "." + Const.FILE_SUFFIX;
         File dataFile = new File(BufferFileConfig.BUFFER_PATH + writeFileName);

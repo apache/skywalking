@@ -17,3 +17,4 @@
 spring-core-patch=org.apache.skywalking.apm.plugin.spring.patch.define.AopProxyFactoryInstrumentation
 spring-core-patch=org.apache.skywalking.apm.plugin.spring.patch.define.AutowiredAnnotationProcessorInstrumentation
 spring-core-patch=org.apache.skywalking.apm.plugin.spring.patch.define.AopExpressionMatchInstrumentation
+spring-core-patch=org.apache.skywalking.apm.plugin.spring.patch.define.BeanWrapperImplInstrumentation

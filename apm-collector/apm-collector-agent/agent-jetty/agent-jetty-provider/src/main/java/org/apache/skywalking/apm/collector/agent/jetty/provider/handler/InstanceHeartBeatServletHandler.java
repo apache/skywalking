@@ -27,14 +27,14 @@ import org.apache.skywalking.apm.collector.analysis.metric.define.AnalysisMetric
 import org.apache.skywalking.apm.collector.analysis.metric.define.service.IInstanceHeartBeatService;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.server.jetty.ArgumentsParseException;
-import org.apache.skywalking.apm.collector.server.jetty.JettyHandler;
+import org.apache.skywalking.apm.collector.server.jetty.JettyJsonHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
-public class InstanceHeartBeatServletHandler extends JettyHandler {
+public class InstanceHeartBeatServletHandler extends JettyJsonHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatServletHandler.class);
 

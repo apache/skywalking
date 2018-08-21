@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
@@ -53,7 +55,7 @@ public class SnifferConfigInitializer {
      * At the end, `agent.application_code` and `collector.servers` must be not blank.
      */
     public static void initialize() throws ConfigNotFoundException, AgentPackageNotFoundException {
-        InputStream configFileStream;
+        InputStreamReader configFileStream;
 
         try {
             configFileStream = loadConfigFromAgentFolder();
@@ -115,15 +117,17 @@ public class SnifferConfigInitializer {
      *
      * @return the config file {@link InputStream}, or null if not needEnhance.
      */
-    private static InputStream loadConfigFromAgentFolder() throws AgentPackageNotFoundException, ConfigNotFoundException {
+    private static InputStreamReader loadConfigFromAgentFolder() throws AgentPackageNotFoundException, ConfigNotFoundException, ConfigReadFailedException {
         File configFile = new File(AgentPackagePath.getPath(), CONFIG_FILE_NAME);
         if (configFile.exists() && configFile.isFile()) {
             try {
                 logger.info("Config file found in {}.", configFile);
 
-                return new FileInputStream(configFile);
+                return new InputStreamReader(new FileInputStream(configFile), "UTF-8");
             } catch (FileNotFoundException e) {
                 throw new ConfigNotFoundException("Fail to load agent.config", e);
+            } catch (UnsupportedEncodingException e) {
+                throw new ConfigReadFailedException("Fail to load agent.config", e);
             }
         }
         throw new ConfigNotFoundException("Fail to load agent config file.");

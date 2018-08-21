@@ -18,13 +18,13 @@
 
 package org.apache.skywalking.apm.collector.storage.es.dao.impp;
 
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.Map;
 import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.apm.collector.core.annotations.trace.GraphComputingMetric;
 import org.apache.skywalking.apm.collector.storage.es.base.dao.AbstractPersistenceEsDAO;
-import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMapping;
-import org.apache.skywalking.apm.collector.storage.table.instance.InstanceMappingTable;
+import org.apache.skywalking.apm.collector.storage.table.instance.*;
+import org.elasticsearch.common.xcontent.*;
 
 /**
  * @author peng-yongsheng
@@ -50,16 +50,15 @@ public abstract class AbstractInstanceMappingEsPersistenceDAO extends AbstractPe
         return instanceMapping;
     }
 
-    @Override protected final Map<String, Object> esStreamDataToEsData(InstanceMapping streamData) {
-        Map<String, Object> target = new HashMap<>();
-        target.put(InstanceMappingTable.METRIC_ID.getName(), streamData.getMetricId());
+    @Override protected final XContentBuilder esStreamDataToEsData(InstanceMapping streamData) throws IOException {
+        return XContentFactory.jsonBuilder().startObject()
+            .field(InstanceMappingTable.METRIC_ID.getName(), streamData.getMetricId())
 
-        target.put(InstanceMappingTable.APPLICATION_ID.getName(), streamData.getApplicationId());
-        target.put(InstanceMappingTable.INSTANCE_ID.getName(), streamData.getInstanceId());
-        target.put(InstanceMappingTable.ADDRESS_ID.getName(), streamData.getAddressId());
-        target.put(InstanceMappingTable.TIME_BUCKET.getName(), streamData.getTimeBucket());
-
-        return target;
+            .field(InstanceMappingTable.APPLICATION_ID.getName(), streamData.getApplicationId())
+            .field(InstanceMappingTable.INSTANCE_ID.getName(), streamData.getInstanceId())
+            .field(InstanceMappingTable.ADDRESS_ID.getName(), streamData.getAddressId())
+            .field(InstanceMappingTable.TIME_BUCKET.getName(), streamData.getTimeBucket())
+            .endObject();
     }
 
     @GraphComputingMetric(name = "/persistence/get/" + InstanceMappingTable.TABLE)

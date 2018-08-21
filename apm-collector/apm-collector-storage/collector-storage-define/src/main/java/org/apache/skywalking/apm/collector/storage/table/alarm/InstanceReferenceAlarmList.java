@@ -18,40 +18,39 @@
 
 package org.apache.skywalking.apm.collector.storage.table.alarm;
 
-import org.apache.skywalking.apm.collector.core.data.Column;
-import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.data.operator.CoverMergeOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.*;
+import org.apache.skywalking.apm.collector.core.data.column.*;
+import org.apache.skywalking.apm.collector.core.data.operator.*;
+import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 
 /**
  * @author peng-yongsheng
  */
 public class InstanceReferenceAlarmList extends StreamData {
 
-    private static final Column[] STRING_COLUMNS = {
-        new Column(InstanceReferenceAlarmListTable.ID, new NonMergeOperation()),
-        new Column(InstanceReferenceAlarmListTable.ALARM_CONTENT, new CoverMergeOperation()),
+    private static final StringColumn[] STRING_COLUMNS = {
+        new StringColumn(InstanceReferenceAlarmListTable.ID, new NonMergeOperation()),
+        new StringColumn(InstanceReferenceAlarmListTable.ALARM_CONTENT, new CoverMergeOperation()),
     };
 
-    private static final Column[] LONG_COLUMNS = {
-        new Column(InstanceReferenceAlarmListTable.TIME_BUCKET, new NonMergeOperation()),
+    private static final LongColumn[] LONG_COLUMNS = {
+        new LongColumn(InstanceReferenceAlarmListTable.TIME_BUCKET, new NonMergeOperation()),
     };
 
-    private static final Column[] DOUBLE_COLUMNS = {};
-
-    private static final Column[] INTEGER_COLUMNS = {
-        new Column(InstanceReferenceAlarmListTable.ALARM_TYPE, new NonMergeOperation()),
-        new Column(InstanceReferenceAlarmListTable.SOURCE_VALUE, new NonMergeOperation()),
-        new Column(InstanceReferenceAlarmListTable.FRONT_APPLICATION_ID, new NonMergeOperation()),
-        new Column(InstanceReferenceAlarmListTable.BEHIND_APPLICATION_ID, new NonMergeOperation()),
-        new Column(InstanceReferenceAlarmListTable.FRONT_INSTANCE_ID, new NonMergeOperation()),
-        new Column(InstanceReferenceAlarmListTable.BEHIND_INSTANCE_ID, new NonMergeOperation()),
+    private static final IntegerColumn[] INTEGER_COLUMNS = {
+        new IntegerColumn(InstanceReferenceAlarmListTable.ALARM_TYPE, new NonMergeOperation()),
+        new IntegerColumn(InstanceReferenceAlarmListTable.SOURCE_VALUE, new NonMergeOperation()),
+        new IntegerColumn(InstanceReferenceAlarmListTable.FRONT_APPLICATION_ID, new NonMergeOperation()),
+        new IntegerColumn(InstanceReferenceAlarmListTable.BEHIND_APPLICATION_ID, new NonMergeOperation()),
+        new IntegerColumn(InstanceReferenceAlarmListTable.FRONT_INSTANCE_ID, new NonMergeOperation()),
+        new IntegerColumn(InstanceReferenceAlarmListTable.BEHIND_INSTANCE_ID, new NonMergeOperation()),
     };
 
-    private static final Column[] BYTE_COLUMNS = {};
+    private static final DoubleColumn[] DOUBLE_COLUMNS = {
+    };
 
     public InstanceReferenceAlarmList() {
-        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
+        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, DOUBLE_COLUMNS);
     }
 
     @Override public String getId() {
@@ -132,5 +131,11 @@ public class InstanceReferenceAlarmList extends StreamData {
 
     public void setAlarmContent(String alarmContent) {
         setDataString(1, alarmContent);
+    }
+
+    public static class InstanceCreator implements RemoteDataRegisterService.RemoteDataInstanceCreator {
+        @Override public RemoteData createInstance() {
+            return new InstanceReferenceAlarmList();
+        }
     }
 }

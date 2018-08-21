@@ -19,22 +19,15 @@
 package org.apache.skywalking.apm.collector.analysis.register.provider.register;
 
 import org.apache.skywalking.apm.collector.analysis.register.define.graph.WorkerIdDefine;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractRemoteWorker;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.AbstractRemoteWorkerProvider;
-import org.apache.skywalking.apm.collector.analysis.worker.model.base.WorkerException;
+import org.apache.skywalking.apm.collector.analysis.worker.model.base.*;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
-import org.apache.skywalking.apm.collector.remote.service.RemoteSenderService;
-import org.apache.skywalking.apm.collector.remote.service.Selector;
+import org.apache.skywalking.apm.collector.remote.service.*;
 import org.apache.skywalking.apm.collector.storage.table.register.ServiceName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class ServiceNameRegisterRemoteWorker extends AbstractRemoteWorker<ServiceName, ServiceName> {
-
-    private static final Logger logger = LoggerFactory.getLogger(ServiceNameRegisterRemoteWorker.class);
 
     private ServiceNameRegisterRemoteWorker(ModuleManager moduleManager) {
         super(moduleManager);
@@ -44,7 +37,7 @@ public class ServiceNameRegisterRemoteWorker extends AbstractRemoteWorker<Servic
         return WorkerIdDefine.SERVICE_NAME_REGISTER_REMOTE_WORKER;
     }
 
-    @Override protected void onWork(ServiceName serviceName) throws WorkerException {
+    @Override protected void onWork(ServiceName serviceName) {
         onNext(serviceName);
     }
 

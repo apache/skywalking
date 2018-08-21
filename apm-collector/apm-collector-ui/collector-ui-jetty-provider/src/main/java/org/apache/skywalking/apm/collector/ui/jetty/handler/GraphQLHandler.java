@@ -19,48 +19,28 @@
 package org.apache.skywalking.apm.collector.ui.jetty.handler;
 
 import com.coxautodev.graphql.tools.SchemaParser;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import graphql.ExecutionInput;
-import graphql.ExecutionResult;
-import graphql.GraphQL;
-import graphql.GraphQLError;
+import graphql.*;
 import graphql.schema.GraphQLSchema;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.reflect.Type;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.CollectionUtils;
-import org.apache.skywalking.apm.collector.server.jetty.ArgumentsParseException;
-import org.apache.skywalking.apm.collector.server.jetty.JettyHandler;
-import org.apache.skywalking.apm.collector.storage.ui.application.ApplicationNode;
-import org.apache.skywalking.apm.collector.storage.ui.application.ConjecturalNode;
+import org.apache.skywalking.apm.collector.server.jetty.JettyJsonHandler;
+import org.apache.skywalking.apm.collector.storage.ui.application.*;
 import org.apache.skywalking.apm.collector.storage.ui.common.VisualUserNode;
 import org.apache.skywalking.apm.collector.storage.ui.service.ServiceNode;
-import org.apache.skywalking.apm.collector.ui.graphql.VersionMutation;
-import org.apache.skywalking.apm.collector.ui.graphql.VersionQuery;
+import org.apache.skywalking.apm.collector.ui.graphql.*;
 import org.apache.skywalking.apm.collector.ui.mutation.ConfigMutation;
-import org.apache.skywalking.apm.collector.ui.query.AlarmQuery;
-import org.apache.skywalking.apm.collector.ui.query.ApplicationQuery;
-import org.apache.skywalking.apm.collector.ui.query.ConfigQuery;
-import org.apache.skywalking.apm.collector.ui.query.OverViewLayerQuery;
-import org.apache.skywalking.apm.collector.ui.query.ServerQuery;
-import org.apache.skywalking.apm.collector.ui.query.ServiceQuery;
-import org.apache.skywalking.apm.collector.ui.query.TraceQuery;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.apm.collector.ui.query.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
-public class GraphQLHandler extends JettyHandler {
+public class GraphQLHandler extends JettyJsonHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GraphQLHandler.class);
 
@@ -96,30 +76,29 @@ public class GraphQLHandler extends JettyHandler {
         return "/graphql";
     }
 
-    @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {
+    @Override protected JsonElement doGet(HttpServletRequest req) {
         return execute(req.getParameter(QUERY), null);
     }
 
-    @Override protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException, IOException {
+    @Override protected JsonElement doPost(HttpServletRequest req) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(req.getInputStream()));
         String line;
-        String request = "";
+        StringBuilder request = new StringBuilder();
         while ((line = reader.readLine()) != null) {
-            request += line;
+            request.append(line);
         }
 
-        JsonObject requestJson = gson.fromJson(request, JsonObject.class);
+        JsonObject requestJson = gson.fromJson(request.toString(), JsonObject.class);
 
-        Type mapType = new TypeToken<Map<String, Object>>() { }.getType();
-
-        return execute(requestJson.get(QUERY).getAsString(), gson.fromJson(requestJson.get(VARIABLES), mapType));
+        return execute(requestJson.get(QUERY).getAsString(), gson.fromJson(requestJson.get(VARIABLES), new TypeToken<Map<String, Object>>() {
+        }.getType()));
     }
 
     private JsonObject execute(String request, Map<String, Object> variables) {
         try {
             ExecutionInput executionInput = ExecutionInput.newExecutionInput().query(request).variables(variables).build();
             ExecutionResult executionResult = graphQL.execute(executionInput);
-            logger.info("Execution result is {}", executionResult);
+            logger.debug("Execution result is {}", executionResult);
             Object data = executionResult.getData();
             List<GraphQLError> errors = executionResult.getErrors();
 

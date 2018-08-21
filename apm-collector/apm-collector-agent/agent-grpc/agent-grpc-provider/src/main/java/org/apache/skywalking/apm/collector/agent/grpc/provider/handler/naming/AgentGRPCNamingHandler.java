@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.collector.agent.grpc.provider.handler.naming;
 
 import com.google.gson.JsonArray;
@@ -24,12 +23,12 @@ import com.google.gson.JsonElement;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.skywalking.apm.collector.server.jetty.ArgumentsParseException;
-import org.apache.skywalking.apm.collector.server.jetty.JettyHandler;
+import org.apache.skywalking.apm.collector.server.jetty.JettyJsonHandler;
 
 /**
  * @author peng-yongsheng
  */
-public class AgentGRPCNamingHandler extends JettyHandler {
+public class AgentGRPCNamingHandler extends JettyJsonHandler {
 
     private final AgentGRPCNamingListener namingListener;
 

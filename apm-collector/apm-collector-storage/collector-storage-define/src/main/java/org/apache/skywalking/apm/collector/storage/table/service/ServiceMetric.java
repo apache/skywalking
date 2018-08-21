@@ -18,12 +18,9 @@
 
 package org.apache.skywalking.apm.collector.storage.table.service;
 
-import org.apache.skywalking.apm.collector.core.data.Column;
-import org.apache.skywalking.apm.collector.core.data.FormulaOperation;
-import org.apache.skywalking.apm.collector.core.data.RemoteData;
-import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.data.operator.AddMergeOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.*;
+import org.apache.skywalking.apm.collector.core.data.column.*;
+import org.apache.skywalking.apm.collector.core.data.operator.*;
 import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 import org.apache.skywalking.apm.collector.storage.table.Metric;
 
@@ -32,44 +29,43 @@ import org.apache.skywalking.apm.collector.storage.table.Metric;
  */
 public class ServiceMetric extends StreamData implements Metric {
 
-    private static final Column[] STRING_COLUMNS = {
-        new Column(ServiceMetricTable.ID, new NonMergeOperation()),
-        new Column(ServiceMetricTable.METRIC_ID, new NonMergeOperation()),
+    private static final StringColumn[] STRING_COLUMNS = {
+        new StringColumn(ServiceMetricTable.ID, new NonMergeOperation()),
+        new StringColumn(ServiceMetricTable.METRIC_ID, new NonMergeOperation()),
     };
 
-    private static final Column[] LONG_COLUMNS = {
-        new Column(ServiceMetricTable.TIME_BUCKET, new NonMergeOperation()),
+    private static final LongColumn[] LONG_COLUMNS = {
+        new LongColumn(ServiceMetricTable.TIME_BUCKET, new NonMergeOperation()),
 
-        new Column(ServiceMetricTable.TRANSACTION_CALLS, new AddMergeOperation()),
-        new Column(ServiceMetricTable.TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
-        new Column(ServiceMetricTable.TRANSACTION_DURATION_SUM, new AddMergeOperation()),
-        new Column(ServiceMetricTable.TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
-        new Column(ServiceMetricTable.TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new TransactionAverageDurationFormulaOperation()),
-        new Column(ServiceMetricTable.BUSINESS_TRANSACTION_CALLS, new AddMergeOperation()),
-        new Column(ServiceMetricTable.BUSINESS_TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
-        new Column(ServiceMetricTable.BUSINESS_TRANSACTION_DURATION_SUM, new AddMergeOperation()),
-        new Column(ServiceMetricTable.BUSINESS_TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
-        new Column(ServiceMetricTable.BUSINESS_TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new BusinessTransactionAverageDurationFormulaOperation()),
-        new Column(ServiceMetricTable.MQ_TRANSACTION_CALLS, new AddMergeOperation()),
-        new Column(ServiceMetricTable.MQ_TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
-        new Column(ServiceMetricTable.MQ_TRANSACTION_DURATION_SUM, new AddMergeOperation()),
-        new Column(ServiceMetricTable.MQ_TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
-        new Column(ServiceMetricTable.MQ_TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new MqTransactionAverageDurationFormulaOperation()),
+        new LongColumn(ServiceMetricTable.TRANSACTION_CALLS, new AddMergeOperation()),
+        new LongColumn(ServiceMetricTable.TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
+        new LongColumn(ServiceMetricTable.TRANSACTION_DURATION_SUM, new AddMergeOperation()),
+        new LongColumn(ServiceMetricTable.TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
+        new LongColumn(ServiceMetricTable.TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new TransactionAverageDurationFormulaOperation()),
+        new LongColumn(ServiceMetricTable.BUSINESS_TRANSACTION_CALLS, new AddMergeOperation()),
+        new LongColumn(ServiceMetricTable.BUSINESS_TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
+        new LongColumn(ServiceMetricTable.BUSINESS_TRANSACTION_DURATION_SUM, new AddMergeOperation()),
+        new LongColumn(ServiceMetricTable.BUSINESS_TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
+        new LongColumn(ServiceMetricTable.BUSINESS_TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new BusinessTransactionAverageDurationFormulaOperation()),
+        new LongColumn(ServiceMetricTable.MQ_TRANSACTION_CALLS, new AddMergeOperation()),
+        new LongColumn(ServiceMetricTable.MQ_TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
+        new LongColumn(ServiceMetricTable.MQ_TRANSACTION_DURATION_SUM, new AddMergeOperation()),
+        new LongColumn(ServiceMetricTable.MQ_TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
+        new LongColumn(ServiceMetricTable.MQ_TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new MqTransactionAverageDurationFormulaOperation()),
     };
 
-    private static final Column[] DOUBLE_COLUMNS = {};
-
-    private static final Column[] INTEGER_COLUMNS = {
-        new Column(ServiceMetricTable.SOURCE_VALUE, new NonMergeOperation()),
-        new Column(ServiceMetricTable.APPLICATION_ID, new NonMergeOperation()),
-        new Column(ServiceMetricTable.INSTANCE_ID, new NonMergeOperation()),
-        new Column(ServiceMetricTable.SERVICE_ID, new NonMergeOperation()),
+    private static final IntegerColumn[] INTEGER_COLUMNS = {
+        new IntegerColumn(ServiceMetricTable.SOURCE_VALUE, new NonMergeOperation()),
+        new IntegerColumn(ServiceMetricTable.APPLICATION_ID, new NonMergeOperation()),
+        new IntegerColumn(ServiceMetricTable.INSTANCE_ID, new NonMergeOperation()),
+        new IntegerColumn(ServiceMetricTable.SERVICE_ID, new NonMergeOperation()),
     };
 
-    private static final Column[] BYTE_COLUMNS = {};
+    private static final DoubleColumn[] DOUBLE_COLUMNS = {
+    };
 
     public ServiceMetric() {
-        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
+        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, DOUBLE_COLUMNS);
     }
 
     @Override public String getId() {

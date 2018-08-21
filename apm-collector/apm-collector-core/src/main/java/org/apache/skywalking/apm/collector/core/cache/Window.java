@@ -67,7 +67,7 @@ public abstract class Window<WINDOW_COLLECTION extends Collection> {
         }
     }
 
-    protected WINDOW_COLLECTION getCurrent() {
+    private WINDOW_COLLECTION getCurrent() {
         return pointer;
     }
 

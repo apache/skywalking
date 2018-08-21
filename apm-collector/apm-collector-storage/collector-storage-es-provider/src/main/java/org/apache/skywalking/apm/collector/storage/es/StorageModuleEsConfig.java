@@ -23,12 +23,20 @@ import org.apache.skywalking.apm.collector.client.elasticsearch.ElasticSearchCli
 /**
  * @author peng-yongsheng
  */
-class StorageModuleEsConfig extends ElasticSearchClientConfig {
+public class StorageModuleEsConfig extends ElasticSearchClientConfig {
 
     private int indexShardsNumber;
     private int indexReplicasNumber;
-    private int ttl;
     private boolean highPerformanceMode;
+    private int traceDataTTL = 90;
+    private int minuteMetricDataTTL = 90;
+    private int hourMetricDataTTL = 36;
+    private int dayMetricDataTTL = 45;
+    private int monthMetricDataTTL = 18;
+    private int bulkActions = 2000;
+    private int bulkSize = 20;
+    private int flushInterval = 10;
+    private int concurrentRequests = 2;
 
     int getIndexShardsNumber() {
         return indexShardsNumber;
@@ -46,19 +54,83 @@ class StorageModuleEsConfig extends ElasticSearchClientConfig {
         this.indexReplicasNumber = indexReplicasNumber;
     }
 
-    int getTtl() {
-        return ttl;
-    }
-
-    void setTtl(int ttl) {
-        this.ttl = ttl;
-    }
-
     boolean isHighPerformanceMode() {
         return highPerformanceMode;
     }
 
     void setHighPerformanceMode(boolean highPerformanceMode) {
         this.highPerformanceMode = highPerformanceMode;
+    }
+
+    public int getTraceDataTTL() {
+        return traceDataTTL;
+    }
+
+    void setTraceDataTTL(int traceDataTTL) {
+        this.traceDataTTL = traceDataTTL == 0 ? 90 : traceDataTTL;
+    }
+
+    public int getMinuteMetricDataTTL() {
+        return minuteMetricDataTTL;
+    }
+
+    void setMinuteMetricDataTTL(int minuteMetricDataTTL) {
+        this.minuteMetricDataTTL = minuteMetricDataTTL == 0 ? 90 : minuteMetricDataTTL;
+    }
+
+    public int getHourMetricDataTTL() {
+        return hourMetricDataTTL;
+    }
+
+    void setHourMetricDataTTL(int hourMetricDataTTL) {
+        this.hourMetricDataTTL = hourMetricDataTTL == 0 ? 36 : hourMetricDataTTL;
+    }
+
+    public int getDayMetricDataTTL() {
+        return dayMetricDataTTL;
+    }
+
+    void setDayMetricDataTTL(int dayMetricDataTTL) {
+        this.dayMetricDataTTL = dayMetricDataTTL == 0 ? 45 : dayMetricDataTTL;
+    }
+
+    public int getMonthMetricDataTTL() {
+        return monthMetricDataTTL;
+    }
+
+    void setMonthMetricDataTTL(int monthMetricDataTTL) {
+        this.monthMetricDataTTL = monthMetricDataTTL == 0 ? 18 : monthMetricDataTTL;
+    }
+
+    public int getBulkActions() {
+        return bulkActions;
+    }
+
+    public void setBulkActions(int bulkActions) {
+        this.bulkActions = bulkActions == 0 ? 2000 : bulkActions;
+    }
+
+    public int getBulkSize() {
+        return bulkSize;
+    }
+
+    public void setBulkSize(int bulkSize) {
+        this.bulkSize = bulkSize == 0 ? 20 : bulkSize;
+    }
+
+    public int getFlushInterval() {
+        return flushInterval;
+    }
+
+    public void setFlushInterval(int flushInterval) {
+        this.flushInterval = flushInterval == 0 ? 10 : flushInterval;
+    }
+
+    public int getConcurrentRequests() {
+        return concurrentRequests;
+    }
+
+    public void setConcurrentRequests(int concurrentRequests) {
+        this.concurrentRequests = concurrentRequests == 0 ? 2 : concurrentRequests;
     }
 }

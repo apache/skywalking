@@ -18,12 +18,9 @@
 
 package org.apache.skywalking.apm.collector.storage.table.application;
 
-import org.apache.skywalking.apm.collector.core.data.Column;
-import org.apache.skywalking.apm.collector.core.data.FormulaOperation;
-import org.apache.skywalking.apm.collector.core.data.RemoteData;
-import org.apache.skywalking.apm.collector.core.data.StreamData;
-import org.apache.skywalking.apm.collector.core.data.operator.AddMergeOperation;
-import org.apache.skywalking.apm.collector.core.data.operator.NonMergeOperation;
+import org.apache.skywalking.apm.collector.core.data.*;
+import org.apache.skywalking.apm.collector.core.data.column.*;
+import org.apache.skywalking.apm.collector.core.data.operator.*;
 import org.apache.skywalking.apm.collector.remote.service.RemoteDataRegisterService;
 import org.apache.skywalking.apm.collector.storage.table.Metric;
 
@@ -32,44 +29,44 @@ import org.apache.skywalking.apm.collector.storage.table.Metric;
  */
 public class ApplicationMetric extends StreamData implements Metric {
 
-    private static final Column[] STRING_COLUMNS = {
-        new Column(ApplicationMetricTable.ID, new NonMergeOperation()),
-        new Column(ApplicationMetricTable.METRIC_ID, new NonMergeOperation()),
+    private static final StringColumn[] STRING_COLUMNS = {
+        new StringColumn(ApplicationMetricTable.ID, new NonMergeOperation()),
+        new StringColumn(ApplicationMetricTable.METRIC_ID, new NonMergeOperation()),
     };
 
-    private static final Column[] LONG_COLUMNS = {
-        new Column(ApplicationMetricTable.TIME_BUCKET, new NonMergeOperation()),
+    private static final LongColumn[] LONG_COLUMNS = {
+        new LongColumn(ApplicationMetricTable.TIME_BUCKET, new NonMergeOperation()),
 
-        new Column(ApplicationMetricTable.TRANSACTION_CALLS, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.TRANSACTION_DURATION_SUM, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new TransactionAverageDurationFormulaOperation()),
-        new Column(ApplicationMetricTable.BUSINESS_TRANSACTION_CALLS, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.BUSINESS_TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.BUSINESS_TRANSACTION_DURATION_SUM, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.BUSINESS_TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.BUSINESS_TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new BusinessTransactionAverageDurationFormulaOperation()),
-        new Column(ApplicationMetricTable.MQ_TRANSACTION_CALLS, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.MQ_TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.MQ_TRANSACTION_DURATION_SUM, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.MQ_TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.MQ_TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new MqTransactionAverageDurationFormulaOperation()),
-        new Column(ApplicationMetricTable.SATISFIED_COUNT, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.TOLERATING_COUNT, new AddMergeOperation()),
-        new Column(ApplicationMetricTable.FRUSTRATED_COUNT, new AddMergeOperation()),
-    };
-    private static final Column[] DOUBLE_COLUMNS = {};
-
-    private static final Column[] INTEGER_COLUMNS = {
-        new Column(ApplicationMetricTable.SOURCE_VALUE, new NonMergeOperation()),
-        new Column(ApplicationMetricTable.APPLICATION_ID, new NonMergeOperation()),
+        new LongColumn(ApplicationMetricTable.TRANSACTION_CALLS, new AddMergeOperation()),
+        new LongColumn(ApplicationMetricTable.TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
+        new LongColumn(ApplicationMetricTable.TRANSACTION_DURATION_SUM, new AddMergeOperation()),
+        new LongColumn(ApplicationMetricTable.TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
+        new LongColumn(ApplicationMetricTable.TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new TransactionAverageDurationFormulaOperation()),
+        new LongColumn(ApplicationMetricTable.BUSINESS_TRANSACTION_CALLS, new AddMergeOperation()),
+        new LongColumn(ApplicationMetricTable.BUSINESS_TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
+        new LongColumn(ApplicationMetricTable.BUSINESS_TRANSACTION_DURATION_SUM, new AddMergeOperation()),
+        new LongColumn(ApplicationMetricTable.BUSINESS_TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
+        new LongColumn(ApplicationMetricTable.BUSINESS_TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new BusinessTransactionAverageDurationFormulaOperation()),
+        new LongColumn(ApplicationMetricTable.MQ_TRANSACTION_CALLS, new AddMergeOperation()),
+        new LongColumn(ApplicationMetricTable.MQ_TRANSACTION_ERROR_CALLS, new AddMergeOperation()),
+        new LongColumn(ApplicationMetricTable.MQ_TRANSACTION_DURATION_SUM, new AddMergeOperation()),
+        new LongColumn(ApplicationMetricTable.MQ_TRANSACTION_ERROR_DURATION_SUM, new AddMergeOperation()),
+        new LongColumn(ApplicationMetricTable.MQ_TRANSACTION_AVERAGE_DURATION, new NonMergeOperation(), new MqTransactionAverageDurationFormulaOperation()),
+        new LongColumn(ApplicationMetricTable.SATISFIED_COUNT, new AddMergeOperation()),
+        new LongColumn(ApplicationMetricTable.TOLERATING_COUNT, new AddMergeOperation()),
+        new LongColumn(ApplicationMetricTable.FRUSTRATED_COUNT, new AddMergeOperation()),
     };
 
-    private static final Column[] BYTE_COLUMNS = {};
+    private static final IntegerColumn[] INTEGER_COLUMNS = {
+        new IntegerColumn(ApplicationMetricTable.SOURCE_VALUE, new NonMergeOperation()),
+        new IntegerColumn(ApplicationMetricTable.APPLICATION_ID, new NonMergeOperation()),
+    };
+
+    private static final DoubleColumn[] DOUBLE_COLUMNS = {
+    };
 
     public ApplicationMetric() {
-        super(STRING_COLUMNS, LONG_COLUMNS, DOUBLE_COLUMNS, INTEGER_COLUMNS, BYTE_COLUMNS);
+        super(STRING_COLUMNS, LONG_COLUMNS, INTEGER_COLUMNS, DOUBLE_COLUMNS);
     }
 
     @Override public String getId() {

@@ -18,9 +18,8 @@
 
 package org.apache.skywalking.apm.collector.remote.grpc.service;
 
-import org.apache.skywalking.apm.collector.core.util.Const;
-import org.apache.skywalking.apm.collector.core.util.StringUtils;
-import org.apache.skywalking.apm.collector.remote.grpc.proto.RemoteData;
+import org.apache.skywalking.apm.collector.core.util.*;
+import org.apache.skywalking.apm.collector.remote.grpc.proto.*;
 import org.apache.skywalking.apm.collector.remote.service.RemoteSerializeService;
 
 /**
@@ -29,23 +28,51 @@ import org.apache.skywalking.apm.collector.remote.service.RemoteSerializeService
 public class GRPCRemoteSerializeService implements RemoteSerializeService<RemoteData.Builder> {
 
     @Override public RemoteData.Builder serialize(org.apache.skywalking.apm.collector.core.data.RemoteData data) {
-        RemoteData.Builder builder = RemoteData.newBuilder();
+        RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
         for (int i = 0; i < data.getDataStringsCount(); i++) {
             if (StringUtils.isNotEmpty(data.getDataString(i))) {
-                builder.addDataStrings(data.getDataString(i));
+                remoteBuilder.addDataStrings(data.getDataString(i));
             } else {
-                builder.addDataStrings(Const.EMPTY_STRING);
+                remoteBuilder.addDataStrings(Const.EMPTY_STRING);
             }
         }
+
         for (int i = 0; i < data.getDataIntegersCount(); i++) {
-            builder.addDataIntegers(data.getDataInteger(i));
+            remoteBuilder.addDataIntegers(data.getDataInteger(i));
         }
+
         for (int i = 0; i < data.getDataLongsCount(); i++) {
-            builder.addDataLongs(data.getDataLong(i));
+            remoteBuilder.addDataLongs(data.getDataLong(i));
         }
+
         for (int i = 0; i < data.getDataDoublesCount(); i++) {
-            builder.addDataDoubles(data.getDataDouble(i));
+            remoteBuilder.addDataDoubles(data.getDataDouble(i));
         }
-        return builder;
+
+        for (int i = 0; i < data.getDataStringListsCount(); i++) {
+            StringList.Builder stringList = StringList.newBuilder();
+            data.getDataStringList(i).forEach(stringList::addValue);
+            remoteBuilder.addDataStringLists(stringList);
+        }
+
+        for (int i = 0; i < data.getDataLongListsCount(); i++) {
+            LongList.Builder longList = LongList.newBuilder();
+            data.getDataLongList(i).forEach(longList::addValue);
+            remoteBuilder.addDataLongLists(longList);
+        }
+
+        for (int i = 0; i < data.getDataIntegerListsCount(); i++) {
+            IntegerList.Builder integerList = IntegerList.newBuilder();
+            data.getDataIntegerList(i).forEach(integerList::addValue);
+            remoteBuilder.addDataIntegerLists(integerList);
+        }
+
+        for (int i = 0; i < data.getDataDoubleListsCount(); i++) {
+            DoubleList.Builder doubleList = DoubleList.newBuilder();
+            data.getDataDoubleList(i).forEach(doubleList::addValue);
+            remoteBuilder.addDataDoubleLists(doubleList);
+        }
+
+        return remoteBuilder;
     }
 }
