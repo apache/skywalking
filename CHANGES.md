@@ -21,6 +21,7 @@ Release Notes.
   - Fix NPE in Alarm content generation.
   - Fix the precision lost in `ServiceNameService#startTimeMillis`.
   - Fix GC count is 0.
+  - Fix topology breaks when RPC client uses the async thread call.
   
 #### UI Changes
   - Fix UI port can't be set by startup script in Windows.
