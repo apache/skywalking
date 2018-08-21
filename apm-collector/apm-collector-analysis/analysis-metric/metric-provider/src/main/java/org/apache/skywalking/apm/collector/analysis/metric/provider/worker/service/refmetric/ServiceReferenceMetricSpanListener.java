@@ -103,6 +103,10 @@ public class ServiceReferenceMetricSpanListener implements EntrySpanListener, Ex
     }
 
     @Override public void parseExit(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
+        if (this.minuteTimeBucket == 0) {
+            this.minuteTimeBucket = segmentCoreInfo.getMinuteTimeBucket();
+        }
+        
         ServiceReferenceMetric serviceReferenceMetric = new ServiceReferenceMetric();
 
         int peerId = spanDecorator.getPeerId();
