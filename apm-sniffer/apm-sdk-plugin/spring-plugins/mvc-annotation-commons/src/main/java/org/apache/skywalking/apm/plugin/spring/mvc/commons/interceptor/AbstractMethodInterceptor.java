@@ -101,9 +101,9 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                     span.errorOccurred();
                     Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
                 }
-                ContextManager.stopSpan();
             }
         } finally {
+            ContextManager.stopSpan();
             ContextManager.getRuntimeContext().remove(REQUEST_KEY_IN_RUNTIME_CONTEXT);
             ContextManager.getRuntimeContext().remove(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
         }
