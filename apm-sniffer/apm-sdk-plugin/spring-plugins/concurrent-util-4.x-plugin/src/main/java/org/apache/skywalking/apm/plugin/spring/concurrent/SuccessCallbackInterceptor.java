@@ -51,6 +51,10 @@ public class SuccessCallbackInterceptor implements InstanceMethodsAroundIntercep
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
+        Object[] cacheValues = (Object[])objInst.getSkyWalkingDynamicField();
+        if (cacheValues == null) {
+            return ret;
+        }
         ContextManager.stopSpan();
         return ret;
     }
