@@ -38,24 +38,28 @@ const colResponsiveProps = {
   style: { marginTop: 8 },
 };
 
-const layouts = {
-  'cose-bilkent': {
-    name: 'cose-bilkent',
-    idealEdgeLength: 200,
-    edgeElasticity: 0.1,
-  },
-  dagre: {
+const layouts = [
+  {
     name: 'dagre',
+    icon: 'img/icon/dagre.png',
     rankDir: 'LR',
     minLen: 4,
     animate: true,
   },
-  concentric: {
+  {
     name: 'concentric',
+    icon: 'img/icon/concentric.png',
     minNodeSpacing: 10,
     animate: true,
   },
-};
+  {
+    name: 'cose-bilkent',
+    icon: 'img/icon/cose.png',
+    idealEdgeLength: 200,
+    edgeElasticity: 0.1,
+    randomize: false,
+  },
+];
 
 const layoutButtonStyle = { height: '90%', verticalAlign: 'middle', paddingBottom: 2 };
 
@@ -77,7 +81,7 @@ export default class Topology extends PureComponent {
   handleLayoutChange = ({ target: { value } }) => {
     this.props.dispatch({
       type: 'topology/saveData',
-      payload: { layout: layouts[value] },
+      payload: { layout: value },
     });
   }
   handleSelectedApplication = (appInfo) => {
@@ -146,7 +150,7 @@ export default class Topology extends PureComponent {
   }
   render() {
     const { data, variables: { appFilters = [] } } = this.props.topology;
-    const { layout = layouts['cose-bilkent'] } = data;
+    const { layout = 0 } = data;
     const topologData = this.filter();
     return (
       <Panel globalVariables={this.props.globalVariables} onChange={this.handleChange}>
@@ -156,10 +160,11 @@ export default class Topology extends PureComponent {
               title="Topology Map"
               avatar={<Avatar icon="fork" style={{ color: '#1890ff', backgroundColor: '#ffffff' }} />}
               action={(
-                <Radio.Group value={layout.name} onChange={this.handleLayoutChange} size="normal">
-                  <Radio.Button value="cose-bilkent"><img src="img/icon/cose.png" alt="cose" style={layoutButtonStyle} /></Radio.Button>
-                  <Radio.Button value="dagre"><img src="img/icon/dagre.png" alt="dagre" style={layoutButtonStyle} /></Radio.Button>
-                  <Radio.Button value="concentric"><img src="img/icon/concentric.png" alt="concentric" style={layoutButtonStyle} /></Radio.Button>
+                <Radio.Group value={layout} onChange={this.handleLayoutChange} size="normal">
+                  {layouts.map((_, i) => (
+                    <Radio.Button value={i} key={_.name}>
+                      <img src={_.icon} alt={_.name} style={layoutButtonStyle} />
+                    </Radio.Button>))}
                 </Radio.Group>
               )}
             >
@@ -168,7 +173,7 @@ export default class Topology extends PureComponent {
                   height={this.props.graphHeight}
                   elements={topologData}
                   onSelectedApplication={this.handleSelectedApplication}
-                  layout={layout}
+                  layout={layouts[layout]}
                 />
               ) : null}
             </ChartCard>
