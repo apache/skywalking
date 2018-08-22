@@ -1,0 +1,117 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elasticsearch
+  namespace: skywalking
+  labels:
+    service: elasticsearch
+spec:
+  serviceName: elasticsearch
+  # NOTE: This is number of nodes that we want to run
+  # you may update this
+  replicas: 3
+  selector:
+    matchLabels:
+      service: elasticsearch
+  template:
+    metadata:
+      labels:
+        service: elasticsearch
+    spec:
+      terminationGracePeriodSeconds: 300
+      initContainers:
+      # NOTE:
+      # This is to fix the permission on the volume
+      # By default elasticsearch container is not run as
+      # non root user.
+      # https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#_notes_for_production_use_and_defaults
+      - name: fix-the-volume-permission
+        image: busybox
+        command:
+        - sh
+        - -c
+        - chown -R 1000:1000 /usr/share/elasticsearch/data
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: data
+          mountPath: /usr/share/elasticsearch/data
+      # NOTE:
+      # To increase the default vm.max_map_count to 262144
+      # https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-cli-run-prod-mode
+      - name: increase-the-vm-max-map-count
+        image: busybox
+        command:
+        - sysctl
+        - -w
+        - vm.max_map_count=262144
+        securityContext:
+          privileged: true
+      # To increase the ulimit
+      # https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#_notes_for_production_use_and_defaults
+      - name: increase-the-ulimit
+        image: busybox
+        command:
+        - sh
+        - -c
+        - ulimit -n 65536
+        securityContext:
+          privileged: true
+      containers:
+      - name: elasticsearch
+        image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.3.2
+        ports:
+        - containerPort: 9200
+          name: http
+        - containerPort: 9300
+          name: tcp
+        # NOTE: you can increase this resources
+        resources:
+          requests:
+            memory: 8Gi
+          limits:
+            memory: 16Gi
+        env:
+          # NOTE: the cluster name; update this
+          - name: cluster.name
+            value: elasticsearch-cluster
+          - name: node.name
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          # NOTE: This will tell the elasticsearch node where to connect to other nodes to form a cluster
+          - name: discovery.zen.ping.unicast.hosts
+            value: "elasticsearch-0.elasticsearch.skywalking.svc.cluster.local,elasticsearch-1.elasticsearch.skywalking.svc.cluster.local,elasticsearch-2.elasticsearch.skywalking.svc.cluster.local"
+          # NOTE: You can increase the heap size
+          - name: ES_JAVA_OPTS
+            value: -Xms4g -Xmx4g
+        volumeMounts:
+        - name: data
+          mountPath: /usr/share/elasticsearch/data
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      storageClassName: ssd
+      # NOTE: You can increase the storage size
+      resources:
+        requests:
+          storage: 500Gi
