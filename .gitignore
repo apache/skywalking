@@ -11,3 +11,4 @@ packages/
 **/dependency-reduced-pom.xml
 /skywalking-agent/
 /dist/
+.mvn/wrapper/MavenWrapperDownloader.java
