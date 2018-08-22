@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
+import org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch;
 import org.apache.skywalking.apm.plugin.jdbc.define.Constants;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
@@ -33,12 +33,11 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 /**
  * {@link ConnectionInstrumentation} define that the oracle plugin intercept the following methods that the class which
  * extend oracle.jdbc.driver.PhysicalConnection
- * 
+ *
  * 1. Enhance <code>prepareStatement</code> by <code>org.apache.skywalking.apm.plugin.jdbc.oracle.CreatePreparedStatementInterceptor</code>
  * 2. Enhance <code>prepareCall</code> by <code>org.apache.skywalking.apm.plugin.jdbc.oracle.CreateCallableInterceptor</code>
  * 3. Enhance <code>createStatement</code> by <code>org.apache.skywalking.apm.plugin.jdbc.oracle.CreateStatementInterceptor</code>
  * 4. Enhance <code>commit, rollback, close, releaseSavepoint</code> by <code>org.apache.skywalking.apm.plugin.jdbc.define.ConnectionServiceMethodInterceptor</code>
- *
  *
  * @author zhangxin
  */
@@ -48,6 +47,7 @@ public class ConnectionInstrumentation extends ClassInstanceMethodsEnhancePlugin
     public static final String PREPARED_STATEMENT_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jdbc.oracle.CreatePreparedStatementInterceptor";
     public static final String CALLABLE_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jdbc.oracle.CreateCallableInterceptor";
     public static final String CREATE_STATEMENT_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jdbc.oracle.CreateStatementInterceptor";
+    public static final String T4C_CONNECTION_CLASS = "oracle.jdbc.driver.T4CConnection";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -111,6 +111,6 @@ public class ConnectionInstrumentation extends ClassInstanceMethodsEnhancePlugin
     }
 
     @Override protected ClassMatch enhanceClass() {
-        return NameMatch.byName(ENHANCE_CLASS);
+        return MultiClassNameMatch.byMultiClassMatch(ENHANCE_CLASS, T4C_CONNECTION_CLASS);
     }
 }
