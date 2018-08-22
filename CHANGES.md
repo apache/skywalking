@@ -8,6 +8,8 @@ Release Notes.
 #### Agent Changes
   - Support ActiveMQ 5.x
   - Support RuntimeContext used out of TracingContext.
+  - Support Oracle8 Plugin.
+  - Support ElasticSearch client transport 5.2-5.6 Plugin
   - Add a new way to transmit the Request and Response, to avoid bugs in Hytrix scenarios.
   - Fix HTTPComponent client v4 operation name is empty.
   - Fix 2 possible NPEs in Spring plugin.
