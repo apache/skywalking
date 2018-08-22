@@ -12,3 +12,4 @@ packages/
 /skywalking-agent/
 /dist/
 /docker/snapshot/*.gz
+.mvn/wrapper/*.jar
