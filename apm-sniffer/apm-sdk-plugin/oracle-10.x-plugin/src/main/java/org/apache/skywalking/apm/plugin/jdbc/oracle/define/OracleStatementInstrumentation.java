@@ -24,14 +24,16 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 import static org.apache.skywalking.apm.plugin.jdbc.oracle.Constants.STATEMENT_INTERCEPT_CLASS;
 
 public class OracleStatementInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     public static final String ENHANCE_CLASS = "oracle.jdbc.driver.OracleStatement";
+    public static final String STATEMENT_WRAPPER_CLASS = "oracle.jdbc.driver.OracleStatementWrapper";
+    public static final String T4C_STATEMENT_CLASS = "oracle.jdbc.driver.T4CStatement";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -62,6 +64,6 @@ public class OracleStatementInstrumentation extends ClassInstanceMethodsEnhanceP
     }
 
     @Override protected ClassMatch enhanceClass() {
-        return byName(ENHANCE_CLASS);
+        return MultiClassNameMatch.byMultiClassMatch(ENHANCE_CLASS, STATEMENT_WRAPPER_CLASS, T4C_STATEMENT_CLASS);
     }
 }
