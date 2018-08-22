@@ -25,26 +25,6 @@ import static org.apache.skywalking.apm.util.StringUtil.isEmpty;
  */
 class Util {
 
-    static String toArrayString(String[] arr) {
-        if (null == arr) {
-            return "";
-        }
-
-        int iMax = arr.length - 1;
-        if (iMax == -1) {
-            return "";
-        }
-
-        StringBuilder b = new StringBuilder();
-        for (int i = 0;; i++) {
-            b.append(arr[i]);
-            if (i == iMax) {
-                return b.toString();
-            }
-            b.append(", ");
-        }
-    }
-
     static String wrapperNullStringValue(String value) {
         if (isEmpty(value)) {
             return "";

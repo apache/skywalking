@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.plugin.elasticsearch.v5;
 /**
  * @author oatiz.
  */
-public class Constants {
+class Constants {
 
     static final String DB_TYPE = "Elasticsearch";
 

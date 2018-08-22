@@ -25,6 +25,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.index.IndexRequest;
@@ -38,7 +39,6 @@ import java.lang.reflect.Method;
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Plugin.Elasticsearch.TRACE_DSL;
 import static org.apache.skywalking.apm.plugin.elasticsearch.v5.Constants.ES_ENHANCE_INFO;
-import static org.apache.skywalking.apm.plugin.elasticsearch.v5.Util.toArrayString;
 import static org.apache.skywalking.apm.plugin.elasticsearch.v5.Util.wrapperNullStringValue;
 
 /**
@@ -104,8 +104,8 @@ public class TransportProxyClientInterceptor implements InstanceConstructorInter
 
     private void parseSearchRequest(Object request, ElasticSearchEnhanceInfo enhanceInfo) {
         SearchRequest searchRequest = (SearchRequest) request;
-        enhanceInfo.setIndices(toArrayString(searchRequest.indices()));
-        enhanceInfo.setTypes(toArrayString(searchRequest.types()));
+        enhanceInfo.setIndices(StringUtil.join(',', searchRequest.indices()));
+        enhanceInfo.setTypes(StringUtil.join(',', searchRequest.types()));
         if (TRACE_DSL) {
             enhanceInfo.setSource(null == searchRequest.source() ? "" : searchRequest.source().toString());
         }
@@ -113,7 +113,7 @@ public class TransportProxyClientInterceptor implements InstanceConstructorInter
 
     private void parseGetRequest(Object request, ElasticSearchEnhanceInfo enhanceInfo) {
         GetRequest getRequest = (GetRequest) request;
-        enhanceInfo.setIndices(toArrayString(getRequest.indices()));
+        enhanceInfo.setIndices(StringUtil.join(',', getRequest.indices()));
         enhanceInfo.setTypes(getRequest.type());
         if (TRACE_DSL) {
             enhanceInfo.setSource(getRequest.toString());
@@ -122,7 +122,7 @@ public class TransportProxyClientInterceptor implements InstanceConstructorInter
 
     private void parseIndexRequest(Object request, ElasticSearchEnhanceInfo enhanceInfo) {
         IndexRequest indexRequest = (IndexRequest) request;
-        enhanceInfo.setIndices(toArrayString(indexRequest.indices()));
+        enhanceInfo.setIndices(StringUtil.join(',', indexRequest.indices()));
         enhanceInfo.setTypes(indexRequest.type());
         if (TRACE_DSL) {
             enhanceInfo.setSource(indexRequest.toString());
@@ -131,7 +131,7 @@ public class TransportProxyClientInterceptor implements InstanceConstructorInter
 
     private void parseUpdateRequest(Object request, ElasticSearchEnhanceInfo enhanceInfo) {
         UpdateRequest updateRequest = (UpdateRequest) request;
-        enhanceInfo.setIndices(toArrayString(updateRequest.indices()));
+        enhanceInfo.setIndices(StringUtil.join(',', updateRequest.indices()));
         enhanceInfo.setTypes(updateRequest.type());
         if (TRACE_DSL) {
             String updateDsl = "";
@@ -146,7 +146,7 @@ public class TransportProxyClientInterceptor implements InstanceConstructorInter
 
     private void parseDeleteRequest(Object request, ElasticSearchEnhanceInfo enhanceInfo) {
         DeleteRequest deleteRequest = (DeleteRequest) request;
-        enhanceInfo.setIndices(toArrayString(deleteRequest.indices()));
+        enhanceInfo.setIndices(StringUtil.join(',', deleteRequest.indices()));
         enhanceInfo.setTypes(deleteRequest.type());
         if (TRACE_DSL) {
             enhanceInfo.setSource(deleteRequest.toString());

@@ -58,6 +58,7 @@ public class TransportActionNodeProxyInterceptor implements InstanceMethodsAroun
         span.tag(ES_INDEX, wrapperNullStringValue(enhanceInfo.getIndices()));
         span.tag(ES_TYPE, wrapperNullStringValue(enhanceInfo.getTypes()));
         SpanLayer.asDB(span);
+        ContextManager.getRuntimeContext().remove(ES_ENHANCE_INFO);
     }
 
     @Override
