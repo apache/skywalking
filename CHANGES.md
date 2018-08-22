@@ -12,6 +12,7 @@ Release Notes.
   - Fix HTTPComponent client v4 operation name is empty.
   - Fix 2 possible NPEs in Spring plugin.
   - Fix a possible span leak in SpringMVC plugin.
+  - Fix NPE in Spring callback plugin.
   
 #### Collector Changes
   - Add GZip support for Zipkin receiver.
