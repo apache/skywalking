@@ -24,14 +24,16 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 import static org.apache.skywalking.apm.plugin.jdbc.oracle.Constants.PREPARED_STATEMENT_INTERCEPT_CLASS;
 
 public class OraclePrepareStatementInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     public static final String ENHANCE_CLASS = "oracle.jdbc.driver.OraclePreparedStatement";
+    public static final String PREPARED_STATEMENT_WRAPPER_CLASS = "oracle.jdbc.driver.OraclePreparedStatementWrapper";
+    public static final String T4C_PREPARED_STATEMENT_CLASS = "oracle.jdbc.driver.T4CPreparedStatement";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -59,6 +61,6 @@ public class OraclePrepareStatementInstrumentation extends ClassInstanceMethodsE
     }
 
     @Override protected ClassMatch enhanceClass() {
-        return byName(ENHANCE_CLASS);
+        return MultiClassNameMatch.byMultiClassMatch(ENHANCE_CLASS, PREPARED_STATEMENT_WRAPPER_CLASS, T4C_PREPARED_STATEMENT_CLASS);
     }
 }
