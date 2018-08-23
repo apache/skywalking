@@ -34,21 +34,23 @@ public class StatementExecuteMethodsInterceptor implements InstanceMethodsAround
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
         StatementEnhanceInfos cacheObject = (StatementEnhanceInfos)objInst.getSkyWalkingDynamicField();
-        ConnectionInfo connectInfo = cacheObject.getConnectionInfo();
+        if (cacheObject != null && cacheObject.getConnectionInfo() != null) {
+            ConnectionInfo connectInfo = cacheObject.getConnectionInfo();
 
-        AbstractSpan span = ContextManager.createExitSpan(buildOperationName(connectInfo, method.getName(), cacheObject.getStatementName()), connectInfo.getDatabasePeer());
-        Tags.DB_TYPE.set(span, "sql");
-        Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
+            AbstractSpan span = ContextManager.createExitSpan(buildOperationName(connectInfo, method.getName(), cacheObject.getStatementName()), connectInfo.getDatabasePeer());
+            Tags.DB_TYPE.set(span, "sql");
+            Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
 
-        String sql = "";
-        if (allArguments.length > 0) {
-            sql = (String)allArguments[0];
+            String sql = "";
+            if (allArguments.length > 0) {
+                sql = (String)allArguments[0];
+            }
+
+            Tags.DB_STATEMENT.set(span, sql);
+            span.setComponent(connectInfo.getComponent());
+
+            SpanLayer.asDB(span);
         }
-
-        Tags.DB_STATEMENT.set(span, sql);
-        span.setComponent(connectInfo.getComponent());
-
-        SpanLayer.asDB(span);
     }
 
     @Override
@@ -56,7 +58,7 @@ public class StatementExecuteMethodsInterceptor implements InstanceMethodsAround
         Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
         StatementEnhanceInfos cacheObject = (StatementEnhanceInfos)objInst.getSkyWalkingDynamicField();
-        if (cacheObject.getConnectionInfo() != null) {
+        if (cacheObject != null && cacheObject.getConnectionInfo() != null) {
             ContextManager.stopSpan();
         }
         return ret;

@@ -80,11 +80,6 @@ public class TracingContext implements AbstractTracerContext {
     private int spanIdGenerator;
 
     /**
-     * Runtime context of the tracing context
-     */
-    private RuntimeContext runtimeContext;
-
-    /**
      * Initialize all fields with default value.
      */
     TracingContext() {
@@ -422,14 +417,6 @@ public class TracingContext implements AbstractTracerContext {
         if (activeSpanStack.isEmpty()) {
             this.finish();
         }
-    }
-
-    @Override
-    public RuntimeContext getRuntimeContext() {
-        if (runtimeContext == null) {
-            runtimeContext = new RuntimeContext();
-        }
-        return runtimeContext;
     }
 
     /**

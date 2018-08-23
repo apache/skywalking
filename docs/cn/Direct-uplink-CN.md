@@ -19,7 +19,7 @@
 2. 在 `agent.config`中按照如下配置
 ```
 # Collector agent_gRPC/grpc 地址.
-# 仅仅当不配置的"collector.servers"的时候生效,作为第二种配置地址选择.
+# 当不配置"collector.servers"的时候,选择第二种配置地址生效.
 # 如果使用此配置,自动发现服务将无法使用,探针将直接使用此地址进行数据上报.
 # 仅仅当探针端无法连接到`collector`的集群 ip地址时,我们才推荐使用这种配置,比如:
 #   1. 探针和 `collector`在不同的私有云当中.

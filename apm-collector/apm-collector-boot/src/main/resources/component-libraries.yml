@@ -156,6 +156,21 @@ mongodb-driver:
 SOFARPC:
   id: 43
   languages: Java
+ActiveMQ:
+  id: 44
+  languages: Java
+activemq-producer:
+  id: 45
+  languages: Java
+activemq-consumer:
+  id: 46
+  languages: Java
+Elasticsearch:
+  id: 47
+  languages: Java
+transport-client:
+  id: 48
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -213,6 +228,12 @@ HttpServer:
 express:
   id: 4002
   languages: Node.js
+Egg:
+  id: 4003
+  languages: Node.js
+Koa:
+  id: 4004
+  languages: Node.js
 
 # Component Server mapping defines the server display names of some components
 # e.g.
@@ -223,6 +244,8 @@ Component-Server-Mappings:
   rocketMQ-consumer: RocketMQ
   kafka-producer: Kafka
   kafka-consumer: Kafka
+  activemq-producer: ActiveMQ
+  activemq-consumer: ActiveMQ
   postgresql-jdbc-driver: PostgreSQL
   Xmemcached: Memcached
   Spymemcached: Memcached
@@ -238,4 +261,4 @@ Component-Server-Mappings:
   EntityFrameworkCore.Sqlite: SQLite
   Pomelo.EntityFrameworkCore.MySql: Mysql
   Npgsql.EntityFrameworkCore.PostgreSQL: PostgreSQL
-
+  transport-client: Elasticsearch

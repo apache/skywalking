@@ -16,16 +16,14 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
+import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.springframework.web.context.request.NativeWebRequest;
-
-import java.lang.reflect.Method;
 
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESPONSE_KEY_IN_RUNTIME_CONTEXT;
 

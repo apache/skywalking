@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm-application-toolkit</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-beta2-SNAPSHOT</version>
+        <version>5.0.0-RC-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -35,26 +35,4 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-
-
-    <build>
-        <plugins>
-            <plugin>
-                <!-- 源码插件 -->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <!-- 发布时自动将源码同时发布的配置 -->
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <phase>none</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <version>2.4</version>
-            </plugin>
-        </plugins>
-    </build>
 </project>

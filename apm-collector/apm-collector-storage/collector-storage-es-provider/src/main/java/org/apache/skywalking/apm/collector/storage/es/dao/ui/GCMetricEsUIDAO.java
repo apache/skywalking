@@ -66,7 +66,7 @@ public class GCMetricEsUIDAO extends EsDAO implements IGCMetricUIDAO {
                 long count = ((Number)itemResponse.getResponse().getSource().get(GCMetricTable.COUNT.getName())).longValue();
                 long duration = ((Number)itemResponse.getResponse().getSource().get(GCMetricTable.DURATION.getName())).longValue();
                 long times = ((Number)itemResponse.getResponse().getSource().get(GCMetricTable.TIMES.getName())).intValue();
-                gcTrends.add(new Trend((int)(count / times), (int)(duration / times)));
+                gcTrends.add(new Trend((int)count, (int)(duration / times)));
             } else {
                 gcTrends.add(new Trend(0, 0));
             }

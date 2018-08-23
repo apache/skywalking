@@ -26,7 +26,7 @@
 
 
 RELEASE_VERSION=${RELEASE_VERSION}
-TAG_NAME=${RELEASE_VERSION}(RC${RELEASE_ROUND})
+TAG_NAME=v${RELEASE_VERSION}-RC${RELEASE_ROUND}
 PRODUCT_NAME="apache-skywalking-apm-incubating"
 
 echo "Release version "${RELEASE_VERSION}
@@ -72,6 +72,10 @@ tar czf ${PRODUCT_NAME}-src.tgz \
     --exclude ${PRODUCT_NAME}/.git/ --exclude ${PRODUCT_NAME}/.DS_Store/ \
     --exclude ${PRODUCT_NAME}/.github/ --exclude ${PRODUCT_NAME}/.gitignore/ \
     --exclude ${PRODUCT_NAME}/.gitmodules/ --exclude ${PRODUCT_NAME}/.travis.yml \
+    --exclude ${PRODUCT_NAME}/skywalking-ui/.git/ --exclude ${PRODUCT_NAME}/skywalking-ui/.DS_Store/ \
+    --exclude ${PRODUCT_NAME}/skywalking-ui/.github/ --exclude ${PRODUCT_NAME}/skywalking-ui/.gitignore/ \
+    --exclude ${PRODUCT_NAME}/skywalking-ui/.travis.yml/ \
+    --exclude ${PRODUCT_NAME}/apm-protocol/apm-network/src/main/proto/.git/ \
     ${PRODUCT_NAME}
 
 gpg --armor --detach-sig ${PRODUCT_NAME}-src.tgz
