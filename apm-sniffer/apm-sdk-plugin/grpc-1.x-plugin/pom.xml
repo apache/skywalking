@@ -31,13 +31,14 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <grpc-all.version>1.6.0</grpc-all.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-all</artifactId>
-            <version>1.6.0</version>
+            <version>${grpc-all.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
