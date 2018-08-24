@@ -165,6 +165,13 @@ activemq-producer:
 activemq-consumer:
   id: 46
   languages: Java
+Elasticsearch:
+  id: 47
+  languages: Java
+transport-client:
+  id: 48
+  languages: Java
+
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
 AspNetCore:
@@ -254,4 +261,4 @@ Component-Server-Mappings:
   EntityFrameworkCore.Sqlite: SQLite
   Pomelo.EntityFrameworkCore.MySql: Mysql
   Npgsql.EntityFrameworkCore.PostgreSQL: PostgreSQL
-
+  transport-client: Elasticsearch
