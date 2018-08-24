@@ -41,7 +41,7 @@ import org.apache.skywalking.apm.util.StringUtil;
  */
 public class SnifferConfigInitializer {
     private static final ILog logger = LogManager.getLogger(SnifferConfigInitializer.class);
-    private static String SPECIFIED_CONFIG_PATH = "specified_config_path";
+    private static String SPECIFIED_CONFIG_PATH = "sw.specified_config_path";
     private static String DEFAULT_CONFIG_FILE_NAME = "/config/agent.config";
     private static String ENV_KEY_PREFIX = "skywalking.";
     private static boolean IS_INIT_COMPLETED = false;
