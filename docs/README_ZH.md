@@ -15,7 +15,7 @@
         * [[**孵化特性**] 自定义配置忽略追踪信息](../apm-sniffer/optional-plugins/trace-ignore-plugin/README_CN.md)
   * [架构设计](cn/Architecture-CN.md)  
   * 高级特性
-    * [使用指定的Agent的配置文件路径](cn/Specified-agent-config-CN.md)
+    * [自定义探针配置文件路径](cn/Specified-agent-config-CN.md)
     * [通过系统启动参数进行覆盖配置](cn/Setting-override-CN.md)
     * [服务直连(Direct uplink)及禁用名称服务(naming service)](cn/Direct-uplink-CN.md)
     * [开启TLS](cn/TLS-CN.md)
