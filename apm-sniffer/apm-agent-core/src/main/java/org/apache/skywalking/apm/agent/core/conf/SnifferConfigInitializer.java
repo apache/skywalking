@@ -60,7 +60,7 @@ public class SnifferConfigInitializer {
         InputStreamReader configFileStream;
 
         try {
-            configFileStream = loadConfigFromAgentFolder();
+            configFileStream = loadConfig();
             Properties properties = new Properties();
             properties.load(configFileStream);
             ConfigInitializer.initialize(properties, Config.class);
@@ -119,7 +119,7 @@ public class SnifferConfigInitializer {
      *
      * @return the config file {@link InputStream}, or null if not needEnhance.
      */
-    private static InputStreamReader loadConfigFromAgentFolder() throws AgentPackageNotFoundException, ConfigNotFoundException, ConfigReadFailedException {
+    private static InputStreamReader loadConfig() throws AgentPackageNotFoundException, ConfigNotFoundException, ConfigReadFailedException {
 
         String specifiedConfigPath = System.getProperties().getProperty(SPECIFIED_CONFIG_PATH);
         File configFile = StringUtil.isEmpty(specifiedConfigPath) ? new File(AgentPackagePath.getPath(), DEFAULT_CONFIG_FILE_NAME) : new File(specifiedConfigPath);
