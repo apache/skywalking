@@ -30,12 +30,16 @@
 
     <name>servicecomb-java-chassis-0.x-plugin</name>
     <url>http://maven.apache.org</url>
+
+    <properties>
+        <java-chassis-core.version>0.5.0</java-chassis-core.version>
+    </properties>
     
     <dependencies>
         <dependency>
             <groupId>io.servicecomb</groupId>
             <artifactId>java-chassis-core</artifactId>
-            <version>0.5.0</version>
+            <version>${java-chassis-core.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

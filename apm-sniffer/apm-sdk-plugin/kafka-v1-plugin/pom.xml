@@ -27,11 +27,15 @@
 
     <artifactId>apm-kafka-v1-plugin</artifactId>
 
+    <properties>
+        <kafka-clients.version>0.11.0.0</kafka-clients.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
-            <version>0.11.0.0</version>
+            <version>${kafka-clients.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
