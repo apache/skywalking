@@ -72,6 +72,9 @@
 
         <agent.package.dest.dir>${project.build.directory}${sdk.plugin.related.dir}/../../../../skywalking-agent</agent.package.dest.dir>
         <plugin.dest.dir>${agent.package.dest.dir}/plugins</plugin.dest.dir>
+
+        <ant-contrib.version>1.0b3</ant-contrib.version>
+        <ant-nodeps.version>1.8.1</ant-nodeps.version>
     </properties>
 
     <dependencies>
@@ -147,7 +150,7 @@
                     <dependency>
                         <groupId>ant-contrib</groupId>
                         <artifactId>ant-contrib</artifactId>
-                        <version>1.0b3</version>
+                        <version>${ant-contrib.version}</version>
                         <exclusions>
                             <exclusion>
                                 <groupId>ant</groupId>
@@ -158,7 +161,7 @@
                     <dependency>
                         <groupId>org.apache.ant</groupId>
                         <artifactId>ant-nodeps</artifactId>
-                        <version>1.8.1</version>
+                        <version>${ant-nodeps.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>

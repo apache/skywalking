@@ -27,11 +27,15 @@
 
     <artifactId>apm-toolkit-log4j-1.x</artifactId>
 
+    <properties>
+        <log4j.version>1.2.17</log4j.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
+            <version>${log4j.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

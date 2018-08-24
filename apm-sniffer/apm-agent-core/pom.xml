@@ -36,6 +36,10 @@
         <jetty.version>9.4.2.v20170220</jetty.version>
         <grpc.version>1.10.0</grpc.version>
         <bytebuddy.version>1.7.9</bytebuddy.version>
+        <disruptor.version>3.3.6</disruptor.version>
+        <apache-httpclient.version>4.5.3</apache-httpclient.version>
+        <wiremock.version>2.6.0</wiremock.version>
+        <os-maven-plugin.version>1.4.1.Final</os-maven-plugin.version>
 
         <shade.package>org.apache.skywalking.apm.dependencies</shade.package>
         <shade.com.lmax.disruptor.source>com.lmax.disruptor</shade.com.lmax.disruptor.source>
@@ -80,7 +84,12 @@
         <dependency>
             <groupId>com.lmax</groupId>
             <artifactId>disruptor</artifactId>
-            <version>3.3.6</version>
+            <version>${disruptor.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${apache-httpclient.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
@@ -97,7 +106,7 @@
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
             <artifactId>wiremock</artifactId>
-            <version>2.6.0</version>
+            <version>${wiremock.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -123,7 +132,7 @@
             <extension>
                 <groupId>kr.motd.maven</groupId>
                 <artifactId>os-maven-plugin</artifactId>
-                <version>1.4.1.Final</version>
+                <version>${os-maven-plugin.version}</version>
             </extension>
         </extensions>
         <plugins>
@@ -211,9 +220,9 @@
                                 <echo message="unjar" />
                                 <unzip src="${project.build.directory}/${artifactId}-${version}.jar" dest="${project.build.directory}/unpacked/" />
                                 <echo message="rename service providers in META-INF/services" />
-                                <move file="${project.build.directory}/unpacked/META-INF/native/libnetty_tcnative_osx_x86_64.jnilib" tofile="${project.build.directory}/unpacked/META-INF/native/liborg_apache_skywalking_apm_dependencies_netty_tcnative_osx_x86_64.jnilib"/>
-                                <move file="${project.build.directory}/unpacked/META-INF/native/libnetty_tcnative_linux_x86_64.so" tofile="${project.build.directory}/unpacked/META-INF/native/liborg_apache_skywalking_apm_dependencies_netty_tcnative_linux_x86_64.so"/>
-                                <move file="${project.build.directory}/unpacked/META-INF/native/netty_tcnative_windows_x86_64.dll" tofile="${project.build.directory}/unpacked/META-INF/native/org_apache_skywalking_apm_dependencies_netty_tcnative_windows_x86_64.dll"/>
+                                <move file="${project.build.directory}/unpacked/META-INF/native/libnetty_tcnative_osx_x86_64.jnilib" tofile="${project.build.directory}/unpacked/META-INF/native/liborg_apache_skywalking_apm_dependencies_netty_tcnative_osx_x86_64.jnilib" />
+                                <move file="${project.build.directory}/unpacked/META-INF/native/libnetty_tcnative_linux_x86_64.so" tofile="${project.build.directory}/unpacked/META-INF/native/liborg_apache_skywalking_apm_dependencies_netty_tcnative_linux_x86_64.so" />
+                                <move file="${project.build.directory}/unpacked/META-INF/native/netty_tcnative_windows_x86_64.dll" tofile="${project.build.directory}/unpacked/META-INF/native/org_apache_skywalking_apm_dependencies_netty_tcnative_windows_x86_64.dll" />
                                 <echo message="jar back" />
                                 <jar destfile="${project.build.directory}/${artifactId}-${version}.jar" basedir="${project.build.directory}/unpacked" />
                             </target>

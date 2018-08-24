@@ -32,13 +32,14 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <dubbo.version>2.5.10</dubbo.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>dubbo</artifactId>
-            <version>2.5.10</version>
+            <version>${dubbo.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

@@ -29,6 +29,11 @@
     <artifactId>collector-remote-grpc-provider</artifactId>
     <packaging>jar</packaging>
 
+    <properties>
+        <os-maven-plugin.version>1.4.1.Final</os-maven-plugin.version>
+        <protobuf-maven-plugin.version>0.5.0</protobuf-maven-plugin.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
@@ -52,14 +57,14 @@
             <extension>
                 <groupId>kr.motd.maven</groupId>
                 <artifactId>os-maven-plugin</artifactId>
-                <version>1.4.1.Final</version>
+                <version>${os-maven-plugin.version}</version>
             </extension>
         </extensions>
         <plugins>
             <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
-                <version>0.5.0</version>
+                <version>${protobuf-maven-plugin.version}</version>
                 <configuration>
                     <!--
                       The version of protoc must match protobuf-java. If you don't depend on

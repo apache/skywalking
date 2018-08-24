@@ -27,11 +27,15 @@
 
     <artifactId>apm-ui-protocol</artifactId>
 
+    <properties>
+        <graphql-java.version>7.0</graphql-java.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.graphql-java</groupId>
             <artifactId>graphql-java</artifactId>
-            <version>7.0</version>
+            <version>${graphql-java.version}</version>
         </dependency>
     </dependencies>
 </project>
