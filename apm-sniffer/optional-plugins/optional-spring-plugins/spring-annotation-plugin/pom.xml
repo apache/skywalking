@@ -28,11 +28,15 @@
 
     <artifactId>apm-spring-annotation-plugin</artifactId>
 
+    <properties>
+        <spring-context.version>3.2.0.RELEASE</spring-context.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>3.2.0.RELEASE</version>
+            <version>${spring-context.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

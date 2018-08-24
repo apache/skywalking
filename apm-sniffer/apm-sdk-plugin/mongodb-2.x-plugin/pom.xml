@@ -30,19 +30,20 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <mongodb-java-driver.version>2.14.2</mongodb-java-driver.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
-            <version>2.14.2</version>
+            <version>${mongodb-java-driver.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>bson</artifactId>
-            <version>2.14.2</version>
+            <version>${mongodb-java-driver.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
