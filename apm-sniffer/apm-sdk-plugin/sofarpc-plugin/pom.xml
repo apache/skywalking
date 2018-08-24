@@ -32,13 +32,14 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <sofa-rpc-all.version>5.4.0</sofa-rpc-all.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-rpc-all</artifactId>
-            <version>5.4.0</version>
+            <version>${sofa-rpc-all.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
