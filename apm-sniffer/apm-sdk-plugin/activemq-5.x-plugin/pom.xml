@@ -31,13 +31,14 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <activemq-client.version>5.14.5</activemq-client.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-client</artifactId>
-            <version>5.14.5</version>
+            <version>${activemq-client.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

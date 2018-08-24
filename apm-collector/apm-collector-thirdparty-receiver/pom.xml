@@ -32,6 +32,5 @@
     <modules>
         <module>receiver-zipkin</module>
     </modules>
-
-
+    
 </project>

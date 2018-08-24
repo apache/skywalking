@@ -29,11 +29,15 @@
 
     <artifactId>apm-hystrix-1.x-plugin</artifactId>
 
+    <properties>
+        <hystrix-core.version>1.4.0</hystrix-core.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.netflix.hystrix</groupId>
             <artifactId>hystrix-core</artifactId>
-            <version>1.4.0</version>
+            <version>${hystrix-core.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
