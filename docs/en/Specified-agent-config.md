@@ -7,7 +7,7 @@
 ## What is the specified agent config file ?
 In Default. The agent will try to locate `agent.config`, which should be in the `/config` dictionary of agent package. <br>
 If User set the specified agent config file, The agent will try to load the specified agent config file.<br>
-By the way, This function has no conflict with [Setting Override]()
+By the way, This function has no conflict with [Setting Override](Setting-override.md)
 
 ## Override priority
 The specified agent config > The default agent config
