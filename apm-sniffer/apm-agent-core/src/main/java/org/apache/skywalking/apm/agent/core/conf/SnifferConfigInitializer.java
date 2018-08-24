@@ -41,13 +41,14 @@ import org.apache.skywalking.apm.util.StringUtil;
  */
 public class SnifferConfigInitializer {
     private static final ILog logger = LogManager.getLogger(SnifferConfigInitializer.class);
+    private static String SPECIFIED_CONFIG_PATH = "specified_config_path";
     private static String DEFAULT_CONFIG_FILE_NAME = "/config/agent.config";
     private static String ENV_KEY_PREFIX = "skywalking.";
     private static boolean IS_INIT_COMPLETED = false;
 
     /**
-     * @param configFilePath, The configFilePath is the absolute path of your specified agent.config file.
-     * if configFilePath is null or empty, The agent will try to locate the default `agent.config`, which should be in the /config dictionary of agent package.
+     * If the specified agent config path is set, the agent will try to locate the specified agent config.
+     * If the specified agent config path is not set , the agent will try to locate `agent.config`, which should be in the /config dictionary of agent package.
      * <p>
      * Also try to override the config by system.env and system.properties. All the keys in these two places should
      * start with {@link #ENV_KEY_PREFIX}. e.g. in env `skywalking.agent.application_code=yourAppName` to override
@@ -55,11 +56,11 @@ public class SnifferConfigInitializer {
      * <p>
      * At the end, `agent.application_code` and `collector.servers` must be not blank.
      */
-    public static void initialize(String configFilePath) throws ConfigNotFoundException, AgentPackageNotFoundException {
+    public static void initialize() throws ConfigNotFoundException, AgentPackageNotFoundException {
         InputStreamReader configFileStream;
 
         try {
-            configFileStream = loadConfigFromAgentFolder(configFilePath);
+            configFileStream = loadConfigFromAgentFolder();
             Properties properties = new Properties();
             properties.load(configFileStream);
             ConfigInitializer.initialize(properties, Config.class);
@@ -114,15 +115,14 @@ public class SnifferConfigInitializer {
     }
 
     /**
-     * @param configFilePath, the absolute path of your specified config file
-     *
-     * Load your specified config file or default config file
+     * Load the specified config file or default config file
      *
      * @return the config file {@link InputStream}, or null if not needEnhance.
      */
-    private static InputStreamReader loadConfigFromAgentFolder(String configFilePath) throws AgentPackageNotFoundException, ConfigNotFoundException, ConfigReadFailedException {
+    private static InputStreamReader loadConfigFromAgentFolder() throws AgentPackageNotFoundException, ConfigNotFoundException, ConfigReadFailedException {
 
-        File configFile = StringUtil.isEmpty(configFilePath) ? new File(AgentPackagePath.getPath(), DEFAULT_CONFIG_FILE_NAME) : new File(configFilePath);
+        String specifiedConfigPath = System.getProperties().getProperty(SPECIFIED_CONFIG_PATH);
+        File configFile = StringUtil.isEmpty(specifiedConfigPath) ? new File(AgentPackagePath.getPath(), DEFAULT_CONFIG_FILE_NAME) : new File(specifiedConfigPath);
 
         if (configFile.exists() && configFile.isFile()) {
             try {

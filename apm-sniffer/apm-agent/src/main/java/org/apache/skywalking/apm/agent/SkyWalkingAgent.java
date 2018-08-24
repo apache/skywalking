@@ -48,14 +48,14 @@ public class SkyWalkingAgent {
      * Main entrance.
      * Use byte-buddy transform to enhance all classes, which define in plugins.
      *
-     * @param agentArgs the absolute path of your specified config file
+     * @param agentArgs
      * @param instrumentation
      * @throws PluginException
      */
     public static void premain(String agentArgs, Instrumentation instrumentation) throws PluginException {
         final PluginFinder pluginFinder;
         try {
-            SnifferConfigInitializer.initialize(agentArgs);
+            SnifferConfigInitializer.initialize();
 
             pluginFinder = new PluginFinder(new PluginBootstrap().loadPlugins());
 
