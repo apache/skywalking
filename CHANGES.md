@@ -28,6 +28,7 @@ Release Notes.
   
 #### UI Changes
   - Fix UI port can't be set by startup script in Windows.
+  - Fix Topology self link error.
   
 #### Documents
   - Add users list.
