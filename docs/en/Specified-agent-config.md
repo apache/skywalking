@@ -1,10 +1,10 @@
-# The Specified Agent Config File 
+# Locate agent config file by system property
 
 ## Supported version
 
 5.0.0-RC+
 
-## What is the specified agent config file ?
+## What is Locate agent config file by system property ？
 In Default. The agent will try to locate `agent.config`, which should be in the `/config` dictionary of agent package. <br>
 If User set the specified agent config file, The agent will try to load the specified agent config file.<br>
 By the way, This function has no conflict with [Setting Override](Setting-override.md)
