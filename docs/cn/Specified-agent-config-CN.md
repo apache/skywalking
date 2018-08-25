@@ -17,7 +17,7 @@
 ##### 使用方式：使用 `启动参数(-D)` 的方式来设置探针配置文件路径
  
  ```
- -Dsw.specified_config_path=/path/to/agent.config
+ -Dskywalking_config=/path/to/agent.config
  ```
  其中的`/path/to/agent.config` 代表的是自定义探针配置文件的绝对路径
  

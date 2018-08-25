@@ -19,7 +19,7 @@ The specified agent config > The default agent config
 ##### Using `System.Properties(-D)` to set the specified config path
  
  ```
- -Dsw.specified_config_path=/path/to/agent.config
+ -Dskywalking_config=/path/to/agent.config
  ```
  `/path/to/agent.config`  is the absolute path of the specified config file
  
