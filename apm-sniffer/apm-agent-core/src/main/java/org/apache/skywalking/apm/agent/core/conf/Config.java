@@ -141,5 +141,10 @@ public class Config {
              */
             public static boolean TRACE_PARAM = false;
         }
+
+        public static class Elasticsearch {
+
+            public static boolean TRACE_DSL = false;
+        }
     }
 }
