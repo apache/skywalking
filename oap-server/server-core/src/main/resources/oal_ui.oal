@@ -1,0 +1,60 @@
+
+// Dashbard
+
+AlarmTrend = from(Alarm).langAvg(); // Mock
+Thermodynamic = from(Trace).histogram(0, 100); // Mock
+
+// Service on Topology
+
+Service_Avg = from(Service.latency).longAvg();
+
+Service_Throughput = from(Service.*).sum();
+
+Service_percent = from(Endpoint.*).percent(status == true);
+
+Service_apdex  = from(Endpoint.*).apdex();  //Mock
+
+ServiceRelation_Avg = from(ServiceRelation.latency).langAvg();
+
+ServiceRelation_Throughput = from(ServiceRelation.*).sum();
+
+
+// ServiceInstance
+ResponseTimeTrend_avg = from(ServiceInstance.latency).longAvg();
+
+ResponseTimeTrend_p99 = from(ServiceInstance.latency).p99();
+
+ResponseTimeTrend_p95 = from(ServiceInstance.latency).p95();
+
+ResponseTimeTrend_p75 = from(ServiceInstance.latency).p75();
+
+ResponseTimeTrend_p50 = from(ServiceInstance.latency).p50();
+
+ThroughputTrend = from(ServiceInstance.*).sum();
+
+instance_jvm_cpu = from(ServiceInstanceJVMCPU.usePercent).doubleAvg();
+
+instance_jvm_memory_max = from(ServiceInstanceJVMMemory.max).longAvg();
+
+instance_jvm_memory_pool_max = from(ServiceInstanceJVMMemoryPool.max).longAvg();
+
+instance_jvm_young_gc_time = from(ServiceInstanceJVMGC.time).filter(phrase == GCPhrase.NEW).longAvg();
+
+// Endpoint
+endpoint_Avg = from(Endpoint.latency).longAvg();
+
+endpoint_p99 = from(Endpoint.latency).p99();
+
+endpoint_p95 = from(Endpoint.latency).p95();
+
+endpoint_p75 = from(Endpoint.latency).p75();
+
+endpoint_p50 = from(Endpoint.latency).p50();
+
+endpoint_throughput = from(Endpoint.*).sum();
+
+endpoint_percent = from(Endpoint.*).percent(status == true);
+
+EndpointRelation_Avg = from(EndpointRelation.latency).langAvg();
+
+EndpointRelation_Throughput = from(EndpointRelation.*).sum();
