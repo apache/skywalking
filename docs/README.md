@@ -13,6 +13,7 @@
         * [[**Incubating**] Filter traces through custom services](../apm-sniffer/optional-plugins/trace-ignore-plugin/README.md)
   * [Architecture Design](en/Architecture.md)
   * Advanced Features
+    * [Locate agent config file by system property](en/Specified-agent-config.md)
     * [Override settings through System.properties](en/Setting-override.md)
     * [Direct uplink and disable naming discovery](en/Direct-uplink.md)
     * [Open TLS](en/TLS.md)
