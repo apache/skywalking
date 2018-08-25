@@ -41,12 +41,14 @@ import org.apache.skywalking.apm.util.StringUtil;
  */
 public class SnifferConfigInitializer {
     private static final ILog logger = LogManager.getLogger(SnifferConfigInitializer.class);
-    private static String CONFIG_FILE_NAME = "/config/agent.config";
+    private static String SPECIFIED_CONFIG_PATH = "skywalking_config";
+    private static String DEFAULT_CONFIG_FILE_NAME = "/config/agent.config";
     private static String ENV_KEY_PREFIX = "skywalking.";
     private static boolean IS_INIT_COMPLETED = false;
 
     /**
-     * Try to locate `agent.config`, which should be in the /config dictionary of agent package.
+     * If the specified agent config path is set, the agent will try to locate the specified agent config.
+     * If the specified agent config path is not set , the agent will try to locate `agent.config`, which should be in the /config dictionary of agent package.
      * <p>
      * Also try to override the config by system.env and system.properties. All the keys in these two places should
      * start with {@link #ENV_KEY_PREFIX}. e.g. in env `skywalking.agent.application_code=yourAppName` to override
@@ -58,7 +60,7 @@ public class SnifferConfigInitializer {
         InputStreamReader configFileStream;
 
         try {
-            configFileStream = loadConfigFromAgentFolder();
+            configFileStream = loadConfig();
             Properties properties = new Properties();
             properties.load(configFileStream);
             ConfigInitializer.initialize(properties, Config.class);
@@ -113,12 +115,15 @@ public class SnifferConfigInitializer {
     }
 
     /**
-     * Load the config file, where the agent jar is.
+     * Load the specified config file or default config file
      *
      * @return the config file {@link InputStream}, or null if not needEnhance.
      */
-    private static InputStreamReader loadConfigFromAgentFolder() throws AgentPackageNotFoundException, ConfigNotFoundException, ConfigReadFailedException {
-        File configFile = new File(AgentPackagePath.getPath(), CONFIG_FILE_NAME);
+    private static InputStreamReader loadConfig() throws AgentPackageNotFoundException, ConfigNotFoundException, ConfigReadFailedException {
+
+        String specifiedConfigPath = System.getProperties().getProperty(SPECIFIED_CONFIG_PATH);
+        File configFile = StringUtil.isEmpty(specifiedConfigPath) ? new File(AgentPackagePath.getPath(), DEFAULT_CONFIG_FILE_NAME) : new File(specifiedConfigPath);
+
         if (configFile.exists() && configFile.isFile()) {
             try {
                 logger.info("Config file found in {}.", configFile);
