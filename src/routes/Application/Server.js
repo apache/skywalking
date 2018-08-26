@@ -136,8 +136,8 @@ export default class Server extends PureComponent {
                   }
                 >
                   <StackBar
-                    data={axis(duration, getGCTrend.oldGCTime, ({ x, y }) => ({ x, y, type: 'oldGCTime' }))
-                    .concat(axis(duration, getGCTrend.youngGCTime, ({ x, y }) => ({ x, y, type: 'youngGCTime' })))}
+                    data={axis(duration, getGCTrend.youngGCTime, ({ x, y }) => ({ x, y, type: 'youngGCTime' }))
+                    .concat(axis(duration, getGCTrend.oldGCTime, ({ x, y }) => ({ x, y, type: 'oldGCTime' })))}
                   />
                 </ChartCard>
               </Col>
