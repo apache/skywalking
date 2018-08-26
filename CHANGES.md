@@ -29,6 +29,7 @@ Release Notes.
 #### UI Changes
   - Fix UI port can't be set by startup script in Windows.
   - Fix Topology self link error.
+  - Fix stack color mismatch label color in gc time chart.
   
 #### Documents
   - Add users list.
