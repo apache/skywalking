@@ -32,6 +32,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spymemcached.version>2.11.1</spymemcached.version>
+        <log4j-core.version>2.4.1</log4j-core.version>
     </properties>
 
     <dependencies>
@@ -44,7 +45,7 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.4.1</version>
+            <version>${log4j-core.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
