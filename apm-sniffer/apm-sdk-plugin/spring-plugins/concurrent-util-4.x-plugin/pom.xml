@@ -30,11 +30,15 @@
     <name>concurrent-util-4.x-plugin</name>
     <url>http://maven.apache.org</url>
 
+    <properties>
+        <spring-core.version>4.3.10.RELEASE</spring-core.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>4.3.10.RELEASE</version>
+            <version>${spring-core.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
