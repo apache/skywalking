@@ -34,7 +34,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jetty.version>9.4.2.v20170220</jetty.version>
-        <grpc.version>1.10.0</grpc.version>
+        <grpc.version>1.14.0</grpc.version>
         <bytebuddy.version>1.7.9</bytebuddy.version>
         <disruptor.version>3.3.6</disruptor.version>
         <apache-httpclient.version>4.5.3</apache-httpclient.version>

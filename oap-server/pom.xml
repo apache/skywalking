@@ -49,7 +49,7 @@
         <graphql-java-tools.version>5.2.3</graphql-java-tools.version>
         <graphql-java.version>8.0</graphql-java.version>
         <zookeeper.version>3.4.10</zookeeper.version>
-        <grpc.version>1.10.0</grpc.version>
+        <grpc.version>1.14.0</grpc.version>
         <jetty.version>9.4.2.v20170220</jetty.version>
         <lombok.version>1.18.0</lombok.version>
         <h2.version>1.4.196</h2.version>
