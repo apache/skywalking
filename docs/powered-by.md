@@ -38,4 +38,3 @@ or providing commercial products including Apache SkyWalking.
 - Xiaomi. 小米. https://www.mi.com/en/
 - Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
 
-The list is in alphabeta order.
