@@ -92,6 +92,7 @@ public class AgentModuleJettyProvider extends ModuleProvider {
         jettyServer.addHandler(new TraceSegmentServletHandler(getManager()));
         jettyServer.addHandler(new ApplicationRegisterServletHandler(getManager()));
         jettyServer.addHandler(new InstanceDiscoveryServletHandler(getManager()));
+        jettyServer.addHandler(new InstanceHeartBeatServletHandler(getManager()));
         jettyServer.addHandler(new ServiceNameDiscoveryServiceHandler(getManager()));
         jettyServer.addHandler(new NetworkAddressRegisterServletHandler(getManager()));
     }
