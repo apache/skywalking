@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.collector.agent.jetty.provider;
 import org.apache.skywalking.apm.collector.agent.jetty.define.AgentJettyModule;
 import org.apache.skywalking.apm.collector.agent.jetty.provider.handler.ApplicationRegisterServletHandler;
 import org.apache.skywalking.apm.collector.agent.jetty.provider.handler.InstanceDiscoveryServletHandler;
+import org.apache.skywalking.apm.collector.agent.jetty.provider.handler.InstanceHeartBeatServletHandler;
 import org.apache.skywalking.apm.collector.agent.jetty.provider.handler.NetworkAddressRegisterServletHandler;
 import org.apache.skywalking.apm.collector.agent.jetty.provider.handler.ServiceNameDiscoveryServiceHandler;
 import org.apache.skywalking.apm.collector.agent.jetty.provider.handler.TraceSegmentServletHandler;
