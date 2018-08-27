@@ -36,6 +36,10 @@
         <jetty.version>9.4.2.v20170220</jetty.version>
         <grpc.version>1.10.0</grpc.version>
         <bytebuddy.version>1.7.9</bytebuddy.version>
+        <disruptor.version>3.3.6</disruptor.version>
+        <apache-httpclient.version>4.5.3</apache-httpclient.version>
+        <wiremock.version>2.6.0</wiremock.version>
+        <os-maven-plugin.version>1.4.1.Final</os-maven-plugin.version>
 
         <shade.package>org.apache.skywalking.apm.dependencies</shade.package>
         <shade.com.lmax.disruptor.source>com.lmax.disruptor</shade.com.lmax.disruptor.source>
@@ -80,12 +84,12 @@
         <dependency>
             <groupId>com.lmax</groupId>
             <artifactId>disruptor</artifactId>
-            <version>3.3.6</version>
+            <version>${disruptor.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.3</version>
+            <version>${apache-httpclient.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
@@ -102,7 +106,7 @@
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
             <artifactId>wiremock</artifactId>
-            <version>2.6.0</version>
+            <version>${wiremock.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -128,22 +132,12 @@
             <extension>
                 <groupId>kr.motd.maven</groupId>
                 <artifactId>os-maven-plugin</artifactId>
-                <version>1.4.1.Final</version>
+                <version>${os-maven-plugin.version}</version>
             </extension>
         </extensions>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.4.3</version>
-                <configuration>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -205,7 +199,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>

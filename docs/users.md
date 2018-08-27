@@ -1,11 +1,12 @@
-# Use cases
+# Uses
 
-All use cases are reported through direct message/mail or [online issue](https://github.com/apache/incubator-skywalking/issues/443), 
-if any entity(company or orgnization) has any doubt, please contact us by [any official channel](../README.md#contact-us).
+All uses are reported through direct message/mail or [online issue](https://github.com/apache/incubator-skywalking/issues/443), 
+if any entity(company or organization) has any doubt, please contact us by [any official channel](../README.md#contact-us).
 
 - 300.cn 中企动力科技股份有限公司 http://www.300.cn/
 - 4499.com 四三九九网络股份有限公司. http://www.4399.com/
 - AsiaInfo Inc. http://www.asiainfo.com.cn/
+- Autohome. 汽车之家. http://www.autohome.com.cn
 - Baixing.com 百姓网 http://www.baixing.com/
 - Bizsaas.cn 北京商云科技发展有限公司. http://www.bizsaas.cn/
 - Chehejia Automotive. 北京车和家信息技术有限责任公司. https://www.chehejia.com/
@@ -29,6 +30,7 @@ if any entity(company or orgnization) has any doubt, please contact us by [any o
 - Qsdjf.com 浙江钱宝网络科技有限公司 https://www.qsdjf.com/index.html
 - Rongjinbao. 深圳融金宝互联网金融服务有限公司. http://www.rjb777.com
 - Successchannel 苏州渠成易销网络科技有限公司. http://www.successchannel.com
+- Shouqi Limousine & chauffeur Group 首约科技(北京)有限公司. https://www.01zhuanche.com/
 - Today36524.com Today便利店
 - Tsfinance.com 重庆宜迅联供应链科技有限公司 https://www.tsfinance.com.cn/
 - VBill Payment Co., LTD. 随行付. https://www.vbill.cn/

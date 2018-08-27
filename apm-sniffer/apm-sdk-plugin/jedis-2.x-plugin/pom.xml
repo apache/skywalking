@@ -30,33 +30,24 @@
 
     <name>jedis-2.x-plugin</name>
     <url>http://maven.apache.org</url>
+    <properties>
+        <jedis.version>2.9.0</jedis.version>
+        <log4j-core.version>2.4.1</log4j-core.version>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
-            <version>2.9.0</version>
+            <version>${jedis.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.4.1</version>
+            <version>${log4j-core.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.4.3</version>
-                <configuration>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>
