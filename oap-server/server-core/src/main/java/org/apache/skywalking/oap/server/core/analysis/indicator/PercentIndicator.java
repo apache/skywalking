@@ -27,7 +27,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
  * @author wusheng
  */
 @IndicatorOperator
-public abstract class PercentIndicator extends Indicator {
+public abstract class PercentIndicator extends Indicator implements IntValueHolder {
     protected static final String TOTAL = "total";
     protected static final String MATCH = "match";
     protected static final String PERCENTAGE = "percentage";
@@ -53,6 +53,10 @@ public abstract class PercentIndicator extends Indicator {
     }
 
     @Override public void calculate() {
-        percentage = (int)(match / total);
+        percentage = (int)(match * 100 / total);
+    }
+
+    @Override public int getValue() {
+        return percentage;
     }
 }

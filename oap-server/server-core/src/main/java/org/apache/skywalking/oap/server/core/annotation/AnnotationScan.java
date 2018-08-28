@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.annotation;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.util.*;
 
 /**
@@ -28,14 +29,14 @@ import java.util.*;
  */
 public class AnnotationScan {
 
-    private final List<AnnotationListener> listeners;
+    private final List<AnnotationListenerCache> listeners;
 
     public AnnotationScan() {
         this.listeners = new LinkedList<>();
     }
 
     public void registerListener(AnnotationListener listener) {
-        listeners.add(listener);
+        listeners.add(new AnnotationListenerCache(listener));
     }
 
     public void scan(Runnable callBack) throws IOException {
@@ -44,13 +45,40 @@ public class AnnotationScan {
         for (ClassPath.ClassInfo classInfo : classes) {
             Class<?> aClass = classInfo.load();
 
-            for (AnnotationListener listener : listeners) {
+            for (AnnotationListenerCache listener : listeners) {
                 if (aClass.isAnnotationPresent(listener.annotation())) {
-                    listener.notify(aClass);
+                    listener.addMatch(aClass);
                 }
             }
         }
 
+        listeners.forEach(listener ->
+            listener.complete()
+        );
+
         callBack.run();
+    }
+
+    public class AnnotationListenerCache {
+        private AnnotationListener listener;
+        private List<Class<?>> matchedClass;
+
+        private AnnotationListenerCache(AnnotationListener listener) {
+            this.listener = listener;
+            matchedClass = new LinkedList<>();
+        }
+
+        private Class<? extends Annotation> annotation() {
+            return this.listener.annotation();
+        }
+
+        private void addMatch(Class aClass) {
+            matchedClass.add(aClass);
+        }
+
+        private void complete() {
+            matchedClass.sort(Comparator.comparing(Class::getName));
+            matchedClass.forEach(aClass -> listener.notify(aClass));
+        }
     }
 }

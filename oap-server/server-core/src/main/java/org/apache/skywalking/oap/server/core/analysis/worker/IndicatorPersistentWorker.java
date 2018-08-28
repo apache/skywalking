@@ -40,15 +40,17 @@ public class IndicatorPersistentWorker extends AbstractWorker<Indicator> {
     private final IBatchDAO batchDAO;
     private final IIndicatorDAO indicatorDAO;
     private final int blockBatchPersistenceSize;
+    private final AbstractWorker<Indicator> nextWorker;
 
     IndicatorPersistentWorker(int workerId, String modelName, int batchSize, ModuleManager moduleManager,
-        IIndicatorDAO indicatorDAO) {
+        IIndicatorDAO indicatorDAO, AbstractWorker<Indicator> nextWorker) {
         super(workerId);
         this.modelName = modelName;
         this.blockBatchPersistenceSize = batchSize;
         this.mergeDataCache = new MergeDataCache<>();
         this.batchDAO = moduleManager.find(StorageModule.NAME).getService(IBatchDAO.class);
         this.indicatorDAO = indicatorDAO;
+        this.nextWorker = nextWorker;
     }
 
     public final Window<MergeDataCollection<Indicator>> getCache() {
@@ -100,19 +102,17 @@ public class IndicatorPersistentWorker extends AbstractWorker<Indicator> {
             } catch (Throwable t) {
                 logger.error(t.getMessage(), t);
             }
-            if (nonNull(dbData)) {
-                dbData.combine(data);
-                try {
-                    batchCollection.add(indicatorDAO.prepareBatchUpdate(modelName, dbData));
-                } catch (Throwable t) {
-                    logger.error(t.getMessage(), t);
-                }
-            } else {
-                try {
+            try {
+                if (nonNull(dbData)) {
+                    data.combine(dbData);
+                    batchCollection.add(indicatorDAO.prepareBatchUpdate(modelName, data));
+                } else {
                     batchCollection.add(indicatorDAO.prepareBatchInsert(modelName, data));
-                } catch (Throwable t) {
-                    logger.error(t.getMessage(), t);
                 }
+
+                nextWorker.in(data);
+            } catch (Throwable t) {
+                logger.error(t.getMessage(), t);
             }
         });
 
