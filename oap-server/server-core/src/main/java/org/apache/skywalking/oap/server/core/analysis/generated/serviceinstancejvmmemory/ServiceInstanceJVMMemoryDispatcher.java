@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.generated.serviceinstance
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
-import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMMemory;
+import org.apache.skywalking.oap.server.core.source.*;
 
 /**
  * This class is auto generated. Please don't change this class manually.
@@ -35,6 +35,7 @@ public class ServiceInstanceJVMMemoryDispatcher implements SourceDispatcher<Serv
 
     private void doInstanceJvmMemoryMax(ServiceInstanceJVMMemory source) {
         InstanceJvmMemoryMaxIndicator indicator = new InstanceJvmMemoryMaxIndicator();
+
 
         indicator.setTimeBucket(source.getTimeBucket());
         indicator.setId(source.getId());

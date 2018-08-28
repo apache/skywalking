@@ -21,12 +21,15 @@ package org.apache.skywalking.oap.server.core.analysis.generated.serviceinstance
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.analysis.indicator.LongAvgIndicator;
+import org.apache.skywalking.oap.server.core.alarm.AlarmMeta;
+import org.apache.skywalking.oap.server.core.alarm.AlarmSupported;
+import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.source.Scope;
 
 /**
  * This class is auto generated. Please don't change this class manually.
@@ -35,8 +38,8 @@ import org.apache.skywalking.oap.server.core.storage.annotation.*;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "instance_jvm_gc_time", builder = InstanceJvmGcTimeIndicator.Builder.class)
-public class InstanceJvmGcTimeIndicator extends LongAvgIndicator {
+@StorageEntity(name = "instance_jvm_young_gc_time", builder = InstanceJvmYoungGcTimeIndicator.Builder.class)
+public class InstanceJvmYoungGcTimeIndicator extends LongAvgIndicator implements AlarmSupported {
 
     @Setter @Getter @Column(columnName = "id") private int id;
     @Setter @Getter @Column(columnName = "service_instance_id") private int serviceInstanceId;
@@ -62,7 +65,7 @@ public class InstanceJvmGcTimeIndicator extends LongAvgIndicator {
         if (getClass() != obj.getClass())
             return false;
 
-        InstanceJvmGcTimeIndicator indicator = (InstanceJvmGcTimeIndicator)obj;
+        InstanceJvmYoungGcTimeIndicator indicator = (InstanceJvmYoungGcTimeIndicator)obj;
         if (id != indicator.id)
             return false;
         if (getTimeBucket() != indicator.getTimeBucket())
@@ -98,9 +101,13 @@ public class InstanceJvmGcTimeIndicator extends LongAvgIndicator {
         setCount(remoteData.getDataIntegers(2));
     }
 
-    public static class Builder implements StorageBuilder<InstanceJvmGcTimeIndicator> {
+    @Override public AlarmMeta getAlarmMeta() {
+        return new AlarmMeta("instance_jvm_young_gc_time", Scope.ServiceInstanceJVMGC, id, serviceInstanceId);
+    }
 
-        @Override public Map<String, Object> data2Map(InstanceJvmGcTimeIndicator storageData) {
+    public static class Builder implements StorageBuilder<InstanceJvmYoungGcTimeIndicator> {
+
+        @Override public Map<String, Object> data2Map(InstanceJvmYoungGcTimeIndicator storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put("id", storageData.getId());
             map.put("service_instance_id", storageData.getServiceInstanceId());
@@ -111,8 +118,8 @@ public class InstanceJvmGcTimeIndicator extends LongAvgIndicator {
             return map;
         }
 
-        @Override public InstanceJvmGcTimeIndicator map2Data(Map<String, Object> dbMap) {
-            InstanceJvmGcTimeIndicator indicator = new InstanceJvmGcTimeIndicator();
+        @Override public InstanceJvmYoungGcTimeIndicator map2Data(Map<String, Object> dbMap) {
+            InstanceJvmYoungGcTimeIndicator indicator = new InstanceJvmYoungGcTimeIndicator();
             indicator.setId(((Number)dbMap.get("id")).intValue());
             indicator.setServiceInstanceId(((Number)dbMap.get("service_instance_id")).intValue());
             indicator.setSummation(((Number)dbMap.get("summation")).longValue());

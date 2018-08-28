@@ -20,7 +20,8 @@ package org.apache.skywalking.oap.server.core.analysis.generated.serviceinstance
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
-import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMGC;
+import org.apache.skywalking.oap.server.core.analysis.indicator.expression.*;
+import org.apache.skywalking.oap.server.core.source.*;
 
 /**
  * This class is auto generated. Please don't change this class manually.
@@ -30,11 +31,15 @@ import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMGC;
 public class ServiceInstanceJVMGCDispatcher implements SourceDispatcher<ServiceInstanceJVMGC> {
 
     @Override public void dispatch(ServiceInstanceJVMGC source) {
-        doInstanceJvmGcTime(source);
+        doInstanceJvmYoungGcTime(source);
     }
 
-    private void doInstanceJvmGcTime(ServiceInstanceJVMGC source) {
-        InstanceJvmGcTimeIndicator indicator = new InstanceJvmGcTimeIndicator();
+    private void doInstanceJvmYoungGcTime(ServiceInstanceJVMGC source) {
+        InstanceJvmYoungGcTimeIndicator indicator = new InstanceJvmYoungGcTimeIndicator();
+
+        if (!new EqualMatch().setLeft(source.getPhrase()).setRight(GCPhrase.NEW).match()) {
+            return;
+        }
 
         indicator.setTimeBucket(source.getTimeBucket());
         indicator.setId(source.getId());
