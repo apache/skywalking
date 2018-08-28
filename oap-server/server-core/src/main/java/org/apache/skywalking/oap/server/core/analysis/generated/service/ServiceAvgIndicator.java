@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.generated.endpoint;
+package org.apache.skywalking.oap.server.core.analysis.generated.service;
 
 import java.util.*;
 import lombok.*;
@@ -38,12 +38,10 @@ import org.apache.skywalking.oap.server.core.source.Scope;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "endpoint_avg", builder = EndpointAvgIndicator.Builder.class)
-public class EndpointAvgIndicator extends LongAvgIndicator implements AlarmSupported {
+@StorageEntity(name = "service_avg", builder = ServiceAvgIndicator.Builder.class)
+public class ServiceAvgIndicator extends LongAvgIndicator implements AlarmSupported {
 
     @Setter @Getter @Column(columnName = "id") private int id;
-    @Setter @Getter @Column(columnName = "service_id") private int serviceId;
-    @Setter @Getter @Column(columnName = "service_instance_id") private int serviceInstanceId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
@@ -66,7 +64,7 @@ public class EndpointAvgIndicator extends LongAvgIndicator implements AlarmSuppo
         if (getClass() != obj.getClass())
             return false;
 
-        EndpointAvgIndicator indicator = (EndpointAvgIndicator)obj;
+        ServiceAvgIndicator indicator = (ServiceAvgIndicator)obj;
         if (id != indicator.id)
             return false;
         if (getTimeBucket() != indicator.getTimeBucket())
@@ -84,9 +82,7 @@ public class EndpointAvgIndicator extends LongAvgIndicator implements AlarmSuppo
 
 
         remoteBuilder.setDataIntegers(0, getId());
-        remoteBuilder.setDataIntegers(1, getServiceId());
-        remoteBuilder.setDataIntegers(2, getServiceInstanceId());
-        remoteBuilder.setDataIntegers(3, getCount());
+        remoteBuilder.setDataIntegers(1, getCount());
 
         return remoteBuilder;
     }
@@ -99,22 +95,18 @@ public class EndpointAvgIndicator extends LongAvgIndicator implements AlarmSuppo
 
 
         setId(remoteData.getDataIntegers(0));
-        setServiceId(remoteData.getDataIntegers(1));
-        setServiceInstanceId(remoteData.getDataIntegers(2));
-        setCount(remoteData.getDataIntegers(3));
+        setCount(remoteData.getDataIntegers(1));
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("endpoint_Avg", Scope.Endpoint, id, serviceId, serviceInstanceId);
+        return new AlarmMeta("Service_Avg", Scope.Service, id);
     }
 
-    public static class Builder implements StorageBuilder<EndpointAvgIndicator> {
+    public static class Builder implements StorageBuilder<ServiceAvgIndicator> {
 
-        @Override public Map<String, Object> data2Map(EndpointAvgIndicator storageData) {
+        @Override public Map<String, Object> data2Map(ServiceAvgIndicator storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put("id", storageData.getId());
-            map.put("service_id", storageData.getServiceId());
-            map.put("service_instance_id", storageData.getServiceInstanceId());
             map.put("summation", storageData.getSummation());
             map.put("count", storageData.getCount());
             map.put("value", storageData.getValue());
@@ -122,11 +114,9 @@ public class EndpointAvgIndicator extends LongAvgIndicator implements AlarmSuppo
             return map;
         }
 
-        @Override public EndpointAvgIndicator map2Data(Map<String, Object> dbMap) {
-            EndpointAvgIndicator indicator = new EndpointAvgIndicator();
+        @Override public ServiceAvgIndicator map2Data(Map<String, Object> dbMap) {
+            ServiceAvgIndicator indicator = new ServiceAvgIndicator();
             indicator.setId(((Number)dbMap.get("id")).intValue());
-            indicator.setServiceId(((Number)dbMap.get("service_id")).intValue());
-            indicator.setServiceInstanceId(((Number)dbMap.get("service_instance_id")).intValue());
             indicator.setSummation(((Number)dbMap.get("summation")).longValue());
             indicator.setCount(((Number)dbMap.get("count")).intValue());
             indicator.setValue(((Number)dbMap.get("value")).longValue());

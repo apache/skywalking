@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.generated.endpoint;
+package org.apache.skywalking.oap.server.core.analysis.generated.service;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
@@ -27,35 +27,19 @@ import org.apache.skywalking.oap.server.core.source.*;
  *
  * @author Observability Analysis Language code generator
  */
-public class EndpointDispatcher implements SourceDispatcher<Endpoint> {
+public class ServiceDispatcher implements SourceDispatcher<Service> {
 
-    @Override public void dispatch(Endpoint source) {
-        doEndpointAvg(source);
-        doEndpointPercent(source);
+    @Override public void dispatch(Service source) {
+        doServiceAvg(source);
     }
 
-    private void doEndpointAvg(Endpoint source) {
-        EndpointAvgIndicator indicator = new EndpointAvgIndicator();
+    private void doServiceAvg(Service source) {
+        ServiceAvgIndicator indicator = new ServiceAvgIndicator();
 
 
         indicator.setTimeBucket(source.getTimeBucket());
         indicator.setId(source.getId());
-        indicator.setServiceId(source.getServiceId());
-        indicator.setServiceInstanceId(source.getServiceInstanceId());
         indicator.combine(source.getLatency(), 1);
         IndicatorProcess.INSTANCE.in(indicator);
     }
-
-    private void doEndpointPercent(Endpoint source) {
-        EndpointPercentIndicator indicator = new EndpointPercentIndicator();
-
-
-        indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setId(source.getId());
-        indicator.setServiceId(source.getServiceId());
-        indicator.setServiceInstanceId(source.getServiceInstanceId());
-        indicator.combine(new org.apache.skywalking.oap.server.core.analysis.indicator.expression.EqualMatch(), source.isStatus(), true);
-        IndicatorProcess.INSTANCE.in(indicator);
-    }
-
 }
