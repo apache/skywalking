@@ -50,7 +50,11 @@ public enum IndicatorProcess {
             throw new UnexpectedException("");
         }
 
-        IndicatorPersistentWorker persistentWorker = new IndicatorPersistentWorker(WorkerIdGenerator.INSTANCES.generate(), modelName, 1000, moduleManager, indicatorDAO);
+        AlarmNotifyWorker alarmNotifyWorker = new AlarmNotifyWorker(WorkerIdGenerator.INSTANCES.generate());
+        WorkerInstances.INSTANCES.put(alarmNotifyWorker.getWorkerId(), alarmNotifyWorker);
+
+        IndicatorPersistentWorker persistentWorker = new IndicatorPersistentWorker(WorkerIdGenerator.INSTANCES.generate(), modelName,
+            1000, moduleManager, indicatorDAO, alarmNotifyWorker);
         WorkerInstances.INSTANCES.put(persistentWorker.getWorkerId(), persistentWorker);
 
         IndicatorRemoteWorker remoteWorker = new IndicatorRemoteWorker(WorkerIdGenerator.INSTANCES.generate(), moduleManager, persistentWorker);
