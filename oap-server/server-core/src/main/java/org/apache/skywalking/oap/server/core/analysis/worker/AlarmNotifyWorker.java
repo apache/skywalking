@@ -18,8 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
+import org.apache.skywalking.oap.server.core.alarm.AlarmEntrance;
+import org.apache.skywalking.oap.server.core.alarm.AlarmSupported;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
  * Alarm notify worker, do a simple route to alarm core after the aggregation persistence.
@@ -27,11 +30,18 @@ import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
  * @author wusheng
  */
 public class AlarmNotifyWorker extends AbstractWorker<Indicator> {
-    public AlarmNotifyWorker(int workerId) {
+    private ModuleManager moduleManager;
+    private AlarmEntrance entrance;
+
+    public AlarmNotifyWorker(int workerId, ModuleManager moduleManager) {
         super(workerId);
+        this.moduleManager = moduleManager;
+        this.entrance = new AlarmEntrance(moduleManager);
     }
 
     @Override public void in(Indicator indicator) {
-
+        if (indicator instanceof AlarmSupported) {
+            entrance.forward(indicator);
+        }
     }
 }

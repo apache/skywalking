@@ -19,11 +19,13 @@
 package org.apache.skywalking.oap.server.core.alarm;
 
 /**
- * Indicator Alarm data type represents the indicator result data time, based on this, the core drives the {@link
- * IndicatorNotify} to notify the alarm implementor.
- *
- * @author wusheng
+ * Save the alarm info into storage for UI query.
  */
-public enum IndicatorAlarmDataType {
-    LONG, INT, DOUBLE
+public class AlarmStandardPersistence implements AlarmCallback {
+    @Override public void doAlarm(AlarmMessage alarmMessage) {
+        //TODO Peng-yongsheng
+        /**
+         * This is just a callback entrance.
+         */
+    }
 }

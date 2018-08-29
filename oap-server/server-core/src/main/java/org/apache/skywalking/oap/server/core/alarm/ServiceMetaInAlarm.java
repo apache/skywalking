@@ -18,13 +18,30 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.source.Scope;
 
-/**
- * @author wusheng
- */
-public class NotifyTarget {
-    @Setter @Getter private String indicatorName;
-    @Setter @Getter private IndicatorAlarmDataType dataType;
+@Getter(AccessLevel.PUBLIC)
+@Setter(AccessLevel.PUBLIC)
+public class ServiceMetaInAlarm implements MetaInAlarm {
+    private String indicatorName;
+
+    private int id;
+    private String name;
+    private String[] tags;
+    private String[] properties;
+
+    @Override public Scope getScope() {
+        return Scope.Service;
+    }
+
+    @Override public int getId0() {
+        return id;
+    }
+
+    @Override public int getId1() {
+        return 0;
+    }
 }
