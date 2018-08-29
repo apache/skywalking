@@ -24,6 +24,7 @@ or providing commercial products including Apache SkyWalking.
 - Gdeng.cn 深圳谷登科技有限公司 http://www.gdeng.cn/
 - Huawei Inc. DevCloud. https://www.huaweicloud.com/devcloud/
 - laocaibao. 上海证大爱特金融信息服务有限公司 https://www.laocaibao.com/
+- Lima 北京力码科技有限公司 https://www.zhongbaounion.com/
 - Madecare. 北京美德远健科技有限公司. http://www.madecare.com/
 - Mxnavi. 沈阳美行科技有限公司 http://www.mxnavi.com/
 - Moji 墨叽（深圳）科技有限公司 https://www.mojivip.com
