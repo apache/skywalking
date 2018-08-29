@@ -16,23 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm;
+package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
-import org.apache.skywalking.oap.server.library.module.Service;
+import java.util.List;
+import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
+import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 
 /**
- * Indicator notify service should be provided by Alarm Module provider, which can receive the indicator value, driven
- * by storage core.
- *
- * The alarm module provider could choose whether or how to do the alarm. Meanwhile, the storage core will provide the
- * standard persistence service for generated alarm, if the alarm engine wants the alarm to show in UI, please call
- * those to save.
- *
- * @author wusheng
+ * Use SkyWalking alarm webhook API call a remote endpoints.
  */
-public interface IndicatorNotify extends Service {
-    void notify(MetaInAlarm indicatorName, Indicator indicator);
+public class WebhookCallback implements AlarmCallback {
+    private List<String> remoteEndpoints;
 
-    void init(AlarmCallback... callbacks);
+    public WebhookCallback(List<String> remoteEndpoints) {
+        this.remoteEndpoints = remoteEndpoints;
+    }
+
+    @Override public void doAlarm(AlarmMessage alarmMessage) {
+
+    }
 }

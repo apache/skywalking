@@ -16,23 +16,24 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm;
+package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
-import org.apache.skywalking.oap.server.library.module.Service;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
- * Indicator notify service should be provided by Alarm Module provider, which can receive the indicator value, driven
- * by storage core.
- *
- * The alarm module provider could choose whether or how to do the alarm. Meanwhile, the storage core will provide the
- * standard persistence service for generated alarm, if the alarm engine wants the alarm to show in UI, please call
- * those to save.
- *
  * @author wusheng
  */
-public interface IndicatorNotify extends Service {
-    void notify(MetaInAlarm indicatorName, Indicator indicator);
+@Setter(AccessLevel.PUBLIC)
+@Getter(AccessLevel.PUBLIC)
+public class AlarmRule {
+    private String alarmRuleName;
 
-    void init(AlarmCallback... callbacks);
+    private String indicatorName;
+    private String threshold;
+    private String op;
+    private int period;
+    private int count;
+    private int silencePeriod;
 }

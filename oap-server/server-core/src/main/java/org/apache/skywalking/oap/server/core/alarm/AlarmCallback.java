@@ -18,21 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
-import org.apache.skywalking.oap.server.library.module.Service;
-
 /**
- * Indicator notify service should be provided by Alarm Module provider, which can receive the indicator value, driven
- * by storage core.
- *
- * The alarm module provider could choose whether or how to do the alarm. Meanwhile, the storage core will provide the
- * standard persistence service for generated alarm, if the alarm engine wants the alarm to show in UI, please call
- * those to save.
+ * Alarm call back will be called by alarm implementor,
+ * after it decided alarm should be sent.
  *
  * @author wusheng
  */
-public interface IndicatorNotify extends Service {
-    void notify(MetaInAlarm indicatorName, Indicator indicator);
-
-    void init(AlarmCallback... callbacks);
+public interface AlarmCallback {
+    void doAlarm(AlarmMessage alarmMessage);
 }

@@ -18,21 +18,31 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.core.source.Scope;
 
-/**
- * Indicator notify service should be provided by Alarm Module provider, which can receive the indicator value, driven
- * by storage core.
- *
- * The alarm module provider could choose whether or how to do the alarm. Meanwhile, the storage core will provide the
- * standard persistence service for generated alarm, if the alarm engine wants the alarm to show in UI, please call
- * those to save.
- *
- * @author wusheng
- */
-public interface IndicatorNotify extends Service {
-    void notify(MetaInAlarm indicatorName, Indicator indicator);
+public interface MetaInAlarm {
+    Scope getScope();
 
-    void init(AlarmCallback... callbacks);
+    String getName();
+
+    String getIndicatorName();
+
+    /**
+     * In most scopes, there is only id0, as primary id. Such as Service, Endpoint.
+     * But in relation, the ID includes two, actually.
+     * Such as ServiceRelation,
+     * id0 represents the source service id
+     *
+     * @return the primary id.
+     */
+    int getId0();
+
+    /**
+     * Only exist in multiple IDs case,
+     * Such as ServiceRelation,
+     * id1 represents the dest service id
+     *
+     * @return
+     */
+    int getId1();
 }
