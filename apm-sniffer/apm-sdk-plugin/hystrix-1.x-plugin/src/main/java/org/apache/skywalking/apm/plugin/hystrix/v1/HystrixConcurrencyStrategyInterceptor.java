@@ -20,12 +20,18 @@
 package org.apache.skywalking.apm.plugin.hystrix.v1;
 
 import com.netflix.hystrix.strategy.concurrency.HystrixConcurrencyStrategy;
-import java.lang.reflect.Method;
+
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
+import java.lang.reflect.Method;
+import java.util.concurrent.atomic.AtomicReference;
+
 public class HystrixConcurrencyStrategyInterceptor implements InstanceMethodsAroundInterceptor {
+
+    private final AtomicReference<SWHystrixConcurrencyStrategyWrapper> wrapper = new AtomicReference<SWHystrixConcurrencyStrategyWrapper>();
+
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
@@ -35,7 +41,15 @@ public class HystrixConcurrencyStrategyInterceptor implements InstanceMethodsAro
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        return new SWHystrixConcurrencyStrategyWrapper((HystrixConcurrencyStrategy)ret);
+        if (wrapper.get() == null) {
+            Object impl = objInst.getSkyWalkingDynamicField();
+            if (impl == null) {
+                wrapper.compareAndSet(null, new SWHystrixConcurrencyStrategyWrapper((HystrixConcurrencyStrategy) ret));
+            } else {
+                wrapper.compareAndSet(null, (SWHystrixConcurrencyStrategyWrapper) impl);
+            }
+        }
+        return wrapper.get();
     }
 
     @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
