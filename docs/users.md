@@ -8,6 +8,7 @@ if any entity(company or organization) has any doubt, please contact us by [any 
 - AsiaInfo Inc. http://www.asiainfo.com.cn/
 - Autohome. 汽车之家. http://www.autohome.com.cn
 - Baixing.com 百姓网 http://www.baixing.com/
+- bestsign. 上上签. https://www.bestsign.cn/page/
 - Bizsaas.cn 北京商云科技发展有限公司. http://www.bizsaas.cn/
 - Chehejia Automotive. 北京车和家信息技术有限责任公司. https://www.chehejia.com/
 - Chinadaas. 北京中数智汇科技股份有限公司. https://www.chinadaas.com/
@@ -37,6 +38,5 @@ if any entity(company or organization) has any doubt, please contact us by [any 
 - Weier. 广州文尔软件科技有限公司. https://www.site0.cn
 - Xiaomi. 小米. https://www.mi.com/en/
 - Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
-- ssqian. 上上签. https://www.bestsign.cn/page/
 
 The list is in alphabeta order.
