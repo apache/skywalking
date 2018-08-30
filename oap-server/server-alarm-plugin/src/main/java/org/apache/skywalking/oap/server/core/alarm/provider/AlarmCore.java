@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Minutes;
 
@@ -57,10 +58,10 @@ public class AlarmCore {
         return runningContext.get(indicatorName);
     }
 
-    public void start() {
+    public void start(List<AlarmCallback> allCallbacks) {
         LocalDateTime now = LocalDateTime.now();
         lastExecuteTime = now;
-        runningContext.values().forEach(ruleList -> ruleList.forEach(runningRule -> runningRule.start(now)));
+        runningContext.values().forEach(ruleList -> ruleList.forEach(runningRule -> runningRule.start(now, allCallbacks)));
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() ->
             runningContext.values().forEach(ruleList -> ruleList.forEach(runningRule -> {
                 LocalDateTime checkTime = LocalDateTime.now();
