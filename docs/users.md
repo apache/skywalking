@@ -37,5 +37,6 @@ if any entity(company or organization) has any doubt, please contact us by [any 
 - Weier. 广州文尔软件科技有限公司. https://www.site0.cn
 - Xiaomi. 小米. https://www.mi.com/en/
 - Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
+- ssqian. 上上签. https://www.bestsign.cn/page/
 
 The list is in alphabeta order.
