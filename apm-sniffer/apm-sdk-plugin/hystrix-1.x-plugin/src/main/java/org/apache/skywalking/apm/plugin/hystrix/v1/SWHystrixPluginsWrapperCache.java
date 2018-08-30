@@ -25,8 +25,8 @@ package org.apache.skywalking.apm.plugin.hystrix.v1;
  * @author chenpengfei
  */
 public class SWHystrixPluginsWrapperCache {
-    private SWExecutionHookWrapper swExecutionHookWrapper;
-    private SWHystrixConcurrencyStrategyWrapper swHystrixConcurrencyStrategyWrapper;
+    private volatile SWExecutionHookWrapper swExecutionHookWrapper;
+    private volatile SWHystrixConcurrencyStrategyWrapper swHystrixConcurrencyStrategyWrapper;
 
     public SWExecutionHookWrapper getSwExecutionHookWrapper() {
         return swExecutionHookWrapper;
