@@ -313,22 +313,5 @@ public class RunningRule {
                 values.add(null);
             }
         }
-
-        private Indicator clone(Indicator indicator) {
-            Class<? extends StorageBuilder> builder = StorageEntityAnnotationUtils.getBuilder(indicator.getClass());
-            try {
-                StorageBuilder indicatorBuilder = builder.newInstance();
-                return (Indicator)indicatorBuilder.map2Data(indicatorBuilder.data2Map(indicator));
-            } catch (InstantiationException e) {
-                logger.error("clone indicator error, {}", indicator.getClass());
-                return null;
-            } catch (IllegalAccessException e) {
-                logger.error("clone indicator error, {}", indicator.getClass());
-                return null;
-            } catch (Exception e) {
-                logger.error("clone indicator error, {}", indicator.getClass());
-                return null;
-            }
-        }
     }
 }
