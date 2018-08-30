@@ -24,3 +24,10 @@ Also, if you have some related to us, welcome to submit a pull request to add.
 if you see some problem. 
 Or better yet, submit your own contributions through pull request to help make them better.
 
+
+
+### 5.x releases
+5.x is still supported by SkyWalking community, and the agent-backend protocol is compatible with 6.x.
+You can go to [5.x branch](https://github.com/apache/incubator-skywalking/tree/5.x).
+At there, you have everything you need.
+
