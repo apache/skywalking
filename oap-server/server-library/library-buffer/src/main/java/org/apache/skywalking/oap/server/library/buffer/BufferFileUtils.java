@@ -18,18 +18,13 @@
 
 package org.apache.skywalking.oap.server.library.buffer;
 
-import java.io.File;
 import java.text.*;
-import java.util.Date;
-import org.apache.commons.io.filefilter.PrefixFileFilter;
-import org.slf4j.*;
+import java.util.*;
 
 /**
  * @author peng-yongsheng
  */
 class BufferFileUtils {
-
-    private static final Logger logger = LoggerFactory.getLogger(BufferFileUtils.class);
 
     private BufferFileUtils() {
     }
@@ -39,31 +34,19 @@ class BufferFileUtils {
     static final String OFFSET_FILE_PREFIX = "offset";
     private static final String SEPARATOR = "-";
     private static final String SUFFIX = ".sw";
-    private static final String DATA_FORMAT_STR = "yyyy-MM-dd";
+    private static final String DATA_FORMAT_STR = "yyyyMMddHHmmss";
 
-    static String buildFileName(File directory, String prefix) {
-        DateFormat dateFormat = new SimpleDateFormat(DATA_FORMAT_STR);
-        return prefix + SEPARATOR + dateFormat.format(new Date()) + SEPARATOR + maxIndex(directory, prefix) + SUFFIX;
+    static void sort(String[] fileList) {
+        Arrays.sort(fileList, (f1, f2) -> {
+            int fileId1 = Integer.parseInt(f1.split("_")[1]);
+            int fileId2 = Integer.parseInt(f2.split("_")[1]);
+
+            return fileId1 - fileId2;
+        });
     }
 
-    private static int maxIndex(File directory, String prefix) {
-        String[] fileNames = directory.list(new PrefixFileFilter(prefix));
-
-        int index = 0;
-        if (fileNames != null) {
-            for (String fileName : fileNames) {
-                logger.debug("The file named {} with prefix {}", fileName, prefix);
-                if (fileName.endsWith(SUFFIX)) {
-                    try {
-                        String subStr = fileName.substring(prefix.length() + SEPARATOR.length() + DATA_FORMAT_STR.length() + SEPARATOR.length());
-                        String indexStr = subStr.substring(0, subStr.length() - SUFFIX.length());
-                        index = index < Integer.valueOf(indexStr) ? Integer.valueOf(indexStr) : index;
-                    } catch (Throwable t) {
-                        logger.error("Get the max index id failure.", t);
-                    }
-                }
-            }
-        }
-        return index + 1;
+    static String buildFileName(String prefix) {
+        DateFormat dateFormat = new SimpleDateFormat(DATA_FORMAT_STR);
+        return prefix + SEPARATOR + dateFormat.format(new Date()) + SUFFIX;
     }
 }

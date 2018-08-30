@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.library.buffer;
 
+import com.google.protobuf.*;
 import java.io.*;
 import java.nio.channels.FileLock;
 import org.apache.commons.io.FileUtils;
@@ -26,7 +27,7 @@ import org.slf4j.*;
 /**
  * @author peng-yongsheng
  */
-public class BufferStream {
+public class BufferStream<MESSAGE_TYPE extends GeneratedMessageV3> {
 
     private static final Logger logger = LoggerFactory.getLogger(BufferStream.class);
 
@@ -34,25 +35,26 @@ public class BufferStream {
     private final boolean cleanWhenRestart;
     private final int dataFileMaxSize;
     private final int offsetFileMaxSize;
-    private DataStream dataStream;
+    private final Parser<MESSAGE_TYPE> parser;
+    private final DataStreamReader.CallBack<MESSAGE_TYPE> callBack;
+    private DataStream<MESSAGE_TYPE> dataStream;
 
-    private BufferStream(String absolutePath, boolean cleanWhenRestart, int dataFileMaxSize, int offsetFileMaxSize) {
-        if (absolutePath.endsWith(File.separator)) {
-            this.absolutePath = absolutePath;
-        } else {
-            this.absolutePath = absolutePath + File.separator;
-        }
+    private BufferStream(String absolutePath, boolean cleanWhenRestart, int dataFileMaxSize, int offsetFileMaxSize,
+        Parser<MESSAGE_TYPE> parser, DataStreamReader.CallBack<MESSAGE_TYPE> callBack) {
+        this.absolutePath = absolutePath;
         this.cleanWhenRestart = cleanWhenRestart;
         this.dataFileMaxSize = dataFileMaxSize;
         this.offsetFileMaxSize = offsetFileMaxSize;
+        this.parser = parser;
+        this.callBack = callBack;
     }
 
     public synchronized void initialize() throws IOException {
         File directory = new File(absolutePath);
         FileUtils.forceMkdir(directory);
-        tryLock();
+        tryLock(directory);
 
-        dataStream = new DataStream(directory, dataFileMaxSize, offsetFileMaxSize);
+        dataStream = new DataStream<>(directory, dataFileMaxSize, offsetFileMaxSize, parser, callBack);
 
         if (cleanWhenRestart) {
             dataStream.clean();
@@ -61,20 +63,16 @@ public class BufferStream {
         dataStream.initialize();
     }
 
-    public BufferOutputStream openOutputStream() {
-        return dataStream.getOutputStream();
+    public synchronized void write(AbstractMessageLite messageLite) {
+        dataStream.getWriter().write(messageLite);
     }
 
-    public BufferInputStream openInputStream() {
-        return dataStream.getInputStream();
-    }
-
-    private void tryLock() {
+    private void tryLock(File directory) {
         logger.info("Try to lock buffer directory, directory is: " + absolutePath);
         FileLock lock = null;
 
         try {
-            lock = new FileOutputStream(absolutePath + "lock").getChannel().tryLock();
+            lock = new FileOutputStream(new File(directory, "lock")).getChannel().tryLock();
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
@@ -86,33 +84,45 @@ public class BufferStream {
         logger.info("Lock buffer directory successfully, directory is: " + absolutePath);
     }
 
-    public static class Builder {
+    public static class Builder<MESSAGE_TYPE extends GeneratedMessageV3> {
 
         private final String absolutePath;
         private boolean cleanWhenRestart;
         private int dataFileMaxSize;
         private int offsetFileMaxSize;
+        private Parser<MESSAGE_TYPE> parser;
+        private DataStreamReader.CallBack<MESSAGE_TYPE> callBack;
 
         public Builder(String absolutePath) {
             this.absolutePath = absolutePath;
         }
 
-        public BufferStream build() {
-            return new BufferStream(absolutePath, cleanWhenRestart, dataFileMaxSize, offsetFileMaxSize);
+        public BufferStream<MESSAGE_TYPE> build() {
+            return new BufferStream<>(absolutePath, cleanWhenRestart, dataFileMaxSize, offsetFileMaxSize, parser, callBack);
         }
 
-        public Builder cleanWhenRestart(boolean cleanWhenRestart) {
+        public Builder<MESSAGE_TYPE> cleanWhenRestart(boolean cleanWhenRestart) {
             this.cleanWhenRestart = cleanWhenRestart;
             return this;
         }
 
-        public Builder offsetFileMaxSize(int offsetFileMaxSize) {
+        public Builder<MESSAGE_TYPE> offsetFileMaxSize(int offsetFileMaxSize) {
             this.offsetFileMaxSize = offsetFileMaxSize;
             return this;
         }
 
-        public Builder dataFileMaxSize(int dataFileMaxSize) {
+        public Builder<MESSAGE_TYPE> dataFileMaxSize(int dataFileMaxSize) {
             this.dataFileMaxSize = dataFileMaxSize;
+            return this;
+        }
+
+        public Builder<MESSAGE_TYPE> parser(Parser<MESSAGE_TYPE> parser) {
+            this.parser = parser;
+            return this;
+        }
+
+        public Builder<MESSAGE_TYPE> callBack(DataStreamReader.CallBack<MESSAGE_TYPE> callBack) {
+            this.callBack = callBack;
             return this;
         }
     }

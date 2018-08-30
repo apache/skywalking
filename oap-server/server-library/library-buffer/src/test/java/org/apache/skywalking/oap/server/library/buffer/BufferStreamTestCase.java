@@ -18,8 +18,9 @@
 
 package org.apache.skywalking.oap.server.library.buffer;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.apm.network.language.agent.*;
 import org.slf4j.*;
 
 /**
@@ -31,34 +32,38 @@ public class BufferStreamTestCase {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         String directory = "/Users/pengys5/code/sky-walking/buffer-test";
-        BufferStream.Builder builder = new BufferStream.Builder(directory);
+        BufferStream.Builder<TraceSegmentObject> builder = new BufferStream.Builder<>(directory);
         builder.cleanWhenRestart(true);
         builder.dataFileMaxSize(1);
         builder.offsetFileMaxSize(1);
+        builder.parser(TraceSegmentObject.parser());
+        builder.callBack(new SegmentParse());
 
-        BufferStream stream = builder.build();
+        BufferStream<TraceSegmentObject> stream = builder.build();
         stream.initialize();
 
         TimeUnit.SECONDS.sleep(5);
 
-        BufferOutputStream outputStream = stream.openOutputStream();
+        String str = "2018-08-27 11:59:45,261 main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28" +
+            "main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28 main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28 main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28" +
+            "main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28 main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28 main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28" +
+            "main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28 main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28 main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28";
+
         for (int i = 0; i < 100; i++) {
-            outputStream.write((String.valueOf(i) + " 2018-08-27 11:59:45,261 main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28").getBytes());
-            outputStream.write("main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28 main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28 main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28".getBytes());
-            outputStream.write("main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28 main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28 main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28".getBytes());
-            outputStream.write("main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28 main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28 main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28".getBytes());
-            outputStream.write(System.lineSeparator().getBytes());
-            outputStream.flush();
+            TraceSegmentObject.Builder segment = TraceSegmentObject.newBuilder();
+            SpanObject.Builder span = SpanObject.newBuilder();
+
+            span.setOperationName(String.valueOf(i) + "  " + str);
+            segment.addSpans(span);
+            stream.write(segment.build());
         }
 
-        BufferInputStream inputStream = stream.openInputStream();
-        InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
-        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+    }
 
-        String line;
-        while ((line = bufferedReader.readLine()) != null) {
-            logger.debug("line: {}", line);
-            TimeUnit.MILLISECONDS.sleep(80);
+    private static class SegmentParse implements DataStreamReader.CallBack<TraceSegmentObject> {
+
+        @Override public void call(TraceSegmentObject message) {
+            logger.info("segment parse: {}", message.getSpans(0).getOperationName());
         }
     }
 }

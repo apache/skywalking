@@ -38,7 +38,7 @@ class OffsetStream {
     private final File directory;
     private final int offsetFileMaxSize;
 
-    @Getter private Offset offset;
+    @Getter private final Offset offset;
     private File offsetFile;
     private boolean initialized = false;
     private String lastOffsetRecord = "";
@@ -46,6 +46,7 @@ class OffsetStream {
     OffsetStream(File directory, int offsetFileMaxSize) {
         this.directory = directory;
         this.offsetFileMaxSize = offsetFileMaxSize;
+        this.offset = new Offset();
     }
 
     void clean() throws IOException {
@@ -63,8 +64,6 @@ class OffsetStream {
 
     synchronized void initialize() throws IOException {
         if (!initialized) {
-            this.offset = new Offset();
-
             String[] fileNames = directory.list(new PrefixFileFilter(BufferFileUtils.OFFSET_FILE_PREFIX));
             if (fileNames != null && fileNames.length > 0) {
                 for (int i = 0; i < fileNames.length; i++) {
@@ -78,7 +77,7 @@ class OffsetStream {
             Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
                 new RunnableWithExceptionProtection(this::flush,
                     t -> logger.error("Flush offset file in background failure.", t)
-                ), 10, 100, TimeUnit.MILLISECONDS);
+                ), 2, 1, TimeUnit.SECONDS);
         }
     }
 
@@ -112,10 +111,10 @@ class OffsetStream {
     }
 
     private File newFile() throws IOException {
-        String fileName = BufferFileUtils.buildFileName(directory, BufferFileUtils.OFFSET_FILE_PREFIX);
+        String fileName = BufferFileUtils.buildFileName(BufferFileUtils.OFFSET_FILE_PREFIX);
         File file = new File(directory, fileName);
         if (file.createNewFile()) {
-
+            logger.info("Create a new offset file {}", fileName);
         }
         return file;
     }

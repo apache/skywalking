@@ -18,34 +18,32 @@
 
 package org.apache.skywalking.oap.server.library.buffer;
 
+import com.google.protobuf.*;
 import java.io.*;
 import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.PrefixFileFilter;
-import org.apache.skywalking.apm.util.StringUtil;
 import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
-class DataStream {
+class DataStream<MESSAGE_TYPE extends GeneratedMessageV3> {
 
     private static final Logger logger = LoggerFactory.getLogger(DataStream.class);
 
     private final File directory;
-    private final int dataFileMaxSize;
-
+    private final OffsetStream offsetStream;
+    @Getter private final DataStreamReader<MESSAGE_TYPE> reader;
+    @Getter private final DataStreamWriter<MESSAGE_TYPE> writer;
     private boolean initialized = false;
-    @Getter private BufferOutputStream outputStream;
-    @Getter private BufferInputStream inputStream;
-    private OffsetStream offsetStream;
-    private final OutputStreamCreator streamCreator;
 
-    DataStream(File directory, int dataFileMaxSize, int offsetFileMaxSize) {
+    DataStream(File directory, int offsetFileMaxSize, int dataFileMaxSize, Parser<MESSAGE_TYPE> parser,
+        DataStreamReader.CallBack<MESSAGE_TYPE> callBack) {
         this.directory = directory;
-        this.dataFileMaxSize = dataFileMaxSize;
         this.offsetStream = new OffsetStream(directory, offsetFileMaxSize);
-        this.streamCreator = new OutputStreamCreator();
+        this.writer = new DataStreamWriter<>(directory, offsetStream.getOffset().getWriteOffset(), dataFileMaxSize);
+        this.reader = new DataStreamReader<>(directory, offsetStream.getOffset().getReadOffset(), parser, callBack);
     }
 
     void clean() throws IOException {
@@ -59,76 +57,16 @@ class DataStream {
                 FileUtils.forceDelete(file);
             }
         }
+
         offsetStream.clean();
     }
 
     synchronized void initialize() throws IOException {
         if (!initialized) {
             offsetStream.initialize();
-
-            Offset offset = offsetStream.getOffset();
-            String writeFileName = offset.getWriteOffset().getFileName();
-
-            File dataFile;
-            if (StringUtil.isEmpty(writeFileName)) {
-                dataFile = createFirstFile();
-            } else {
-                dataFile = new File(directory, writeFileName);
-                if (!dataFile.exists()) {
-                    dataFile = createFirstFile();
-                }
-            }
-
-            createOutputStream(dataFile);
-            createInputStream(dataFile);
+            writer.initialize();
+            reader.initialize();
             initialized = true;
-        }
-    }
-
-    private File createFirstFile() throws IOException {
-        File dataFile = createNewOne();
-
-        offsetStream.getOffset().getReadOffset().setFileName(dataFile.getName());
-        offsetStream.getOffset().getReadOffset().setOffset(0);
-
-        return dataFile;
-    }
-
-    private File createNewOne() throws IOException {
-        File dataFile = createNewFile();
-
-        offsetStream.getOffset().getWriteOffset().setFileName(dataFile.getName());
-        offsetStream.getOffset().getWriteOffset().setOffset(0);
-
-        return dataFile;
-    }
-
-    private File createNewFile() throws IOException {
-        String fileName = BufferFileUtils.buildFileName(directory, BufferFileUtils.DATA_FILE_PREFIX);
-        File dataFile = new File(directory, fileName);
-
-        boolean created = dataFile.createNewFile();
-        if (!created) {
-            logger.info("The file named {} already exists.", dataFile.getAbsolutePath());
-        } else {
-            logger.info("Create a new buffer data file: {}", dataFile.getAbsolutePath());
-        }
-
-        return dataFile;
-    }
-
-    private void createOutputStream(File dataFile) throws IOException {
-        outputStream = new BufferOutputStream(FileUtils.openOutputStream(dataFile, true), offsetStream, dataFileMaxSize, streamCreator);
-    }
-
-    private void createInputStream(File dataFile) throws IOException {
-        inputStream = new BufferInputStream(FileUtils.openInputStream(dataFile), offsetStream);
-    }
-
-    class OutputStreamCreator implements BufferOutputStream.CallBack {
-
-        @Override public FileOutputStream create() throws IOException {
-            return FileUtils.openOutputStream(createNewOne(), true);
         }
     }
 }
