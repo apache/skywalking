@@ -65,17 +65,16 @@ public class AlarmCore {
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() ->
             runningContext.values().forEach(ruleList -> ruleList.forEach(runningRule -> {
                 LocalDateTime checkTime = LocalDateTime.now();
-                int minutes = Minutes.minutesBetween(checkTime, lastExecuteTime).getMinutes();
+                int minutes = Minutes.minutesBetween(lastExecuteTime, checkTime).getMinutes();
                 if (minutes > 0) {
                     runningRule.moveTo(checkTime);
                     /**
-                     * At least, run 15 seconds in 1 min, alarm check should run.
+                     * Don't run in the first quarter per min, avoid to trigger alarm.
                      */
                     if (checkTime.getSecondOfMinute() > 15) {
                         runningRule.check();
                         // Set the last execute time, and make sure the second is `00`, such as: 18:30:00
                         lastExecuteTime = checkTime.minusSeconds(checkTime.getSecondOfMinute());
-                        runningRule.check();
                     }
                 }
             })), 10, 10, TimeUnit.SECONDS);
