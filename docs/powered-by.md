@@ -8,6 +8,7 @@ or providing commercial products including Apache SkyWalking.
 - AsiaInfo Inc. http://www.asiainfo.com.cn/
 - Autohome. 汽车之家. http://www.autohome.com.cn
 - Baixing.com 百姓网 http://www.baixing.com/
+- hellobanma 斑马网络 https://www.hellobanma.com/
 - bestsign. 上上签. https://www.bestsign.cn/page/
 - Bizsaas.cn 北京商云科技发展有限公司. http://www.bizsaas.cn/
 - Chehejia Automotive. 北京车和家信息技术有限责任公司. https://www.chehejia.com/
