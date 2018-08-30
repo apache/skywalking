@@ -36,18 +36,19 @@ public class HystrixConcurrencyStrategyInterceptor implements InstanceMethodsAro
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
         SWHystrixPluginsWrapperCache wrapperCache = (SWHystrixPluginsWrapperCache) objInst.getSkyWalkingDynamicField();
-        if (wrapperCache == null) {
+        if (wrapperCache == null || wrapperCache.getSwHystrixConcurrencyStrategyWrapper() == null) {
             synchronized (objInst) {
                 if (wrapperCache == null) {
                     wrapperCache = new SWHystrixPluginsWrapperCache();
                     objInst.setSkyWalkingDynamicField(wrapperCache);
                 }
+                if (wrapperCache.getSwHystrixConcurrencyStrategyWrapper() == null) {
+                    wrapperCache.setSwHystrixConcurrencyStrategyWrapper(new SWHystrixConcurrencyStrategyWrapper((HystrixConcurrencyStrategy) ret));
+                }
             }
         }
 
-        wrapperCache.getSwHystrixConcurrencyStrategyWrapper().compareAndSet(null, new SWHystrixConcurrencyStrategyWrapper((HystrixConcurrencyStrategy) ret));
-
-        return wrapperCache.getSwHystrixConcurrencyStrategyWrapper().get();
+        return wrapperCache.getSwHystrixConcurrencyStrategyWrapper();
     }
 
     @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,

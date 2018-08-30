@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.hystrix.v1;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 /**
  * {@link SWHystrixPluginsWrapperCache} record the {@link SWExecutionHookWrapper} and {@link SWHystrixConcurrencyStrategyWrapper} object for
  * storing in EnhancedInstance#dynamicField together.
@@ -27,14 +25,22 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author chenpengfei
  */
 public class SWHystrixPluginsWrapperCache {
-    private AtomicReference<SWExecutionHookWrapper> swExecutionHookWrapper = new AtomicReference<SWExecutionHookWrapper>();
-    private AtomicReference<SWHystrixConcurrencyStrategyWrapper> swHystrixConcurrencyStrategyWrapper = new AtomicReference<SWHystrixConcurrencyStrategyWrapper>();
+    private SWExecutionHookWrapper swExecutionHookWrapper;
+    private SWHystrixConcurrencyStrategyWrapper swHystrixConcurrencyStrategyWrapper;
 
-    public AtomicReference<SWExecutionHookWrapper> getSwExecutionHookWrapper() {
+    public SWExecutionHookWrapper getSwExecutionHookWrapper() {
         return swExecutionHookWrapper;
     }
 
-    public AtomicReference<SWHystrixConcurrencyStrategyWrapper> getSwHystrixConcurrencyStrategyWrapper() {
+    public void setSwExecutionHookWrapper(SWExecutionHookWrapper swExecutionHookWrapper) {
+        this.swExecutionHookWrapper = swExecutionHookWrapper;
+    }
+
+    public SWHystrixConcurrencyStrategyWrapper getSwHystrixConcurrencyStrategyWrapper() {
         return swHystrixConcurrencyStrategyWrapper;
+    }
+
+    public void setSwHystrixConcurrencyStrategyWrapper(SWHystrixConcurrencyStrategyWrapper swHystrixConcurrencyStrategyWrapper) {
+        this.swHystrixConcurrencyStrategyWrapper = swHystrixConcurrencyStrategyWrapper;
     }
 }

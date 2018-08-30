@@ -41,18 +41,19 @@ public class HystrixPluginsInterceptor implements InstanceMethodsAroundIntercept
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
         SWHystrixPluginsWrapperCache wrapperCache = (SWHystrixPluginsWrapperCache) objInst.getSkyWalkingDynamicField();
-        if (wrapperCache == null) {
+        if (wrapperCache == null || wrapperCache.getSwExecutionHookWrapper() == null) {
             synchronized (objInst) {
                 if (wrapperCache == null) {
                     wrapperCache = new SWHystrixPluginsWrapperCache();
                     objInst.setSkyWalkingDynamicField(wrapperCache);
                 }
+                if (wrapperCache.getSwExecutionHookWrapper() == null) {
+                    wrapperCache.setSwExecutionHookWrapper(new SWExecutionHookWrapper((HystrixCommandExecutionHook) ret));
+                }
             }
         }
 
-        wrapperCache.getSwExecutionHookWrapper().compareAndSet(null, new SWExecutionHookWrapper((HystrixCommandExecutionHook) ret));
-
-        return wrapperCache.getSwExecutionHookWrapper().get();
+        return wrapperCache.getSwExecutionHookWrapper();
     }
 
     @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
