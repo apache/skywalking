@@ -32,7 +32,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <xmemcached.version>2.0.0</xmemcached.version>
-        <log4j-core.version>2.4.1</log4j-core.version>
     </properties>
 
     <dependencies>
@@ -41,12 +40,6 @@
             <artifactId>xmemcached</artifactId>
             <version>${xmemcached.version}</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>${log4j-core.version}</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

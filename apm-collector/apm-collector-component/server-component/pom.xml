@@ -28,7 +28,17 @@
 
     <artifactId>server-component</artifactId>
     <packaging>jar</packaging>
-
+    <properties>
+        <guava.version>20.0</guava.version>
+    </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
