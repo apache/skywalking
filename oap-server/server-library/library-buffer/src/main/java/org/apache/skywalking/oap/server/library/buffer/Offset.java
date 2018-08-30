@@ -31,8 +31,8 @@ class Offset {
     @Getter private final WriteOffset writeOffset;
 
     Offset() {
-        readOffset = new ReadOffset();
         writeOffset = new WriteOffset();
+        readOffset = new ReadOffset(writeOffset);
     }
 
     String serialize() {
@@ -55,6 +55,15 @@ class Offset {
     static class ReadOffset {
         @Getter @Setter private String fileName;
         @Getter @Setter private long offset = 0;
+        private final WriteOffset writeOffset;
+
+        private ReadOffset(WriteOffset writeOffset) {
+            this.writeOffset = writeOffset;
+        }
+
+        boolean isCurrentWriteFile() {
+            return fileName.equals(writeOffset.fileName);
+        }
     }
 
     static class WriteOffset {
