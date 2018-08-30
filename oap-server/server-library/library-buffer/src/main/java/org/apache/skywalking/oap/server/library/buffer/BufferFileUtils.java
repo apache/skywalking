@@ -18,8 +18,7 @@
 
 package org.apache.skywalking.oap.server.library.buffer;
 
-import java.text.*;
-import java.util.*;
+import java.util.Arrays;
 
 /**
  * @author peng-yongsheng
@@ -34,19 +33,17 @@ class BufferFileUtils {
     static final String OFFSET_FILE_PREFIX = "offset";
     private static final String SEPARATOR = "-";
     private static final String SUFFIX = ".sw";
-    private static final String DATA_FORMAT_STR = "yyyyMMddHHmmss";
 
     static void sort(String[] fileList) {
         Arrays.sort(fileList, (f1, f2) -> {
-            int fileId1 = Integer.parseInt(f1.split("_")[1]);
-            int fileId2 = Integer.parseInt(f2.split("_")[1]);
+            long t1 = Long.parseLong(f1.substring(0, f1.length() - 3).split(SEPARATOR)[1]);
+            long t2 = Long.parseLong(f2.substring(0, f2.length() - 3).split(SEPARATOR)[1]);
 
-            return fileId1 - fileId2;
+            return (int)(t1 - t2);
         });
     }
 
     static String buildFileName(String prefix) {
-        DateFormat dateFormat = new SimpleDateFormat(DATA_FORMAT_STR);
-        return prefix + SEPARATOR + dateFormat.format(new Date()) + SUFFIX;
+        return prefix + SEPARATOR + System.currentTimeMillis() + SUFFIX;
     }
 }
