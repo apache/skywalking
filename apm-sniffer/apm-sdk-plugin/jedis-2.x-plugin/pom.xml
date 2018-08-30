@@ -32,7 +32,6 @@
     <url>http://maven.apache.org</url>
     <properties>
         <jedis.version>2.9.0</jedis.version>
-        <log4j-core.version>2.4.1</log4j-core.version>
     </properties>
 
     <dependencies>
@@ -43,11 +42,5 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>${log4j-core.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 </project>
