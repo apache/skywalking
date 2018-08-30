@@ -28,9 +28,17 @@
 
     <artifactId>agent-grpc-provider</artifactId>
     <properties>
-        <grpc.version>1.10.0</grpc.version>
+        <grpc.version>1.14.0</grpc.version>
+        <guava.version>20.0</guava.version>
     </properties>
-
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>

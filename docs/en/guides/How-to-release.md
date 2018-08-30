@@ -30,18 +30,18 @@ Use the following block as a template and place it in ~/.m2/settings.xml
 
 ## Test your settings
 ```
-mvn clean install -Papache-release (this will build artifacts, sources and sign)
+./mvnw clean install -Papache-release (this will build artifacts, sources and sign)
 ```
 
 ## Prepare the release
 ```
-mvn release:clean
-mvn release:prepare -DautoVersionSubmodules=true
+./mvnw release:clean
+./mvnw release:prepare -DautoVersionSubmodules=true
 ```
 
 ## Stage the release 
 ```
-mvn release:perform -DskipTests -Ptravis-ci-submodule
+./mvnw release:perform -DskipTests -Ptravis-ci-submodule
 ```
 1. Set version number as x.y.z, and tag as x.y.z-RCx. `x` in `RCx` is based the number of attempts release, aka `RELEASE_ROUND` in this doc, and starts with 1.
 1. The release will automatically be inserted into a temporary staging repository for you.
@@ -198,7 +198,7 @@ are in `https://dist.apache.org/repos/dist/dev/incubator/skywalking/x.y.z` with 
 1. `LICENSE` and `NOTICE` are in Source code and distribution package.
 1. Check `shasum -c apache-skywalking-apm-incubating-x.y.z-src.tgz.sha512`
 1. Build distribution from source code package (apache-skywalking-incubating-x.y.z-src.tar.gz) by following this [doc](https://github.com/apache/incubator-skywalking/blob/master/docs/en/How-to-build.md#build-from-apache-source-codes).
-1. Apache RAT check. Run `mvn apache-rat:check`. (No binary in source codes)
+1. Apache RAT check. Run `./mvnw apache-rat:check`. (No binary in source codes)
 1. DISCLAIMER exists
 
 ## Call for a vote in Apache IPMC

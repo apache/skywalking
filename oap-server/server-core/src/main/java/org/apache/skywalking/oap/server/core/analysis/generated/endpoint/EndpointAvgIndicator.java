@@ -21,12 +21,15 @@ package org.apache.skywalking.oap.server.core.analysis.generated.endpoint;
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.analysis.indicator.LongAvgIndicator;
+import org.apache.skywalking.oap.server.core.alarm.AlarmMeta;
+import org.apache.skywalking.oap.server.core.alarm.AlarmSupported;
+import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.source.Scope;
 
 /**
  * This class is auto generated. Please don't change this class manually.
@@ -36,7 +39,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.*;
 @IndicatorType
 @StreamData
 @StorageEntity(name = "endpoint_avg", builder = EndpointAvgIndicator.Builder.class)
-public class EndpointAvgIndicator extends LongAvgIndicator {
+public class EndpointAvgIndicator extends LongAvgIndicator implements AlarmSupported {
 
     @Setter @Getter @Column(columnName = "id") private int id;
     @Setter @Getter @Column(columnName = "service_id") private int serviceId;
@@ -99,6 +102,10 @@ public class EndpointAvgIndicator extends LongAvgIndicator {
         setServiceId(remoteData.getDataIntegers(1));
         setServiceInstanceId(remoteData.getDataIntegers(2));
         setCount(remoteData.getDataIntegers(3));
+    }
+
+    @Override public AlarmMeta getAlarmMeta() {
+        return new AlarmMeta("endpoint_Avg", Scope.Endpoint, id, serviceId, serviceInstanceId);
     }
 
     public static class Builder implements StorageBuilder<EndpointAvgIndicator> {

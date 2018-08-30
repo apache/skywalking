@@ -30,11 +30,15 @@
     <name>http-1.x-plugin</name>
     <url>http://maven.apache.org</url>
 
+    <properties>
+        <nutz.version>1.r.62</nutz.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.nutz</groupId>
             <artifactId>nutz</artifactId>
-            <version>1.r.62</version>
+            <version>${nutz.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

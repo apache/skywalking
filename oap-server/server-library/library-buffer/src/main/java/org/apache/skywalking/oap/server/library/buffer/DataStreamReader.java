@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.library.buffer;
 import com.google.protobuf.*;
 import java.io.*;
 import java.util.concurrent.*;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.skywalking.apm.util.*;
 import org.slf4j.*;
@@ -37,7 +36,6 @@ class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
     private final Offset.ReadOffset readOffset;
     private final Parser<MESSAGE_TYPE> parser;
     private final CallBack<MESSAGE_TYPE> callBack;
-    private File readingFile;
     private InputStream inputStream;
 
     DataStreamReader(File directory, Offset.ReadOffset readOffset, Parser<MESSAGE_TYPE> parser,
@@ -51,40 +49,35 @@ class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
     void initialize() {
         preRead();
 
-        Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
             new RunnableWithExceptionProtection(this::read,
-                t -> logger.error("Buffer data pre read failure.", t)), 3, 1, TimeUnit.SECONDS);
+                t -> logger.error("Segment buffer pre read failure.", t)), 3, 3, TimeUnit.SECONDS);
     }
 
     private void preRead() {
         String fileName = readOffset.getFileName();
         if (StringUtil.isEmpty(fileName)) {
-            openInputStream(readEarliestDataFile());
+            openInputStream(readEarliestCreateDataFile());
         } else {
-            File readingFile = new File(directory, fileName);
-            if (readingFile.exists()) {
-                openInputStream(readingFile);
-                try {
-                    inputStream.skip(readOffset.getOffset());
-                } catch (IOException e) {
-                    logger.error(e.getMessage(), e);
-                }
+            File dataFile = new File(directory, fileName);
+            if (dataFile.exists()) {
+                openInputStream(dataFile);
+                read();
             } else {
-                openInputStream(readEarliestDataFile());
+                openInputStream(readEarliestCreateDataFile());
             }
         }
     }
 
-    private void openInputStream(File readingFile) {
+    private void openInputStream(File readFile) {
         try {
-            this.readingFile = readingFile;
-            inputStream = new FileInputStream(readingFile);
+            inputStream = new FileInputStream(readFile);
         } catch (FileNotFoundException e) {
             logger.error(e.getMessage(), e);
         }
     }
 
-    private File readEarliestDataFile() {
+    private File readEarliestCreateDataFile() {
         String[] fileNames = directory.list(new PrefixFileFilter(BufferFileUtils.DATA_FILE_PREFIX));
 
         if (fileNames != null && fileNames.length > 0) {
@@ -99,20 +92,12 @@ class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
 
     private void read() {
         try {
-            if (readOffset.getOffset() == readingFile.length() && !readOffset.isCurrentWriteFile()) {
-                FileUtils.forceDelete(readingFile);
-                openInputStream(readEarliestDataFile());
-            }
-
-            while (readOffset.getOffset() < readingFile.length()) {
-
-                MESSAGE_TYPE messageType = parser.parseDelimitedFrom(inputStream);
-                if (messageType != null) {
-                    callBack.call(messageType);
-                    final int serialized = messageType.getSerializedSize();
-                    final int offset = CodedOutputStream.computeUInt32SizeNoTag(serialized) + serialized;
-                    readOffset.setOffset(readOffset.getOffset() + offset);
-                }
+            MESSAGE_TYPE messageType = parser.parseDelimitedFrom(inputStream);
+            if (messageType != null) {
+                callBack.call(messageType);
+                final int serialized = messageType.getSerializedSize();
+                final int offset = CodedOutputStream.computeUInt32SizeNoTag(serialized) + serialized;
+                readOffset.setOffset(readOffset.getOffset() + offset);
             }
         } catch (IOException e) {
             logger.error(e.getMessage(), e);

@@ -39,6 +39,9 @@ for different scenarios. For better understanding, read our documents.
 # Document
 - [Documents in English](docs/README.md)
 
+# Downloads
+Please head to the [releases page](ttp://skywalking.apache.org/downloads/) to download a release of Apache SkyWalking.
+
 
 # Code of conduct
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wusheng@apache.org.
@@ -63,11 +66,13 @@ Follow this [document](https://github.com/apache/incubator-skywalking/blob/maste
 * [Gitter](https://gitter.im/openskywalking/Lobby)
 * QQ Group: 392443393
 
-# Users
+# Who Uses SkyWalking?
+A wide variety of companies and organizations use SkyWalking for research, production and commercial product.
+Here is the **User Wall** of SkyWalking.
+
 <img src="https://skywalkingtest.github.io/page-resources/users/users-2018-08-12.png"/>
 
-- [Users list](docs/users.md)
-- [Submit new user to us.](https://github.com/apache/incubator-skywalking/issues/443)
+Users are encouraged to add themselves to the [PoweredBy](docs/powered-by.md) page.
 
 <p align="center">
 <a href="https://openapm.io"><img src="https://openapm.io/static/media/openapm_logo.svg" width="100"/></a> 

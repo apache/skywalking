@@ -32,10 +32,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>server-core</artifactId>
             <version>${project.version}</version>
@@ -106,6 +102,13 @@
             <version>${project.version}</version>
         </dependency>
         <!-- query module -->
+
+        <!-- alarm module -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>server-alarm-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <finalName>skywalking-oap</finalName>

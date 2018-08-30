@@ -16,14 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.indicator.expression;
+package org.apache.skywalking.apm.plugin.elasticsearch.v5;
+
+import static org.apache.skywalking.apm.util.StringUtil.isEmpty;
 
 /**
- *
- * @author wusheng
+ * @author oatiz.
  */
-public class BooleanBinaryMatch extends BinaryMatchExpression {
-    @Override public boolean match() {
-        return left == right;
+class Util {
+
+    static String wrapperNullStringValue(String value) {
+        if (isEmpty(value)) {
+            return "";
+        }
+        return value;
     }
+
 }

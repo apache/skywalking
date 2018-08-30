@@ -1,5 +1,9 @@
 sudo: required
 
+cache:
+  directories:
+    - "$HOME/.m2"
+
 language: java
 before_install:
   - mkdir ci-dependencies
@@ -10,6 +14,6 @@ before_install:
 
 install:
   - jdk_switcher use oraclejdk8
-  - mvn clean install -Ptravis-ci-submodule --quiet jacoco:report coveralls:report
-  - mvn clean javadoc:javadoc -Dmaven.test.skip=true --quiet
+  - ./mvnw clean install -Ptravis-ci-submodule --quiet jacoco:report coveralls:report
+  - ./mvnw clean javadoc:javadoc -Dmaven.test.skip=true --quiet
 

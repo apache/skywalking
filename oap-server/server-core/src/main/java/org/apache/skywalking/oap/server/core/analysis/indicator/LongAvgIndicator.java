@@ -18,15 +18,19 @@
 
 package org.apache.skywalking.oap.server.core.analysis.indicator;
 
-import lombok.*;
-import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.ConstOne;
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.Entrance;
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorOperator;
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
  * @author peng-yongsheng
  */
 @IndicatorOperator
-public abstract class LongAvgIndicator extends Indicator {
+public abstract class LongAvgIndicator extends Indicator implements LongValueHolder {
 
     protected static final String SUMMATION = "summation";
     protected static final String COUNT = "count";
@@ -49,5 +53,9 @@ public abstract class LongAvgIndicator extends Indicator {
 
     @Override public final void calculate() {
         this.value = this.summation / this.count;
+    }
+
+    @Override public long getValue() {
+        return value;
     }
 }

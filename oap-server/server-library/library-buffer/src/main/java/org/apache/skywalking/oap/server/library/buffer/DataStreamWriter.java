@@ -49,46 +49,46 @@ class DataStreamWriter<MESSAGE_TYPE extends GeneratedMessageV3> {
         if (!initialized) {
             String writeFileName = writeOffset.getFileName();
 
-            File writingFile;
+            File dataFile;
             if (StringUtil.isEmpty(writeFileName)) {
-                writingFile = createNewFile();
+                dataFile = createNewFile();
             } else {
-                writingFile = new File(directory, writeFileName);
-                if (!writingFile.exists()) {
-                    writingFile = createNewFile();
+                dataFile = new File(directory, writeFileName);
+                if (!dataFile.exists()) {
+                    dataFile = createNewFile();
                 }
             }
 
-            outputStream = FileUtils.openOutputStream(writingFile, true);
+            outputStream = FileUtils.openOutputStream(dataFile, true);
             initialized = true;
         }
     }
 
     private File createNewFile() throws IOException {
         String fileName = BufferFileUtils.buildFileName(BufferFileUtils.DATA_FILE_PREFIX);
-        File writingFile = new File(directory, fileName);
+        File dataFile = new File(directory, fileName);
 
-        boolean created = writingFile.createNewFile();
+        boolean created = dataFile.createNewFile();
         if (!created) {
-            logger.info("The file named {} already exists.", writingFile.getAbsolutePath());
+            logger.info("The file named {} already exists.", dataFile.getAbsolutePath());
         } else {
-            logger.info("Create a new buffer data file: {}", writingFile.getAbsolutePath());
+            logger.info("Create a new buffer data file: {}", dataFile.getAbsolutePath());
         }
 
         writeOffset.setOffset(0);
-        writeOffset.setFileName(writingFile.getName());
+        writeOffset.setFileName(dataFile.getName());
 
-        return writingFile;
+        return dataFile;
     }
 
-    synchronized void write(AbstractMessageLite messageLite) {
+    void write(AbstractMessageLite messageLite) {
         try {
             messageLite.writeDelimitedTo(outputStream);
             long position = outputStream.getChannel().position();
             writeOffset.setOffset(position);
-            if (position >= (FileUtils.ONE_MB * dataFileMaxSize)) {
-                File writingFile = createNewFile();
-                outputStream = FileUtils.openOutputStream(writingFile, true);
+            if (position > (FileUtils.ONE_MB * dataFileMaxSize)) {
+                File dataFile = createNewFile();
+                outputStream = FileUtils.openOutputStream(dataFile, true);
             }
         } catch (IOException e) {
             logger.error(e.getMessage(), e);

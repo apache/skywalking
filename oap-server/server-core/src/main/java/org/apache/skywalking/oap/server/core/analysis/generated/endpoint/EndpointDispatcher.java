@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.generated.endpoint;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
-import org.apache.skywalking.oap.server.core.source.Endpoint;
+import org.apache.skywalking.oap.server.core.source.*;
 
 /**
  * This class is auto generated. Please don't change this class manually.
@@ -37,6 +37,7 @@ public class EndpointDispatcher implements SourceDispatcher<Endpoint> {
     private void doEndpointAvg(Endpoint source) {
         EndpointAvgIndicator indicator = new EndpointAvgIndicator();
 
+
         indicator.setTimeBucket(source.getTimeBucket());
         indicator.setId(source.getId());
         indicator.setServiceId(source.getServiceId());
@@ -48,11 +49,12 @@ public class EndpointDispatcher implements SourceDispatcher<Endpoint> {
     private void doEndpointPercent(Endpoint source) {
         EndpointPercentIndicator indicator = new EndpointPercentIndicator();
 
+
         indicator.setTimeBucket(source.getTimeBucket());
         indicator.setId(source.getId());
         indicator.setServiceId(source.getServiceId());
         indicator.setServiceInstanceId(source.getServiceInstanceId());
-        indicator.combine(new org.apache.skywalking.oap.server.core.analysis.indicator.expression.BooleanBinaryMatch(), source.isStatus(), true);
+        indicator.combine(new org.apache.skywalking.oap.server.core.analysis.indicator.expression.EqualMatch(), source.isStatus(), true);
         IndicatorProcess.INSTANCE.in(indicator);
     }
 

@@ -32,6 +32,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>library-module</artifactId>
             <version>${project.version}</version>

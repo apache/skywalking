@@ -36,40 +36,22 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <resin.version>3.0.9</resin.version>
+        <javax-servlet-api.version>3.0.1</javax-servlet-api.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.caucho</groupId>
             <artifactId>resin</artifactId>
-            <version>3.0.9</version>
+            <version>${resin.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>3.0.1</version>
+            <version>${javax-servlet-api.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <!-- 源码插件 -->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <!-- 发布时自动将源码同时发布的配置 -->
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <phase>none</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>

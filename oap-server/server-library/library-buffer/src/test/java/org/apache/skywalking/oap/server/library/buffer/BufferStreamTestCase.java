@@ -33,9 +33,9 @@ public class BufferStreamTestCase {
     public static void main(String[] args) throws IOException, InterruptedException {
         String directory = "/Users/pengys5/code/sky-walking/buffer-test";
         BufferStream.Builder<TraceSegmentObject> builder = new BufferStream.Builder<>(directory);
-//        builder.cleanWhenRestart(true);
-        builder.dataFileMaxSize(50);
-        builder.offsetFileMaxSize(10);
+        builder.cleanWhenRestart(true);
+        builder.dataFileMaxSize(1);
+        builder.offsetFileMaxSize(1);
         builder.parser(TraceSegmentObject.parser());
         builder.callBack(new SegmentParse());
 
@@ -44,23 +44,18 @@ public class BufferStreamTestCase {
 
         TimeUnit.SECONDS.sleep(5);
 
-        StringBuilder str = new StringBuilder("2018-08-27 11:59:45,261 main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28");
-        for (int i = 0; i < 1000; i++) {
-            str.append("main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28 main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28 main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28");
-        }
+        String str = "2018-08-27 11:59:45,261 main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28" +
+            "main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28 main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28 main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28" +
+            "main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28 main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28 main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28" +
+            "main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28 main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28 main DEBUG Registering MBean org.apache.logging.log4j2:type=6d6f6e28";
 
-        for (int i = 0; i < 20000; i++) {
+        for (int i = 0; i < 100; i++) {
             TraceSegmentObject.Builder segment = TraceSegmentObject.newBuilder();
             SpanObject.Builder span = SpanObject.newBuilder();
 
-            span.setSpanId(i);
-            span.setOperationName(str.toString());
+            span.setOperationName(String.valueOf(i) + "  " + str);
             segment.addSpans(span);
             stream.write(segment.build());
-
-            if (i % 1000 == 0) {
-                TimeUnit.MILLISECONDS.sleep(50);
-            }
         }
 
     }
@@ -68,7 +63,7 @@ public class BufferStreamTestCase {
     private static class SegmentParse implements DataStreamReader.CallBack<TraceSegmentObject> {
 
         @Override public void call(TraceSegmentObject message) {
-            logger.info("segment parse: {}", message.getSpans(0).getSpanId());
+            logger.info("segment parse: {}", message.getSpans(0).getOperationName());
         }
     }
 }

@@ -38,7 +38,7 @@ class DataStream<MESSAGE_TYPE extends GeneratedMessageV3> {
     @Getter private final DataStreamWriter<MESSAGE_TYPE> writer;
     private boolean initialized = false;
 
-    DataStream(File directory, int dataFileMaxSize, int offsetFileMaxSize, Parser<MESSAGE_TYPE> parser,
+    DataStream(File directory, int offsetFileMaxSize, int dataFileMaxSize, Parser<MESSAGE_TYPE> parser,
         DataStreamReader.CallBack<MESSAGE_TYPE> callBack) {
         this.directory = directory;
         this.offsetStream = new OffsetStream(directory, offsetFileMaxSize);

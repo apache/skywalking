@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
  * @author peng-yongsheng
  */
 @IndicatorOperator
-public abstract class DoubleAvgIndicator extends Indicator {
+public abstract class DoubleAvgIndicator extends Indicator implements DoubleValueHolder {
 
     protected static final String SUMMATION = "summation";
     protected static final String COUNT = "count";
@@ -49,5 +49,9 @@ public abstract class DoubleAvgIndicator extends Indicator {
 
     @Override public final void calculate() {
         this.value = this.summation / this.count;
+    }
+
+    @Override public double getValue() {
+        return value;
     }
 }

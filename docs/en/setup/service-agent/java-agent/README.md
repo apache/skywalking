@@ -66,6 +66,7 @@ Now, we have the following known plugins.
 [log4j2](Application-toolkit-log4j-2.x.md), [logback](Application-toolkit-logback-1.x.md)
     * If you want to use annotations or SkyWalking native APIs to read context, try [SkyWalking manual APIs](Application-toolkit-trace.md)
     * If you want to continue traces across thread manually, use [across thread solution APIs](Application-toolkit-trace-cross-thread.md).
+* If you want to specify the path of your agent.config file. Read [set config file through system properties](Specified-agent-config.md)
 
 ## Plugin Development Guide
 SkyWalking java agent supports plugin to extend [the supported list](Supported-list.md). Please follow 

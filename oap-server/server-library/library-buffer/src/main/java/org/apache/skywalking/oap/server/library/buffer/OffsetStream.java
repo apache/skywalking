@@ -66,8 +66,8 @@ class OffsetStream {
         if (!initialized) {
             String[] fileNames = directory.list(new PrefixFileFilter(BufferFileUtils.OFFSET_FILE_PREFIX));
             if (fileNames != null && fileNames.length > 0) {
-                BufferFileUtils.sort(fileNames);
-                offsetFile = new File(directory, fileNames[0]);
+                for (int i = 0; i < fileNames.length; i++) {
+                }
             } else {
                 offsetFile = newFile();
             }

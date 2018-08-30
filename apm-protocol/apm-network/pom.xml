@@ -29,9 +29,12 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <grpc.version>1.10.0</grpc.version>
-        <netty.version>4.1.17.Final</netty.version>
         <compiler.version>1.6</compiler.version>
+        <grpc.version>1.14.0</grpc.version>
+        <netty.version>4.1.27.Final</netty.version>
+        <netty-tcnative-boringssl-static.version>2.0.7.Final</netty-tcnative-boringssl-static.version>
+        <os-maven-plugin.version>1.5.0.Final</os-maven-plugin.version>
+        <protobuf-maven-plugin.version>0.5.0</protobuf-maven-plugin.version>
     </properties>
 
     <dependencies>
@@ -53,7 +56,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-tcnative-boringssl-static</artifactId>
-            <version>2.0.7.Final</version>
+            <version>${netty-tcnative-boringssl-static.version}</version>
         </dependency>
     </dependencies>
 
@@ -62,22 +65,14 @@
             <extension>
                 <groupId>kr.motd.maven</groupId>
                 <artifactId>os-maven-plugin</artifactId>
-                <version>1.5.0.Final</version>
+                <version>${os-maven-plugin.version}</version>
             </extension>
         </extensions>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.4.3</version>
-                <configuration>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
-                <version>0.5.0</version>
+                <version>${protobuf-maven-plugin.version}</version>
                 <configuration>
                     <!--
                       The version of protoc must match protobuf-java. If you don't depend on
