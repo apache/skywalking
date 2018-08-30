@@ -36,6 +36,7 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.util.StringUtil;
 
 import static net.bytebuddy.jar.asm.Opcodes.ACC_PRIVATE;
+import static net.bytebuddy.jar.asm.Opcodes.ACC_VOLATILE;
 import static net.bytebuddy.matcher.ElementMatchers.isStatic;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
@@ -115,7 +116,7 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
          *
          */
         if (!context.isObjectExtended()) {
-            newClassBuilder = newClassBuilder.defineField(CONTEXT_ATTR_NAME, Object.class, ACC_PRIVATE)
+            newClassBuilder = newClassBuilder.defineField(CONTEXT_ATTR_NAME, Object.class, ACC_PRIVATE | ACC_VOLATILE)
                 .implement(EnhancedInstance.class)
                 .intercept(FieldAccessor.ofField(CONTEXT_ATTR_NAME));
             context.extendObjectCompleted();
