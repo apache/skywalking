@@ -19,7 +19,10 @@
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
+import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
+import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
 import org.apache.skywalking.oap.server.core.analysis.indicator.DoubleValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
@@ -36,9 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * RunningRule represents each rule in running status.
- * Based on the {@link AlarmRule} definition,
- *
+ * RunningRule represents each rule in running status. Based on the {@link AlarmRule} definition,
  *
  * @author wusheng
  */
@@ -55,7 +56,8 @@ public class RunningRule {
     private int silenceCountdown;
     private Window window;
     private volatile boolean isStarted = false;
-    private IndicatorValueType valueType;
+    private volatile IndicatorValueType valueType;
+    private volatile List<AlarmCallback> allCallbacks;
     private Scope targetScope;
 
     public RunningRule(AlarmRule alarmRule) {
@@ -74,8 +76,8 @@ public class RunningRule {
     }
 
     /**
-     * Receive indicator result from persistence, after it is saved into storage.
-     * In alarm, only minute dimensionality indicators are expected to process.
+     * Receive indicator result from persistence, after it is saved into storage. In alarm, only minute dimensionality
+     * indicators are expected to process.
      *
      * @param indicator
      */
@@ -105,15 +107,18 @@ public class RunningRule {
 
     /**
      * Start this rule in running mode.
+     *
      * @param current
      */
-    public void start(LocalDateTime current) {
+    public void start(LocalDateTime current, List<AlarmCallback> allCallbacks) {
+        this.allCallbacks = allCallbacks;
         window.start(current);
         isStarted = true;
     }
 
     /**
      * Move the buffer window to give time.
+     *
      * @param targetTime of moving target
      */
     public void moveTo(LocalDateTime targetTime) {
@@ -136,6 +141,8 @@ public class RunningRule {
             counter++;
             if (counter >= countThreshold && silenceCountdown < 1) {
                 triggerAlarm();
+            } else {
+                silenceCountdown--;
             }
         } else {
             silenceCountdown--;
@@ -150,11 +157,13 @@ public class RunningRule {
      */
     private void triggerAlarm() {
         silenceCountdown = silencePeriod;
+        AlarmMessage message = new AlarmMessage();
+        allCallbacks.forEach(callback -> callback.doAlarm(message));
     }
 
     /**
-     * A indicator window, based on {@link AlarmRule#period}.
-     * This window slides with time, just keeps the recent N(period) buckets.
+     * A indicator window, based on {@link AlarmRule#period}. This window slides with time, just keeps the recent
+     * N(period) buckets.
      *
      * @author wusheng
      */
@@ -201,7 +210,7 @@ public class RunningRule {
 
             LocalDateTime timebucket = TIME_BUCKET_FORMATTER.parseLocalDateTime(bucket + "");
 
-            int minutes = Minutes.minutesBetween(endTime, timebucket).getMinutes();
+            int minutes = Minutes.minutesBetween(timebucket, endTime).getMinutes();
             if (minutes == -1) {
                 this.moveTo(timebucket);
 
@@ -209,7 +218,6 @@ public class RunningRule {
 
             lock.lock();
             try {
-                minutes = Minutes.minutesBetween(endTime, timebucket).getMinutes();
                 if (minutes < 0) {
                     // At any moment, should NOT be here
                     // Add this code just because of my obsession :P
@@ -222,8 +230,7 @@ public class RunningRule {
                     return;
                 }
 
-                int idx = minutes - 1;
-                values.set(idx, indicator);
+                values.set(values.size() - minutes - 1, indicator);
             } finally {
                 lock.unlock();
             }

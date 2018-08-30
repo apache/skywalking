@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.IndicatorNotify;
@@ -27,12 +28,10 @@ import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 public class NotifyHandler implements IndicatorNotify {
     private final AlarmCore core;
     private final Rules rules;
-    private List<AlarmCallback> allCallbacks;
 
     public NotifyHandler(Rules rules) {
         this.rules = rules;
         core = new AlarmCore(rules);
-        core.start();
     }
 
     @Override public void notify(MetaInAlarm meta, Indicator indicator) {
@@ -52,10 +51,12 @@ public class NotifyHandler implements IndicatorNotify {
 
     @Override
     public void init(AlarmCallback... callbacks) {
+        List<AlarmCallback> allCallbacks = new ArrayList<>();
         for (AlarmCallback callback : callbacks) {
             allCallbacks.add(callback);
         }
         allCallbacks.add(new WebhookCallback(rules.getWebhooks()));
+        core.start(allCallbacks);
     }
 
 }
