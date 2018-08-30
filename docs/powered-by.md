@@ -8,6 +8,7 @@ or providing commercial products including Apache SkyWalking.
 - AsiaInfo Inc. http://www.asiainfo.com.cn/
 - Autohome. 汽车之家. http://www.autohome.com.cn
 - Baixing.com 百姓网 http://www.baixing.com/
+- bestsign. 上上签. https://www.bestsign.cn/page/
 - Bizsaas.cn 北京商云科技发展有限公司. http://www.bizsaas.cn/
 - Chehejia Automotive. 北京车和家信息技术有限责任公司. https://www.chehejia.com/
 - Chinadaas. 北京中数智汇科技股份有限公司. https://www.chinadaas.com/
@@ -19,6 +20,7 @@ or providing commercial products including Apache SkyWalking.
 - Haoyunhu. 上海好运虎供应链管理有限公司 http://www.haoyunhu56.com/
 - Hundun YUNRONG Fintech. 杭州恒生云融网络科技有限公司 https://www.hsjry.com/
 - iFLYTEK. 科大讯飞股份有限公司-消费者BG http://www.iflytek.com/
+- Ke.com. 贝壳找房. https://www.ke.com
 - Keking.cn 凯京集团. http://www.keking.cn
 - GTrace System. (No company provided) 
 - Gdeng.cn 深圳谷登科技有限公司 http://www.gdeng.cn/
@@ -39,3 +41,4 @@ or providing commercial products including Apache SkyWalking.
 - Xiaomi. 小米. https://www.mi.com/en/
 - Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
 
+The list is in alphabeta order.
