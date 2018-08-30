@@ -29,8 +29,6 @@ import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.analysis.indicator.IntValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.indicator.LongValueHolder;
 import org.apache.skywalking.oap.server.core.source.Scope;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntityAnnotationUtils;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Minutes;
 import org.joda.time.format.DateTimeFormat;
