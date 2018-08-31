@@ -18,11 +18,13 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
+import java.util.List;
+
 /**
  * Save the alarm info into storage for UI query.
  */
 public class AlarmStandardPersistence implements AlarmCallback {
-    @Override public void doAlarm(AlarmMessage alarmMessage) {
+    @Override public void doAlarm(List<AlarmMessage> alarmMessage) {
         //TODO Peng-yongsheng
         /**
          * This is just a callback entrance.
