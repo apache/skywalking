@@ -36,7 +36,10 @@ public class SWHystrixConcurrencyStrategyWrapper extends HystrixConcurrencyStrat
 
     @Override
     public <T> Callable<T> wrapCallable(Callable<T> callable) {
-        return new WrappedCallable<T>(ContextManager.getRuntimeContext().capture(), super.wrapCallable(callable));
+        Callable<T> delegateCallable = delegate != null
+                ? delegate.wrapCallable(callable)
+                : super.wrapCallable(callable);
+        return new WrappedCallable<T>(ContextManager.getRuntimeContext().capture(), delegateCallable);
     }
 
     static class WrappedCallable<T> implements Callable<T> {
