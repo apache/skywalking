@@ -81,7 +81,7 @@ public class AlarmCoreTest {
                 Assert.assertTrue(checkTimePoints(checkTime));
                 break;
             }
-            if(i == 9){
+            if (i == 9) {
                 Assert.assertTrue(false);
             }
         }
