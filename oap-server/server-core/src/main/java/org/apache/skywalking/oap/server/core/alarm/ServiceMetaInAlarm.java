@@ -25,7 +25,7 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 
 @Getter(AccessLevel.PUBLIC)
 @Setter(AccessLevel.PUBLIC)
-public class ServiceMetaInAlarm implements MetaInAlarm {
+public class ServiceMetaInAlarm extends MetaInAlarm {
     private String indicatorName;
 
     private int id;

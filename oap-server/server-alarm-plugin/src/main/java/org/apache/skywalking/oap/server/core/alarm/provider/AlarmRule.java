@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
+import java.util.ArrayList;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,6 +32,7 @@ public class AlarmRule {
     private String alarmRuleName;
 
     private String indicatorName;
+    private ArrayList includeNames;
     private String threshold;
     private String op;
     private int period;
