@@ -39,6 +39,14 @@ for different scenarios. For better understanding, read our documents.
 # Document
 - [Documents in English](docs/README.md)
 
+```
+5.x is still supported by SkyWalking community, and the agent-backend protocol is compatible with 6.x.
+You can go to 5.x branch. At there, you have everything you need.
+```
+
+- Go to [5.x pages](https://github.com/apache/incubator-skywalking/tree/5.x)
+
+
 # Downloads
 Please head to the [releases page](ttp://skywalking.apache.org/downloads/) to download a release of Apache SkyWalking.
 

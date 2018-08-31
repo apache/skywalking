@@ -26,8 +26,3 @@ Or better yet, submit your own contributions through pull request to help make t
 
 
 
-### 5.x releases
-5.x is still supported by SkyWalking community, and the agent-backend protocol is compatible with 6.x.
-You can go to [5.x branch](https://github.com/apache/incubator-skywalking/tree/5.x).
-At there, you have everything you need.
-
