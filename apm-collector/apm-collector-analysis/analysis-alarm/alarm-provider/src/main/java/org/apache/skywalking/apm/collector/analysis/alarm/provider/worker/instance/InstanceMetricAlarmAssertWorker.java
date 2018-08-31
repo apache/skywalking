@@ -66,7 +66,7 @@ public class InstanceMetricAlarmAssertWorker extends AlarmAssertWorker<InstanceM
         Instance instance = instanceDAO.getInstance(alarm.getInstanceId());
         JsonObject osInfo = gson.fromJson(instance.getOsInfo(), JsonObject.class);
         String serverName = Const.UNKNOWN;
-        if (osInfo.has("hostName")) {
+        if (osInfo != null && osInfo.has("hostName")) {
             serverName = osInfo.get("hostName").getAsString();
         }
 
