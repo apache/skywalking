@@ -55,7 +55,6 @@ public class RunningRule {
     private Window window;
     private volatile boolean isStarted = false;
     private volatile IndicatorValueType valueType;
-    private volatile List<AlarmCallback> allCallbacks;
     private Scope targetScope;
 
     public RunningRule(AlarmRule alarmRule) {
@@ -108,8 +107,7 @@ public class RunningRule {
      *
      * @param current
      */
-    public void start(LocalDateTime current, List<AlarmCallback> allCallbacks) {
-        this.allCallbacks = allCallbacks;
+    public void start(LocalDateTime current) {
         window.start(current);
         isStarted = true;
     }
@@ -126,7 +124,7 @@ public class RunningRule {
     /**
      * Check the conditions, decide to whether trigger alarm.
      */
-    public void check() {
+    public AlarmMessage check() {
         boolean isMatched = window.isMatch();
 
         /**
@@ -138,7 +136,7 @@ public class RunningRule {
         if (isMatched) {
             counter++;
             if (counter >= countThreshold && silenceCountdown < 1) {
-                triggerAlarm();
+                return triggerAlarm();
             } else {
                 silenceCountdown--;
             }
@@ -148,15 +146,16 @@ public class RunningRule {
                 counter--;
             }
         }
+        return AlarmMessage.NONE;
     }
 
     /**
      * Trigger alarm callbacks.
      */
-    private void triggerAlarm() {
+    private AlarmMessage triggerAlarm() {
         silenceCountdown = silencePeriod;
         AlarmMessage message = new AlarmMessage();
-        allCallbacks.forEach(callback -> callback.doAlarm(message));
+        return message;
     }
 
     /**

@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
+import java.util.List;
+
 /**
  * Alarm call back will be called by alarm implementor,
  * after it decided alarm should be sent.
@@ -25,5 +27,5 @@ package org.apache.skywalking.oap.server.core.alarm;
  * @author wusheng
  */
 public interface AlarmCallback {
-    void doAlarm(AlarmMessage alarmMessage);
+    void doAlarm(List<AlarmMessage> alarmMessage);
 }

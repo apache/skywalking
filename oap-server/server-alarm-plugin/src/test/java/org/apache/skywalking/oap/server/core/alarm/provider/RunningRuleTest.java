@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import java.util.LinkedList;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
@@ -55,7 +56,7 @@ public class RunningRuleTest {
 
         RunningRule runningRule = new RunningRule(alarmRule);
         LocalDateTime startTime = TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301440");
-        runningRule.start(startTime, new LinkedList<>());
+        runningRule.start(startTime);
 
         RunningRule.Window window = Whitebox.getInternalState(runningRule, "window");
         LocalDateTime endTime = Whitebox.getInternalState(window, "endTime");
@@ -80,15 +81,7 @@ public class RunningRuleTest {
         RunningRule runningRule = new RunningRule(alarmRule);
         LocalDateTime startTime = TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301440");
 
-        final boolean[] isAlarm = {false};
-        AlarmCallback assertCallback = new AlarmCallback() {
-            @Override public void doAlarm(AlarmMessage alarmMessage) {
-                isAlarm[0] = true;
-            }
-        };
-        LinkedList<AlarmCallback> callbackList = new LinkedList<>();
-        callbackList.add(assertCallback);
-        runningRule.start(startTime, callbackList);
+        runningRule.start(startTime);
 
         long timeInPeriod1 = 201808301434L;
         long timeInPeriod2 = 201808301436L;
@@ -98,15 +91,14 @@ public class RunningRuleTest {
         runningRule.in(getMetaInAlarm(), getIndicator(timeInPeriod3, 74));
 
         // check at 201808301440
-        runningRule.check();
+        Assert.assertEquals(AlarmMessage.NONE, runningRule.check());
         runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441"));
         // check at 201808301441
-        runningRule.check();
+        Assert.assertEquals(AlarmMessage.NONE, runningRule.check());
         runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301442"));
         // check at 201808301442
-        runningRule.check();
+        Assert.assertNotEquals(AlarmMessage.NONE, runningRule.check());
 
-        Assert.assertTrue(isAlarm[0]);
     }
 
     @Test
@@ -125,13 +117,13 @@ public class RunningRuleTest {
 
         final boolean[] isAlarm = {false};
         AlarmCallback assertCallback = new AlarmCallback() {
-            @Override public void doAlarm(AlarmMessage alarmMessage) {
+            @Override public void doAlarm(List<AlarmMessage> alarmMessage) {
                 isAlarm[0] = true;
             }
         };
         LinkedList<AlarmCallback> callbackList = new LinkedList<>();
         callbackList.add(assertCallback);
-        runningRule.start(startTime, callbackList);
+        runningRule.start(startTime);
 
         long timeInPeriod1 = 201808301434L;
         long timeInPeriod2 = 201808301436L;
@@ -145,15 +137,13 @@ public class RunningRuleTest {
         runningRule.in(getMetaInAlarm(), getIndicator(timeInPeriod5, 95));
 
         // check at 201808301440
-        runningRule.check();
+        Assert.assertEquals(AlarmMessage.NONE, runningRule.check());
         runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301442"));
         // check at 201808301441
-        runningRule.check();
+        Assert.assertEquals(AlarmMessage.NONE, runningRule.check());
         runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301443"));
         // check at 201808301442
-        runningRule.check();
-
-        Assert.assertFalse((boolean)isAlarm[0]);
+        Assert.assertEquals(AlarmMessage.NONE, runningRule.check());
     }
 
     @Test
@@ -170,16 +160,7 @@ public class RunningRuleTest {
         RunningRule runningRule = new RunningRule(alarmRule);
         LocalDateTime startTime = TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301440");
 
-        final Object[] isAlarm = {false, 0};
-        AlarmCallback assertCallback = new AlarmCallback() {
-            @Override public void doAlarm(AlarmMessage alarmMessage) {
-                isAlarm[0] = true;
-                isAlarm[1] = (int)isAlarm[1] + 1;
-            }
-        };
-        LinkedList<AlarmCallback> callbackList = new LinkedList<>();
-        callbackList.add(assertCallback);
-        runningRule.start(startTime, callbackList);
+        runningRule.start(startTime);
 
         long timeInPeriod1 = 201808301434L;
         long timeInPeriod2 = 201808301436L;
@@ -189,22 +170,19 @@ public class RunningRuleTest {
         runningRule.in(getMetaInAlarm(), getIndicator(timeInPeriod3, 74));
 
         // check at 201808301440
-        runningRule.check(); //check matches, no alarm
+        Assert.assertEquals(AlarmMessage.NONE, runningRule.check()); //check matches, no alarm
         runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441"));
         // check at 201808301441
-        runningRule.check(); //check matches, no alarm
+        Assert.assertEquals(AlarmMessage.NONE, runningRule.check()); //check matches, no alarm
         runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301442"));
         // check at 201808301442
+        Assert.assertNotEquals(AlarmMessage.NONE, runningRule.check()); //alarm
+        Assert.assertEquals(AlarmMessage.NONE, runningRule.check()); //silence, no alarm
+        Assert.assertEquals(AlarmMessage.NONE, runningRule.check()); //silence, no alarm
         runningRule.check(); //alarm
-        runningRule.check(); //silence, no alarm
-        runningRule.check(); //silence, no alarm
-        runningRule.check(); //alarm
-        runningRule.check(); //silence, no alarm
-        runningRule.check(); //silence, no alarm
-        runningRule.check(); //alarm
-
-        Assert.assertTrue((boolean)isAlarm[0]);
-        Assert.assertEquals(3, (int)isAlarm[1]);
+        Assert.assertEquals(AlarmMessage.NONE, runningRule.check()); //silence, no alarm
+        Assert.assertEquals(AlarmMessage.NONE, runningRule.check()); //silence, no alarm
+        Assert.assertNotEquals(AlarmMessage.NONE, runningRule.check()); //alarm
     }
 
     private MetaInAlarm getMetaInAlarm() {
