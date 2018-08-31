@@ -30,4 +30,9 @@ import lombok.Setter;
 @Setter(AccessLevel.PUBLIC)
 @Getter(AccessLevel.PUBLIC)
 public class AlarmMessage {
+    public static AlarmMessage NONE = new NoAlarm();
+
+    private static class NoAlarm extends AlarmMessage {
+
+    }
 }

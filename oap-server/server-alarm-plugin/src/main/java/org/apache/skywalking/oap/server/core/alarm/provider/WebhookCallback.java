@@ -32,7 +32,7 @@ public class WebhookCallback implements AlarmCallback {
         this.remoteEndpoints = remoteEndpoints;
     }
 
-    @Override public void doAlarm(AlarmMessage alarmMessage) {
+    @Override public void doAlarm(List<AlarmMessage> alarmMessage) {
 
     }
 }

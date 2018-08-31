@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
+import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Minutes;
 
@@ -61,8 +62,9 @@ public class AlarmCore {
     public void start(List<AlarmCallback> allCallbacks) {
         LocalDateTime now = LocalDateTime.now();
         lastExecuteTime = now;
-        runningContext.values().forEach(ruleList -> ruleList.forEach(runningRule -> runningRule.start(now, allCallbacks)));
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() ->
+        runningContext.values().forEach(ruleList -> ruleList.forEach(runningRule -> runningRule.start(now)));
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+            List<AlarmMessage> alarmMessageList = new ArrayList<>(30);
             runningContext.values().forEach(ruleList -> ruleList.forEach(runningRule -> {
                 LocalDateTime checkTime = LocalDateTime.now();
                 int minutes = Minutes.minutesBetween(lastExecuteTime, checkTime).getMinutes();
@@ -72,11 +74,17 @@ public class AlarmCore {
                      * Don't run in the first quarter per min, avoid to trigger alarm.
                      */
                     if (checkTime.getSecondOfMinute() > 15) {
-                        runningRule.check();
+                        AlarmMessage alarmMessage = runningRule.check();
+                        if (alarmMessage != AlarmMessage.NONE) {
+                            alarmMessageList.add(alarmMessage);
+                        }
                         // Set the last execute time, and make sure the second is `00`, such as: 18:30:00
                         lastExecuteTime = checkTime.minusSeconds(checkTime.getSecondOfMinute());
                     }
                 }
-            })), 10, 10, TimeUnit.SECONDS);
+            }));
+
+            allCallbacks.forEach(callback -> callback.doAlarm(alarmMessageList));
+        }, 10, 10, TimeUnit.SECONDS);
     }
 }
