@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
+import java.util.Arrays;
+
 /**
  * Scope IDs represent IDs of this scope.
  * Such as:
@@ -33,5 +35,18 @@ public class ScopeIDs {
 
     public int getID(int idx) {
         return ids[idx];
+    }
+
+    @Override public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        ScopeIDs ds = (ScopeIDs)o;
+        return Arrays.equals(ids, ds.ids);
+    }
+
+    @Override public int hashCode() {
+        return Arrays.hashCode(ids);
     }
 }

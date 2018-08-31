@@ -29,6 +29,10 @@ rules:
     silence-period: 10
   service_percent_rule:
     indicator-name: service_percent
+    # [Optional] Default, match all services in this indicator
+    include-names:
+      - service_a
+      - service_b
     threshold: 85
     op: <
     period: 10

@@ -28,6 +28,8 @@ import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Minutes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Alarm core includes metric values in certain time windows based on alarm settings. By using its internal timer
@@ -36,6 +38,8 @@ import org.joda.time.Minutes;
  * @author wusheng
  */
 public class AlarmCore {
+    private static final Logger logger = LoggerFactory.getLogger(AlarmCore.class);
+
     private Map<String, List<RunningRule>> runningContext;
     private LocalDateTime lastExecuteTime;
 
@@ -62,29 +66,31 @@ public class AlarmCore {
     public void start(List<AlarmCallback> allCallbacks) {
         LocalDateTime now = LocalDateTime.now();
         lastExecuteTime = now;
-        runningContext.values().forEach(ruleList -> ruleList.forEach(runningRule -> runningRule.start(now)));
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-            List<AlarmMessage> alarmMessageList = new ArrayList<>(30);
-            runningContext.values().forEach(ruleList -> ruleList.forEach(runningRule -> {
-                LocalDateTime checkTime = LocalDateTime.now();
-                int minutes = Minutes.minutesBetween(lastExecuteTime, checkTime).getMinutes();
-                if (minutes > 0) {
-                    runningRule.moveTo(checkTime);
-                    /**
-                     * Don't run in the first quarter per min, avoid to trigger alarm.
-                     */
-                    if (checkTime.getSecondOfMinute() > 15) {
-                        AlarmMessage alarmMessage = runningRule.check();
-                        if (alarmMessage != AlarmMessage.NONE) {
-                            alarmMessageList.add(alarmMessage);
+            try {
+                List<AlarmMessage> alarmMessageList = new ArrayList<>(30);
+                runningContext.values().forEach(ruleList -> ruleList.forEach(runningRule -> {
+                    LocalDateTime checkTime = LocalDateTime.now();
+                    int minutes = Minutes.minutesBetween(lastExecuteTime, checkTime).getMinutes();
+                    if (minutes > 0) {
+                        runningRule.moveTo(checkTime);
+                        /**
+                         * Don't run in the first quarter per min, avoid to trigger false alarm.
+                         */
+                        if (checkTime.getSecondOfMinute() > 15) {
+                            alarmMessageList.addAll(runningRule.check());
+                            // Set the last execute time, and make sure the second is `00`, such as: 18:30:00
+                            lastExecuteTime = checkTime.minusSeconds(checkTime.getSecondOfMinute());
                         }
-                        // Set the last execute time, and make sure the second is `00`, such as: 18:30:00
-                        lastExecuteTime = checkTime.minusSeconds(checkTime.getSecondOfMinute());
                     }
-                }
-            }));
+                }));
 
-            allCallbacks.forEach(callback -> callback.doAlarm(alarmMessageList));
+                if (alarmMessageList.size() > 0) {
+                    allCallbacks.forEach(callback -> callback.doAlarm(alarmMessageList));
+                }
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
         }, 10, 10, TimeUnit.SECONDS);
     }
 }

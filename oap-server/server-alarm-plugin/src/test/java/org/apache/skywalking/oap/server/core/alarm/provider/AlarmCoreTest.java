@@ -65,7 +65,7 @@ public class AlarmCoreTest {
                 if (isAdd[0]) {
                     checkTime.add(LocalDateTime.now());
                 }
-                return null;
+                return new ArrayList<>(0);
             }
         }).when(mockRule).check();
 
@@ -80,6 +80,9 @@ public class AlarmCoreTest {
                 isAdd[0] = false;
                 Assert.assertTrue(checkTimePoints(checkTime));
                 break;
+            }
+            if(i == 9){
+                Assert.assertTrue(false);
             }
         }
     }
