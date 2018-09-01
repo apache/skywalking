@@ -24,5 +24,12 @@ Also, if you have some related to us, welcome to submit a pull request to add.
 if you see some problem. 
 Or better yet, submit your own contributions through pull request to help make them better.
 
+___
+### Users from 5.x
+SkyWalking 5.x is still supported by the community. For the user plans to upgrade from 5.x to 6.x, you should know there are some definitions of concepts changed.
+
+The most important two changed concepts are
+1. Applciation(in 5.x) is changed to **Service**(in 6.x), also Application Instance is changed to **Service Instance**.
+1. Service(in 5.x) is changed to **Endpoint**(in 6.x).
 
 
