@@ -13,5 +13,5 @@ Setup based on which kind of probes are you going to use. If you don't understan
     
 
 ## Setup backend
-Follow [backend setup document](backend/backend-language-agent-setup.md) to understand and config the backend for different
+Follow [backend and UI setup document](backend/backend-ui-setup.md) to understand and config the backend for different
 scenarios, and open advanced features.

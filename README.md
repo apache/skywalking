@@ -48,7 +48,7 @@ You can go to 5.x branch. At there, you have everything you need.
 
 
 # Downloads
-Please head to the [releases page](ttp://skywalking.apache.org/downloads/) to download a release of Apache SkyWalking.
+Please head to the [releases page](http://skywalking.apache.org/downloads/) to download a release of Apache SkyWalking.
 
 
 # Code of conduct

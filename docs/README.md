@@ -1,5 +1,6 @@
 # Welcome
 **SkyWalking 6 documents and codes are still on building, Status: WIP. Of course, we welcome everyone to join us.**
+Here are SkyWalking 6 official documents.
 
 From here you can learn all about **SkyWalking**’s architecture, how to deploy and use SkyWalking, even develop based on SkyWalking.
 
@@ -24,12 +25,15 @@ Also, if you have some related to us, welcome to submit a pull request to add.
 if you see some problem. 
 Or better yet, submit your own contributions through pull request to help make them better.
 
+For documents in other languages, contributed by our community.
+- [中文 :cn:](others/cn/README.md)
+
 ___
 ### Users from 5.x
 SkyWalking 5.x is still supported by the community. For the user plans to upgrade from 5.x to 6.x, you should know there are some definitions of concepts changed.
 
 The most important two changed concepts are
-1. Applciation(in 5.x) is changed to **Service**(in 6.x), also Application Instance is changed to **Service Instance**.
+1. Application(in 5.x) is changed to **Service**(in 6.x), also Application Instance is changed to **Service Instance**.
 1. Service(in 5.x) is changed to **Endpoint**(in 6.x).
 
 
