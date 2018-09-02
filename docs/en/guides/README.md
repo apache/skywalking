@@ -11,6 +11,7 @@ breaking any Apache rule.
 SkyWalking project supports many ways to extends existing features. If you are interesting in these ways,
 read the following guides.
 
-- [Java agent plugin development guide](../setup/service-agent/java-agent/Plugin-Development-Guide.md).
+- [Java agent plugin development guide](Java-Plugin-Development-Guide.md).
 This guide helps you to develop SkyWalking agent plugin to support more frameworks. Both open source plugin
 and private plugin developer should read this. 
+- [Storage extension development guide](storage-extention.md)

@@ -18,7 +18,7 @@ v2.0
 [gRPC service define](https://github.com/apache/incubator-skywalking-data-collect-protocol/blob/v2.0/TraceSegmentService.proto)
 
 - UniqueId represents segmentId and globalTraceId. It have 3 parts(Longs), 1) applicationInstanceId, 2) ThreadId, 3) Timestamp + 10000 + seq(seq is in [0, 100000) )
-- Span data please refs to [Plugin Development Guide](../setup/service-agent/java-agent/Plugin-Development-Guide.md)
+- Span data please refs to [Plugin Development Guide](../guides/Java-Plugin-Development-Guide.md)
 - Id and name both exist, please use id if possible.
   - operationNameId/operationName 
   - networkAddress/networkAddressId
