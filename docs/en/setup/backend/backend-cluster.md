@@ -1,4 +1,7 @@
 # Cluster Management
+In many product environments, backend need to support high throughputs and provide HA to keep robustness,
+so you should need cluster management always in product env.
+ 
 Backend provides several ways to do cluster management. Choose the one you need/want.
 
 - [Zookeeper coordinator](#zookeeper-coordinator). Use Zookeeper to let backend detects and communicates

@@ -70,7 +70,7 @@ Now, we have the following known plugins.
 
 ## Plugin Development Guide
 SkyWalking java agent supports plugin to extend [the supported list](Supported-list.md). Please follow 
-our [Plugin Development Guide](Plugin-Development-Guide.md).
+our [Plugin Development Guide](../../../guides/Java-Plugin-Development-Guide.md).
 
 # Test
 If you are interested in plugin compatible tests or agent performance, see the following reports.
