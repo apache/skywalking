@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.cache;
 
 import com.google.common.cache.*;
+import java.util.Objects;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInstanceInventoryCacheDAO;
@@ -34,7 +35,7 @@ public class ServiceInstanceInventoryCache implements Service {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceInstanceInventoryCache.class);
 
-    private final Cache<Integer, Integer> serviceInstanceIdCache = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(5000).build();
+    private final Cache<Integer, ServiceInstanceInventory> serviceInstanceIdCache = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(5000).build();
 
     private final Cache<String, Integer> serviceInstanceNameCache = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(5000).build();
 
@@ -54,21 +55,21 @@ public class ServiceInstanceInventoryCache implements Service {
         return this.cacheDAO;
     }
 
-    public int getServiceId(int serviceInstanceId) {
-        int serviceId = Const.NONE;
+    public ServiceInstanceInventory get(int serviceInstanceId) {
+        ServiceInstanceInventory serviceInstanceInventory = null;
         try {
-            serviceId = serviceInstanceIdCache.get(serviceInstanceId, () -> getCacheDAO().getServiceId(serviceInstanceId));
+            serviceInstanceInventory = serviceInstanceIdCache.get(serviceInstanceId, () -> getCacheDAO().get(serviceInstanceId));
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
 
-        if (serviceId == Const.NONE) {
-            serviceId = getCacheDAO().getServiceId(serviceInstanceId);
-            if (serviceId != Const.NONE) {
-                serviceInstanceIdCache.put(serviceInstanceId, serviceId);
+        if (Objects.isNull(serviceInstanceInventory)) {
+            serviceInstanceInventory = getCacheDAO().get(serviceInstanceId);
+            if (Objects.nonNull(serviceInstanceInventory)) {
+                serviceInstanceIdCache.put(serviceInstanceId, serviceInstanceInventory);
             }
         }
-        return serviceId;
+        return serviceInstanceInventory;
     }
 
     public int getServiceInstanceId(int serviceId, String serviceInstanceName) {

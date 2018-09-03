@@ -16,24 +16,29 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core;
+package org.apache.skywalking.oap.server.core.source;
+
+import lombok.*;
 
 /**
  * @author peng-yongsheng
  */
-public class Const {
-    public static final int NONE = 0;
-    public static final String ID_SPLIT = "_";
-    public static final int NONE_SERVICE_ID = 1;
-    public static final int NONE_INSTANCE_ID = 1;
-    public static final int NONE_ENDPOINT_ID = 1;
-    public static final String NONE_ENDPOINT_NAME = "None";
-    public static final String USER_CODE = "User";
-    public static final String SEGMENT_SPAN_SPLIT = "S";
-    public static final String UNKNOWN = "Unknown";
-    public static final String EXCEPTION = "Exception";
-    public static final String EMPTY_STRING = "";
-    public static final String FILE_SUFFIX = "sw";
-    public static final int SPAN_TYPE_VIRTUAL = 9;
-    public static final String DOMAIN_OPERATION_NAME = "{domain}";
+public class ServiceInstanceRelation extends Source {
+
+    @Override public Scope scope() {
+        return Scope.ServiceInstanceRelation;
+    }
+
+    @Getter @Setter private int sourceServiceInstanceId;
+    @Getter @Setter private String sourceServiceName;
+    @Getter @Setter private String sourceServiceInstanceName;
+    @Getter @Setter private int destServiceInstanceId;
+    @Getter @Setter private String destServiceName;
+    @Getter @Setter private String destServiceInstanceName;
+    @Getter @Setter private String endpoint;
+    @Getter @Setter private int latency;
+    @Getter @Setter private boolean status;
+    @Getter @Setter private int responseCode;
+    @Getter @Setter private RequestType type;
+    @Getter @Setter private DetectPoint detectPoint;
 }

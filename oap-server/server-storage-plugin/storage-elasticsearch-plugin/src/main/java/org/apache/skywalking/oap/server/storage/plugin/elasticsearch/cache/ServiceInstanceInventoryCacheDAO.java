@@ -43,7 +43,7 @@ public class ServiceInstanceInventoryCacheDAO extends EsDAO implements IServiceI
         super(client);
     }
 
-    @Override public int getServiceId(int serviceInstanceId) {
+    @Override public ServiceInstanceInventory get(int serviceInstanceId) {
         try {
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
             searchSourceBuilder.query(QueryBuilders.termQuery(ServiceInstanceInventory.SEQUENCE, serviceInstanceId));
@@ -52,13 +52,13 @@ public class ServiceInstanceInventoryCacheDAO extends EsDAO implements IServiceI
             SearchResponse response = getClient().search(ServiceInstanceInventory.MODEL_NAME, searchSourceBuilder);
             if (response.getHits().totalHits == 1) {
                 SearchHit searchHit = response.getHits().getAt(0);
-                return builder.map2Data(searchHit.getSourceAsMap()).getServiceId();
+                return builder.map2Data(searchHit.getSourceAsMap());
             } else {
-                return Const.NONE;
+                return null;
             }
         } catch (Throwable e) {
             logger.error(e.getMessage());
-            return Const.NONE;
+            return null;
         }
     }
 

@@ -18,12 +18,14 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider;
 
+import java.io.IOException;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
 import org.apache.skywalking.oap.server.receiver.trace.provider.handler.TraceSegmentServiceHandler;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentParserListenerManager;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.endpoint.MultiScopesSpanListener;
 
 /**
  * @author peng-yongsheng
@@ -45,11 +47,16 @@ public class TraceModuleProvider extends ModuleProvider {
     @Override public void prepare() {
     }
 
-    @Override public void start() {
+    @Override public void start() throws ModuleStartException {
         SegmentParserListenerManager listenerManager = new SegmentParserListenerManager();
+        listenerManager.add(new MultiScopesSpanListener.Factory());
 
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(CoreModule.NAME).getService(GRPCHandlerRegister.class);
-        grpcHandlerRegister.addHandler(new TraceSegmentServiceHandler(getManager(), listenerManager));
+        try {
+            grpcHandlerRegister.addHandler(new TraceSegmentServiceHandler(getManager(), listenerManager));
+        } catch (IOException e) {
+            throw new ModuleStartException(e.getMessage(), e);
+        }
     }
 
     @Override public void notifyAfterCompleted() {

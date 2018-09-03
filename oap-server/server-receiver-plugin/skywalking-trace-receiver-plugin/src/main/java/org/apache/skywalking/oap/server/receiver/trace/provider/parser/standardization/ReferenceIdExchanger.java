@@ -54,11 +54,11 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
     @Override public boolean exchange(ReferenceDecorator standardBuilder, int serviceId) {
         if (standardBuilder.getEntryServiceId() == 0) {
             String entryEndpointName = StringUtils.isNotEmpty(standardBuilder.getEntryServiceName()) ? standardBuilder.getEntryServiceName() : Const.DOMAIN_OPERATION_NAME;
-            int entryEndpointId = endpointInventoryRegister.get(serviceInstanceInventoryCache.getServiceId(standardBuilder.getEntryApplicationInstanceId()), entryEndpointName);
+            int entryEndpointId = endpointInventoryRegister.get(serviceInstanceInventoryCache.get(standardBuilder.getEntryApplicationInstanceId()).getServiceId(), entryEndpointName);
 
             if (entryEndpointId == 0) {
                 if (logger.isDebugEnabled()) {
-                    int entryServiceId = serviceInstanceInventoryCache.getServiceId(standardBuilder.getEntryApplicationInstanceId());
+                    int entryServiceId = serviceInstanceInventoryCache.get(standardBuilder.getEntryApplicationInstanceId()).getServiceId();
                     logger.debug("entry endpoint name: {} from service id: {} exchange failed", entryEndpointName, entryServiceId);
                 }
                 return false;
@@ -71,11 +71,11 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
 
         if (standardBuilder.getParentServiceId() == 0) {
             String parentEndpointName = StringUtils.isNotEmpty(standardBuilder.getParentServiceName()) ? standardBuilder.getParentServiceName() : Const.DOMAIN_OPERATION_NAME;
-            int parentEndpointId = endpointInventoryRegister.get(serviceInstanceInventoryCache.getServiceId(standardBuilder.getParentApplicationInstanceId()), parentEndpointName);
+            int parentEndpointId = endpointInventoryRegister.get(serviceInstanceInventoryCache.get(standardBuilder.getParentApplicationInstanceId()).getServiceId(), parentEndpointName);
 
             if (parentEndpointId == 0) {
                 if (logger.isDebugEnabled()) {
-                    int parentServiceId = serviceInstanceInventoryCache.getServiceId(standardBuilder.getParentApplicationInstanceId());
+                    int parentServiceId = serviceInstanceInventoryCache.get(standardBuilder.getParentApplicationInstanceId()).getServiceId();
                     logger.debug("parent endpoint name: {} from service id: {} exchange failed", parentEndpointName, parentServiceId);
                 }
                 return false;

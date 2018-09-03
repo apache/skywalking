@@ -19,8 +19,10 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import java.io.IOException;
 import java.util.*;
 import org.apache.skywalking.apm.network.language.agent.*;
+import org.apache.skywalking.oap.server.library.buffer.DataStreamReader;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.*;
@@ -31,7 +33,7 @@ import org.slf4j.*;
 /**
  * @author peng-yongsheng
  */
-public class SegmentParse {
+public class SegmentParse implements DataStreamReader.CallBack<UpstreamSegment> {
 
     private static final Logger logger = LoggerFactory.getLogger(SegmentParse.class);
 
@@ -39,14 +41,20 @@ public class SegmentParse {
     private final List<SpanListener> spanListeners;
     private final SegmentParserListenerManager listenerManager;
     private final SegmentCoreInfo segmentCoreInfo;
+    private final SegmentStandardizationWorker standardizationWorker;
 
-    public SegmentParse(ModuleManager moduleManager, SegmentParserListenerManager listenerManager) {
+    public SegmentParse(ModuleManager moduleManager, SegmentParserListenerManager listenerManager) throws IOException {
         this.moduleManager = moduleManager;
         this.listenerManager = listenerManager;
         this.spanListeners = new LinkedList<>();
         this.segmentCoreInfo = new SegmentCoreInfo();
         this.segmentCoreInfo.setStartTime(Long.MAX_VALUE);
         this.segmentCoreInfo.setEndTime(Long.MIN_VALUE);
+        this.standardizationWorker = new SegmentStandardizationWorker(moduleManager, listenerManager);
+    }
+
+    @Override public void call(UpstreamSegment segment) {
+        parse(segment, Source.Buffer);
     }
 
     public boolean parse(UpstreamSegment segment, Source source) {
@@ -166,6 +174,8 @@ public class SegmentParse {
 
         SegmentStandardization standardization = new SegmentStandardization(id);
         standardization.setUpstreamSegment(upstreamSegment);
+
+        standardizationWorker.in(standardization);
     }
 
     private void notifyListenerToBuild() {

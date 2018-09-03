@@ -18,54 +18,79 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization;
 
-import java.util.concurrent.*;
-import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
+import java.io.IOException;
+import java.util.*;
+import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
+import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
+import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
+import org.apache.skywalking.oap.server.library.buffer.BufferStream;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.*;
 import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
-public class SegmentStandardizationWorker extends AbstractLocalAsyncWorker<SegmentStandardization, SegmentStandardization> {
+public class SegmentStandardizationWorker extends AbstractWorker<SegmentStandardization> {
 
     private static final Logger logger = LoggerFactory.getLogger(SegmentStandardizationWorker.class);
 
-    private SegmentStandardizationWorker(ModuleManager moduleManager) {
-        super(moduleManager);
-        SegmentBufferManager.INSTANCE.initialize(moduleManager);
+    private final DataCarrier<SegmentStandardization> dataCarrier;
+    private final BufferStream<UpstreamSegment> stream;
+
+    public SegmentStandardizationWorker(ModuleManager moduleManager,
+        SegmentParserListenerManager listenerManager) throws IOException {
+        super(9999);
+        this.dataCarrier = new DataCarrier<>(1, 1024);
+        this.dataCarrier.consume(new Consumer(this), 1);
+
+        String directory = "/Users/pengys5/code/sky-walking/buffer-test";
+        BufferStream.Builder<UpstreamSegment> builder = new BufferStream.Builder<>(directory);
+//        builder.cleanWhenRestart(true);
+        builder.dataFileMaxSize(50);
+        builder.offsetFileMaxSize(10);
+        builder.parser(UpstreamSegment.parser());
+        builder.callBack(new SegmentParse(moduleManager, listenerManager));
+
+        stream = builder.build();
+        stream.initialize();
     }
 
-    @Override public int id() {
-        return WorkerIdDefine.SEGMENT_STANDARDIZATION_WORKER_ID;
+    @Override public void in(SegmentStandardization standardization) {
+        stream.write(standardization.getUpstreamSegment());
     }
 
-    @Override protected void onWork(SegmentStandardization segmentStandardization) throws WorkerException {
-        SegmentBufferManager.INSTANCE.writeBuffer(segmentStandardization.getUpstreamSegment());
-    }
+    private class Consumer implements IConsumer<SegmentStandardization> {
 
-    public final void flushAndSwitch() {
-        SegmentBufferManager.INSTANCE.flush();
-    }
+        private final SegmentStandardizationWorker aggregator;
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<SegmentStandardization, SegmentStandardization, SegmentStandardizationWorker> {
-
-        public Factory(ModuleManager moduleManager) {
-            super(moduleManager);
+        private Consumer(SegmentStandardizationWorker aggregator) {
+            this.aggregator = aggregator;
         }
 
-        @Override public SegmentStandardizationWorker workerInstance(ModuleManager moduleManager) {
-            SegmentStandardizationWorker standardizationWorker = new SegmentStandardizationWorker(moduleManager);
-            startTimer(standardizationWorker);
-            return standardizationWorker;
+        @Override public void init() {
         }
 
-        @Override public int queueSize() {
-            return 1024;
+        @Override public void consume(List<SegmentStandardization> data) {
+            Iterator<SegmentStandardization> inputIterator = data.iterator();
+
+            int i = 0;
+            while (inputIterator.hasNext()) {
+                SegmentStandardization indicator = inputIterator.next();
+                i++;
+                if (i == data.size()) {
+                    indicator.getEndOfBatchContext().setEndOfBatch(true);
+                }
+                aggregator.in(indicator);
+            }
         }
 
-        private void startTimer(SegmentStandardizationWorker standardizationWorker) {
-            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
-                new RunnableWithExceptionProtection(standardizationWorker::flushAndSwitch,
-                    t -> logger.error("Segment standardization failure.", t)), 10, 3, TimeUnit.SECONDS);
+        @Override public void onError(List<SegmentStandardization> data, Throwable t) {
+            logger.error(t.getMessage(), t);
+        }
+
+        @Override public void onExit() {
         }
     }
 }

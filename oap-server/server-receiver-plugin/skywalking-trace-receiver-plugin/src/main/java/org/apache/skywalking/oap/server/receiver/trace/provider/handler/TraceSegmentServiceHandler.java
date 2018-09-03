@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.handler;
 
 import io.grpc.stub.StreamObserver;
+import java.io.IOException;
 import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
@@ -35,7 +36,7 @@ public class TraceSegmentServiceHandler extends TraceSegmentServiceGrpc.TraceSeg
     private final SegmentParse segmentParse;
     private final Boolean debug;
 
-    public TraceSegmentServiceHandler(ModuleManager moduleManager, SegmentParserListenerManager listenerManager) {
+    public TraceSegmentServiceHandler(ModuleManager moduleManager, SegmentParserListenerManager listenerManager) throws IOException {
         this.segmentParse = new SegmentParse(moduleManager, listenerManager);
         this.debug = System.getProperty("debug") != null;
     }
