@@ -54,8 +54,6 @@ public class RunningRule {
     private final OP op;
     private final int countThreshold;
     private final int silencePeriod;
-    private int counter;
-    private int silenceCountdown;
     private Map<MetaInAlarm, Window> windows;
     private volatile IndicatorValueType valueType;
     private Scope targetScope;
@@ -75,8 +73,6 @@ public class RunningRule {
 
         this.countThreshold = alarmRule.getCount();
         this.silencePeriod = alarmRule.getSilencePeriod();
-        // -1 means silence countdown is not running.
-        silenceCountdown = -1;
 
         this.includeNames = alarmRule.getIncludeNames();
     }
@@ -147,27 +143,7 @@ public class RunningRule {
             }
         });
 
-        /**
-         * When
-         * 1. Metric value threshold triggers alarm by rule
-         * 2. Counter reaches the count threshold;
-         * 3. Isn't in silence stage, judged by SilenceCountdown(!=0).
-         */
-        if (alarmMessageList.size() > 0) {
-            counter++;
-            if (counter >= countThreshold && silenceCountdown < 1) {
-                silenceCountdown = silencePeriod;
-                return alarmMessageList;
-            } else {
-                silenceCountdown--;
-            }
-        } else {
-            silenceCountdown--;
-            if (counter > 0) {
-                counter--;
-            }
-        }
-        return new ArrayList<>(0);
+        return alarmMessageList;
     }
 
     /**
@@ -179,12 +155,17 @@ public class RunningRule {
     public class Window {
         private LocalDateTime endTime;
         private int period;
+        private int counter;
+        private int silenceCountdown;
 
         private LinkedList<Indicator> values;
         private ReentrantLock lock = new ReentrantLock();
 
         public Window(int period) {
             this.period = period;
+            // -1 means silence countdown is not running.
+            silenceCountdown = -1;
+            counter = 0;
             init();
         }
 
@@ -247,11 +228,29 @@ public class RunningRule {
 
         public AlarmMessage checkAlarm() {
             if (isMatch()) {
-                AlarmMessage message = new AlarmMessage();
-                return message;
+                /**
+                 * When
+                 * 1. Metric value threshold triggers alarm by rule
+                 * 2. Counter reaches the count threshold;
+                 * 3. Isn't in silence stage, judged by SilenceCountdown(!=0).
+                 */
+                counter++;
+                if (counter >= countThreshold && silenceCountdown < 1) {
+                    silenceCountdown = silencePeriod;
+
+                    //TODO
+                    AlarmMessage message = new AlarmMessage();
+                    return message;
+                } else {
+                    silenceCountdown--;
+                }
             } else {
-                return AlarmMessage.NONE;
+                silenceCountdown--;
+                if (counter > 0) {
+                    counter--;
+                }
             }
+            return AlarmMessage.NONE;
         }
 
         private boolean isMatch() {
