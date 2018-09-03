@@ -18,10 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
-import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
 import org.apache.skywalking.oap.server.core.analysis.indicator.DoubleValueHolder;
@@ -46,22 +48,27 @@ public class RunningRule {
     private static DateTimeFormatter TIME_BUCKET_FORMATTER = DateTimeFormat.forPattern("yyyyMMddHHmm");
 
     private String ruleName;
+    private int period;
+    private String indicatorName;
     private final Threshold threshold;
     private final OP op;
     private final int countThreshold;
     private final int silencePeriod;
     private int counter;
     private int silenceCountdown;
-    private Window window;
-    private volatile boolean isStarted = false;
+    private Map<MetaInAlarm, Window> windows;
     private volatile IndicatorValueType valueType;
     private Scope targetScope;
+    private List<String> includeNames;
 
     public RunningRule(AlarmRule alarmRule) {
+        indicatorName = alarmRule.getIndicatorName();
         this.ruleName = alarmRule.getAlarmRuleName();
 
         // Init the empty window for alarming rule.
-        window = new Window(alarmRule.getPeriod());
+        windows = new ConcurrentHashMap<>();
+
+        period = alarmRule.getPeriod();
 
         threshold = new Threshold(alarmRule.getAlarmRuleName(), alarmRule.getThreshold());
         op = OP.get(alarmRule.getOp());
@@ -70,6 +77,8 @@ public class RunningRule {
         this.silencePeriod = alarmRule.getSilencePeriod();
         // -1 means silence countdown is not running.
         silenceCountdown = -1;
+
+        this.includeNames = alarmRule.getIncludeNames();
     }
 
     /**
@@ -79,7 +88,8 @@ public class RunningRule {
      * @param indicator
      */
     public void in(MetaInAlarm meta, Indicator indicator) {
-        if (!isStarted) {
+        if (!meta.getIndicatorName().equals(indicatorName)) {
+            //Don't match rule, exit.
             return;
         }
 
@@ -98,18 +108,21 @@ public class RunningRule {
         }
 
         if (valueType != null) {
+            Window window = windows.get(meta);
+            if (window == null) {
+                window = new Window(period);
+                Window ifAbsent = windows.putIfAbsent(meta, window);
+                if (ifAbsent == null) {
+                    LocalDateTime timebucket = TIME_BUCKET_FORMATTER.parseLocalDateTime(indicator.getTimeBucket() + "");
+                    window.moveTo(timebucket);
+                } else {
+                    window = windows.get(meta);
+                }
+
+            }
+
             window.add(indicator);
         }
-    }
-
-    /**
-     * Start this rule in running mode.
-     *
-     * @param current
-     */
-    public void start(LocalDateTime current) {
-        window.start(current);
-        isStarted = true;
     }
 
     /**
@@ -118,14 +131,21 @@ public class RunningRule {
      * @param targetTime of moving target
      */
     public void moveTo(LocalDateTime targetTime) {
-        window.moveTo(targetTime);
+        windows.values().forEach(window -> window.moveTo(targetTime));
     }
 
     /**
      * Check the conditions, decide to whether trigger alarm.
      */
-    public AlarmMessage check() {
-        boolean isMatched = window.isMatch();
+    public List<AlarmMessage> check() {
+        List<AlarmMessage> alarmMessageList = new ArrayList<>(30);
+
+        windows.values().forEach(window -> {
+            AlarmMessage alarmMessage = window.checkAlarm();
+            if (alarmMessage != AlarmMessage.NONE) {
+                alarmMessageList.add(alarmMessage);
+            }
+        });
 
         /**
          * When
@@ -133,10 +153,11 @@ public class RunningRule {
          * 2. Counter reaches the count threshold;
          * 3. Isn't in silence stage, judged by SilenceCountdown(!=0).
          */
-        if (isMatched) {
+        if (alarmMessageList.size() > 0) {
             counter++;
             if (counter >= countThreshold && silenceCountdown < 1) {
-                return triggerAlarm();
+                silenceCountdown = silencePeriod;
+                return alarmMessageList;
             } else {
                 silenceCountdown--;
             }
@@ -146,16 +167,7 @@ public class RunningRule {
                 counter--;
             }
         }
-        return AlarmMessage.NONE;
-    }
-
-    /**
-     * Trigger alarm callbacks.
-     */
-    private AlarmMessage triggerAlarm() {
-        silenceCountdown = silencePeriod;
-        AlarmMessage message = new AlarmMessage();
-        return message;
+        return new ArrayList<>(0);
     }
 
     /**
@@ -176,27 +188,28 @@ public class RunningRule {
             init();
         }
 
-        public void start(LocalDateTime current) {
-            this.endTime = current;
-        }
-
         public void moveTo(LocalDateTime current) {
             lock.lock();
             try {
-                int minutes = Minutes.minutesBetween(endTime, current).getMinutes();
-                if (minutes <= 0) {
-                    return;
-                }
-                if (minutes > values.size()) {
-                    // re-init
+                if (endTime == null) {
                     init();
+                    endTime = current;
                 } else {
-                    for (int i = 0; i < minutes; i++) {
-                        values.removeFirst();
-                        values.addLast(null);
+                    int minutes = Minutes.minutesBetween(endTime, current).getMinutes();
+                    if (minutes <= 0) {
+                        return;
                     }
+                    if (minutes > values.size()) {
+                        // re-init
+                        init();
+                    } else {
+                        for (int i = 0; i < minutes; i++) {
+                            values.removeFirst();
+                            values.addLast(null);
+                        }
+                    }
+                    endTime = current;
                 }
-                endTime = current;
             } finally {
                 lock.unlock();
             }
@@ -216,9 +229,8 @@ public class RunningRule {
             lock.lock();
             try {
                 if (minutes < 0) {
-                    // At any moment, should NOT be here
-                    // Add this code just because of my obsession :P
-                    return;
+                    moveTo(timebucket);
+                    minutes = 0;
                 }
 
                 if (minutes >= values.size()) {
@@ -233,7 +245,16 @@ public class RunningRule {
             }
         }
 
-        public boolean isMatch() {
+        public AlarmMessage checkAlarm() {
+            if (isMatch()) {
+                AlarmMessage message = new AlarmMessage();
+                return message;
+            } else {
+                return AlarmMessage.NONE;
+            }
+        }
+
+        private boolean isMatch() {
             int matchCount = 0;
             for (Indicator indicator : values) {
                 if (indicator == null) {

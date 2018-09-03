@@ -62,3 +62,5 @@ istio-telemetry:
 query:
   graphql:
     path: /graphql
+alarm:
+  default:

@@ -58,7 +58,9 @@ public class RulesReader {
                     if (indicatorName == null) {
                         throw new IllegalArgumentException("indicator-name can't be null");
                     }
+
                     alarmRule.setIndicatorName((String)indicatorName);
+                    alarmRule.setIncludeNames((ArrayList)settings.getOrDefault("include-names", new ArrayList(0)));
                     alarmRule.setThreshold(settings.get("threshold").toString());
                     alarmRule.setOp((String)settings.get("op"));
                     alarmRule.setPeriod((Integer)settings.getOrDefault("period", 1));

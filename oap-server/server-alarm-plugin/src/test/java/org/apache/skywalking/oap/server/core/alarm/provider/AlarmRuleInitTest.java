@@ -33,6 +33,9 @@ public class AlarmRuleInitTest {
         Assert.assertEquals(2, ruleList.size());
         Assert.assertEquals("85", ruleList.get(1).getThreshold());
         Assert.assertEquals("endpoint_percent_rule", ruleList.get(0).getAlarmRuleName());
+        Assert.assertEquals(0, ruleList.get(0).getIncludeNames().size());
+
+        Assert.assertEquals("service_b", ruleList.get(1).getIncludeNames().get(1));
 
         List<String> rulesWebhooks = rules.getWebhooks();
         Assert.assertEquals(2, rulesWebhooks.size());
