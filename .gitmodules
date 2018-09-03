@@ -4,3 +4,6 @@
 [submodule "apm-protocol/apm-network/src/main/proto"]
 	path = apm-protocol/apm-network/src/main/proto
 	url = https://github.com/apache/incubator-skywalking-data-collect-protocol.git
+[submodule "oap-server/server-query-plugin/query-graphql-plugin/src/main/resources/query-protocol"]
+	path = oap-server/server-query-plugin/query-graphql-plugin/src/main/resources/query-protocol
+	url = https://github.com/apache/incubator-skywalking-query-protocol.git
