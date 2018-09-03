@@ -16,7 +16,8 @@ microservices, cloud native and container-based (Docker, Kubernetes, Mesos) arch
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
 
 # Abstract
-**SkyWalking** is an open source APM system, including monitoring, tracing, diagnosing capabilities for distributed system. 
+**SkyWalking** is an open source APM system, including monitoring, tracing, diagnosing capabilities for distributed system
+in Cloud Native architecture. 
 The core features are following.
 
 - Service, service instance, endpoint metrics analysis
@@ -33,18 +34,18 @@ The core features are following.
 
 SkyWalking supports to collect telemetry (traces and metrics) data from different sources, 
 in order to provide more options
-for different scenarios. For better understanding, read our documents.
+for different scenarios. 
 
 
 # Document
-- [Documents in English](docs/README.md)
+- [6.x Documents](docs/README.md). In these documents, you will understand
 
 ```
 5.x is still supported by SkyWalking community, and the agent-backend protocol is compatible with 6.x.
 You can go to 5.x branch. At there, you have everything you need.
 ```
 
-- Go to [5.x pages](https://github.com/apache/incubator-skywalking/tree/5.x)
+- Go to [5.x pages](https://github.com/apache/incubator-skywalking/tree/5.x). Also 5.x document is [here](https://github.com/apache/incubator-skywalking/blob/master/docs/README.md).
 
 
 # Downloads
@@ -52,7 +53,8 @@ Please head to the [releases page](http://skywalking.apache.org/downloads/) to d
 
 
 # Code of conduct
-This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wusheng@apache.org.
+This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. 
+Please report unacceptable behavior to dev@skywalking.apache.org .
 
 # Live Demo
 - Host in Beijing. [goto](http://49.4.12.44:8080/)
