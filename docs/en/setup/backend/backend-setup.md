@@ -57,7 +57,7 @@ DB. But clearly, it doesn't fit the product env. In here, you could find what ot
 Choose the one you like, we are also welcome anyone to contribute new storage implementor,
 1. [Set receivers](backend-receivers.md). You could choose receivers by your requirements, most receivers
 are harmless, at least our default receivers are. You would set and active all receivers provided.
-1. Official [OAL scripts](backend-oal-scripts.md). As you known from our [OAL introduction](../../concepts-and-designs/oal.md),
+1. Official [OAL scripts](../../guides/backend-oal-scripts.md). As you known from our [OAL introduction](../../concepts-and-designs/oal.md),
 most of backend analysis capabilities based on the scripts. Here is the description of official scripts,
 which helps you to understand which metric data are in process, also could be used in alarm.
 1. [Alarm](backend-alarm.md). Alarm provides a time-series based check mechanism. You could set alarm 

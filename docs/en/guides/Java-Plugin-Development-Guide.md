@@ -158,7 +158,7 @@ SpanLayer is the catalog of span. Here are 5 values:
 1. MQ
 
 Component IDs are defined and reserved by SkyWalking project.
-For component name/ID extension, please follow [component library setting document](../setup/backend/Component-library-settings.md).
+For component name/ID extension, please follow [cComponent library definition and extension](Component-library-settings.md) document.
 
 ## Develop a plugin
 ### Abstract
@@ -274,6 +274,7 @@ public interface InstanceMethodsAroundInterceptor {
 }
 ```
 Use the core APIs in before, after and exception handle stages.
+
 
 ### Contribute plugins into Apache SkyWalking repository
 We are welcome everyone to contribute plugins.

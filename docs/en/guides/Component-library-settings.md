@@ -27,6 +27,7 @@ This is a both-way mapping, agent or SDK could use the value(ID) to represent th
 - Node.js Platform reserved: (4000, 5000]
 - Go reserved: (5000, 6000]
 - PHP reserved: (6000, 7000]
+- Python reserved: (7000, 8000]
 
 Example
 ```yaml
