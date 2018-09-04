@@ -16,19 +16,13 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.cache;
-
-import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
-import org.apache.skywalking.oap.server.core.storage.DAO;
+package org.apache.skywalking.oap.server.core.config;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public interface IServiceInstanceInventoryCacheDAO extends DAO {
-
-    ServiceInstanceInventory get(int serviceInstanceId);
-
-    int getServiceInstanceId(int serviceId, String serviceInstanceName);
-
-    int getServiceInstanceId(int serviceId, int addressId);
+class InitialComponentCatalogException extends RuntimeException {
+    InitialComponentCatalogException(String message) {
+        super(message);
+    }
 }

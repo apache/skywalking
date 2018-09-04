@@ -16,19 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.cache;
+package org.apache.skywalking.oap.server.core.config;
 
-import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
-import org.apache.skywalking.oap.server.core.storage.DAO;
+import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public interface IServiceInstanceInventoryCacheDAO extends DAO {
+public interface IComponentLibraryCatalogService extends Service {
+    int getComponentId(String componentName);
 
-    ServiceInstanceInventory get(int serviceInstanceId);
+    int getServerIdBasedOnComponent(int componentId);
 
-    int getServiceInstanceId(int serviceId, String serviceInstanceName);
+    String getComponentName(int componentId);
 
-    int getServiceInstanceId(int serviceId, int addressId);
+    String getServerName(int componentServerId);
 }
