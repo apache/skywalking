@@ -19,7 +19,7 @@
 
 package org.apache.skywalking.apm.agent.core.jvm.cpu;
 
-import org.apache.skywalking.apm.network.proto.CPU;
+import org.apache.skywalking.apm.network.language.agent.*;
 
 /**
  * @author wusheng

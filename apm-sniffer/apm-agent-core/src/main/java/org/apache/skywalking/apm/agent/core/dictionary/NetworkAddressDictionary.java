@@ -23,10 +23,7 @@ import io.netty.util.internal.ConcurrentSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.skywalking.apm.network.proto.KeyWithIntegerValue;
-import org.apache.skywalking.apm.network.proto.NetworkAddressMappings;
-import org.apache.skywalking.apm.network.proto.NetworkAddressRegisterServiceGrpc;
-import org.apache.skywalking.apm.network.proto.NetworkAddresses;
+import org.apache.skywalking.apm.network.language.agent.*;
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Dictionary.APPLICATION_CODE_BUFFER_SIZE;
 

@@ -20,13 +20,11 @@
 # This script relies on few environment variables to determine source code package
 # behavior, those variables are:
 #   RELEASE_VERSION -- The version of this source package.
-#   RELEASE_ROUND -- The round of this version release.
 # For example: RELEASE_VERSION=5.0.0-alpha
-#              RELEASE_ROUND=1
 
 
 RELEASE_VERSION=${RELEASE_VERSION}
-TAG_NAME=v${RELEASE_VERSION}-RC${RELEASE_ROUND}
+TAG_NAME=v${RELEASE_VERSION}
 PRODUCT_NAME="apache-skywalking-apm-incubating"
 
 echo "Release version "${RELEASE_VERSION}
@@ -35,12 +33,6 @@ echo "Source tag "${TAG_NAME}
 if [ "$RELEASE_VERSION" == "" ]; then
   echo "RELEASE_VERSION environment variable not found, Please setting the RELEASE_VERSION."
   echo "For example: export RELEASE_VERSION=5.0.0-alpha"
-  exit 1
-fi
-
-if [ "$RELEASE_ROUND" == "" ]; then
-  echo "RELEASE_ROUND environment variable not found, Please setting the RELEASE_ROUND."
-  echo "For example: export RELEASE_ROUND=1"
   exit 1
 fi
 
