@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancejvmmemorypool;
+package org.apache.skywalking.oap.server.core.analysis.generated.endpointrelation;
 
 import java.util.*;
 import lombok.*;
@@ -38,21 +38,27 @@ import org.apache.skywalking.oap.server.core.source.Scope;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "instance_jvm_memory_pool_max", builder = InstanceJvmMemoryPoolMaxIndicator.Builder.class)
-public class InstanceJvmMemoryPoolMaxIndicator extends LongAvgIndicator implements AlarmSupported {
+@StorageEntity(name = "endpointrelation_avg", builder = EndpointRelationAvgIndicator.Builder.class)
+public class EndpointRelationAvgIndicator extends LongAvgIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "id") private int id;
+    @Setter @Getter @Column(columnName = "endpoint_id") private int endpointId;
+    @Setter @Getter @Column(columnName = "child_endpoint_id") private int childEndpointId;
+    @Setter @Getter @Column(columnName = "service_id") private int serviceId;
+    @Setter @Getter @Column(columnName = "child_service_id") private int childServiceId;
     @Setter @Getter @Column(columnName = "service_instance_id") private int serviceInstanceId;
+    @Setter @Getter @Column(columnName = "child_service_instance_id") private int childServiceInstanceId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
-        splitJointId += Const.ID_SPLIT + String.valueOf(id);
+        splitJointId += Const.ID_SPLIT + String.valueOf(endpointId);
+        splitJointId += Const.ID_SPLIT + String.valueOf(childEndpointId);
         return splitJointId;
     }
 
     @Override public int hashCode() {
         int result = 17;
-        result = 31 * result + id;
+        result = 31 * result + endpointId;
+        result = 31 * result + childEndpointId;
         result = 31 * result + (int)getTimeBucket();
         return result;
     }
@@ -65,8 +71,10 @@ public class InstanceJvmMemoryPoolMaxIndicator extends LongAvgIndicator implemen
         if (getClass() != obj.getClass())
             return false;
 
-        InstanceJvmMemoryPoolMaxIndicator indicator = (InstanceJvmMemoryPoolMaxIndicator)obj;
-        if (id != indicator.id)
+        EndpointRelationAvgIndicator indicator = (EndpointRelationAvgIndicator)obj;
+        if (endpointId != indicator.endpointId)
+            return false;
+        if (childEndpointId != indicator.childEndpointId)
             return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
@@ -83,9 +91,13 @@ public class InstanceJvmMemoryPoolMaxIndicator extends LongAvgIndicator implemen
         remoteBuilder.setDataLongs(2, getTimeBucket());
 
 
-        remoteBuilder.setDataIntegers(0, getId());
-        remoteBuilder.setDataIntegers(1, getServiceInstanceId());
-        remoteBuilder.setDataIntegers(2, getCount());
+        remoteBuilder.setDataIntegers(0, getEndpointId());
+        remoteBuilder.setDataIntegers(1, getChildEndpointId());
+        remoteBuilder.setDataIntegers(2, getServiceId());
+        remoteBuilder.setDataIntegers(3, getChildServiceId());
+        remoteBuilder.setDataIntegers(4, getServiceInstanceId());
+        remoteBuilder.setDataIntegers(5, getChildServiceInstanceId());
+        remoteBuilder.setDataIntegers(6, getCount());
 
         return remoteBuilder;
     }
@@ -97,21 +109,29 @@ public class InstanceJvmMemoryPoolMaxIndicator extends LongAvgIndicator implemen
         setTimeBucket(remoteData.getDataLongs(2));
 
 
-        setId(remoteData.getDataIntegers(0));
-        setServiceInstanceId(remoteData.getDataIntegers(1));
-        setCount(remoteData.getDataIntegers(2));
+        setEndpointId(remoteData.getDataIntegers(0));
+        setChildEndpointId(remoteData.getDataIntegers(1));
+        setServiceId(remoteData.getDataIntegers(2));
+        setChildServiceId(remoteData.getDataIntegers(3));
+        setServiceInstanceId(remoteData.getDataIntegers(4));
+        setChildServiceInstanceId(remoteData.getDataIntegers(5));
+        setCount(remoteData.getDataIntegers(6));
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("instance_jvm_memory_pool_max", Scope.ServiceInstanceJVMMemoryPool, id, serviceInstanceId);
+        return new AlarmMeta("EndpointRelation_Avg", Scope.EndpointRelation, endpointId, childEndpointId, serviceId, childServiceId, serviceInstanceId, childServiceInstanceId);
     }
 
-    public static class Builder implements StorageBuilder<InstanceJvmMemoryPoolMaxIndicator> {
+    public static class Builder implements StorageBuilder<EndpointRelationAvgIndicator> {
 
-        @Override public Map<String, Object> data2Map(InstanceJvmMemoryPoolMaxIndicator storageData) {
+        @Override public Map<String, Object> data2Map(EndpointRelationAvgIndicator storageData) {
             Map<String, Object> map = new HashMap<>();
-            map.put("id", storageData.getId());
+            map.put("endpoint_id", storageData.getEndpointId());
+            map.put("child_endpoint_id", storageData.getChildEndpointId());
+            map.put("service_id", storageData.getServiceId());
+            map.put("child_service_id", storageData.getChildServiceId());
             map.put("service_instance_id", storageData.getServiceInstanceId());
+            map.put("child_service_instance_id", storageData.getChildServiceInstanceId());
             map.put("summation", storageData.getSummation());
             map.put("count", storageData.getCount());
             map.put("value", storageData.getValue());
@@ -119,10 +139,14 @@ public class InstanceJvmMemoryPoolMaxIndicator extends LongAvgIndicator implemen
             return map;
         }
 
-        @Override public InstanceJvmMemoryPoolMaxIndicator map2Data(Map<String, Object> dbMap) {
-            InstanceJvmMemoryPoolMaxIndicator indicator = new InstanceJvmMemoryPoolMaxIndicator();
-            indicator.setId(((Number)dbMap.get("id")).intValue());
+        @Override public EndpointRelationAvgIndicator map2Data(Map<String, Object> dbMap) {
+            EndpointRelationAvgIndicator indicator = new EndpointRelationAvgIndicator();
+            indicator.setEndpointId(((Number)dbMap.get("endpoint_id")).intValue());
+            indicator.setChildEndpointId(((Number)dbMap.get("child_endpoint_id")).intValue());
+            indicator.setServiceId(((Number)dbMap.get("service_id")).intValue());
+            indicator.setChildServiceId(((Number)dbMap.get("child_service_id")).intValue());
             indicator.setServiceInstanceId(((Number)dbMap.get("service_instance_id")).intValue());
+            indicator.setChildServiceInstanceId(((Number)dbMap.get("child_service_instance_id")).intValue());
             indicator.setSummation(((Number)dbMap.get("summation")).longValue());
             indicator.setCount(((Number)dbMap.get("count")).intValue());
             indicator.setValue(((Number)dbMap.get("value")).longValue());

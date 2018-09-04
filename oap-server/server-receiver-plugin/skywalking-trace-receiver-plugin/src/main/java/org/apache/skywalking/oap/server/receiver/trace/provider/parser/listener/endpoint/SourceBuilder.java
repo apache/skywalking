@@ -80,6 +80,7 @@ class SourceBuilder {
     ServiceInstance toServiceInstance() {
         ServiceInstance serviceInstance = new ServiceInstance();
         serviceInstance.setId(destServiceInstanceId);
+        serviceInstance.setServiceId(destServiceId);
         serviceInstance.setName(destServiceInstanceName);
         serviceInstance.setServiceName(destServiceName);
         serviceInstance.setEndpointName(destEndpointName);
@@ -94,8 +95,10 @@ class SourceBuilder {
     ServiceInstanceRelation toServiceInstanceRelation() {
         ServiceInstanceRelation serviceInstanceRelation = new ServiceInstanceRelation();
         serviceInstanceRelation.setSourceServiceInstanceId(sourceServiceInstanceId);
+        serviceInstanceRelation.setSourceServiceId(sourceServiceId);
         serviceInstanceRelation.setSourceServiceName(sourceServiceName);
         serviceInstanceRelation.setSourceServiceInstanceName(sourceServiceInstanceName);
+        serviceInstanceRelation.setSourceServiceId(destServiceId);
         serviceInstanceRelation.setDestServiceInstanceId(destServiceInstanceId);
         serviceInstanceRelation.setDestServiceName(destServiceName);
         serviceInstanceRelation.setDestServiceInstanceName(destServiceInstanceName);
@@ -129,8 +132,16 @@ class SourceBuilder {
         EndpointRelation endpointRelation = new EndpointRelation();
         endpointRelation.setEndpointId(sourceEndpointId);
         endpointRelation.setEndpoint(sourceEndpointName);
+        endpointRelation.setServiceId(sourceServiceId);
+        endpointRelation.setServiceName(sourceServiceName);
+        endpointRelation.setServiceInstanceId(sourceServiceInstanceId);
+        endpointRelation.setServiceInstanceName(sourceServiceInstanceName);
         endpointRelation.setChildEndpointId(destEndpointId);
         endpointRelation.setChildEndpoint(destEndpointName);
+        endpointRelation.setChildServiceId(destServiceId);
+        endpointRelation.setChildServiceName(destServiceName);
+        endpointRelation.setChildServiceInstanceId(destServiceInstanceId);
+        endpointRelation.setChildServiceInstanceName(destServiceInstanceName);
         endpointRelation.setRpcLatency(latency);
         endpointRelation.setStatus(status);
         endpointRelation.setResponseCode(responseCode);

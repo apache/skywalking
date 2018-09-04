@@ -31,7 +31,16 @@ import org.slf4j.*;
 import static java.util.Objects.nonNull;
 
 /**
- * @author peng-yongsheng
+ *
+ * Notice, in here, there are following concepts match
+ *
+ *       v5        |   v6
+ *
+ * 1. Application == Service
+ * 2. Server == Service Instance
+ * 3. Service == Endpoint
+ *
+ * @author peng-yongsheng, wusheng
  */
 public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListener {
 

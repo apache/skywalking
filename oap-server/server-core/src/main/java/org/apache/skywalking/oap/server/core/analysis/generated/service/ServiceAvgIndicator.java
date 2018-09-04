@@ -67,6 +67,7 @@ public class ServiceAvgIndicator extends LongAvgIndicator implements AlarmSuppor
         ServiceAvgIndicator indicator = (ServiceAvgIndicator)obj;
         if (id != indicator.id)
             return false;
+
         if (getTimeBucket() != indicator.getTimeBucket())
             return false;
 

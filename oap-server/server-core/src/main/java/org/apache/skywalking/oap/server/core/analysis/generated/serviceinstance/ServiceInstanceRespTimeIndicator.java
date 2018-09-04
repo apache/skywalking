@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancejvmmemorypool;
+package org.apache.skywalking.oap.server.core.analysis.generated.serviceinstance;
 
 import java.util.*;
 import lombok.*;
@@ -38,11 +38,11 @@ import org.apache.skywalking.oap.server.core.source.Scope;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "instance_jvm_memory_pool_max", builder = InstanceJvmMemoryPoolMaxIndicator.Builder.class)
-public class InstanceJvmMemoryPoolMaxIndicator extends LongAvgIndicator implements AlarmSupported {
+@StorageEntity(name = "serviceinstance_resptime", builder = ServiceInstanceRespTimeIndicator.Builder.class)
+public class ServiceInstanceRespTimeIndicator extends LongAvgIndicator implements AlarmSupported {
 
     @Setter @Getter @Column(columnName = "id") private int id;
-    @Setter @Getter @Column(columnName = "service_instance_id") private int serviceInstanceId;
+    @Setter @Getter @Column(columnName = "service_id") private int serviceId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
@@ -65,7 +65,7 @@ public class InstanceJvmMemoryPoolMaxIndicator extends LongAvgIndicator implemen
         if (getClass() != obj.getClass())
             return false;
 
-        InstanceJvmMemoryPoolMaxIndicator indicator = (InstanceJvmMemoryPoolMaxIndicator)obj;
+        ServiceInstanceRespTimeIndicator indicator = (ServiceInstanceRespTimeIndicator)obj;
         if (id != indicator.id)
             return false;
 
@@ -84,7 +84,7 @@ public class InstanceJvmMemoryPoolMaxIndicator extends LongAvgIndicator implemen
 
 
         remoteBuilder.setDataIntegers(0, getId());
-        remoteBuilder.setDataIntegers(1, getServiceInstanceId());
+        remoteBuilder.setDataIntegers(1, getServiceId());
         remoteBuilder.setDataIntegers(2, getCount());
 
         return remoteBuilder;
@@ -98,20 +98,20 @@ public class InstanceJvmMemoryPoolMaxIndicator extends LongAvgIndicator implemen
 
 
         setId(remoteData.getDataIntegers(0));
-        setServiceInstanceId(remoteData.getDataIntegers(1));
+        setServiceId(remoteData.getDataIntegers(1));
         setCount(remoteData.getDataIntegers(2));
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("instance_jvm_memory_pool_max", Scope.ServiceInstanceJVMMemoryPool, id, serviceInstanceId);
+        return new AlarmMeta("ServiceInstance_RespTime", Scope.ServiceInstance, id, serviceId);
     }
 
-    public static class Builder implements StorageBuilder<InstanceJvmMemoryPoolMaxIndicator> {
+    public static class Builder implements StorageBuilder<ServiceInstanceRespTimeIndicator> {
 
-        @Override public Map<String, Object> data2Map(InstanceJvmMemoryPoolMaxIndicator storageData) {
+        @Override public Map<String, Object> data2Map(ServiceInstanceRespTimeIndicator storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put("id", storageData.getId());
-            map.put("service_instance_id", storageData.getServiceInstanceId());
+            map.put("service_id", storageData.getServiceId());
             map.put("summation", storageData.getSummation());
             map.put("count", storageData.getCount());
             map.put("value", storageData.getValue());
@@ -119,10 +119,10 @@ public class InstanceJvmMemoryPoolMaxIndicator extends LongAvgIndicator implemen
             return map;
         }
 
-        @Override public InstanceJvmMemoryPoolMaxIndicator map2Data(Map<String, Object> dbMap) {
-            InstanceJvmMemoryPoolMaxIndicator indicator = new InstanceJvmMemoryPoolMaxIndicator();
+        @Override public ServiceInstanceRespTimeIndicator map2Data(Map<String, Object> dbMap) {
+            ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicator();
             indicator.setId(((Number)dbMap.get("id")).intValue());
-            indicator.setServiceInstanceId(((Number)dbMap.get("service_instance_id")).intValue());
+            indicator.setServiceId(((Number)dbMap.get("service_id")).intValue());
             indicator.setSummation(((Number)dbMap.get("summation")).longValue());
             indicator.setCount(((Number)dbMap.get("count")).intValue());
             indicator.setValue(((Number)dbMap.get("value")).longValue());
