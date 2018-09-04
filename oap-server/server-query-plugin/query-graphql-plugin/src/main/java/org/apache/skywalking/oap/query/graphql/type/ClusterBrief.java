@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.query.graphql.type;
 
 public class ClusterBrief {
     private int numOfService;
-    private int numOfServiceInstance;
+    private int numOfEndpoint;
     private int numOfDatabase;
     private int numOfCache;
     private int numOfMQ;

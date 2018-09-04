@@ -21,8 +21,6 @@ package org.apache.skywalking.oap.query.graphql.type;
 public class Call {
     private String source;
     private String target;
-    private boolean isAlert;
     private String callType;
     private long cpm;
-    private long avgResponseTime;
 }
