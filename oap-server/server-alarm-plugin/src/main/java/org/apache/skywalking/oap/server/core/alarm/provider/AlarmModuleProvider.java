@@ -18,15 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import java.io.FileNotFoundException;
-import java.io.Reader;
-import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
-import org.apache.skywalking.oap.server.core.alarm.IndicatorNotify;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
-import org.apache.skywalking.oap.server.library.module.ModuleProvider;
-import org.apache.skywalking.oap.server.library.module.ModuleStartException;
-import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import java.io.*;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.alarm.*;
+import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 
 public class AlarmModuleProvider extends ModuleProvider {
@@ -43,19 +38,18 @@ public class AlarmModuleProvider extends ModuleProvider {
     }
 
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-
-    }
-
-    @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
         Reader applicationReader;
         try {
             applicationReader = ResourceUtils.read("alarm-settings.yml");
         } catch (FileNotFoundException e) {
-            throw new ModuleStartException("can't load alarm-settings.yml",e);
+            throw new ModuleStartException("can't load alarm-settings.yml", e);
         }
         RulesReader reader = new RulesReader(applicationReader);
         Rules rules = reader.readRules();
         this.registerServiceImplementation(IndicatorNotify.class, new NotifyHandler(rules));
+    }
+
+    @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
@@ -63,6 +57,6 @@ public class AlarmModuleProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[0];
+        return new String[] {CoreModule.NAME};
     }
 }
