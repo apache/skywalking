@@ -45,7 +45,7 @@ for different scenarios.
 You can go to 5.x branch. At there, you have everything you need.
 ```
 
-- Go to [5.x pages](https://github.com/apache/incubator-skywalking/tree/5.x). Also 5.x document is [here](https://github.com/apache/incubator-skywalking/blob/master/docs/README.md).
+- Go to [5.x pages](https://github.com/apache/incubator-skywalking/tree/5.x). Also 5.x document is [here](https://github.com/apache/incubator-skywalking/blob/5.x/docs/README.md).
 
 
 # Downloads
