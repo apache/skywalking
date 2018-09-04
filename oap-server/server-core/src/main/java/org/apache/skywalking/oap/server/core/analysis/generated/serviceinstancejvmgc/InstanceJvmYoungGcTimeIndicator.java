@@ -68,6 +68,7 @@ public class InstanceJvmYoungGcTimeIndicator extends LongAvgIndicator implements
         InstanceJvmYoungGcTimeIndicator indicator = (InstanceJvmYoungGcTimeIndicator)obj;
         if (id != indicator.id)
             return false;
+
         if (getTimeBucket() != indicator.getTimeBucket())
             return false;
 

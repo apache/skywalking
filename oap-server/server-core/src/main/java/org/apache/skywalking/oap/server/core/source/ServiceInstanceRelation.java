@@ -30,9 +30,11 @@ public class ServiceInstanceRelation extends Source {
     }
 
     @Getter @Setter private int sourceServiceInstanceId;
+    @Getter @Setter private int sourceServiceId;
     @Getter @Setter private String sourceServiceName;
     @Getter @Setter private String sourceServiceInstanceName;
     @Getter @Setter private int destServiceInstanceId;
+    @Getter @Setter private int destServiceId;
     @Getter @Setter private String destServiceName;
     @Getter @Setter private String destServiceInstanceName;
     @Getter @Setter private String endpoint;

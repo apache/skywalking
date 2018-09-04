@@ -69,6 +69,7 @@ public class EndpointPercentIndicator extends PercentIndicator implements AlarmS
         EndpointPercentIndicator indicator = (EndpointPercentIndicator)obj;
         if (id != indicator.id)
             return false;
+
         if (getTimeBucket() != indicator.getTimeBucket())
             return false;
 

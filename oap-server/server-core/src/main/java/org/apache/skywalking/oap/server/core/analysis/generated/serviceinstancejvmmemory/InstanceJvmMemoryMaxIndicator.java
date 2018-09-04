@@ -68,6 +68,7 @@ public class InstanceJvmMemoryMaxIndicator extends LongAvgIndicator implements A
         InstanceJvmMemoryMaxIndicator indicator = (InstanceJvmMemoryMaxIndicator)obj;
         if (id != indicator.id)
             return false;
+
         if (getTimeBucket() != indicator.getTimeBucket())
             return false;
 

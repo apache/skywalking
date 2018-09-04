@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancejvmmemorypool;
+package org.apache.skywalking.oap.server.core.analysis.generated.servicerelation;
 
 import java.util.*;
 import lombok.*;
@@ -38,21 +38,23 @@ import org.apache.skywalking.oap.server.core.source.Scope;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "instance_jvm_memory_pool_max", builder = InstanceJvmMemoryPoolMaxIndicator.Builder.class)
-public class InstanceJvmMemoryPoolMaxIndicator extends LongAvgIndicator implements AlarmSupported {
+@StorageEntity(name = "servicerelation_avg", builder = ServiceRelationAvgIndicator.Builder.class)
+public class ServiceRelationAvgIndicator extends LongAvgIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "id") private int id;
-    @Setter @Getter @Column(columnName = "service_instance_id") private int serviceInstanceId;
+    @Setter @Getter @Column(columnName = "source_service_id") private int sourceServiceId;
+    @Setter @Getter @Column(columnName = "dest_service_id") private int destServiceId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
-        splitJointId += Const.ID_SPLIT + String.valueOf(id);
+        splitJointId += Const.ID_SPLIT + String.valueOf(sourceServiceId);
+        splitJointId += Const.ID_SPLIT + String.valueOf(destServiceId);
         return splitJointId;
     }
 
     @Override public int hashCode() {
         int result = 17;
-        result = 31 * result + id;
+        result = 31 * result + sourceServiceId;
+        result = 31 * result + destServiceId;
         result = 31 * result + (int)getTimeBucket();
         return result;
     }
@@ -65,8 +67,10 @@ public class InstanceJvmMemoryPoolMaxIndicator extends LongAvgIndicator implemen
         if (getClass() != obj.getClass())
             return false;
 
-        InstanceJvmMemoryPoolMaxIndicator indicator = (InstanceJvmMemoryPoolMaxIndicator)obj;
-        if (id != indicator.id)
+        ServiceRelationAvgIndicator indicator = (ServiceRelationAvgIndicator)obj;
+        if (sourceServiceId != indicator.sourceServiceId)
+            return false;
+        if (destServiceId != indicator.destServiceId)
             return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
@@ -83,8 +87,8 @@ public class InstanceJvmMemoryPoolMaxIndicator extends LongAvgIndicator implemen
         remoteBuilder.setDataLongs(2, getTimeBucket());
 
 
-        remoteBuilder.setDataIntegers(0, getId());
-        remoteBuilder.setDataIntegers(1, getServiceInstanceId());
+        remoteBuilder.setDataIntegers(0, getSourceServiceId());
+        remoteBuilder.setDataIntegers(1, getDestServiceId());
         remoteBuilder.setDataIntegers(2, getCount());
 
         return remoteBuilder;
@@ -97,21 +101,21 @@ public class InstanceJvmMemoryPoolMaxIndicator extends LongAvgIndicator implemen
         setTimeBucket(remoteData.getDataLongs(2));
 
 
-        setId(remoteData.getDataIntegers(0));
-        setServiceInstanceId(remoteData.getDataIntegers(1));
+        setSourceServiceId(remoteData.getDataIntegers(0));
+        setDestServiceId(remoteData.getDataIntegers(1));
         setCount(remoteData.getDataIntegers(2));
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("instance_jvm_memory_pool_max", Scope.ServiceInstanceJVMMemoryPool, id, serviceInstanceId);
+        return new AlarmMeta("ServiceRelation_Avg", Scope.ServiceRelation, sourceServiceId, destServiceId);
     }
 
-    public static class Builder implements StorageBuilder<InstanceJvmMemoryPoolMaxIndicator> {
+    public static class Builder implements StorageBuilder<ServiceRelationAvgIndicator> {
 
-        @Override public Map<String, Object> data2Map(InstanceJvmMemoryPoolMaxIndicator storageData) {
+        @Override public Map<String, Object> data2Map(ServiceRelationAvgIndicator storageData) {
             Map<String, Object> map = new HashMap<>();
-            map.put("id", storageData.getId());
-            map.put("service_instance_id", storageData.getServiceInstanceId());
+            map.put("source_service_id", storageData.getSourceServiceId());
+            map.put("dest_service_id", storageData.getDestServiceId());
             map.put("summation", storageData.getSummation());
             map.put("count", storageData.getCount());
             map.put("value", storageData.getValue());
@@ -119,10 +123,10 @@ public class InstanceJvmMemoryPoolMaxIndicator extends LongAvgIndicator implemen
             return map;
         }
 
-        @Override public InstanceJvmMemoryPoolMaxIndicator map2Data(Map<String, Object> dbMap) {
-            InstanceJvmMemoryPoolMaxIndicator indicator = new InstanceJvmMemoryPoolMaxIndicator();
-            indicator.setId(((Number)dbMap.get("id")).intValue());
-            indicator.setServiceInstanceId(((Number)dbMap.get("service_instance_id")).intValue());
+        @Override public ServiceRelationAvgIndicator map2Data(Map<String, Object> dbMap) {
+            ServiceRelationAvgIndicator indicator = new ServiceRelationAvgIndicator();
+            indicator.setSourceServiceId(((Number)dbMap.get("source_service_id")).intValue());
+            indicator.setDestServiceId(((Number)dbMap.get("dest_service_id")).intValue());
             indicator.setSummation(((Number)dbMap.get("summation")).longValue());
             indicator.setCount(((Number)dbMap.get("count")).intValue());
             indicator.setValue(((Number)dbMap.get("value")).longValue());
