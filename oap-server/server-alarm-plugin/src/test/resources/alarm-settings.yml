@@ -27,6 +27,7 @@ rules:
     count: 3
     # How many times of checks, the alarm keeps silence after alarm triggered, default as same as period.
     silence-period: 10
+    message: Successful rate of endpoint {name} is lower than 75%
   service_percent_rule:
     indicator-name: service_percent
     # [Optional] Default, match all services in this indicator
