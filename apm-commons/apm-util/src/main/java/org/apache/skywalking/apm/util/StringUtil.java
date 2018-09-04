@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.util;
 
 public final class StringUtil {

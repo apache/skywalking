@@ -19,7 +19,7 @@
 
 package org.apache.skywalking.apm.agent.core.context.util;
 
-import org.apache.skywalking.apm.network.proto.KeyWithStringValue;
+import org.apache.skywalking.apm.network.language.agent.*;
 
 /**
  * The <code>KeyValuePair</code> represents a object which contains a string key and a string value.

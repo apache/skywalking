@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sdk-plugin</artifactId>
-        <version>5.0.0-RC-SNAPSHOT</version>
+        <version>6.0.0-alpha-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-httpClient-4.x-plugin</artifactId>
@@ -34,7 +34,6 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <apache-httpclient.version>4.3</apache-httpclient.version>
-        <log4j-core.version>2.4.1</log4j-core.version>
         <junit.version>4.12</junit.version>
     </properties>
 
@@ -46,12 +45,7 @@
             <scope>provided</scope>
         </dependency>
         
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>${log4j-core.version}</version>
-            <scope>test</scope>
-        </dependency>
+
 
         <dependency>
             <groupId>junit</groupId>

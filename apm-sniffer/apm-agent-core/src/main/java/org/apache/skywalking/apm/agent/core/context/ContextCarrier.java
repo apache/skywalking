@@ -57,7 +57,7 @@ public class ContextCarrier implements Serializable {
     private int entryApplicationInstanceId = DictionaryUtil.nullValue();
 
     /**
-     * peer(ipv4/ipv6/hostname + port) of the server, from client side.
+     * peer(ipv4s/ipv6/hostname + port) of the server, from client side.
      */
     private String peerHost;
 
