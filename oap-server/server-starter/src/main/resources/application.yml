@@ -51,6 +51,8 @@ storage:
     monthMetricDataTTL: 18 # Unit is month
 receiver-register:
   default:
+receiver-trace:
+  default:
 receiver-jvm:
   default:
 service-mesh:

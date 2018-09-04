@@ -29,7 +29,7 @@ import org.slf4j.*;
 /**
  * @author peng-yongsheng
  */
-class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
+public class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
 
     private static final Logger logger = LoggerFactory.getLogger(DataStreamReader.class);
 
@@ -119,7 +119,7 @@ class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
         }
     }
 
-    interface CallBack<MESSAGE_TYPE extends GeneratedMessageV3> {
+    public interface CallBack<MESSAGE_TYPE extends GeneratedMessageV3> {
         void call(MESSAGE_TYPE message);
     }
 }
