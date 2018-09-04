@@ -200,12 +200,20 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
-   =======================================================================
-   Apache SkyWalking Subcomponents:
+=======================================================================
+Apache SkyWalking Subcomponents:
 
-   The Apache SkyWalking project contains subcomponents with separate copyright
-   notices and license terms. Your use of the source code for the these
-   subcomponents is subject to the terms and conditions of the following
-   licenses.
+The Apache SkyWalking project contains subcomponents with separate copyright
+notices and license terms. Your use of the source code for the these
+subcomponents is subject to the terms and conditions of the following
+licenses.
+
+
+========================================================================
+MIT licenses
+========================================================================
+
+The following components are provided under the MIT License. See project link for details.
+The text of each license is also included at licenses/LICENSE-[project].txt.
 
    iconfont(from antd): https://github.com/ant-design/antd-init/tree/master/examples/local-iconfont   MIT
