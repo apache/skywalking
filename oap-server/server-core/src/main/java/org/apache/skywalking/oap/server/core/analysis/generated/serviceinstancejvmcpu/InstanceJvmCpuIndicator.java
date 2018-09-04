@@ -68,6 +68,7 @@ public class InstanceJvmCpuIndicator extends DoubleAvgIndicator implements Alarm
         InstanceJvmCpuIndicator indicator = (InstanceJvmCpuIndicator)obj;
         if (id != indicator.id)
             return false;
+
         if (getTimeBucket() != indicator.getTimeBucket())
             return false;
 

@@ -20,10 +20,15 @@ package org.apache.skywalking.oap.server.core.analysis;
 
 import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.generated.endpoint.EndpointDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.generated.endpointrelation.EndpointRelationDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.generated.service.ServiceDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.generated.serviceinstance.ServiceInstanceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancejvmcpu.ServiceInstanceJVMCPUDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancejvmgc.ServiceInstanceJVMGCDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancejvmmemory.ServiceInstanceJVMMemoryDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancejvmmemorypool.ServiceInstanceJVMMemoryPoolDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancerelation.ServiceInstanceRelationDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.generated.servicerelation.ServiceRelationDispatcher;
 import org.apache.skywalking.oap.server.core.source.Scope;
 import org.slf4j.*;
 
@@ -38,7 +43,14 @@ public class DispatcherManager {
 
     public DispatcherManager() {
         this.dispatcherMap = new HashMap<>();
+
+        this.dispatcherMap.put(Scope.Service, new ServiceDispatcher());
+        this.dispatcherMap.put(Scope.ServiceInstance, new ServiceInstanceDispatcher());
         this.dispatcherMap.put(Scope.Endpoint, new EndpointDispatcher());
+
+        this.dispatcherMap.put(Scope.ServiceRelation, new ServiceRelationDispatcher());
+        this.dispatcherMap.put(Scope.ServiceInstanceRelation, new ServiceInstanceRelationDispatcher());
+        this.dispatcherMap.put(Scope.EndpointRelation, new EndpointRelationDispatcher());
 
         this.dispatcherMap.put(Scope.ServiceInstanceJVMCPU, new ServiceInstanceJVMCPUDispatcher());
         this.dispatcherMap.put(Scope.ServiceInstanceJVMGC, new ServiceInstanceJVMGCDispatcher());

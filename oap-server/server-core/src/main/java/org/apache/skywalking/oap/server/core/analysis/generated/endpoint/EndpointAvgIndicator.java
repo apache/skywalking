@@ -69,6 +69,7 @@ public class EndpointAvgIndicator extends LongAvgIndicator implements AlarmSuppo
         EndpointAvgIndicator indicator = (EndpointAvgIndicator)obj;
         if (id != indicator.id)
             return false;
+
         if (getTimeBucket() != indicator.getTimeBucket())
             return false;
 

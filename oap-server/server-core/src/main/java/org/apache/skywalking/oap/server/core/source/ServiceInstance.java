@@ -31,6 +31,7 @@ public class ServiceInstance extends Source {
     }
 
     @Getter @Setter private int id;
+    @Getter @Setter private int serviceId;
     @Getter @Setter private String name;
     @Getter @Setter private String serviceName;
     @Getter @Setter private String endpointName;

@@ -31,8 +31,18 @@ public class EndpointRelation extends Source {
 
     @Getter @Setter private int endpointId;
     @Getter @Setter private String endpoint;
+    @Getter @Setter private int serviceId;
+    @Getter @Setter private String serviceName;
+    @Getter @Setter private int serviceInstanceId;
+    @Getter @Setter private String serviceInstanceName;
+
     @Getter @Setter private int childEndpointId;
     @Getter @Setter private String childEndpoint;
+    @Getter @Setter private int childServiceId;
+    @Getter @Setter private String childServiceName;
+    @Getter @Setter private int childServiceInstanceId;
+    @Getter @Setter private String childServiceInstanceName;
+
     @Getter @Setter private int rpcLatency;
     @Getter @Setter private boolean status;
     @Getter @Setter private int responseCode;
