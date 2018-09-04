@@ -30,6 +30,5 @@
 
     <modules>
         <module>apm-network</module>
-        <module>apm-ui-protocol</module>
     </modules>
 </project>
