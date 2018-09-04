@@ -19,13 +19,11 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
-import java.util.Collections;
-import java.util.List;
-import org.apache.skywalking.oap.query.graphql.type.TopNCondition;
-import org.apache.skywalking.oap.query.graphql.type.TopNEntity;
+import java.util.*;
+import org.apache.skywalking.oap.query.graphql.type.*;
 
 public class AggregationQuery implements GraphQLQueryResolver {
-    public List<TopNEntity> getTopN(final TopNCondition condition) {
+    public List<TopNEntity> getTopN(final TopNCondition condition, final Duration duration) {
         return Collections.emptyList();
     }
 }
