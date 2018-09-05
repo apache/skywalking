@@ -27,8 +27,7 @@ import org.apache.skywalking.apm.agent.core.context.ids.DistributedTraceIds;
 import org.apache.skywalking.apm.agent.core.context.ids.GlobalIdGenerator;
 import org.apache.skywalking.apm.agent.core.context.ids.ID;
 import org.apache.skywalking.apm.agent.core.context.ids.NewDistributedTraceId;
-import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
-import org.apache.skywalking.apm.network.proto.UpstreamSegment;
+import org.apache.skywalking.apm.network.language.agent.*;
 
 /**
  * {@link TraceSegment} is a segment or fragment of the distributed trace. See https://github.com/opentracing/specification/blob/master/specification.md#the-opentracing-data-model

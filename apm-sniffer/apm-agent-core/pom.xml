@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>5.0.0-RC-SNAPSHOT</version>
+        <version>6.0.0-alpha-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-agent-core</artifactId>
@@ -34,9 +34,13 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jetty.version>9.4.2.v20170220</jetty.version>
-        <grpc.version>1.10.0</grpc.version>
+        <grpc.version>1.14.0</grpc.version>
+        <guava.version>20.0</guava.version>
         <bytebuddy.version>1.7.9</bytebuddy.version>
-
+        <disruptor.version>3.3.6</disruptor.version>
+        <apache-httpclient.version>4.5.3</apache-httpclient.version>
+        <wiremock.version>2.6.0</wiremock.version>
+        <os-maven-plugin.version>1.4.1.Final</os-maven-plugin.version>
         <shade.package>org.apache.skywalking.apm.dependencies</shade.package>
         <shade.com.lmax.disruptor.source>com.lmax.disruptor</shade.com.lmax.disruptor.source>
         <shade.com.lmax.disruptor.target>${shade.package}.${shade.com.lmax.disruptor.source}
@@ -60,6 +64,7 @@
             <groupId>org.apache.skywalking</groupId>
             <artifactId>apm-network</artifactId>
             <version>${project.version}</version>
+
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
@@ -80,12 +85,12 @@
         <dependency>
             <groupId>com.lmax</groupId>
             <artifactId>disruptor</artifactId>
-            <version>3.3.6</version>
+            <version>${disruptor.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.3</version>
+            <version>${apache-httpclient.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
@@ -102,8 +107,9 @@
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
             <artifactId>wiremock</artifactId>
-            <version>2.6.0</version>
+            <version>${wiremock.version}</version>
             <scope>test</scope>
+
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
@@ -123,12 +129,22 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
+    <dependencyManagement>
+<dependencies>
+    <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
+    </dependency>
+</dependencies>
+    </dependencyManagement>
     <build>
+
         <extensions>
             <extension>
                 <groupId>kr.motd.maven</groupId>
                 <artifactId>os-maven-plugin</artifactId>
-                <version>1.4.1.Final</version>
+                <version>${os-maven-plugin.version}</version>
             </extension>
         </extensions>
         <plugins>

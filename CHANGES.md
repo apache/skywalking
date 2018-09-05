@@ -2,6 +2,44 @@ Changes by Version
 ==================
 Release Notes.
 
+5.0.0-RC
+------------------
+
+#### Agent Changes
+  - Support ActiveMQ 5.x
+  - Support RuntimeContext used out of TracingContext.
+  - Support Oracle ojdbc8 Plugin.
+  - Support ElasticSearch client transport 5.2-5.6 Plugin
+  - Support using agent.config with given path through system properties.
+  - Add a new way to transmit the Request and Response, to avoid bugs in Hytrix scenarios.
+  - Fix HTTPComponent client v4 operation name is empty.
+  - Fix 2 possible NPEs in Spring plugin.
+  - Fix a possible span leak in SpringMVC plugin.
+  - Fix NPE in Spring callback plugin.
+  
+#### Collector Changes
+  - Add GZip support for Zipkin receiver.
+  - Add new component IDs for nodejs.
+  - Fix Zipkin span receiver may miss data in request.
+  - Optimize codes in heatmap calculation. Reduce unnecessary divide.
+  - Fix NPE in Alarm content generation.
+  - Fix the precision lost in `ServiceNameService#startTimeMillis`.
+  - Fix GC count is 0.
+  - Fix topology breaks when RPC client uses the async thread call.
+  
+#### UI Changes
+  - Fix UI port can't be set by startup script in Windows.
+  - Fix Topology self link error.
+  - Fix stack color mismatch label color in gc time chart.
+  
+#### Documents
+  - Add users list.
+  - Fix several document typo.
+  - Sync the Chinese documents.
+  - Add OpenAPM badge.
+  - Add icon/font documents to NOTICE files.
+
+
 5.0.0-beta2
 ------------------
 

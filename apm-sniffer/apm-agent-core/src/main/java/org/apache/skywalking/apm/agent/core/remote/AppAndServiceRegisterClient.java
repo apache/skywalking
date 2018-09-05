@@ -34,7 +34,7 @@ import org.apache.skywalking.apm.agent.core.dictionary.OperationNameDictionary;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.os.OSUtil;
-import org.apache.skywalking.apm.network.proto.*;
+import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
 import java.util.UUID;
@@ -82,12 +82,13 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
     @Override
     public void boot() throws Throwable {
         applicationRegisterFuture = Executors
-            .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("AppAndServiceRegisterClient"))
-            .scheduleAtFixedRate(new RunnableWithExceptionProtection(this, new RunnableWithExceptionProtection.CallbackWhenException() {
-                @Override public void handle(Throwable t) {
-                    logger.error("unexpected exception.", t);
-                }
-            }), 0, Config.Collector.APP_AND_SERVICE_REGISTER_CHECK_INTERVAL, TimeUnit.SECONDS);
+                .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("AppAndServiceRegisterClient"))
+                .scheduleAtFixedRate(new RunnableWithExceptionProtection(this, new RunnableWithExceptionProtection.CallbackWhenException() {
+                    @Override
+                    public void handle(Throwable t) {
+                        logger.error("unexpected exception.", t);
+                    }
+                }), 0, Config.Collector.APP_AND_SERVICE_REGISTER_CHECK_INTERVAL, TimeUnit.SECONDS);
     }
 
     @Override
@@ -110,7 +111,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
                 if (RemoteDownstreamConfig.Agent.APPLICATION_ID == DictionaryUtil.nullValue()) {
                     if (applicationRegisterServiceBlockingStub != null) {
                         ApplicationMapping applicationMapping = applicationRegisterServiceBlockingStub.applicationCodeRegister(
-                            Application.newBuilder().setApplicationCode(Config.Agent.APPLICATION_CODE).build());
+                                Application.newBuilder().setApplicationCode(Config.Agent.APPLICATION_CODE).build());
                         if (applicationMapping != null) {
                             RemoteDownstreamConfig.Agent.APPLICATION_ID = applicationMapping.getApplication().getValue();
                             shouldTry = true;
@@ -121,21 +122,21 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
                         if (RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID == DictionaryUtil.nullValue()) {
 
                             ApplicationInstanceMapping instanceMapping = instanceDiscoveryServiceBlockingStub.registerInstance(ApplicationInstance.newBuilder()
-                                .setApplicationId(RemoteDownstreamConfig.Agent.APPLICATION_ID)
-                                .setAgentUUID(PROCESS_UUID)
-                                .setRegisterTime(System.currentTimeMillis())
-                                .setOsinfo(OSUtil.buildOSInfo())
-                                .build());
+                                    .setApplicationId(RemoteDownstreamConfig.Agent.APPLICATION_ID)
+                                    .setAgentUUID(PROCESS_UUID)
+                                    .setRegisterTime(System.currentTimeMillis())
+                                    .setOsinfo(OSUtil.buildOSInfo())
+                                    .build());
                             if (instanceMapping.getApplicationInstanceId() != DictionaryUtil.nullValue()) {
                                 RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID
-                                    = instanceMapping.getApplicationInstanceId();
+                                        = instanceMapping.getApplicationInstanceId();
                             }
                         } else {
                             if (lastSegmentTime - System.currentTimeMillis() > 60 * 1000) {
                                 instanceDiscoveryServiceBlockingStub.heartbeat(ApplicationInstanceHeartbeat.newBuilder()
-                                    .setApplicationInstanceId(RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID)
-                                    .setHeartbeatTime(System.currentTimeMillis())
-                                    .build());
+                                        .setApplicationInstanceId(RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID)
+                                        .setHeartbeatTime(System.currentTimeMillis())
+                                        .build());
                             }
 
                             NetworkAddressDictionary.INSTANCE.syncRemoteDictionary(networkAddressRegisterServiceBlockingStub);
