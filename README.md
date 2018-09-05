@@ -69,7 +69,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 - [See all screenshots](/docs/Screenshots.md)
 
 # Compiling project
-Follow this [document](https://github.com/apache/incubator-skywalking/blob/master/docs/en/How-to-build.md).
+Follow this [document](docs/en/How-to-build.md).
 
 # Contact Us
 * Submit an issue
