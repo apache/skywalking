@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser.standard
 
 import java.io.IOException;
 import java.util.*;
+
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
@@ -40,7 +41,7 @@ public class SegmentStandardizationWorker extends AbstractWorker<SegmentStandard
     private final BufferStream<UpstreamSegment> stream;
 
     public SegmentStandardizationWorker(ModuleManager moduleManager,
-        SegmentParserListenerManager listenerManager) throws IOException {
+                                        SegmentParserListenerManager listenerManager, SegmentParse segmentParse) throws IOException {
         super(9999);
         this.dataCarrier = new DataCarrier<>(1, 1024);
         this.dataCarrier.consume(new Consumer(this), 1);
@@ -51,13 +52,14 @@ public class SegmentStandardizationWorker extends AbstractWorker<SegmentStandard
         builder.dataFileMaxSize(50);
         builder.offsetFileMaxSize(10);
         builder.parser(UpstreamSegment.parser());
-        builder.callBack(new SegmentParse(moduleManager, listenerManager));
+        builder.callBack(segmentParse);
 
         stream = builder.build();
         stream.initialize();
     }
 
-    @Override public void in(SegmentStandardization standardization) {
+    @Override
+    public void in(SegmentStandardization standardization) {
         stream.write(standardization.getUpstreamSegment());
     }
 
@@ -69,10 +71,12 @@ public class SegmentStandardizationWorker extends AbstractWorker<SegmentStandard
             this.aggregator = aggregator;
         }
 
-        @Override public void init() {
+        @Override
+        public void init() {
         }
 
-        @Override public void consume(List<SegmentStandardization> data) {
+        @Override
+        public void consume(List<SegmentStandardization> data) {
             Iterator<SegmentStandardization> inputIterator = data.iterator();
 
             int i = 0;
@@ -86,11 +90,13 @@ public class SegmentStandardizationWorker extends AbstractWorker<SegmentStandard
             }
         }
 
-        @Override public void onError(List<SegmentStandardization> data, Throwable t) {
+        @Override
+        public void onError(List<SegmentStandardization> data, Throwable t) {
             logger.error(t.getMessage(), t);
         }
 
-        @Override public void onExit() {
+        @Override
+        public void onExit() {
         }
     }
 }
