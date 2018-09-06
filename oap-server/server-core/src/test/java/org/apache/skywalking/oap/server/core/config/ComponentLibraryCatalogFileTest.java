@@ -16,11 +16,21 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.config;
 
-public class Call {
-    private String source;
-    private String target;
-    private String callType;
-    private long cpm;
+import org.junit.Assert;
+import org.junit.Test;
+
+/**
+ * @author wusheng
+ */
+public class ComponentLibraryCatalogFileTest {
+    @Test
+    public void testInitAndSettings() {
+        ComponentLibraryCatalogService service = new ComponentLibraryCatalogService();
+        Assert.assertEquals(1, service.getComponentId("Tomcat"));
+        Assert.assertEquals(7, service.getServerIdBasedOnComponent(30));
+        Assert.assertEquals(21, service.getServerIdBasedOnComponent(21));
+        Assert.assertEquals("Jedis", service.getServerName(30));
+    }
 }

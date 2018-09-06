@@ -24,7 +24,8 @@ This document helps people to compile and build the project in your maven and se
 1. Run `./mvnw compile -Dmaven.test.skip=true` to compile project and generate source codes. Because we use gRPC and protobuf.
 1. Set **Generated Source Codes** folders.
     * `grpc-java` and `java` folders in **apm-protocol/apm-network/target/generated-sources/protobuf**
-    * `grpc-java` and `java` folders in **apm-collector/apm-collector-remote/apm-remote-grpc-provider/target/generated-sources/protobuf**
+    * `grpc-java` and `java` folders in **oap-server/server-core/target/generated-sources/protobuf**
+    * `grpc-java` and `java` folders in **oap-server/server-receiver-plugin/skywalking-istio-telemetry-receiver-plugin/target/generated-sources/protobuf**
     
 ## Setup your Eclipse IDE
 1. Import the project as a maven project
