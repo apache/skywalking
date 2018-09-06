@@ -15,27 +15,13 @@
  * limitations under the License.
  *
  */
-
 package org.apache.skywalking.oap.query.graphql.type;
 
 import java.util.List;
 
-public class Span {
-    private String traceId;
-    private String segmentId;
-    private int spanId;
-    private int parentSpanId;
-    private List<Ref> refs;
-    private String applicationCode;
-    private long startTime;
-    private long endTime;
-    private String operationName;
-    private String type;
-    private String peer;
-    private String component;
-    private boolean isError;
-    private String layer;
-    private List<KeyValue> tags;
-    private List<LogEntity> logs;
-    private String serviceCode;
+/**
+ *  @author liu-xinyuan
+ **/
+public class BatchMetricConditions {
+    private List<MetricCondition> metricConditions;
 }

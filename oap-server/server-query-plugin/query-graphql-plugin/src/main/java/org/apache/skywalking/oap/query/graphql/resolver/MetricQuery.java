@@ -19,10 +19,7 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
-import org.apache.skywalking.oap.query.graphql.type.Duration;
-import org.apache.skywalking.oap.query.graphql.type.LinearIntValues;
-import org.apache.skywalking.oap.query.graphql.type.MetricCondition;
-import org.apache.skywalking.oap.query.graphql.type.Thermodynamic;
+import org.apache.skywalking.oap.query.graphql.type.*;
 
 public class MetricQuery implements GraphQLQueryResolver {
     public LinearIntValues getLinearIntValues(final MetricCondition metric, final Duration duration) {
@@ -31,5 +28,9 @@ public class MetricQuery implements GraphQLQueryResolver {
 
     public Thermodynamic getThermodynamic(final MetricCondition metric, final Duration duration) {
         return new Thermodynamic();
+    }
+
+    public LinearIntValues getValues(final BatchMetricConditions metric, final Duration duration) {
+        return new LinearIntValues();
     }
 }

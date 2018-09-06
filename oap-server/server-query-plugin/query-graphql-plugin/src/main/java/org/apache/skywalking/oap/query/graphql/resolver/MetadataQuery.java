@@ -47,4 +47,9 @@ public class MetadataQuery implements GraphQLQueryResolver {
     public List<Endpoint> searchEndpoint(final String keyword, final String serviceId, final int limit) {
         return Collections.emptyList();
     }
+
+
+    public Service searchService(final Duration duration, final String serviceCode) {
+        return new Service();
+    }
 }
