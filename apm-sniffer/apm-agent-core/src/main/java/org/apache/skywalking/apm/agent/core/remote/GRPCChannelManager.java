@@ -138,6 +138,8 @@ public class GRPCChannelManager implements BootService, Runnable {
     public void reportError(Throwable throwable) {
         if (isNetworkError(throwable)) {
             reconnect = true;
+            this.managedChannel.shutdownNow();
+            this.notify(GRPCChannelStatus.DISCONNECT);
         }
     }
 
