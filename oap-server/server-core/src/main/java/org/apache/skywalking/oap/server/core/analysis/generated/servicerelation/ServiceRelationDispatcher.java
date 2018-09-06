@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.generated.servicerelation
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
-import org.apache.skywalking.oap.server.core.source.*;
+import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 
 /**
  * This class is auto generated. Please don't change this class manually.
@@ -30,9 +30,21 @@ import org.apache.skywalking.oap.server.core.source.*;
 public class ServiceRelationDispatcher implements SourceDispatcher<ServiceRelation> {
 
     @Override public void dispatch(ServiceRelation source) {
+        doServiceRelationCallsSum(source);
         doServiceRelationAvg(source);
     }
 
+    private void doServiceRelationCallsSum(ServiceRelation source) {
+        ServiceRelationCallsSumIndicator indicator = new ServiceRelationCallsSumIndicator();
+
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setSourceServiceId(source.getSourceServiceId());
+        indicator.setDestServiceId(source.getDestServiceId());
+        indicator.setCallType(source.getCallType());
+        indicator.combine(1);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
     private void doServiceRelationAvg(ServiceRelation source) {
         ServiceRelationAvgIndicator indicator = new ServiceRelationAvgIndicator();
 
@@ -40,6 +52,7 @@ public class ServiceRelationDispatcher implements SourceDispatcher<ServiceRelati
         indicator.setTimeBucket(source.getTimeBucket());
         indicator.setSourceServiceId(source.getSourceServiceId());
         indicator.setDestServiceId(source.getDestServiceId());
+        indicator.setCallType(source.getCallType());
         indicator.combine(source.getLatency(), 1);
         IndicatorProcess.INSTANCE.in(indicator);
     }

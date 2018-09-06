@@ -16,13 +16,27 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.source;
+package org.apache.skywalking.oap.server.core.analysis.manual.service;
+
+import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
+import org.apache.skywalking.oap.server.core.source.ServiceComponent;
 
 /**
  * @author peng-yongsheng
  */
-public enum Scope {
-    All, Service, ServiceInstance, Endpoint, ServiceRelation, ServiceInstanceRelation, EndpointRelation, NetworkAddress,
-    ServiceInstanceJVMCPU, ServiceInstanceJVMMemory, ServiceInstanceJVMMemoryPool, ServiceInstanceJVMGC,
-    ServiceComponent, ServiceMapping
+public class ServiceComponentDispatcher implements SourceDispatcher<ServiceComponent> {
+
+    @Override public void dispatch(ServiceComponent source) {
+        doDispatch(source);
+    }
+
+    private void doDispatch(ServiceComponent source) {
+        ServiceComponentIndicator indicator = new ServiceComponentIndicator();
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setServiceId(source.getServiceId());
+        indicator.setComponentId(source.getComponentId());
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
 }
