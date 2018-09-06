@@ -50,7 +50,7 @@ public class SegmentParse implements DataStreamReader.CallBack<UpstreamSegment> 
         this.segmentCoreInfo = new SegmentCoreInfo();
         this.segmentCoreInfo.setStartTime(Long.MAX_VALUE);
         this.segmentCoreInfo.setEndTime(Long.MIN_VALUE);
-        this.standardizationWorker = new SegmentStandardizationWorker(moduleManager, listenerManager);
+        this.standardizationWorker = new SegmentStandardizationWorker(moduleManager, listenerManager,this);
     }
 
     @Override public void call(UpstreamSegment segment) {

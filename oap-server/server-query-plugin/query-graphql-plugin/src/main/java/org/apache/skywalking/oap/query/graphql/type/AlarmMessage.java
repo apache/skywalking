@@ -22,4 +22,5 @@ public class AlarmMessage {
     private Scope scope;
     private String id;
     private String message;
+    private Long startTime;
 }
