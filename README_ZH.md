@@ -65,7 +65,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 - [查看所有系统截图](/docs/Screenshots.md)
 
 # Compiling project
-查看[编译指南](https://github.com/apache/incubator-skywalking/blob/master/docs/cn/How-to-build-CN.md)
+查看[编译指南](cn/How-to-build-CN.md)
 
 # Contact Us
 * 直接提交Issue
