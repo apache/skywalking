@@ -37,4 +37,5 @@ public class Span {
     private String layer;
     private List<KeyValue> tags;
     private List<LogEntity> logs;
+    private String serviceCode;
 }
