@@ -27,7 +27,7 @@ import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
  *
  * Format string in alarm-settings.yml, such as:
  *
- * > Successful rate of endpoint {name} is lower than 75%
+ * - Successful rate of endpoint {name} is lower than 75%
  *
  * @author wusheng
  */
