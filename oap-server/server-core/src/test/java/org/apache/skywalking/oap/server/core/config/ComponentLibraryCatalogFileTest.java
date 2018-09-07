@@ -16,26 +16,21 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.config;
 
-import java.util.List;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class Span {
-    private String traceId;
-    private String segmentId;
-    private int spanId;
-    private int parentSpanId;
-    private List<Ref> refs;
-    private String applicationCode;
-    private long startTime;
-    private long endTime;
-    private String operationName;
-    private String type;
-    private String peer;
-    private String component;
-    private boolean isError;
-    private String layer;
-    private List<KeyValue> tags;
-    private List<LogEntity> logs;
-    private String serviceCode;
+/**
+ * @author wusheng
+ */
+public class ComponentLibraryCatalogFileTest {
+    @Test
+    public void testInitAndSettings() {
+        ComponentLibraryCatalogService service = new ComponentLibraryCatalogService();
+        Assert.assertEquals(1, service.getComponentId("Tomcat"));
+        Assert.assertEquals(7, service.getServerIdBasedOnComponent(30));
+        Assert.assertEquals(21, service.getServerIdBasedOnComponent(21));
+        Assert.assertEquals("Jedis", service.getServerName(30));
+    }
 }

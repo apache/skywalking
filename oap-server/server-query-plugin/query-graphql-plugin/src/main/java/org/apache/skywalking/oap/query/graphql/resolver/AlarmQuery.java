@@ -30,7 +30,7 @@ public class AlarmQuery implements GraphQLQueryResolver {
         return new AlarmTrend();
     }
 
-    public Alarms getAlarm(final Duration duration, final Scope scope, final Pagination paging) {
+    public Alarms getAlarm(final Duration duration, final Scope scope,final String keyword, final Pagination paging) {
         return new Alarms();
     }
 }

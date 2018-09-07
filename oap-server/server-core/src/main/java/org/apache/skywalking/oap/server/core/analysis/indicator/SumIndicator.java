@@ -16,13 +16,36 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.source;
+package org.apache.skywalking.oap.server.core.analysis.indicator;
+
+import lombok.*;
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.*;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
  * @author peng-yongsheng
  */
-public enum Scope {
-    All, Service, ServiceInstance, Endpoint, ServiceRelation, ServiceInstanceRelation, EndpointRelation, NetworkAddress,
-    ServiceInstanceJVMCPU, ServiceInstanceJVMMemory, ServiceInstanceJVMMemoryPool, ServiceInstanceJVMGC,
-    ServiceComponent, ServiceMapping
+@IndicatorOperator
+public abstract class SumIndicator extends Indicator implements LongValueHolder {
+
+    protected static final String VALUE = "value";
+
+    @Getter @Setter @Column(columnName = VALUE) private long value;
+
+    @Entrance
+    public final void combine(@ConstOne long count) {
+        this.value += count;
+    }
+
+    @Override public final void combine(Indicator indicator) {
+        SumIndicator sumIndicator = (SumIndicator)indicator;
+        combine(sumIndicator.value);
+    }
+
+    @Override public void calculate() {
+    }
+
+    @Override public long getValue() {
+        return value;
+    }
 }

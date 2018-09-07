@@ -16,26 +16,21 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.source;
 
-import java.util.List;
+import lombok.*;
+import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
 
-public class Span {
-    private String traceId;
-    private String segmentId;
-    private int spanId;
-    private int parentSpanId;
-    private List<Ref> refs;
-    private String applicationCode;
-    private long startTime;
-    private long endTime;
-    private String operationName;
-    private String type;
-    private String peer;
-    private String component;
-    private boolean isError;
-    private String layer;
-    private List<KeyValue> tags;
-    private List<LogEntity> logs;
-    private String serviceCode;
+/**
+ * @author peng-yongsheng
+ */
+@SourceType
+public class ServiceMapping extends Source {
+
+    @Override public Scope scope() {
+        return Scope.ServiceMapping;
+    }
+
+    @Getter @Setter private int serviceId;
+    @Getter @Setter private int mappingServiceId;
 }
