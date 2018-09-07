@@ -19,8 +19,9 @@
 package org.apache.skywalking.oap.server.core.analysis.generated.servicerelation;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.indicator.expression.EqualMatch;
 import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
-import org.apache.skywalking.oap.server.core.source.ServiceRelation;
+import org.apache.skywalking.oap.server.core.source.*;
 
 /**
  * This class is auto generated. Please don't change this class manually.
@@ -30,18 +31,34 @@ import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 public class ServiceRelationDispatcher implements SourceDispatcher<ServiceRelation> {
 
     @Override public void dispatch(ServiceRelation source) {
-        doServiceRelationCallsSum(source);
+        doServiceRelationClientCallsSum(source);
+        doServiceRelationServerCallsSum(source);
         doServiceRelationAvg(source);
     }
 
-    private void doServiceRelationCallsSum(ServiceRelation source) {
-        ServiceRelationCallsSumIndicator indicator = new ServiceRelationCallsSumIndicator();
+    private void doServiceRelationClientCallsSum(ServiceRelation source) {
+        ServiceRelationClientCallsSumIndicator indicator = new ServiceRelationClientCallsSumIndicator();
 
+        if (!new EqualMatch().setLeft(source.getDetectPoint()).setRight(DetectPoint.CLIENT).match()) {
+            return;
+        }
 
         indicator.setTimeBucket(source.getTimeBucket());
         indicator.setSourceServiceId(source.getSourceServiceId());
         indicator.setDestServiceId(source.getDestServiceId());
-        indicator.setCallType(source.getCallType());
+        indicator.combine(1);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+    private void doServiceRelationServerCallsSum(ServiceRelation source) {
+        ServiceRelationServerCallsSumIndicator indicator = new ServiceRelationServerCallsSumIndicator();
+
+        if (!new EqualMatch().setLeft(source.getDetectPoint()).setRight(DetectPoint.SERVER).match()) {
+            return;
+        }
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setSourceServiceId(source.getSourceServiceId());
+        indicator.setDestServiceId(source.getDestServiceId());
         indicator.combine(1);
         IndicatorProcess.INSTANCE.in(indicator);
     }
@@ -52,7 +69,6 @@ public class ServiceRelationDispatcher implements SourceDispatcher<ServiceRelati
         indicator.setTimeBucket(source.getTimeBucket());
         indicator.setSourceServiceId(source.getSourceServiceId());
         indicator.setDestServiceId(source.getDestServiceId());
-        indicator.setCallType(source.getCallType());
         indicator.combine(source.getLatency(), 1);
         IndicatorProcess.INSTANCE.in(indicator);
     }

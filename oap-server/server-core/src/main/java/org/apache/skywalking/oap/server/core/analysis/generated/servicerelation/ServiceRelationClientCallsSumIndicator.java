@@ -37,18 +37,16 @@ import org.apache.skywalking.oap.server.core.storage.annotation.*;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "service_relation_calls_sum", builder = ServiceRelationCallsSumIndicator.Builder.class)
-public class ServiceRelationCallsSumIndicator extends SumIndicator implements AlarmSupported {
+@StorageEntity(name = "service_relation_client_calls_sum", builder = ServiceRelationClientCallsSumIndicator.Builder.class)
+public class ServiceRelationClientCallsSumIndicator extends SumIndicator implements AlarmSupported {
 
     @Setter @Getter @Column(columnName = "source_service_id") private int sourceServiceId;
     @Setter @Getter @Column(columnName = "dest_service_id") private int destServiceId;
-    @Setter @Getter @Column(columnName = "call_type") private int callType;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
         splitJointId += Const.ID_SPLIT + String.valueOf(sourceServiceId);
         splitJointId += Const.ID_SPLIT + String.valueOf(destServiceId);
-        splitJointId += Const.ID_SPLIT + String.valueOf(callType);
         return splitJointId;
     }
 
@@ -56,7 +54,6 @@ public class ServiceRelationCallsSumIndicator extends SumIndicator implements Al
         int result = 17;
         result = 31 * result + sourceServiceId;
         result = 31 * result + destServiceId;
-        result = 31 * result + callType;
         result = 31 * result + (int)getTimeBucket();
         return result;
     }
@@ -69,12 +66,10 @@ public class ServiceRelationCallsSumIndicator extends SumIndicator implements Al
         if (getClass() != obj.getClass())
             return false;
 
-        ServiceRelationCallsSumIndicator indicator = (ServiceRelationCallsSumIndicator)obj;
+        ServiceRelationClientCallsSumIndicator indicator = (ServiceRelationClientCallsSumIndicator)obj;
         if (sourceServiceId != indicator.sourceServiceId)
             return false;
         if (destServiceId != indicator.destServiceId)
-            return false;
-        if (callType != indicator.callType)
             return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
@@ -92,7 +87,6 @@ public class ServiceRelationCallsSumIndicator extends SumIndicator implements Al
 
         remoteBuilder.setDataIntegers(0, getSourceServiceId());
         remoteBuilder.setDataIntegers(1, getDestServiceId());
-        remoteBuilder.setDataIntegers(2, getCallType());
 
         return remoteBuilder;
     }
@@ -105,30 +99,27 @@ public class ServiceRelationCallsSumIndicator extends SumIndicator implements Al
 
         setSourceServiceId(remoteData.getDataIntegers(0));
         setDestServiceId(remoteData.getDataIntegers(1));
-        setCallType(remoteData.getDataIntegers(2));
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("Service_Relation_Calls_Sum", Scope.ServiceRelation, sourceServiceId, destServiceId, callType);
+        return new AlarmMeta("Service_Relation_Client_Calls_Sum", Scope.ServiceRelation, sourceServiceId, destServiceId);
     }
 
-    public static class Builder implements StorageBuilder<ServiceRelationCallsSumIndicator> {
+    public static class Builder implements StorageBuilder<ServiceRelationClientCallsSumIndicator> {
 
-        @Override public Map<String, Object> data2Map(ServiceRelationCallsSumIndicator storageData) {
+        @Override public Map<String, Object> data2Map(ServiceRelationClientCallsSumIndicator storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put("source_service_id", storageData.getSourceServiceId());
             map.put("dest_service_id", storageData.getDestServiceId());
-            map.put("call_type", storageData.getCallType());
             map.put("value", storageData.getValue());
             map.put("time_bucket", storageData.getTimeBucket());
             return map;
         }
 
-        @Override public ServiceRelationCallsSumIndicator map2Data(Map<String, Object> dbMap) {
-            ServiceRelationCallsSumIndicator indicator = new ServiceRelationCallsSumIndicator();
+        @Override public ServiceRelationClientCallsSumIndicator map2Data(Map<String, Object> dbMap) {
+            ServiceRelationClientCallsSumIndicator indicator = new ServiceRelationClientCallsSumIndicator();
             indicator.setSourceServiceId(((Number)dbMap.get("source_service_id")).intValue());
             indicator.setDestServiceId(((Number)dbMap.get("dest_service_id")).intValue());
-            indicator.setCallType(((Number)dbMap.get("call_type")).intValue());
             indicator.setValue(((Number)dbMap.get("value")).longValue());
             indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
             return indicator;
