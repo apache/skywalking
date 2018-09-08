@@ -16,23 +16,24 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core;
+package org.apache.skywalking.oap.server.receiver.trace.mock;
+
+import java.util.concurrent.atomic.AtomicLong;
+import org.apache.skywalking.apm.network.language.agent.UniqueId;
 
 /**
  * @author peng-yongsheng
  */
-public class Const {
-    public static final int NONE = 0;
-    public static final String ID_SPLIT = "_";
-    public static final int NONE_SERVICE_ID = 1;
-    public static final int NONE_INSTANCE_ID = 1;
-    public static final int NONE_ENDPOINT_ID = 1;
-    public static final String NONE_ENDPOINT_NAME = "None";
-    public static final String USER_CODE = "User";
-    public static final String SEGMENT_SPAN_SPLIT = "S";
-    public static final String UNKNOWN = "Unknown";
-    public static final String EXCEPTION = "Exception";
-    public static final String EMPTY_STRING = "";
-    public static final int SPAN_TYPE_VIRTUAL = 9;
-    public static final String DOMAIN_OPERATION_NAME = "{domain}";
+public enum UniqueIdBuilder {
+    INSTANCE;
+
+    private AtomicLong idPart = new AtomicLong(1);
+
+    UniqueId.Builder create() {
+        UniqueId.Builder uniqueId = UniqueId.newBuilder();
+        uniqueId.addIdParts(idPart.getAndIncrement());
+        uniqueId.addIdParts(idPart.getAndIncrement());
+        uniqueId.addIdParts(idPart.getAndIncrement());
+        return uniqueId;
+    }
 }

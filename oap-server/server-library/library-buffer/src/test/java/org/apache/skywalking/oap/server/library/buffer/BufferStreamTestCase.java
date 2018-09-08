@@ -67,8 +67,9 @@ public class BufferStreamTestCase {
 
     private static class SegmentParse implements DataStreamReader.CallBack<TraceSegmentObject> {
 
-        @Override public void call(TraceSegmentObject message) {
+        @Override public boolean call(TraceSegmentObject message) {
             logger.info("segment parse: {}", message.getSpans(0).getSpanId());
+            return true;
         }
     }
 }

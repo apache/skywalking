@@ -24,14 +24,21 @@ import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
 import org.apache.skywalking.oap.server.receiver.trace.provider.handler.TraceSegmentServiceHandler;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentParserListenerManager;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.*;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.endpoint.MultiScopesSpanListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.service.*;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SegmentStandardizationWorker;
 
 /**
  * @author peng-yongsheng
  */
 public class TraceModuleProvider extends ModuleProvider {
+
+    private final TraceServiceModuleConfig moduleConfig;
+
+    public TraceModuleProvider() {
+        this.moduleConfig = new TraceServiceModuleConfig();
+    }
 
     @Override public String name() {
         return "default";
@@ -42,7 +49,7 @@ public class TraceModuleProvider extends ModuleProvider {
     }
 
     @Override public ModuleConfig createConfigBeanIfAbsent() {
-        return null;
+        return moduleConfig;
     }
 
     @Override public void prepare() {
@@ -56,7 +63,11 @@ public class TraceModuleProvider extends ModuleProvider {
 
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(CoreModule.NAME).getService(GRPCHandlerRegister.class);
         try {
-            grpcHandlerRegister.addHandler(new TraceSegmentServiceHandler(getManager(), listenerManager));
+            SegmentParse segmentParse = new SegmentParse(getManager(), listenerManager);
+            grpcHandlerRegister.addHandler(new TraceSegmentServiceHandler(segmentParse));
+
+            SegmentStandardizationWorker standardizationWorker = new SegmentStandardizationWorker(segmentParse, moduleConfig.getBufferPath(), moduleConfig.getBufferOffsetMaxFileSize(), moduleConfig.getBufferDataMaxFileSize(), moduleConfig.isBufferFileCleanWhenRestart());
+            segmentParse.setStandardizationWorker(standardizationWorker);
         } catch (IOException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
