@@ -56,7 +56,7 @@ public class RabbitMQProducerAndConsumerConstructorInterceptorTest {
         }
     };
 
-    public  class  TestConnection implements  Connection{
+    public  class  TestConnection implements  Connection {
 
         @Override
         public InetAddress getAddress() {
