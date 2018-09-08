@@ -146,6 +146,7 @@ public class ActiveMQConsumerInterceptorTest {
 
         List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
         Assert.assertThat(traceSegments.size(), is(1));
+
     }
 
 }
