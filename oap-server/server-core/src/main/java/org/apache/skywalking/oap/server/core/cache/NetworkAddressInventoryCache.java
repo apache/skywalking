@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.cache;
 
 import com.google.common.cache.*;
+import java.util.Objects;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
@@ -54,30 +55,20 @@ public class NetworkAddressInventoryCache implements Service {
     }
 
     public int getAddressId(String networkAddress) {
-        int addressId = Const.NONE;
-        try {
-            addressId = networkAddressCache.get(NetworkAddressInventory.buildId(networkAddress), () -> getCacheDAO().getAddressId(networkAddress));
+        Integer addressId = networkAddressCache.getIfPresent(NetworkAddressInventory.buildId(networkAddress));
 
-            if (addressId == Const.NONE) {
-                addressId = getCacheDAO().getAddressId(networkAddress);
-                if (addressId != Const.NONE) {
-                    networkAddressCache.put(NetworkAddressInventory.buildId(networkAddress), addressId);
-                }
+        if (Objects.isNull(addressId) || addressId == Const.NONE) {
+            addressId = getCacheDAO().getAddressId(networkAddress);
+            if (addressId != Const.NONE) {
+                networkAddressCache.put(NetworkAddressInventory.buildId(networkAddress), addressId);
             }
-        } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
         }
 
         return addressId;
     }
 
     public NetworkAddressInventory get(int addressId) {
-        NetworkAddressInventory networkAddress = null;
-        try {
-            networkAddress = addressIdCache.get(addressId, () -> getCacheDAO().get(addressId));
-        } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
-        }
+        NetworkAddressInventory networkAddress = addressIdCache.getIfPresent(addressId);
 
         if (isNull(networkAddress)) {
             networkAddress = getCacheDAO().get(addressId);

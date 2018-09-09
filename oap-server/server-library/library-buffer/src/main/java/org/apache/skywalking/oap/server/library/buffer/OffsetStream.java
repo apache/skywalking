@@ -84,8 +84,8 @@ class OffsetStream {
     void flush() {
         try {
             String offsetRecord = offset.serialize();
-            logger.debug("flush offset, record: {}", offsetRecord);
             if (!lastOffsetRecord.equals(offsetRecord)) {
+                logger.debug("flush offset, record: {}", offsetRecord);
                 if (offsetFile.length() >= FileUtils.ONE_MB * offsetFileMaxSize) {
                     nextFile();
                 }
