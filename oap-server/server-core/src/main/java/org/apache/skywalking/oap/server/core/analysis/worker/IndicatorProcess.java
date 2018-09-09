@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.util.*;
+import lombok.Getter;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.storage.*;
@@ -33,6 +34,7 @@ public enum IndicatorProcess {
     INSTANCE;
 
     private Map<Class<? extends Indicator>, IndicatorAggregateWorker> entryWorkers = new HashMap<>();
+    @Getter private List<IndicatorPersistentWorker> persistentWorkers = new ArrayList<>();
 
     public void in(Indicator indicator) {
         entryWorkers.get(indicator.getClass()).in(indicator);
@@ -56,6 +58,7 @@ public enum IndicatorProcess {
         IndicatorPersistentWorker persistentWorker = new IndicatorPersistentWorker(WorkerIdGenerator.INSTANCES.generate(), modelName,
             1000, moduleManager, indicatorDAO, alarmNotifyWorker);
         WorkerInstances.INSTANCES.put(persistentWorker.getWorkerId(), persistentWorker);
+        persistentWorkers.add(persistentWorker);
 
         IndicatorRemoteWorker remoteWorker = new IndicatorRemoteWorker(WorkerIdGenerator.INSTANCES.generate(), moduleManager, persistentWorker);
         WorkerInstances.INSTANCES.put(remoteWorker.getWorkerId(), remoteWorker);

@@ -16,23 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core;
+package org.apache.skywalking.oap.server.receiver.trace.provider;
+
+import lombok.*;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
  * @author peng-yongsheng
  */
-public class Const {
-    public static final int NONE = 0;
-    public static final String ID_SPLIT = "_";
-    public static final int NONE_SERVICE_ID = 1;
-    public static final int NONE_INSTANCE_ID = 1;
-    public static final int NONE_ENDPOINT_ID = 1;
-    public static final String NONE_ENDPOINT_NAME = "None";
-    public static final String USER_CODE = "User";
-    public static final String SEGMENT_SPAN_SPLIT = "S";
-    public static final String UNKNOWN = "Unknown";
-    public static final String EXCEPTION = "Exception";
-    public static final String EMPTY_STRING = "";
-    public static final int SPAN_TYPE_VIRTUAL = 9;
-    public static final String DOMAIN_OPERATION_NAME = "{domain}";
+public class TraceServiceModuleConfig extends ModuleConfig {
+    @Setter @Getter private String bufferPath;
+    @Setter @Getter private int bufferOffsetMaxFileSize;
+    @Setter @Getter private int bufferDataMaxFileSize;
+    @Setter @Getter private boolean bufferFileCleanWhenRestart;
 }

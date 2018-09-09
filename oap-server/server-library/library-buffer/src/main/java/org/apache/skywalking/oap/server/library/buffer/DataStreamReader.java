@@ -98,6 +98,10 @@ public class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
     }
 
     private void read() {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Read buffer data");
+        }
+
         try {
             if (readOffset.getOffset() == readingFile.length() && !readOffset.isCurrentWriteFile()) {
                 FileUtils.forceDelete(readingFile);
@@ -108,7 +112,19 @@ public class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
 
                 MESSAGE_TYPE messageType = parser.parseDelimitedFrom(inputStream);
                 if (messageType != null) {
-                    callBack.call(messageType);
+                    int i = 0;
+                    while (!callBack.call(messageType)) {
+                        try {
+                            TimeUnit.MILLISECONDS.sleep(500);
+                        } catch (InterruptedException e) {
+                            logger.error(e.getMessage());
+                        }
+
+                        i++;
+                        if (i == 10) {
+                            break;
+                        }
+                    }
                     final int serialized = messageType.getSerializedSize();
                     final int offset = CodedOutputStream.computeUInt32SizeNoTag(serialized) + serialized;
                     readOffset.setOffset(readOffset.getOffset() + offset);
@@ -120,6 +136,6 @@ public class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
     }
 
     public interface CallBack<MESSAGE_TYPE extends GeneratedMessageV3> {
-        void call(MESSAGE_TYPE message);
+        boolean call(MESSAGE_TYPE message);
     }
 }

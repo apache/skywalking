@@ -73,6 +73,18 @@ public class IndicatorPersistentWorker extends AbstractWorker<Indicator> {
         cacheData(input);
     }
 
+    public boolean flushAndSwitch() {
+        boolean isSwitch;
+        try {
+            if (isSwitch = getCache().trySwitchPointer()) {
+                getCache().switchPointer();
+            }
+        } finally {
+            getCache().trySwitchPointerFinally();
+        }
+        return isSwitch;
+    }
+
     public final List<?> buildBatchCollection() {
         List<?> batchCollection = new LinkedList<>();
         try {

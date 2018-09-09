@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core;
 
 import java.util.*;
 import org.apache.skywalking.oap.server.core.cache.*;
+import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.register.service.*;
 import org.apache.skywalking.oap.server.core.remote.RemoteSenderService;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
@@ -42,6 +43,8 @@ public class CoreModule extends ModuleDefine {
 
     @Override public Class[] services() {
         List<Class> classes = new ArrayList<>();
+        classes.add(IComponentLibraryCatalogService.class);
+
         addServerInterface(classes);
         addReceiverInterface(classes);
         addInsideService(classes);
