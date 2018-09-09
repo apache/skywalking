@@ -31,7 +31,7 @@ public class AgentDataMock {
 
     private static final Logger logger = LoggerFactory.getLogger(AgentDataMock.class);
 
-    private static boolean isCompleted = false;
+    private static boolean IS_COMPLETED = false;
 
     public static void main(String[] args) throws InterruptedException {
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
@@ -53,7 +53,7 @@ public class AgentDataMock {
         providerMock.mock(streamObserver, globalTraceId, providerSegmentId, consumerSegmentId, startTimestamp, true);
 
         streamObserver.onCompleted();
-        while (!isCompleted) {
+        while (!IS_COMPLETED) {
             TimeUnit.MILLISECONDS.sleep(500);
         }
     }
@@ -69,7 +69,7 @@ public class AgentDataMock {
             }
 
             @Override public void onCompleted() {
-                isCompleted = true;
+                IS_COMPLETED = true;
             }
         });
     }
