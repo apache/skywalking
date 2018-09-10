@@ -46,7 +46,6 @@ public class SnifferConfigInitializer {
     private static String DEFAULT_CONFIG_FILE_NAME = "/config/agent.config";
     private static String ENV_KEY_PREFIX = "skywalking.";
     private static boolean IS_INIT_COMPLETED = false;
-    private static final String INSTANCE_UUID = "instanceUUID";
 
     /**
      * If the specified agent config path is set, the agent will try to locate the specified agent config. If the
