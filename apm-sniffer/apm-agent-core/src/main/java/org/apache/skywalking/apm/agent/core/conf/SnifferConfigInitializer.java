@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Properties;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
+import org.apache.skywalking.apm.agent.core.listener.ResetUtil;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.util.ConfigInitializer;
@@ -45,24 +46,23 @@ public class SnifferConfigInitializer {
     private static String DEFAULT_CONFIG_FILE_NAME = "/config/agent.config";
     private static String ENV_KEY_PREFIX = "skywalking.";
     private static boolean IS_INIT_COMPLETED = false;
+    private static final String INSTANCE_UUID = "instanceUUID";
 
     /**
-     * If the specified agent config path is set, the agent will try to locate the specified agent config.
-     * If the specified agent config path is not set , the agent will try to locate `agent.config`, which should be in the /config dictionary of agent package.
-     * <p>
-     * Also try to override the config by system.env and system.properties. All the keys in these two places should
-     * start with {@link #ENV_KEY_PREFIX}. e.g. in env `skywalking.agent.application_code=yourAppName` to override
-     * `agent.application_code` in config file.
-     * <p>
-     * At the end, `agent.application_code` and `collector.servers` must be not blank.
+     * If the specified agent config path is set, the agent will try to locate the specified agent config. If the
+     * specified agent config path is not set , the agent will try to locate `agent.config`, which should be in the
+     * /config dictionary of agent package. <p> Also try to override the config by system.env and system.properties. All
+     * the keys in these two places should start with {@link #ENV_KEY_PREFIX}. e.g. in env
+     * `skywalking.agent.application_code=yourAppName` to override `agent.application_code` in config file. <p> At the
+     * end, `agent.application_code` and `collector.servers` must be not blank.
      */
     public static void initialize() throws ConfigNotFoundException, AgentPackageNotFoundException {
         InputStreamReader configFileStream;
-
         try {
             configFileStream = loadConfig();
             Properties properties = new Properties();
             properties.load(configFileStream);
+            ResetUtil.varifyResetConfig(properties);
             ConfigInitializer.initialize(properties, Config.class);
         } catch (Exception e) {
             logger.error(e, "Failed to read the config file, skywalking is going to run in default config.");

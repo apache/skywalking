@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent;
 
 import java.lang.instrument.Instrumentation;
@@ -65,10 +64,10 @@ public class SkyWalkingAgent {
         }
 
         new AgentBuilder.Default()
-                .type(pluginFinder.buildMatch())
-                .transform(new Transformer(pluginFinder))
-                .with(new Listener())
-                .installOn(instrumentation);
+            .type(pluginFinder.buildMatch())
+            .transform(new Transformer(pluginFinder))
+            .with(new Listener())
+            .installOn(instrumentation);
 
         try {
             ServiceManager.INSTANCE.boot();
@@ -91,7 +90,8 @@ public class SkyWalkingAgent {
         }
 
         @Override
-        public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription, ClassLoader classLoader, JavaModule module) {
+        public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription,
+            ClassLoader classLoader, JavaModule module) {
             List<AbstractClassEnhancePluginDefine> pluginDefines = pluginFinder.find(typeDescription, classLoader);
             if (pluginDefines.size() > 0) {
                 DynamicType.Builder<?> newBuilder = builder;
@@ -122,7 +122,7 @@ public class SkyWalkingAgent {
 
         @Override
         public void onTransformation(TypeDescription typeDescription, ClassLoader classLoader, JavaModule module,
-                                     boolean loaded, DynamicType dynamicType) {
+            boolean loaded, DynamicType dynamicType) {
             if (logger.isDebugEnable()) {
                 logger.debug("On Transformation class {}.", typeDescription.getName());
             }
@@ -132,13 +132,13 @@ public class SkyWalkingAgent {
 
         @Override
         public void onIgnored(TypeDescription typeDescription, ClassLoader classLoader, JavaModule module,
-                              boolean loaded) {
+            boolean loaded) {
 
         }
 
         @Override
         public void onError(String typeName, ClassLoader classLoader, JavaModule module, boolean loaded,
-                            Throwable throwable) {
+            Throwable throwable) {
             logger.error("Enhance class " + typeName + " error.", throwable);
         }
 

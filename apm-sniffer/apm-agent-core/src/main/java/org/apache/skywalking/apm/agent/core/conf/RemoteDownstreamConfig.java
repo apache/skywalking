@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.conf;
 
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;

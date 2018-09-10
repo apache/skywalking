@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.conf;
 
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -70,6 +69,12 @@ public class Config {
          * Skywalking team may ask for these files in order to resolve compatible problem.
          */
         public static boolean IS_OPEN_DEBUGGING_CLASS = false;
+
+        /**
+         * Specify register.status dir ,if empty string then system exit
+         */
+        public static String REGISTER_STATUS_DIR = "";
+
     }
 
     public static class Collector {
