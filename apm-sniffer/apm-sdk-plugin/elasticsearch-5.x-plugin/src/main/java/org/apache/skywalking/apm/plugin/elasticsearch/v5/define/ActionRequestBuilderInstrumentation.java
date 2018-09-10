@@ -33,11 +33,13 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  */
 public class ActionRequestBuilderInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "org.apache.skywalking.apm.plugin.elasticsearch.v5.ActionRequestBuilderInterceptor";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.elasticsearch.v5.ActionRequestBuilderInterceptor";
+
+    private static final String ENHANCE_CLASS = "org.elasticsearch.action.ActionRequestBuilder";
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[]{
+        return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {
@@ -46,7 +48,7 @@ public class ActionRequestBuilderInstrumentation extends ClassInstanceMethodsEnh
 
                 @Override
                 public String getConstructorInterceptor() {
-                    return ENHANCE_CLASS;
+                    return INTERCEPTOR_CLASS;
                 }
             }
         };
@@ -59,6 +61,6 @@ public class ActionRequestBuilderInstrumentation extends ClassInstanceMethodsEnh
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byName("org.elasticsearch.action.ActionRequestBuilder");
+        return byName(ENHANCE_CLASS);
     }
 }

@@ -34,6 +34,10 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  */
 public class TransportActionNodeProxyInstrumentation extends ClassEnhancePluginDefine {
 
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.elasticsearch.v5.TransportActionNodeProxyInterceptor";
+
+    private static final String ENHANCE_CLASS = "org.elasticsearch.action.TransportActionNodeProxy";
+
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -41,7 +45,7 @@ public class TransportActionNodeProxyInstrumentation extends ClassEnhancePluginD
 
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
@@ -50,7 +54,7 @@ public class TransportActionNodeProxyInstrumentation extends ClassEnhancePluginD
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.elasticsearch.v5.TransportActionNodeProxyInterceptor";
+                    return INTERCEPTOR_CLASS;
                 }
 
                 @Override
@@ -68,6 +72,6 @@ public class TransportActionNodeProxyInstrumentation extends ClassEnhancePluginD
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byName("org.elasticsearch.action.TransportActionNodeProxy");
+        return byName(ENHANCE_CLASS);
     }
 }
