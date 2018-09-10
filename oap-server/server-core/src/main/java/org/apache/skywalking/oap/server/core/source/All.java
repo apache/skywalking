@@ -16,34 +16,23 @@
  *
  */
 
-syntax = "proto3";
+package org.apache.skywalking.oap.server.core.source;
 
-option java_multiple_files = true;
-option java_package = "org.apache.skywalking.oap.server.core.remote.grpc.proto";
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
 
-service RemoteService {
-    rpc call (stream RemoteMessage) returns (Empty) {
+@SourceType
+public class All extends Source {
+    @Override public Scope scope() {
+        return Scope.All;
     }
-}
 
-message RemoteMessage {
-    int32 nextWorkerId = 1;
-    int32 streamDataId = 2;
-    RemoteData remoteData = 3;
-}
-
-message RemoteData {
-    repeated string dataStrings = 1;
-    repeated int64 dataLongs = 2;
-    repeated double dataDoubles = 3;
-    repeated int32 dataIntegers = 4;
-    repeated IntKeyLongValuePair dataIntLongPairList = 5;
-}
-
-message IntKeyLongValuePair {
-    int32 key = 1;
-    int64 value = 2;
-}
-
-message Empty {
+    @Getter @Setter private String name;
+    @Getter @Setter private String serviceInstanceName;
+    @Getter @Setter private String endpointName;
+    @Getter @Setter private int latency;
+    @Getter @Setter private boolean status;
+    @Getter @Setter private int responseCode;
+    @Getter @Setter private RequestType type;
 }
