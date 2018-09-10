@@ -19,8 +19,8 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import java.io.IOException;
 import java.util.*;
+import lombok.Setter;
 import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.oap.server.library.buffer.DataStreamReader;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -41,20 +41,19 @@ public class SegmentParse implements DataStreamReader.CallBack<UpstreamSegment> 
     private final List<SpanListener> spanListeners;
     private final SegmentParserListenerManager listenerManager;
     private final SegmentCoreInfo segmentCoreInfo;
-    private final SegmentStandardizationWorker standardizationWorker;
+    @Setter private SegmentStandardizationWorker standardizationWorker;
 
-    public SegmentParse(ModuleManager moduleManager, SegmentParserListenerManager listenerManager) throws IOException {
+    public SegmentParse(ModuleManager moduleManager, SegmentParserListenerManager listenerManager) {
         this.moduleManager = moduleManager;
         this.listenerManager = listenerManager;
         this.spanListeners = new LinkedList<>();
         this.segmentCoreInfo = new SegmentCoreInfo();
         this.segmentCoreInfo.setStartTime(Long.MAX_VALUE);
         this.segmentCoreInfo.setEndTime(Long.MIN_VALUE);
-        this.standardizationWorker = new SegmentStandardizationWorker(moduleManager, listenerManager,this);
     }
 
-    @Override public void call(UpstreamSegment segment) {
-        parse(segment, Source.Buffer);
+    @Override public boolean call(UpstreamSegment segment) {
+        return parse(segment, Source.Buffer);
     }
 
     public boolean parse(UpstreamSegment segment, Source source) {

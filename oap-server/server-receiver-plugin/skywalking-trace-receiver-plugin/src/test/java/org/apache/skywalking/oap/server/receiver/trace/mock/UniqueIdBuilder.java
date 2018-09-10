@@ -16,13 +16,24 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.source;
+package org.apache.skywalking.oap.server.receiver.trace.mock;
+
+import java.util.concurrent.atomic.AtomicLong;
+import org.apache.skywalking.apm.network.language.agent.UniqueId;
 
 /**
  * @author peng-yongsheng
  */
-public enum Scope {
-    All, Service, ServiceInstance, Endpoint, ServiceRelation, ServiceInstanceRelation, EndpointRelation, NetworkAddress,
-    ServiceInstanceJVMCPU, ServiceInstanceJVMMemory, ServiceInstanceJVMMemoryPool, ServiceInstanceJVMGC,
-    ServiceComponent, ServiceMapping
+public enum UniqueIdBuilder {
+    INSTANCE;
+
+    private AtomicLong idPart = new AtomicLong(1);
+
+    UniqueId.Builder create() {
+        UniqueId.Builder uniqueId = UniqueId.newBuilder();
+        uniqueId.addIdParts(idPart.getAndIncrement());
+        uniqueId.addIdParts(idPart.getAndIncrement());
+        uniqueId.addIdParts(idPart.getAndIncrement());
+        return uniqueId;
+    }
 }

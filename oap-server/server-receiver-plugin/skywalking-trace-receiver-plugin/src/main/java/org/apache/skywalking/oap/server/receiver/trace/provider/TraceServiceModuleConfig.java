@@ -16,13 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.source;
+package org.apache.skywalking.oap.server.receiver.trace.provider;
+
+import lombok.*;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
  * @author peng-yongsheng
  */
-public enum Scope {
-    All, Service, ServiceInstance, Endpoint, ServiceRelation, ServiceInstanceRelation, EndpointRelation, NetworkAddress,
-    ServiceInstanceJVMCPU, ServiceInstanceJVMMemory, ServiceInstanceJVMMemoryPool, ServiceInstanceJVMGC,
-    ServiceComponent, ServiceMapping
+public class TraceServiceModuleConfig extends ModuleConfig {
+    @Setter @Getter private String bufferPath;
+    @Setter @Getter private int bufferOffsetMaxFileSize;
+    @Setter @Getter private int bufferDataMaxFileSize;
+    @Setter @Getter private boolean bufferFileCleanWhenRestart;
 }

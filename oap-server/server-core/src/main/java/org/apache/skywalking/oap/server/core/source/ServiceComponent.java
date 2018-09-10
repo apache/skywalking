@@ -18,11 +18,19 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import lombok.*;
+import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
+
 /**
  * @author peng-yongsheng
  */
-public enum Scope {
-    All, Service, ServiceInstance, Endpoint, ServiceRelation, ServiceInstanceRelation, EndpointRelation, NetworkAddress,
-    ServiceInstanceJVMCPU, ServiceInstanceJVMMemory, ServiceInstanceJVMMemoryPool, ServiceInstanceJVMGC,
-    ServiceComponent, ServiceMapping
+@SourceType
+public class ServiceComponent extends Source {
+
+    @Override public Scope scope() {
+        return Scope.ServiceComponent;
+    }
+
+    @Getter @Setter private int serviceId;
+    @Getter @Setter private int componentId;
 }

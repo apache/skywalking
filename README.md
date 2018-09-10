@@ -30,7 +30,7 @@ The core features are following.
 - Alarm
 
 
-<img src="https://skywalkingtest.github.io/page-resources/6_overview.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/6-alpha-overview.png"/>
 
 SkyWalking supports to collect telemetry (traces and metrics) data from different sources, 
 in order to provide more options
@@ -80,7 +80,7 @@ Follow this [document](docs/en/guides/How-to-build.md).
 A wide variety of companies and organizations use SkyWalking for research, production and commercial product.
 Here is the **User Wall** of SkyWalking.
 
-<img src="https://skywalkingtest.github.io/page-resources/users/users-2018-08-12.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/users/users-2018-09-07.png"/>
 
 Users are encouraged to add themselves to the [PoweredBy](docs/powered-by.md) page.
 
