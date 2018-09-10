@@ -34,6 +34,10 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  */
 public class PlainListenableActionFutureInstrumentation extends ClassEnhancePluginDefine {
 
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.elasticsearch.v5.PlainListenableActionFutureInterceptor";
+
+    private static final String ENHANCE_CLASS = "org.elasticsearch.action.support.PlainListenableActionFuture";
+
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -41,7 +45,7 @@ public class PlainListenableActionFutureInstrumentation extends ClassEnhancePlug
 
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
@@ -50,7 +54,7 @@ public class PlainListenableActionFutureInstrumentation extends ClassEnhancePlug
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.elasticsearch.v5.PlainListenableActionFutureInterceptor";
+                    return INTERCEPTOR_CLASS;
                 }
 
                 @Override
@@ -68,6 +72,6 @@ public class PlainListenableActionFutureInstrumentation extends ClassEnhancePlug
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byName("org.elasticsearch.action.support.PlainListenableActionFuture");
+        return byName(ENHANCE_CLASS);
     }
 }

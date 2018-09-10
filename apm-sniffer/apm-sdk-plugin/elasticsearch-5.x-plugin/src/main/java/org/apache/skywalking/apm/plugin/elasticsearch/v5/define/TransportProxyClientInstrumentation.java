@@ -35,11 +35,13 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  */
 public class TransportProxyClientInstrumentation extends ClassEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "org.apache.skywalking.apm.plugin.elasticsearch.v5.TransportProxyClientInterceptor";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.elasticsearch.v5.TransportProxyClientInterceptor";
+
+    private static final String ENHANCE_CLASS = "org.elasticsearch.client.transport.TransportProxyClient";
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[]{
+        return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {
@@ -48,7 +50,7 @@ public class TransportProxyClientInstrumentation extends ClassEnhancePluginDefin
 
                 @Override
                 public String getConstructorInterceptor() {
-                    return ENHANCE_CLASS;
+                    return INTERCEPTOR_CLASS;
                 }
             }
         };
@@ -56,7 +58,7 @@ public class TransportProxyClientInstrumentation extends ClassEnhancePluginDefin
 
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
@@ -65,7 +67,7 @@ public class TransportProxyClientInstrumentation extends ClassEnhancePluginDefin
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return ENHANCE_CLASS;
+                    return INTERCEPTOR_CLASS;
                 }
 
                 @Override
@@ -83,6 +85,6 @@ public class TransportProxyClientInstrumentation extends ClassEnhancePluginDefin
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byName("org.elasticsearch.client.transport.TransportProxyClient");
+        return byName(ENHANCE_CLASS);
     }
 }
