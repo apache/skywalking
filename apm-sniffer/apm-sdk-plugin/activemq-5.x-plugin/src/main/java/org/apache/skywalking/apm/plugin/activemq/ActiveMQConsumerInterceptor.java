@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.activemq;
 
+import java.lang.reflect.Method;
 import org.apache.activemq.command.MessageDispatch;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
@@ -30,19 +31,17 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-import java.lang.reflect.Method;
-
 /**
  * @author withlin
  */
 public class ActiveMQConsumerInterceptor implements InstanceMethodsAroundInterceptor {
 
-    public static final String OPERATE_NAME_PREFIX = "ActiveMQ/";
-    public static final String CONSUMER_OPERATE_NAME_SUFFIX = "/Consumer";
-    public static final byte QUEUE_TYPE = 1;
-    public static final byte TOPIC_TYPE = 2;
-    public static final byte TEMP_TOPIC_TYPE = 6;
-    public static final byte TEMP_QUEUE_TYPE = 5;
+    private static final String OPERATE_NAME_PREFIX = "ActiveMQ/";
+    private static final String CONSUMER_OPERATE_NAME_SUFFIX = "/Consumer";
+    private static final byte QUEUE_TYPE = 1;
+    private static final byte TOPIC_TYPE = 2;
+    private static final byte TEMP_TOPIC_TYPE = 6;
+    private static final byte TEMP_QUEUE_TYPE = 5;
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         ContextCarrier contextCarrier = new ContextCarrier();
@@ -58,8 +57,10 @@ public class ActiveMQConsumerInterceptor implements InstanceMethodsAroundInterce
             Tags.MQ_BROKER.set(activeSpan, url);
             Tags.MQ_TOPIC.set(activeSpan, messageDispatch.getDestination().getPhysicalName());
         }
-        activeSpan.setComponent(ComponentsDefine.ACTIVEMQ_CONSUMER);
-        SpanLayer.asMQ(activeSpan);
+        if (activeSpan != null) {
+            activeSpan.setComponent(ComponentsDefine.ACTIVEMQ_CONSUMER);
+            SpanLayer.asMQ(activeSpan);
+        }
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
