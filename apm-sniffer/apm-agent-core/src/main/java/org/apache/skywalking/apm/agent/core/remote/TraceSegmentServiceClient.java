@@ -30,6 +30,7 @@ import org.apache.skywalking.apm.agent.core.context.TracingContext;
 import org.apache.skywalking.apm.agent.core.context.TracingContextListener;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
+import org.apache.skywalking.apm.agent.core.listener.Reseter;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
@@ -89,7 +90,7 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
     @Override
     public void consume(List<TraceSegment> data) {
         if (CONNECTED.equals(status) && RemoteDownstreamConfig.Agent.APPLICATION_ID != DictionaryUtil.nullValue()
-            && RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID != DictionaryUtil.nullValue()) {
+            && RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID != DictionaryUtil.nullValue() && !Reseter.INSTANCE.getStopConsume()) {
             final GRPCStreamServiceStatus status = new GRPCStreamServiceStatus(false);
             StreamObserver<UpstreamSegment> upstreamSegmentStreamObserver = serviceStub.collect(new StreamObserver<Downstream>() {
                 @Override

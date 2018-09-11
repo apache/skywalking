@@ -49,6 +49,7 @@ public enum Reseter {
     public volatile Properties properties = new Properties();
     public String resetPath;
     private ResetStatus status = ResetStatus.OFF;
+    private Boolean stopConsume = false;
 
     public Reseter setStatus(ResetStatus status) {
         this.status = status;
@@ -87,6 +88,7 @@ public enum Reseter {
         RemoteDownstreamConfig.Agent.APPLICATION_ID = DictionaryUtil.nullValue();
         RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID = DictionaryUtil.nullValue();
         status = ResetStatus.RUNNING;
+        stopConsume();
         logger.info("clear id successfully,begin trigger reset!");
         reportToRegisterFile();
     }
@@ -115,5 +117,17 @@ public enum Reseter {
         properties.setProperty(STATUS_NAME, status.value());
         FileOutputStream outputStream = new FileOutputStream(new File(resetPath));
         properties.store(outputStream, COMMENT);
+    }
+
+    public void stopConsume() {
+        this.stopConsume = true;
+    }
+
+    public Boolean getStopConsume() {
+        return stopConsume;
+    }
+
+    public void enableConsume() {
+        this.stopConsume = false;
     }
 }

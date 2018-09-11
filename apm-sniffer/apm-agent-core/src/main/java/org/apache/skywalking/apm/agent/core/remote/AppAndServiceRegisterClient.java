@@ -136,6 +136,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
                                 RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID
                                     = instanceMapping.getApplicationInstanceId();
                                 Reseter.INSTANCE.setStatus(ResetStatus.OFF).reportToRegisterFile();
+                                Reseter.INSTANCE.enableConsume();
 
                             }
                         } else {
