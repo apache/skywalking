@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.analysis;
 
 import java.util.*;
+import org.apache.skywalking.oap.server.core.analysis.generated.all.AllDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.generated.endpoint.EndpointDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.generated.endpointrelation.EndpointRelationDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.generated.service.ServiceDispatcher;
@@ -44,6 +45,8 @@ public class DispatcherManager {
 
     public DispatcherManager() {
         this.dispatcherMap = new HashMap<>();
+
+        this.dispatcherMap.put(Scope.All, new AllDispatcher());
 
         this.dispatcherMap.put(Scope.Service, new ServiceDispatcher());
         this.dispatcherMap.put(Scope.ServiceInstance, new ServiceInstanceDispatcher());

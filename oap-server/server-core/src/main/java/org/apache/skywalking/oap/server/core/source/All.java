@@ -16,27 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.indicator.define;
+package org.apache.skywalking.oap.server.core.source;
 
-import lombok.*;
-import org.apache.skywalking.oap.server.core.analysis.indicator.LongAvgIndicator;
-import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
 
-/**
- * @author peng-yongsheng
- */
-public class TestLongAvgIndicator extends LongAvgIndicator {
-
-    @Setter @Getter private int id;
-
-    @Override public RemoteData.Builder serialize() {
-        return null;
+@SourceType
+public class All extends Source {
+    @Override public Scope scope() {
+        return Scope.All;
     }
 
-    @Override public void deserialize(RemoteData remoteData) {
-    }
-
-    @Override public String id() {
-        return null;
-    }
+    @Getter @Setter private String name;
+    @Getter @Setter private String serviceInstanceName;
+    @Getter @Setter private String endpointName;
+    @Getter @Setter private int latency;
+    @Getter @Setter private boolean status;
+    @Getter @Setter private int responseCode;
+    @Getter @Setter private RequestType type;
 }
