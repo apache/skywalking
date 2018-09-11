@@ -31,10 +31,46 @@ public class AllDispatcher implements SourceDispatcher<All> {
 
     @Override public void dispatch(All source) {
         doAllP99(source);
+        doAllP95(source);
+        doAllP90(source);
+        doAllP75(source);
+        doAllP50(source);
     }
 
     private void doAllP99(All source) {
-    AllP99Indicator indicator = new AllP99Indicator();
+        AllP99Indicator indicator = new AllP99Indicator();
+
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.combine(source.getLatency(), 10);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+    private void doAllP95(All source) {
+        AllP95Indicator indicator = new AllP95Indicator();
+
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.combine(source.getLatency(), 10);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+    private void doAllP90(All source) {
+        AllP90Indicator indicator = new AllP90Indicator();
+
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.combine(source.getLatency(), 10);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+    private void doAllP75(All source) {
+        AllP75Indicator indicator = new AllP75Indicator();
+
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.combine(source.getLatency(), 10);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+    private void doAllP50(All source) {
+        AllP50Indicator indicator = new AllP50Indicator();
 
 
         indicator.setTimeBucket(source.getTimeBucket());

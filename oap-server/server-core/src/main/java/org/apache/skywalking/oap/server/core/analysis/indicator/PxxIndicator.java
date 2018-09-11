@@ -29,8 +29,6 @@ import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.Arg;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.Entrance;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorOperator;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.SourceFrom;
-import org.apache.skywalking.oap.server.core.remote.grpc.proto.IntKeyLongValuePair;
-import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
@@ -111,7 +109,6 @@ public abstract class PxxIndicator extends Indicator implements IntValueHolder {
                 return;
             }
         }
-        detailGroup.forEach(element -> RemoteData.newBuilder().addDataIntLongPairList(element.serialize()));
     }
 
     @Override

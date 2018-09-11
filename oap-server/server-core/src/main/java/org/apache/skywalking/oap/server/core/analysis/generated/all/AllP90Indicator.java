@@ -36,8 +36,8 @@ import org.apache.skywalking.oap.server.core.source.Scope;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "all_p99", builder = AllP99Indicator.Builder.class)
-public class AllP99Indicator extends P99Indicator implements AlarmSupported {
+@StorageEntity(name = "all_p90", builder = AllP90Indicator.Builder.class)
+public class AllP90Indicator extends P90Indicator implements AlarmSupported {
 
 
     @Override public String id() {
@@ -59,7 +59,7 @@ public class AllP99Indicator extends P99Indicator implements AlarmSupported {
         if (getClass() != obj.getClass())
             return false;
 
-        AllP99Indicator indicator = (AllP99Indicator)obj;
+        AllP90Indicator indicator = (AllP90Indicator)obj;
 
         if (getTimeBucket() != indicator.getTimeBucket())
             return false;
@@ -96,12 +96,12 @@ public class AllP99Indicator extends P99Indicator implements AlarmSupported {
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("All_p99", Scope.All);
+        return new AlarmMeta("All_p90", Scope.All);
     }
 
-    public static class Builder implements StorageBuilder<AllP99Indicator> {
+    public static class Builder implements StorageBuilder<AllP90Indicator> {
 
-        @Override public Map<String, Object> data2Map(AllP99Indicator storageData) {
+        @Override public Map<String, Object> data2Map(AllP90Indicator storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put("value", storageData.getValue());
             map.put("precision", storageData.getPrecision());
@@ -110,8 +110,8 @@ public class AllP99Indicator extends P99Indicator implements AlarmSupported {
             return map;
         }
 
-        @Override public AllP99Indicator map2Data(Map<String, Object> dbMap) {
-            AllP99Indicator indicator = new AllP99Indicator();
+        @Override public AllP90Indicator map2Data(Map<String, Object> dbMap) {
+            AllP90Indicator indicator = new AllP90Indicator();
             indicator.setValue(((Number)dbMap.get("value")).intValue());
             indicator.setPrecision(((Number)dbMap.get("precision")).intValue());
             indicator.setDetailGroup((List)dbMap.get("detail_group"));
