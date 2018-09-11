@@ -20,14 +20,12 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser.standard
 
 import java.io.IOException;
 import java.util.*;
-
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.buffer.BufferStream;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.*;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentParse;
 import org.slf4j.*;
 
 /**
@@ -37,20 +35,18 @@ public class SegmentStandardizationWorker extends AbstractWorker<SegmentStandard
 
     private static final Logger logger = LoggerFactory.getLogger(SegmentStandardizationWorker.class);
 
-    private final DataCarrier<SegmentStandardization> dataCarrier;
     private final BufferStream<UpstreamSegment> stream;
 
-    public SegmentStandardizationWorker(ModuleManager moduleManager,
-                                        SegmentParserListenerManager listenerManager, SegmentParse segmentParse) throws IOException {
-        super(9999);
-        this.dataCarrier = new DataCarrier<>(1, 1024);
-        this.dataCarrier.consume(new Consumer(this), 1);
+    public SegmentStandardizationWorker(SegmentParse segmentParse, String path,
+        int offsetFileMaxSize, int dataFileMaxSize, boolean cleanWhenRestart) throws IOException {
+        super(Integer.MAX_VALUE);
+        DataCarrier<SegmentStandardization> dataCarrier = new DataCarrier<>(1, 1024);
+        dataCarrier.consume(new Consumer(this), 1);
 
-        String directory = "/Users/pengys5/code/sky-walking/buffer-test";
-        BufferStream.Builder<UpstreamSegment> builder = new BufferStream.Builder<>(directory);
-//        builder.cleanWhenRestart(true);
-        builder.dataFileMaxSize(50);
-        builder.offsetFileMaxSize(10);
+        BufferStream.Builder<UpstreamSegment> builder = new BufferStream.Builder<>(path);
+        builder.cleanWhenRestart(cleanWhenRestart);
+        builder.dataFileMaxSize(dataFileMaxSize);
+        builder.offsetFileMaxSize(offsetFileMaxSize);
         builder.parser(UpstreamSegment.parser());
         builder.callBack(segmentParse);
 

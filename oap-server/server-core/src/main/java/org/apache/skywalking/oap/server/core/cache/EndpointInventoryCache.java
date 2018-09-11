@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.cache;
 
 import com.google.common.cache.*;
+import java.util.Objects;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.EndpointInventory;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
@@ -56,14 +57,9 @@ public class EndpointInventoryCache implements Service {
     public int getEndpointId(int serviceId, String endpointName) {
         String id = EndpointInventory.buildId(serviceId, endpointName);
 
-        int endpointId = Const.NONE;
-        try {
-            endpointId = endpointNameCache.get(id, () -> getCacheDAO().getEndpointId(serviceId, endpointName));
-        } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
-        }
+        Integer endpointId = endpointNameCache.getIfPresent(id);
 
-        if (endpointId == Const.NONE) {
+        if (Objects.isNull(endpointId) || endpointId == Const.NONE) {
             endpointId = getCacheDAO().getEndpointId(serviceId, endpointName);
             if (endpointId != Const.NONE) {
                 endpointNameCache.put(id, endpointId);
@@ -73,12 +69,7 @@ public class EndpointInventoryCache implements Service {
     }
 
     public EndpointInventory get(int endpointId) {
-        EndpointInventory endpointInventory = null;
-        try {
-            endpointInventory = endpointIdCache.get(endpointId, () -> getCacheDAO().get(endpointId));
-        } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
-        }
+        EndpointInventory endpointInventory = endpointIdCache.getIfPresent(endpointId);
 
         if (isNull(endpointInventory)) {
             endpointInventory = getCacheDAO().get(endpointId);

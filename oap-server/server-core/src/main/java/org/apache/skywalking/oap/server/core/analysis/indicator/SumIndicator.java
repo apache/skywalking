@@ -16,27 +16,36 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.indicator.define;
+package org.apache.skywalking.oap.server.core.analysis.indicator;
 
 import lombok.*;
-import org.apache.skywalking.oap.server.core.analysis.indicator.LongAvgIndicator;
-import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.*;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
  * @author peng-yongsheng
  */
-public class TestLongAvgIndicator extends LongAvgIndicator {
+@IndicatorOperator
+public abstract class SumIndicator extends Indicator implements LongValueHolder {
 
-    @Setter @Getter private int id;
+    protected static final String VALUE = "value";
 
-    @Override public RemoteData.Builder serialize() {
-        return null;
+    @Getter @Setter @Column(columnName = VALUE) private long value;
+
+    @Entrance
+    public final void combine(@ConstOne long count) {
+        this.value += count;
     }
 
-    @Override public void deserialize(RemoteData remoteData) {
+    @Override public final void combine(Indicator indicator) {
+        SumIndicator sumIndicator = (SumIndicator)indicator;
+        combine(sumIndicator.value);
     }
 
-    @Override public String id() {
-        return null;
+    @Override public void calculate() {
+    }
+
+    @Override public long getValue() {
+        return value;
     }
 }
