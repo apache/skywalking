@@ -53,14 +53,14 @@ public abstract class ThermodynamicIndicator extends Indicator {
     private Map<Integer, IntKeyLongValue> detailIndex;
 
     /**
-     * @param value
-     * @param step the size of each step. A positive integer.
-     * @param maxNumOfSteps Steps are used to group incoming value.
-     *
-     * Data will be grouped in <br/>
+     * Data will be grouped in
      *
      * [0, step), [step, step * 2), ..., [step * (maxNumOfSteps - 1), step * maxNumOfSteps), [step * maxNumOfSteps,
      * MAX)
+     *
+     * @param value
+     * @param step the size of each step. A positive integer.
+     * @param maxNumOfSteps Steps are used to group incoming value.
      */
     @Entrance
     public final void combine(@SourceFrom int value, @Arg int step, @Arg int maxNumOfSteps) {
