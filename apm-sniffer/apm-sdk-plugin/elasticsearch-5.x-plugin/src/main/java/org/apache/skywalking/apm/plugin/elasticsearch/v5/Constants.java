@@ -33,6 +33,8 @@ class Constants {
 
     static final String ES_NODE = "node.address";
 
+    static final String ES_CLUSTER_NAME = "cluster.name";
+
     static final String ES_INDEX = "es.indices";
 
     static final String ES_TYPE = "es.types";

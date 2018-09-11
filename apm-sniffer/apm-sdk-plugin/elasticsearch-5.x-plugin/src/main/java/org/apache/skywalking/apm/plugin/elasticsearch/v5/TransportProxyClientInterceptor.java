@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Plugin.Elasticsearch.TRACE_DSL;
+import static org.apache.skywalking.apm.plugin.elasticsearch.v5.Constants.ES_CLUSTER_NAME;
 import static org.apache.skywalking.apm.plugin.elasticsearch.v5.Constants.ES_ENHANCE_INFO;
 import static org.apache.skywalking.apm.plugin.elasticsearch.v5.Util.wrapperNullStringValue;
 
@@ -51,7 +52,7 @@ public class TransportProxyClientInterceptor implements InstanceConstructorInter
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         Settings settings = (Settings) allArguments[0];
-        String clusterName = settings.get("cluster.name");
+        String clusterName = settings.get(ES_CLUSTER_NAME);
         objInst.setSkyWalkingDynamicField(wrapperNullStringValue(clusterName));
     }
 
