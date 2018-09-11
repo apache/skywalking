@@ -61,6 +61,12 @@ public enum OperationNameDictionary {
         }
     }
 
+    public void clearOperationNameDictionary() {
+        unRegisterOperationNames.addAll(operationNameDictionary.keySet());
+        operationNameDictionary.clear();
+
+    }
+
     public void syncRemoteDictionary(
         ServiceNameDiscoveryServiceGrpc.ServiceNameDiscoveryServiceBlockingStub serviceNameDiscoveryServiceBlockingStub) {
         if (unRegisterOperationNames.size() > 0) {

@@ -176,4 +176,5 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
         }
         this.status = status;
     }
+
 }

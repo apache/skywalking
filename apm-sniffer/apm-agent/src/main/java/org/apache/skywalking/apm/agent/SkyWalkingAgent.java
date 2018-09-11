@@ -55,7 +55,6 @@ public class SkyWalkingAgent {
         final PluginFinder pluginFinder;
         try {
             SnifferConfigInitializer.initialize();
-
             pluginFinder = new PluginFinder(new PluginBootstrap().loadPlugins());
 
         } catch (Exception e) {

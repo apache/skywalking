@@ -31,7 +31,8 @@ import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.agent.core.dictionary.NetworkAddressDictionary;
 import org.apache.skywalking.apm.agent.core.dictionary.OperationNameDictionary;
-import org.apache.skywalking.apm.agent.core.listener.ResetUtil;
+import org.apache.skywalking.apm.agent.core.listener.ResetStatus;
+import org.apache.skywalking.apm.agent.core.listener.Reseter;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.os.OSUtil;
@@ -115,8 +116,9 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
                             Application.newBuilder().setApplicationCode(Config.Agent.APPLICATION_CODE).build());
                         if (applicationMapping != null) {
                             RemoteDownstreamConfig.Agent.APPLICATION_ID = applicationMapping.getApplication().getValue();
-                            ResetUtil.reportToRegisterFile(ResetUtil.APPLICATION_ID_NAM, RemoteDownstreamConfig.Agent.APPLICATION_ID);
-
+                            OperationNameDictionary.INSTANCE.clearOperationNameDictionary();
+                            NetworkAddressDictionary.INSTANCE.clearApplicationDictionary();
+                            Reseter.INSTANCE.reportToRegisterFile();
                             shouldTry = true;
                         }
                     }
@@ -133,7 +135,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
                             if (instanceMapping.getApplicationInstanceId() != DictionaryUtil.nullValue()) {
                                 RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID
                                     = instanceMapping.getApplicationInstanceId();
-                                ResetUtil.reportToRegisterFile(ResetUtil.INSTANCE_ID_NAME, RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID);
+                                Reseter.INSTANCE.setStatus(ResetStatus.OFF).reportToRegisterFile();
 
                             }
                         } else {

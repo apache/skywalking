@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Properties;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
-import org.apache.skywalking.apm.agent.core.listener.ResetUtil;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.util.ConfigInitializer;
@@ -61,7 +60,6 @@ public class SnifferConfigInitializer {
             configFileStream = loadConfig();
             Properties properties = new Properties();
             properties.load(configFileStream);
-            ResetUtil.varifyResetConfig(properties);
             ConfigInitializer.initialize(properties, Config.class);
         } catch (Exception e) {
             logger.error(e, "Failed to read the config file, skywalking is going to run in default config.");

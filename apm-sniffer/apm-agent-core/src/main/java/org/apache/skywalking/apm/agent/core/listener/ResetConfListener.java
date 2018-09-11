@@ -19,7 +19,6 @@ package org.apache.skywalking.apm.agent.core.listener;
 
 import java.io.File;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
@@ -29,8 +28,6 @@ import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
-import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
@@ -71,34 +68,18 @@ public class ResetConfListener implements BootService, Runnable {
         logger.debug("ResetConfListener running.");
 
         try {
-            configFile = new File(ResetUtil.RESET_FILE_ABSOLUTE_PATH);
-            if (System.currentTimeMillis() - configFile.lastModified() < 5 * 1000) {
-
-                properties.load(new FileInputStream(configFile));
-                if (properties.get("status") != null && properties.get("status").toString().equals("register")) {
-                    clearID();
-                }
-                properties.clear();
-            }
-
+            if (Reseter.INSTANCE.predicateReset())
+                Reseter.INSTANCE.setStatus(ResetStatus.RUNNING).clearID();
         } catch (AgentPackageNotFoundException e) {
-            logger.error(e, "not found package!");
+            logger.warn(e, "not found package!");
         } catch (SecurityException e) {
-            logger.error(e, "Denise read access to the file {}", configFile);
+            logger.warn(e, "Denise read access to the file {}", configFile);
         } catch (FileNotFoundException e) {
-            logger.error(e, "not found file {}", configFile);
+            logger.warn(e, "not found file {}", configFile);
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            logger.warn(e.getMessage());
         }
 
-    }
-
-    private void clearID() throws IOException, AgentPackageNotFoundException {
-        RemoteDownstreamConfig.Agent.APPLICATION_ID = DictionaryUtil.nullValue();
-        RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID = DictionaryUtil.nullValue();
-        ResetUtil.reportToRegisterFile(ResetUtil.APPLICATION_ID_NAM, DictionaryUtil.nullValue());
-        ResetUtil.reportToRegisterFile(ResetUtil.INSTANCE_ID_NAME, DictionaryUtil.nullValue());
-        ResetUtil.reportToRegisterFile(ResetUtil.STATUS_NAME, "");
     }
 
 }

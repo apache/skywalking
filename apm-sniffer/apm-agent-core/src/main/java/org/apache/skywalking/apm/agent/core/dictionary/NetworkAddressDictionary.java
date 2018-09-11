@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.dictionary;
 
 import io.netty.util.internal.ConcurrentSet;
@@ -47,6 +46,12 @@ public enum NetworkAddressDictionary {
             }
             return new NotFound();
         }
+    }
+
+    public void clearApplicationDictionary() {
+        unRegisterApplications.addAll(applicationDictionary.keySet());
+        applicationDictionary.clear();
+
     }
 
     public void syncRemoteDictionary(
