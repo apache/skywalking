@@ -18,15 +18,18 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.service;
 
-import java.util.*;
-import lombok.*;
+import java.util.HashMap;
+import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.annotation.*;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntity;
 
 /**
  * @author peng-yongsheng
@@ -96,6 +99,33 @@ public class ServiceMappingIndicator extends Indicator {
     }
 
     @Override public void calculate() {
+    }
+
+    @Override public Indicator toHour() {
+        ServiceMappingIndicator indicator = new ServiceMappingIndicator();
+        indicator.setTimeBucket(toTimeBucketInHour());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setMappingServiceId(this.getMappingServiceId());
+
+        return indicator;
+    }
+
+    @Override public Indicator toDay() {
+        ServiceMappingIndicator indicator = new ServiceMappingIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setMappingServiceId(this.getMappingServiceId());
+
+        return indicator;
+    }
+
+    @Override public Indicator toMonth() {
+        ServiceMappingIndicator indicator = new ServiceMappingIndicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setMappingServiceId(this.getMappingServiceId());
+
+        return indicator;
     }
 
     @Override public final void combine(Indicator indicator) {
