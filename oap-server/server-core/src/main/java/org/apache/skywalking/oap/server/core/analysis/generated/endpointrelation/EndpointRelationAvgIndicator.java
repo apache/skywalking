@@ -41,12 +41,12 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 @StorageEntity(name = "endpointrelation_avg", builder = EndpointRelationAvgIndicator.Builder.class)
 public class EndpointRelationAvgIndicator extends LongAvgIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "endpoint_id") private int endpointId;
-    @Setter @Getter @Column(columnName = "child_endpoint_id") private int childEndpointId;
-    @Setter @Getter @Column(columnName = "service_id") private int serviceId;
-    @Setter @Getter @Column(columnName = "child_service_id") private int childServiceId;
-    @Setter @Getter @Column(columnName = "service_instance_id") private int serviceInstanceId;
-    @Setter @Getter @Column(columnName = "child_service_instance_id") private int childServiceInstanceId;
+    @Setter @Getter @Column(columnName = "endpoint_id") @IDColumn private int endpointId;
+    @Setter @Getter @Column(columnName = "child_endpoint_id") @IDColumn private int childEndpointId;
+    @Setter @Getter @Column(columnName = "service_id")  private int serviceId;
+    @Setter @Getter @Column(columnName = "child_service_id")  private int childServiceId;
+    @Setter @Getter @Column(columnName = "service_instance_id")  private int serviceInstanceId;
+    @Setter @Getter @Column(columnName = "child_service_instance_id")  private int childServiceInstanceId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());

@@ -41,9 +41,9 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 @StorageEntity(name = "endpoint_percent", builder = EndpointPercentIndicator.Builder.class)
 public class EndpointPercentIndicator extends PercentIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "id") private int id;
-    @Setter @Getter @Column(columnName = "service_id") private int serviceId;
-    @Setter @Getter @Column(columnName = "service_instance_id") private int serviceInstanceId;
+    @Setter @Getter @Column(columnName = "id") @IDColumn private int id;
+    @Setter @Getter @Column(columnName = "service_id")  private int serviceId;
+    @Setter @Getter @Column(columnName = "service_instance_id")  private int serviceInstanceId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());

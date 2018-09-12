@@ -41,8 +41,8 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 @StorageEntity(name = "service_relation_server_calls_sum", builder = ServiceRelationServerCallsSumIndicator.Builder.class)
 public class ServiceRelationServerCallsSumIndicator extends SumIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "source_service_id") private int sourceServiceId;
-    @Setter @Getter @Column(columnName = "dest_service_id") private int destServiceId;
+    @Setter @Getter @Column(columnName = "source_service_id") @IDColumn private int sourceServiceId;
+    @Setter @Getter @Column(columnName = "dest_service_id") @IDColumn private int destServiceId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
