@@ -41,8 +41,8 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 @StorageEntity(name = "serviceinstance_resptime", builder = ServiceInstanceRespTimeIndicator.Builder.class)
 public class ServiceInstanceRespTimeIndicator extends LongAvgIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "id") private int id;
-    @Setter @Getter @Column(columnName = "service_id") private int serviceId;
+    @Setter @Getter @Column(columnName = "id") @IDColumn private int id;
+    @Setter @Getter @Column(columnName = "service_id")  private int serviceId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());

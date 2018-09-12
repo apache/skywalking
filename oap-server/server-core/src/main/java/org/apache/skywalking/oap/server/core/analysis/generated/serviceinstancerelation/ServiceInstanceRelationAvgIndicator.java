@@ -41,10 +41,10 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 @StorageEntity(name = "serviceinstancerelation_avg", builder = ServiceInstanceRelationAvgIndicator.Builder.class)
 public class ServiceInstanceRelationAvgIndicator extends LongAvgIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "source_service_id") private int sourceServiceId;
-    @Setter @Getter @Column(columnName = "dest_service_id") private int destServiceId;
-    @Setter @Getter @Column(columnName = "source_service_instance_id") private int sourceServiceInstanceId;
-    @Setter @Getter @Column(columnName = "dest_service_instance_id") private int destServiceInstanceId;
+    @Setter @Getter @Column(columnName = "source_service_id")  private int sourceServiceId;
+    @Setter @Getter @Column(columnName = "dest_service_id")  private int destServiceId;
+    @Setter @Getter @Column(columnName = "source_service_instance_id") @IDColumn private int sourceServiceInstanceId;
+    @Setter @Getter @Column(columnName = "dest_service_instance_id") @IDColumn private int destServiceInstanceId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
