@@ -16,9 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query.sql;
 
-public class KVInt {
-    private String id;
-    private int value;
+import java.util.*;
+import lombok.Getter;
+
+/**
+ * @author peng-yongsheng
+ */
+@Getter
+public class Where {
+    private List<IntKeyValues> keyValues = new LinkedList<>();
 }

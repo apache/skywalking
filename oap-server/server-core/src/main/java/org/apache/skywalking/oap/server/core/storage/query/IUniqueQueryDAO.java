@@ -16,23 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.resolver;
+package org.apache.skywalking.oap.server.core.storage.query;
 
-import com.coxautodev.graphql.tools.GraphQLQueryResolver;
-import org.apache.skywalking.oap.query.graphql.type.*;
-import org.apache.skywalking.oap.server.core.query.entity.IntValues;
+import java.io.IOException;
+import java.util.List;
+import org.apache.skywalking.oap.server.core.query.entity.Step;
+import org.apache.skywalking.oap.server.core.query.sql.Where;
+import org.apache.skywalking.oap.server.core.storage.DAO;
 
-public class MetricQuery implements GraphQLQueryResolver {
+/**
+ * @author peng-yongsheng
+ */
+public interface IUniqueQueryDAO extends DAO {
 
-    public IntValues getValues(final BatchMetricConditions metric, final Duration duration) {
-        return new IntValues();
-    }
-
-    public IntValues getLinearIntValues(final MetricCondition metric, final Duration duration) {
-        return new IntValues();
-    }
-
-    public Thermodynamic getThermodynamic(final MetricCondition metric, final Duration duration) {
-        return new Thermodynamic();
-    }
+    List<TwoIdGroup> aggregation(String indName, Step step, long startTB,
+        long endTB, Where where, String idCName1, String idCName2) throws IOException;
 }
