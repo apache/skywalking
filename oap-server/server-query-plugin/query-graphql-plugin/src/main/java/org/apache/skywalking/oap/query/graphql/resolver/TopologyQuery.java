@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import java.io.IOException;
 import org.apache.skywalking.oap.query.graphql.type.Duration;
 import org.apache.skywalking.oap.query.graphql.util.DurationUtils;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -28,23 +29,31 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 public class TopologyQuery implements GraphQLQueryResolver {
 
-    private final TopologyQueryService queryService;
+    private final ModuleManager moduleManager;
+    private TopologyQueryService queryService;
 
     public TopologyQuery(ModuleManager moduleManager) {
-        this.queryService = moduleManager.find(CoreModule.NAME).getService(TopologyQueryService.class);
+        this.moduleManager = moduleManager;
     }
 
-    public Topology getGlobalTopology(final Duration duration) {
+    private TopologyQueryService getQueryService() {
+        if (queryService == null) {
+            this.queryService = moduleManager.find(CoreModule.NAME).getService(TopologyQueryService.class);
+        }
+        return queryService;
+    }
+
+    public Topology getGlobalTopology(final Duration duration) throws IOException {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
-        return queryService.getGlobalTopology(duration.getStep(), startTimeBucket, endTimeBucket);
+        return getQueryService().getGlobalTopology(duration.getStep(), startTimeBucket, endTimeBucket);
     }
 
     public Topology getServiceTopology(final String serviceId, final Duration duration) {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
-        return queryService.getServiceTopology(duration.getStep(), startTimeBucket, endTimeBucket, serviceId);
+        return getQueryService().getServiceTopology(duration.getStep(), startTimeBucket, endTimeBucket, serviceId);
     }
 }

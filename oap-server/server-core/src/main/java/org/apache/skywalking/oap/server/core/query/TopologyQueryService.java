@@ -38,13 +38,25 @@ public class TopologyQueryService implements Service {
     private static final Logger logger = LoggerFactory.getLogger(TopologyQueryService.class);
 
     private final ModuleManager moduleManager;
-    private final IMetricQueryDAO metricQueryDAO;
-    private final IUniqueQueryDAO uniqueQueryDAO;
+    private IMetricQueryDAO metricQueryDAO;
+    private IUniqueQueryDAO uniqueQueryDAO;
 
     public TopologyQueryService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
-        this.metricQueryDAO = moduleManager.find(StorageModule.NAME).getService(IMetricQueryDAO.class);
-        this.uniqueQueryDAO = moduleManager.find(StorageModule.NAME).getService(IUniqueQueryDAO.class);
+    }
+
+    private IMetricQueryDAO getMetricQueryDAO() {
+        if (metricQueryDAO == null) {
+            metricQueryDAO = moduleManager.find(StorageModule.NAME).getService(IMetricQueryDAO.class);
+        }
+        return metricQueryDAO;
+    }
+
+    private IUniqueQueryDAO getUniqueQueryDAO() {
+        if (uniqueQueryDAO == null) {
+            uniqueQueryDAO = moduleManager.find(StorageModule.NAME).getService(IUniqueQueryDAO.class);
+        }
+        return uniqueQueryDAO;
     }
 
     public Topology getGlobalTopology(final Step step, final long startTB, final long endTB) throws IOException {
@@ -66,7 +78,7 @@ public class TopologyQueryService implements Service {
 
     private List<ServiceComponent> loadServiceComponent(final Step step, final long startTB,
         final long endTB) throws IOException {
-        List<TwoIdGroup> twoIdGroups = uniqueQueryDAO.aggregation(ServiceComponentIndicator.INDEX_NAME, step, startTB, endTB,
+        List<TwoIdGroup> twoIdGroups = getUniqueQueryDAO().aggregation(ServiceComponentIndicator.INDEX_NAME, step, startTB, endTB,
             new Where(), ServiceComponentIndicator.SERVICE_ID, ServiceComponentIndicator.COMPONENT_ID);
 
         List<ServiceComponent> serviceComponents = new ArrayList<>();
@@ -82,7 +94,7 @@ public class TopologyQueryService implements Service {
 
     private List<ServiceMapping> loadServiceMapping(final Step step, final long startTB,
         final long endTB) throws IOException {
-        List<TwoIdGroup> twoIdGroups = uniqueQueryDAO.aggregation(ServiceMappingIndicator.INDEX_NAME, step, startTB, endTB,
+        List<TwoIdGroup> twoIdGroups = getUniqueQueryDAO().aggregation(ServiceMappingIndicator.INDEX_NAME, step, startTB, endTB,
             new Where(), ServiceMappingIndicator.SERVICE_ID, ServiceMappingIndicator.MAPPING_SERVICE_ID);
 
         List<ServiceMapping> serviceMappings = new ArrayList<>();
@@ -98,7 +110,7 @@ public class TopologyQueryService implements Service {
 
     private List<Call> loadServiceRelationCalls(final Step step, final long startTB, final long endTB,
         String indName) throws IOException {
-        List<TwoIdGroupValue> twoIdGroupValues = metricQueryDAO.aggregation(indName, step, startTB, endTB, new Where(), "source_service_id", "dest_service_id", "value", Function.Sum);
+        List<TwoIdGroupValue> twoIdGroupValues = getMetricQueryDAO().aggregation(indName, step, startTB, endTB, new Where(), "source_service_id", "dest_service_id", "value", Function.Sum);
 
         List<Call> clientCalls = new ArrayList<>();
 
