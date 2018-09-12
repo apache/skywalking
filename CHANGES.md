@@ -2,7 +2,7 @@ Changes by Version
 ==================
 Release Notes.
 
-5.0.0-RC
+5.0.0-RC2
 ------------------
 
 #### Agent Changes
