@@ -16,10 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.storage.query;
 
-import java.util.List;
+import lombok.*;
 
-public class LinearIntValues {
-    private List<KVInt> values;
+/**
+ * @author peng-yongsheng
+ */
+@Getter
+@Setter
+public class TwoIdGroup {
+    private int id1;
+    private int id2;
 }
