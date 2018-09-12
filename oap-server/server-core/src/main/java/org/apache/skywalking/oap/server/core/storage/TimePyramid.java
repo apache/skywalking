@@ -16,11 +16,27 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.storage;
 
-import java.util.List;
+/**
+ * @author peng-yongsheng
+ */
+public enum TimePyramid {
+    Second(0, "second"), Minute(1, "minute"), Hour(2, "hour"), Day(3, "day"), Month(4, "month");
 
-public class Topology {
-    private List<Node> nodes;
-    private List<Call> calls;
+    private final int value;
+    private final String name;
+
+    TimePyramid(int value, String name) {
+        this.value = value;
+        this.name = name;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public String getName() {
+        return name;
+    }
 }

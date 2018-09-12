@@ -16,23 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.resolver;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-import com.coxautodev.graphql.tools.GraphQLQueryResolver;
-import org.apache.skywalking.oap.query.graphql.type.*;
-import org.apache.skywalking.oap.server.core.query.entity.IntValues;
+import lombok.*;
 
-public class MetricQuery implements GraphQLQueryResolver {
-
-    public IntValues getValues(final BatchMetricConditions metric, final Duration duration) {
-        return new IntValues();
-    }
-
-    public IntValues getLinearIntValues(final MetricCondition metric, final Duration duration) {
-        return new IntValues();
-    }
-
-    public Thermodynamic getThermodynamic(final MetricCondition metric, final Duration duration) {
-        return new Thermodynamic();
-    }
+@Getter
+@Setter
+public class Call {
+    private int source;
+    private int target;
+    private String callType;
+    private long calls;
+    private long cpm;
 }

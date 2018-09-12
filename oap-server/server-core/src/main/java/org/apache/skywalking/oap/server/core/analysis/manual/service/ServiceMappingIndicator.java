@@ -33,11 +33,12 @@ import org.apache.skywalking.oap.server.core.storage.annotation.*;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "service_mapping", builder = ServiceMappingIndicator.Builder.class)
+@StorageEntity(name = ServiceMappingIndicator.INDEX_NAME, builder = ServiceMappingIndicator.Builder.class)
 public class ServiceMappingIndicator extends Indicator {
 
-    private static final String SERVICE_ID = "service_id";
-    private static final String MAPPING_SERVICE_ID = "mapping_service_id";
+    public static final String INDEX_NAME = "service_mapping";
+    public static final String SERVICE_ID = "service_id";
+    public static final String MAPPING_SERVICE_ID = "mapping_service_id";
 
     @Setter @Getter @Column(columnName = SERVICE_ID) private int serviceId;
     @Setter @Getter @Column(columnName = MAPPING_SERVICE_ID) private int mappingServiceId;

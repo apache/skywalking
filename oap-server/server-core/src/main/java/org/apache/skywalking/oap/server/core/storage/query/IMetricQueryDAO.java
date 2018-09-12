@@ -16,11 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.storage.query;
 
-public class Node {
-    private String id;
-    private String name;
-    private String type;
-    private boolean isReal;
+import java.io.IOException;
+import java.util.List;
+import org.apache.skywalking.oap.server.core.query.entity.Step;
+import org.apache.skywalking.oap.server.core.query.sql.*;
+import org.apache.skywalking.oap.server.core.storage.DAO;
+
+/**
+ * @author peng-yongsheng
+ */
+public interface IMetricQueryDAO extends DAO {
+
+    List<OneIdGroupValue> aggregation(String indName, Step step, long startTB,
+        long endTB, Where where, String idCName, String valueCName, Function function) throws IOException;
+
+    List<TwoIdGroupValue> aggregation(String indName, Step step, long startTB,
+        long endTB, Where where, String idCName1, String idCName2, String valueCName,
+        Function function) throws IOException;
 }

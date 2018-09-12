@@ -16,29 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
+package org.apache.skywalking.oap.server.core.storage.query;
 
+import java.io.IOException;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.storage.model.DataTypeMapping;
+import org.apache.skywalking.oap.server.core.query.entity.Step;
+import org.apache.skywalking.oap.server.core.query.sql.Where;
+import org.apache.skywalking.oap.server.core.storage.DAO;
 
 /**
  * @author peng-yongsheng
  */
-public class ColumnTypeEsMapping implements DataTypeMapping {
+public interface IUniqueQueryDAO extends DAO {
 
-    @Override public String transform(Class<?> type) {
-        if (Integer.class.equals(type) || int.class.equals(type)) {
-            return "integer";
-        } else if (Long.class.equals(type) || long.class.equals(type)) {
-            return "long";
-        } else if (Double.class.equals(type) || double.class.equals(type)) {
-            return "double";
-        } else if (String.class.equals(type)) {
-            return "keyword";
-        } else if (List.class.equals(type)) {
-            return "keyword";
-        } else {
-            throw new IllegalArgumentException("Unsupported data type: " + type.getName());
-        }
-    }
+    List<TwoIdGroup> aggregation(String indName, Step step, long startTB,
+        long endTB, Where where, String idCName1, String idCName2) throws IOException;
 }

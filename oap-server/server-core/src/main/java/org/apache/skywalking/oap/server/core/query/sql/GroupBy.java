@@ -16,11 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query.sql;
 
-public class Call {
-    private String source;
-    private String target;
-    private String callType;
-    private long cpm;
+import lombok.*;
+
+/**
+ * @author peng-yongsheng
+ */
+@Getter
+@Setter
+public class GroupBy {
+    private String columnOne;
+    private String columnTwo;
 }
