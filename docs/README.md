@@ -1,8 +1,7 @@
 # Welcome
-**SkyWalking 6 documents and codes are still on building, Status: WIP. Of course, we welcome everyone to join us.**
-Here are SkyWalking 6 official documents.
+**Here are SkyWalking 6 official documents. Welcome to join us**
 
-From here you can learn all about **SkyWalking**’s architecture, how to deploy and use SkyWalking, even develop based on SkyWalking.
+From here you can learn all about **SkyWalking**’s architecture, how to deploy and use SkyWalking, also develop based on SkyWalking.
 
 - [Concepts and Designs](en/concepts-and-designs/README.md). Concepts and designs explain the most important core ideas about
 SkyWalking. You can learn from here if you want to understand what is going on under our cool features and visualization.
