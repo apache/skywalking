@@ -175,7 +175,7 @@ public class AlarmService {
     private String buildServerName(String osInfoJson) {
         JsonObject osInfo = gson.fromJson(osInfoJson, JsonObject.class);
         String serverName = Const.UNKNOWN;
-        if (osInfo.has("hostName")) {
+        if (osInfo != null && osInfo.has("hostName")) {
             serverName = osInfo.get("hostName").getAsString();
         }
         return serverName;
