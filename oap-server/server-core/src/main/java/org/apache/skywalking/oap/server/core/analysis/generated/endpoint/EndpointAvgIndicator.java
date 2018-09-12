@@ -114,7 +114,7 @@ public class EndpointAvgIndicator extends LongAvgIndicator implements AlarmSuppo
     @Override
     public Indicator toHour() {
         EndpointAvgIndicator indicator = new EndpointAvgIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setId(this.getId());
         indicator.setServiceId(this.getServiceId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
@@ -127,8 +127,8 @@ public class EndpointAvgIndicator extends LongAvgIndicator implements AlarmSuppo
 
     @Override
     public Indicator toDay() {
-EndpointAvgIndicator indicator = new EndpointAvgIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay();
+        EndpointAvgIndicator indicator = new EndpointAvgIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setId(this.getId());
         indicator.setServiceId(this.getServiceId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
@@ -140,9 +140,9 @@ EndpointAvgIndicator indicator = new EndpointAvgIndicator();
     }
 
     @Override
-    public Indicator toTimeBucketInMonth() {
-EndpointAvgIndicator indicator = new EndpointAvgIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+    public Indicator toMonth() {
+        EndpointAvgIndicator indicator = new EndpointAvgIndicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setId(this.getId());
         indicator.setServiceId(this.getServiceId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());

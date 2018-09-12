@@ -102,7 +102,7 @@ public class AllHeatmapIndicator extends ThermodynamicIndicator implements Alarm
     @Override
     public Indicator toHour() {
         AllHeatmapIndicator indicator = new AllHeatmapIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setStep(this.getStep());
         indicator.setNumOfSteps(this.getNumOfSteps());
         indicator.setDetailGroup(this.getDetailGroup());
@@ -112,8 +112,8 @@ public class AllHeatmapIndicator extends ThermodynamicIndicator implements Alarm
 
     @Override
     public Indicator toDay() {
-AllHeatmapIndicator indicator = new AllHeatmapIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay();
+        AllHeatmapIndicator indicator = new AllHeatmapIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setStep(this.getStep());
         indicator.setNumOfSteps(this.getNumOfSteps());
         indicator.setDetailGroup(this.getDetailGroup());
@@ -122,9 +122,9 @@ AllHeatmapIndicator indicator = new AllHeatmapIndicator();
     }
 
     @Override
-    public Indicator toTimeBucketInMonth() {
-AllHeatmapIndicator indicator = new AllHeatmapIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+    public Indicator toMonth() {
+        AllHeatmapIndicator indicator = new AllHeatmapIndicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setStep(this.getStep());
         indicator.setNumOfSteps(this.getNumOfSteps());
         indicator.setDetailGroup(this.getDetailGroup());
@@ -147,7 +147,7 @@ AllHeatmapIndicator indicator = new AllHeatmapIndicator();
             AllHeatmapIndicator indicator = new AllHeatmapIndicator();
             indicator.setStep(((Number)dbMap.get("step")).intValue());
             indicator.setNumOfSteps(((Number)dbMap.get("num_of_steps")).intValue());
-            indicator.setDetailGroup((List)dbMap.get("detail_group"));
+            indicator.setDetailGroup((java.util.List)dbMap.get("detail_group"));
             indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
             return indicator;
         }

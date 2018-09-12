@@ -102,7 +102,7 @@ public class AllP95Indicator extends P95Indicator implements AlarmSupported {
     @Override
     public Indicator toHour() {
         AllP95Indicator indicator = new AllP95Indicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setValue(this.getValue());
         indicator.setPrecision(this.getPrecision());
         indicator.setDetailGroup(this.getDetailGroup());
@@ -112,8 +112,8 @@ public class AllP95Indicator extends P95Indicator implements AlarmSupported {
 
     @Override
     public Indicator toDay() {
-AllP95Indicator indicator = new AllP95Indicator();
-        indicator.setTimeBucket(toTimeBucketInDay();
+        AllP95Indicator indicator = new AllP95Indicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setValue(this.getValue());
         indicator.setPrecision(this.getPrecision());
         indicator.setDetailGroup(this.getDetailGroup());
@@ -122,9 +122,9 @@ AllP95Indicator indicator = new AllP95Indicator();
     }
 
     @Override
-    public Indicator toTimeBucketInMonth() {
-AllP95Indicator indicator = new AllP95Indicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+    public Indicator toMonth() {
+        AllP95Indicator indicator = new AllP95Indicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setValue(this.getValue());
         indicator.setPrecision(this.getPrecision());
         indicator.setDetailGroup(this.getDetailGroup());
@@ -147,7 +147,7 @@ AllP95Indicator indicator = new AllP95Indicator();
             AllP95Indicator indicator = new AllP95Indicator();
             indicator.setValue(((Number)dbMap.get("value")).intValue());
             indicator.setPrecision(((Number)dbMap.get("precision")).intValue());
-            indicator.setDetailGroup((List)dbMap.get("detail_group"));
+            indicator.setDetailGroup((java.util.List)dbMap.get("detail_group"));
             indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
             return indicator;
         }

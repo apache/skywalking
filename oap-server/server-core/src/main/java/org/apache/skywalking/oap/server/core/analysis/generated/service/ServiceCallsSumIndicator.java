@@ -104,7 +104,7 @@ public class ServiceCallsSumIndicator extends SumIndicator implements AlarmSuppo
     @Override
     public Indicator toHour() {
         ServiceCallsSumIndicator indicator = new ServiceCallsSumIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setId(this.getId());
         indicator.setValue(this.getValue());
         indicator.setTimeBucket(this.getTimeBucket());
@@ -113,8 +113,8 @@ public class ServiceCallsSumIndicator extends SumIndicator implements AlarmSuppo
 
     @Override
     public Indicator toDay() {
-ServiceCallsSumIndicator indicator = new ServiceCallsSumIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay();
+        ServiceCallsSumIndicator indicator = new ServiceCallsSumIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setId(this.getId());
         indicator.setValue(this.getValue());
         indicator.setTimeBucket(this.getTimeBucket());
@@ -122,9 +122,9 @@ ServiceCallsSumIndicator indicator = new ServiceCallsSumIndicator();
     }
 
     @Override
-    public Indicator toTimeBucketInMonth() {
-ServiceCallsSumIndicator indicator = new ServiceCallsSumIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+    public Indicator toMonth() {
+        ServiceCallsSumIndicator indicator = new ServiceCallsSumIndicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setId(this.getId());
         indicator.setValue(this.getValue());
         indicator.setTimeBucket(this.getTimeBucket());

@@ -121,7 +121,7 @@ public class ServiceInstanceRelationAvgIndicator extends LongAvgIndicator implem
     @Override
     public Indicator toHour() {
         ServiceInstanceRelationAvgIndicator indicator = new ServiceInstanceRelationAvgIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setSourceServiceId(this.getSourceServiceId());
         indicator.setDestServiceId(this.getDestServiceId());
         indicator.setSourceServiceInstanceId(this.getSourceServiceInstanceId());
@@ -135,8 +135,8 @@ public class ServiceInstanceRelationAvgIndicator extends LongAvgIndicator implem
 
     @Override
     public Indicator toDay() {
-ServiceInstanceRelationAvgIndicator indicator = new ServiceInstanceRelationAvgIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay();
+        ServiceInstanceRelationAvgIndicator indicator = new ServiceInstanceRelationAvgIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setSourceServiceId(this.getSourceServiceId());
         indicator.setDestServiceId(this.getDestServiceId());
         indicator.setSourceServiceInstanceId(this.getSourceServiceInstanceId());
@@ -149,9 +149,9 @@ ServiceInstanceRelationAvgIndicator indicator = new ServiceInstanceRelationAvgIn
     }
 
     @Override
-    public Indicator toTimeBucketInMonth() {
-ServiceInstanceRelationAvgIndicator indicator = new ServiceInstanceRelationAvgIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+    public Indicator toMonth() {
+        ServiceInstanceRelationAvgIndicator indicator = new ServiceInstanceRelationAvgIndicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setSourceServiceId(this.getSourceServiceId());
         indicator.setDestServiceId(this.getDestServiceId());
         indicator.setSourceServiceInstanceId(this.getSourceServiceInstanceId());

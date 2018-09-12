@@ -111,7 +111,7 @@ public class InstanceJvmYoungGcTimeIndicator extends LongAvgIndicator implements
     @Override
     public Indicator toHour() {
         InstanceJvmYoungGcTimeIndicator indicator = new InstanceJvmYoungGcTimeIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setId(this.getId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setSummation(this.getSummation());
@@ -123,8 +123,8 @@ public class InstanceJvmYoungGcTimeIndicator extends LongAvgIndicator implements
 
     @Override
     public Indicator toDay() {
-InstanceJvmYoungGcTimeIndicator indicator = new InstanceJvmYoungGcTimeIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay();
+        InstanceJvmYoungGcTimeIndicator indicator = new InstanceJvmYoungGcTimeIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setId(this.getId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setSummation(this.getSummation());
@@ -135,9 +135,9 @@ InstanceJvmYoungGcTimeIndicator indicator = new InstanceJvmYoungGcTimeIndicator(
     }
 
     @Override
-    public Indicator toTimeBucketInMonth() {
-InstanceJvmYoungGcTimeIndicator indicator = new InstanceJvmYoungGcTimeIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+    public Indicator toMonth() {
+        InstanceJvmYoungGcTimeIndicator indicator = new InstanceJvmYoungGcTimeIndicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setId(this.getId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setSummation(this.getSummation());

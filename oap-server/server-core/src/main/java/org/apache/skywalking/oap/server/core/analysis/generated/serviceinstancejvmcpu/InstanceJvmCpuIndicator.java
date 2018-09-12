@@ -111,7 +111,7 @@ public class InstanceJvmCpuIndicator extends DoubleAvgIndicator implements Alarm
     @Override
     public Indicator toHour() {
         InstanceJvmCpuIndicator indicator = new InstanceJvmCpuIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setId(this.getId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setSummation(this.getSummation());
@@ -123,8 +123,8 @@ public class InstanceJvmCpuIndicator extends DoubleAvgIndicator implements Alarm
 
     @Override
     public Indicator toDay() {
-InstanceJvmCpuIndicator indicator = new InstanceJvmCpuIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay();
+        InstanceJvmCpuIndicator indicator = new InstanceJvmCpuIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setId(this.getId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setSummation(this.getSummation());
@@ -135,9 +135,9 @@ InstanceJvmCpuIndicator indicator = new InstanceJvmCpuIndicator();
     }
 
     @Override
-    public Indicator toTimeBucketInMonth() {
-InstanceJvmCpuIndicator indicator = new InstanceJvmCpuIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+    public Indicator toMonth() {
+        InstanceJvmCpuIndicator indicator = new InstanceJvmCpuIndicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setId(this.getId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setSummation(this.getSummation());

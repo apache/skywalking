@@ -111,7 +111,7 @@ public class InstanceJvmMemoryPoolMaxIndicator extends LongAvgIndicator implemen
     @Override
     public Indicator toHour() {
         InstanceJvmMemoryPoolMaxIndicator indicator = new InstanceJvmMemoryPoolMaxIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setId(this.getId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setSummation(this.getSummation());
@@ -123,8 +123,8 @@ public class InstanceJvmMemoryPoolMaxIndicator extends LongAvgIndicator implemen
 
     @Override
     public Indicator toDay() {
-InstanceJvmMemoryPoolMaxIndicator indicator = new InstanceJvmMemoryPoolMaxIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay();
+        InstanceJvmMemoryPoolMaxIndicator indicator = new InstanceJvmMemoryPoolMaxIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setId(this.getId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setSummation(this.getSummation());
@@ -135,9 +135,9 @@ InstanceJvmMemoryPoolMaxIndicator indicator = new InstanceJvmMemoryPoolMaxIndica
     }
 
     @Override
-    public Indicator toTimeBucketInMonth() {
-InstanceJvmMemoryPoolMaxIndicator indicator = new InstanceJvmMemoryPoolMaxIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+    public Indicator toMonth() {
+        InstanceJvmMemoryPoolMaxIndicator indicator = new InstanceJvmMemoryPoolMaxIndicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setId(this.getId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setSummation(this.getSummation());

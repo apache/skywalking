@@ -127,7 +127,7 @@ public class EndpointRelationAvgIndicator extends LongAvgIndicator implements Al
     @Override
     public Indicator toHour() {
         EndpointRelationAvgIndicator indicator = new EndpointRelationAvgIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEndpointId(this.getEndpointId());
         indicator.setChildEndpointId(this.getChildEndpointId());
         indicator.setServiceId(this.getServiceId());
@@ -143,8 +143,8 @@ public class EndpointRelationAvgIndicator extends LongAvgIndicator implements Al
 
     @Override
     public Indicator toDay() {
-EndpointRelationAvgIndicator indicator = new EndpointRelationAvgIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay();
+        EndpointRelationAvgIndicator indicator = new EndpointRelationAvgIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEndpointId(this.getEndpointId());
         indicator.setChildEndpointId(this.getChildEndpointId());
         indicator.setServiceId(this.getServiceId());
@@ -159,9 +159,9 @@ EndpointRelationAvgIndicator indicator = new EndpointRelationAvgIndicator();
     }
 
     @Override
-    public Indicator toTimeBucketInMonth() {
-EndpointRelationAvgIndicator indicator = new EndpointRelationAvgIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+    public Indicator toMonth() {
+        EndpointRelationAvgIndicator indicator = new EndpointRelationAvgIndicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEndpointId(this.getEndpointId());
         indicator.setChildEndpointId(this.getChildEndpointId());
         indicator.setServiceId(this.getServiceId());

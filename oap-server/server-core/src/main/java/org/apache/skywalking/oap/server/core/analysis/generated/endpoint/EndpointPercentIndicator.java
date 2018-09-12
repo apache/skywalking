@@ -114,7 +114,7 @@ public class EndpointPercentIndicator extends PercentIndicator implements AlarmS
     @Override
     public Indicator toHour() {
         EndpointPercentIndicator indicator = new EndpointPercentIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setId(this.getId());
         indicator.setServiceId(this.getServiceId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
@@ -127,8 +127,8 @@ public class EndpointPercentIndicator extends PercentIndicator implements AlarmS
 
     @Override
     public Indicator toDay() {
-EndpointPercentIndicator indicator = new EndpointPercentIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay();
+        EndpointPercentIndicator indicator = new EndpointPercentIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setId(this.getId());
         indicator.setServiceId(this.getServiceId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
@@ -140,9 +140,9 @@ EndpointPercentIndicator indicator = new EndpointPercentIndicator();
     }
 
     @Override
-    public Indicator toTimeBucketInMonth() {
-EndpointPercentIndicator indicator = new EndpointPercentIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+    public Indicator toMonth() {
+        EndpointPercentIndicator indicator = new EndpointPercentIndicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setId(this.getId());
         indicator.setServiceId(this.getServiceId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());

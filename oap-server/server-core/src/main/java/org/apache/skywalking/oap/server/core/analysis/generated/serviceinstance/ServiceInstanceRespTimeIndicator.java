@@ -111,7 +111,7 @@ public class ServiceInstanceRespTimeIndicator extends LongAvgIndicator implement
     @Override
     public Indicator toHour() {
         ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setId(this.getId());
         indicator.setServiceId(this.getServiceId());
         indicator.setSummation(this.getSummation());
@@ -123,8 +123,8 @@ public class ServiceInstanceRespTimeIndicator extends LongAvgIndicator implement
 
     @Override
     public Indicator toDay() {
-ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay();
+        ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setId(this.getId());
         indicator.setServiceId(this.getServiceId());
         indicator.setSummation(this.getSummation());
@@ -135,9 +135,9 @@ ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicato
     }
 
     @Override
-    public Indicator toTimeBucketInMonth() {
-ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+    public Indicator toMonth() {
+        ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setId(this.getId());
         indicator.setServiceId(this.getServiceId());
         indicator.setSummation(this.getSummation());

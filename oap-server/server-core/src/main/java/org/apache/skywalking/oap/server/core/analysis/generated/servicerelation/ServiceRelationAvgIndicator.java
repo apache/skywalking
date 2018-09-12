@@ -115,7 +115,7 @@ public class ServiceRelationAvgIndicator extends LongAvgIndicator implements Ala
     @Override
     public Indicator toHour() {
         ServiceRelationAvgIndicator indicator = new ServiceRelationAvgIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setSourceServiceId(this.getSourceServiceId());
         indicator.setDestServiceId(this.getDestServiceId());
         indicator.setSummation(this.getSummation());
@@ -127,8 +127,8 @@ public class ServiceRelationAvgIndicator extends LongAvgIndicator implements Ala
 
     @Override
     public Indicator toDay() {
-ServiceRelationAvgIndicator indicator = new ServiceRelationAvgIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay();
+        ServiceRelationAvgIndicator indicator = new ServiceRelationAvgIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setSourceServiceId(this.getSourceServiceId());
         indicator.setDestServiceId(this.getDestServiceId());
         indicator.setSummation(this.getSummation());
@@ -139,9 +139,9 @@ ServiceRelationAvgIndicator indicator = new ServiceRelationAvgIndicator();
     }
 
     @Override
-    public Indicator toTimeBucketInMonth() {
-ServiceRelationAvgIndicator indicator = new ServiceRelationAvgIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+    public Indicator toMonth() {
+        ServiceRelationAvgIndicator indicator = new ServiceRelationAvgIndicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setSourceServiceId(this.getSourceServiceId());
         indicator.setDestServiceId(this.getDestServiceId());
         indicator.setSummation(this.getSummation());

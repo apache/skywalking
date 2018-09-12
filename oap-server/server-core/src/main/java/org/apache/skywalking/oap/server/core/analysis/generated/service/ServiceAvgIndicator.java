@@ -108,7 +108,7 @@ public class ServiceAvgIndicator extends LongAvgIndicator implements AlarmSuppor
     @Override
     public Indicator toHour() {
         ServiceAvgIndicator indicator = new ServiceAvgIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setId(this.getId());
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
@@ -119,8 +119,8 @@ public class ServiceAvgIndicator extends LongAvgIndicator implements AlarmSuppor
 
     @Override
     public Indicator toDay() {
-ServiceAvgIndicator indicator = new ServiceAvgIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay();
+        ServiceAvgIndicator indicator = new ServiceAvgIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setId(this.getId());
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
@@ -130,9 +130,9 @@ ServiceAvgIndicator indicator = new ServiceAvgIndicator();
     }
 
     @Override
-    public Indicator toTimeBucketInMonth() {
-ServiceAvgIndicator indicator = new ServiceAvgIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+    public Indicator toMonth() {
+        ServiceAvgIndicator indicator = new ServiceAvgIndicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setId(this.getId());
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());

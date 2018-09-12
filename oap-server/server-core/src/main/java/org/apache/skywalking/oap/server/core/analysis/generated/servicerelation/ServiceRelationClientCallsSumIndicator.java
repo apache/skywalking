@@ -111,7 +111,7 @@ public class ServiceRelationClientCallsSumIndicator extends SumIndicator impleme
     @Override
     public Indicator toHour() {
         ServiceRelationClientCallsSumIndicator indicator = new ServiceRelationClientCallsSumIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setSourceServiceId(this.getSourceServiceId());
         indicator.setDestServiceId(this.getDestServiceId());
         indicator.setValue(this.getValue());
@@ -121,8 +121,8 @@ public class ServiceRelationClientCallsSumIndicator extends SumIndicator impleme
 
     @Override
     public Indicator toDay() {
-ServiceRelationClientCallsSumIndicator indicator = new ServiceRelationClientCallsSumIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay();
+        ServiceRelationClientCallsSumIndicator indicator = new ServiceRelationClientCallsSumIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setSourceServiceId(this.getSourceServiceId());
         indicator.setDestServiceId(this.getDestServiceId());
         indicator.setValue(this.getValue());
@@ -131,9 +131,9 @@ ServiceRelationClientCallsSumIndicator indicator = new ServiceRelationClientCall
     }
 
     @Override
-    public Indicator toTimeBucketInMonth() {
-ServiceRelationClientCallsSumIndicator indicator = new ServiceRelationClientCallsSumIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour();
+    public Indicator toMonth() {
+        ServiceRelationClientCallsSumIndicator indicator = new ServiceRelationClientCallsSumIndicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setSourceServiceId(this.getSourceServiceId());
         indicator.setDestServiceId(this.getDestServiceId());
         indicator.setValue(this.getValue());
