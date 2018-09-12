@@ -38,7 +38,7 @@ for different scenarios.
 
 
 # Document
-- [6.x Documents](docs/README.md). In these documents, you will understand
+- [6.x Documents](docs/README.md). 
 
 ```
 5.x is still supported by SkyWalking community, and the agent-backend protocol is compatible with 6.x.
