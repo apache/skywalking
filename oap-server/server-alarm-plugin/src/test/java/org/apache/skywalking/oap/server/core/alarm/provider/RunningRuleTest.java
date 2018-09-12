@@ -240,6 +240,18 @@ public class RunningRuleTest {
 
         }
 
+        @Override public Indicator toHour() {
+            return null;
+        }
+
+        @Override public Indicator toDay() {
+            return null;
+        }
+
+        @Override public Indicator toMonth() {
+            return null;
+        }
+
         @Override public int getValue() {
             return value;
         }

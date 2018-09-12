@@ -110,10 +110,57 @@ public class ServiceInstanceRelationAvgIndicator extends LongAvgIndicator implem
         setSourceServiceInstanceId(remoteData.getDataIntegers(2));
         setDestServiceInstanceId(remoteData.getDataIntegers(3));
         setCount(remoteData.getDataIntegers(4));
+
+
     }
 
     @Override public AlarmMeta getAlarmMeta() {
         return new AlarmMeta("ServiceInstanceRelation_Avg", Scope.ServiceInstanceRelation, sourceServiceId, destServiceId, sourceServiceInstanceId, destServiceInstanceId);
+    }
+
+    @Override
+    public Indicator toHour() {
+        ServiceInstanceRelationAvgIndicator indicator = new ServiceInstanceRelationAvgIndicator();
+        indicator.setTimeBucket(toTimeBucketInHour());
+        indicator.setSourceServiceId(this.getSourceServiceId());
+        indicator.setDestServiceId(this.getDestServiceId());
+        indicator.setSourceServiceInstanceId(this.getSourceServiceInstanceId());
+        indicator.setDestServiceInstanceId(this.getDestServiceInstanceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toDay() {
+        ServiceInstanceRelationAvgIndicator indicator = new ServiceInstanceRelationAvgIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
+        indicator.setSourceServiceId(this.getSourceServiceId());
+        indicator.setDestServiceId(this.getDestServiceId());
+        indicator.setSourceServiceInstanceId(this.getSourceServiceInstanceId());
+        indicator.setDestServiceInstanceId(this.getDestServiceInstanceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toMonth() {
+        ServiceInstanceRelationAvgIndicator indicator = new ServiceInstanceRelationAvgIndicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
+        indicator.setSourceServiceId(this.getSourceServiceId());
+        indicator.setDestServiceId(this.getDestServiceId());
+        indicator.setSourceServiceInstanceId(this.getSourceServiceInstanceId());
+        indicator.setDestServiceInstanceId(this.getDestServiceInstanceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
     }
 
     public static class Builder implements StorageBuilder<ServiceInstanceRelationAvgIndicator> {
