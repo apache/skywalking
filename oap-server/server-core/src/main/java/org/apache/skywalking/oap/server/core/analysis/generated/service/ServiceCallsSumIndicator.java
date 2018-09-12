@@ -21,14 +21,15 @@ package org.apache.skywalking.oap.server.core.analysis.generated.service;
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.alarm.*;
-import org.apache.skywalking.oap.server.core.analysis.indicator.SumIndicator;
+import org.apache.skywalking.oap.server.core.alarm.AlarmMeta;
+import org.apache.skywalking.oap.server.core.alarm.AlarmSupported;
+import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.source.Scope;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.source.Scope;
 
 /**
  * This class is auto generated. Please don't change this class manually.
@@ -92,10 +93,42 @@ public class ServiceCallsSumIndicator extends SumIndicator implements AlarmSuppo
 
 
         setId(remoteData.getDataIntegers(0));
+
+
     }
 
     @Override public AlarmMeta getAlarmMeta() {
         return new AlarmMeta("Service_Calls_Sum", Scope.Service, id);
+    }
+
+    @Override
+    public Indicator toHour() {
+        ServiceCallsSumIndicator indicator = new ServiceCallsSumIndicator();
+        indicator.setTimeBucket(toTimeBucketInHour());
+        indicator.setId(this.getId());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toDay() {
+        ServiceCallsSumIndicator indicator = new ServiceCallsSumIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
+        indicator.setId(this.getId());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toMonth() {
+        ServiceCallsSumIndicator indicator = new ServiceCallsSumIndicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
+        indicator.setId(this.getId());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
     }
 
     public static class Builder implements StorageBuilder<ServiceCallsSumIndicator> {

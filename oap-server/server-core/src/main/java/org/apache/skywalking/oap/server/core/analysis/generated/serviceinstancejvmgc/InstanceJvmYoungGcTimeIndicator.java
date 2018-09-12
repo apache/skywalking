@@ -100,10 +100,51 @@ public class InstanceJvmYoungGcTimeIndicator extends LongAvgIndicator implements
         setId(remoteData.getDataIntegers(0));
         setServiceInstanceId(remoteData.getDataIntegers(1));
         setCount(remoteData.getDataIntegers(2));
+
+
     }
 
     @Override public AlarmMeta getAlarmMeta() {
         return new AlarmMeta("instance_jvm_young_gc_time", Scope.ServiceInstanceJVMGC, id, serviceInstanceId);
+    }
+
+    @Override
+    public Indicator toHour() {
+        InstanceJvmYoungGcTimeIndicator indicator = new InstanceJvmYoungGcTimeIndicator();
+        indicator.setTimeBucket(toTimeBucketInHour());
+        indicator.setId(this.getId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toDay() {
+        InstanceJvmYoungGcTimeIndicator indicator = new InstanceJvmYoungGcTimeIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
+        indicator.setId(this.getId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toMonth() {
+        InstanceJvmYoungGcTimeIndicator indicator = new InstanceJvmYoungGcTimeIndicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
+        indicator.setId(this.getId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
     }
 
     public static class Builder implements StorageBuilder<InstanceJvmYoungGcTimeIndicator> {

@@ -78,7 +78,6 @@ public class AllDispatcher implements SourceDispatcher<All> {
         indicator.combine(source.getLatency(), 10);
         IndicatorProcess.INSTANCE.in(indicator);
     }
-
     private void doAllHeatmap(All source) {
         AllHeatmapIndicator indicator = new AllHeatmapIndicator();
 
