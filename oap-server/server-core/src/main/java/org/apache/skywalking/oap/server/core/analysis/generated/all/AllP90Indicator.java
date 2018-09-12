@@ -99,6 +99,39 @@ public class AllP90Indicator extends P90Indicator implements AlarmSupported {
         return new AlarmMeta("All_p90", Scope.All);
     }
 
+    @Override
+    public Indicator toHour() {
+        AllP90Indicator indicator = new AllP90Indicator();
+        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setValue(this.getValue());
+        indicator.setPrecision(this.getPrecision());
+        indicator.setDetailGroup(this.getDetailGroup());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toDay() {
+AllP90Indicator indicator = new AllP90Indicator();
+        indicator.setTimeBucket(toTimeBucketInDay();
+        indicator.setValue(this.getValue());
+        indicator.setPrecision(this.getPrecision());
+        indicator.setDetailGroup(this.getDetailGroup());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toTimeBucketInMonth() {
+AllP90Indicator indicator = new AllP90Indicator();
+        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setValue(this.getValue());
+        indicator.setPrecision(this.getPrecision());
+        indicator.setDetailGroup(this.getDetailGroup());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
     public static class Builder implements StorageBuilder<AllP90Indicator> {
 
         @Override public Map<String, Object> data2Map(AllP90Indicator storageData) {

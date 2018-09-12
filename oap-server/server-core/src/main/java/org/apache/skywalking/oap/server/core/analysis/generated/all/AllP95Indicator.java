@@ -99,6 +99,39 @@ public class AllP95Indicator extends P95Indicator implements AlarmSupported {
         return new AlarmMeta("All_p95", Scope.All);
     }
 
+    @Override
+    public Indicator toHour() {
+        AllP95Indicator indicator = new AllP95Indicator();
+        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setValue(this.getValue());
+        indicator.setPrecision(this.getPrecision());
+        indicator.setDetailGroup(this.getDetailGroup());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toDay() {
+AllP95Indicator indicator = new AllP95Indicator();
+        indicator.setTimeBucket(toTimeBucketInDay();
+        indicator.setValue(this.getValue());
+        indicator.setPrecision(this.getPrecision());
+        indicator.setDetailGroup(this.getDetailGroup());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toTimeBucketInMonth() {
+AllP95Indicator indicator = new AllP95Indicator();
+        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setValue(this.getValue());
+        indicator.setPrecision(this.getPrecision());
+        indicator.setDetailGroup(this.getDetailGroup());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
     public static class Builder implements StorageBuilder<AllP95Indicator> {
 
         @Override public Map<String, Object> data2Map(AllP95Indicator storageData) {

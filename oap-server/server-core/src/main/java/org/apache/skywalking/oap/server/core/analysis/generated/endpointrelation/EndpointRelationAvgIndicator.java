@@ -116,10 +116,63 @@ public class EndpointRelationAvgIndicator extends LongAvgIndicator implements Al
         setServiceInstanceId(remoteData.getDataIntegers(4));
         setChildServiceInstanceId(remoteData.getDataIntegers(5));
         setCount(remoteData.getDataIntegers(6));
+
+
     }
 
     @Override public AlarmMeta getAlarmMeta() {
         return new AlarmMeta("EndpointRelation_Avg", Scope.EndpointRelation, endpointId, childEndpointId, serviceId, childServiceId, serviceInstanceId, childServiceInstanceId);
+    }
+
+    @Override
+    public Indicator toHour() {
+        EndpointRelationAvgIndicator indicator = new EndpointRelationAvgIndicator();
+        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setEndpointId(this.getEndpointId());
+        indicator.setChildEndpointId(this.getChildEndpointId());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setChildServiceId(this.getChildServiceId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setChildServiceInstanceId(this.getChildServiceInstanceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toDay() {
+EndpointRelationAvgIndicator indicator = new EndpointRelationAvgIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay();
+        indicator.setEndpointId(this.getEndpointId());
+        indicator.setChildEndpointId(this.getChildEndpointId());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setChildServiceId(this.getChildServiceId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setChildServiceInstanceId(this.getChildServiceInstanceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toTimeBucketInMonth() {
+EndpointRelationAvgIndicator indicator = new EndpointRelationAvgIndicator();
+        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setEndpointId(this.getEndpointId());
+        indicator.setChildEndpointId(this.getChildEndpointId());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setChildServiceId(this.getChildServiceId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setChildServiceInstanceId(this.getChildServiceInstanceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
     }
 
     public static class Builder implements StorageBuilder<EndpointRelationAvgIndicator> {

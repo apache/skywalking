@@ -103,10 +103,54 @@ public class EndpointPercentIndicator extends PercentIndicator implements AlarmS
         setServiceId(remoteData.getDataIntegers(1));
         setServiceInstanceId(remoteData.getDataIntegers(2));
         setPercentage(remoteData.getDataIntegers(3));
+
+
     }
 
     @Override public AlarmMeta getAlarmMeta() {
         return new AlarmMeta("endpoint_percent", Scope.Endpoint, id, serviceId, serviceInstanceId);
+    }
+
+    @Override
+    public Indicator toHour() {
+        EndpointPercentIndicator indicator = new EndpointPercentIndicator();
+        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setId(this.getId());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setTotal(this.getTotal());
+        indicator.setPercentage(this.getPercentage());
+        indicator.setMatch(this.getMatch());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toDay() {
+EndpointPercentIndicator indicator = new EndpointPercentIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay();
+        indicator.setId(this.getId());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setTotal(this.getTotal());
+        indicator.setPercentage(this.getPercentage());
+        indicator.setMatch(this.getMatch());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toTimeBucketInMonth() {
+EndpointPercentIndicator indicator = new EndpointPercentIndicator();
+        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setId(this.getId());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setTotal(this.getTotal());
+        indicator.setPercentage(this.getPercentage());
+        indicator.setMatch(this.getMatch());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
     }
 
     public static class Builder implements StorageBuilder<EndpointPercentIndicator> {

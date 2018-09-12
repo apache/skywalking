@@ -97,10 +97,48 @@ public class ServiceAvgIndicator extends LongAvgIndicator implements AlarmSuppor
 
         setId(remoteData.getDataIntegers(0));
         setCount(remoteData.getDataIntegers(1));
+
+
     }
 
     @Override public AlarmMeta getAlarmMeta() {
         return new AlarmMeta("Service_Avg", Scope.Service, id);
+    }
+
+    @Override
+    public Indicator toHour() {
+        ServiceAvgIndicator indicator = new ServiceAvgIndicator();
+        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setId(this.getId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toDay() {
+ServiceAvgIndicator indicator = new ServiceAvgIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay();
+        indicator.setId(this.getId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toTimeBucketInMonth() {
+ServiceAvgIndicator indicator = new ServiceAvgIndicator();
+        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setId(this.getId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
     }
 
     public static class Builder implements StorageBuilder<ServiceAvgIndicator> {

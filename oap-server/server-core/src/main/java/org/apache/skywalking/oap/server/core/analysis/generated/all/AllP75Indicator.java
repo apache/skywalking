@@ -99,6 +99,39 @@ public class AllP75Indicator extends P75Indicator implements AlarmSupported {
         return new AlarmMeta("All_p75", Scope.All);
     }
 
+    @Override
+    public Indicator toHour() {
+        AllP75Indicator indicator = new AllP75Indicator();
+        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setValue(this.getValue());
+        indicator.setPrecision(this.getPrecision());
+        indicator.setDetailGroup(this.getDetailGroup());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toDay() {
+AllP75Indicator indicator = new AllP75Indicator();
+        indicator.setTimeBucket(toTimeBucketInDay();
+        indicator.setValue(this.getValue());
+        indicator.setPrecision(this.getPrecision());
+        indicator.setDetailGroup(this.getDetailGroup());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toTimeBucketInMonth() {
+AllP75Indicator indicator = new AllP75Indicator();
+        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setValue(this.getValue());
+        indicator.setPrecision(this.getPrecision());
+        indicator.setDetailGroup(this.getDetailGroup());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
     public static class Builder implements StorageBuilder<AllP75Indicator> {
 
         @Override public Map<String, Object> data2Map(AllP75Indicator storageData) {

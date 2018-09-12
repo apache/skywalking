@@ -103,10 +103,54 @@ public class EndpointAvgIndicator extends LongAvgIndicator implements AlarmSuppo
         setServiceId(remoteData.getDataIntegers(1));
         setServiceInstanceId(remoteData.getDataIntegers(2));
         setCount(remoteData.getDataIntegers(3));
+
+
     }
 
     @Override public AlarmMeta getAlarmMeta() {
         return new AlarmMeta("endpoint_Avg", Scope.Endpoint, id, serviceId, serviceInstanceId);
+    }
+
+    @Override
+    public Indicator toHour() {
+        EndpointAvgIndicator indicator = new EndpointAvgIndicator();
+        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setId(this.getId());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toDay() {
+EndpointAvgIndicator indicator = new EndpointAvgIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay();
+        indicator.setId(this.getId());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toTimeBucketInMonth() {
+EndpointAvgIndicator indicator = new EndpointAvgIndicator();
+        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setId(this.getId());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
     }
 
     public static class Builder implements StorageBuilder<EndpointAvgIndicator> {

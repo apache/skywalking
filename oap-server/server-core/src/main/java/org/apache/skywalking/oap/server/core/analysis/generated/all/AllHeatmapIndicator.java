@@ -16,11 +16,9 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.generated.servicerelation;
+package org.apache.skywalking.oap.server.core.analysis.generated.all;
 
 import java.util.*;
-import lombok.*;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMeta;
 import org.apache.skywalking.oap.server.core.alarm.AlarmSupported;
 import org.apache.skywalking.oap.server.core.analysis.indicator.*;
@@ -38,23 +36,17 @@ import org.apache.skywalking.oap.server.core.source.Scope;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "service_relation_server_calls_sum", builder = ServiceRelationServerCallsSumIndicator.Builder.class)
-public class ServiceRelationServerCallsSumIndicator extends SumIndicator implements AlarmSupported {
+@StorageEntity(name = "all_heatmap", builder = AllHeatmapIndicator.Builder.class)
+public class AllHeatmapIndicator extends ThermodynamicIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "source_service_id") private int sourceServiceId;
-    @Setter @Getter @Column(columnName = "dest_service_id") private int destServiceId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
-        splitJointId += Const.ID_SPLIT + String.valueOf(sourceServiceId);
-        splitJointId += Const.ID_SPLIT + String.valueOf(destServiceId);
         return splitJointId;
     }
 
     @Override public int hashCode() {
         int result = 17;
-        result = 31 * result + sourceServiceId;
-        result = 31 * result + destServiceId;
         result = 31 * result + (int)getTimeBucket();
         return result;
     }
@@ -67,11 +59,7 @@ public class ServiceRelationServerCallsSumIndicator extends SumIndicator impleme
         if (getClass() != obj.getClass())
             return false;
 
-        ServiceRelationServerCallsSumIndicator indicator = (ServiceRelationServerCallsSumIndicator)obj;
-        if (sourceServiceId != indicator.sourceServiceId)
-            return false;
-        if (destServiceId != indicator.destServiceId)
-            return false;
+        AllHeatmapIndicator indicator = (AllHeatmapIndicator)obj;
 
         if (getTimeBucket() != indicator.getTimeBucket())
             return false;
@@ -82,81 +70,84 @@ public class ServiceRelationServerCallsSumIndicator extends SumIndicator impleme
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
 
-        remoteBuilder.setDataLongs(0, getValue());
-        remoteBuilder.setDataLongs(1, getTimeBucket());
+        remoteBuilder.setDataLongs(0, getTimeBucket());
 
 
-        remoteBuilder.setDataIntegers(0, getSourceServiceId());
-        remoteBuilder.setDataIntegers(1, getDestServiceId());
+        remoteBuilder.setDataIntegers(0, getStep());
+        remoteBuilder.setDataIntegers(1, getNumOfSteps());
+        getDetailGroup().forEach(element -> remoteBuilder.addDataIntLongPairList(element.serialize()));
 
         return remoteBuilder;
     }
 
     @Override public void deserialize(RemoteData remoteData) {
 
-        setValue(remoteData.getDataLongs(0));
-        setTimeBucket(remoteData.getDataLongs(1));
+        setTimeBucket(remoteData.getDataLongs(0));
 
 
-        setSourceServiceId(remoteData.getDataIntegers(0));
-        setDestServiceId(remoteData.getDataIntegers(1));
+        setStep(remoteData.getDataIntegers(0));
+        setNumOfSteps(remoteData.getDataIntegers(1));
 
+        setDetailGroup(new ArrayList<>(30));
+        remoteData.getDataIntLongPairListList().forEach(element -> {
+            getDetailGroup().add(new IntKeyLongValue(element.getKey(), element.getValue()));
+        });
 
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("Service_Relation_Server_Calls_Sum", Scope.ServiceRelation, sourceServiceId, destServiceId);
+        return new AlarmMeta("All_heatmap", Scope.All);
     }
 
     @Override
     public Indicator toHour() {
-        ServiceRelationServerCallsSumIndicator indicator = new ServiceRelationServerCallsSumIndicator();
+        AllHeatmapIndicator indicator = new AllHeatmapIndicator();
         indicator.setTimeBucket(toTimeBucketInHour();
-        indicator.setSourceServiceId(this.getSourceServiceId());
-        indicator.setDestServiceId(this.getDestServiceId());
-        indicator.setValue(this.getValue());
+        indicator.setStep(this.getStep());
+        indicator.setNumOfSteps(this.getNumOfSteps());
+        indicator.setDetailGroup(this.getDetailGroup());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
     @Override
     public Indicator toDay() {
-ServiceRelationServerCallsSumIndicator indicator = new ServiceRelationServerCallsSumIndicator();
+AllHeatmapIndicator indicator = new AllHeatmapIndicator();
         indicator.setTimeBucket(toTimeBucketInDay();
-        indicator.setSourceServiceId(this.getSourceServiceId());
-        indicator.setDestServiceId(this.getDestServiceId());
-        indicator.setValue(this.getValue());
+        indicator.setStep(this.getStep());
+        indicator.setNumOfSteps(this.getNumOfSteps());
+        indicator.setDetailGroup(this.getDetailGroup());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
     @Override
     public Indicator toTimeBucketInMonth() {
-ServiceRelationServerCallsSumIndicator indicator = new ServiceRelationServerCallsSumIndicator();
+AllHeatmapIndicator indicator = new AllHeatmapIndicator();
         indicator.setTimeBucket(toTimeBucketInHour();
-        indicator.setSourceServiceId(this.getSourceServiceId());
-        indicator.setDestServiceId(this.getDestServiceId());
-        indicator.setValue(this.getValue());
+        indicator.setStep(this.getStep());
+        indicator.setNumOfSteps(this.getNumOfSteps());
+        indicator.setDetailGroup(this.getDetailGroup());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
-    public static class Builder implements StorageBuilder<ServiceRelationServerCallsSumIndicator> {
+    public static class Builder implements StorageBuilder<AllHeatmapIndicator> {
 
-        @Override public Map<String, Object> data2Map(ServiceRelationServerCallsSumIndicator storageData) {
+        @Override public Map<String, Object> data2Map(AllHeatmapIndicator storageData) {
             Map<String, Object> map = new HashMap<>();
-            map.put("source_service_id", storageData.getSourceServiceId());
-            map.put("dest_service_id", storageData.getDestServiceId());
-            map.put("value", storageData.getValue());
+            map.put("step", storageData.getStep());
+            map.put("num_of_steps", storageData.getNumOfSteps());
+            map.put("detail_group", storageData.getDetailGroup());
             map.put("time_bucket", storageData.getTimeBucket());
             return map;
         }
 
-        @Override public ServiceRelationServerCallsSumIndicator map2Data(Map<String, Object> dbMap) {
-            ServiceRelationServerCallsSumIndicator indicator = new ServiceRelationServerCallsSumIndicator();
-            indicator.setSourceServiceId(((Number)dbMap.get("source_service_id")).intValue());
-            indicator.setDestServiceId(((Number)dbMap.get("dest_service_id")).intValue());
-            indicator.setValue(((Number)dbMap.get("value")).longValue());
+        @Override public AllHeatmapIndicator map2Data(Map<String, Object> dbMap) {
+            AllHeatmapIndicator indicator = new AllHeatmapIndicator();
+            indicator.setStep(((Number)dbMap.get("step")).intValue());
+            indicator.setNumOfSteps(((Number)dbMap.get("num_of_steps")).intValue());
+            indicator.setDetailGroup((List)dbMap.get("detail_group"));
             indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
             return indicator;
         }

@@ -35,6 +35,7 @@ public class AllDispatcher implements SourceDispatcher<All> {
         doAllP90(source);
         doAllP75(source);
         doAllP50(source);
+        doAllHeatmap(source);
     }
 
     private void doAllP99(All source) {
@@ -75,6 +76,14 @@ public class AllDispatcher implements SourceDispatcher<All> {
 
         indicator.setTimeBucket(source.getTimeBucket());
         indicator.combine(source.getLatency(), 10);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+    private void doAllHeatmap(All source) {
+        AllHeatmapIndicator indicator = new AllHeatmapIndicator();
+
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.combine(source.getLatency(), 100, 20);
         IndicatorProcess.INSTANCE.in(indicator);
     }
 }

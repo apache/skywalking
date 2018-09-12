@@ -100,10 +100,51 @@ public class ServiceInstanceRespTimeIndicator extends LongAvgIndicator implement
         setId(remoteData.getDataIntegers(0));
         setServiceId(remoteData.getDataIntegers(1));
         setCount(remoteData.getDataIntegers(2));
+
+
     }
 
     @Override public AlarmMeta getAlarmMeta() {
         return new AlarmMeta("ServiceInstance_RespTime", Scope.ServiceInstance, id, serviceId);
+    }
+
+    @Override
+    public Indicator toHour() {
+        ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicator();
+        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setId(this.getId());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toDay() {
+ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay();
+        indicator.setId(this.getId());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toTimeBucketInMonth() {
+ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicator();
+        indicator.setTimeBucket(toTimeBucketInHour();
+        indicator.setId(this.getId());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
     }
 
     public static class Builder implements StorageBuilder<ServiceInstanceRespTimeIndicator> {

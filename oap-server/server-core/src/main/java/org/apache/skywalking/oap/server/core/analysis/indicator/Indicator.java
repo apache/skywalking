@@ -39,6 +39,12 @@ public abstract class Indicator extends StreamData implements StorageData {
 
     public abstract void calculate();
 
+    public abstract Indicator toHour();
+
+    public abstract Indicator toDay();
+
+    public abstract Indicator toMonth();
+
     public long toTimeBucketInHour() {
         /**
          * timeBucket in minute
@@ -70,7 +76,7 @@ public abstract class Indicator extends StreamData implements StorageData {
             return timeBucket / 1000000;
         } else if (timeBucket < 9999999999L && timeBucket > 1000000000L) {
             return timeBucket / 10000;
-        } else if (timeBucket < 99999999L  && timeBucket > 10000000L) {
+        } else if (timeBucket < 99999999L && timeBucket > 10000000L) {
             return timeBucket / 100;
         } else {
             throw new IllegalStateException("Current time bucket is not in minute dimensionality");
