@@ -22,6 +22,7 @@ import io.netty.util.internal.ConcurrentSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.apache.skywalking.apm.network.language.agent.*;
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Dictionary.OPERATION_NAME_BUFFER_SIZE;
@@ -67,6 +68,12 @@ public enum OperationNameDictionary {
 
     }
 
+    public void updateOperationNameDictionary() {
+        for (OperationNameKey operationNameKey : unRegisterOperationNames) {
+            operationNameKey.setApplicationId(RemoteDownstreamConfig.Agent.APPLICATION_ID);
+        }
+    }
+
     public void syncRemoteDictionary(
         ServiceNameDiscoveryServiceGrpc.ServiceNameDiscoveryServiceBlockingStub serviceNameDiscoveryServiceBlockingStub) {
         if (unRegisterOperationNames.size() > 0) {
@@ -110,6 +117,10 @@ public enum OperationNameDictionary {
 
         public int getApplicationId() {
             return applicationId;
+        }
+
+        public void setApplicationId(int applicationId) {
+            this.applicationId = applicationId;
         }
 
         public String getOperationName() {

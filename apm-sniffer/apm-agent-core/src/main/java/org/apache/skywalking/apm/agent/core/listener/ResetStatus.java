@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.agent.core.listener;
  * @author liu-xinyuan
  **/
 public enum ResetStatus {
-    OFF("OFF"), ON("ON"), RUNNING("RUNNING");
+    OFF("OFF"), ON("ON"), DOWN("DOWN");
     private String label;
 
     ResetStatus(String label) {

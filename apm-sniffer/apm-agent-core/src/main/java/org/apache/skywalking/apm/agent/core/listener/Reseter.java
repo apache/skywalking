@@ -26,11 +26,15 @@ import java.nio.channels.FileLock;
 import java.util.Properties;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
+import org.apache.skywalking.apm.agent.core.dictionary.NetworkAddressDictionary;
+import org.apache.skywalking.apm.agent.core.dictionary.OperationNameDictionary;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.remote.TraceSegmentServiceClient;
 
 /**
  * @author liu-xinyuan
@@ -42,14 +46,14 @@ public enum Reseter {
     public static final String INSTANCE_ID_NAME = "instance_id";
     public static final String STATUS_NAME = "status";
     public static final String STATUS_FILE_NAME = "/reset.status";
-    public static final String RESET_CHILD_DIR = "/logs/reset.status";
-    public static final String COMMENT = "Status has three values: ON (trigger reset), RUNNING (reset in progress), OFF (reset complete or not triggered).\n" +
+    public static final String RESET_CHILD_DIR = "/option/reset.status";
+    public static final String COMMENT = "#Status has three values: on (trigger reset), down(reset complete), off(agent fist boot).\n" +
         "Application_id: application_id of the current agent.\n" +
         "Instance_id: the instanceid of the current agent.";
     public volatile Properties properties = new Properties();
     public String resetPath;
     private ResetStatus status = ResetStatus.OFF;
-    private Boolean stopConsume = false;
+    private Boolean isClearCache = false;
 
     public Reseter setStatus(ResetStatus status) {
         this.status = status;
@@ -66,9 +70,6 @@ public enum Reseter {
             }
             File file = new File(Config.Agent.REGISTER_STATUS_DIR);
             resetPath = file.getAbsolutePath();
-            if (file.exists() && file.isFile()) {
-                file.delete();
-            }
             init();
         }
         return resetPath;
@@ -84,13 +85,16 @@ public enum Reseter {
         outputStream.close();
     }
 
-    public void clearID() throws IOException, AgentPackageNotFoundException {
+    public Reseter clearID() throws IOException, AgentPackageNotFoundException {
         RemoteDownstreamConfig.Agent.APPLICATION_ID = DictionaryUtil.nullValue();
         RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID = DictionaryUtil.nullValue();
-        status = ResetStatus.RUNNING;
+        OperationNameDictionary.INSTANCE.clearOperationNameDictionary();
+        NetworkAddressDictionary.INSTANCE.clearApplicationDictionary();
+        ServiceManager.INSTANCE.findService(TraceSegmentServiceClient.class).clearCache();
+        status = ResetStatus.DOWN;
         stopConsume();
         logger.info("clear id successfully,begin trigger reset!");
-        reportToRegisterFile();
+        return this;
     }
 
     Boolean predicateReset() throws AgentPackageNotFoundException, IOException {
@@ -120,14 +124,14 @@ public enum Reseter {
     }
 
     public void stopConsume() {
-        this.stopConsume = true;
+        this.isClearCache = true;
     }
 
-    public Boolean getStopConsume() {
-        return stopConsume;
+    public Boolean isClearCache() {
+        return isClearCache;
     }
 
     public void enableConsume() {
-        this.stopConsume = false;
+        this.isClearCache = false;
     }
 }

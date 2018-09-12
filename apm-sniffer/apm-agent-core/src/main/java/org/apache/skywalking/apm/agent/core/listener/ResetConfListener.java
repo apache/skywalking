@@ -69,7 +69,7 @@ public class ResetConfListener implements BootService, Runnable {
 
         try {
             if (Reseter.INSTANCE.predicateReset())
-                Reseter.INSTANCE.setStatus(ResetStatus.RUNNING).clearID();
+                Reseter.INSTANCE.setStatus(ResetStatus.DOWN).clearID().reportToRegisterFile();
         } catch (AgentPackageNotFoundException e) {
             logger.warn(e, "not found package!");
         } catch (SecurityException e) {

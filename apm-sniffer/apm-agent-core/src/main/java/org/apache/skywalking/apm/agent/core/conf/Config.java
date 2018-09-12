@@ -71,7 +71,7 @@ public class Config {
         public static boolean IS_OPEN_DEBUGGING_CLASS = false;
 
         /**
-         * Specify register.status dir ,if empty string then system exit
+         * Specify register.status dir ,This is an option, the default is AGENT_HOME/option/reset.status.
          */
         public static String REGISTER_STATUS_DIR = "";
 

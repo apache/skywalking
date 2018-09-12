@@ -116,8 +116,6 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
                             Application.newBuilder().setApplicationCode(Config.Agent.APPLICATION_CODE).build());
                         if (applicationMapping != null) {
                             RemoteDownstreamConfig.Agent.APPLICATION_ID = applicationMapping.getApplication().getValue();
-                            OperationNameDictionary.INSTANCE.clearOperationNameDictionary();
-                            NetworkAddressDictionary.INSTANCE.clearApplicationDictionary();
                             Reseter.INSTANCE.reportToRegisterFile();
                             shouldTry = true;
                         }
@@ -148,6 +146,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
                             }
 
                             NetworkAddressDictionary.INSTANCE.syncRemoteDictionary(networkAddressRegisterServiceBlockingStub);
+                            OperationNameDictionary.INSTANCE.updateOperationNameDictionary();
                             OperationNameDictionary.INSTANCE.syncRemoteDictionary(serviceNameDiscoveryServiceBlockingStub);
                         }
                     }
