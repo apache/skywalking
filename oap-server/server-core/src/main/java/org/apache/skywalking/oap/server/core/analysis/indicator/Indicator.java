@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
  */
 public abstract class Indicator extends StreamData implements StorageData {
 
-    protected static final String TIME_BUCKET = "time_bucket";
+    public static final String TIME_BUCKET = "time_bucket";
 
     @Getter @Setter @Column(columnName = TIME_BUCKET) private long timeBucket;
 

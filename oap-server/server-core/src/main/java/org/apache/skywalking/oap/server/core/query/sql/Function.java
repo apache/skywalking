@@ -16,23 +16,11 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.resolver;
+package org.apache.skywalking.oap.server.core.query.sql;
 
-import com.coxautodev.graphql.tools.GraphQLQueryResolver;
-import org.apache.skywalking.oap.query.graphql.type.*;
-import org.apache.skywalking.oap.server.core.query.entity.IntValues;
-
-public class MetricQuery implements GraphQLQueryResolver {
-
-    public IntValues getValues(final BatchMetricConditions metric, final Duration duration) {
-        return new IntValues();
-    }
-
-    public IntValues getLinearIntValues(final MetricCondition metric, final Duration duration) {
-        return new IntValues();
-    }
-
-    public Thermodynamic getThermodynamic(final MetricCondition metric, final Duration duration) {
-        return new Thermodynamic();
-    }
+/**
+ * @author peng-yongsheng
+ */
+public enum Function {
+    Avg, Sum
 }
