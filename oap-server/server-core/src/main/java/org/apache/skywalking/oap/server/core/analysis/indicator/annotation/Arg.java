@@ -16,34 +16,17 @@
  *
  */
 
-syntax = "proto3";
+package org.apache.skywalking.oap.server.core.analysis.indicator.annotation;
 
-option java_multiple_files = true;
-option java_package = "org.apache.skywalking.oap.server.core.remote.grpc.proto";
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-service RemoteService {
-    rpc call (stream RemoteMessage) returns (Empty) {
-    }
-}
-
-message RemoteMessage {
-    int32 nextWorkerId = 1;
-    int32 streamDataId = 2;
-    RemoteData remoteData = 3;
-}
-
-message RemoteData {
-    repeated string dataStrings = 1;
-    repeated int64 dataLongs = 2;
-    repeated double dataDoubles = 3;
-    repeated int32 dataIntegers = 4;
-    repeated IntKeyLongValuePair dataIntLongPairList = 5;
-}
-
-message IntKeyLongValuePair {
-    int32 key = 1;
-    int64 value = 2;
-}
-
-message Empty {
+/**
+ * @author wusheng
+ */
+@Target(ElementType.PARAMETER)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Arg {
 }
