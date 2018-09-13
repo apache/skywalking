@@ -32,6 +32,6 @@ public class SourceReceiverImpl implements SourceReceiver {
     }
 
     @Override public void receive(Source source) {
-        dispatcherManager.getDispatcher(source.scope()).dispatch(source);
+        dispatcherManager.forward(source);
     }
 }

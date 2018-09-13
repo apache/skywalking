@@ -38,7 +38,7 @@ public class ServiceInstanceDispatcher implements SourceDispatcher<ServiceInstan
 
 
         indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setId(source.getId());
+        indicator.setEntityId(source.getEntityId());
         indicator.setServiceId(source.getServiceId());
         indicator.combine(source.getLatency(), 1);
         IndicatorProcess.INSTANCE.in(indicator);

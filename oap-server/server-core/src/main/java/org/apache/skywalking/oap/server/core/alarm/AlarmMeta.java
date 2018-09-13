@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
-import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.source.Scope;
@@ -29,25 +28,25 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 public class AlarmMeta {
     @Setter @Getter private String indicatorName;
     @Setter @Getter private Scope scope;
-    @Setter @Getter private ScopeIDs ids;
+    @Setter @Getter private String id;
 
-    public AlarmMeta(String indicatorName, Scope scope, int... ids) {
+    public AlarmMeta(String indicatorName, Scope scope) {
         this.indicatorName = indicatorName;
         this.scope = scope;
-        this.ids = new ScopeIDs(ids);
+        this.id = id;
     }
 
-    @Override public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        AlarmMeta meta = (AlarmMeta)o;
-        return Objects.equals(ids, meta.ids);
+    public AlarmMeta(String indicatorName, Scope scope, String id) {
+        this.indicatorName = indicatorName;
+        this.scope = scope;
+        this.id = id;
     }
 
-    @Override public int hashCode() {
+    public String getId() {
+        return id;
+    }
 
-        return Objects.hash(ids);
+    public void setId(String id) {
+        this.id = id;
     }
 }

@@ -38,8 +38,7 @@ public class EndpointRelationDispatcher implements SourceDispatcher<EndpointRela
 
 
         indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setEndpointId(source.getEndpointId());
-        indicator.setChildEndpointId(source.getChildEndpointId());
+        indicator.setEntityId(source.getEntityId());
         indicator.setServiceId(source.getServiceId());
         indicator.setChildServiceId(source.getChildServiceId());
         indicator.setServiceInstanceId(source.getServiceInstanceId());

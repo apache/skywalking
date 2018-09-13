@@ -267,5 +267,9 @@ public class RunningRuleTest {
         public void setValue(int value) {
             this.value = value;
         }
+
+        @Override public int remoteHashCode() {
+            return 0;
+        }
     }
 }

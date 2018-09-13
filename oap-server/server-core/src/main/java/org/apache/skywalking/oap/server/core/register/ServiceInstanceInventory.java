@@ -139,6 +139,10 @@ public class ServiceInstanceInventory extends RegisterSource {
         setIpv4s(remoteData.getDataStrings(3));
     }
 
+    @Override public int remoteHashCode() {
+        return 0;
+    }
+
     public static class Builder implements StorageBuilder<ServiceInstanceInventory> {
 
         @Override public ServiceInstanceInventory map2Data(Map<String, Object> dbMap) {

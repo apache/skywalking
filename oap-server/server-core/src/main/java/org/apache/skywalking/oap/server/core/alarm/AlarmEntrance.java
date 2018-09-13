@@ -51,7 +51,7 @@ public class AlarmEntrance {
         MetaInAlarm metaInAlarm = null;
         switch (alarmMeta.getScope()) {
             case Service:
-                int serviceId = alarmMeta.getIds().getID(0);
+                int serviceId = Integer.parseInt(alarmMeta.getId());
                 ServiceInventory serviceInventory = serviceInventoryCache.get(serviceId);
                 ServiceMetaInAlarm serviceMetaInAlarm = new ServiceMetaInAlarm();
                 serviceMetaInAlarm.setIndicatorName(alarmMeta.getIndicatorName());
