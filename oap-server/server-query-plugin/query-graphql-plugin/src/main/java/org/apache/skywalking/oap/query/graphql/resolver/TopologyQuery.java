@@ -50,7 +50,7 @@ public class TopologyQuery implements GraphQLQueryResolver {
         return getQueryService().getGlobalTopology(duration.getStep(), startTimeBucket, endTimeBucket);
     }
 
-    public Topology getServiceTopology(final String serviceId, final Duration duration) {
+    public Topology getServiceTopology(final int serviceId, final Duration duration) throws IOException {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
