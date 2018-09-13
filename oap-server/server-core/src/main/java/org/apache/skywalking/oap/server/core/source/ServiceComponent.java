@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.source;
 
 import lombok.*;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
 
 /**
@@ -33,7 +34,7 @@ public class ServiceComponent extends Source {
 
 
     @Override public String getEntityId() {
-        return String.valueOf(serviceId);
+        throw new UnexpectedException("ServiceMapping doesn't support getEntityId");
     }
 
 
