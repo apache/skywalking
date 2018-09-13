@@ -44,8 +44,7 @@ public class ServiceRelationDispatcher implements SourceDispatcher<ServiceRelati
         }
 
         indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setSourceServiceId(source.getSourceServiceId());
-        indicator.setDestServiceId(source.getDestServiceId());
+        indicator.setEntityId(source.getEntityId());
         indicator.combine(1);
         IndicatorProcess.INSTANCE.in(indicator);
     }
@@ -57,8 +56,7 @@ public class ServiceRelationDispatcher implements SourceDispatcher<ServiceRelati
         }
 
         indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setSourceServiceId(source.getSourceServiceId());
-        indicator.setDestServiceId(source.getDestServiceId());
+        indicator.setEntityId(source.getEntityId());
         indicator.combine(1);
         IndicatorProcess.INSTANCE.in(indicator);
     }
@@ -67,8 +65,7 @@ public class ServiceRelationDispatcher implements SourceDispatcher<ServiceRelati
 
 
         indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setSourceServiceId(source.getSourceServiceId());
-        indicator.setDestServiceId(source.getDestServiceId());
+        indicator.setEntityId(source.getEntityId());
         indicator.combine(source.getLatency(), 1);
         IndicatorProcess.INSTANCE.in(indicator);
     }

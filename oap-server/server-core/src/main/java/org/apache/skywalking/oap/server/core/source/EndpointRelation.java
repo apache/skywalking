@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.source;
 
 import lombok.*;
+import org.apache.skywalking.oap.server.core.Const;
 
 /**
  * @author peng-yongsheng
@@ -27,6 +28,10 @@ public class EndpointRelation extends Source {
 
     @Override public Scope scope() {
         return Scope.EndpointRelation;
+    }
+
+    @Override public String getEntityId() {
+        return String.valueOf(endpointId) + Const.ID_SPLIT + String.valueOf(childEndpointId);
     }
 
     @Getter @Setter private int endpointId;

@@ -31,6 +31,11 @@ public class ServiceMapping extends Source {
         return Scope.ServiceMapping;
     }
 
+
+    @Override public String getEntityId() {
+        return String.valueOf(serviceId);
+    }
+
     @Getter @Setter private int serviceId;
     @Getter @Setter private int mappingServiceId;
 }

@@ -30,6 +30,10 @@ public class Endpoint extends Source {
         return Scope.Endpoint;
     }
 
+    @Override public String getEntityId() {
+        return String.valueOf(id);
+    }
+
     @Getter @Setter private int id;
     @Getter @Setter private String name;
     @Getter @Setter private int serviceId;

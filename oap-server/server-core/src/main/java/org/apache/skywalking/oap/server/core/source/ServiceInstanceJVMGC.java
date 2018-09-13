@@ -30,6 +30,10 @@ public class ServiceInstanceJVMGC extends Source {
         return Scope.ServiceInstanceJVMGC;
     }
 
+    @Override public String getEntityId() {
+        return String.valueOf(id);
+    }
+
     @Getter @Setter private int id;
     @Getter @Setter private String name;
     @Getter @Setter private String serviceName;

@@ -28,6 +28,11 @@ public class All extends Source {
         return Scope.All;
     }
 
+
+    @Override public String getEntityId() {
+        return "";
+    }
+
     @Getter @Setter private String name;
     @Getter @Setter private String serviceInstanceName;
     @Getter @Setter private String endpointName;

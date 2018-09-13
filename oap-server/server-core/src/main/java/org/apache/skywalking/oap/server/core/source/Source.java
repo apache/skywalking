@@ -27,4 +27,6 @@ public abstract class Source {
     public abstract Scope scope();
 
     @Getter @Setter private long timeBucket;
+
+    public abstract String getEntityId();
 }

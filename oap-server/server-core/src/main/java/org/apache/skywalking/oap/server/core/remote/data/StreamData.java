@@ -35,4 +35,6 @@ public abstract class StreamData implements QueueData, Serializable, Deserializa
     @Override public final void setEndOfBatchContext(EndOfBatchContext context) {
         this.endOfBatchContext = context;
     }
+
+    public abstract int remoteHashCode();
 }

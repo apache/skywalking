@@ -31,6 +31,12 @@ public class ServiceComponent extends Source {
         return Scope.ServiceComponent;
     }
 
+
+    @Override public String getEntityId() {
+        return String.valueOf(serviceId);
+    }
+
+
     @Getter @Setter private int serviceId;
     @Getter @Setter private int componentId;
 }

@@ -77,5 +77,9 @@ public class LongAvgIndicatorTest {
         @Override public RemoteData.Builder serialize() {
             return null;
         }
+
+        @Override public int remoteHashCode() {
+            return 0;
+        }
     }
 }
