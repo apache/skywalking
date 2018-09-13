@@ -38,7 +38,7 @@ for different scenarios.
 
 
 # Document
-- [6.x Documents](docs/README.md). In these documents, you will understand
+- [6.x Documents](docs/README.md). 
 
 ```
 5.x is still supported by SkyWalking community, and the agent-backend protocol is compatible with 6.x.
@@ -71,7 +71,7 @@ Please report unacceptable behavior to dev@skywalking.apache.org .
 Follow this [document](docs/en/guides/How-to-build.md).
 
 # Contact Us
-* Submit an issue
+* Submit an [issue](https://github.com/apache/incubator-skywalking/issues)
 * Mail list: dev@skywalking.apache.org
 * [Gitter](https://gitter.im/openskywalking/Lobby)
 * QQ Group: 392443393

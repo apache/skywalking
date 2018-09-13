@@ -34,7 +34,7 @@ Before that, you should know how agent/probe, backend, UI communicate with each 
 data to backend. Also, jetty service supported in JSON format. 
 - UI uses GraphQL(HTTP) query to access backend also in Jetty service(`core/default/rest*` in `application.yml`).
 
-Now, let's go the backend and UI setting documents.
+Now, let's continue with the backend and UI setting documents.
 - [Backend setup document](backend-setup.md)
 - [UI setup document](ui-setup.md)
 
