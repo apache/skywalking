@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
+import java.util.List;
 import org.apache.skywalking.oap.server.core.storage.model.DataTypeMapping;
 
 /**
@@ -33,6 +34,8 @@ public class ColumnTypeEsMapping implements DataTypeMapping {
         } else if (Double.class.equals(type) || double.class.equals(type)) {
             return "double";
         } else if (String.class.equals(type)) {
+            return "keyword";
+        } else if (List.class.equals(type)) {
             return "keyword";
         } else {
             throw new IllegalArgumentException("Unsupported data type: " + type.getName());

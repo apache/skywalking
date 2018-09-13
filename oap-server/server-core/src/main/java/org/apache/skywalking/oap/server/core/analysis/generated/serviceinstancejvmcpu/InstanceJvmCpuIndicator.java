@@ -41,8 +41,8 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 @StorageEntity(name = "instance_jvm_cpu", builder = InstanceJvmCpuIndicator.Builder.class)
 public class InstanceJvmCpuIndicator extends DoubleAvgIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "id") private int id;
-    @Setter @Getter @Column(columnName = "service_instance_id") private int serviceInstanceId;
+    @Setter @Getter @Column(columnName = "id") @IDColumn private int id;
+    @Setter @Getter @Column(columnName = "service_instance_id")  private int serviceInstanceId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
@@ -100,10 +100,51 @@ public class InstanceJvmCpuIndicator extends DoubleAvgIndicator implements Alarm
         setId(remoteData.getDataIntegers(0));
         setServiceInstanceId(remoteData.getDataIntegers(1));
         setCount(remoteData.getDataIntegers(2));
+
+
     }
 
     @Override public AlarmMeta getAlarmMeta() {
         return new AlarmMeta("instance_jvm_cpu", Scope.ServiceInstanceJVMCPU, id, serviceInstanceId);
+    }
+
+    @Override
+    public Indicator toHour() {
+        InstanceJvmCpuIndicator indicator = new InstanceJvmCpuIndicator();
+        indicator.setTimeBucket(toTimeBucketInHour());
+        indicator.setId(this.getId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toDay() {
+        InstanceJvmCpuIndicator indicator = new InstanceJvmCpuIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
+        indicator.setId(this.getId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toMonth() {
+        InstanceJvmCpuIndicator indicator = new InstanceJvmCpuIndicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
+        indicator.setId(this.getId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
     }
 
     public static class Builder implements StorageBuilder<InstanceJvmCpuIndicator> {
