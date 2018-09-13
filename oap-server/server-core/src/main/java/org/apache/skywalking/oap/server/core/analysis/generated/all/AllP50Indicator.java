@@ -51,6 +51,12 @@ public class AllP50Indicator extends P50Indicator implements AlarmSupported {
         return result;
     }
 
+
+    @Override public int remoteHashCode() {
+        int result = 17;
+        return result;
+    }
+
     @Override public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -99,6 +105,39 @@ public class AllP50Indicator extends P50Indicator implements AlarmSupported {
         return new AlarmMeta("All_p50", Scope.All);
     }
 
+    @Override
+    public Indicator toHour() {
+        AllP50Indicator indicator = new AllP50Indicator();
+        indicator.setTimeBucket(toTimeBucketInHour());
+        indicator.setValue(this.getValue());
+        indicator.setPrecision(this.getPrecision());
+        indicator.setDetailGroup(this.getDetailGroup());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toDay() {
+        AllP50Indicator indicator = new AllP50Indicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
+        indicator.setValue(this.getValue());
+        indicator.setPrecision(this.getPrecision());
+        indicator.setDetailGroup(this.getDetailGroup());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toMonth() {
+        AllP50Indicator indicator = new AllP50Indicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
+        indicator.setValue(this.getValue());
+        indicator.setPrecision(this.getPrecision());
+        indicator.setDetailGroup(this.getDetailGroup());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
     public static class Builder implements StorageBuilder<AllP50Indicator> {
 
         @Override public Map<String, Object> data2Map(AllP50Indicator storageData) {
@@ -114,7 +153,7 @@ public class AllP50Indicator extends P50Indicator implements AlarmSupported {
             AllP50Indicator indicator = new AllP50Indicator();
             indicator.setValue(((Number)dbMap.get("value")).intValue());
             indicator.setPrecision(((Number)dbMap.get("precision")).intValue());
-            indicator.setDetailGroup((List)dbMap.get("detail_group"));
+            indicator.setDetailGroup((java.util.List)dbMap.get("detail_group"));
             indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
             return indicator;
         }

@@ -42,7 +42,7 @@ public class ServiceInstanceJVMGCDispatcher implements SourceDispatcher<ServiceI
         }
 
         indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setId(source.getId());
+        indicator.setEntityId(source.getEntityId());
         indicator.setServiceInstanceId(source.getServiceInstanceId());
         indicator.combine(source.getTime(), 1);
         IndicatorProcess.INSTANCE.in(indicator);

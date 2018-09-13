@@ -58,12 +58,28 @@ public class LongAvgIndicatorTest {
             return null;
         }
 
+        @Override public Indicator toHour() {
+            return null;
+        }
+
+        @Override public Indicator toDay() {
+            return null;
+        }
+
+        @Override public Indicator toMonth() {
+            return null;
+        }
+
         @Override public void deserialize(RemoteData remoteData) {
 
         }
 
         @Override public RemoteData.Builder serialize() {
             return null;
+        }
+
+        @Override public int remoteHashCode() {
+            return 0;
         }
     }
 }

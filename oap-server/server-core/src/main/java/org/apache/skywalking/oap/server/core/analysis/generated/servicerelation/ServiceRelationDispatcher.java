@@ -19,8 +19,8 @@
 package org.apache.skywalking.oap.server.core.analysis.generated.servicerelation;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.analysis.indicator.expression.EqualMatch;
 import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
+import org.apache.skywalking.oap.server.core.analysis.indicator.expression.*;
 import org.apache.skywalking.oap.server.core.source.*;
 
 /**
@@ -44,8 +44,7 @@ public class ServiceRelationDispatcher implements SourceDispatcher<ServiceRelati
         }
 
         indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setSourceServiceId(source.getSourceServiceId());
-        indicator.setDestServiceId(source.getDestServiceId());
+        indicator.setEntityId(source.getEntityId());
         indicator.combine(1);
         IndicatorProcess.INSTANCE.in(indicator);
     }
@@ -57,8 +56,7 @@ public class ServiceRelationDispatcher implements SourceDispatcher<ServiceRelati
         }
 
         indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setSourceServiceId(source.getSourceServiceId());
-        indicator.setDestServiceId(source.getDestServiceId());
+        indicator.setEntityId(source.getEntityId());
         indicator.combine(1);
         IndicatorProcess.INSTANCE.in(indicator);
     }
@@ -67,8 +65,7 @@ public class ServiceRelationDispatcher implements SourceDispatcher<ServiceRelati
 
 
         indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setSourceServiceId(source.getSourceServiceId());
-        indicator.setDestServiceId(source.getDestServiceId());
+        indicator.setEntityId(source.getEntityId());
         indicator.combine(source.getLatency(), 1);
         IndicatorProcess.INSTANCE.in(indicator);
     }

@@ -51,6 +51,12 @@ public class AllHeatmapIndicator extends ThermodynamicIndicator implements Alarm
         return result;
     }
 
+
+    @Override public int remoteHashCode() {
+        int result = 17;
+        return result;
+    }
+
     @Override public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -99,6 +105,39 @@ public class AllHeatmapIndicator extends ThermodynamicIndicator implements Alarm
         return new AlarmMeta("All_heatmap", Scope.All);
     }
 
+    @Override
+    public Indicator toHour() {
+        AllHeatmapIndicator indicator = new AllHeatmapIndicator();
+        indicator.setTimeBucket(toTimeBucketInHour());
+        indicator.setStep(this.getStep());
+        indicator.setNumOfSteps(this.getNumOfSteps());
+        indicator.setDetailGroup(this.getDetailGroup());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toDay() {
+        AllHeatmapIndicator indicator = new AllHeatmapIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
+        indicator.setStep(this.getStep());
+        indicator.setNumOfSteps(this.getNumOfSteps());
+        indicator.setDetailGroup(this.getDetailGroup());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toMonth() {
+        AllHeatmapIndicator indicator = new AllHeatmapIndicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
+        indicator.setStep(this.getStep());
+        indicator.setNumOfSteps(this.getNumOfSteps());
+        indicator.setDetailGroup(this.getDetailGroup());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
     public static class Builder implements StorageBuilder<AllHeatmapIndicator> {
 
         @Override public Map<String, Object> data2Map(AllHeatmapIndicator storageData) {
@@ -114,7 +153,7 @@ public class AllHeatmapIndicator extends ThermodynamicIndicator implements Alarm
             AllHeatmapIndicator indicator = new AllHeatmapIndicator();
             indicator.setStep(((Number)dbMap.get("step")).intValue());
             indicator.setNumOfSteps(((Number)dbMap.get("num_of_steps")).intValue());
-            indicator.setDetailGroup((List)dbMap.get("detail_group"));
+            indicator.setDetailGroup((java.util.List)dbMap.get("detail_group"));
             indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
             return indicator;
         }

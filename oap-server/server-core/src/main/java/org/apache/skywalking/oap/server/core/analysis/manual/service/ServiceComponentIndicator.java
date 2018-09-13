@@ -99,7 +99,41 @@ public class ServiceComponentIndicator extends Indicator {
     @Override public void calculate() {
     }
 
+    @Override public Indicator toHour() {
+        ServiceComponentIndicator indicator = new ServiceComponentIndicator();
+        indicator.setTimeBucket(toTimeBucketInHour());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setComponentId(this.getComponentId());
+
+        return indicator;
+    }
+
+    @Override public Indicator toDay() {
+        ServiceComponentIndicator indicator = new ServiceComponentIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setComponentId(this.getComponentId());
+
+        return indicator;
+    }
+
+    @Override public Indicator toMonth() {
+        ServiceComponentIndicator indicator = new ServiceComponentIndicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setComponentId(this.getComponentId());
+
+        return indicator;
+    }
+
     @Override public final void combine(Indicator indicator) {
+    }
+
+    @Override public int remoteHashCode() {
+        int result = 17;
+        result = 31 * result + serviceId;
+        result = 31 * result + componentId;
+        return result;
     }
 
     public static class Builder implements StorageBuilder<ServiceComponentIndicator> {

@@ -16,37 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm;
+package org.apache.skywalking.oap.server.core.storage.annotation;
 
-import java.util.Arrays;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Scope IDs represent IDs of this scope.
- * Such as:
- * 1. Service, Endpoint have a single int ID.
- * 2. Service Relation ID is combined by two INTs.
+ * IDColumn is the plus annotation for {@link Column}, declares this column is ID for the entity, besides time(bucket).
+ *
+ * @author wusheng
  */
-public class ScopeIDs {
-    private int[] ids;
-
-    public ScopeIDs(int... ids) {
-        this.ids = ids;
-    }
-
-    public int getID(int idx) {
-        return ids[idx];
-    }
-
-    @Override public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        ScopeIDs ds = (ScopeIDs)o;
-        return Arrays.equals(ids, ds.ids);
-    }
-
-    @Override public int hashCode() {
-        return Arrays.hashCode(ids);
-    }
+@Target({ElementType.FIELD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface IDColumn {
 }

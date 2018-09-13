@@ -16,40 +16,41 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.generated.service;
+package org.apache.skywalking.oap.server.core.analysis.manual.servicerelation;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
-import org.apache.skywalking.oap.server.core.source.*;
+import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 
 /**
- * This class is auto generated. Please don't change this class manually.
- *
- * @author Observability Analysis Language code generator
+ * @author wusheng
  */
-public class ServiceDispatcher implements SourceDispatcher<Service> {
-
-    @Override public void dispatch(Service source) {
-        doServiceAvg(source);
-        doServiceCallsSum(source);
+public class ServiceCallRelationDispatcher implements SourceDispatcher<ServiceRelation> {
+    @Override
+    public void dispatch(ServiceRelation source) {
+        switch (source.getDetectPoint()) {
+            case SERVER:
+                serverSide(source);
+                break;
+            case CLIENT:
+                clientSide(source);
+                break;
+        }
     }
 
-    private void doServiceAvg(Service source) {
-        ServiceAvgIndicator indicator = new ServiceAvgIndicator();
-
-
+    private void serverSide(ServiceRelation source) {
+        ServiceRelationServerSideIndicator indicator = new ServiceRelationServerSideIndicator();
         indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setEntityId(source.getEntityId());
-        indicator.combine(source.getLatency(), 1);
+        indicator.setSourceServiceId(source.getSourceServiceId());
+        indicator.setDestServiceId(source.getDestServiceId());
         IndicatorProcess.INSTANCE.in(indicator);
     }
-    private void doServiceCallsSum(Service source) {
-        ServiceCallsSumIndicator indicator = new ServiceCallsSumIndicator();
 
-
+    private void clientSide(ServiceRelation source) {
+        ServiceRelationClientSideIndicator indicator = new ServiceRelationClientSideIndicator();
         indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setEntityId(source.getEntityId());
-        indicator.combine(1);
+        indicator.setSourceServiceId(source.getSourceServiceId());
+        indicator.setDestServiceId(source.getDestServiceId());
         IndicatorProcess.INSTANCE.in(indicator);
     }
 }

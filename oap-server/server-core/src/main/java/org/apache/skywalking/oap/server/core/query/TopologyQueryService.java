@@ -20,12 +20,10 @@ package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
 import java.util.*;
-import org.apache.skywalking.oap.server.core.analysis.manual.service.*;
 import org.apache.skywalking.oap.server.core.query.entity.*;
-import org.apache.skywalking.oap.server.core.query.sql.*;
 import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.query.*;
+import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.module.Service;
 import org.slf4j.*;
@@ -38,90 +36,63 @@ public class TopologyQueryService implements Service {
     private static final Logger logger = LoggerFactory.getLogger(TopologyQueryService.class);
 
     private final ModuleManager moduleManager;
-    private IMetricQueryDAO metricQueryDAO;
-    private IUniqueQueryDAO uniqueQueryDAO;
+    private ITopologyQueryDAO topologyQueryDAO;
 
     public TopologyQueryService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
     }
 
-    private IMetricQueryDAO getMetricQueryDAO() {
-        if (metricQueryDAO == null) {
-            metricQueryDAO = moduleManager.find(StorageModule.NAME).getService(IMetricQueryDAO.class);
+    private ITopologyQueryDAO getTopologyQueryDAO() {
+        if (topologyQueryDAO == null) {
+            topologyQueryDAO = moduleManager.find(StorageModule.NAME).getService(ITopologyQueryDAO.class);
         }
-        return metricQueryDAO;
-    }
-
-    private IUniqueQueryDAO getUniqueQueryDAO() {
-        if (uniqueQueryDAO == null) {
-            uniqueQueryDAO = moduleManager.find(StorageModule.NAME).getService(IUniqueQueryDAO.class);
-        }
-        return uniqueQueryDAO;
+        return topologyQueryDAO;
     }
 
     public Topology getGlobalTopology(final Step step, final long startTB, final long endTB) throws IOException {
         logger.debug("step: {}, startTimeBucket: {}, endTimeBucket: {}", step, startTB, endTB);
-        List<ServiceComponent> serviceComponents = loadServiceComponent(step, startTB, endTB);
-        List<ServiceMapping> serviceMappings = loadServiceMapping(step, startTB, endTB);
+        List<ServiceComponent> serviceComponents = getTopologyQueryDAO().loadServiceComponents(step, startTB, endTB);
+        List<ServiceMapping> serviceMappings = getTopologyQueryDAO().loadServiceMappings(step, startTB, endTB);
 
-        List<Call> serviceRelationClientCalls = loadServiceRelationCalls(step, startTB, endTB, "service_relation_client_calls_sum");
-        List<Call> serviceRelationServerCalls = loadServiceRelationCalls(step, startTB, endTB, "service_relation_server_calls_sum");
+        List<Call> serviceRelationClientCalls = getTopologyQueryDAO().loadClientSideServiceRelations(step, startTB, endTB);
+        List<Call> serviceRelationServerCalls = getTopologyQueryDAO().loadServerSideServiceRelations(step, startTB, endTB);
 
         TopologyBuilder builder = new TopologyBuilder(moduleManager);
         return builder.build(serviceComponents, serviceMappings, serviceRelationClientCalls, serviceRelationServerCalls);
     }
 
-    public Topology getServiceTopology(final Step step, final long startTimeBucket, final long endTimeBucket,
-        final String serviceId) {
-        return new Topology();
-    }
+    public Topology getServiceTopology(final Step step, final long startTB, final long endTB,
+        final int serviceId) throws IOException {
+        List<ServiceComponent> serviceComponents = getTopologyQueryDAO().loadServiceComponents(step, startTB, endTB);
+        List<ServiceMapping> serviceMappings = getTopologyQueryDAO().loadServiceMappings(step, startTB, endTB);
 
-    private List<ServiceComponent> loadServiceComponent(final Step step, final long startTB,
-        final long endTB) throws IOException {
-        List<TwoIdGroup> twoIdGroups = getUniqueQueryDAO().aggregation(ServiceComponentIndicator.INDEX_NAME, step, startTB, endTB,
-            new Where(), ServiceComponentIndicator.SERVICE_ID, ServiceComponentIndicator.COMPONENT_ID);
+        Set<Integer> serviceIds = new HashSet<>();
+        serviceIds.add(serviceId);
+        serviceMappings.forEach(mapping -> {
+            if (mapping.getServiceId() == serviceId) {
+                serviceIds.add(mapping.getMappingServiceId());
+            }
+        });
+        List<Integer> serviceIdList = new ArrayList<>(serviceIds);
 
-        List<ServiceComponent> serviceComponents = new ArrayList<>();
-        twoIdGroups.forEach(twoIdGroup -> {
-            ServiceComponent serviceComponent = new ServiceComponent();
-            serviceComponent.setServiceId(twoIdGroup.getId1());
-            serviceComponent.setComponentId(twoIdGroup.getId2());
-            serviceComponents.add(serviceComponent);
+        List<Call> serviceRelationClientCalls = getTopologyQueryDAO().loadSpecifiedClientSideServiceRelations(step, startTB, endTB, serviceIdList);
+        List<Call> serviceRelationServerCalls = getTopologyQueryDAO().loadSpecifiedServerSideServiceRelations(step, startTB, endTB, serviceIdList);
+
+        TopologyBuilder builder = new TopologyBuilder(moduleManager);
+        Topology topology = builder.build(serviceComponents, serviceMappings, serviceRelationClientCalls, serviceRelationServerCalls);
+
+        Set<Integer> nodeIds = new HashSet<>();
+        topology.getCalls().forEach(call -> {
+            nodeIds.add(call.getSource());
+            nodeIds.add(call.getTarget());
         });
 
-        return serviceComponents;
-    }
+        for (int i = topology.getNodes().size() - 1; i >= 0; i--) {
+            if (!nodeIds.contains(topology.getNodes().get(i).getId())) {
+                topology.getNodes().remove(i);
+            }
+        }
 
-    private List<ServiceMapping> loadServiceMapping(final Step step, final long startTB,
-        final long endTB) throws IOException {
-        List<TwoIdGroup> twoIdGroups = getUniqueQueryDAO().aggregation(ServiceMappingIndicator.INDEX_NAME, step, startTB, endTB,
-            new Where(), ServiceMappingIndicator.SERVICE_ID, ServiceMappingIndicator.MAPPING_SERVICE_ID);
-
-        List<ServiceMapping> serviceMappings = new ArrayList<>();
-        twoIdGroups.forEach(twoIdGroup -> {
-            ServiceMapping serviceMapping = new ServiceMapping();
-            serviceMapping.setServiceId(twoIdGroup.getId1());
-            serviceMapping.setMappingServiceId(twoIdGroup.getId2());
-            serviceMappings.add(serviceMapping);
-        });
-
-        return serviceMappings;
-    }
-
-    private List<Call> loadServiceRelationCalls(final Step step, final long startTB, final long endTB,
-        String indName) throws IOException {
-        List<TwoIdGroupValue> twoIdGroupValues = getMetricQueryDAO().aggregation(indName, step, startTB, endTB, new Where(), "source_service_id", "dest_service_id", "value", Function.Sum);
-
-        List<Call> clientCalls = new ArrayList<>();
-
-        twoIdGroupValues.forEach(twoIdGroupValue -> {
-            Call call = new Call();
-            call.setSource(twoIdGroupValue.getId1());
-            call.setTarget(twoIdGroupValue.getId2());
-            call.setCalls(twoIdGroupValue.getValue().longValue());
-            clientCalls.add(call);
-        });
-
-        return clientCalls;
+        return topology;
     }
 }

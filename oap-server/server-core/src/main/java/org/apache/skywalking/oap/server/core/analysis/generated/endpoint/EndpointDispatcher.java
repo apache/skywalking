@@ -39,7 +39,7 @@ public class EndpointDispatcher implements SourceDispatcher<Endpoint> {
 
 
         indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setId(source.getId());
+        indicator.setEntityId(source.getEntityId());
         indicator.setServiceId(source.getServiceId());
         indicator.setServiceInstanceId(source.getServiceInstanceId());
         indicator.combine(source.getLatency(), 1);
@@ -51,7 +51,7 @@ public class EndpointDispatcher implements SourceDispatcher<Endpoint> {
 
 
         indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setId(source.getId());
+        indicator.setEntityId(source.getEntityId());
         indicator.setServiceId(source.getServiceId());
         indicator.setServiceInstanceId(source.getServiceInstanceId());
         indicator.combine(new org.apache.skywalking.oap.server.core.analysis.indicator.expression.EqualMatch(), source.isStatus(), true);
