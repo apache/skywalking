@@ -51,6 +51,12 @@ public class AllP50Indicator extends P50Indicator implements AlarmSupported {
         return result;
     }
 
+
+    @Override public int remoteHashCode() {
+        int result = 17;
+        return result;
+    }
+
     @Override public boolean equals(Object obj) {
         if (this == obj)
             return true;

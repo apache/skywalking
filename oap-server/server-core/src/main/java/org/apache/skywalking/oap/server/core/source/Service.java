@@ -30,6 +30,10 @@ public class Service extends Source {
         return Scope.Service;
     }
 
+    @Override public String getEntityId() {
+        return String.valueOf(id);
+    }
+
     @Getter @Setter private int id;
     @Getter @Setter private String name;
     @Getter @Setter private String serviceInstanceName;

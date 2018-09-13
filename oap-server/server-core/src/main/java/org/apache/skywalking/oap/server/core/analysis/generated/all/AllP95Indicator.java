@@ -51,6 +51,12 @@ public class AllP95Indicator extends P95Indicator implements AlarmSupported {
         return result;
     }
 
+
+    @Override public int remoteHashCode() {
+        int result = 17;
+        return result;
+    }
+
     @Override public boolean equals(Object obj) {
         if (this == obj)
             return true;

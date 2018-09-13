@@ -38,7 +38,7 @@ public class ServiceInstanceJVMMemoryDispatcher implements SourceDispatcher<Serv
 
 
         indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setId(source.getId());
+        indicator.setEntityId(source.getEntityId());
         indicator.setServiceInstanceId(source.getServiceInstanceId());
         indicator.combine(source.getMax(), 1);
         IndicatorProcess.INSTANCE.in(indicator);
