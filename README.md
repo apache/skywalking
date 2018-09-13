@@ -71,7 +71,7 @@ Please report unacceptable behavior to dev@skywalking.apache.org .
 Follow this [document](docs/en/guides/How-to-build.md).
 
 # Contact Us
-* Submit an issue
+* Submit an [issue](https://github.com/apache/incubator-skywalking/issues)
 * Mail list: dev@skywalking.apache.org
 * [Gitter](https://gitter.im/openskywalking/Lobby)
 * QQ Group: 392443393
