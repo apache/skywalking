@@ -28,11 +28,26 @@ import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 public class ServiceCallRelationDispatcher implements SourceDispatcher<ServiceRelation> {
     @Override
     public void dispatch(ServiceRelation source) {
-        doDispatch(source);
+        switch (source.getDetectPoint()) {
+            case SERVER:
+                serverSide(source);
+                break;
+            case CLIENT:
+                clientSide(source);
+                break;
+        }
     }
 
-    public void doDispatch(ServiceRelation source) {
-        ServiceCallRelationIndicator indicator = new ServiceCallRelationIndicator();
+    private void serverSide(ServiceRelation source) {
+        ServiceRelationServerSideIndicator indicator = new ServiceRelationServerSideIndicator();
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setSourceServiceId(source.getSourceServiceId());
+        indicator.setDestServiceId(source.getDestServiceId());
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+
+    private void clientSide(ServiceRelation source) {
+        ServiceRelationClientSideIndicator indicator = new ServiceRelationClientSideIndicator();
         indicator.setTimeBucket(source.getTimeBucket());
         indicator.setSourceServiceId(source.getSourceServiceId());
         indicator.setDestServiceId(source.getDestServiceId());
