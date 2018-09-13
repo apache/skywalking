@@ -32,6 +32,7 @@ import static java.util.Objects.isNull;
 /**
  * @author peng-yongsheng
  */
+
 public class ServiceInstanceInventoryRegister implements IServiceInstanceInventoryRegister {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceInstanceInventoryRegister.class);
@@ -98,5 +99,16 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
             InventoryProcess.INSTANCE.in(serviceInstanceInventory);
         }
         return serviceInstanceId;
+
+    }
+
+    @Override public void heartBeat(int instanceID, long time) {
+        ServiceInstanceInventory serviceInstanceInventory = new ServiceInstanceInventory();
+        serviceInstanceInventory.setServiceId(instanceID);
+        serviceInstanceInventory.setHeartbeatTime(time);
+
+        InventoryProcess.INSTANCE.in(serviceInstanceInventory);
+
+
     }
 }

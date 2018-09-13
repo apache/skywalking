@@ -37,6 +37,8 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.os.OSUtil;
 import org.apache.skywalking.apm.network.language.agent.*;
+import org.apache.skywalking.apm.network.register.ServiceInstancePingGrpc;
+import org.apache.skywalking.apm.network.register.ServiceInstancePingPkg;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
 import java.util.UUID;
@@ -50,13 +52,14 @@ import java.util.concurrent.TimeUnit;
 @DefaultImplementor
 public class AppAndServiceRegisterClient implements BootService, GRPCChannelListener, Runnable, TracingContextListener {
     private static final ILog logger = LogManager.getLogger(AppAndServiceRegisterClient.class);
-    private static final String PROCESS_UUID = UUID.randomUUID().toString().replaceAll("-", "");
+    private static final String INSTANCE_UUID = Config.Agent.INSTANCE_UUID.equals("") ? UUID.randomUUID().toString().replaceAll("-", "") : Config.Agent.INSTANCE_UUID;
 
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
     private volatile ApplicationRegisterServiceGrpc.ApplicationRegisterServiceBlockingStub applicationRegisterServiceBlockingStub;
     private volatile InstanceDiscoveryServiceGrpc.InstanceDiscoveryServiceBlockingStub instanceDiscoveryServiceBlockingStub;
     private volatile ServiceNameDiscoveryServiceGrpc.ServiceNameDiscoveryServiceBlockingStub serviceNameDiscoveryServiceBlockingStub;
     private volatile NetworkAddressRegisterServiceGrpc.NetworkAddressRegisterServiceBlockingStub networkAddressRegisterServiceBlockingStub;
+    private volatile ServiceInstancePingGrpc.ServiceInstancePingBlockingStub serviceInstancePingBlockingStub;
     private volatile ScheduledFuture<?> applicationRegisterFuture;
     private volatile long lastSegmentTime = -1;
 
@@ -68,6 +71,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
             instanceDiscoveryServiceBlockingStub = InstanceDiscoveryServiceGrpc.newBlockingStub(channel);
             serviceNameDiscoveryServiceBlockingStub = ServiceNameDiscoveryServiceGrpc.newBlockingStub(channel);
             networkAddressRegisterServiceBlockingStub = NetworkAddressRegisterServiceGrpc.newBlockingStub(channel);
+            serviceInstancePingBlockingStub = ServiceInstancePingGrpc.newBlockingStub(channel);
         } else {
             applicationRegisterServiceBlockingStub = null;
             instanceDiscoveryServiceBlockingStub = null;
@@ -126,7 +130,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
 
                             ApplicationInstanceMapping instanceMapping = instanceDiscoveryServiceBlockingStub.registerInstance(ApplicationInstance.newBuilder()
                                 .setApplicationId(RemoteDownstreamConfig.Agent.APPLICATION_ID)
-                                .setAgentUUID(PROCESS_UUID)
+                                .setAgentUUID(INSTANCE_UUID)
                                 .setRegisterTime(System.currentTimeMillis())
                                 .setOsinfo(OSUtil.buildOSInfo())
                                 .build());
@@ -139,9 +143,10 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
                             }
                         } else {
                             if (lastSegmentTime - System.currentTimeMillis() > 60 * 1000) {
-                                instanceDiscoveryServiceBlockingStub.heartbeat(ApplicationInstanceHeartbeat.newBuilder()
-                                    .setApplicationInstanceId(RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID)
-                                    .setHeartbeatTime(System.currentTimeMillis())
+                                serviceInstancePingBlockingStub.doPing(ServiceInstancePingPkg.newBuilder()
+                                    .setServiceInstanceId(RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID)
+                                    .setServiceInstanceUUID(INSTANCE_UUID)
+                                    .setTime(System.currentTimeMillis())
                                     .build());
                             }
 

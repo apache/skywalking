@@ -75,6 +75,11 @@ public class Config {
          */
         public static String REGISTER_STATUS_DIR = "";
 
+        /**
+         * Specify instance_uuid to ensure that the whole show is unique, for example: applicationName_ip_12
+         */
+        public static String INSTANCE_UUID = "";
+
     }
 
     public static class Collector {

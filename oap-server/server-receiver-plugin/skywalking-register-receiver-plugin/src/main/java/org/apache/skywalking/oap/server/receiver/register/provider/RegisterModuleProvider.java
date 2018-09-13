@@ -50,6 +50,8 @@ public class RegisterModuleProvider extends ModuleProvider {
         grpcHandlerRegister.addHandler(new InstanceDiscoveryServiceHandler(getManager()));
         grpcHandlerRegister.addHandler(new ServiceNameDiscoveryHandler(getManager()));
         grpcHandlerRegister.addHandler(new NetworkAddressRegisterServiceHandler(getManager()));
+        grpcHandlerRegister.addHandler(new ServiceInstancePingPkgHandler(getManager()));
+
     }
 
     @Override public void notifyAfterCompleted() {
