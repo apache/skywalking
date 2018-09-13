@@ -18,26 +18,22 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.servicerelation;
 
-import java.util.HashMap;
-import java.util.Map;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.*;
+import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.IDColumn;
-import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntity;
+import org.apache.skywalking.oap.server.core.storage.annotation.*;
 
 @IndicatorType
 @StreamData
-@StorageEntity(name = ServiceCallRelationIndicator.INDEX_NAME, builder = ServiceCallRelationIndicator.Builder.class)
-public class ServiceCallRelationIndicator extends Indicator {
+@StorageEntity(name = ServiceRelationServerSideIndicator.INDEX_NAME, builder = ServiceRelationServerSideIndicator.Builder.class)
+public class ServiceRelationServerSideIndicator extends Indicator {
 
-    public static final String INDEX_NAME = "service_call_relation";
+    public static final String INDEX_NAME = "service_relation_server_side";
     public static final String SOURCE_SERVICE_ID = "source_service_id";
     public static final String DEST_SERVICE_ID = "dest_service_id";
 
@@ -60,7 +56,7 @@ public class ServiceCallRelationIndicator extends Indicator {
     }
 
     @Override public Indicator toHour() {
-        ServiceCallRelationIndicator indicator = new ServiceCallRelationIndicator();
+        ServiceRelationServerSideIndicator indicator = new ServiceRelationServerSideIndicator();
         indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setSourceServiceId(getSourceServiceId());
         indicator.setDestServiceId(getDestServiceId());
@@ -68,7 +64,7 @@ public class ServiceCallRelationIndicator extends Indicator {
     }
 
     @Override public Indicator toDay() {
-        ServiceCallRelationIndicator indicator = new ServiceCallRelationIndicator();
+        ServiceRelationServerSideIndicator indicator = new ServiceRelationServerSideIndicator();
         indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setSourceServiceId(getSourceServiceId());
         indicator.setDestServiceId(getDestServiceId());
@@ -76,7 +72,7 @@ public class ServiceCallRelationIndicator extends Indicator {
     }
 
     @Override public Indicator toMonth() {
-        ServiceCallRelationIndicator indicator = new ServiceCallRelationIndicator();
+        ServiceRelationServerSideIndicator indicator = new ServiceRelationServerSideIndicator();
         indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setSourceServiceId(getSourceServiceId());
         indicator.setDestServiceId(getDestServiceId());
@@ -122,7 +118,7 @@ public class ServiceCallRelationIndicator extends Indicator {
         if (getClass() != obj.getClass())
             return false;
 
-        ServiceCallRelationIndicator indicator = (ServiceCallRelationIndicator)obj;
+        ServiceRelationServerSideIndicator indicator = (ServiceRelationServerSideIndicator)obj;
         if (sourceServiceId != indicator.sourceServiceId)
             return false;
         if (destServiceId != indicator.destServiceId)
@@ -134,17 +130,17 @@ public class ServiceCallRelationIndicator extends Indicator {
         return true;
     }
 
-    public static class Builder implements StorageBuilder<ServiceCallRelationIndicator> {
+    public static class Builder implements StorageBuilder<ServiceRelationServerSideIndicator> {
 
-        @Override public ServiceCallRelationIndicator map2Data(Map<String, Object> dbMap) {
-            ServiceCallRelationIndicator indicator = new ServiceCallRelationIndicator();
+        @Override public ServiceRelationServerSideIndicator map2Data(Map<String, Object> dbMap) {
+            ServiceRelationServerSideIndicator indicator = new ServiceRelationServerSideIndicator();
             indicator.setSourceServiceId(((Number)dbMap.get(SOURCE_SERVICE_ID)).intValue());
             indicator.setDestServiceId(((Number)dbMap.get(DEST_SERVICE_ID)).intValue());
             indicator.setTimeBucket(((Number)dbMap.get(TIME_BUCKET)).longValue());
             return indicator;
         }
 
-        @Override public Map<String, Object> data2Map(ServiceCallRelationIndicator storageData) {
+        @Override public Map<String, Object> data2Map(ServiceRelationServerSideIndicator storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(SOURCE_SERVICE_ID, storageData.getSourceServiceId());
             map.put(DEST_SERVICE_ID, storageData.getDestServiceId());

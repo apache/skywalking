@@ -34,7 +34,7 @@ public abstract class EsDAO extends AbstractDAO<ElasticSearchClient> {
         super(client);
     }
 
-    public void queryBuild(SearchSourceBuilder sourceBuilder, Where where, long startTB, long endTB) {
+    public final void queryBuild(SearchSourceBuilder sourceBuilder, Where where, long startTB, long endTB) {
         RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery(Indicator.TIME_BUCKET).gte(startTB).lte(endTB);
         if (where.getKeyValues().isEmpty()) {
             sourceBuilder.query(rangeQueryBuilder);
