@@ -129,6 +129,13 @@ public class ServiceComponentIndicator extends Indicator {
     @Override public final void combine(Indicator indicator) {
     }
 
+    @Override public int remoteHashCode() {
+        int result = 17;
+        result = 31 * result + serviceId;
+        result = 31 * result + componentId;
+        return result;
+    }
+
     public static class Builder implements StorageBuilder<ServiceComponentIndicator> {
 
         @Override public Map<String, Object> data2Map(ServiceComponentIndicator storageData) {

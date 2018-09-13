@@ -38,10 +38,9 @@ public class ServiceInstanceRelationDispatcher implements SourceDispatcher<Servi
 
 
         indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
         indicator.setSourceServiceId(source.getSourceServiceId());
         indicator.setDestServiceId(source.getDestServiceId());
-        indicator.setSourceServiceInstanceId(source.getSourceServiceInstanceId());
-        indicator.setDestServiceInstanceId(source.getDestServiceInstanceId());
         indicator.combine(source.getLatency(), 1);
         IndicatorProcess.INSTANCE.in(indicator);
     }

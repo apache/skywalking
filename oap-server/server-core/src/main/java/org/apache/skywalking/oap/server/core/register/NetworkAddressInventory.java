@@ -91,6 +91,10 @@ public class NetworkAddressInventory extends RegisterSource {
         setName(remoteData.getDataStrings(0));
     }
 
+    @Override public int remoteHashCode() {
+        return 0;
+    }
+
     public static class Builder implements StorageBuilder<NetworkAddressInventory> {
 
         @Override public NetworkAddressInventory map2Data(Map<String, Object> dbMap) {

@@ -102,6 +102,10 @@ public class EndpointInventory extends RegisterSource {
         setName(remoteData.getDataStrings(0));
     }
 
+    @Override public int remoteHashCode() {
+        return 0;
+    }
+
     public static class Builder implements StorageBuilder<EndpointInventory> {
 
         @Override public EndpointInventory map2Data(Map<String, Object> dbMap) {

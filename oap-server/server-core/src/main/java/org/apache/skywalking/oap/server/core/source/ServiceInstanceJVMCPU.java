@@ -30,6 +30,10 @@ public class ServiceInstanceJVMCPU extends Source {
         return Scope.ServiceInstanceJVMCPU;
     }
 
+    @Override public String getEntityId() {
+        return String.valueOf(id);
+    }
+
     @Getter @Setter private int id;
     @Getter @Setter private String name;
     @Getter @Setter private String serviceName;
