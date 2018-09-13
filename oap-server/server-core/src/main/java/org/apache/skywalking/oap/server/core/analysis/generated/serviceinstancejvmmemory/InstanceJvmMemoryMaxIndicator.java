@@ -41,8 +41,8 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 @StorageEntity(name = "instance_jvm_memory_max", builder = InstanceJvmMemoryMaxIndicator.Builder.class)
 public class InstanceJvmMemoryMaxIndicator extends LongAvgIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "id") private int id;
-    @Setter @Getter @Column(columnName = "service_instance_id") private int serviceInstanceId;
+    @Setter @Getter @Column(columnName = "id") @IDColumn private int id;
+    @Setter @Getter @Column(columnName = "service_instance_id")  private int serviceInstanceId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
@@ -100,10 +100,51 @@ public class InstanceJvmMemoryMaxIndicator extends LongAvgIndicator implements A
         setId(remoteData.getDataIntegers(0));
         setServiceInstanceId(remoteData.getDataIntegers(1));
         setCount(remoteData.getDataIntegers(2));
+
+
     }
 
     @Override public AlarmMeta getAlarmMeta() {
         return new AlarmMeta("instance_jvm_memory_max", Scope.ServiceInstanceJVMMemory, id, serviceInstanceId);
+    }
+
+    @Override
+    public Indicator toHour() {
+        InstanceJvmMemoryMaxIndicator indicator = new InstanceJvmMemoryMaxIndicator();
+        indicator.setTimeBucket(toTimeBucketInHour());
+        indicator.setId(this.getId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toDay() {
+        InstanceJvmMemoryMaxIndicator indicator = new InstanceJvmMemoryMaxIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
+        indicator.setId(this.getId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toMonth() {
+        InstanceJvmMemoryMaxIndicator indicator = new InstanceJvmMemoryMaxIndicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
+        indicator.setId(this.getId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
     }
 
     public static class Builder implements StorageBuilder<InstanceJvmMemoryMaxIndicator> {

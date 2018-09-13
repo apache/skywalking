@@ -33,11 +33,12 @@ import org.apache.skywalking.oap.server.core.storage.annotation.*;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "service_component", builder = ServiceComponentIndicator.Builder.class)
+@StorageEntity(name = ServiceComponentIndicator.INDEX_NAME, builder = ServiceComponentIndicator.Builder.class)
 public class ServiceComponentIndicator extends Indicator {
 
-    private static final String SERVICE_ID = "service_id";
-    private static final String COMPONENT_ID = "component_id";
+    public static final String INDEX_NAME = "service_component";
+    public static final String SERVICE_ID = "service_id";
+    public static final String COMPONENT_ID = "component_id";
 
     @Setter @Getter @Column(columnName = SERVICE_ID) private int serviceId;
     @Setter @Getter @Column(columnName = COMPONENT_ID) private int componentId;
@@ -96,6 +97,33 @@ public class ServiceComponentIndicator extends Indicator {
     }
 
     @Override public void calculate() {
+    }
+
+    @Override public Indicator toHour() {
+        ServiceComponentIndicator indicator = new ServiceComponentIndicator();
+        indicator.setTimeBucket(toTimeBucketInHour());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setComponentId(this.getComponentId());
+
+        return indicator;
+    }
+
+    @Override public Indicator toDay() {
+        ServiceComponentIndicator indicator = new ServiceComponentIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setComponentId(this.getComponentId());
+
+        return indicator;
+    }
+
+    @Override public Indicator toMonth() {
+        ServiceComponentIndicator indicator = new ServiceComponentIndicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setComponentId(this.getComponentId());
+
+        return indicator;
     }
 
     @Override public final void combine(Indicator indicator) {

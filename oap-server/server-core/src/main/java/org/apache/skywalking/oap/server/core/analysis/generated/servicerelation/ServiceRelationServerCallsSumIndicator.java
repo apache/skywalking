@@ -21,14 +21,15 @@ package org.apache.skywalking.oap.server.core.analysis.generated.servicerelation
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.alarm.*;
-import org.apache.skywalking.oap.server.core.analysis.indicator.SumIndicator;
+import org.apache.skywalking.oap.server.core.alarm.AlarmMeta;
+import org.apache.skywalking.oap.server.core.alarm.AlarmSupported;
+import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.source.Scope;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.source.Scope;
 
 /**
  * This class is auto generated. Please don't change this class manually.
@@ -40,8 +41,8 @@ import org.apache.skywalking.oap.server.core.storage.annotation.*;
 @StorageEntity(name = "service_relation_server_calls_sum", builder = ServiceRelationServerCallsSumIndicator.Builder.class)
 public class ServiceRelationServerCallsSumIndicator extends SumIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "source_service_id") private int sourceServiceId;
-    @Setter @Getter @Column(columnName = "dest_service_id") private int destServiceId;
+    @Setter @Getter @Column(columnName = "source_service_id") @IDColumn private int sourceServiceId;
+    @Setter @Getter @Column(columnName = "dest_service_id") @IDColumn private int destServiceId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
@@ -99,10 +100,45 @@ public class ServiceRelationServerCallsSumIndicator extends SumIndicator impleme
 
         setSourceServiceId(remoteData.getDataIntegers(0));
         setDestServiceId(remoteData.getDataIntegers(1));
+
+
     }
 
     @Override public AlarmMeta getAlarmMeta() {
         return new AlarmMeta("Service_Relation_Server_Calls_Sum", Scope.ServiceRelation, sourceServiceId, destServiceId);
+    }
+
+    @Override
+    public Indicator toHour() {
+        ServiceRelationServerCallsSumIndicator indicator = new ServiceRelationServerCallsSumIndicator();
+        indicator.setTimeBucket(toTimeBucketInHour());
+        indicator.setSourceServiceId(this.getSourceServiceId());
+        indicator.setDestServiceId(this.getDestServiceId());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toDay() {
+        ServiceRelationServerCallsSumIndicator indicator = new ServiceRelationServerCallsSumIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
+        indicator.setSourceServiceId(this.getSourceServiceId());
+        indicator.setDestServiceId(this.getDestServiceId());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toMonth() {
+        ServiceRelationServerCallsSumIndicator indicator = new ServiceRelationServerCallsSumIndicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
+        indicator.setSourceServiceId(this.getSourceServiceId());
+        indicator.setDestServiceId(this.getDestServiceId());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
     }
 
     public static class Builder implements StorageBuilder<ServiceRelationServerCallsSumIndicator> {

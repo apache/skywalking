@@ -16,12 +16,11 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-public enum Step {
-    MONTH,
-    DAY,
-    HOUR,
-    MINUTE,
-    SECOND
+import java.util.*;
+import lombok.Getter;
+
+public class IntValues {
+    @Getter private List<KVInt> values = new LinkedList<>();
 }
