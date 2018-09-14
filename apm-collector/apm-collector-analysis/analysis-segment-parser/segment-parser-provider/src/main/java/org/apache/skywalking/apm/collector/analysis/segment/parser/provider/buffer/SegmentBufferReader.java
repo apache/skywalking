@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.buffer;
 
 import com.google.protobuf.CodedOutputStream;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
 import org.apache.skywalking.apm.collector.analysis.segment.parser.define.service.ISegmentParseService;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.SegmentParse;
 import org.apache.skywalking.apm.collector.analysis.segment.parser.provider.parser.SegmentParserListenerManager;
@@ -148,13 +150,20 @@ public enum SegmentBufferReader {
                 OffsetManager.INSTANCE.setReadOffset(readFileOffset);
             }
 
-            inputStream.close();
             if (!writeFileName.equals(readFile.getName())) {
                 readFile.delete();
             }
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
             return false;
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
         }
         return true;
     }
