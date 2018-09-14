@@ -1,15 +1,13 @@
 # Welcome
-**SkyWalking 6 documents and codes are still on building, Status: WIP. Of course, we welcome everyone to join us.**
-Here are SkyWalking 6 official documents.
+**Here are SkyWalking 6 official documents. Welcome to join us**
 
-From here you can learn all about **SkyWalking**’s architecture, how to deploy and use SkyWalking, even develop based on SkyWalking.
+From here you can learn all about **SkyWalking**’s architecture, how to deploy and use SkyWalking, also develop based on SkyWalking.
 
 - [Concepts and Designs](en/concepts-and-designs/README.md). Concepts and designs explain the most important core ideas about
 SkyWalking. You can learn from here if you want to understand what is going on under our cool features and visualization.
 - [Setup](en/setup/README.md). Setup contains guides for installing SkyWalking in different scenarios. As a platform, it provides
 several ways to provide observability, including monitoring and alarm of course. 
-- [Guides](en/guides/README.md). Guides are for PPMC, committer or new contributor. At here, you can know how to develop, release 
-and what is ongoing of the community.
+- [Contribution Guides](en/guides/README.md). Guides are for PPMC, committer or new contributor. At here, you can know how to contribute from beginning.
 - [Protocols](en/protocols/README.md). Protocols show the communication ways between agents/probes and backend. Anyone, interested
 in uplink telemetry data, definitely should read this.
 - [FAQs](en/FAQ/README.md). Include a manifest, including already known setup problems, secondary developments experiments. When 
