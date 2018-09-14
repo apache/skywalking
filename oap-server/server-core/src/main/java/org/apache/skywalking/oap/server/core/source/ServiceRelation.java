@@ -34,6 +34,10 @@ public class ServiceRelation extends Source {
         return String.valueOf(sourceServiceId) + Const.ID_SPLIT + String.valueOf(destServiceId);
     }
 
+    public static String buildEntityId(int sourceServiceId, int destServiceId) {
+        return String.valueOf(sourceServiceId) + Const.ID_SPLIT + String.valueOf(destServiceId);
+    }
+
     @Getter @Setter private int sourceServiceId;
     @Getter @Setter private String sourceServiceName;
     @Getter @Setter private String sourceServiceInstanceName;

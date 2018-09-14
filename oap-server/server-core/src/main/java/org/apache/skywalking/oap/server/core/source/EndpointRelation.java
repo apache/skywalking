@@ -34,6 +34,10 @@ public class EndpointRelation extends Source {
         return String.valueOf(endpointId) + Const.ID_SPLIT + String.valueOf(childEndpointId);
     }
 
+    public static String buildEntityId(int endpointId, int childEndpointId) {
+        return String.valueOf(endpointId) + Const.ID_SPLIT + String.valueOf(childEndpointId);
+    }
+
     @Getter @Setter private int endpointId;
     @Getter @Setter private String endpoint;
     @Getter @Setter private int serviceId;
