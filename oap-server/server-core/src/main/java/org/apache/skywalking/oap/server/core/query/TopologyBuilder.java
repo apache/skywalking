@@ -37,12 +37,10 @@ class TopologyBuilder {
     private static final Logger logger = LoggerFactory.getLogger(TopologyBuilder.class);
 
     private final ServiceInventoryCache serviceInventoryCache;
-    //    private final DateBetweenService dateBetweenService;
     private final IComponentLibraryCatalogService componentLibraryCatalogService;
 
     TopologyBuilder(ModuleManager moduleManager) {
         this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInventoryCache.class);
-//        this.dateBetweenService = new DateBetweenService(moduleManager);
         this.componentLibraryCatalogService = moduleManager.find(CoreModule.NAME).getService(IComponentLibraryCatalogService.class);
     }
 
@@ -56,8 +54,6 @@ class TopologyBuilder {
         serviceRelationServerCalls = serverCallsFilter(serviceRelationServerCalls);
 
         List<Node> nodes = new LinkedList<>();
-        Map<Integer, Integer> applicationMinuteBetweenMap = new HashMap<>();
-
         List<Call> calls = new LinkedList<>();
         Set<Integer> nodeIds = new HashSet<>();
         serviceRelationClientCalls.forEach(clientCall -> {
@@ -91,17 +87,13 @@ class TopologyBuilder {
             int actualTargetId = mappings.getOrDefault(target.getSequence(), target.getSequence());
             call.setTarget(actualTargetId);
             call.setCallType(nodeCompMap.get(clientCall.getTarget()));
-//            try {
-//                call.setCpm(clientCall.getCalls() / getApplicationMinuteBetween(applicationMinuteBetweenMap, source.getSequence(), startSecondTimeBucket, endSecondTimeBucket));
-//            } catch (ParseException e) {
-//                logger.error(e.getMessage(), e);
-//            }
+            call.setId(clientCall.getId());
             calls.add(call);
         });
 
-        serviceRelationServerCalls.forEach(referenceMetric -> {
-            ServiceInventory source = serviceInventoryCache.get(referenceMetric.getSource());
-            ServiceInventory target = serviceInventoryCache.get(referenceMetric.getTarget());
+        serviceRelationServerCalls.forEach(serverCall -> {
+            ServiceInventory source = serviceInventoryCache.get(serverCall.getSource());
+            ServiceInventory target = serviceInventoryCache.get(serverCall.getTarget());
 
             if (source.getSequence() == Const.NONE_SERVICE_ID) {
                 if (!nodeIds.contains(source.getSequence())) {
@@ -128,17 +120,13 @@ class TopologyBuilder {
             Call call = new Call();
             call.setSource(source.getSequence());
             call.setTarget(target.getSequence());
+            call.setId(serverCall.getId());
 
             if (source.getSequence() == Const.NONE_SERVICE_ID) {
                 call.setCallType(Const.EMPTY_STRING);
             } else {
-                call.setCallType(nodeCompMap.get(referenceMetric.getTarget()));
+                call.setCallType(nodeCompMap.get(serverCall.getTarget()));
             }
-//            try {
-//                call.setCpm(referenceMetric.getCalls() / getApplicationMinuteBetween(applicationMinuteBetweenMap, target.getSequence(), startSecondTimeBucket, endSecondTimeBucket));
-//            } catch (ParseException e) {
-//                logger.error(e.getMessage(), e);
-//            }
             calls.add(call);
         });
 
