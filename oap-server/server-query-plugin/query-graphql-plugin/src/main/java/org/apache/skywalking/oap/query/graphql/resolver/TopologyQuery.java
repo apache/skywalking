@@ -21,9 +21,8 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import java.io.IOException;
 import org.apache.skywalking.oap.query.graphql.type.Duration;
-import org.apache.skywalking.oap.query.graphql.util.DurationUtils;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.query.TopologyQueryService;
+import org.apache.skywalking.oap.server.core.query.*;
 import org.apache.skywalking.oap.server.core.query.entity.Topology;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 

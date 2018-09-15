@@ -16,16 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.query;
+package org.apache.skywalking.oap.server.core.query.entity;
 
+import java.util.*;
 import lombok.*;
 
-/**
- * @author peng-yongsheng
- */
 @Getter
 @Setter
-public class TwoIdGroup {
-    private int id1;
-    private int id2;
+public class Thermodynamic {
+    private List<List<Long>> nodes = new ArrayList<>();
+    private int axisYStep;
 }
