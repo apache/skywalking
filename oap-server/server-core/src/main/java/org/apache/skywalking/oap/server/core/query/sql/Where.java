@@ -26,5 +26,5 @@ import lombok.Getter;
  */
 @Getter
 public class Where {
-    private List<IntKeyValues> keyValues = new LinkedList<>();
+    private List<KeyValues> keyValues = new LinkedList<>();
 }

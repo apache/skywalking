@@ -16,11 +16,31 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query;
 
-import java.util.List;
+/**
+ * @author peng-yongsheng
+ */
+public class DurationPoint {
+    private long point;
+    private long secondsBetween;
+    private long minutesBetween;
 
-public class Thermodynamic {
-    private List<List<Long>> nodes;
-    private int axisYStep;
+    public DurationPoint(long point, long secondsBetween, long minutesBetween) {
+        this.point = point;
+        this.secondsBetween = secondsBetween;
+        this.minutesBetween = minutesBetween;
+    }
+
+    public long getPoint() {
+        return point;
+    }
+
+    public long getSecondsBetween() {
+        return secondsBetween;
+    }
+
+    public long getMinutesBetween() {
+        return minutesBetween;
+    }
 }
