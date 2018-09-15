@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
  * A heat map (or heatmap) is a graphical representation of data where the individual values contained in a matrix are
  * represented as colors.
  *
- * @author wusheng
+ * @author wusheng, peng-yongsheng
  */
 @IndicatorOperator
 public abstract class ThermodynamicIndicator extends Indicator {
