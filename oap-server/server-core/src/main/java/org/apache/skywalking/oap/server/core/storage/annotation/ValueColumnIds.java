@@ -18,22 +18,36 @@
 
 package org.apache.skywalking.oap.server.core.storage.annotation;
 
-import java.lang.annotation.*;
+import java.util.*;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 
 /**
  * @author peng-yongsheng
  */
-@Target({ElementType.FIELD})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Column {
-    String columnName();
+public enum ValueColumnIds {
+    INSTANCE;
 
-    boolean isValue() default false;
+    private Map<String, ValueColumn> mapping = new HashMap<>();
 
-    Function function() default Function.None;
+    public void putIfAbsent(String indName, String valueCName, Function function) {
+        mapping.putIfAbsent(indName, new ValueColumn(valueCName, function));
+    }
 
-    boolean matchQuery() default false;
+    public String getValueCName(String indName) {
+        return mapping.get(indName).valueCName;
+    }
 
-    boolean termQuery() default true;
+    public Function getValueFunction(String indName) {
+        return mapping.get(indName).function;
+    }
+
+    class ValueColumn {
+        private final String valueCName;
+        private final Function function;
+
+        private ValueColumn(String valueCName, Function function) {
+            this.valueCName = valueCName;
+            this.function = function;
+        }
+    }
 }

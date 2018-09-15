@@ -16,19 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.query;
+package org.apache.skywalking.oap.server.core.query.sql;
 
-import java.io.IOException;
-import java.util.List;
-import org.apache.skywalking.oap.server.core.query.entity.Step;
-import org.apache.skywalking.oap.server.core.query.sql.Where;
-import org.apache.skywalking.oap.server.core.storage.DAO;
+import java.util.*;
+import lombok.*;
 
 /**
  * @author peng-yongsheng
  */
-public interface IUniqueQueryDAO extends DAO {
-
-    List<TwoIdGroup> aggregation(String indName, Step step, long startTB,
-        long endTB, Where where, String idCName1, String idCName2) throws IOException;
+public class KeyValues {
+    @Getter @Setter private String key;
+    @Getter private List<String> values = new LinkedList<>();
 }
