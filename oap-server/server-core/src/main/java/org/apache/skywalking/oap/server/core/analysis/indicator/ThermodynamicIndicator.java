@@ -35,13 +35,13 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
  */
 @IndicatorOperator
 public abstract class ThermodynamicIndicator extends Indicator {
-    protected static final String DETAIL_GROUP = "detail_group";
-    protected static final String STEP = "step";
+    public static final String DETAIL_GROUP = "detail_group";
+    public static final String STEP = "step";
     public static final String NUM_OF_STEPS = "num_of_steps";
 
     @Getter @Setter @Column(columnName = STEP) private int step = 0;
     @Getter @Setter @Column(columnName = NUM_OF_STEPS) private int numOfSteps = 0;
-    @Getter @Setter @Column(columnName = DETAIL_GROUP) private List<IntKeyLongValue> detailGroup = new ArrayList<>(30);
+    @Getter @Setter @Column(columnName = DETAIL_GROUP) private IntKeyLongValueArray detailGroup = new IntKeyLongValueArray(30);
 
     private Map<Integer, IntKeyLongValue> detailIndex;
 

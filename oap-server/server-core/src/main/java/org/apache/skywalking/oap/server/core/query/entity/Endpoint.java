@@ -16,14 +16,9 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.module;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-/**
- * The <code>Service</code> implementation is a service provided by its own modules.
- *
- * And every {@link ModuleProvider} must provide all the given services of the {@link ModuleDefine}.
- *
- * @author wu-sheng
- */
-public interface Service {
+public class Endpoint {
+    private String id;
+    private String name;
 }

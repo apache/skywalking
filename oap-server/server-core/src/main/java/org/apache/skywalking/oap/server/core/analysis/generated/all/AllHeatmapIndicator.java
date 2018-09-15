@@ -19,15 +19,14 @@
 package org.apache.skywalking.oap.server.core.analysis.generated.all;
 
 import java.util.*;
-import org.apache.skywalking.oap.server.core.alarm.AlarmMeta;
-import org.apache.skywalking.oap.server.core.alarm.AlarmSupported;
+import org.apache.skywalking.oap.server.core.alarm.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.annotation.*;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntity;
 
 /**
  * This class is auto generated. Please don't change this class manually.
@@ -39,7 +38,6 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 @StorageEntity(name = "all_heatmap", builder = AllHeatmapIndicator.Builder.class)
 public class AllHeatmapIndicator extends ThermodynamicIndicator implements AlarmSupported {
 
-
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
         return splitJointId;
@@ -50,7 +48,6 @@ public class AllHeatmapIndicator extends ThermodynamicIndicator implements Alarm
         result = 31 * result + (int)getTimeBucket();
         return result;
     }
-
 
     @Override public int remoteHashCode() {
         int result = 17;
@@ -78,7 +75,6 @@ public class AllHeatmapIndicator extends ThermodynamicIndicator implements Alarm
 
         remoteBuilder.setDataLongs(0, getTimeBucket());
 
-
         remoteBuilder.setDataIntegers(0, getStep());
         remoteBuilder.setDataIntegers(1, getNumOfSteps());
         getDetailGroup().forEach(element -> remoteBuilder.addDataIntLongPairList(element.serialize()));
@@ -90,11 +86,10 @@ public class AllHeatmapIndicator extends ThermodynamicIndicator implements Alarm
 
         setTimeBucket(remoteData.getDataLongs(0));
 
-
         setStep(remoteData.getDataIntegers(0));
         setNumOfSteps(remoteData.getDataIntegers(1));
 
-        setDetailGroup(new ArrayList<>(30));
+        setDetailGroup(new IntKeyLongValueArray(30));
         remoteData.getDataIntLongPairListList().forEach(element -> {
             getDetailGroup().add(new IntKeyLongValue(element.getKey(), element.getValue()));
         });
@@ -153,7 +148,7 @@ public class AllHeatmapIndicator extends ThermodynamicIndicator implements Alarm
             AllHeatmapIndicator indicator = new AllHeatmapIndicator();
             indicator.setStep(((Number)dbMap.get("step")).intValue());
             indicator.setNumOfSteps(((Number)dbMap.get("num_of_steps")).intValue());
-            indicator.setDetailGroup((java.util.List)dbMap.get("detail_group"));
+            indicator.setDetailGroup((IntKeyLongValueArray)dbMap.get("detail_group"));
             indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
             return indicator;
         }

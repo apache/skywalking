@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import java.io.IOException;
 import java.util.*;
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.query.sql.*;
 import org.apache.skywalking.oap.server.core.storage.TimePyramidTableNameBuilder;
@@ -107,7 +107,23 @@ public class MetricQueryEsDAO extends EsDAO implements IMetricQueryDAO {
 
         Thermodynamic thermodynamic = new Thermodynamic();
         for (MultiGetItemResponse itemResponse : response.getResponses()) {
+            int axisYStep = ((Number)itemResponse.getResponse().getSource().get(ThermodynamicIndicator.STEP)).intValue();
+            thermodynamic.setAxisYStep(axisYStep);
+            int numOfSteps = ((Number)itemResponse.getResponse().getSource().get(ThermodynamicIndicator.NUM_OF_STEPS)).intValue();
+
+            String value = (String)itemResponse.getResponse().getSource().get(ThermodynamicIndicator.DETAIL_GROUP);
+            IntKeyLongValueArray intKeyLongValues = new IntKeyLongValueArray();
+            intKeyLongValues.toObject(value);
+
             List<Long> axisYValues = new ArrayList<>();
+            for (int i = 0; i < numOfSteps; i++) {
+                axisYValues.add(0L);
+            }
+
+            for (IntKeyLongValue intKeyLongValue : intKeyLongValues) {
+                axisYValues.set(intKeyLongValue.getKey(), intKeyLongValue.getValue());
+            }
+
             thermodynamic.getNodes().add(axisYValues);
         }
         return thermodynamic;

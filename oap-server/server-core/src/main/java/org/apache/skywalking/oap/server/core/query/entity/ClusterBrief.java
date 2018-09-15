@@ -16,9 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-public class Attribute {
-    private String name;
-    private String value;
+import lombok.*;
+
+@Getter
+@Setter
+public class ClusterBrief {
+    private int numOfService;
+    private int numOfEndpoint;
+    private int numOfDatabase;
+    private int numOfCache;
+    private int numOfMQ;
 }
