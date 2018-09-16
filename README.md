@@ -57,7 +57,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 Please report unacceptable behavior to dev@skywalking.apache.org .
 
 # Live Demo
-- Host in Beijing. [goto](http://49.4.12.44:8080/)
+- Host in Beijing. [goto](http://106.75.237.45:8080/)
   - Username: admin
   - Password: admin
 
