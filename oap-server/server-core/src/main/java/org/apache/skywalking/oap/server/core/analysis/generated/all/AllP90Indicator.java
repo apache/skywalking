@@ -94,7 +94,7 @@ public class AllP90Indicator extends P90Indicator implements AlarmSupported {
         setValue(remoteData.getDataIntegers(0));
         setPrecision(remoteData.getDataIntegers(1));
 
-        setDetailGroup(new ArrayList<>(30));
+        setDetailGroup(new IntKeyLongValueArray(30));
         remoteData.getDataIntLongPairListList().forEach(element -> {
             getDetailGroup().add(new IntKeyLongValue(element.getKey(), element.getValue()));
         });

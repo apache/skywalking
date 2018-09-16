@@ -38,7 +38,7 @@ public class ServiceInstanceJVMMemoryDispatcher implements SourceDispatcher<Serv
     private void doInstanceJvmMemoryHeap(ServiceInstanceJVMMemory source) {
         InstanceJvmMemoryHeapIndicator indicator = new InstanceJvmMemoryHeapIndicator();
 
-        if (!new EqualMatch().setLeft(source.isIsHeap()).setRight(true).match()) {
+        if (!new EqualMatch().setLeft(source.isHeapStatus()).setRight(true).match()) {
             return;
         }
 
@@ -51,7 +51,7 @@ public class ServiceInstanceJVMMemoryDispatcher implements SourceDispatcher<Serv
     private void doInstanceJvmMemoryNoheap(ServiceInstanceJVMMemory source) {
         InstanceJvmMemoryNoheapIndicator indicator = new InstanceJvmMemoryNoheapIndicator();
 
-        if (!new EqualMatch().setLeft(source.isIsHeap()).setRight(false).match()) {
+        if (!new EqualMatch().setLeft(source.isHeapStatus()).setRight(false).match()) {
             return;
         }
 

@@ -110,7 +110,7 @@ public class EndpointP90Indicator extends P90Indicator implements AlarmSupported
         setValue(remoteData.getDataIntegers(2));
         setPrecision(remoteData.getDataIntegers(3));
 
-        setDetailGroup(new ArrayList<>(30));
+        setDetailGroup(new IntKeyLongValueArray(30));
         remoteData.getDataIntLongPairListList().forEach(element -> {
             getDetailGroup().add(new IntKeyLongValue(element.getKey(), element.getValue()));
         });

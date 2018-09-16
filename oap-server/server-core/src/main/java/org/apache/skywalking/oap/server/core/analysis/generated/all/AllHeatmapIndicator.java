@@ -94,7 +94,7 @@ public class AllHeatmapIndicator extends ThermodynamicIndicator implements Alarm
         setStep(remoteData.getDataIntegers(0));
         setNumOfSteps(remoteData.getDataIntegers(1));
 
-        setDetailGroup(new ArrayList<>(30));
+        setDetailGroup(new IntKeyLongValueArray(30));
         remoteData.getDataIntLongPairListList().forEach(element -> {
             getDetailGroup().add(new IntKeyLongValue(element.getKey(), element.getValue()));
         });

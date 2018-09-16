@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.server.core.analysis.generated.endpointrelation;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
+import org.apache.skywalking.oap.server.core.analysis.indicator.expression.*;
 import org.apache.skywalking.oap.server.core.source.*;
 
 /**
