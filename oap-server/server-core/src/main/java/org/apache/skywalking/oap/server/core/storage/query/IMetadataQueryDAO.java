@@ -16,9 +16,12 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.storage.query;
 
-public class Endpoint {
-    private String id;
-    private String name;
+import org.apache.skywalking.oap.server.core.storage.DAO;
+
+/**
+ * @author peng-yongsheng
+ */
+public interface IMetadataQueryDAO extends DAO {
 }

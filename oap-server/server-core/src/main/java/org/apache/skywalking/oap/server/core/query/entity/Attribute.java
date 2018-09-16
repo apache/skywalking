@@ -16,9 +16,9 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-public class Service {
-    private String id;
+public class Attribute {
     private String name;
+    private String value;
 }

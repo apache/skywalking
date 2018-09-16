@@ -55,7 +55,7 @@ public class GraphQLQueryProvider extends ModuleProvider {
             .file("query-protocol/common.graphqls")
             .resolvers(new Query(), new Mutation())
             .file("query-protocol/metadata.graphqls")
-            .resolvers(new MetadataQuery())
+            .resolvers(new MetadataQuery(getManager()))
             .file("query-protocol/metric.graphqls")
             .resolvers(new MetricQuery(getManager()))
             .file("query-protocol/topology.graphqls")

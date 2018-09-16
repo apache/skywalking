@@ -16,13 +16,13 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-public enum Language {
-    UNKNOWN,
-    JAVA,
-    DOTNET,
-    NODEJS,
-    PYTHON,
-    RUBY
+import lombok.*;
+
+@Getter
+@Setter
+public class Service {
+    private String id;
+    private String name;
 }
