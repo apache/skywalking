@@ -90,7 +90,8 @@ public class EndpointRelationCpmIndicator extends CPMIndicator implements AlarmS
         remoteBuilder.setDataStrings(0, getEntityId());
 
         remoteBuilder.setDataLongs(0, getValue());
-        remoteBuilder.setDataLongs(1, getTimeBucket());
+        remoteBuilder.setDataLongs(1, getTotal());
+        remoteBuilder.setDataLongs(2, getTimeBucket());
 
 
         remoteBuilder.setDataIntegers(0, getServiceId());
@@ -105,7 +106,8 @@ public class EndpointRelationCpmIndicator extends CPMIndicator implements AlarmS
         setEntityId(remoteData.getDataStrings(0));
 
         setValue(remoteData.getDataLongs(0));
-        setTimeBucket(remoteData.getDataLongs(1));
+        setTotal(remoteData.getDataLongs(1));
+        setTimeBucket(remoteData.getDataLongs(2));
 
 
         setServiceId(remoteData.getDataIntegers(0));
@@ -130,6 +132,7 @@ public class EndpointRelationCpmIndicator extends CPMIndicator implements AlarmS
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setChildServiceInstanceId(this.getChildServiceInstanceId());
         indicator.setValue(this.getValue());
+        indicator.setTotal(this.getTotal());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
@@ -144,6 +147,7 @@ public class EndpointRelationCpmIndicator extends CPMIndicator implements AlarmS
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setChildServiceInstanceId(this.getChildServiceInstanceId());
         indicator.setValue(this.getValue());
+        indicator.setTotal(this.getTotal());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
@@ -158,6 +162,7 @@ public class EndpointRelationCpmIndicator extends CPMIndicator implements AlarmS
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setChildServiceInstanceId(this.getChildServiceInstanceId());
         indicator.setValue(this.getValue());
+        indicator.setTotal(this.getTotal());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
@@ -172,6 +177,7 @@ public class EndpointRelationCpmIndicator extends CPMIndicator implements AlarmS
             map.put("service_instance_id", storageData.getServiceInstanceId());
             map.put("child_service_instance_id", storageData.getChildServiceInstanceId());
             map.put("value", storageData.getValue());
+            map.put("total", storageData.getTotal());
             map.put("time_bucket", storageData.getTimeBucket());
             return map;
         }
@@ -184,6 +190,7 @@ public class EndpointRelationCpmIndicator extends CPMIndicator implements AlarmS
             indicator.setServiceInstanceId(((Number)dbMap.get("service_instance_id")).intValue());
             indicator.setChildServiceInstanceId(((Number)dbMap.get("child_service_instance_id")).intValue());
             indicator.setValue(((Number)dbMap.get("value")).longValue());
+            indicator.setTotal(((Number)dbMap.get("total")).longValue());
             indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
             return indicator;
         }

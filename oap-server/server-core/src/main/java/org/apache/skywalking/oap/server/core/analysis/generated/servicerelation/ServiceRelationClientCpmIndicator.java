@@ -86,7 +86,8 @@ public class ServiceRelationClientCpmIndicator extends CPMIndicator implements A
         remoteBuilder.setDataStrings(0, getEntityId());
 
         remoteBuilder.setDataLongs(0, getValue());
-        remoteBuilder.setDataLongs(1, getTimeBucket());
+        remoteBuilder.setDataLongs(1, getTotal());
+        remoteBuilder.setDataLongs(2, getTimeBucket());
 
 
 
@@ -97,7 +98,8 @@ public class ServiceRelationClientCpmIndicator extends CPMIndicator implements A
         setEntityId(remoteData.getDataStrings(0));
 
         setValue(remoteData.getDataLongs(0));
-        setTimeBucket(remoteData.getDataLongs(1));
+        setTotal(remoteData.getDataLongs(1));
+        setTimeBucket(remoteData.getDataLongs(2));
 
 
 
@@ -114,6 +116,7 @@ public class ServiceRelationClientCpmIndicator extends CPMIndicator implements A
         indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEntityId(this.getEntityId());
         indicator.setValue(this.getValue());
+        indicator.setTotal(this.getTotal());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
@@ -124,6 +127,7 @@ public class ServiceRelationClientCpmIndicator extends CPMIndicator implements A
         indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEntityId(this.getEntityId());
         indicator.setValue(this.getValue());
+        indicator.setTotal(this.getTotal());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
@@ -134,6 +138,7 @@ public class ServiceRelationClientCpmIndicator extends CPMIndicator implements A
         indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEntityId(this.getEntityId());
         indicator.setValue(this.getValue());
+        indicator.setTotal(this.getTotal());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
@@ -144,6 +149,7 @@ public class ServiceRelationClientCpmIndicator extends CPMIndicator implements A
             Map<String, Object> map = new HashMap<>();
             map.put("source_service_id", storageData.getEntityId());
             map.put("value", storageData.getValue());
+            map.put("total", storageData.getTotal());
             map.put("time_bucket", storageData.getTimeBucket());
             return map;
         }
@@ -152,6 +158,7 @@ public class ServiceRelationClientCpmIndicator extends CPMIndicator implements A
             ServiceRelationClientCpmIndicator indicator = new ServiceRelationClientCpmIndicator();
             indicator.setEntityId((String)dbMap.get("source_service_id"));
             indicator.setValue(((Number)dbMap.get("value")).longValue());
+            indicator.setTotal(((Number)dbMap.get("total")).longValue());
             indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
             return indicator;
         }

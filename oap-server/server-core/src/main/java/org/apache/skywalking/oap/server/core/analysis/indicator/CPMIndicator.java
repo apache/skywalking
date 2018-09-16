@@ -32,21 +32,23 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 public abstract class CPMIndicator extends Indicator implements LongValueHolder {
 
     protected static final String VALUE = "value";
+    protected static final String TOTAL = "total";
 
     @Getter @Setter @Column(columnName = VALUE) private long value;
+    @Getter @Setter @Column(columnName = TOTAL) private long total;
 
     @Entrance
     public final void combine(@ConstOne long count) {
-        this.value += count;
+        this.total += count;
     }
 
     @Override public final void combine(Indicator indicator) {
         CPMIndicator countIndicator = (CPMIndicator)indicator;
-        combine(countIndicator.value);
+        combine(countIndicator.total);
     }
 
     @Override public void calculate() {
-
+        this.value = total / getDurationInMinute();
     }
 
     @Override public long getValue() {
