@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancejvmmemory;
+package org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancejvmgc;
 
 import java.util.*;
 import lombok.*;
@@ -38,8 +38,8 @@ import org.apache.skywalking.oap.server.core.source.Scope;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "instance_jvm_memory_max", builder = InstanceJvmMemoryMaxIndicator.Builder.class)
-public class InstanceJvmMemoryMaxIndicator extends LongAvgIndicator implements AlarmSupported {
+@StorageEntity(name = "instance_jvm_old_gc_count", builder = InstanceJvmOldGcCountIndicator.Builder.class)
+public class InstanceJvmOldGcCountIndicator extends SumIndicator implements AlarmSupported {
 
     @Setter @Getter @Column(columnName = "entity_id") @IDColumn private String entityId;
     @Setter @Getter @Column(columnName = "service_instance_id")  private int serviceInstanceId;
@@ -72,7 +72,7 @@ public class InstanceJvmMemoryMaxIndicator extends LongAvgIndicator implements A
         if (getClass() != obj.getClass())
             return false;
 
-        InstanceJvmMemoryMaxIndicator indicator = (InstanceJvmMemoryMaxIndicator)obj;
+        InstanceJvmOldGcCountIndicator indicator = (InstanceJvmOldGcCountIndicator)obj;
         if (entityId != indicator.entityId)
             return false;
 
@@ -86,13 +86,11 @@ public class InstanceJvmMemoryMaxIndicator extends LongAvgIndicator implements A
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
         remoteBuilder.setDataStrings(0, getEntityId());
 
-        remoteBuilder.setDataLongs(0, getSummation());
-        remoteBuilder.setDataLongs(1, getValue());
-        remoteBuilder.setDataLongs(2, getTimeBucket());
+        remoteBuilder.setDataLongs(0, getValue());
+        remoteBuilder.setDataLongs(1, getTimeBucket());
 
 
         remoteBuilder.setDataIntegers(0, getServiceInstanceId());
-        remoteBuilder.setDataIntegers(1, getCount());
 
         return remoteBuilder;
     }
@@ -100,29 +98,25 @@ public class InstanceJvmMemoryMaxIndicator extends LongAvgIndicator implements A
     @Override public void deserialize(RemoteData remoteData) {
         setEntityId(remoteData.getDataStrings(0));
 
-        setSummation(remoteData.getDataLongs(0));
-        setValue(remoteData.getDataLongs(1));
-        setTimeBucket(remoteData.getDataLongs(2));
+        setValue(remoteData.getDataLongs(0));
+        setTimeBucket(remoteData.getDataLongs(1));
 
 
         setServiceInstanceId(remoteData.getDataIntegers(0));
-        setCount(remoteData.getDataIntegers(1));
 
 
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("instance_jvm_memory_max", Scope.ServiceInstanceJVMMemory, entityId);
+        return new AlarmMeta("instance_jvm_old_gc_count", Scope.ServiceInstanceJVMGC, entityId);
     }
 
     @Override
     public Indicator toHour() {
-        InstanceJvmMemoryMaxIndicator indicator = new InstanceJvmMemoryMaxIndicator();
+        InstanceJvmOldGcCountIndicator indicator = new InstanceJvmOldGcCountIndicator();
         indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
-        indicator.setSummation(this.getSummation());
-        indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
@@ -130,12 +124,10 @@ public class InstanceJvmMemoryMaxIndicator extends LongAvgIndicator implements A
 
     @Override
     public Indicator toDay() {
-        InstanceJvmMemoryMaxIndicator indicator = new InstanceJvmMemoryMaxIndicator();
+        InstanceJvmOldGcCountIndicator indicator = new InstanceJvmOldGcCountIndicator();
         indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
-        indicator.setSummation(this.getSummation());
-        indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
@@ -143,36 +135,30 @@ public class InstanceJvmMemoryMaxIndicator extends LongAvgIndicator implements A
 
     @Override
     public Indicator toMonth() {
-        InstanceJvmMemoryMaxIndicator indicator = new InstanceJvmMemoryMaxIndicator();
+        InstanceJvmOldGcCountIndicator indicator = new InstanceJvmOldGcCountIndicator();
         indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
-        indicator.setSummation(this.getSummation());
-        indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
-    public static class Builder implements StorageBuilder<InstanceJvmMemoryMaxIndicator> {
+    public static class Builder implements StorageBuilder<InstanceJvmOldGcCountIndicator> {
 
-        @Override public Map<String, Object> data2Map(InstanceJvmMemoryMaxIndicator storageData) {
+        @Override public Map<String, Object> data2Map(InstanceJvmOldGcCountIndicator storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put("entity_id", storageData.getEntityId());
             map.put("service_instance_id", storageData.getServiceInstanceId());
-            map.put("summation", storageData.getSummation());
-            map.put("count", storageData.getCount());
             map.put("value", storageData.getValue());
             map.put("time_bucket", storageData.getTimeBucket());
             return map;
         }
 
-        @Override public InstanceJvmMemoryMaxIndicator map2Data(Map<String, Object> dbMap) {
-            InstanceJvmMemoryMaxIndicator indicator = new InstanceJvmMemoryMaxIndicator();
+        @Override public InstanceJvmOldGcCountIndicator map2Data(Map<String, Object> dbMap) {
+            InstanceJvmOldGcCountIndicator indicator = new InstanceJvmOldGcCountIndicator();
             indicator.setEntityId((String)dbMap.get("entity_id"));
             indicator.setServiceInstanceId(((Number)dbMap.get("service_instance_id")).intValue());
-            indicator.setSummation(((Number)dbMap.get("summation")).longValue());
-            indicator.setCount(((Number)dbMap.get("count")).intValue());
             indicator.setValue(((Number)dbMap.get("value")).longValue());
             indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
             return indicator;

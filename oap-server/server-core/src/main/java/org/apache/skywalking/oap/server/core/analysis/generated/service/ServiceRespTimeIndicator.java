@@ -16,9 +16,11 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.generated.all;
+package org.apache.skywalking.oap.server.core.analysis.generated.service;
 
 import java.util.*;
+import lombok.*;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMeta;
 import org.apache.skywalking.oap.server.core.alarm.AlarmSupported;
 import org.apache.skywalking.oap.server.core.analysis.indicator.*;
@@ -36,17 +38,20 @@ import org.apache.skywalking.oap.server.core.source.Scope;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "all_p95", builder = AllP95Indicator.Builder.class)
-public class AllP95Indicator extends P95Indicator implements AlarmSupported {
+@StorageEntity(name = "service_resp_time", builder = ServiceRespTimeIndicator.Builder.class)
+public class ServiceRespTimeIndicator extends LongAvgIndicator implements AlarmSupported {
 
+    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private String entityId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
+        splitJointId += Const.ID_SPLIT + entityId;
         return splitJointId;
     }
 
     @Override public int hashCode() {
         int result = 17;
+        result = 31 * result + entityId.hashCode();
         result = 31 * result + (int)getTimeBucket();
         return result;
     }
@@ -54,6 +59,7 @@ public class AllP95Indicator extends P95Indicator implements AlarmSupported {
 
     @Override public int remoteHashCode() {
         int result = 17;
+        result = 31 * result + entityId.hashCode();
         return result;
     }
 
@@ -65,7 +71,9 @@ public class AllP95Indicator extends P95Indicator implements AlarmSupported {
         if (getClass() != obj.getClass())
             return false;
 
-        AllP95Indicator indicator = (AllP95Indicator)obj;
+        ServiceRespTimeIndicator indicator = (ServiceRespTimeIndicator)obj;
+        if (entityId != indicator.entityId)
+            return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
             return false;
@@ -75,85 +83,89 @@ public class AllP95Indicator extends P95Indicator implements AlarmSupported {
 
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
+        remoteBuilder.setDataStrings(0, getEntityId());
 
-        remoteBuilder.setDataLongs(0, getTimeBucket());
+        remoteBuilder.setDataLongs(0, getSummation());
+        remoteBuilder.setDataLongs(1, getValue());
+        remoteBuilder.setDataLongs(2, getTimeBucket());
 
 
-        remoteBuilder.setDataIntegers(0, getValue());
-        remoteBuilder.setDataIntegers(1, getPrecision());
-        getDetailGroup().forEach(element -> remoteBuilder.addDataIntLongPairList(element.serialize()));
+        remoteBuilder.setDataIntegers(0, getCount());
 
         return remoteBuilder;
     }
 
     @Override public void deserialize(RemoteData remoteData) {
+        setEntityId(remoteData.getDataStrings(0));
 
-        setTimeBucket(remoteData.getDataLongs(0));
+        setSummation(remoteData.getDataLongs(0));
+        setValue(remoteData.getDataLongs(1));
+        setTimeBucket(remoteData.getDataLongs(2));
 
 
-        setValue(remoteData.getDataIntegers(0));
-        setPrecision(remoteData.getDataIntegers(1));
+        setCount(remoteData.getDataIntegers(0));
 
-        setDetailGroup(new ArrayList<>(30));
-        remoteData.getDataIntLongPairListList().forEach(element -> {
-            getDetailGroup().add(new IntKeyLongValue(element.getKey(), element.getValue()));
-        });
 
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("all_p95", Scope.All);
+        return new AlarmMeta("service_resp_time", Scope.Service, entityId);
     }
 
     @Override
     public Indicator toHour() {
-        AllP95Indicator indicator = new AllP95Indicator();
+        ServiceRespTimeIndicator indicator = new ServiceRespTimeIndicator();
         indicator.setTimeBucket(toTimeBucketInHour());
+        indicator.setEntityId(this.getEntityId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setPrecision(this.getPrecision());
-        indicator.setDetailGroup(this.getDetailGroup());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
     @Override
     public Indicator toDay() {
-        AllP95Indicator indicator = new AllP95Indicator();
+        ServiceRespTimeIndicator indicator = new ServiceRespTimeIndicator();
         indicator.setTimeBucket(toTimeBucketInDay());
+        indicator.setEntityId(this.getEntityId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setPrecision(this.getPrecision());
-        indicator.setDetailGroup(this.getDetailGroup());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
     @Override
     public Indicator toMonth() {
-        AllP95Indicator indicator = new AllP95Indicator();
+        ServiceRespTimeIndicator indicator = new ServiceRespTimeIndicator();
         indicator.setTimeBucket(toTimeBucketInMonth());
+        indicator.setEntityId(this.getEntityId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setPrecision(this.getPrecision());
-        indicator.setDetailGroup(this.getDetailGroup());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
-    public static class Builder implements StorageBuilder<AllP95Indicator> {
+    public static class Builder implements StorageBuilder<ServiceRespTimeIndicator> {
 
-        @Override public Map<String, Object> data2Map(AllP95Indicator storageData) {
+        @Override public Map<String, Object> data2Map(ServiceRespTimeIndicator storageData) {
             Map<String, Object> map = new HashMap<>();
+            map.put("entity_id", storageData.getEntityId());
+            map.put("summation", storageData.getSummation());
+            map.put("count", storageData.getCount());
             map.put("value", storageData.getValue());
-            map.put("precision", storageData.getPrecision());
-            map.put("detail_group", storageData.getDetailGroup());
             map.put("time_bucket", storageData.getTimeBucket());
             return map;
         }
 
-        @Override public AllP95Indicator map2Data(Map<String, Object> dbMap) {
-            AllP95Indicator indicator = new AllP95Indicator();
-            indicator.setValue(((Number)dbMap.get("value")).intValue());
-            indicator.setPrecision(((Number)dbMap.get("precision")).intValue());
-            indicator.setDetailGroup((org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray)dbMap.get("detail_group"));
+        @Override public ServiceRespTimeIndicator map2Data(Map<String, Object> dbMap) {
+            ServiceRespTimeIndicator indicator = new ServiceRespTimeIndicator();
+            indicator.setEntityId((String)dbMap.get("entity_id"));
+            indicator.setSummation(((Number)dbMap.get("summation")).longValue());
+            indicator.setCount(((Number)dbMap.get("count")).intValue());
+            indicator.setValue(((Number)dbMap.get("value")).longValue());
             indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
             return indicator;
         }

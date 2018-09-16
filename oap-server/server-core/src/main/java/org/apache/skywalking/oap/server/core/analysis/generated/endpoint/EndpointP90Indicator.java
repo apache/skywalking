@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.generated.endpointrelation;
+package org.apache.skywalking.oap.server.core.analysis.generated.endpoint;
 
 import java.util.*;
 import lombok.*;
@@ -38,14 +38,12 @@ import org.apache.skywalking.oap.server.core.source.Scope;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "endpointrelation_avg", builder = EndpointRelationAvgIndicator.Builder.class)
-public class EndpointRelationAvgIndicator extends LongAvgIndicator implements AlarmSupported {
+@StorageEntity(name = "endpoint_p90", builder = EndpointP90Indicator.Builder.class)
+public class EndpointP90Indicator extends P90Indicator implements AlarmSupported {
 
     @Setter @Getter @Column(columnName = "entity_id") @IDColumn private String entityId;
     @Setter @Getter @Column(columnName = "service_id")  private int serviceId;
-    @Setter @Getter @Column(columnName = "child_service_id")  private int childServiceId;
     @Setter @Getter @Column(columnName = "service_instance_id")  private int serviceInstanceId;
-    @Setter @Getter @Column(columnName = "child_service_instance_id")  private int childServiceInstanceId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
@@ -75,7 +73,7 @@ public class EndpointRelationAvgIndicator extends LongAvgIndicator implements Al
         if (getClass() != obj.getClass())
             return false;
 
-        EndpointRelationAvgIndicator indicator = (EndpointRelationAvgIndicator)obj;
+        EndpointP90Indicator indicator = (EndpointP90Indicator)obj;
         if (entityId != indicator.entityId)
             return false;
 
@@ -89,16 +87,14 @@ public class EndpointRelationAvgIndicator extends LongAvgIndicator implements Al
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
         remoteBuilder.setDataStrings(0, getEntityId());
 
-        remoteBuilder.setDataLongs(0, getSummation());
-        remoteBuilder.setDataLongs(1, getValue());
-        remoteBuilder.setDataLongs(2, getTimeBucket());
+        remoteBuilder.setDataLongs(0, getTimeBucket());
 
 
         remoteBuilder.setDataIntegers(0, getServiceId());
-        remoteBuilder.setDataIntegers(1, getChildServiceId());
-        remoteBuilder.setDataIntegers(2, getServiceInstanceId());
-        remoteBuilder.setDataIntegers(3, getChildServiceInstanceId());
-        remoteBuilder.setDataIntegers(4, getCount());
+        remoteBuilder.setDataIntegers(1, getServiceInstanceId());
+        remoteBuilder.setDataIntegers(2, getValue());
+        remoteBuilder.setDataIntegers(3, getPrecision());
+        getDetailGroup().forEach(element -> remoteBuilder.addDataIntLongPairList(element.serialize()));
 
         return remoteBuilder;
     }
@@ -106,98 +102,89 @@ public class EndpointRelationAvgIndicator extends LongAvgIndicator implements Al
     @Override public void deserialize(RemoteData remoteData) {
         setEntityId(remoteData.getDataStrings(0));
 
-        setSummation(remoteData.getDataLongs(0));
-        setValue(remoteData.getDataLongs(1));
-        setTimeBucket(remoteData.getDataLongs(2));
+        setTimeBucket(remoteData.getDataLongs(0));
 
 
         setServiceId(remoteData.getDataIntegers(0));
-        setChildServiceId(remoteData.getDataIntegers(1));
-        setServiceInstanceId(remoteData.getDataIntegers(2));
-        setChildServiceInstanceId(remoteData.getDataIntegers(3));
-        setCount(remoteData.getDataIntegers(4));
+        setServiceInstanceId(remoteData.getDataIntegers(1));
+        setValue(remoteData.getDataIntegers(2));
+        setPrecision(remoteData.getDataIntegers(3));
 
+        setDetailGroup(new ArrayList<>(30));
+        remoteData.getDataIntLongPairListList().forEach(element -> {
+            getDetailGroup().add(new IntKeyLongValue(element.getKey(), element.getValue()));
+        });
 
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("EndpointRelation_Avg", Scope.EndpointRelation, entityId);
+        return new AlarmMeta("endpoint_p90", Scope.Endpoint, entityId);
     }
 
     @Override
     public Indicator toHour() {
-        EndpointRelationAvgIndicator indicator = new EndpointRelationAvgIndicator();
+        EndpointP90Indicator indicator = new EndpointP90Indicator();
         indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
-        indicator.setChildServiceId(this.getChildServiceId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
-        indicator.setChildServiceInstanceId(this.getChildServiceInstanceId());
-        indicator.setSummation(this.getSummation());
-        indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
+        indicator.setPrecision(this.getPrecision());
+        indicator.setDetailGroup(this.getDetailGroup());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
     @Override
     public Indicator toDay() {
-        EndpointRelationAvgIndicator indicator = new EndpointRelationAvgIndicator();
+        EndpointP90Indicator indicator = new EndpointP90Indicator();
         indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
-        indicator.setChildServiceId(this.getChildServiceId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
-        indicator.setChildServiceInstanceId(this.getChildServiceInstanceId());
-        indicator.setSummation(this.getSummation());
-        indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
+        indicator.setPrecision(this.getPrecision());
+        indicator.setDetailGroup(this.getDetailGroup());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
     @Override
     public Indicator toMonth() {
-        EndpointRelationAvgIndicator indicator = new EndpointRelationAvgIndicator();
+        EndpointP90Indicator indicator = new EndpointP90Indicator();
         indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
-        indicator.setChildServiceId(this.getChildServiceId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
-        indicator.setChildServiceInstanceId(this.getChildServiceInstanceId());
-        indicator.setSummation(this.getSummation());
-        indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
+        indicator.setPrecision(this.getPrecision());
+        indicator.setDetailGroup(this.getDetailGroup());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
-    public static class Builder implements StorageBuilder<EndpointRelationAvgIndicator> {
+    public static class Builder implements StorageBuilder<EndpointP90Indicator> {
 
-        @Override public Map<String, Object> data2Map(EndpointRelationAvgIndicator storageData) {
+        @Override public Map<String, Object> data2Map(EndpointP90Indicator storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put("entity_id", storageData.getEntityId());
             map.put("service_id", storageData.getServiceId());
-            map.put("child_service_id", storageData.getChildServiceId());
             map.put("service_instance_id", storageData.getServiceInstanceId());
-            map.put("child_service_instance_id", storageData.getChildServiceInstanceId());
-            map.put("summation", storageData.getSummation());
-            map.put("count", storageData.getCount());
             map.put("value", storageData.getValue());
+            map.put("precision", storageData.getPrecision());
+            map.put("detail_group", storageData.getDetailGroup());
             map.put("time_bucket", storageData.getTimeBucket());
             return map;
         }
 
-        @Override public EndpointRelationAvgIndicator map2Data(Map<String, Object> dbMap) {
-            EndpointRelationAvgIndicator indicator = new EndpointRelationAvgIndicator();
+        @Override public EndpointP90Indicator map2Data(Map<String, Object> dbMap) {
+            EndpointP90Indicator indicator = new EndpointP90Indicator();
             indicator.setEntityId((String)dbMap.get("entity_id"));
             indicator.setServiceId(((Number)dbMap.get("service_id")).intValue());
-            indicator.setChildServiceId(((Number)dbMap.get("child_service_id")).intValue());
             indicator.setServiceInstanceId(((Number)dbMap.get("service_instance_id")).intValue());
-            indicator.setChildServiceInstanceId(((Number)dbMap.get("child_service_instance_id")).intValue());
-            indicator.setSummation(((Number)dbMap.get("summation")).longValue());
-            indicator.setCount(((Number)dbMap.get("count")).intValue());
-            indicator.setValue(((Number)dbMap.get("value")).longValue());
+            indicator.setValue(((Number)dbMap.get("value")).intValue());
+            indicator.setPrecision(((Number)dbMap.get("precision")).intValue());
+            indicator.setDetailGroup((org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray)dbMap.get("detail_group"));
             indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
             return indicator;
         }

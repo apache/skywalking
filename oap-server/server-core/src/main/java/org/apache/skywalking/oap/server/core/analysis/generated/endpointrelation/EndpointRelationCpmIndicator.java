@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.generated.service;
+package org.apache.skywalking.oap.server.core.analysis.generated.endpointrelation;
 
 import java.util.*;
 import lombok.*;
@@ -38,10 +38,14 @@ import org.apache.skywalking.oap.server.core.source.Scope;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "service_calls_sum", builder = ServiceCallsSumIndicator.Builder.class)
-public class ServiceCallsSumIndicator extends SumIndicator implements AlarmSupported {
+@StorageEntity(name = "endpoint_relation_cpm", builder = EndpointRelationCpmIndicator.Builder.class)
+public class EndpointRelationCpmIndicator extends CPMIndicator implements AlarmSupported {
 
     @Setter @Getter @Column(columnName = "entity_id") @IDColumn private String entityId;
+    @Setter @Getter @Column(columnName = "service_id")  private int serviceId;
+    @Setter @Getter @Column(columnName = "child_service_id")  private int childServiceId;
+    @Setter @Getter @Column(columnName = "service_instance_id")  private int serviceInstanceId;
+    @Setter @Getter @Column(columnName = "child_service_instance_id")  private int childServiceInstanceId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
@@ -71,7 +75,7 @@ public class ServiceCallsSumIndicator extends SumIndicator implements AlarmSuppo
         if (getClass() != obj.getClass())
             return false;
 
-        ServiceCallsSumIndicator indicator = (ServiceCallsSumIndicator)obj;
+        EndpointRelationCpmIndicator indicator = (EndpointRelationCpmIndicator)obj;
         if (entityId != indicator.entityId)
             return false;
 
@@ -89,6 +93,10 @@ public class ServiceCallsSumIndicator extends SumIndicator implements AlarmSuppo
         remoteBuilder.setDataLongs(1, getTimeBucket());
 
 
+        remoteBuilder.setDataIntegers(0, getServiceId());
+        remoteBuilder.setDataIntegers(1, getChildServiceId());
+        remoteBuilder.setDataIntegers(2, getServiceInstanceId());
+        remoteBuilder.setDataIntegers(3, getChildServiceInstanceId());
 
         return remoteBuilder;
     }
@@ -100,19 +108,27 @@ public class ServiceCallsSumIndicator extends SumIndicator implements AlarmSuppo
         setTimeBucket(remoteData.getDataLongs(1));
 
 
+        setServiceId(remoteData.getDataIntegers(0));
+        setChildServiceId(remoteData.getDataIntegers(1));
+        setServiceInstanceId(remoteData.getDataIntegers(2));
+        setChildServiceInstanceId(remoteData.getDataIntegers(3));
 
 
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("Service_Calls_Sum", Scope.Service, entityId);
+        return new AlarmMeta("endpoint_relation_cpm", Scope.EndpointRelation, entityId);
     }
 
     @Override
     public Indicator toHour() {
-        ServiceCallsSumIndicator indicator = new ServiceCallsSumIndicator();
+        EndpointRelationCpmIndicator indicator = new EndpointRelationCpmIndicator();
         indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEntityId(this.getEntityId());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setChildServiceId(this.getChildServiceId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setChildServiceInstanceId(this.getChildServiceInstanceId());
         indicator.setValue(this.getValue());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
@@ -120,9 +136,13 @@ public class ServiceCallsSumIndicator extends SumIndicator implements AlarmSuppo
 
     @Override
     public Indicator toDay() {
-        ServiceCallsSumIndicator indicator = new ServiceCallsSumIndicator();
+        EndpointRelationCpmIndicator indicator = new EndpointRelationCpmIndicator();
         indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEntityId(this.getEntityId());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setChildServiceId(this.getChildServiceId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setChildServiceInstanceId(this.getChildServiceInstanceId());
         indicator.setValue(this.getValue());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
@@ -130,27 +150,39 @@ public class ServiceCallsSumIndicator extends SumIndicator implements AlarmSuppo
 
     @Override
     public Indicator toMonth() {
-        ServiceCallsSumIndicator indicator = new ServiceCallsSumIndicator();
+        EndpointRelationCpmIndicator indicator = new EndpointRelationCpmIndicator();
         indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEntityId(this.getEntityId());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setChildServiceId(this.getChildServiceId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setChildServiceInstanceId(this.getChildServiceInstanceId());
         indicator.setValue(this.getValue());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
-    public static class Builder implements StorageBuilder<ServiceCallsSumIndicator> {
+    public static class Builder implements StorageBuilder<EndpointRelationCpmIndicator> {
 
-        @Override public Map<String, Object> data2Map(ServiceCallsSumIndicator storageData) {
+        @Override public Map<String, Object> data2Map(EndpointRelationCpmIndicator storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put("entity_id", storageData.getEntityId());
+            map.put("service_id", storageData.getServiceId());
+            map.put("child_service_id", storageData.getChildServiceId());
+            map.put("service_instance_id", storageData.getServiceInstanceId());
+            map.put("child_service_instance_id", storageData.getChildServiceInstanceId());
             map.put("value", storageData.getValue());
             map.put("time_bucket", storageData.getTimeBucket());
             return map;
         }
 
-        @Override public ServiceCallsSumIndicator map2Data(Map<String, Object> dbMap) {
-            ServiceCallsSumIndicator indicator = new ServiceCallsSumIndicator();
+        @Override public EndpointRelationCpmIndicator map2Data(Map<String, Object> dbMap) {
+            EndpointRelationCpmIndicator indicator = new EndpointRelationCpmIndicator();
             indicator.setEntityId((String)dbMap.get("entity_id"));
+            indicator.setServiceId(((Number)dbMap.get("service_id")).intValue());
+            indicator.setChildServiceId(((Number)dbMap.get("child_service_id")).intValue());
+            indicator.setServiceInstanceId(((Number)dbMap.get("service_instance_id")).intValue());
+            indicator.setChildServiceInstanceId(((Number)dbMap.get("child_service_instance_id")).intValue());
             indicator.setValue(((Number)dbMap.get("value")).longValue());
             indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
             return indicator;

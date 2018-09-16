@@ -38,8 +38,8 @@ import org.apache.skywalking.oap.server.core.source.Scope;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "service_relation_server_calls_sum", builder = ServiceRelationServerCallsSumIndicator.Builder.class)
-public class ServiceRelationServerCallsSumIndicator extends SumIndicator implements AlarmSupported {
+@StorageEntity(name = "service_relation_server_resp_time", builder = ServiceRelationServerRespTimeIndicator.Builder.class)
+public class ServiceRelationServerRespTimeIndicator extends LongAvgIndicator implements AlarmSupported {
 
     @Setter @Getter @Column(columnName = "source_service_id") @IDColumn private String entityId;
 
@@ -71,7 +71,7 @@ public class ServiceRelationServerCallsSumIndicator extends SumIndicator impleme
         if (getClass() != obj.getClass())
             return false;
 
-        ServiceRelationServerCallsSumIndicator indicator = (ServiceRelationServerCallsSumIndicator)obj;
+        ServiceRelationServerRespTimeIndicator indicator = (ServiceRelationServerRespTimeIndicator)obj;
         if (entityId != indicator.entityId)
             return false;
 
@@ -85,10 +85,12 @@ public class ServiceRelationServerCallsSumIndicator extends SumIndicator impleme
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
         remoteBuilder.setDataStrings(0, getEntityId());
 
-        remoteBuilder.setDataLongs(0, getValue());
-        remoteBuilder.setDataLongs(1, getTimeBucket());
+        remoteBuilder.setDataLongs(0, getSummation());
+        remoteBuilder.setDataLongs(1, getValue());
+        remoteBuilder.setDataLongs(2, getTimeBucket());
 
 
+        remoteBuilder.setDataIntegers(0, getCount());
 
         return remoteBuilder;
     }
@@ -96,23 +98,27 @@ public class ServiceRelationServerCallsSumIndicator extends SumIndicator impleme
     @Override public void deserialize(RemoteData remoteData) {
         setEntityId(remoteData.getDataStrings(0));
 
-        setValue(remoteData.getDataLongs(0));
-        setTimeBucket(remoteData.getDataLongs(1));
+        setSummation(remoteData.getDataLongs(0));
+        setValue(remoteData.getDataLongs(1));
+        setTimeBucket(remoteData.getDataLongs(2));
 
 
+        setCount(remoteData.getDataIntegers(0));
 
 
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("Service_Relation_Server_Calls_Sum", Scope.ServiceRelation, entityId);
+        return new AlarmMeta("service_relation_server_resp_time", Scope.ServiceRelation, entityId);
     }
 
     @Override
     public Indicator toHour() {
-        ServiceRelationServerCallsSumIndicator indicator = new ServiceRelationServerCallsSumIndicator();
+        ServiceRelationServerRespTimeIndicator indicator = new ServiceRelationServerRespTimeIndicator();
         indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEntityId(this.getEntityId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
@@ -120,9 +126,11 @@ public class ServiceRelationServerCallsSumIndicator extends SumIndicator impleme
 
     @Override
     public Indicator toDay() {
-        ServiceRelationServerCallsSumIndicator indicator = new ServiceRelationServerCallsSumIndicator();
+        ServiceRelationServerRespTimeIndicator indicator = new ServiceRelationServerRespTimeIndicator();
         indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEntityId(this.getEntityId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
@@ -130,27 +138,33 @@ public class ServiceRelationServerCallsSumIndicator extends SumIndicator impleme
 
     @Override
     public Indicator toMonth() {
-        ServiceRelationServerCallsSumIndicator indicator = new ServiceRelationServerCallsSumIndicator();
+        ServiceRelationServerRespTimeIndicator indicator = new ServiceRelationServerRespTimeIndicator();
         indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEntityId(this.getEntityId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
-    public static class Builder implements StorageBuilder<ServiceRelationServerCallsSumIndicator> {
+    public static class Builder implements StorageBuilder<ServiceRelationServerRespTimeIndicator> {
 
-        @Override public Map<String, Object> data2Map(ServiceRelationServerCallsSumIndicator storageData) {
+        @Override public Map<String, Object> data2Map(ServiceRelationServerRespTimeIndicator storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put("source_service_id", storageData.getEntityId());
+            map.put("summation", storageData.getSummation());
+            map.put("count", storageData.getCount());
             map.put("value", storageData.getValue());
             map.put("time_bucket", storageData.getTimeBucket());
             return map;
         }
 
-        @Override public ServiceRelationServerCallsSumIndicator map2Data(Map<String, Object> dbMap) {
-            ServiceRelationServerCallsSumIndicator indicator = new ServiceRelationServerCallsSumIndicator();
+        @Override public ServiceRelationServerRespTimeIndicator map2Data(Map<String, Object> dbMap) {
+            ServiceRelationServerRespTimeIndicator indicator = new ServiceRelationServerRespTimeIndicator();
             indicator.setEntityId((String)dbMap.get("source_service_id"));
+            indicator.setSummation(((Number)dbMap.get("summation")).longValue());
+            indicator.setCount(((Number)dbMap.get("count")).intValue());
             indicator.setValue(((Number)dbMap.get("value")).longValue());
             indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
             return indicator;

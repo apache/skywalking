@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.generated.serviceinstance;
+package org.apache.skywalking.oap.server.core.analysis.generated.endpoint;
 
 import java.util.*;
 import lombok.*;
@@ -38,11 +38,12 @@ import org.apache.skywalking.oap.server.core.source.Scope;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "serviceinstance_resp_time", builder = ServiceInstanceRespTimeIndicator.Builder.class)
-public class ServiceInstanceRespTimeIndicator extends LongAvgIndicator implements AlarmSupported {
+@StorageEntity(name = "endpoint_sla", builder = EndpointSlaIndicator.Builder.class)
+public class EndpointSlaIndicator extends PercentIndicator implements AlarmSupported {
 
     @Setter @Getter @Column(columnName = "entity_id") @IDColumn private String entityId;
     @Setter @Getter @Column(columnName = "service_id")  private int serviceId;
+    @Setter @Getter @Column(columnName = "service_instance_id")  private int serviceInstanceId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
@@ -72,7 +73,7 @@ public class ServiceInstanceRespTimeIndicator extends LongAvgIndicator implement
         if (getClass() != obj.getClass())
             return false;
 
-        ServiceInstanceRespTimeIndicator indicator = (ServiceInstanceRespTimeIndicator)obj;
+        EndpointSlaIndicator indicator = (EndpointSlaIndicator)obj;
         if (entityId != indicator.entityId)
             return false;
 
@@ -86,13 +87,14 @@ public class ServiceInstanceRespTimeIndicator extends LongAvgIndicator implement
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
         remoteBuilder.setDataStrings(0, getEntityId());
 
-        remoteBuilder.setDataLongs(0, getSummation());
-        remoteBuilder.setDataLongs(1, getValue());
+        remoteBuilder.setDataLongs(0, getTotal());
+        remoteBuilder.setDataLongs(1, getMatch());
         remoteBuilder.setDataLongs(2, getTimeBucket());
 
 
         remoteBuilder.setDataIntegers(0, getServiceId());
-        remoteBuilder.setDataIntegers(1, getCount());
+        remoteBuilder.setDataIntegers(1, getServiceInstanceId());
+        remoteBuilder.setDataIntegers(2, getPercentage());
 
         return remoteBuilder;
     }
@@ -100,80 +102,86 @@ public class ServiceInstanceRespTimeIndicator extends LongAvgIndicator implement
     @Override public void deserialize(RemoteData remoteData) {
         setEntityId(remoteData.getDataStrings(0));
 
-        setSummation(remoteData.getDataLongs(0));
-        setValue(remoteData.getDataLongs(1));
+        setTotal(remoteData.getDataLongs(0));
+        setMatch(remoteData.getDataLongs(1));
         setTimeBucket(remoteData.getDataLongs(2));
 
 
         setServiceId(remoteData.getDataIntegers(0));
-        setCount(remoteData.getDataIntegers(1));
+        setServiceInstanceId(remoteData.getDataIntegers(1));
+        setPercentage(remoteData.getDataIntegers(2));
 
 
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("serviceInstance_resp_time", Scope.ServiceInstance, entityId);
+        return new AlarmMeta("endpoint_sla", Scope.Endpoint, entityId);
     }
 
     @Override
     public Indicator toHour() {
-        ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicator();
+        EndpointSlaIndicator indicator = new EndpointSlaIndicator();
         indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
-        indicator.setSummation(this.getSummation());
-        indicator.setCount(this.getCount());
-        indicator.setValue(this.getValue());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setTotal(this.getTotal());
+        indicator.setPercentage(this.getPercentage());
+        indicator.setMatch(this.getMatch());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
     @Override
     public Indicator toDay() {
-        ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicator();
+        EndpointSlaIndicator indicator = new EndpointSlaIndicator();
         indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
-        indicator.setSummation(this.getSummation());
-        indicator.setCount(this.getCount());
-        indicator.setValue(this.getValue());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setTotal(this.getTotal());
+        indicator.setPercentage(this.getPercentage());
+        indicator.setMatch(this.getMatch());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
     @Override
     public Indicator toMonth() {
-        ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicator();
+        EndpointSlaIndicator indicator = new EndpointSlaIndicator();
         indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
-        indicator.setSummation(this.getSummation());
-        indicator.setCount(this.getCount());
-        indicator.setValue(this.getValue());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setTotal(this.getTotal());
+        indicator.setPercentage(this.getPercentage());
+        indicator.setMatch(this.getMatch());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
-    public static class Builder implements StorageBuilder<ServiceInstanceRespTimeIndicator> {
+    public static class Builder implements StorageBuilder<EndpointSlaIndicator> {
 
-        @Override public Map<String, Object> data2Map(ServiceInstanceRespTimeIndicator storageData) {
+        @Override public Map<String, Object> data2Map(EndpointSlaIndicator storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put("entity_id", storageData.getEntityId());
             map.put("service_id", storageData.getServiceId());
-            map.put("summation", storageData.getSummation());
-            map.put("count", storageData.getCount());
-            map.put("value", storageData.getValue());
+            map.put("service_instance_id", storageData.getServiceInstanceId());
+            map.put("total", storageData.getTotal());
+            map.put("percentage", storageData.getPercentage());
+            map.put("match", storageData.getMatch());
             map.put("time_bucket", storageData.getTimeBucket());
             return map;
         }
 
-        @Override public ServiceInstanceRespTimeIndicator map2Data(Map<String, Object> dbMap) {
-            ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicator();
+        @Override public EndpointSlaIndicator map2Data(Map<String, Object> dbMap) {
+            EndpointSlaIndicator indicator = new EndpointSlaIndicator();
             indicator.setEntityId((String)dbMap.get("entity_id"));
             indicator.setServiceId(((Number)dbMap.get("service_id")).intValue());
-            indicator.setSummation(((Number)dbMap.get("summation")).longValue());
-            indicator.setCount(((Number)dbMap.get("count")).intValue());
-            indicator.setValue(((Number)dbMap.get("value")).longValue());
+            indicator.setServiceInstanceId(((Number)dbMap.get("service_instance_id")).intValue());
+            indicator.setTotal(((Number)dbMap.get("total")).longValue());
+            indicator.setPercentage(((Number)dbMap.get("percentage")).intValue());
+            indicator.setMatch(((Number)dbMap.get("match")).longValue());
             indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
             return indicator;
         }

@@ -18,30 +18,27 @@
 
 package org.apache.skywalking.oap.server.core.analysis.indicator;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.Entrance;
-import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorOperator;
-import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.SourceFrom;
+import lombok.*;
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.*;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
- * @author wusheng
+ * @author peng-yongsheng
  */
 @IndicatorOperator
-public abstract class SumIndicator extends Indicator implements LongValueHolder {
+public abstract class CountIndicator extends Indicator implements LongValueHolder {
 
     protected static final String VALUE = "value";
 
     @Getter @Setter @Column(columnName = VALUE) private long value;
 
     @Entrance
-    public final void combine(@SourceFrom long count) {
+    public final void combine(@ConstOne long count) {
         this.value += count;
     }
 
     @Override public final void combine(Indicator indicator) {
-        SumIndicator countIndicator = (SumIndicator)indicator;
+        CountIndicator countIndicator = (CountIndicator)indicator;
         combine(countIndicator.value);
     }
 

@@ -16,9 +16,11 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.generated.all;
+package org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancejvmmemory;
 
 import java.util.*;
+import lombok.*;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMeta;
 import org.apache.skywalking.oap.server.core.alarm.AlarmSupported;
 import org.apache.skywalking.oap.server.core.analysis.indicator.*;
@@ -36,17 +38,21 @@ import org.apache.skywalking.oap.server.core.source.Scope;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "all_p95", builder = AllP95Indicator.Builder.class)
-public class AllP95Indicator extends P95Indicator implements AlarmSupported {
+@StorageEntity(name = "instance_jvm_memory_heap", builder = InstanceJvmMemoryHeapIndicator.Builder.class)
+public class InstanceJvmMemoryHeapIndicator extends LongAvgIndicator implements AlarmSupported {
 
+    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private String entityId;
+    @Setter @Getter @Column(columnName = "service_instance_id")  private int serviceInstanceId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
+        splitJointId += Const.ID_SPLIT + entityId;
         return splitJointId;
     }
 
     @Override public int hashCode() {
         int result = 17;
+        result = 31 * result + entityId.hashCode();
         result = 31 * result + (int)getTimeBucket();
         return result;
     }
@@ -54,6 +60,7 @@ public class AllP95Indicator extends P95Indicator implements AlarmSupported {
 
     @Override public int remoteHashCode() {
         int result = 17;
+        result = 31 * result + entityId.hashCode();
         return result;
     }
 
@@ -65,7 +72,9 @@ public class AllP95Indicator extends P95Indicator implements AlarmSupported {
         if (getClass() != obj.getClass())
             return false;
 
-        AllP95Indicator indicator = (AllP95Indicator)obj;
+        InstanceJvmMemoryHeapIndicator indicator = (InstanceJvmMemoryHeapIndicator)obj;
+        if (entityId != indicator.entityId)
+            return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
             return false;
@@ -75,85 +84,96 @@ public class AllP95Indicator extends P95Indicator implements AlarmSupported {
 
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
+        remoteBuilder.setDataStrings(0, getEntityId());
 
-        remoteBuilder.setDataLongs(0, getTimeBucket());
+        remoteBuilder.setDataLongs(0, getSummation());
+        remoteBuilder.setDataLongs(1, getValue());
+        remoteBuilder.setDataLongs(2, getTimeBucket());
 
 
-        remoteBuilder.setDataIntegers(0, getValue());
-        remoteBuilder.setDataIntegers(1, getPrecision());
-        getDetailGroup().forEach(element -> remoteBuilder.addDataIntLongPairList(element.serialize()));
+        remoteBuilder.setDataIntegers(0, getServiceInstanceId());
+        remoteBuilder.setDataIntegers(1, getCount());
 
         return remoteBuilder;
     }
 
     @Override public void deserialize(RemoteData remoteData) {
+        setEntityId(remoteData.getDataStrings(0));
 
-        setTimeBucket(remoteData.getDataLongs(0));
+        setSummation(remoteData.getDataLongs(0));
+        setValue(remoteData.getDataLongs(1));
+        setTimeBucket(remoteData.getDataLongs(2));
 
 
-        setValue(remoteData.getDataIntegers(0));
-        setPrecision(remoteData.getDataIntegers(1));
+        setServiceInstanceId(remoteData.getDataIntegers(0));
+        setCount(remoteData.getDataIntegers(1));
 
-        setDetailGroup(new ArrayList<>(30));
-        remoteData.getDataIntLongPairListList().forEach(element -> {
-            getDetailGroup().add(new IntKeyLongValue(element.getKey(), element.getValue()));
-        });
 
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("all_p95", Scope.All);
+        return new AlarmMeta("instance_jvm_memory_heap", Scope.ServiceInstanceJVMMemory, entityId);
     }
 
     @Override
     public Indicator toHour() {
-        AllP95Indicator indicator = new AllP95Indicator();
+        InstanceJvmMemoryHeapIndicator indicator = new InstanceJvmMemoryHeapIndicator();
         indicator.setTimeBucket(toTimeBucketInHour());
+        indicator.setEntityId(this.getEntityId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setPrecision(this.getPrecision());
-        indicator.setDetailGroup(this.getDetailGroup());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
     @Override
     public Indicator toDay() {
-        AllP95Indicator indicator = new AllP95Indicator();
+        InstanceJvmMemoryHeapIndicator indicator = new InstanceJvmMemoryHeapIndicator();
         indicator.setTimeBucket(toTimeBucketInDay());
+        indicator.setEntityId(this.getEntityId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setPrecision(this.getPrecision());
-        indicator.setDetailGroup(this.getDetailGroup());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
     @Override
     public Indicator toMonth() {
-        AllP95Indicator indicator = new AllP95Indicator();
+        InstanceJvmMemoryHeapIndicator indicator = new InstanceJvmMemoryHeapIndicator();
         indicator.setTimeBucket(toTimeBucketInMonth());
+        indicator.setEntityId(this.getEntityId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setPrecision(this.getPrecision());
-        indicator.setDetailGroup(this.getDetailGroup());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
-    public static class Builder implements StorageBuilder<AllP95Indicator> {
+    public static class Builder implements StorageBuilder<InstanceJvmMemoryHeapIndicator> {
 
-        @Override public Map<String, Object> data2Map(AllP95Indicator storageData) {
+        @Override public Map<String, Object> data2Map(InstanceJvmMemoryHeapIndicator storageData) {
             Map<String, Object> map = new HashMap<>();
+            map.put("entity_id", storageData.getEntityId());
+            map.put("service_instance_id", storageData.getServiceInstanceId());
+            map.put("summation", storageData.getSummation());
+            map.put("count", storageData.getCount());
             map.put("value", storageData.getValue());
-            map.put("precision", storageData.getPrecision());
-            map.put("detail_group", storageData.getDetailGroup());
             map.put("time_bucket", storageData.getTimeBucket());
             return map;
         }
 
-        @Override public AllP95Indicator map2Data(Map<String, Object> dbMap) {
-            AllP95Indicator indicator = new AllP95Indicator();
-            indicator.setValue(((Number)dbMap.get("value")).intValue());
-            indicator.setPrecision(((Number)dbMap.get("precision")).intValue());
-            indicator.setDetailGroup((org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray)dbMap.get("detail_group"));
+        @Override public InstanceJvmMemoryHeapIndicator map2Data(Map<String, Object> dbMap) {
+            InstanceJvmMemoryHeapIndicator indicator = new InstanceJvmMemoryHeapIndicator();
+            indicator.setEntityId((String)dbMap.get("entity_id"));
+            indicator.setServiceInstanceId(((Number)dbMap.get("service_instance_id")).intValue());
+            indicator.setSummation(((Number)dbMap.get("summation")).longValue());
+            indicator.setCount(((Number)dbMap.get("count")).intValue());
+            indicator.setValue(((Number)dbMap.get("value")).longValue());
             indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
             return indicator;
         }

@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.generated.endpoint;
+package org.apache.skywalking.oap.server.core.analysis.generated.servicerelation;
 
 import java.util.*;
 import lombok.*;
@@ -38,12 +38,10 @@ import org.apache.skywalking.oap.server.core.source.Scope;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "endpoint_percent", builder = EndpointPercentIndicator.Builder.class)
-public class EndpointPercentIndicator extends PercentIndicator implements AlarmSupported {
+@StorageEntity(name = "service_relation_server_cpm", builder = ServiceRelationServerCpmIndicator.Builder.class)
+public class ServiceRelationServerCpmIndicator extends CPMIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private String entityId;
-    @Setter @Getter @Column(columnName = "service_id")  private int serviceId;
-    @Setter @Getter @Column(columnName = "service_instance_id")  private int serviceInstanceId;
+    @Setter @Getter @Column(columnName = "source_service_id") @IDColumn private String entityId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
@@ -73,7 +71,7 @@ public class EndpointPercentIndicator extends PercentIndicator implements AlarmS
         if (getClass() != obj.getClass())
             return false;
 
-        EndpointPercentIndicator indicator = (EndpointPercentIndicator)obj;
+        ServiceRelationServerCpmIndicator indicator = (ServiceRelationServerCpmIndicator)obj;
         if (entityId != indicator.entityId)
             return false;
 
@@ -87,14 +85,10 @@ public class EndpointPercentIndicator extends PercentIndicator implements AlarmS
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
         remoteBuilder.setDataStrings(0, getEntityId());
 
-        remoteBuilder.setDataLongs(0, getTotal());
-        remoteBuilder.setDataLongs(1, getMatch());
-        remoteBuilder.setDataLongs(2, getTimeBucket());
+        remoteBuilder.setDataLongs(0, getValue());
+        remoteBuilder.setDataLongs(1, getTimeBucket());
 
 
-        remoteBuilder.setDataIntegers(0, getServiceId());
-        remoteBuilder.setDataIntegers(1, getServiceInstanceId());
-        remoteBuilder.setDataIntegers(2, getPercentage());
 
         return remoteBuilder;
     }
@@ -102,86 +96,62 @@ public class EndpointPercentIndicator extends PercentIndicator implements AlarmS
     @Override public void deserialize(RemoteData remoteData) {
         setEntityId(remoteData.getDataStrings(0));
 
-        setTotal(remoteData.getDataLongs(0));
-        setMatch(remoteData.getDataLongs(1));
-        setTimeBucket(remoteData.getDataLongs(2));
+        setValue(remoteData.getDataLongs(0));
+        setTimeBucket(remoteData.getDataLongs(1));
 
 
-        setServiceId(remoteData.getDataIntegers(0));
-        setServiceInstanceId(remoteData.getDataIntegers(1));
-        setPercentage(remoteData.getDataIntegers(2));
 
 
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("endpoint_percent", Scope.Endpoint, entityId);
+        return new AlarmMeta("service_relation_server_cpm", Scope.ServiceRelation, entityId);
     }
 
     @Override
     public Indicator toHour() {
-        EndpointPercentIndicator indicator = new EndpointPercentIndicator();
+        ServiceRelationServerCpmIndicator indicator = new ServiceRelationServerCpmIndicator();
         indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEntityId(this.getEntityId());
-        indicator.setServiceId(this.getServiceId());
-        indicator.setServiceInstanceId(this.getServiceInstanceId());
-        indicator.setTotal(this.getTotal());
-        indicator.setPercentage(this.getPercentage());
-        indicator.setMatch(this.getMatch());
+        indicator.setValue(this.getValue());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
     @Override
     public Indicator toDay() {
-        EndpointPercentIndicator indicator = new EndpointPercentIndicator();
+        ServiceRelationServerCpmIndicator indicator = new ServiceRelationServerCpmIndicator();
         indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEntityId(this.getEntityId());
-        indicator.setServiceId(this.getServiceId());
-        indicator.setServiceInstanceId(this.getServiceInstanceId());
-        indicator.setTotal(this.getTotal());
-        indicator.setPercentage(this.getPercentage());
-        indicator.setMatch(this.getMatch());
+        indicator.setValue(this.getValue());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
     @Override
     public Indicator toMonth() {
-        EndpointPercentIndicator indicator = new EndpointPercentIndicator();
+        ServiceRelationServerCpmIndicator indicator = new ServiceRelationServerCpmIndicator();
         indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEntityId(this.getEntityId());
-        indicator.setServiceId(this.getServiceId());
-        indicator.setServiceInstanceId(this.getServiceInstanceId());
-        indicator.setTotal(this.getTotal());
-        indicator.setPercentage(this.getPercentage());
-        indicator.setMatch(this.getMatch());
+        indicator.setValue(this.getValue());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
-    public static class Builder implements StorageBuilder<EndpointPercentIndicator> {
+    public static class Builder implements StorageBuilder<ServiceRelationServerCpmIndicator> {
 
-        @Override public Map<String, Object> data2Map(EndpointPercentIndicator storageData) {
+        @Override public Map<String, Object> data2Map(ServiceRelationServerCpmIndicator storageData) {
             Map<String, Object> map = new HashMap<>();
-            map.put("entity_id", storageData.getEntityId());
-            map.put("service_id", storageData.getServiceId());
-            map.put("service_instance_id", storageData.getServiceInstanceId());
-            map.put("total", storageData.getTotal());
-            map.put("percentage", storageData.getPercentage());
-            map.put("match", storageData.getMatch());
+            map.put("source_service_id", storageData.getEntityId());
+            map.put("value", storageData.getValue());
             map.put("time_bucket", storageData.getTimeBucket());
             return map;
         }
 
-        @Override public EndpointPercentIndicator map2Data(Map<String, Object> dbMap) {
-            EndpointPercentIndicator indicator = new EndpointPercentIndicator();
-            indicator.setEntityId((String)dbMap.get("entity_id"));
-            indicator.setServiceId(((Number)dbMap.get("service_id")).intValue());
-            indicator.setServiceInstanceId(((Number)dbMap.get("service_instance_id")).intValue());
-            indicator.setTotal(((Number)dbMap.get("total")).longValue());
-            indicator.setPercentage(((Number)dbMap.get("percentage")).intValue());
-            indicator.setMatch(((Number)dbMap.get("match")).longValue());
+        @Override public ServiceRelationServerCpmIndicator map2Data(Map<String, Object> dbMap) {
+            ServiceRelationServerCpmIndicator indicator = new ServiceRelationServerCpmIndicator();
+            indicator.setEntityId((String)dbMap.get("source_service_id"));
+            indicator.setValue(((Number)dbMap.get("value")).longValue());
             indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
             return indicator;
         }

@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.generated.servicerelation;
+package org.apache.skywalking.oap.server.core.analysis.generated.serviceinstance;
 
 import java.util.*;
 import lombok.*;
@@ -38,10 +38,11 @@ import org.apache.skywalking.oap.server.core.source.Scope;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "service_relation_client_calls_sum", builder = ServiceRelationClientCallsSumIndicator.Builder.class)
-public class ServiceRelationClientCallsSumIndicator extends SumIndicator implements AlarmSupported {
+@StorageEntity(name = "service_instance_cpm", builder = ServiceInstanceCpmIndicator.Builder.class)
+public class ServiceInstanceCpmIndicator extends CPMIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "source_service_id") @IDColumn private String entityId;
+    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private String entityId;
+    @Setter @Getter @Column(columnName = "service_id")  private int serviceId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
@@ -71,7 +72,7 @@ public class ServiceRelationClientCallsSumIndicator extends SumIndicator impleme
         if (getClass() != obj.getClass())
             return false;
 
-        ServiceRelationClientCallsSumIndicator indicator = (ServiceRelationClientCallsSumIndicator)obj;
+        ServiceInstanceCpmIndicator indicator = (ServiceInstanceCpmIndicator)obj;
         if (entityId != indicator.entityId)
             return false;
 
@@ -89,6 +90,7 @@ public class ServiceRelationClientCallsSumIndicator extends SumIndicator impleme
         remoteBuilder.setDataLongs(1, getTimeBucket());
 
 
+        remoteBuilder.setDataIntegers(0, getServiceId());
 
         return remoteBuilder;
     }
@@ -100,19 +102,21 @@ public class ServiceRelationClientCallsSumIndicator extends SumIndicator impleme
         setTimeBucket(remoteData.getDataLongs(1));
 
 
+        setServiceId(remoteData.getDataIntegers(0));
 
 
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("Service_Relation_Client_Calls_Sum", Scope.ServiceRelation, entityId);
+        return new AlarmMeta("service_instance_cpm", Scope.ServiceInstance, entityId);
     }
 
     @Override
     public Indicator toHour() {
-        ServiceRelationClientCallsSumIndicator indicator = new ServiceRelationClientCallsSumIndicator();
+        ServiceInstanceCpmIndicator indicator = new ServiceInstanceCpmIndicator();
         indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEntityId(this.getEntityId());
+        indicator.setServiceId(this.getServiceId());
         indicator.setValue(this.getValue());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
@@ -120,9 +124,10 @@ public class ServiceRelationClientCallsSumIndicator extends SumIndicator impleme
 
     @Override
     public Indicator toDay() {
-        ServiceRelationClientCallsSumIndicator indicator = new ServiceRelationClientCallsSumIndicator();
+        ServiceInstanceCpmIndicator indicator = new ServiceInstanceCpmIndicator();
         indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEntityId(this.getEntityId());
+        indicator.setServiceId(this.getServiceId());
         indicator.setValue(this.getValue());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
@@ -130,27 +135,30 @@ public class ServiceRelationClientCallsSumIndicator extends SumIndicator impleme
 
     @Override
     public Indicator toMonth() {
-        ServiceRelationClientCallsSumIndicator indicator = new ServiceRelationClientCallsSumIndicator();
+        ServiceInstanceCpmIndicator indicator = new ServiceInstanceCpmIndicator();
         indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEntityId(this.getEntityId());
+        indicator.setServiceId(this.getServiceId());
         indicator.setValue(this.getValue());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
-    public static class Builder implements StorageBuilder<ServiceRelationClientCallsSumIndicator> {
+    public static class Builder implements StorageBuilder<ServiceInstanceCpmIndicator> {
 
-        @Override public Map<String, Object> data2Map(ServiceRelationClientCallsSumIndicator storageData) {
+        @Override public Map<String, Object> data2Map(ServiceInstanceCpmIndicator storageData) {
             Map<String, Object> map = new HashMap<>();
-            map.put("source_service_id", storageData.getEntityId());
+            map.put("entity_id", storageData.getEntityId());
+            map.put("service_id", storageData.getServiceId());
             map.put("value", storageData.getValue());
             map.put("time_bucket", storageData.getTimeBucket());
             return map;
         }
 
-        @Override public ServiceRelationClientCallsSumIndicator map2Data(Map<String, Object> dbMap) {
-            ServiceRelationClientCallsSumIndicator indicator = new ServiceRelationClientCallsSumIndicator();
-            indicator.setEntityId((String)dbMap.get("source_service_id"));
+        @Override public ServiceInstanceCpmIndicator map2Data(Map<String, Object> dbMap) {
+            ServiceInstanceCpmIndicator indicator = new ServiceInstanceCpmIndicator();
+            indicator.setEntityId((String)dbMap.get("entity_id"));
+            indicator.setServiceId(((Number)dbMap.get("service_id")).intValue());
             indicator.setValue(((Number)dbMap.get("value")).longValue());
             indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
             return indicator;
