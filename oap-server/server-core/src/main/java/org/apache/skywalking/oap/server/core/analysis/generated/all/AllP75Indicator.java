@@ -94,7 +94,7 @@ public class AllP75Indicator extends P75Indicator implements AlarmSupported {
         setValue(remoteData.getDataIntegers(0));
         setPrecision(remoteData.getDataIntegers(1));
 
-        setDetailGroup(new ArrayList<>(30));
+        setDetailGroup(new IntKeyLongValueArray(30));
         remoteData.getDataIntLongPairListList().forEach(element -> {
             getDetailGroup().add(new IntKeyLongValue(element.getKey(), element.getValue()));
         });
@@ -153,7 +153,7 @@ public class AllP75Indicator extends P75Indicator implements AlarmSupported {
             AllP75Indicator indicator = new AllP75Indicator();
             indicator.setValue(((Number)dbMap.get("value")).intValue());
             indicator.setPrecision(((Number)dbMap.get("precision")).intValue());
-            indicator.setDetailGroup((java.util.List)dbMap.get("detail_group"));
+            indicator.setDetailGroup((IntKeyLongValueArray)dbMap.get("detail_group"));
             indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
             return indicator;
         }

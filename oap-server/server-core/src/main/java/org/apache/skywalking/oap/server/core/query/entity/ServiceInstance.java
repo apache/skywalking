@@ -16,12 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-public class ClusterBrief {
-    private int numOfService;
-    private int numOfEndpoint;
-    private int numOfDatabase;
-    private int numOfCache;
-    private int numOfMQ;
+import java.util.*;
+import lombok.*;
+
+@Getter
+@Setter
+public class ServiceInstance {
+    private String id;
+    private String name;
+    private List<Attribute> attributes = new ArrayList<>();
+    private Language language;
 }

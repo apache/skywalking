@@ -16,13 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.storage.type;
 
-import java.util.List;
+/**
+ * @author peng-yongsheng
+ */
+public interface StorageDataType {
 
-public class ServiceInstance {
-    private String id;
-    private String name;
-    private List<Attribute> attributes;
-    private Language language;
+    String toStorageData();
+
+    void toObject(String data);
 }

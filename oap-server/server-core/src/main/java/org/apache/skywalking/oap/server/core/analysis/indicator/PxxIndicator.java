@@ -18,17 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.analysis.indicator;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.Arg;
-import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.Entrance;
-import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorOperator;
-import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.SourceFrom;
+import java.util.*;
+import lombok.*;
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.*;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
@@ -38,7 +30,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
  * observations in a group of observations fall. For example, the 20th percentile is the value (or score) below which
  * 20% of the observations may be found.
  *
- * @author wusheng
+ * @author wusheng, peng-yongsheng
  */
 @IndicatorOperator
 public abstract class PxxIndicator extends Indicator implements IntValueHolder {
@@ -48,14 +40,14 @@ public abstract class PxxIndicator extends Indicator implements IntValueHolder {
 
     @Getter @Setter @Column(columnName = VALUE) private int value;
     @Getter @Setter @Column(columnName = PRECISION) private int precision;
-    @Getter @Setter @Column(columnName = DETAIL_GROUP) private List<IntKeyLongValue> detailGroup;
+    @Getter @Setter @Column(columnName = DETAIL_GROUP) private IntKeyLongValueArray detailGroup;
 
     private final int percentileRank;
     private Map<Integer, IntKeyLongValue> detailIndex;
 
     public PxxIndicator(int percentileRank) {
         this.percentileRank = percentileRank;
-        detailGroup = new ArrayList<>(30);
+        detailGroup = new IntKeyLongValueArray(30);
     }
 
     @Entrance
@@ -109,11 +101,6 @@ public abstract class PxxIndicator extends Indicator implements IntValueHolder {
                 return;
             }
         }
-    }
-
-    @Override
-    public int getValue() {
-        return value;
     }
 
     private void addElement(IntKeyLongValue element) {
