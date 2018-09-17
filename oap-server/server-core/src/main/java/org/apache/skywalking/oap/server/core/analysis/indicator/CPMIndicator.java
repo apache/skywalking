@@ -20,35 +20,39 @@ package org.apache.skywalking.oap.server.core.analysis.indicator;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.ConstOne;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.Entrance;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorOperator;
-import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
  * @author wusheng
  */
 @IndicatorOperator
-public abstract class SumIndicator extends Indicator implements LongValueHolder {
+public abstract class CPMIndicator extends Indicator implements LongValueHolder {
 
     protected static final String VALUE = "value";
+    protected static final String TOTAL = "total";
 
     @Getter @Setter @Column(columnName = VALUE) private long value;
+    @Getter @Setter @Column(columnName = TOTAL) private long total;
 
     @Entrance
-    public final void combine(@SourceFrom long count) {
-        this.value += count;
+    public final void combine(@ConstOne long count) {
+        this.total += count;
     }
 
     @Override public final void combine(Indicator indicator) {
-        SumIndicator countIndicator = (SumIndicator)indicator;
-        combine(countIndicator.value);
+        CPMIndicator countIndicator = (CPMIndicator)indicator;
+        combine(countIndicator.total);
     }
 
     @Override public void calculate() {
+        this.value = total / getDurationInMinute();
     }
 
     @Override public long getValue() {
         return value;
     }
 }
+

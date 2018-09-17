@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancejvmmemorypool;
+package org.apache.skywalking.oap.server.core.analysis.generated.service;
 
 import java.util.*;
 import lombok.*;
@@ -38,11 +38,10 @@ import org.apache.skywalking.oap.server.core.source.Scope;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "instance_jvm_memory_pool_max", builder = InstanceJvmMemoryPoolMaxIndicator.Builder.class)
-public class InstanceJvmMemoryPoolMaxIndicator extends LongAvgIndicator implements AlarmSupported {
+@StorageEntity(name = "service_p95", builder = ServiceP95Indicator.Builder.class)
+public class ServiceP95Indicator extends P95Indicator implements AlarmSupported {
 
     @Setter @Getter @Column(columnName = "entity_id") @IDColumn private String entityId;
-    @Setter @Getter @Column(columnName = "service_instance_id")  private int serviceInstanceId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
@@ -72,7 +71,7 @@ public class InstanceJvmMemoryPoolMaxIndicator extends LongAvgIndicator implemen
         if (getClass() != obj.getClass())
             return false;
 
-        InstanceJvmMemoryPoolMaxIndicator indicator = (InstanceJvmMemoryPoolMaxIndicator)obj;
+        ServiceP95Indicator indicator = (ServiceP95Indicator)obj;
         if (entityId != indicator.entityId)
             return false;
 
@@ -86,13 +85,12 @@ public class InstanceJvmMemoryPoolMaxIndicator extends LongAvgIndicator implemen
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
         remoteBuilder.setDataStrings(0, getEntityId());
 
-        remoteBuilder.setDataLongs(0, getSummation());
-        remoteBuilder.setDataLongs(1, getValue());
-        remoteBuilder.setDataLongs(2, getTimeBucket());
+        remoteBuilder.setDataLongs(0, getTimeBucket());
 
 
-        remoteBuilder.setDataIntegers(0, getServiceInstanceId());
-        remoteBuilder.setDataIntegers(1, getCount());
+        remoteBuilder.setDataIntegers(0, getValue());
+        remoteBuilder.setDataIntegers(1, getPrecision());
+        getDetailGroup().forEach(element -> remoteBuilder.addDataIntLongPairList(element.serialize()));
 
         return remoteBuilder;
     }
@@ -100,80 +98,77 @@ public class InstanceJvmMemoryPoolMaxIndicator extends LongAvgIndicator implemen
     @Override public void deserialize(RemoteData remoteData) {
         setEntityId(remoteData.getDataStrings(0));
 
-        setSummation(remoteData.getDataLongs(0));
-        setValue(remoteData.getDataLongs(1));
-        setTimeBucket(remoteData.getDataLongs(2));
+        setTimeBucket(remoteData.getDataLongs(0));
 
 
-        setServiceInstanceId(remoteData.getDataIntegers(0));
-        setCount(remoteData.getDataIntegers(1));
+        setValue(remoteData.getDataIntegers(0));
+        setPrecision(remoteData.getDataIntegers(1));
 
+        setDetailGroup(new IntKeyLongValueArray(30));
+        remoteData.getDataIntLongPairListList().forEach(element -> {
+            getDetailGroup().add(new IntKeyLongValue(element.getKey(), element.getValue()));
+        });
 
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("instance_jvm_memory_pool_max", Scope.ServiceInstanceJVMMemoryPool, entityId);
+        return new AlarmMeta("service_p95", Scope.Service, entityId);
     }
 
     @Override
     public Indicator toHour() {
-        InstanceJvmMemoryPoolMaxIndicator indicator = new InstanceJvmMemoryPoolMaxIndicator();
+        ServiceP95Indicator indicator = new ServiceP95Indicator();
         indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEntityId(this.getEntityId());
-        indicator.setServiceInstanceId(this.getServiceInstanceId());
-        indicator.setSummation(this.getSummation());
-        indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
+        indicator.setPrecision(this.getPrecision());
+        indicator.setDetailGroup(this.getDetailGroup());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
     @Override
     public Indicator toDay() {
-        InstanceJvmMemoryPoolMaxIndicator indicator = new InstanceJvmMemoryPoolMaxIndicator();
+        ServiceP95Indicator indicator = new ServiceP95Indicator();
         indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEntityId(this.getEntityId());
-        indicator.setServiceInstanceId(this.getServiceInstanceId());
-        indicator.setSummation(this.getSummation());
-        indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
+        indicator.setPrecision(this.getPrecision());
+        indicator.setDetailGroup(this.getDetailGroup());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
     @Override
     public Indicator toMonth() {
-        InstanceJvmMemoryPoolMaxIndicator indicator = new InstanceJvmMemoryPoolMaxIndicator();
+        ServiceP95Indicator indicator = new ServiceP95Indicator();
         indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEntityId(this.getEntityId());
-        indicator.setServiceInstanceId(this.getServiceInstanceId());
-        indicator.setSummation(this.getSummation());
-        indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
+        indicator.setPrecision(this.getPrecision());
+        indicator.setDetailGroup(this.getDetailGroup());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
-    public static class Builder implements StorageBuilder<InstanceJvmMemoryPoolMaxIndicator> {
+    public static class Builder implements StorageBuilder<ServiceP95Indicator> {
 
-        @Override public Map<String, Object> data2Map(InstanceJvmMemoryPoolMaxIndicator storageData) {
+        @Override public Map<String, Object> data2Map(ServiceP95Indicator storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put("entity_id", storageData.getEntityId());
-            map.put("service_instance_id", storageData.getServiceInstanceId());
-            map.put("summation", storageData.getSummation());
-            map.put("count", storageData.getCount());
             map.put("value", storageData.getValue());
+            map.put("precision", storageData.getPrecision());
+            map.put("detail_group", storageData.getDetailGroup());
             map.put("time_bucket", storageData.getTimeBucket());
             return map;
         }
 
-        @Override public InstanceJvmMemoryPoolMaxIndicator map2Data(Map<String, Object> dbMap) {
-            InstanceJvmMemoryPoolMaxIndicator indicator = new InstanceJvmMemoryPoolMaxIndicator();
+        @Override public ServiceP95Indicator map2Data(Map<String, Object> dbMap) {
+            ServiceP95Indicator indicator = new ServiceP95Indicator();
             indicator.setEntityId((String)dbMap.get("entity_id"));
-            indicator.setServiceInstanceId(((Number)dbMap.get("service_instance_id")).intValue());
-            indicator.setSummation(((Number)dbMap.get("summation")).longValue());
-            indicator.setCount(((Number)dbMap.get("count")).intValue());
-            indicator.setValue(((Number)dbMap.get("value")).longValue());
+            indicator.setValue(((Number)dbMap.get("value")).intValue());
+            indicator.setPrecision(((Number)dbMap.get("precision")).intValue());
+            indicator.setDetailGroup((org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray)dbMap.get("detail_group"));
             indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
             return indicator;
         }

@@ -102,7 +102,7 @@ public class AllP75Indicator extends P75Indicator implements AlarmSupported {
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("All_p75", Scope.All);
+        return new AlarmMeta("all_p75", Scope.All);
     }
 
     @Override
@@ -153,7 +153,7 @@ public class AllP75Indicator extends P75Indicator implements AlarmSupported {
             AllP75Indicator indicator = new AllP75Indicator();
             indicator.setValue(((Number)dbMap.get("value")).intValue());
             indicator.setPrecision(((Number)dbMap.get("precision")).intValue());
-            indicator.setDetailGroup((IntKeyLongValueArray)dbMap.get("detail_group"));
+            indicator.setDetailGroup((org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray)dbMap.get("detail_group"));
             indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
             return indicator;
         }
