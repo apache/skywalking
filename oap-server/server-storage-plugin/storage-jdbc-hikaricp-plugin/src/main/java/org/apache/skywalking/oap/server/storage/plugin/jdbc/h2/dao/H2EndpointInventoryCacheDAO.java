@@ -16,20 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.client.shardingjdbc;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
-import org.apache.skywalking.oap.server.library.client.ClientException;
+import org.apache.skywalking.oap.server.core.register.EndpointInventory;
+import org.apache.skywalking.oap.server.core.storage.cache.IEndpointInventoryCacheDAO;
 
 /**
- * @author linjiaqi
+ * @author wusheng
  */
-public class ShardingjdbcClientException extends ClientException {
-
-    public ShardingjdbcClientException(String message) {
-        super(message);
+public class H2EndpointInventoryCacheDAO implements IEndpointInventoryCacheDAO {
+    @Override public int getEndpointId(int serviceId, String endpointName) {
+        return 0;
     }
 
-    public ShardingjdbcClientException(String message, Throwable cause) {
-        super(message, cause);
+    @Override public EndpointInventory get(int endpointId) {
+        return null;
     }
 }

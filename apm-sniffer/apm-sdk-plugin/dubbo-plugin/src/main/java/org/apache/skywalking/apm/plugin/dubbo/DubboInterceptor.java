@@ -45,10 +45,10 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
  */
 public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
     /**
-     * <h2>Consumer:</h2> The serialized trace context data will
+     * <jdbc>Consumer:</jdbc> The serialized trace context data will
      * inject to the {@link RpcContext#attachments} for transport to provider side.
      * <p>
-     * <h2>Provider:</h2> The serialized trace context data will extract from
+     * <jdbc>Provider:</jdbc> The serialized trace context data will extract from
      * {@link RpcContext#attachments}. current trace segment will ref if the serialize context data is not null.
      */
     @Override

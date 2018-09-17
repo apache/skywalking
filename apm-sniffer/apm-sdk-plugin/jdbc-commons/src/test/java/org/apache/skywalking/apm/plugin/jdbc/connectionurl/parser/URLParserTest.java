@@ -116,7 +116,7 @@ public class URLParserTest {
 
     @Test
     public void testParseH2JDBCURLWithEmbedded() {
-        ConnectionInfo connectionInfo = new URLParser().parser("jdbc:h2:file:/data/sample");
+        ConnectionInfo connectionInfo = new URLParser().parser("jdbc:jdbc:file:/data/sample");
         assertThat(connectionInfo.getDBType(), is("H2"));
         assertThat(connectionInfo.getDatabaseName(), is("/data/sample"));
         assertThat(connectionInfo.getDatabasePeer(), is("localhost:-1"));
@@ -124,7 +124,7 @@ public class URLParserTest {
 
     @Test
     public void testParseH2JDBCURLWithEmbeddedRunningInWindows() {
-        ConnectionInfo connectionInfo = new URLParser().parser("jdbc:h2:file:C:/data/sample");
+        ConnectionInfo connectionInfo = new URLParser().parser("jdbc:jdbc:file:C:/data/sample");
         assertThat(connectionInfo.getDBType(), is("H2"));
         assertThat(connectionInfo.getDatabaseName(), is("C:/data/sample"));
         assertThat(connectionInfo.getDatabasePeer(), is("localhost:-1"));
@@ -132,7 +132,7 @@ public class URLParserTest {
 
     @Test
     public void testParseH2JDBCURLWithMemoryMode() {
-        ConnectionInfo connectionInfo = new URLParser().parser("jdbc:h2:mem:test_mem");
+        ConnectionInfo connectionInfo = new URLParser().parser("jdbc:jdbc:mem:test_mem");
         assertThat(connectionInfo.getDBType(), is("H2"));
         assertThat(connectionInfo.getDatabaseName(), is("test_mem"));
         assertThat(connectionInfo.getDatabasePeer(), is("localhost:-1"));
@@ -140,7 +140,7 @@ public class URLParserTest {
 
     @Test
     public void testParseH2JDBCURL() {
-        ConnectionInfo connectionInfo = new URLParser().parser("jdbc:h2:tcp://localhost:8084/~/sample");
+        ConnectionInfo connectionInfo = new URLParser().parser("jdbc:jdbc:tcp://localhost:8084/~/sample");
         assertThat(connectionInfo.getDBType(), is("H2"));
         assertThat(connectionInfo.getDatabaseName(), is("sample"));
         assertThat(connectionInfo.getDatabasePeer(), is("localhost:8084"));

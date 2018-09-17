@@ -16,24 +16,12 @@
  *
  */
 
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2;
 
-package org.apache.skywalking.apm.plugin.jdbc.h2.define;
-
-import org.apache.skywalking.apm.plugin.jdbc.define.AbstractDriverInstrumentation;
-import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-
-import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
- * {@link DriverInstrumentation} presents that skywalking intercepts {@link org.h2.Driver}.
- *
- * @author zhangxin
+ * @author wusheng
  */
-public class DriverInstrumentation extends AbstractDriverInstrumentation {
-    private static final String CLASS_OF_INTERCEPT_H2_DRIVER = "org.jdbc.Driver";
-
-    @Override
-    protected ClassMatch enhanceClass() {
-        return byName(CLASS_OF_INTERCEPT_H2_DRIVER);
-    }
+public class H2StorageConfig extends ModuleConfig {
 }

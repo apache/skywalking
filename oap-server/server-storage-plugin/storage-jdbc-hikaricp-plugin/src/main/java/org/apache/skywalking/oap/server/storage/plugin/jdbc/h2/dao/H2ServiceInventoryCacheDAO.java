@@ -16,38 +16,24 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.client.h2;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
+
+import org.apache.skywalking.oap.server.core.register.ServiceInventory;
+import org.apache.skywalking.oap.server.core.storage.cache.IServiceInventoryCacheDAO;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public abstract class H2ClientConfig {
-
-    private String url;
-    private String userName;
-    private String password;
-
-    public String getUrl() {
-        return url;
+public class H2ServiceInventoryCacheDAO implements IServiceInventoryCacheDAO {
+    @Override public int getServiceId(String serviceName) {
+        return 0;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    @Override public int getServiceId(int addressId) {
+        return 0;
     }
 
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    @Override public ServiceInventory get(int serviceId) {
+        return null;
     }
 }

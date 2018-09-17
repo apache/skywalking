@@ -68,7 +68,7 @@ public class ComponentsDefine {
 
     public static final OfficialComponent JEDIS =  new OfficialComponent(30, "Jedis");
 
-    public static final OfficialComponent H2_JDBC_DRIVER =  new OfficialComponent(32, "h2-jdbc-driver");
+    public static final OfficialComponent H2_JDBC_DRIVER =  new OfficialComponent(32, "jdbc-jdbc-driver");
 
     public static final OfficialComponent MYSQL_JDBC_DRIVER = new OfficialComponent(33, "mysql-connector-java");
 

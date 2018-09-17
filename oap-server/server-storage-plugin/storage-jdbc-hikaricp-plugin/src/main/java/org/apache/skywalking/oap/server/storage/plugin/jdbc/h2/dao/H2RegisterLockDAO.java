@@ -16,24 +16,22 @@
  *
  */
 
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
-package org.apache.skywalking.apm.plugin.jdbc.h2.define;
-
-import org.apache.skywalking.apm.plugin.jdbc.define.AbstractDriverInstrumentation;
-import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-
-import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
+import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
 
 /**
- * {@link DriverInstrumentation} presents that skywalking intercepts {@link org.h2.Driver}.
+ * No need to create any lock table. In SQL based database, could use `select... for update` to avoid lock table.
  *
- * @author zhangxin
+ * @author wusheng
  */
-public class DriverInstrumentation extends AbstractDriverInstrumentation {
-    private static final String CLASS_OF_INTERCEPT_H2_DRIVER = "org.jdbc.Driver";
+public class H2RegisterLockDAO implements IRegisterLockDAO {
+    @Override public boolean tryLock(Scope scope) {
+        return false;
+    }
 
-    @Override
-    protected ClassMatch enhanceClass() {
-        return byName(CLASS_OF_INTERCEPT_H2_DRIVER);
+    @Override public void releaseLock(Scope scope) {
+
     }
 }

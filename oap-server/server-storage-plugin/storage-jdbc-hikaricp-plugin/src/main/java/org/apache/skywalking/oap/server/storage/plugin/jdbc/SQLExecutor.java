@@ -16,20 +16,24 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.client.h2;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc;
 
-import org.apache.skywalking.oap.server.library.client.ClientException;
+import java.util.List;
+import lombok.AccessLevel;
+import lombok.Getter;
 
 /**
- * @author peng-yongsheng
+ * A SQL executor.
+ *
+ * @author wusheng
  */
-public class H2ClientException extends ClientException {
+@Getter(AccessLevel.PUBLIC)
+public class SQLExecutor {
+    private String sql;
+    private List<Object> param;
 
-    public H2ClientException(String message) {
-        super(message);
-    }
-
-    public H2ClientException(String message, Throwable cause) {
-        super(message, cause);
+    public SQLExecutor(String sql, List<Object> param) {
+        this.sql = sql;
+        this.param = param;
     }
 }

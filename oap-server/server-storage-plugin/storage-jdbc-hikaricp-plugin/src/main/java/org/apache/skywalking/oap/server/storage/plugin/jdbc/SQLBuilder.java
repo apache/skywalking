@@ -16,24 +16,42 @@
  *
  */
 
-
-package org.apache.skywalking.apm.plugin.jdbc.h2.define;
-
-import org.apache.skywalking.apm.plugin.jdbc.define.AbstractDriverInstrumentation;
-import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-
-import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc;
 
 /**
- * {@link DriverInstrumentation} presents that skywalking intercepts {@link org.h2.Driver}.
+ * SQLBuilder
  *
- * @author zhangxin
+ * @author wusheng
  */
-public class DriverInstrumentation extends AbstractDriverInstrumentation {
-    private static final String CLASS_OF_INTERCEPT_H2_DRIVER = "org.jdbc.Driver";
+public class SQLBuilder {
+    private static String LINE_END = System.lineSeparator();
 
-    @Override
-    protected ClassMatch enhanceClass() {
-        return byName(CLASS_OF_INTERCEPT_H2_DRIVER);
+    private StringBuilder text;
+
+    public SQLBuilder() {
+        this.text = new StringBuilder();
+    }
+
+    public SQLBuilder(String initLine) {
+        this();
+        this.appendLine(initLine);
+    }
+
+    public SQLBuilder append(String fragment) {
+        text.append(fragment);
+        return this;
+    }
+
+    public SQLBuilder appendLine(String line) {
+        text.append(line).append(LINE_END);
+        return this;
+    }
+
+    public String toStringInNewLine() {
+        return LINE_END + toString();
+    }
+
+    @Override public String toString() {
+        return text.toString();
     }
 }
