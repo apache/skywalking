@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.generated.serviceinstance;
+package org.apache.skywalking.oap.server.core.analysis.generated.endpointrelation;
 
 import java.util.*;
 import lombok.*;
@@ -38,11 +38,14 @@ import org.apache.skywalking.oap.server.core.source.Scope;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "serviceinstance_resp_time", builder = ServiceInstanceRespTimeIndicator.Builder.class)
-public class ServiceInstanceRespTimeIndicator extends LongAvgIndicator implements AlarmSupported {
+@StorageEntity(name = "endpoint_relation_resp_time", builder = EndpointRelationRespTimeIndicator.Builder.class)
+public class EndpointRelationRespTimeIndicator extends LongAvgIndicator implements AlarmSupported {
 
     @Setter @Getter @Column(columnName = "entity_id") @IDColumn private String entityId;
     @Setter @Getter @Column(columnName = "service_id")  private int serviceId;
+    @Setter @Getter @Column(columnName = "child_service_id")  private int childServiceId;
+    @Setter @Getter @Column(columnName = "service_instance_id")  private int serviceInstanceId;
+    @Setter @Getter @Column(columnName = "child_service_instance_id")  private int childServiceInstanceId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
@@ -72,7 +75,7 @@ public class ServiceInstanceRespTimeIndicator extends LongAvgIndicator implement
         if (getClass() != obj.getClass())
             return false;
 
-        ServiceInstanceRespTimeIndicator indicator = (ServiceInstanceRespTimeIndicator)obj;
+        EndpointRelationRespTimeIndicator indicator = (EndpointRelationRespTimeIndicator)obj;
         if (entityId != indicator.entityId)
             return false;
 
@@ -92,7 +95,10 @@ public class ServiceInstanceRespTimeIndicator extends LongAvgIndicator implement
 
 
         remoteBuilder.setDataIntegers(0, getServiceId());
-        remoteBuilder.setDataIntegers(1, getCount());
+        remoteBuilder.setDataIntegers(1, getChildServiceId());
+        remoteBuilder.setDataIntegers(2, getServiceInstanceId());
+        remoteBuilder.setDataIntegers(3, getChildServiceInstanceId());
+        remoteBuilder.setDataIntegers(4, getCount());
 
         return remoteBuilder;
     }
@@ -106,21 +112,27 @@ public class ServiceInstanceRespTimeIndicator extends LongAvgIndicator implement
 
 
         setServiceId(remoteData.getDataIntegers(0));
-        setCount(remoteData.getDataIntegers(1));
+        setChildServiceId(remoteData.getDataIntegers(1));
+        setServiceInstanceId(remoteData.getDataIntegers(2));
+        setChildServiceInstanceId(remoteData.getDataIntegers(3));
+        setCount(remoteData.getDataIntegers(4));
 
 
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("serviceInstance_resp_time", Scope.ServiceInstance, entityId);
+        return new AlarmMeta("endpoint_relation_resp_time", Scope.EndpointRelation, entityId);
     }
 
     @Override
     public Indicator toHour() {
-        ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicator();
+        EndpointRelationRespTimeIndicator indicator = new EndpointRelationRespTimeIndicator();
         indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
+        indicator.setChildServiceId(this.getChildServiceId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setChildServiceInstanceId(this.getChildServiceInstanceId());
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
@@ -130,10 +142,13 @@ public class ServiceInstanceRespTimeIndicator extends LongAvgIndicator implement
 
     @Override
     public Indicator toDay() {
-        ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicator();
+        EndpointRelationRespTimeIndicator indicator = new EndpointRelationRespTimeIndicator();
         indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
+        indicator.setChildServiceId(this.getChildServiceId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setChildServiceInstanceId(this.getChildServiceInstanceId());
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
@@ -143,10 +158,13 @@ public class ServiceInstanceRespTimeIndicator extends LongAvgIndicator implement
 
     @Override
     public Indicator toMonth() {
-        ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicator();
+        EndpointRelationRespTimeIndicator indicator = new EndpointRelationRespTimeIndicator();
         indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
+        indicator.setChildServiceId(this.getChildServiceId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setChildServiceInstanceId(this.getChildServiceInstanceId());
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
@@ -154,12 +172,15 @@ public class ServiceInstanceRespTimeIndicator extends LongAvgIndicator implement
         return indicator;
     }
 
-    public static class Builder implements StorageBuilder<ServiceInstanceRespTimeIndicator> {
+    public static class Builder implements StorageBuilder<EndpointRelationRespTimeIndicator> {
 
-        @Override public Map<String, Object> data2Map(ServiceInstanceRespTimeIndicator storageData) {
+        @Override public Map<String, Object> data2Map(EndpointRelationRespTimeIndicator storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put("entity_id", storageData.getEntityId());
             map.put("service_id", storageData.getServiceId());
+            map.put("child_service_id", storageData.getChildServiceId());
+            map.put("service_instance_id", storageData.getServiceInstanceId());
+            map.put("child_service_instance_id", storageData.getChildServiceInstanceId());
             map.put("summation", storageData.getSummation());
             map.put("count", storageData.getCount());
             map.put("value", storageData.getValue());
@@ -167,10 +188,13 @@ public class ServiceInstanceRespTimeIndicator extends LongAvgIndicator implement
             return map;
         }
 
-        @Override public ServiceInstanceRespTimeIndicator map2Data(Map<String, Object> dbMap) {
-            ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicator();
+        @Override public EndpointRelationRespTimeIndicator map2Data(Map<String, Object> dbMap) {
+            EndpointRelationRespTimeIndicator indicator = new EndpointRelationRespTimeIndicator();
             indicator.setEntityId((String)dbMap.get("entity_id"));
             indicator.setServiceId(((Number)dbMap.get("service_id")).intValue());
+            indicator.setChildServiceId(((Number)dbMap.get("child_service_id")).intValue());
+            indicator.setServiceInstanceId(((Number)dbMap.get("service_instance_id")).intValue());
+            indicator.setChildServiceInstanceId(((Number)dbMap.get("child_service_instance_id")).intValue());
             indicator.setSummation(((Number)dbMap.get("summation")).longValue());
             indicator.setCount(((Number)dbMap.get("count")).intValue());
             indicator.setValue(((Number)dbMap.get("value")).longValue());

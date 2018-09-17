@@ -25,10 +25,10 @@ import org.junit.Test;
 /**
  * @author wusheng
  */
-public class SumIndicatorTest {
+public class CountIndicatorTest {
     @Test
     public void testEntranceCombine() {
-        SumIndicatorImpl impl = new SumIndicatorImpl();
+        CountIndicatorImpl impl = new CountIndicatorImpl();
         impl.combine(5);
         impl.combine(6);
         impl.combine(7);
@@ -40,12 +40,12 @@ public class SumIndicatorTest {
 
     @Test
     public void testSelfCombine() {
-        SumIndicatorImpl impl = new SumIndicatorImpl();
+        CountIndicatorImpl impl = new CountIndicatorImpl();
         impl.combine(5);
         impl.combine(6);
         impl.combine(7);
 
-        SumIndicatorImpl impl2 = new SumIndicatorImpl();
+        CountIndicatorImpl impl2 = new CountIndicatorImpl();
         impl2.combine(5);
         impl2.combine(6);
         impl2.combine(7);
@@ -57,7 +57,7 @@ public class SumIndicatorTest {
         Assert.assertEquals(36, impl.getValue());
     }
 
-    public class SumIndicatorImpl extends SumIndicator {
+    public class CountIndicatorImpl extends CountIndicator {
         @Override public String id() {
             return null;
         }

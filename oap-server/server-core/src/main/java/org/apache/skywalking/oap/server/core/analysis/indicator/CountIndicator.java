@@ -16,29 +16,36 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.source;
+package org.apache.skywalking.oap.server.core.analysis.indicator;
 
 import lombok.*;
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.*;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceInstanceJVMMemory extends Source {
-    @Override public Scope scope() {
-        return Scope.ServiceInstanceJVMMemory;
+@IndicatorOperator
+public abstract class CountIndicator extends Indicator implements LongValueHolder {
+
+    protected static final String VALUE = "value";
+
+    @Getter @Setter @Column(columnName = VALUE) private long value;
+
+    @Entrance
+    public final void combine(@ConstOne long count) {
+        this.value += count;
     }
 
-    @Override public String getEntityId() {
-        return String.valueOf(id);
+    @Override public final void combine(Indicator indicator) {
+        CountIndicator countIndicator = (CountIndicator)indicator;
+        combine(countIndicator.value);
     }
 
-    @Getter @Setter private int id;
-    @Getter @Setter private String name;
-    @Getter @Setter private String serviceName;
-    @Getter @Setter private int serviceInstanceId;
-    @Getter @Setter private boolean heapStatus;
-    @Getter @Setter private long init;
-    @Getter @Setter private long max;
-    @Getter @Setter private long used;
-    @Getter @Setter private long committed;
+    @Override public void calculate() {
+    }
+
+    @Override public long getValue() {
+        return value;
+    }
 }

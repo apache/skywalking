@@ -31,6 +31,7 @@ public class ServiceInstanceDispatcher implements SourceDispatcher<ServiceInstan
     
     @Override public void dispatch(ServiceInstance source) {
         doServiceInstanceRespTime(source);
+        doServiceInstanceCpm(source);
     }
 
     private void doServiceInstanceRespTime(ServiceInstance source) {
@@ -41,6 +42,16 @@ public class ServiceInstanceDispatcher implements SourceDispatcher<ServiceInstan
         indicator.setEntityId(source.getEntityId());
         indicator.setServiceId(source.getServiceId());
         indicator.combine(source.getLatency(), 1);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+    private void doServiceInstanceCpm(ServiceInstance source) {
+        ServiceInstanceCpmIndicator indicator = new ServiceInstanceCpmIndicator();
+
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.setServiceId(source.getServiceId());
+        indicator.combine(1);
         IndicatorProcess.INSTANCE.in(indicator);
     }
 }
