@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
@@ -55,13 +54,7 @@ public class H2BatchDAO implements IBatchDAO {
 
             for (Object exe : batchCollection) {
                 SQLExecutor sqlExecutor = (SQLExecutor)exe;
-
-                PreparedStatement preparedStatement = connection.prepareStatement(sqlExecutor.getSql());
-
-                for (int i = 0; i < sqlExecutor.getParam().size(); i++) {
-                    preparedStatement.setObject(i + 1, sqlExecutor.getParam().get(i));
-                }
-                preparedStatement.execute();
+                sqlExecutor.invoke(connection);
             }
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);

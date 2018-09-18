@@ -41,6 +41,6 @@ public class H2StorageDAO implements StorageDAO {
     }
 
     @Override public IRegisterDAO newRegisterDao(StorageBuilder<RegisterSource> storageBuilder) {
-        return null;
+        return new H2RegisterDAO(h2Client, storageBuilder);
     }
 }

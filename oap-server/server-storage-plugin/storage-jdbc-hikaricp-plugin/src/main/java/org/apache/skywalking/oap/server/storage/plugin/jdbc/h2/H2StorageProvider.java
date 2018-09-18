@@ -86,10 +86,10 @@ public class H2StorageProvider extends ModuleProvider {
         this.registerServiceImplementation(StorageDAO.class, new H2StorageDAO(h2Client));
         this.registerServiceImplementation(IRegisterLockDAO.class, new H2RegisterLockDAO());
 
-        this.registerServiceImplementation(IServiceInventoryCacheDAO.class, new H2ServiceInventoryCacheDAO());
-        this.registerServiceImplementation(IServiceInstanceInventoryCacheDAO.class, new H2ServiceInstanceInventoryCacheDAO());
-        this.registerServiceImplementation(IEndpointInventoryCacheDAO.class, new H2EndpointInventoryCacheDAO());
-        this.registerServiceImplementation(INetworkAddressInventoryCacheDAO.class, new H2NetworkAddressInventoryCacheDAO());
+        this.registerServiceImplementation(IServiceInventoryCacheDAO.class, new H2ServiceInventoryCacheDAO(h2Client));
+        this.registerServiceImplementation(IServiceInstanceInventoryCacheDAO.class, new H2ServiceInstanceInventoryCacheDAO(h2Client));
+        this.registerServiceImplementation(IEndpointInventoryCacheDAO.class, new H2EndpointInventoryCacheDAO(h2Client));
+        this.registerServiceImplementation(INetworkAddressInventoryCacheDAO.class, new H2NetworkAddressInventoryCacheDAO(h2Client));
 
         this.registerServiceImplementation(ITopologyQueryDAO.class, new H2TopologyQueryDAO());
 
@@ -101,6 +101,8 @@ public class H2StorageProvider extends ModuleProvider {
 
             H2TableInstaller installer = new H2TableInstaller(getManager());
             installer.install(h2Client);
+
+            new H2RegisterLockInstaller().install(h2Client);
         } catch (StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);
         } catch (ClientException e) {

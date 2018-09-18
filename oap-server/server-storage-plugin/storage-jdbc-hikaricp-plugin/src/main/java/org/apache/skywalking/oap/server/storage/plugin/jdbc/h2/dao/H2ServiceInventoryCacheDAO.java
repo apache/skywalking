@@ -18,22 +18,40 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
+import java.io.IOException;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInventoryCacheDAO;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author wusheng
  */
-public class H2ServiceInventoryCacheDAO implements IServiceInventoryCacheDAO {
+public class H2ServiceInventoryCacheDAO extends H2SQLExecutor implements IServiceInventoryCacheDAO {
+    private static final Logger logger = LoggerFactory.getLogger(H2ServiceInventoryCacheDAO.class);
+    private JDBCHikariCPClient h2Client;
+
+    public H2ServiceInventoryCacheDAO(JDBCHikariCPClient h2Client) {
+        this.h2Client = h2Client;
+    }
+
     @Override public int getServiceId(String serviceName) {
-        return 0;
+        String id = ServiceInventory.buildId(serviceName);
+        return getEntityIDByID(h2Client, ServiceInventory.SEQUENCE, ServiceInventory.MODEL_NAME, id);
     }
 
     @Override public int getServiceId(int addressId) {
-        return 0;
+        String id = ServiceInventory.buildId(addressId);
+        return getServiceId(id);
     }
 
     @Override public ServiceInventory get(int serviceId) {
-        return null;
+        try {
+            return (ServiceInventory)getByColumn(h2Client, ServiceInventory.MODEL_NAME, ServiceInventory.SEQUENCE, serviceId, new ServiceInventory.Builder());
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+            return null;
+        }
     }
 }

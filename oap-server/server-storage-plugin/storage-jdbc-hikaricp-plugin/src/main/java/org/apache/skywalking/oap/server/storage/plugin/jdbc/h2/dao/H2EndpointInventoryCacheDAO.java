@@ -18,18 +18,35 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
+import java.io.IOException;
 import org.apache.skywalking.oap.server.core.register.EndpointInventory;
 import org.apache.skywalking.oap.server.core.storage.cache.IEndpointInventoryCacheDAO;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author wusheng
  */
-public class H2EndpointInventoryCacheDAO implements IEndpointInventoryCacheDAO {
+public class H2EndpointInventoryCacheDAO extends H2SQLExecutor implements IEndpointInventoryCacheDAO {
+    private static final Logger logger = LoggerFactory.getLogger(H2EndpointInventoryCacheDAO.class);
+    private JDBCHikariCPClient h2Client;
+
+    public H2EndpointInventoryCacheDAO(JDBCHikariCPClient h2Client) {
+        this.h2Client = h2Client;
+    }
+
     @Override public int getEndpointId(int serviceId, String endpointName) {
-        return 0;
+        String id = EndpointInventory.buildId(serviceId, endpointName);
+        return getEntityIDByID(h2Client, EndpointInventory.SEQUENCE, EndpointInventory.MODEL_NAME, id);
     }
 
     @Override public EndpointInventory get(int endpointId) {
-        return null;
+        try {
+            return (EndpointInventory)getByColumn(h2Client, EndpointInventory.MODEL_NAME, EndpointInventory.SEQUENCE, endpointId, new EndpointInventory.Builder());
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+            return null;
+        }
     }
 }

@@ -16,33 +16,29 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.jdbc;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.List;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
+import org.apache.skywalking.oap.server.library.client.Client;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * A SQL executor.
- *
  * @author wusheng
  */
-public class SQLExecutor {
-    private String sql;
-    private List<Object> param;
+public class H2RegisterLockInstaller {
+    public static final String LOCK_TABLE_NAME = "register_lock";
 
-    public SQLExecutor(String sql, List<Object> param) {
-        this.sql = sql;
-        this.param = param;
-    }
+    private static final Logger logger = LoggerFactory.getLogger(H2RegisterLockInstaller.class);
 
-    public void invoke(Connection connection) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+    /**
+     * For H2 storage, no concurrency situation, so, on lock table required. If someone wants to implement a storage by
+     * referring H2, please consider to create a LOCK table.
+     *
+     * @param client
+     * @throws StorageException
+     */
+    public void install(Client client) throws StorageException {
 
-        for (int i = 0; i < param.size(); i++) {
-            preparedStatement.setObject(i + 1, param.get(i));
-        }
-        preparedStatement.execute();
     }
 }
