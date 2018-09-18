@@ -49,7 +49,7 @@ public class H2IndicatorDAO implements IIndicatorDAO<SQLExecutor, SQLExecutor> {
     }
 
     @Override public Indicator get(String modelName, Indicator indicator) throws IOException {
-        try (ResultSet rs = h2Client.executeQuery("SELECT * FROM " + modelName + " WHERE entity_id = ?", new Object[] {indicator.id()})) {
+        try (ResultSet rs = h2Client.executeQuery("SELECT * FROM " + modelName + " WHERE id = ?", new Object[] {indicator.id()})) {
             while (rs.next()) {
                 Map data = new HashMap();
                 List<ModelColumn> columns = TableMetaInfo.get(modelName).getColumns();
@@ -72,7 +72,8 @@ public class H2IndicatorDAO implements IIndicatorDAO<SQLExecutor, SQLExecutor> {
         SQLBuilder sqlBuilder = new SQLBuilder("INSERT INTO " + modelName + " VALUES");
         List<ModelColumn> columns = TableMetaInfo.get(modelName).getColumns();
         List<Object> param = new ArrayList<>();
-        sqlBuilder.append("(");
+        sqlBuilder.append("(id=?,");
+        param.add(indicator.id());
         for (int i = 0; i < columns.size(); i++) {
             ModelColumn column = columns.get(i);
             sqlBuilder.append("?");
@@ -112,7 +113,7 @@ public class H2IndicatorDAO implements IIndicatorDAO<SQLExecutor, SQLExecutor> {
                 param.add(value);
             }
         }
-        sqlBuilder.append(" WHERE entity_id = ?");
+        sqlBuilder.append(" WHERE id = ?");
         param.add(indicator.id());
 
         return new SQLExecutor(sqlBuilder.toString(), param);

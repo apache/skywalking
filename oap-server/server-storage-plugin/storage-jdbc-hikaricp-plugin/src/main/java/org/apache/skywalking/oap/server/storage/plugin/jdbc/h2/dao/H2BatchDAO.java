@@ -18,11 +18,55 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
+import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * @author wusheng
+ */
 public class H2BatchDAO implements IBatchDAO {
-    @Override public void batchPersistence(List<?> batchCollection) {
+    private static final Logger logger = LoggerFactory.getLogger(H2BatchDAO.class);
 
+    private JDBCHikariCPClient h2Client;
+
+    public H2BatchDAO(JDBCHikariCPClient h2Client) {
+        this.h2Client = h2Client;
+    }
+
+    @Override public void batchPersistence(List<?> batchCollection) {
+        if (batchCollection.size() == 0) {
+            return;
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("batch sql statements execute, data size: {}", batchCollection.size());
+        }
+
+        try (Connection connection = h2Client.getConnection()) {
+            connection.setAutoCommit(true);
+
+            for (Object exe : batchCollection) {
+                SQLExecutor sqlExecutor = (SQLExecutor)exe;
+
+                PreparedStatement preparedStatement = connection.prepareStatement(sqlExecutor.getSql());
+
+                for (int i = 0; i < sqlExecutor.getParam().size(); i++) {
+                    preparedStatement.setObject(i + 1, sqlExecutor.getParam().get(i));
+                }
+                preparedStatement.execute();
+            }
+        } catch (SQLException e) {
+            logger.error(e.getMessage(), e);
+        } catch (JDBCClientException e) {
+            logger.error(e.getMessage(), e);
+        }
     }
 }

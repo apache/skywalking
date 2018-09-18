@@ -71,6 +71,7 @@ public class H2TableInstaller extends ModelInstaller {
         TableMetaInfo.addModel(model);
         JDBCHikariCPClient h2Client = (JDBCHikariCPClient)client;
         SQLBuilder tableCreateSQL = new SQLBuilder("CREATE TABLE " + model.getName() + " (");
+        tableCreateSQL.appendLine("id VARCHAR2(300), ");
         for (int i = 0; i < model.getColumns().size(); i++) {
             ModelColumn column = model.getColumns().get(i);
             ColumnName name = column.getColumnName();
