@@ -77,7 +77,7 @@ public class SkyWalkingAgent {
             .ignore(nameStartsWith("org.slf4j."))
             .ignore(nameStartsWith("org.apache.logging."))
             .ignore(nameStartsWith("org.apache.skywalking"))
-            .or(nameStartsWith("org.groovy."))
+            .ignore(nameStartsWith("org.groovy."))
             .ignore(nameContains("javassist"))
             .ignore(nameContains(".asm."))
             .type(pluginFinder.buildMatch())
