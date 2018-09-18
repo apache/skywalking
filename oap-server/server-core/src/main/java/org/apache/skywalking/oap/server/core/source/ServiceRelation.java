@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.source;
 
 import lombok.*;
+import org.apache.skywalking.oap.server.core.Const;
 
 /**
  * @author peng-yongsheng
@@ -27,6 +28,14 @@ public class ServiceRelation extends Source {
 
     @Override public Scope scope() {
         return Scope.ServiceRelation;
+    }
+
+    @Override public String getEntityId() {
+        return String.valueOf(sourceServiceId) + Const.ID_SPLIT + String.valueOf(destServiceId);
+    }
+
+    public static String buildEntityId(int sourceServiceId, int destServiceId) {
+        return String.valueOf(sourceServiceId) + Const.ID_SPLIT + String.valueOf(destServiceId);
     }
 
     @Getter @Setter private int sourceServiceId;

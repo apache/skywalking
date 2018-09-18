@@ -45,6 +45,19 @@ class SourceBuilder {
     @Getter @Setter private DetectPoint detectPoint;
     @Getter @Setter private long timeBucket;
 
+    All toAll() {
+        All all = new All();
+        all.setName(destServiceName);
+        all.setServiceInstanceName(destServiceInstanceName);
+        all.setEndpointName(destEndpointName);
+        all.setLatency(latency);
+        all.setStatus(status);
+        all.setResponseCode(responseCode);
+        all.setType(type);
+        all.setTimeBucket(timeBucket);
+        return all;
+    }
+
     Service toService() {
         Service service = new Service();
         service.setId(destServiceId);

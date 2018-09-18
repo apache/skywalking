@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancerelation;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
 import org.apache.skywalking.oap.server.core.source.*;
 
 /**
@@ -30,19 +29,6 @@ import org.apache.skywalking.oap.server.core.source.*;
 public class ServiceInstanceRelationDispatcher implements SourceDispatcher<ServiceInstanceRelation> {
 
     @Override public void dispatch(ServiceInstanceRelation source) {
-        doServiceInstanceRelationAvg(source);
     }
 
-    private void doServiceInstanceRelationAvg(ServiceInstanceRelation source) {
-        ServiceInstanceRelationAvgIndicator indicator = new ServiceInstanceRelationAvgIndicator();
-
-
-        indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setSourceServiceId(source.getSourceServiceId());
-        indicator.setDestServiceId(source.getDestServiceId());
-        indicator.setSourceServiceInstanceId(source.getSourceServiceInstanceId());
-        indicator.setDestServiceInstanceId(source.getDestServiceInstanceId());
-        indicator.combine(source.getLatency(), 1);
-        IndicatorProcess.INSTANCE.in(indicator);
-    }
 }

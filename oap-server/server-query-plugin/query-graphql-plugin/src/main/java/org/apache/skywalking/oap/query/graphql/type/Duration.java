@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.query.graphql.type;
 
 import lombok.Getter;
+import org.apache.skywalking.oap.server.core.query.entity.Step;
 
 @Getter
 public class Duration {

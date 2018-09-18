@@ -17,11 +17,14 @@
  */
 package org.apache.skywalking.oap.query.graphql.type;
 
-import java.util.List;
+import java.util.*;
+import lombok.Getter;
 
 /**
- *  @author liu-xinyuan
+ * @author liu-xinyuan
  **/
+@Getter
 public class BatchMetricConditions {
-    private List<MetricCondition> metricConditions;
+    private String name;
+    private List<String> ids = new ArrayList<>();
 }

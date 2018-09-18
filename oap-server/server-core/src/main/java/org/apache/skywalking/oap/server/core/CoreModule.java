@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
+import org.apache.skywalking.oap.server.core.query.TopologyQueryService;
 import org.apache.skywalking.oap.server.core.register.service.*;
 import org.apache.skywalking.oap.server.core.remote.RemoteSenderService;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
@@ -50,8 +51,13 @@ public class CoreModule extends ModuleDefine {
         addInsideService(classes);
         addRegisterService(classes);
         addCacheService(classes);
+        addQueryService(classes);
 
         return classes.toArray(new Class[] {});
+    }
+
+    private void addQueryService(List<Class> classes) {
+        classes.add(TopologyQueryService.class);
     }
 
     private void addServerInterface(List<Class> classes) {

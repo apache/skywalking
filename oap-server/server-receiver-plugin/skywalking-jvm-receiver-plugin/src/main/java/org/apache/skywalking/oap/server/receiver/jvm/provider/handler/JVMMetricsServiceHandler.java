@@ -102,7 +102,7 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
             serviceInstanceJVMMemory.setName(Const.EMPTY_STRING);
             serviceInstanceJVMMemory.setServiceInstanceId(serviceInstanceId);
             serviceInstanceJVMMemory.setServiceName(Const.EMPTY_STRING);
-            serviceInstanceJVMMemory.setHeap(memory.getIsHeap());
+            serviceInstanceJVMMemory.setHeapStatus(memory.getIsHeap());
             serviceInstanceJVMMemory.setInit(memory.getInit());
             serviceInstanceJVMMemory.setMax(memory.getMax());
             serviceInstanceJVMMemory.setUsed(memory.getUsed());

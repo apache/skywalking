@@ -2,6 +2,9 @@
 First and most important thing is, SkyWalking backend startup behaviours are driven by `config/application.yml`.
 Understood the setting file will help you to read this document.
 
+## Startup script
+Startup scripts are `/bin/oapService.sh`(.bat)
+
 ## application.yml
 The core concept behind this setting file is, SkyWalking collector is based on pure modulization design. 
 End user can switch or assemble the collector features by their own requirements.

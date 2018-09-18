@@ -18,26 +18,30 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.service;
 
-import java.util.*;
-import lombok.*;
+import java.util.HashMap;
+import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.annotation.*;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntity;
 
 /**
  * @author peng-yongsheng
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "service_mapping", builder = ServiceMappingIndicator.Builder.class)
+@StorageEntity(name = ServiceMappingIndicator.INDEX_NAME, builder = ServiceMappingIndicator.Builder.class)
 public class ServiceMappingIndicator extends Indicator {
 
-    private static final String SERVICE_ID = "service_id";
-    private static final String MAPPING_SERVICE_ID = "mapping_service_id";
+    public static final String INDEX_NAME = "service_mapping";
+    public static final String SERVICE_ID = "service_id";
+    public static final String MAPPING_SERVICE_ID = "mapping_service_id";
 
     @Setter @Getter @Column(columnName = SERVICE_ID) private int serviceId;
     @Setter @Getter @Column(columnName = MAPPING_SERVICE_ID) private int mappingServiceId;
@@ -98,7 +102,41 @@ public class ServiceMappingIndicator extends Indicator {
     @Override public void calculate() {
     }
 
+    @Override public Indicator toHour() {
+        ServiceMappingIndicator indicator = new ServiceMappingIndicator();
+        indicator.setTimeBucket(toTimeBucketInHour());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setMappingServiceId(this.getMappingServiceId());
+
+        return indicator;
+    }
+
+    @Override public Indicator toDay() {
+        ServiceMappingIndicator indicator = new ServiceMappingIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setMappingServiceId(this.getMappingServiceId());
+
+        return indicator;
+    }
+
+    @Override public Indicator toMonth() {
+        ServiceMappingIndicator indicator = new ServiceMappingIndicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setMappingServiceId(this.getMappingServiceId());
+
+        return indicator;
+    }
+
     @Override public final void combine(Indicator indicator) {
+    }
+
+    @Override public int remoteHashCode() {
+        int result = 17;
+        result = 31 * result + serviceId;
+        result = 31 * result + mappingServiceId;
+        return result;
     }
 
     public static class Builder implements StorageBuilder<ServiceMappingIndicator> {

@@ -19,8 +19,8 @@
 package org.apache.skywalking.oap.server.core.analysis.generated.servicerelation;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.analysis.indicator.expression.EqualMatch;
 import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
+import org.apache.skywalking.oap.server.core.analysis.indicator.expression.*;
 import org.apache.skywalking.oap.server.core.source.*;
 
 /**
@@ -31,44 +31,83 @@ import org.apache.skywalking.oap.server.core.source.*;
 public class ServiceRelationDispatcher implements SourceDispatcher<ServiceRelation> {
 
     @Override public void dispatch(ServiceRelation source) {
-        doServiceRelationClientCallsSum(source);
-        doServiceRelationServerCallsSum(source);
-        doServiceRelationAvg(source);
+        doServiceRelationClientCpm(source);
+        doServiceRelationServerCpm(source);
+        doServiceRelationClientCallSla(source);
+        doServiceRelationServerCallSla(source);
+        doServiceRelationClientRespTime(source);
+        doServiceRelationServerRespTime(source);
     }
 
-    private void doServiceRelationClientCallsSum(ServiceRelation source) {
-        ServiceRelationClientCallsSumIndicator indicator = new ServiceRelationClientCallsSumIndicator();
+    private void doServiceRelationClientCpm(ServiceRelation source) {
+        ServiceRelationClientCpmIndicator indicator = new ServiceRelationClientCpmIndicator();
 
         if (!new EqualMatch().setLeft(source.getDetectPoint()).setRight(DetectPoint.CLIENT).match()) {
             return;
         }
 
         indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setSourceServiceId(source.getSourceServiceId());
-        indicator.setDestServiceId(source.getDestServiceId());
+        indicator.setEntityId(source.getEntityId());
         indicator.combine(1);
         IndicatorProcess.INSTANCE.in(indicator);
     }
-    private void doServiceRelationServerCallsSum(ServiceRelation source) {
-        ServiceRelationServerCallsSumIndicator indicator = new ServiceRelationServerCallsSumIndicator();
+    private void doServiceRelationServerCpm(ServiceRelation source) {
+        ServiceRelationServerCpmIndicator indicator = new ServiceRelationServerCpmIndicator();
 
         if (!new EqualMatch().setLeft(source.getDetectPoint()).setRight(DetectPoint.SERVER).match()) {
             return;
         }
 
         indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setSourceServiceId(source.getSourceServiceId());
-        indicator.setDestServiceId(source.getDestServiceId());
+        indicator.setEntityId(source.getEntityId());
         indicator.combine(1);
         IndicatorProcess.INSTANCE.in(indicator);
     }
-    private void doServiceRelationAvg(ServiceRelation source) {
-        ServiceRelationAvgIndicator indicator = new ServiceRelationAvgIndicator();
+    private void doServiceRelationClientCallSla(ServiceRelation source) {
+        ServiceRelationClientCallSlaIndicator indicator = new ServiceRelationClientCallSlaIndicator();
 
+        if (!new EqualMatch().setLeft(source.getDetectPoint()).setRight(DetectPoint.CLIENT).match()) {
+            return;
+        }
 
         indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setSourceServiceId(source.getSourceServiceId());
-        indicator.setDestServiceId(source.getDestServiceId());
+        indicator.setEntityId(source.getEntityId());
+        indicator.combine(new org.apache.skywalking.oap.server.core.analysis.indicator.expression.EqualMatch(), source.isStatus(), true);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+    private void doServiceRelationServerCallSla(ServiceRelation source) {
+        ServiceRelationServerCallSlaIndicator indicator = new ServiceRelationServerCallSlaIndicator();
+
+        if (!new EqualMatch().setLeft(source.getDetectPoint()).setRight(DetectPoint.SERVER).match()) {
+            return;
+        }
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.combine(new org.apache.skywalking.oap.server.core.analysis.indicator.expression.EqualMatch(), source.isStatus(), true);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+    private void doServiceRelationClientRespTime(ServiceRelation source) {
+        ServiceRelationClientRespTimeIndicator indicator = new ServiceRelationClientRespTimeIndicator();
+
+        if (!new EqualMatch().setLeft(source.getDetectPoint()).setRight(DetectPoint.CLIENT).match()) {
+            return;
+        }
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.combine(source.getLatency(), 1);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+    private void doServiceRelationServerRespTime(ServiceRelation source) {
+        ServiceRelationServerRespTimeIndicator indicator = new ServiceRelationServerRespTimeIndicator();
+
+        if (!new EqualMatch().setLeft(source.getDetectPoint()).setRight(DetectPoint.SERVER).match()) {
+            return;
+        }
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
         indicator.combine(source.getLatency(), 1);
         IndicatorProcess.INSTANCE.in(indicator);
     }

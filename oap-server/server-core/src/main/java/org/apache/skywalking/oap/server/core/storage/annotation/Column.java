@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.storage.annotation;
 
 import java.lang.annotation.*;
+import org.apache.skywalking.oap.server.core.query.sql.Function;
 
 /**
  * @author peng-yongsheng
@@ -27,6 +28,10 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Column {
     String columnName();
+
+    boolean isValue() default false;
+
+    Function function() default Function.None;
 
     boolean matchQuery() default false;
 

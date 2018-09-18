@@ -32,6 +32,9 @@ public class ServiceInstanceJVMGCDispatcher implements SourceDispatcher<ServiceI
 
     @Override public void dispatch(ServiceInstanceJVMGC source) {
         doInstanceJvmYoungGcTime(source);
+        doInstanceJvmOldGcTime(source);
+        doInstanceJvmYoungGcCount(source);
+        doInstanceJvmOldGcCount(source);
     }
 
     private void doInstanceJvmYoungGcTime(ServiceInstanceJVMGC source) {
@@ -42,9 +45,48 @@ public class ServiceInstanceJVMGCDispatcher implements SourceDispatcher<ServiceI
         }
 
         indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setId(source.getId());
+        indicator.setEntityId(source.getEntityId());
         indicator.setServiceInstanceId(source.getServiceInstanceId());
         indicator.combine(source.getTime(), 1);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+    private void doInstanceJvmOldGcTime(ServiceInstanceJVMGC source) {
+        InstanceJvmOldGcTimeIndicator indicator = new InstanceJvmOldGcTimeIndicator();
+
+        if (!new EqualMatch().setLeft(source.getPhrase()).setRight(GCPhrase.OLD).match()) {
+            return;
+        }
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.setServiceInstanceId(source.getServiceInstanceId());
+        indicator.combine(source.getTime(), 1);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+    private void doInstanceJvmYoungGcCount(ServiceInstanceJVMGC source) {
+        InstanceJvmYoungGcCountIndicator indicator = new InstanceJvmYoungGcCountIndicator();
+
+        if (!new EqualMatch().setLeft(source.getPhrase()).setRight(GCPhrase.NEW).match()) {
+            return;
+        }
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.setServiceInstanceId(source.getServiceInstanceId());
+        indicator.combine(source.getCount());
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+    private void doInstanceJvmOldGcCount(ServiceInstanceJVMGC source) {
+        InstanceJvmOldGcCountIndicator indicator = new InstanceJvmOldGcCountIndicator();
+
+        if (!new EqualMatch().setLeft(source.getPhrase()).setRight(GCPhrase.OLD).match()) {
+            return;
+        }
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.setServiceInstanceId(source.getServiceInstanceId());
+        indicator.combine(source.getCount());
         IndicatorProcess.INSTANCE.in(indicator);
     }
 }

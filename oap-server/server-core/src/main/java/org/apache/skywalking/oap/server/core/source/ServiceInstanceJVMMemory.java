@@ -28,11 +28,15 @@ public class ServiceInstanceJVMMemory extends Source {
         return Scope.ServiceInstanceJVMMemory;
     }
 
+    @Override public String getEntityId() {
+        return String.valueOf(id);
+    }
+
     @Getter @Setter private int id;
     @Getter @Setter private String name;
     @Getter @Setter private String serviceName;
     @Getter @Setter private int serviceInstanceId;
-    @Getter @Setter private boolean isHeap;
+    @Getter @Setter private boolean heapStatus;
     @Getter @Setter private long init;
     @Getter @Setter private long max;
     @Getter @Setter private long used;

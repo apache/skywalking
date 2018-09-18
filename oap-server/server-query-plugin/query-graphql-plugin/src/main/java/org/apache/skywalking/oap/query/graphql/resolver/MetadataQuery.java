@@ -19,37 +19,65 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
-import java.util.Collections;
 import java.util.List;
-import org.apache.skywalking.oap.query.graphql.type.ClusterBrief;
 import org.apache.skywalking.oap.query.graphql.type.Duration;
-import org.apache.skywalking.oap.query.graphql.type.Endpoint;
-import org.apache.skywalking.oap.query.graphql.type.Service;
-import org.apache.skywalking.oap.query.graphql.type.ServiceInstance;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.query.*;
+import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 public class MetadataQuery implements GraphQLQueryResolver {
+
+    private final ModuleManager moduleManager;
+    private MetadataQueryService metadataQueryService;
+
+    public MetadataQuery(ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
+    }
+
+    private MetadataQueryService getMetadataQueryService() {
+        if (metadataQueryService == null) {
+            this.metadataQueryService = moduleManager.find(CoreModule.NAME).getService(MetadataQueryService.class);
+        }
+        return metadataQueryService;
+    }
+
     public ClusterBrief getGlobalBrief(final Duration duration) {
-        return new ClusterBrief();
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+
+        return getMetadataQueryService().getGlobalBrief(duration.getStep(), startTimeBucket, endTimeBucket);
     }
 
     public List<Service> getAllServices(final Duration duration) {
-        return Collections.emptyList();
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+
+        return getMetadataQueryService().getAllServices(duration.getStep(), startTimeBucket, endTimeBucket);
     }
 
     public List<Service> searchServices(final Duration duration, final String keyword) {
-        return Collections.emptyList();
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+
+        return getMetadataQueryService().searchServices(duration.getStep(), startTimeBucket, endTimeBucket, keyword);
     }
 
     public List<ServiceInstance> getServiceInstances(final Duration duration, final String id) {
-        return Collections.emptyList();
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+
+        return getMetadataQueryService().getServiceInstances(duration.getStep(), startTimeBucket, endTimeBucket, id);
     }
 
     public List<Endpoint> searchEndpoint(final String keyword, final String serviceId, final int limit) {
-        return Collections.emptyList();
+        return getMetadataQueryService().searchEndpoint(keyword, serviceId, limit);
     }
 
-
     public Service searchService(final Duration duration, final String serviceCode) {
-        return new Service();
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+
+        return getMetadataQueryService().searchService(duration.getStep(), startTimeBucket, endTimeBucket, serviceCode);
     }
 }

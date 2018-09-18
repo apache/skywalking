@@ -95,13 +95,13 @@
         </dependency>
         <!-- storage module -->
 
-        <!-- query module -->
+        <!-- queryBuild module -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>query-graphql-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- query module -->
+        <!-- queryBuild module -->
 
         <!-- alarm module -->
         <dependency>
