@@ -16,17 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
+package org.apache.skywalking.oap.server.core.analysis.record;
+
+import lombok.*;
+import org.apache.skywalking.oap.server.core.storage.StorageData;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
  * @author peng-yongsheng
  */
-public interface SpanListener {
-    void build();
+public abstract class Record implements StorageData {
 
-    boolean containsPoint(Point point);
+    public static final String TIME_BUCKET = "time_bucket";
 
-    enum Point {
-        Entry, Exit, Local, First, TraceIds
-    }
+    @Getter @Setter @Column(columnName = TIME_BUCKET) private long timeBucket;
 }

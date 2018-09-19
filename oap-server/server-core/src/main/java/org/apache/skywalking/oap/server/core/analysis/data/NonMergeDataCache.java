@@ -18,21 +18,21 @@
 
 package org.apache.skywalking.oap.server.core.analysis.data;
 
-import org.apache.skywalking.oap.server.core.remote.data.StreamData;
+import org.apache.skywalking.oap.server.core.storage.StorageData;
 
 /**
  * @author peng-yongsheng
  */
-public class NonMergeDataCache<STREAM_DATA extends StreamData> extends Window<NonMergeDataCollection<STREAM_DATA>> implements DataCache {
+public class NonMergeDataCache<STORAGE_DATA extends StorageData> extends Window<STORAGE_DATA> implements DataCache {
 
-    private NonMergeDataCollection<STREAM_DATA> lockedMergeDataCollection;
+    private SWCollection<STORAGE_DATA> lockedMergeDataCollection;
 
-    @Override public NonMergeDataCollection<STREAM_DATA> collectionInstance() {
+    @Override public SWCollection<STORAGE_DATA> collectionInstance() {
         return new NonMergeDataCollection<>();
     }
 
-    public void add(STREAM_DATA data) {
-        lockedMergeDataCollection.add(data);
+    public void add(STORAGE_DATA data) {
+        lockedMergeDataCollection.put(data);
     }
 
     @Override public void writing() {
