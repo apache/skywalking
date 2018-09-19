@@ -16,17 +16,32 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
+package org.apache.skywalking.oap.server.core.source;
+
+import lombok.*;
+import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
 
 /**
  * @author peng-yongsheng
  */
-public interface SpanListener {
-    void build();
+@SourceType
+public class Segment extends Source {
 
-    boolean containsPoint(Point point);
-
-    enum Point {
-        Entry, Exit, Local, First, TraceIds
+    @Override public Scope scope() {
+        return Scope.Segment;
     }
+
+    @Override public String getEntityId() {
+        return segmentId;
+    }
+
+    @Setter @Getter private String segmentId;
+    @Setter @Getter private String traceId;
+    @Setter @Getter private int serviceId;
+    @Setter @Getter private String endpointName;
+    @Setter @Getter private long startTime;
+    @Setter @Getter private long endTime;
+    @Setter @Getter private int latency;
+    @Setter @Getter private int isError;
+    @Setter @Getter private byte[] dataBinary;
 }

@@ -16,17 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
+package org.apache.skywalking.oap.server.core.analysis.record.annotation;
+
+import java.lang.annotation.*;
 
 /**
  * @author peng-yongsheng
  */
-public interface SpanListener {
-    void build();
-
-    boolean containsPoint(Point point);
-
-    enum Point {
-        Entry, Exit, Local, First, TraceIds
-    }
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface RecordType {
 }
