@@ -19,19 +19,19 @@
 package org.apache.skywalking.oap.server.core.analysis.data;
 
 import java.util.*;
-import org.apache.skywalking.oap.server.core.remote.data.StreamData;
+import org.apache.skywalking.oap.server.core.storage.StorageData;
 
 /**
  * @author peng-yongsheng
  */
-public class NonMergeDataCollection<STREAM_DATA extends StreamData> implements Collection<List<STREAM_DATA>> {
+public class NonMergeDataCollection<STORAGE_DATA extends StorageData> implements SWCollection<STORAGE_DATA> {
 
-    private final List<STREAM_DATA> data;
+    private final List<STORAGE_DATA> data;
     private volatile boolean writing;
     private volatile boolean reading;
 
     NonMergeDataCollection() {
-        this.data = new LinkedList<>();
+        this.data = new ArrayList<>();
         this.writing = false;
         this.reading = false;
     }
@@ -60,10 +60,6 @@ public class NonMergeDataCollection<STREAM_DATA extends StreamData> implements C
         return reading;
     }
 
-    void add(STREAM_DATA value) {
-        data.add(value);
-    }
-
     @Override public int size() {
         return data.size();
     }
@@ -72,7 +68,19 @@ public class NonMergeDataCollection<STREAM_DATA extends StreamData> implements C
         data.clear();
     }
 
-    public List<STREAM_DATA> collection() {
+    @Override public boolean containsKey(STORAGE_DATA key) {
+        throw new UnsupportedOperationException("None merge data collection not support containsKey operation.");
+    }
+
+    @Override public STORAGE_DATA get(STORAGE_DATA key) {
+        throw new UnsupportedOperationException("None merge data collection not support get operation.");
+    }
+
+    @Override public void put(STORAGE_DATA value) {
+        data.add(value);
+    }
+
+    @Override public Collection<STORAGE_DATA> collection() {
         return data;
     }
 }

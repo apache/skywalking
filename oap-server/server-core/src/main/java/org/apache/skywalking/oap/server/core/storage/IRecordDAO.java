@@ -16,17 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
+package org.apache.skywalking.oap.server.core.storage;
+
+import java.io.IOException;
+import org.apache.skywalking.oap.server.core.analysis.record.Record;
 
 /**
  * @author peng-yongsheng
  */
-public interface SpanListener {
-    void build();
+public interface IRecordDAO<INSERT> extends DAO {
 
-    boolean containsPoint(Point point);
+    INSERT prepareBatchInsert(String modelName, Record record) throws IOException;
 
-    enum Point {
-        Entry, Exit, Local, First, TraceIds
-    }
+    void deleteHistory(String modelName, Long timeBucketBefore);
 }

@@ -23,22 +23,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author peng-yongsheng
  */
-public abstract class Window<WINDOW_COLLECTION extends Collection> {
+public abstract class Window<DATA> {
 
     private AtomicInteger windowSwitch = new AtomicInteger(0);
 
-    private WINDOW_COLLECTION pointer;
+    private SWCollection<DATA> pointer;
 
-    private WINDOW_COLLECTION windowDataA;
-    private WINDOW_COLLECTION windowDataB;
+    private SWCollection<DATA> windowDataA;
+    private SWCollection<DATA> windowDataB;
 
-    protected Window() {
+    Window() {
         this.windowDataA = collectionInstance();
         this.windowDataB = collectionInstance();
         this.pointer = windowDataA;
     }
 
-    public abstract WINDOW_COLLECTION collectionInstance();
+    public abstract SWCollection<DATA> collectionInstance();
 
     public boolean trySwitchPointer() {
         return windowSwitch.incrementAndGet() == 1 && !getLast().isReading();
@@ -57,7 +57,7 @@ public abstract class Window<WINDOW_COLLECTION extends Collection> {
         getLast().reading();
     }
 
-    protected WINDOW_COLLECTION getCurrentAndWriting() {
+    SWCollection<DATA> getCurrentAndWriting() {
         if (pointer == windowDataA) {
             windowDataA.writing();
             return windowDataA;
@@ -67,7 +67,7 @@ public abstract class Window<WINDOW_COLLECTION extends Collection> {
         }
     }
 
-    private WINDOW_COLLECTION getCurrent() {
+    private SWCollection<DATA> getCurrent() {
         return pointer;
     }
 
@@ -75,7 +75,7 @@ public abstract class Window<WINDOW_COLLECTION extends Collection> {
         return getCurrent().size();
     }
 
-    public WINDOW_COLLECTION getLast() {
+    public SWCollection<DATA> getLast() {
         if (pointer == windowDataA) {
             return windowDataB;
         } else {

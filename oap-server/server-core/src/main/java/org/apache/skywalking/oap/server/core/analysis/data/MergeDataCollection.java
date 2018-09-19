@@ -24,13 +24,14 @@ import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 /**
  * @author peng-yongsheng
  */
-public class MergeDataCollection<STREAM_DATA extends StreamData> implements Collection<Map<STREAM_DATA, STREAM_DATA>> {
-    private Map<STREAM_DATA, STREAM_DATA> data;
+public class MergeDataCollection<STREAM_DATA extends StreamData> implements SWCollection<STREAM_DATA> {
+
+    private Map<STREAM_DATA, STREAM_DATA> collection;
     private volatile boolean writing;
     private volatile boolean reading;
 
     MergeDataCollection() {
-        this.data = new HashMap<>();
+        this.collection = new HashMap<>();
         this.writing = false;
         this.reading = false;
     }
@@ -59,27 +60,27 @@ public class MergeDataCollection<STREAM_DATA extends StreamData> implements Coll
         return reading;
     }
 
-    boolean containsKey(STREAM_DATA key) {
-        return data.containsKey(key);
+    @Override public boolean containsKey(STREAM_DATA key) {
+        return collection.containsKey(key);
     }
 
-    void put(STREAM_DATA value) {
-        data.put(value, value);
+    @Override public void put(STREAM_DATA value) {
+        collection.put(value, value);
     }
 
-    public STREAM_DATA get(STREAM_DATA key) {
-        return data.get(key);
+    @Override public STREAM_DATA get(STREAM_DATA key) {
+        return collection.get(key);
     }
 
     @Override public int size() {
-        return data.size();
+        return collection.size();
     }
 
     @Override public void clear() {
-        data.clear();
+        collection.clear();
     }
 
-    public Map<STREAM_DATA, STREAM_DATA> collection() {
-        return data;
+    @Override public Collection<STREAM_DATA> collection() {
+        return collection.values();
     }
 }

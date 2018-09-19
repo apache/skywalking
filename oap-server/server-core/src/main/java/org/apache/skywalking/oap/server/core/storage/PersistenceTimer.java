@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.core.storage;
 import java.util.*;
 import java.util.concurrent.*;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
-import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
+import org.apache.skywalking.oap.server.core.analysis.worker.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.slf4j.*;
 
@@ -65,7 +65,11 @@ public enum PersistenceTimer {
         long startTime = System.currentTimeMillis();
         try {
             List batchAllCollection = new LinkedList();
-            IndicatorProcess.INSTANCE.getPersistentWorkers().forEach(worker -> {
+            List<PersistenceWorker> persistenceWorkers = new ArrayList<>();
+            persistenceWorkers.addAll(IndicatorProcess.INSTANCE.getPersistentWorkers());
+            persistenceWorkers.addAll(RecordProcess.INSTANCE.getPersistentWorkers());
+
+            persistenceWorkers.forEach(worker -> {
                 if (logger.isDebugEnabled()) {
                     logger.debug("extract {} worker data and save", worker.getClass().getName());
                 }
