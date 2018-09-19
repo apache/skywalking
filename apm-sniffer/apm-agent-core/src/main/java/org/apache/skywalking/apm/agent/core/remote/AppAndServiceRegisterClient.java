@@ -94,7 +94,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
                 public void handle(Throwable t) {
                     logger.error("unexpected exception.", t);
                 }
-            }), 0, Config.Collector.APP_AND_SERVICE_REGISTER_CHECK_INTERVAL, TimeUnit.SECONDS);
+            }), 0, Config.Collector.SERVICE_AND_ENDPOINT_REGISTER_CHECK_INTERVAL, TimeUnit.SECONDS);
     }
 
     @Override
@@ -138,7 +138,6 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
                                 RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID
                                     = instanceMapping.getApplicationInstanceId();
                                 Reseter.INSTANCE.setStatus(ResetStatus.OFF).reportToRegisterFile();
-                                Reseter.INSTANCE.enableConsume();
 
                             }
                         } else {
@@ -151,7 +150,6 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
                             }
 
                             NetworkAddressDictionary.INSTANCE.syncRemoteDictionary(networkAddressRegisterServiceBlockingStub);
-                            OperationNameDictionary.INSTANCE.updateOperationNameDictionary();
                             OperationNameDictionary.INSTANCE.syncRemoteDictionary(serviceNameDiscoveryServiceBlockingStub);
                         }
                     }

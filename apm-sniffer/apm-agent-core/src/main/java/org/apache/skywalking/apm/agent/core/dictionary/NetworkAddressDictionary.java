@@ -49,7 +49,7 @@ public enum NetworkAddressDictionary {
     }
 
     public void clearApplicationDictionary() {
-        unRegisterApplications.addAll(applicationDictionary.keySet());
+        unRegisterApplications.clear();
         applicationDictionary.clear();
 
     }

@@ -21,11 +21,11 @@ import java.io.File;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
+import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
@@ -35,25 +35,28 @@ import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 /**
  * @author liu-xinyuan
  **/
+@DefaultImplementor
 public class ResetConfListener implements BootService, Runnable {
     private static final ILog logger = LogManager.getLogger(ResetConfListener.class);
-    private Properties properties = new Properties();
     private File configFile = null;
 
     @Override public void prepare() throws Throwable {
 
     }
 
-    @Override public void boot() throws Throwable {
-        Executors
-            .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("ResetConfListener"))
-            .scheduleAtFixedRate(new RunnableWithExceptionProtection(this, new RunnableWithExceptionProtection.CallbackWhenException() {
-                @Override
-                public void handle(Throwable t) {
-                    logger.error("unexpected exception.", t);
-                }
-            }), 0, Config.Collector.APP_AND_SERVICE_REGISTER_CHECK_INTERVAL, TimeUnit.SECONDS);
+    @Override public void boot() throws IOException {
+        if (Reseter.INSTANCE.getResetPath() != null) {
+            Executors.newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("ResetConfListener"))
+                .scheduleAtFixedRate(new RunnableWithExceptionProtection(this, new RunnableWithExceptionProtection.CallbackWhenException() {
+                    @Override
+                    public void handle(Throwable t) {
+                        logger.error("unexpected exception.", t);
+                    }
+                }), 0, Config.Collector.SERVICE_AND_ENDPOINT_REGISTER_CHECK_INTERVAL, TimeUnit.SECONDS);
 
+        } else {
+            logger.warn("Since the agent.register_status variable is not set correctly, the reset service is not started.");
+        }
     }
 
     @Override public void onComplete() throws Throwable {
@@ -69,9 +72,9 @@ public class ResetConfListener implements BootService, Runnable {
 
         try {
             if (Reseter.INSTANCE.predicateReset())
-                Reseter.INSTANCE.setStatus(ResetStatus.DOWN).clearID().reportToRegisterFile();
+                Reseter.INSTANCE.setStatus(ResetStatus.DONE).clearID().reportToRegisterFile();
         } catch (AgentPackageNotFoundException e) {
-            logger.warn(e, "not found package!");
+            logger.warn(e, "not found package.");
         } catch (SecurityException e) {
             logger.warn(e, "Denise read access to the file {}", configFile);
         } catch (FileNotFoundException e) {

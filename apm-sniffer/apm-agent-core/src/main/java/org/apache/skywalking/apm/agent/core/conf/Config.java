@@ -90,7 +90,7 @@ public class Config {
         /**
          * application and service registry check interval
          */
-        public static long APP_AND_SERVICE_REGISTER_CHECK_INTERVAL = 3;
+        public static long SERVICE_AND_ENDPOINT_REGISTER_CHECK_INTERVAL = 3;
         /**
          * Collector skywalking trace receiver service addresses.
          */

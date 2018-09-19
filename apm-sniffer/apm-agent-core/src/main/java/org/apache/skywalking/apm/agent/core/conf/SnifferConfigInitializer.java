@@ -41,10 +41,11 @@ import org.apache.skywalking.apm.util.StringUtil;
  */
 public class SnifferConfigInitializer {
     private static final ILog logger = LogManager.getLogger(SnifferConfigInitializer.class);
-    private static String SPECIFIED_CONFIG_PATH = "skywalking_config";
-    private static String DEFAULT_CONFIG_FILE_NAME = "/config/agent.config";
-    private static String ENV_KEY_PREFIX = "skywalking.";
-    private static String INSTANCE_UUID_NAME = "agent.instance_uuid";
+    private static final String SPECIFIED_CONFIG_PATH = "skywalking_config";
+    private static final String DEFAULT_CONFIG_FILE_NAME = "/config/agent.config";
+    private static final String ENV_KEY_PREFIX = "skywalking.";
+    private static final String INSTANCE_UUID_NAME = "agent.instance_uuid";
+    private static final String REGISTER_STATUS_DIR = "agent.register_status_dir";
     private static boolean IS_INIT_COMPLETED = false;
 
     /**
@@ -55,15 +56,12 @@ public class SnifferConfigInitializer {
      * `skywalking.agent.application_code=yourAppName` to override `agent.application_code` in config file. <p> At the
      * end, `agent.application_code` and `collector.servers` must be not blank.
      */
-    public static void initialize(String instanceUUID) throws ConfigNotFoundException, AgentPackageNotFoundException {
+    public static void initialize() throws ConfigNotFoundException, AgentPackageNotFoundException {
         InputStreamReader configFileStream;
         try {
             configFileStream = loadConfig();
             Properties properties = new Properties();
             properties.load(configFileStream);
-            if (instanceUUID != null) {
-                properties.setProperty(INSTANCE_UUID_NAME, instanceUUID);
-            }
             ConfigInitializer.initialize(properties, Config.class);
         } catch (Exception e) {
             logger.error(e, "Failed to read the config file, skywalking is going to run in default config.");

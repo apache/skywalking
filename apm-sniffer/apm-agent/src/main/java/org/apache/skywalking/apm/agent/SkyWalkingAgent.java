@@ -55,7 +55,7 @@ public class SkyWalkingAgent {
     public static void premain(String agentArgs, Instrumentation instrumentation) throws PluginException {
         final PluginFinder pluginFinder;
         try {
-            SnifferConfigInitializer.initialize(agentArgs);
+            SnifferConfigInitializer.initialize();
 
             pluginFinder = new PluginFinder(new PluginBootstrap().loadPlugins());
 

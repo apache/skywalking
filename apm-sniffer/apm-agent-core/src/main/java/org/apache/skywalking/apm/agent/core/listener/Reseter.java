@@ -17,6 +17,7 @@
  */
 package org.apache.skywalking.apm.agent.core.listener;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -25,7 +26,6 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.Properties;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
-import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
@@ -42,96 +42,109 @@ import org.apache.skywalking.apm.agent.core.remote.TraceSegmentServiceClient;
 public enum Reseter {
     INSTANCE;
     private static final ILog logger = LogManager.getLogger(Reseter.class);
-    public static final String APPLICATION_ID_NAM = "application_id";
-    public static final String INSTANCE_ID_NAME = "instance_id";
-    public static final String STATUS_NAME = "status";
-    public static final String STATUS_FILE_NAME = "/reset.status";
-    public static final String RESET_CHILD_DIR = "/option/reset.status";
-    public static final String COMMENT = "#Status has three values: on (trigger reset), down(reset complete), off(agent fist boot).\n" +
+    private static final String APPLICATION_ID_NAM = "application_id";
+    private static final String INSTANCE_ID_NAME = "instance_id";
+    private static final String STATUS_NAME = "status";
+    private static final String RESET_CHILD_DIR = "/option/reset.status";
+    private static final String COMMENT = "#Status has three values: ON (trigger reset), DONE(reset complete), OFF(agent fist boot).\n" +
         "Application_id: application_id of the current agent.\n" +
         "Instance_id: the instanceid of the current agent.";
-    public volatile Properties properties = new Properties();
-    public String resetPath;
+    private volatile Properties properties = new Properties();
+    private String resetPath;
     private ResetStatus status = ResetStatus.OFF;
-    private Boolean isClearCache = false;
 
     public Reseter setStatus(ResetStatus status) {
         this.status = status;
         return this;
     }
 
-    public String getResetPath() throws IOException, AgentPackageNotFoundException {
+    public String getResetPath() throws IOException {
         File statusDir = new File(Config.Agent.REGISTER_STATUS_DIR);
-        if (resetPath == null) {
-            if (statusDir.exists() && statusDir.isDirectory()) {
-                Config.Agent.REGISTER_STATUS_DIR = new File(statusDir, STATUS_FILE_NAME).getAbsolutePath();
-            } else {
-                Config.Agent.REGISTER_STATUS_DIR = AgentPackagePath.getPath().getAbsolutePath() + RESET_CHILD_DIR;
-            }
-            File file = new File(Config.Agent.REGISTER_STATUS_DIR);
-            resetPath = file.getAbsolutePath();
-            init();
+
+        if (statusDir.exists() && statusDir.isDirectory()) {
+            resetPath = statusDir.getAbsolutePath() + RESET_CHILD_DIR;
+        } else {
+            return null;
         }
+        init();
         return resetPath;
     }
 
-    public void reportToRegisterFile() throws AgentPackageNotFoundException, IOException {
-        File configFile = new File(resetPath);
-        properties.setProperty(APPLICATION_ID_NAM, RemoteDownstreamConfig.Agent.APPLICATION_ID + "");
-        properties.setProperty(INSTANCE_ID_NAME, RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID + "");
-        properties.setProperty(STATUS_NAME, status.value());
-        FileOutputStream outputStream = new FileOutputStream(configFile);
-        properties.store(outputStream, COMMENT);
-        outputStream.close();
+    public void reportToRegisterFile() throws IOException {
+        FileOutputStream outputStream = null;
+        try {
+            File configFile = new File(resetPath);
+            properties.setProperty(APPLICATION_ID_NAM, RemoteDownstreamConfig.Agent.APPLICATION_ID + "");
+            properties.setProperty(INSTANCE_ID_NAME, RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID + "");
+            properties.setProperty(STATUS_NAME, status.value());
+            outputStream = new FileOutputStream(configFile);
+            properties.store(outputStream, COMMENT);
+        } finally {
+            closeFileStream(outputStream);
+        }
     }
 
-    public Reseter clearID() throws IOException, AgentPackageNotFoundException {
+    public Reseter clearID() {
         RemoteDownstreamConfig.Agent.APPLICATION_ID = DictionaryUtil.nullValue();
         RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID = DictionaryUtil.nullValue();
         OperationNameDictionary.INSTANCE.clearOperationNameDictionary();
         NetworkAddressDictionary.INSTANCE.clearApplicationDictionary();
         ServiceManager.INSTANCE.findService(TraceSegmentServiceClient.class).clearCache();
-        status = ResetStatus.DOWN;
-        stopConsume();
-        logger.info("clear id successfully,begin trigger reset!");
+        status = ResetStatus.DONE;
+        logger.info("clear id successfully,begin trigger reset.");
         return this;
     }
 
     Boolean predicateReset() throws AgentPackageNotFoundException, IOException {
         File resetFile = new File(getResetPath());
+        FileInputStream inputStream = null;
+
         if (System.currentTimeMillis() - resetFile.lastModified() < 5 * 1000) {
-            FileInputStream inputStream = new FileInputStream(resetFile);
-            FileChannel fileChannel = inputStream.getChannel();
-            FileLock fileLock = fileChannel.tryLock(0, resetFile.length(), true);
-            if (fileLock == null) {
-                return false;
+            try {
+                inputStream = new FileInputStream(resetFile);
+                FileChannel fileChannel = inputStream.getChannel();
+                FileLock fileLock = fileChannel.tryLock(0, resetFile.length(), true);
+                if (fileLock == null) {
+                    return false;
+                }
+                properties.load(inputStream);
+            } finally {
+                closeFileStream(inputStream);
             }
-            properties.load(inputStream);
-            inputStream.close();
             if (properties.get(STATUS_NAME) != null && properties.getProperty(STATUS_NAME).equals(ResetStatus.ON.value())) {
                 return true;
             }
         }
         return false;
+
     }
 
     public void init() throws IOException {
-        properties.setProperty(APPLICATION_ID_NAM, RemoteDownstreamConfig.Agent.APPLICATION_ID + "");
-        properties.setProperty(INSTANCE_ID_NAME, RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID + "");
-        properties.setProperty(STATUS_NAME, status.value());
-        FileOutputStream outputStream = new FileOutputStream(new File(resetPath));
-        properties.store(outputStream, COMMENT);
+        FileOutputStream outputStream = null;
+        try {
+            properties.setProperty(APPLICATION_ID_NAM, RemoteDownstreamConfig.Agent.APPLICATION_ID + "");
+            properties.setProperty(INSTANCE_ID_NAME, RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID + "");
+            properties.setProperty(STATUS_NAME, status.value());
+            File file = new File(resetPath);
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdir();
+            }
+            outputStream = new FileOutputStream(file);
+            properties.store(outputStream, COMMENT);
+        } finally {
+            closeFileStream(outputStream);
+        }
     }
 
-    public void stopConsume() {
-        this.isClearCache = true;
-    }
-
-    public Boolean isClearCache() {
-        return isClearCache;
-    }
-
-    public void enableConsume() {
-        this.isClearCache = false;
+    public void closeFileStream(Closeable stream) throws IOException {
+        if (stream != null) {
+            try {
+                stream.close();
+            } catch (IOException e) {
+                throw new IOException("file close failed.", e);
+            }
+        } else {
+            throw new IOException("create file outputstream failed");
+        }
     }
 }

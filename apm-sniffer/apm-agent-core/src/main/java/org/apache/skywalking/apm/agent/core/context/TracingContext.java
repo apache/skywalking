@@ -22,7 +22,6 @@ import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.EntrySpan;
@@ -433,7 +432,7 @@ public class TracingContext implements AbstractTracerContext {
          * @see {@link #createSpan(String, long, boolean)}
          */
         if (!segment.hasRef() && segment.isSingleSpanSegment()) {
-            if (!samplingService.trySampling() || RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID == DictionaryUtil.nullValue() || RemoteDownstreamConfig.Agent.APPLICATION_ID == DictionaryUtil.nullValue()) {
+            if (!samplingService.trySampling()) {
                 finishedSegment.setIgnore(true);
             }
         }
