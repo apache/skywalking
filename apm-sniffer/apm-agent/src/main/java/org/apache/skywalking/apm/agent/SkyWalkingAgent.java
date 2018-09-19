@@ -133,7 +133,7 @@ public class SkyWalkingAgent {
         }
     }
 
-    private static ElementMatcher.Junction<NamedElement> allSkyWalkingAgentExcludeToolkit(){
+    private static ElementMatcher.Junction<NamedElement> allSkyWalkingAgentExcludeToolkit() {
         return nameStartsWith("org.apache.skywalking.").and(not(nameStartsWith("org.apache.skywalking.apm.toolkit.")));
     }
 
