@@ -22,10 +22,12 @@ import java.lang.instrument.Instrumentation;
 import java.util.List;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.agent.builder.AgentBuilder;
+import net.bytebuddy.description.NamedElement;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.dynamic.scaffold.MethodGraph;
 import net.bytebuddy.dynamic.scaffold.TypeValidation;
+import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.utility.JavaModule;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
@@ -40,6 +42,7 @@ import org.apache.skywalking.apm.agent.core.plugin.PluginFinder;
 
 import static net.bytebuddy.matcher.ElementMatchers.nameContains;
 import static net.bytebuddy.matcher.ElementMatchers.nameStartsWith;
+import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
  * The main entrance of sky-waking agent, based on javaagent mechanism.
@@ -76,7 +79,7 @@ public class SkyWalkingAgent {
             .ignore(nameStartsWith("net.bytebuddy."))
             .ignore(nameStartsWith("org.slf4j."))
             .ignore(nameStartsWith("org.apache.logging."))
-            .ignore(nameStartsWith("org.apache.skywalking"))
+            .ignore(allSkyWalkingAgentExcludeToolkit())
             .ignore(nameStartsWith("org.groovy."))
             .ignore(nameContains("javassist"))
             .ignore(nameContains(".asm."))
@@ -128,6 +131,10 @@ public class SkyWalkingAgent {
             logger.debug("Matched class {}, but ignore by finding mechanism.", typeDescription.getTypeName());
             return builder;
         }
+    }
+
+    private static ElementMatcher.Junction<NamedElement> allSkyWalkingAgentExcludeToolkit(){
+        return nameStartsWith("org.apache.skywalking.").and(not(nameStartsWith("org.apache.skywalking.apm.toolkit.")));
     }
 
     private static class Listener implements AgentBuilder.Listener {
