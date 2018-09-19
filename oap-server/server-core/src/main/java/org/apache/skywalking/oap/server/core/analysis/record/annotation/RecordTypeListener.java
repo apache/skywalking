@@ -16,17 +16,29 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
+package org.apache.skywalking.oap.server.core.analysis.record.annotation;
+
+import java.lang.annotation.Annotation;
+import org.apache.skywalking.oap.server.core.analysis.worker.RecordProcess;
+import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
  * @author peng-yongsheng
  */
-public interface SpanListener {
-    void build();
+public class RecordTypeListener implements AnnotationListener {
 
-    boolean containsPoint(Point point);
+    private final ModuleManager moduleManager;
 
-    enum Point {
-        Entry, Exit, Local, First, TraceIds
+    public RecordTypeListener(ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
+    }
+
+    @Override public Class<? extends Annotation> annotation() {
+        return RecordType.class;
+    }
+
+    @Override public void notify(Class aClass) {
+        RecordProcess.INSTANCE.create(moduleManager, aClass);
     }
 }

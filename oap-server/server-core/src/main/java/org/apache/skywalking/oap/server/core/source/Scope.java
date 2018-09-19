@@ -24,5 +24,6 @@ package org.apache.skywalking.oap.server.core.source;
 public enum Scope {
     All, Service, ServiceInstance, Endpoint, ServiceRelation, ServiceInstanceRelation, EndpointRelation, NetworkAddress,
     ServiceInstanceJVMCPU, ServiceInstanceJVMMemory, ServiceInstanceJVMMemoryPool, ServiceInstanceJVMGC,
-    ServiceComponent, ServiceMapping
+    ServiceComponent, ServiceMapping,
+    Segment
 }

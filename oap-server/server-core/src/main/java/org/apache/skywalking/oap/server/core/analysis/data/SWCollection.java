@@ -18,10 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.analysis.data;
 
+import java.util.Collection;
+
 /**
  * @author peng-yongsheng
  */
-public interface Collection<Data> {
+public interface SWCollection<DATA> {
 
     void reading();
 
@@ -39,5 +41,11 @@ public interface Collection<Data> {
 
     void finishWriting();
 
-    Data collection();
+    Collection<DATA> collection();
+
+    boolean containsKey(DATA key);
+
+    DATA get(DATA key);
+
+    void put(DATA value);
 }
