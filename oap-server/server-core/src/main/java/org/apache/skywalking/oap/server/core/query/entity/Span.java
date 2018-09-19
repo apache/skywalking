@@ -16,9 +16,32 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-public enum QueryOrder {
-    BY_START_TIME,
-    BY_DURATION
+import java.util.*;
+import lombok.*;
+
+@Getter
+@Setter
+public class Span {
+    private String traceId;
+    private String segmentId;
+    private int spanId;
+    private int parentSpanId;
+    private List<Ref> refs = new ArrayList<>();
+    private String applicationCode;
+    private long startTime;
+    private long endTime;
+    private String operationName;
+    private String type;
+    private String peer;
+    private String component;
+    private boolean isError;
+    private String layer;
+    private List<KeyValue> tags = new ArrayList<>();
+    private List<LogEntity> logs = new ArrayList<>();
+    private boolean isRoot;
+    private String serviceCode;
+    private String segmentSpanId;
+    private String segmentParentSpanId;
 }

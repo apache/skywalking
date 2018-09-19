@@ -16,11 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-public class Ref {
-    private String traceId;
-    private String parentSegmentId;
-    private int parentSpanId;
-    private RefType type;
+import lombok.*;
+
+@Getter
+@Setter
+public class Pagination {
+    private int pageNum;
+    private int pageSize;
+    private boolean needTotal;
 }

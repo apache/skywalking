@@ -16,10 +16,38 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query;
 
-public enum TraceState {
-    ALL,
-    SUCCESS,
-    ERROR,
+import org.apache.skywalking.oap.server.core.query.entity.Pagination;
+
+/**
+ * @author peng-yongsheng
+ */
+public enum PaginationUtils {
+    INSTANCE;
+
+    public Page exchange(Pagination paging) {
+        int limit = paging.getPageSize();
+        int from = paging.getPageSize() * ((paging.getPageNum() == 0 ? 1 : paging.getPageNum()) - 1);
+
+        return new Page(from, limit);
+    }
+
+    public class Page {
+        private int from;
+        private int limit;
+
+        Page(int from, int limit) {
+            this.from = from;
+            this.limit = limit;
+        }
+
+        public int getFrom() {
+            return from;
+        }
+
+        public int getLimit() {
+            return limit;
+        }
+    }
 }

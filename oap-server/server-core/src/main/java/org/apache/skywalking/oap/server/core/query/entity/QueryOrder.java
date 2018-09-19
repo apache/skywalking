@@ -16,18 +16,9 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.resolver;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-import com.coxautodev.graphql.tools.GraphQLQueryResolver;
-import org.apache.skywalking.oap.query.graphql.type.*;
-import org.apache.skywalking.oap.server.core.query.entity.Pagination;
-
-public class AlarmQuery implements GraphQLQueryResolver {
-    public AlarmTrend getAlarmTrend(final Duration duration) {
-        return new AlarmTrend();
-    }
-
-    public Alarms getAlarm(final Duration duration, final Scope scope, final String keyword, final Pagination paging) {
-        return new Alarms();
-    }
+public enum QueryOrder {
+    BY_START_TIME,
+    BY_DURATION
 }

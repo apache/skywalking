@@ -16,26 +16,13 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-import java.util.List;
+import lombok.*;
 
-public class Span {
-    private String traceId;
-    private String segmentId;
-    private int spanId;
-    private int parentSpanId;
-    private List<Ref> refs;
-    private String applicationCode;
-    private long startTime;
-    private long endTime;
-    private String operationName;
-    private String type;
-    private String peer;
-    private String component;
-    private boolean isError;
-    private String layer;
-    private List<KeyValue> tags;
-    private List<LogEntity> logs;
-    private String serviceCode;
+@Getter
+@Setter
+public class KeyValue {
+    private String key;
+    private String value;
 }

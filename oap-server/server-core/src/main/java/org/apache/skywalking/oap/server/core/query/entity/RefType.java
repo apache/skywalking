@@ -16,10 +16,9 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-import java.util.List;
-
-public class Trace {
-    private List<Span> spans;
+public enum RefType {
+    CROSS_PROCESS,
+    CROSS_THREAD
 }
