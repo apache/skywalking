@@ -16,15 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-import java.util.List;
+import java.util.*;
+import lombok.*;
 
+@Getter
+@Setter
 public class BasicTrace {
     private String segmentId;
-    private List<String> operationNames;
+    private List<String> endpointNames = new ArrayList<>();
     private int duration;
     private String start;
     private boolean isError;
-    private List<String> traceIds;
+    private List<String> traceIds = new ArrayList<>();
 }

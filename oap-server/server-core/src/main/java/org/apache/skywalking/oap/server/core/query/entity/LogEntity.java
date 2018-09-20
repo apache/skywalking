@@ -16,9 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-public class KeyValue {
-    private String key;
-    private String value;
+import java.util.*;
+import lombok.*;
+
+@Getter
+@Setter
+public class LogEntity {
+    private long time;
+    private List<KeyValue> data = new ArrayList<>();
 }

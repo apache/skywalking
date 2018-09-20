@@ -31,8 +31,9 @@ public class IntKeyLongValueArray extends ArrayList<IntKeyLongValue> implements 
         super(initialCapacity);
     }
 
-    public IntKeyLongValueArray() {
+    public IntKeyLongValueArray(String data) {
         super();
+        toObject(data);
     }
 
     @Override public String toStorageData() {
