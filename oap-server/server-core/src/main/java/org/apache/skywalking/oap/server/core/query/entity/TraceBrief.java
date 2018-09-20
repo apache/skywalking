@@ -16,9 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-public enum RefType {
-    CROSS_PROCESS,
-    CROSS_THREAD
+import java.util.*;
+import lombok.*;
+
+@Setter
+@Getter
+public class TraceBrief {
+    private List<BasicTrace> traces = new ArrayList<>();
+    private int total;
 }

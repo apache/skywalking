@@ -61,7 +61,7 @@ public class GraphQLQueryProvider extends ModuleProvider {
             .file("query-protocol/topology.graphqls")
             .resolvers(new TopologyQuery(getManager()))
             .file("query-protocol/trace.graphqls")
-            .resolvers(new TraceQuery())
+            .resolvers(new TraceQuery(getManager()))
             .file("query-protocol/aggregation.graphqls")
             .resolvers(new AggregationQuery())
             .file("query-protocol/alarm.graphqls")
