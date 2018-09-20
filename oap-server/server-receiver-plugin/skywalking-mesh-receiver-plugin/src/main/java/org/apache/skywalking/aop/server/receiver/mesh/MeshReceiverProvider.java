@@ -16,9 +16,8 @@
  *
  */
 
-package org.apache.skywalking.aop.server.receiver.mesh.provider;
+package org.apache.skywalking.aop.server.receiver.mesh;
 
-import org.apache.skywalking.aop.server.receiver.mesh.module.MeshReceiverModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;

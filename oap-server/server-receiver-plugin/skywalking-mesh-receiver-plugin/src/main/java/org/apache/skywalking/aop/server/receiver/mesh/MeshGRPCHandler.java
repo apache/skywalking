@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.aop.server.receiver.mesh.provider;
+package org.apache.skywalking.aop.server.receiver.mesh;
 
 import io.grpc.stub.StreamObserver;
 import org.apache.skywalking.apm.network.servicemesh.MeshProbeDownstream;

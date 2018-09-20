@@ -30,6 +30,13 @@
     <artifactId>skywalking-istio-telemetry-receiver-plugin</artifactId>
     <packaging>jar</packaging>
 
+    <dependencies>
+        <dependency>
+            <groupId></groupId>
+            <artifactId>mesh</artifactId>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
