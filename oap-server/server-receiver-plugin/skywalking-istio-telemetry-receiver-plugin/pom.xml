@@ -32,8 +32,9 @@
 
     <dependencies>
         <dependency>
-            <groupId></groupId>
-            <artifactId>mesh</artifactId>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-mesh-receiver-plugin</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

@@ -27,6 +27,7 @@ import io.istio.api.policy.v1beta1.TypeProto;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
+import org.apache.skywalking.aop.server.receiver.mesh.TelemetryDataDispatcher;
 import org.apache.skywalking.apm.network.common.DetectPoint;
 import org.apache.skywalking.apm.network.servicemesh.Protocol;
 import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
@@ -58,7 +59,7 @@ public class IstioTelemetryGRPCHandler extends HandleMetricServiceGrpc.HandleMet
             String endpoint;
             boolean status = true;
             Protocol netProtocol;
-            if (protocol.equals("http") || protocol.equals("https")) {
+            if (protocol.equals("http") || protocol.equals("https") || requestScheme.equals("http") || requestScheme.equals("https")) {
                 endpoint = requestScheme + "/" + requestMethod + "/" + requestPath;
                 status = responseCode >= 200 && responseCode < 400;
                 netProtocol = Protocol.HTTP;
@@ -83,6 +84,9 @@ public class IstioTelemetryGRPCHandler extends HandleMetricServiceGrpc.HandleMet
                 .setDestServiceInstance(string(i, "destinationUID")).setEndpoint(endpoint).setLatency(latency)
                 .setResponseCode(Math.toIntExact(responseCode)).setStatus(status).setProtocol(netProtocol).setDetectPoint(detectPoint).build();
             logger.debug("Transformed metric {}", metric);
+
+            TelemetryDataDispatcher dispatcher = new TelemetryDataDispatcher();
+            dispatcher.process(metric);
         }
         responseObserver.onNext(ReportProto.ReportResult.newBuilder().build());
         responseObserver.onCompleted();
