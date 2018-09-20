@@ -29,10 +29,10 @@ public class Span {
     private int spanId;
     private int parentSpanId;
     private List<Ref> refs = new ArrayList<>();
-    private String applicationCode;
+    private String serviceCode;
     private long startTime;
     private long endTime;
-    private String operationName;
+    private String endpointName;
     private String type;
     private String peer;
     private String component;
@@ -41,7 +41,6 @@ public class Span {
     private List<KeyValue> tags = new ArrayList<>();
     private List<LogEntity> logs = new ArrayList<>();
     private boolean isRoot;
-    private String serviceCode;
     private String segmentSpanId;
     private String segmentParentSpanId;
 }

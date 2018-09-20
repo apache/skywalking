@@ -124,7 +124,7 @@ public class TraceQueryService implements Service {
         return trace;
     }
 
-    private List<Span> buildSpanList(String traceId, String segmentId, int applicationId,
+    private List<Span> buildSpanList(String traceId, String segmentId, int serviceId,
         List<SpanObject> spanObjects) {
         List<Span> spans = new ArrayList<>();
 
@@ -152,19 +152,19 @@ public class TraceQueryService implements Service {
                 span.setPeer(getNetworkAddressInventoryCache().get(spanObject.getPeerId()).getName());
             }
 
-            String operationName = spanObject.getOperationName();
+            String endpointName = spanObject.getOperationName();
             if (spanObject.getOperationNameId() != 0) {
                 EndpointInventory endpointInventory = getEndpointInventoryCache().get(spanObject.getOperationNameId());
                 if (nonNull(endpointInventory)) {
-                    operationName = endpointInventory.getName();
+                    endpointName = endpointInventory.getName();
                 } else {
-                    operationName = Const.EMPTY_STRING;
+                    endpointName = Const.EMPTY_STRING;
                 }
             }
-            span.setOperationName(operationName);
+            span.setEndpointName(endpointName);
 
-            String applicationCode = getServiceInventoryCache().get(applicationId).getName();
-            span.setApplicationCode(applicationCode);
+            String serviceCode = getServiceInventoryCache().get(serviceId).getName();
+            span.setServiceCode(serviceCode);
 
             if (spanObject.getComponentId() == 0) {
                 span.setComponent(spanObject.getComponent());

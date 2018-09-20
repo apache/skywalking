@@ -102,7 +102,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
             BasicTrace basicTrace = new BasicTrace();
 
             basicTrace.setSegmentId((String)searchHit.getSourceAsMap().get(SegmentRecord.SEGMENT_ID));
-//            basicTrace.setStart(((Number)searchHit.getSourceAsMap().get(SegmentRecord.START_TIME)).longValue());
+            basicTrace.setStart(String.valueOf(searchHit.getSourceAsMap().get(SegmentRecord.START_TIME)));
             basicTrace.getEndpointNames().add((String)searchHit.getSourceAsMap().get(SegmentRecord.ENDPOINT_NAME));
             basicTrace.setDuration(((Number)searchHit.getSourceAsMap().get(SegmentRecord.LATENCY)).intValue());
             basicTrace.setError(BooleanUtils.valueToBoolean(((Number)searchHit.getSourceAsMap().get(SegmentRecord.IS_ERROR)).intValue()));
