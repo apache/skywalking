@@ -60,6 +60,7 @@ public class CoreModule extends ModuleDefine {
         classes.add(TopologyQueryService.class);
         classes.add(MetricQueryService.class);
         classes.add(TraceQueryService.class);
+        classes.add(MetadataQueryService.class);
     }
 
     private void addServerInterface(List<Class> classes) {
