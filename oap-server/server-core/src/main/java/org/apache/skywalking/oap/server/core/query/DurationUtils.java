@@ -224,4 +224,20 @@ public enum DurationUtils {
 
         return durations;
     }
+
+    public long toTimestamp(Step step, String dateStr) throws ParseException {
+        switch (step) {
+            case MONTH:
+                return new SimpleDateFormat("yyyy-MM").parse(dateStr).getTime();
+            case DAY:
+                return new SimpleDateFormat("yyyy-MM-dd").parse(dateStr).getTime();
+            case HOUR:
+                return new SimpleDateFormat("yyyy-MM-dd HH").parse(dateStr).getTime();
+            case MINUTE:
+                return new SimpleDateFormat("yyyy-MM-dd HHmm").parse(dateStr).getTime();
+            case SECOND:
+                return new SimpleDateFormat("yyyy-MM-dd HHmmss").parse(dateStr).getTime();
+        }
+        throw new UnexpectedException("Unsupported step " + step.name());
+    }
 }
