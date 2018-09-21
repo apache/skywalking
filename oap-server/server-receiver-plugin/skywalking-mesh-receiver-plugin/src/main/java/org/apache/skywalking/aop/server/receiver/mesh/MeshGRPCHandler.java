@@ -35,8 +35,7 @@ public class MeshGRPCHandler extends ServiceMeshMetricServiceGrpc.ServiceMeshMet
                 if (logger.isDebugEnabled()) {
                     logger.debug("Received mesh metric: {}", metric);
                 }
-                TelemetryDataDispatcher dispatcher = new TelemetryDataDispatcher();
-                dispatcher.process(metric);
+                TelemetryDataDispatcher.preProcess(metric);
             }
 
             @Override public void onError(Throwable throwable) {

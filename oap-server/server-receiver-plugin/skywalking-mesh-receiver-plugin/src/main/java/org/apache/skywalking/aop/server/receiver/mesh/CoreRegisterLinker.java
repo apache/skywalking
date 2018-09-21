@@ -28,34 +28,34 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  * @author wusheng
  */
 public class CoreRegisterLinker {
-    private static volatile ModuleManager moduleManager;
-    private static volatile IServiceInventoryRegister serviceInventoryRegister;
-    private static volatile IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
-    private static volatile IEndpointInventoryRegister endpointInventoryRegister;
+    private static volatile ModuleManager MODULE_MANAGER;
+    private static volatile IServiceInventoryRegister SERVICE_INVENTORY_REGISTER;
+    private static volatile IServiceInstanceInventoryRegister SERVICE_INSTANCE_INVENTORY_REGISTER;
+    private static volatile IEndpointInventoryRegister ENDPOINT_INVENTORY_REGISTER;
 
     public static void setModuleManager(ModuleManager moduleManager) {
-        CoreRegisterLinker.moduleManager = moduleManager;
+        CoreRegisterLinker.MODULE_MANAGER = moduleManager;
     }
 
     public static IServiceInventoryRegister getServiceInventoryRegister() {
-        if (serviceInventoryRegister == null) {
-            serviceInventoryRegister = moduleManager.find(CoreModule.NAME).getService(IServiceInventoryRegister.class);
+        if (SERVICE_INVENTORY_REGISTER == null) {
+            SERVICE_INVENTORY_REGISTER = MODULE_MANAGER.find(CoreModule.NAME).getService(IServiceInventoryRegister.class);
         }
-        return serviceInventoryRegister;
+        return SERVICE_INVENTORY_REGISTER;
     }
 
     public static IServiceInstanceInventoryRegister getServiceInstanceInventoryRegister() {
-        if (serviceInstanceInventoryRegister == null) {
-            serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME).getService(IServiceInstanceInventoryRegister.class);
+        if (SERVICE_INSTANCE_INVENTORY_REGISTER == null) {
+            SERVICE_INSTANCE_INVENTORY_REGISTER = MODULE_MANAGER.find(CoreModule.NAME).getService(IServiceInstanceInventoryRegister.class);
         }
-        return serviceInstanceInventoryRegister;
+        return SERVICE_INSTANCE_INVENTORY_REGISTER;
     }
 
     public static IEndpointInventoryRegister getEndpointInventoryRegister() {
-        if (endpointInventoryRegister == null) {
-            endpointInventoryRegister = moduleManager.find(CoreModule.NAME).getService(IEndpointInventoryRegister.class);
+        if (ENDPOINT_INVENTORY_REGISTER == null) {
+            ENDPOINT_INVENTORY_REGISTER = MODULE_MANAGER.find(CoreModule.NAME).getService(IEndpointInventoryRegister.class);
         }
-        return endpointInventoryRegister;
+        return ENDPOINT_INVENTORY_REGISTER;
     }
 
 }

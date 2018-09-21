@@ -85,8 +85,7 @@ public class IstioTelemetryGRPCHandler extends HandleMetricServiceGrpc.HandleMet
                 .setResponseCode(Math.toIntExact(responseCode)).setStatus(status).setProtocol(netProtocol).setDetectPoint(detectPoint).build();
             logger.debug("Transformed metric {}", metric);
 
-            TelemetryDataDispatcher dispatcher = new TelemetryDataDispatcher();
-            dispatcher.process(metric);
+            TelemetryDataDispatcher.preProcess(metric);
         }
         responseObserver.onNext(ReportProto.ReportResult.newBuilder().build());
         responseObserver.onCompleted();

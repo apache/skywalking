@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
  */
 public class ServiceMeshMetricDataDecorator {
     private ServiceMeshMetric origin;
+    private ServiceMeshMetric rebuiltData;
     private ServiceMeshMetric.Builder newDataBuilder;
     private int endpointId;
 
@@ -103,10 +104,17 @@ public class ServiceMeshMetricDataDecorator {
 
     public ServiceMeshMetric getMetric() {
         if (newDataBuilder != null) {
-            return newDataBuilder.build();
+            if (rebuiltData == null) {
+                rebuiltData = newDataBuilder.build();
+            }
+            return rebuiltData;
         } else {
             return origin;
         }
+    }
+
+    public int getEndpointId() {
+        return endpointId;
     }
 
     private ServiceMeshMetric.Builder getNewDataBuilder() {

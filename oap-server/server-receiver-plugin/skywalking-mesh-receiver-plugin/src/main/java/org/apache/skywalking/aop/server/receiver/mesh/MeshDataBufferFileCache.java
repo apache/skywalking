@@ -53,8 +53,23 @@ public class MeshDataBufferFileCache implements IConsumer<ServiceMeshMetricDataD
 
     }
 
-    @Override public void consume(List<ServiceMeshMetricDataDecorator> data) {
+    public void in(ServiceMeshMetric metric) {
+        dataCarrier.produce(new ServiceMeshMetricDataDecorator(metric));
+    }
 
+    /**
+     * Queue callback, make sure concurrency doesn't happen
+     *
+     * @param data
+     */
+    @Override public void consume(List<ServiceMeshMetricDataDecorator> data) {
+        for (ServiceMeshMetricDataDecorator decorator : data) {
+            if (decorator.tryMetaDataRegister()) {
+                TelemetryDataDispatcher.doDispatch(decorator);
+            } else {
+                stream.write(decorator.getMetric());
+            }
+        }
     }
 
     @Override public void onError(List<ServiceMeshMetricDataDecorator> data, Throwable t) {
@@ -66,12 +81,17 @@ public class MeshDataBufferFileCache implements IConsumer<ServiceMeshMetricDataD
     }
 
     /**
-     * File buffer callback.
+     * File buffer callback. Block reading from buffer file, until metadata register done.
      *
      * @param message
      * @return
      */
     @Override public boolean call(ServiceMeshMetric message) {
+        ServiceMeshMetricDataDecorator decorator = new ServiceMeshMetricDataDecorator(message);
+        if (decorator.tryMetaDataRegister()) {
+            TelemetryDataDispatcher.doDispatch(decorator);
+            return true;
+        }
         return false;
     }
 }

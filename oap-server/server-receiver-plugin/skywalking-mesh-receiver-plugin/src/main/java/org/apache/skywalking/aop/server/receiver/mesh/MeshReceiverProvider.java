@@ -50,6 +50,7 @@ public class MeshReceiverProvider extends ModuleProvider {
         MeshDataBufferFileCache cache = new MeshDataBufferFileCache(config);
         try {
             cache.start();
+            TelemetryDataDispatcher.setCache(cache, getManager());
         } catch (IOException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
