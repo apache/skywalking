@@ -16,18 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.resolver;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-import com.coxautodev.graphql.tools.GraphQLQueryResolver;
-import org.apache.skywalking.oap.query.graphql.type.*;
-import org.apache.skywalking.oap.server.core.query.entity.Pagination;
+import lombok.*;
 
-public class AlarmQuery implements GraphQLQueryResolver {
-    public AlarmTrend getAlarmTrend(final Duration duration) {
-        return new AlarmTrend();
-    }
-
-    public Alarms getAlarm(final Duration duration, final Scope scope, final String keyword, final Pagination paging) {
-        return new Alarms();
-    }
+@Setter
+@Getter
+public class Ref {
+    private String traceId;
+    private String parentSegmentId;
+    private int parentSpanId;
+    private RefType type;
 }

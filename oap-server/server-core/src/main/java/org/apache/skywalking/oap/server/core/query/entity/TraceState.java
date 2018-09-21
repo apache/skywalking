@@ -16,11 +16,10 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-import java.util.List;
-
-public class TraceBrief {
-    private List<BasicTrace> traces;
-    private int total;
+public enum TraceState {
+    ALL,
+    SUCCESS,
+    ERROR,
 }
