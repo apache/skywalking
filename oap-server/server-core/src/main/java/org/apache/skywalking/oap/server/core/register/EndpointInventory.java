@@ -40,7 +40,7 @@ public class EndpointInventory extends RegisterSource {
 
     private static final String SERVICE_ID = "service_id";
     private static final String NAME = "name";
-    private static final String DETECT_POINT = "detect_point";
+    public static final String DETECT_POINT = "detect_point";
 
     @Setter @Getter @Column(columnName = SERVICE_ID) private int serviceId;
     @Setter @Getter @Column(columnName = NAME, matchQuery = true) private String name = Const.EMPTY_STRING;
