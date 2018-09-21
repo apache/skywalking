@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
 
 /**
  * TelemetryDataDispatcher processes the {@link ServiceMeshMetric} format telemetry data, transfers it to source
@@ -67,16 +68,19 @@ public class TelemetryDataDispatcher {
      * @param decorator
      */
     static void doDispatch(ServiceMeshMetricDataDecorator decorator) {
-        toService(decorator);
-        toServiceRelation(decorator);
-        toServiceInstance(decorator);
-        toServiceInstanceRelation(decorator);
-        toEndpoint(decorator);
+        ServiceMeshMetric metric = decorator.getMetric();
+        long minuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(metric.getStartTime());
+        toService(decorator, minuteTimeBucket);
+        toServiceRelation(decorator, minuteTimeBucket);
+        toServiceInstance(decorator, minuteTimeBucket);
+        toServiceInstanceRelation(decorator, minuteTimeBucket);
+        toEndpoint(decorator, minuteTimeBucket);
     }
 
-    private static void toService(ServiceMeshMetricDataDecorator decorator) {
+    private static void toService(ServiceMeshMetricDataDecorator decorator, long minuteTimeBucket) {
         ServiceMeshMetric metric = decorator.getMetric();
         Service service = new Service();
+        service.setTimeBucket(minuteTimeBucket);
         service.setId(metric.getDestServiceId());
         service.setName(getServiceName(metric.getDestServiceId(), metric.getDestServiceName()));
         service.setServiceInstanceName(getServiceInstanceName(metric.getDestServiceInstanceId(), metric.getDestServiceInstance()));
@@ -88,9 +92,10 @@ public class TelemetryDataDispatcher {
         SOURCE_RECEIVER.receive(service);
     }
 
-    private static void toServiceRelation(ServiceMeshMetricDataDecorator decorator) {
+    private static void toServiceRelation(ServiceMeshMetricDataDecorator decorator, long minuteTimeBucket) {
         ServiceMeshMetric metric = decorator.getMetric();
         ServiceRelation serviceRelation = new ServiceRelation();
+        serviceRelation.setTimeBucket(minuteTimeBucket);
         serviceRelation.setSourceServiceId(metric.getSourceServiceId());
         serviceRelation.setSourceServiceName(getServiceName(metric.getSourceServiceId(), metric.getSourceServiceName()));
         serviceRelation.setSourceServiceInstanceName(getServiceInstanceName(metric.getSourceServiceInstanceId(), metric.getSourceServiceInstance()));
@@ -109,24 +114,26 @@ public class TelemetryDataDispatcher {
         SOURCE_RECEIVER.receive(serviceRelation);
     }
 
-    private static void toServiceInstance(ServiceMeshMetricDataDecorator decorator) {
+    private static void toServiceInstance(ServiceMeshMetricDataDecorator decorator, long minuteTimeBucket) {
         ServiceMeshMetric metric = decorator.getMetric();
-        ServiceInstance service = new ServiceInstance();
-        service.setId(metric.getDestServiceId());
-        service.setName(getServiceInstanceName(metric.getDestServiceInstanceId(), metric.getDestServiceInstance()));
-        service.setServiceId(metric.getDestServiceId());
-        service.setServiceName(getServiceName(metric.getDestServiceId(), metric.getDestServiceName()));
-        service.setEndpointName(metric.getEndpoint());
-        service.setLatency(metric.getLatency());
-        service.setStatus(metric.getStatus());
-        service.setType(protocol2Type(metric.getProtocol()));
+        ServiceInstance serviceInstance = new ServiceInstance();
+        serviceInstance.setTimeBucket(minuteTimeBucket);
+        serviceInstance.setId(metric.getDestServiceId());
+        serviceInstance.setName(getServiceInstanceName(metric.getDestServiceInstanceId(), metric.getDestServiceInstance()));
+        serviceInstance.setServiceId(metric.getDestServiceId());
+        serviceInstance.setServiceName(getServiceName(metric.getDestServiceId(), metric.getDestServiceName()));
+        serviceInstance.setEndpointName(metric.getEndpoint());
+        serviceInstance.setLatency(metric.getLatency());
+        serviceInstance.setStatus(metric.getStatus());
+        serviceInstance.setType(protocol2Type(metric.getProtocol()));
 
-        SOURCE_RECEIVER.receive(service);
+        SOURCE_RECEIVER.receive(serviceInstance);
     }
 
-    private static void toServiceInstanceRelation(ServiceMeshMetricDataDecorator decorator) {
+    private static void toServiceInstanceRelation(ServiceMeshMetricDataDecorator decorator, long minuteTimeBucket) {
         ServiceMeshMetric metric = decorator.getMetric();
         ServiceInstanceRelation serviceRelation = new ServiceInstanceRelation();
+        serviceRelation.setTimeBucket(minuteTimeBucket);
         serviceRelation.setSourceServiceInstanceId(metric.getSourceServiceInstanceId());
         serviceRelation.setSourceServiceInstanceName(getServiceInstanceName(metric.getSourceServiceInstanceId(), metric.getSourceServiceInstance()));
         serviceRelation.setSourceServiceId(metric.getSourceServiceId());
@@ -147,9 +154,10 @@ public class TelemetryDataDispatcher {
         SOURCE_RECEIVER.receive(serviceRelation);
     }
 
-    private static void toEndpoint(ServiceMeshMetricDataDecorator decorator) {
+    private static void toEndpoint(ServiceMeshMetricDataDecorator decorator, long minuteTimeBucket) {
         ServiceMeshMetric metric = decorator.getMetric();
         Endpoint endpoint = new Endpoint();
+        endpoint.setTimeBucket(minuteTimeBucket);
         endpoint.setId(decorator.getEndpointId());
         endpoint.setName(metric.getEndpoint());
         endpoint.setServiceId(metric.getDestServiceId());
