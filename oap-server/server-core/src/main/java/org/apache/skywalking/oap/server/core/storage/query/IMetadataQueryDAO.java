@@ -18,10 +18,21 @@
 
 package org.apache.skywalking.oap.server.core.storage.query;
 
+import java.io.IOException;
+import java.util.List;
+import org.apache.skywalking.oap.server.core.query.entity.Service;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 
 /**
  * @author peng-yongsheng
  */
 public interface IMetadataQueryDAO extends DAO {
+
+    int numOfService(final long startTimestamp, final long endTimestamp) throws IOException;
+
+    int numOfEndpoint(final long startTimestamp, final long endTimestamp) throws IOException;
+
+    int numOfConjectural(final long startTimestamp, final long endTimestamp, final int srcLayer) throws IOException;
+
+    List<Service> getAllServices(final long startTimestamp, final long endTimestamp) throws IOException;
 }

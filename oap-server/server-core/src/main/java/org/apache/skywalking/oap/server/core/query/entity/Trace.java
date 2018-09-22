@@ -16,11 +16,12 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-import java.util.List;
+import java.util.*;
+import lombok.Getter;
 
-public class TraceBrief {
-    private List<BasicTrace> traces;
-    private int total;
+@Getter
+public class Trace {
+    private List<Span> spans = new ArrayList<>();
 }

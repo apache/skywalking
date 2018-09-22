@@ -71,7 +71,7 @@ public class IndicatorAggregateWorker extends AbstractWorker<Indicator> {
             }
         }
 
-        mergeDataCache.getLast().collection().forEach((Indicator key, Indicator data) -> {
+        mergeDataCache.getLast().collection().forEach(data -> {
             if (logger.isDebugEnabled()) {
                 logger.debug(data.toString());
             }

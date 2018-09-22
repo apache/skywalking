@@ -16,15 +16,9 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-import java.util.List;
-
-public class BasicTrace {
-    private String segmentId;
-    private List<String> operationNames;
-    private int duration;
-    private String start;
-    private boolean isError;
-    private List<String> traceIds;
+public enum RefType {
+    CROSS_PROCESS,
+    CROSS_THREAD
 }

@@ -153,7 +153,7 @@ public class AllHeatmapIndicator extends ThermodynamicIndicator implements Alarm
             AllHeatmapIndicator indicator = new AllHeatmapIndicator();
             indicator.setStep(((Number)dbMap.get("step")).intValue());
             indicator.setNumOfSteps(((Number)dbMap.get("num_of_steps")).intValue());
-            indicator.setDetailGroup((org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray)dbMap.get("detail_group"));
+            indicator.setDetailGroup(new org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray((String)dbMap.get("detail_group")));
             indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
             return indicator;
         }

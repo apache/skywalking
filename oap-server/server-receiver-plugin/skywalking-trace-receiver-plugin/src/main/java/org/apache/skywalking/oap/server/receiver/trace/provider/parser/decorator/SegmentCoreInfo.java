@@ -18,80 +18,20 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator;
 
+import lombok.*;
+
 /**
  * @author peng-yongsheng
  */
+@Getter
+@Setter
 public class SegmentCoreInfo {
     private String segmentId;
-    private String traceId;
     private int applicationId;
     private int applicationInstanceId;
     private long startTime;
     private long endTime;
     private boolean isError;
     private long minuteTimeBucket;
-
-    public String getSegmentId() {
-        return segmentId;
-    }
-
-    public void setSegmentId(String segmentId) {
-        this.segmentId = segmentId;
-    }
-
-    public int getApplicationId() {
-        return applicationId;
-    }
-
-    public void setApplicationId(int applicationId) {
-        this.applicationId = applicationId;
-    }
-
-    public int getApplicationInstanceId() {
-        return applicationInstanceId;
-    }
-
-    public void setApplicationInstanceId(int applicationInstanceId) {
-        this.applicationInstanceId = applicationInstanceId;
-    }
-
-    public long getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
-    }
-
-    public long getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(long endTime) {
-        this.endTime = endTime;
-    }
-
-    public boolean isError() {
-        return isError;
-    }
-
-    public void setError(boolean error) {
-        isError = error;
-    }
-
-    public long getMinuteTimeBucket() {
-        return minuteTimeBucket;
-    }
-
-    public void setMinuteTimeBucket(long minuteTimeBucket) {
-        this.minuteTimeBucket = minuteTimeBucket;
-    }
-
-    public String getTraceId() {
-        return traceId;
-    }
-
-    public void setTraceId(String traceId) {
-        this.traceId = traceId;
-    }
+    private byte[] dataBinary;
 }

@@ -16,9 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-public enum QueryOrder {
-    BY_START_TIME,
-    BY_DURATION
+import java.util.*;
+import lombok.*;
+
+@Getter
+@Setter
+public class BasicTrace {
+    private String segmentId;
+    private List<String> endpointNames = new ArrayList<>();
+    private int duration;
+    private String start;
+    private boolean isError;
+    private List<String> traceIds = new ArrayList<>();
 }

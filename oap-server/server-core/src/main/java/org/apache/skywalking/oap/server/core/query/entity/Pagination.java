@@ -16,11 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-import java.util.List;
+import lombok.*;
 
-public class LogEntity {
-    private long time;
-    private List<KeyValue> data;
+@Getter
+@Setter
+public class Pagination {
+    private int pageNum;
+    private int pageSize;
+    private boolean needTotal;
 }

@@ -16,11 +16,36 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.analysis.data;
 
-public class Ref {
-    private String traceId;
-    private String parentSegmentId;
-    private int parentSpanId;
-    private RefType type;
+import java.util.Collection;
+
+/**
+ * @author peng-yongsheng
+ */
+public interface SWCollection<DATA> {
+
+    void reading();
+
+    boolean isReading();
+
+    void writing();
+
+    boolean isWriting();
+
+    void clear();
+
+    int size();
+
+    void finishReading();
+
+    void finishWriting();
+
+    Collection<DATA> collection();
+
+    boolean containsKey(DATA key);
+
+    DATA get(DATA key);
+
+    void put(DATA value);
 }

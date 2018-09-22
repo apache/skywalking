@@ -16,26 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.analysis.record;
 
-import java.util.List;
+import lombok.*;
+import org.apache.skywalking.oap.server.core.storage.StorageData;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
-public class Span {
-    private String traceId;
-    private String segmentId;
-    private int spanId;
-    private int parentSpanId;
-    private List<Ref> refs;
-    private String applicationCode;
-    private long startTime;
-    private long endTime;
-    private String operationName;
-    private String type;
-    private String peer;
-    private String component;
-    private boolean isError;
-    private String layer;
-    private List<KeyValue> tags;
-    private List<LogEntity> logs;
-    private String serviceCode;
+/**
+ * @author peng-yongsheng
+ */
+public abstract class Record implements StorageData {
+
+    public static final String TIME_BUCKET = "time_bucket";
+
+    @Getter @Setter @Column(columnName = TIME_BUCKET) private long timeBucket;
 }

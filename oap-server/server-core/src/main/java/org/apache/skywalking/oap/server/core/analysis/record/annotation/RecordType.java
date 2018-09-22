@@ -16,10 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.analysis.record.annotation;
 
-public class Pagination {
-    private int pageNum;
-    private int pageSize;
-    private boolean needTotal;
+import java.lang.annotation.*;
+
+/**
+ * @author peng-yongsheng
+ */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface RecordType {
 }

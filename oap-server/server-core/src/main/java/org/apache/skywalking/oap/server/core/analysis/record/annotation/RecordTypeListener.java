@@ -16,28 +16,29 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.data;
+package org.apache.skywalking.oap.server.core.analysis.record.annotation;
+
+import java.lang.annotation.Annotation;
+import org.apache.skywalking.oap.server.core.analysis.worker.RecordProcess;
+import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
  * @author peng-yongsheng
  */
-public interface Collection<Data> {
+public class RecordTypeListener implements AnnotationListener {
 
-    void reading();
+    private final ModuleManager moduleManager;
 
-    boolean isReading();
+    public RecordTypeListener(ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
+    }
 
-    void writing();
+    @Override public Class<? extends Annotation> annotation() {
+        return RecordType.class;
+    }
 
-    boolean isWriting();
-
-    void clear();
-
-    int size();
-
-    void finishReading();
-
-    void finishWriting();
-
-    Data collection();
+    @Override public void notify(Class aClass) {
+        RecordProcess.INSTANCE.create(moduleManager, aClass);
+    }
 }
